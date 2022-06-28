@@ -2,95 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61BE455E4AE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1BBB55E4C4
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346568AbiF1NcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 09:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57194 "EHLO
+        id S1346503AbiF1Ndk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 09:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346547AbiF1Nbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 09:31:47 -0400
-Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F14F2A947
-        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 06:31:16 -0700 (PDT)
-X-QQ-mid: bizesmtp78t1656423065tqijenko
-Received: from localhost.localdomain ( [58.240.82.166])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Tue, 28 Jun 2022 21:31:03 +0800 (CST)
-X-QQ-SSF: 01400000002000G0S000B00A0000000
-X-QQ-FEAT: 4LFlwc+MlXnChWxg3oOtFJfgLn7urosoV/9rl2dk+8gxm5PSaDOW+ATgGdXwo
-        1IlJfMixzWnih6orY1V4z0UOzxhXvTCzfAUZ5HQKKsWoXzXWLJSV6hj82Ewlhe6nXlzbhE/
-        gmpovedVoA+2a1DSkKh0O1gF2SOzV9Bbj74Y9i0f2ZnNJePqj8IfLgYGM6/seRHjhJ00lfz
-        X2U54K7QgtGv1OrM2Kfs/myObSwpHy/KPU2kERdkMEvEpvmdNRIoKl8XUXdRBPZCGnSTuVr
-        aqeBsfjzn2NUxh7ntPzdsf+2fFv7n5Pmp7HeVJ4ICGvnZlqQUwT2UohDM5ZEByThQqk+oh1
-        /OYA+IUyCrJjYMUYAOx6G2/0Rc9grKYQUg/fXrsG2ZMY4zZg4eLpiy3C1tZEXaH32erz1D8
-X-QQ-GoodBg: 2
-From:   Meng Tang <tangmeng@uniontech.com>
-To:     stable@vger.kernel.org, tony0620emma@gmail.com,
-        kvalo@codeaurora.org, davem@davemloft.net, kuba@kernel.org
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Meng Tang <tangmeng@uniontech.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        masterzorag <masterzorag@gmail.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 3/3] commit e109e3617e5d ("rtw88: rtw8821c: enable rfe 6 devices")
-Date:   Tue, 28 Jun 2022 21:30:46 +0800
-Message-Id: <20220628133046.2474-3-tangmeng@uniontech.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20220628133046.2474-1-tangmeng@uniontech.com>
-References: <20220628133046.2474-1-tangmeng@uniontech.com>
+        with ESMTP id S1346558AbiF1NdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 09:33:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C73517597;
+        Tue, 28 Jun 2022 06:33:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCF3A61840;
+        Tue, 28 Jun 2022 13:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20892C3411D;
+        Tue, 28 Jun 2022 13:33:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656423181;
+        bh=vy3vuOmznWhEncPhENdIaQ8B4RXL0dQ2DU1vhKaw1wI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Y4XsWQD1zmi+SuFbeJ2RykJ9dWBaMzWEmTVs23IF4PWHmoayVxci28MQxiDiVXFaI
+         YTTzC1R0uZOzpCBgoo3Uk/vTErquLXkYaLmDMQgKioT6+LoYc6BI+b4wqasI8uqE86
+         UuXLS3orUpGW3WONEmJ1G+xN6tfpZ6bQIeQzReDDOcLH+69V4PHRZn7OCFdELqo+H1
+         coitz3iAazmVnU7Uu7ljQJVBsVr9NVJrh7dPTObH1IQRvPM6ZsY0P3MpGPwop9F2E4
+         9fnRy0YTKILmijwGUj4qCXVQwha+5A2yDwHmtkVYnTIxTiBGnxrivSc4h03EWdWl2p
+         9ZX7rwA0BnKtw==
+Date:   Tue, 28 Jun 2022 09:32:59 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        John Fastabend <john.fastabend@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH 5.18 097/181] Revert "net/tls: fix tls_sk_proto_close
+ executed repeatedly"
+Message-ID: <YrsDCwxiIqm1N9K+@sashalap>
+References: <20220627111944.553492442@linuxfoundation.org>
+ <20220627111947.372126973@linuxfoundation.org>
+ <20220627083313.285787a5@kernel.org>
+ <YrnRxxAUbk8fdjac@kroah.com>
+ <20220627085728.643737fb@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybgforeign:qybgforeign10
-X-QQ-Bgrelay: 1
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,PDS_BTC_ID,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20220627085728.643737fb@kernel.org>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These commits can fix the problem of wifi not loading properly, so I think
-that 5.10 need to merge these commits.
+On Mon, Jun 27, 2022 at 08:57:28AM -0700, Jakub Kicinski wrote:
+>On Mon, 27 Jun 2022 17:50:31 +0200 Greg Kroah-Hartman wrote:
+>> On Mon, Jun 27, 2022 at 08:33:13AM -0700, Jakub Kicinski wrote:
+>> > On Mon, 27 Jun 2022 13:21:10 +0200 Greg Kroah-Hartman wrote:
+>> > > From: Jakub Kicinski <kuba@kernel.org>
+>> > >
+>> > > [ Upstream commit 1b205d948fbb06a7613d87dcea0ff5fd8a08ed91 ]
+>> > >
+>> > > This reverts commit 69135c572d1f84261a6de2a1268513a7e71753e2.
+>> > >
+>> > > This commit was just papering over the issue, ULP should not
+>> > > get ->update() called with its own sk_prot. Each ULP would
+>> > > need to add this check.
+>> > >
+>> > > Fixes: 69135c572d1f ("net/tls: fix tls_sk_proto_close executed repeatedly")
+>> > > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+>> >
+>> > Mm? How did 69135c572d1f get into stableh?
+>> > I reverted it before it hit Linus's tree.
+>> > Don't see the notification about it either.
+>>
+>> It is commit 075/181 in this series as you can see here:
+>> 	https://lore.kernel.org/r/20220627111946.738369250@linuxfoundation.org
+>
+>Argh, I forgot I'm not gonna get CCed if my tags aren't on the
+>commit in question, sorry for the confusion.
+>
+>So I expected patches 075 and 097 would just get dropped since
+>they are in the same series and are canceling each other out.
+>But I guess people may edit reverts so you prefer not to
+>automatically do that?
 
-Ping-Ke Shih answered[1] a question for a user about an rtl8821ce device that
-reported RFE 6, which the driver did not support. Ping-Ke suggested a possible
-fix, but the user never reported back.
+It's also the case that it's useful for historical purposes to keep
+track of why a certain commit made it in or not.
 
-A second user discovered the above thread and tested the proposed fix.
-Accordingly, I am pushing this change, even though I am not the author.
-
-[1] https://lore.kernel.org/linux-wireless/3f5e2f6eac344316b5dd518ebfea2f95@realtek.com/
-
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Reported-and-tested-by: masterzorag <masterzorag@gmail.com>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220107024739.20967-1-Larry.Finger@lwfinger.net
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
----
- drivers/net/wireless/realtek/rtw88/rtw8821c.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8821c.c b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-index 9c8fbc96f536..cbb4c761c5cb 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-@@ -1468,6 +1468,7 @@ static const struct rtw_rfe_def rtw8821c_rfe_defs[] = {
- 	[0] = RTW_DEF_RFE(8821c, 0, 0),
- 	[2] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
- 	[4] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-+	[6] = RTW_DEF_RFE(8821c, 0, 0),
- };
- 
- static struct rtw_hw_reg rtw8821c_dig[] = {
 -- 
-2.20.1
-
-
-
+Thanks,
+Sasha
