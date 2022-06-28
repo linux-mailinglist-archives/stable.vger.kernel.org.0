@@ -2,88 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E6C55D0D4
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A695A55D0FF
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:08:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244795AbiF1CbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:31:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40974 "EHLO
+        id S1343853AbiF1Ct5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244929AbiF1C2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F1D25582;
-        Mon, 27 Jun 2022 19:27:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 914E3B81C00;
-        Tue, 28 Jun 2022 02:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA345C36AE5;
-        Tue, 28 Jun 2022 02:27:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383248;
-        bh=rrDhxUZ7JRFCLEk5L6AChGIzQ8M4z5nHZqc1JCT5t+0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgnkk7tDsQ1VknCu282j2UlGrhAoQtCnZIFA6ELmih37VPeYJglYDYnRc09iOVH3o
-         SEOcRFTd5A/uY7Z0pABHRw/qVODumQUimaFLwdGt+mVfvpyVkmULmNXy+zorqR8+GX
-         4EbUniNve4Crel29hUbUQa3ITUuSjXW1VKzk3hKtN82OGXCXfk/qzTZ4rSaEGHK8Ub
-         1EJqVJXyL3VAeYY8Rr7bW31NkfdGfDzW5W8QBDLlC+fkVZKKgmiaUao3pNc0+A9plY
-         /DqrY4cSn3hxVIl1jiIasbJrCjlnUXTRBeD9Hb7T7vhf1tHhngpG/ODJ9IPSISatt8
-         TzKob27GgYlcQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/13] mips: lantiq: Add missing of_node_put() in irq.c
-Date:   Mon, 27 Jun 2022 22:26:56 -0400
-Message-Id: <20220628022657.597208-12-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220628022657.597208-1-sashal@kernel.org>
-References: <20220628022657.597208-1-sashal@kernel.org>
+        with ESMTP id S1343815AbiF1Ctv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:49:51 -0400
+Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6735B10EC
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 19:49:47 -0700 (PDT)
+Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-fb6b4da1dfso15405824fac.4
+        for <stable@vger.kernel.org>; Mon, 27 Jun 2022 19:49:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=omhesUeqSl6JODFUBkHgNv2EMm6rR/1o7aoGMnPTWAc=;
+        b=KRRqPxOE6TtTEnKo4/F9m2Kq/wHr7oCufMYzyjfVPFKzj7QN1FR52G83rdmffkNOu0
+         8E4S4ZDaJ2JiwIfTpVsa2sFP6qclOcdt9BZYj9qDYMS9CjsiDQ31VaUdU+iofhxLdOA/
+         gjniueTH8mpQr2Gb3Ru84pwE80Nl1ja+cYnPA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=omhesUeqSl6JODFUBkHgNv2EMm6rR/1o7aoGMnPTWAc=;
+        b=Wp6g38afuN4ae1rCNJVpkHGtliazGF8Oc43l/YgoRG+bBTYXuzIkFM1P546WPetYEI
+         Jm9fE+jQAnp8kzZ+sK79MntIWvuN434gVNyhk1IpUbFZFj1QCpdFh8HonnHiCVGh3rQm
+         qkzzjKhWcZuFv7xIw9RCbGaDIZglOA70eKExoeNLQPvsoVnHpUxd9u08MUYaABzvwwI2
+         Nycm3GlbPJjIqjTNtYlTtZz74UtkSt0/4Eyb1hIJOL0Z9tQMccB3o6FMVtot7Y9zBsEi
+         cvGTe8C4qQ4Ok6jIqbRQnpp89yzw5gS7vGyKMx3CMQAANXCDTrUfLtCBnNRWjQuIJv4O
+         IQtw==
+X-Gm-Message-State: AJIora/Vq7lbK6i0P1MDe1BPMiv7BHBHEttXgpaZ71Sush1vXixjzFH2
+        6pkH+Vfc7mYy3Yq9zKFBL/dJ8w==
+X-Google-Smtp-Source: AGRyM1uH55IwiERIY2IjWQ3oihHykzMB6Fx6gt+EEsvFU3RsRMNVUHvx2/sZ7VVZLkYphtLL2TtsFw==
+X-Received: by 2002:a05:6870:5809:b0:101:ce10:b267 with SMTP id r9-20020a056870580900b00101ce10b267mr12329014oap.83.1656384586506;
+        Mon, 27 Jun 2022 19:49:46 -0700 (PDT)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id w70-20020acaad49000000b003351fa55a58sm6217794oie.16.2022.06.27.19.49.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jun 2022 19:49:45 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Mon, 27 Jun 2022 21:49:43 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 000/181] 5.18.8-rc1 review
+Message-ID: <YrpsRzmt+O4/gvdi@fedora64.linuxtx.org>
+References: <20220627111944.553492442@linuxfoundation.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220627111944.553492442@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+On Mon, Jun 27, 2022 at 01:19:33PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.8 release.
+> There are 181 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 29 Jun 2022 11:19:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.8-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-[ Upstream commit 3748d2185ac4c2c6f80989672253aad909ecaf95 ]
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-In icu_of_init(), of_find_compatible_node() will return a node
-pointer with refcount incremented. We should use of_node_put()
-when it is not used anymore.
-
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/mips/lantiq/irq.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
-index e64f678ca12c..e29dc58271b2 100644
---- a/arch/mips/lantiq/irq.c
-+++ b/arch/mips/lantiq/irq.c
-@@ -460,6 +460,7 @@ int __init icu_of_init(struct device_node *node, struct device_node *parent)
- 		if (!ltq_eiu_membase)
- 			panic("Failed to remap eiu memory");
- 	}
-+	of_node_put(eiu_node);
- 
- 	return 0;
- }
--- 
-2.35.1
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
