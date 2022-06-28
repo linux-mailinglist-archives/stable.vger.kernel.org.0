@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7569355C3DB
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 14:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D94B55CD21
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243562AbiF1CWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243549AbiF1CWp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jun 2022 22:22:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60868 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243608AbiF1CVa (ORCPT
+        with ESMTP id S243609AbiF1CVa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:21:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0662724F12;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B8924F13;
         Mon, 27 Jun 2022 19:21:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8162B818E4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B78CF617CA;
+        Tue, 28 Jun 2022 02:21:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17A15C341CC;
         Tue, 28 Jun 2022 02:21:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3FDAC34115;
-        Tue, 28 Jun 2022 02:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382876;
-        bh=HrcPwdqzux1SSIv3OoIU5/I4Yj+Y6VDA1+xfrZ+URJw=;
+        s=k20201202; t=1656382878;
+        bh=WfxWBIpku8sGa/2eIW1WWz589oUqjHx3Q1CNU29m1JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abjSLgl+tF79sOVhZZwD9wOGW1+Gmsg+gUExF2IocDwI7cOFyAQJEZ+14jmA7lAwf
-         QbTNToAsYtCLGtrH1DDqr2t/sHC4B34fzaLXrIF8H2gCDG4S1hdDp+Cf9ojYbkmU+p
-         oTsLqEcX+86Q/ciD+3a0+O7VEL4Gzf8bZUHhYDlYyoEsfxrPJXI+1AnnNGKyB5kUYG
-         N5m+9+P62GADtdrqpARBZdPv2cT53tuUhe5yjIFAgRfp3r90zNQPSubc1MjG953TV9
-         wHB3SPU2YNauTkh1oERJDB2A/sboGJZvhxNePHaeLbM6gDUJfq0ffCaipqs6OgAHHw
-         Vk8qx+pm+O/5g==
+        b=hjnboY9tSpK7XaeW8TiZiagiHS+RGapQkiizRHdNzknL6bVEKCSlNEdtsgNEmI07G
+         kcdoSuBr1bYLV1eqa/sNeA6y+qP8U9d3IWD3+5ea1qHVJaDs5pBcH1Nc8ZXxpZLQne
+         eSwO93REtXwdERhnPXX3i8ZE+qI9rSGytpbdlIpKjmLRNPT71bkhPeP5mFKnkOVQ9y
+         Ly2y7ISuu/A7W6DtyussYyarDRPX5pReYdgUhHM4HNTP/BGsckaRtbUCMzDO4W272z
+         iwLzMDMk2ijcw9bc9ni7/LTrQzrJm+P4AgH/oowxA278EK4X2wAjl495LSanKuFnkV
+         DyqjPkZlAqdXg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.15 07/41] bus: bt1-axi: Don't print error on -EPROBE_DEFER
-Date:   Mon, 27 Jun 2022 22:20:26 -0400
-Message-Id: <20220628022100.595243-7-sashal@kernel.org>
+Cc:     Maxime Ripard <maxime@cerno.tech>, Melissa Wen <mwen@igalia.com>,
+        Sasha Levin <sashal@kernel.org>, emma@anholt.net,
+        mripard@kernel.org, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 08/41] drm/vc4: plane: Prevent async update if we don't have a dlist
+Date:   Mon, 27 Jun 2022 22:20:27 -0400
+Message-Id: <20220628022100.595243-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628022100.595243-1-sashal@kernel.org>
 References: <20220628022100.595243-1-sashal@kernel.org>
@@ -55,55 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 5e93207e962a6d23893ff4405f6c5d4396fb5934 ]
+[ Upstream commit cb468c7d84d174ab9cd638be9f5b3f1ba2b311a0 ]
 
-The Baikal-T1 AXI bus driver correctly handles the deferred probe
-situation, but still pollutes the system log with a misleading error
-message. Let's fix that by using the dev_err_probe() method to print the
-log message in case of the clocks/resets request errors.
+The vc4 planes are setup in hardware by creating a hardware descriptor
+in a dedicated RAM. As part of the process to setup a plane in KMS, we
+thus need to allocate some part of that dedicated RAM to store our
+descriptor there.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20220610104030.28399-2-Sergey.Semin@baikalelectronics.ru'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+The async update path will just reuse the descriptor already allocated
+for that plane and will modify it directly in RAM to match whatever has
+been asked for.
+
+In order to do that, it will compare the descriptor for the old plane
+state and the new plane state, will make sure they fit in the same size,
+and check that only the position or buffer address have changed.
+
+Reviewed-by: Melissa Wen <mwen@igalia.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220610115149.964394-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/bt1-axi.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/vc4/vc4_plane.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/bus/bt1-axi.c b/drivers/bus/bt1-axi.c
-index e7a6744acc7b..70e49a6e5374 100644
---- a/drivers/bus/bt1-axi.c
-+++ b/drivers/bus/bt1-axi.c
-@@ -135,10 +135,9 @@ static int bt1_axi_request_rst(struct bt1_axi *axi)
- 	int ret;
+diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_plane.c
+index 19161b6ab27f..c085c750f1e9 100644
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -1219,6 +1219,10 @@ static int vc4_plane_atomic_async_check(struct drm_plane *plane,
  
- 	axi->arst = devm_reset_control_get_optional_exclusive(axi->dev, "arst");
--	if (IS_ERR(axi->arst)) {
--		dev_warn(axi->dev, "Couldn't get reset control line\n");
--		return PTR_ERR(axi->arst);
--	}
-+	if (IS_ERR(axi->arst))
-+		return dev_err_probe(axi->dev, PTR_ERR(axi->arst),
-+				     "Couldn't get reset control line\n");
- 
- 	ret = reset_control_deassert(axi->arst);
- 	if (ret)
-@@ -159,10 +158,9 @@ static int bt1_axi_request_clk(struct bt1_axi *axi)
- 	int ret;
- 
- 	axi->aclk = devm_clk_get(axi->dev, "aclk");
--	if (IS_ERR(axi->aclk)) {
--		dev_err(axi->dev, "Couldn't get AXI Interconnect clock\n");
--		return PTR_ERR(axi->aclk);
--	}
-+	if (IS_ERR(axi->aclk))
-+		return dev_err_probe(axi->dev, PTR_ERR(axi->aclk),
-+				     "Couldn't get AXI Interconnect clock\n");
- 
- 	ret = clk_prepare_enable(axi->aclk);
- 	if (ret) {
+ 	old_vc4_state = to_vc4_plane_state(plane->state);
+ 	new_vc4_state = to_vc4_plane_state(new_plane_state);
++
++	if (!new_vc4_state->hw_dlist)
++		return -EINVAL;
++
+ 	if (old_vc4_state->dlist_count != new_vc4_state->dlist_count ||
+ 	    old_vc4_state->pos0_offset != new_vc4_state->pos0_offset ||
+ 	    old_vc4_state->pos2_offset != new_vc4_state->pos2_offset ||
 -- 
 2.35.1
 
