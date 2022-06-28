@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A60155D402
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FC455CD78
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244578AbiF1C3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244598AbiF1C3f (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Jun 2022 22:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40660 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243909AbiF1C07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:26:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B369D25C4A;
-        Mon, 27 Jun 2022 19:24:32 -0700 (PDT)
+        with ESMTP id S244519AbiF1C1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:27:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A97324BDC;
+        Mon, 27 Jun 2022 19:24:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71E4EB81C10;
-        Tue, 28 Jun 2022 02:24:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AEEC385A5;
-        Tue, 28 Jun 2022 02:24:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45A58B81C14;
+        Tue, 28 Jun 2022 02:24:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75A5C341CB;
+        Tue, 28 Jun 2022 02:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383070;
-        bh=YSTDIn/5O6g5zdHv0HGS4i2zvubu/9DcS+C044Q9JGI=;
+        s=k20201202; t=1656383072;
+        bh=F5PklHD+9cTDpXg9Leq80IrJfmRoAeSbs4nZU72r4SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Buie6uFb2VplUamp8xnEYGxNpNitiBaLZu7VCPn9w4DsdghrjyjQQlL3o4oSAAd6Z
-         3rssWq2X1GA3vxNydYGPR+rVR0xhqnnu0cdYhwINVlwiX50Df5v1ucCxvlyPpj6Giq
-         YFs9Je6OxghaxPfrjrZ4DxhrgLgPsEfFL6UbeRTTVQFbzIlKbfxYS9CFcRgTXkOmua
-         I9mszlru5zPQAtWWaolySASyzxPdL/tVhHjEbcdLoLzXrDXmEkOt2Jgqcbwk/N4ut+
-         9TZCDHM0ZQrHVRhDQcGilpl3x2YljkcfQHNBLHkKUYszrkKrrlAEYfz4+8+SfcoTBH
-         5QRL2ayOn4dGg==
+        b=pLnMyXQKpD3myhHY1lrGZdpeopIDQRowpfR2A+P4elec71k6VGIlvAVOMfwY+p0Fg
+         6wqfn50EWX7K++wp4CYuTxz3DbtembSd5o/t1ZaK5Knagj/uN2tFUTtXeQNXaqohEb
+         AeiYlm61LxW46Fiu+EJjVAf1ZXGtKUCkbe6ArQhjqzjnT8wQxeSwwt/HIhOh5Ycvak
+         Ylcwj9prz+zIQuRFr3Wl4Ho2R+26LfLIKWI4sXzfmqwQ72YfzJsJii7nqqKtEQQotv
+         ySaAcSAQ9yQnYI925hXDyvZsF7m96rhwcfouG6d1HJuDlGk7tVTt2Gzd7OA6/IAmxO
+         vdaBVHsYkpOaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, nizhen@uniontech.com,
-        jiasheng@iscas.ac.cn, gushengxian@yulong.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 07/27] ALSA: x86: intel_hdmi_audio: use pm_runtime_resume_and_get()
-Date:   Mon, 27 Jun 2022 22:23:53 -0400
-Message-Id: <20220628022413.596341-7-sashal@kernel.org>
+Cc:     Xu Jia <xujia39@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, ajk@comnets.uni-bremen.de,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linux-hams@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/27] hamradio: 6pack: fix array-index-out-of-bounds in decode_std_command()
+Date:   Mon, 27 Jun 2022 22:23:54 -0400
+Message-Id: <20220628022413.596341-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628022413.596341-1-sashal@kernel.org>
 References: <20220628022413.596341-1-sashal@kernel.org>
@@ -61,53 +58,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Xu Jia <xujia39@huawei.com>
 
-[ Upstream commit bb30b453fedac277d66220431fd7063d9ddc10d8 ]
+[ Upstream commit 2b04495e21cdb9b45c28c6aeb2da560184de20a3 ]
 
-The current code does not check for errors and does not release the
-reference on errors.
+Hulk Robot reports incorrect sp->rx_count_cooked value in decode_std_command().
+This should be caused by the subtracting from sp->rx_count_cooked before.
+It seems that sp->rx_count_cooked value is changed to 0, which bypassed the
+previous judgment.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20220616222910.136854-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The situation is shown below:
+
+         (Thread 1)			|  (Thread 2)
+decode_std_command()		| resync_tnc()
+...					|
+if (rest == 2)			|
+	sp->rx_count_cooked -= 2;	|
+else if (rest == 3)			| ...
+					| sp->rx_count_cooked = 0;
+	sp->rx_count_cooked -= 1;	|
+for (i = 0; i < sp->rx_count_cooked; i++) // report error
+	checksum += sp->cooked_buf[i];
+
+sp->rx_count_cooked is a shared variable but is not protected by a lock.
+The same applies to sp->rx_count. This patch adds a lock to fix the bug.
+
+The fail log is shown below:
+=======================================================================
+UBSAN: array-index-out-of-bounds in drivers/net/hamradio/6pack.c:925:31
+index 400 is out of range for type 'unsigned char [400]'
+CPU: 3 PID: 7433 Comm: kworker/u10:1 Not tainted 5.18.0-rc5-00163-g4b97bac0756a #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+Workqueue: events_unbound flush_to_ldisc
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xcd/0x134
+ ubsan_epilogue+0xb/0x50
+ __ubsan_handle_out_of_bounds.cold+0x62/0x6c
+ sixpack_receive_buf+0xfda/0x1330
+ tty_ldisc_receive_buf+0x13e/0x180
+ tty_port_default_receive_buf+0x6d/0xa0
+ flush_to_ldisc+0x213/0x3f0
+ process_one_work+0x98f/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e9/0x3a0
+ ret_from_fork+0x1f/0x30
+ ...
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xu Jia <xujia39@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/x86/intel_hdmi_audio.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/hamradio/6pack.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/sound/x86/intel_hdmi_audio.c b/sound/x86/intel_hdmi_audio.c
-index f16e936559c3..e6f6a1b59047 100644
---- a/sound/x86/intel_hdmi_audio.c
-+++ b/sound/x86/intel_hdmi_audio.c
-@@ -1067,7 +1067,9 @@ static int had_pcm_open(struct snd_pcm_substream *substream)
- 	intelhaddata = snd_pcm_substream_chip(substream);
- 	runtime = substream->runtime;
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 83dc1c2c3b84..d92df9bafbbd 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -99,6 +99,7 @@ struct sixpack {
  
--	pm_runtime_get_sync(intelhaddata->dev);
-+	retval = pm_runtime_resume_and_get(intelhaddata->dev);
-+	if (retval < 0)
-+		return retval;
+ 	unsigned int		rx_count;
+ 	unsigned int		rx_count_cooked;
++	spinlock_t		rxlock;
  
- 	/* set the runtime hw parameter with local snd_pcm_hardware struct */
- 	runtime->hw = had_pcm_hardware;
-@@ -1568,8 +1570,12 @@ static void had_audio_wq(struct work_struct *work)
- 		container_of(work, struct snd_intelhad, hdmi_audio_wq);
- 	struct intel_hdmi_lpe_audio_pdata *pdata = ctx->dev->platform_data;
- 	struct intel_hdmi_lpe_audio_port_pdata *ppdata = &pdata->port[ctx->port];
-+	int ret;
-+
-+	ret = pm_runtime_resume_and_get(ctx->dev);
-+	if (ret < 0)
-+		return;
+ 	int			mtu;		/* Our mtu (to spot changes!) */
+ 	int			buffsize;       /* Max buffers sizes */
+@@ -570,6 +571,7 @@ static int sixpack_open(struct tty_struct *tty)
+ 	sp->dev = dev;
  
--	pm_runtime_get_sync(ctx->dev);
- 	mutex_lock(&ctx->mutex);
- 	if (ppdata->pipe < 0) {
- 		dev_dbg(ctx->dev, "%s: Event: HAD_NOTIFY_HOT_UNPLUG : port = %d\n",
+ 	spin_lock_init(&sp->lock);
++	spin_lock_init(&sp->rxlock);
+ 	refcount_set(&sp->refcnt, 1);
+ 	init_completion(&sp->dead);
+ 
+@@ -925,6 +927,7 @@ static void decode_std_command(struct sixpack *sp, unsigned char cmd)
+ 			sp->led_state = 0x60;
+ 			/* fill trailing bytes with zeroes */
+ 			sp->tty->ops->write(sp->tty, &sp->led_state, 1);
++			spin_lock_bh(&sp->rxlock);
+ 			rest = sp->rx_count;
+ 			if (rest != 0)
+ 				 for (i = rest; i <= 3; i++)
+@@ -942,6 +945,7 @@ static void decode_std_command(struct sixpack *sp, unsigned char cmd)
+ 				sp_bump(sp, 0);
+ 			}
+ 			sp->rx_count_cooked = 0;
++			spin_unlock_bh(&sp->rxlock);
+ 		}
+ 		break;
+ 	case SIXP_TX_URUN: printk(KERN_DEBUG "6pack: TX underrun\n");
+@@ -971,8 +975,11 @@ sixpack_decode(struct sixpack *sp, const unsigned char *pre_rbuff, int count)
+ 			decode_prio_command(sp, inbyte);
+ 		else if ((inbyte & SIXP_STD_CMD_MASK) != 0)
+ 			decode_std_command(sp, inbyte);
+-		else if ((sp->status & SIXP_RX_DCD_MASK) == SIXP_RX_DCD_MASK)
++		else if ((sp->status & SIXP_RX_DCD_MASK) == SIXP_RX_DCD_MASK) {
++			spin_lock_bh(&sp->rxlock);
+ 			decode_data(sp, inbyte);
++			spin_unlock_bh(&sp->rxlock);
++		}
+ 	}
+ }
+ 
 -- 
 2.35.1
 
