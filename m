@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4490655DAC1
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A87555D735
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243751AbiF1CVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:21:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60090 "EHLO
+        id S243758AbiF1CVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243546AbiF1CVC (ORCPT
+        with ESMTP id S243624AbiF1CVC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:21:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680D8248F4;
-        Mon, 27 Jun 2022 19:20:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B63A248ED;
+        Mon, 27 Jun 2022 19:20:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2740EB81C00;
-        Tue, 28 Jun 2022 02:20:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0CBDC34115;
-        Tue, 28 Jun 2022 02:20:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7BA0B81C11;
+        Tue, 28 Jun 2022 02:20:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6637FC341CB;
+        Tue, 28 Jun 2022 02:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382837;
-        bh=68ZwGMkiTQ4WiZliGaeSvWkF9qOSYACIa9KHDhXgwmc=;
+        s=k20201202; t=1656382839;
+        bh=Qh0S2NjYTifZ2sQz7K7IvjYLERBcnF9G+SrjoWyNTY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=griqNEBeoQr7BUxu8FtQHrQ1ky+xJh+SI7gdaj5ZmdWrs9C4WDWrxoZ9+0EEQAv5P
-         A39jt4t9vJyoPc43DmYVAYu13Cq315e3N0O7coDy0bMi8hJyxPuQaV5nwlet9Tlt/d
-         bQcruNSiEypCm9Io3qUHne/+I+0uRS1ugNHkB7pt5zgEDaQ9Z9g/XHky7vy0PkE866
-         8FqHRz8nOuTqEEJuA8/fWRmuK/jee28vhnbv6UMBEzFIcd837w6PyW4M3TVpZdNUNl
-         t5nZitTvVqmqLDYb/BrWmD/OzCqu3smVPwv+1oaVGodd8FhZP2y3F1YIOhlMDgoTHi
-         LI91+frjZ+O9A==
+        b=XJrZClr1xs3Dtj51lZ6r/ZeVRFlquX5zD24i0daQDiG67nHTUKcXM+BzbDmalRPlA
+         TBDUUk9/DiG0dqdrE/OWXDVhIDwG2KExuMGVPcmMPCf00ZenfjiEHuA5/36zlVNzVa
+         EhcM0KGChjEL7GGsFzA4Pafswamw5F6h3OX0tAwWGY87vWR36+CpBq3NGpYshAzIXg
+         fWXqj/PKEukuyc3cqRZ+dVYKQ/Qp8DUT7gIifYxxKqxQHWgCqxMzAWqrCXHTfc33uD
+         GcuS+gUTL4C1zXoru5V1Jzig6SETRFP2PP86CcUnf4z6/FfRV/3BzF/109u9OKn8Zn
+         v42Mk/Bc9VsJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>,
+Cc:     Aidan MacDonald <aidanmacdonald.0x0@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, yangtiezhu@loongson.cn,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 44/53] mips/pic32/pic32mzda: Fix refcount leak bugs
-Date:   Mon, 27 Jun 2022 22:18:30 -0400
-Message-Id: <20220628021839.594423-44-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 45/53] mips: dts: ingenic: Add TCU clock to x1000/x1830 tcu device node
+Date:   Mon, 27 Jun 2022 22:18:31 -0400
+Message-Id: <20220628021839.594423-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220628021839.594423-1-sashal@kernel.org>
 References: <20220628021839.594423-1-sashal@kernel.org>
@@ -57,61 +59,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 
-[ Upstream commit eb9e9bc4fa5fb489c92ec588b3fb35f042ba6d86 ]
+[ Upstream commit db30dc1a5226eb74d52f748989e9a06451333678 ]
 
-of_find_matching_node(), of_find_compatible_node() and
-of_find_node_by_path() will return node pointers with refcout
-incremented. We should call of_node_put() when they are not
-used anymore.
+This clock is a gate for the TCU hardware block on these SoCs, but
+it wasn't included in the device tree since the ingenic-tcu driver
+erroneously did not request it.
 
-Signed-off-by: Liang He <windhl@126.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Aidan MacDonald <aidanmacdonald.0x0@gmail.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/pic32/pic32mzda/init.c | 7 ++++++-
- arch/mips/pic32/pic32mzda/time.c | 3 +++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ arch/mips/boot/dts/ingenic/x1000.dtsi | 5 +++--
+ arch/mips/boot/dts/ingenic/x1830.dtsi | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 129915616763..d9c8c4e46aff 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -98,13 +98,18 @@ static int __init pic32_of_prepare_platform_data(struct of_dev_auxdata *lookup)
- 		np = of_find_compatible_node(NULL, NULL, lookup->compatible);
- 		if (np) {
- 			lookup->name = (char *)np->name;
--			if (lookup->phys_addr)
-+			if (lookup->phys_addr) {
-+				of_node_put(np);
- 				continue;
-+			}
- 			if (!of_address_to_resource(np, 0, &res))
- 				lookup->phys_addr = res.start;
-+			of_node_put(np);
- 		}
- 	}
+diff --git a/arch/mips/boot/dts/ingenic/x1000.dtsi b/arch/mips/boot/dts/ingenic/x1000.dtsi
+index 8bd27edef216..c69df8eb158e 100644
+--- a/arch/mips/boot/dts/ingenic/x1000.dtsi
++++ b/arch/mips/boot/dts/ingenic/x1000.dtsi
+@@ -111,8 +111,9 @@ tcu: timer@10002000 {
  
-+	of_node_put(root);
-+
- 	return 0;
- }
+ 		clocks = <&cgu X1000_CLK_RTCLK>,
+ 			 <&cgu X1000_CLK_EXCLK>,
+-			 <&cgu X1000_CLK_PCLK>;
+-		clock-names = "rtc", "ext", "pclk";
++			 <&cgu X1000_CLK_PCLK>,
++			 <&cgu X1000_CLK_TCU>;
++		clock-names = "rtc", "ext", "pclk", "tcu";
  
-diff --git a/arch/mips/pic32/pic32mzda/time.c b/arch/mips/pic32/pic32mzda/time.c
-index 7174e9abbb1b..777b515c52c8 100644
---- a/arch/mips/pic32/pic32mzda/time.c
-+++ b/arch/mips/pic32/pic32mzda/time.c
-@@ -32,6 +32,9 @@ static unsigned int pic32_xlate_core_timer_irq(void)
- 		goto default_map;
+ 		interrupt-controller;
+ 		#interrupt-cells = <1>;
+diff --git a/arch/mips/boot/dts/ingenic/x1830.dtsi b/arch/mips/boot/dts/ingenic/x1830.dtsi
+index 2595df8671c7..4408df24ca98 100644
+--- a/arch/mips/boot/dts/ingenic/x1830.dtsi
++++ b/arch/mips/boot/dts/ingenic/x1830.dtsi
+@@ -104,8 +104,9 @@ tcu: timer@10002000 {
  
- 	irq = irq_of_parse_and_map(node, 0);
-+
-+	of_node_put(node);
-+
- 	if (!irq)
- 		goto default_map;
+ 		clocks = <&cgu X1830_CLK_RTCLK>,
+ 			 <&cgu X1830_CLK_EXCLK>,
+-			 <&cgu X1830_CLK_PCLK>;
+-		clock-names = "rtc", "ext", "pclk";
++			 <&cgu X1830_CLK_PCLK>,
++			 <&cgu X1830_CLK_TCU>;
++		clock-names = "rtc", "ext", "pclk", "tcu";
  
+ 		interrupt-controller;
+ 		#interrupt-cells = <1>;
 -- 
 2.35.1
 
