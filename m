@@ -2,105 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F57555E8FE
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A8F55E6A7
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 18:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346790AbiF1NoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 09:44:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48440 "EHLO
+        id S1346441AbiF1OjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 10:39:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346854AbiF1NoS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 09:44:18 -0400
-Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28CB52A96D
-        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 06:44:15 -0700 (PDT)
-X-QQ-mid: bizesmtp64t1656423848tkj4xcfq
-Received: from localhost.localdomain ( [58.240.82.166])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Tue, 28 Jun 2022 21:44:06 +0800 (CST)
-X-QQ-SSF: 01400000002000G0S000C00A0000000
-X-QQ-FEAT: HY+AX7pyI8QB7szTDhJx3uiSVjuJ5OspBHsfTn0MCzfyhIQ9N1kZ8V6ke/uZs
-        RGk6BQ9ePYIwXsaob6QIup/iGHvfKwKLE76nvn1tPcNov29/n0SDQ2jPxmyzWzm8nYD14aE
-        ikUa4VLDZJCgCO/eMe+XvAz7mj1xgqLzpVvPYUQtnRZ98R2Y4LRyUQHDvhWBhG7TGPeZ4R+
-        1gv5/H5sRbLkUnZG7wDHWeo7hOT9uzrSbXaZd8v2BlyBJKfIT8Z+fH5hgZCUHdFKJ3eNoMI
-        zZpSDn3Nc3a6mpT+txDPktGkQbPzVRjvJy7GBLRHo5PaDBQg+lvuJvy77fXq+LLzyd9ptJB
-        dnEQbkv8Bsn1QIS4ZSkI3fFw4JxeNe8HV0aShkQVXpZBPfchG2KxhdbO06QuI4T8fso/deC
-X-QQ-GoodBg: 2
-From:   Meng Tang <tangmeng@uniontech.com>
-To:     stable@vger.kernel.org, tony0620emma@gmail.com,
-        kvalo@codeaurora.org, davem@davemloft.net, kuba@kernel.org
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Meng Tang <tangmeng@uniontech.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        masterzorag <masterzorag@gmail.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 v2 3/3] commit e109e3617e5d ("rtw88: rtw8821c: enable rfe 6 devices")
-Date:   Tue, 28 Jun 2022 21:43:51 +0800
-Message-Id: <20220628134351.4182-3-tangmeng@uniontech.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20220628134351.4182-1-tangmeng@uniontech.com>
-References: <20220628134351.4182-1-tangmeng@uniontech.com>
+        with ESMTP id S1346535AbiF1OjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 10:39:08 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E882A268
+        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 07:39:07 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id d2so14482723ejy.1
+        for <stable@vger.kernel.org>; Tue, 28 Jun 2022 07:39:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OJYIiYum3/XOuG7sgsJmU+mV2BxwbF/UGdk1oXFmoHQ=;
+        b=QO2Sis3vkYn5Nhq5Yi9gjKY/K+ldiloBsX2+GaOUQTMkieIcte17h/2drpHec3JFC8
+         zzcAK9dqCt1kk/DMr0A6yF4AQRyaW0wuo+xHwvDutKNtjgii8iSwQKYJEurQchgpbxRm
+         FxLTJB+u4vtPea4fm9K5SScmhcAqD8cxvx+kcgmT5SAZL3rRiMmsHRX2CwBQ/UY2ExKE
+         o/OCIvMsWfR/NqjyNrSxxBxEKsJogK5PJyHAW6Mb68Z0otyfpJoW8CjnqIkW2zmtMD+1
+         HO92EX3p/ZrqBud78O3Lq/T4KRU/ouklPS9pxzbTEiUNsUUtSsSMavksIKx/6ymiXEPB
+         kL4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OJYIiYum3/XOuG7sgsJmU+mV2BxwbF/UGdk1oXFmoHQ=;
+        b=Vs03Uwf/7/4WIwyJjl89o97qC9IukrhV39BjzKQ60TfNiCfuYwrR5og3prZPAOzZm+
+         ivErqVAM7axrSXTc9YvInySd9Sljl305HpFbzm1+qD3tdInaiZr0GMAE4CfdcAmkvrMW
+         N1XQBUkLir1PAbc17n+t9mHKXatenz3UgmwE1+G+523F9yzx6+X9ic5Qmxa6X5lr2NVZ
+         dNv0ItfMxYj0gG/rOWIDai2zWTRC4JbPnepwRboArgCN+UaF3sHDsXpMJ52DeZL/pqzS
+         JCdBULuL9gAkpiBbnGdMeRFaUqzZK5xU3iX58WwYx5bGqHeel88zf3fxr5PV8HmiE6GD
+         wMUA==
+X-Gm-Message-State: AJIora+0ImiqWLZRKSKWZqjaBc5rdfkqPjj7X4JCqBPalrsV+LVMIeU1
+        zSZRJNENlPcS+Dvk1obnlpwyEjWUXSk=
+X-Google-Smtp-Source: AGRyM1toK1STr0qZPC3SI5/4H8qfaQ+fwsEFa7fyp9AtouDdS8s0pzX5fK0T0PbaE6EsOulWwMO8dA==
+X-Received: by 2002:a17:907:8a22:b0:722:e7cf:2665 with SMTP id sc34-20020a1709078a2200b00722e7cf2665mr18250598ejc.622.1656427145617;
+        Tue, 28 Jun 2022 07:39:05 -0700 (PDT)
+Received: from localhost.localdomain (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
+        by smtp.googlemail.com with ESMTPSA id l4-20020aa7d944000000b00435b4775d94sm9728838eds.73.2022.06.28.07.39.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jun 2022 07:39:05 -0700 (PDT)
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Christian Marangi <ansuelsmth@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH] net: dsa: qca8k: reset cpu port on MTU change
+Date:   Tue, 28 Jun 2022 16:30:10 +0200
+Message-Id: <20220628143010.17526-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybgforeign:qybgforeign3
-X-QQ-Bgrelay: 1
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,PDS_BTC_ID,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These commits can fix the problem of wifi not loading properly. At
-least in my 5.10 kernel environment, the following error message is
-reported:
+commit 386228c694bf1e7a7688e44412cb33500b0ac585 upstream.
 
-rtw_8821ce 0000:01:00.0: rfe 6 isn't supported
-rtw_8821ce 0000:01:00.0: failed to setup chip efuse info
-rtw_8821ce 0000:01:00.0: failed to setup chip information
+It was discovered that the Documentation lacks of a fundamental detail
+on how to correctly change the MAX_FRAME_SIZE of the switch.
 
-so I think that 5.10 need to merge these commits.
+In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
+switch panics and cease to send any packet. This cause the mgmt ethernet
+system to not receive any packet (the slow fallback still works) and
+makes the device not reachable. To recover from this a switch reset is
+required.
 
-The patch 1/3 and patch 2/3 need to be merged synchronously, otherwise it
-will cause OE and then kernel exception.
+To correctly handle this, turn off the cpu ports before changing the
+MAX_FRAME_SIZE and turn on again after the value is applied.
 
-Ping-Ke Shih answered[1] a question for a user about an rtl8821ce device that
-reported RFE 6, which the driver did not support. Ping-Ke suggested a possible
-fix, but the user never reported back.
-
-A second user discovered the above thread and tested the proposed fix.
-Accordingly, I am pushing this change, even though I am not the author.
-
-[1] https://lore.kernel.org/linux-wireless/3f5e2f6eac344316b5dd518ebfea2f95@realtek.com/
-
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Reported-and-tested-by: masterzorag <masterzorag@gmail.com>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220107024739.20967-1-Larry.Finger@lwfinger.net
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Link: https://lore.kernel.org/r/20220621151122.10220-1-ansuelsmth@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[ backport: fix conflict using the old port_sts struct instead of bitmap ]
 ---
- drivers/net/wireless/realtek/rtw88/rtw8821c.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/qca8k.c | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8821c.c b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-index 9c8fbc96f536..cbb4c761c5cb 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-@@ -1468,6 +1468,7 @@ static const struct rtw_rfe_def rtw8821c_rfe_defs[] = {
- 	[0] = RTW_DEF_RFE(8821c, 0, 0),
- 	[2] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
- 	[4] = RTW_DEF_RFE_EXT(8821c, 0, 0, 2),
-+	[6] = RTW_DEF_RFE(8821c, 0, 0),
- };
+diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
+index a984f06f6f04..67869c8cbeaa 100644
+--- a/drivers/net/dsa/qca8k.c
++++ b/drivers/net/dsa/qca8k.c
+@@ -1599,7 +1599,7 @@ static int
+ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ {
+ 	struct qca8k_priv *priv = ds->priv;
+-	int i, mtu = 0;
++	int ret, i, mtu = 0;
  
- static struct rtw_hw_reg rtw8821c_dig[] = {
+ 	priv->port_mtu[port] = new_mtu;
+ 
+@@ -1607,8 +1607,27 @@ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ 		if (priv->port_mtu[i] > mtu)
+ 			mtu = priv->port_mtu[i];
+ 
++	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
++	 * the switch panics.
++	 * Turn off both cpu ports before applying the new value to prevent
++	 * this.
++	 */
++	if (priv->port_sts[0].enabled)
++		qca8k_port_set_status(priv, 0, 0);
++
++	if (priv->port_sts[6].enabled)
++		qca8k_port_set_status(priv, 6, 0);
++
+ 	/* Include L2 header / FCS length */
+-	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
++	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
++
++	if (priv->port_sts[0].enabled)
++		qca8k_port_set_status(priv, 0, 1);
++
++	if (priv->port_sts[6].enabled)
++		qca8k_port_set_status(priv, 6, 1);
++
++	return ret;
+ }
+ 
+ static int
 -- 
-2.20.1
-
-
+2.36.1
 
