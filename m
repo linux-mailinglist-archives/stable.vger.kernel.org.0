@@ -2,61 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F37555ECC2
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00FBA55ECC5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 20:40:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbiF1Sk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232667AbiF1Sk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Jun 2022 14:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41226 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbiF1Sk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:40:26 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253FB22B16;
-        Tue, 28 Jun 2022 11:40:25 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id jh14so11869014plb.1;
-        Tue, 28 Jun 2022 11:40:25 -0700 (PDT)
+        with ESMTP id S231307AbiF1Sk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 14:40:27 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3198822B10;
+        Tue, 28 Jun 2022 11:40:26 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id cv13so13402052pjb.4;
+        Tue, 28 Jun 2022 11:40:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=hlu4iuvVEFL0RFP9rItuvOieChz+ZKZcK5FBCkGby/Y=;
-        b=C8QyxkT96B+xyguPYPqHJLpMY6WYQw3f6yV7UdkLXC8iCRJ4diuCUw7VKQhriAe+WT
-         jRaDNEDR/OpuyloaSDKcKVJzKtGxbiEXSyJATSXPUqJNGAxtfS4AHmOnGOZiusJlr2eO
-         CqosqFz3Bq8ZwkZy1plyOMLTXWWTdTRGrAdlk1ysDUYK7TtWwUCN/DoAHYR+n0z5aW1c
-         iWB5V11DkEBAGjhs6x5lFE8X/m68Afr/IJZR6y7E5dkdss60wE3Btura5vk6ziTyWOyk
-         LuJoDNJjiD9toCulw7jY9BChkrlFu3MP6ABiGyFkV/2aw738MuMWh3NbmIF+DpMr5+Vt
-         MUDg==
+        bh=Tve9D8iQuxh5AgLBP6EM+21dbBb6xwy+MqCcMe7KYYM=;
+        b=gfNK9mqAPGt4kQnWbfFyGfiYue069AKD1KHGiUDEmGo4IZJP7/T/IlnSKPMvL8lw94
+         wUUQu0EfBowXJQb8w17P+FoS+g7cLlqgVOeFuVmFQtAaujcidEfiQ9lw6b13NpeGkcim
+         cXo/aq2+31Mtp2pfvNxYG4njGCkHAILe7HkCjL4fSi0qswUFQLywVIyxR83WUt6Ly0Wq
+         yWQQVG8xKFmmueBc5+JAb5xjhst0Pt6yHv+qjBzn1qd2yc9dKfZtt36AkjeufwcCAf96
+         dAvH/XGMSBh1UCKYItPLzr0c5iaY8uLPIiYm01RtWpHtxqK3h9a3xSZPM52xl6g2BXGN
+         mHRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=hlu4iuvVEFL0RFP9rItuvOieChz+ZKZcK5FBCkGby/Y=;
-        b=qRlBWY4EYszjfd7+je5I8gVVur7bHM2HbLrakFmYja0W7Fs35PMiuF7DXlUl1Oby5x
-         1Lue46JEddK+V2kX6MFbx9rpjLoe7d2HJ7D1iLQbRXiBpBvSMGggoIaiaKJFdYCTRMeL
-         6LKTRFUM2+9F3YgdGf6mwYQfac0Saup44QvV0BqRupLbWei5hRxSL4DsYjOHTfAwdS0U
-         szxQHx+/KBiAoqgU+7veVcxl+Sp0R3r4TEQZXRxdq5SJhUirYl4t33LO0v/k2MwUb8l3
-         vrR2Pl9An25hsj0dHS6aINlWoqzdudfLhFLRxOnn0UXPfKT1hrQtqiW/tfskakDVKQ9V
-         rCKA==
-X-Gm-Message-State: AJIora+7wvWSTS1TT+W9l1f//63ygtw2bqeKlo/d0EnelDM41u7LEfBe
-        HYN1kDBXGxJjJUFtKsrryL/B3nStxJBDOw==
-X-Google-Smtp-Source: AGRyM1t+1e5ViH1OJONmadv5gVE4Str6PIW9fvfhMapg+NQUpn1B9Lzr9AM3A9RjrdkqXGUlv+3wNg==
-X-Received: by 2002:a17:90b:2785:b0:1ef:ff9:4f4c with SMTP id pw5-20020a17090b278500b001ef0ff94f4cmr1136685pjb.132.1656441624395;
-        Tue, 28 Jun 2022 11:40:24 -0700 (PDT)
+        bh=Tve9D8iQuxh5AgLBP6EM+21dbBb6xwy+MqCcMe7KYYM=;
+        b=H153mOLQoQ0RVixwLfK4w5pE62BPGf4/XVt/sag5JWihXp/o4Y8/20y2npSj3lnzD3
+         HIfnnsC+KdQr4bQkK8Zll99Q/GximtMdd7GdWmJ1hdIbaPLJOEDClLVzVfmN+LHuwc7x
+         sQEJbCBCj1W8B8wxbzPHvBvqznDAW7BN3G4UCWa+Ido77K2UqcZMLQxs5df+aAb0mCkq
+         j8ZmxU2ZYdDUFANjr6r83CSfPpheppb87ZxPOXSpVenREe9qRXy7WwfAldsO65TFGptH
+         O2C2Xkl+fFFSJBjLvE+UY8ZYVAq7aUIZ+iVm+Q/bVzubGUbqPNgoqivz3VbLqGAd0756
+         92Hg==
+X-Gm-Message-State: AJIora8rnkEy7psYDWF+9HyVj47lMh8gTxyBsLJWOLQyUK1R63UITJdf
+        eA4WimfM8Uqccm9RLS1Di54lWsyMgD9q0A==
+X-Google-Smtp-Source: AGRyM1s3KBgPwcD3FUaKMZAoROZ8WE4OVO3hbgELZvumnzwhbfgzwiycU9bCM7Pqa0QM4PjVpOjpJA==
+X-Received: by 2002:a17:90b:4c48:b0:1ec:a20e:a9bf with SMTP id np8-20020a17090b4c4800b001eca20ea9bfmr1057835pjb.209.1656441625367;
+        Tue, 28 Jun 2022 11:40:25 -0700 (PDT)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2cd:202:1d5d:7791:41a3:902a])
-        by smtp.gmail.com with ESMTPSA id a20-20020a621a14000000b005251bea0d53sm9743498pfa.83.2022.06.28.11.40.23
+        by smtp.gmail.com with ESMTPSA id a20-20020a621a14000000b005251bea0d53sm9743498pfa.83.2022.06.28.11.40.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 28 Jun 2022 11:40:24 -0700 (PDT)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
-        "Darrick J. Wong" <djwong@kernel.org>,
         Dave Chinner <dchinner@redhat.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
+        "Darrick J . Wong" <djwong@kernel.org>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 v4 4/7] xfs: remove all COW fork extents when remounting readonly
-Date:   Tue, 28 Jun 2022 11:39:48 -0700
-Message-Id: <20220628183951.3425528-5-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 v4 5/7] xfs: check sb_meta_uuid for dabuf buffer recovery
+Date:   Tue, 28 Jun 2022 11:39:49 -0700
+Message-Id: <20220628183951.3425528-6-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.37.0.rc0.161.g10f37bed90-goog
 In-Reply-To: <20220628183951.3425528-1-leah.rumancik@gmail.com>
 References: <20220628183951.3425528-1-leah.rumancik@gmail.com>
@@ -72,88 +71,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit 089558bc7ba785c03815a49c89e28ad9b8de51f9 ]
+[ Upstream commit 09654ed8a18cfd45027a67d6cbca45c9ea54feab ]
 
-As part of multiple customer escalations due to file data corruption
-after copy on write operations, I wrote some fstests that use fsstress
-to hammer on COW to shake things loose.  Regrettably, I caught some
-filesystem shutdowns due to incorrect rmap operations with the following
-loop:
+Got a report that a repeated crash test of a container host would
+eventually fail with a log recovery error preventing the system from
+mounting the root filesystem. It manifested as a directory leaf node
+corruption on writeback like so:
 
-mount <filesystem>				# (0)
-fsstress <run only readonly ops> &		# (1)
-while true; do
-	fsstress <run all ops>
-	mount -o remount,ro			# (2)
-	fsstress <run only readonly ops>
-	mount -o remount,rw			# (3)
-done
+ XFS (loop0): Mounting V5 Filesystem
+ XFS (loop0): Starting recovery (logdev: internal)
+ XFS (loop0): Metadata corruption detected at xfs_dir3_leaf_check_int+0x99/0xf0, xfs_dir3_leaf1 block 0x12faa158
+ XFS (loop0): Unmount and run xfs_repair
+ XFS (loop0): First 128 bytes of corrupted metadata buffer:
+ 00000000: 00 00 00 00 00 00 00 00 3d f1 00 00 e1 9e d5 8b  ........=.......
+ 00000010: 00 00 00 00 12 fa a1 58 00 00 00 29 00 00 1b cc  .......X...)....
+ 00000020: 91 06 78 ff f7 7e 4a 7d 8d 53 86 f2 ac 47 a8 23  ..x..~J}.S...G.#
+ 00000030: 00 00 00 00 17 e0 00 80 00 43 00 00 00 00 00 00  .........C......
+ 00000040: 00 00 00 2e 00 00 00 08 00 00 17 2e 00 00 00 0a  ................
+ 00000050: 02 35 79 83 00 00 00 30 04 d3 b4 80 00 00 01 50  .5y....0.......P
+ 00000060: 08 40 95 7f 00 00 02 98 08 41 fe b7 00 00 02 d4  .@.......A......
+ 00000070: 0d 62 ef a7 00 00 01 f2 14 50 21 41 00 00 00 0c  .b.......P!A....
+ XFS (loop0): Corruption of in-memory data (0x8) detected at xfs_do_force_shutdown+0x1a/0x20 (fs/xfs/xfs_buf.c:1514).  Shutting down.
+ XFS (loop0): Please unmount the filesystem and rectify the problem(s)
+ XFS (loop0): log mount/recovery failed: error -117
+ XFS (loop0): log mount failed
 
-When (2) happens, notice that (1) is still running.  xfs_remount_ro will
-call xfs_blockgc_stop to walk the inode cache to free all the COW
-extents, but the blockgc mechanism races with (1)'s reader threads to
-take IOLOCKs and loses, which means that it doesn't clean them all out.
-Call such a file (A).
+Tracing indicated that we were recovering changes from a transaction
+at LSN 0x29/0x1c16 into a buffer that had an LSN of 0x29/0x1d57.
+That is, log recovery was overwriting a buffer with newer changes on
+disk than was in the transaction. Tracing indicated that we were
+hitting the "recovery immediately" case in
+xfs_buf_log_recovery_lsn(), and hence it was ignoring the LSN in the
+buffer.
 
-When (3) happens, xfs_remount_rw calls xfs_reflink_recover_cow, which
-walks the ondisk refcount btree and frees any COW extent that it finds.
-This function does not check the inode cache, which means that incore
-COW forks of inode (A) is now inconsistent with the ondisk metadata.  If
-one of those former COW extents are allocated and mapped into another
-file (B) and someone triggers a COW to the stale reservation in (A), A's
-dirty data will be written into (B) and once that's done, those blocks
-will be transferred to (A)'s data fork without bumping the refcount.
+The code was extracting the LSN correctly, then ignoring it because
+the UUID in the buffer did not match the superblock UUID. The
+problem arises because the UUID check uses the wrong UUID - it
+should be checking the sb_meta_uuid, not sb_uuid. This filesystem
+has sb_uuid != sb_meta_uuid (which is fine), and the buffer has the
+correct matching sb_meta_uuid in it, it's just the code checked it
+against the wrong superblock uuid.
 
-The results are catastrophic -- file (B) and the refcount btree are now
-corrupt.  Solve this race by forcing the xfs_blockgc_free_space to run
-synchronously, which causes xfs_icwalk to return to inodes that were
-skipped because the blockgc code couldn't take the IOLOCK.  This is safe
-to do here because the VFS has already prohibited new writer threads.
+The is no corruption in the filesystem, and failing to recover the
+buffer due to a write verifier failure means the recovery bug did
+not propagate the corruption to disk. Hence there is no corruption
+before or after this bug has manifested, the impact is limited
+simply to an unmountable filesystem....
 
-Fixes: 10ddf64e420f ("xfs: remove leftover CoW reservations when remounting ro")
+This was missed back in 2015 during an audit of incorrect sb_uuid
+usage that resulted in commit fcfbe2c4ef42 ("xfs: log recovery needs
+to validate against sb_meta_uuid") that fixed the magic32 buffers to
+validate against sb_meta_uuid instead of sb_uuid. It missed the
+magicda buffers....
+
+Fixes: ce748eaa65f2 ("xfs: create new metadata UUID field and incompat flag")
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Chandan Babu R <chandan.babu@oracle.com>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_super.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_buf_item_recover.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index 170fee98c45c..23673703618a 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1768,7 +1768,10 @@ static int
- xfs_remount_ro(
- 	struct xfs_mount	*mp)
- {
--	int error;
-+	struct xfs_icwalk	icw = {
-+		.icw_flags	= XFS_ICWALK_FLAG_SYNC,
-+	};
-+	int			error;
+diff --git a/fs/xfs/xfs_buf_item_recover.c b/fs/xfs/xfs_buf_item_recover.c
+index a476c7ef5d53..991fbf1eb564 100644
+--- a/fs/xfs/xfs_buf_item_recover.c
++++ b/fs/xfs/xfs_buf_item_recover.c
+@@ -816,7 +816,7 @@ xlog_recover_get_buf_lsn(
+ 	}
  
- 	/*
- 	 * Cancel background eofb scanning so it cannot race with the final
-@@ -1776,8 +1779,13 @@ xfs_remount_ro(
- 	 */
- 	xfs_blockgc_stop(mp);
- 
--	/* Get rid of any leftover CoW reservations... */
--	error = xfs_blockgc_free_space(mp, NULL);
-+	/*
-+	 * Clear out all remaining COW staging extents and speculative post-EOF
-+	 * preallocations so that we don't leave inodes requiring inactivation
-+	 * cleanups during reclaim on a read-only mount.  We must process every
-+	 * cached inode, so this requires a synchronous cache scan.
-+	 */
-+	error = xfs_blockgc_free_space(mp, &icw);
- 	if (error) {
- 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
- 		return error;
+ 	if (lsn != (xfs_lsn_t)-1) {
+-		if (!uuid_equal(&mp->m_sb.sb_uuid, uuid))
++		if (!uuid_equal(&mp->m_sb.sb_meta_uuid, uuid))
+ 			goto recover_immediately;
+ 		return lsn;
+ 	}
 -- 
 2.37.0.rc0.161.g10f37bed90-goog
 
