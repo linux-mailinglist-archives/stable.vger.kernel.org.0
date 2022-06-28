@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF54455CDEB
-	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D93655CED5
+	for <lists+stable@lfdr.de>; Tue, 28 Jun 2022 15:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244307AbiF1Ca3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Jun 2022 22:30:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39056 "EHLO
+        id S244899AbiF1Ca2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Jun 2022 22:30:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244782AbiF1C2A (ORCPT
+        with ESMTP id S244783AbiF1C2A (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 27 Jun 2022 22:28:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE8D17598;
-        Mon, 27 Jun 2022 19:26:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076052496F;
+        Mon, 27 Jun 2022 19:26:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62C086192D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99F486191F;
+        Tue, 28 Jun 2022 02:26:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C7BBC341D0;
         Tue, 28 Jun 2022 02:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3208C34115;
-        Tue, 28 Jun 2022 02:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656383177;
-        bh=TUIICHVAkc2BUiqrFw9pQvGvBCl73qsrSwPO5S8ZyW4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=oRw9vcsGYq0QKR7dWb7Smyi/7Qx07S1xa+fuNFpO9JHfw+Q8Yrd4BV5BCQahj8myL
-         SgAUqnVGa901OyhQs5P0aqj/lbg5z6tI/m676mlSaEOTRR8l6opgoe47YWQx5A72ym
-         jnMKTSDmp36pusHsCsE/pq0odx1p/ImeiaUTLRAqVbk7BJ0ek9EY4KWHsCErjmY+YO
-         vdzXX23Qidc3JwXxER86AsXYFnwNbE9oLgeQZ0Er0PY1MugD5udMQaifqrmf4XGVL6
-         +NKuBT9cjglbJlFy4p5nEZGY+5EGha3jnlYPyioBj5qSdXivoyRN8z8gGUS1ZqKNaa
-         w5CyvBW8PiTDA==
+        s=k20201202; t=1656383179;
+        bh=dxf6P89JwAiPzQgE1dRrN3c+9gq9AygE1Ghaar7OH48=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KncpKXG26SQWlDQHsWbLM7M88A/yWVfvZtpgjLRF/RuIMMtPHzsBy4aqdU5804Uth
+         I+TwEogP9E9+t5f4lDJQ9w1VlUMcOdVxob9sMfaJvfOSUNQE9az9hWIXZbbXkeRQmb
+         LwOs2Ncw5yi1LgjEgBe0fCD19163xUQCePxn/nSKrM71Hd1jlxatFAtUJ+HSV1kzrY
+         K9a0AKuRSPf7gQpLnF5aM1n8D/zOnxfcLzc+nYuxrp8p3fb74JwsnDjFq0piz3LyMC
+         UhvLbekDj3kEjTAI6IOiuvdQSfj7wx/pP3pZr3AlvBV0wMJ7fWgD1ea6Yzvhy0dAV1
+         fLp/OXAt1256g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+Cc:     Lars-Peter Clausen <lars@metafoo.de>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/17] spi: spi-cadence: Fix SPI CS gets toggling sporadically
-Date:   Mon, 27 Jun 2022 22:25:59 -0400
-Message-Id: <20220628022615.596977-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/17] spi: cadence: Detect transmit FIFO depth
+Date:   Mon, 27 Jun 2022 22:26:00 -0400
+Message-Id: <20220628022615.596977-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220628022615.596977-1-sashal@kernel.org>
+References: <20220628022615.596977-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,65 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 21b511ddee09a78909035ec47a6a594349fe3296 ]
+[ Upstream commit 7b40322f7183a92c4303457528ae7cda571c60b9 ]
 
-As part of unprepare_transfer_hardware, SPI controller will be disabled
-which will indirectly deassert the CS line. This will create a problem
-in some of the devices where message will be transferred with
-cs_change flag set(CS should not be deasserted).
-As per SPI controller implementation, if SPI controller is disabled then
-all output enables are inactive and all pins are set to input mode which
-means CS will go to default state high(deassert). This leads to an issue
-when core explicitly ask not to deassert the CS (cs_change = 1). This
-patch fix the above issue by checking the Slave select status bits from
-configuration register before disabling the SPI.
+The depth of the transmit FIFO for the Cadence SPI controller is currently
+hardcoded to 128. But the depth is a synthesis configuration parameter of
+the core and can vary between different SoCs.
 
-Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Link: https://lore.kernel.org/r/20220606062525.18447-1-amit.kumar-mahapatra@xilinx.com
+If the configured FIFO size is less than 128 the driver will busy loop in
+the cdns_spi_fill_tx_fifo() function waiting for FIFO space to become
+available.
+
+Depending on the length and speed of the transfer it can spin for a
+significant amount of time. The cdns_spi_fill_tx_fifo() function is called
+from the drivers interrupt handler, so it can leave interrupts disabled for
+a prolonged amount of time.
+
+In addition the read FIFO will also overflow and data will be discarded.
+
+To avoid this detect the actual size of the FIFO and use that rather than
+the hardcoded value.
+
+To detect the FIFO size the FIFO threshold register is used. The register
+is sized so that it can hold FIFO size - 1 as its maximum value. Bits that
+are not needed to hold the threshold value will always read 0. By writing
+0xffff to the register and then reading back the value in the register we
+get the FIFO size.
+
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20220527091143.3780378-1-lars@metafoo.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-cadence.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/spi/spi-cadence.c | 27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
-index d9aeb9efa7aa..810f92a0ef7c 100644
+index 810f92a0ef7c..b41fdaa6982d 100644
 --- a/drivers/spi/spi-cadence.c
 +++ b/drivers/spi/spi-cadence.c
-@@ -73,6 +73,7 @@
- #define CDNS_SPI_BAUD_DIV_SHIFT		3 /* Baud rate divisor shift in CR */
- #define CDNS_SPI_SS_SHIFT		10 /* Slave Select field shift in CR */
- #define CDNS_SPI_SS0			0x1 /* Slave Select zero */
-+#define CDNS_SPI_NOSS			0x3C /* No Slave select */
+@@ -97,9 +97,6 @@
+ #define CDNS_SPI_ER_ENABLE	0x00000001 /* SPI Enable Bit Mask */
+ #define CDNS_SPI_ER_DISABLE	0x0 /* SPI Disable Bit Mask */
  
- /*
-  * SPI Interrupt Registers bit Masks
-@@ -457,15 +458,20 @@ static int cdns_prepare_transfer_hardware(struct spi_master *master)
-  * @master:	Pointer to the spi_master structure which provides
-  *		information about the controller.
-  *
-- * This function disables the SPI master controller.
-+ * This function disables the SPI master controller when no slave selected.
-  *
-  * Return:	0 always
+-/* SPI FIFO depth in bytes */
+-#define CDNS_SPI_FIFO_DEPTH	128
+-
+ /* Default number of chip select lines */
+ #define CDNS_SPI_DEFAULT_NUM_CS		4
+ 
+@@ -115,6 +112,7 @@
+  * @rx_bytes:		Number of bytes requested
+  * @dev_busy:		Device busy flag
+  * @is_decoded_cs:	Flag for decoder property set or not
++ * @tx_fifo_depth:	Depth of the TX FIFO
   */
- static int cdns_unprepare_transfer_hardware(struct spi_master *master)
+ struct cdns_spi {
+ 	void __iomem *regs;
+@@ -128,6 +126,7 @@ struct cdns_spi {
+ 	int rx_bytes;
+ 	u8 dev_busy;
+ 	u32 is_decoded_cs;
++	unsigned int tx_fifo_depth;
+ };
+ 
+ struct cdns_spi_device_data {
+@@ -313,7 +312,7 @@ static void cdns_spi_fill_tx_fifo(struct cdns_spi *xspi)
  {
- 	struct cdns_spi *xspi = spi_master_get_devdata(master);
-+	u32 ctrl_reg;
+ 	unsigned long trans_cnt = 0;
  
--	cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
-+	/* Disable the SPI if slave is deselected */
-+	ctrl_reg = cdns_spi_read(xspi, CDNS_SPI_CR);
-+	ctrl_reg = (ctrl_reg & CDNS_SPI_CR_SSCTRL) >>  CDNS_SPI_SS_SHIFT;
-+	if (ctrl_reg == CDNS_SPI_NOSS)
-+		cdns_spi_write(xspi, CDNS_SPI_ER, CDNS_SPI_ER_DISABLE);
+-	while ((trans_cnt < CDNS_SPI_FIFO_DEPTH) &&
++	while ((trans_cnt < xspi->tx_fifo_depth) &&
+ 	       (xspi->tx_bytes > 0)) {
  
- 	return 0;
+ 		/* When xspi in busy condition, bytes may send failed,
+@@ -534,6 +533,24 @@ static void cdns_spi_cleanup(struct spi_device *spi)
+ 
  }
+ 
++/**
++ * cdns_spi_detect_fifo_depth - Detect the FIFO depth of the hardware
++ * @xspi:	Pointer to the cdns_spi structure
++ *
++ * The depth of the TX FIFO is a synthesis configuration parameter of the SPI
++ * IP. The FIFO threshold register is sized so that its maximum value can be the
++ * FIFO size - 1. This is used to detect the size of the FIFO.
++ */
++static void cdns_spi_detect_fifo_depth(struct cdns_spi *xspi)
++{
++	/* The MSBs will get truncated giving us the size of the FIFO */
++	cdns_spi_write(xspi, CDNS_SPI_THLD, 0xffff);
++	xspi->tx_fifo_depth = cdns_spi_read(xspi, CDNS_SPI_THLD) + 1;
++
++	/* Reset to default */
++	cdns_spi_write(xspi, CDNS_SPI_THLD, 0x1);
++}
++
+ /**
+  * cdns_spi_probe - Probe method for the SPI driver
+  * @pdev:	Pointer to the platform_device structure
+@@ -608,6 +625,8 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		xspi->is_decoded_cs = 0;
+ 
++	cdns_spi_detect_fifo_depth(xspi);
++
+ 	/* SPI controller initializations */
+ 	cdns_spi_init_hw(xspi);
+ 
 -- 
 2.35.1
 
