@@ -2,239 +2,287 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4086455FEF7
-	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 13:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 487E955FF11
+	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 13:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233221AbiF2LnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 07:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49010 "EHLO
+        id S231376AbiF2Lw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 07:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233185AbiF2LnB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 07:43:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92593ED15;
-        Wed, 29 Jun 2022 04:42:59 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71A3BB82285;
-        Wed, 29 Jun 2022 11:42:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35CEBC34114;
-        Wed, 29 Jun 2022 11:42:56 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="D709hl3z"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1656502973;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Q0M5vfXiFiWDWXccdLQMJZX1GsFMFRGBftBOErnhpQo=;
-        b=D709hl3zm353dWlIgvfZKTIqYnS30rFdowctEIXBfOB9HRlWfOC71oqorzvVMofBQ/oLMc
-        hzwTq2mYGuhuki+lq8jZaBKz2dvD2nTuVopJCH6veLY2gqwnJjJPlpkQndx0E11wqkETKg
-        dflSo2tEZgZR4+ZzhIAYtXlqPZ7IN7c=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 69b1f224 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 29 Jun 2022 11:42:53 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Gregory Erwin <gregerwin256@gmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v8] ath9k: let sleep be interrupted when unregistering hwrng
-Date:   Wed, 29 Jun 2022 13:42:40 +0200
-Message-Id: <20220629114240.946411-1-Jason@zx2c4.com>
-In-Reply-To: <Yrw5f8GN2fh2orid@zx2c4.com>
-References: <Yrw5f8GN2fh2orid@zx2c4.com>
+        with ESMTP id S232724AbiF2Lw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 07:52:28 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B643F882
+        for <stable@vger.kernel.org>; Wed, 29 Jun 2022 04:52:26 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id r1so13878277plo.10
+        for <stable@vger.kernel.org>; Wed, 29 Jun 2022 04:52:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yMYF3zF8HmnCoLqniRRELTI/PAwnTKrgcGUUlQj9FvI=;
+        b=W0tqeI0zq+ILCUx2m6ZUWinGvL2e9ESmxXFHvqzgqsIvmUDQdzYqnIBB5u4tiI14dA
+         jzHUSJJ4RuBMbNEIc+aYBQrgDiBpRGt2A1QKPT9oEKVXACaRINs8k7MKGGO5x0Vc8X2D
+         v5IS0PuIwxEt8NDO7Pm9P0IbjnJ+D8ehgp3JEStQO4PMHclzMm7BcLgP+fU7RhWYNrOO
+         rpGg/THjJ8rZCLohtMBK9odca4mos6GOysKe9fd2lnx495QDjqdwTD4jhVRzod20PZbs
+         DgMGf9N4pKKRBLxmWyVixd7I7N0Lx7gwuhwzDPiiBfppQPONqOYw6m6e2XGU10lMD8OE
+         2kgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yMYF3zF8HmnCoLqniRRELTI/PAwnTKrgcGUUlQj9FvI=;
+        b=ByXXAThw4ktfINRmBlZB+jLNi/Zv6w4PdomxpNiYln6rh12+4tQAV2IZVAzMUoRcbL
+         I8XRba8gmzUXzaS5K239TW8855eVF/+eeztQtXSstBK5NvQ16bj/l7ogT6bnzfGS16v9
+         PxU+bQyiTCGhtSWhZO3ZxoF4Vz1Mzs63NLRcDn8ZM8XRHIXiaISNlI1Keat2i3gFGz9K
+         k3MbplcrQ5uoVVJ4SeFHC8Iuc2pJFNVtN6lHePyNRsBRKrsLIwBGOpyPv9lzqRZremqf
+         BePJSKYGxpr5ThX4RPO4QOz/IHv8cWz+wk3Ysuf3uNDrZC28C3bEIw/1ehKInOiuejDZ
+         56pg==
+X-Gm-Message-State: AJIora8D85Q4NBimFEj9vHnTbhuBBfwik+Z8NhdhLqoe51tBFzDpetbV
+        iMt+XguL+EsqZY4Nix9FOVZc5inNRWI/XixK
+X-Google-Smtp-Source: AGRyM1sOaAa17+SJyTmODYixE3m62eDvJnSGzFiD2ltKN3oi3ESLRz0e8EMFQcdTvE/p2Xa6v01vNw==
+X-Received: by 2002:a17:90b:2bcc:b0:1ec:89c6:be9b with SMTP id ru12-20020a17090b2bcc00b001ec89c6be9bmr5626981pjb.74.1656503545362;
+        Wed, 29 Jun 2022 04:52:25 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i4-20020a17090332c400b0016a214e4afasm11279881plr.125.2022.06.29.04.52.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jun 2022 04:52:24 -0700 (PDT)
+Message-ID: <62bc3cf8.1c69fb81.9dd51.fbe9@mx.google.com>
+Date:   Wed, 29 Jun 2022 04:52:24 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.50-135-ga6708fb92f9b
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 113 runs,
+ 5 regressions (v5.15.50-135-ga6708fb92f9b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are two deadlock scenarios that need addressing, which cause
-problems when the computer goes to sleep, the interface is set down, and
-hwrng_unregister() is called. When the deadlock is hit, sleep is delayed
-for tens of seconds, causing it to fail. These scenarios are:
+stable-rc/queue/5.15 baseline: 113 runs, 5 regressions (v5.15.50-135-ga6708=
+fb92f9b)
 
-1) The hwrng kthread can't be stopped while it's sleeping, because it
-   uses msleep_interruptible() instead of schedule_timeout_interruptible().
-   The fix is a simple moving to the correct function. At the same time,
-   we should cleanup a common and useless dmesg splat in the same area.
+Regressions Summary
+-------------------
 
-2) A normal user thread can't be interrupted by hwrng_unregister() while
-   it's sleeping, because hwrng_unregister() is called from elsewhere.
-   The solution here is to keep track of which thread is currently
-   reading, and asleep, and signal that thread when it's time to
-   unregister. There's a bit of book keeping required to prevent
-   lifetime issues on current.
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+beagle-xm                    | arm   | lab-baylibre  | gcc-10   | omap2plus=
+_defconfig        | 1          =
 
-Reported-by: Gregory Erwin <gregerwin256@gmail.com>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Cc: Kalle Valo <kvalo@kernel.org>
-Cc: Rui Salvaterra <rsalvaterra@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: stable@vger.kernel.org
-Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumping into random.c")
-Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsFGTEjs0c00giw@mail.gmail.com/
-Link: https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DVXtent3HA@mail.gmail.com/
-Link: https://bugs.archlinux.org/task/75138
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
-Changes v7->v8:
-- Add a missing export_symbol.
+jetson-tk1                   | arm   | lab-baylibre  | gcc-10   | tegra_def=
+config            | 1          =
 
- drivers/char/hw_random/core.c        | 30 ++++++++++++++++++++++++----
- drivers/net/wireless/ath/ath9k/rng.c | 19 +++++++-----------
- kernel/sched/core.c                  |  1 +
- 3 files changed, 34 insertions(+), 16 deletions(-)
+meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
 
-diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index 16f227b995e8..df45c265878e 100644
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -38,6 +38,8 @@ static LIST_HEAD(rng_list);
- static DEFINE_MUTEX(rng_mutex);
- /* Protects rng read functions, data_avail, rng_buffer and rng_fillbuf */
- static DEFINE_MUTEX(reading_mutex);
-+/* Keeps track of whoever is wait-reading it currently while holding reading_mutex. */
-+static struct task_struct *current_waiting_reader;
- static int data_avail;
- static u8 *rng_buffer, *rng_fillbuf;
- static unsigned short current_quality;
-@@ -208,6 +210,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 	int err = 0;
- 	int bytes_read, len;
- 	struct hwrng *rng;
-+	bool wait;
- 
- 	while (size) {
- 		rng = get_current_rng();
-@@ -225,9 +228,15 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
- 			goto out_put;
- 		}
- 		if (!data_avail) {
-+			wait = !(filp->f_flags & O_NONBLOCK);
-+			if (wait && cmpxchg(&current_waiting_reader, NULL, current) != NULL) {
-+				err = -EINTR;
-+				goto out_unlock_reading;
-+			}
- 			bytes_read = rng_get_data(rng, rng_buffer,
--				rng_buffer_size(),
--				!(filp->f_flags & O_NONBLOCK));
-+				rng_buffer_size(), wait);
-+			if (wait && cmpxchg(&current_waiting_reader, current, NULL) != current)
-+				synchronize_rcu();
- 			if (bytes_read < 0) {
- 				err = bytes_read;
- 				goto out_unlock_reading;
-@@ -513,8 +522,9 @@ static int hwrng_fillfn(void *unused)
- 			break;
- 
- 		if (rc <= 0) {
--			pr_warn("hwrng: no data available\n");
--			msleep_interruptible(10000);
-+			if (kthread_should_stop())
-+				break;
-+			schedule_timeout_interruptible(HZ * 10);
- 			continue;
- 		}
- 
-@@ -608,13 +618,21 @@ int hwrng_register(struct hwrng *rng)
- }
- EXPORT_SYMBOL_GPL(hwrng_register);
- 
-+#define UNREGISTERING_READER ((void *)~0UL)
-+
- void hwrng_unregister(struct hwrng *rng)
- {
- 	struct hwrng *old_rng, *new_rng;
-+	struct task_struct *waiting_reader;
- 	int err;
- 
- 	mutex_lock(&rng_mutex);
- 
-+	rcu_read_lock();
-+	waiting_reader = xchg(&current_waiting_reader, UNREGISTERING_READER);
-+	if (waiting_reader && waiting_reader != UNREGISTERING_READER)
-+		set_notify_signal(waiting_reader);
-+	rcu_read_unlock();
- 	old_rng = current_rng;
- 	list_del(&rng->list);
- 	if (current_rng == rng) {
-@@ -640,6 +658,10 @@ void hwrng_unregister(struct hwrng *rng)
- 	}
- 
- 	wait_for_completion(&rng->cleanup_done);
-+
-+	mutex_lock(&rng_mutex);
-+	cmpxchg(&current_waiting_reader, UNREGISTERING_READER, NULL);
-+	mutex_unlock(&rng_mutex);
- }
- EXPORT_SYMBOL_GPL(hwrng_unregister);
- 
-diff --git a/drivers/net/wireless/ath/ath9k/rng.c b/drivers/net/wireless/ath/ath9k/rng.c
-index cb5414265a9b..8980dc36509e 100644
---- a/drivers/net/wireless/ath/ath9k/rng.c
-+++ b/drivers/net/wireless/ath/ath9k/rng.c
-@@ -52,18 +52,13 @@ static int ath9k_rng_data_read(struct ath_softc *sc, u32 *buf, u32 buf_size)
- 	return j << 2;
- }
- 
--static u32 ath9k_rng_delay_get(u32 fail_stats)
-+static unsigned long ath9k_rng_delay_get(u32 fail_stats)
- {
--	u32 delay;
--
- 	if (fail_stats < 100)
--		delay = 10;
-+		return HZ / 100;
- 	else if (fail_stats < 105)
--		delay = 1000;
--	else
--		delay = 10000;
--
--	return delay;
-+		return HZ;
-+	return HZ * 10;
- }
- 
- static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
-@@ -80,10 +75,10 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
- 			bytes_read += max & 3UL;
- 			memzero_explicit(&word, sizeof(word));
- 		}
--		if (!wait || !max || likely(bytes_read) || fail_stats > 110)
-+		if (!wait || !max || likely(bytes_read) || fail_stats > 110 ||
-+		    ((current->flags & PF_KTHREAD) && kthread_should_stop()) ||
-+		    schedule_timeout_interruptible(ath9k_rng_delay_get(++fail_stats)))
- 			break;
--
--		msleep_interruptible(ath9k_rng_delay_get(++fail_stats));
- 	}
- 
- 	if (wait && !bytes_read && max)
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index da0bf6fe9ecd..d65a5eb9a65e 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -4284,6 +4284,7 @@ int wake_up_state(struct task_struct *p, unsigned int state)
- {
- 	return try_to_wake_up(p, state, 0);
- }
-+EXPORT_SYMBOL(wake_up_state);
- 
- /*
-  * Perform scheduler related setup for a newly forked process p.
--- 
-2.35.1
+rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
 
+tegra124-nyan-big            | arm   | lab-collabora | gcc-10   | tegra_def=
+config            | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.50-135-ga6708fb92f9b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.50-135-ga6708fb92f9b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a6708fb92f9ba090fbc48f75d314883107e4057b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+beagle-xm                    | arm   | lab-baylibre  | gcc-10   | omap2plus=
+_defconfig        | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62bc093b3ca45c820ea39bd6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62bc093b3ca45c820ea39=
+bd7
+        failing since 90 days (last pass: v5.15.31-2-g57d4301e22c2, first f=
+ail: v5.15.31-3-g4ae45332eb9c) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+jetson-tk1                   | arm   | lab-baylibre  | gcc-10   | tegra_def=
+config            | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62bc06d250413f60a8a39bd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-t=
+k1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-t=
+k1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62bc06d250413f60a8a39=
+bd2
+        failing since 16 days (last pass: v5.15.45-833-g04983d84c84ee, firs=
+t fail: v5.15.45-880-g694575c32c9b2) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62bc06bb7048d007c3a39be1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-a=
+311d-khadas-vim3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-a=
+311d-khadas-vim3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62bc06bb7048d007c3a39=
+be2
+        new failure (last pass: v5.15.50-135-g7ebec9568872) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62bc08843f5e1b4a10a39bed
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62bc08843f5e1b4a10a39c13
+        failing since 113 days (last pass: v5.15.26-42-gc89c0807b943, first=
+ fail: v5.15.26-257-g2b9a22cd5eb8)
+
+    2022-06-29T08:08:10.557694  <8>[   32.514475] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-06-29T08:08:11.583102  /lava-6704969/1/../bin/lava-test-case
+    2022-06-29T08:08:11.594588  <8>[   33.553094] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+tegra124-nyan-big            | arm   | lab-collabora | gcc-10   | tegra_def=
+config            | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62bc056f0736f198a7a39bf7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra12=
+4-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.50-=
+135-ga6708fb92f9b/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra12=
+4-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62bc056f0736f198a7a39=
+bf8
+        failing since 10 days (last pass: v5.15.45-915-gfe83bcae3c626, firs=
+t fail: v5.15.48-44-gaa2f7b1f36db5) =
+
+ =20
