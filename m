@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F0B56084C
-	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 20:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93B40560847
+	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 20:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232385AbiF2SCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 14:02:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43016 "EHLO
+        id S232392AbiF2SCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 14:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231689AbiF2SCm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 14:02:42 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0F6FCF;
-        Wed, 29 Jun 2022 11:02:41 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id b12-20020a17090a6acc00b001ec2b181c98so179912pjm.4;
-        Wed, 29 Jun 2022 11:02:41 -0700 (PDT)
+        with ESMTP id S229874AbiF2SCo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 14:02:44 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3A53B3EF;
+        Wed, 29 Jun 2022 11:02:43 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id c4so14809031plc.8;
+        Wed, 29 Jun 2022 11:02:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=h7YLJWWkgB25vR4MQko7hOy0PQM4fsrLtI5uxh2dVRg=;
-        b=B3Gq/KiJEVC1ZFW/lJCBrIbv/9xn3OBum1E5ddgB64Ak3vJzpHWY4A1t/SnPG8ujf/
-         bSNfKQHoI1ya0hHRfTFK8IC+0JJi/KVfFCBytUci+coKhtMedC2eXvQw4rQKKBWnPtCO
-         AobOImQhM7+GuQ2RkOg6aoB7viQYGDN46V45WQ23wAPRCDEJMhItdL5liovHV0wAsGRZ
-         6yKbWOR7bhT4iy5Bg8yA2IceYcYBgX3U/xSzjGBpiazGC/X/EodrVMeU7ZBZpY3ccRzC
-         TSiLys7z98M2S1y0Meeb0HrT80qHNGBDq0R/XEXxOFCqOoq/88mkFLNJ0R5Aq5jRaYO6
-         cr5A==
+        bh=OvfYSzHH0FdUe/oTxazh6rNQyrJ5xcz9nHHlbTm38zg=;
+        b=RyMTdPZyMpQxXc86CeQ7pGzQ3i4lGkYzVuwRg8xzMEbqrO1zw1UBoexSsrPAIYgzvv
+         GZOQ/8maAHQV4mZQ9Jsu7KDj9Pcov3A3IEzT4+vTgKCjGKL4csj3DNs9TA437ils6nlH
+         DQTRG24bThThvZ1xTlsx9cnE6CgOZDlTGS7WkA+5Vjk8Dj12sz8CYzj7hHj+/HI6Ghfp
+         rHCUuTii73QV8jOKOZKZ3kimVHoy9RDilVwh6P6fV1k5bOQx9DzmSvtOGHl3wb3Qtn6V
+         VAB40C9b1fb8DFyvKIc1bHVZLDz46raxNd4OTA26tr9t1nSw/RAvZ8z5TFoHfI+VUh8C
+         y9lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=h7YLJWWkgB25vR4MQko7hOy0PQM4fsrLtI5uxh2dVRg=;
-        b=pwREmYvwgATTRDM48TuM6avP+vJ0DFYZIPoUXEYnY0xZaKkztsK3l0ojn7RNdB1nfC
-         k59GFRjvnuGfigTVdJZcHNjxWL0rc+IS55Q1gxL7kM00y1uLB499jlJUjPKMUrfTRojt
-         rKh9q5xmU4q/QJFBKxRi0IKlURRlqpHJoPwr3cBBtEj7frGO9ywN/qhrXUAHbuGb4M0n
-         lOHpuLfD42QehP3dQGhbDIJ3rbez8Y4bry4vSqBuOjoF8I0knB5i0N8G22rpbULuCv3b
-         D2G/ikrm6vk14W/i9QbZzWLkejLBNYpVS5IBfIa9iYWEYAK9EkGphThzFfRay9FgjZzy
-         OiuA==
-X-Gm-Message-State: AJIora+BseCre0kXEb57kt4hWFjN0Fp/6XfZbhn4DnAfX8WrtL81J4qh
-        vzdzxVOnB6YAcmNxSatFWsSpePTh98Q=
-X-Google-Smtp-Source: AGRyM1t4UW55ivDXRC1neqSdOrOVvLvtYgYW04qhW14ukrfA+CBSk1S/FVxduPbp7kr6fjA2COfE4w==
-X-Received: by 2002:a17:902:7604:b0:16a:f36d:73f3 with SMTP id k4-20020a170902760400b0016af36d73f3mr10509893pll.170.1656525760588;
-        Wed, 29 Jun 2022 11:02:40 -0700 (PDT)
+        bh=OvfYSzHH0FdUe/oTxazh6rNQyrJ5xcz9nHHlbTm38zg=;
+        b=TUWUnM5CyzB1dwtDNMUk6ECjfGBT89ns8hjZpv/ZXMTDb4KZZRFzzRRU20MI593uvv
+         jm7+Ty0jaYhXOVJ6HOike6ky3RJmkHYnK+N6tQdHB48Wk+cKvcGHXDhoC+WxuIxQWULi
+         0PU5aaEqK0CXb5AaDQX8/898Tidzw7XdBOrYe8hk3va0OF7E20ZAJtq+BvWA0py+0IaF
+         b1DVzrh2nz9u/mgg1joLxWrffFv982xGsjhTS3PK6kGTeFMwZEt0u0qHJDrg9bnrlgrr
+         VmMsdgUuOH620tP5g3qKn/pF+SUF5QfI/lrBcU6BALalISW13xoyCOoZvScu+YXsggh6
+         w0ug==
+X-Gm-Message-State: AJIora/STnuV0GmmPl3UCqktv1gyCOhzYEDmsnEV+hDp6dJw5JSCqIRx
+        7UKPSHAh98tKd6T9hWRZzywjNBf5nek=
+X-Google-Smtp-Source: AGRyM1uffzSD6CGS8+HI5BZQSR79OKJTeZpufF0SuV1l1IXEupH0+XE80+Sw6tooZMAVKxl0QQiQdw==
+X-Received: by 2002:a17:902:eec3:b0:16a:4f3b:a205 with SMTP id h3-20020a170902eec300b0016a4f3ba205mr11662070plb.39.1656525762315;
+        Wed, 29 Jun 2022 11:02:42 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id s7-20020a17090302c700b00168e83eda56sm11736371plk.3.2022.06.29.11.02.39
+        by smtp.gmail.com with ESMTPSA id s7-20020a17090302c700b00168e83eda56sm11736371plk.3.2022.06.29.11.02.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jun 2022 11:02:40 -0700 (PDT)
+        Wed, 29 Jun 2022 11:02:41 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Stefan Agner <stefan@agner.ch>,
@@ -70,9 +70,9 @@ Cc:     Stefan Agner <stefan@agner.ch>,
         linux-omap@vger.kernel.org (open list:OMAP2+ SUPPORT),
         clang-built-linux@googlegroups.com (open list:CLANG/LLVM BUILD SUPPORT),
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH stable 5.4 01/11] ARM: 8989/1: use .fpu assembler directives instead of assembler arguments
-Date:   Wed, 29 Jun 2022 11:02:17 -0700
-Message-Id: <20220629180227.3408104-2-f.fainelli@gmail.com>
+Subject: [PATCH stable 5.4 02/11] ARM: 8990/1: use VFP assembler mnemonics in register load/store macros
+Date:   Wed, 29 Jun 2022 11:02:18 -0700
+Message-Id: <20220629180227.3408104-3-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220629180227.3408104-1-f.fainelli@gmail.com>
 References: <20220629180227.3408104-1-f.fainelli@gmail.com>
@@ -90,121 +90,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefan Agner <stefan@agner.ch>
 
-commit a6c30873ee4a5cc0549c1973668156381ab2c1c4 upstream
+commit ee440336e5ef977c397afdb72cbf9c6b8effc8ea upstream
 
-Explicit FPU selection has been introduced in commit 1a6be26d5b1a
-("[ARM] Enable VFP to be built when non-VFP capable CPUs are selected")
-to make use of assembler mnemonics for VFP instructions.
+The integrated assembler of Clang 10 and earlier do not allow to access
+the VFP registers through the coprocessor load/store instructions:
+<instantiation>:4:6: error: invalid operand for instruction
+ LDC p11, cr0, [r10],#32*4 @ FLDMIAD r10!, {d0-d15}
+     ^
 
-However, clang currently does not support passing assembler flags
-like this and errors out with:
-clang-10: error: the clang compiler does not support '-Wa,-mfpu=softvfp+vfp'
+This has been addressed with Clang 11 [0]. However, to support earlier
+versions of Clang and for better readability use of VFP assembler
+mnemonics still is preferred.
 
-Make use of the .fpu assembler directives to select the floating point
-hardware selectively. Also use the new unified assembler language
-mnemonics. This allows to build these procedures with Clang.
+Replace the coprocessor load/store instructions with explicit assembler
+mnemonics to accessing the floating point coprocessor registers. Use
+assembler directives to select the appropriate FPU version.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/762
+This allows to build these macros with GNU assembler as well as with
+Clang's built-in assembler.
+
+[0] https://reviews.llvm.org/D59733
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/905
 
 Signed-off-by: Stefan Agner <stefan@agner.ch>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- arch/arm/vfp/Makefile |  2 --
- arch/arm/vfp/vfphw.S  | 30 ++++++++++++++++++++----------
- 2 files changed, 20 insertions(+), 12 deletions(-)
+ arch/arm/include/asm/vfpmacros.h | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/vfp/Makefile b/arch/arm/vfp/Makefile
-index 9975b63ac3b0..749901a72d6d 100644
---- a/arch/arm/vfp/Makefile
-+++ b/arch/arm/vfp/Makefile
-@@ -8,6 +8,4 @@
- # ccflags-y := -DDEBUG
- # asflags-y := -DDEBUG
+diff --git a/arch/arm/include/asm/vfpmacros.h b/arch/arm/include/asm/vfpmacros.h
+index 628c336e8e3b..947ee5395e1f 100644
+--- a/arch/arm/include/asm/vfpmacros.h
++++ b/arch/arm/include/asm/vfpmacros.h
+@@ -19,23 +19,25 @@
  
--KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=softvfp+vfp -mfloat-abi=soft)
--
- obj-y		+= vfpmodule.o entry.o vfphw.o vfpsingle.o vfpdouble.o
-diff --git a/arch/arm/vfp/vfphw.S b/arch/arm/vfp/vfphw.S
-index b530db8f2c6c..772c6a3b1f72 100644
---- a/arch/arm/vfp/vfphw.S
-+++ b/arch/arm/vfp/vfphw.S
-@@ -253,11 +253,14 @@ vfp_current_hw_state_address:
- 
- ENTRY(vfp_get_float)
- 	tbl_branch r0, r3, #3
+ 	@ read all the working registers back into the VFP
+ 	.macro	VFPFLDMIA, base, tmp
 +	.fpu	vfpv2
- 	.irp	dr,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--1:	mrc	p10, 0, r0, c\dr, c0, 0	@ fmrs	r0, s0
-+1:	vmov	r0, s\dr
- 	ret	lr
- 	.org	1b + 8
--1:	mrc	p10, 0, r0, c\dr, c0, 4	@ fmrs	r0, s1
-+	.endr
-+	.irp	dr,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
-+1:	vmov	r0, s\dr
- 	ret	lr
- 	.org	1b + 8
- 	.endr
-@@ -265,11 +268,14 @@ ENDPROC(vfp_get_float)
- 
- ENTRY(vfp_put_float)
- 	tbl_branch r1, r3, #3
-+	.fpu	vfpv2
- 	.irp	dr,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--1:	mcr	p10, 0, r0, c\dr, c0, 0	@ fmsr	r0, s0
-+1:	vmov	s\dr, r0
- 	ret	lr
- 	.org	1b + 8
--1:	mcr	p10, 0, r0, c\dr, c0, 4	@ fmsr	r0, s1
-+	.endr
-+	.irp	dr,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
-+1:	vmov	s\dr, r0
- 	ret	lr
- 	.org	1b + 8
- 	.endr
-@@ -277,15 +283,17 @@ ENDPROC(vfp_put_float)
- 
- ENTRY(vfp_get_double)
- 	tbl_branch r0, r3, #3
-+	.fpu	vfpv2
- 	.irp	dr,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--1:	fmrrd	r0, r1, d\dr
-+1:	vmov	r0, r1, d\dr
- 	ret	lr
- 	.org	1b + 8
- 	.endr
- #ifdef CONFIG_VFPv3
- 	@ d16 - d31 registers
--	.irp	dr,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--1:	mrrc	p11, 3, r0, r1, c\dr	@ fmrrd	r0, r1, d\dr
-+	.fpu	vfpv3
-+	.irp	dr,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
-+1:	vmov	r0, r1, d\dr
- 	ret	lr
- 	.org	1b + 8
- 	.endr
-@@ -299,15 +307,17 @@ ENDPROC(vfp_get_double)
- 
- ENTRY(vfp_put_double)
- 	tbl_branch r2, r3, #3
-+	.fpu	vfpv2
- 	.irp	dr,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--1:	fmdrr	d\dr, r0, r1
-+1:	vmov	d\dr, r0, r1
- 	ret	lr
- 	.org	1b + 8
- 	.endr
+ #if __LINUX_ARM_ARCH__ < 6
+-	LDC	p11, cr0, [\base],#33*4		    @ FLDMIAX \base!, {d0-d15}
++	fldmiax	\base!, {d0-d15}
+ #else
+-	LDC	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d0-d15}
++	vldmia	\base!, {d0-d15}
+ #endif
  #ifdef CONFIG_VFPv3
 +	.fpu	vfpv3
- 	@ d16 - d31 registers
--	.irp	dr,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--1:	mcrr	p11, 3, r0, r1, c\dr	@ fmdrr	r0, r1, d\dr
-+	.irp	dr,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
-+1:	vmov	d\dr, r0, r1
- 	ret	lr
- 	.org	1b + 8
- 	.endr
+ #if __LINUX_ARM_ARCH__ <= 6
+ 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
+ 	ldr	\tmp, [\tmp, #0]
+ 	tst	\tmp, #HWCAP_VFPD32
+-	ldclne	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
++	vldmiane \base!, {d16-d31}
+ 	addeq	\base, \base, #32*4		    @ step over unused register space
+ #else
+ 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
+ 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
+ 	cmp	\tmp, #2			    @ 32 x 64bit registers?
+-	ldcleq	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
++	vldmiaeq \base!, {d16-d31}
+ 	addne	\base, \base, #32*4		    @ step over unused register space
+ #endif
+ #endif
+@@ -44,22 +46,23 @@
+ 	@ write all the working registers out of the VFP
+ 	.macro	VFPFSTMIA, base, tmp
+ #if __LINUX_ARM_ARCH__ < 6
+-	STC	p11, cr0, [\base],#33*4		    @ FSTMIAX \base!, {d0-d15}
++	fstmiax	\base!, {d0-d15}
+ #else
+-	STC	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d0-d15}
++	vstmia	\base!, {d0-d15}
+ #endif
+ #ifdef CONFIG_VFPv3
++	.fpu	vfpv3
+ #if __LINUX_ARM_ARCH__ <= 6
+ 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
+ 	ldr	\tmp, [\tmp, #0]
+ 	tst	\tmp, #HWCAP_VFPD32
+-	stclne	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
++	vstmiane \base!, {d16-d31}
+ 	addeq	\base, \base, #32*4		    @ step over unused register space
+ #else
+ 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
+ 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
+ 	cmp	\tmp, #2			    @ 32 x 64bit registers?
+-	stcleq	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
++	vstmiaeq \base!, {d16-d31}
+ 	addne	\base, \base, #32*4		    @ step over unused register space
+ #endif
+ #endif
 -- 
 2.25.1
 
