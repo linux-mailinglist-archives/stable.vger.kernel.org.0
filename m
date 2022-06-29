@@ -2,65 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF4F560867
-	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 20:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3E0560881
+	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 20:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbiF2SDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 14:03:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43150 "EHLO
+        id S232432AbiF2SDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 14:03:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232327AbiF2SDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 14:03:06 -0400
+        with ESMTP id S232466AbiF2SDH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 14:03:07 -0400
 Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D7B13DDEB;
-        Wed, 29 Jun 2022 11:02:52 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id bo5so15831835pfb.4;
-        Wed, 29 Jun 2022 11:02:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A26E3DDD8;
+        Wed, 29 Jun 2022 11:02:54 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id c205so15804531pfc.7;
+        Wed, 29 Jun 2022 11:02:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=yKeg97WBqSrHg/vFckVR4dCqjwAhqI/IXZ1Q/lkCmf8=;
-        b=ISwwkFSMXNmwihh0c/UJaP/xtQP9g31ma35ZrrNn/SoIzpnxwQXjOjZNdjxTlC33+c
-         Vk1Cf/zt0ug5TlLGzU8ZK2EFGoKRYPHAb1dKXaTKiRgPoC6/SYotnx6gOj6l8qMc5XHZ
-         9o2im0w4Yykeuey2NfE43x+g/xb6o574AjFM9SHsWdLvj2L30rcLSBAHvvuwD9lvxkMa
-         Bl6oqdYClyVww87YK9KUCRoTqIZNIfFSfGCHaU+tjw2c/z3HPQVUbDue7DzUwERRG+Z0
-         DekxBb6QT/sNrYGgzddrLKVD8Mn/2CTJVu8/tSomsTS3eBcEpPpCpY4oX4C2wGQahbkF
-         lsCw==
+        bh=NCbkwfST1EQqulPTwFVqWpX4uMmlgqEO2U6UjuOGwso=;
+        b=YKDOtf++A64rAVrVFx8NdAm9CPO5DYjkBnjACHPZkLYas/A1mEPR+SA3nNj512DG1b
+         MLORcyl1RCV3xbFiH2FsoHImVaEEfVo45wnWKb38aLRVOylYB8UgEvAJT0Ycdg8g+tCF
+         xtsWSpgTUcGcGz1OCyVorDa8TvQ4KM57y0n1tFOmtgmee6QdPoxjy5kGiVqYUTfKViQp
+         5vOeB07Wcl8OIkPb3yR3uvdLg/5TZ0dAuiLoo6tQfjDzFPrQK2JpU3nM6YG4PJEz3yDM
+         Xqw1fT4wgoOwwTMIwI+o84Q7WY6yhJxJ9dl539WRSX4LC6+RHOG64o2Zsh5yWuI7Q0no
+         hGGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yKeg97WBqSrHg/vFckVR4dCqjwAhqI/IXZ1Q/lkCmf8=;
-        b=5pZIe+e6Vdfn6pCnCq1ty7nlDJUHnmmBTGcavnAxrCgndwtVHyBjTuJiVpXIFg1GAt
-         32yp9FrdmTeWMTc/YARkC3tIEUTgFjCIaX1ggPWE9c+0eX+liMeL7A1D8d0h7Nhpf/NV
-         u7jbRygI9I8qP79axdWh64DUiLfbTnhk3dDonFMF4q9XBDk8dS2kxAeqSe7EG/mihR00
-         ar/yz7R1eQQgYawzVLlLX9dKzxQYg67oyEcsRwO8Pf+d10X/TbMtxaHXz1LW9Wqs2djA
-         XvYZJYYyJQFqtT1EtVajBxnSITe3Hoc8hW/QBox6hM7wE98i7n6bvleuRyRqihhSeEm/
-         Wa7A==
-X-Gm-Message-State: AJIora9HVQkbjoieQzjPw9YCoJlAeexYeFkVfp32YnIyD4Y9n892W6Cq
-        wkXl2eTLRuMEwcvwqMF27X4GbjpbI/0=
-X-Google-Smtp-Source: AGRyM1tCReeMqjHifXi7iL0KQsSMeJXK+z+t9nI6L7nrRR+iaxD3DpoYzkksQnrrD8SyZ5p6yZICNg==
-X-Received: by 2002:a63:91c1:0:b0:40d:33cb:3d57 with SMTP id l184-20020a6391c1000000b0040d33cb3d57mr4038974pge.10.1656525771628;
-        Wed, 29 Jun 2022 11:02:51 -0700 (PDT)
+        bh=NCbkwfST1EQqulPTwFVqWpX4uMmlgqEO2U6UjuOGwso=;
+        b=ic95jazPeo8tZSDmxKcHj8dWVOZiU46nF/ZGflbMLgwF0SlQFOSOrQZXWkhWyzZbMV
+         ETJcyGAZL2fKbgkaxgy4VZU9yZdtYvInvDWRX6sbKU6PpMxT8dE2y53rFAIV14UsCmk9
+         6wzY9cvvijnK0SYqN4Q/5wpc46jREHQhJx9MGv4x2PXJtgTKxSzcZk4uyfRQVwQW/dMS
+         RlbnbBjOR/HJTYFIUY5w16qdNKSfvy5BIZNAESZJz0ejIYE0uy6Z3rUxN5mBWpSB62f+
+         UbkRWRjYhykpCrYEplmxkk/zrPH20MWXQsGvh6/yfzcxHEkRhHOBhx0AI+HSla6L/a1E
+         SPkA==
+X-Gm-Message-State: AJIora/MZuD/+4YiD2oOP2AjnKu7RjRq5AxeBQwUMap0sGV/apIUbDch
+        4RlLy+opN2JYe6V1XaCaeXvyY7O0Ruc=
+X-Google-Smtp-Source: AGRyM1uvOmxs69ST+tUZ10d/BtTfrRpBvbiJBh7vwQHCfCWRcquhtkTkiuRCz7bjnP0yAW064EBpOA==
+X-Received: by 2002:a05:6a00:80d:b0:525:b61f:6df2 with SMTP id m13-20020a056a00080d00b00525b61f6df2mr10331146pfk.66.1656525773326;
+        Wed, 29 Jun 2022 11:02:53 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id s7-20020a17090302c700b00168e83eda56sm11736371plk.3.2022.06.29.11.02.49
+        by smtp.gmail.com with ESMTPSA id s7-20020a17090302c700b00168e83eda56sm11736371plk.3.2022.06.29.11.02.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jun 2022 11:02:51 -0700 (PDT)
+        Wed, 29 Jun 2022 11:02:52 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Stefan Agner <stefan@agner.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+Cc:     Stefan Agner <stefan@agner.ch>, Tony Lindgren <tony@atomide.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Russell King <linux@armlinux.org.uk>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         "David S. Miller" <davem@davemloft.net>,
-        Tony Lindgren <tony@atomide.com>,
         Hans Ulli Kroll <ulli.kroll@googlemail.com>,
         Ard Biesheuvel <ardb@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Nicolas Pitre <nico@fluxnic.net>,
         Andre Przywara <andre.przywara@arm.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Jian Cai <caij2003@gmail.com>,
@@ -70,9 +69,9 @@ Cc:     Stefan Agner <stefan@agner.ch>,
         linux-omap@vger.kernel.org (open list:OMAP2+ SUPPORT),
         clang-built-linux@googlegroups.com (open list:CLANG/LLVM BUILD SUPPORT),
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH stable 5.4 07/11] ARM: 8929/1: use APSR_nzcv instead of r15 as mrc operand
-Date:   Wed, 29 Jun 2022 11:02:23 -0700
-Message-Id: <20220629180227.3408104-8-f.fainelli@gmail.com>
+Subject: [PATCH stable 5.4 08/11] ARM: OMAP2+: drop unnecessary adrl
+Date:   Wed, 29 Jun 2022 11:02:24 -0700
+Message-Id: <20220629180227.3408104-9-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220629180227.3408104-1-f.fainelli@gmail.com>
 References: <20220629180227.3408104-1-f.fainelli@gmail.com>
@@ -90,84 +89,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefan Agner <stefan@agner.ch>
 
-commit 9f1984c6ae30e2a379751339ce3375a21099b5d4 upstream
+commit d85d5247885ef2e8192287b895c2e381fa931b0b upstream
 
-LLVM's integrated assembler does not accept r15 as mrc operand.
-  arch/arm/boot/compressed/head.S:1267:16: error: operand must be a register in range [r0, r14] or apsr_nzcv
-  1: mrc p15, 0, r15, c7, c14, 3 @ test,clean,invalidate D cache
-                 ^
+The adrl instruction has been introduced with commit dd31394779aa ("ARM:
+omap3: Thumb-2 compatibility for sleep34xx.S"), back when this assembly
+file was considerably longer. Today adr seems to have enough reach, even
+when inserting about 60 instructions between the use site and the label.
+Replace adrl with conventional adr instruction.
 
-Use APSR_nzcv instead of r15. The GNU assembler supports this
-syntax since binutils 2.21 [0].
+This allows to build this file using Clang's integrated assembler (which
+does not support the adrl pseudo instruction).
 
-[0] https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=commit;h=db472d6ff0f438a21b357249a9b48e4b74498076
-
+Link: https://github.com/ClangBuiltLinux/linux/issues/430
 Signed-off-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- arch/arm/boot/compressed/head.S | 2 +-
- arch/arm/mm/proc-arm1026.S      | 4 ++--
- arch/arm/mm/proc-arm926.S       | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/mach-omap2/sleep34xx.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
-index cdaf94027d3b..17f87f4c74f5 100644
---- a/arch/arm/boot/compressed/head.S
-+++ b/arch/arm/boot/compressed/head.S
-@@ -1274,7 +1274,7 @@ iflush:
- __armv5tej_mmu_cache_flush:
- 		tst	r4, #1
- 		movne	pc, lr
--1:		mrc	p15, 0, r15, c7, c14, 3	@ test,clean,invalidate D cache
-+1:		mrc	p15, 0, APSR_nzcv, c7, c14, 3	@ test,clean,invalidate D cache
- 		bne	1b
- 		mcr	p15, 0, r0, c7, c5, 0	@ flush I cache
- 		mcr	p15, 0, r0, c7, c10, 4	@ drain WB
-diff --git a/arch/arm/mm/proc-arm1026.S b/arch/arm/mm/proc-arm1026.S
-index 10e21012380b..0bdf25a95b10 100644
---- a/arch/arm/mm/proc-arm1026.S
-+++ b/arch/arm/mm/proc-arm1026.S
-@@ -138,7 +138,7 @@ ENTRY(arm1026_flush_kern_cache_all)
- 	mov	ip, #0
- __flush_whole_cache:
- #ifndef CONFIG_CPU_DCACHE_DISABLE
--1:	mrc	p15, 0, r15, c7, c14, 3		@ test, clean, invalidate
-+1:	mrc	p15, 0, APSR_nzcv, c7, c14, 3		@ test, clean, invalidate
- 	bne	1b
- #endif
- 	tst	r2, #VM_EXEC
-@@ -363,7 +363,7 @@ ENTRY(cpu_arm1026_switch_mm)
- #ifdef CONFIG_MMU
- 	mov	r1, #0
- #ifndef CONFIG_CPU_DCACHE_DISABLE
--1:	mrc	p15, 0, r15, c7, c14, 3		@ test, clean, invalidate
-+1:	mrc	p15, 0, APSR_nzcv, c7, c14, 3		@ test, clean, invalidate
- 	bne	1b
- #endif
- #ifndef CONFIG_CPU_ICACHE_DISABLE
-diff --git a/arch/arm/mm/proc-arm926.S b/arch/arm/mm/proc-arm926.S
-index 3188ab2bac61..1ba253c2bce1 100644
---- a/arch/arm/mm/proc-arm926.S
-+++ b/arch/arm/mm/proc-arm926.S
-@@ -131,7 +131,7 @@ __flush_whole_cache:
- #ifdef CONFIG_CPU_DCACHE_WRITETHROUGH
- 	mcr	p15, 0, ip, c7, c6, 0		@ invalidate D cache
- #else
--1:	mrc	p15, 0, r15, c7, c14, 3 	@ test,clean,invalidate
-+1:	mrc	p15, 0, APSR_nzcv, c7, c14, 3 	@ test,clean,invalidate
- 	bne	1b
- #endif
- 	tst	r2, #VM_EXEC
-@@ -358,7 +358,7 @@ ENTRY(cpu_arm926_switch_mm)
- 	mcr	p15, 0, ip, c7, c6, 0		@ invalidate D cache
- #else
- @ && 'Clean & Invalidate whole DCache'
--1:	mrc	p15, 0, r15, c7, c14, 3 	@ test,clean,invalidate
-+1:	mrc	p15, 0, APSR_nzcv, c7, c14, 3 	@ test,clean,invalidate
- 	bne	1b
- #endif
- 	mcr	p15, 0, ip, c7, c5, 0		@ invalidate I cache
+diff --git a/arch/arm/mach-omap2/sleep34xx.S b/arch/arm/mach-omap2/sleep34xx.S
+index ac1324c6453b..c4e97d35c310 100644
+--- a/arch/arm/mach-omap2/sleep34xx.S
++++ b/arch/arm/mach-omap2/sleep34xx.S
+@@ -72,7 +72,7 @@ ENTRY(enable_omap3630_toggle_l2_on_restore)
+ 	stmfd	sp!, {lr}	@ save registers on stack
+ 	/* Setup so that we will disable and enable l2 */
+ 	mov	r1, #0x1
+-	adrl	r3, l2dis_3630_offset	@ may be too distant for plain adr
++	adr	r3, l2dis_3630_offset
+ 	ldr	r2, [r3]		@ value for offset
+ 	str	r1, [r2, r3]		@ write to l2dis_3630
+ 	ldmfd	sp!, {pc}	@ restore regs and return
 -- 
 2.25.1
 
