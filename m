@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 573E6560485
+	by mail.lfdr.de (Postfix) with ESMTP id A9064560486
 	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 17:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbiF2PZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 11:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37006 "EHLO
+        id S234119AbiF2PZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 11:25:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232012AbiF2PZf (ORCPT
+        with ESMTP id S234032AbiF2PZf (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 11:25:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B7C2E9FB;
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1385F2B25D;
         Wed, 29 Jun 2022 08:25:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3F83B81DDF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D079EB8254A;
         Wed, 29 Jun 2022 15:25:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82781C341C8;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 859FDC385A5;
         Wed, 29 Jun 2022 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1656516330;
-        bh=pAnLsLhlU8wTTndeJDMYPSkKHinalsEo7X4amJuUpQM=;
+        bh=vA3TDfCYgbDYTy0RpqmuVlzT3hHqXf/ueg6gMP+LLeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8I9uMenNpLPkAOu4OU252AHAeLuS1ULOqBJj/jRtjYKlO2k3vsq15dD5295i4zLl
-         sPMEt65sFl2uGdqm1TnQQIFC2H588xJBDlhDOFE8wRGaeq0/aXycMKqbTiyPUluyDx
-         5FyXeCdLf7ILdzHAIDXyAUaNk9plMiv5NReIo6ol13jHek2Dg/TYSlLrcax91M6pEM
-         ws5vKSoQvOHqukpn4KHEEW+VUs01VZsKgpN04DlgNYGcvR9yT1sIj1wf2q2k2xCmVe
-         ab/uJXDhqd+NY0ENfp8NP71Tct7dS7BS/OtFze54j7CaoaRgRPQwfQFLaUmkQWiVKt
-         0LwheY57ZH1nQ==
+        b=OkWAWn/AWasmoB43WZRoped54kCAWZVtaOLrk99sjBLJ9IREfbBoDMcvhEGPg3QLe
+         SzFj0S99e/mRJHJ2eKCcnY7uTa1D8zuMYeHZYlGRUsERU9m8heYM5PGe83DBsCWyOX
+         DWtE8RVIxotFEHt+LTvaauEa6nToESZpoiDr6JDtvlWffsbG13vL5bWw6CsQWt/k5v
+         bYKNpXn4WmfzCqaXQt4J9a6MqHWDYwIjoV+3MOChOfosE0wnf0A76FsueOuK45nyyx
+         5nwaOJho8Q4k1v5CbExOVnAZiAaWxx+OzQjS91J1n8sMy8meiPNAm33eHElznhncrg
+         TO/lw41m5bA0Q==
 Received: from mchehab by mail.kernel.org with local (Exim 4.95)
         (envelope-from <mchehab@kernel.org>)
-        id 1o6ZZH-005hFI-Nx;
+        id 1o6ZZH-005hFL-Ol;
         Wed, 29 Jun 2022 16:25:27 +0100
 From:   Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     Chris Wilson <chris.p.wilson@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
         Daniel Vetter <daniel@ffwll.ch>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
         David Airlie <airlied@linux.ie>,
         Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Ekstrand <jason@jlekstrand.net>,
         John Harrison <John.C.Harrison@Intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         Lucas De Marchi <lucas.demarchi@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Matt Roper <matthew.d.roper@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
         Matthew Brost <matthew.brost@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Oak Zeng <oak.zeng@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
         Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
         dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Fei Yang <fei.yang@intel.com>
-Subject: [PATCH v2 1/3] drm/i915/gt: Ignore TLB invalidations on idle engines
-Date:   Wed, 29 Jun 2022 16:25:24 +0100
-Message-Id: <5882cc9bf8d069151101b2469347ebe22bcbf4b8.1656516220.git.mchehab@kernel.org>
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Andi Shyti <andi.shyti@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH v2 2/3] drm/i915/gt: Serialize GRDOM access between multiple engine resets
+Date:   Wed, 29 Jun 2022 16:25:25 +0100
+Message-Id: <147cf88cd20e8ce75c7849ed5e4e913563657cdf.1656516220.git.mchehab@kernel.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <cover.1656516220.git.mchehab@kernel.org>
 References: <cover.1656516220.git.mchehab@kernel.org>
@@ -81,143 +80,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris.p.wilson@intel.com>
 
-As an extension of the current skip TLB invalidations,
-check if the device is powered down prior to any engine activity,
-as, on such cases, all the TLBs were already invalidated, so an
-explicit TLB invalidation is not needed.
-
-This becomes more significant with GuC, as it can only do so when
-the connection to the GuC is awake.
+Don't allow two engines to be reset in parallel, as they would both
+try to select a reset bit (and send requests to common registers)
+and wait on that register, at the same time. Serialize control of
+the reset requests/acks using the uncore->lock, which will also ensure
+that no other GT state changes at the same time as the actual reset.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Fei Yang <fei.yang@intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Reported-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
 Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 ---
 
 See [PATCH v2 0/3] at: https://lore.kernel.org/all/cover.1656516220.git.mchehab@kernel.org/
 
- drivers/gpu/drm/i915/gem/i915_gem_pages.c | 10 +++++----
- drivers/gpu/drm/i915/gt/intel_gt.c        | 26 +++++++++++++++++------
- drivers/gpu/drm/i915/gt/intel_gt_pm.h     |  3 +++
- 3 files changed, 28 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_reset.c | 37 ++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-index 97c820eee115..6835279943df 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-@@ -6,14 +6,15 @@
+diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
+index a5338c3fde7a..c68d36fb5bbd 100644
+--- a/drivers/gpu/drm/i915/gt/intel_reset.c
++++ b/drivers/gpu/drm/i915/gt/intel_reset.c
+@@ -300,9 +300,9 @@ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
+ 	return err;
+ }
  
- #include <drm/drm_cache.h>
- 
-+#include "gt/intel_gt.h"
-+#include "gt/intel_gt_pm.h"
-+
- #include "i915_drv.h"
- #include "i915_gem_object.h"
- #include "i915_scatterlist.h"
- #include "i915_gem_lmem.h"
- #include "i915_gem_mman.h"
- 
--#include "gt/intel_gt.h"
--
- void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
- 				 struct sg_table *pages,
- 				 unsigned int sg_page_sizes)
-@@ -217,10 +218,11 @@ __i915_gem_object_unset_pages(struct drm_i915_gem_object *obj)
- 
- 	if (test_and_clear_bit(I915_BO_WAS_BOUND_BIT, &obj->flags)) {
- 		struct drm_i915_private *i915 = to_i915(obj->base.dev);
-+		struct intel_gt *gt = to_gt(i915);
- 		intel_wakeref_t wakeref;
- 
--		with_intel_runtime_pm_if_active(&i915->runtime_pm, wakeref)
--			intel_gt_invalidate_tlbs(to_gt(i915));
-+		with_intel_gt_pm_if_awake(gt, wakeref)
-+			intel_gt_invalidate_tlbs(gt);
- 	}
- 
- 	return pages;
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index 8da3314bb6bf..30c60cd960e8 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -12,6 +12,7 @@
- 
- #include "i915_drv.h"
- #include "intel_context.h"
-+#include "intel_engine_pm.h"
- #include "intel_engine_regs.h"
- #include "intel_ggtt_gmch.h"
- #include "intel_gt.h"
-@@ -924,6 +925,7 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	struct drm_i915_private *i915 = gt->i915;
- 	struct intel_uncore *uncore = gt->uncore;
- 	struct intel_engine_cs *engine;
-+	intel_engine_mask_t awake, tmp;
- 	enum intel_engine_id id;
- 	const i915_reg_t *regs;
- 	unsigned int num = 0;
-@@ -947,12 +949,27 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 
- 	GEM_TRACE("\n");
- 
--	assert_rpm_wakelock_held(&i915->runtime_pm);
--
- 	mutex_lock(&gt->tlb_invalidate_lock);
- 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
- 
-+	awake = 0;
- 	for_each_engine(engine, gt, id) {
-+		struct reg_and_bit rb;
-+
-+		if (!intel_engine_pm_is_awake(engine))
-+			continue;
-+
-+		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
-+		if (!i915_mmio_reg_offset(rb.reg))
-+			continue;
-+
-+		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-+		awake |= engine->mask;
-+	}
-+
-+	for_each_engine_masked(engine, gt, awake, tmp) {
-+		struct reg_and_bit rb;
-+
- 		/*
- 		 * HW architecture suggest typical invalidation time at 40us,
- 		 * with pessimistic cases up to 100us and a recommendation to
-@@ -960,13 +977,8 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		 */
- 		const unsigned int timeout_us = 100;
- 		const unsigned int timeout_ms = 4;
--		struct reg_and_bit rb;
- 
- 		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
--		if (!i915_mmio_reg_offset(rb.reg))
--			continue;
--
--		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
- 		if (__intel_wait_for_register_fw(uncore,
- 						 rb.reg, rb.bit, 0,
- 						 timeout_us, timeout_ms,
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_pm.h b/drivers/gpu/drm/i915/gt/intel_gt_pm.h
-index bc898df7a48c..a334787a4939 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_pm.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_pm.h
-@@ -55,6 +55,9 @@ static inline void intel_gt_pm_might_put(struct intel_gt *gt)
- 	for (tmp = 1, intel_gt_pm_get(gt); tmp; \
- 	     intel_gt_pm_put(gt), tmp = 0)
- 
-+#define with_intel_gt_pm_if_awake(gt, wf) \
-+	for (wf = intel_gt_pm_get_if_awake(gt); wf; intel_gt_pm_put_async(gt), wf = 0)
-+
- static inline int intel_gt_pm_wait_for_idle(struct intel_gt *gt)
+-static int gen6_reset_engines(struct intel_gt *gt,
+-			      intel_engine_mask_t engine_mask,
+-			      unsigned int retry)
++static int __gen6_reset_engines(struct intel_gt *gt,
++				intel_engine_mask_t engine_mask,
++				unsigned int retry)
  {
- 	return intel_wakeref_wait_for_idle(&gt->wakeref);
+ 	struct intel_engine_cs *engine;
+ 	u32 hw_mask;
+@@ -321,6 +321,20 @@ static int gen6_reset_engines(struct intel_gt *gt,
+ 	return gen6_hw_domain_reset(gt, hw_mask);
+ }
+ 
++static int gen6_reset_engines(struct intel_gt *gt,
++			      intel_engine_mask_t engine_mask,
++			      unsigned int retry)
++{
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&gt->uncore->lock, flags);
++	ret = __gen6_reset_engines(gt, engine_mask, retry);
++	spin_unlock_irqrestore(&gt->uncore->lock, flags);
++
++	return ret;
++}
++
+ static struct intel_engine_cs *find_sfc_paired_vecs_engine(struct intel_engine_cs *engine)
+ {
+ 	int vecs_id;
+@@ -487,9 +501,9 @@ static void gen11_unlock_sfc(struct intel_engine_cs *engine)
+ 	rmw_clear_fw(uncore, sfc_lock.lock_reg, sfc_lock.lock_bit);
+ }
+ 
+-static int gen11_reset_engines(struct intel_gt *gt,
+-			       intel_engine_mask_t engine_mask,
+-			       unsigned int retry)
++static int __gen11_reset_engines(struct intel_gt *gt,
++				 intel_engine_mask_t engine_mask,
++				 unsigned int retry)
+ {
+ 	struct intel_engine_cs *engine;
+ 	intel_engine_mask_t tmp;
+@@ -583,8 +597,11 @@ static int gen8_reset_engines(struct intel_gt *gt,
+ 	struct intel_engine_cs *engine;
+ 	const bool reset_non_ready = retry >= 1;
+ 	intel_engine_mask_t tmp;
++	unsigned long flags;
+ 	int ret;
+ 
++	spin_lock_irqsave(&gt->uncore->lock, flags);
++
+ 	for_each_engine_masked(engine, gt, engine_mask, tmp) {
+ 		ret = gen8_engine_reset_prepare(engine);
+ 		if (ret && !reset_non_ready)
+@@ -612,17 +629,19 @@ static int gen8_reset_engines(struct intel_gt *gt,
+ 	 * This is best effort, so ignore any error from the initial reset.
+ 	 */
+ 	if (IS_DG2(gt->i915) && engine_mask == ALL_ENGINES)
+-		gen11_reset_engines(gt, gt->info.engine_mask, 0);
++		__gen11_reset_engines(gt, gt->info.engine_mask, 0);
+ 
+ 	if (GRAPHICS_VER(gt->i915) >= 11)
+-		ret = gen11_reset_engines(gt, engine_mask, retry);
++		ret = __gen11_reset_engines(gt, engine_mask, retry);
+ 	else
+-		ret = gen6_reset_engines(gt, engine_mask, retry);
++		ret = __gen6_reset_engines(gt, engine_mask, retry);
+ 
+ skip_reset:
+ 	for_each_engine_masked(engine, gt, engine_mask, tmp)
+ 		gen8_engine_reset_cancel(engine);
+ 
++	spin_unlock_irqrestore(&gt->uncore->lock, flags);
++
+ 	return ret;
+ }
+ 
 -- 
 2.36.1
 
