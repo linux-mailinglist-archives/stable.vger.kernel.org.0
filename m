@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B426955F2A2
-	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 03:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F3955F2A9
+	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 03:08:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbiF2BHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Jun 2022 21:07:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
+        id S229512AbiF2BIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Jun 2022 21:08:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230005AbiF2BHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 21:07:48 -0400
+        with ESMTP id S229436AbiF2BIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Jun 2022 21:08:38 -0400
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF3D31D309;
-        Tue, 28 Jun 2022 18:07:44 -0700 (PDT)
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LXjvz31HZzkWZ2;
-        Wed, 29 Jun 2022 09:06:23 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DD6F22522;
+        Tue, 28 Jun 2022 18:08:37 -0700 (PDT)
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LXjx03C4pzkWtZ;
+        Wed, 29 Jun 2022 09:07:16 +0800 (CST)
 Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 29 Jun 2022 09:07:42 +0800
+ 15.1.2375.24; Wed, 29 Jun 2022 09:08:35 +0800
 Received: from [10.174.178.208] (10.174.178.208) by
  kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 29 Jun 2022 09:07:41 +0800
-Subject: Re: [PATCH 5.10 000/102] 5.10.127-rc1 review
+ 15.1.2375.24; Wed, 29 Jun 2022 09:08:34 +0800
+Subject: Re: [PATCH 5.4 00/60] 5.4.202-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux-kernel@vger.kernel.org>
 CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
@@ -34,19 +34,19 @@ CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
         <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
         <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
         <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
-References: <20220627111933.455024953@linuxfoundation.org>
+References: <20220627111927.641837068@linuxfoundation.org>
 From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <e113c6e5-5e77-0c70-d340-4a410880baf2@huawei.com>
-Date:   Wed, 29 Jun 2022 09:07:40 +0800
+Message-ID: <c86d7683-96fc-bc42-7370-8f2493bf86fa@huawei.com>
+Date:   Wed, 29 Jun 2022 09:08:34 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20220627111933.455024953@linuxfoundation.org>
+In-Reply-To: <20220627111927.641837068@linuxfoundation.org>
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
  kwepemm600013.china.huawei.com (7.193.23.68)
 X-CFilter-Loop: Reflected
 X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
@@ -60,9 +60,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 2022/6/27 19:20, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.127 release.
-> There are 102 patches in this series, all will be posted as a response
+On 2022/6/27 19:21, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.202 release.
+> There are 60 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -70,9 +70,9 @@ On 2022/6/27 19:20, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.127-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.202-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -80,20 +80,20 @@ On 2022/6/27 19:20, Greg Kroah-Hartman wrote:
 > greg k-h
 > 
 
-Tested on arm64 and x86 for 5.10.127-rc1,
+Tested on arm64 and x86 for 5.4.202-rc1,
 
 Kernel repo:
 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.127-rc1
-Commit: 0075d2af9da3b9fa78240432ba9847ff9838f92f
+Branch: linux-5.4.y
+Version: 5.4.202-rc1
+Commit: 1c351e730d68becde35c20fa77ae48dccd9b9fc2
 Compiler: gcc version 7.3.0 (GCC)
 
 arm64:
 --------------------------------------------------------------------
 Testcase Result Summary:
-total: 9093
-passed: 9093
+total: 9086
+passed: 9086
 failed: 0
 timeout: 0
 --------------------------------------------------------------------
@@ -101,8 +101,8 @@ timeout: 0
 x86:
 --------------------------------------------------------------------
 Testcase Result Summary:
-total: 9093
-passed: 9093
+total: 9086
+passed: 9086
 failed: 0
 timeout: 0
 --------------------------------------------------------------------
