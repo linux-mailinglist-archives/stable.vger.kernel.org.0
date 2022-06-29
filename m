@@ -2,54 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B40560847
-	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 20:03:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CB31560859
+	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 20:03:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232392AbiF2SCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 14:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
+        id S232378AbiF2SDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 14:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229874AbiF2SCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 14:02:44 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3A53B3EF;
-        Wed, 29 Jun 2022 11:02:43 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id c4so14809031plc.8;
-        Wed, 29 Jun 2022 11:02:43 -0700 (PDT)
+        with ESMTP id S232353AbiF2SCq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 14:02:46 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5CD83DA44;
+        Wed, 29 Jun 2022 11:02:44 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id a15so15779907pfv.13;
+        Wed, 29 Jun 2022 11:02:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=OvfYSzHH0FdUe/oTxazh6rNQyrJ5xcz9nHHlbTm38zg=;
-        b=RyMTdPZyMpQxXc86CeQ7pGzQ3i4lGkYzVuwRg8xzMEbqrO1zw1UBoexSsrPAIYgzvv
-         GZOQ/8maAHQV4mZQ9Jsu7KDj9Pcov3A3IEzT4+vTgKCjGKL4csj3DNs9TA437ils6nlH
-         DQTRG24bThThvZ1xTlsx9cnE6CgOZDlTGS7WkA+5Vjk8Dj12sz8CYzj7hHj+/HI6Ghfp
-         rHCUuTii73QV8jOKOZKZ3kimVHoy9RDilVwh6P6fV1k5bOQx9DzmSvtOGHl3wb3Qtn6V
-         VAB40C9b1fb8DFyvKIc1bHVZLDz46raxNd4OTA26tr9t1nSw/RAvZ8z5TFoHfI+VUh8C
-         y9lw==
+        bh=1CUR8O9fHhSNAhX4q/Xzc+ql6Bnj76byUj4wK9Q15Ic=;
+        b=BOlmhCIKv0vVPmYiJDK0UHIuu3bPKssJRXLdiTh01hYbD/a8Np09+wRdfy/pid7060
+         22uJuozwU0r94af9bRurSyraxAJXSeFbdTOCm04l6saOb+eW3cUK352xUKdoXz+QKsC0
+         RxegzZkSnbCFKFHqoPvoCfX+5cOunNpTsaz2p2cMdktDsar3mCYGVjieqcC1yX7o4c//
+         eVDkmvzmqn0VPqt7Hiai6MPpSoYtzbMv1GsOjKsHW+GhXbrYHudM9dhPgqDRG6hpxJfV
+         fok7yNxAxF8mRETtNmFaTYWq1rteHjQXnS2GABzeXqkdVOnZcxcR3SWkkS0qz7/vxT9n
+         76Yw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=OvfYSzHH0FdUe/oTxazh6rNQyrJ5xcz9nHHlbTm38zg=;
-        b=TUWUnM5CyzB1dwtDNMUk6ECjfGBT89ns8hjZpv/ZXMTDb4KZZRFzzRRU20MI593uvv
-         jm7+Ty0jaYhXOVJ6HOike6ky3RJmkHYnK+N6tQdHB48Wk+cKvcGHXDhoC+WxuIxQWULi
-         0PU5aaEqK0CXb5AaDQX8/898Tidzw7XdBOrYe8hk3va0OF7E20ZAJtq+BvWA0py+0IaF
-         b1DVzrh2nz9u/mgg1joLxWrffFv982xGsjhTS3PK6kGTeFMwZEt0u0qHJDrg9bnrlgrr
-         VmMsdgUuOH620tP5g3qKn/pF+SUF5QfI/lrBcU6BALalISW13xoyCOoZvScu+YXsggh6
-         w0ug==
-X-Gm-Message-State: AJIora/STnuV0GmmPl3UCqktv1gyCOhzYEDmsnEV+hDp6dJw5JSCqIRx
-        7UKPSHAh98tKd6T9hWRZzywjNBf5nek=
-X-Google-Smtp-Source: AGRyM1uffzSD6CGS8+HI5BZQSR79OKJTeZpufF0SuV1l1IXEupH0+XE80+Sw6tooZMAVKxl0QQiQdw==
-X-Received: by 2002:a17:902:eec3:b0:16a:4f3b:a205 with SMTP id h3-20020a170902eec300b0016a4f3ba205mr11662070plb.39.1656525762315;
-        Wed, 29 Jun 2022 11:02:42 -0700 (PDT)
+        bh=1CUR8O9fHhSNAhX4q/Xzc+ql6Bnj76byUj4wK9Q15Ic=;
+        b=X8Dx6aA4r+Kzcfc0lZwWS0Mn8jegRCbFAjApvrwwVKDMQen5utK7fd6e+oYLoqGE4P
+         GdApgsqCzGYhxDpBXXxjg7Dsbkl9id+5OpPKr2d8mKMqNWhXFLqOSVHg2fgmZcLkIl/O
+         p4yzdlw+Fu2tTopOmuVqC7DOZs3RdmDx1uwsS2pkfaBIwbviCBMVHu5rzRIRO+R5f3bo
+         VflbQ/X9dzG2+YZ6Mkozi6H27VVNXua0QlZ/mukZhmPLmwRm5N5MtpmBsPice1EU+2ic
+         0g8nCnPbVqNo6XyqV6eZXW++I2Dx8cORWEbtAPktJPKi1YdaD0uTGcjZncwXueVwvdZQ
+         IlYQ==
+X-Gm-Message-State: AJIora8B1H81NwISKuX6Vdq299J3Z0kho4KYLCdyFXX6r/Vc5U//osIT
+        dGF2tj2qcOm7gpW3iHQyvVyvJi1OmQI=
+X-Google-Smtp-Source: AGRyM1utBpfI/DNVRcDg003dQGaUDHs79iNtpeZDewPznsipYT5mnhUsGrYN4xh56aC+dz96nt6cnQ==
+X-Received: by 2002:a63:2a8d:0:b0:40c:9b5f:13d3 with SMTP id q135-20020a632a8d000000b0040c9b5f13d3mr3849554pgq.465.1656525764047;
+        Wed, 29 Jun 2022 11:02:44 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id s7-20020a17090302c700b00168e83eda56sm11736371plk.3.2022.06.29.11.02.40
+        by smtp.gmail.com with ESMTPSA id s7-20020a17090302c700b00168e83eda56sm11736371plk.3.2022.06.29.11.02.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jun 2022 11:02:41 -0700 (PDT)
+        Wed, 29 Jun 2022 11:02:43 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Stefan Agner <stefan@agner.ch>,
+Cc:     Jian Cai <caij2003@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Russell King <linux@armlinux.org.uk>,
@@ -58,21 +59,20 @@ Cc:     Stefan Agner <stefan@agner.ch>,
         Tony Lindgren <tony@atomide.com>,
         Hans Ulli Kroll <ulli.kroll@googlemail.com>,
         Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        Stefan Agner <stefan@agner.ch>,
         Nicolas Pitre <nico@fluxnic.net>,
         Andre Przywara <andre.przywara@arm.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Jian Cai <caij2003@gmail.com>,
         linux-arm-kernel@lists.infradead.org (moderated list:ARM PORT),
         linux-kernel@vger.kernel.org (open list),
         linux-crypto@vger.kernel.org (open list:CRYPTO API),
         linux-omap@vger.kernel.org (open list:OMAP2+ SUPPORT),
         clang-built-linux@googlegroups.com (open list:CLANG/LLVM BUILD SUPPORT),
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH stable 5.4 02/11] ARM: 8990/1: use VFP assembler mnemonics in register load/store macros
-Date:   Wed, 29 Jun 2022 11:02:18 -0700
-Message-Id: <20220629180227.3408104-3-f.fainelli@gmail.com>
+Subject: [PATCH stable 5.4 03/11] ARM: 8971/1: replace the sole use of a symbol with its definition
+Date:   Wed, 29 Jun 2022 11:02:19 -0700
+Message-Id: <20220629180227.3408104-4-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220629180227.3408104-1-f.fainelli@gmail.com>
 References: <20220629180227.3408104-1-f.fainelli@gmail.com>
@@ -88,100 +88,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Jian Cai <caij2003@gmail.com>
 
-commit ee440336e5ef977c397afdb72cbf9c6b8effc8ea upstream
+commit a780e485b5768e78aef087502499714901b68cc4 upstream
 
-The integrated assembler of Clang 10 and earlier do not allow to access
-the VFP registers through the coprocessor load/store instructions:
-<instantiation>:4:6: error: invalid operand for instruction
- LDC p11, cr0, [r10],#32*4 @ FLDMIAD r10!, {d0-d15}
-     ^
+ALT_UP_B macro sets symbol up_b_offset via .equ to an expression
+involving another symbol. The macro gets expanded twice when
+arch/arm/kernel/sleep.S is assembled, creating a scenario where
+up_b_offset is set to another expression involving symbols while its
+current value is based on symbols. LLVM integrated assembler does not
+allow such cases, and based on the documentation of binutils, "Values
+that are based on expressions involving other symbols are allowed, but
+some targets may restrict this to only being done once per assembly", so
+it may be better to avoid such cases as it is not clearly stated which
+targets should support or disallow them. The fix in this case is simple,
+as up_b_offset has only one use, so we can replace the use with the
+definition and get rid of up_b_offset.
 
-This has been addressed with Clang 11 [0]. However, to support earlier
-versions of Clang and for better readability use of VFP assembler
-mnemonics still is preferred.
+ Link:https://github.com/ClangBuiltLinux/linux/issues/920
 
-Replace the coprocessor load/store instructions with explicit assembler
-mnemonics to accessing the floating point coprocessor registers. Use
-assembler directives to select the appropriate FPU version.
+ Reviewed-by: Stefan Agner <stefan@agner.ch>
 
-This allows to build these macros with GNU assembler as well as with
-Clang's built-in assembler.
-
-[0] https://reviews.llvm.org/D59733
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/905
-
-Signed-off-by: Stefan Agner <stefan@agner.ch>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Jian Cai <caij2003@gmail.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- arch/arm/include/asm/vfpmacros.h | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ arch/arm/include/asm/assembler.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/include/asm/vfpmacros.h b/arch/arm/include/asm/vfpmacros.h
-index 628c336e8e3b..947ee5395e1f 100644
---- a/arch/arm/include/asm/vfpmacros.h
-+++ b/arch/arm/include/asm/vfpmacros.h
-@@ -19,23 +19,25 @@
- 
- 	@ read all the working registers back into the VFP
- 	.macro	VFPFLDMIA, base, tmp
-+	.fpu	vfpv2
- #if __LINUX_ARM_ARCH__ < 6
--	LDC	p11, cr0, [\base],#33*4		    @ FLDMIAX \base!, {d0-d15}
-+	fldmiax	\base!, {d0-d15}
+diff --git a/arch/arm/include/asm/assembler.h b/arch/arm/include/asm/assembler.h
+index 6b3e64e19fb6..70e1c23feedb 100644
+--- a/arch/arm/include/asm/assembler.h
++++ b/arch/arm/include/asm/assembler.h
+@@ -279,10 +279,9 @@
+ 	.endif							;\
+ 	.popsection
+ #define ALT_UP_B(label)					\
+-	.equ	up_b_offset, label - 9998b			;\
+ 	.pushsection ".alt.smp.init", "a"			;\
+ 	.long	9998b						;\
+-	W(b)	. + up_b_offset					;\
++	W(b)	. + (label - 9998b)					;\
+ 	.popsection
  #else
--	LDC	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d0-d15}
-+	vldmia	\base!, {d0-d15}
- #endif
- #ifdef CONFIG_VFPv3
-+	.fpu	vfpv3
- #if __LINUX_ARM_ARCH__ <= 6
- 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
- 	ldr	\tmp, [\tmp, #0]
- 	tst	\tmp, #HWCAP_VFPD32
--	ldclne	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
-+	vldmiane \base!, {d16-d31}
- 	addeq	\base, \base, #32*4		    @ step over unused register space
- #else
- 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
- 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
- 	cmp	\tmp, #2			    @ 32 x 64bit registers?
--	ldcleq	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
-+	vldmiaeq \base!, {d16-d31}
- 	addne	\base, \base, #32*4		    @ step over unused register space
- #endif
- #endif
-@@ -44,22 +46,23 @@
- 	@ write all the working registers out of the VFP
- 	.macro	VFPFSTMIA, base, tmp
- #if __LINUX_ARM_ARCH__ < 6
--	STC	p11, cr0, [\base],#33*4		    @ FSTMIAX \base!, {d0-d15}
-+	fstmiax	\base!, {d0-d15}
- #else
--	STC	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d0-d15}
-+	vstmia	\base!, {d0-d15}
- #endif
- #ifdef CONFIG_VFPv3
-+	.fpu	vfpv3
- #if __LINUX_ARM_ARCH__ <= 6
- 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
- 	ldr	\tmp, [\tmp, #0]
- 	tst	\tmp, #HWCAP_VFPD32
--	stclne	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
-+	vstmiane \base!, {d16-d31}
- 	addeq	\base, \base, #32*4		    @ step over unused register space
- #else
- 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
- 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
- 	cmp	\tmp, #2			    @ 32 x 64bit registers?
--	stcleq	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
-+	vstmiaeq \base!, {d16-d31}
- 	addne	\base, \base, #32*4		    @ step over unused register space
- #endif
- #endif
+ #define ALT_SMP(instr...)
 -- 
 2.25.1
 
