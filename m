@@ -2,71 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E239560491
-	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 17:29:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60DC5604A2
+	for <lists+stable@lfdr.de>; Wed, 29 Jun 2022 17:31:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbiF2P2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 11:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41110 "EHLO
+        id S234354AbiF2Pa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 11:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229671AbiF2P2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 11:28:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7008F1F607;
-        Wed, 29 Jun 2022 08:28:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 175F460B27;
-        Wed, 29 Jun 2022 15:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55365C34114;
-        Wed, 29 Jun 2022 15:28:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656516523;
-        bh=9m05X+L1Yh5lABIuv59hR8VxTgJT7AqHQH/3/akiMDo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vzkbkL6HN99ITQh6yKy8GY8NqM2ZQYHkpvTFkn1Af+5C5+01TEnR87Nj5ogMr9DZ9
-         rDgbs8vh9HTe55KzhaScC3Ai23yAurcgTC8uVcidsHIPkZHALQxqiVkyicaAQenybE
-         604ilyZm2rtJjKhO3He67IVwaNhNB20hy9f2peTg=
-Date:   Wed, 29 Jun 2022 17:28:35 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
-        Gregory Erwin <gregerwin256@gmail.com>,
-        Toke =?iso-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@redhat.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v8] ath9k: let sleep be interrupted when unregistering
- hwrng
-Message-ID: <Yrxvo4omb2qKNOVJ@kroah.com>
-References: <Yrw5f8GN2fh2orid@zx2c4.com>
- <20220629114240.946411-1-Jason@zx2c4.com>
+        with ESMTP id S233142AbiF2PaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 11:30:18 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B6837A3C;
+        Wed, 29 Jun 2022 08:30:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656516617; x=1688052617;
+  h=date:from:to:cc:subject:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=SJ3zrtAdiRXrExOHH4PA7vzVduYFYbuyAhmqGXy7Ux8=;
+  b=OMSifA62VOW+m83eB4idCvxhNIPy2Na8lQxFCjGC+Cxs3pb/JL+qdWl8
+   4b8TFY0Iv6OdkNWyLDPK03X52nsy0Taen+1TmLkMZIQiR4Tgqp3H7BI/k
+   NvIOYS6IPmmQp1LgvATsSUmsSm1kOXR8cmWnpeDEhpFx1O8KDyYXZdj6B
+   7kDi4FvPlwApvYrqRliSJDiXs3PaIDgbgkHyR6MkfpOWmHDrTu6LbfLLX
+   uzdNZy7bfXxkPF9Gxg/BA5dkvoTDohDEnUcQv6lTkHHCxoQl6caEUfuTG
+   Bagnqz9TMSWxmPiTAWt9PIyUdsMB2N6eBawndOzXGrzzk1zJCvbmt39No
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10393"; a="368372952"
+X-IronPort-AV: E=Sophos;i="5.92,231,1650956400"; 
+   d="scan'208";a="368372952"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2022 08:30:16 -0700
+X-IronPort-AV: E=Sophos;i="5.92,231,1650956400"; 
+   d="scan'208";a="595274517"
+Received: from maurocar-mobl2.ger.corp.intel.com (HELO maurocar-mobl2) ([10.249.42.133])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2022 08:30:10 -0700
+Date:   Wed, 29 Jun 2022 17:30:07 +0200
+From:   Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
+To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc:     Andi Shyti <andi.shyti@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Chris Wilson <chris.p.wilson@intel.com>,
+        Fei Yang <fei.yang@intel.com>,
+        Thomas Hellstrom <thomas.hellstrom@intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        John Harrison <John.C.Harrison@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org,
+        Thomas =?UTF-8?B?SGVs?= =?UTF-8?B?bHN0csO2bQ==?= 
+        <thomas.hellstrom@linux.intel.com>
+Subject: Re: [PATCH 5/6] drm/i915/gt: Serialize GRDOM access between
+ multiple engine resets
+Message-ID: <20220629172955.64ffb5c3@maurocar-mobl2>
+In-Reply-To: <d79492ad-b99a-f9a9-f64a-52b94db68a3b@linux.intel.com>
+References: <cover.1655306128.git.mchehab@kernel.org>
+        <5ee647f243a774927ec328bfca8212abc4957909.1655306128.git.mchehab@kernel.org>
+        <YrRLyg1IJoZpVGfg@intel.intel>
+        <160e613f-a0a8-18ff-5d4b-249d4280caa8@linux.intel.com>
+        <20220627110056.6dfa4f9b@maurocar-mobl2>
+        <d79492ad-b99a-f9a9-f64a-52b94db68a3b@linux.intel.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220629114240.946411-1-Jason@zx2c4.com>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 29, 2022 at 01:42:40PM +0200, Jason A. Donenfeld wrote:
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-> @@ -4284,6 +4284,7 @@ int wake_up_state(struct task_struct *p, unsigned int state)
->  {
->  	return try_to_wake_up(p, state, 0);
->  }
-> +EXPORT_SYMBOL(wake_up_state);
+On Tue, 28 Jun 2022 16:49:23 +0100
+Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
 
-Should be EXPORT_SYMBOL_GPL(), right?
+>.. which for me means a different patch 1, followed by patch 6 (moved 
+> to be patch 2) would be ideal stable material.
+> 
+> Then we have the current patch 2 which is open/unknown (to me at least).
+> 
+> And the rest seem like optimisations which shouldn't be tagged as fixes.
+> 
+> Apart from patch 5 which should be cc: stable, but no fixes as agreed.
+> 
+> Could you please double check if what I am suggesting here is feasible 
+> to implement and if it is just send those minimal patches out alone?
 
-thanks,
+Tested and porting just those 3 patches are enough to fix the Broadwell
+bug.
 
-greg k-h
+So, I submitted a v2 of this series with just those. They all need to
+be backported to stable.
+
+I still think that other TLB patches are needed/desired upstream, but
+I'll submit them on a separate series. Let's fix the regression first ;-)
+
+Regards,
+Mauro
