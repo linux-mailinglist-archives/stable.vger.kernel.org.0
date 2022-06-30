@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A40A561C72
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6630F561C6C
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235857AbiF3Nym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:54:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52588 "EHLO
+        id S235898AbiF3Nyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:54:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235856AbiF3NyD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:03 -0400
+        with ESMTP id S235716AbiF3NyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CDC4F67B;
-        Thu, 30 Jun 2022 06:50:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DE752380;
+        Thu, 30 Jun 2022 06:50:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AFC66200C;
-        Thu, 30 Jun 2022 13:50:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CF0AC34115;
-        Thu, 30 Jun 2022 13:50:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED9461FD8;
+        Thu, 30 Jun 2022 13:50:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29582C34115;
+        Thu, 30 Jun 2022 13:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597011;
-        bh=5IAul4nVA0v/SXKbKkkc5UM9tUp4vDxfGgP1gt6NQFk=;
+        s=korg; t=1656597014;
+        bh=DuigcMx0DqVCBIG2n4mSaG34J8iwHHjFkHvYhh4Vh9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uo2IZIsqFYeoezbw2gp5ouisrFfMZaAEH4n3JGBghucdDJaTVcRTF3FyzYaLpOq3b
-         MIIOEltEVvhpSKg7iN39VGBKiFizAuoNv1vNLcMVgEhh6QQjZkrRiZ+AuEXyvEkraX
-         pvCubOTfKm3fxyxIiAtoSY/1J9YlxF43WuD7HQhs=
+        b=pNg0vYEIXhaNR/qzJc5VqMRqznETE0SJh8YEKW+WnOhwA1MkbnAOd5ZfMZaph4f09
+         tJJ1iDNbJnUux8Zu4rv76iCP2Vc3EnfKs5wxm/fgaDQp6eqIk6V36CFx1xo+SwOXUh
+         ydGgRujznGqP14Upo7v4A39+lu6uFovYQU7xpqo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 30/35] powerpc/pseries: wire up rng during setup_arch()
-Date:   Thu, 30 Jun 2022 15:46:41 +0200
-Message-Id: <20220630133233.325811539@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
+Subject: [PATCH 4.14 31/35] drm: remove drm_fb_helper_modinit
+Date:   Thu, 30 Jun 2022 15:46:42 +0200
+Message-Id: <20220630133233.355081013@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
 References: <20220630133232.433955678@linuxfoundation.org>
@@ -54,81 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit e561e472a3d441753bd012333b057f48fef1045b upstream.
+commit bf22c9ec39da90ce866d5f625d616f28bc733dc1 upstream.
 
-The platform's RNG must be available before random_init() in order to be
-useful for initial seeding, which in turn means that it needs to be
-called from setup_arch(), rather than from an init call. Fortunately,
-each platform already has a setup_arch function pointer, which means
-it's easy to wire this up. This commit also removes some noisy log
-messages that don't add much.
+drm_fb_helper_modinit has a lot of boilerplate for what is not very
+simple functionality.  Just open code it in the only caller using
+IS_ENABLED and IS_MODULE, and skip the find_module check as a
+request_module is harmless if the module is already loaded (and not
+other caller has this find_module check either).
 
-Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
-Cc: stable@vger.kernel.org # v3.13+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220611151015.548325-4-Jason@zx2c4.com
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/pseries.h |    2 ++
- arch/powerpc/platforms/pseries/rng.c     |   11 +++--------
- arch/powerpc/platforms/pseries/setup.c   |    1 +
- 3 files changed, 6 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/drm_crtc_helper_internal.h |   10 ----------
+ drivers/gpu/drm/drm_fb_helper.c            |   21 ---------------------
+ drivers/gpu/drm/drm_kms_helper_common.c    |   23 +++++++++++------------
+ 3 files changed, 11 insertions(+), 43 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/pseries.h
-+++ b/arch/powerpc/platforms/pseries/pseries.h
-@@ -102,4 +102,6 @@ int dlpar_workqueue_init(void);
+--- a/drivers/gpu/drm/drm_crtc_helper_internal.h
++++ b/drivers/gpu/drm/drm_crtc_helper_internal.h
+@@ -32,16 +32,6 @@
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_modes.h>
  
- void pseries_setup_rfi_flush(void);
- 
-+void pseries_rng_init(void);
-+
- #endif /* _PSERIES_PSERIES_H */
---- a/arch/powerpc/platforms/pseries/rng.c
-+++ b/arch/powerpc/platforms/pseries/rng.c
-@@ -14,6 +14,7 @@
- #include <asm/archrandom.h>
- #include <asm/machdep.h>
- #include <asm/plpar_wrappers.h>
-+#include "pseries.h"
- 
- 
- static int pseries_get_random_long(unsigned long *v)
-@@ -28,19 +29,13 @@ static int pseries_get_random_long(unsig
+-/* drm_fb_helper.c */
+-#ifdef CONFIG_DRM_FBDEV_EMULATION
+-int drm_fb_helper_modinit(void);
+-#else
+-static inline int drm_fb_helper_modinit(void)
+-{
+-	return 0;
+-}
+-#endif
+-
+ /* drm_dp_aux_dev.c */
+ #ifdef CONFIG_DRM_DP_AUX_CHARDEV
+ int drm_dp_aux_dev_init(void);
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -2612,24 +2612,3 @@ int drm_fb_helper_hotplug_event(struct d
  	return 0;
  }
- 
--static __init int rng_init(void)
-+void __init pseries_rng_init(void)
- {
- 	struct device_node *dn;
- 
- 	dn = of_find_compatible_node(NULL, NULL, "ibm,random");
- 	if (!dn)
--		return -ENODEV;
+ EXPORT_SYMBOL(drm_fb_helper_hotplug_event);
 -
--	pr_info("Registering arch random hook.\n");
+-/* The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
+- * but the module doesn't depend on any fb console symbols.  At least
+- * attempt to load fbcon to avoid leaving the system without a usable console.
+- */
+-int __init drm_fb_helper_modinit(void)
+-{
+-#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
+-	const char name[] = "fbcon";
+-	struct module *fbcon;
 -
-+		return;
- 	ppc_md.get_random_seed = pseries_get_random_long;
+-	mutex_lock(&module_mutex);
+-	fbcon = find_module(name);
+-	mutex_unlock(&module_mutex);
 -
- 	of_node_put(dn);
+-	if (!fbcon)
+-		request_module_nowait(name);
+-#endif
 -	return 0;
- }
--machine_subsys_initcall(pseries, rng_init);
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -594,6 +594,7 @@ static void __init pSeries_setup_arch(vo
- 	}
+-}
+-EXPORT_SYMBOL(drm_fb_helper_modinit);
+--- a/drivers/gpu/drm/drm_kms_helper_common.c
++++ b/drivers/gpu/drm/drm_kms_helper_common.c
+@@ -35,19 +35,18 @@ MODULE_LICENSE("GPL and additional right
  
- 	ppc_md.pcibios_root_bridge_prepare = pseries_root_bridge_prepare;
-+	pseries_rng_init();
+ static int __init drm_kms_helper_init(void)
+ {
+-	int ret;
++	/*
++	 * The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
++	 * but the module doesn't depend on any fb console symbols.  At least
++	 * attempt to load fbcon to avoid leaving the system without a usable
++	 * console.
++	 */
++	if (IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION) &&
++	    IS_MODULE(CONFIG_FRAMEBUFFER_CONSOLE) &&
++	    !IS_ENABLED(CONFIG_EXPERT))
++		request_module_nowait("fbcon");
+ 
+-	/* Call init functions from specific kms helpers here */
+-	ret = drm_fb_helper_modinit();
+-	if (ret < 0)
+-		goto out;
+-
+-	ret = drm_dp_aux_dev_init();
+-	if (ret < 0)
+-		goto out;
+-
+-out:
+-	return ret;
++	return drm_dp_aux_dev_init();
  }
  
- static int __init pSeries_init_panel(void)
+ static void __exit drm_kms_helper_exit(void)
 
 
