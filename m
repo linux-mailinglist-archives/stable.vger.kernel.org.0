@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1279561D32
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD3D3561D51
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233783AbiF3OEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:04:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47308 "EHLO
+        id S236456AbiF3OIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235538AbiF3OEF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:04:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9750E6B80E;
-        Thu, 30 Jun 2022 06:53:30 -0700 (PDT)
+        with ESMTP id S236826AbiF3OHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A18B748835;
+        Thu, 30 Jun 2022 06:54:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 131286204B;
-        Thu, 30 Jun 2022 13:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C96C34115;
-        Thu, 30 Jun 2022 13:53:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6542662123;
+        Thu, 30 Jun 2022 13:54:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6920FC3411E;
+        Thu, 30 Jun 2022 13:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597207;
-        bh=/VgdTWu0dxKHhk1MIlpNq8s8juV2Au1DBtaZAj/hcb0=;
+        s=korg; t=1656597281;
+        bh=piyC3L6uuPyfoT9X7ui+FEczQZnzKsyn7sl7Q/Oeuds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOijS7bqTSZLgBSE2LSORnmbSXtvw09wwhtT/zP7tV10YhVT/dmfx+QeJ0E08rCh9
-         B1Y3kyKL8PJPU2rgmubX8VmTLM3moVmc4RSRU034SrIWqPqiGdL2/RwBjVL9c4zAoI
-         H0j4X3fJGYmOJV01Ce0JN00D0bstvudwimsco3ZY=
+        b=eyxXY+kMFidI4c4DISExrtIyEW+V2MERDvTzigtF7NbbCppcwGbpz315Cxk8RX84H
+         1es1MgQYe0BcrlDA8FiZ50OCIwW15JZiYeCExM8jVnHJghyUy1G4NqDsnxkxAA/oR3
+         2wHuaWEE6OcwH419KYTjfZn2jKyocLEI5hnT+G0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 03/16] powerpc/ftrace: Remove ftrace init tramp once kernel init is complete
-Date:   Thu, 30 Jun 2022 15:46:57 +0200
-Message-Id: <20220630133231.038219498@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.15 02/28] clocksource/drivers/ixp4xx: remove __init from ixp4xx_timer_setup()
+Date:   Thu, 30 Jun 2022 15:46:58 +0200
+Message-Id: <20220630133233.000575254@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.936488203@linuxfoundation.org>
-References: <20220630133230.936488203@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+References: <20220630133232.926711493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 84ade0a6655bee803d176525ef457175cbf4df22 upstream.
+ixp4xx_timer_setup is exported, and so can not be an __init function.
+Remove the __init marking as the build system is rightfully claiming
+this is an error in older kernels.
 
-Stop using the ftrace trampoline for init section once kernel init is
-complete.
+This is fixed "properly" in commit 41929c9f628b
+("clocksource/drivers/ixp4xx: Drop boardfile probe path") but that can
+not be backported to older kernels as the reworking of the IXP4xx
+codebase is not suitable for stable releases.
 
-Fixes: 67361cf8071286 ("powerpc/ftrace: Handle large kernel configs")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220516071422.463738-1-naveen.n.rao@linux.vnet.ibm.com
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/ftrace.h  |    5 ++++-
- arch/powerpc/kernel/trace/ftrace.c |   15 ++++++++++++---
- arch/powerpc/mm/mem.c              |    2 ++
- 3 files changed, 18 insertions(+), 4 deletions(-)
+ drivers/clocksource/mmio.c                 |    2 +-
+ drivers/clocksource/timer-ixp4xx.c         |   10 ++++------
+ include/linux/platform_data/timer-ixp4xx.h |    5 ++---
+ 3 files changed, 7 insertions(+), 10 deletions(-)
 
---- a/arch/powerpc/include/asm/ftrace.h
-+++ b/arch/powerpc/include/asm/ftrace.h
-@@ -96,7 +96,7 @@ static inline bool arch_syscall_match_sy
- #endif /* PPC64_ELF_ABI_v1 */
- #endif /* CONFIG_FTRACE_SYSCALLS */
- 
--#ifdef CONFIG_PPC64
-+#if defined(CONFIG_PPC64) && defined(CONFIG_FUNCTION_TRACER)
- #include <asm/paca.h>
- 
- static inline void this_cpu_disable_ftrace(void)
-@@ -108,9 +108,12 @@ static inline void this_cpu_enable_ftrac
+--- a/drivers/clocksource/mmio.c
++++ b/drivers/clocksource/mmio.c
+@@ -46,7 +46,7 @@ u64 clocksource_mmio_readw_down(struct c
+  * @bits:	Number of valid bits
+  * @read:	One of clocksource_mmio_read*() above
+  */
+-int __init clocksource_mmio_init(void __iomem *base, const char *name,
++int clocksource_mmio_init(void __iomem *base, const char *name,
+ 	unsigned long hz, int rating, unsigned bits,
+ 	u64 (*read)(struct clocksource *))
  {
- 	get_paca()->ftrace_enabled = 1;
- }
-+
-+void ftrace_free_init_tramp(void);
- #else /* CONFIG_PPC64 */
- static inline void this_cpu_disable_ftrace(void) { }
- static inline void this_cpu_enable_ftrace(void) { }
-+static inline void ftrace_free_init_tramp(void) { }
- #endif /* CONFIG_PPC64 */
- #endif /* !__ASSEMBLY__ */
- 
---- a/arch/powerpc/kernel/trace/ftrace.c
-+++ b/arch/powerpc/kernel/trace/ftrace.c
-@@ -328,9 +328,7 @@ static int setup_mcount_compiler_tramp(u
- 
- 	/* Is this a known long jump tramp? */
- 	for (i = 0; i < NUM_FTRACE_TRAMPS; i++)
--		if (!ftrace_tramps[i])
--			break;
--		else if (ftrace_tramps[i] == tramp)
-+		if (ftrace_tramps[i] == tramp)
- 			return 0;
- 
- 	/* Is this a known plt tramp? */
-@@ -868,6 +866,17 @@ void arch_ftrace_update_code(int command
- 
- extern unsigned int ftrace_tramp_text[], ftrace_tramp_init[];
- 
-+void ftrace_free_init_tramp(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NUM_FTRACE_TRAMPS && ftrace_tramps[i]; i++)
-+		if (ftrace_tramps[i] == (unsigned long)ftrace_tramp_init) {
-+			ftrace_tramps[i] = 0;
-+			return;
-+		}
-+}
-+
- int __init ftrace_dyn_arch_init(void)
+--- a/drivers/clocksource/timer-ixp4xx.c
++++ b/drivers/clocksource/timer-ixp4xx.c
+@@ -161,9 +161,8 @@ static int ixp4xx_resume(struct clock_ev
+  * We use OS timer1 on the CPU for the timer tick and the timestamp
+  * counter as a source of real clock ticks to account for missed jiffies.
+  */
+-static __init int ixp4xx_timer_register(void __iomem *base,
+-					int timer_irq,
+-					unsigned int timer_freq)
++static int ixp4xx_timer_register(void __iomem *base, int timer_irq,
++				 unsigned int timer_freq)
  {
- 	int i;
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -48,6 +48,7 @@
- #include <asm/fixmap.h>
- #include <asm/swiotlb.h>
- #include <asm/rtas.h>
-+#include <asm/ftrace.h>
+ 	struct ixp4xx_timer *tmr;
+ 	int ret;
+@@ -269,9 +268,8 @@ builtin_platform_driver(ixp4xx_timer_dri
+  * @timer_irq: Linux IRQ number for the timer
+  * @timer_freq: Fixed frequency of the timer
+  */
+-void __init ixp4xx_timer_setup(resource_size_t timerbase,
+-			       int timer_irq,
+-			       unsigned int timer_freq)
++void ixp4xx_timer_setup(resource_size_t timerbase, int timer_irq,
++			unsigned int timer_freq)
+ {
+ 	void __iomem *base;
  
- #include <mm/mmu_decl.h>
+--- a/include/linux/platform_data/timer-ixp4xx.h
++++ b/include/linux/platform_data/timer-ixp4xx.h
+@@ -4,8 +4,7 @@
  
-@@ -346,6 +347,7 @@ void free_initmem(void)
- 	mark_initmem_nx();
- 	init_mem_is_free = true;
- 	free_initmem_default(POISON_FREE_INITMEM);
-+	ftrace_free_init_tramp();
- }
+ #include <linux/ioport.h>
  
- /**
+-void __init ixp4xx_timer_setup(resource_size_t timerbase,
+-			       int timer_irq,
+-			       unsigned int timer_freq);
++void ixp4xx_timer_setup(resource_size_t timerbase, int timer_irq,
++			unsigned int timer_freq);
+ 
+ #endif
 
 
