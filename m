@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59A0561C5C
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC33561C77
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235975AbiF3N45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38060 "EHLO
+        id S235716AbiF3N7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234875AbiF3N4S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:56:18 -0400
+        with ESMTP id S236567AbiF3N7L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:59:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2049D3A738;
-        Thu, 30 Jun 2022 06:50:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BE942A16;
+        Thu, 30 Jun 2022 06:51:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D64AF620C8;
-        Thu, 30 Jun 2022 13:50:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E404DC34115;
-        Thu, 30 Jun 2022 13:50:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6276761FDB;
+        Thu, 30 Jun 2022 13:51:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A5DC34115;
+        Thu, 30 Jun 2022 13:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597042;
-        bh=h2JDpZP4+w1S5GsPmV9MTCOP0Fo5GPWS2uYAPZKXtpQ=;
+        s=korg; t=1656597116;
+        bh=yDKIfKcX24yBIYaS0ER4IhweXDKsRCSF3+Lp+lb3ado=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nqK8F2MvJ44QC0rj7aU2nPUi5bgNpq5GVY7TpdNNobx161FvsBDQhqv6haafjwhA
-         jAsiNMwINFlYyac0M5K0nuPtvKmgFQ3UIAmOxMnORBom/hbhuj6vqq56BA3c6ujBcc
-         VaOEY7lx79ws4azGuChyKfM/+Sw2flKcZIcsBSwU=
+        b=wGaVUJ7qck4P2vNxXHfYszRsXzQ331PS5rq+CJtqLfXonWEsyLICMRDr0GQ6BLu3g
+         jvD4hpXfIcimU8/leZtP6jfxBlOcezoukIEhyjeK+CPmn8UeqDCYhTiVYmGBJ8mcVr
+         sdlsOEB3UfDRvyIlG8jsGPyUQAnkjq+7YBRZjca4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>
-Subject: [PATCH 4.14 35/35] swiotlb: skip swiotlb_bounce when orig_addr is zero
+        stable@vger.kernel.org,
+        Sathvika Vasireddy <sathvika@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 33/49] powerpc/rtas: Allow ibm,platform-dump RTAS call with null buffer address
 Date:   Thu, 30 Jun 2022 15:46:46 +0200
-Message-Id: <20220630133233.472267211@linuxfoundation.org>
+Message-Id: <20220630133234.862929190@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,50 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Andrew Donnellan <ajd@linux.ibm.com>
 
-After patch ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE"),
-swiotlb_bounce will be called in swiotlb_tbl_map_single unconditionally.
-This requires that the physical address must be valid, which is not always
-true on stable-4.19 or earlier version.
-On stable-4.19, swiotlb_alloc_buffer will call swiotlb_tbl_map_single with
-orig_addr equal to zero, which cause such a panic:
+commit 7bc08056a6dabc3a1442216daf527edf61ac24b6 upstream.
 
-Unable to handle kernel paging request at virtual address ffffb77a40000000
-...
-pc : __memcpy+0x100/0x180
-lr : swiotlb_bounce+0x74/0x88
-...
-Call trace:
- __memcpy+0x100/0x180
- swiotlb_tbl_map_single+0x2c8/0x338
- swiotlb_alloc+0xb4/0x198
- __dma_alloc+0x84/0x1d8
- ...
+Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
+call through the RTAS filter if the buffer address is 0.
 
-On stable-4.9 and stable-4.14, swiotlb_alloc_coherent wille call map_single
-with orig_addr equal to zero, which can cause same panic.
+According to PAPR, ibm,platform-dump is called with a null buffer address
+to notify the platform firmware that processing of a particular dump is
+finished.
 
-Fix this by skipping swiotlb_bounce when orig_addr is zero.
+Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
+application such as rtas_errd that is attempting to retrieve a dump will
+encounter an error at the end of the retrieval process.
 
-Fixes: ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+Cc: stable@vger.kernel.org
+Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220614134952.156010-1-ajd@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/swiotlb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/rtas.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -607,7 +607,8 @@ found:
- 	 * unconditional bounce may prevent leaking swiotlb content (i.e.
- 	 * kernel memory) to user-space.
- 	 */
--	swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
-+	if (orig_addr)
-+		swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
- 	return tlb_addr;
- }
- EXPORT_SYMBOL_GPL(swiotlb_tbl_map_single);
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1105,7 +1105,7 @@ static struct rtas_filter rtas_filters[]
+ 	{ "get-time-of-day", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
+ 	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
+-	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
++	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
+ 	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
+ 	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
+ 	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
+@@ -1152,6 +1152,15 @@ static bool block_rtas_call(int token, i
+ 				size = 1;
+ 
+ 			end = base + size - 1;
++
++			/*
++			 * Special case for ibm,platform-dump - NULL buffer
++			 * address is used to indicate end of dump processing
++			 */
++			if (!strcmp(f->name, "ibm,platform-dump") &&
++			    base == 0)
++				return false;
++
+ 			if (!in_rmo_buf(base, end))
+ 				goto err;
+ 		}
 
 
