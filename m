@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC2B561C08
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5062561C89
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235470AbiF3Nvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:51:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52378 "EHLO
+        id S236003AbiF3N7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235588AbiF3Nv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:51:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3577E1020;
-        Thu, 30 Jun 2022 06:49:16 -0700 (PDT)
+        with ESMTP id S236383AbiF3N6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC4F15714;
+        Thu, 30 Jun 2022 06:51:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D185B82AFA;
-        Thu, 30 Jun 2022 13:49:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C884FC34115;
-        Thu, 30 Jun 2022 13:49:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07F4B620EE;
+        Thu, 30 Jun 2022 13:51:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB30BC34115;
+        Thu, 30 Jun 2022 13:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596953;
-        bh=7kiX5/iU3xMuzV4UnCjZcDeo0Fq3+CeUwxfLySqMeXE=;
+        s=korg; t=1656597097;
+        bh=hGuOut/iB47OP+a8fIGR+FF0ZAQpLfuGm7US7TJUxkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uadquo0eR0gBVYmeX2rGEXVboYyFTg7PPpbqcq3Ylx0rndX4nkFxxJ06WKf9tk6HI
-         FwCZSwaFWwTDa5RRAakRe1JGGGeXmFwv3/ZG8nNbNQrxSq3tPVSy3LussxslX4qa15
-         FW8vY1OPLWEDKt/92gqhQ92NGUN2vbhhgHaPMeFM=
+        b=PAjVOqaAWgx/2+nD0zE9LmGWk8VngKTNgU2kOjYxZLI9p56+ILfNa+TaYzjemGCio
+         W433WwoSvrVKsleZ8y0oPqi4R7dpBGQQ49YrGH0OooP5cwCx3KVOb0eJ5YIcPSJ14L
+         GcTW3GpzcOBS1d6buPj/DrTpS9ptNdf3LpWW7SLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
-        huhai <huhai@kylinos.cn>,
-        Genjian Zhang <zhanggenjian@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/35] MIPS: Remove repetitive increase irq_err_count
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Carlo Lobrano <c.lobrano@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 09/49] USB: serial: option: add Telit LE910Cx 0x1250 composition
 Date:   Thu, 30 Jun 2022 15:46:22 +0200
-Message-Id: <20220630133232.773486663@linuxfoundation.org>
+Message-Id: <20220630133234.181486599@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huhai <huhai@kylinos.cn>
+From: Carlo Lobrano <c.lobrano@gmail.com>
 
-[ Upstream commit c81aba8fde2aee4f5778ebab3a1d51bd2ef48e4c ]
+commit 342fc0c3b345525da21112bd0478a0dc741598ea upstream.
 
-commit 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx") added
-a function irq_dispatch, and it'll increase irq_err_count when the get_irq
-callback returns a negative value, but increase irq_err_count in get_irq
-was not removed.
+Add support for the following Telit LE910Cx composition:
 
-And also, modpost complains once gpio-vr41xx drivers become modules.
-  ERROR: modpost: "irq_err_count" [drivers/gpio/gpio-vr41xx.ko] undefined!
+0x1250: rmnet, tty, tty, tty, tty
 
-So it would be a good idea to remove repetitive increase irq_err_count in
-get_irq callback.
-
-Fixes: 27fdd325dace ("MIPS: Update VR41xx GPIO driver to use gpiolib")
-Fixes: 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx")
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: huhai <huhai@kylinos.cn>
-Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
+Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
+Link: https://lore.kernel.org/r/20220614075623.2392607-1-c.lobrano@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/vr41xx/common/icu.c | 2 --
- drivers/gpio/gpio-vr41xx.c    | 2 --
- 2 files changed, 4 deletions(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
-index 745b7b436961..42f77b318974 100644
---- a/arch/mips/vr41xx/common/icu.c
-+++ b/arch/mips/vr41xx/common/icu.c
-@@ -653,8 +653,6 @@ static int icu_get_irq(unsigned int irq)
- 
- 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
- 
--	atomic_inc(&irq_err_count);
--
- 	return -1;
- }
- 
-diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
-index ac8deb01f6f6..ee3163dd794b 100644
---- a/drivers/gpio/gpio-vr41xx.c
-+++ b/drivers/gpio/gpio-vr41xx.c
-@@ -224,8 +224,6 @@ static int giu_get_irq(unsigned int irq)
- 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
- 	       maskl, pendl, maskh, pendh);
- 
--	atomic_inc(&irq_err_count);
--
- 	return -EINVAL;
- }
- 
--- 
-2.35.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1279,6 +1279,7 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(TELIT_VENDOR_ID, 0x1250, 0xff, 0x00, 0x00) },	/* Telit LE910Cx (rmnet) */
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
 
 
