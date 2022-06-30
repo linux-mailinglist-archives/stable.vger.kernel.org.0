@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 410B6561922
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 13:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FB7561943
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 13:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234777AbiF3L3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 07:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43814 "EHLO
+        id S235097AbiF3Lbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 07:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233988AbiF3L3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 07:29:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9C944750;
-        Thu, 30 Jun 2022 04:29:40 -0700 (PDT)
+        with ESMTP id S235112AbiF3Lbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 07:31:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 176B258FD4
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 04:31:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77A3160F42;
-        Thu, 30 Jun 2022 11:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55CECC34115;
-        Thu, 30 Jun 2022 11:29:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 561E8B82A2A
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 11:31:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9886C34115;
+        Thu, 30 Jun 2022 11:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656588579;
-        bh=6cAA7tioO8XW62gXON9ZehgKH3LZQ256fjbDgBircbU=;
+        s=korg; t=1656588675;
+        bh=3Qju4ra8mIgPc4sJgCZMUzFsVmDwFqohz+hKY9A/4fc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YOqvBouL7DvkCgvnCfshgWvXaZlnhU8PfNxQtZz7JzQp5ODQBm0O79gL0xOXVuulc
-         Ovy/K829ECuKEZsZlkcHYs9zXR5QK0pSjZtsnPyYMc1/ONzgsjxZ2sfQQtIrhcm5wj
-         1nts6c0cV5WuTJDete+LVeNuvtuzQqyrcwmHCg4M=
-Date:   Thu, 30 Jun 2022 13:29:37 +0200
+        b=kflvoIVQctbhBY/HIGks5hmJHXqhLRq+cE7jgcinVlokJLaaDw6jt7Ox7qyDQyTmV
+         9paBBZ94Bz2+gnrfuFnXPPhYP0owmvO1r3MAluX3f+HLsU4EZvnwWi9c1s5ofq/nf3
+         KlrC2dWkK98rY+3HDlNLBBbxdJZ5nSPx50byKuEY=
+Date:   Thu, 30 Jun 2022 13:31:07 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Meng Tang <tangmeng@uniontech.com>
-Cc:     stable@vger.kernel.org, tony0620emma@gmail.com,
-        kvalo@codeaurora.org, davem@davemloft.net, kuba@kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        masterzorag <masterzorag@gmail.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: Re: [PATCH 5.10 v2 3/3] commit e109e3617e5d ("rtw88: rtw8821c:
- enable rfe 6 devices")
-Message-ID: <Yr2JIdo6254QY8nT@kroah.com>
-References: <20220628134351.4182-1-tangmeng@uniontech.com>
- <20220628134351.4182-3-tangmeng@uniontech.com>
+To:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Cc:     stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v5.18] powerpc/ftrace: Remove ftrace init tramp once
+ kernel init is complete
+Message-ID: <Yr2Je34UxKYTg6fC@kroah.com>
+References: <20220627173930.133620-1-naveen.n.rao@linux.vnet.ibm.com>
+ <20220627173930.133620-3-naveen.n.rao@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220628134351.4182-3-tangmeng@uniontech.com>
+In-Reply-To: <20220627173930.133620-3-naveen.n.rao@linux.vnet.ibm.com>
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -57,26 +52,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 09:43:51PM +0800, Meng Tang wrote:
-> These commits can fix the problem of wifi not loading properly. At
-> least in my 5.10 kernel environment, the following error message is
-> reported:
+On Mon, Jun 27, 2022 at 11:09:29PM +0530, Naveen N. Rao wrote:
+> commit 84ade0a6655bee803d176525ef457175cbf4df22 upstream.
 > 
-> rtw_8821ce 0000:01:00.0: rfe 6 isn't supported
-> rtw_8821ce 0000:01:00.0: failed to setup chip efuse info
-> rtw_8821ce 0000:01:00.0: failed to setup chip information
+> Stop using the ftrace trampoline for init section once kernel init is
+> complete.
 > 
-> so I think that 5.10 need to merge these commits.
-> 
-> The patch 1/3 and patch 2/3 need to be merged synchronously, otherwise it
-> will cause OE and then kernel exception.
+> Fixes: 67361cf8071286 ("powerpc/ftrace: Handle large kernel configs")
+> Cc: stable@vger.kernel.org # v4.20+
+> Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20220516071422.463738-1-naveen.n.rao@linux.vnet.ibm.com
+> ---
+>  arch/powerpc/include/asm/ftrace.h  |  4 +++-
+>  arch/powerpc/kernel/trace/ftrace.c | 15 ++++++++++++---
+>  arch/powerpc/mm/mem.c              |  2 ++
+>  3 files changed, 17 insertions(+), 4 deletions(-)
 
-This is not in the original commit log at all.  Shouldn't this be in the
-0/3 email instead?
-
-And yes, this hardware is not supported in the 5.10 kernel tree, please
-move to 5.15 or newer and it will be fine.
-
-thanks,
+All now queued up, thanks.
 
 greg k-h
