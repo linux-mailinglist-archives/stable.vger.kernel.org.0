@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C6B561D65
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49394561CFE
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236180AbiF3OEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:04:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44998 "EHLO
+        id S236326AbiF3OBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236170AbiF3ODC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:03:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEDE65D5C;
-        Thu, 30 Jun 2022 06:53:12 -0700 (PDT)
+        with ESMTP id S236095AbiF3OAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:00:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFCA744757;
+        Thu, 30 Jun 2022 06:52:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 188F7620E4;
-        Thu, 30 Jun 2022 13:53:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2503AC34115;
-        Thu, 30 Jun 2022 13:53:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 741DD61FF6;
+        Thu, 30 Jun 2022 13:52:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7918CC34115;
+        Thu, 30 Jun 2022 13:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597188;
-        bh=tUbC9P3+yubDDefe29H5IMHi8x/o38Uf9ZD+Vi3xwK8=;
+        s=korg; t=1656597149;
+        bh=UqT7Ezn9pWtS5CRV1aEcCh3rXLPAeHPdmaWs4yzft/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4kSRKftcA3DvsUAqJjhoA+u9DP3C4e31sfevO67+d/HX7fUm2W1M90S9mIDjpsqJ
-         MsA4hWGh/NreHZ8mB8M6dew7LY6qh2MgE04PL1jxSPMhX+q+YDbf/JppW6eP28L3Uj
-         E7M3XTgR0+3do2Ed4qY5B25o1wM0R7tpZU5sd60I=
+        b=MYojxU4gfvzWikI2hbQDO2aGvYejBX72TiEURtea81v0rH8KXtzrPLzu0vWZGP5T9
+         LGtKncYZlYRJLjHj0ro+qE/NP3cSYsmsjGxRLZN2gdKxmCfv++Ipo9PQ0m46t5wtEf
+         7kW2XkttGa9zE7H6lQ3ud5idxV4uJHP6jnBifpks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.4 02/16] clocksource/drivers/ixp4xx: remove __init from ixp4xx_timer_setup()
-Date:   Thu, 30 Jun 2022 15:46:56 +0200
-Message-Id: <20220630133231.009464890@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 44/49] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+Date:   Thu, 30 Jun 2022 15:46:57 +0200
+Message-Id: <20220630133235.173427029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.936488203@linuxfoundation.org>
-References: <20220630133230.936488203@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-ixp4xx_timer_setup is exported, and so can not be an __init function.
-Remove the __init marking as the build system is rightfully claiming
-this is an error in older kernels.
+commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea upstream.
 
-This is fixed "properly" in commit 41929c9f628b
-("clocksource/drivers/ixp4xx: Drop boardfile probe path") but that can
-not be backported to older kernels as the reworking of the IXP4xx
-codebase is not suitable for stable releases.
+EXPORT_SYMBOL and __init is a bad combination because the .init.text
+section is freed up after the initialization. Hence, modules cannot
+use symbols annotated __init. The access to a freed symbol may end up
+with kernel panic.
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+modpost used to detect it, but it has been broken for a decade.
+
+Recently, I fixed modpost so it started to warn it again, then this
+showed up in linux-next builds.
+
+There are two ways to fix it:
+
+  - Remove __init
+  - Remove EXPORT_SYMBOL
+
+I chose the latter for this case because none of the in-tree call-sites
+(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
+modular.
+
+Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Acked-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/mmio.c                 |    2 +-
- drivers/clocksource/timer-ixp4xx.c         |   10 ++++------
- include/linux/platform_data/timer-ixp4xx.h |    5 ++---
- 3 files changed, 7 insertions(+), 10 deletions(-)
+ drivers/xen/xlate_mmu.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/clocksource/mmio.c
-+++ b/drivers/clocksource/mmio.c
-@@ -46,7 +46,7 @@ u64 clocksource_mmio_readw_down(struct c
-  * @bits:	Number of valid bits
-  * @read:	One of clocksource_mmio_read*() above
-  */
--int __init clocksource_mmio_init(void __iomem *base, const char *name,
-+int clocksource_mmio_init(void __iomem *base, const char *name,
- 	unsigned long hz, int rating, unsigned bits,
- 	u64 (*read)(struct clocksource *))
- {
---- a/drivers/clocksource/timer-ixp4xx.c
-+++ b/drivers/clocksource/timer-ixp4xx.c
-@@ -170,9 +170,8 @@ static int ixp4xx_resume(struct clock_ev
-  * We use OS timer1 on the CPU for the timer tick and the timestamp
-  * counter as a source of real clock ticks to account for missed jiffies.
-  */
--static __init int ixp4xx_timer_register(void __iomem *base,
--					int timer_irq,
--					unsigned int timer_freq)
-+static int ixp4xx_timer_register(void __iomem *base, int timer_irq,
-+				 unsigned int timer_freq)
- {
- 	struct ixp4xx_timer *tmr;
- 	int ret;
-@@ -245,9 +244,8 @@ static __init int ixp4xx_timer_register(
-  * @timer_irq: Linux IRQ number for the timer
-  * @timer_freq: Fixed frequency of the timer
-  */
--void __init ixp4xx_timer_setup(resource_size_t timerbase,
--			       int timer_irq,
--			       unsigned int timer_freq)
-+void ixp4xx_timer_setup(resource_size_t timerbase, int timer_irq,
-+			unsigned int timer_freq)
- {
- 	void __iomem *base;
+--- a/drivers/xen/xlate_mmu.c
++++ b/drivers/xen/xlate_mmu.c
+@@ -262,4 +262,3 @@ int __init xen_xlate_map_ballooned_pages
  
---- a/include/linux/platform_data/timer-ixp4xx.h
-+++ b/include/linux/platform_data/timer-ixp4xx.h
-@@ -4,8 +4,7 @@
- 
- #include <linux/ioport.h>
- 
--void __init ixp4xx_timer_setup(resource_size_t timerbase,
--			       int timer_irq,
--			       unsigned int timer_freq);
-+void ixp4xx_timer_setup(resource_size_t timerbase, int timer_irq,
-+			unsigned int timer_freq);
- 
- #endif
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
 
 
