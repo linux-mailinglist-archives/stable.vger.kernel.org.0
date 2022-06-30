@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C39561C35
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DDA3561C7D
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235743AbiF3Nxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:53:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48682 "EHLO
+        id S235485AbiF3N7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235838AbiF3Nwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2D14579D;
-        Thu, 30 Jun 2022 06:49:45 -0700 (PDT)
+        with ESMTP id S236415AbiF3N6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9AE94163B;
+        Thu, 30 Jun 2022 06:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 477E26205D;
-        Thu, 30 Jun 2022 13:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C9C8C3411E;
-        Thu, 30 Jun 2022 13:49:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2EBBB82AFA;
+        Thu, 30 Jun 2022 13:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3347C34115;
+        Thu, 30 Jun 2022 13:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596983;
-        bh=tQbpvtEvCBc44itrMEC0A4dvWcUm/1NCxpin/Lzp79o=;
+        s=korg; t=1656597078;
+        bh=Hv5XT+wihpAxWcKTmxWkBoWJWkQXIxwXbE/EI2bjpSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxlSejOYVWVZ6MjwtbnPd1fi+PYDn0zzrbS2a2qBJxSmaVX7EdHBTeS0UFvty/XmI
-         oMVaw1TfNXLT7dyTSsTTAV8YvyTNFeGfv4AosIf+tgyK9mpuVHAsVNHIKV26gHwHqB
-         WM6+gQttotdZFkn6tA38+JOp+9XgBej6IN+WTrl0=
+        b=xhn6jJFAjAyJU1Tmh0ZTrIby0B5DlDF5klLeLKFQIgndg3J+pXG+uwfn+Awp1YDLG
+         wNfchk+RxRq7xONqD2lmaGWIf+hKW/RFhe08H6SJeTExO0x9AIy7zVOJctHqls/hBE
+         WkT5peYzPvaCHHARmdCrWQlRqVRy3Yf+sPrcGphQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.14 21/35] xtensa: Fix refcount leak bug in time.c
-Date:   Thu, 30 Jun 2022 15:46:32 +0200
-Message-Id: <20220630133233.064006826@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/49] gpio: winbond: Fix error code in winbond_gpio_get()
+Date:   Thu, 30 Jun 2022 15:46:33 +0200
+Message-Id: <20220630133234.501028667@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a0117dc956429f2ede17b323046e1968d1849150 upstream.
+[ Upstream commit 9ca766eaea2e87b8b773bff04ee56c055cb76d4e ]
 
-In calibrate_ccount(), of_find_compatible_node() will return a node
-pointer with refcount incremented. We should use of_node_put() when
-it is not used anymore.
+This error path returns 1, but it should instead propagate the negative
+error code from winbond_sio_enter().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Liang He <windhl@126.com>
-Message-Id: <20220617124432.4049006-1-windhl@126.com>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a0d65009411c ("gpio: winbond: Add driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/time.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpio-winbond.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/xtensa/kernel/time.c
-+++ b/arch/xtensa/kernel/time.c
-@@ -146,6 +146,7 @@ static void __init calibrate_ccount(void
- 	cpu = of_find_compatible_node(NULL, NULL, "cdns,xtensa-cpu");
- 	if (cpu) {
- 		clk = of_clk_get(cpu, 0);
-+		of_node_put(cpu);
- 		if (!IS_ERR(clk)) {
- 			ccount_freq = clk_get_rate(clk);
- 			return;
+diff --git a/drivers/gpio/gpio-winbond.c b/drivers/gpio/gpio-winbond.c
+index 7f8f5b02e31d..4b61d975cc0e 100644
+--- a/drivers/gpio/gpio-winbond.c
++++ b/drivers/gpio/gpio-winbond.c
+@@ -385,12 +385,13 @@ static int winbond_gpio_get(struct gpio_chip *gc, unsigned int offset)
+ 	unsigned long *base = gpiochip_get_data(gc);
+ 	const struct winbond_gpio_info *info;
+ 	bool val;
++	int ret;
+ 
+ 	winbond_gpio_get_info(&offset, &info);
+ 
+-	val = winbond_sio_enter(*base);
+-	if (val)
+-		return val;
++	ret = winbond_sio_enter(*base);
++	if (ret)
++		return ret;
+ 
+ 	winbond_sio_select_logical(*base, info->dev);
+ 
+-- 
+2.35.1
+
 
 
