@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A28AA561D1B
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 477E8561DA4
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236970AbiF3OMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40618 "EHLO
+        id S236972AbiF3OMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:12:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236903AbiF3OLF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:11:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CE95A46B;
-        Thu, 30 Jun 2022 06:55:53 -0700 (PDT)
+        with ESMTP id S236528AbiF3OLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:11:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8C07C1AF;
+        Thu, 30 Jun 2022 06:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8379A6204B;
-        Thu, 30 Jun 2022 13:55:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B8DC3411E;
-        Thu, 30 Jun 2022 13:55:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD07EB82AEE;
+        Thu, 30 Jun 2022 13:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4130FC34115;
+        Thu, 30 Jun 2022 13:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597352;
-        bh=8TLd2Le8ME8tL6hO7wkEtHxu0MyfnSARvmpEGWLGYeg=;
+        s=korg; t=1656597355;
+        bh=0Pztk4mzBqgFgfsq/p8hGIUhrVzLBaGck9BeRq7gqEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9k+ZejMff9EOiwisEaQYNpY3OQQJyp/eRjktj1bp7nZvKlLDt/EEOYbhXZur9+5c
-         BNF2sqpjcR3pYfxdcS09+eEEWsDqVRnNRU5cReolDEh4nMgNobUd5v8vLH9NpnpaZt
-         e2ylUBCBx433AeyDGJSLe9D85/ohh9iyUgtnIxBY=
+        b=W6IC1Y9er6nY8OAIsJdxyjxEd6xUB1dB4a98jULLELviemI5b/cr1p/q2XZu1huWD
+         7KjyEM90BZYCglP64/Z4e9w8oAhshPUp3X3hhkZFp2IkfOsRk9hnAbwyF4ruRYRSjT
+         Z9n89b7u+jGp9dnNW3C6ckvOCji6dfQVwgGc4sA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 3/6] bcache: memset on stack variables in bch_btree_check() and bch_sectors_dirty_init()
-Date:   Thu, 30 Jun 2022 15:47:29 +0200
-Message-Id: <20220630133230.342925455@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, llvm@lists.linux.dev,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.18 4/6] hinic: Replace memcpy() with direct assignment
+Date:   Thu, 30 Jun 2022 15:47:30 +0200
+Message-Id: <20220630133230.371942781@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133230.239507521@linuxfoundation.org>
 References: <20220630133230.239507521@linuxfoundation.org>
@@ -53,42 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Kees Cook <keescook@chromium.org>
 
-commit 7d6b902ea0e02b2a25c480edf471cbaa4ebe6b3c upstream.
+commit 1e70212e031528918066a631c9fdccda93a1ffaa upstream.
 
-The local variables check_state (in bch_btree_check()) and state (in
-bch_sectors_dirty_init()) should be fully filled by 0, because before
-allocating them on stack, they were dynamically allocated by kzalloc().
+Under CONFIG_FORTIFY_SOURCE=y and CONFIG_UBSAN_BOUNDS=y, Clang is bugged
+here for calculating the size of the destination buffer (0x10 instead of
+0x14). This copy is a fixed size (sizeof(struct fw_section_info_st)), with
+the source and dest being struct fw_section_info_st, so the memcpy should
+be safe, assuming the index is within bounds, which is UBSAN_BOUNDS's
+responsibility to figure out.
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Link: https://lore.kernel.org/r/20220527152818.27545-2-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Avoid the whole thing and just do a direct assignment. This results in
+no change to the executable code.
+
+[This is a duplicate of commit 2c0ab32b73cf ("hinic: Replace memcpy()
+ with direct assignment") which was applied to net-next.]
+
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Tom Rix <trix@redhat.com>
+Cc: llvm@lists.linux.dev
+Link: https://github.com/ClangBuiltLinux/linux/issues/1592
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+Link: https://lore.kernel.org/r/20220616052312.292861-1-keescook@chromium.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/btree.c     |    1 +
- drivers/md/bcache/writeback.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/ethernet/huawei/hinic/hinic_devlink.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2017,6 +2017,7 @@ int bch_btree_check(struct cache_set *c)
- 	if (c->root->level == 0)
- 		return 0;
+--- a/drivers/net/ethernet/huawei/hinic/hinic_devlink.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_devlink.c
+@@ -43,9 +43,7 @@ static bool check_image_valid(struct hin
  
-+	memset(&check_state, 0, sizeof(struct btree_check_state));
- 	check_state.c = c;
- 	check_state.total_threads = bch_btree_chkthread_nr();
- 	check_state.key_idx = 0;
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -950,6 +950,7 @@ void bch_sectors_dirty_init(struct bcach
- 		return;
+ 	for (i = 0; i < fw_image->fw_info.fw_section_cnt; i++) {
+ 		len += fw_image->fw_section_info[i].fw_section_len;
+-		memcpy(&host_image->image_section_info[i],
+-		       &fw_image->fw_section_info[i],
+-		       sizeof(struct fw_section_info_st));
++		host_image->image_section_info[i] = fw_image->fw_section_info[i];
  	}
  
-+	memset(&state, 0, sizeof(struct bch_dirty_init_state));
- 	state.c = c;
- 	state.d = d;
- 	state.total_threads = bch_btre_dirty_init_thread_nr();
+ 	if (len != fw_image->fw_len ||
 
 
