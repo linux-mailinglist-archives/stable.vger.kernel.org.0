@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC0B561949
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 13:34:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD56561956
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 13:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234249AbiF3LeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 07:34:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
+        id S235093AbiF3Lhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 07:37:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234133AbiF3LeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 07:34:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5445A445
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 04:34:07 -0700 (PDT)
+        with ESMTP id S235170AbiF3Lhe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 07:37:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66C255A447
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 04:37:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C4EDB82A39
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 11:34:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8395C34115;
-        Thu, 30 Jun 2022 11:34:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04AF860FC1
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 11:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5C6C3411E;
+        Thu, 30 Jun 2022 11:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656588845;
-        bh=y/AkczZu+t5L5QS5HmrGxEEOZZGTi1cFRhvgGwdbbLY=;
+        s=korg; t=1656589053;
+        bh=1Ur/UV+GlNRe9zkFBhuri9p2wBQp1wfTfFekZz/qZ/U=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qmg64MZn4FHh18uQWV6rRCe66knAFc1oY1fGEQzGn712mLfl0ROVycbbNXMHzHvRE
-         MFxzjNM4zEBjQ1LYcJ27YupCdzXULyW26LOoR+89hp0WyuqCpZtxlSb8ZEvpERkHOS
-         p5wIiaR8x/xOeSlz1dkr3si+QRXTeavd7RI3LzlE=
-Date:   Thu, 30 Jun 2022 13:34:02 +0200
+        b=d3m4Npotkms0nwNaVNTLS9MryaQA0lT0hcHeL16729WMlwX0XqRzuTDt8jL2IiXwQ
+         2+RCHy9qqynlmmUHk6BDR9vjWP508Jaa/JTt/pxV7xHBF/pQt/WUxekv8H/q9AefpZ
+         PO2uQm2mNfKHkAfGyxUVNaA95g1VsDh7lSKe1BVQ=
+Date:   Thu, 30 Jun 2022 13:37:15 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Demi Marie Obenour <demi@invisiblethingslab.com>
-Cc:     stable@vger.kernel.org,
-        Xen developer discussion <xen-devel@lists.xenproject.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 5.10] xen/gntdev: Avoid blocking in unmap_grant_pages()
-Message-ID: <Yr2KKpWSiuzOQr7v@kroah.com>
-References: <20220627181006.1954-1-demi@invisiblethingslab.com>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 00/12] attr: group fix backport
+Message-ID: <Yr2K61JnS88XADK6@kroah.com>
+References: <20220628102244.wymkrob3cfys2h7i@wittgenstein>
+ <20220628121620.188722-1-brauner@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220627181006.1954-1-demi@invisiblethingslab.com>
+In-Reply-To: <20220628121620.188722-1-brauner@kernel.org>
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,46 +50,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 02:10:02PM -0400, Demi Marie Obenour wrote:
-> commit dbe97cff7dd9f0f75c524afdd55ad46be3d15295 upstream
+On Tue, Jun 28, 2022 at 02:16:08PM +0200, Christian Brauner wrote:
+> From: "Christian Brauner (Microsoft)" <brauner@kernel.org>
 > 
-> unmap_grant_pages() currently waits for the pages to no longer be used.
-> In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
-> deadlock against i915: i915 was waiting for gntdev's MMU notifier to
-> finish, while gntdev was waiting for i915 to free its pages.  I also
-> believe this is responsible for various deadlocks I have experienced in
-> the past.
+> Hey Greg,
 > 
-> Avoid these problems by making unmap_grant_pages async.  This requires
-> making it return void, as any errors will not be available when the
-> function returns.  Fortunately, the only use of the return value is a
-> WARN_ON(), which can be replaced by a WARN_ON when the error is
-> detected.  Additionally, a failed call will not prevent further calls
-> from being made, but this is harmless.
+> As promised, here is a series that allows to backport the fix which
+> failed to build for you. This backports a few patches that are required
+> to make this work. I decided to backport them instead of rolling a
+> custom fix for this. That would've been smaller but there is future
+> hardening work that I would like to backport and this enables this.
 > 
-> Because unmap_grant_pages is now async, the grant handle will be sent to
-> INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
-> handle.  Instead, a separate bool array is allocated for this purpose.
-> This wastes memory, but stuffing this information in padding bytes is
-> too fragile.  Furthermore, it is necessary to grab a reference to the
-> map before making the asynchronous call, and release the reference when
-> the call returns.
-> 
-> It is also necessary to guard against reentrancy in gntdev_map_put(),
-> and to handle the case where userspace tries to map a mapping whose
-> contents have not all been freed yet.
-> 
-> Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case they are still in use")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-> Reviewed-by: Juergen Gross <jgross@suse.com>
-> Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisiblethingslab.com
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
->  drivers/xen/gntdev-common.h |   7 ++
->  drivers/xen/gntdev.c        | 142 +++++++++++++++++++++++++-----------
->  2 files changed, 106 insertions(+), 43 deletions(-)
+> I've run xfstests for ext4, xfs, and btrfs as well as LTP with:
+> runltp -f fs_perms_simple,fs_bind,containers,cap_bounds,cve,uevent,filecaps
+> and I see no regressions. There is an xfs failure but that is related to
+> a - for obvious reasons - missing stable backport.
 
-All now queued up, thanks.
+Thanks for these, all now queued up.
 
 greg k-h
