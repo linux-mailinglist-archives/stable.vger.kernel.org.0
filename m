@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDA3561C7D
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02EF9561C2E
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235485AbiF3N7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36514 "EHLO
+        id S235757AbiF3Nxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:53:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236415AbiF3N6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9AE94163B;
-        Thu, 30 Jun 2022 06:51:43 -0700 (PDT)
+        with ESMTP id S235848AbiF3Nwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E19B3152A;
+        Thu, 30 Jun 2022 06:49:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2EBBB82AFA;
-        Thu, 30 Jun 2022 13:51:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3347C34115;
-        Thu, 30 Jun 2022 13:51:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E783162000;
+        Thu, 30 Jun 2022 13:49:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073D4C34115;
+        Thu, 30 Jun 2022 13:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597078;
-        bh=Hv5XT+wihpAxWcKTmxWkBoWJWkQXIxwXbE/EI2bjpSU=;
+        s=korg; t=1656596986;
+        bh=fUBXeY/tbiGpHbTy5FVhnNYpcPo4dQ92LT2jXQSqICY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhn6jJFAjAyJU1Tmh0ZTrIby0B5DlDF5klLeLKFQIgndg3J+pXG+uwfn+Awp1YDLG
-         wNfchk+RxRq7xONqD2lmaGWIf+hKW/RFhe08H6SJeTExO0x9AIy7zVOJctHqls/hBE
-         WkT5peYzPvaCHHARmdCrWQlRqVRy3Yf+sPrcGphQ=
+        b=xfuqkklSPG3atPtWtYmbHOWfj3rioHbV0P8XSL7/1TqZEmhyZ1a6PbjbGD93mWoaP
+         nHMJyJ//0c4Wa+X7gbNd4tJpEQA3qcE4G1vFrNwxu+lLqad6jqxhRy9heOFua1WDlm
+         tJQcCybOVLtQMKlxaC0kWGFPgQHET03s+PV+oYlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/49] gpio: winbond: Fix error code in winbond_gpio_get()
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Sumit Dubey2 <Sumit.Dubey2@ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 22/35] powerpc: Enable execve syscall exit tracepoint
 Date:   Thu, 30 Jun 2022 15:46:33 +0200
-Message-Id: <20220630133234.501028667@linuxfoundation.org>
+Message-Id: <20220630133233.092536416@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 9ca766eaea2e87b8b773bff04ee56c055cb76d4e ]
+commit ec6d0dde71d760aa60316f8d1c9a1b0d99213529 upstream.
 
-This error path returns 1, but it should instead propagate the negative
-error code from winbond_sio_enter().
+On execve[at], we are zero'ing out most of the thread register state
+including gpr[0], which contains the syscall number. Due to this, we
+fail to trigger the syscall exit tracepoint properly. Fix this by
+retaining gpr[0] in the thread register state.
 
-Fixes: a0d65009411c ("gpio: winbond: Add driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Before this patch:
+  # tail /sys/kernel/debug/tracing/trace
+	       cat-123     [000] .....    61.449351: sys_execve(filename:
+  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
+	       cat-124     [000] .....    62.428481: sys_execve(filename:
+  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
+	      echo-125     [000] .....    65.813702: sys_execve(filename:
+  7fffa6b23378, argv: 7fffa6b233a0, envp: 7fffa6b233b0)
+	      echo-125     [000] .....    65.822214: sys_execveat(fd: 0,
+  filename: 1009ac48, argv: 7ffff65d0c98, envp: 7ffff65d0ca8, flags: 0)
+
+After this patch:
+  # tail /sys/kernel/debug/tracing/trace
+	       cat-127     [000] .....   100.416262: sys_execve(filename:
+  7fffa41b3448, argv: 7fffa41b33e0, envp: 7fffa41b33f8)
+	       cat-127     [000] .....   100.418203: sys_execve -> 0x0
+	      echo-128     [000] .....   103.873968: sys_execve(filename:
+  7fffa41b3378, argv: 7fffa41b33a0, envp: 7fffa41b33b0)
+	      echo-128     [000] .....   103.875102: sys_execve -> 0x0
+	      echo-128     [000] .....   103.882097: sys_execveat(fd: 0,
+  filename: 1009ac48, argv: 7fffd10d2148, envp: 7fffd10d2158, flags: 0)
+	      echo-128     [000] .....   103.883225: sys_execveat -> 0x0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Tested-by: Sumit Dubey2 <Sumit.Dubey2@ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220609103328.41306-1-naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-winbond.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/process.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-winbond.c b/drivers/gpio/gpio-winbond.c
-index 7f8f5b02e31d..4b61d975cc0e 100644
---- a/drivers/gpio/gpio-winbond.c
-+++ b/drivers/gpio/gpio-winbond.c
-@@ -385,12 +385,13 @@ static int winbond_gpio_get(struct gpio_chip *gc, unsigned int offset)
- 	unsigned long *base = gpiochip_get_data(gc);
- 	const struct winbond_gpio_info *info;
- 	bool val;
-+	int ret;
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1613,7 +1613,7 @@ void start_thread(struct pt_regs *regs,
+ 		tm_reclaim_current(0);
+ #endif
  
- 	winbond_gpio_get_info(&offset, &info);
- 
--	val = winbond_sio_enter(*base);
--	if (val)
--		return val;
-+	ret = winbond_sio_enter(*base);
-+	if (ret)
-+		return ret;
- 
- 	winbond_sio_select_logical(*base, info->dev);
- 
--- 
-2.35.1
-
+-	memset(regs->gpr, 0, sizeof(regs->gpr));
++	memset(&regs->gpr[1], 0, sizeof(regs->gpr) - sizeof(regs->gpr[0]));
+ 	regs->ctr = 0;
+ 	regs->link = 0;
+ 	regs->xer = 0;
 
 
