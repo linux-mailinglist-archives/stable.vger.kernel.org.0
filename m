@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60762561D49
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23B3561D54
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236686AbiF3OIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:08:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
+        id S236862AbiF3OKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:10:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236547AbiF3OG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:06:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5BB76F342;
-        Thu, 30 Jun 2022 06:54:20 -0700 (PDT)
+        with ESMTP id S236427AbiF3OKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:10:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D1A7B34D;
+        Thu, 30 Jun 2022 06:55:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CA916211A;
-        Thu, 30 Jun 2022 13:54:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6137BC34115;
-        Thu, 30 Jun 2022 13:54:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC59CB82AF8;
+        Thu, 30 Jun 2022 13:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 661FAC34115;
+        Thu, 30 Jun 2022 13:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597259;
-        bh=qiyJ6ZqStaVBXRF5MPGLLNG1dYk/bGu+j7tVjqJ/dcw=;
+        s=korg; t=1656597325;
+        bh=n6pCRpxRo1ejolie+HwU9V9duHfbqPeFU7Zrwi/AZt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SsmcFZZM25AZy3jTIuTi/H+924QLi2hKHfl2bKVr4kihMGUyZP3A6/VVEW5O8PwGt
-         P5CR2rWt4IJB97iP/IfyqxkyObDRTbSDO/h/xBPB+SdfkodaM2LTdxC1bkKnv9YWZ1
-         1qhTWsmgepddvLHDvR8trKLa12kgdou0DPByRSvU=
+        b=lXG8VpV5r34mtYYBUDk6FuRXKXKOZiFgU+0Hh8mtsIUKDKgZgVj77H/dvaPckOYsp
+         GypL8nqyj97UJiOaQREneOYzXSrPCuDl0BTS7vdKozTlxGun7a0xym8sNqVhLy7LsJ
+         gN7QDH0Uj13znq4+ZIxmeh+iOY2+mquXH12Wj0cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Xu <xuyang2018.jy@fujitsu.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 08/12] xfs: Fix the free logic of state in xfs_attr_node_hasname
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>
+Subject: [PATCH 5.15 17/28] docs: update mapping documentation
 Date:   Thu, 30 Jun 2022 15:47:13 +0200
-Message-Id: <20220630133230.938024271@linuxfoundation.org>
+Message-Id: <20220630133233.434921899@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
-References: <20220630133230.676254336@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+References: <20220630133232.926711493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,110 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Xu <xuyang2018.jy@fujitsu.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit a1de97fe296c52eafc6590a3506f4bbd44ecb19a upstream.
+commit 8cc5c54de44c5e8e104d364a627ac4296845fc7f upstream.
 
-When testing xfstests xfs/126 on lastest upstream kernel, it will hang on some machine.
-Adding a getxattr operation after xattr corrupted, I can reproduce it 100%.
+Now that we implement the full remapping algorithms described in our
+documentation remove the section about shortcircuting them.
 
-The deadlock as below:
-[983.923403] task:setfattr        state:D stack:    0 pid:17639 ppid: 14687 flags:0x00000080
-[  983.923405] Call Trace:
-[  983.923410]  __schedule+0x2c4/0x700
-[  983.923412]  schedule+0x37/0xa0
-[  983.923414]  schedule_timeout+0x274/0x300
-[  983.923416]  __down+0x9b/0xf0
-[  983.923451]  ? xfs_buf_find.isra.29+0x3c8/0x5f0 [xfs]
-[  983.923453]  down+0x3b/0x50
-[  983.923471]  xfs_buf_lock+0x33/0xf0 [xfs]
-[  983.923490]  xfs_buf_find.isra.29+0x3c8/0x5f0 [xfs]
-[  983.923508]  xfs_buf_get_map+0x4c/0x320 [xfs]
-[  983.923525]  xfs_buf_read_map+0x53/0x310 [xfs]
-[  983.923541]  ? xfs_da_read_buf+0xcf/0x120 [xfs]
-[  983.923560]  xfs_trans_read_buf_map+0x1cf/0x360 [xfs]
-[  983.923575]  ? xfs_da_read_buf+0xcf/0x120 [xfs]
-[  983.923590]  xfs_da_read_buf+0xcf/0x120 [xfs]
-[  983.923606]  xfs_da3_node_read+0x1f/0x40 [xfs]
-[  983.923621]  xfs_da3_node_lookup_int+0x69/0x4a0 [xfs]
-[  983.923624]  ? kmem_cache_alloc+0x12e/0x270
-[  983.923637]  xfs_attr_node_hasname+0x6e/0xa0 [xfs]
-[  983.923651]  xfs_has_attr+0x6e/0xd0 [xfs]
-[  983.923664]  xfs_attr_set+0x273/0x320 [xfs]
-[  983.923683]  xfs_xattr_set+0x87/0xd0 [xfs]
-[  983.923686]  __vfs_removexattr+0x4d/0x60
-[  983.923688]  __vfs_removexattr_locked+0xac/0x130
-[  983.923689]  vfs_removexattr+0x4e/0xf0
-[  983.923690]  removexattr+0x4d/0x80
-[  983.923693]  ? __check_object_size+0xa8/0x16b
-[  983.923695]  ? strncpy_from_user+0x47/0x1a0
-[  983.923696]  ? getname_flags+0x6a/0x1e0
-[  983.923697]  ? _cond_resched+0x15/0x30
-[  983.923699]  ? __sb_start_write+0x1e/0x70
-[  983.923700]  ? mnt_want_write+0x28/0x50
-[  983.923701]  path_removexattr+0x9b/0xb0
-[  983.923702]  __x64_sys_removexattr+0x17/0x20
-[  983.923704]  do_syscall_64+0x5b/0x1a0
-[  983.923705]  entry_SYSCALL_64_after_hwframe+0x65/0xca
-[  983.923707] RIP: 0033:0x7f080f10ee1b
-
-When getxattr calls xfs_attr_node_get function, xfs_da3_node_lookup_int fails with EFSCORRUPTED in
-xfs_attr_node_hasname because we have use blocktrash to random it in xfs/126. So it
-free state in internal and xfs_attr_node_get doesn't do xfs_buf_trans release job.
-
-Then subsequent removexattr will hang because of it.
-
-This bug was introduced by kernel commit 07120f1abdff ("xfs: Add xfs_has_attr and subroutines").
-It adds xfs_attr_node_hasname helper and said caller will be responsible for freeing the state
-in this case. But xfs_attr_node_hasname will free state itself instead of caller if
-xfs_da3_node_lookup_int fails.
-
-Fix this bug by moving the step of free state into caller.
-
-[amir: this text from original commit is not relevant for 5.10 backport:
-Also, use "goto error/out" instead of returning error directly in xfs_attr_node_addname_find_attr and
-xfs_attr_node_removename_setup function because we should free state ourselves.
-]
-
-Fixes: 07120f1abdff ("xfs: Add xfs_has_attr and subroutines")
-Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Link: https://lore.kernel.org/r/20211123114227.3124056-6-brauner@kernel.org (v1)
+Link: https://lore.kernel.org/r/20211130121032.3753852-6-brauner@kernel.org (v2)
+Link: https://lore.kernel.org/r/20211203111707.3901969-6-brauner@kernel.org
+Cc: Seth Forshee <sforshee@digitalocean.com>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+CC: linux-fsdevel@vger.kernel.org
+Reviewed-by: Seth Forshee <sforshee@digitalocean.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_attr.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ Documentation/filesystems/idmappings.rst |   72 -------------------------------
+ 1 file changed, 72 deletions(-)
 
---- a/fs/xfs/libxfs/xfs_attr.c
-+++ b/fs/xfs/libxfs/xfs_attr.c
-@@ -876,21 +876,18 @@ xfs_attr_node_hasname(
- 
- 	state = xfs_da_state_alloc(args);
- 	if (statep != NULL)
--		*statep = NULL;
-+		*statep = state;
- 
- 	/*
- 	 * Search to see if name exists, and get back a pointer to it.
- 	 */
- 	error = xfs_da3_node_lookup_int(state, &retval);
--	if (error) {
--		xfs_da_state_free(state);
--		return error;
--	}
-+	if (error)
-+		retval = error;
- 
--	if (statep != NULL)
--		*statep = state;
--	else
-+	if (!statep)
- 		xfs_da_state_free(state);
-+
- 	return retval;
- }
- 
+--- a/Documentation/filesystems/idmappings.rst
++++ b/Documentation/filesystems/idmappings.rst
+@@ -952,75 +952,3 @@ The raw userspace id that is put on disk
+ their home directory back to their home computer where they are assigned
+ ``u1000`` using the initial idmapping and mount the filesystem with the initial
+ idmapping they will see all those files owned by ``u1000``.
+-
+-Shortcircuting
+---------------
+-
+-Currently, the implementation of idmapped mounts enforces that the filesystem
+-is mounted with the initial idmapping. The reason is simply that none of the
+-filesystems that we targeted were mountable with a non-initial idmapping. But
+-that might change soon enough. As we've seen above, thanks to the properties of
+-idmappings the translation works for both filesystems mounted with the initial
+-idmapping and filesystem with non-initial idmappings.
+-
+-Based on this current restriction to filesystem mounted with the initial
+-idmapping two noticeable shortcuts have been taken:
+-
+-1. We always stash a reference to the initial user namespace in ``struct
+-   vfsmount``. Idmapped mounts are thus mounts that have a non-initial user
+-   namespace attached to them.
+-
+-   In order to support idmapped mounts this needs to be changed. Instead of
+-   stashing the initial user namespace the user namespace the filesystem was
+-   mounted with must be stashed. An idmapped mount is then any mount that has
+-   a different user namespace attached then the filesystem was mounted with.
+-   This has no user-visible consequences.
+-
+-2. The translation algorithms in ``mapped_fs*id()`` and ``i_*id_into_mnt()``
+-   are simplified.
+-
+-   Let's consider ``mapped_fs*id()`` first. This function translates the
+-   caller's kernel id into a kernel id in the filesystem's idmapping via
+-   a mount's idmapping. The full algorithm is::
+-
+-    mapped_fsuid(kid):
+-      /* Map the kernel id up into a userspace id in the mount's idmapping. */
+-      from_kuid(mount-idmapping, kid) = uid
+-
+-      /* Map the userspace id down into a kernel id in the filesystem's idmapping. */
+-      make_kuid(filesystem-idmapping, uid) = kuid
+-
+-   We know that the filesystem is always mounted with the initial idmapping as
+-   we enforce this in ``mount_setattr()``. So this can be shortened to::
+-
+-    mapped_fsuid(kid):
+-      /* Map the kernel id up into a userspace id in the mount's idmapping. */
+-      from_kuid(mount-idmapping, kid) = uid
+-
+-      /* Map the userspace id down into a kernel id in the filesystem's idmapping. */
+-      KUIDT_INIT(uid) = kuid
+-
+-   Similarly, for ``i_*id_into_mnt()`` which translated the filesystem's kernel
+-   id into a mount's kernel id::
+-
+-    i_uid_into_mnt(kid):
+-      /* Map the kernel id up into a userspace id in the filesystem's idmapping. */
+-      from_kuid(filesystem-idmapping, kid) = uid
+-
+-      /* Map the userspace id down into a kernel id in the mounts's idmapping. */
+-      make_kuid(mount-idmapping, uid) = kuid
+-
+-   Again, we know that the filesystem is always mounted with the initial
+-   idmapping as we enforce this in ``mount_setattr()``. So this can be
+-   shortened to::
+-
+-    i_uid_into_mnt(kid):
+-      /* Map the kernel id up into a userspace id in the filesystem's idmapping. */
+-      __kuid_val(kid) = uid
+-
+-      /* Map the userspace id down into a kernel id in the mounts's idmapping. */
+-      make_kuid(mount-idmapping, uid) = kuid
+-
+-Handling filesystems mounted with non-initial idmappings requires that the
+-translation functions be converted to their full form. They can still be
+-shortcircuited on non-idmapped mounts. This has no user-visible consequences.
 
 
