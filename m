@@ -2,112 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6908561635
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 11:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83783561637
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 11:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbiF3JVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 05:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53484 "EHLO
+        id S234353AbiF3JV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 05:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234304AbiF3JVi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 05:21:38 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10C340E56;
-        Thu, 30 Jun 2022 02:21:27 -0700 (PDT)
-Received: from dggpeml500024.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4LYXpS3qvtzkWdj;
-        Thu, 30 Jun 2022 17:19:28 +0800 (CST)
-Received: from dggpeml100012.china.huawei.com (7.185.36.121) by
- dggpeml500024.china.huawei.com (7.185.36.10) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 30 Jun 2022 17:21:21 +0800
-Received: from [10.67.110.218] (10.67.110.218) by
- dggpeml100012.china.huawei.com (7.185.36.121) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 30 Jun 2022 17:21:21 +0800
-Message-ID: <0a05d98f-96f6-ffee-87bf-ba9e0231bde4@huawei.com>
-Date:   Thu, 30 Jun 2022 17:21:14 +0800
+        with ESMTP id S234148AbiF3JVo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 05:21:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 896674160F;
+        Thu, 30 Jun 2022 02:21:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EBD2B8294E;
+        Thu, 30 Jun 2022 09:21:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95A31C34115;
+        Thu, 30 Jun 2022 09:21:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656580893;
+        bh=NF3C4ANS+tZF24QCGgcbFP47TxaaB4zajkoerVTQVnM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MfE6lqWfHC0D0mvBwBZJeTwCDKRlL5bsCwij0s2cvn17zq3xhEerfnBP7bA2Ndpad
+         wTXxGMeUjhImMO6ZX9zMCn8+2NgL2qf6MOve+BABXMdWZ8vKvdsOupbVweJ56ppxEZ
+         czXhkouYhxLoyL8KBVUT/T4jsy1Di2QhFQ1zXFqw=
+Date:   Thu, 30 Jun 2022 11:21:31 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Thomas Backlund <tmb@tmb.nu>
+Cc:     Ronald Warsow <rwarsow@gmx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.18 000/181] 5.18.8-rc1 review
+Message-ID: <Yr1rGxekbuNp1MsU@kroah.com>
+References: <f0cdac2a-79f3-af1c-eac9-698b0c8196a3@tmb.nu>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.0
-Subject: Re: [PATCH] tracing/histograms: Simplify create_hist_fields()
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <rostedt@goodmis.org>, <mingo@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <tom.zanussi@linux.intel.com>,
-        <trix@redhat.com>, <stable@vger.kernel.org>,
-        <zhangjinhao2@huawei.com>
-References: <20220630013152.164871-1-zhengyejian1@huawei.com>
- <Yr1DtC4Gvg00SVfr@kroah.com>
-From:   "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
-Reply-To: <Yr1DtC4Gvg00SVfr@kroah.com>
-In-Reply-To: <Yr1DtC4Gvg00SVfr@kroah.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.218]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml100012.china.huawei.com (7.185.36.121)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f0cdac2a-79f3-af1c-eac9-698b0c8196a3@tmb.nu>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/6/30 14:33, Greg KH wrote:
-> On Thu, Jun 30, 2022 at 09:31:52AM +0800, Zheng Yejian wrote:
->> When I look into implements of create_hist_fields(), I think there can be
->> following two simplifications:
->>    1. If something wrong happened in parse_var_defs(), free_var_defs() would
->>       have been called in it, so no need goto free again after calling it;
->>    2. After calling create_key_fields(), regardless of the value of 'ret', it
->>       then always runs into 'out: ', so the judge of 'ret' is redundant.
->>
->> No functional changes.
->>
->> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
->> ---
->>   kernel/trace/trace_events_hist.c | 5 ++---
->>   1 file changed, 2 insertions(+), 3 deletions(-)
->>
->> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
->> index 2784951e0fc8..832c4ccf41ab 100644
->> --- a/kernel/trace/trace_events_hist.c
->> +++ b/kernel/trace/trace_events_hist.c
->> @@ -4454,7 +4454,7 @@ static int create_hist_fields(struct hist_trigger_data *hist_data,
->>   
->>   	ret = parse_var_defs(hist_data);
->>   	if (ret)
->> -		goto out;
->> +		return ret;
->>   
->>   	ret = create_val_fields(hist_data, file);
->>   	if (ret)
->> @@ -4465,8 +4465,7 @@ static int create_hist_fields(struct hist_trigger_data *hist_data,
->>   		goto out;
->>   
->>   	ret = create_key_fields(hist_data, file);
->> -	if (ret)
->> -		goto out;
->> +
->>    out:
->>   	free_var_defs(hist_data);
->>   
->> -- 
->> 2.32.0
->>
+On Tue, Jun 28, 2022 at 08:18:34PM +0000, Thomas Backlund wrote:
+> Den 2022-06-27 kl. 19:38, skrev Ronald Warsow:
+> > hallo Greg
+> >
+> > 5.18.8-rc1
+> >
+> > compiles (see [1]), boots and runs here on x86_64
+> > (Intel i5-11400, Fedora 36)
+> >
+> > [1]
+> > a regression against 5.18.7:
+> >
+> > ...
+> >
+> > LD      vmlinux.o
+> >    MODPOST vmlinux.symvers
+> > WARNING: modpost: vmlinux.o(___ksymtab_gpl+tick_nohz_full_setup+0x0):
+> > Section mismatch in reference from the variable
+> > __ksymtab_tick_nohz_full_setup to the function
+> > .init.text:tick_nohz_full_setup()
+> > The symbol tick_nohz_full_setup is exported and annotated __init
+> > Fix this by removing the __init annotation of tick_nohz_full_setup or
+> > drop the export.
 > 
-> <formletter>
 > 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
+> Should be fixed by:
+> 
+> 
+>  From 2390095113e98fc52fffe35c5206d30d9efe3f78 Mon Sep 17 00:00:00 2001
+> From: Masahiro Yamada <masahiroy@kernel.org>
+> Date: Mon, 27 Jun 2022 12:22:09 +0900
+> Subject: [PATCH] tick/nohz: unexport __init-annotated tick_nohz_full_setup()
 
-This patch is a cleanup, no need to include in stable kernel tree.
-I accidentally copied the patch to stable mailbox, sorry for that :(
+Great, now queued up, thanks.
 
->      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
+greg k-h
