@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF778561BB7
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A32E561C64
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235074AbiF3NsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:48:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
+        id S235263AbiF3Nwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:52:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235334AbiF3NsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:01 -0400
+        with ESMTP id S235791AbiF3Nw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62AC52F01A;
-        Thu, 30 Jun 2022 06:47:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A671745509;
+        Thu, 30 Jun 2022 06:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A536861FF5;
-        Thu, 30 Jun 2022 13:47:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52CFC34115;
-        Thu, 30 Jun 2022 13:47:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFE6861FF6;
+        Thu, 30 Jun 2022 13:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D73F3C34115;
+        Thu, 30 Jun 2022 13:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596876;
-        bh=bcYax/XTkTxuUBkyvxRtU6WAcPJpxGL8e0zlBGGR3rg=;
+        s=korg; t=1656596978;
+        bh=h1N85u9a3APp1yw2woC9p/8mzkK2TLZrhyjIps8M9WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKNHOMV5AWijeysoP3Qg+2bUPr1KLKYQr24yHW/cgf8ZaGlwtDYdsiLlj2BvFQktj
-         ECiLzvz8TNORp4gvrbDh3GiSk/U4WqB1LxDsKvoI+E6OIDPLaBCoMm499f9BDcio4t
-         4nKsVC4KJE6Im+x/aQhusLwYDc3zWCVFWsBbjN/0=
+        b=Qt4iUnqyXYHK25BHwhPHFiCoyAq47RsyYeDbXtiHwirlu1AsNKaeYAxdiscit5UOi
+         jfkIPVdFk6smgYC7Gyvx25NdEa+rkzLEaNC6BKPvMKKDjHx6bx+hBB0/ckTBUeVYEa
+         A+57dKVWkboN0nPeXFhYCiqJXGpMPMCekc1J9nyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 13/29] iio:accel:bma180: rearrange iio trigger get and register
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 02/35] random: schedule mix_interrupt_randomness() less often
 Date:   Thu, 30 Jun 2022 15:46:13 +0200
-Message-Id: <20220630133231.595556846@linuxfoundation.org>
+Message-Id: <20220630133232.511345542@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit e5f3205b04d7f95a2ef43bce4b454a7f264d6923 upstream.
+commit 534d2eaf1970274150596fdd2bf552721e65d6b2 upstream.
 
-IIO trigger interface function iio_trigger_get() should be called after
-iio_trigger_register() (or its devm analogue) strictly, because of
-iio_trigger_get() acquires module refcnt based on the trigger->owner
-pointer, which is initialized inside iio_trigger_register() to
-THIS_MODULE.
-If this call order is wrong, the next iio_trigger_put() (from sysfs
-callback or "delete module" path) will dereference "default" module
-refcnt, which is incorrect behaviour.
+It used to be that mix_interrupt_randomness() would credit 1 bit each
+time it ran, and so add_interrupt_randomness() would schedule mix() to
+run every 64 interrupts, a fairly arbitrary number, but nonetheless
+considered to be a decent enough conservative estimate.
 
-Fixes: 0668a4e4d297 ("iio: accel: bma180: Fix indio_dev->trig assignment")
-Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-2-ddrokosov@sberdevices.ru
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Since e3e33fc2ea7f ("random: do not use input pool from hard IRQs"),
+mix() is now able to credit multiple bits, depending on the number of
+calls to add(). This was done for reasons separate from this commit, but
+it has the nice side effect of enabling this patch to schedule mix()
+less often.
+
+Currently the rules are:
+a) Credit 1 bit for every 64 calls to add().
+b) Schedule mix() once a second that add() is called.
+c) Schedule mix() once every 64 calls to add().
+
+Rules (a) and (c) no longer need to be coupled. It's still important to
+have _some_ value in (c), so that we don't "over-saturate" the fast
+pool, but the once per second we get from rule (b) is a plenty enough
+baseline. So, by increasing the 64 in rule (c) to something larger, we
+avoid calling queue_work_on() as frequently during irq storms.
+
+This commit changes that 64 in rule (c) to be 1024, which means we
+schedule mix() 16 times less often. And it does *not* need to change the
+64 in rule (a).
+
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Cc: stable@vger.kernel.org
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -776,11 +776,12 @@ static int bma180_probe(struct i2c_clien
- 		data->trig->dev.parent = &client->dev;
- 		data->trig->ops = &bma180_trigger_ops;
- 		iio_trigger_set_drvdata(data->trig, indio_dev);
--		indio_dev->trig = iio_trigger_get(data->trig);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -996,7 +996,7 @@ void add_interrupt_randomness(int irq)
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
  
- 		ret = iio_trigger_register(data->trig);
- 		if (ret)
- 			goto err_trigger_free;
-+
-+		indio_dev->trig = iio_trigger_get(data->trig);
- 	}
+-	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
++	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
+ 		return;
  
- 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+ 	if (unlikely(!fast_pool->mix.func))
 
 
