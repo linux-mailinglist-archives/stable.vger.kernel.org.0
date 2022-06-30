@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0826561C60
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6796E561C85
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236002AbiF3N5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38116 "EHLO
+        id S235980AbiF3N7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235987AbiF3N4Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:56:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E58F3B026;
-        Thu, 30 Jun 2022 06:50:55 -0700 (PDT)
+        with ESMTP id S236556AbiF3N7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:59:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA8B5C9CE;
+        Thu, 30 Jun 2022 06:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 642C1B82AEE;
-        Thu, 30 Jun 2022 13:50:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBBEC34115;
-        Thu, 30 Jun 2022 13:50:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DA75B82AEF;
+        Thu, 30 Jun 2022 13:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3723C34115;
+        Thu, 30 Jun 2022 13:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597045;
-        bh=JGWObjH0AjpoMYTLFfuxVJHH84oeCMnkgyGdD9U098M=;
+        s=korg; t=1656597114;
+        bh=R6WdYwE1kqgxCBVjkLKacSxk6KLR5lkUza5brTDpj4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFp7hAZR4WwoLPjZCprXs+4QAVGBBC3Vfdyt8d2ZQNDZwGiOnWpYztXkM1O5dsrWw
-         5AOyAhSvvrGWS3ZW/7Nyf7QGLDGxYw7ETaTh3gEF2NX0bW/xQ4Mt99D7fGnNt2FxbJ
-         oRjB4S/SwXbxR4b4kb/hfd5z579u/sFnA3WwmKjc=
+        b=iCLy2Twuyxd4wGpJMvh+Aj2D0K6pty/EPhUCDCp7yv5iFbqaQLLls+hxOGFGr564D
+         o6EYEggaFpjAvn6E+Apl/IJxiS5Cp6AVK5O4qj/G8Kbk1r+BpDY3tBM6D8QPF5YBaw
+         Xa2mY5Xzxw0ml8NMRG9EbRtWSihm9ifBeWhP8OPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
         "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 34/35] kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
+        Sumit Dubey2 <Sumit.Dubey2@ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 32/49] powerpc: Enable execve syscall exit tracepoint
 Date:   Thu, 30 Jun 2022 15:46:45 +0200
-Message-Id: <20220630133233.443358893@linuxfoundation.org>
+Message-Id: <20220630133234.835442292@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,126 +57,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 3e35142ef99fe6b4fe5d834ad43ee13cca10a2dc upstream.
+commit ec6d0dde71d760aa60316f8d1c9a1b0d99213529 upstream.
 
-Since commit d1bcae833b32f1 ("ELF: Don't generate unused section
-symbols") [1], binutils (v2.36+) started dropping section symbols that
-it thought were unused.  This isn't an issue in general, but with
-kexec_file.c, gcc is placing kexec_arch_apply_relocations[_add] into a
-separate .text.unlikely section and the section symbol ".text.unlikely"
-is being dropped. Due to this, recordmcount is unable to find a non-weak
-symbol in .text.unlikely to generate a relocation record against.
+On execve[at], we are zero'ing out most of the thread register state
+including gpr[0], which contains the syscall number. Due to this, we
+fail to trigger the syscall exit tracepoint properly. Fix this by
+retaining gpr[0] in the thread register state.
 
-Address this by dropping the weak attribute from these functions.
-Instead, follow the existing pattern of having architectures #define the
-name of the function they want to override in their headers.
+Before this patch:
+  # tail /sys/kernel/debug/tracing/trace
+	       cat-123     [000] .....    61.449351: sys_execve(filename:
+  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
+	       cat-124     [000] .....    62.428481: sys_execve(filename:
+  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
+	      echo-125     [000] .....    65.813702: sys_execve(filename:
+  7fffa6b23378, argv: 7fffa6b233a0, envp: 7fffa6b233b0)
+	      echo-125     [000] .....    65.822214: sys_execveat(fd: 0,
+  filename: 1009ac48, argv: 7ffff65d0c98, envp: 7ffff65d0ca8, flags: 0)
 
-[1] https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=d1bcae833b32f1
+After this patch:
+  # tail /sys/kernel/debug/tracing/trace
+	       cat-127     [000] .....   100.416262: sys_execve(filename:
+  7fffa41b3448, argv: 7fffa41b33e0, envp: 7fffa41b33f8)
+	       cat-127     [000] .....   100.418203: sys_execve -> 0x0
+	      echo-128     [000] .....   103.873968: sys_execve(filename:
+  7fffa41b3378, argv: 7fffa41b33a0, envp: 7fffa41b33b0)
+	      echo-128     [000] .....   103.875102: sys_execve -> 0x0
+	      echo-128     [000] .....   103.882097: sys_execveat(fd: 0,
+  filename: 1009ac48, argv: 7fffd10d2148, envp: 7fffd10d2158, flags: 0)
+	      echo-128     [000] .....   103.883225: sys_execveat -> 0x0
 
-[akpm@linux-foundation.org: arch/s390/include/asm/kexec.h needs linux/module.h]
-Link: https://lkml.kernel.org/r/20220519091237.676736-1-naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: stable@vger.kernel.org
 Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Sumit Dubey2 <Sumit.Dubey2@ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220609103328.41306-1-naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kexec.h |    6 ++++++
- include/linux/kexec.h        |   26 ++++++++++++++++++++++----
- kernel/kexec_file.c          |   18 ------------------
- 3 files changed, 28 insertions(+), 22 deletions(-)
+ arch/powerpc/kernel/process.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/kexec.h
-+++ b/arch/x86/include/asm/kexec.h
-@@ -21,6 +21,7 @@
- #ifndef __ASSEMBLY__
- 
- #include <linux/string.h>
-+#include <linux/module.h>
- 
- #include <asm/page.h>
- #include <asm/ptrace.h>
-@@ -217,6 +218,11 @@ extern int arch_kexec_post_alloc_pages(v
- extern void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages);
- #define arch_kexec_pre_free_pages arch_kexec_pre_free_pages
- 
-+#ifdef CONFIG_KEXEC_FILE
-+int arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
-+				     Elf_Shdr *sechdrs, unsigned int relsec);
-+#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
-+#endif
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1731,7 +1731,7 @@ void start_thread(struct pt_regs *regs,
+ 		tm_reclaim_current(0);
  #endif
  
- typedef void crash_vmclear_fn(void);
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -163,6 +163,28 @@ int __weak arch_kexec_walk_mem(struct ke
- 			       int (*func)(u64, u64, void *));
- extern int kexec_add_buffer(struct kexec_buf *kbuf);
- int kexec_locate_mem_hole(struct kexec_buf *kbuf);
-+
-+#ifndef arch_kexec_apply_relocations_add
-+/* Apply relocations of type RELA */
-+static inline int
-+arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
-+				 Elf_Shdr *sechdrs, unsigned int relsec)
-+{
-+	pr_err("RELA relocation unsupported.\n");
-+	return -ENOEXEC;
-+}
-+#endif
-+
-+#ifndef arch_kexec_apply_relocations
-+/* Apply relocations of type REL */
-+static inline int
-+arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
-+			     unsigned int relsec)
-+{
-+	pr_err("REL relocation unsupported.\n");
-+	return -ENOEXEC;
-+}
-+#endif
- #endif /* CONFIG_KEXEC_FILE */
- 
- struct kimage {
-@@ -288,10 +310,6 @@ void * __weak arch_kexec_kernel_image_lo
- int __weak arch_kimage_file_post_load_cleanup(struct kimage *image);
- int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
- 					unsigned long buf_len);
--int __weak arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
--					Elf_Shdr *sechdrs, unsigned int relsec);
--int __weak arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--					unsigned int relsec);
- void arch_kexec_protect_crashkres(void);
- void arch_kexec_unprotect_crashkres(void);
- 
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -53,24 +53,6 @@ int __weak arch_kexec_kernel_verify_sig(
- }
- #endif
- 
--/* Apply relocations of type RELA */
--int __weak
--arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--				 unsigned int relsec)
--{
--	pr_err("RELA relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
--/* Apply relocations of type REL */
--int __weak
--arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
--			     unsigned int relsec)
--{
--	pr_err("REL relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
- /*
-  * Free up memory used by kernel, initrd, and command line. This is temporary
-  * memory allocation which is not needed any more after these buffers have
+-	memset(regs->gpr, 0, sizeof(regs->gpr));
++	memset(&regs->gpr[1], 0, sizeof(regs->gpr) - sizeof(regs->gpr[0]));
+ 	regs->ctr = 0;
+ 	regs->link = 0;
+ 	regs->xer = 0;
 
 
