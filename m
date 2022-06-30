@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75DE9561BE7
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 027FD561C04
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235400AbiF3Nsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:48:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48692 "EHLO
+        id S235648AbiF3Nvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:51:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235349AbiF3Nsa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:30 -0400
+        with ESMTP id S235554AbiF3NvL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:51:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256F5100C;
-        Thu, 30 Jun 2022 06:48:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C20D37A03;
+        Thu, 30 Jun 2022 06:49:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4539D61FF6;
-        Thu, 30 Jun 2022 13:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F329C34115;
-        Thu, 30 Jun 2022 13:48:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0E6962005;
+        Thu, 30 Jun 2022 13:49:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC06FC34115;
+        Thu, 30 Jun 2022 13:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596900;
-        bh=l+0t1T7UVgnnl52KigGaMI+Ya57FIMlUgLltqt/jz/M=;
+        s=korg; t=1656596950;
+        bh=oCbBNzQ7H7CJAOIyXRH136dBBNXqajI5X04Of4eAtTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KL7bzW3CyG0ZItErRGGteoIautfkHs8bf5qmg0TWZNITRKHZ0osY82Oc0TY0rarZE
-         as7UAP3sM/AOzI2XpIm5l0DEt8U6EWjxam15rUbbVVDZGTNJshUCe+sKb5xMtEPVM+
-         gK7r183yTObTmXYRkVvj415OIl2XG/TO4aTuCvB4=
+        b=Aol36U6d0SWtxOWamxRi01AulBsAI8eaW4RcKZGM6/Ewv/gM0tU88wLXH8QIQPxbC
+         zB9tdTOyMm4hPxuEN/37T5f+u2Bq4S1fQloCb0p63XMYP/L51PFkYUdLaCjTrsHoXM
+         YKipvjWXTdZkM8FQfWXBgL5nCrovMfk4OdS4dQVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 21/29] ARM: Fix refcount leak in axxia_boot_secondary
+        stable@vger.kernel.org, Julien Grall <jgrall@amazon.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/35] x86/xen: Remove undefined behavior in setup_features()
 Date:   Thu, 30 Jun 2022 15:46:21 +0200
-Message-Id: <20220630133231.825078988@linuxfoundation.org>
+Message-Id: <20220630133232.744912833@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Julien Grall <jgrall@amazon.com>
 
-commit 7c7ff68daa93d8c4cdea482da4f2429c0398fcde upstream.
+[ Upstream commit ecb6237fa397b7b810d798ad19322eca466dbab1 ]
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+1 << 31 is undefined. So switch to 1U << 31.
 
-Fixes: 1d22924e1c4e ("ARM: Add platform support for LSI AXM55xx SoC")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220601090548.47616-1-linmq006@gmail.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ead97c84fa7 ("xen: Core Xen implementation")
+Signed-off-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220617103037.57828-1-julien@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-axxia/platsmp.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/xen/features.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/mach-axxia/platsmp.c
-+++ b/arch/arm/mach-axxia/platsmp.c
-@@ -42,6 +42,7 @@ static int axxia_boot_secondary(unsigned
- 		return -ENOENT;
- 
- 	syscon = of_iomap(syscon_np, 0);
-+	of_node_put(syscon_np);
- 	if (!syscon)
- 		return -ENOMEM;
- 
+diff --git a/drivers/xen/features.c b/drivers/xen/features.c
+index d7d34fdfc993..f466f776604f 100644
+--- a/drivers/xen/features.c
++++ b/drivers/xen/features.c
+@@ -28,6 +28,6 @@ void xen_setup_features(void)
+ 		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
+ 			break;
+ 		for (j = 0; j < 32; j++)
+-			xen_features[i * 32 + j] = !!(fi.submap & 1<<j);
++			xen_features[i * 32 + j] = !!(fi.submap & 1U << j);
+ 	}
+ }
+-- 
+2.35.1
+
 
 
