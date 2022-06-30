@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6630F561C6C
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF063561C8B
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235898AbiF3Nyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
+        id S236019AbiF3N74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235716AbiF3NyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:20 -0400
+        with ESMTP id S236496AbiF3N6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DE752380;
-        Thu, 30 Jun 2022 06:50:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E9241999;
+        Thu, 30 Jun 2022 06:51:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED9461FD8;
-        Thu, 30 Jun 2022 13:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29582C34115;
-        Thu, 30 Jun 2022 13:50:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A122620FB;
+        Thu, 30 Jun 2022 13:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68FCEC34115;
+        Thu, 30 Jun 2022 13:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597014;
-        bh=DuigcMx0DqVCBIG2n4mSaG34J8iwHHjFkHvYhh4Vh9Y=;
+        s=korg; t=1656597105;
+        bh=Urwb/RjVq/tYoyuIqbJgp4bogvrF3sTNzc506eyjWfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNg0vYEIXhaNR/qzJc5VqMRqznETE0SJh8YEKW+WnOhwA1MkbnAOd5ZfMZaph4f09
-         tJJ1iDNbJnUux8Zu4rv76iCP2Vc3EnfKs5wxm/fgaDQp6eqIk6V36CFx1xo+SwOXUh
-         ydGgRujznGqP14Upo7v4A39+lu6uFovYQU7xpqo4=
+        b=IIRykTfGKdUoVzn+qcu2K+mJtRvmFBc5DIpjTcnlKCkinLzKbswKqxrdZ1EaB2QcG
+         jjt0yfjU3IN/bvFur9nI3kTClZJMbVN5PDDrdzQ12zgtlfu3qPGbTp4W2WVIKwYQhc
+         AzP3a0fyHLYOHYRxm6g45LQkMkFrLZOvYmody9W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 4.14 31/35] drm: remove drm_fb_helper_modinit
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 29/49] iio: adc: axp288: Override TS pin bias current for some models
 Date:   Thu, 30 Jun 2022 15:46:42 +0200
-Message-Id: <20220630133233.355081013@linuxfoundation.org>
+Message-Id: <20220630133234.753206225@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,104 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit bf22c9ec39da90ce866d5f625d616f28bc733dc1 upstream.
+commit 048058399f19d43cf21de9f5d36cd8144337d004 upstream.
 
-drm_fb_helper_modinit has a lot of boilerplate for what is not very
-simple functionality.  Just open code it in the only caller using
-IS_ENABLED and IS_MODULE, and skip the find_module check as a
-request_module is harmless if the module is already loaded (and not
-other caller has this find_module check either).
+Since commit 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling") we
+preserve the bias current set by the firmware at boot. This fixes issues
+we were seeing on various models.
 
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Some models like the Nuvision Solo 10 Draw tablet actually need the
+old hardcoded 80ųA bias current for battery temperature monitoring
+to work properly.
+
+Add a quirk entry for the Nuvision Solo 10 Draw to the DMI quirk table
+to restore setting the bias current to 80ųA on this model.
+
+Fixes: 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215882
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220506095040.21008-1-hdegoede@redhat.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_crtc_helper_internal.h |   10 ----------
- drivers/gpu/drm/drm_fb_helper.c            |   21 ---------------------
- drivers/gpu/drm/drm_kms_helper_common.c    |   23 +++++++++++------------
- 3 files changed, 11 insertions(+), 43 deletions(-)
+ drivers/iio/adc/axp288_adc.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/drm_crtc_helper_internal.h
-+++ b/drivers/gpu/drm/drm_crtc_helper_internal.h
-@@ -32,16 +32,6 @@
- #include <drm/drm_encoder.h>
- #include <drm/drm_modes.h>
+--- a/drivers/iio/adc/axp288_adc.c
++++ b/drivers/iio/adc/axp288_adc.c
+@@ -205,6 +205,14 @@ static const struct dmi_system_id axp288
+ 		},
+ 		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
+ 	},
++	{
++		/* Nuvision Solo 10 Draw */
++		.matches = {
++		  DMI_MATCH(DMI_SYS_VENDOR, "TMAX"),
++		  DMI_MATCH(DMI_PRODUCT_NAME, "TM101W610L"),
++		},
++		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
++	},
+ 	{}
+ };
  
--/* drm_fb_helper.c */
--#ifdef CONFIG_DRM_FBDEV_EMULATION
--int drm_fb_helper_modinit(void);
--#else
--static inline int drm_fb_helper_modinit(void)
--{
--	return 0;
--}
--#endif
--
- /* drm_dp_aux_dev.c */
- #ifdef CONFIG_DRM_DP_AUX_CHARDEV
- int drm_dp_aux_dev_init(void);
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -2612,24 +2612,3 @@ int drm_fb_helper_hotplug_event(struct d
- 	return 0;
- }
- EXPORT_SYMBOL(drm_fb_helper_hotplug_event);
--
--/* The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
-- * but the module doesn't depend on any fb console symbols.  At least
-- * attempt to load fbcon to avoid leaving the system without a usable console.
-- */
--int __init drm_fb_helper_modinit(void)
--{
--#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
--	const char name[] = "fbcon";
--	struct module *fbcon;
--
--	mutex_lock(&module_mutex);
--	fbcon = find_module(name);
--	mutex_unlock(&module_mutex);
--
--	if (!fbcon)
--		request_module_nowait(name);
--#endif
--	return 0;
--}
--EXPORT_SYMBOL(drm_fb_helper_modinit);
---- a/drivers/gpu/drm/drm_kms_helper_common.c
-+++ b/drivers/gpu/drm/drm_kms_helper_common.c
-@@ -35,19 +35,18 @@ MODULE_LICENSE("GPL and additional right
- 
- static int __init drm_kms_helper_init(void)
- {
--	int ret;
-+	/*
-+	 * The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
-+	 * but the module doesn't depend on any fb console symbols.  At least
-+	 * attempt to load fbcon to avoid leaving the system without a usable
-+	 * console.
-+	 */
-+	if (IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION) &&
-+	    IS_MODULE(CONFIG_FRAMEBUFFER_CONSOLE) &&
-+	    !IS_ENABLED(CONFIG_EXPERT))
-+		request_module_nowait("fbcon");
- 
--	/* Call init functions from specific kms helpers here */
--	ret = drm_fb_helper_modinit();
--	if (ret < 0)
--		goto out;
--
--	ret = drm_dp_aux_dev_init();
--	if (ret < 0)
--		goto out;
--
--out:
--	return ret;
-+	return drm_dp_aux_dev_init();
- }
- 
- static void __exit drm_kms_helper_exit(void)
 
 
