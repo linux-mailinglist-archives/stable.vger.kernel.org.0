@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBF9561DAF
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71F6561C3B
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236067AbiF3OC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
+        id S235580AbiF3Ny2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:54:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236543AbiF3OCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0F168A13;
-        Thu, 30 Jun 2022 06:52:59 -0700 (PDT)
+        with ESMTP id S235532AbiF3NwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5469E443F8;
+        Thu, 30 Jun 2022 06:49:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB980B82AF4;
-        Thu, 30 Jun 2022 13:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012FBC34115;
-        Thu, 30 Jun 2022 13:52:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D1DE62051;
+        Thu, 30 Jun 2022 13:49:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C96C34115;
+        Thu, 30 Jun 2022 13:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597177;
-        bh=oCbBNzQ7H7CJAOIyXRH136dBBNXqajI5X04Of4eAtTE=;
+        s=korg; t=1656596969;
+        bh=CLKucOR1KV+hTdnmQuZOHWx60dJ5jfawBtDEBI3Okjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ulR1PLywxIPhnJhMAmRUdPb60LX5wdNYsoIda4cF6ZE+rlMwwx3c8ZIG8NkuMJMJJ
-         Ze/8ItDsrAr6Gs/BlSck5BAhDNzrJQZ819obof2KiDUglK3XjSWF+iD11gM+Szpv+x
-         uUCX55D4qkPsJE/veuHHBt2Whbvp8ur0QJQlt9xQ=
+        b=okJ1QGb+4WlBd+ZQe2iAsbz1PsHmvTQC60v/oPCKudCCQ8MfGKlsUd1d3AXgfl9qy
+         u7bIn8r3KzF6x455mNBHl4GwLgENpXFUO+wewvvQhS1e1iAWWG9t0gw0BH3eGN0A5c
+         E/nZAiNy13AVrRcx/EOETgqYEw+09gOZmCzjXXBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <jgrall@amazon.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/49] x86/xen: Remove undefined behavior in setup_features()
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 17/35] iio: gyro: mpu3050: Fix the error handling in mpu3050_power_up()
 Date:   Thu, 30 Jun 2022 15:46:28 +0200
-Message-Id: <20220630133234.356249143@linuxfoundation.org>
+Message-Id: <20220630133232.949544518@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Grall <jgrall@amazon.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit ecb6237fa397b7b810d798ad19322eca466dbab1 ]
+commit b2f5ad97645e1deb5ca9bcb7090084b92cae35d2 upstream.
 
-1 << 31 is undefined. So switch to 1U << 31.
+The driver should disable regulators when fails at regmap_update_bits().
 
-Fixes: 5ead97c84fa7 ("xen: Core Xen implementation")
-Signed-off-by: Julien Grall <jgrall@amazon.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220617103037.57828-1-julien@xen.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220510092431.1711284-1-zheyuma97@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/features.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/gyro/mpu3050-core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/xen/features.c b/drivers/xen/features.c
-index d7d34fdfc993..f466f776604f 100644
---- a/drivers/xen/features.c
-+++ b/drivers/xen/features.c
-@@ -28,6 +28,6 @@ void xen_setup_features(void)
- 		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
- 			break;
- 		for (j = 0; j < 32; j++)
--			xen_features[i * 32 + j] = !!(fi.submap & 1<<j);
-+			xen_features[i * 32 + j] = !!(fi.submap & 1U << j);
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -874,6 +874,7 @@ static int mpu3050_power_up(struct mpu30
+ 	ret = regmap_update_bits(mpu3050->map, MPU3050_PWR_MGM,
+ 				 MPU3050_PWR_MGM_SLEEP, 0);
+ 	if (ret) {
++		regulator_bulk_disable(ARRAY_SIZE(mpu3050->regs), mpu3050->regs);
+ 		dev_err(mpu3050->dev, "error setting power mode\n");
+ 		return ret;
  	}
- }
--- 
-2.35.1
-
 
 
