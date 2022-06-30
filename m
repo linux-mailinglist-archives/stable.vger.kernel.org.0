@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E28561BDD
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7788561BFD
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235352AbiF3NuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:50:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
+        id S235552AbiF3Nue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:50:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235517AbiF3Ntb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:49:31 -0400
+        with ESMTP id S235436AbiF3Ntk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:49:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FED535DC2;
-        Thu, 30 Jun 2022 06:48:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8201E3819B;
+        Thu, 30 Jun 2022 06:48:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B6D8B82AEF;
-        Thu, 30 Jun 2022 13:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B37DC34115;
-        Thu, 30 Jun 2022 13:48:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEABEB82AF0;
+        Thu, 30 Jun 2022 13:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FDAC34115;
+        Thu, 30 Jun 2022 13:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596925;
-        bh=ywZziMVk2wfYtFzokSeboHmjaNlpZjzTO3IiG/2bGEk=;
+        s=korg; t=1656596928;
+        bh=VyBoNb0MA5Em4XExPFLcsv/GBeNGStfKyGyf022I8qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zr9lPWZjH1JMdulmVsUDTStZ6ubRJ9GkOLm71QlnFvH6ErGHmirYhOWv+43HIQFOO
-         0EhL19A2EEh8aWy9IwHEk8TcQp/oMZAB4GpuD8zUD2parhSy99jpPrnmzpgZQWo5t/
-         G3yJM6iFsftNf8O9HGcR724UlTUbuxltfdEjwQN4=
+        b=0Y8MG5Fc5tCMcgwPypK7uajMH4EWHGHRm/P/TMuIPmNUfslx01B8hM5WWTms2kRN1
+         i0WjaQKWKZYk5ZuwvI8acuTrZLTmMFFLwN1Vw0/airBk0xdw/aZjt8G21nCW141RIF
+         cJh5X1lzzBwLwgQ3qiqOGgRCrOCLsl7c2nHZpthw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Wu <edwardwu@realtek.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.9 03/29] ata: libata: add qc->flags in ata_qc_complete_template tracepoint
-Date:   Thu, 30 Jun 2022 15:46:03 +0200
-Message-Id: <20220630133231.303958872@linuxfoundation.org>
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.9 04/29] dm era: commit metadata in postsuspend after worker stops
+Date:   Thu, 30 Jun 2022 15:46:04 +0200
+Message-Id: <20220630133231.333372335@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
 References: <20220630133231.200642128@linuxfoundation.org>
@@ -53,30 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Wu <edwardwu@realtek.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 540a92bfe6dab7310b9df2e488ba247d784d0163 upstream.
+commit 9ae6e8b1c9bbf6874163d1243e393137313762b7 upstream.
 
-Add flags value to check the result of ata completion
+During postsuspend dm-era does the following:
 
-Fixes: 255c03d15a29 ("libata: Add tracepoints")
-Cc: stable@vger.kernel.org
-Signed-off-by: Edward Wu <edwardwu@realtek.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+1. Archives the current era
+2. Commits the metadata, as part of the RPC call for archiving the
+   current era
+3. Stops the worker
+
+Until the worker stops, it might write to the metadata again. Moreover,
+these writes are not flushed to disk immediately, but are cached by the
+dm-bufio client, which writes them back asynchronously.
+
+As a result, the committed metadata of a suspended dm-era device might
+not be consistent with the in-core metadata.
+
+In some cases, this can result in the corruption of the on-disk
+metadata. Suppose the following sequence of events:
+
+1. Load a new table, e.g. a snapshot-origin table, to a device with a
+   dm-era table
+2. Suspend the device
+3. dm-era commits its metadata, but the worker does a few more metadata
+   writes until it stops, as part of digesting an archived writeset
+4. These writes are cached by the dm-bufio client
+5. Load the dm-era table to another device.
+6. The new instance of the dm-era target loads the committed, on-disk
+   metadata, which don't include the extra writes done by the worker
+   after the metadata commit.
+7. Resume the new device
+8. The new dm-era target instance starts using the metadata
+9. Resume the original device
+10. The destructor of the old dm-era target instance is called and
+    destroys the dm-bufio client, which results in flushing the cached
+    writes to disk
+11. These writes might overwrite the writes done by the new dm-era
+    instance, hence corrupting its metadata.
+
+Fix this by committing the metadata after the worker stops running.
+
+stop_worker uses flush_workqueue to flush the current work. However, the
+work item may re-queue itself and flush_workqueue doesn't wait for
+re-queued works to finish.
+
+This could result in the worker changing the metadata after they have
+been committed, or writing to the metadata concurrently with the commit
+in the postsuspend thread.
+
+Use drain_workqueue instead, which waits until the work and all
+re-queued works finish.
+
+Fixes: eec40579d8487 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/libata.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm-era-target.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/include/trace/events/libata.h
-+++ b/include/trace/events/libata.h
-@@ -248,6 +248,7 @@ DECLARE_EVENT_CLASS(ata_qc_complete_temp
- 		__entry->hob_feature	= qc->result_tf.hob_feature;
- 		__entry->nsect		= qc->result_tf.nsect;
- 		__entry->hob_nsect	= qc->result_tf.hob_nsect;
-+		__entry->flags		= qc->flags;
- 	),
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -1398,7 +1398,7 @@ static void start_worker(struct era *era
+ static void stop_worker(struct era *era)
+ {
+ 	atomic_set(&era->suspended, 1);
+-	flush_workqueue(era->wq);
++	drain_workqueue(era->wq);
+ }
  
- 	TP_printk("ata_port=%u ata_dev=%u tag=%d flags=%s status=%s " \
+ /*----------------------------------------------------------------
+@@ -1583,6 +1583,12 @@ static void era_postsuspend(struct dm_ta
+ 	}
+ 
+ 	stop_worker(era);
++
++	r = metadata_commit(era->md);
++	if (r) {
++		DMERR("%s: metadata_commit failed", __func__);
++		/* FIXME: fail mode */
++	}
+ }
+ 
+ static int era_preresume(struct dm_target *ti)
 
 
