@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C3C561BAC
+	by mail.lfdr.de (Postfix) with ESMTP id 94647561BAE
 	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235274AbiF3NsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
+        id S233783AbiF3NsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:48:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235317AbiF3Nr6 (ORCPT
+        with ESMTP id S235286AbiF3Nr6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:47:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1DBE2F03E;
-        Thu, 30 Jun 2022 06:47:48 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C22832F3BF;
+        Thu, 30 Jun 2022 06:47:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 691CD61FF6;
-        Thu, 30 Jun 2022 13:47:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DEC9C34115;
-        Thu, 30 Jun 2022 13:47:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 343CC62001;
+        Thu, 30 Jun 2022 13:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F902C3411E;
+        Thu, 30 Jun 2022 13:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596867;
-        bh=2VWJ2Tt2rteN35orcPyK48VLRO1P2rxOlKwKbC1B5Bk=;
+        s=korg; t=1656596870;
+        bh=y9i6OcD3+jttfol87JifqvXY8ddQ2O+EJsT5yNM2FLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GCK76pyObdEMYGKKHHJ9hlE1kc9Ch8ml0RA2uJfw3T7Tm5JG4rEzZL/cGk5w8CZ1A
-         yvOr6Pyt472/bJJ+yCMlmldYsDsLZ0HKcoSAm+Ya4X8JsjasWLcpkJsSEoreB/x7B3
-         jygSdIPK9RXqOikVs8nZGJGSSqvNmfsxo3NXsnE4=
+        b=WOmLfhJo2vMfzB3vyms9L29pXEArUuEIedFmQvEo91VqfruxH/jKo1IFXKrqzT9YB
+         DA0YsG3fS1sdRoiEwtBoT7w2bGNDHLxp+Yr6OorC53ziMjXSCfoUDKRG+D49b/huAW
+         DK43HDdZyasLmhGt48nidPyvh008Ta3NIbJjYLxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 4.9 10/29] igb: Make DMA faster when CPU is active on the PCIe link
-Date:   Thu, 30 Jun 2022 15:46:10 +0200
-Message-Id: <20220630133231.506958689@linuxfoundation.org>
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/29] iio: adc: vf610: fix conversion mode sysfs node name
+Date:   Thu, 30 Jun 2022 15:46:11 +0200
+Message-Id: <20220630133231.537002657@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
 References: <20220630133231.200642128@linuxfoundation.org>
@@ -57,81 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-[ Upstream commit 4e0effd9007ea0be31f7488611eb3824b4541554 ]
+[ Upstream commit f1a633b15cd5371a2a83f02c513984e51132dd68 ]
 
-Intel I210 on some Intel Alder Lake platforms can only achieve ~750Mbps
-Tx speed via iperf. The RR2DCDELAY shows around 0x2xxx DMA delay, which
-will be significantly lower when 1) ASPM is disabled or 2) SoC package
-c-state stays above PC3. When the RR2DCDELAY is around 0x1xxx the Tx
-speed can reach to ~950Mbps.
+The documentation missed the "in_" prefix for this IIO_SHARED_BY_DIR
+entry.
 
-According to the I210 datasheet "8.26.1 PCIe Misc. Register - PCIEMISC",
-"DMA Idle Indication" doesn't seem to tie to DMA coalesce anymore, so
-set it to 1b for "DMA is considered idle when there is no Rx or Tx AND
-when there are no TLPs indicating that CPU is active detected on the
-PCIe link (such as the host executes CSR or Configuration register read
-or write operation)" and performing Tx should also fall under "active
-CPU on PCIe link" case.
-
-In addition to that, commit b6e0c419f040 ("igb: Move DMA Coalescing init
-code to separate function.") seems to wrongly changed from enabling
-E1000_PCIEMISC_LX_DECISION to disabling it, also fix that.
-
-Fixes: b6e0c419f040 ("igb: Move DMA Coalescing init code to separate function.")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220621221056.604304-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: bf04c1a367e3 ("iio: adc: vf610: implement configurable conversion modes")
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Acked-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/560dc93fafe5ef7e9a409885fd20b6beac3973d8.1653900626.git.baruch@tkos.co.il
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-iio-vf610 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index d825e527ec1a..2e713e5f75cd 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -8161,11 +8161,10 @@ static void igb_init_dmac(struct igb_adapter *adapter, u32 pba)
- 	struct e1000_hw *hw = &adapter->hw;
- 	u32 dmac_thr;
- 	u16 hwm;
-+	u32 reg;
- 
- 	if (hw->mac.type > e1000_82580) {
- 		if (adapter->flags & IGB_FLAG_DMAC) {
--			u32 reg;
--
- 			/* force threshold to 0. */
- 			wr32(E1000_DMCTXTH, 0);
- 
-@@ -8198,7 +8197,6 @@ static void igb_init_dmac(struct igb_adapter *adapter, u32 pba)
- 			/* Disable BMC-to-OS Watchdog Enable */
- 			if (hw->mac.type != e1000_i354)
- 				reg &= ~E1000_DMACR_DC_BMC2OSW_EN;
--
- 			wr32(E1000_DMACR, reg);
- 
- 			/* no lower threshold to disable
-@@ -8215,12 +8213,12 @@ static void igb_init_dmac(struct igb_adapter *adapter, u32 pba)
- 			 */
- 			wr32(E1000_DMCTXTH, (IGB_MIN_TXPBSIZE -
- 			     (IGB_TX_BUF_4096 + adapter->max_frame_size)) >> 6);
-+		}
- 
--			/* make low power state decision controlled
--			 * by DMA coal
--			 */
-+		if (hw->mac.type >= e1000_i210 ||
-+		    (adapter->flags & IGB_FLAG_DMAC)) {
- 			reg = rd32(E1000_PCIEMISC);
--			reg &= ~E1000_PCIEMISC_LX_DECISION;
-+			reg |= E1000_PCIEMISC_LX_DECISION;
- 			wr32(E1000_PCIEMISC, reg);
- 		} /* endif adapter->dmac is not disabled */
- 	} else if (hw->mac.type == e1000_82580) {
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio-vf610 b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+index 308a6756d3bf..491ead804488 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio-vf610
++++ b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+@@ -1,4 +1,4 @@
+-What:		/sys/bus/iio/devices/iio:deviceX/conversion_mode
++What:		/sys/bus/iio/devices/iio:deviceX/in_conversion_mode
+ KernelVersion:	4.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
 -- 
 2.35.1
 
