@@ -2,84 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A333561F43
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 17:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F30561FC4
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 17:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235361AbiF3Pad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 11:30:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39988 "EHLO
+        id S236229AbiF3P4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 11:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232771AbiF3Pac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 11:30:32 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D753A738;
-        Thu, 30 Jun 2022 08:30:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1656603028;
-        bh=VhG6J9uZbMivq5MflgzUIBMPTyPiY7C4ZX9Gt4iLk3M=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=l1ptDq/+hzUpK5ob8IIUNDhvSJpiS4sNpTUOz5ZLGqLaMpX7PtrATzgelH1NJP31C
-         QFVe3r28OdZDHTis3Xl9zr+GptRsKGQAEtW6/S25a8YvHKSj4kbDvVd6XRVPrSRQwN
-         hUMHCKZ+UaBFOdMSY1GbYqly23v8dxlHXBupnnMI=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.35.76]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1N9Mtg-1nat721k9M-015LO6; Thu, 30
- Jun 2022 17:30:28 +0200
-Message-ID: <71bea837-d7c6-2163-7ef0-e7fc9484d088@gmx.de>
-Date:   Thu, 30 Jun 2022 17:30:27 +0200
+        with ESMTP id S236253AbiF3P4n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 11:56:43 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02763DDD8
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 08:56:41 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id v14so27940488wra.5
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 08:56:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:from:to:subject
+         :content-transfer-encoding;
+        bh=PC0C+IYmZqgzCw2evluP2hpSsCJzEX6s3IMX68ULD3E=;
+        b=BaBLVelXBpLFsqzQgQ3dwPGYatiyVrEV0gCR+to6GD/WuZIV0KauB+ojWUZduhJTD3
+         17ve757TrMQ8b72rrDdR8Fva+zyhK5zdgIQsIJ0KyDEM9vi/6/XWK1VwA/1L2uzC/RIt
+         J/3FJ5qwJZd5Vc6fgkIQatnSGmJn/Y2bZ3+4wtY7iNpH2rrsi6Lcq3ULDuLzzwCUZaFB
+         NTLWbWCbObzffiaf9Yj9XZOK+8V9vc1181YEycvDZRzUdwkTM+tXTzvv/cAta2B73A1i
+         IBKpNM8UKRSqzl7hr/vHxdy6Z6N/rIw20tJ1+HeZ1PYYpuTatpgdCkwl22gNda5f//VR
+         h7gQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:from:to:subject
+         :content-transfer-encoding;
+        bh=PC0C+IYmZqgzCw2evluP2hpSsCJzEX6s3IMX68ULD3E=;
+        b=ie3CryqJ0VshQEG9J/QoRoPvckuK//RX5B9GFnOzR9FEP4sR9oNWKgbv2lfNCCRf2b
+         PeaN3S3KBy6C5F+rTi4bI/o7xlzhQ91MpcLQ0FeF1EKT5BwRtawL+ukPH11rbHk70gdg
+         iblR1EHy2BiGbjioSyScb9+BmivA/8neQGqn+aGktKgRUjcVbjqSUcSjmRzgaYrA7DW8
+         clZwoU0la8QOuYQP/kxbGgARnDtKyhU0MFQrNgCZXe0tll/Wa8yf7tEdzuYS2OSNyOjJ
+         TI/9HiR2+lxkGAVOwKVa2A/h+JTYgX23WVjo7mcYGYUdGE51vBW1sOdk1ornNt5VAJE7
+         dKTg==
+X-Gm-Message-State: AJIora9n9UPm295lDRhs+IvDqQnFEh8eJmdK8ySv9MRfeQXGnKYgtrZX
+        1IGbNSxUWvEDCkmGqF7ximE4uOLr+tg=
+X-Google-Smtp-Source: AGRyM1spBoy7Nrnpedu0pR9eJCU2KsdB+wn4tmMYmljivtqOx89rj+O2MWThCPga2j2Q9Apao+OT+Q==
+X-Received: by 2002:adf:dc08:0:b0:21b:bcaf:8500 with SMTP id t8-20020adfdc08000000b0021bbcaf8500mr9024570wri.133.1656604600268;
+        Thu, 30 Jun 2022 08:56:40 -0700 (PDT)
+Received: from DESKTOP-L1U6HLH ([39.53.244.205])
+        by smtp.gmail.com with ESMTPSA id r127-20020a1c4485000000b0039748be12dbsm2898485wma.47.2022.06.30.08.56.38
+        for <stable@vger.kernel.org>
+        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
+        Thu, 30 Jun 2022 08:56:39 -0700 (PDT)
+Message-ID: <62bdc7b7.1c69fb81.b57fa.65ed@mx.google.com>
+Date:   Thu, 30 Jun 2022 08:56:39 -0700 (PDT)
+X-Google-Original-Date: 30 Jun 2022 11:56:41 -0400
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Subject: Re: [PATCH 5.18 0/6] 5.18.9-rc1 review
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:AW6KULvMMNyah6Tyt1Yge61cP2Tc8MbUMF3M4NAKxmdMDQzf9FM
- PdCtePVHIxTjwhF9SHdM/PHTAwR7AZvdLBxQA11c1VIclUp4vjgI6Mi3CMM4UWCBi7GIZyL
- xLHl2DbR0rU5jZz6avpBy8eYDqtJlN5niLjLaU7HrpbZ/6NYFcHwyAsqBTlm3S311xpksp3
- /3sgPxPvHPM1upw5y3KiQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:oSxilcCyJuY=:/RGase4Q+7ckUsbZmz+Fad
- jhxkxjvxHTkMklWCVYWkqKmRa8p8YdGdl2keKSE0L2QhSXIqRfwxRmKwP4lbt0trDwW4x4wB5
- 2p1+HdQuxA+RE3LgTroWzHTJ/e28BZ1rtxplDAoI/2BlMdV+OnXxxBPJqovLTSwOz7GmXN+20
- 0Tt5XB6wzzwid2MxKet9EWRmGUlOmAirzdDzxabJ74Ke6F65dFaZXSdP/3IOlUaZQIyFAhvhv
- cdPhlGY1D2370jXRn/GmNqKPB0pyJccU7Axu7U4VfnXWbzz8vc/KFrGnXu1O6cAJLwaNKGJc4
- dzAj49xuViuiLrJMmW8lvq8UbZSQVHIS4wyNb6TPZtGoi5uL+E446GMbfBfkov5t/c9vR9xHM
- dlA0CNRDM6mbN+Z0s4u3QypUthHDZTeORCwDVOi+yCjFKRBGMvk3kdQUjq7ix6smpEwtUMZvS
- Tyx6KsmYl0bd3zsG21lhzW8cOGGzK1ejDD+RS71KIwubrb2GW0PAW+zAAuu88mvCEujkdcohu
- qnBgY09S4OwQ8ctYN5HQqCrAKHPtTDtrZTy6I/L50bzdL64h2Rb+zGl/NVtQnD/3rX4GdolaM
- gl6TQVFYNpgwzqm9S3qCKQl9pXcKi+1sr6yDAsoJTctY4U836E/rTaYYxSqL1OFH/BfbMkUmo
- 7AgDRdeC4snxQdxHig4b9xeZv3c4ry7SBBYLG0+rgfjirzKE7lVDNU9zXvPevRSlTqVKOevzi
- 2FZbe3JbtMgWsO0MAwAfpKbzEb7iRjEXpzE+Fzelw/6Cq8ZHod7Vcs1FYqNKXkiaqia/+NgTI
- SEcM4cWzAavV9GA8UyEeSXX0pxVzj1wbEfkeee7uCrgfpXjzUhmg6Y/4mabjRvMXMfMPwvJ2n
- dLJvuJdaoEUSocTmy7TR79Wrvtgl55ij/sI8yK2HIOztClPE1/JE67WMQgnN7+LbJmK/y+xEc
- ATtklNkl6yxJPEghgNVsAiBhBInUx35vQHWPUil4KivRS/Fwefi8+D69BKEoHhp1kW0y2Ve9s
- fyK1y6p2q3VtQ6T6WfF5u2Z1A4GWKaeFUW/p2wIgqiad4j2M7RGB0aJziKV5Cd+lj3ow0UxIG
- re/ts7hIg9Tlp5o6WBX86SC21Js67YORyX/
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+From:   elda.dreamlandestimation@gmail.com
+To:     stable@vger.kernel.org
+Subject: Estimating Services
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
-
-5.18.9-rc1
-
-compiles, boots and runs here on x86_64
-(Intel i5-11400, Fedora 36)
-
-Thanks
-
-Ronald
-
-
-Tested-by: Ronald Warsow <rwarsow@gmx.de
-
+=0D=0AHi,=0D=0A=0D=0AWe provide estimation & quantities takeoff s=
+ervices. We are providing 98-100 accuracy in our estimates and ta=
+ke-offs. Please tell us if you need any estimating services regar=
+ding your projects.=0D=0A=0D=0ASend over the plans and mention th=
+e exact scope of work and shortly we will get back with a proposa=
+l on which our charges and turnaround time will be mentioned=0D=0A=
+=0D=0AYou may ask for sample estimates and take-offs. Thanks.=0D=0A=
+=0D=0AKind Regards=0D=0AElda Pierre=0D=0ADreamland Estimation, LL=
+C
 
