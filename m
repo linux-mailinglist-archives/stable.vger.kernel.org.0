@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AEE8561DAC
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5766B561BFB
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236138AbiF3ODC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:03:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
+        id S235482AbiF3NtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236502AbiF3OCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32AE368A00;
-        Thu, 30 Jun 2022 06:52:56 -0700 (PDT)
+        with ESMTP id S235392AbiF3Nso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA4713F5C;
+        Thu, 30 Jun 2022 06:48:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 645F7B82AF5;
-        Thu, 30 Jun 2022 13:52:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B40EAC3411E;
-        Thu, 30 Jun 2022 13:52:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 564CB61FFB;
+        Thu, 30 Jun 2022 13:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36DA4C3411E;
+        Thu, 30 Jun 2022 13:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597169;
-        bh=oyPtyRGppegOs2HUPer1Je0Qz2tbUeLP7TpNwUb2JSU=;
+        s=korg; t=1656596914;
+        bh=UqT7Ezn9pWtS5CRV1aEcCh3rXLPAeHPdmaWs4yzft/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPK4kYYBsn5stPQ1Cpx8jNVPWpFj/hiFQBjuAnfJhp3R7dTrsKfz4TELJN1hdZrle
-         v2YH6Rebz/Q4htsY79yBNABy5B1RO6RIQW56KPUq4SeVyreMJz4tnpd+o8oPnOAY5V
-         2iLxLJSUUNf8uTA8jmepfMfWTk5OAMtyIhYFsRhA=
+        b=ArQP9zZu3hIqkyl69OvTsVBDSxRWZ7o+tr6n5OG83dvhbOf/hhIVfzEiA03cSHaaT
+         NPNkdrn803Ms0wTxhIGCbYDtT+9hnq9y3JnLhG8yDR0pS8TvYiJo/2qrcmxNyetaR5
+         Wgvu8kC5LD1EFmJkoIDigal5/Wnv1I0mHwctA2Oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/49] bonding: ARP monitor spams NETDEV_NOTIFY_PEERS notifiers
-Date:   Thu, 30 Jun 2022 15:46:25 +0200
-Message-Id: <20220630133234.264577719@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.9 26/29] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+Date:   Thu, 30 Jun 2022 15:46:26 +0200
+Message-Id: <20220630133231.972554082@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
+References: <20220630133231.200642128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Vosburgh <jay.vosburgh@canonical.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 7a9214f3d88cfdb099f3896e102a306b316d8707 ]
+commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea upstream.
 
-The bonding ARP monitor fails to decrement send_peer_notif, the
-number of peer notifications (gratuitous ARP or ND) to be sent. This
-results in a continuous series of notifications.
+EXPORT_SYMBOL and __init is a bad combination because the .init.text
+section is freed up after the initialization. Hence, modules cannot
+use symbols annotated __init. The access to a freed symbol may end up
+with kernel panic.
 
-Correct this by decrementing the counter for each notification.
+modpost used to detect it, but it has been broken for a decade.
 
-Reported-by: Jonathan Toppins <jtoppins@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Fixes: b0929915e035 ("bonding: Fix RTNL: assertion failed at net/core/rtnetlink.c for ab arp monitor")
-Link: https://lore.kernel.org/netdev/b2fd4147-8f50-bebd-963a-1a3e8d1d9715@redhat.com/
-Tested-by: Jonathan Toppins <jtoppins@redhat.com>
-Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
-Link: https://lore.kernel.org/r/9400.1655407960@famine
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Recently, I fixed modpost so it started to warn it again, then this
+showed up in linux-next builds.
+
+There are two ways to fix it:
+
+  - Remove __init
+  - Remove EXPORT_SYMBOL
+
+I chose the latter for this case because none of the in-tree call-sites
+(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
+modular.
+
+Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Acked-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/xen/xlate_mmu.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 2d70cdd26f89..cab5c1cc9fe9 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3069,9 +3069,11 @@ static void bond_activebackup_arp_mon(struct bonding *bond)
- 		if (!rtnl_trylock())
- 			return;
+--- a/drivers/xen/xlate_mmu.c
++++ b/drivers/xen/xlate_mmu.c
+@@ -262,4 +262,3 @@ int __init xen_xlate_map_ballooned_pages
  
--		if (should_notify_peers)
-+		if (should_notify_peers) {
-+			bond->send_peer_notif--;
- 			call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
- 						 bond->dev);
-+		}
- 		if (should_notify_rtnl) {
- 			bond_slave_state_notify(bond);
- 			bond_slave_link_notify(bond);
--- 
-2.35.1
-
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
 
 
