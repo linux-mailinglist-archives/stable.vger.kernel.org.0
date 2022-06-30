@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 451F3561BF3
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4670561C59
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235384AbiF3Nso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:48:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48682 "EHLO
+        id S235990AbiF3N4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:56:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235344AbiF3Ns3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253FFBB8;
-        Thu, 30 Jun 2022 06:48:19 -0700 (PDT)
+        with ESMTP id S235795AbiF3Nzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:55:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4387E022;
+        Thu, 30 Jun 2022 06:50:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 885DD61FD0;
-        Thu, 30 Jun 2022 13:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D91C341CB;
-        Thu, 30 Jun 2022 13:48:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DC6CB82AF6;
+        Thu, 30 Jun 2022 13:50:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E89C34115;
+        Thu, 30 Jun 2022 13:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596897;
-        bh=ubEP0kYFRH/uBrefTE8f7YvfEDMdThulOwFMVSz2ylw=;
+        s=korg; t=1656597036;
+        bh=cpzX2yLedtKk+NI8PK8akJRB/FF4SgQBdiOZDYm3AXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KauAgi2uxafgWI1lUY/GnmvmJwUAH+GZ0zjKDx4MZfQnVW7sotEj1VMkl6swKoLBO
-         cdGQuCsjSdYRunuCvTtOBtjJK2H7bwMXIOzJ6QZul+/ORuvdM1MJckRn/ZZazjF3p3
-         ev9ryJCDWAXF8+pit/i2jSJKQVLTPgLwCMpYn6rw=
+        b=Azgg+66EUaMplU2/Zof78g0sqL4VEwEirdF11U3hIIFlHRVPAJ3bzbkYbmAa1yGDX
+         n8XtCGYB7jhHDPHIOYdOrUgRhPct2MAHYzuP5OBRG2ISnqPfhzZg50TzueNQsBUc6/
+         bXFXuYb51t2HqLJyw8fzNQyP1ZwF86kZnKc4MTNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 4.9 20/29] ARM: exynos: Fix refcount leak in exynos_map_pmu
+        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 09/35] bonding: ARP monitor spams NETDEV_NOTIFY_PEERS notifiers
 Date:   Thu, 30 Jun 2022 15:46:20 +0200
-Message-Id: <20220630133231.796628257@linuxfoundation.org>
+Message-Id: <20220630133232.715988145@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jay Vosburgh <jay.vosburgh@canonical.com>
 
-commit c4c79525042a4a7df96b73477feaf232fe44ae81 upstream.
+[ Upstream commit 7a9214f3d88cfdb099f3896e102a306b316d8707 ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
-of_node_put() checks null pointer.
+The bonding ARP monitor fails to decrement send_peer_notif, the
+number of peer notifications (gratuitous ARP or ND) to be sent. This
+results in a continuous series of notifications.
 
-Fixes: fce9e5bb2526 ("ARM: EXYNOS: Add support for mapping PMU base address via DT")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220523145513.12341-1-linmq006@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Correct this by decrementing the counter for each notification.
+
+Reported-by: Jonathan Toppins <jtoppins@redhat.com>
+Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Fixes: b0929915e035 ("bonding: Fix RTNL: assertion failed at net/core/rtnetlink.c for ab arp monitor")
+Link: https://lore.kernel.org/netdev/b2fd4147-8f50-bebd-963a-1a3e8d1d9715@redhat.com/
+Tested-by: Jonathan Toppins <jtoppins@redhat.com>
+Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
+Link: https://lore.kernel.org/r/9400.1655407960@famine
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-exynos/exynos.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/bonding/bond_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-exynos/exynos.c
-+++ b/arch/arm/mach-exynos/exynos.c
-@@ -167,6 +167,7 @@ static void exynos_map_pmu(void)
- 	np = of_find_matching_node(NULL, exynos_dt_pmu_match);
- 	if (np)
- 		pmu_base_addr = of_iomap(np, 0);
-+	of_node_put(np);
- }
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 7096fcbf699c..98e64f63d9ba 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3048,9 +3048,11 @@ static void bond_activebackup_arp_mon(struct bonding *bond)
+ 		if (!rtnl_trylock())
+ 			return;
  
- static void __init exynos_init_irq(void)
+-		if (should_notify_peers)
++		if (should_notify_peers) {
++			bond->send_peer_notif--;
+ 			call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
+ 						 bond->dev);
++		}
+ 		if (should_notify_rtnl) {
+ 			bond_slave_state_notify(bond);
+ 			bond_slave_link_notify(bond);
+-- 
+2.35.1
+
 
 
