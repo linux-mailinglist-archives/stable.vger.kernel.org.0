@@ -2,156 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7914560F20
+	by mail.lfdr.de (Postfix) with ESMTP id F0FBF560F21
 	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 04:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231433AbiF3CYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 22:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
+        id S231421AbiF3CYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 22:24:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbiF3CYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 22:24:39 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 741EE22B33;
-        Wed, 29 Jun 2022 19:24:38 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id n10so15803629plp.0;
-        Wed, 29 Jun 2022 19:24:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AeTBtkFa9BSaGOkSSQvtd8eJW0/kdfqE/0LY3WLRWxs=;
-        b=MAv+y9mxgyvkGzC8caBlcgzg5oLCAzMQ95p5/Idh6ox+vcn9o9sEehd27UQ6pjSPF4
-         OQSQHpIdZhafjwU2dnslxaW8kkwPNcm8QCgkRJleZycJWEpXF+hIXvBhm1OAmDA0VSEU
-         mSyYK98WwsUQvoCxIRhUXm9f/Bue4Dm2s7CqmByUd4UnHqFHIw1C2SSXj0burHjRDgR9
-         CrNOHPr8GbygvusZM5lGmPgkuqjtoFp7PZVFWO1j3q1WjRL5X+HMVU9RnxrMBIm5lhvy
-         uFoR7865ImA30mwK7RUHLbcnrvHsasQoLSQZXEDtHVMC++1o8w86Qo3iTzmcIFlTJK3a
-         YMYQ==
+        with ESMTP id S231393AbiF3CYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 22:24:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9B54423158
+        for <stable@vger.kernel.org>; Wed, 29 Jun 2022 19:24:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656555876;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jTpWjatM3e8fY4ePrpnhi85t3mu1MuP1MyivO5RpYvM=;
+        b=FRBosaK3frzWaAx1wMj+TNmkAc08lY3CjFdQNNmDbEPNZBT4Km7EjRqNp1/C/GjkV26Jls
+        NjsyQNul6iytEA5+40lmUA9UAGQRcvePOyRO6oqhG8iete+2bbzRWhBfj7k+s54SVTvwuu
+        Llrd80k2WFUcBVH8Dzj5t8b6fc7uwHo=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-41-D6grtT2RMQyDebqO4D6_EQ-1; Wed, 29 Jun 2022 22:24:35 -0400
+X-MC-Unique: D6grtT2RMQyDebqO4D6_EQ-1
+Received: by mail-qv1-f71.google.com with SMTP id m7-20020ad45dc7000000b0047042480dbfso17010149qvh.9
+        for <stable@vger.kernel.org>; Wed, 29 Jun 2022 19:24:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AeTBtkFa9BSaGOkSSQvtd8eJW0/kdfqE/0LY3WLRWxs=;
-        b=W4lVNKEpHpvX7pnbMXlv13R7XpxsROHTyPwH9t3ZEChheUzrP8DkXVrCRSaz2WdI0u
-         t2m0yeZXFFLgL2f92JBFk8XJuZJzfl6A6M6rRqbC1DDk/olyYSwzloD9FVOCDENFZM6e
-         ZE25rmrdXBJZNQvk2iJRgc8RyGJGioTyJ0LH0GWkmXGDi3qXOihX+FT+NAcNPNENd479
-         Vrbijsov3CvuYIOqdD8ERmtJpIkkLe8PQu3MIusxxG80Ze4/mZZ+zTizOr8eONEJcmhb
-         VUeg5TXsskD4qPdMByTCT8G7dNJ+xM63fhl+GmJKar1HC257yhbVuZ356wtTBDmv81V6
-         t3fA==
-X-Gm-Message-State: AJIora91t3XJ0ajkIcOFxeUP8KKtCGH+aUpK+pEQwVO1rStaM2jPhwVj
-        08m5IAqRje8bRCiJyf6dRZrTAj60ajACKw==
-X-Google-Smtp-Source: AGRyM1s9c7trza6xxaxexw9PtKyJ4TndADx2KHDpB/KOGUbhZ/LvewcTp0QdUKXRePa3vyfzbr8ttA==
-X-Received: by 2002:a17:90b:3b81:b0:1ed:3655:d0c8 with SMTP id pc1-20020a17090b3b8100b001ed3655d0c8mr9368801pjb.56.1656555877824;
-        Wed, 29 Jun 2022 19:24:37 -0700 (PDT)
-Received: from guoguo-omen.lan ([2401:c080:1400:4da2:b701:47d5:9291:4cf9])
-        by smtp.gmail.com with ESMTPSA id z9-20020a1709027e8900b0016b865ea2d6sm5881252pla.82.2022.06.29.19.24.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jun 2022 19:24:36 -0700 (PDT)
-From:   Chuanhong Guo <gch981213@gmail.com>
-To:     linux-acpi@vger.kernel.org
-Cc:     Chuanhong Guo <gch981213@gmail.com>, stable@vger.kernel.org,
-        Tighe Donnelly <tighe.donnelly@protonmail.com>,
-        Kent Hou Man <knthmn0@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v5] ACPI: skip IRQ1 override on 3 Ryzen 6000 laptops
-Date:   Thu, 30 Jun 2022 10:23:17 +0800
-Message-Id: <20220630022317.15734-1-gch981213@gmail.com>
-X-Mailer: git-send-email 2.36.1
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=jTpWjatM3e8fY4ePrpnhi85t3mu1MuP1MyivO5RpYvM=;
+        b=rhGxsELDdAvyCMymqy0Iwgpe/WP0OzGyc/nHRHdBveNyG9IeToFitXwe1SScn1QjG6
+         QKS5IMlmE6uaKkd3MiDGRasi8vy3R+lSZRYVSlDY6D1CllCWS/j7mHTibf6m+e81WRAh
+         1Yf5NRi2PqF7aLdIHbTPVAlzriH+9QBmfb6HGG1QMGTmCyiFpLZcH4BcuSdbAQWlK10h
+         UkTYnXDktEs9IiNoQ/yfhB3vBjvdmlo+Gls1MA17WoRVOLhl4f2CWapeIwJfsfpRiqAE
+         nzBBwQ+sYPynAfYGfkNeEUBEGpDt5I6+NdaDbKN5lGbbIl6sCdoyABNCzsutJ3BGmPV4
+         Io1Q==
+X-Gm-Message-State: AJIora/YNJTIEQu0F3c7BQTvN7qQH1sA0ZnTwy+7OCQIenUrDB1tx5gZ
+        QlKpPLTl8vtPlWyavBu3sT+P05ViueOSUciPtQXLgE8trDoGbAzVRc0tCb28K/VRyJorfQrAKf7
+        pFnvR2502IWtf73gl
+X-Received: by 2002:a05:620a:2411:b0:6af:22e8:71d7 with SMTP id d17-20020a05620a241100b006af22e871d7mr4656784qkn.457.1656555874847;
+        Wed, 29 Jun 2022 19:24:34 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vinpGqyYzYXampSsd0UFjmJV815VN5VbFI0BVtMhTOJsaq6mbWt/cEH/wui46wQSEunh0yEA==
+X-Received: by 2002:a05:620a:2411:b0:6af:22e8:71d7 with SMTP id d17-20020a05620a241100b006af22e871d7mr4656775qkn.457.1656555874643;
+        Wed, 29 Jun 2022 19:24:34 -0700 (PDT)
+Received: from localhost.localdomain (024-205-208-113.res.spectrum.com. [24.205.208.113])
+        by smtp.gmail.com with ESMTPSA id b19-20020ae9eb13000000b006aee672937esm13952098qkg.37.2022.06.29.19.24.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 29 Jun 2022 19:24:34 -0700 (PDT)
+Subject: Re: [PATCH] tracing/histograms: Simplify create_hist_fields()
+To:     Zheng Yejian <zhengyejian1@huawei.com>, rostedt@goodmis.org,
+        mingo@redhat.com, linux-kernel@vger.kernel.org,
+        tom.zanussi@linux.intel.com
+Cc:     stable@vger.kernel.org, zhangjinhao2@huawei.com
+References: <20220630013152.164871-1-zhengyejian1@huawei.com>
+From:   Tom Rix <trix@redhat.com>
+Message-ID: <d615e7a0-8a7e-7e24-6c87-a8bf034ecb53@redhat.com>
+Date:   Wed, 29 Jun 2022 19:24:32 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220630013152.164871-1-zhengyejian1@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The IRQ1 of these laptops with Ryzen 6000 and Insyde UEFI are active
-low and defined in legacy format in ACPI DSDT. The kernel override
-makes the keyboard interrupt polarity inverted, resulting in
-non-functional keyboard.
 
-Skip legacy IRQ override for:
-Lenovo ThinkBook 14G4+ ARA
-Redmi Book Pro 15 2022 Ryzen
-Asus Zenbook S 13 OLED UM5302
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tighe Donnelly <tighe.donnelly@protonmail.com>
-Signed-off-by: Kent Hou Man <knthmn0@gmail.com>
-Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
----
-Changes since v1:
- Match DMI_PRODUCT_NAME for ThinkBook because the board name
- is used for other completely different Lenovo laptops.
- Add a patch for RedmiBook
-
-Changes since v2:
- Fix alphabetical order in skip_override_table
- Add a patch for Asus Zenbook
-
-Changes since v3:
- Merge patches as requested
- Fix another alphabetical ordering between two structs
-
-Changes since v4:
- rename the ident in RedmiBook entry.
-  There's also an Intel version of this series, so
-  rename it to make it specific.
- reword commit title
-
- drivers/acpi/resource.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
-
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index c2d494784425..0491da180fc5 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -381,6 +381,31 @@ unsigned int acpi_dev_get_irq_type(int triggering, int polarity)
- }
- EXPORT_SYMBOL_GPL(acpi_dev_get_irq_type);
- 
-+static const struct dmi_system_id irq1_edge_low_shared[] = {
-+	{
-+		.ident = "Asus Zenbook S 13 OLED UM5302",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_BOARD_NAME, "UM5302TA"),
-+		},
-+	},
-+	{
-+		.ident = "Lenovo ThinkBook 14 G4+ ARA",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "21D0"),
-+		},
-+	},
-+	{
-+		.ident = "Redmi Book Pro 15 2022 Ryzen",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "TIMI"),
-+			DMI_MATCH(DMI_BOARD_NAME, "TM2113"),
-+		},
-+	},
-+	{ }
-+};
-+
- static const struct dmi_system_id medion_laptop[] = {
- 	{
- 		.ident = "MEDION P15651",
-@@ -408,6 +433,7 @@ struct irq_override_cmp {
- };
- 
- static const struct irq_override_cmp skip_override_table[] = {
-+	{ irq1_edge_low_shared, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1 },
- 	{ medion_laptop, 1, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0 },
- };
- 
--- 
-2.36.1
+On 6/29/22 6:31 PM, Zheng Yejian wrote:
+> When I look into implements of create_hist_fields(), I think there can be
+> following two simplifications:
+>    1. If something wrong happened in parse_var_defs(), free_var_defs() would
+>       have been called in it, so no need goto free again after calling it;
+>    2. After calling create_key_fields(), regardless of the value of 'ret', it
+>       then always runs into 'out: ', so the judge of 'ret' is redundant.
+>
+> No functional changes.
+>
+> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+> ---
+>   kernel/trace/trace_events_hist.c | 5 ++---
+>   1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+> index 2784951e0fc8..832c4ccf41ab 100644
+> --- a/kernel/trace/trace_events_hist.c
+> +++ b/kernel/trace/trace_events_hist.c
+> @@ -4454,7 +4454,7 @@ static int create_hist_fields(struct hist_trigger_data *hist_data,
+>   
+>   	ret = parse_var_defs(hist_data);
+>   	if (ret)
+> -		goto out;
+> +		return ret;
+>   
+>   	ret = create_val_fields(hist_data, file);
+>   	if (ret)
+> @@ -4465,8 +4465,7 @@ static int create_hist_fields(struct hist_trigger_data *hist_data,
+>   		goto out;
+>   
+>   	ret = create_key_fields(hist_data, file);
+> -	if (ret)
+> -		goto out;
+> +
+>    out:
+>   	free_var_defs(hist_data);
+Reviewed-by: Tom Rix <trix@redhat.com>
+>   
 
