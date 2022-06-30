@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B2F561D80
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0671561CF3
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236394AbiF3OG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:06:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58182 "EHLO
+        id S236496AbiF3OEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:04:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236603AbiF3OGM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:06:12 -0400
+        with ESMTP id S236466AbiF3OEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:04:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0484B6F34C;
-        Thu, 30 Jun 2022 06:54:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A436B805;
+        Thu, 30 Jun 2022 06:53:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0EDC61FC0;
-        Thu, 30 Jun 2022 13:54:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04B85C34115;
-        Thu, 30 Jun 2022 13:54:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63F9A6210F;
+        Thu, 30 Jun 2022 13:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F075C34115;
+        Thu, 30 Jun 2022 13:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597251;
-        bh=38FD9szrywuOziQywvQPvGcPzan/Dfw4GrYnqgtmQ+A=;
+        s=korg; t=1656597204;
+        bh=B6o1vVJE8G5b1r5QxOa5AGOqbLfmPxyGA5Nfo4bviAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDIju4ciZVfP4ktnj5MxmxGUzotkqX/AXCAY14ZTe1sG7S7vcWI3L7qZ3A5ImkOIs
-         24YQUSOmgrfOjCqpiNtNUOcmR60Yg5muY7XehLGE4kaEYMVW/lG4wH1Qi+zzc/8wha
-         vi2JdtpT7izU1s1+CCL2mqxmdK+XpRYJ0l31WCRs=
+        b=l3PiiUwyCwYRsMx3/hAjCT5nTaL8eMJKzbJWicGNPkp4omWvzefOsSOVUQbu2yCY4
+         9tIo158o7YQ2Ve7bb5MPs6eQokI9wbJQi34+GyUsVY9mNrIqxiJLs1bmJgnuPFBbcJ
+         NUrZlBV9lqVufHkOmEwPkkkRFXRxc2nt0xUBze9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 05/12] bcache: memset on stack variables in bch_btree_check() and bch_sectors_dirty_init()
+        Stefan Agner <stefan@agner.ch>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.4 16/16] crypto: arm/ghash-ce - define fpu before fpu registers are referenced
 Date:   Thu, 30 Jun 2022 15:47:10 +0200
-Message-Id: <20220630133230.843307110@linuxfoundation.org>
+Message-Id: <20220630133231.416143558@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
-References: <20220630133230.676254336@linuxfoundation.org>
+In-Reply-To: <20220630133230.936488203@linuxfoundation.org>
+References: <20220630133230.936488203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Stefan Agner <stefan@agner.ch>
 
-commit 7d6b902ea0e02b2a25c480edf471cbaa4ebe6b3c upstream.
+commit 7548bf8c17d84607c106bd45d81834afd95a2edb upstream
 
-The local variables check_state (in bch_btree_check()) and state (in
-bch_sectors_dirty_init()) should be fully filled by 0, because before
-allocating them on stack, they were dynamically allocated by kzalloc().
+Building ARMv7 with Clang's integrated assembler leads to errors such
+as:
+arch/arm/crypto/ghash-ce-core.S:34:11: error: register name expected
+ t3l .req d16
+          ^
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Link: https://lore.kernel.org/r/20220527152818.27545-2-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Since no FPU has selected yet Clang considers d16 not a valid register.
+Moving the FPU directive on-top allows Clang to parse the registers and
+allows to successfully build this file with Clang's integrated assembler.
+
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/btree.c     |    1 +
- drivers/md/bcache/writeback.c |    1 +
- 2 files changed, 2 insertions(+)
+ arch/arm/crypto/ghash-ce-core.S |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2017,6 +2017,7 @@ int bch_btree_check(struct cache_set *c)
- 	if (c->root->level == 0)
- 		return 0;
+--- a/arch/arm/crypto/ghash-ce-core.S
++++ b/arch/arm/crypto/ghash-ce-core.S
+@@ -8,6 +8,9 @@
+ #include <linux/linkage.h>
+ #include <asm/assembler.h>
  
-+	memset(&check_state, 0, sizeof(struct btree_check_state));
- 	check_state.c = c;
- 	check_state.total_threads = bch_btree_chkthread_nr();
- 	check_state.key_idx = 0;
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -901,6 +901,7 @@ void bch_sectors_dirty_init(struct bcach
- 		return;
- 	}
++	.arch		armv8-a
++	.fpu		crypto-neon-fp-armv8
++
+ 	SHASH		.req	q0
+ 	T1		.req	q1
+ 	XL		.req	q2
+@@ -88,8 +91,6 @@
+ 	T3_H		.req	d17
  
-+	memset(&state, 0, sizeof(struct bch_dirty_init_state));
- 	state.c = c;
- 	state.d = d;
- 	state.total_threads = bch_btre_dirty_init_thread_nr();
+ 	.text
+-	.arch		armv8-a
+-	.fpu		crypto-neon-fp-armv8
+ 
+ 	.macro		__pmull_p64, rd, rn, rm, b1, b2, b3, b4
+ 	vmull.p64	\rd, \rn, \rm
 
 
