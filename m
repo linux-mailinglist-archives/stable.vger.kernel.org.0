@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7667F561BBC
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:48:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6F0561C4B
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbiF3Nsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:48:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48682 "EHLO
+        id S235926AbiF3Nzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:55:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235303AbiF3NsX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BEE12A6;
-        Thu, 30 Jun 2022 06:48:07 -0700 (PDT)
+        with ESMTP id S235801AbiF3Ny7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82C65A46B;
+        Thu, 30 Jun 2022 06:50:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64FC361FFF;
-        Thu, 30 Jun 2022 13:48:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7010DC34115;
-        Thu, 30 Jun 2022 13:48:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDFEAB82AD8;
+        Thu, 30 Jun 2022 13:50:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F11C3411E;
+        Thu, 30 Jun 2022 13:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596886;
-        bh=tQbpvtEvCBc44itrMEC0A4dvWcUm/1NCxpin/Lzp79o=;
+        s=korg; t=1656597028;
+        bh=vyo2qOmr7Aa0fK2HLMk9KQPHq4OLN6PaVvRBMTn4xfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjQoKwCqV3RA4rZfDaXa1cSkUAr9ElvZ0+CIu5UKmGNo9c30Tjf/FX/1z+Ea6vk2U
-         V8ftD94m0yKqqja3y7noAUAdr3vNjw2aMAuhdXyhIqMKUFrVp33p9crxcAd5pqZyIg
-         gqcXvZCZOOhqlEuyvttFHXC+5TA8DvM+V5IIGOXU=
+        b=mE6cwIJcS27e2VM3rXJd4hs3tAs8v8csgh4h0pCUAUGXNiggu3MCFSRk+FuoUJ6TB
+         92VBtf1Dlb10KjjAwjgieZyARJ05MS/jsUz+q2+qVz9KDkg+buYARqq0OM3I//60MX
+         LMphAzvyKKi2pzWAD3yqqZvrIyl3gCXCyQYEa+Ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.9 17/29] xtensa: Fix refcount leak bug in time.c
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Carlo Lobrano <c.lobrano@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 06/35] USB: serial: option: add Telit LE910Cx 0x1250 composition
 Date:   Thu, 30 Jun 2022 15:46:17 +0200
-Message-Id: <20220630133231.712213827@linuxfoundation.org>
+Message-Id: <20220630133232.629342153@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Carlo Lobrano <c.lobrano@gmail.com>
 
-commit a0117dc956429f2ede17b323046e1968d1849150 upstream.
+commit 342fc0c3b345525da21112bd0478a0dc741598ea upstream.
 
-In calibrate_ccount(), of_find_compatible_node() will return a node
-pointer with refcount incremented. We should use of_node_put() when
-it is not used anymore.
+Add support for the following Telit LE910Cx composition:
 
+0x1250: rmnet, tty, tty, tty, tty
+
+Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
+Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
+Link: https://lore.kernel.org/r/20220614075623.2392607-1-c.lobrano@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Liang He <windhl@126.com>
-Message-Id: <20220617124432.4049006-1-windhl@126.com>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/kernel/time.c |    1 +
+ drivers/usb/serial/option.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/xtensa/kernel/time.c
-+++ b/arch/xtensa/kernel/time.c
-@@ -146,6 +146,7 @@ static void __init calibrate_ccount(void
- 	cpu = of_find_compatible_node(NULL, NULL, "cdns,xtensa-cpu");
- 	if (cpu) {
- 		clk = of_clk_get(cpu, 0);
-+		of_node_put(cpu);
- 		if (!IS_ERR(clk)) {
- 			ccount_freq = clk_get_rate(clk);
- 			return;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1282,6 +1282,7 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(TELIT_VENDOR_ID, 0x1250, 0xff, 0x00, 0x00) },	/* Telit LE910Cx (rmnet) */
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
 
 
