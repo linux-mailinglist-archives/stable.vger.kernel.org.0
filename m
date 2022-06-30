@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0FE561C81
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC22561C9E
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235936AbiF3N7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:59:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37430 "EHLO
+        id S236173AbiF3OAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:00:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236522AbiF3N7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:59:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC280419BA;
-        Thu, 30 Jun 2022 06:51:53 -0700 (PDT)
+        with ESMTP id S236802AbiF3N7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:59:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88BCE6052C;
+        Thu, 30 Jun 2022 06:52:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 097F461FC0;
-        Thu, 30 Jun 2022 13:51:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18893C34115;
-        Thu, 30 Jun 2022 13:51:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C387ACE2EA3;
+        Thu, 30 Jun 2022 13:51:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D539BC34115;
+        Thu, 30 Jun 2022 13:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597108;
-        bh=//tNa/+oXvrh+YZZ1UklDkaYoawaeD35eJmeJbf1BKc=;
+        s=korg; t=1656597111;
+        bh=tQbpvtEvCBc44itrMEC0A4dvWcUm/1NCxpin/Lzp79o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VktXvBq1SJMpwceGU1arx9CJ33p6TuKmv0mcqbCLMZC84C8MBJvANeSpjIValg27E
-         EWlDg4Je4o6CZlTcOgjI8jxXBB4M7aCilLGujZwaloAbLNZ3BKc21cg+r7XttHzVXI
-         Bv+Kc2uerb+oKXMnaBC7omV6u+JvfW3ofaVokJro=
+        b=bpXj6gtrvMlYhtbVS1kFS39J5yIzBC3zd23vE+REsW+KpyrHxFEFR1S8CR4+E6Iu7
+         PBfEZ0tGMnPOUGOdEmAD7Vhs0+znHWVQypNa/jfVYIJWrM+PzU0QKDaLfdICG53NSH
+         euNLpLTSqGhRFnISHkozMazAZmYk+Udyu/2bk5DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
         Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.19 30/49] xtensa: xtfpga: Fix refcount leak bug in setup
-Date:   Thu, 30 Jun 2022 15:46:43 +0200
-Message-Id: <20220630133234.780953142@linuxfoundation.org>
+Subject: [PATCH 4.19 31/49] xtensa: Fix refcount leak bug in time.c
+Date:   Thu, 30 Jun 2022 15:46:44 +0200
+Message-Id: <20220630133234.808305251@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
 References: <20220630133233.910803744@linuxfoundation.org>
@@ -55,30 +55,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-commit 173940b3ae40114d4179c251a98ee039dc9cd5b3 upstream.
+commit a0117dc956429f2ede17b323046e1968d1849150 upstream.
 
-In machine_setup(), of_find_compatible_node() will return a node
+In calibrate_ccount(), of_find_compatible_node() will return a node
 pointer with refcount incremented. We should use of_node_put() when
 it is not used anymore.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Liang He <windhl@126.com>
-Message-Id: <20220617115323.4046905-1-windhl@126.com>
+Message-Id: <20220617124432.4049006-1-windhl@126.com>
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/platforms/xtfpga/setup.c |    1 +
+ arch/xtensa/kernel/time.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/xtensa/platforms/xtfpga/setup.c
-+++ b/arch/xtensa/platforms/xtfpga/setup.c
-@@ -152,6 +152,7 @@ static int __init machine_setup(void)
- 
- 	if ((eth = of_find_compatible_node(eth, NULL, "opencores,ethoc")))
- 		update_local_mac(eth);
-+	of_node_put(eth);
- 	return 0;
- }
- arch_initcall(machine_setup);
+--- a/arch/xtensa/kernel/time.c
++++ b/arch/xtensa/kernel/time.c
+@@ -146,6 +146,7 @@ static void __init calibrate_ccount(void
+ 	cpu = of_find_compatible_node(NULL, NULL, "cdns,xtensa-cpu");
+ 	if (cpu) {
+ 		clk = of_clk_get(cpu, 0);
++		of_node_put(cpu);
+ 		if (!IS_ERR(clk)) {
+ 			ccount_freq = clk_get_rate(clk);
+ 			return;
 
 
