@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A23B3561D54
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD45561CF8
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236862AbiF3OKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
+        id S236060AbiF3OIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236427AbiF3OKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:10:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D1A7B34D;
-        Thu, 30 Jun 2022 06:55:32 -0700 (PDT)
+        with ESMTP id S236679AbiF3OHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E0872EEA;
+        Thu, 30 Jun 2022 06:54:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC59CB82AF8;
-        Thu, 30 Jun 2022 13:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 661FAC34115;
-        Thu, 30 Jun 2022 13:55:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 132B061F5F;
+        Thu, 30 Jun 2022 13:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230BBC341CB;
+        Thu, 30 Jun 2022 13:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597325;
-        bh=n6pCRpxRo1ejolie+HwU9V9duHfbqPeFU7Zrwi/AZt0=;
+        s=korg; t=1656597262;
+        bh=YSrChqLUMjIgAIyGJymSZd2Gm+5E0kMjXymR4Fw4Kz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXG8VpV5r34mtYYBUDk6FuRXKXKOZiFgU+0Hh8mtsIUKDKgZgVj77H/dvaPckOYsp
-         GypL8nqyj97UJiOaQREneOYzXSrPCuDl0BTS7vdKozTlxGun7a0xym8sNqVhLy7LsJ
-         gN7QDH0Uj13znq4+ZIxmeh+iOY2+mquXH12Wj0cI=
+        b=Xqt4fvJg53Eeg/SOdmmFnQUl9P1ZMHpLGSO9Km5tDaNjKWlQsPYuDqXoS+WCVUfXn
+         I/aWZGobp6JBRU8UNCi5qGAfKzm1it0GvajzOGudUKSz2OSNux+kdKjsiGod+XRolL
+         MiFFn1PYeH66voNzXU6ktUpKuz9UE6iXTbyIrL/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>
-Subject: [PATCH 5.15 17/28] docs: update mapping documentation
-Date:   Thu, 30 Jun 2022 15:47:13 +0200
-Message-Id: <20220630133233.434921899@linuxfoundation.org>
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 09/12] xfs: remove all COW fork extents when remounting readonly
+Date:   Thu, 30 Jun 2022 15:47:14 +0200
+Message-Id: <20220630133230.967036087@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
-References: <20220630133232.926711493@linuxfoundation.org>
+In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
+References: <20220630133230.676254336@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,106 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 8cc5c54de44c5e8e104d364a627ac4296845fc7f upstream.
+commit 089558bc7ba785c03815a49c89e28ad9b8de51f9 upstream.
 
-Now that we implement the full remapping algorithms described in our
-documentation remove the section about shortcircuting them.
+[backport xfs_icwalk -> xfs_eofblocks for 5.10.y]
 
-Link: https://lore.kernel.org/r/20211123114227.3124056-6-brauner@kernel.org (v1)
-Link: https://lore.kernel.org/r/20211130121032.3753852-6-brauner@kernel.org (v2)
-Link: https://lore.kernel.org/r/20211203111707.3901969-6-brauner@kernel.org
-Cc: Seth Forshee <sforshee@digitalocean.com>
-Cc: Amir Goldstein <amir73il@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-CC: linux-fsdevel@vger.kernel.org
-Reviewed-by: Seth Forshee <sforshee@digitalocean.com>
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+As part of multiple customer escalations due to file data corruption
+after copy on write operations, I wrote some fstests that use fsstress
+to hammer on COW to shake things loose.  Regrettably, I caught some
+filesystem shutdowns due to incorrect rmap operations with the following
+loop:
+
+mount <filesystem>				# (0)
+fsstress <run only readonly ops> &		# (1)
+while true; do
+	fsstress <run all ops>
+	mount -o remount,ro			# (2)
+	fsstress <run only readonly ops>
+	mount -o remount,rw			# (3)
+done
+
+When (2) happens, notice that (1) is still running.  xfs_remount_ro will
+call xfs_blockgc_stop to walk the inode cache to free all the COW
+extents, but the blockgc mechanism races with (1)'s reader threads to
+take IOLOCKs and loses, which means that it doesn't clean them all out.
+Call such a file (A).
+
+When (3) happens, xfs_remount_rw calls xfs_reflink_recover_cow, which
+walks the ondisk refcount btree and frees any COW extent that it finds.
+This function does not check the inode cache, which means that incore
+COW forks of inode (A) is now inconsistent with the ondisk metadata.  If
+one of those former COW extents are allocated and mapped into another
+file (B) and someone triggers a COW to the stale reservation in (A), A's
+dirty data will be written into (B) and once that's done, those blocks
+will be transferred to (A)'s data fork without bumping the refcount.
+
+The results are catastrophic -- file (B) and the refcount btree are now
+corrupt.  Solve this race by forcing the xfs_blockgc_free_space to run
+synchronously, which causes xfs_icwalk to return to inodes that were
+skipped because the blockgc code couldn't take the IOLOCK.  This is safe
+to do here because the VFS has already prohibited new writer threads.
+
+Fixes: 10ddf64e420f ("xfs: remove leftover CoW reservations when remounting ro")
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/filesystems/idmappings.rst |   72 -------------------------------
- 1 file changed, 72 deletions(-)
+ fs/xfs/xfs_super.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/Documentation/filesystems/idmappings.rst
-+++ b/Documentation/filesystems/idmappings.rst
-@@ -952,75 +952,3 @@ The raw userspace id that is put on disk
- their home directory back to their home computer where they are assigned
- ``u1000`` using the initial idmapping and mount the filesystem with the initial
- idmapping they will see all those files owned by ``u1000``.
--
--Shortcircuting
----------------
--
--Currently, the implementation of idmapped mounts enforces that the filesystem
--is mounted with the initial idmapping. The reason is simply that none of the
--filesystems that we targeted were mountable with a non-initial idmapping. But
--that might change soon enough. As we've seen above, thanks to the properties of
--idmappings the translation works for both filesystems mounted with the initial
--idmapping and filesystem with non-initial idmappings.
--
--Based on this current restriction to filesystem mounted with the initial
--idmapping two noticeable shortcuts have been taken:
--
--1. We always stash a reference to the initial user namespace in ``struct
--   vfsmount``. Idmapped mounts are thus mounts that have a non-initial user
--   namespace attached to them.
--
--   In order to support idmapped mounts this needs to be changed. Instead of
--   stashing the initial user namespace the user namespace the filesystem was
--   mounted with must be stashed. An idmapped mount is then any mount that has
--   a different user namespace attached then the filesystem was mounted with.
--   This has no user-visible consequences.
--
--2. The translation algorithms in ``mapped_fs*id()`` and ``i_*id_into_mnt()``
--   are simplified.
--
--   Let's consider ``mapped_fs*id()`` first. This function translates the
--   caller's kernel id into a kernel id in the filesystem's idmapping via
--   a mount's idmapping. The full algorithm is::
--
--    mapped_fsuid(kid):
--      /* Map the kernel id up into a userspace id in the mount's idmapping. */
--      from_kuid(mount-idmapping, kid) = uid
--
--      /* Map the userspace id down into a kernel id in the filesystem's idmapping. */
--      make_kuid(filesystem-idmapping, uid) = kuid
--
--   We know that the filesystem is always mounted with the initial idmapping as
--   we enforce this in ``mount_setattr()``. So this can be shortened to::
--
--    mapped_fsuid(kid):
--      /* Map the kernel id up into a userspace id in the mount's idmapping. */
--      from_kuid(mount-idmapping, kid) = uid
--
--      /* Map the userspace id down into a kernel id in the filesystem's idmapping. */
--      KUIDT_INIT(uid) = kuid
--
--   Similarly, for ``i_*id_into_mnt()`` which translated the filesystem's kernel
--   id into a mount's kernel id::
--
--    i_uid_into_mnt(kid):
--      /* Map the kernel id up into a userspace id in the filesystem's idmapping. */
--      from_kuid(filesystem-idmapping, kid) = uid
--
--      /* Map the userspace id down into a kernel id in the mounts's idmapping. */
--      make_kuid(mount-idmapping, uid) = kuid
--
--   Again, we know that the filesystem is always mounted with the initial
--   idmapping as we enforce this in ``mount_setattr()``. So this can be
--   shortened to::
--
--    i_uid_into_mnt(kid):
--      /* Map the kernel id up into a userspace id in the filesystem's idmapping. */
--      __kuid_val(kid) = uid
--
--      /* Map the userspace id down into a kernel id in the mounts's idmapping. */
--      make_kuid(mount-idmapping, uid) = kuid
--
--Handling filesystems mounted with non-initial idmappings requires that the
--translation functions be converted to their full form. They can still be
--shortcircuited on non-idmapped mounts. This has no user-visible consequences.
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -1695,7 +1695,10 @@ static int
+ xfs_remount_ro(
+ 	struct xfs_mount	*mp)
+ {
+-	int error;
++	struct xfs_eofblocks	eofb = {
++		.eof_flags	= XFS_EOF_FLAGS_SYNC,
++	};
++	int			error;
+ 
+ 	/*
+ 	 * Cancel background eofb scanning so it cannot race with the final
+@@ -1703,8 +1706,13 @@ xfs_remount_ro(
+ 	 */
+ 	xfs_stop_block_reaping(mp);
+ 
+-	/* Get rid of any leftover CoW reservations... */
+-	error = xfs_icache_free_cowblocks(mp, NULL);
++	/*
++	 * Clear out all remaining COW staging extents and speculative post-EOF
++	 * preallocations so that we don't leave inodes requiring inactivation
++	 * cleanups during reclaim on a read-only mount.  We must process every
++	 * cached inode, so this requires a synchronous cache scan.
++	 */
++	error = xfs_icache_free_cowblocks(mp, &eofb);
+ 	if (error) {
+ 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
+ 		return error;
 
 
