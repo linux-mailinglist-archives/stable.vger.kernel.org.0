@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FD45561CF8
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FCB3561D15
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236060AbiF3OIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:08:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S236573AbiF3OLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:11:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236679AbiF3OHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E0872EEA;
-        Thu, 30 Jun 2022 06:54:28 -0700 (PDT)
+        with ESMTP id S236860AbiF3OKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:10:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D791973915;
+        Thu, 30 Jun 2022 06:55:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 132B061F5F;
-        Thu, 30 Jun 2022 13:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230BBC341CB;
-        Thu, 30 Jun 2022 13:54:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4F43B82AF5;
+        Thu, 30 Jun 2022 13:55:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E905C34115;
+        Thu, 30 Jun 2022 13:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597262;
-        bh=YSrChqLUMjIgAIyGJymSZd2Gm+5E0kMjXymR4Fw4Kz8=;
+        s=korg; t=1656597328;
+        bh=8gSpTM0M2+5AiSnd+UDb4VINeI9nE6g3nHJOluh2suY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xqt4fvJg53Eeg/SOdmmFnQUl9P1ZMHpLGSO9Km5tDaNjKWlQsPYuDqXoS+WCVUfXn
-         I/aWZGobp6JBRU8UNCi5qGAfKzm1it0GvajzOGudUKSz2OSNux+kdKjsiGod+XRolL
-         MiFFn1PYeH66voNzXU6ktUpKuz9UE6iXTbyIrL/I=
+        b=M5b4c904YUJwxIFdSjrASpeQevkhE7WXiOC78LN3a2Pufg1w/s/75lHT62WQxpZx8
+         DAQ5lx+qLi63ovNuQf15NxFTfO9peM3IaOU1PI01/GKl6q5/8szHJAhHxKSTf+X3M2
+         okobm9fnw/zCNg5Lj4jC445TCkyDKmd14qG8pdEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Chinner <dchinner@redhat.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 09/12] xfs: remove all COW fork extents when remounting readonly
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>
+Subject: [PATCH 5.15 18/28] fs: use low-level mapping helpers
 Date:   Thu, 30 Jun 2022 15:47:14 +0200
-Message-Id: <20220630133230.967036087@linuxfoundation.org>
+Message-Id: <20220630133233.464470992@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
-References: <20220630133230.676254336@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+References: <20220630133232.926711493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +58,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit 089558bc7ba785c03815a49c89e28ad9b8de51f9 upstream.
+commit 4472071331549e911a5abad41aea6e3be855a1a4 upstream.
 
-[backport xfs_icwalk -> xfs_eofblocks for 5.10.y]
+In a few places the vfs needs to interact with bare k{g,u}ids directly
+instead of struct inode. These are just a few. In previous patches we
+introduced low-level mapping helpers that are able to support
+filesystems mounted an idmapping. This patch simply converts the places
+to use these new helpers.
 
-As part of multiple customer escalations due to file data corruption
-after copy on write operations, I wrote some fstests that use fsstress
-to hammer on COW to shake things loose.  Regrettably, I caught some
-filesystem shutdowns due to incorrect rmap operations with the following
-loop:
-
-mount <filesystem>				# (0)
-fsstress <run only readonly ops> &		# (1)
-while true; do
-	fsstress <run all ops>
-	mount -o remount,ro			# (2)
-	fsstress <run only readonly ops>
-	mount -o remount,rw			# (3)
-done
-
-When (2) happens, notice that (1) is still running.  xfs_remount_ro will
-call xfs_blockgc_stop to walk the inode cache to free all the COW
-extents, but the blockgc mechanism races with (1)'s reader threads to
-take IOLOCKs and loses, which means that it doesn't clean them all out.
-Call such a file (A).
-
-When (3) happens, xfs_remount_rw calls xfs_reflink_recover_cow, which
-walks the ondisk refcount btree and frees any COW extent that it finds.
-This function does not check the inode cache, which means that incore
-COW forks of inode (A) is now inconsistent with the ondisk metadata.  If
-one of those former COW extents are allocated and mapped into another
-file (B) and someone triggers a COW to the stale reservation in (A), A's
-dirty data will be written into (B) and once that's done, those blocks
-will be transferred to (A)'s data fork without bumping the refcount.
-
-The results are catastrophic -- file (B) and the refcount btree are now
-corrupt.  Solve this race by forcing the xfs_blockgc_free_space to run
-synchronously, which causes xfs_icwalk to return to inodes that were
-skipped because the blockgc code couldn't take the IOLOCK.  This is safe
-to do here because the VFS has already prohibited new writer threads.
-
-Fixes: 10ddf64e420f ("xfs: remove leftover CoW reservations when remounting ro")
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Link: https://lore.kernel.org/r/20211123114227.3124056-7-brauner@kernel.org (v1)
+Link: https://lore.kernel.org/r/20211130121032.3753852-7-brauner@kernel.org (v2)
+Link: https://lore.kernel.org/r/20211203111707.3901969-7-brauner@kernel.org
+Cc: Seth Forshee <sforshee@digitalocean.com>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+CC: linux-fsdevel@vger.kernel.org
+Reviewed-by: Seth Forshee <sforshee@digitalocean.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_super.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/ksmbd/smbacl.c    |   18 ++----------------
+ fs/ksmbd/smbacl.h    |    4 ++--
+ fs/open.c            |    4 ++--
+ fs/posix_acl.c       |   16 ++++++++++------
+ security/commoncap.c |   13 ++++++++-----
+ 5 files changed, 24 insertions(+), 31 deletions(-)
 
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1695,7 +1695,10 @@ static int
- xfs_remount_ro(
- 	struct xfs_mount	*mp)
+--- a/fs/ksmbd/smbacl.c
++++ b/fs/ksmbd/smbacl.c
+@@ -275,14 +275,7 @@ static int sid_to_id(struct user_namespa
+ 		uid_t id;
+ 
+ 		id = le32_to_cpu(psid->sub_auth[psid->num_subauth - 1]);
+-		/*
+-		 * Translate raw sid into kuid in the server's user
+-		 * namespace.
+-		 */
+-		uid = make_kuid(&init_user_ns, id);
+-
+-		/* If this is an idmapped mount, apply the idmapping. */
+-		uid = kuid_from_mnt(user_ns, uid);
++		uid = mapped_kuid_user(user_ns, &init_user_ns, KUIDT_INIT(id));
+ 		if (uid_valid(uid)) {
+ 			fattr->cf_uid = uid;
+ 			rc = 0;
+@@ -292,14 +285,7 @@ static int sid_to_id(struct user_namespa
+ 		gid_t id;
+ 
+ 		id = le32_to_cpu(psid->sub_auth[psid->num_subauth - 1]);
+-		/*
+-		 * Translate raw sid into kgid in the server's user
+-		 * namespace.
+-		 */
+-		gid = make_kgid(&init_user_ns, id);
+-
+-		/* If this is an idmapped mount, apply the idmapping. */
+-		gid = kgid_from_mnt(user_ns, gid);
++		gid = mapped_kgid_user(user_ns, &init_user_ns, KGIDT_INIT(id));
+ 		if (gid_valid(gid)) {
+ 			fattr->cf_gid = gid;
+ 			rc = 0;
+--- a/fs/ksmbd/smbacl.h
++++ b/fs/ksmbd/smbacl.h
+@@ -217,7 +217,7 @@ static inline uid_t posix_acl_uid_transl
+ 	kuid_t kuid;
+ 
+ 	/* If this is an idmapped mount, apply the idmapping. */
+-	kuid = kuid_into_mnt(mnt_userns, pace->e_uid);
++	kuid = mapped_kuid_fs(mnt_userns, &init_user_ns, pace->e_uid);
+ 
+ 	/* Translate the kuid into a userspace id ksmbd would see. */
+ 	return from_kuid(&init_user_ns, kuid);
+@@ -229,7 +229,7 @@ static inline gid_t posix_acl_gid_transl
+ 	kgid_t kgid;
+ 
+ 	/* If this is an idmapped mount, apply the idmapping. */
+-	kgid = kgid_into_mnt(mnt_userns, pace->e_gid);
++	kgid = mapped_kgid_fs(mnt_userns, &init_user_ns, pace->e_gid);
+ 
+ 	/* Translate the kgid into a userspace id ksmbd would see. */
+ 	return from_kgid(&init_user_ns, kgid);
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -653,8 +653,8 @@ int chown_common(const struct path *path
+ 	gid = make_kgid(current_user_ns(), group);
+ 
+ 	mnt_userns = mnt_user_ns(path->mnt);
+-	uid = kuid_from_mnt(mnt_userns, uid);
+-	gid = kgid_from_mnt(mnt_userns, gid);
++	uid = mapped_kuid_user(mnt_userns, &init_user_ns, uid);
++	gid = mapped_kgid_user(mnt_userns, &init_user_ns, gid);
+ 
+ retry_deleg:
+ 	newattrs.ia_valid =  ATTR_CTIME;
+--- a/fs/posix_acl.c
++++ b/fs/posix_acl.c
+@@ -376,7 +376,9 @@ posix_acl_permission(struct user_namespa
+                                         goto check_perm;
+                                 break;
+                         case ACL_USER:
+-				uid = kuid_into_mnt(mnt_userns, pa->e_uid);
++				uid = mapped_kuid_fs(mnt_userns,
++						      &init_user_ns,
++						      pa->e_uid);
+ 				if (uid_eq(uid, current_fsuid()))
+                                         goto mask;
+ 				break;
+@@ -389,7 +391,9 @@ posix_acl_permission(struct user_namespa
+                                 }
+ 				break;
+                         case ACL_GROUP:
+-				gid = kgid_into_mnt(mnt_userns, pa->e_gid);
++				gid = mapped_kgid_fs(mnt_userns,
++						      &init_user_ns,
++						      pa->e_gid);
+ 				if (in_group_p(gid)) {
+ 					found = 1;
+ 					if ((pa->e_perm & want) == want)
+@@ -736,17 +740,17 @@ static void posix_acl_fix_xattr_userns(
+ 		case ACL_USER:
+ 			uid = make_kuid(from, le32_to_cpu(entry->e_id));
+ 			if (from_user)
+-				uid = kuid_from_mnt(mnt_userns, uid);
++				uid = mapped_kuid_user(mnt_userns, &init_user_ns, uid);
+ 			else
+-				uid = kuid_into_mnt(mnt_userns, uid);
++				uid = mapped_kuid_fs(mnt_userns, &init_user_ns, uid);
+ 			entry->e_id = cpu_to_le32(from_kuid(to, uid));
+ 			break;
+ 		case ACL_GROUP:
+ 			gid = make_kgid(from, le32_to_cpu(entry->e_id));
+ 			if (from_user)
+-				gid = kgid_from_mnt(mnt_userns, gid);
++				gid = mapped_kgid_user(mnt_userns, &init_user_ns, gid);
+ 			else
+-				gid = kgid_into_mnt(mnt_userns, gid);
++				gid = mapped_kgid_fs(mnt_userns, &init_user_ns, gid);
+ 			entry->e_id = cpu_to_le32(from_kgid(to, gid));
+ 			break;
+ 		default:
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -419,7 +419,7 @@ int cap_inode_getsecurity(struct user_na
+ 	kroot = make_kuid(fs_ns, root);
+ 
+ 	/* If this is an idmapped mount shift the kuid. */
+-	kroot = kuid_into_mnt(mnt_userns, kroot);
++	kroot = mapped_kuid_fs(mnt_userns, &init_user_ns, kroot);
+ 
+ 	/* If the root kuid maps to a valid uid in current ns, then return
+ 	 * this as a nscap. */
+@@ -489,6 +489,7 @@ out_free:
+  * @size:	size of @ivalue
+  * @task_ns:	user namespace of the caller
+  * @mnt_userns:	user namespace of the mount the inode was found from
++ * @fs_userns:	user namespace of the filesystem
+  *
+  * If the inode has been found through an idmapped mount the user namespace of
+  * the vfsmount must be passed through @mnt_userns. This function will then
+@@ -498,7 +499,8 @@ out_free:
+  */
+ static kuid_t rootid_from_xattr(const void *value, size_t size,
+ 				struct user_namespace *task_ns,
+-				struct user_namespace *mnt_userns)
++				struct user_namespace *mnt_userns,
++				struct user_namespace *fs_userns)
  {
--	int error;
-+	struct xfs_eofblocks	eofb = {
-+		.eof_flags	= XFS_EOF_FLAGS_SYNC,
-+	};
-+	int			error;
+ 	const struct vfs_ns_cap_data *nscap = value;
+ 	kuid_t rootkid;
+@@ -508,7 +510,7 @@ static kuid_t rootid_from_xattr(const vo
+ 		rootid = le32_to_cpu(nscap->rootid);
  
- 	/*
- 	 * Cancel background eofb scanning so it cannot race with the final
-@@ -1703,8 +1706,13 @@ xfs_remount_ro(
+ 	rootkid = make_kuid(task_ns, rootid);
+-	return kuid_from_mnt(mnt_userns, rootkid);
++	return mapped_kuid_user(mnt_userns, fs_userns, rootkid);
+ }
+ 
+ static bool validheader(size_t size, const struct vfs_cap_data *cap)
+@@ -559,7 +561,8 @@ int cap_convert_nscap(struct user_namesp
+ 			/* user is privileged, just write the v2 */
+ 			return size;
+ 
+-	rootid = rootid_from_xattr(*ivalue, size, task_ns, mnt_userns);
++	rootid = rootid_from_xattr(*ivalue, size, task_ns, mnt_userns,
++				   &init_user_ns);
+ 	if (!uid_valid(rootid))
+ 		return -EINVAL;
+ 
+@@ -700,7 +703,7 @@ int get_vfs_caps_from_disk(struct user_n
+ 	/* Limit the caps to the mounter of the filesystem
+ 	 * or the more limited uid specified in the xattr.
  	 */
- 	xfs_stop_block_reaping(mp);
+-	rootkuid = kuid_into_mnt(mnt_userns, rootkuid);
++	rootkuid = mapped_kuid_fs(mnt_userns, &init_user_ns, rootkuid);
+ 	if (!rootid_owns_currentns(rootkuid))
+ 		return -ENODATA;
  
--	/* Get rid of any leftover CoW reservations... */
--	error = xfs_icache_free_cowblocks(mp, NULL);
-+	/*
-+	 * Clear out all remaining COW staging extents and speculative post-EOF
-+	 * preallocations so that we don't leave inodes requiring inactivation
-+	 * cleanups during reclaim on a read-only mount.  We must process every
-+	 * cached inode, so this requires a synchronous cache scan.
-+	 */
-+	error = xfs_icache_free_cowblocks(mp, &eofb);
- 	if (error) {
- 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
- 		return error;
 
 
