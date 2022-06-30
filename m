@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D6F0561C4B
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F011D561C29
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235926AbiF3Nzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:55:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35534 "EHLO
+        id S235788AbiF3N5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:57:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235801AbiF3Ny7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82C65A46B;
-        Thu, 30 Jun 2022 06:50:31 -0700 (PDT)
+        with ESMTP id S235896AbiF3N4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:56:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001138736E;
+        Thu, 30 Jun 2022 06:50:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDFEAB82AD8;
-        Thu, 30 Jun 2022 13:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F11C3411E;
-        Thu, 30 Jun 2022 13:50:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89C2462009;
+        Thu, 30 Jun 2022 13:50:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F16C34115;
+        Thu, 30 Jun 2022 13:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597028;
-        bh=vyo2qOmr7Aa0fK2HLMk9KQPHq4OLN6PaVvRBMTn4xfM=;
+        s=korg; t=1656597056;
+        bh=2sFKLwZBKaUx5/6j1UGYHDXTcu1SDlI/GP1hp4ivWUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mE6cwIJcS27e2VM3rXJd4hs3tAs8v8csgh4h0pCUAUGXNiggu3MCFSRk+FuoUJ6TB
-         92VBtf1Dlb10KjjAwjgieZyARJ05MS/jsUz+q2+qVz9KDkg+buYARqq0OM3I//60MX
-         LMphAzvyKKi2pzWAD3yqqZvrIyl3gCXCyQYEa+Ec=
+        b=iFcbvuOJ0K0cmE/TGIzCA/tlMhbVFgNKjRJoQvKe/e8v14bVQIe4YTXsCYn9GCNUJ
+         6gzSzr8CrBwiQfmbHqCJOEhveSYQqYFTuPmCjXyl8V2vugw8miA6XtCGZK2nPne/BK
+         D9oPZDDbxnOlZgagfbLpgkQmF3WqXtG8tXegepkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Carlo Lobrano <c.lobrano@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 06/35] USB: serial: option: add Telit LE910Cx 0x1250 composition
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 04/49] ALSA: hda/conexant: Fix missing beep setup
 Date:   Thu, 30 Jun 2022 15:46:17 +0200
-Message-Id: <20220630133232.629342153@linuxfoundation.org>
+Message-Id: <20220630133234.039219005@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlo Lobrano <c.lobrano@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 342fc0c3b345525da21112bd0478a0dc741598ea upstream.
+commit 5faa0bc69102f3a4c605581564c367be5eb94dfa upstream.
 
-Add support for the following Telit LE910Cx composition:
+Currently the Conexant codec driver sets up the beep NID after calling
+snd_hda_gen_parse_auto_config().  It turned out that this results in
+the insufficient setup for the beep control, as the generic parser
+handles the fake path in snd_hda_gen_parse_auto_config() only if the
+beep_nid is set up beforehand.
 
-0x1250: rmnet, tty, tty, tty, tty
+For dealing with the beep widget properly, call cx_auto_parse_beep()
+before snd_hda_gen_parse_auto_config() call.
 
-Reviewed-by: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
-Link: https://lore.kernel.org/r/20220614075623.2392607-1-c.lobrano@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 51e19ca5f755 ("ALSA: hda/conexant - Clean up beep code")
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216152
+Link: https://lore.kernel.org/r/20220620104008.1994-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_conexant.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1282,6 +1282,7 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(TELIT_VENDOR_ID, 0x1250, 0xff, 0x00, 0x00) },	/* Telit LE910Cx (rmnet) */
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -1061,11 +1061,11 @@ static int patch_conexant_auto(struct hd
+ 	if (err < 0)
+ 		goto error;
+ 
+-	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
++	err = cx_auto_parse_beep(codec);
+ 	if (err < 0)
+ 		goto error;
+ 
+-	err = cx_auto_parse_beep(codec);
++	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
+ 	if (err < 0)
+ 		goto error;
+ 
 
 
