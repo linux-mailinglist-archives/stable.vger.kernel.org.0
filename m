@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0671561CF3
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA2A561D0C
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236496AbiF3OEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:04:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
+        id S236705AbiF3OKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:10:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236466AbiF3OEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:04:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A436B805;
-        Thu, 30 Jun 2022 06:53:29 -0700 (PDT)
+        with ESMTP id S236706AbiF3OIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:08:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9C473914;
+        Thu, 30 Jun 2022 06:55:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63F9A6210F;
-        Thu, 30 Jun 2022 13:53:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F075C34115;
-        Thu, 30 Jun 2022 13:53:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 822E8B82AD8;
+        Thu, 30 Jun 2022 13:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D37C34115;
+        Thu, 30 Jun 2022 13:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597204;
-        bh=B6o1vVJE8G5b1r5QxOa5AGOqbLfmPxyGA5Nfo4bviAk=;
+        s=korg; t=1656597306;
+        bh=wh1pKIla8PGTcAVta3KyOdpbg5zeT/YauvyFaMXt3aY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3PiiUwyCwYRsMx3/hAjCT5nTaL8eMJKzbJWicGNPkp4omWvzefOsSOVUQbu2yCY4
-         9tIo158o7YQ2Ve7bb5MPs6eQokI9wbJQi34+GyUsVY9mNrIqxiJLs1bmJgnuPFBbcJ
-         NUrZlBV9lqVufHkOmEwPkkkRFXRxc2nt0xUBze9E=
+        b=GxVZDqBc/byCsY96c+8AnMlM0pxvoKLR6lkh+UhZqE1zngHVPAVSc4koMqcD2pz0f
+         WY4bYAGfTLxoC22LuLoJC/sk91CF3VOMc91QCxVVtU1H2S/wx3UqWN0GtEoO7MamqD
+         CnWmd2VcXOh8evgaRCQulJ9+JFRErPOSxQn7d2UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.4 16/16] crypto: arm/ghash-ce - define fpu before fpu registers are referenced
-Date:   Thu, 30 Jun 2022 15:47:10 +0200
-Message-Id: <20220630133231.416143558@linuxfoundation.org>
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>
+Subject: [PATCH 5.15 15/28] fs: tweak fsuidgid_has_mapping()
+Date:   Thu, 30 Jun 2022 15:47:11 +0200
+Message-Id: <20220630133233.376413710@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.936488203@linuxfoundation.org>
-References: <20220630133230.936488203@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+References: <20220630133232.926711493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit 7548bf8c17d84607c106bd45d81834afd95a2edb upstream
+commit 476860b3eb4a50958243158861d5340066df5af2 upstream.
 
-Building ARMv7 with Clang's integrated assembler leads to errors such
-as:
-arch/arm/crypto/ghash-ce-core.S:34:11: error: register name expected
- t3l .req d16
-          ^
+If the caller's fs{g,u}id aren't mapped in the mount's idmapping we can
+return early and skip the check whether the mapped fs{g,u}id also have a
+mapping in the filesystem's idmapping. If the fs{g,u}id aren't mapped in
+the mount's idmapping they consequently can't be mapped in the
+filesystem's idmapping. So there's no point in checking that.
 
-Since no FPU has selected yet Clang considers d16 not a valid register.
-Moving the FPU directive on-top allows Clang to parse the registers and
-allows to successfully build this file with Clang's integrated assembler.
-
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20211123114227.3124056-4-brauner@kernel.org (v1)
+Link: https://lore.kernel.org/r/20211130121032.3753852-4-brauner@kernel.org (v2)
+Link: https://lore.kernel.org/r/20211203111707.3901969-4-brauner@kernel.org
+Cc: Seth Forshee <sforshee@digitalocean.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+CC: linux-fsdevel@vger.kernel.org
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Seth Forshee <sforshee@digitalocean.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/crypto/ghash-ce-core.S |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/fs.h |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/arch/arm/crypto/ghash-ce-core.S
-+++ b/arch/arm/crypto/ghash-ce-core.S
-@@ -8,6 +8,9 @@
- #include <linux/linkage.h>
- #include <asm/assembler.h>
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1697,10 +1697,18 @@ static inline void inode_fsgid_set(struc
+ static inline bool fsuidgid_has_mapping(struct super_block *sb,
+ 					struct user_namespace *mnt_userns)
+ {
+-	struct user_namespace *s_user_ns = sb->s_user_ns;
++	struct user_namespace *fs_userns = sb->s_user_ns;
++	kuid_t kuid;
++	kgid_t kgid;
  
-+	.arch		armv8-a
-+	.fpu		crypto-neon-fp-armv8
-+
- 	SHASH		.req	q0
- 	T1		.req	q1
- 	XL		.req	q2
-@@ -88,8 +91,6 @@
- 	T3_H		.req	d17
+-	return kuid_has_mapping(s_user_ns, mapped_fsuid(mnt_userns)) &&
+-	       kgid_has_mapping(s_user_ns, mapped_fsgid(mnt_userns));
++	kuid = mapped_fsuid(mnt_userns);
++	if (!uid_valid(kuid))
++		return false;
++	kgid = mapped_fsgid(mnt_userns);
++	if (!gid_valid(kgid))
++		return false;
++	return kuid_has_mapping(fs_userns, kuid) &&
++	       kgid_has_mapping(fs_userns, kgid);
+ }
  
- 	.text
--	.arch		armv8-a
--	.fpu		crypto-neon-fp-armv8
- 
- 	.macro		__pmull_p64, rd, rn, rm, b1, b2, b3, b4
- 	vmull.p64	\rd, \rn, \rm
+ extern struct timespec64 current_time(struct inode *inode);
 
 
