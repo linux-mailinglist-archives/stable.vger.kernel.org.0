@@ -2,128 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A4E561D6F
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52468561DB4
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236516AbiF3OI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:08:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
+        id S235886AbiF3OQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:16:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236621AbiF3OHG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:06 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F765E3D
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 06:54:24 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UCrZPe003792;
-        Thu, 30 Jun 2022 13:54:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to; s=pp1;
- bh=ykWO3szqez1BIuaj1Q5ZQQqd74reoS4gGKLUepIXgXc=;
- b=rC6vevhB9tzpS+7fT1AddWv5p6V5XC7SBBNW2jlG9u+T2BlUokspqySRHprOg2ByOwrn
- g9PktT8rpPv5vPKmf+lHrQG7gacnX8qZwC8cya5N66wbvWeqpKemO/d/a7LCsLJJKmaU
- rlJrnpl7yerXoHKiuC0DCUjVDqSEBK+GF36abMio0gb0faQ0rHiyctGCQFQ+yxIoKb6u
- OoiEhnLOZ8yWIQYTmpizfMRkgf1CPO4V8VpDeLIiDi/Wga2OUmkf18qvCODufadGoQ/B
- hqpMJshE9dwZVlBoezoLyKja/iwpVox9JEewIGTTVColG5kQLbHzJ3A3lni9iXUL+Gmi 4w== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1c82t07f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 13:54:11 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UDp10S016843;
-        Thu, 30 Jun 2022 13:54:09 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gwt0906wf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 13:54:09 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UDs76924183258
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Jun 2022 13:54:07 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9DC99A4053;
-        Thu, 30 Jun 2022 13:54:07 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9102CA4040;
-        Thu, 30 Jun 2022 13:54:06 +0000 (GMT)
-Received: from smtpclient.apple (unknown [9.43.87.229])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 30 Jun 2022 13:54:06 +0000 (GMT)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
-Subject: Re: [PATCH] powerpc/powernv: delay rng of node creation until later
- in boot
-From:   Sachin Sant <sachinp@linux.ibm.com>
-In-Reply-To: <20220630121654.1939181-1-Jason@zx2c4.com>
-Date:   Thu, 30 Jun 2022 19:24:05 +0530
-Cc:     linuxppc-dev@lists.ozlabs.org,
-        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <8A9A296D-D7BD-42BE-AB32-C951C29E4C40@linux.ibm.com>
-References: <Yr2PQSZWVtr+Y7a2@zx2c4.com>
- <20220630121654.1939181-1-Jason@zx2c4.com>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-X-Mailer: Apple Mail (2.3696.100.31)
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: m2zEpfcZKIrtkS4anqfpknm_BwEPNiQg
-X-Proofpoint-ORIG-GUID: m2zEpfcZKIrtkS4anqfpknm_BwEPNiQg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-30_09,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 mlxlogscore=716
- spamscore=0 clxscore=1011 phishscore=0 priorityscore=1501 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206300054
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S237036AbiF3OQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:16:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F64E76940
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 07:01:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1388B82AEE
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 14:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBE85C34115;
+        Thu, 30 Jun 2022 14:01:18 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="g5Mgw2a3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1656597678;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uZdyHA6eQ+MUdW3aXxGbaOtskaVoXz1M9yYVxlwzRSM=;
+        b=g5Mgw2a3L81HgacYfDmcbS71T7X+CPG5nbR75F6YrA8fwIiERRclLdjKV/kAEHxwn3QC5V
+        t91IsvQtOUs+khu+PPx+BmM1I7yHlzcxR02m9SywwzJ6EP44hlDriYV6VEVMFE9hdA4sAN
+        DKHP45dIbcArW2ynhlttajJhuyw1xX8=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 17439ad5 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Thu, 30 Jun 2022 14:01:18 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linuxppc-dev@lists.ozlabs.org, mpe@ellerman.id.au,
+        sachinp@linux.ibm.com
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
+Subject: [PATCH v3 2/2] powerpc/kvm: don't crash on missing rng, and use darn
+Date:   Thu, 30 Jun 2022 16:01:08 +0200
+Message-Id: <20220630140108.129434-3-Jason@zx2c4.com>
+In-Reply-To: <20220630140108.129434-1-Jason@zx2c4.com>
+References: <20220630140108.129434-1-Jason@zx2c4.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On POWER8 systems that don't have ibm,power-rng available, a guest that
+ignores the KVM_CAP_PPC_HWRNG flag and calls H_RANDOM anyway will
+dereference a NULL pointer. And on machines with darn instead of
+ibm,power-rng, H_RANDOM won't work at all.
 
+This patch kills two birds with one stone, by routing H_RANDOM calls to
+ppc_md.get_random_seed, and doing the real mode check inside of it.
 
-> On 30-Jun-2022, at 5:46 PM, Jason A. Donenfeld <Jason@zx2c4.com> =
-wrote:
->=20
-> The of node for the rng must be created much later in boot. Otherwise =
-it
-> tries to connect to a parent that doesn't yet exist, resulting on this
-> splat:
->=20
-> [    0.000478] kobject: '(null)' ((____ptrval____)): is not =
-initialized, yet kobject_get() is being called.
-> [    0.002925] [c000000002a0fb30] [c00000000073b0bc] =
-kobject_get+0x8c/0x100 (unreliable)
-> [    0.003071] [c000000002a0fba0] [c00000000087e464] =
-device_add+0xf4/0xb00
-> [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] =
-of_device_add+0x64/0x80
-> [    0.003321] [c000000002a0fcb0] [c000000000a800d0] =
-of_platform_device_create_pdata+0xd0/0x1b0
-> [    0.003476] [c000000002a0fd00] [c00000000201fa44] =
-pnv_get_random_long_early+0x240/0x2e4
-> [    0.003623] [c000000002a0fe20] [c000000002060c38] =
-random_init+0xc0/0x214
->=20
-> This patch fixes the issue by doing the of node creation inside of
-> machine_subsys_initcall.
->=20
-> Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
-> Cc: stable@vger.kernel.org
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
+Cc: stable@vger.kernel.org # v4.1+
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ arch/powerpc/include/asm/archrandom.h |  5 ----
+ arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
+ arch/powerpc/platforms/powernv/rng.c  | 33 +++++++--------------------
+ 3 files changed, 12 insertions(+), 33 deletions(-)
 
-Thanks Jason for the patch. This fixes the reported problem for me.
-
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-
-- Sachin
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 11d4815841ab..3af27bb84a3d 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ #endif /* CONFIG_ARCH_RANDOM */
+ 
+ #ifdef CONFIG_PPC_POWERNV
+-int pnv_hwrng_present(void);
+ int pnv_get_random_long(unsigned long *v);
+-int pnv_get_random_real_mode(unsigned long *v);
+-#else
+-static inline int pnv_hwrng_present(void) { return 0; }
+-static inline int pnv_get_random_real_mode(unsigned long *v) { return 0; }
+ #endif
+ 
+ #endif /* _ASM_POWERPC_ARCHRANDOM_H */
+diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+index 799d40c2ab4f..3abaef5f9ac2 100644
+--- a/arch/powerpc/kvm/book3s_hv_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+@@ -19,7 +19,7 @@
+ #include <asm/interrupt.h>
+ #include <asm/kvm_ppc.h>
+ #include <asm/kvm_book3s.h>
+-#include <asm/archrandom.h>
++#include <asm/machdep.h>
+ #include <asm/xics.h>
+ #include <asm/xive.h>
+ #include <asm/dbell.h>
+@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
+ 
+ int kvmppc_hwrng_present(void)
+ {
+-	return pnv_hwrng_present();
++	return ppc_md.get_random_seed != NULL;
+ }
+ EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
+ 
+ long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
+ {
+-	if (pnv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
++	if (ppc_md.get_random_seed &&
++	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
+ 		return H_SUCCESS;
+ 
+ 	return H_HARDWARE;
+diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
+index 386b44660e76..4a48566528c0 100644
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -29,15 +29,6 @@ struct pnv_rng {
+ 
+ static DEFINE_PER_CPU(struct pnv_rng *, pnv_rng);
+ 
+-int pnv_hwrng_present(void)
+-{
+-	struct pnv_rng *rng;
+-
+-	rng = get_cpu_var(pnv_rng);
+-	put_cpu_var(rng);
+-	return rng != NULL;
+-}
+-
+ static unsigned long rng_whiten(struct pnv_rng *rng, unsigned long val)
+ {
+ 	unsigned long parity;
+@@ -58,17 +49,6 @@ static unsigned long rng_whiten(struct pnv_rng *rng, unsigned long val)
+ 	return val;
+ }
+ 
+-int pnv_get_random_real_mode(unsigned long *v)
+-{
+-	struct pnv_rng *rng;
+-
+-	rng = raw_cpu_read(pnv_rng);
+-
+-	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
+-
+-	return 1;
+-}
+-
+ static int pnv_get_random_darn(unsigned long *v)
+ {
+ 	unsigned long val;
+@@ -105,11 +85,14 @@ int pnv_get_random_long(unsigned long *v)
+ {
+ 	struct pnv_rng *rng;
+ 
+-	rng = get_cpu_var(pnv_rng);
+-
+-	*v = rng_whiten(rng, in_be64(rng->regs));
+-
+-	put_cpu_var(rng);
++	if (mfmsr() & MSR_DR) {
++		rng = raw_cpu_read(pnv_rng);
++		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
++	} else {
++		rng = get_cpu_var(pnv_rng);
++		*v = rng_whiten(rng, in_be64(rng->regs));
++		put_cpu_var(rng);
++	}
+ 
+ 	return 1;
+ }
+-- 
+2.35.1
 
