@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCB3561D15
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81AD6561D97
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236573AbiF3OLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:11:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40644 "EHLO
+        id S236053AbiF3OGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:06:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236860AbiF3OKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:10:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D791973915;
-        Thu, 30 Jun 2022 06:55:31 -0700 (PDT)
+        with ESMTP id S236520AbiF3OFh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:05:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B5A6EEBA;
+        Thu, 30 Jun 2022 06:53:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4F43B82AF5;
-        Thu, 30 Jun 2022 13:55:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E905C34115;
-        Thu, 30 Jun 2022 13:55:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D8F162112;
+        Thu, 30 Jun 2022 13:53:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F036C34115;
+        Thu, 30 Jun 2022 13:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597328;
-        bh=8gSpTM0M2+5AiSnd+UDb4VINeI9nE6g3nHJOluh2suY=;
+        s=korg; t=1656597234;
+        bh=HlUdkeevkwlkADXGp1lJ6XF/tQ3oXFSVRy8yE4P3sXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5b4c904YUJwxIFdSjrASpeQevkhE7WXiOC78LN3a2Pufg1w/s/75lHT62WQxpZx8
-         DAQ5lx+qLi63ovNuQf15NxFTfO9peM3IaOU1PI01/GKl6q5/8szHJAhHxKSTf+X3M2
-         okobm9fnw/zCNg5Lj4jC445TCkyDKmd14qG8pdEA=
+        b=Zcy9xcN41hZIyKgAgBHrDctZ/6bJyoi6qaYYDcAZC0WvtblTiz3Dbcsk8XxdBIkHD
+         8SgSCJ/lxIXwTxNmsUsAaPSYwFwfS+KlzJmoCxH5xLRMQ2Xuaj76LDMD7DDv0yetej
+         6MnmExEil0zak/cqqp6qJWlkmcuUd+c/hBIwWY9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>
-Subject: [PATCH 5.15 18/28] fs: use low-level mapping helpers
-Date:   Thu, 30 Jun 2022 15:47:14 +0200
-Message-Id: <20220630133233.464470992@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 10/12] xfs: check sb_meta_uuid for dabuf buffer recovery
+Date:   Thu, 30 Jun 2022 15:47:15 +0200
+Message-Id: <20220630133230.996324972@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
-References: <20220630133232.926711493@linuxfoundation.org>
+In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
+References: <20220630133230.676254336@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,205 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Dave Chinner <dchinner@redhat.com>
 
-commit 4472071331549e911a5abad41aea6e3be855a1a4 upstream.
+commit 09654ed8a18cfd45027a67d6cbca45c9ea54feab upstream.
 
-In a few places the vfs needs to interact with bare k{g,u}ids directly
-instead of struct inode. These are just a few. In previous patches we
-introduced low-level mapping helpers that are able to support
-filesystems mounted an idmapping. This patch simply converts the places
-to use these new helpers.
+Got a report that a repeated crash test of a container host would
+eventually fail with a log recovery error preventing the system from
+mounting the root filesystem. It manifested as a directory leaf node
+corruption on writeback like so:
 
-Link: https://lore.kernel.org/r/20211123114227.3124056-7-brauner@kernel.org (v1)
-Link: https://lore.kernel.org/r/20211130121032.3753852-7-brauner@kernel.org (v2)
-Link: https://lore.kernel.org/r/20211203111707.3901969-7-brauner@kernel.org
-Cc: Seth Forshee <sforshee@digitalocean.com>
-Cc: Amir Goldstein <amir73il@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-CC: linux-fsdevel@vger.kernel.org
-Reviewed-by: Seth Forshee <sforshee@digitalocean.com>
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+ XFS (loop0): Mounting V5 Filesystem
+ XFS (loop0): Starting recovery (logdev: internal)
+ XFS (loop0): Metadata corruption detected at xfs_dir3_leaf_check_int+0x99/0xf0, xfs_dir3_leaf1 block 0x12faa158
+ XFS (loop0): Unmount and run xfs_repair
+ XFS (loop0): First 128 bytes of corrupted metadata buffer:
+ 00000000: 00 00 00 00 00 00 00 00 3d f1 00 00 e1 9e d5 8b  ........=.......
+ 00000010: 00 00 00 00 12 fa a1 58 00 00 00 29 00 00 1b cc  .......X...)....
+ 00000020: 91 06 78 ff f7 7e 4a 7d 8d 53 86 f2 ac 47 a8 23  ..x..~J}.S...G.#
+ 00000030: 00 00 00 00 17 e0 00 80 00 43 00 00 00 00 00 00  .........C......
+ 00000040: 00 00 00 2e 00 00 00 08 00 00 17 2e 00 00 00 0a  ................
+ 00000050: 02 35 79 83 00 00 00 30 04 d3 b4 80 00 00 01 50  .5y....0.......P
+ 00000060: 08 40 95 7f 00 00 02 98 08 41 fe b7 00 00 02 d4  .@.......A......
+ 00000070: 0d 62 ef a7 00 00 01 f2 14 50 21 41 00 00 00 0c  .b.......P!A....
+ XFS (loop0): Corruption of in-memory data (0x8) detected at xfs_do_force_shutdown+0x1a/0x20 (fs/xfs/xfs_buf.c:1514).  Shutting down.
+ XFS (loop0): Please unmount the filesystem and rectify the problem(s)
+ XFS (loop0): log mount/recovery failed: error -117
+ XFS (loop0): log mount failed
+
+Tracing indicated that we were recovering changes from a transaction
+at LSN 0x29/0x1c16 into a buffer that had an LSN of 0x29/0x1d57.
+That is, log recovery was overwriting a buffer with newer changes on
+disk than was in the transaction. Tracing indicated that we were
+hitting the "recovery immediately" case in
+xfs_buf_log_recovery_lsn(), and hence it was ignoring the LSN in the
+buffer.
+
+The code was extracting the LSN correctly, then ignoring it because
+the UUID in the buffer did not match the superblock UUID. The
+problem arises because the UUID check uses the wrong UUID - it
+should be checking the sb_meta_uuid, not sb_uuid. This filesystem
+has sb_uuid != sb_meta_uuid (which is fine), and the buffer has the
+correct matching sb_meta_uuid in it, it's just the code checked it
+against the wrong superblock uuid.
+
+The is no corruption in the filesystem, and failing to recover the
+buffer due to a write verifier failure means the recovery bug did
+not propagate the corruption to disk. Hence there is no corruption
+before or after this bug has manifested, the impact is limited
+simply to an unmountable filesystem....
+
+This was missed back in 2015 during an audit of incorrect sb_uuid
+usage that resulted in commit fcfbe2c4ef42 ("xfs: log recovery needs
+to validate against sb_meta_uuid") that fixed the magic32 buffers to
+validate against sb_meta_uuid instead of sb_uuid. It missed the
+magicda buffers....
+
+Fixes: ce748eaa65f2 ("xfs: create new metadata UUID field and incompat flag")
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smbacl.c    |   18 ++----------------
- fs/ksmbd/smbacl.h    |    4 ++--
- fs/open.c            |    4 ++--
- fs/posix_acl.c       |   16 ++++++++++------
- security/commoncap.c |   13 ++++++++-----
- 5 files changed, 24 insertions(+), 31 deletions(-)
+ fs/xfs/xfs_buf_item_recover.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ksmbd/smbacl.c
-+++ b/fs/ksmbd/smbacl.c
-@@ -275,14 +275,7 @@ static int sid_to_id(struct user_namespa
- 		uid_t id;
+--- a/fs/xfs/xfs_buf_item_recover.c
++++ b/fs/xfs/xfs_buf_item_recover.c
+@@ -805,7 +805,7 @@ xlog_recover_get_buf_lsn(
+ 	}
  
- 		id = le32_to_cpu(psid->sub_auth[psid->num_subauth - 1]);
--		/*
--		 * Translate raw sid into kuid in the server's user
--		 * namespace.
--		 */
--		uid = make_kuid(&init_user_ns, id);
--
--		/* If this is an idmapped mount, apply the idmapping. */
--		uid = kuid_from_mnt(user_ns, uid);
-+		uid = mapped_kuid_user(user_ns, &init_user_ns, KUIDT_INIT(id));
- 		if (uid_valid(uid)) {
- 			fattr->cf_uid = uid;
- 			rc = 0;
-@@ -292,14 +285,7 @@ static int sid_to_id(struct user_namespa
- 		gid_t id;
- 
- 		id = le32_to_cpu(psid->sub_auth[psid->num_subauth - 1]);
--		/*
--		 * Translate raw sid into kgid in the server's user
--		 * namespace.
--		 */
--		gid = make_kgid(&init_user_ns, id);
--
--		/* If this is an idmapped mount, apply the idmapping. */
--		gid = kgid_from_mnt(user_ns, gid);
-+		gid = mapped_kgid_user(user_ns, &init_user_ns, KGIDT_INIT(id));
- 		if (gid_valid(gid)) {
- 			fattr->cf_gid = gid;
- 			rc = 0;
---- a/fs/ksmbd/smbacl.h
-+++ b/fs/ksmbd/smbacl.h
-@@ -217,7 +217,7 @@ static inline uid_t posix_acl_uid_transl
- 	kuid_t kuid;
- 
- 	/* If this is an idmapped mount, apply the idmapping. */
--	kuid = kuid_into_mnt(mnt_userns, pace->e_uid);
-+	kuid = mapped_kuid_fs(mnt_userns, &init_user_ns, pace->e_uid);
- 
- 	/* Translate the kuid into a userspace id ksmbd would see. */
- 	return from_kuid(&init_user_ns, kuid);
-@@ -229,7 +229,7 @@ static inline gid_t posix_acl_gid_transl
- 	kgid_t kgid;
- 
- 	/* If this is an idmapped mount, apply the idmapping. */
--	kgid = kgid_into_mnt(mnt_userns, pace->e_gid);
-+	kgid = mapped_kgid_fs(mnt_userns, &init_user_ns, pace->e_gid);
- 
- 	/* Translate the kgid into a userspace id ksmbd would see. */
- 	return from_kgid(&init_user_ns, kgid);
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -653,8 +653,8 @@ int chown_common(const struct path *path
- 	gid = make_kgid(current_user_ns(), group);
- 
- 	mnt_userns = mnt_user_ns(path->mnt);
--	uid = kuid_from_mnt(mnt_userns, uid);
--	gid = kgid_from_mnt(mnt_userns, gid);
-+	uid = mapped_kuid_user(mnt_userns, &init_user_ns, uid);
-+	gid = mapped_kgid_user(mnt_userns, &init_user_ns, gid);
- 
- retry_deleg:
- 	newattrs.ia_valid =  ATTR_CTIME;
---- a/fs/posix_acl.c
-+++ b/fs/posix_acl.c
-@@ -376,7 +376,9 @@ posix_acl_permission(struct user_namespa
-                                         goto check_perm;
-                                 break;
-                         case ACL_USER:
--				uid = kuid_into_mnt(mnt_userns, pa->e_uid);
-+				uid = mapped_kuid_fs(mnt_userns,
-+						      &init_user_ns,
-+						      pa->e_uid);
- 				if (uid_eq(uid, current_fsuid()))
-                                         goto mask;
- 				break;
-@@ -389,7 +391,9 @@ posix_acl_permission(struct user_namespa
-                                 }
- 				break;
-                         case ACL_GROUP:
--				gid = kgid_into_mnt(mnt_userns, pa->e_gid);
-+				gid = mapped_kgid_fs(mnt_userns,
-+						      &init_user_ns,
-+						      pa->e_gid);
- 				if (in_group_p(gid)) {
- 					found = 1;
- 					if ((pa->e_perm & want) == want)
-@@ -736,17 +740,17 @@ static void posix_acl_fix_xattr_userns(
- 		case ACL_USER:
- 			uid = make_kuid(from, le32_to_cpu(entry->e_id));
- 			if (from_user)
--				uid = kuid_from_mnt(mnt_userns, uid);
-+				uid = mapped_kuid_user(mnt_userns, &init_user_ns, uid);
- 			else
--				uid = kuid_into_mnt(mnt_userns, uid);
-+				uid = mapped_kuid_fs(mnt_userns, &init_user_ns, uid);
- 			entry->e_id = cpu_to_le32(from_kuid(to, uid));
- 			break;
- 		case ACL_GROUP:
- 			gid = make_kgid(from, le32_to_cpu(entry->e_id));
- 			if (from_user)
--				gid = kgid_from_mnt(mnt_userns, gid);
-+				gid = mapped_kgid_user(mnt_userns, &init_user_ns, gid);
- 			else
--				gid = kgid_into_mnt(mnt_userns, gid);
-+				gid = mapped_kgid_fs(mnt_userns, &init_user_ns, gid);
- 			entry->e_id = cpu_to_le32(from_kgid(to, gid));
- 			break;
- 		default:
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -419,7 +419,7 @@ int cap_inode_getsecurity(struct user_na
- 	kroot = make_kuid(fs_ns, root);
- 
- 	/* If this is an idmapped mount shift the kuid. */
--	kroot = kuid_into_mnt(mnt_userns, kroot);
-+	kroot = mapped_kuid_fs(mnt_userns, &init_user_ns, kroot);
- 
- 	/* If the root kuid maps to a valid uid in current ns, then return
- 	 * this as a nscap. */
-@@ -489,6 +489,7 @@ out_free:
-  * @size:	size of @ivalue
-  * @task_ns:	user namespace of the caller
-  * @mnt_userns:	user namespace of the mount the inode was found from
-+ * @fs_userns:	user namespace of the filesystem
-  *
-  * If the inode has been found through an idmapped mount the user namespace of
-  * the vfsmount must be passed through @mnt_userns. This function will then
-@@ -498,7 +499,8 @@ out_free:
-  */
- static kuid_t rootid_from_xattr(const void *value, size_t size,
- 				struct user_namespace *task_ns,
--				struct user_namespace *mnt_userns)
-+				struct user_namespace *mnt_userns,
-+				struct user_namespace *fs_userns)
- {
- 	const struct vfs_ns_cap_data *nscap = value;
- 	kuid_t rootkid;
-@@ -508,7 +510,7 @@ static kuid_t rootid_from_xattr(const vo
- 		rootid = le32_to_cpu(nscap->rootid);
- 
- 	rootkid = make_kuid(task_ns, rootid);
--	return kuid_from_mnt(mnt_userns, rootkid);
-+	return mapped_kuid_user(mnt_userns, fs_userns, rootkid);
- }
- 
- static bool validheader(size_t size, const struct vfs_cap_data *cap)
-@@ -559,7 +561,8 @@ int cap_convert_nscap(struct user_namesp
- 			/* user is privileged, just write the v2 */
- 			return size;
- 
--	rootid = rootid_from_xattr(*ivalue, size, task_ns, mnt_userns);
-+	rootid = rootid_from_xattr(*ivalue, size, task_ns, mnt_userns,
-+				   &init_user_ns);
- 	if (!uid_valid(rootid))
- 		return -EINVAL;
- 
-@@ -700,7 +703,7 @@ int get_vfs_caps_from_disk(struct user_n
- 	/* Limit the caps to the mounter of the filesystem
- 	 * or the more limited uid specified in the xattr.
- 	 */
--	rootkuid = kuid_into_mnt(mnt_userns, rootkuid);
-+	rootkuid = mapped_kuid_fs(mnt_userns, &init_user_ns, rootkuid);
- 	if (!rootid_owns_currentns(rootkuid))
- 		return -ENODATA;
- 
+ 	if (lsn != (xfs_lsn_t)-1) {
+-		if (!uuid_equal(&mp->m_sb.sb_uuid, uuid))
++		if (!uuid_equal(&mp->m_sb.sb_meta_uuid, uuid))
+ 			goto recover_immediately;
+ 		return lsn;
+ 	}
 
 
