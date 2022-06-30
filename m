@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A58C5561D27
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74BEB561D50
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236400AbiF3OEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:04:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45110 "EHLO
+        id S236562AbiF3OG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:06:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236406AbiF3OD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:03:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9C045786;
-        Thu, 30 Jun 2022 06:53:22 -0700 (PDT)
+        with ESMTP id S236567AbiF3OGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:06:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C3F14507B;
+        Thu, 30 Jun 2022 06:54:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BFC261FDB;
-        Thu, 30 Jun 2022 13:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44900C34115;
-        Thu, 30 Jun 2022 13:53:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 875F3B82AEE;
+        Thu, 30 Jun 2022 13:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E03C2C34115;
+        Thu, 30 Jun 2022 13:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597196;
-        bh=AKp4PudPlWdVcFtH4PEyMhUtc4CUHDVNTJJLdt4/r7E=;
+        s=korg; t=1656597243;
+        bh=P8wgigXF/dPAJ0DvVhyrXIGDLXoNGiFI2i0TY4IRoeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fF1s64HQ0kT9kqxHzVq8WoNgatBDe8ieQ6MD2ABX8SjqGLqxFcEndqjMlrn+tvk8X
-         AcXIiE2Sj5swQLrOogmljV/MzR9K1iLAHCMXMABXp5Us2GK96IMKWLi9F8qwMr5RpD
-         h6RfG2u9HiXAMrfrVLive7ec18yJdbbWfFvFuKJk=
+        b=MkCo4VVpwa020p1hXsfEnSvGJHaHPSR+xOOLm6ZdoaBim/267mHSpizLbNipNDhPD
+         uAJOcrUg98V6L0R53LpwvJhIrCCuZ/CN08ZtDWyXZrPO/3k9jqerK5dnb+4ktwIswH
+         4MMx7AZP3xT1eIMw7NOxk7qaKvlQN6ibGd7N+xD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Tony Lindgren <tony@atomide.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.4 13/16] ARM: OMAP2+: drop unnecessary adrl
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
+Subject: [PATCH 5.10 02/12] drm: remove drm_fb_helper_modinit
 Date:   Thu, 30 Jun 2022 15:47:07 +0200
-Message-Id: <20220630133231.329417946@linuxfoundation.org>
+Message-Id: <20220630133230.753964438@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.936488203@linuxfoundation.org>
-References: <20220630133230.936488203@linuxfoundation.org>
+In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
+References: <20220630133230.676254336@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Christoph Hellwig <hch@lst.de>
 
-commit d85d5247885ef2e8192287b895c2e381fa931b0b upstream
+commit bf22c9ec39da90ce866d5f625d616f28bc733dc1 upstream.
 
-The adrl instruction has been introduced with commit dd31394779aa ("ARM:
-omap3: Thumb-2 compatibility for sleep34xx.S"), back when this assembly
-file was considerably longer. Today adr seems to have enough reach, even
-when inserting about 60 instructions between the use site and the label.
-Replace adrl with conventional adr instruction.
+drm_fb_helper_modinit has a lot of boilerplate for what is not very
+simple functionality.  Just open code it in the only caller using
+IS_ENABLED and IS_MODULE, and skip the find_module check as a
+request_module is harmless if the module is already loaded (and not
+other caller has this find_module check either).
 
-This allows to build this file using Clang's integrated assembler (which
-does not support the adrl pseudo instruction).
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/430
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-omap2/sleep34xx.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_crtc_helper_internal.h |   10 ----------
+ drivers/gpu/drm/drm_fb_helper.c            |   21 ---------------------
+ drivers/gpu/drm/drm_kms_helper_common.c    |   23 +++++++++++------------
+ 3 files changed, 11 insertions(+), 43 deletions(-)
 
---- a/arch/arm/mach-omap2/sleep34xx.S
-+++ b/arch/arm/mach-omap2/sleep34xx.S
-@@ -72,7 +72,7 @@ ENTRY(enable_omap3630_toggle_l2_on_resto
- 	stmfd	sp!, {lr}	@ save registers on stack
- 	/* Setup so that we will disable and enable l2 */
- 	mov	r1, #0x1
--	adrl	r3, l2dis_3630_offset	@ may be too distant for plain adr
-+	adr	r3, l2dis_3630_offset
- 	ldr	r2, [r3]		@ value for offset
- 	str	r1, [r2, r3]		@ write to l2dis_3630
- 	ldmfd	sp!, {pc}	@ restore regs and return
+--- a/drivers/gpu/drm/drm_crtc_helper_internal.h
++++ b/drivers/gpu/drm/drm_crtc_helper_internal.h
+@@ -32,16 +32,6 @@
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_modes.h>
+ 
+-/* drm_fb_helper.c */
+-#ifdef CONFIG_DRM_FBDEV_EMULATION
+-int drm_fb_helper_modinit(void);
+-#else
+-static inline int drm_fb_helper_modinit(void)
+-{
+-	return 0;
+-}
+-#endif
+-
+ /* drm_dp_aux_dev.c */
+ #ifdef CONFIG_DRM_DP_AUX_CHARDEV
+ int drm_dp_aux_dev_init(void);
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -2271,24 +2271,3 @@ void drm_fbdev_generic_setup(struct drm_
+ 	drm_client_register(&fb_helper->client);
+ }
+ EXPORT_SYMBOL(drm_fbdev_generic_setup);
+-
+-/* The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
+- * but the module doesn't depend on any fb console symbols.  At least
+- * attempt to load fbcon to avoid leaving the system without a usable console.
+- */
+-int __init drm_fb_helper_modinit(void)
+-{
+-#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
+-	const char name[] = "fbcon";
+-	struct module *fbcon;
+-
+-	mutex_lock(&module_mutex);
+-	fbcon = find_module(name);
+-	mutex_unlock(&module_mutex);
+-
+-	if (!fbcon)
+-		request_module_nowait(name);
+-#endif
+-	return 0;
+-}
+-EXPORT_SYMBOL(drm_fb_helper_modinit);
+--- a/drivers/gpu/drm/drm_kms_helper_common.c
++++ b/drivers/gpu/drm/drm_kms_helper_common.c
+@@ -64,19 +64,18 @@ MODULE_PARM_DESC(edid_firmware,
+ 
+ static int __init drm_kms_helper_init(void)
+ {
+-	int ret;
++	/*
++	 * The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
++	 * but the module doesn't depend on any fb console symbols.  At least
++	 * attempt to load fbcon to avoid leaving the system without a usable
++	 * console.
++	 */
++	if (IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION) &&
++	    IS_MODULE(CONFIG_FRAMEBUFFER_CONSOLE) &&
++	    !IS_ENABLED(CONFIG_EXPERT))
++		request_module_nowait("fbcon");
+ 
+-	/* Call init functions from specific kms helpers here */
+-	ret = drm_fb_helper_modinit();
+-	if (ret < 0)
+-		goto out;
+-
+-	ret = drm_dp_aux_dev_init();
+-	if (ret < 0)
+-		goto out;
+-
+-out:
+-	return ret;
++	return drm_dp_aux_dev_init();
+ }
+ 
+ static void __exit drm_kms_helper_exit(void)
 
 
