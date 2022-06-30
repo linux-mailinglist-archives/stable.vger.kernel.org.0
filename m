@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1102B561CE0
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C110561CC4
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236663AbiF3OIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:08:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
+        id S236233AbiF3ODD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:03:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236949AbiF3OH7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0338776E96;
-        Thu, 30 Jun 2022 06:54:55 -0700 (PDT)
+        with ESMTP id S236295AbiF3OBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:01:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C9C844A2C;
+        Thu, 30 Jun 2022 06:52:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F962B82AF0;
-        Thu, 30 Jun 2022 13:54:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 918F8C34115;
-        Thu, 30 Jun 2022 13:54:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B0466204B;
+        Thu, 30 Jun 2022 13:52:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3741FC34115;
+        Thu, 30 Jun 2022 13:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597290;
-        bh=P3AupUgDyXW+430uK+Ri8zPTDcyspi0YtaT5rbVwYac=;
+        s=korg; t=1656597163;
+        bh=3idDa8ATqAbwQApJrzgq1aI3YN9/sb++FYb3ppCmv3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfF7Ie33XckdQYLKZaMLTL5atoOcMQFmbU/dSAyjP2jAYGSKgpqb02JqVWb6+7Bt5
-         0bBgA/S4TQYT/EzFEgZNhQSVHgK4ckvp56pAlz6Zu9j1uXQG1DCDfO5e4sNUqtkiQC
-         DItNqDXnunPPRCoIuk6UkCerh/PsnCwQMnvYQKAA=
+        b=bo7bD4vq2zF/IK/txFbyz4gAXgK3Ri52mUaeCMjGAc39xOdDKJeIPeUFiF7Cbwg+x
+         MfelusT0ZDPSjaAGXRD85vblQGLisF5eSyVXK1v6Sfhs+dxb7AVoRBnCfKSu7uZoAp
+         HtyJThkByAx7MzbbyNmPy0uPC41xh0vMwo9UR8sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 05/28] xfs: use kmem_cache_free() for kmem_cache objects
+        Thorsten Glaser <tg@mirbsd.de>,
+        Diederik de Haas <didi.debian@cknow.org>
+Subject: [PATCH 4.19 48/49] net/sched: move NULL ptr check to qdisc_put() too
 Date:   Thu, 30 Jun 2022 15:47:01 +0200
-Message-Id: <20220630133233.084521867@linuxfoundation.org>
+Message-Id: <20220630133235.289157437@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
-References: <20220630133232.926711493@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Diederik de Haas <didi.debian@cknow.org>
 
-[ Upstream commit c30a0cbd07ecc0eec7b3cd568f7b1c7bb7913f93 ]
+In commit 92833e8b5db6c209e9311ac8c6a44d3bf1856659 titled
+"net: sched: rename qdisc_destroy() to qdisc_put()" part of the
+functionality of qdisc_destroy() was moved into a (for linux-4.19.y)
+new function qdisk_put(), and the previous calls to qdisc_destroy()
+were changed to qdisk_put().
+This made it similar to f.e. 5.10.y and current master.
 
-For kmalloc() allocations SLOB prepends the blocks with a 4-byte header,
-and it puts the size of the allocated blocks in that header.
-Blocks allocated with kmem_cache_alloc() allocations do not have that
-header.
+There was one part of qdisc_destroy() not moved over to qdisc_put() and
+that was the check for a NULL pointer, causing oopses.
+(See upstream commit: 6efb971ba8edfbd80b666f29de12882852f095ae)
+This patch fixes that.
 
-SLOB explodes when you allocate memory with kmem_cache_alloc() and then
-try to free it with kfree() instead of kmem_cache_free().
-SLOB will assume that there is a header when there is none, read some
-garbage to size variable and corrupt the adjacent objects, which
-eventually leads to hang or panic.
-
-Let's make XFS work with SLOB by using proper free function.
-
-Fixes: 9749fee83f38 ("xfs: enable the xfs_defer mechanism to process extents to free")
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Fixes: 92833e8b5db6c209e9311ac8c6a44d3bf1856659
+Reported-by: Thorsten Glaser <tg@mirbsd.de>
+Link: https://bugs.debian.org/1013299
+Signed-off-by: Diederik de Haas <didi.debian@cknow.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_extfree_item.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/sched/sch_generic.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/xfs_extfree_item.c
-+++ b/fs/xfs/xfs_extfree_item.c
-@@ -482,7 +482,7 @@ xfs_extent_free_finish_item(
- 			free->xefi_startblock,
- 			free->xefi_blockcount,
- 			&free->xefi_oinfo, free->xefi_skip_discard);
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- 	return error;
- }
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -970,8 +970,6 @@ static void qdisc_destroy(struct Qdisc *
+ 	const struct Qdisc_ops *ops;
+ 	struct sk_buff *skb, *tmp;
  
-@@ -502,7 +502,7 @@ xfs_extent_free_cancel_item(
- 	struct xfs_extent_free_item	*free;
+-	if (!qdisc)
+-		return;
+ 	ops = qdisc->ops;
  
- 	free = container_of(item, struct xfs_extent_free_item, xefi_list);
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- }
+ #ifdef CONFIG_NET_SCHED
+@@ -1003,6 +1001,9 @@ static void qdisc_destroy(struct Qdisc *
  
- const struct xfs_defer_op_type xfs_extent_free_defer_type = {
-@@ -564,7 +564,7 @@ xfs_agfl_free_finish_item(
- 	extp->ext_len = free->xefi_blockcount;
- 	efdp->efd_next_extent++;
- 
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- 	return error;
- }
- 
+ void qdisc_put(struct Qdisc *qdisc)
+ {
++	if (!qdisc)
++		return;
++
+ 	if (qdisc->flags & TCQ_F_BUILTIN ||
+ 	    !refcount_dec_and_test(&qdisc->refcnt))
+ 		return;
 
 
