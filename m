@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB3D561DA0
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77005561D5A
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236101AbiF3ODB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:03:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45324 "EHLO
+        id S236598AbiF3OIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:08:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236380AbiF3OCM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749DA4506C;
-        Thu, 30 Jun 2022 06:52:50 -0700 (PDT)
+        with ESMTP id S236960AbiF3OIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:08:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D461076E9F;
+        Thu, 30 Jun 2022 06:54:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85FC4B82AEE;
-        Thu, 30 Jun 2022 13:52:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E856BC34115;
-        Thu, 30 Jun 2022 13:52:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5557862124;
+        Thu, 30 Jun 2022 13:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB9BC34115;
+        Thu, 30 Jun 2022 13:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597166;
-        bh=ROIp5lZCFo+ioynwx0XiisiwiQ8VO4TOq9K1OHbLQCE=;
+        s=korg; t=1656597292;
+        bh=JQvFxHlyvg7oC1HqZzzyFGMHYaktl60NzjfZoKfqJ/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQZb4lJasOfaXieZNVnxX0nK172Ckzj4aU/V2H0yX0dkkIjby18ubyJrqEKsHkGM5
-         D5icYI7TrdjrgPaVdMpYtUEAO1MF+pZhUyvxlix2HP21QspeJt6N8+PfmLD/rptZbg
-         Vq1IDMOPSTijPy4e7vqzkbKWqfp3Mv3ulCj8/JIs=
+        b=RFj49F1EfDDffgsT/ymXpreYbWaeTjy4sgnCYC2DFRkRb9UwCuUIx4wcU12RVMhfa
+         0JzAtGzLQ/6V/6Gb3b8WtFFVCxdXvfjC57ZJ4G9NRe4VneJ6eXY7rUdu6+p0EDZYzD
+         FLU06q74344pnNLws+CeKxaIaAmR0RT30AokPFDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>
-Subject: [PATCH 4.19 49/49] swiotlb: skip swiotlb_bounce when orig_addr is zero
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 06/28] xfs: punch out data fork delalloc blocks on COW writeback failure
 Date:   Thu, 30 Jun 2022 15:47:02 +0200
-Message-Id: <20220630133235.317860776@linuxfoundation.org>
+Message-Id: <20220630133233.113538634@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+References: <20220630133232.926711493@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,50 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Brian Foster <bfoster@redhat.com>
 
-After patch ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE"),
-swiotlb_bounce will be called in swiotlb_tbl_map_single unconditionally.
-This requires that the physical address must be valid, which is not always
-true on stable-4.19 or earlier version.
-On stable-4.19, swiotlb_alloc_buffer will call swiotlb_tbl_map_single with
-orig_addr equal to zero, which cause such a panic:
+[ Upstream commit 5ca5916b6bc93577c360c06cb7cdf71adb9b5faf ]
 
-Unable to handle kernel paging request at virtual address ffffb77a40000000
-...
-pc : __memcpy+0x100/0x180
-lr : swiotlb_bounce+0x74/0x88
-...
-Call trace:
- __memcpy+0x100/0x180
- swiotlb_tbl_map_single+0x2c8/0x338
- swiotlb_alloc+0xb4/0x198
- __dma_alloc+0x84/0x1d8
- ...
+If writeback I/O to a COW extent fails, the COW fork blocks are
+punched out and the data fork blocks left alone. It is possible for
+COW fork blocks to overlap non-shared data fork blocks (due to
+cowextsz hint prealloc), however, and writeback unconditionally maps
+to the COW fork whenever blocks exist at the corresponding offset of
+the page undergoing writeback. This means it's quite possible for a
+COW fork extent to overlap delalloc data fork blocks, writeback to
+convert and map to the COW fork blocks, writeback to fail, and
+finally for ioend completion to cancel the COW fork blocks and leave
+stale data fork delalloc blocks around in the inode. The blocks are
+effectively stale because writeback failure also discards dirty page
+state.
 
-On stable-4.9 and stable-4.14, swiotlb_alloc_coherent wille call map_single
-with orig_addr equal to zero, which can cause same panic.
+If this occurs, it is likely to trigger assert failures, free space
+accounting corruption and failures in unrelated file operations. For
+example, a subsequent reflink attempt of the affected file to a new
+target file will trip over the stale delalloc in the source file and
+fail. Several of these issues are occasionally reproduced by
+generic/648, but are reproducible on demand with the right sequence
+of operations and timely I/O error injection.
 
-Fix this by skipping swiotlb_bounce when orig_addr is zero.
+To fix this problem, update the ioend failure path to also punch out
+underlying data fork delalloc blocks on I/O error. This is analogous
+to the writeback submission failure path in xfs_discard_page() where
+we might fail to map data fork delalloc blocks and consistent with
+the successful COW writeback completion path, which is responsible
+for unmapping from the data fork and remapping in COW fork blocks.
 
-Fixes: ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Fixes: 787eb485509f ("xfs: fix and streamline error handling in xfs_end_io")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/swiotlb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_aops.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -594,7 +594,8 @@ found:
- 	 * unconditional bounce may prevent leaking swiotlb content (i.e.
- 	 * kernel memory) to user-space.
+--- a/fs/xfs/xfs_aops.c
++++ b/fs/xfs/xfs_aops.c
+@@ -82,6 +82,7 @@ xfs_end_ioend(
+ 	struct iomap_ioend	*ioend)
+ {
+ 	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
++	struct xfs_mount	*mp = ip->i_mount;
+ 	xfs_off_t		offset = ioend->io_offset;
+ 	size_t			size = ioend->io_size;
+ 	unsigned int		nofs_flag;
+@@ -97,18 +98,26 @@ xfs_end_ioend(
+ 	/*
+ 	 * Just clean up the in-memory structures if the fs has been shut down.
  	 */
--	swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
-+	if (orig_addr)
-+		swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
- 	return tlb_addr;
- }
+-	if (xfs_is_shutdown(ip->i_mount)) {
++	if (xfs_is_shutdown(mp)) {
+ 		error = -EIO;
+ 		goto done;
+ 	}
+ 
+ 	/*
+-	 * Clean up any COW blocks on an I/O error.
++	 * Clean up all COW blocks and underlying data fork delalloc blocks on
++	 * I/O error. The delalloc punch is required because this ioend was
++	 * mapped to blocks in the COW fork and the associated pages are no
++	 * longer dirty. If we don't remove delalloc blocks here, they become
++	 * stale and can corrupt free space accounting on unmount.
+ 	 */
+ 	error = blk_status_to_errno(ioend->io_bio->bi_status);
+ 	if (unlikely(error)) {
+-		if (ioend->io_flags & IOMAP_F_SHARED)
++		if (ioend->io_flags & IOMAP_F_SHARED) {
+ 			xfs_reflink_cancel_cow_range(ip, offset, size, true);
++			xfs_bmap_punch_delalloc_range(ip,
++						      XFS_B_TO_FSBT(mp, offset),
++						      XFS_B_TO_FSB(mp, size));
++		}
+ 		goto done;
+ 	}
  
 
 
