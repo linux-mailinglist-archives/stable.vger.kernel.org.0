@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AE8561C7E
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD15561C2D
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235918AbiF3N7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:59:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37312 "EHLO
+        id S235970AbiF3N5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:57:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235782AbiF3N5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:57:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9071287366;
-        Thu, 30 Jun 2022 06:51:06 -0700 (PDT)
+        with ESMTP id S235973AbiF3N4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:56:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6613F13B44A;
+        Thu, 30 Jun 2022 06:50:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6144E61FF6;
-        Thu, 30 Jun 2022 13:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FFE0C34115;
-        Thu, 30 Jun 2022 13:50:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9912B82AEF;
+        Thu, 30 Jun 2022 13:50:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AC9C34115;
+        Thu, 30 Jun 2022 13:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597047;
-        bh=fpJ63JmMOxIUum1CUhUDhphxPgbzLlx8/3Kj/cV7yWo=;
+        s=korg; t=1656597050;
+        bh=h1N85u9a3APp1yw2woC9p/8mzkK2TLZrhyjIps8M9WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quX7DT+PIeR9kP2KrU2rmD4HdxxVKEtb/ozL2J1Ozyn9+Jk7dzr34z6jPKeM9OKlI
-         L0QBXj19Dhv6y9R2lc00XPd28GErTMpAJnKNgpB9ii+rZlTnHt2Ra/dvQJvyuPEqOr
-         oPI1uRCPemzXKoR0J/I1ZfEQi/wnS84HKIBD69Pk=
+        b=2aUKgXUZIvKoSK3E9Uwo8xtAfobOIz7Bg4aftZZmf54QCtzEs6dKH4q1Zh6WCG2vn
+         NLMgE0dTPvpyoceMrgU20YNwkfjegIZkFb2ie6MVKlYqh9qDlFiyvTTahoSI9+ihUx
+         aZwK0X65ZB498eenuRbXKqwV0WkXgOdxaJH16QX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        guodaxing <guodaxing@huawei.com>
-Subject: [PATCH 4.19 01/49] vt: drop old FONT ioctls
-Date:   Thu, 30 Jun 2022 15:46:14 +0200
-Message-Id: <20220630133233.955081092@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 02/49] random: schedule mix_interrupt_randomness() less often
+Date:   Thu, 30 Jun 2022 15:46:15 +0200
+Message-Id: <20220630133233.982703219@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
 References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,304 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit ff2047fb755d4415ec3c70ac799889371151796d upstream.
+commit 534d2eaf1970274150596fdd2bf552721e65d6b2 upstream.
 
-Drop support for these ioctls:
-* PIO_FONT, PIO_FONTX
-* GIO_FONT, GIO_FONTX
-* PIO_FONTRESET
+It used to be that mix_interrupt_randomness() would credit 1 bit each
+time it ran, and so add_interrupt_randomness() would schedule mix() to
+run every 64 interrupts, a fairly arbitrary number, but nonetheless
+considered to be a decent enough conservative estimate.
 
-As was demonstrated by commit 90bfdeef83f1 (tty: make FONTX ioctl use
-the tty pointer they were actually passed), these ioctls are not used
-from userspace, as:
-1) they used to be broken (set up font on current console, not the open
-   one) and racy (before the commit above)
-2) KDFONTOP ioctl is used for years instead
+Since e3e33fc2ea7f ("random: do not use input pool from hard IRQs"),
+mix() is now able to credit multiple bits, depending on the number of
+calls to add(). This was done for reasons separate from this commit, but
+it has the nice side effect of enabling this patch to schedule mix()
+less often.
 
-Note that PIO_FONTRESET is defunct on most systems as VGA_CONSOLE is set
-on them for ages. That turns on BROKEN_GRAPHICS_PROGRAMS which makes
-PIO_FONTRESET just return an error.
+Currently the rules are:
+a) Credit 1 bit for every 64 calls to add().
+b) Schedule mix() once a second that add() is called.
+c) Schedule mix() once every 64 calls to add().
 
-We are removing KD_FONT_FLAG_OLD here as it was used only by these
-removed ioctls. kd.h header exists both in kernel and uapi headers, so
-we can remove the kernel one completely. Everyone includeing kd.h will
-now automatically get the uapi one.
+Rules (a) and (c) no longer need to be coupled. It's still important to
+have _some_ value in (c), so that we don't "over-saturate" the fast
+pool, but the once per second we get from rule (b) is a plenty enough
+baseline. So, by increasing the 64 in rule (c) to something larger, we
+avoid calling queue_work_on() as frequently during irq storms.
 
-There are now unused definitions of the ioctl numbers and "struct
-consolefontdesc" in kd.h, but as it is a uapi header, I am not touching
-these.
+This commit changes that 64 in rule (c) to be 1024, which means we
+schedule mix() 16 times less often. And it does *not* need to change the
+64 in rule (a).
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210105120239.28031-8-jslaby@suse.cz
-Cc: guodaxing <guodaxing@huawei.com>
+Fixes: 58340f8e952b ("random: defer fast pool mixing to worker")
+Cc: stable@vger.kernel.org
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c       |   39 ------------
- drivers/tty/vt/vt_ioctl.c |  149 ----------------------------------------------
- include/linux/kd.h        |    8 --
- 3 files changed, 3 insertions(+), 193 deletions(-)
- delete mode 100644 include/linux/kd.h
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -4472,16 +4472,8 @@ static int con_font_get(struct vc_data *
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -996,7 +996,7 @@ void add_interrupt_randomness(int irq)
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
  
- 	if (op->data && font.charcount > op->charcount)
- 		rc = -ENOSPC;
--	if (!(op->flags & KD_FONT_FLAG_OLD)) {
--		if (font.width > op->width || font.height > op->height) 
--			rc = -ENOSPC;
--	} else {
--		if (font.width != 8)
--			rc = -EIO;
--		else if ((op->height && font.height > op->height) ||
--			 font.height > 32)
--			rc = -ENOSPC;
--	}
-+	if (font.width > op->width || font.height > op->height)
-+		rc = -ENOSPC;
- 	if (rc)
- 		goto out;
+-	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
++	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
+ 		return;
  
-@@ -4509,7 +4501,7 @@ static int con_font_set(struct vc_data *
- 		return -EINVAL;
- 	if (op->charcount > 512)
- 		return -EINVAL;
--	if (op->width <= 0 || op->width > 32 || op->height > 32)
-+	if (op->width <= 0 || op->width > 32 || !op->height || op->height > 32)
- 		return -EINVAL;
- 	size = (op->width+7)/8 * 32 * op->charcount;
- 	if (size > max_font_size)
-@@ -4519,31 +4511,6 @@ static int con_font_set(struct vc_data *
- 	if (IS_ERR(font.data))
- 		return PTR_ERR(font.data);
- 
--	if (!op->height) {		/* Need to guess font height [compat] */
--		int h, i;
--		u8 *charmap = font.data;
--
--		/*
--		 * If from KDFONTOP ioctl, don't allow things which can be done
--		 * in userland,so that we can get rid of this soon
--		 */
--		if (!(op->flags & KD_FONT_FLAG_OLD)) {
--			kfree(font.data);
--			return -EINVAL;
--		}
--
--		for (h = 32; h > 0; h--)
--			for (i = 0; i < op->charcount; i++)
--				if (charmap[32*i+h-1])
--					goto nonzero;
--
--		kfree(font.data);
--		return -EINVAL;
--
--	nonzero:
--		op->height = h;
--	}
--
- 	font.charcount = op->charcount;
- 	font.width = op->width;
- 	font.height = op->height;
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -241,48 +241,6 @@ int vt_waitactive(int n)
- #define GPLAST 0x3df
- #define GPNUM (GPLAST - GPFIRST + 1)
- 
--
--
--static inline int 
--do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
--{
--	struct consolefontdesc cfdarg;
--	int i;
--
--	if (copy_from_user(&cfdarg, user_cfd, sizeof(struct consolefontdesc))) 
--		return -EFAULT;
-- 	
--	switch (cmd) {
--	case PIO_FONTX:
--		if (!perm)
--			return -EPERM;
--		op->op = KD_FONT_OP_SET;
--		op->flags = KD_FONT_FLAG_OLD;
--		op->width = 8;
--		op->height = cfdarg.charheight;
--		op->charcount = cfdarg.charcount;
--		op->data = cfdarg.chardata;
--		return con_font_op(vc, op);
--
--	case GIO_FONTX:
--		op->op = KD_FONT_OP_GET;
--		op->flags = KD_FONT_FLAG_OLD;
--		op->width = 8;
--		op->height = cfdarg.charheight;
--		op->charcount = cfdarg.charcount;
--		op->data = cfdarg.chardata;
--		i = con_font_op(vc, op);
--		if (i)
--			return i;
--		cfdarg.charheight = op->height;
--		cfdarg.charcount = op->charcount;
--		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
--			return -EFAULT;
--		return 0;
--	}
--	return -EINVAL;
--}
--
- static inline int 
- do_unimap_ioctl(int cmd, struct unimapdesc __user *user_ud, int perm, struct vc_data *vc)
- {
-@@ -919,30 +877,6 @@ int vt_ioctl(struct tty_struct *tty,
- 		break;
- 	}
- 
--	case PIO_FONT: {
--		if (!perm)
--			return -EPERM;
--		op.op = KD_FONT_OP_SET;
--		op.flags = KD_FONT_FLAG_OLD | KD_FONT_FLAG_DONT_RECALC;	/* Compatibility */
--		op.width = 8;
--		op.height = 0;
--		op.charcount = 256;
--		op.data = up;
--		ret = con_font_op(vc, &op);
--		break;
--	}
--
--	case GIO_FONT: {
--		op.op = KD_FONT_OP_GET;
--		op.flags = KD_FONT_FLAG_OLD;
--		op.width = 8;
--		op.height = 32;
--		op.charcount = 256;
--		op.data = up;
--		ret = con_font_op(vc, &op);
--		break;
--	}
--
- 	case PIO_CMAP:
-                 if (!perm)
- 			ret = -EPERM;
-@@ -954,36 +888,6 @@ int vt_ioctl(struct tty_struct *tty,
-                 ret = con_get_cmap(up);
- 		break;
- 
--	case PIO_FONTX:
--	case GIO_FONTX:
--		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
--		break;
--
--	case PIO_FONTRESET:
--	{
--		if (!perm)
--			return -EPERM;
--
--#ifdef BROKEN_GRAPHICS_PROGRAMS
--		/* With BROKEN_GRAPHICS_PROGRAMS defined, the default
--		   font is not saved. */
--		ret = -ENOSYS;
--		break;
--#else
--		{
--		op.op = KD_FONT_OP_SET_DEFAULT;
--		op.data = NULL;
--		ret = con_font_op(vc, &op);
--		if (ret)
--			break;
--		console_lock();
--		con_set_default_unimap(vc);
--		console_unlock();
--		break;
--		}
--#endif
--	}
--
- 	case KDFONTOP: {
- 		if (copy_from_user(&op, up, sizeof(op))) {
- 			ret = -EFAULT;
-@@ -1097,54 +1001,6 @@ void vc_SAK(struct work_struct *work)
- 
- #ifdef CONFIG_COMPAT
- 
--struct compat_consolefontdesc {
--	unsigned short charcount;       /* characters in font (256 or 512) */
--	unsigned short charheight;      /* scan lines per character (1-32) */
--	compat_caddr_t chardata;	/* font data in expanded form */
--};
--
--static inline int
--compat_fontx_ioctl(struct vc_data *vc, int cmd,
--		   struct compat_consolefontdesc __user *user_cfd,
--		   int perm, struct console_font_op *op)
--{
--	struct compat_consolefontdesc cfdarg;
--	int i;
--
--	if (copy_from_user(&cfdarg, user_cfd, sizeof(struct compat_consolefontdesc)))
--		return -EFAULT;
--
--	switch (cmd) {
--	case PIO_FONTX:
--		if (!perm)
--			return -EPERM;
--		op->op = KD_FONT_OP_SET;
--		op->flags = KD_FONT_FLAG_OLD;
--		op->width = 8;
--		op->height = cfdarg.charheight;
--		op->charcount = cfdarg.charcount;
--		op->data = compat_ptr(cfdarg.chardata);
--		return con_font_op(vc, op);
--
--	case GIO_FONTX:
--		op->op = KD_FONT_OP_GET;
--		op->flags = KD_FONT_FLAG_OLD;
--		op->width = 8;
--		op->height = cfdarg.charheight;
--		op->charcount = cfdarg.charcount;
--		op->data = compat_ptr(cfdarg.chardata);
--		i = con_font_op(vc, op);
--		if (i)
--			return i;
--		cfdarg.charheight = op->height;
--		cfdarg.charcount = op->charcount;
--		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct compat_consolefontdesc)))
--			return -EFAULT;
--		return 0;
--	}
--	return -EINVAL;
--}
--
- struct compat_console_font_op {
- 	compat_uint_t op;        /* operation code KD_FONT_OP_* */
- 	compat_uint_t flags;     /* KD_FONT_FLAG_* */
-@@ -1222,11 +1078,6 @@ long vt_compat_ioctl(struct tty_struct *
- 	/*
- 	 * these need special handlers for incompatible data structures
- 	 */
--	case PIO_FONTX:
--	case GIO_FONTX:
--		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
--		break;
--
- 	case KDFONTOP:
- 		ret = compat_kdfontop_ioctl(up, perm, &op, vc);
- 		break;
---- a/include/linux/kd.h
-+++ /dev/null
-@@ -1,8 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _LINUX_KD_H
--#define _LINUX_KD_H
--
--#include <uapi/linux/kd.h>
--
--#define KD_FONT_FLAG_OLD		0x80000000	/* Invoked via old interface [compat] */
--#endif /* _LINUX_KD_H */
+ 	if (unlikely(!fast_pool->mix.func))
 
 
