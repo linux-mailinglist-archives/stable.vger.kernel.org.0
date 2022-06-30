@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B56AA561C65
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ADE6561BE3
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235622AbiF3Nv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
+        id S235377AbiF3NtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:49:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235520AbiF3Nv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:51:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDCE42A16;
-        Thu, 30 Jun 2022 06:49:19 -0700 (PDT)
+        with ESMTP id S235370AbiF3Nsd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2B1B8A;
+        Thu, 30 Jun 2022 06:48:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3244661FD8;
-        Thu, 30 Jun 2022 13:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D8FC34115;
-        Thu, 30 Jun 2022 13:49:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72EA8B82AEE;
+        Thu, 30 Jun 2022 13:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA20FC34115;
+        Thu, 30 Jun 2022 13:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596958;
-        bh=y9i6OcD3+jttfol87JifqvXY8ddQ2O+EJsT5yNM2FLE=;
+        s=korg; t=1656596909;
+        bh=3Ihd5GIIOBhwJzmG7v9iDbiZR6D5ygr/fsn/Xgn+6KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJWrqn2FPe+X996vU8Mhju+PT3n1JCqSK/empU+RyhlW1dsxI0EqL2lcfObCIvvCT
-         gtXK26CU4FiTxoX6wYsR6p+NFPw9Lj/QaxgzBAYonoKgLcai4PeUZdU+2sZ2NITXpT
-         mgmjFTPI0I02f37e+uTLESWggSLBLPFmC6xHUkSc=
+        b=RJDCO9cCsoTkc6ISgooRf/WxSjKn3F/Su29I9Qa/kX005oXXHnLJCfY7uPcMNcWR7
+         ERBtEJ7gEwCNyBpGmlCzCGte0GuuWB/cfotnz+kAZKkSf3RX9qpUs/HXBNE7GRd8B8
+         NFu2ZrR3Y5UoOACTxfZiKVXDL68RkTX0e0bafUqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/35] iio: adc: vf610: fix conversion mode sysfs node name
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 24/29] powerpc/pseries: wire up rng during setup_arch()
 Date:   Thu, 30 Jun 2022 15:46:24 +0200
-Message-Id: <20220630133232.833185273@linuxfoundation.org>
+Message-Id: <20220630133231.913966773@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
+References: <20220630133231.200642128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit f1a633b15cd5371a2a83f02c513984e51132dd68 ]
+commit e561e472a3d441753bd012333b057f48fef1045b upstream.
 
-The documentation missed the "in_" prefix for this IIO_SHARED_BY_DIR
-entry.
+The platform's RNG must be available before random_init() in order to be
+useful for initial seeding, which in turn means that it needs to be
+called from setup_arch(), rather than from an init call. Fortunately,
+each platform already has a setup_arch function pointer, which means
+it's easy to wire this up. This commit also removes some noisy log
+messages that don't add much.
 
-Fixes: bf04c1a367e3 ("iio: adc: vf610: implement configurable conversion modes")
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Acked-by: Haibo Chen <haibo.chen@nxp.com>
-Link: https://lore.kernel.org/r/560dc93fafe5ef7e9a409885fd20b6beac3973d8.1653900626.git.baruch@tkos.co.il
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a489043f4626 ("powerpc/pseries: Implement arch_get_random_long() based on H_RANDOM")
+Cc: stable@vger.kernel.org # v3.13+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220611151015.548325-4-Jason@zx2c4.com
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-bus-iio-vf610 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/pseries.h |    2 ++
+ arch/powerpc/platforms/pseries/rng.c     |   11 +++--------
+ arch/powerpc/platforms/pseries/setup.c   |    1 +
+ 3 files changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio-vf610 b/Documentation/ABI/testing/sysfs-bus-iio-vf610
-index 308a6756d3bf..491ead804488 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio-vf610
-+++ b/Documentation/ABI/testing/sysfs-bus-iio-vf610
-@@ -1,4 +1,4 @@
--What:		/sys/bus/iio/devices/iio:deviceX/conversion_mode
-+What:		/sys/bus/iio/devices/iio:deviceX/in_conversion_mode
- KernelVersion:	4.2
- Contact:	linux-iio@vger.kernel.org
- Description:
--- 
-2.35.1
-
+--- a/arch/powerpc/platforms/pseries/pseries.h
++++ b/arch/powerpc/platforms/pseries/pseries.h
+@@ -81,4 +81,6 @@ unsigned long pseries_memory_block_size(
+ 
+ void pseries_setup_rfi_flush(void);
+ 
++void pseries_rng_init(void);
++
+ #endif /* _PSERIES_PSERIES_H */
+--- a/arch/powerpc/platforms/pseries/rng.c
++++ b/arch/powerpc/platforms/pseries/rng.c
+@@ -14,6 +14,7 @@
+ #include <asm/archrandom.h>
+ #include <asm/machdep.h>
+ #include <asm/plpar_wrappers.h>
++#include "pseries.h"
+ 
+ 
+ static int pseries_get_random_long(unsigned long *v)
+@@ -28,19 +29,13 @@ static int pseries_get_random_long(unsig
+ 	return 0;
+ }
+ 
+-static __init int rng_init(void)
++void __init pseries_rng_init(void)
+ {
+ 	struct device_node *dn;
+ 
+ 	dn = of_find_compatible_node(NULL, NULL, "ibm,random");
+ 	if (!dn)
+-		return -ENODEV;
+-
+-	pr_info("Registering arch random hook.\n");
+-
++		return;
+ 	ppc_md.get_random_seed = pseries_get_random_long;
+-
+ 	of_node_put(dn);
+-	return 0;
+ }
+-machine_subsys_initcall(pseries, rng_init);
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -585,6 +585,7 @@ static void __init pSeries_setup_arch(vo
+ 	}
+ 
+ 	ppc_md.pcibios_root_bridge_prepare = pseries_root_bridge_prepare;
++	pseries_rng_init();
+ }
+ 
+ static int __init pSeries_init_panel(void)
 
 
