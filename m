@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA82561BD6
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F5B561DB2
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235550AbiF3Nth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:49:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48672 "EHLO
+        id S236059AbiF3ODG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235405AbiF3Nss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84CA730F5B;
-        Thu, 30 Jun 2022 06:48:38 -0700 (PDT)
+        with ESMTP id S236584AbiF3OCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A124C68A20;
+        Thu, 30 Jun 2022 06:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2285861FD0;
-        Thu, 30 Jun 2022 13:48:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28656C34115;
-        Thu, 30 Jun 2022 13:48:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2342D61FF6;
+        Thu, 30 Jun 2022 13:52:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBB0C341CB;
+        Thu, 30 Jun 2022 13:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596917;
-        bh=Ppv1uKMDvu98Ab/kKeOFuUXMXKMeALLEju0l3eEAOwM=;
+        s=korg; t=1656597174;
+        bh=Kzc5BjeNdBNa0ILvLgVkTxFlC6vM3anfTkp0+EXm9kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmA/84SGKXQTqe/2IbdUuZWMDy+97t1d/qDXMUbdkWB7RZfWA46GKUomNLvZ+OAoe
-         3B37CqqaYS6Sf5xeiphRLiPDjkIpf+9HgdVovhrgGmuaUCknvcMtVqpFIPMhZufvk9
-         W3R4Ji1XMthAnx+acm//3XIVEWULocf6f2Rho8lA=
+        b=xOtx0ynyE9Gtxoz+lMkuj2xlGMthCykEda227VoE55G6lvPfh3qTyjRMCjSsxgAP1
+         VGvNjCSpOFHu8Z12wsWsEPvoyIEK3clCewTeT144w2oPruUJxUIyzmEm7dcnUOSqSi
+         tAokK8kcZawteXxs2TU+u6K6PBynKhr3kmt1qZXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Will Deacon <will@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.9 27/29] fdt: Update CRC check for rng-seed
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        William Tu <u9012063@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 14/49] erspan: do not assume transport header is always set
 Date:   Thu, 30 Jun 2022 15:46:27 +0200
-Message-Id: <20220630133232.001721917@linuxfoundation.org>
+Message-Id: <20220630133234.328662135@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +56,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit dd753d961c4844a39f947be115b3d81e10376ee5 upstream.
+[ Upstream commit 301bd140ed0b24f0da660874c7e8a47dad8c8222 ]
 
-Commit 428826f5358c ("fdt: add support for rng-seed") moves of_fdt_crc32
-from early_init_dt_verify() to early_init_dt_scan() since
-early_init_dt_scan_chosen() may modify fdt to erase rng-seed.
+Rewrite tests in ip6erspan_tunnel_xmit() and
+erspan_fb_xmit() to not assume transport header is set.
 
-However, arm and some other arch won't call early_init_dt_scan(), they
-call early_init_dt_verify() then early_init_dt_scan_nodes().
+syzbot reported:
 
-Restore of_fdt_crc32 to early_init_dt_verify() then update it in
-early_init_dt_scan_chosen() if fdt if updated.
+WARNING: CPU: 0 PID: 1350 at include/linux/skbuff.h:2911 skb_transport_header include/linux/skbuff.h:2911 [inline]
+WARNING: CPU: 0 PID: 1350 at include/linux/skbuff.h:2911 ip6erspan_tunnel_xmit+0x15af/0x2eb0 net/ipv6/ip6_gre.c:963
+Modules linked in:
+CPU: 0 PID: 1350 Comm: aoe_tx0 Not tainted 5.19.0-rc2-syzkaller-00160-g274295c6e53f #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+RIP: 0010:skb_transport_header include/linux/skbuff.h:2911 [inline]
+RIP: 0010:ip6erspan_tunnel_xmit+0x15af/0x2eb0 net/ipv6/ip6_gre.c:963
+Code: 0f 47 f0 40 88 b5 7f fe ff ff e8 8c 16 4b f9 89 de bf ff ff ff ff e8 a0 12 4b f9 66 83 fb ff 0f 85 1d f1 ff ff e8 71 16 4b f9 <0f> 0b e9 43 f0 ff ff e8 65 16 4b f9 48 8d 85 30 ff ff ff ba 60 00
+RSP: 0018:ffffc90005daf910 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 000000000000ffff RCX: 0000000000000000
+RDX: ffff88801f032100 RSI: ffffffff882e8d3f RDI: 0000000000000003
+RBP: ffffc90005dafab8 R08: 0000000000000003 R09: 000000000000ffff
+R10: 000000000000ffff R11: 0000000000000000 R12: ffff888024f21d40
+R13: 000000000000a288 R14: 00000000000000b0 R15: ffff888025a2e000
+FS: 0000000000000000(0000) GS:ffff88802c800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b2e425000 CR3: 000000006d099000 CR4: 0000000000152ef0
+Call Trace:
+<TASK>
+__netdev_start_xmit include/linux/netdevice.h:4805 [inline]
+netdev_start_xmit include/linux/netdevice.h:4819 [inline]
+xmit_one net/core/dev.c:3588 [inline]
+dev_hard_start_xmit+0x188/0x880 net/core/dev.c:3604
+sch_direct_xmit+0x19f/0xbe0 net/sched/sch_generic.c:342
+__dev_xmit_skb net/core/dev.c:3815 [inline]
+__dev_queue_xmit+0x14a1/0x3900 net/core/dev.c:4219
+dev_queue_xmit include/linux/netdevice.h:2994 [inline]
+tx+0x6a/0xc0 drivers/block/aoe/aoenet.c:63
+kthread+0x1e7/0x3b0 drivers/block/aoe/aoecmd.c:1229
+kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+</TASK>
 
-Fixes: 428826f5358c ("fdt: add support for rng-seed")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d5db21a3e697 ("erspan: auto detect truncated ipv6 packets.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: William Tu <u9012063@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ipv4/ip_gre.c  | 15 ++++++++++-----
+ net/ipv6/ip6_gre.c | 15 ++++++++++-----
+ 2 files changed, 20 insertions(+), 10 deletions(-)
 
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1110,6 +1110,10 @@ int __init early_init_dt_scan_chosen(uns
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index cf60d0e07965..c72432ce9bf5 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -574,7 +574,6 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	int tunnel_hlen;
+ 	int version;
+ 	int nhoff;
+-	int thoff;
  
- 		/* try to clear seed so it won't be found. */
- 		fdt_nop_property(initial_boot_params, node, "rng-seed");
+ 	tun_info = skb_tunnel_info(skb);
+ 	if (unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX) ||
+@@ -609,10 +608,16 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
+ 		truncate = true;
+ 
+-	thoff = skb_transport_header(skb) - skb_mac_header(skb);
+-	if (skb->protocol == htons(ETH_P_IPV6) &&
+-	    (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff))
+-		truncate = true;
++	if (skb->protocol == htons(ETH_P_IPV6)) {
++		int thoff;
 +
-+		/* update CRC check value */
-+		of_fdt_crc32 = crc32_be(~0, initial_boot_params,
-+				fdt_totalsize(initial_boot_params));
- 	}
++		if (skb_transport_header_was_set(skb))
++			thoff = skb_transport_header(skb) - skb_mac_header(skb);
++		else
++			thoff = nhoff + sizeof(struct ipv6hdr);
++		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
++			truncate = true;
++	}
  
- 	/* break now */
-@@ -1213,6 +1217,8 @@ bool __init early_init_dt_verify(void *p
+ 	if (version == 1) {
+ 		erspan_build_header(skb, ntohl(tunnel_id_to_key32(key->tun_id)),
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 4fd6c0929b14..e617a98f4df6 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -946,7 +946,6 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 	__be16 proto;
+ 	__u32 mtu;
+ 	int nhoff;
+-	int thoff;
  
- 	/* Setup flat device-tree pointer */
- 	initial_boot_params = params;
-+	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
-+				fdt_totalsize(initial_boot_params));
- 	return true;
- }
+ 	if (!pskb_inet_may_pull(skb))
+ 		goto tx_err;
+@@ -967,10 +966,16 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
+ 		truncate = true;
  
-@@ -1238,8 +1244,6 @@ bool __init early_init_dt_scan(void *par
- 		return false;
+-	thoff = skb_transport_header(skb) - skb_mac_header(skb);
+-	if (skb->protocol == htons(ETH_P_IPV6) &&
+-	    (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff))
+-		truncate = true;
++	if (skb->protocol == htons(ETH_P_IPV6)) {
++		int thoff;
++
++		if (skb_transport_header_was_set(skb))
++			thoff = skb_transport_header(skb) - skb_mac_header(skb);
++		else
++			thoff = nhoff + sizeof(struct ipv6hdr);
++		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
++			truncate = true;
++	}
  
- 	early_init_dt_scan_nodes();
--	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
--				fdt_totalsize(initial_boot_params));
- 	return true;
- }
- 
+ 	if (skb_cow_head(skb, dev->needed_headroom ?: t->hlen))
+ 		goto tx_err;
+-- 
+2.35.1
+
 
 
