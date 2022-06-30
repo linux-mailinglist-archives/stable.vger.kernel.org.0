@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDB80561BE8
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D45D6561CDC
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235390AbiF3NuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:50:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51582 "EHLO
+        id S236325AbiF3ODe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235475AbiF3NtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:49:13 -0400
+        with ESMTP id S236613AbiF3OCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237D41A805;
-        Thu, 30 Jun 2022 06:48:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B53068A2C;
+        Thu, 30 Jun 2022 06:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5120EB82AF0;
-        Thu, 30 Jun 2022 13:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A33C6C34115;
-        Thu, 30 Jun 2022 13:48:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C8BEB82AD8;
+        Thu, 30 Jun 2022 13:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0374C34115;
+        Thu, 30 Jun 2022 13:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596923;
-        bh=W8BfeBtWmhFei7kwlPV3f+SbgahVjVPPOevCVjuPUPA=;
+        s=korg; t=1656597180;
+        bh=JOD3wDxT/JvV14ZI7sRweLRuU0c8/XY3206htf3O+v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wMuCfmyKigUspQoTutVu91u57OIq4JVFfHK6SHJhM6t1h3F8n79tTgMZ00cdCZV4
-         pFvWOJF+4L0sfmS/2GHonT9Rylg++SLvHnt6IzmBvUMN5E56ZarOlhqRljnnwC2ykj
-         UfTcYcJTWx5JSnTVvmdmmy0L+ygp12xYD6QydL2Q=
+        b=iBrE/byeDCiCMIQ49FK8CbyNIWvgnKe7DgmZebqLBrdihG7TVDjE5UQJSSflkCQos
+         SJV6OjMlQwaKe0TzjFMy1L17YWqRfOCzimNGtEla+lYnHh25Kg7xExghK0ajB1zypy
+         rml3QosgNdaty1Gye42Luofn8JmuAkNlnu/TF1d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>
-Subject: [PATCH 4.9 29/29] swiotlb: skip swiotlb_bounce when orig_addr is zero
+        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
+        huhai <huhai@kylinos.cn>,
+        Genjian Zhang <zhanggenjian@kylinos.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/49] MIPS: Remove repetitive increase irq_err_count
 Date:   Thu, 30 Jun 2022 15:46:29 +0200
-Message-Id: <20220630133232.059643291@linuxfoundation.org>
+Message-Id: <20220630133234.384214777@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,50 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: huhai <huhai@kylinos.cn>
 
-After patch ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE"),
-swiotlb_bounce will be called in swiotlb_tbl_map_single unconditionally.
-This requires that the physical address must be valid, which is not always
-true on stable-4.19 or earlier version.
-On stable-4.19, swiotlb_alloc_buffer will call swiotlb_tbl_map_single with
-orig_addr equal to zero, which cause such a panic:
+[ Upstream commit c81aba8fde2aee4f5778ebab3a1d51bd2ef48e4c ]
 
-Unable to handle kernel paging request at virtual address ffffb77a40000000
-...
-pc : __memcpy+0x100/0x180
-lr : swiotlb_bounce+0x74/0x88
-...
-Call trace:
- __memcpy+0x100/0x180
- swiotlb_tbl_map_single+0x2c8/0x338
- swiotlb_alloc+0xb4/0x198
- __dma_alloc+0x84/0x1d8
- ...
+commit 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx") added
+a function irq_dispatch, and it'll increase irq_err_count when the get_irq
+callback returns a negative value, but increase irq_err_count in get_irq
+was not removed.
 
-On stable-4.9 and stable-4.14, swiotlb_alloc_coherent wille call map_single
-with orig_addr equal to zero, which can cause same panic.
+And also, modpost complains once gpio-vr41xx drivers become modules.
+  ERROR: modpost: "irq_err_count" [drivers/gpio/gpio-vr41xx.ko] undefined!
 
-Fix this by skipping swiotlb_bounce when orig_addr is zero.
+So it would be a good idea to remove repetitive increase irq_err_count in
+get_irq callback.
 
-Fixes: ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 27fdd325dace ("MIPS: Update VR41xx GPIO driver to use gpiolib")
+Fixes: 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx")
+Reported-by: k2ci <kernel-bot@kylinos.cn>
+Signed-off-by: huhai <huhai@kylinos.cn>
+Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/swiotlb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/vr41xx/common/icu.c | 2 --
+ drivers/gpio/gpio-vr41xx.c    | 2 --
+ 2 files changed, 4 deletions(-)
 
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -539,7 +539,8 @@ found:
- 	 * unconditional bounce may prevent leaking swiotlb content (i.e.
- 	 * kernel memory) to user-space.
- 	 */
--	swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
-+	if (orig_addr)
-+		swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
- 	return tlb_addr;
+diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
+index 745b7b436961..42f77b318974 100644
+--- a/arch/mips/vr41xx/common/icu.c
++++ b/arch/mips/vr41xx/common/icu.c
+@@ -653,8 +653,6 @@ static int icu_get_irq(unsigned int irq)
+ 
+ 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
+ 
+-	atomic_inc(&irq_err_count);
+-
+ 	return -1;
  }
- EXPORT_SYMBOL_GPL(swiotlb_tbl_map_single);
+ 
+diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
+index 027699cec911..217b077838af 100644
+--- a/drivers/gpio/gpio-vr41xx.c
++++ b/drivers/gpio/gpio-vr41xx.c
+@@ -230,8 +230,6 @@ static int giu_get_irq(unsigned int irq)
+ 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
+ 	       maskl, pendl, maskh, pendh);
+ 
+-	atomic_inc(&irq_err_count);
+-
+ 	return -EINVAL;
+ }
+ 
+-- 
+2.35.1
+
 
 
