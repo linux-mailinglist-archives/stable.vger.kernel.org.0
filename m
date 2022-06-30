@@ -2,135 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F96561DA5
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A4E561D6F
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236656AbiF3OMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:12:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
+        id S236516AbiF3OI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:08:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236657AbiF3OL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:11:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFD474795;
-        Thu, 30 Jun 2022 06:56:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCA486211A;
-        Thu, 30 Jun 2022 13:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5147C34115;
-        Thu, 30 Jun 2022 13:56:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597361;
-        bh=+YLc4a0WbZpCVn31X/6oyULnGlfdxP35QoZV3HumIlI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdO9W/OzETwctEidDZ2qlf/PyhqITcjlebMtgi7x98CLacYlMqRfT0/fk8nBSKHVQ
-         ZJI/EpXifSIB+wCXMK3I789NgTseHFd0P8+ydmnbFLKJuwsY9tjfgwqL1I94xXTduB
-         IXg211ZQ/1qjke4/FbQkigPYCPdg1ah1SzLNpdjQ=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.18 6/6] io_uring: fix not locked access to fixed buf table
-Date:   Thu, 30 Jun 2022 15:47:32 +0200
-Message-Id: <20220630133230.432585784@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.239507521@linuxfoundation.org>
-References: <20220630133230.239507521@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S236621AbiF3OHG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F765E3D
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 06:54:24 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UCrZPe003792;
+        Thu, 30 Jun 2022 13:54:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : subject : from : in-reply-to : date : cc :
+ content-transfer-encoding : message-id : references : to; s=pp1;
+ bh=ykWO3szqez1BIuaj1Q5ZQQqd74reoS4gGKLUepIXgXc=;
+ b=rC6vevhB9tzpS+7fT1AddWv5p6V5XC7SBBNW2jlG9u+T2BlUokspqySRHprOg2ByOwrn
+ g9PktT8rpPv5vPKmf+lHrQG7gacnX8qZwC8cya5N66wbvWeqpKemO/d/a7LCsLJJKmaU
+ rlJrnpl7yerXoHKiuC0DCUjVDqSEBK+GF36abMio0gb0faQ0rHiyctGCQFQ+yxIoKb6u
+ OoiEhnLOZ8yWIQYTmpizfMRkgf1CPO4V8VpDeLIiDi/Wga2OUmkf18qvCODufadGoQ/B
+ hqpMJshE9dwZVlBoezoLyKja/iwpVox9JEewIGTTVColG5kQLbHzJ3A3lni9iXUL+Gmi 4w== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1c82t07f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Jun 2022 13:54:11 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UDp10S016843;
+        Thu, 30 Jun 2022 13:54:09 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3gwt0906wf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Jun 2022 13:54:09 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UDs76924183258
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 30 Jun 2022 13:54:07 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9DC99A4053;
+        Thu, 30 Jun 2022 13:54:07 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9102CA4040;
+        Thu, 30 Jun 2022 13:54:06 +0000 (GMT)
+Received: from smtpclient.apple (unknown [9.43.87.229])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 30 Jun 2022 13:54:06 +0000 (GMT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
+Subject: Re: [PATCH] powerpc/powernv: delay rng of node creation until later
+ in boot
+From:   Sachin Sant <sachinp@linux.ibm.com>
+In-Reply-To: <20220630121654.1939181-1-Jason@zx2c4.com>
+Date:   Thu, 30 Jun 2022 19:24:05 +0530
+Cc:     linuxppc-dev@lists.ozlabs.org,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <8A9A296D-D7BD-42BE-AB32-C951C29E4C40@linux.ibm.com>
+References: <Yr2PQSZWVtr+Y7a2@zx2c4.com>
+ <20220630121654.1939181-1-Jason@zx2c4.com>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+X-Mailer: Apple Mail (2.3696.100.31)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: m2zEpfcZKIrtkS4anqfpknm_BwEPNiQg
+X-Proofpoint-ORIG-GUID: m2zEpfcZKIrtkS4anqfpknm_BwEPNiQg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-30_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 mlxlogscore=716
+ spamscore=0 clxscore=1011 phishscore=0 priorityscore=1501 suspectscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206300054
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 05b538c1765f8d14a71ccf5f85258dcbeaf189f7 upstream.
 
-We can look inside the fixed buffer table only while holding
-->uring_lock, however in some cases we don't do the right async prep for
-IORING_OP_{WRITE,READ}_FIXED ending up with NULL req->imu forcing making
-an io-wq worker to try to resolve the fixed buffer without proper
-locking.
+> On 30-Jun-2022, at 5:46 PM, Jason A. Donenfeld <Jason@zx2c4.com> =
+wrote:
+>=20
+> The of node for the rng must be created much later in boot. Otherwise =
+it
+> tries to connect to a parent that doesn't yet exist, resulting on this
+> splat:
+>=20
+> [    0.000478] kobject: '(null)' ((____ptrval____)): is not =
+initialized, yet kobject_get() is being called.
+> [    0.002925] [c000000002a0fb30] [c00000000073b0bc] =
+kobject_get+0x8c/0x100 (unreliable)
+> [    0.003071] [c000000002a0fba0] [c00000000087e464] =
+device_add+0xf4/0xb00
+> [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] =
+of_device_add+0x64/0x80
+> [    0.003321] [c000000002a0fcb0] [c000000000a800d0] =
+of_platform_device_create_pdata+0xd0/0x1b0
+> [    0.003476] [c000000002a0fd00] [c00000000201fa44] =
+pnv_get_random_long_early+0x240/0x2e4
+> [    0.003623] [c000000002a0fe20] [c000000002060c38] =
+random_init+0xc0/0x214
+>=20
+> This patch fixes the issue by doing the of node creation inside of
+> machine_subsys_initcall.
+>=20
+> Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
+> Cc: stable@vger.kernel.org
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Reported-by: Sachin Sant <sachinp@linux.ibm.com>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
 
-Move req->imu setup into early req init paths, i.e. io_prep_rw(), which
-is called unconditionally for rw requests and under uring_lock.
+Thanks Jason for the patch. This fixes the reported problem for me.
 
-Fixes: 634d00df5e1cf ("io_uring: add full-fledged dynamic buffers support")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/io_uring.c |   34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3187,6 +3187,21 @@ static int io_prep_rw(struct io_kiocb *r
- 	int ret;
- 
- 	kiocb->ki_pos = READ_ONCE(sqe->off);
-+	/* used for fixed read/write too - just read unconditionally */
-+	req->buf_index = READ_ONCE(sqe->buf_index);
-+	req->imu = NULL;
-+
-+	if (req->opcode == IORING_OP_READ_FIXED ||
-+	    req->opcode == IORING_OP_WRITE_FIXED) {
-+		struct io_ring_ctx *ctx = req->ctx;
-+		u16 index;
-+
-+		if (unlikely(req->buf_index >= ctx->nr_user_bufs))
-+			return -EFAULT;
-+		index = array_index_nospec(req->buf_index, ctx->nr_user_bufs);
-+		req->imu = ctx->user_bufs[index];
-+		io_req_set_rsrc_node(req, ctx, 0);
-+	}
- 
- 	ioprio = READ_ONCE(sqe->ioprio);
- 	if (ioprio) {
-@@ -3199,11 +3214,9 @@ static int io_prep_rw(struct io_kiocb *r
- 		kiocb->ki_ioprio = get_current_ioprio();
- 	}
- 
--	req->imu = NULL;
- 	req->rw.addr = READ_ONCE(sqe->addr);
- 	req->rw.len = READ_ONCE(sqe->len);
- 	req->rw.flags = READ_ONCE(sqe->rw_flags);
--	req->buf_index = READ_ONCE(sqe->buf_index);
- 	return 0;
- }
- 
-@@ -3335,20 +3348,9 @@ static int __io_import_fixed(struct io_k
- static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter,
- 			   unsigned int issue_flags)
- {
--	struct io_mapped_ubuf *imu = req->imu;
--	u16 index, buf_index = req->buf_index;
--
--	if (likely(!imu)) {
--		struct io_ring_ctx *ctx = req->ctx;
--
--		if (unlikely(buf_index >= ctx->nr_user_bufs))
--			return -EFAULT;
--		io_req_set_rsrc_node(req, ctx, issue_flags);
--		index = array_index_nospec(buf_index, ctx->nr_user_bufs);
--		imu = READ_ONCE(ctx->user_bufs[index]);
--		req->imu = imu;
--	}
--	return __io_import_fixed(req, rw, iter, imu);
-+	if (WARN_ON_ONCE(!req->imu))
-+		return -EFAULT;
-+	return __io_import_fixed(req, rw, iter, req->imu);
- }
- 
- static void io_ring_submit_unlock(struct io_ring_ctx *ctx, bool needs_lock)
-
+- Sachin
 
