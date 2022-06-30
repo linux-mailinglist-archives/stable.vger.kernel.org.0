@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA2A561D0C
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3974E561D96
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236705AbiF3OKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:10:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58280 "EHLO
+        id S236567AbiF3OIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:08:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236706AbiF3OIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:08:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9C473914;
-        Thu, 30 Jun 2022 06:55:17 -0700 (PDT)
+        with ESMTP id S236557AbiF3OG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:06:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEC04F19E;
+        Thu, 30 Jun 2022 06:54:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 822E8B82AD8;
-        Thu, 30 Jun 2022 13:55:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D37C34115;
-        Thu, 30 Jun 2022 13:55:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C64E861FDB;
+        Thu, 30 Jun 2022 13:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03D8C34115;
+        Thu, 30 Jun 2022 13:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597306;
-        bh=wh1pKIla8PGTcAVta3KyOdpbg5zeT/YauvyFaMXt3aY=;
+        s=korg; t=1656597254;
+        bh=SbgGPTyNglffG3TwFHx2LhmFF+pZS8w3mcJvxg7lWy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxVZDqBc/byCsY96c+8AnMlM0pxvoKLR6lkh+UhZqE1zngHVPAVSc4koMqcD2pz0f
-         WY4bYAGfTLxoC22LuLoJC/sk91CF3VOMc91QCxVVtU1H2S/wx3UqWN0GtEoO7MamqD
-         CnWmd2VcXOh8evgaRCQulJ9+JFRErPOSxQn7d2UU=
+        b=LnI4t9mBjn969MrsJPPTV2tstg8WB2cTq8PDbhaGXQUu7DTlkpchgzrhXMp0UMvg/
+         wuNjyxufwqztoRPcM8wUugaPCA6CL+ZyvnarlnnA1Sy/Sq7mdLuu4OSTOMIMSZGFs0
+         eQ9iYKAgQKOfxajLww1Z4BXSurLTiGjSejliHLU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>
-Subject: [PATCH 5.15 15/28] fs: tweak fsuidgid_has_mapping()
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 06/12] xfs: use kmem_cache_free() for kmem_cache objects
 Date:   Thu, 30 Jun 2022 15:47:11 +0200
-Message-Id: <20220630133233.376413710@linuxfoundation.org>
+Message-Id: <20220630133230.871663272@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
-References: <20220630133232.926711493@linuxfoundation.org>
+In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
+References: <20220630133230.676254336@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,55 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit 476860b3eb4a50958243158861d5340066df5af2 upstream.
+commit c30a0cbd07ecc0eec7b3cd568f7b1c7bb7913f93 upstream.
 
-If the caller's fs{g,u}id aren't mapped in the mount's idmapping we can
-return early and skip the check whether the mapped fs{g,u}id also have a
-mapping in the filesystem's idmapping. If the fs{g,u}id aren't mapped in
-the mount's idmapping they consequently can't be mapped in the
-filesystem's idmapping. So there's no point in checking that.
+For kmalloc() allocations SLOB prepends the blocks with a 4-byte header,
+and it puts the size of the allocated blocks in that header.
+Blocks allocated with kmem_cache_alloc() allocations do not have that
+header.
 
-Link: https://lore.kernel.org/r/20211123114227.3124056-4-brauner@kernel.org (v1)
-Link: https://lore.kernel.org/r/20211130121032.3753852-4-brauner@kernel.org (v2)
-Link: https://lore.kernel.org/r/20211203111707.3901969-4-brauner@kernel.org
-Cc: Seth Forshee <sforshee@digitalocean.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-CC: linux-fsdevel@vger.kernel.org
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Seth Forshee <sforshee@digitalocean.com>
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+SLOB explodes when you allocate memory with kmem_cache_alloc() and then
+try to free it with kfree() instead of kmem_cache_free().
+SLOB will assume that there is a header when there is none, read some
+garbage to size variable and corrupt the adjacent objects, which
+eventually leads to hang or panic.
+
+Let's make XFS work with SLOB by using proper free function.
+
+Fixes: 9749fee83f38 ("xfs: enable the xfs_defer mechanism to process extents to free")
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/fs.h |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_extfree_item.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1697,10 +1697,18 @@ static inline void inode_fsgid_set(struc
- static inline bool fsuidgid_has_mapping(struct super_block *sb,
- 					struct user_namespace *mnt_userns)
- {
--	struct user_namespace *s_user_ns = sb->s_user_ns;
-+	struct user_namespace *fs_userns = sb->s_user_ns;
-+	kuid_t kuid;
-+	kgid_t kgid;
- 
--	return kuid_has_mapping(s_user_ns, mapped_fsuid(mnt_userns)) &&
--	       kgid_has_mapping(s_user_ns, mapped_fsgid(mnt_userns));
-+	kuid = mapped_fsuid(mnt_userns);
-+	if (!uid_valid(kuid))
-+		return false;
-+	kgid = mapped_fsgid(mnt_userns);
-+	if (!gid_valid(kgid))
-+		return false;
-+	return kuid_has_mapping(fs_userns, kuid) &&
-+	       kgid_has_mapping(fs_userns, kgid);
+--- a/fs/xfs/xfs_extfree_item.c
++++ b/fs/xfs/xfs_extfree_item.c
+@@ -482,7 +482,7 @@ xfs_extent_free_finish_item(
+ 			free->xefi_startblock,
+ 			free->xefi_blockcount,
+ 			&free->xefi_oinfo, free->xefi_skip_discard);
+-	kmem_free(free);
++	kmem_cache_free(xfs_bmap_free_item_zone, free);
+ 	return error;
  }
  
- extern struct timespec64 current_time(struct inode *inode);
+@@ -502,7 +502,7 @@ xfs_extent_free_cancel_item(
+ 	struct xfs_extent_free_item	*free;
+ 
+ 	free = container_of(item, struct xfs_extent_free_item, xefi_list);
+-	kmem_free(free);
++	kmem_cache_free(xfs_bmap_free_item_zone, free);
+ }
+ 
+ const struct xfs_defer_op_type xfs_extent_free_defer_type = {
+@@ -564,7 +564,7 @@ xfs_agfl_free_finish_item(
+ 	extp->ext_len = free->xefi_blockcount;
+ 	efdp->efd_next_extent++;
+ 
+-	kmem_free(free);
++	kmem_cache_free(xfs_bmap_free_item_zone, free);
+ 	return error;
+ }
+ 
 
 
