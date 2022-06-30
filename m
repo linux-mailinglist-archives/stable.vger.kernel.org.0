@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C10561C87
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9043A561BB9
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235999AbiF3N7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35772 "EHLO
+        id S235268AbiF3Ns0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236123AbiF3N5n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:57:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B44553D02;
-        Thu, 30 Jun 2022 06:51:18 -0700 (PDT)
+        with ESMTP id S235280AbiF3NsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDCC18E;
+        Thu, 30 Jun 2022 06:48:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F09DB82AD8;
-        Thu, 30 Jun 2022 13:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D368DC34115;
-        Thu, 30 Jun 2022 13:50:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B55E361FF5;
+        Thu, 30 Jun 2022 13:48:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E1DC34115;
+        Thu, 30 Jun 2022 13:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597053;
-        bh=NbbeKQEkCqGH7eRSg2mh0Rg8B4WuQz46K8KLqlu+Qdo=;
+        s=korg; t=1656596884;
+        bh=//tNa/+oXvrh+YZZ1UklDkaYoawaeD35eJmeJbf1BKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjCZVfdku1dYc0E/Zd6KS1tNvHs0gSv9VDanG0wq6+XzT/Ha0shtMXCAY4UUMomiG
-         t+xXs2Db1O8+3IytBln/O+L+W6JWBqeSsjr4vssfrWFpvBgpPMFvxGLsFq8uXrJzh+
-         Z5A1/ROBfoARh9yKYwyfM9LdV7yXadf1vymdOJ94=
+        b=su7wPm8pR+0MYeoa8Kad/ZaXJTEah6z3nyd8vRz2BYJrGKrh3zAhgcE+94/3Fim2R
+         ntyhhHrcu0Mk4MrxdyOTeUn4CqolkPWyD5dp+RIqpXC2caPsV+hbpPXIzF3YQWWgN4
+         +RBQE3ny26jpAkhr/2LU0Quat+27+7/GEhl7dXxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 03/49] ALSA: hda/via: Fix missing beep setup
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.9 16/29] xtensa: xtfpga: Fix refcount leak bug in setup
 Date:   Thu, 30 Jun 2022 15:46:16 +0200
-Message-Id: <20220630133234.010703384@linuxfoundation.org>
+Message-Id: <20220630133231.683305620@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
+References: <20220630133231.200642128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Liang He <windhl@126.com>
 
-commit c7807b27d510e5aa53c8a120cfc02c33c24ebb5f upstream.
+commit 173940b3ae40114d4179c251a98ee039dc9cd5b3 upstream.
 
-Like the previous fix for Conexant codec, the beep_nid has to be set
-up before calling snd_hda_gen_parse_auto_config(); otherwise it'd miss
-the path setup.
+In machine_setup(), of_find_compatible_node() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-Fix the call order for addressing the missing beep setup.
-
-Fixes: 0e8f9862493a ("ALSA: hda/via - Simplify control management")
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216152
-Link: https://lore.kernel.org/r/20220620104008.1994-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617115323.4046905-1-windhl@126.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_via.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/xtensa/platforms/xtfpga/setup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_via.c
-+++ b/sound/pci/hda/patch_via.c
-@@ -533,11 +533,11 @@ static int via_parse_auto_config(struct
- 	if (err < 0)
- 		return err;
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -152,6 +152,7 @@ static int __init machine_setup(void)
  
--	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
-+	err = auto_parse_beep(codec);
- 	if (err < 0)
- 		return err;
- 
--	err = auto_parse_beep(codec);
-+	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
- 	if (err < 0)
- 		return err;
- 
+ 	if ((eth = of_find_compatible_node(eth, NULL, "opencores,ethoc")))
+ 		update_local_mac(eth);
++	of_node_put(eth);
+ 	return 0;
+ }
+ arch_initcall(machine_setup);
 
 
