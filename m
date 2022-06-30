@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBB6561D5B
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8208A561D9A
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236571AbiF3OGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58250 "EHLO
+        id S236092AbiF3ODF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236534AbiF3OFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:05:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA784457AC;
-        Thu, 30 Jun 2022 06:53:59 -0700 (PDT)
+        with ESMTP id S235365AbiF3OB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:01:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48ACD50718;
+        Thu, 30 Jun 2022 06:52:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 468F3CE2EC5;
-        Thu, 30 Jun 2022 13:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D991C34115;
-        Thu, 30 Jun 2022 13:53:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53A26B82AEF;
+        Thu, 30 Jun 2022 13:52:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A4FC34115;
+        Thu, 30 Jun 2022 13:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597229;
-        bh=zfTjdBUZp/vQ3G5ItACJotfiHku7nqyj9VseQDp+Dyk=;
+        s=korg; t=1656597147;
+        bh=TBHOlCgI4P/ivcpcBjHQMwjrR2XUb2vJ4UkttqkCnUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sD948q3tjvAxKmHkwYjxwiIG1c6xdhSTRmm5EbtT6q2O+8gu65WuqLBAUJVvlgWmx
-         EaK9Zd8h2Mky7AErKA+rSSIZvgXzlMvFo0ovnTlP6X5726SyHpo35DpW0AIqNuxfBF
-         CTbif/AwPadevbPawjOMgrwMu5Op3Gsrc5y970eg=
+        b=1vsdSaxQeDSzi5+PqGbDap0NpkWqwlowOcI175KsbPu2BrqVyXXUlpLQECIrmC6kd
+         DxifrxN5GzonxHzBaOCw2SadpOA1tcVzlRhnPoxz3vIj6P2DIo6Xprb60MoxtbzANC
+         BoX6erQBF34sj8ULbsNDsSd0sCM7368xTFxj21Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
         Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 5.4 01/16] drm: remove drm_fb_helper_modinit
-Date:   Thu, 30 Jun 2022 15:46:55 +0200
-Message-Id: <20220630133230.981736423@linuxfoundation.org>
+Subject: [PATCH 4.19 43/49] drm: remove drm_fb_helper_modinit
+Date:   Thu, 30 Jun 2022 15:46:56 +0200
+Message-Id: <20220630133235.144699150@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133230.936488203@linuxfoundation.org>
-References: <20220630133230.936488203@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -96,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  int drm_dp_aux_dev_init(void);
 --- a/drivers/gpu/drm/drm_fb_helper.c
 +++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -2415,24 +2415,3 @@ int drm_fbdev_generic_setup(struct drm_d
+@@ -3270,24 +3270,3 @@ int drm_fbdev_generic_setup(struct drm_d
  	return 0;
  }
  EXPORT_SYMBOL(drm_fbdev_generic_setup);
@@ -123,7 +121,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -EXPORT_SYMBOL(drm_fb_helper_modinit);
 --- a/drivers/gpu/drm/drm_kms_helper_common.c
 +++ b/drivers/gpu/drm/drm_kms_helper_common.c
-@@ -64,19 +64,18 @@ MODULE_PARM_DESC(edid_firmware,
+@@ -63,19 +63,18 @@ MODULE_PARM_DESC(edid_firmware,
  
  static int __init drm_kms_helper_init(void)
  {
