@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41BC4561C82
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C39561C35
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235950AbiF3N7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:59:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38040 "EHLO
+        id S235743AbiF3Nxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236310AbiF3N6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251EB53D11;
-        Thu, 30 Jun 2022 06:51:34 -0700 (PDT)
+        with ESMTP id S235838AbiF3Nwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2D14579D;
+        Thu, 30 Jun 2022 06:49:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C52C62007;
-        Thu, 30 Jun 2022 13:51:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 177CDC34115;
-        Thu, 30 Jun 2022 13:51:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 477E26205D;
+        Thu, 30 Jun 2022 13:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C9C8C3411E;
+        Thu, 30 Jun 2022 13:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597075;
-        bh=4Vv60tBOAMha/ZVrRLQhs4TgCQHcnlTaoRylK8s+OYA=;
+        s=korg; t=1656596983;
+        bh=tQbpvtEvCBc44itrMEC0A4dvWcUm/1NCxpin/Lzp79o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usgGzKDX+a3IcMLD1CdnaJ7LGdrzhVkfM5TU6ZeFbkELiWjb8jaBFqGOqmK8m/wIR
-         iHgrrCYLS2ScyW98uexZkcwkVuBiq6nxBZMg00vHKqGgPylTbUWtQasFsIEwRZxIiF
-         o2agVttgemrKCEuIcvnrRccav9h16KnxdKTNoKGQ=
+        b=mxlSejOYVWVZ6MjwtbnPd1fi+PYDn0zzrbS2a2qBJxSmaVX7EdHBTeS0UFvty/XmI
+         oMVaw1TfNXLT7dyTSsTTAV8YvyTNFeGfv4AosIf+tgyK9mpuVHAsVNHIKV26gHwHqB
+         WM6+gQttotdZFkn6tA38+JOp+9XgBej6IN+WTrl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/49] virtio_net: fix xdp_rxq_info bug after suspend/resume
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.14 21/35] xtensa: Fix refcount leak bug in time.c
 Date:   Thu, 30 Jun 2022 15:46:32 +0200
-Message-Id: <20220630133234.472747705@linuxfoundation.org>
+Message-Id: <20220630133233.064006826@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,115 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 8af52fe9fd3bf5e7478da99193c0632276e1dfce ]
+commit a0117dc956429f2ede17b323046e1968d1849150 upstream.
 
-The following sequence currently causes a driver bug warning
-when using virtio_net:
+In calibrate_ccount(), of_find_compatible_node() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-  # ip link set eth0 up
-  # echo mem > /sys/power/state (or e.g. # rtcwake -s 10 -m mem)
-  <resume>
-  # ip link set eth0 down
-
-  Missing register, driver bug
-  WARNING: CPU: 0 PID: 375 at net/core/xdp.c:138 xdp_rxq_info_unreg+0x58/0x60
-  Call trace:
-   xdp_rxq_info_unreg+0x58/0x60
-   virtnet_close+0x58/0xac
-   __dev_close_many+0xac/0x140
-   __dev_change_flags+0xd8/0x210
-   dev_change_flags+0x24/0x64
-   do_setlink+0x230/0xdd0
-   ...
-
-This happens because virtnet_freeze() frees the receive_queue
-completely (including struct xdp_rxq_info) but does not call
-xdp_rxq_info_unreg(). Similarly, virtnet_restore() sets up the
-receive_queue again but does not call xdp_rxq_info_reg().
-
-Actually, parts of virtnet_freeze_down() and virtnet_restore_up()
-are almost identical to virtnet_close() and virtnet_open(): only
-the calls to xdp_rxq_info_(un)reg() are missing. This means that
-we can fix this easily and avoid such problems in the future by
-just calling virtnet_close()/open() from the freeze/restore handlers.
-
-Aside from adding the missing xdp_rxq_info calls the only difference
-is that the refill work is only cancelled if netif_running(). However,
-this should not make any functional difference since the refill work
-should only be active if the network interface is actually up.
-
-Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20220621114845.3650258-1-stephan.gerhold@kernkonzept.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617124432.4049006-1-windhl@126.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c | 25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+ arch/xtensa/kernel/time.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1a8fe5bacb19..415b26c80fe7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2315,7 +2315,6 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- static void virtnet_freeze_down(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
--	int i;
- 
- 	/* Make sure no work handler is accessing the device */
- 	flush_work(&vi->config_work);
-@@ -2323,14 +2322,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- 	netif_tx_lock_bh(vi->dev);
- 	netif_device_detach(vi->dev);
- 	netif_tx_unlock_bh(vi->dev);
--	cancel_delayed_work_sync(&vi->refill);
--
--	if (netif_running(vi->dev)) {
--		for (i = 0; i < vi->max_queue_pairs; i++) {
--			napi_disable(&vi->rq[i].napi);
--			virtnet_napi_tx_disable(&vi->sq[i].napi);
--		}
--	}
-+	if (netif_running(vi->dev))
-+		virtnet_close(vi->dev);
- }
- 
- static int init_vqs(struct virtnet_info *vi);
-@@ -2338,7 +2331,7 @@ static int init_vqs(struct virtnet_info *vi);
- static int virtnet_restore_up(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
--	int err, i;
-+	int err;
- 
- 	err = init_vqs(vi);
- 	if (err)
-@@ -2347,15 +2340,9 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 	virtio_device_ready(vdev);
- 
- 	if (netif_running(vi->dev)) {
--		for (i = 0; i < vi->curr_queue_pairs; i++)
--			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
--				schedule_delayed_work(&vi->refill, 0);
--
--		for (i = 0; i < vi->max_queue_pairs; i++) {
--			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
--			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
--					       &vi->sq[i].napi);
--		}
-+		err = virtnet_open(vi->dev);
-+		if (err)
-+			return err;
- 	}
- 
- 	netif_tx_lock_bh(vi->dev);
--- 
-2.35.1
-
+--- a/arch/xtensa/kernel/time.c
++++ b/arch/xtensa/kernel/time.c
+@@ -146,6 +146,7 @@ static void __init calibrate_ccount(void
+ 	cpu = of_find_compatible_node(NULL, NULL, "cdns,xtensa-cpu");
+ 	if (cpu) {
+ 		clk = of_clk_get(cpu, 0);
++		of_node_put(cpu);
+ 		if (!IS_ERR(clk)) {
+ 			ccount_freq = clk_get_rate(clk);
+ 			return;
 
 
