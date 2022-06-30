@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10099561CF1
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56AA561C65
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236183AbiF3ODC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:03:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46042 "EHLO
+        id S235622AbiF3Nv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236068AbiF3OBH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:01:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E868443F1;
-        Thu, 30 Jun 2022 06:52:42 -0700 (PDT)
+        with ESMTP id S235520AbiF3Nv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:51:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDCE42A16;
+        Thu, 30 Jun 2022 06:49:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A627ACE2EA3;
-        Thu, 30 Jun 2022 13:52:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5A62C34115;
-        Thu, 30 Jun 2022 13:52:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3244661FD8;
+        Thu, 30 Jun 2022 13:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D8FC34115;
+        Thu, 30 Jun 2022 13:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597158;
-        bh=6AxkFONhHzmOfd4oMiIArsoJYhYr/Fsf+dMwrYnOOFM=;
+        s=korg; t=1656596958;
+        bh=y9i6OcD3+jttfol87JifqvXY8ddQ2O+EJsT5yNM2FLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mm5agnY3TPNlYRVmyl/AiuGtHeIbrnagj6db1PFNTkF8kfUIz1or4CVVmmWsqnZHW
-         3PffP0EyXBqdql0+vpOzFOuUqGDFEWDUbdlf2kpBa7Blg6ByHZMtP7m+ROWkvrO+fC
-         oRg2hr6Wa1xiBqCvsnXmR8GxExuw9AfTL2ddgfUI=
+        b=sJWrqn2FPe+X996vU8Mhju+PT3n1JCqSK/empU+RyhlW1dsxI0EqL2lcfObCIvvCT
+         gtXK26CU4FiTxoX6wYsR6p+NFPw9Lj/QaxgzBAYonoKgLcai4PeUZdU+2sZ2NITXpT
+         mgmjFTPI0I02f37e+uTLESWggSLBLPFmC6xHUkSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ballon Shi <ballon.shi@quectel.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 11/49] USB: serial: option: add Quectel RM500K module support
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/35] iio: adc: vf610: fix conversion mode sysfs node name
 Date:   Thu, 30 Jun 2022 15:46:24 +0200
-Message-Id: <20220630133234.236849302@linuxfoundation.org>
+Message-Id: <20220630133232.833185273@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-commit 15b694e96c31807d8515aacfa687a1e8a4fbbadc upstream.
+[ Upstream commit f1a633b15cd5371a2a83f02c513984e51132dd68 ]
 
-Add usb product id of the Quectel RM500K module.
+The documentation missed the "in_" prefix for this IIO_SHARED_BY_DIR
+entry.
 
-RM500K provides 2 mandatory interfaces to Linux host after enumeration.
- - /dev/ttyUSB5: this is a serial interface for control path. User needs
-   to write AT commands to this device node to query status, set APN,
-   set PIN code, and enable/disable the data connection to 5G network.
- - ethX: this is the data path provided as a RNDIS devices. After the
-   data connection has been established, Linux host can access 5G data
-   network via this interface.
-
-"RNDIS": RNDIS + ADB + AT (/dev/ttyUSB5) + MODEM COMs
-
-usb-devices output for 0x7001:
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=7001 Rev=00.01
-S:  Manufacturer=MediaTek Inc.
-S:  Product=USB DATA CARD
-S:  SerialNumber=869206050009672
-C:  #Ifs=10 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 9 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=09(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Co-developed-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Ballon Shi <ballon.shi@quectel.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bf04c1a367e3 ("iio: adc: vf610: implement configurable conversion modes")
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Acked-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/560dc93fafe5ef7e9a409885fd20b6beac3973d8.1653900626.git.baruch@tkos.co.il
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/ABI/testing/sysfs-bus-iio-vf610 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -257,6 +257,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
-+#define QUECTEL_PRODUCT_RM500K			0x7001
- 
- #define CMOTECH_VENDOR_ID			0x16d8
- #define CMOTECH_PRODUCT_6001			0x6001
-@@ -1150,6 +1151,7 @@ static const struct usb_device_id option
- 	  .driver_info = ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
- 
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio-vf610 b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+index 308a6756d3bf..491ead804488 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio-vf610
++++ b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+@@ -1,4 +1,4 @@
+-What:		/sys/bus/iio/devices/iio:deviceX/conversion_mode
++What:		/sys/bus/iio/devices/iio:deviceX/in_conversion_mode
+ KernelVersion:	4.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
+-- 
+2.35.1
+
 
 
