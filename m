@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7BD7561C57
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA82561BD6
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235373AbiF3NwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48694 "EHLO
+        id S235550AbiF3Nth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:49:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235454AbiF3Nvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:51:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E1FE43ED6;
-        Thu, 30 Jun 2022 06:49:27 -0700 (PDT)
+        with ESMTP id S235405AbiF3Nss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84CA730F5B;
+        Thu, 30 Jun 2022 06:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA6DB82AF5;
-        Thu, 30 Jun 2022 13:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF02CC34115;
-        Thu, 30 Jun 2022 13:49:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2285861FD0;
+        Thu, 30 Jun 2022 13:48:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28656C34115;
+        Thu, 30 Jun 2022 13:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596964;
-        bh=M5eWI8GLqMBs1KZpLYLx0aef5pNK01Mfwl3xIvzEc+c=;
+        s=korg; t=1656596917;
+        bh=Ppv1uKMDvu98Ab/kKeOFuUXMXKMeALLEju0l3eEAOwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kjn9qvrFr8fN3GexzXxIIXo6lRrkG2OdB+kLl17cUruOdfT5Hg8rg8u/u23CLiKcv
-         ytCWlVNuYps3HKy1wFX5WycWfLGTF+iyuUtn2gw0fqZ/ZZUM3prfFtPEhLnTDSinrY
-         MIJRck2/B+APnQLRWyUTCk+PQfihNbv9oEvNnllQ=
+        b=hmA/84SGKXQTqe/2IbdUuZWMDy+97t1d/qDXMUbdkWB7RZfWA46GKUomNLvZ+OAoe
+         3B37CqqaYS6Sf5xeiphRLiPDjkIpf+9HgdVovhrgGmuaUCknvcMtVqpFIPMhZufvk9
+         W3R4Ji1XMthAnx+acm//3XIVEWULocf6f2Rho8lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 15/35] iio:accel:bma180: rearrange iio trigger get and register
-Date:   Thu, 30 Jun 2022 15:46:26 +0200
-Message-Id: <20220630133232.891429035@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Will Deacon <will@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 27/29] fdt: Update CRC check for rng-seed
+Date:   Thu, 30 Jun 2022 15:46:27 +0200
+Message-Id: <20220630133232.001721917@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
+References: <20220630133231.200642128@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-commit e5f3205b04d7f95a2ef43bce4b454a7f264d6923 upstream.
+commit dd753d961c4844a39f947be115b3d81e10376ee5 upstream.
 
-IIO trigger interface function iio_trigger_get() should be called after
-iio_trigger_register() (or its devm analogue) strictly, because of
-iio_trigger_get() acquires module refcnt based on the trigger->owner
-pointer, which is initialized inside iio_trigger_register() to
-THIS_MODULE.
-If this call order is wrong, the next iio_trigger_put() (from sysfs
-callback or "delete module" path) will dereference "default" module
-refcnt, which is incorrect behaviour.
+Commit 428826f5358c ("fdt: add support for rng-seed") moves of_fdt_crc32
+from early_init_dt_verify() to early_init_dt_scan() since
+early_init_dt_scan_chosen() may modify fdt to erase rng-seed.
 
-Fixes: 0668a4e4d297 ("iio: accel: bma180: Fix indio_dev->trig assignment")
-Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220524181150.9240-2-ddrokosov@sberdevices.ru
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+However, arm and some other arch won't call early_init_dt_scan(), they
+call early_init_dt_verify() then early_init_dt_scan_nodes().
+
+Restore of_fdt_crc32 to early_init_dt_verify() then update it in
+early_init_dt_scan_chosen() if fdt if updated.
+
+Fixes: 428826f5358c ("fdt: add support for rng-seed")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma180.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/of/fdt.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -782,11 +782,12 @@ static int bma180_probe(struct i2c_clien
- 		data->trig->dev.parent = &client->dev;
- 		data->trig->ops = &bma180_trigger_ops;
- 		iio_trigger_set_drvdata(data->trig, indio_dev);
--		indio_dev->trig = iio_trigger_get(data->trig);
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1110,6 +1110,10 @@ int __init early_init_dt_scan_chosen(uns
  
- 		ret = iio_trigger_register(data->trig);
- 		if (ret)
- 			goto err_trigger_free;
+ 		/* try to clear seed so it won't be found. */
+ 		fdt_nop_property(initial_boot_params, node, "rng-seed");
 +
-+		indio_dev->trig = iio_trigger_get(data->trig);
++		/* update CRC check value */
++		of_fdt_crc32 = crc32_be(~0, initial_boot_params,
++				fdt_totalsize(initial_boot_params));
  	}
  
- 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+ 	/* break now */
+@@ -1213,6 +1217,8 @@ bool __init early_init_dt_verify(void *p
+ 
+ 	/* Setup flat device-tree pointer */
+ 	initial_boot_params = params;
++	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
++				fdt_totalsize(initial_boot_params));
+ 	return true;
+ }
+ 
+@@ -1238,8 +1244,6 @@ bool __init early_init_dt_scan(void *par
+ 		return false;
+ 
+ 	early_init_dt_scan_nodes();
+-	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
+-				fdt_totalsize(initial_boot_params));
+ 	return true;
+ }
+ 
 
 
