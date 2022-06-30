@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5766B561BFB
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA878561D55
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235482AbiF3NtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:49:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
+        id S236013AbiF3OC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235392AbiF3Nso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:48:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA4713F5C;
-        Thu, 30 Jun 2022 06:48:35 -0700 (PDT)
+        with ESMTP id S236477AbiF3OC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B6F25073A;
+        Thu, 30 Jun 2022 06:52:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 564CB61FFB;
-        Thu, 30 Jun 2022 13:48:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36DA4C3411E;
-        Thu, 30 Jun 2022 13:48:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CD9BB82AF3;
+        Thu, 30 Jun 2022 13:52:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C545C34115;
+        Thu, 30 Jun 2022 13:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596914;
-        bh=UqT7Ezn9pWtS5CRV1aEcCh3rXLPAeHPdmaWs4yzft/k=;
+        s=korg; t=1656597171;
+        bh=3KY1oaQSn0G41Rhl1/3pb9fLEjbbzfQpc6xmm+S8BKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ArQP9zZu3hIqkyl69OvTsVBDSxRWZ7o+tr6n5OG83dvhbOf/hhIVfzEiA03cSHaaT
-         NPNkdrn803Ms0wTxhIGCbYDtT+9hnq9y3JnLhG8yDR0pS8TvYiJo/2qrcmxNyetaR5
-         Wgvu8kC5LD1EFmJkoIDigal5/Wnv1I0mHwctA2Oc=
+        b=2VT6hAUd3ZSJeg92CuESZuSpmHvhhYlKPbAUzuB929eXzqf32EWG1vxCV6YSVYl31
+         PMmMrfuerv+4BaVL9wIHbpz8X7Bz+Uf2F7PrG3UF50F4VeYak1aMuqhzoWTIIhLgsx
+         fB11664Ii8rkt1u7IO5QV9nZJcd6BWQ8iu7IAneU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.9 26/29] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+        stable@vger.kernel.org,
+        Yuming Chen <chenyuming.junnan@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/49] net/sched: sch_netem: Fix arithmetic in netem_dump() for 32-bit platforms
 Date:   Thu, 30 Jun 2022 15:46:26 +0200
-Message-Id: <20220630133231.972554082@linuxfoundation.org>
+Message-Id: <20220630133234.292428034@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133231.200642128@linuxfoundation.org>
-References: <20220630133231.200642128@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea upstream.
+[ Upstream commit a2b1a5d40bd12b44322c2ccd40bb0ec1699708b6 ]
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+As reported by Yuming, currently tc always show a latency of UINT_MAX
+for netem Qdisc's on 32-bit platforms:
 
-modpost used to detect it, but it has been broken for a decade.
+    $ tc qdisc add dev dummy0 root netem latency 100ms
+    $ tc qdisc show dev dummy0
+    qdisc netem 8001: root refcnt 2 limit 1000 delay 275s  275s
+                                               ^^^^^^^^^^^^^^^^
 
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
+Let us take a closer look at netem_dump():
 
-There are two ways to fix it:
+        qopt.latency = min_t(psched_tdiff_t, PSCHED_NS2TICKS(q->latency,
+                             UINT_MAX);
 
-  - Remove __init
-  - Remove EXPORT_SYMBOL
+qopt.latency is __u32, psched_tdiff_t is signed long,
+(psched_tdiff_t)(UINT_MAX) is negative for 32-bit platforms, so
+qopt.latency is always UINT_MAX.
 
-I chose the latter for this case because none of the in-tree call-sites
-(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
-modular.
+Fix it by using psched_time_t (u64) instead.
 
-Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Acked-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note: confusingly, users have two ways to specify 'latency':
+
+  1. normally, via '__u32 latency' in struct tc_netem_qopt;
+  2. via the TCA_NETEM_LATENCY64 attribute, which is s64.
+
+For the second case, theoretically 'latency' could be negative.  This
+patch ignores that corner case, since it is broken (i.e. assigning a
+negative s64 to __u32) anyways, and should be handled separately.
+
+Thanks Ted Lin for the analysis [1] .
+
+[1] https://github.com/raspberrypi/linux/issues/3512
+
+Reported-by: Yuming Chen <chenyuming.junnan@bytedance.com>
+Fixes: 112f9cb65643 ("netem: convert to qdisc_watchdog_schedule_ns")
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+Link: https://lore.kernel.org/r/20220616234336.2443-1-yepeilin.cs@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xlate_mmu.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/sched/sch_netem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/xen/xlate_mmu.c
-+++ b/drivers/xen/xlate_mmu.c
-@@ -262,4 +262,3 @@ int __init xen_xlate_map_ballooned_pages
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+index ad400f4f9a2d..31793af1a77b 100644
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -1120,9 +1120,9 @@ static int netem_dump(struct Qdisc *sch, struct sk_buff *skb)
+ 	struct tc_netem_rate rate;
+ 	struct tc_netem_slot slot;
  
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
+-	qopt.latency = min_t(psched_tdiff_t, PSCHED_NS2TICKS(q->latency),
++	qopt.latency = min_t(psched_time_t, PSCHED_NS2TICKS(q->latency),
+ 			     UINT_MAX);
+-	qopt.jitter = min_t(psched_tdiff_t, PSCHED_NS2TICKS(q->jitter),
++	qopt.jitter = min_t(psched_time_t, PSCHED_NS2TICKS(q->jitter),
+ 			    UINT_MAX);
+ 	qopt.limit = q->limit;
+ 	qopt.loss = q->loss;
+-- 
+2.35.1
+
 
 
