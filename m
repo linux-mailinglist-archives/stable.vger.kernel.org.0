@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49394561CFE
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A8F561CCF
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236326AbiF3OBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45020 "EHLO
+        id S236677AbiF3OIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236095AbiF3OAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:00:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFCA744757;
-        Thu, 30 Jun 2022 06:52:32 -0700 (PDT)
+        with ESMTP id S236748AbiF3OH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:07:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C9F48801;
+        Thu, 30 Jun 2022 06:54:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 741DD61FF6;
-        Thu, 30 Jun 2022 13:52:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7918CC34115;
-        Thu, 30 Jun 2022 13:52:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45236B82AF0;
+        Thu, 30 Jun 2022 13:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 896ABC34115;
+        Thu, 30 Jun 2022 13:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597149;
-        bh=UqT7Ezn9pWtS5CRV1aEcCh3rXLPAeHPdmaWs4yzft/k=;
+        s=korg; t=1656597268;
+        bh=EpZC/P+cyU+ef0ydblJSNneaorBxL1pW3xJ3J/vLAP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYojxU4gfvzWikI2hbQDO2aGvYejBX72TiEURtea81v0rH8KXtzrPLzu0vWZGP5T9
-         LGtKncYZlYRJLjHj0ro+qE/NP3cSYsmsjGxRLZN2gdKxmCfv++Ipo9PQ0m46t5wtEf
-         7kW2XkttGa9zE7H6lQ3ud5idxV4uJHP6jnBifpks=
+        b=O+WjtnnUsg6/DUJ+1lOEJW7DKliSsJIhHhu7Xl5k/boENoFusk+PrrsnijE1igFTF
+         3rhOmY9W4744itjMwGnkBCZVzjm4NwAQMSTKDhLolLHkX24RYfJywhOKLBU1oZiyzb
+         RpiR2EAJ01jj4pYuCjGh2Y6L02CLtZhzzL81aNMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Masahiro Yamada <masahiroy@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 44/49] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Thomas Backlund <tmb@tmb.nu>
+Subject: [PATCH 5.15 01/28] tick/nohz: unexport __init-annotated tick_nohz_full_setup()
 Date:   Thu, 30 Jun 2022 15:46:57 +0200
-Message-Id: <20220630133235.173427029@linuxfoundation.org>
+Message-Id: <20220630133232.972417691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+References: <20220630133232.926711493@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,45 +60,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea upstream.
+commit 2390095113e98fc52fffe35c5206d30d9efe3f78 upstream.
 
 EXPORT_SYMBOL and __init is a bad combination because the .init.text
 section is freed up after the initialization. Hence, modules cannot
 use symbols annotated __init. The access to a freed symbol may end up
 with kernel panic.
 
-modpost used to detect it, but it has been broken for a decade.
+modpost used to detect it, but it had been broken for a decade.
 
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
+Commit 28438794aba4 ("modpost: fix section mismatch check for exported
+init/exit sections") fixed it so modpost started to warn it again, then
+this showed up:
 
-There are two ways to fix it:
+    MODPOST vmlinux.symvers
+  WARNING: modpost: vmlinux.o(___ksymtab_gpl+tick_nohz_full_setup+0x0): Section mismatch in reference from the variable __ksymtab_tick_nohz_full_setup to the function .init.text:tick_nohz_full_setup()
+  The symbol tick_nohz_full_setup is exported and annotated __init
+  Fix this by removing the __init annotation of tick_nohz_full_setup or drop the export.
 
-  - Remove __init
-  - Remove EXPORT_SYMBOL
+Drop the export because tick_nohz_full_setup() is only called from the
+built-in code in kernel/sched/isolation.c.
 
-I chose the latter for this case because none of the in-tree call-sites
-(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
-modular.
-
-Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Fixes: ae9e557b5be2 ("time: Export tick start/stop functions for rcutorture")
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Acked-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Tested-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Thomas Backlund <tmb@tmb.nu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/xlate_mmu.c |    1 -
+ kernel/time/tick-sched.c |    1 -
  1 file changed, 1 deletion(-)
 
---- a/drivers/xen/xlate_mmu.c
-+++ b/drivers/xen/xlate_mmu.c
-@@ -262,4 +262,3 @@ int __init xen_xlate_map_ballooned_pages
- 
- 	return 0;
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -509,7 +509,6 @@ void __init tick_nohz_full_setup(cpumask
+ 	cpumask_copy(tick_nohz_full_mask, cpumask);
+ 	tick_nohz_full_running = true;
  }
--EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
+-EXPORT_SYMBOL_GPL(tick_nohz_full_setup);
+ 
+ static int tick_nohz_cpu_down(unsigned int cpu)
+ {
 
 
