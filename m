@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4670561C59
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55646561D9F
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235990AbiF3N4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:56:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
+        id S236277AbiF3ODY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235795AbiF3Nzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:55:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4387E022;
-        Thu, 30 Jun 2022 06:50:43 -0700 (PDT)
+        with ESMTP id S236612AbiF3OCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 10:02:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86DDAB48;
+        Thu, 30 Jun 2022 06:53:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DC6CB82AF6;
-        Thu, 30 Jun 2022 13:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E89C34115;
-        Thu, 30 Jun 2022 13:50:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9928A620EB;
+        Thu, 30 Jun 2022 13:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7B2C34115;
+        Thu, 30 Jun 2022 13:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597036;
-        bh=cpzX2yLedtKk+NI8PK8akJRB/FF4SgQBdiOZDYm3AXc=;
+        s=korg; t=1656597183;
+        bh=mAlzY4+qXjdLojrOSA13Bsh+r1xYcbPlD1Afg/rBXqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Azgg+66EUaMplU2/Zof78g0sqL4VEwEirdF11U3hIIFlHRVPAJ3bzbkYbmAa1yGDX
-         n8XtCGYB7jhHDPHIOYdOrUgRhPct2MAHYzuP5OBRG2ISnqPfhzZg50TzueNQsBUc6/
-         bXFXuYb51t2HqLJyw8fzNQyP1ZwF86kZnKc4MTNA=
+        b=MzjpqAVSJCi2iP1tRKM1TJQ6Xz7ZdIwFeVLmKauJCsF+B/RzN1q+9cQ5Hx4o4Xhdz
+         NgXb5K7j+QmlarzT1R1rDTswRgHvFTAAZWpuu2Q81xEixR+ST9TYiI+ukBMLPT6gmd
+         PkiAFpKGj8omz9FXbIwsGDr3Gsmn1oATM8/MofkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Toppins <jtoppins@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/35] bonding: ARP monitor spams NETDEV_NOTIFY_PEERS notifiers
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.19 07/49] dm era: commit metadata in postsuspend after worker stops
 Date:   Thu, 30 Jun 2022 15:46:20 +0200
-Message-Id: <20220630133232.715988145@linuxfoundation.org>
+Message-Id: <20220630133234.124223830@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Vosburgh <jay.vosburgh@canonical.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-[ Upstream commit 7a9214f3d88cfdb099f3896e102a306b316d8707 ]
+commit 9ae6e8b1c9bbf6874163d1243e393137313762b7 upstream.
 
-The bonding ARP monitor fails to decrement send_peer_notif, the
-number of peer notifications (gratuitous ARP or ND) to be sent. This
-results in a continuous series of notifications.
+During postsuspend dm-era does the following:
 
-Correct this by decrementing the counter for each notification.
+1. Archives the current era
+2. Commits the metadata, as part of the RPC call for archiving the
+   current era
+3. Stops the worker
 
-Reported-by: Jonathan Toppins <jtoppins@redhat.com>
-Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Fixes: b0929915e035 ("bonding: Fix RTNL: assertion failed at net/core/rtnetlink.c for ab arp monitor")
-Link: https://lore.kernel.org/netdev/b2fd4147-8f50-bebd-963a-1a3e8d1d9715@redhat.com/
-Tested-by: Jonathan Toppins <jtoppins@redhat.com>
-Reviewed-by: Jonathan Toppins <jtoppins@redhat.com>
-Link: https://lore.kernel.org/r/9400.1655407960@famine
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Until the worker stops, it might write to the metadata again. Moreover,
+these writes are not flushed to disk immediately, but are cached by the
+dm-bufio client, which writes them back asynchronously.
+
+As a result, the committed metadata of a suspended dm-era device might
+not be consistent with the in-core metadata.
+
+In some cases, this can result in the corruption of the on-disk
+metadata. Suppose the following sequence of events:
+
+1. Load a new table, e.g. a snapshot-origin table, to a device with a
+   dm-era table
+2. Suspend the device
+3. dm-era commits its metadata, but the worker does a few more metadata
+   writes until it stops, as part of digesting an archived writeset
+4. These writes are cached by the dm-bufio client
+5. Load the dm-era table to another device.
+6. The new instance of the dm-era target loads the committed, on-disk
+   metadata, which don't include the extra writes done by the worker
+   after the metadata commit.
+7. Resume the new device
+8. The new dm-era target instance starts using the metadata
+9. Resume the original device
+10. The destructor of the old dm-era target instance is called and
+    destroys the dm-bufio client, which results in flushing the cached
+    writes to disk
+11. These writes might overwrite the writes done by the new dm-era
+    instance, hence corrupting its metadata.
+
+Fix this by committing the metadata after the worker stops running.
+
+stop_worker uses flush_workqueue to flush the current work. However, the
+work item may re-queue itself and flush_workqueue doesn't wait for
+re-queued works to finish.
+
+This could result in the worker changing the metadata after they have
+been committed, or writing to the metadata concurrently with the commit
+in the postsuspend thread.
+
+Use drain_workqueue instead, which waits until the work and all
+re-queued works finish.
+
+Fixes: eec40579d8487 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-era-target.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 7096fcbf699c..98e64f63d9ba 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3048,9 +3048,11 @@ static void bond_activebackup_arp_mon(struct bonding *bond)
- 		if (!rtnl_trylock())
- 			return;
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -1396,7 +1396,7 @@ static void start_worker(struct era *era
+ static void stop_worker(struct era *era)
+ {
+ 	atomic_set(&era->suspended, 1);
+-	flush_workqueue(era->wq);
++	drain_workqueue(era->wq);
+ }
  
--		if (should_notify_peers)
-+		if (should_notify_peers) {
-+			bond->send_peer_notif--;
- 			call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
- 						 bond->dev);
-+		}
- 		if (should_notify_rtnl) {
- 			bond_slave_state_notify(bond);
- 			bond_slave_link_notify(bond);
--- 
-2.35.1
-
+ /*----------------------------------------------------------------
+@@ -1580,6 +1580,12 @@ static void era_postsuspend(struct dm_ta
+ 	}
+ 
+ 	stop_worker(era);
++
++	r = metadata_commit(era->md);
++	if (r) {
++		DMERR("%s: metadata_commit failed", __func__);
++		/* FIXME: fail mode */
++	}
+ }
+ 
+ static int era_preresume(struct dm_target *ti)
 
 
