@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE92561C95
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC2B561C08
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236085AbiF3OAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 10:00:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37492 "EHLO
+        id S235470AbiF3Nvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:51:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236016AbiF3N5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:57:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2993BA5A;
-        Thu, 30 Jun 2022 06:51:07 -0700 (PDT)
+        with ESMTP id S235588AbiF3Nv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:51:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3577E1020;
+        Thu, 30 Jun 2022 06:49:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA34462009;
-        Thu, 30 Jun 2022 13:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B01C34115;
-        Thu, 30 Jun 2022 13:51:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D185B82AFA;
+        Thu, 30 Jun 2022 13:49:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C884FC34115;
+        Thu, 30 Jun 2022 13:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597067;
-        bh=r/AUmqVNZ/rqk8TyaWRYjSqZNwcpqBfVSV8e106GGsk=;
+        s=korg; t=1656596953;
+        bh=7kiX5/iU3xMuzV4UnCjZcDeo0Fq3+CeUwxfLySqMeXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JnNNdf4nPiV2cRo/T2ZJpsFLciygewS4D2Ywml/8EVlepVPRk/+YgBhF0ewBuxvbS
-         S86V2bC507DtjzDphudwO024sBZMEDNbPkXXHpop4BMwNqqHc6ikyFaf88L+IXBnDs
-         VabrB9GvXi232XMXsQ7BoLPB1D2V3FjIGIiwx2qw=
+        b=uadquo0eR0gBVYmeX2rGEXVboYyFTg7PPpbqcq3Ylx0rndX4nkFxxJ06WKf9tk6HI
+         FwCZSwaFWwTDa5RRAakRe1JGGGeXmFwv3/ZG8nNbNQrxSq3tPVSy3LussxslX4qa15
+         FW8vY1OPLWEDKt/92gqhQ92NGUN2vbhhgHaPMeFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Ron Economos <re@w6rz.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 08/49] random: quiet urandom warning ratelimit suppression message
-Date:   Thu, 30 Jun 2022 15:46:21 +0200
-Message-Id: <20220630133234.153473945@linuxfoundation.org>
+        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
+        huhai <huhai@kylinos.cn>,
+        Genjian Zhang <zhanggenjian@kylinos.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/35] MIPS: Remove repetitive increase irq_err_count
+Date:   Thu, 30 Jun 2022 15:46:22 +0200
+Message-Id: <20220630133232.773486663@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
-References: <20220630133233.910803744@linuxfoundation.org>
+In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
+References: <20220630133232.433955678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: huhai <huhai@kylinos.cn>
 
-commit c01d4d0a82b71857be7449380338bc53dde2da92 upstream.
+[ Upstream commit c81aba8fde2aee4f5778ebab3a1d51bd2ef48e4c ]
 
-random.c ratelimits how much it warns about uninitialized urandom reads
-using __ratelimit(). When the RNG is finally initialized, it prints the
-number of missed messages due to ratelimiting.
+commit 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx") added
+a function irq_dispatch, and it'll increase irq_err_count when the get_irq
+callback returns a negative value, but increase irq_err_count in get_irq
+was not removed.
 
-It has been this way since that functionality was introduced back in
-2018. Recently, cc1e127bfa95 ("random: remove ratelimiting for in-kernel
-unseeded randomness") put a bit more stress on the urandom ratelimiting,
-which teased out a bug in the implementation.
+And also, modpost complains once gpio-vr41xx drivers become modules.
+  ERROR: modpost: "irq_err_count" [drivers/gpio/gpio-vr41xx.ko] undefined!
 
-Specifically, when under pressure, __ratelimit() will print its own
-message and reset the count back to 0, making the final message at the
-end less useful. Secondly, it does so as a pr_warn(), which apparently
-is undesirable for people's CI.
+So it would be a good idea to remove repetitive increase irq_err_count in
+get_irq callback.
 
-Fortunately, __ratelimit() has the RATELIMIT_MSG_ON_RELEASE flag exactly
-for this purpose, so we set the flag.
-
-Fixes: 4e00b339e264 ("random: rate limit unseeded randomness warnings")
-Cc: stable@vger.kernel.org
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Reported-by: Ron Economos <re@w6rz.net>
-Tested-by: Ron Economos <re@w6rz.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 27fdd325dace ("MIPS: Update VR41xx GPIO driver to use gpiolib")
+Fixes: 979934da9e7a ("[PATCH] mips: update IRQ handling for vr41xx")
+Reported-by: k2ci <kernel-bot@kylinos.cn>
+Signed-off-by: huhai <huhai@kylinos.cn>
+Signed-off-by: Genjian Zhang <zhanggenjian@kylinos.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c     |    2 +-
- include/linux/ratelimit.h |   12 ++++++++----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ arch/mips/vr41xx/common/icu.c | 2 --
+ drivers/gpio/gpio-vr41xx.c    | 2 --
+ 2 files changed, 4 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -88,7 +88,7 @@ static RAW_NOTIFIER_HEAD(random_ready_ch
+diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
+index 745b7b436961..42f77b318974 100644
+--- a/arch/mips/vr41xx/common/icu.c
++++ b/arch/mips/vr41xx/common/icu.c
+@@ -653,8 +653,6 @@ static int icu_get_irq(unsigned int irq)
  
- /* Control how we warn userspace. */
- static struct ratelimit_state urandom_warning =
--	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
-+	RATELIMIT_STATE_INIT_FLAGS("urandom_warning", HZ, 3, RATELIMIT_MSG_ON_RELEASE);
- static int ratelimit_disable __read_mostly =
- 	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
- module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
---- a/include/linux/ratelimit.h
-+++ b/include/linux/ratelimit.h
-@@ -23,12 +23,16 @@ struct ratelimit_state {
- 	unsigned long	flags;
- };
+ 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
  
--#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
--		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
--		.interval	= interval_init,			\
--		.burst		= burst_init,				\
-+#define RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, flags_init) { \
-+		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),		  \
-+		.interval	= interval_init,				  \
-+		.burst		= burst_init,					  \
-+		.flags		= flags_init,					  \
- 	}
+-	atomic_inc(&irq_err_count);
+-
+ 	return -1;
+ }
  
-+#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) \
-+	RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, 0)
-+
- #define RATELIMIT_STATE_INIT_DISABLED					\
- 	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
+diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
+index ac8deb01f6f6..ee3163dd794b 100644
+--- a/drivers/gpio/gpio-vr41xx.c
++++ b/drivers/gpio/gpio-vr41xx.c
+@@ -224,8 +224,6 @@ static int giu_get_irq(unsigned int irq)
+ 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
+ 	       maskl, pendl, maskh, pendh);
  
+-	atomic_inc(&irq_err_count);
+-
+ 	return -EINVAL;
+ }
+ 
+-- 
+2.35.1
+
 
 
