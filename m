@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C32560EAD
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 03:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135EF560EB5
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 03:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiF3Bdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Jun 2022 21:33:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41448 "EHLO
+        id S229870AbiF3BeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Jun 2022 21:34:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229560AbiF3Bdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 21:33:54 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E881C128;
-        Wed, 29 Jun 2022 18:33:53 -0700 (PDT)
-Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LYLQZ1J17zhYyV;
-        Thu, 30 Jun 2022 09:31:34 +0800 (CST)
+        with ESMTP id S229560AbiF3BeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Jun 2022 21:34:09 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7331C128;
+        Wed, 29 Jun 2022 18:34:08 -0700 (PDT)
+Received: from dggpeml500026.china.huawei.com (unknown [172.30.72.54])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LYLSj06Xcz9sv3;
+        Thu, 30 Jun 2022 09:33:25 +0800 (CST)
 Received: from dggpeml100012.china.huawei.com (7.185.36.121) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 30 Jun 2022 09:33:51 +0800
+ 15.1.2375.24; Thu, 30 Jun 2022 09:34:06 +0800
 Received: from ubuntu1804.huawei.com (10.67.174.66) by
  dggpeml100012.china.huawei.com (7.185.36.121) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 30 Jun 2022 09:33:51 +0800
+ 15.1.2375.24; Thu, 30 Jun 2022 09:34:06 +0800
 From:   Zheng Yejian <zhengyejian1@huawei.com>
 To:     <rostedt@goodmis.org>, <mingo@redhat.com>,
         <linux-kernel@vger.kernel.org>, <tom.zanussi@linux.intel.com>,
         <trix@redhat.com>
 CC:     <stable@vger.kernel.org>, <zhangjinhao2@huawei.com>,
         <zhengyejian1@huawei.com>
-Subject: [PATCH] Revert "tracing: fix double free"
-Date:   Thu, 30 Jun 2022 09:31:37 +0800
-Message-ID: <20220630013137.164756-1-zhengyejian1@huawei.com>
+Subject: [PATCH] tracing/histograms: Simplify create_hist_fields()
+Date:   Thu, 30 Jun 2022 09:31:52 +0800
+Message-ID: <20220630013152.164871-1-zhengyejian1@huawei.com>
 X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [10.67.174.66]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
  dggpeml100012.china.huawei.com (7.185.36.121)
 X-CFilter-Loop: Reflected
 X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
@@ -51,72 +51,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 46bbe5c671e06f070428b9be142cc4ee5cedebac.
+When I look into implements of create_hist_fields(), I think there can be
+following two simplifications:
+  1. If something wrong happened in parse_var_defs(), free_var_defs() would
+     have been called in it, so no need goto free again after calling it;
+  2. After calling create_key_fields(), regardless of the value of 'ret', it
+     then always runs into 'out: ', so the judge of 'ret' is redundant.
 
-As commit 46bbe5c671e0 ("tracing: fix double free") said, the
-"double free" problem reported by clang static analyzer is:
-  > In parse_var_defs() if there is a problem allocating
-  > var_defs.expr, the earlier var_defs.name is freed.
-  > This free is duplicated by free_var_defs() which frees
-  > the rest of the list.
+No functional changes.
 
-However, if there is a problem allocating N-th var_defs.expr:
-  + in parse_var_defs(), the freed 'earlier var_defs.name' is
-    actually the N-th var_defs.name;
-  + then in free_var_defs(), the names from 0th to (N-1)-th are freed;
-
-                        IF ALLOCATING PROBLEM HAPPENED HERE!!! -+
-                                                                 \
-                                                                  |
-          0th           1th                 (N-1)-th      N-th    V
-          +-------------+-------------+-----+-------------+-----------
-var_defs: | name | expr | name | expr | ... | name | expr | name | ///
-          +-------------+-------------+-----+-------------+-----------
-
-These two frees don't act on same name, so there was no "double free"
-problem before. Conversely, after that commit, we get a "memory leak"
-problem because the above "N-th var_defs.name" is not freed.
-
-If enable CONFIG_DEBUG_KMEMLEAK and inject a fault at where the N-th
-var_defs.expr allocated, then execute on shell like:
-  $ echo 'hist:key=call_site:val=$v1,$v2:v1=bytes_req,v2=bytes_alloc' > \
-/sys/kernel/debug/tracing/events/kmem/kmalloc/trigger
-
-Then kmemleak reports:
-  unreferenced object 0xffff8fb100ef3518 (size 8):
-    comm "bash", pid 196, jiffies 4295681690 (age 28.538s)
-    hex dump (first 8 bytes):
-      76 31 00 00 b1 8f ff ff                          v1......
-    backtrace:
-      [<0000000038fe4895>] kstrdup+0x2d/0x60
-      [<00000000c99c049a>] event_hist_trigger_parse+0x206f/0x20e0
-      [<00000000ae70d2cc>] trigger_process_regex+0xc0/0x110
-      [<0000000066737a4c>] event_trigger_write+0x75/0xd0
-      [<000000007341e40c>] vfs_write+0xbb/0x2a0
-      [<0000000087fde4c2>] ksys_write+0x59/0xd0
-      [<00000000581e9cdf>] do_syscall_64+0x3a/0x80
-      [<00000000cf3b065c>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Cc: stable@vger.kernel.org
-Fixes: 46bbe5c671e0 ("tracing: fix double free")
-Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 ---
- kernel/trace/trace_events_hist.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/trace_events_hist.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 48e82e141d54..2784951e0fc8 100644
+index 2784951e0fc8..832c4ccf41ab 100644
 --- a/kernel/trace/trace_events_hist.c
 +++ b/kernel/trace/trace_events_hist.c
-@@ -4430,6 +4430,7 @@ static int parse_var_defs(struct hist_trigger_data *hist_data)
+@@ -4454,7 +4454,7 @@ static int create_hist_fields(struct hist_trigger_data *hist_data,
  
- 			s = kstrdup(field_str, GFP_KERNEL);
- 			if (!s) {
-+				kfree(hist_data->attrs->var_defs.name[n_vars]);
- 				ret = -ENOMEM;
- 				goto free;
- 			}
+ 	ret = parse_var_defs(hist_data);
+ 	if (ret)
+-		goto out;
++		return ret;
+ 
+ 	ret = create_val_fields(hist_data, file);
+ 	if (ret)
+@@ -4465,8 +4465,7 @@ static int create_hist_fields(struct hist_trigger_data *hist_data,
+ 		goto out;
+ 
+ 	ret = create_key_fields(hist_data, file);
+-	if (ret)
+-		goto out;
++
+  out:
+ 	free_var_defs(hist_data);
+ 
 -- 
 2.32.0
 
