@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A538A561C33
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0826561C60
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235910AbiF3NzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37458 "EHLO
+        id S236002AbiF3N5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235914AbiF3Nyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121F451B3C;
-        Thu, 30 Jun 2022 06:50:22 -0700 (PDT)
+        with ESMTP id S235987AbiF3N4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:56:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E58F3B026;
+        Thu, 30 Jun 2022 06:50:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 223EEB82AEE;
-        Thu, 30 Jun 2022 13:50:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86172C34115;
-        Thu, 30 Jun 2022 13:50:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 642C1B82AEE;
+        Thu, 30 Jun 2022 13:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBBEC34115;
+        Thu, 30 Jun 2022 13:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597019;
-        bh=LkGjcLM0HH0up5ztvdF1X5AAzcBGFDmqE0jYW4s03Zs=;
+        s=korg; t=1656597045;
+        bh=JGWObjH0AjpoMYTLFfuxVJHH84oeCMnkgyGdD9U098M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gr3286hnc6MvlfImSDVT44gRCenEYmFAKRgF880cl4EQ+wqBrf0MzumuexXh/2tD
-         zs2l3n/Ugm7j8n+E7CJmRp+SwvImjoDO0a3kfH1kEqSdj4PxdoB+nNXg71ms9US2n9
-         CCcKurJXczyuzFqgnSxj/iY1Ir6ZQ9d3UJLp1QN8=
+        b=AFp7hAZR4WwoLPjZCprXs+4QAVGBBC3Vfdyt8d2ZQNDZwGiOnWpYztXkM1O5dsrWw
+         5AOyAhSvvrGWS3ZW/7Nyf7QGLDGxYw7ETaTh3gEF2NX0bW/xQ4Mt99D7fGnNt2FxbJ
+         oRjB4S/SwXbxR4b4kb/hfd5z579u/sFnA3WwmKjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Will Deacon <will@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.14 33/35] fdt: Update CRC check for rng-seed
-Date:   Thu, 30 Jun 2022 15:46:44 +0200
-Message-Id: <20220630133233.413005017@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 34/35] kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
+Date:   Thu, 30 Jun 2022 15:46:45 +0200
+Message-Id: <20220630133233.443358893@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
 References: <20220630133232.433955678@linuxfoundation.org>
@@ -56,61 +55,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit dd753d961c4844a39f947be115b3d81e10376ee5 upstream.
+commit 3e35142ef99fe6b4fe5d834ad43ee13cca10a2dc upstream.
 
-Commit 428826f5358c ("fdt: add support for rng-seed") moves of_fdt_crc32
-from early_init_dt_verify() to early_init_dt_scan() since
-early_init_dt_scan_chosen() may modify fdt to erase rng-seed.
+Since commit d1bcae833b32f1 ("ELF: Don't generate unused section
+symbols") [1], binutils (v2.36+) started dropping section symbols that
+it thought were unused.  This isn't an issue in general, but with
+kexec_file.c, gcc is placing kexec_arch_apply_relocations[_add] into a
+separate .text.unlikely section and the section symbol ".text.unlikely"
+is being dropped. Due to this, recordmcount is unable to find a non-weak
+symbol in .text.unlikely to generate a relocation record against.
 
-However, arm and some other arch won't call early_init_dt_scan(), they
-call early_init_dt_verify() then early_init_dt_scan_nodes().
+Address this by dropping the weak attribute from these functions.
+Instead, follow the existing pattern of having architectures #define the
+name of the function they want to override in their headers.
 
-Restore of_fdt_crc32 to early_init_dt_verify() then update it in
-early_init_dt_scan_chosen() if fdt if updated.
+[1] https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=d1bcae833b32f1
 
-Fixes: 428826f5358c ("fdt: add support for rng-seed")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+[akpm@linux-foundation.org: arch/s390/include/asm/kexec.h needs linux/module.h]
+Link: https://lkml.kernel.org/r/20220519091237.676736-1-naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/fdt.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kexec.h |    6 ++++++
+ include/linux/kexec.h        |   26 ++++++++++++++++++++++----
+ kernel/kexec_file.c          |   18 ------------------
+ 3 files changed, 28 insertions(+), 22 deletions(-)
 
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1159,6 +1159,10 @@ int __init early_init_dt_scan_chosen(uns
+--- a/arch/x86/include/asm/kexec.h
++++ b/arch/x86/include/asm/kexec.h
+@@ -21,6 +21,7 @@
+ #ifndef __ASSEMBLY__
  
- 		/* try to clear seed so it won't be found. */
- 		fdt_nop_property(initial_boot_params, node, "rng-seed");
+ #include <linux/string.h>
++#include <linux/module.h>
+ 
+ #include <asm/page.h>
+ #include <asm/ptrace.h>
+@@ -217,6 +218,11 @@ extern int arch_kexec_post_alloc_pages(v
+ extern void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages);
+ #define arch_kexec_pre_free_pages arch_kexec_pre_free_pages
+ 
++#ifdef CONFIG_KEXEC_FILE
++int arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
++				     Elf_Shdr *sechdrs, unsigned int relsec);
++#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
++#endif
+ #endif
+ 
+ typedef void crash_vmclear_fn(void);
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -163,6 +163,28 @@ int __weak arch_kexec_walk_mem(struct ke
+ 			       int (*func)(u64, u64, void *));
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+ int kexec_locate_mem_hole(struct kexec_buf *kbuf);
 +
-+		/* update CRC check value */
-+		of_fdt_crc32 = crc32_be(~0, initial_boot_params,
-+				fdt_totalsize(initial_boot_params));
- 	}
++#ifndef arch_kexec_apply_relocations_add
++/* Apply relocations of type RELA */
++static inline int
++arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
++				 Elf_Shdr *sechdrs, unsigned int relsec)
++{
++	pr_err("RELA relocation unsupported.\n");
++	return -ENOEXEC;
++}
++#endif
++
++#ifndef arch_kexec_apply_relocations
++/* Apply relocations of type REL */
++static inline int
++arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
++			     unsigned int relsec)
++{
++	pr_err("REL relocation unsupported.\n");
++	return -ENOEXEC;
++}
++#endif
+ #endif /* CONFIG_KEXEC_FILE */
  
- 	/* break now */
-@@ -1272,6 +1276,8 @@ bool __init early_init_dt_verify(void *p
+ struct kimage {
+@@ -288,10 +310,6 @@ void * __weak arch_kexec_kernel_image_lo
+ int __weak arch_kimage_file_post_load_cleanup(struct kimage *image);
+ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ 					unsigned long buf_len);
+-int __weak arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
+-					Elf_Shdr *sechdrs, unsigned int relsec);
+-int __weak arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-					unsigned int relsec);
+ void arch_kexec_protect_crashkres(void);
+ void arch_kexec_unprotect_crashkres(void);
  
- 	/* Setup flat device-tree pointer */
- 	initial_boot_params = params;
-+	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
-+				fdt_totalsize(initial_boot_params));
- 	return true;
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -53,24 +53,6 @@ int __weak arch_kexec_kernel_verify_sig(
  }
+ #endif
  
-@@ -1297,8 +1303,6 @@ bool __init early_init_dt_scan(void *par
- 		return false;
- 
- 	early_init_dt_scan_nodes();
--	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
--				fdt_totalsize(initial_boot_params));
- 	return true;
- }
- 
+-/* Apply relocations of type RELA */
+-int __weak
+-arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-				 unsigned int relsec)
+-{
+-	pr_err("RELA relocation unsupported.\n");
+-	return -ENOEXEC;
+-}
+-
+-/* Apply relocations of type REL */
+-int __weak
+-arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-			     unsigned int relsec)
+-{
+-	pr_err("REL relocation unsupported.\n");
+-	return -ENOEXEC;
+-}
+-
+ /*
+  * Free up memory used by kernel, initrd, and command line. This is temporary
+  * memory allocation which is not needed any more after these buffers have
 
 
