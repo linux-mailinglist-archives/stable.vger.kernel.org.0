@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02EF9561C2E
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 15:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D23561C84
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235757AbiF3Nxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
+        id S235959AbiF3N7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235848AbiF3Nwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:42 -0400
+        with ESMTP id S236418AbiF3N6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E19B3152A;
-        Thu, 30 Jun 2022 06:49:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F11E5725C;
+        Thu, 30 Jun 2022 06:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E783162000;
-        Thu, 30 Jun 2022 13:49:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073D4C34115;
-        Thu, 30 Jun 2022 13:49:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97E6961FF6;
+        Thu, 30 Jun 2022 13:51:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E19C34115;
+        Thu, 30 Jun 2022 13:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596986;
-        bh=fUBXeY/tbiGpHbTy5FVhnNYpcPo4dQ92LT2jXQSqICY=;
+        s=korg; t=1656597081;
+        bh=y9i6OcD3+jttfol87JifqvXY8ddQ2O+EJsT5yNM2FLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfuqkklSPG3atPtWtYmbHOWfj3rioHbV0P8XSL7/1TqZEmhyZ1a6PbjbGD93mWoaP
-         nHMJyJ//0c4Wa+X7gbNd4tJpEQA3qcE4G1vFrNwxu+lLqad6jqxhRy9heOFua1WDlm
-         tJQcCybOVLtQMKlxaC0kWGFPgQHET03s+PV+oYlc=
+        b=TzTDdZyfWvtmvNAxf6IxLvPWFUQik4kUukMiaDFSFw+4TCYRVy9CEPlHO7OlESQDu
+         2T5WzH1Iyu8vjo85OY0PFCXwY4l3433Ad6r9CK7ZV3KYl6UOlu+vpLQHYRfYCpvzlY
+         zpiZtZUJm7bIcnquEB/kkgp8UiX9z5aWYGUWFCRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Sumit Dubey2 <Sumit.Dubey2@ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 22/35] powerpc: Enable execve syscall exit tracepoint
-Date:   Thu, 30 Jun 2022 15:46:33 +0200
-Message-Id: <20220630133233.092536416@linuxfoundation.org>
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 21/49] iio: adc: vf610: fix conversion mode sysfs node name
+Date:   Thu, 30 Jun 2022 15:46:34 +0200
+Message-Id: <20220630133234.529375759@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-commit ec6d0dde71d760aa60316f8d1c9a1b0d99213529 upstream.
+[ Upstream commit f1a633b15cd5371a2a83f02c513984e51132dd68 ]
 
-On execve[at], we are zero'ing out most of the thread register state
-including gpr[0], which contains the syscall number. Due to this, we
-fail to trigger the syscall exit tracepoint properly. Fix this by
-retaining gpr[0] in the thread register state.
+The documentation missed the "in_" prefix for this IIO_SHARED_BY_DIR
+entry.
 
-Before this patch:
-  # tail /sys/kernel/debug/tracing/trace
-	       cat-123     [000] .....    61.449351: sys_execve(filename:
-  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
-	       cat-124     [000] .....    62.428481: sys_execve(filename:
-  7fffa6b23448, argv: 7fffa6b233e0, envp: 7fffa6b233f8)
-	      echo-125     [000] .....    65.813702: sys_execve(filename:
-  7fffa6b23378, argv: 7fffa6b233a0, envp: 7fffa6b233b0)
-	      echo-125     [000] .....    65.822214: sys_execveat(fd: 0,
-  filename: 1009ac48, argv: 7ffff65d0c98, envp: 7ffff65d0ca8, flags: 0)
-
-After this patch:
-  # tail /sys/kernel/debug/tracing/trace
-	       cat-127     [000] .....   100.416262: sys_execve(filename:
-  7fffa41b3448, argv: 7fffa41b33e0, envp: 7fffa41b33f8)
-	       cat-127     [000] .....   100.418203: sys_execve -> 0x0
-	      echo-128     [000] .....   103.873968: sys_execve(filename:
-  7fffa41b3378, argv: 7fffa41b33a0, envp: 7fffa41b33b0)
-	      echo-128     [000] .....   103.875102: sys_execve -> 0x0
-	      echo-128     [000] .....   103.882097: sys_execveat(fd: 0,
-  filename: 1009ac48, argv: 7fffd10d2148, envp: 7fffd10d2158, flags: 0)
-	      echo-128     [000] .....   103.883225: sys_execveat -> 0x0
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Tested-by: Sumit Dubey2 <Sumit.Dubey2@ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220609103328.41306-1-naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bf04c1a367e3 ("iio: adc: vf610: implement configurable conversion modes")
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Acked-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/560dc93fafe5ef7e9a409885fd20b6beac3973d8.1653900626.git.baruch@tkos.co.il
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/process.c |    2 +-
+ Documentation/ABI/testing/sysfs-bus-iio-vf610 | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -1613,7 +1613,7 @@ void start_thread(struct pt_regs *regs,
- 		tm_reclaim_current(0);
- #endif
- 
--	memset(regs->gpr, 0, sizeof(regs->gpr));
-+	memset(&regs->gpr[1], 0, sizeof(regs->gpr) - sizeof(regs->gpr[0]));
- 	regs->ctr = 0;
- 	regs->link = 0;
- 	regs->xer = 0;
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio-vf610 b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+index 308a6756d3bf..491ead804488 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio-vf610
++++ b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+@@ -1,4 +1,4 @@
+-What:		/sys/bus/iio/devices/iio:deviceX/conversion_mode
++What:		/sys/bus/iio/devices/iio:deviceX/in_conversion_mode
+ KernelVersion:	4.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
+-- 
+2.35.1
+
 
 
