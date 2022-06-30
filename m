@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4D5561C6B
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59636561C8C
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235811AbiF3Nxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49780 "EHLO
+        id S236026AbiF3N75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235866AbiF3Nwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718C7457BD;
-        Thu, 30 Jun 2022 06:49:50 -0700 (PDT)
+        with ESMTP id S236452AbiF3N6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:58:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DB15726F;
+        Thu, 30 Jun 2022 06:51:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C068B62009;
-        Thu, 30 Jun 2022 13:49:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA7C2C34115;
-        Thu, 30 Jun 2022 13:49:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED76620ED;
+        Thu, 30 Jun 2022 13:51:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48B81C34115;
+        Thu, 30 Jun 2022 13:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596989;
-        bh=94PS/wZZ8JNT7ubTfHG0d21mTHjU+1fTr8cQX43SgWs=;
+        s=korg; t=1656597083;
+        bh=Z/K9iGNGKjun6Pwhwsu8HaUDt3qlLF2xHSIBy2pz45M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/iIUgCtRd/+nilF8NbEKOvB48TNLq3vsLGSjdCaSlDHAPi9yJclnxdy74Jfb4fo3
-         jpZ4RKsnHi1ZeVNc5o7gIRS7VcTp/SdH3jDyiD7phOpPlBXzUvRxMEoXYDoIxk7wX6
-         1Zklc3/TSHm32wEANecu8MNOqIET2W/hXVf3o6GQ=
+        b=Q7WNcxP1oKQRhcEuUwIeUXSa/Bu+vrd9ODpRYmaH8HlTb6BlrxzXzMmoZ8QW8vabc
+         Ia9YKlwijwiKLoGGu1BrzbBxNYq8MteHNMxk/GL+VzWLR11b2DTqJkj9gZ4cixfaFx
+         2oJRrZRIpJLZSMau4bAHLvb6div54s2rZvBHqzQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sathvika Vasireddy <sathvika@linux.ibm.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 23/35] powerpc/rtas: Allow ibm,platform-dump RTAS call with null buffer address
-Date:   Thu, 30 Jun 2022 15:46:34 +0200
-Message-Id: <20220630133233.120912777@linuxfoundation.org>
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 22/49] xhci: turn off port power in shutdown
+Date:   Thu, 30 Jun 2022 15:46:35 +0200
+Message-Id: <20220630133234.557073875@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,60 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 7bc08056a6dabc3a1442216daf527edf61ac24b6 upstream.
+commit 83810f84ecf11dfc5a9414a8b762c3501b328185 upstream.
 
-Add a special case to block_rtas_call() to allow the ibm,platform-dump RTAS
-call through the RTAS filter if the buffer address is 0.
+If ports are not turned off in shutdown then runtime suspended
+self-powered USB devices may survive in U3 link state over S5.
 
-According to PAPR, ibm,platform-dump is called with a null buffer address
-to notify the platform firmware that processing of a particular dump is
-finished.
+During subsequent boot, if firmware sends an IPC command to program
+the port in DISCONNECT state, it will time out, causing significant
+delay in the boot time.
 
-Without this, on a pseries machine with CONFIG_PPC_RTAS_FILTER enabled, an
-application such as rtas_errd that is attempting to retrieve a dump will
-encounter an error at the end of the retrieval process.
+Turning off roothub port power is also recommended in xhci
+specification 4.19.4 "Port Power" in the additional note.
 
-Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
 Cc: stable@vger.kernel.org
-Reported-by: Sathvika Vasireddy <sathvika@linux.ibm.com>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220614134952.156010-1-ajd@linux.ibm.com
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220623111945.1557702-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/rtas.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-hub.c |    2 +-
+ drivers/usb/host/xhci.c     |   15 +++++++++++++--
+ drivers/usb/host/xhci.h     |    2 ++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1104,7 +1104,7 @@ static struct rtas_filter rtas_filters[]
- 	{ "get-time-of-day", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-vpd", -1, 0, -1, 1, 2 },
- 	{ "ibm,lpar-perftools", -1, 2, 3, -1, -1 },
--	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },
-+	{ "ibm,platform-dump", -1, 4, 5, -1, -1 },		/* Special cased */
- 	{ "ibm,read-slot-reset-state", -1, -1, -1, -1, -1 },
- 	{ "ibm,scan-log-dump", -1, 0, 1, -1, -1 },
- 	{ "ibm,set-dynamic-indicator", -1, 2, -1, -1, -1 },
-@@ -1151,6 +1151,15 @@ static bool block_rtas_call(int token, i
- 				size = 1;
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -565,7 +565,7 @@ struct xhci_hub *xhci_get_rhub(struct us
+  * It will release and re-aquire the lock while calling ACPI
+  * method.
+  */
+-static void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
++void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd,
+ 				u16 index, bool on, unsigned long *flags)
+ {
+ 	struct xhci_hub *rhub;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -774,6 +774,8 @@ static void xhci_stop(struct usb_hcd *hc
+ void xhci_shutdown(struct usb_hcd *hcd)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
++	unsigned long flags;
++	int i;
  
- 			end = base + size - 1;
+ 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
+ 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
+@@ -789,12 +791,21 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 		del_timer_sync(&xhci->shared_hcd->rh_timer);
+ 	}
+ 
+-	spin_lock_irq(&xhci->lock);
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	xhci_halt(xhci);
 +
-+			/*
-+			 * Special case for ibm,platform-dump - NULL buffer
-+			 * address is used to indicate end of dump processing
-+			 */
-+			if (!strcmp(f->name, "ibm,platform-dump") &&
-+			    base == 0)
-+				return false;
++	/* Power off USB2 ports*/
++	for (i = 0; i < xhci->usb2_rhub.num_ports; i++)
++		xhci_set_port_power(xhci, xhci->main_hcd, i, false, &flags);
 +
- 			if (!in_rmo_buf(base, end))
- 				goto err;
- 		}
++	/* Power off USB3 ports*/
++	for (i = 0; i < xhci->usb3_rhub.num_ports; i++)
++		xhci_set_port_power(xhci, xhci->shared_hcd, i, false, &flags);
++
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+ 		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+-	spin_unlock_irq(&xhci->lock);
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ 
+ 	xhci_cleanup_msix(xhci);
+ 
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2145,6 +2145,8 @@ int xhci_hub_control(struct usb_hcd *hcd
+ int xhci_hub_status_data(struct usb_hcd *hcd, char *buf);
+ int xhci_find_raw_port_number(struct usb_hcd *hcd, int port1);
+ struct xhci_hub *xhci_get_rhub(struct usb_hcd *hcd);
++void xhci_set_port_power(struct xhci_hcd *xhci, struct usb_hcd *hcd, u16 index,
++			 bool on, unsigned long *flags);
+ 
+ void xhci_hc_died(struct xhci_hcd *xhci);
+ 
 
 
