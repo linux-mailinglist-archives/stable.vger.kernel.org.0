@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D96561C5F
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E376B561C90
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235832AbiF3NyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:54:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49976 "EHLO
+        id S235866AbiF3OAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 10:00:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235877AbiF3Nwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:52:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD24B4D4FE;
-        Thu, 30 Jun 2022 06:49:55 -0700 (PDT)
+        with ESMTP id S236525AbiF3N7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:59:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC414427C4;
+        Thu, 30 Jun 2022 06:51:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A4746200C;
-        Thu, 30 Jun 2022 13:49:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52419C34115;
-        Thu, 30 Jun 2022 13:49:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 437B8B82AED;
+        Thu, 30 Jun 2022 13:51:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 974BBC34115;
+        Thu, 30 Jun 2022 13:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656596994;
-        bh=o3tqqsF5eFwjKTHYgfSEao3TrrhqYt7yT8Nw8o9EBlY=;
+        s=korg; t=1656597089;
+        bh=X8JUC66ow/6HI6++cQqPQ7voqNEha44XQ01WnUiymBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oxu5VyJtSoMOQhwfvhOIyoeMArtKxZ9keMc/hbLKxl9DGbQeKVWlK9bNVYJOZifun
-         09cJMVvep0MbMkM2vza19hzW/+YndZpm1ZNM4PIi2Bb52Oda769J5MZALCb+KyzI9i
-         8HNXKV+/x+VbGFnq5iRXZycUe8U18Lu7jgll7id4=
+        b=ZoerRl/u/dB2Fuc2/TZswtUAKofknkcLikvW1mDUn2UyYpSEe/iSmQiQeIUpRrvHA
+         jTbGiz4t8O3EGCwd9SLitAe9uvMuYOwanRHMaR5ZqUR2XYYzs8lSg3CAzAt9wORArA
+         Suaauo0XADRALiHZwmYlMboHxf6lMDhp3SH7SGhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.14 25/35] ARM: dts: imx6qdl: correct PU regulator ramp delay
-Date:   Thu, 30 Jun 2022 15:46:36 +0200
-Message-Id: <20220630133233.179789514@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Rokosov <ddrokosov@sberdevices.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 24/49] iio:chemical:ccs811: rearrange iio trigger get and register
+Date:   Thu, 30 Jun 2022 15:46:37 +0200
+Message-Id: <20220630133234.612211320@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Dmitry Rokosov <DDRokosov@sberdevices.ru>
 
-commit 93a8ba2a619816d631bd69e9ce2172b4d7a481b8 upstream.
+commit d710359c0b445e8c03e24f19ae2fb79ce7282260 upstream.
 
-Contrary to what was believed at the time, the ramp delay of 150us is not
-plenty for the PU LDO with the default step time of 512 pulses of the 24MHz
-clock. Measurements have shown that after enabling the LDO the voltage on
-VDDPU_CAP jumps to ~750mV in the first step and after that the regulator
-executes the normal ramp up as defined by the step size control.
+IIO trigger interface function iio_trigger_get() should be called after
+iio_trigger_register() (or its devm analogue) strictly, because of
+iio_trigger_get() acquires module refcnt based on the trigger->owner
+pointer, which is initialized inside iio_trigger_register() to
+THIS_MODULE.
+If this call order is wrong, the next iio_trigger_put() (from sysfs
+callback or "delete module" path) will dereference "default" module
+refcnt, which is incorrect behaviour.
 
-This means it takes the regulator between 360us and 370us to ramp up to
-the nominal 1.15V voltage for this power domain. With the old setting of
-the ramp delay the power up of the PU GPC domain would happen in the middle
-of the regulator ramp with the voltage being at around 900mV. Apparently
-this was enough for most units to properly power up the peripherals in the
-domain and execute the reset. Some units however, fail to power up properly,
-especially when the chip is at a low temperature. In that case any access
-to the GPU registers would yield an incorrect result with no way to recover
-from this situation.
-
-Change the ramp delay to 380us to cover the measured ramp up time with a
-bit of additional slack.
-
-Fixes: 40130d327f72 ("ARM: dts: imx6qdl: Allow disabling the PU regulator, add a enable ramp delay")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: f1f065d7ac30 ("iio: chemical: ccs811: Add support for data ready trigger")
+Signed-off-by: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220524181150.9240-5-ddrokosov@sberdevices.ru
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/chemical/ccs811.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -699,7 +699,7 @@
- 					regulator-name = "vddpu";
- 					regulator-min-microvolt = <725000>;
- 					regulator-max-microvolt = <1450000>;
--					regulator-enable-ramp-delay = <150>;
-+					regulator-enable-ramp-delay = <380>;
- 					anatop-reg-offset = <0x140>;
- 					anatop-vol-bit-shift = <9>;
- 					anatop-vol-bit-width = <5>;
+--- a/drivers/iio/chemical/ccs811.c
++++ b/drivers/iio/chemical/ccs811.c
+@@ -421,11 +421,11 @@ static int ccs811_probe(struct i2c_clien
+ 		data->drdy_trig->dev.parent = &client->dev;
+ 		data->drdy_trig->ops = &ccs811_trigger_ops;
+ 		iio_trigger_set_drvdata(data->drdy_trig, indio_dev);
+-		indio_dev->trig = data->drdy_trig;
+-		iio_trigger_get(indio_dev->trig);
+ 		ret = iio_trigger_register(data->drdy_trig);
+ 		if (ret)
+ 			goto err_poweroff;
++
++		indio_dev->trig = iio_trigger_get(data->drdy_trig);
+ 	}
+ 
+ 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
 
 
