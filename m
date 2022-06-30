@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9F3C561C76
-	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE0FE561C81
+	for <lists+stable@lfdr.de>; Thu, 30 Jun 2022 16:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235927AbiF3Ny7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 09:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35386 "EHLO
+        id S235936AbiF3N7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 09:59:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235807AbiF3Nya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:54:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B442A58FD2;
-        Thu, 30 Jun 2022 06:50:20 -0700 (PDT)
+        with ESMTP id S236522AbiF3N7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 09:59:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC280419BA;
+        Thu, 30 Jun 2022 06:51:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A074B82AF6;
-        Thu, 30 Jun 2022 13:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D983BC34115;
-        Thu, 30 Jun 2022 13:50:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 097F461FC0;
+        Thu, 30 Jun 2022 13:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18893C34115;
+        Thu, 30 Jun 2022 13:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656597017;
-        bh=UqT7Ezn9pWtS5CRV1aEcCh3rXLPAeHPdmaWs4yzft/k=;
+        s=korg; t=1656597108;
+        bh=//tNa/+oXvrh+YZZ1UklDkaYoawaeD35eJmeJbf1BKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjbSFD5d+cSG1OPl/lXFxF8E+50mi2ExgfvSuWifl9hk/xcL/CefVTY5AX4cRlO3U
-         MCkHjdQV4f6avPbLxafI+WF0tRfY0xYXUnUAOpQvBKiMCOzFDDcESG5Y6eOlW1pMX7
-         PDgb4bTqj8l6Lvm09lFaq687PKzZX9KcwAiZUQ1k=
+        b=VktXvBq1SJMpwceGU1arx9CJ33p6TuKmv0mcqbCLMZC84C8MBJvANeSpjIValg27E
+         EWlDg4Je4o6CZlTcOgjI8jxXBB4M7aCilLGujZwaloAbLNZ3BKc21cg+r7XttHzVXI
+         Bv+Kc2uerb+oKXMnaBC7omV6u+JvfW3ofaVokJro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 32/35] xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.19 30/49] xtensa: xtfpga: Fix refcount leak bug in setup
 Date:   Thu, 30 Jun 2022 15:46:43 +0200
-Message-Id: <20220630133233.383327806@linuxfoundation.org>
+Message-Id: <20220630133234.780953142@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220630133232.433955678@linuxfoundation.org>
-References: <20220630133232.433955678@linuxfoundation.org>
+In-Reply-To: <20220630133233.910803744@linuxfoundation.org>
+References: <20220630133233.910803744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Liang He <windhl@126.com>
 
-commit dbac14a5a05ff8e1ce7c0da0e1f520ce39ec62ea upstream.
+commit 173940b3ae40114d4179c251a98ee039dc9cd5b3 upstream.
 
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+In machine_setup(), of_find_compatible_node() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-modpost used to detect it, but it has been broken for a decade.
-
-Recently, I fixed modpost so it started to warn it again, then this
-showed up in linux-next builds.
-
-There are two ways to fix it:
-
-  - Remove __init
-  - Remove EXPORT_SYMBOL
-
-I chose the latter for this case because none of the in-tree call-sites
-(arch/arm/xen/enlighten.c, arch/x86/xen/grant-table.c) is compiled as
-modular.
-
-Fixes: 243848fc018c ("xen/grant-table: Move xlated_setup_gnttab_pages to common place")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Acked-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20220606045920.4161881-1-masahiroy@kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617115323.4046905-1-windhl@126.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/xlate_mmu.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/xtensa/platforms/xtfpga/setup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/xen/xlate_mmu.c
-+++ b/drivers/xen/xlate_mmu.c
-@@ -262,4 +262,3 @@ int __init xen_xlate_map_ballooned_pages
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -152,6 +152,7 @@ static int __init machine_setup(void)
  
+ 	if ((eth = of_find_compatible_node(eth, NULL, "opencores,ethoc")))
+ 		update_local_mac(eth);
++	of_node_put(eth);
  	return 0;
  }
--EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
+ arch_initcall(machine_setup);
 
 
