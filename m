@@ -2,79 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1459563951
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 20:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312F0563A98
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 22:12:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbiGASsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 14:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37618 "EHLO
+        id S231897AbiGAUBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 16:01:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229606AbiGASsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 14:48:01 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1691344C6;
-        Fri,  1 Jul 2022 11:48:00 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id B93F91C0D81; Fri,  1 Jul 2022 20:47:59 +0200 (CEST)
-Date:   Fri, 1 Jul 2022 20:47:59 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 00/12] 5.10.128-rc1 review
-Message-ID: <20220701184759.GC12257@duo.ucw.cz>
-References: <20220630133230.676254336@linuxfoundation.org>
+        with ESMTP id S231892AbiGAUB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 16:01:29 -0400
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABA44D165;
+        Fri,  1 Jul 2022 13:01:26 -0700 (PDT)
+Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
+        (envelope-from <fw@strlen.de>)
+        id 1o7MpC-00040v-4C; Fri, 01 Jul 2022 22:01:10 +0200
+Date:   Fri, 1 Jul 2022 22:01:10 +0200
+From:   Florian Westphal <fw@strlen.de>
+To:     Kajetan Puchalski <kajetan.puchalski@arm.com>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        lukasz.luba@arm.com, dietmar.eggemann@arm.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        regressions@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [Regression] stress-ng udp-flood causes kernel panic on Ampere
+ Altra
+Message-ID: <20220701200110.GA15144@breakpoint.cc>
+References: <Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
+In-Reply-To: <Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Kajetan Puchalski <kajetan.puchalski@arm.com> wrote:
+> While running the udp-flood test from stress-ng on Ampere Altra (Mt.
+> Jade platform) I encountered a kernel panic caused by NULL pointer
+> dereference within nf_conntrack.
+> 
+> The issue is present in the latest mainline (5.19-rc4), latest stable
+> (5.18.8), as well as multiple older stable versions. The last working
+> stable version I found was 5.15.40.
 
---JWEK1jqKZ6MHAcjA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Do I need a special setup for conntrack?
 
-Hi!
+No crashes after more than one hour of stress-ng on
+1. 4 core amd64 Fedora 5.17 kernel
+2. 16 core amd64, linux stable 5.17.15
+3. 12 core intel, Fedora 5.18 kernel
+4. 3 core aarch64 vm, 5.18.7-200.fc36.aarch64
 
-> This is the start of the stable review cycle for the 5.10.128 release.
-> There are 12 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-
-CIP testing did not find any problems here:
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-5.10.y
-
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-                                                                Pavel
---
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---JWEK1jqKZ6MHAcjA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYr9BXwAKCRAw5/Bqldv6
-8vJAAJ0cLvA2mCvDPQ6huKyBCXOV7nHYKQCfbfQcoMb/kAPDGi9R+sH2rjeLD7Y=
-=ov5C
------END PGP SIGNATURE-----
-
---JWEK1jqKZ6MHAcjA--
+I used standard firewalld ruleset for all of these and manually tuned
+conntrack settings to make sure the early evict path (as per backtrace)
+gets exercised.
