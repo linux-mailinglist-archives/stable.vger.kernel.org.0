@@ -2,62 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2857562B1E
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 07:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 642FA562B22
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 07:59:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233256AbiGAF4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 01:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
+        id S233418AbiGAF7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 01:59:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230500AbiGAF4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 01:56:33 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49F76B27C
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 22:56:31 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 468EC21C26;
-        Fri,  1 Jul 2022 05:56:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1656654989; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=qGY+fb4jHEgpNQOrTyUGd4p4le7j0ClKGpEy809VyLI=;
-        b=UrcglVgtxl9CKCufg5DLg0hHRQxzUJ7hTOf3jc4y0lT1wFLyNK+B8yOY3e7KeByaqnlxVq
-        DuatSpsjkyd5j3vlb31799JeH3A50ZozKZqd/dpEwnooMY6pCmKPxWS7Ko1F3Sn0089tZB
-        mvTioCvFFarcP3Xg8ylYRKwCPFJh+oA=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1A2CF13A20;
-        Fri,  1 Jul 2022 05:56:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id UtDxBI2MvmJEDAAAMHmgww
-        (envelope-from <jgross@suse.com>); Fri, 01 Jul 2022 05:56:29 +0000
-Message-ID: <1c3bfe41-b86d-660c-6ccf-17777d1a5801@suse.com>
-Date:   Fri, 1 Jul 2022 07:56:28 +0200
+        with ESMTP id S233411AbiGAF7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 01:59:54 -0400
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047CA6B802
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 22:59:53 -0700 (PDT)
+Received: by mail-il1-x136.google.com with SMTP id p14so810593ile.1
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 22:59:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Bpnf0MqrDUKXaYHd0cZNSK1Qdldyb8RGowVrGEDoJK8=;
+        b=aW7WFpcvK228CM2dgtBRxM9bHphIRiPT+yxPIkR4EstJXxWsR1LfomBh89UTynanIb
+         GPa2ogQUrBOlwDNNStpN9Lc05yNRL2Og0A86orh5ef4gDxzbb6qZ3kVyScYh5nICKaBu
+         DeBxzRRhs1//BUQhCBZ0FCvazItGrBieIxjRA6WkcOosI1B6qMsMCRM7aNGogh2SrDTv
+         uc4s6TldKgOsloGcuL64vXpa2f8/ebpDX+Pflf59xQpPZgrHhf2TBVtbM9r3uS0GhfQ3
+         tTWOTCJjYPMtQaADpHEDm8fA3LCYaQdQ/2CzmnvsoVd6UuOzHYS1IpS+ZoRxw6UVgYsI
+         nP+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Bpnf0MqrDUKXaYHd0cZNSK1Qdldyb8RGowVrGEDoJK8=;
+        b=4vjSWnDp+PQs+c+hGHv3tdGNHDnisg1XMEUG3yOPpvBkh9rA03HVnB2g61xl/tgMki
+         yZ+gx6ZiRs3LNreah3MIyBiJ4HVMiAL+21lBx0EZxHvtIWMCCQ0FucWJWljqGUAaL22r
+         3p8LvgJt04MSkqN5hs6xGPqtUTEOfs60Meosz5v1VhMZoU5sd5zjUzv6GIyC6kAUdM7p
+         Jk/w1IQAd39E+Eo11Atrv0rPBWARPTsbz0DMOQCktsy7tUxodn9kqMU6mjFbcaY7CYQw
+         9xE92SpAWyPRyB1jfMBaaGK5AMUWE1r7PqMtHDLSOCO//XDMhtZS1/xgnVcDguLEJPPe
+         bl+Q==
+X-Gm-Message-State: AJIora/ySASvX00+1MxhMvs1d9QLn0fcjteUH93CFhsHyY2oPtmBop6g
+        8qM83lyD9iMtju/S9Rg7Q+PQyhxlT0BhJ5vZS3wPrw==
+X-Google-Smtp-Source: AGRyM1vCUM5AytM0GkClNzZtfdQPn7BNheoA2iwg5/W5l25ipEuW+MFQO86oaGMMSJ7vHP8KIT3S0d+/bu4Lj/KeBAM=
+X-Received: by 2002:a92:d9cc:0:b0:2db:611:8cb9 with SMTP id
+ n12-20020a92d9cc000000b002db06118cb9mr1066897ilq.55.1656655192211; Thu, 30
+ Jun 2022 22:59:52 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH 5.10] xen/gntdev: Avoid blocking in unmap_grant_pages()
-Content-Language: en-US
-To:     Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        Xen developer discussion <xen-devel@lists.xenproject.org>
-References: <20220627181006.1954-1-demi@invisiblethingslab.com>
- <Yr2KKpWSiuzOQr7v@kroah.com> <5136812e-e296-4acb-cafd-f189c4013ed3@suse.com>
- <Yr3VQaM0NBcIV2Kl@itl-email>
-From:   Juergen Gross <jgross@suse.com>
-In-Reply-To: <Yr3VQaM0NBcIV2Kl@itl-email>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------e8U5GsjWGwcFuQTgLqHD4612"
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+References: <20220630133230.239507521@linuxfoundation.org>
+In-Reply-To: <20220630133230.239507521@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 1 Jul 2022 11:29:40 +0530
+Message-ID: <CA+G9fYsmy4bg09aq0fVRNp_iCh5oTM_+c-NBii6MiNWwBvt8MA@mail.gmail.com>
+Subject: Re: [PATCH 5.18 0/6] 5.18.9-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -66,164 +70,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------e8U5GsjWGwcFuQTgLqHD4612
-Content-Type: multipart/mixed; boundary="------------aQbktJ2tEprMjgd7033LRGfL";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Demi Marie Obenour <demi@invisiblethingslab.com>,
- Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
- Xen developer discussion <xen-devel@lists.xenproject.org>
-Message-ID: <1c3bfe41-b86d-660c-6ccf-17777d1a5801@suse.com>
-Subject: Re: [PATCH 5.10] xen/gntdev: Avoid blocking in unmap_grant_pages()
-References: <20220627181006.1954-1-demi@invisiblethingslab.com>
- <Yr2KKpWSiuzOQr7v@kroah.com> <5136812e-e296-4acb-cafd-f189c4013ed3@suse.com>
- <Yr3VQaM0NBcIV2Kl@itl-email>
-In-Reply-To: <Yr3VQaM0NBcIV2Kl@itl-email>
+On Thu, 30 Jun 2022 at 19:26, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.18.9 release.
+> There are 6 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 02 Jul 2022 13:32:22 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.18.9-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.18.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---------------aQbktJ2tEprMjgd7033LRGfL
-Content-Type: multipart/mixed; boundary="------------kcDGp3wXm6PeKrV2bwHWB0nV"
 
---------------kcDGp3wXm6PeKrV2bwHWB0nV
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-T24gMzAuMDYuMjIgMTg6NTQsIERlbWkgTWFyaWUgT2Jlbm91ciB3cm90ZToNCj4gT24gVGh1
-LCBKdW4gMzAsIDIwMjIgYXQgMDM6MTY6NDFQTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90
-ZToNCj4+IE9uIDMwLjA2LjIyIDEzOjM0LCBHcmVnIEtIIHdyb3RlOg0KPj4+IE9uIE1vbiwg
-SnVuIDI3LCAyMDIyIGF0IDAyOjEwOjAyUE0gLTA0MDAsIERlbWkgTWFyaWUgT2Jlbm91ciB3
-cm90ZToNCj4+Pj4gY29tbWl0IGRiZTk3Y2ZmN2RkOWYwZjc1YzUyNGFmZGQ1NWFkNDZiZTNk
-MTUyOTUgdXBzdHJlYW0NCj4+Pj4NCj4+Pj4gdW5tYXBfZ3JhbnRfcGFnZXMoKSBjdXJyZW50
-bHkgd2FpdHMgZm9yIHRoZSBwYWdlcyB0byBubyBsb25nZXIgYmUgdXNlZC4NCj4+Pj4gSW4g
-aHR0cHM6Ly9naXRodWIuY29tL1F1YmVzT1MvcXViZXMtaXNzdWVzL2lzc3Vlcy83NDgxLCB0
-aGlzIGxlYWQgdG8gYQ0KPj4+PiBkZWFkbG9jayBhZ2FpbnN0IGk5MTU6IGk5MTUgd2FzIHdh
-aXRpbmcgZm9yIGdudGRldidzIE1NVSBub3RpZmllciB0bw0KPj4+PiBmaW5pc2gsIHdoaWxl
-IGdudGRldiB3YXMgd2FpdGluZyBmb3IgaTkxNSB0byBmcmVlIGl0cyBwYWdlcy4gIEkgYWxz
-bw0KPj4+PiBiZWxpZXZlIHRoaXMgaXMgcmVzcG9uc2libGUgZm9yIHZhcmlvdXMgZGVhZGxv
-Y2tzIEkgaGF2ZSBleHBlcmllbmNlZCBpbg0KPj4+PiB0aGUgcGFzdC4NCj4+Pj4NCj4+Pj4g
-QXZvaWQgdGhlc2UgcHJvYmxlbXMgYnkgbWFraW5nIHVubWFwX2dyYW50X3BhZ2VzIGFzeW5j
-LiAgVGhpcyByZXF1aXJlcw0KPj4+PiBtYWtpbmcgaXQgcmV0dXJuIHZvaWQsIGFzIGFueSBl
-cnJvcnMgd2lsbCBub3QgYmUgYXZhaWxhYmxlIHdoZW4gdGhlDQo+Pj4+IGZ1bmN0aW9uIHJl
-dHVybnMuICBGb3J0dW5hdGVseSwgdGhlIG9ubHkgdXNlIG9mIHRoZSByZXR1cm4gdmFsdWUg
-aXMgYQ0KPj4+PiBXQVJOX09OKCksIHdoaWNoIGNhbiBiZSByZXBsYWNlZCBieSBhIFdBUk5f
-T04gd2hlbiB0aGUgZXJyb3IgaXMNCj4+Pj4gZGV0ZWN0ZWQuICBBZGRpdGlvbmFsbHksIGEg
-ZmFpbGVkIGNhbGwgd2lsbCBub3QgcHJldmVudCBmdXJ0aGVyIGNhbGxzDQo+Pj4+IGZyb20g
-YmVpbmcgbWFkZSwgYnV0IHRoaXMgaXMgaGFybWxlc3MuDQo+Pj4+DQo+Pj4+IEJlY2F1c2Ug
-dW5tYXBfZ3JhbnRfcGFnZXMgaXMgbm93IGFzeW5jLCB0aGUgZ3JhbnQgaGFuZGxlIHdpbGwg
-YmUgc2VudCB0bw0KPj4+PiBJTlZBTElEX0dSQU5UX0hBTkRMRSB0b28gbGF0ZSB0byBwcmV2
-ZW50IG11bHRpcGxlIHVubWFwcyBvZiB0aGUgc2FtZQ0KPj4+PiBoYW5kbGUuICBJbnN0ZWFk
-LCBhIHNlcGFyYXRlIGJvb2wgYXJyYXkgaXMgYWxsb2NhdGVkIGZvciB0aGlzIHB1cnBvc2Uu
-DQo+Pj4+IFRoaXMgd2FzdGVzIG1lbW9yeSwgYnV0IHN0dWZmaW5nIHRoaXMgaW5mb3JtYXRp
-b24gaW4gcGFkZGluZyBieXRlcyBpcw0KPj4+PiB0b28gZnJhZ2lsZS4gIEZ1cnRoZXJtb3Jl
-LCBpdCBpcyBuZWNlc3NhcnkgdG8gZ3JhYiBhIHJlZmVyZW5jZSB0byB0aGUNCj4+Pj4gbWFw
-IGJlZm9yZSBtYWtpbmcgdGhlIGFzeW5jaHJvbm91cyBjYWxsLCBhbmQgcmVsZWFzZSB0aGUg
-cmVmZXJlbmNlIHdoZW4NCj4+Pj4gdGhlIGNhbGwgcmV0dXJucy4NCj4+Pj4NCj4+Pj4gSXQg
-aXMgYWxzbyBuZWNlc3NhcnkgdG8gZ3VhcmQgYWdhaW5zdCByZWVudHJhbmN5IGluIGdudGRl
-dl9tYXBfcHV0KCksDQo+Pj4+IGFuZCB0byBoYW5kbGUgdGhlIGNhc2Ugd2hlcmUgdXNlcnNw
-YWNlIHRyaWVzIHRvIG1hcCBhIG1hcHBpbmcgd2hvc2UNCj4+Pj4gY29udGVudHMgaGF2ZSBu
-b3QgYWxsIGJlZW4gZnJlZWQgeWV0Lg0KPj4+Pg0KPj4+PiBGaXhlczogNzQ1MjgyMjU2Yzc1
-ICgieGVuL2dudGRldjogc2FmZWx5IHVubWFwIGdyYW50cyBpbiBjYXNlIHRoZXkgYXJlIHN0
-aWxsIGluIHVzZSIpDQo+Pj4+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+Pj4+IFNp
-Z25lZC1vZmYtYnk6IERlbWkgTWFyaWUgT2Jlbm91ciA8ZGVtaUBpbnZpc2libGV0aGluZ3Ns
-YWIuY29tPg0KPj4+PiBSZXZpZXdlZC1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2Uu
-Y29tPg0KPj4+PiBMaW5rOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9yLzIwMjIwNjIyMDIy
-NzI2LjI1MzgtMS1kZW1pQGludmlzaWJsZXRoaW5nc2xhYi5jb20NCj4+Pj4gU2lnbmVkLW9m
-Zi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPg0KPj4+PiAtLS0NCj4+Pj4g
-ICAgZHJpdmVycy94ZW4vZ250ZGV2LWNvbW1vbi5oIHwgICA3ICsrDQo+Pj4+ICAgIGRyaXZl
-cnMveGVuL2dudGRldi5jICAgICAgICB8IDE0MiArKysrKysrKysrKysrKysrKysrKysrKysr
-LS0tLS0tLS0tLS0NCj4+Pj4gICAgMiBmaWxlcyBjaGFuZ2VkLCAxMDYgaW5zZXJ0aW9ucygr
-KSwgNDMgZGVsZXRpb25zKC0pDQo+Pj4NCj4+PiBBbGwgbm93IHF1ZXVlZCB1cCwgdGhhbmtz
-Lg0KPj4NCj4+IFNvcnJ5LCBidXQgSSB0aGluayBhdCBsZWFzdCB0aGUgdmVyc2lvbiBmb3Ig
-NS4xMCBpcyBmaXNoeSwgYXMgaXQgcmVtb3Zlcw0KPj4gdGhlIHRlc3RzIGZvciBzdWNjZXNz
-ZnVsIGFsbG9jYXRpb25zIG9mIGFkZC0+bWFwX29wcyBhbmQgYWRkLT51bm1hcF9vcHMuDQo+
-IA0KPiBUaGF0IGlzIGRlZmluaXRlbHkgYSBidWc7IEkgd2lsbCBzZW5kIGFub3RoZXIgdmVy
-c2lvbiAod2l0aG91dCB5b3VyDQo+IFJldmlld2VkLWJ5KS4NCj4gDQo+PiBJIG5lZWQgdG8g
-ZG8gYSB0aG9yb3VnaCByZXZpZXcgb2YgdGhlIHBhdGNoZXMgKHRoZSAiUmV2aWV3ZWQtYnk6
-IiB0YWcgaW4NCj4+IHRoZSBwYXRjaGVzIGlzIHRoZSBvbmUgZm9yIHRoZSB1cHN0cmVhbSBw
-YXRjaCkuDQo+IA0KPiBZZWFoLCB0aGF0IHdhcyBteSBmYXVsdCwgc29ycnkuDQo+IA0KPj4g
-R3JlZywgY2FuIHlvdSBwbGVhc2Ugd2FpdCBmb3IgbXkgZXhwbGljaXQgIm9rYXkiIGZvciB0
-aGUgYmFja3BvcnRzPw0KPiANCj4gQ29uZmlybWluZyB0aGF0IHRoZXNlIHBhdGNoZXMgZG8g
-bmVlZCByZXZpZXcgYmVmb3JlIHRoZXkgY2FuIGJlIGFwcGxpZWQuDQo+IEp1ZXJnZW4sIHdv
-dWxkIHlvdSBtaW5kIG1ha2luZyBzdXJlIHRoYXQgdGhlIHVwc3RyZWFtIHBhdGNoIHdhcyBh
-bHNvDQo+IGNvcnJlY3QgZm9yIDUuMTUgYW5kIDUuMTg/ICBJdCBhcHBsaWVkIGNsZWFubHks
-IGJ1dCB0aGF0IGlzIG5vIGd1YXJhbnRlZQ0KPiBvZiBjb3JyZWN0bmVzcy4NCg0KVGhvc2Ug
-dHdvIGFyZSBmaW5lLg0KDQoNCkp1ZXJnZW4NCg==
---------------kcDGp3wXm6PeKrV2bwHWB0nV
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+## Build
+* kernel: 5.18.9-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.18.y
+* git commit: 2c9a64b3a872fb2818d217509b16e61ba54c365e
+* git describe: v5.18.8-7-g2c9a64b3a872
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.18.y/build/v5.18=
+.8-7-g2c9a64b3a872
 
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjri
-oyspZKOBycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2
-kaV2KL9650I1SJvedYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i
-1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/B
-BLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xqG7/377qptDmrk42GlSK
-N4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR3Jvc3Mg
-PGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsE
-FgIDAQIeAQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4F
-UGNQH2lvWAUy+dnyThpwdtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3Tye
-vpB0CA3dbBQp0OW0fgCetToGIQrg0MbD1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u
-+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbvoPHZ8SlM4KWm8rG+lIkGurq
-qu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v5QL+qHI3EIP
-tyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVy
-Z2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJ
-CAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4
-RF7HoZhPVPogNVbC4YA6lW7DrWf0teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz7
-8X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC/nuAFVGy+67q2DH8As3KPu0344T
-BDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0LhITTd9jLzdDad1pQ
-SToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLmXBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkM
-nQfvUewRz80hSnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMB
-AgAjBQJTjHDXAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/
-Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJnFOXgMLdBQgBlVPO3/D9R8LtF9DBAFPN
-hlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1jnDkfJZr6jrbjgyoZHi
-w/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0N51N5Jf
-VRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwP
-OoE+lotufe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK
-/1xMI3/+8jbO0tsn1tqSEUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1
-c2UuZGU+wsB5BBMBAgAjBQJTjHDrAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-F4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3g3OZUEBmDHVVbqMtzwlmNC4
-k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5dM7wRqzgJpJ
-wK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu
-5D+jLRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzB
-TNh30FVKK1EvmV2xAKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37Io
-N1EblHI//x/e2AaIHpzK5h88NEawQsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6
-AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpWnHIs98ndPUDpnoxWQugJ6MpMncr
-0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZRwgnBC5mVM6JjQ5x
-Dk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNVbVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mm
-we0icXKLkpEdIXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0I
-v3OOImwTEe4co3c1mwARAQABwsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMv
-Q/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEwTbe8YFsw2V/Buv6Z4Mysln3nQK5ZadD
-534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1vJzQ1fOU8lYFpZXTXIH
-b+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8VGiwXvT
-yJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqc
-suylWsviuGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5B
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+## Test Regressions (compared to v5.18.8)
+No test regressions found.
 
---------------kcDGp3wXm6PeKrV2bwHWB0nV--
+## Metric Regressions (compared to v5.18.8)
+No metric regressions found.
 
---------------aQbktJ2tEprMjgd7033LRGfL--
+## Test Fixes (compared to v5.18.8)
+No test fixes found.
 
---------------e8U5GsjWGwcFuQTgLqHD4612
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+## Metric Fixes (compared to v5.18.8)
+No metric fixes found.
 
------BEGIN PGP SIGNATURE-----
+## Test result summary
+total: 120950, pass: 109794, fail: 546, skip: 9999, xfail: 611
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmK+jIwFAwAAAAAACgkQsN6d1ii/Ey/y
-9AgAmLODtE5pc6JWFdsb5L9GPw2SUn5SZlRNTZqIFQRK5NYgAQaCwyIJ0gZANW4D2MYj/YE30Q7M
-u/U6f6PqJIZdxe8UevPpI5tsZOJ1EkQINEI1VMpt7d0nSSdkBM6+7nOKFfphs5+sy/tAOh6HBYHn
-eIWzq5M/2bXdc4I4HTDOLsUgoj8gG61m3kiS1w1fW8mOQKtE8A4oL5inIbFECLweSO8KNO516tWz
-1VjywIm+qMEPHUz9LXAptdDX8tWGe0j3XX+yNfkpBUl0moKyXoAuF3i3lK0ymzsfllLgmEtDG7hL
-jFUUICYmQjf9cBaPryER3Nx84xR+YpqED8WzYlTl1Q==
-=YfaH
------END PGP SIGNATURE-----
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 307 total, 307 passed, 0 failed
+* arm64: 62 total, 62 passed, 0 failed
+* i386: 52 total, 49 passed, 3 failed
+* mips: 48 total, 48 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 54 passed, 6 failed
+* riscv: 27 total, 22 passed, 5 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 56 total, 54 passed, 2 failed
 
---------------e8U5GsjWGwcFuQTgLqHD4612--
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-lib
+* kselftest-membarrier
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
