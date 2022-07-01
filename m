@@ -2,128 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE45C5634AA
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 15:50:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EF3C5634C1
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 15:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbiGANuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 09:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43834 "EHLO
+        id S230369AbiGANzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 09:55:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbiGANuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 09:50:06 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3654127B0F;
-        Fri,  1 Jul 2022 06:50:05 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id fd6so3052474edb.5;
-        Fri, 01 Jul 2022 06:50:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=S238Db/f5zI03A6YGNudmxgF/CExzHE07DknqK4x2mc=;
-        b=IVQrkRTajyHNPWyatD25GMEUfTOxHvMUU548LOOr4xfC1aQlrm2IZ2UxgWjqfNEDHz
-         2fUkUf3xw+3nkHj7Q4VRxYVopJqtMQtVizt8wT9vSk6VRiE70PVI3rZYhkWeeSNQDCAr
-         FXkLG1e97blUWgNNh+ikXajFRmvNMWQrAv31pn+ncFYW4qrmBoNOLAbibxyBPErq+ktr
-         cwFSMfqwNnBec2vZnZxUGqrwG6khmOH7W33j1R76wdkQQn+vvFMq3NTBS9jRw89SvNPD
-         lPJ6Xs5Dmk4/cxcULFqD6HTjpCuK1ww9v0kpFLJ9VaI8BkMUfhCA6Dw5GUJHGwGJhy7n
-         I8sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=S238Db/f5zI03A6YGNudmxgF/CExzHE07DknqK4x2mc=;
-        b=7Coe7bI4se/eY76+eE4jkqRVEInvs8KlPqeO+z/5mu3u7M4OiX/S5C0DeXdhSdliDF
-         YKZ7boVqqtuwCqaaEhu54XLjN9hVtJDHMJVTUg9FIvFa26lFO2pGr2PuZzkIE3v+Xwqb
-         R7NxmdzXn/u7ukejvIx8J9fIXkFsftiQr7RcgtUY3jSLPFV3gqxl3TNyu9VDL8elmaxb
-         IKq4mb0cw7ZoHtPX5GsBMvKS+UikKmrsulREndUJQvUgmPqfMB26OuXGFXPuMeenvJ+H
-         FCyFiwqrzZYI3QcCN6Nh1NTNSHBaUF+e/7PNmWl7czQ/cfQb+3NcpiKBPxrEi5sG0G4R
-         X67w==
-X-Gm-Message-State: AJIora9HusVBWIZO9OZO4uXrON4bPUblslm2R6Ue4S8V9DC710PWBnuP
-        eeBut4ti+Ya2evBNirRHbtsWrrSY3x+z8P8BFmY=
-X-Google-Smtp-Source: AGRyM1skCD0fwcFKlUMkw9csHBGhfe0Sg8KpdhXXvn2uBEcW+iftoqoTJkcysNP/k/AO0r0LuqAPnDcqkGS78J5nwPk=
-X-Received: by 2002:a05:6402:500b:b0:431:78d0:bf9d with SMTP id
- p11-20020a056402500b00b0043178d0bf9dmr18948899eda.184.1656683403633; Fri, 01
- Jul 2022 06:50:03 -0700 (PDT)
+        with ESMTP id S229379AbiGANzg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 09:55:36 -0400
+Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305BE1AD95
+        for <stable@vger.kernel.org>; Fri,  1 Jul 2022 06:55:36 -0700 (PDT)
+Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
+        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id BE9EF1004818A
+        for <stable@vger.kernel.org>; Fri,  1 Jul 2022 13:55:35 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 7H7Podj25xkuL7H7PoIYSQ; Fri, 01 Jul 2022 13:55:35 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=euAacqlX c=1 sm=1 tr=0 ts=62befcd7
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=RgO8CyIxsXoA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=RyL8EgcdUj_kepXCPdEA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=lWEh325qXa/gySrBLorfITXGGkeR4ZEisLesoAnTZiY=; b=jFLbfpilBYyAZ3nDUMhMLDTyBV
+        Oy8sk051rB/s8K6R0LUJRmnEX5PE5AzHIVytqVsc1Zman2tT1hcTEe91IaoCdPv0dI00ef98KZJsv
+        aRW9uN3fKfr2GE5iMWPfBFrH+hbnpQ7nBtYmRdTMb3uLGqO9XUD5jT0Nl1dz/MrOGVfy8zaqzPBzG
+        1hJGgmSOT5LrHVIvIwZZSRttUHYhqLTONvte3IQ//CgByZZ4k4RsGVfkopMmrNb+i/FYo94UACwhd
+        nKLu/2ldoybNnH8rfbiasNsyzru+8xOa8Iq8f2WtbCszb1Wba0wBeNSvzE0P6xGWerMdVNAUaGStn
+        0MvC8oMQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:34194 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1o7H7O-001AiS-6Q;
+        Fri, 01 Jul 2022 07:55:34 -0600
+Subject: Re: [PATCH 5.15 00/28] 5.15.52-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220630133232.926711493@linuxfoundation.org>
+In-Reply-To: <20220630133232.926711493@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <1f5f35b3-6868-19a7-e7fd-38b646ea6417@w6rz.net>
+Date:   Fri, 1 Jul 2022 06:55:28 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-References: <20220701133126.26496-1-ansuelsmth@gmail.com>
-In-Reply-To: <20220701133126.26496-1-ansuelsmth@gmail.com>
-Reply-To: cwchoi00@gmail.com
-From:   Chanwoo Choi <cwchoi00@gmail.com>
-Date:   Fri, 1 Jul 2022 22:49:22 +0900
-Message-ID: <CAGTfZH1FZLihHVUcFYGif0o3RnwLMsy_3_=4vqKYed10pqAP3A@mail.gmail.com>
-Subject: Re: [PATCH v2] PM / devfreq: exynos-bus: Fix NULL pointer dereference
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Christian Marangi <ansuelsmth@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1o7H7O-001AiS-6Q
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:34194
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Rafael,
+On 6/30/22 6:46 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.52 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 02 Jul 2022 13:32:22 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.52-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The pull request[1] has an  issue for exynos-bus.c devfreq driver
-and then fixed it by this patch.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-If possible, could you please apply this patch to linux-pm.git
-directly for 5.19-rc5?
+Tested-by: Ron Economos <re@w6rz.net>
 
-[1] "[GIT,PULL] devfreq fixes for 5.19-rc5"
-- https://patchwork.kernel.org/project/linux-pm/patch/03056170-6501-3f4d-0331-37866d12330e@gmail.com/
-
-Best Regards,
-Chanwoo Choi
-
-On Fri, Jul 1, 2022 at 10:45 PM Christian Marangi <ansuelsmth@gmail.com> wrote:
->
-> Fix exynos-bus NULL pointer dereference by correctly using the local
-> generated freq_table to output the debug values instead of using the
-> profile freq_table that is not used in the driver.
->
-> Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> Fixes: b5d281f6c16d ("PM / devfreq: Rework freq_table to be local to devfreq struct")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-> ---
->  drivers/devfreq/exynos-bus.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/devfreq/exynos-bus.c b/drivers/devfreq/exynos-bus.c
-> index b5615e667e31..79725bbb4bb0 100644
-> --- a/drivers/devfreq/exynos-bus.c
-> +++ b/drivers/devfreq/exynos-bus.c
-> @@ -447,9 +447,9 @@ static int exynos_bus_probe(struct platform_device *pdev)
->                 }
->         }
->
-> -       max_state = bus->devfreq->profile->max_state;
-> -       min_freq = (bus->devfreq->profile->freq_table[0] / 1000);
-> -       max_freq = (bus->devfreq->profile->freq_table[max_state - 1] / 1000);
-> +       max_state = bus->devfreq->max_state;
-> +       min_freq = (bus->devfreq->freq_table[0] / 1000);
-> +       max_freq = (bus->devfreq->freq_table[max_state - 1] / 1000);
->         pr_info("exynos-bus: new bus device registered: %s (%6ld KHz ~ %6ld KHz)\n",
->                         dev_name(dev), min_freq, max_freq);
->
-> --
-> 2.36.1
->
