@@ -2,124 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CFFD562880
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 03:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFF756297B
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 05:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232866AbiGABlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 21:41:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51568 "EHLO
+        id S233970AbiGADQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 23:16:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232859AbiGABlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 21:41:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3EF5C9C6;
-        Thu, 30 Jun 2022 18:41:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 048A660F68;
-        Fri,  1 Jul 2022 01:41:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BADC34115;
-        Fri,  1 Jul 2022 01:41:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656639670;
-        bh=yJ3BCnw2LtMDCfgAawtRgZZPutlI/b7jlQ7gc6oPj3E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gwD7aaKkSVJS1jzRYVCKmN0XfC60+ibz6HwZ8nWg+FJnIJy4Ta2kQtnmfX+F/Mbx7
-         66XWFSVZzyD3YgRkMJ/TrjjY0z4qtvgX2wd11bhy9pQO7wBn9YTjD7ozAxMxDP7xuJ
-         bC1DX43WONc82mvq8jaDQDuf61RksZUDnYNiNxoxOP4dk0qlfjAyr11rlEKpXLbjRw
-         Btjz+gD731Qhj5x+Pav/xA2RfOMi0/RdYyU6fY7Hz7jspGIar/4K2qrBll0ecZOuue
-         p1F+lASS4JWUHzJl3xjKw4GTE5N8H4ZN7Dk2zkjr7NVYFeTECFkD17HP/eC3245425
-         YS0Oos3XBRSJw==
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     stable@vger.kernel.org, edumazet@google.com
-Cc:     netdev@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH stable 5.15] tcp: add a missing nf_reset_ct() in 3WHS handling
-Date:   Thu, 30 Jun 2022 18:41:01 -0700
-Message-Id: <20220701014101.684813-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S233948AbiGADQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 23:16:16 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F7F43EFE;
+        Thu, 30 Jun 2022 20:16:15 -0700 (PDT)
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LZ0fB7580zhYv3;
+        Fri,  1 Jul 2022 11:13:54 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 1 Jul 2022 11:16:13 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 1 Jul 2022 11:16:12 +0800
+Subject: Re: [PATCH 5.10 00/12] 5.10.128-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
+References: <20220630133230.676254336@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <8189ef8c-0b17-9cf1-3fb4-9411fe104c77@huawei.com>
+Date:   Fri, 1 Jul 2022 11:16:11 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220630133230.676254336@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
 
-commit 6f0012e35160cd08a53e46e3b3bbf724b92dfe68 upstream.
 
-When the third packet of 3WHS connection establishment
-contains payload, it is added into socket receive queue
-without the XFRM check and the drop of connection tracking
-context.
+On 2022/6/30 21:47, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.128 release.
+> There are 12 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 02 Jul 2022 13:32:22 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.128-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-This means that if the data is left unread in the socket
-receive queue, conntrack module can not be unloaded.
+Tested on arm64 and x86 for 5.10.128-rc1,
 
-As most applications usually reads the incoming data
-immediately after accept(), bug has been hiding for
-quite a long time.
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.128-rc1
+Commit: 929b4759e471d567a6993b953bb85c5bb9f8fa7e
+Compiler: gcc version 7.3.0 (GCC)
 
-Commit 68822bdf76f1 ("net: generalize skb freeing
-deferral to per-cpu lists") exposed this bug because
-even if the application reads this data, the skb
-with nfct state could stay in a per-cpu cache for
-an arbitrary time, if said cpu no longer process RX softirqs.
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9093
+passed: 9093
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Many thanks to Ilya Maximets for reporting this issue,
-and for testing various patches:
-https://lore.kernel.org/netdev/20220619003919.394622-1-i.maximets@ovn.org/
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9093
+passed: 9093
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Note that I also added a missing xfrm4_policy_check() call,
-although this is probably not a big issue, as the SYN
-packet should have been dropped earlier.
-
-Fixes: b59c270104f0 ("[NETFILTER]: Keep conntrack reference until IPsec policy checks are done")
-Reported-by: Ilya Maximets <i.maximets@ovn.org>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Tested-by: Ilya Maximets <i.maximets@ovn.org>
-Reviewed-by: Ilya Maximets <i.maximets@ovn.org>
-Link: https://lore.kernel.org/r/20220623050436.1290307-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
- net/ipv4/tcp_ipv4.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index a189625098ba..5d94822fd506 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2014,7 +2014,8 @@ int tcp_v4_rcv(struct sk_buff *skb)
- 		struct sock *nsk;
- 
- 		sk = req->rsk_listener;
--		if (unlikely(tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
-+		if (unlikely(!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb) ||
-+			     tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
- 			sk_drops_add(sk, skb);
- 			reqsk_put(req);
- 			goto discard_it;
-@@ -2061,6 +2062,7 @@ int tcp_v4_rcv(struct sk_buff *skb)
- 			}
- 			goto discard_and_relse;
- 		}
-+		nf_reset_ct(skb);
- 		if (nsk == sk) {
- 			reqsk_put(req);
- 			tcp_v4_restore_cb(skb);
--- 
-2.36.1
-
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
