@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7E2562797
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 02:13:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA3756279B
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 02:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230419AbiGAAKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Jun 2022 20:10:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53020 "EHLO
+        id S231124AbiGAAKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Jun 2022 20:10:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiGAAKf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 20:10:35 -0400
+        with ESMTP id S229531AbiGAAKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Jun 2022 20:10:38 -0400
 Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578884D4D4
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 17:10:30 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id B8B6E5C00A4;
-        Thu, 30 Jun 2022 20:10:29 -0400 (EDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB0359255
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 17:10:33 -0700 (PDT)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id BA7315C00FE;
+        Thu, 30 Jun 2022 20:10:32 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 30 Jun 2022 20:10:29 -0400
+  by compute1.internal (MEProxy); Thu, 30 Jun 2022 20:10:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
         :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to; s=fm2; t=
-        1656634229; x=1656720629; bh=rGkQptGCLsRn301ihqWzQ7mM8qUMGEhaJXH
-        F+f9Z/zA=; b=lUFSC7og4g9/VxdbnqBW06hXo+hrcjI/Fgo7oW5hyhjp/hgAWTg
-        Jk3PeLfmDF9z9Q1TLFENsmNoAcEgtNDNdEL2yVd92sqiOSBo1RVbyVdWvlVacz+a
-        EHsgIvnTUe1hYBb4uRRXZrnVQIfs6gcoiA0rcPlNCqqWKSf0zTDwIokjvjJeuWfc
-        1nmi6uPsRIPNn9GMtLAsxAEHkQJy0aQ79Pvm+xh/cnG8EFflKkKDCol7Q+C0Jt0J
-        lEoZ9BwooE1BJczSeJ7tsibgZ+dTPlBrzIF1s6yf7ek3CmBPE5dk5KJ0xA+0bO+V
-        MUpW5Mp30/ETSn7/wh7e0EsssHK2FCznJkA==
+        1656634232; x=1656720632; bh=T8FZAiMVrSk0IGEy6kRyukwRyt/paMIRFC2
+        EEKHMMZo=; b=Q0EICh4RzjkVoaINIUtwpLX/Tr0/A8gY/SVO8cvqIeardWk4v9O
+        WmkEbPA24sPswHzI6Acd4s5v/7GGNIOM0kvKFYHE5ckAXBfwkxgE7EW571sZjbde
+        153LTxiOldfamGY2hRv5DaHAgqORBYKZJDwRxb1V/Vn/W58flvn5JUQCq6Eo9GJO
+        0+IrkEq7JGB/Tspz6WMGSIJ/bSTMPzjW0+iqKcaShC9+uR9X5FJeLvhjyzEdi6Ww
+        PLH2fo9f/EBugioQcCSQwMPSKEyKiQca78ekxk4tuJteSj2NMX5RIYIVjbsPFzYB
+        VJzDdzK2IwaQbxzBH1YjoRMfFa1qd9OiS7g==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
         :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
         :message-id:mime-version:references:reply-to:sender:subject
         :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1656634229; x=1656720629; bh=rGkQptGCLsRn3
-        01ihqWzQ7mM8qUMGEhaJXHF+f9Z/zA=; b=Od+u5NofmQ6I48maOiEqcWL5MisBx
-        sOZO/r+bFeh8mA7kjaS9RkGdOoT4kJXJSwE7EZ9i7ZnLhA4uINtMpdsIU1xd12TG
-        /n2L4w2/wn1bRE8UPWQgEvQwB9TgxR9Kk0Y4Qg1MkKVj6wmSC0MMc8rChOudK6lU
-        gnRuDNxmCgxYP/c5a4g5trBqcsg3PjT6/MXoPNvo+1C19bn8VnY0zkhWrpe3BWMg
-        dcL9kW8D2ThUDVjGU5Ihf15yv6xAdop1UF6K0ND8KkqIXFlJ6GqwHZeDmi15YJhp
-        unlwplkMgxXlkHBhLeG/gBbQ6wd007r0eS0VwwcZ4TTZMh9drUxsClZ+w==
-X-ME-Sender: <xms:dTu-Yrx_q_w_GLIpj0E5e7OoJYiLk39sqX9NQ377eF2rA_TTurDkyg>
-    <xme:dTu-YjRnDrufcowafIoTd68J6WSzPNql-Xf_C28npQsqiW0nAMl2-z075KR3pB_If
-    ede0rHn9TKZKpc>
-X-ME-Received: <xmr:dTu-YlUBK8nE4TifnBLAKcMvfajnTLxzvIPb6f_BSd62NlEoCc-_vxcprz4EGEtQpt8ssLQtFama>
+        :x-sasl-enc; s=fm2; t=1656634232; x=1656720632; bh=T8FZAiMVrSk0I
+        GEy6kRyukwRyt/paMIRFC2EEKHMMZo=; b=ZYFJxIUEPJVKM590HyY3ZT81G97ex
+        ZfMYNoaJbHxt7GCdO5iTzDZxS/pMYJSWFZJflqGmGK0cDCCgq+ameV1ntsMNiJvr
+        1LEUR7D9H5XC+sgwpHKEQegAosh6hs0EOovJJkL+DdDxIE/38NM8rIF3/pde3Feu
+        7iSpXu7UX73aQbe6lYIArn1dM/tosF9/83eiDQOK50irBhP3yC2t8H5mjTrw/5gJ
+        Rmayopzgf7IUHW9jDUzEfmXAn+sOZv81VoTLg6tKrg7DmHKmEyx5xZM+SYSb8SnO
+        djroPlLuJLb5O9pc2SAjZS3Gx3F3+vZlMAtOoRst2jtvYxLyFgi5k+ldQ==
+X-ME-Sender: <xms:eDu-YsN_uekIr7htKr_6I5gDnuB-bi6iuv9_8iklSnlC48fSLO0Ppg>
+    <xme:eDu-Yi-0flaT5ZfDtQ_ECPkU_uiQ_mNSyB2_8Yurue5Ptr1h9eWKeW9bKpMAdJ-pi
+    EbrgKDZwgusztk>
+X-ME-Received: <xmr:eDu-YjRKiX7VEUOVNHhRQb_dM90oSPtXaIc6MmoG3PTEfH91_ecQ6NFS-pX80XLeWMg-9Cnto7PD>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudehvddgfedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
@@ -56,22 +56,22 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudehvddgfedvucetufdoteggod
     homhdpkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghm
     pehmrghilhhfrhhomhepuggvmhhisehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtg
     homh
-X-ME-Proxy: <xmx:dTu-YlhbwX9nADCS_8628OiSglAUko-ruJOKvdjTBqwJpDsg8hGpTg>
-    <xmx:dTu-YtC4yN6JwwIbZMJpdwo7Qz_S7lUoneFDFug8HYxdRwSOdLieiw>
-    <xmx:dTu-YuIsKHI5sx-mAO13cjGIaoFozvArCtrbQcuMMgvpD_YlSQigUQ>
-    <xmx:dTu-YgMQhAVk9zSBFrS3Arw4ep7r5vwAdOLV3Q7FZvH3w5QDAhbdFA>
+X-ME-Proxy: <xmx:eDu-Yku88v2tc_AJRCCJ1DODcySSk9dfod1zx0VMNGDs90GZknYjPQ>
+    <xmx:eDu-YkdS7RCSAIyicd-vPZQxw_RbDBHnReBL5SUdrAuOeontsveVSA>
+    <xmx:eDu-Yo1uUlmrpqkfIrUHhk_-aEPgw4BOjHMLNqFb4PCEcd9xeF39xQ>
+    <xmx:eDu-YlrBv04sCI0my2iyItM5XlojUIr40dXPCY7PoqA5JpN4D2Lx-g>
 Feedback-ID: iac594737:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 30 Jun 2022 20:10:29 -0400 (EDT)
+ 30 Jun 2022 20:10:31 -0400 (EDT)
 From:   Demi Marie Obenour <demi@invisiblethingslab.com>
 To:     Juergen Gross <jgross@suse.com>,
         Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org,
         Xen developer discussion <xen-devel@lists.xenproject.org>,
         Demi Marie Obenour <demi@invisiblethingslab.com>
-Subject: [PATCH 5.4] xen/gntdev: Avoid blocking in unmap_grant_pages()
-Date:   Thu, 30 Jun 2022 20:09:49 -0400
-Message-Id: <20220701000951.5072-3-demi@invisiblethingslab.com>
+Subject: [PATCH 4.19] xen/gntdev: Avoid blocking in unmap_grant_pages()
+Date:   Thu, 30 Jun 2022 20:09:50 -0400
+Message-Id: <20220701000951.5072-4-demi@invisiblethingslab.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220701000951.5072-1-demi@invisiblethingslab.com>
 References: <20220701000951.5072-1-demi@invisiblethingslab.com>
@@ -120,8 +120,8 @@ Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisiblethingslab.co
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
  drivers/xen/gntdev-common.h |   8 ++
- drivers/xen/gntdev.c        | 147 +++++++++++++++++++++++++-----------
- 2 files changed, 110 insertions(+), 45 deletions(-)
+ drivers/xen/gntdev.c        | 146 +++++++++++++++++++++++++-----------
+ 2 files changed, 109 insertions(+), 45 deletions(-)
 
 diff --git a/drivers/xen/gntdev-common.h b/drivers/xen/gntdev-common.h
 index 2f8b949c3eeb..fab6f5a54d5b 100644
@@ -157,18 +157,10 @@ index 2f8b949c3eeb..fab6f5a54d5b 100644
  
  struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
 diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index e953ea34b3e4..f46479347765 100644
+index e519063e421e..492084814f55 100644
 --- a/drivers/xen/gntdev.c
 +++ b/drivers/xen/gntdev.c
-@@ -35,6 +35,7 @@
- #include <linux/slab.h>
- #include <linux/highmem.h>
- #include <linux/refcount.h>
-+#include <linux/workqueue.h>
- 
- #include <xen/xen.h>
- #include <xen/grant_table.h>
-@@ -62,11 +63,12 @@ MODULE_PARM_DESC(limit, "Maximum number of grants that may be mapped by "
+@@ -64,11 +64,12 @@ MODULE_PARM_DESC(limit, "Maximum number of grants that may be mapped by "
  
  static atomic_t pages_mapped = ATOMIC_INIT(0);
  
@@ -183,7 +175,7 @@ index e953ea34b3e4..f46479347765 100644
  
  static struct miscdevice gntdev_miscdev;
  
-@@ -123,6 +125,7 @@ static void gntdev_free_map(struct gntdev_grant_map *map)
+@@ -125,6 +126,7 @@ static void gntdev_free_map(struct gntdev_grant_map *map)
  	kfree(map->unmap_ops);
  	kfree(map->kmap_ops);
  	kfree(map->kunmap_ops);
@@ -191,7 +183,7 @@ index e953ea34b3e4..f46479347765 100644
  	kfree(map);
  }
  
-@@ -142,12 +145,15 @@ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
+@@ -144,12 +146,15 @@ struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
  	add->kmap_ops  = kcalloc(count, sizeof(add->kmap_ops[0]), GFP_KERNEL);
  	add->kunmap_ops = kcalloc(count, sizeof(add->kunmap_ops[0]), GFP_KERNEL);
  	add->pages     = kcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
@@ -208,7 +200,7 @@ index e953ea34b3e4..f46479347765 100644
  		goto err;
  
  #ifdef CONFIG_XEN_GRANT_DMA_ALLOC
-@@ -243,6 +249,35 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
+@@ -245,6 +250,35 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
  		return;
  
  	atomic_sub(map->count, &pages_mapped);
@@ -244,7 +236,7 @@ index e953ea34b3e4..f46479347765 100644
  
  	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
  		notify_remote_via_evtchn(map->notify.event);
-@@ -298,6 +333,7 @@ static int set_grant_ptes_as_special(pte_t *pte, unsigned long addr, void *data)
+@@ -302,6 +336,7 @@ static int set_grant_ptes_as_special(pte_t *pte, pgtable_t token,
  
  int gntdev_map_grant_pages(struct gntdev_grant_map *map)
  {
@@ -252,7 +244,7 @@ index e953ea34b3e4..f46479347765 100644
  	int i, err = 0;
  
  	if (!use_ptemod) {
-@@ -346,87 +382,109 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+@@ -350,87 +385,109 @@ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
  			map->pages, map->count);
  
  	for (i = 0; i < map->count; i++) {
@@ -396,7 +388,7 @@ index e953ea34b3e4..f46479347765 100644
  }
  
  /* ------------------------------------------------------------------ */
-@@ -496,7 +554,6 @@ static int unmap_if_in_range(struct gntdev_grant_map *map,
+@@ -500,7 +557,6 @@ static int unmap_if_in_range(struct gntdev_grant_map *map,
  			      bool blockable)
  {
  	unsigned long mstart, mend;
@@ -404,7 +396,7 @@ index e953ea34b3e4..f46479347765 100644
  
  	if (!in_range(map, start, end))
  		return 0;
-@@ -510,10 +567,9 @@ static int unmap_if_in_range(struct gntdev_grant_map *map,
+@@ -514,10 +570,9 @@ static int unmap_if_in_range(struct gntdev_grant_map *map,
  			map->index, map->count,
  			map->vma->vm_start, map->vma->vm_end,
  			start, end, mstart, mend);
@@ -416,7 +408,7 @@ index e953ea34b3e4..f46479347765 100644
  
  	return 0;
  }
-@@ -554,7 +610,6 @@ static void mn_release(struct mmu_notifier *mn,
+@@ -558,7 +613,6 @@ static void mn_release(struct mmu_notifier *mn,
  {
  	struct gntdev_priv *priv = container_of(mn, struct gntdev_priv, mn);
  	struct gntdev_grant_map *map;
@@ -424,7 +416,7 @@ index e953ea34b3e4..f46479347765 100644
  
  	mutex_lock(&priv->lock);
  	list_for_each_entry(map, &priv->maps, next) {
-@@ -563,8 +618,7 @@ static void mn_release(struct mmu_notifier *mn,
+@@ -567,8 +621,7 @@ static void mn_release(struct mmu_notifier *mn,
  		pr_debug("map %d+%d (%lx %lx)\n",
  				map->index, map->count,
  				map->vma->vm_start, map->vma->vm_end);
@@ -434,7 +426,7 @@ index e953ea34b3e4..f46479347765 100644
  	}
  	list_for_each_entry(map, &priv->freeable_maps, next) {
  		if (!map->vma)
-@@ -572,8 +626,7 @@ static void mn_release(struct mmu_notifier *mn,
+@@ -576,8 +629,7 @@ static void mn_release(struct mmu_notifier *mn,
  		pr_debug("map %d+%d (%lx %lx)\n",
  				map->index, map->count,
  				map->vma->vm_start, map->vma->vm_end);
@@ -444,7 +436,7 @@ index e953ea34b3e4..f46479347765 100644
  	}
  	mutex_unlock(&priv->lock);
  }
-@@ -1102,6 +1155,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
+@@ -1113,6 +1165,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
  		goto unlock_out;
  	}
  
