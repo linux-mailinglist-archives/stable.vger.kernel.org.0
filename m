@@ -2,108 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B2A56347F
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 15:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10DD5563467
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 15:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230308AbiGANoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 09:44:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37602 "EHLO
+        id S230081AbiGANej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 09:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229529AbiGANoU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 09:44:20 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F9422512;
-        Fri,  1 Jul 2022 06:44:20 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id lw20so4181796ejb.4;
-        Fri, 01 Jul 2022 06:44:19 -0700 (PDT)
+        with ESMTP id S229476AbiGANei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 09:34:38 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EEEF15FD3;
+        Fri,  1 Jul 2022 06:34:37 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id l7so1918834ljj.4;
+        Fri, 01 Jul 2022 06:34:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GjlrXgSVfip4RUERiLeIPiEhdykTYrOkMAgjg1op1mc=;
-        b=nlJNyqRjm4HaH7m5sfjgLw/CtWj5kx0oxnzWYDRqoRQtR2Cd7tZoLxi9FWMdVJmXkZ
-         aKu387eKzm+9U7hE+FFcMd5dAhDAZNWhDHIhsIUW3rahzykjEBydCNtreZN8ypg4vQus
-         kj8GOeiv7qgmgnnHKuwE6riw8VtnXFftb3K44bClPW1qSMDINo5JcxO6ZA1B0Ji4gDaK
-         oCEmQDcHia0Pwz8lSGP4CJwkpACb8I0K1cWjeBRvxRtLhm769iXBSbQBmpal6sPqePqJ
-         dXU7i6eOvLRhDdW1tsojm/PPG3RxCgBszKjWijcsw+DY5U1b0iNgTFAHDVY0UdK55/UV
-         0cOg==
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=2Y+Ope7w/V5G5Sem3wdLuCzNNO1/PxyFpoEOiSLF82s=;
+        b=ox3Fz/P/gciSZCXqQFBzj9HCYNl7nGLc1WS4NtTuCHjLAK3B/Tq40mWFCrp0JnSXHt
+         UAB8PL830T5Y7tmVtKcugQysd9+nrWbGUYf+bes3wvQ5ciHiTc8wXmqj809lhH5uJUVg
+         nlmAFib/DB7KzJKYL+pi+l47VzX3suvg7A3MUh2X5+U1LWpKSblYpuLa+5rAU6flJ6f7
+         RSVt6nU+VA7cL25QlcSlxfZBPpE2BvAfECkqHZv8fYz8I7uxtaLhX9/17n+l6sht1oaA
+         BCJAvUSmWLlIDjibaK0rzcWxYkrJo0mKYg1T4JQ2AdsXnfFuneNwu9K3CnBGQUZRcLOY
+         byOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GjlrXgSVfip4RUERiLeIPiEhdykTYrOkMAgjg1op1mc=;
-        b=vOyPxdD9MJZy+9p1MLGBIJVfkmyYQ1Fu23nDb6uiw79RwMQZy/WyWab3ihegUUC0dj
-         oHlRRJL7LmoBoLPqmPAHsspPQ+nMvlMPxGxIywot/dRho3OG/9xj6JtStgdjmjVTZ6E/
-         rUAovV6j5qEIMlKLovcTf/lzffovkYx7e9Y/z1n/qEQJEO0u5/79K8FGiCGk8WcePDCh
-         pfU5Tdgmupbt0i2+/eI72SLA7kZwCL90Vq2QPj+2jyx2qzEeYc3ijyinlSixUN/Cmo79
-         ZPZnSR/CPp/222SgkNm8RZ6nWpp5AtZWgs+lM/X1PJO327/NngIGRjTqsV/lG64x7Az4
-         dI6Q==
-X-Gm-Message-State: AJIora+OjPzVlHFmM4kmtx5CWY4+jcH8uForgH0Wf9EyKZRBH+29u4gJ
-        +92N26uB1igX+q1x1zsUZSE=
-X-Google-Smtp-Source: AGRyM1v1EvEsJAZzweGXnaZW5CIwk/ZPh7dZYGQ4CVU2YZ3BJ5bo0PShvbLQOmAhS3Q05MEjOAWybg==
-X-Received: by 2002:a17:906:29d:b0:6f0:18d8:7be0 with SMTP id 29-20020a170906029d00b006f018d87be0mr13750094ejf.561.1656683058468;
-        Fri, 01 Jul 2022 06:44:18 -0700 (PDT)
-Received: from localhost.localdomain (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
-        by smtp.googlemail.com with ESMTPSA id g4-20020a170906868400b006fee98045cdsm10698220ejx.10.2022.07.01.06.44.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jul 2022 06:44:18 -0700 (PDT)
-From:   Christian Marangi <ansuelsmth@gmail.com>
-To:     Chanwoo Choi <cw00.choi@samsung.com>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=2Y+Ope7w/V5G5Sem3wdLuCzNNO1/PxyFpoEOiSLF82s=;
+        b=wdsD2O/hgsW+af+a00Ent+OUzNUZuvUo8dFxg2/zl5UHTPlpO1KnkiyjmhzyHyr7+u
+         o7osiR2wM7NwaFeoCjcGNhLm9GXotWSKB8RU7s6MdtWV20EW4TlbV/Grh163CeEIaX1x
+         QwqxwNvz5ZIy16H00AGV0uJbyZAT4hKyHyGc1NPpT9rDCpiTt+NOxFRxjMwxaqRPIW3i
+         Dsw9Mqzo2gk5Fx9tPc1zzgWv4ij31PEbrm4+TSfYEfzciGgka/A7KaK65pe6f8hr7NiU
+         SG/odaLQ2ZNZIGhapaeMoSJ3E3Sfhfgnmq1invYoriyskcWnE94CD2dn9Q21MlwESp5X
+         L3/g==
+X-Gm-Message-State: AJIora9HriM5qJD3jR/SUOFsdppR0+ZMyjupEtecp+1739hvAxheZUBw
+        +WhqUCpKppdjvQTtSgQpwTP9PnFRNZJRWg5tvbG4W7GYk68=
+X-Google-Smtp-Source: AGRyM1tsfndpT8+S5mM/RyObYkQH8UPIoNUH3cidFzeS3HipAAEDIc+26erP8eDNXyDc1PCLoK/Q3bNPfSHgJMBC2RU=
+X-Received: by 2002:a2e:b703:0:b0:25a:93d0:8a57 with SMTP id
+ j3-20020a2eb703000000b0025a93d08a57mr8423887ljo.487.1656682475566; Fri, 01
+ Jul 2022 06:34:35 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220701115859.23975-1-ansuelsmth@gmail.com>
+In-Reply-To: <20220701115859.23975-1-ansuelsmth@gmail.com>
+Reply-To: cwchoi00@gmail.com
+From:   Chanwoo Choi <cwchoi00@gmail.com>
+Date:   Fri, 1 Jul 2022 22:33:59 +0900
+Message-ID: <CAGTfZH2XkS4+YfnibzCPf0P5sVHXwKDvVfXkT3zRr6KfErpg_w@mail.gmail.com>
+Subject: Re: [PATCH] PM / devfreq: fix exynos-bus NULL pointer dereference
+To:     Christian Marangi <ansuelsmth@gmail.com>
+Cc:     Chanwoo Choi <cw00.choi@samsung.com>,
         MyungJoo Ham <myungjoo.ham@samsung.com>,
         Kyungmin Park <kyungmin.park@samsung.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Alim Akhtar <alim.akhtar@samsung.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>, stable@vger.kernel.org
-Subject: [PATCH v2] PM / devfreq: exynos-bus: Fix NULL pointer dereference
-Date:   Fri,  1 Jul 2022 15:31:26 +0200
-Message-Id: <20220701133126.26496-1-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        Linux PM list <linux-pm@vger.kernel.org>,
+        linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix exynos-bus NULL pointer dereference by correctly using the local
-generated freq_table to output the debug values instead of using the
-profile freq_table that is not used in the driver.
+Hi Christian,
 
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Fixes: b5d281f6c16d ("PM / devfreq: Rework freq_table to be local to devfreq struct")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Please change the patch title as following and resend it.
+- PM / devfreq: exynos-bus: Fix NULL pointer dereference
+
+I'll ask the next version to be merged directly into linux-pm.git.
+
 Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
----
- drivers/devfreq/exynos-bus.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/devfreq/exynos-bus.c b/drivers/devfreq/exynos-bus.c
-index b5615e667e31..79725bbb4bb0 100644
---- a/drivers/devfreq/exynos-bus.c
-+++ b/drivers/devfreq/exynos-bus.c
-@@ -447,9 +447,9 @@ static int exynos_bus_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	max_state = bus->devfreq->profile->max_state;
--	min_freq = (bus->devfreq->profile->freq_table[0] / 1000);
--	max_freq = (bus->devfreq->profile->freq_table[max_state - 1] / 1000);
-+	max_state = bus->devfreq->max_state;
-+	min_freq = (bus->devfreq->freq_table[0] / 1000);
-+	max_freq = (bus->devfreq->freq_table[max_state - 1] / 1000);
- 	pr_info("exynos-bus: new bus device registered: %s (%6ld KHz ~ %6ld KHz)\n",
- 			dev_name(dev), min_freq, max_freq);
- 
+On Fri, Jul 1, 2022 at 9:08 PM Christian Marangi <ansuelsmth@gmail.com> wrote:
+>
+> Fix exynos-bus NULL pointer dereference by correctly using the local
+> generated freq_table to output the debug values instead of using the
+> profile freq_table that is not used in the driver.
+>
+> Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Fixes: b5d281f6c16d ("PM / devfreq: Rework freq_table to be local to devfreq struct")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+> ---
+>  drivers/devfreq/exynos-bus.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/devfreq/exynos-bus.c b/drivers/devfreq/exynos-bus.c
+> index b5615e667e31..79725bbb4bb0 100644
+> --- a/drivers/devfreq/exynos-bus.c
+> +++ b/drivers/devfreq/exynos-bus.c
+> @@ -447,9 +447,9 @@ static int exynos_bus_probe(struct platform_device *pdev)
+>                 }
+>         }
+>
+> -       max_state = bus->devfreq->profile->max_state;
+> -       min_freq = (bus->devfreq->profile->freq_table[0] / 1000);
+> -       max_freq = (bus->devfreq->profile->freq_table[max_state - 1] / 1000);
+> +       max_state = bus->devfreq->max_state;
+> +       min_freq = (bus->devfreq->freq_table[0] / 1000);
+> +       max_freq = (bus->devfreq->freq_table[max_state - 1] / 1000);
+>         pr_info("exynos-bus: new bus device registered: %s (%6ld KHz ~ %6ld KHz)\n",
+>                         dev_name(dev), min_freq, max_freq);
+>
+> --
+> 2.36.1
+>
+
+
 -- 
-2.36.1
-
+Best Regards,
+Chanwoo Choi
