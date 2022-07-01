@@ -2,231 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 642FA562B22
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 07:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E18562B2D
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 08:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233418AbiGAF7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 01:59:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
+        id S233925AbiGAGCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 02:02:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233411AbiGAF7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 01:59:54 -0400
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047CA6B802
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 22:59:53 -0700 (PDT)
-Received: by mail-il1-x136.google.com with SMTP id p14so810593ile.1
-        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 22:59:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Bpnf0MqrDUKXaYHd0cZNSK1Qdldyb8RGowVrGEDoJK8=;
-        b=aW7WFpcvK228CM2dgtBRxM9bHphIRiPT+yxPIkR4EstJXxWsR1LfomBh89UTynanIb
-         GPa2ogQUrBOlwDNNStpN9Lc05yNRL2Og0A86orh5ef4gDxzbb6qZ3kVyScYh5nICKaBu
-         DeBxzRRhs1//BUQhCBZ0FCvazItGrBieIxjRA6WkcOosI1B6qMsMCRM7aNGogh2SrDTv
-         uc4s6TldKgOsloGcuL64vXpa2f8/ebpDX+Pflf59xQpPZgrHhf2TBVtbM9r3uS0GhfQ3
-         tTWOTCJjYPMtQaADpHEDm8fA3LCYaQdQ/2CzmnvsoVd6UuOzHYS1IpS+ZoRxw6UVgYsI
-         nP+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Bpnf0MqrDUKXaYHd0cZNSK1Qdldyb8RGowVrGEDoJK8=;
-        b=4vjSWnDp+PQs+c+hGHv3tdGNHDnisg1XMEUG3yOPpvBkh9rA03HVnB2g61xl/tgMki
-         yZ+gx6ZiRs3LNreah3MIyBiJ4HVMiAL+21lBx0EZxHvtIWMCCQ0FucWJWljqGUAaL22r
-         3p8LvgJt04MSkqN5hs6xGPqtUTEOfs60Meosz5v1VhMZoU5sd5zjUzv6GIyC6kAUdM7p
-         Jk/w1IQAd39E+Eo11Atrv0rPBWARPTsbz0DMOQCktsy7tUxodn9kqMU6mjFbcaY7CYQw
-         9xE92SpAWyPRyB1jfMBaaGK5AMUWE1r7PqMtHDLSOCO//XDMhtZS1/xgnVcDguLEJPPe
-         bl+Q==
-X-Gm-Message-State: AJIora/ySASvX00+1MxhMvs1d9QLn0fcjteUH93CFhsHyY2oPtmBop6g
-        8qM83lyD9iMtju/S9Rg7Q+PQyhxlT0BhJ5vZS3wPrw==
-X-Google-Smtp-Source: AGRyM1vCUM5AytM0GkClNzZtfdQPn7BNheoA2iwg5/W5l25ipEuW+MFQO86oaGMMSJ7vHP8KIT3S0d+/bu4Lj/KeBAM=
-X-Received: by 2002:a92:d9cc:0:b0:2db:611:8cb9 with SMTP id
- n12-20020a92d9cc000000b002db06118cb9mr1066897ilq.55.1656655192211; Thu, 30
- Jun 2022 22:59:52 -0700 (PDT)
+        with ESMTP id S232320AbiGAGCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 02:02:31 -0400
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7658C6B819
+        for <stable@vger.kernel.org>; Thu, 30 Jun 2022 23:02:30 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id D0C335C0144;
+        Fri,  1 Jul 2022 02:02:29 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 01 Jul 2022 02:02:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        invisiblethingslab.com; h=cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm2; t=1656655349; x=
+        1656741749; bh=wYH+5idjnaYEDi0fQMCML0U5b5ym8CcDG6Nq6PKCwGg=; b=a
+        ub/cYtRrhu/KE9H92XuMWeCHUn3gq5JAgpWIqwV0SlcV8lqluiEdt+0X7ElruGr+
+        EQlPkHv6YYtZ3Z4nUHTOzbRJqZtA/xPLoZ98diRlH0BASm7CjAmocmCClwFxRd4R
+        /ZxVq5g2BRAgiAa4O21tMi5OowrtddnwSKmqnkhq/WTH1nQagFvAslZwNL7MdW+b
+        DenjsLYpjWVxo7Q2JPB1abV+R5WsUIrQfQTffe0NQmLFHpr/iQxGLxkpihPSDWP3
+        p+2oYR7PFtYgwjKnEPoIFMjXYj15Ozkej0JkKNF3DJkMBv1bKPrA9/l+VRXcj33i
+        PMliC6DYaCEpz/nEM+j4A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1656655349; x=1656741749; bh=wYH+5idjnaYEDi0fQMCML0U5b5ym
+        8CcDG6Nq6PKCwGg=; b=voxQ6KijTNSqKElS77lVhi2EzhwTGMm5wUQB/aebD0cb
+        S0LYqPdhN6fW8C/AhJsvaF4n6iP8tReMtCF4s3pVFF0oRW2U2WTcV0fmmajrgKhL
+        MW/qIM0okoQ24NP2/TsbWb3va9LSiCjmwsPHEa6Xzmel9AjZvCbJGH7dbY4JXAj2
+        OW75b/CPAlQUJ1tPrgPz7SqR7FpjA1idKlrcYlF0K1RTgrq75NFWCuETf9C7Q/6D
+        0vysx//asA57G8xbdwbm4ebPji49T3uwwGoj1eGyJTZzSueNkMZenJ//JnlOlbjB
+        CoP1eOp2e65QVCY7JcKfqi6VaqqByTBd7BKLXv7i8A==
+X-ME-Sender: <xms:9Y2-Yh3N8RsIolle5VjJfjGSz9zr2HTdZOr_FFTnMqYdaH0mFWup5w>
+    <xme:9Y2-YoF_7qjluxbX-ZKGCSevjXfIn9f8zsOote0AAKiokO32DdlSk4AfXx_ALMbqI
+    tQ2OKZTDVtDcsA>
+X-ME-Received: <xmr:9Y2-Yh6IZpR3SI2zFHi5EfK6c9EBzSI60Qy-22lo8f6FbdnVgPo8GY_cLkYl>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudehvddguddthecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesghdtreertddtvdenucfhrhhomhepffgvmhhi
+    ucforghrihgvucfqsggvnhhouhhruceouggvmhhisehinhhvihhsihgslhgvthhhihhngh
+    hslhgrsgdrtghomheqnecuggftrfgrthhtvghrnheptdeigeehudegjeelteehveehveef
+    ieehiefhfefgtdduhfdtjedtkeevffefteffnecuffhomhgrihhnpehgihhthhhusgdrtg
+    homhdpkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghm
+    pehmrghilhhfrhhomhepuggvmhhisehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtg
+    homh
+X-ME-Proxy: <xmx:9Y2-Yu1UfhIp9Uy4MO83p3HgBiSLVUgA4iIVpkA5eCNHQlkt-1h2PQ>
+    <xmx:9Y2-YkHb1mxCEcITaxRc1lcsHsVH-oJYx2PoghylsHVtlDec0RZM2w>
+    <xmx:9Y2-Yv9cSl9TvvLwzbhFcpV__IKxil6mWFDzM3ViMMwNke1fS_upbg>
+    <xmx:9Y2-YuMwoG2nVwbTogm4yVVZDMQnt9m62oqU8w1pF3mYkzNl_9pRTw>
+Feedback-ID: iac594737:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 1 Jul 2022 02:02:29 -0400 (EDT)
+Date:   Fri, 1 Jul 2022 02:02:26 -0400
+From:   Demi Marie Obenour <demi@invisiblethingslab.com>
+To:     Juergen Gross <jgross@suse.com>,
+        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Xen developer discussion <xen-devel@lists.xenproject.org>
+Subject: Re: [PATCH 5.10] xen/gntdev: Avoid blocking in unmap_grant_pages()
+Message-ID: <Yr6N87QcWTm9SAwR@itl-email>
+Mail-Followup-To: Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Juergen Gross <jgross@suse.com>,
+        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Xen developer discussion <xen-devel@lists.xenproject.org>
+References: <20220627181006.1954-1-demi@invisiblethingslab.com>
+ <Yr2KKpWSiuzOQr7v@kroah.com>
+ <5136812e-e296-4acb-cafd-f189c4013ed3@suse.com>
+ <Yr3VQaM0NBcIV2Kl@itl-email>
+ <1c3bfe41-b86d-660c-6ccf-17777d1a5801@suse.com>
 MIME-Version: 1.0
-References: <20220630133230.239507521@linuxfoundation.org>
-In-Reply-To: <20220630133230.239507521@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 1 Jul 2022 11:29:40 +0530
-Message-ID: <CA+G9fYsmy4bg09aq0fVRNp_iCh5oTM_+c-NBii6MiNWwBvt8MA@mail.gmail.com>
-Subject: Re: [PATCH 5.18 0/6] 5.18.9-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Niq2cF0LcwVvL5C2"
+Content-Disposition: inline
+In-Reply-To: <1c3bfe41-b86d-660c-6ccf-17777d1a5801@suse.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 30 Jun 2022 at 19:26, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.18.9 release.
-> There are 6 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 02 Jul 2022 13:32:22 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.18.9-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.18.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
+--Niq2cF0LcwVvL5C2
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 1 Jul 2022 02:02:26 -0400
+From: Demi Marie Obenour <demi@invisiblethingslab.com>
+To: Juergen Gross <jgross@suse.com>, Greg KH <gregkh@linuxfoundation.org>,
+	stable@vger.kernel.org,
+	Xen developer discussion <xen-devel@lists.xenproject.org>
+Subject: Re: [PATCH 5.10] xen/gntdev: Avoid blocking in unmap_grant_pages()
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On Fri, Jul 01, 2022 at 07:56:28AM +0200, Juergen Gross wrote:
+> On 30.06.22 18:54, Demi Marie Obenour wrote:
+> > On Thu, Jun 30, 2022 at 03:16:41PM +0200, Juergen Gross wrote:
+> > > On 30.06.22 13:34, Greg KH wrote:
+> > > > On Mon, Jun 27, 2022 at 02:10:02PM -0400, Demi Marie Obenour wrote:
+> > > > > commit dbe97cff7dd9f0f75c524afdd55ad46be3d15295 upstream
+> > > > >=20
+> > > > > unmap_grant_pages() currently waits for the pages to no longer be=
+ used.
+> > > > > In https://github.com/QubesOS/qubes-issues/issues/7481, this lead=
+ to a
+> > > > > deadlock against i915: i915 was waiting for gntdev's MMU notifier=
+ to
+> > > > > finish, while gntdev was waiting for i915 to free its pages.  I a=
+lso
+> > > > > believe this is responsible for various deadlocks I have experien=
+ced in
+> > > > > the past.
+> > > > >=20
+> > > > > Avoid these problems by making unmap_grant_pages async.  This req=
+uires
+> > > > > making it return void, as any errors will not be available when t=
+he
+> > > > > function returns.  Fortunately, the only use of the return value =
+is a
+> > > > > WARN_ON(), which can be replaced by a WARN_ON when the error is
+> > > > > detected.  Additionally, a failed call will not prevent further c=
+alls
+> > > > > from being made, but this is harmless.
+> > > > >=20
+> > > > > Because unmap_grant_pages is now async, the grant handle will be =
+sent to
+> > > > > INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the s=
+ame
+> > > > > handle.  Instead, a separate bool array is allocated for this pur=
+pose.
+> > > > > This wastes memory, but stuffing this information in padding byte=
+s is
+> > > > > too fragile.  Furthermore, it is necessary to grab a reference to=
+ the
+> > > > > map before making the asynchronous call, and release the referenc=
+e when
+> > > > > the call returns.
+> > > > >=20
+> > > > > It is also necessary to guard against reentrancy in gntdev_map_pu=
+t(),
+> > > > > and to handle the case where userspace tries to map a mapping who=
+se
+> > > > > contents have not all been freed yet.
+> > > > >=20
+> > > > > Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case the=
+y are still in use")
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+> > > > > Reviewed-by: Juergen Gross <jgross@suse.com>
+> > > > > Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisi=
+blethingslab.com
+> > > > > Signed-off-by: Juergen Gross <jgross@suse.com>
+> > > > > ---
+> > > > >    drivers/xen/gntdev-common.h |   7 ++
+> > > > >    drivers/xen/gntdev.c        | 142 +++++++++++++++++++++++++---=
+--------
+> > > > >    2 files changed, 106 insertions(+), 43 deletions(-)
+> > > >=20
+> > > > All now queued up, thanks.
+> > >=20
+> > > Sorry, but I think at least the version for 5.10 is fishy, as it remo=
+ves
+> > > the tests for successful allocations of add->map_ops and add->unmap_o=
+ps.
+> >=20
+> > That is definitely a bug; I will send another version (without your
+> > Reviewed-by).
+> >=20
+> > > I need to do a thorough review of the patches (the "Reviewed-by:" tag=
+ in
+> > > the patches is the one for the upstream patch).
+> >=20
+> > Yeah, that was my fault, sorry.
+> >=20
+> > > Greg, can you please wait for my explicit "okay" for the backports?
+> >=20
+> > Confirming that these patches do need review before they can be applied.
+> > Juergen, would you mind making sure that the upstream patch was also
+> > correct for 5.15 and 5.18?  It applied cleanly, but that is no guarantee
+> > of correctness.
+>=20
+> Those two are fine.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Thanks!  I re-sent the 5.10 patch; hopefully the others are good.
+--=20
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+Invisible Things Lab
 
-## Build
-* kernel: 5.18.9-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.18.y
-* git commit: 2c9a64b3a872fb2818d217509b16e61ba54c365e
-* git describe: v5.18.8-7-g2c9a64b3a872
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.18.y/build/v5.18=
-.8-7-g2c9a64b3a872
+--Niq2cF0LcwVvL5C2
+Content-Type: application/pgp-signature; name="signature.asc"
 
-## Test Regressions (compared to v5.18.8)
-No test regressions found.
+-----BEGIN PGP SIGNATURE-----
 
-## Metric Regressions (compared to v5.18.8)
-No metric regressions found.
+iQIzBAEBCgAdFiEEdodNnxM2uiJZBxxxsoi1X/+cIsEFAmK+jfMACgkQsoi1X/+c
+IsHbZg/+P9onGYM5Pr4XcVDzf96AxARCkyw3tShzc4Vu1UyfnwV7uvhQF6+3VJMF
+IXOBJK3ebOsMgh0/eVvoXLKhn68n5K47xIIJPrtdglOCAYolvrG0G5yMvi2wQOWg
+1xt1ryu4GXR6z2Cwpt8St3vYgFq9hycztQ2vWXRwKDAdrOWac+BCrEwZQC9pRnRl
+fDYmSzXMXkOlQUrlZ4njowv0ZbcMybRI9IQZ6dDhcWfSycaHj9kh8grybuPMZnmt
+Q+BRpHbvi9gbpJFcDmsk8EsqHj4lUdLDjY/yve5ndIxVev3QLp2JwIL+tB2oXqgl
+YXkhEqHNHwwuHo/H5RTfT1ds7KzutJjE0vMR6eket824fLrIVXuIw09aighpY1Vg
+GFoB9B1RckmYmo1ZzmtWJusrkPBcbRkeWzydZYfXum71D3uxa1lkhxSUH+BzjiCp
+B6y5BkBad8ruRh7qZHgt17kto99oodQgCP2WHUFjupoe0nc8roJJ2dNAWz8UIZOd
+BW3vUFSf4tY5gY06vWlw7Ux8g8fWwInLlwF370LVDUMmIzNsLJAYk0RDTbMPdpNy
+KZj0hsI7S0A/YuSMd/0CCo2TZg/KRI0UM38Z4UPtCl2KcDdxSZSRdTqDQs0isRSe
+ZcmSlwQOIGs3i2tfS4vjpOV1B8zn6hjbdYcoMRv3MIFUyxBYvqI=
+=VEPi
+-----END PGP SIGNATURE-----
 
-## Test Fixes (compared to v5.18.8)
-No test fixes found.
-
-## Metric Fixes (compared to v5.18.8)
-No metric fixes found.
-
-## Test result summary
-total: 120950, pass: 109794, fail: 546, skip: 9999, xfail: 611
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 307 total, 307 passed, 0 failed
-* arm64: 62 total, 62 passed, 0 failed
-* i386: 52 total, 49 passed, 3 failed
-* mips: 48 total, 48 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 54 passed, 6 failed
-* riscv: 27 total, 22 passed, 5 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 56 total, 54 passed, 2 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+--Niq2cF0LcwVvL5C2--
