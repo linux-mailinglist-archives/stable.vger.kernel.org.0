@@ -2,67 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D9B563398
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 14:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D6D5633A1
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 14:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235758AbiGAMm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 08:42:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41138 "EHLO
+        id S236227AbiGAMpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 08:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231298AbiGAMm4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 08:42:56 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8296403E2
-        for <stable@vger.kernel.org>; Fri,  1 Jul 2022 05:42:55 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id m14so2283499plg.5
-        for <stable@vger.kernel.org>; Fri, 01 Jul 2022 05:42:55 -0700 (PDT)
+        with ESMTP id S236215AbiGAMpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 08:45:09 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B745533EB4;
+        Fri,  1 Jul 2022 05:45:06 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id l81so3337472oif.9;
+        Fri, 01 Jul 2022 05:45:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BF5Ea4TFioGoQYksLfUP26/hGq6Gu9e9x0voN44UjZ8=;
-        b=oZDpHU4m2hNWi63DPK1j/Wb+UyPv3PEWLKq6+j4Si+tU13bJpjPyBRCNyJDfb9uAg6
-         BXeUtwzQ7h+A3WlQCLu8Hqsu5QkPEHpkQrKGDLrYe06UGz3FIF8sTz/AsmHMDhFu5CZe
-         8rTeLQ3chLQuCgnumg/tgrUDrfCKd8lKGxyFtSyZViBk/B/N0LFwh+YuuKg1g40wR8C6
-         rV2qoq8oFV6C+52P+2YpTRZEqQ3w/hHAm7bNxNGb7kK+4mhOwebNMaYQmgxwan3jtJtk
-         OZft2A87guv02VecdN8F+9WHEzld0w7NG6YkcGIeSUuZ944jSDShN0SgeegDIyecLP/E
-         4FdA==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9fESupLsVibFBT9Jshx7sx492QNW1uXVHiFs4UY6jdo=;
+        b=B5NGKiRmAEpLNLEvQvABrUY2mlRFTJIghKa0CmaEprTgUg8P/bMLjDlC9kqySWbxX3
+         WbtV6Ly41oBeo7+bnVMbiOCtsCj+s21zCMaKWHKIFpxWvbGvSRgkZytYo2CDJHWX7CQy
+         H0Lo4IVoOLp0brhFmh1VLK5kNnbeepwvvprEWGPfumaQIQrTiQQpS1U3eI8UUCyg5qNj
+         rgDb2Uz9eLivrzgiR8dVP7NnivyIN7GwoT1+hvhiT42KM1qYWy4gvv0dLWk3Bk9eqgfm
+         vR0MqGdvIWq1A1Yz9vzd5RFkRMmaDB1AviyZo68aMlrOWiSCDjzcIXUTQ31msC+JBIbK
+         jC6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BF5Ea4TFioGoQYksLfUP26/hGq6Gu9e9x0voN44UjZ8=;
-        b=IzdJzpP2ZvD40gBmO7yhdR4mGGAJq/uCPKS0tC9lYvtXQbrp8ttuJJrwAUr/6Zj4wF
-         qbYP+rwK9N/rw6vMER47bqiWjkkryJ6jBsY0A1i51pWMRKE0xo/Ru+kz1aUq9YtKG8ix
-         FyZEaInZAEx2sPA3dEzD7ilWEkWUlKJaHPsI93qaW5zm4A9kKL7M5iHilB45OkYZ59Jo
-         2Lzt/JZRKqaNm2b3tOc48VCaKit8NsYunZJDr88lYdm9jYuNArjiAskLJy3vFbEEkpZx
-         GcUl9FZHKx2++x39cKphafUnekvfiJrYN5v5FFbKEH5lX9A72sSpm27f1+qpUVkUpXta
-         nI6A==
-X-Gm-Message-State: AJIora85RF6CZvIoUSFBVuhuiLde5B5ISmcYyZbQKmGT71nQW8x0ipjF
-        LZwobV30hCYmgZReYpmbnIfAbmSgKyOT4QAX
-X-Google-Smtp-Source: AGRyM1us/ANCI3OTUJIYDfdRVeOyCXi0wkW3C0LIHkaIf+u1nzZu+BB94SH46laFcXyMpNLeViMvUA==
-X-Received: by 2002:a17:90b:4a8e:b0:1ec:b561:43b5 with SMTP id lp14-20020a17090b4a8e00b001ecb56143b5mr18260594pjb.239.1656679375141;
-        Fri, 01 Jul 2022 05:42:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e9-20020a631e09000000b0041183dcd5b1sm5266035pge.53.2022.07.01.05.42.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jul 2022 05:42:54 -0700 (PDT)
-Message-ID: <62beebce.1c69fb81.593cb.7d97@mx.google.com>
-Date:   Fri, 01 Jul 2022 05:42:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9fESupLsVibFBT9Jshx7sx492QNW1uXVHiFs4UY6jdo=;
+        b=RtRLlPWyj3U/tlpw3Sz/bZ18Rx4FJnhzZwvTHLYx7AiQudjsXkpDMP3oOXLgTFD7IK
+         wQs2NcDoIz2sOEv/xOAy/BGL8bMKobMbIDPz9fjMS3sZf+g8H3vVnzqYFszLMhP/cIJA
+         xU5fvGAaZT4KsbH9w8m7ED6MtdakBlB1Cw00g/AZxTq1IyIAm8qWRbeCpjH8WpVsvMda
+         ONnn+oTtpI8BICbroZuKIYtoIJU3/+ARr+A2mr0RE7GT920p19RlhNyuOxOAr/fWve+p
+         RAj9vEuSg0Rf/1hrjBXcXxNBlQMPn2DLKxOc4AskmYDkqBiKXMqoh2ipBKNZq692uhNY
+         K3NA==
+X-Gm-Message-State: AJIora9uuE48gTxHrdkLlqS2sUlwQzVB2l7uT/nxyTE8XClkkWN3W7Lj
+        392DULjbvSTfRZZc4Tiz2O78NGbO1Tk0HXUW/AGtRUfJTQ2sOA==
+X-Google-Smtp-Source: AGRyM1uoR9RgXLNVs7iXQWGsEnvNo3LHdrJfhjDPo9OILGpE6veZNJc15raUa4vJXNYHDVShVhEAd7LSwSk5Ktr9zIc=
+X-Received: by 2002:a05:6808:30a8:b0:335:afc9:4a2c with SMTP id
+ bl40-20020a05680830a800b00335afc94a2cmr7811673oib.288.1656679505945; Fri, 01
+ Jul 2022 05:45:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.8-7-g2c9a64b3a872
-X-Kernelci-Branch: linux-5.18.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.18.y baseline: 182 runs,
- 6 regressions (v5.18.8-7-g2c9a64b3a872)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220630022317.15734-1-gch981213@gmail.com> <b84edc24-0a3a-a4d2-6481-fb3d4cee6dda@amd.com>
+In-Reply-To: <b84edc24-0a3a-a4d2-6481-fb3d4cee6dda@amd.com>
+From:   Chuanhong Guo <gch981213@gmail.com>
+Date:   Fri, 1 Jul 2022 20:44:54 +0800
+Message-ID: <CAJsYDVL=fgExYdw3JB-59rCwOqTbSt2N0Xw2WCmoTSzOQEMRRg@mail.gmail.com>
+Subject: Re: [PATCH v5] ACPI: skip IRQ1 override on 3 Ryzen 6000 laptops
+To:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Limonciello, Mario" <mario.limonciello@amd.com>
+Cc:     linux-acpi@vger.kernel.org, stable@vger.kernel.org,
+        Tighe Donnelly <tighe.donnelly@protonmail.com>,
+        Kent Hou Man <knthmn0@gmail.com>,
+        Len Brown <lenb@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,247 +69,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.18.y baseline: 182 runs, 6 regressions (v5.18.8-7-g2c9a64=
-b3a872)
-
-Regressions Summary
--------------------
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-i945gsex-qs        | i386 | lab-clabbe      | gcc-10   | i386_defconfig    =
-  | 1          =
-
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
-
-jetson-tk1         | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig=
-  | 1          =
-
-jetson-tk1         | arm  | lab-baylibre    | gcc-10   | tegra_defconfig   =
-  | 1          =
-
-tegra124-nyan-big  | arm  | lab-collabora   | gcc-10   | multi_v7_defconfig=
-  | 1          =
-
-tegra124-nyan-big  | arm  | lab-collabora   | gcc-10   | tegra_defconfig   =
-  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.18.y/ker=
-nel/v5.18.8-7-g2c9a64b3a872/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.18.y
-  Describe: v5.18.8-7-g2c9a64b3a872
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2c9a64b3a872fb2818d217509b16e61ba54c365e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-i945gsex-qs        | i386 | lab-clabbe      | gcc-10   | i386_defconfig    =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62beb49f8c563110f2a39c19
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/i386/i386_defconfig/gcc-10/lab-clabbe/baseline-i945gsex-qs=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/i386/i386_defconfig/gcc-10/lab-clabbe/baseline-i945gsex-qs=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62beb49f8c563110f2a39=
-c1a
-        new failure (last pass: v5.18.5-154-g1fbbb68b1ca9) =
-
- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62bed317649ec59133a39c15
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62bed317649ec59133a39=
-c16
-        new failure (last pass: v5.18.8) =
-
- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-jetson-tk1         | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig=
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62bed164d3ab2645e6a39bce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62bed164d3ab2645e6a39=
-bcf
-        failing since 1 day (last pass: v5.18.5-154-g1fbbb68b1ca9, first fa=
-il: v5.18.8) =
-
- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-jetson-tk1         | arm  | lab-baylibre    | gcc-10   | tegra_defconfig   =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62bece3184d070acf4a39c1e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62bece3184d070acf4a39=
-c1f
-        failing since 17 days (last pass: v5.18.2-880-g09bf95a7c28a7, first=
- fail: v5.18.2-1220-gd5ac9cd9153f6) =
-
- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-tegra124-nyan-big  | arm  | lab-collabora   | gcc-10   | multi_v7_defconfig=
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62bed88397a5aaeb0aa39c1b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra=
-124-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra=
-124-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62bed88397a5aaeb0aa39=
-c1c
-        failing since 17 days (last pass: v5.18.2-880-g09bf95a7c28a7, first=
- fail: v5.18.2-1220-gd5ac9cd9153f6) =
-
- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-tegra124-nyan-big  | arm  | lab-collabora   | gcc-10   | tegra_defconfig   =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62bed494a27060a89ca39bd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra124=
--nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.8=
--7-g2c9a64b3a872/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra124=
--nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62bed494a27060a89ca39=
-bd5
-        new failure (last pass: v5.18.8) =
-
- =20
+On Fri, Jul 1, 2022 at 4:12 AM Limonciello, Mario
+<mario.limonciello@amd.com> wrote:
+> However I do want to point out that Windows doesn't care about legacy
+> format or not.  This bug where keyboard doesn't work only popped up on
+> Linux.
+>
+> Given the number of systems with the bug is appearing to grow I wonder
+> if the right answer is actually a new heuristic that doesn't apply the
+> kernel override for polarity inversion anymore.  Maybe if the system is
+> 2022 or newer?  Or on the ACPI version?
+
+The previous attempt to limit the scope of IRQ override ends up
+breaking some other buggy devices:
+https://patchwork.kernel.org/project/linux-acpi/patch/20210728151958.15205-1-hui.wang@canonical.com/
+
+It's unfortunate that the original author of this IRQ override doesn't
+limit the scope to their exact devices.
+
+Hi, Rafael! What do you think? should we skip this IRQ override
+one-by-one or add a different matching logic to check the bios date
+instead?
+
+-- 
+Regards,
+Chuanhong Guo
