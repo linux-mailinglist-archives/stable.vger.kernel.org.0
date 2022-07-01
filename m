@@ -2,106 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D29E563305
-	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 13:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97EB256330B
+	for <lists+stable@lfdr.de>; Fri,  1 Jul 2022 13:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235974AbiGAL5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 07:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56332 "EHLO
+        id S234022AbiGAL7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jul 2022 07:59:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234586AbiGAL47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 07:56:59 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D10983F21
-        for <stable@vger.kernel.org>; Fri,  1 Jul 2022 04:56:58 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id m14-20020a17090a668e00b001ee6ece8368so6183933pjj.3
-        for <stable@vger.kernel.org>; Fri, 01 Jul 2022 04:56:58 -0700 (PDT)
+        with ESMTP id S232975AbiGAL7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 07:59:19 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A3E083F08;
+        Fri,  1 Jul 2022 04:59:18 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id lw20so3655992ejb.4;
+        Fri, 01 Jul 2022 04:59:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=PR4t2lbs5ROKA67qBXbhqmcN8/VsW31hI+3LjJuCmDI=;
-        b=l+CxE3B9PduJ3nKf0sLhhmLajZfhxV8Dpzx5Sgqrnr+YCi6ylOMU1Ffumuq4gmicsq
-         EK+clE8xKzWkT5FSSYI1sN1zMDaAOc/zg4bvWhy23FviKDNNjnB5MbJcm/gaPQplK9sh
-         N8PTCI/+S06uV7hTHtesyj3t4jDmM2jl2I89k=
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=F5g5aJ1I7RiOqycWmd4P9Obv7hflqFvZpC+BWDAaPtE=;
+        b=kVEM5mh0cMC2nmfuzjTaUHvlVWUbc0AqTVvzxGhlwMU0cGRT6oRWEhjNPmmW5t58ZG
+         aNF7Bk0GcsU+Dt8Wxrtu25XB1FY6DXuk+MJFOsI/7htBhgME5yIQOVRiH971JgpPWBT6
+         CrGt/PiEV9QvPsYUgbl4pksh5rhxUMkRJrqKRepHSxzMoo61DA6VPRIg+rMpfRL/ikGT
+         IfARS6FwIXj3nfhVyLtH1YTv6xX8kNzDpqJbDhBudc2qO0ad502rccs5T3kXNnHAn7Py
+         UzqeFxq7/w7POTsTgT6z7muHPaIbcrDhg2d0Bqsl/e9cONr56f+kzlTEcdA2P3jFjhWb
+         qsXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=PR4t2lbs5ROKA67qBXbhqmcN8/VsW31hI+3LjJuCmDI=;
-        b=L9Srs18l9ohBO5Jr0ju/r84LY8nXgQxSSRRrHorXTzndIXllDUlQEYqQ+aKJmn/gMC
-         TI0UuZ+C+eP6UfjXWY6Mo5PEB5Ug44GwVFZlYBWjJqZVIMdEhtyCOQieI+H0LdP9wO3h
-         dpSGaLKQ3cXSwfqwum0W9maA8zaXR8QGPkabkh85GXyGMNnG4eE6a0SQFKai0PqyTAhy
-         WsskIoMtCLuDyHhS3uUZjAntCMEjXzZDl4pRUI8P2FnEZTXG0gMtLqH9aj27eHuPhwLZ
-         REBmpFwobRSb5EGpTfUTCRZgzEleICnHKvPqjljy9q/f6U3W6O9JA/j7YD4+R9LEPj/N
-         iGlQ==
-X-Gm-Message-State: AJIora/kwEHXllbCoI3CaGOl2x066uRVtQBmlCUIZHyDbazfvyqBj0op
-        CsrILq7ZQP3dRFOOOo7hbIRZJw==
-X-Google-Smtp-Source: AGRyM1vs8MTSp6rS/AbiELZu+/UVlmPjHaiDAU/hHl6UUwKYaoxqd4BbKZTAYRyjX7jY8fEWylFeCQ==
-X-Received: by 2002:a17:90a:b703:b0:1dd:1e2f:97d7 with SMTP id l3-20020a17090ab70300b001dd1e2f97d7mr17883093pjr.62.1656676618003;
-        Fri, 01 Jul 2022 04:56:58 -0700 (PDT)
-Received: from 792b621d1c2d ([203.220.223.63])
-        by smtp.gmail.com with ESMTPSA id t19-20020a63dd13000000b00401a9bc0f33sm15041607pgg.85.2022.07.01.04.56.49
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=F5g5aJ1I7RiOqycWmd4P9Obv7hflqFvZpC+BWDAaPtE=;
+        b=7aX0XN1aUfNAFLKS2Hcxf/t8uZKgqybvgxzO4QRpAk279FqdztmB93y1h+lu8kwwzO
+         5jkCtiacjhjOO+u32e92Hm54DNA7YPJDFh0mK3Vm44XvXsth9uAjLrMwovk1nnnQHB/x
+         Je+NPGVa6MAjm5b402et7hbKsxqbjLx1GjH31ZgxNwXqR5OHbaw0Uj9WtHs6KPgy+1U/
+         xJx9nl1MhJ5uzvIvwQ+KWyXRMV5XNMwF+vrUvlsZFzb3NTdFfvrjUUPLVBGZxqdrlDcA
+         u12kbn7Z4WcAvsYIBxXP+0njdmbDJtfEGYRO39gvH1u7E41BF0c4sNkvi/XbgH7hu/hh
+         G9fQ==
+X-Gm-Message-State: AJIora+dy9mtfG2DfgPKA+3PSFZm+0Uijuw2MyJ177/NlERXWJ3/+UEp
+        py0SB4zNvha8BaYwZF5xqCeZosLMWjQ=
+X-Google-Smtp-Source: AGRyM1suMQSz+NHorY0Bn17cejl3dsl3SCBn+yByvEs1PkAwlbElJJlm/Jzge3hI5DlBYFHWHaXY0w==
+X-Received: by 2002:a17:906:2654:b0:722:fd1b:d5fb with SMTP id i20-20020a170906265400b00722fd1bd5fbmr14180997ejc.59.1656676756501;
+        Fri, 01 Jul 2022 04:59:16 -0700 (PDT)
+Received: from localhost.localdomain (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
+        by smtp.googlemail.com with ESMTPSA id d18-20020a05640208d200b00435bfcad6d1sm14976922edz.74.2022.07.01.04.59.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jul 2022 04:56:54 -0700 (PDT)
-Date:   Fri, 1 Jul 2022 11:56:46 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 0/6] 5.18.9-rc1 review
-Message-ID: <20220701115646.GA9141@792b621d1c2d>
-References: <20220630133230.239507521@linuxfoundation.org>
+        Fri, 01 Jul 2022 04:59:15 -0700 (PDT)
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Christian Marangi <ansuelsmth@gmail.com>,
+        linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>, stable@vger.kernel.org
+Subject: [PATCH] PM / devfreq: fix exynos-bus NULL pointer dereference
+Date:   Fri,  1 Jul 2022 13:58:59 +0200
+Message-Id: <20220701115859.23975-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220630133230.239507521@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 30, 2022 at 03:47:26PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.9 release.
-> There are 6 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 02 Jul 2022 13:32:22 +0000.
-> Anything received after that time might be too late.
+Fix exynos-bus NULL pointer dereference by correctly using the local
+generated freq_table to output the debug values instead of using the
+profile freq_table that is not used in the driver.
 
-Hi Greg,
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Fixes: b5d281f6c16d ("PM / devfreq: Rework freq_table to be local to devfreq struct")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/devfreq/exynos-bus.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-resend: 
-
-5.18.9-rc1 tested.
-
-Run tested on:
-- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
-
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- Allwinner H6
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
-
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+diff --git a/drivers/devfreq/exynos-bus.c b/drivers/devfreq/exynos-bus.c
+index b5615e667e31..79725bbb4bb0 100644
+--- a/drivers/devfreq/exynos-bus.c
++++ b/drivers/devfreq/exynos-bus.c
+@@ -447,9 +447,9 @@ static int exynos_bus_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	max_state = bus->devfreq->profile->max_state;
+-	min_freq = (bus->devfreq->profile->freq_table[0] / 1000);
+-	max_freq = (bus->devfreq->profile->freq_table[max_state - 1] / 1000);
++	max_state = bus->devfreq->max_state;
++	min_freq = (bus->devfreq->freq_table[0] / 1000);
++	max_freq = (bus->devfreq->freq_table[max_state - 1] / 1000);
+ 	pr_info("exynos-bus: new bus device registered: %s (%6ld KHz ~ %6ld KHz)\n",
+ 			dev_name(dev), min_freq, max_freq);
+ 
+-- 
+2.36.1
 
