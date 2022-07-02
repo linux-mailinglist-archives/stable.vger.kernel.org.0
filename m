@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BC65640BF
-	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 16:38:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C945640C1
+	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 16:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbiGBOiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Jul 2022 10:38:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37500 "EHLO
+        id S232116AbiGBOiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Jul 2022 10:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbiGBOiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 10:38:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28E5E0BB;
-        Sat,  2 Jul 2022 07:38:13 -0700 (PDT)
+        with ESMTP id S232117AbiGBOiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 10:38:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F729CD4;
+        Sat,  2 Jul 2022 07:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78D06B827B9;
-        Sat,  2 Jul 2022 14:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDB7DC34114;
-        Sat,  2 Jul 2022 14:38:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0082E60F5E;
+        Sat,  2 Jul 2022 14:38:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB8D7C34114;
+        Sat,  2 Jul 2022 14:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656772691;
-        bh=io+WDVwFAugmxMyFVmWR0Z04oyJr/bQYHG78hMn98Co=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HYrfxk8BRf5yK/vzJ0quXKDDFawvRHLRfkw8PCZ/MZ7OcN8oEt1RmnMFU97WHGzha
-         jmdP5I+ju9WxaVh3uMnFNTDrUYOaS6PyYtPe/SX4uGvVNx+WKmD3nItLA1zCmrEpZP
-         lpe5TI1B/jwRP6DTFWYy4SykLvu/r81LDRG2TpI0=
+        s=korg; t=1656772696;
+        bh=tkyWXa+Q2/CatC/G+2nUlEpGCnZBMRebvx2Vf/odUWE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Xf+M4kZl0W/KUAxDdkBQnB7O+ngR+HIKMaF0q+lBEILGIRnihbR5OFhN565mVIUR5
+         v0riLZcWpEu8BgaHJ9+H4VmMJy6JmWFVpOdphQxm7c2IGx9J+1DCVLBsVeGxraydD3
+         rriaaZppe6sDqcN6qKkOxXsBep34VsCRhKjtVbYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.321
-Date:   Sat,  2 Jul 2022 16:38:06 +0200
-Message-Id: <16567726872125@kroah.com>
+Subject: Re: Linux 4.9.321
+Date:   Sat,  2 Jul 2022 16:38:07 +0200
+Message-Id: <165677268722572@kroah.com>
 X-Mailer: git-send-email 2.37.0
+In-Reply-To: <16567726872125@kroah.com>
+References: <16567726872125@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -49,135 +51,942 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.321 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/ABI/testing/sysfs-bus-iio-vf610 |    2 
- Makefile                                      |    2 
- arch/arm/boot/dts/imx6qdl.dtsi                |    2 
- arch/arm/mach-axxia/platsmp.c                 |    1 
- arch/arm/mach-cns3xxx/core.c                  |    2 
- arch/arm/mach-exynos/exynos.c                 |    1 
- arch/mips/vr41xx/common/icu.c                 |    2 
- arch/powerpc/kernel/process.c                 |    2 
- arch/powerpc/platforms/pseries/pseries.h      |    2 
- arch/powerpc/platforms/pseries/rng.c          |   11 -
- arch/powerpc/platforms/pseries/setup.c        |    1 
- arch/x86/include/asm/kexec.h                  |    7 +
- arch/xtensa/kernel/time.c                     |    1 
- arch/xtensa/platforms/xtfpga/setup.c          |    1 
- drivers/char/random.c                         |    4 
- drivers/gpio/gpio-vr41xx.c                    |    2 
- drivers/gpu/drm/drm_crtc_helper_internal.h    |   10 -
- drivers/gpu/drm/drm_fb_helper.c               |   21 ---
- drivers/gpu/drm/drm_kms_helper_common.c       |   25 ++--
- drivers/iio/accel/bma180.c                    |    3 
- drivers/iio/accel/mma8452.c                   |   10 +
- drivers/iio/trigger/iio-trig-sysfs.c          |    1 
- drivers/md/dm-era-target.c                    |    8 +
- drivers/net/bonding/bond_main.c               |    4 
- drivers/net/ethernet/intel/igb/igb_main.c     |   12 --
- drivers/of/fdt.c                              |    8 +
- drivers/tty/vt/vt.c                           |   34 -----
- drivers/tty/vt/vt_ioctl.c                     |  149 --------------------------
- drivers/usb/chipidea/udc.c                    |    3 
- drivers/usb/serial/option.c                   |    1 
- drivers/xen/features.c                        |    2 
- drivers/xen/xlate_mmu.c                       |    1 
- include/linux/kd.h                            |    7 -
- include/linux/kexec.h                         |   26 +++-
- include/linux/ratelimit.h                     |   12 +-
- include/trace/events/libata.h                 |    1 
- kernel/kexec_file.c                           |   18 ---
- lib/swiotlb.c                                 |    3 
- scripts/mod/modpost.c                         |    2 
- 39 files changed, 110 insertions(+), 294 deletions(-)
-
-Baruch Siach (1):
-      iio: adc: vf610: fix conversion mode sysfs node name
-
-Carlo Lobrano (1):
-      USB: serial: option: add Telit LE910Cx 0x1250 composition
-
-Christoph Hellwig (1):
-      drm: remove drm_fb_helper_modinit
-
-Dmitry Rokosov (1):
-      iio:accel:bma180: rearrange iio trigger get and register
-
-Edward Wu (1):
-      ata: libata: add qc->flags in ata_qc_complete_template tracepoint
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.321
-
-Haibo Chen (1):
-      iio: accel: mma8452: ignore the return value of reset operation
-
-Hsin-Yi Wang (1):
-      fdt: Update CRC check for rng-seed
-
-Jason A. Donenfeld (3):
-      random: schedule mix_interrupt_randomness() less often
-      random: quiet urandom warning ratelimit suppression message
-      powerpc/pseries: wire up rng during setup_arch()
-
-Jay Vosburgh (1):
-      bonding: ARP monitor spams NETDEV_NOTIFY_PEERS notifiers
-
-Jiri Slaby (1):
-      vt: drop old FONT ioctls
-
-Julien Grall (1):
-      x86/xen: Remove undefined behavior in setup_features()
-
-Kai-Heng Feng (1):
-      igb: Make DMA faster when CPU is active on the PCIe link
-
-Liang He (2):
-      xtensa: xtfpga: Fix refcount leak bug in setup
-      xtensa: Fix refcount leak bug in time.c
-
-Liu Shixin (1):
-      swiotlb: skip swiotlb_bounce when orig_addr is zero
-
-Lucas Stach (1):
-      ARM: dts: imx6qdl: correct PU regulator ramp delay
-
-Masahiro Yamada (2):
-      modpost: fix section mismatch check for exported init/exit sections
-      xen: unexport __init-annotated xen_xlate_map_ballooned_pages()
-
-Miaoqian Lin (3):
-      ARM: exynos: Fix refcount leak in exynos_map_pmu
-      ARM: Fix refcount leak in axxia_boot_secondary
-      ARM: cns3xxx: Fix refcount leak in cns3xxx_init
-
-Naveen N. Rao (2):
-      powerpc: Enable execve syscall exit tracepoint
-      kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
-
-Nikos Tsironis (1):
-      dm era: commit metadata in postsuspend after worker stops
-
-Vincent Whitchurch (1):
-      iio: trigger: sysfs: fix use-after-free on remove
-
-Xu Yang (1):
-      usb: chipidea: udc: check request status before setting device address
-
-huhai (1):
-      MIPS: Remove repetitive increase irq_err_count
-
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio-vf610 b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+index 308a6756d3bf..491ead804488 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio-vf610
++++ b/Documentation/ABI/testing/sysfs-bus-iio-vf610
+@@ -1,4 +1,4 @@
+-What:		/sys/bus/iio/devices/iio:deviceX/conversion_mode
++What:		/sys/bus/iio/devices/iio:deviceX/in_conversion_mode
+ KernelVersion:	4.2
+ Contact:	linux-iio@vger.kernel.org
+ Description:
+diff --git a/Makefile b/Makefile
+index 04cefc7d5b47..4b9b412d5fb8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 320
++SUBLEVEL = 321
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index 8ccafdfbe87c..5fae9adb9f32 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -686,7 +686,7 @@
+ 					regulator-name = "vddpu";
+ 					regulator-min-microvolt = <725000>;
+ 					regulator-max-microvolt = <1450000>;
+-					regulator-enable-ramp-delay = <150>;
++					regulator-enable-ramp-delay = <380>;
+ 					anatop-reg-offset = <0x140>;
+ 					anatop-vol-bit-shift = <9>;
+ 					anatop-vol-bit-width = <5>;
+diff --git a/arch/arm/mach-axxia/platsmp.c b/arch/arm/mach-axxia/platsmp.c
+index ffbd71d45008..a895ab988b58 100644
+--- a/arch/arm/mach-axxia/platsmp.c
++++ b/arch/arm/mach-axxia/platsmp.c
+@@ -42,6 +42,7 @@ static int axxia_boot_secondary(unsigned int cpu, struct task_struct *idle)
+ 		return -ENOENT;
+ 
+ 	syscon = of_iomap(syscon_np, 0);
++	of_node_put(syscon_np);
+ 	if (!syscon)
+ 		return -ENOMEM;
+ 
+diff --git a/arch/arm/mach-cns3xxx/core.c b/arch/arm/mach-cns3xxx/core.c
+index 7d5a44a06648..95716fc9e628 100644
+--- a/arch/arm/mach-cns3xxx/core.c
++++ b/arch/arm/mach-cns3xxx/core.c
+@@ -379,6 +379,7 @@ static void __init cns3xxx_init(void)
+ 		/* De-Asscer SATA Reset */
+ 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SATA));
+ 	}
++	of_node_put(dn);
+ 
+ 	dn = of_find_compatible_node(NULL, NULL, "cavium,cns3420-sdhci");
+ 	if (of_device_is_available(dn)) {
+@@ -392,6 +393,7 @@ static void __init cns3xxx_init(void)
+ 		cns3xxx_pwr_clk_en(CNS3XXX_PWR_CLK_EN(SDIO));
+ 		cns3xxx_pwr_soft_rst(CNS3XXX_PWR_SOFTWARE_RST(SDIO));
+ 	}
++	of_node_put(dn);
+ 
+ 	pm_power_off = cns3xxx_power_off;
+ 
+diff --git a/arch/arm/mach-exynos/exynos.c b/arch/arm/mach-exynos/exynos.c
+index 757fc11de30d..e6ef717f1621 100644
+--- a/arch/arm/mach-exynos/exynos.c
++++ b/arch/arm/mach-exynos/exynos.c
+@@ -167,6 +167,7 @@ static void exynos_map_pmu(void)
+ 	np = of_find_matching_node(NULL, exynos_dt_pmu_match);
+ 	if (np)
+ 		pmu_base_addr = of_iomap(np, 0);
++	of_node_put(np);
+ }
+ 
+ static void __init exynos_init_irq(void)
+diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
+index 41e873bc8474..a174fda8b397 100644
+--- a/arch/mips/vr41xx/common/icu.c
++++ b/arch/mips/vr41xx/common/icu.c
+@@ -653,8 +653,6 @@ static int icu_get_irq(unsigned int irq)
+ 
+ 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
+ 
+-	atomic_inc(&irq_err_count);
+-
+ 	return -1;
+ }
+ 
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 54c95e7c74cc..a8ddf01a1f05 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1591,7 +1591,7 @@ void start_thread(struct pt_regs *regs, unsigned long start, unsigned long sp)
+ 		tm_reclaim_current(0);
+ #endif
+ 
+-	memset(regs->gpr, 0, sizeof(regs->gpr));
++	memset(&regs->gpr[1], 0, sizeof(regs->gpr) - sizeof(regs->gpr[0]));
+ 	regs->ctr = 0;
+ 	regs->link = 0;
+ 	regs->xer = 0;
+diff --git a/arch/powerpc/platforms/pseries/pseries.h b/arch/powerpc/platforms/pseries/pseries.h
+index 62ff57cf6c24..18f797a665fd 100644
+--- a/arch/powerpc/platforms/pseries/pseries.h
++++ b/arch/powerpc/platforms/pseries/pseries.h
+@@ -81,4 +81,6 @@ unsigned long pseries_memory_block_size(void);
+ 
+ void pseries_setup_rfi_flush(void);
+ 
++void pseries_rng_init(void);
++
+ #endif /* _PSERIES_PSERIES_H */
+diff --git a/arch/powerpc/platforms/pseries/rng.c b/arch/powerpc/platforms/pseries/rng.c
+index 262b8c5e1b9d..2262630543e9 100644
+--- a/arch/powerpc/platforms/pseries/rng.c
++++ b/arch/powerpc/platforms/pseries/rng.c
+@@ -14,6 +14,7 @@
+ #include <asm/archrandom.h>
+ #include <asm/machdep.h>
+ #include <asm/plpar_wrappers.h>
++#include "pseries.h"
+ 
+ 
+ static int pseries_get_random_long(unsigned long *v)
+@@ -28,19 +29,13 @@ static int pseries_get_random_long(unsigned long *v)
+ 	return 0;
+ }
+ 
+-static __init int rng_init(void)
++void __init pseries_rng_init(void)
+ {
+ 	struct device_node *dn;
+ 
+ 	dn = of_find_compatible_node(NULL, NULL, "ibm,random");
+ 	if (!dn)
+-		return -ENODEV;
+-
+-	pr_info("Registering arch random hook.\n");
+-
++		return;
+ 	ppc_md.get_random_seed = pseries_get_random_long;
+-
+ 	of_node_put(dn);
+-	return 0;
+ }
+-machine_subsys_initcall(pseries, rng_init);
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index bb7471138862..a06ea88ff757 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -585,6 +585,7 @@ static void __init pSeries_setup_arch(void)
+ 	}
+ 
+ 	ppc_md.pcibios_root_bridge_prepare = pseries_root_bridge_prepare;
++	pseries_rng_init();
+ }
+ 
+ static int __init pSeries_init_panel(void)
+diff --git a/arch/x86/include/asm/kexec.h b/arch/x86/include/asm/kexec.h
+index 1624a7ffa95d..3f1f58c1a9ce 100644
+--- a/arch/x86/include/asm/kexec.h
++++ b/arch/x86/include/asm/kexec.h
+@@ -20,6 +20,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ #include <linux/string.h>
++#include <linux/module.h>
+ 
+ #include <asm/page.h>
+ #include <asm/ptrace.h>
+@@ -206,6 +207,12 @@ struct kexec_entry64_regs {
+ 	uint64_t r15;
+ 	uint64_t rip;
+ };
++
++#ifdef CONFIG_KEXEC_FILE
++int arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
++				     Elf_Shdr *sechdrs, unsigned int relsec);
++#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
++#endif
+ #endif
+ 
+ typedef void crash_vmclear_fn(void);
+diff --git a/arch/xtensa/kernel/time.c b/arch/xtensa/kernel/time.c
+index 2251a6e0973a..d4b4386df568 100644
+--- a/arch/xtensa/kernel/time.c
++++ b/arch/xtensa/kernel/time.c
+@@ -146,6 +146,7 @@ static void __init calibrate_ccount(void)
+ 	cpu = of_find_compatible_node(NULL, NULL, "cdns,xtensa-cpu");
+ 	if (cpu) {
+ 		clk = of_clk_get(cpu, 0);
++		of_node_put(cpu);
+ 		if (!IS_ERR(clk)) {
+ 			ccount_freq = clk_get_rate(clk);
+ 			return;
+diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
+index db5122765f16..ce00dc2b3a1e 100644
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -152,6 +152,7 @@ static int __init machine_setup(void)
+ 
+ 	if ((eth = of_find_compatible_node(eth, NULL, "opencores,ethoc")))
+ 		update_local_mac(eth);
++	of_node_put(eth);
+ 	return 0;
+ }
+ arch_initcall(machine_setup);
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 8e701ea78b0d..38591c53ea57 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -89,7 +89,7 @@ static RAW_NOTIFIER_HEAD(random_ready_chain);
+ 
+ /* Control how we warn userspace. */
+ static struct ratelimit_state urandom_warning =
+-	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
++	RATELIMIT_STATE_INIT_FLAGS("urandom_warning", HZ, 3, RATELIMIT_MSG_ON_RELEASE);
+ static int ratelimit_disable __read_mostly =
+ 	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
+ module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
+@@ -997,7 +997,7 @@ void add_interrupt_randomness(int irq)
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
+ 
+-	if (new_count < 64 && !time_is_before_jiffies(fast_pool->last + HZ))
++	if (new_count < 1024 && !time_is_before_jiffies(fast_pool->last + HZ))
+ 		return;
+ 
+ 	if (unlikely(!fast_pool->mix.func))
+diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
+index ac8deb01f6f6..ee3163dd794b 100644
+--- a/drivers/gpio/gpio-vr41xx.c
++++ b/drivers/gpio/gpio-vr41xx.c
+@@ -224,8 +224,6 @@ static int giu_get_irq(unsigned int irq)
+ 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
+ 	       maskl, pendl, maskh, pendh);
+ 
+-	atomic_inc(&irq_err_count);
+-
+ 	return -EINVAL;
+ }
+ 
+diff --git a/drivers/gpu/drm/drm_crtc_helper_internal.h b/drivers/gpu/drm/drm_crtc_helper_internal.h
+index 28295e5d0d9e..8c967157aa90 100644
+--- a/drivers/gpu/drm/drm_crtc_helper_internal.h
++++ b/drivers/gpu/drm/drm_crtc_helper_internal.h
+@@ -28,16 +28,6 @@
+ 
+ #include <drm/drm_dp_helper.h>
+ 
+-/* drm_fb_helper.c */
+-#ifdef CONFIG_DRM_FBDEV_EMULATION
+-int drm_fb_helper_modinit(void);
+-#else
+-static inline int drm_fb_helper_modinit(void)
+-{
+-	return 0;
+-}
+-#endif
+-
+ /* drm_dp_aux_dev.c */
+ #ifdef CONFIG_DRM_DP_AUX_CHARDEV
+ int drm_dp_aux_dev_init(void);
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index 2e85e609f125..9c571336ae81 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -2324,24 +2324,3 @@ int drm_fb_helper_hotplug_event(struct drm_fb_helper *fb_helper)
+ 	return 0;
+ }
+ EXPORT_SYMBOL(drm_fb_helper_hotplug_event);
+-
+-/* The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
+- * but the module doesn't depend on any fb console symbols.  At least
+- * attempt to load fbcon to avoid leaving the system without a usable console.
+- */
+-int __init drm_fb_helper_modinit(void)
+-{
+-#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
+-	const char *name = "fbcon";
+-	struct module *fbcon;
+-
+-	mutex_lock(&module_mutex);
+-	fbcon = find_module(name);
+-	mutex_unlock(&module_mutex);
+-
+-	if (!fbcon)
+-		request_module_nowait(name);
+-#endif
+-	return 0;
+-}
+-EXPORT_SYMBOL(drm_fb_helper_modinit);
+diff --git a/drivers/gpu/drm/drm_kms_helper_common.c b/drivers/gpu/drm/drm_kms_helper_common.c
+index 45db36cd3d20..4c11711234b6 100644
+--- a/drivers/gpu/drm/drm_kms_helper_common.c
++++ b/drivers/gpu/drm/drm_kms_helper_common.c
+@@ -36,19 +36,18 @@ MODULE_LICENSE("GPL and additional rights");
+ 
+ static int __init drm_kms_helper_init(void)
+ {
+-	int ret;
+-
+-	/* Call init functions from specific kms helpers here */
+-	ret = drm_fb_helper_modinit();
+-	if (ret < 0)
+-		goto out;
+-
+-	ret = drm_dp_aux_dev_init();
+-	if (ret < 0)
+-		goto out;
+-
+-out:
+-	return ret;
++	/*
++	 * The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
++	 * but the module doesn't depend on any fb console symbols.  At least
++	 * attempt to load fbcon to avoid leaving the system without a usable
++	 * console.
++	 */
++	if (IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION) &&
++	    IS_MODULE(CONFIG_FRAMEBUFFER_CONSOLE) &&
++	    !IS_ENABLED(CONFIG_EXPERT))
++		request_module_nowait("fbcon");
++
++	return drm_dp_aux_dev_init();
+ }
+ 
+ static void __exit drm_kms_helper_exit(void)
+diff --git a/drivers/iio/accel/bma180.c b/drivers/iio/accel/bma180.c
+index 02a361de3dcc..8028bc432ffb 100644
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -776,11 +776,12 @@ static int bma180_probe(struct i2c_client *client,
+ 		data->trig->dev.parent = &client->dev;
+ 		data->trig->ops = &bma180_trigger_ops;
+ 		iio_trigger_set_drvdata(data->trig, indio_dev);
+-		indio_dev->trig = iio_trigger_get(data->trig);
+ 
+ 		ret = iio_trigger_register(data->trig);
+ 		if (ret)
+ 			goto err_trigger_free;
++
++		indio_dev->trig = iio_trigger_get(data->trig);
+ 	}
+ 
+ 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 0346c37b1e28..3e4f5ab39af3 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1405,10 +1405,14 @@ static int mma8452_reset(struct i2c_client *client)
+ 	int i;
+ 	int ret;
+ 
+-	ret = i2c_smbus_write_byte_data(client,	MMA8452_CTRL_REG2,
++	/*
++	 * Find on fxls8471, after config reset bit, it reset immediately,
++	 * and will not give ACK, so here do not check the return value.
++	 * The following code will read the reset register, and check whether
++	 * this reset works.
++	 */
++	i2c_smbus_write_byte_data(client, MMA8452_CTRL_REG2,
+ 					MMA8452_CTRL_REG2_RST);
+-	if (ret < 0)
+-		return ret;
+ 
+ 	for (i = 0; i < 10; i++) {
+ 		usleep_range(100, 200);
+diff --git a/drivers/iio/trigger/iio-trig-sysfs.c b/drivers/iio/trigger/iio-trig-sysfs.c
+index 202e8b89caf2..0e9590e071d1 100644
+--- a/drivers/iio/trigger/iio-trig-sysfs.c
++++ b/drivers/iio/trigger/iio-trig-sysfs.c
+@@ -199,6 +199,7 @@ static int iio_sysfs_trigger_remove(int id)
+ 	}
+ 
+ 	iio_trigger_unregister(t->trig);
++	irq_work_sync(&t->work);
+ 	iio_trigger_free(t->trig);
+ 
+ 	list_del(&t->l);
+diff --git a/drivers/md/dm-era-target.c b/drivers/md/dm-era-target.c
+index c7151febbb09..521f733e70e1 100644
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -1398,7 +1398,7 @@ static void start_worker(struct era *era)
+ static void stop_worker(struct era *era)
+ {
+ 	atomic_set(&era->suspended, 1);
+-	flush_workqueue(era->wq);
++	drain_workqueue(era->wq);
+ }
+ 
+ /*----------------------------------------------------------------
+@@ -1583,6 +1583,12 @@ static void era_postsuspend(struct dm_target *ti)
+ 	}
+ 
+ 	stop_worker(era);
++
++	r = metadata_commit(era->md);
++	if (r) {
++		DMERR("%s: metadata_commit failed", __func__);
++		/* FIXME: fail mode */
++	}
+ }
+ 
+ static int era_preresume(struct dm_target *ti)
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 0d9226bdf661..33843b89ab04 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3014,9 +3014,11 @@ static void bond_activebackup_arp_mon(struct work_struct *work)
+ 		if (!rtnl_trylock())
+ 			return;
+ 
+-		if (should_notify_peers)
++		if (should_notify_peers) {
++			bond->send_peer_notif--;
+ 			call_netdevice_notifiers(NETDEV_NOTIFY_PEERS,
+ 						 bond->dev);
++		}
+ 		if (should_notify_rtnl) {
+ 			bond_slave_state_notify(bond);
+ 			bond_slave_link_notify(bond);
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index d825e527ec1a..2e713e5f75cd 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -8161,11 +8161,10 @@ static void igb_init_dmac(struct igb_adapter *adapter, u32 pba)
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	u32 dmac_thr;
+ 	u16 hwm;
++	u32 reg;
+ 
+ 	if (hw->mac.type > e1000_82580) {
+ 		if (adapter->flags & IGB_FLAG_DMAC) {
+-			u32 reg;
+-
+ 			/* force threshold to 0. */
+ 			wr32(E1000_DMCTXTH, 0);
+ 
+@@ -8198,7 +8197,6 @@ static void igb_init_dmac(struct igb_adapter *adapter, u32 pba)
+ 			/* Disable BMC-to-OS Watchdog Enable */
+ 			if (hw->mac.type != e1000_i354)
+ 				reg &= ~E1000_DMACR_DC_BMC2OSW_EN;
+-
+ 			wr32(E1000_DMACR, reg);
+ 
+ 			/* no lower threshold to disable
+@@ -8215,12 +8213,12 @@ static void igb_init_dmac(struct igb_adapter *adapter, u32 pba)
+ 			 */
+ 			wr32(E1000_DMCTXTH, (IGB_MIN_TXPBSIZE -
+ 			     (IGB_TX_BUF_4096 + adapter->max_frame_size)) >> 6);
++		}
+ 
+-			/* make low power state decision controlled
+-			 * by DMA coal
+-			 */
++		if (hw->mac.type >= e1000_i210 ||
++		    (adapter->flags & IGB_FLAG_DMAC)) {
+ 			reg = rd32(E1000_PCIEMISC);
+-			reg &= ~E1000_PCIEMISC_LX_DECISION;
++			reg |= E1000_PCIEMISC_LX_DECISION;
+ 			wr32(E1000_PCIEMISC, reg);
+ 		} /* endif adapter->dmac is not disabled */
+ 	} else if (hw->mac.type == e1000_82580) {
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index e797fa92c90d..513558eecfd6 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1110,6 +1110,10 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
+ 
+ 		/* try to clear seed so it won't be found. */
+ 		fdt_nop_property(initial_boot_params, node, "rng-seed");
++
++		/* update CRC check value */
++		of_fdt_crc32 = crc32_be(~0, initial_boot_params,
++				fdt_totalsize(initial_boot_params));
+ 	}
+ 
+ 	/* break now */
+@@ -1213,6 +1217,8 @@ bool __init early_init_dt_verify(void *params)
+ 
+ 	/* Setup flat device-tree pointer */
+ 	initial_boot_params = params;
++	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
++				fdt_totalsize(initial_boot_params));
+ 	return true;
+ }
+ 
+@@ -1238,8 +1244,6 @@ bool __init early_init_dt_scan(void *params)
+ 		return false;
+ 
+ 	early_init_dt_scan_nodes();
+-	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
+-				fdt_totalsize(initial_boot_params));
+ 	return true;
+ }
+ 
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index 9f1573b0e453..f7a035fa9a97 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4140,16 +4140,8 @@ static int con_font_get(struct vc_data *vc, struct console_font_op *op)
+ 
+ 	if (op->data && font.charcount > op->charcount)
+ 		rc = -ENOSPC;
+-	if (!(op->flags & KD_FONT_FLAG_OLD)) {
+-		if (font.width > op->width || font.height > op->height) 
+-			rc = -ENOSPC;
+-	} else {
+-		if (font.width != 8)
+-			rc = -EIO;
+-		else if ((op->height && font.height > op->height) ||
+-			 font.height > 32)
+-			rc = -ENOSPC;
+-	}
++	if (font.width > op->width || font.height > op->height)
++		rc = -ENOSPC;
+ 	if (rc)
+ 		goto out;
+ 
+@@ -4177,27 +4169,7 @@ static int con_font_set(struct vc_data *vc, struct console_font_op *op)
+ 		return -EINVAL;
+ 	if (op->charcount > 512)
+ 		return -EINVAL;
+-	if (!op->height) {		/* Need to guess font height [compat] */
+-		int h, i;
+-		u8 __user *charmap = op->data;
+-		u8 tmp;
+-		
+-		/* If from KDFONTOP ioctl, don't allow things which can be done in userland,
+-		   so that we can get rid of this soon */
+-		if (!(op->flags & KD_FONT_FLAG_OLD))
+-			return -EINVAL;
+-		for (h = 32; h > 0; h--)
+-			for (i = 0; i < op->charcount; i++) {
+-				if (get_user(tmp, &charmap[32*i+h-1]))
+-					return -EFAULT;
+-				if (tmp)
+-					goto nonzero;
+-			}
+-		return -EINVAL;
+-	nonzero:
+-		op->height = h;
+-	}
+-	if (op->width <= 0 || op->width > 32 || op->height > 32)
++	if (op->width <= 0 || op->width > 32 || !op->height || op->height > 32)
+ 		return -EINVAL;
+ 	size = (op->width+7)/8 * 32 * op->charcount;
+ 	if (size > max_font_size)
+diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
+index e785a8a7f1c2..1306893d9fd9 100644
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -240,48 +240,6 @@ int vt_waitactive(int n)
+ #define GPLAST 0x3df
+ #define GPNUM (GPLAST - GPFIRST + 1)
+ 
+-
+-
+-static inline int 
+-do_fontx_ioctl(struct vc_data *vc, int cmd, struct consolefontdesc __user *user_cfd, int perm, struct console_font_op *op)
+-{
+-	struct consolefontdesc cfdarg;
+-	int i;
+-
+-	if (copy_from_user(&cfdarg, user_cfd, sizeof(struct consolefontdesc))) 
+-		return -EFAULT;
+- 	
+-	switch (cmd) {
+-	case PIO_FONTX:
+-		if (!perm)
+-			return -EPERM;
+-		op->op = KD_FONT_OP_SET;
+-		op->flags = KD_FONT_FLAG_OLD;
+-		op->width = 8;
+-		op->height = cfdarg.charheight;
+-		op->charcount = cfdarg.charcount;
+-		op->data = cfdarg.chardata;
+-		return con_font_op(vc, op);
+-
+-	case GIO_FONTX:
+-		op->op = KD_FONT_OP_GET;
+-		op->flags = KD_FONT_FLAG_OLD;
+-		op->width = 8;
+-		op->height = cfdarg.charheight;
+-		op->charcount = cfdarg.charcount;
+-		op->data = cfdarg.chardata;
+-		i = con_font_op(vc, op);
+-		if (i)
+-			return i;
+-		cfdarg.charheight = op->height;
+-		cfdarg.charcount = op->charcount;
+-		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	return -EINVAL;
+-}
+-
+ static inline int 
+ do_unimap_ioctl(int cmd, struct unimapdesc __user *user_ud, int perm, struct vc_data *vc)
+ {
+@@ -922,30 +880,6 @@ int vt_ioctl(struct tty_struct *tty,
+ 		break;
+ 	}
+ 
+-	case PIO_FONT: {
+-		if (!perm)
+-			return -EPERM;
+-		op.op = KD_FONT_OP_SET;
+-		op.flags = KD_FONT_FLAG_OLD | KD_FONT_FLAG_DONT_RECALC;	/* Compatibility */
+-		op.width = 8;
+-		op.height = 0;
+-		op.charcount = 256;
+-		op.data = up;
+-		ret = con_font_op(vc, &op);
+-		break;
+-	}
+-
+-	case GIO_FONT: {
+-		op.op = KD_FONT_OP_GET;
+-		op.flags = KD_FONT_FLAG_OLD;
+-		op.width = 8;
+-		op.height = 32;
+-		op.charcount = 256;
+-		op.data = up;
+-		ret = con_font_op(vc, &op);
+-		break;
+-	}
+-
+ 	case PIO_CMAP:
+                 if (!perm)
+ 			ret = -EPERM;
+@@ -957,36 +891,6 @@ int vt_ioctl(struct tty_struct *tty,
+                 ret = con_get_cmap(up);
+ 		break;
+ 
+-	case PIO_FONTX:
+-	case GIO_FONTX:
+-		ret = do_fontx_ioctl(vc, cmd, up, perm, &op);
+-		break;
+-
+-	case PIO_FONTRESET:
+-	{
+-		if (!perm)
+-			return -EPERM;
+-
+-#ifdef BROKEN_GRAPHICS_PROGRAMS
+-		/* With BROKEN_GRAPHICS_PROGRAMS defined, the default
+-		   font is not saved. */
+-		ret = -ENOSYS;
+-		break;
+-#else
+-		{
+-		op.op = KD_FONT_OP_SET_DEFAULT;
+-		op.data = NULL;
+-		ret = con_font_op(vc, &op);
+-		if (ret)
+-			break;
+-		console_lock();
+-		con_set_default_unimap(vc);
+-		console_unlock();
+-		break;
+-		}
+-#endif
+-	}
+-
+ 	case KDFONTOP: {
+ 		if (copy_from_user(&op, up, sizeof(op))) {
+ 			ret = -EFAULT;
+@@ -1100,54 +1004,6 @@ void vc_SAK(struct work_struct *work)
+ 
+ #ifdef CONFIG_COMPAT
+ 
+-struct compat_consolefontdesc {
+-	unsigned short charcount;       /* characters in font (256 or 512) */
+-	unsigned short charheight;      /* scan lines per character (1-32) */
+-	compat_caddr_t chardata;	/* font data in expanded form */
+-};
+-
+-static inline int
+-compat_fontx_ioctl(struct vc_data *vc, int cmd,
+-		   struct compat_consolefontdesc __user *user_cfd,
+-		   int perm, struct console_font_op *op)
+-{
+-	struct compat_consolefontdesc cfdarg;
+-	int i;
+-
+-	if (copy_from_user(&cfdarg, user_cfd, sizeof(struct compat_consolefontdesc)))
+-		return -EFAULT;
+-
+-	switch (cmd) {
+-	case PIO_FONTX:
+-		if (!perm)
+-			return -EPERM;
+-		op->op = KD_FONT_OP_SET;
+-		op->flags = KD_FONT_FLAG_OLD;
+-		op->width = 8;
+-		op->height = cfdarg.charheight;
+-		op->charcount = cfdarg.charcount;
+-		op->data = compat_ptr(cfdarg.chardata);
+-		return con_font_op(vc, op);
+-
+-	case GIO_FONTX:
+-		op->op = KD_FONT_OP_GET;
+-		op->flags = KD_FONT_FLAG_OLD;
+-		op->width = 8;
+-		op->height = cfdarg.charheight;
+-		op->charcount = cfdarg.charcount;
+-		op->data = compat_ptr(cfdarg.chardata);
+-		i = con_font_op(vc, op);
+-		if (i)
+-			return i;
+-		cfdarg.charheight = op->height;
+-		cfdarg.charcount = op->charcount;
+-		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct compat_consolefontdesc)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	return -EINVAL;
+-}
+-
+ struct compat_console_font_op {
+ 	compat_uint_t op;        /* operation code KD_FONT_OP_* */
+ 	compat_uint_t flags;     /* KD_FONT_FLAG_* */
+@@ -1229,11 +1085,6 @@ long vt_compat_ioctl(struct tty_struct *tty,
+ 	/*
+ 	 * these need special handlers for incompatible data structures
+ 	 */
+-	case PIO_FONTX:
+-	case GIO_FONTX:
+-		ret = compat_fontx_ioctl(vc, cmd, up, perm, &op);
+-		break;
+-
+ 	case KDFONTOP:
+ 		ret = compat_kdfontop_ioctl(up, perm, &op, vc);
+ 		break;
+diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
+index 2fbc67ca47d4..8b0d584e5d2b 100644
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -921,6 +921,9 @@ isr_setup_status_complete(struct usb_ep *ep, struct usb_request *req)
+ 	struct ci_hdrc *ci = req->context;
+ 	unsigned long flags;
+ 
++	if (req->status < 0)
++		return;
++
+ 	if (ci->setaddr) {
+ 		hw_usb_set_address(ci, ci->address);
+ 		ci->setaddr = false;
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 8add5a762f21..f54ab5706cd1 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1253,6 +1253,7 @@ static const struct usb_device_id option_ids[] = {
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(TELIT_VENDOR_ID, 0x1250, 0xff, 0x00, 0x00) },	/* Telit LE910Cx (rmnet) */
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
+diff --git a/drivers/xen/features.c b/drivers/xen/features.c
+index d7d34fdfc993..f466f776604f 100644
+--- a/drivers/xen/features.c
++++ b/drivers/xen/features.c
+@@ -28,6 +28,6 @@ void xen_setup_features(void)
+ 		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
+ 			break;
+ 		for (j = 0; j < 32; j++)
+-			xen_features[i * 32 + j] = !!(fi.submap & 1<<j);
++			xen_features[i * 32 + j] = !!(fi.submap & 1U << j);
+ 	}
+ }
+diff --git a/drivers/xen/xlate_mmu.c b/drivers/xen/xlate_mmu.c
+index e7df65d32c91..136345b45b29 100644
+--- a/drivers/xen/xlate_mmu.c
++++ b/drivers/xen/xlate_mmu.c
+@@ -262,4 +262,3 @@ int __init xen_xlate_map_ballooned_pages(xen_pfn_t **gfns, void **virt,
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(xen_xlate_map_ballooned_pages);
+diff --git a/include/linux/kd.h b/include/linux/kd.h
+deleted file mode 100644
+index 25bd17fad239..000000000000
+--- a/include/linux/kd.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-#ifndef _LINUX_KD_H
+-#define _LINUX_KD_H
+-
+-#include <uapi/linux/kd.h>
+-
+-#define KD_FONT_FLAG_OLD		0x80000000	/* Invoked via old interface [compat] */
+-#endif /* _LINUX_KD_H */
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 406c33dcae13..565be657098b 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -148,6 +148,28 @@ struct kexec_file_ops {
+ 	kexec_verify_sig_t *verify_sig;
+ #endif
+ };
++
++#ifndef arch_kexec_apply_relocations_add
++/* Apply relocations of type RELA */
++static inline int
++arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
++				 Elf_Shdr *sechdrs, unsigned int relsec)
++{
++	pr_err("RELA relocation unsupported.\n");
++	return -ENOEXEC;
++}
++#endif
++
++#ifndef arch_kexec_apply_relocations
++/* Apply relocations of type REL */
++static inline int
++arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
++			     unsigned int relsec)
++{
++	pr_err("REL relocation unsupported.\n");
++	return -ENOEXEC;
++}
++#endif
+ #endif
+ 
+ struct kimage {
+@@ -320,10 +342,6 @@ void * __weak arch_kexec_kernel_image_load(struct kimage *image);
+ int __weak arch_kimage_file_post_load_cleanup(struct kimage *image);
+ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ 					unsigned long buf_len);
+-int __weak arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr,
+-					Elf_Shdr *sechdrs, unsigned int relsec);
+-int __weak arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-					unsigned int relsec);
+ void arch_kexec_protect_crashkres(void);
+ void arch_kexec_unprotect_crashkres(void);
+ 
+diff --git a/include/linux/ratelimit.h b/include/linux/ratelimit.h
+index 57c9e0622a38..7ce241cb51a1 100644
+--- a/include/linux/ratelimit.h
++++ b/include/linux/ratelimit.h
+@@ -22,12 +22,16 @@ struct ratelimit_state {
+ 	unsigned long	flags;
+ };
+ 
+-#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
+-		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
+-		.interval	= interval_init,			\
+-		.burst		= burst_init,				\
++#define RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, flags_init) { \
++		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),		  \
++		.interval	= interval_init,				  \
++		.burst		= burst_init,					  \
++		.flags		= flags_init,					  \
+ 	}
+ 
++#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) \
++	RATELIMIT_STATE_INIT_FLAGS(name, interval_init, burst_init, 0)
++
+ #define RATELIMIT_STATE_INIT_DISABLED					\
+ 	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
+ 
+diff --git a/include/trace/events/libata.h b/include/trace/events/libata.h
+index 2fbbf990e4b3..330f40c9ffa8 100644
+--- a/include/trace/events/libata.h
++++ b/include/trace/events/libata.h
+@@ -248,6 +248,7 @@ DECLARE_EVENT_CLASS(ata_qc_complete_template,
+ 		__entry->hob_feature	= qc->result_tf.hob_feature;
+ 		__entry->nsect		= qc->result_tf.nsect;
+ 		__entry->hob_nsect	= qc->result_tf.hob_nsect;
++		__entry->flags		= qc->flags;
+ 	),
+ 
+ 	TP_printk("ata_port=%u ata_dev=%u tag=%d flags=%s status=%s " \
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 2edaed6803ff..eb775e699836 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -59,24 +59,6 @@ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ }
+ #endif
+ 
+-/* Apply relocations of type RELA */
+-int __weak
+-arch_kexec_apply_relocations_add(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-				 unsigned int relsec)
+-{
+-	pr_err("RELA relocation unsupported.\n");
+-	return -ENOEXEC;
+-}
+-
+-/* Apply relocations of type REL */
+-int __weak
+-arch_kexec_apply_relocations(const Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
+-			     unsigned int relsec)
+-{
+-	pr_err("REL relocation unsupported.\n");
+-	return -ENOEXEC;
+-}
+-
+ /*
+  * Free up memory used by kernel, initrd, and command line. This is temporary
+  * memory allocation which is not needed any more after these buffers have
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+index 277a2f6fde6b..aad34b1c77e2 100644
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -539,7 +539,8 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
+ 	 * unconditional bounce may prevent leaking swiotlb content (i.e.
+ 	 * kernel memory) to user-space.
+ 	 */
+-	swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
++	if (orig_addr)
++		swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
+ 	return tlb_addr;
+ }
+ EXPORT_SYMBOL_GPL(swiotlb_tbl_map_single);
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index c5f3267aa08a..e29d4006ed66 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1060,7 +1060,7 @@ static const struct sectioncheck sectioncheck[] = {
+ },
+ /* Do not export init/exit functions or data */
+ {
+-	.fromsec = { "__ksymtab*", NULL },
++	.fromsec = { "___ksymtab*", NULL },
+ 	.bad_tosec = { INIT_SECTIONS, EXIT_SECTIONS, NULL },
+ 	.mismatch = EXPORT_TO_INIT_EXIT,
+ 	.symbol_white_list = { DEFAULT_SYMBOL_WHITE_LIST, NULL },
