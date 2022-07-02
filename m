@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 166BE5640DF
-	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 16:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DF45640E0
+	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 16:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232331AbiGBO5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Jul 2022 10:57:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        id S232372AbiGBO5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Jul 2022 10:57:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232262AbiGBO5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 10:57:45 -0400
+        with ESMTP id S232296AbiGBO5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 10:57:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1890EDED0;
-        Sat,  2 Jul 2022 07:57:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E10DEF8;
+        Sat,  2 Jul 2022 07:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 876A0B832C4;
-        Sat,  2 Jul 2022 14:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D1CC34114;
-        Sat,  2 Jul 2022 14:57:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27708B832C1;
+        Sat,  2 Jul 2022 14:57:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90FF8C34114;
+        Sat,  2 Jul 2022 14:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656773861;
-        bh=MjiPCdE4jRYrErvwWJG8aB9kWiYupSI3erqFS6/bIDo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNhtp+8O1YBCjrETe3d+oIu0X4xDTNGzvCOe+uLj/lbNb2euHdMIP3oyEo1OjDicp
-         EAaBY1JWG7sK9j6RgcDGaQqNtMmRp22JSQoKYK6Gx101qmvVaMj6XThHwyXfxJhzLg
-         JvsJX6Di6iZo47RRPeCQOFuegnVwe5eCWXQ62Y10=
+        s=korg; t=1656773863;
+        bh=UTcJzNiasbdg/J+IxBLRiWYwbnpQNFUGHOa43YRMfd8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qcRc8yodrqDA0Rbeb1CJvBYjGjMlGZucb+HuCHqfaRX8Qz0ojxEgDJeiSMrBOE0yL
+         qA288dLgVLDDrFYSSy4jnArjKZTpuaDBOaNw6FE1i+Y6KTRnjydadH/QFyL35BE240
+         hpOBW9nc1dElm5VFjQAdP5pxMIfTVcrSfNqYRnjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.10.128
-Date:   Sat,  2 Jul 2022 16:57:34 +0200
-Message-Id: <16567738534069@kroah.com>
+Subject: Linux 5.15.52
+Date:   Sat,  2 Jul 2022 16:57:37 +0200
+Message-Id: <16567738587380@kroah.com>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <165677385313453@kroah.com>
-References: <165677385313453@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -51,400 +49,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7c118b507912..4d10e79030a9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19246,7 +19246,8 @@ F:	arch/x86/xen/*swiotlb*
- F:	drivers/xen/*swiotlb*
- 
- XFS FILESYSTEM
--M:	Darrick J. Wong <darrick.wong@oracle.com>
-+M:	Amir Goldstein <amir73il@gmail.com>
-+M:	Darrick J. Wong <djwong@kernel.org>
- M:	linux-xfs@vger.kernel.org
- L:	linux-xfs@vger.kernel.org
- S:	Supported
-diff --git a/Makefile b/Makefile
-index e3eb9ba19f86..b89ad8a987db 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 127
-+SUBLEVEL = 128
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
-index bc76970b6ee5..e647dfcb3191 100644
---- a/arch/powerpc/include/asm/ftrace.h
-+++ b/arch/powerpc/include/asm/ftrace.h
-@@ -96,7 +96,7 @@ static inline bool arch_syscall_match_sym_name(const char *sym, const char *name
- #endif /* PPC64_ELF_ABI_v1 */
- #endif /* CONFIG_FTRACE_SYSCALLS */
- 
--#ifdef CONFIG_PPC64
-+#if defined(CONFIG_PPC64) && defined(CONFIG_FUNCTION_TRACER)
- #include <asm/paca.h>
- 
- static inline void this_cpu_disable_ftrace(void)
-@@ -120,11 +120,13 @@ static inline u8 this_cpu_get_ftrace_enabled(void)
- 	return get_paca()->ftrace_enabled;
- }
- 
-+void ftrace_free_init_tramp(void);
- #else /* CONFIG_PPC64 */
- static inline void this_cpu_disable_ftrace(void) { }
- static inline void this_cpu_enable_ftrace(void) { }
- static inline void this_cpu_set_ftrace_enabled(u8 ftrace_enabled) { }
- static inline u8 this_cpu_get_ftrace_enabled(void) { return 1; }
-+static inline void ftrace_free_init_tramp(void) { }
- #endif /* CONFIG_PPC64 */
- #endif /* !__ASSEMBLY__ */
- 
-diff --git a/arch/powerpc/kernel/trace/ftrace.c b/arch/powerpc/kernel/trace/ftrace.c
-index 42761ebec9f7..d24aea4fed7a 100644
---- a/arch/powerpc/kernel/trace/ftrace.c
-+++ b/arch/powerpc/kernel/trace/ftrace.c
-@@ -336,9 +336,7 @@ static int setup_mcount_compiler_tramp(unsigned long tramp)
- 
- 	/* Is this a known long jump tramp? */
- 	for (i = 0; i < NUM_FTRACE_TRAMPS; i++)
--		if (!ftrace_tramps[i])
--			break;
--		else if (ftrace_tramps[i] == tramp)
-+		if (ftrace_tramps[i] == tramp)
- 			return 0;
- 
- 	/* Is this a known plt tramp? */
-@@ -882,6 +880,17 @@ void arch_ftrace_update_code(int command)
- 
- extern unsigned int ftrace_tramp_text[], ftrace_tramp_init[];
- 
-+void ftrace_free_init_tramp(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NUM_FTRACE_TRAMPS && ftrace_tramps[i]; i++)
-+		if (ftrace_tramps[i] == (unsigned long)ftrace_tramp_init) {
-+			ftrace_tramps[i] = 0;
-+			return;
-+		}
-+}
-+
- int __init ftrace_dyn_arch_init(void)
- {
- 	int i;
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 22eb1c718e62..1ed276d2305f 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -51,6 +51,7 @@
- #include <asm/kasan.h>
- #include <asm/svm.h>
- #include <asm/mmzone.h>
-+#include <asm/ftrace.h>
- 
- #include <mm/mmu_decl.h>
- 
-@@ -347,6 +348,7 @@ void free_initmem(void)
- 	mark_initmem_nx();
- 	init_mem_is_free = true;
- 	free_initmem_default(POISON_FREE_INITMEM);
-+	ftrace_free_init_tramp();
- }
- 
- /**
-diff --git a/drivers/gpu/drm/drm_crtc_helper_internal.h b/drivers/gpu/drm/drm_crtc_helper_internal.h
-index 25ce42e79995..61e09f8a8d0f 100644
---- a/drivers/gpu/drm/drm_crtc_helper_internal.h
-+++ b/drivers/gpu/drm/drm_crtc_helper_internal.h
-@@ -32,16 +32,6 @@
- #include <drm/drm_encoder.h>
- #include <drm/drm_modes.h>
- 
--/* drm_fb_helper.c */
--#ifdef CONFIG_DRM_FBDEV_EMULATION
--int drm_fb_helper_modinit(void);
--#else
--static inline int drm_fb_helper_modinit(void)
--{
--	return 0;
--}
--#endif
--
- /* drm_dp_aux_dev.c */
- #ifdef CONFIG_DRM_DP_AUX_CHARDEV
- int drm_dp_aux_dev_init(void);
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 8033467db4be..ac5d61e65124 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -2271,24 +2271,3 @@ void drm_fbdev_generic_setup(struct drm_device *dev,
- 	drm_client_register(&fb_helper->client);
- }
- EXPORT_SYMBOL(drm_fbdev_generic_setup);
--
--/* The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
-- * but the module doesn't depend on any fb console symbols.  At least
-- * attempt to load fbcon to avoid leaving the system without a usable console.
-- */
--int __init drm_fb_helper_modinit(void)
--{
--#if defined(CONFIG_FRAMEBUFFER_CONSOLE_MODULE) && !defined(CONFIG_EXPERT)
--	const char name[] = "fbcon";
--	struct module *fbcon;
--
--	mutex_lock(&module_mutex);
--	fbcon = find_module(name);
--	mutex_unlock(&module_mutex);
--
--	if (!fbcon)
--		request_module_nowait(name);
--#endif
--	return 0;
--}
--EXPORT_SYMBOL(drm_fb_helper_modinit);
-diff --git a/drivers/gpu/drm/drm_kms_helper_common.c b/drivers/gpu/drm/drm_kms_helper_common.c
-index 221a8528c993..f933da1656eb 100644
---- a/drivers/gpu/drm/drm_kms_helper_common.c
-+++ b/drivers/gpu/drm/drm_kms_helper_common.c
-@@ -64,19 +64,18 @@ MODULE_PARM_DESC(edid_firmware,
- 
- static int __init drm_kms_helper_init(void)
- {
--	int ret;
--
--	/* Call init functions from specific kms helpers here */
--	ret = drm_fb_helper_modinit();
--	if (ret < 0)
--		goto out;
--
--	ret = drm_dp_aux_dev_init();
--	if (ret < 0)
--		goto out;
--
--out:
--	return ret;
-+	/*
-+	 * The Kconfig DRM_KMS_HELPER selects FRAMEBUFFER_CONSOLE (if !EXPERT)
-+	 * but the module doesn't depend on any fb console symbols.  At least
-+	 * attempt to load fbcon to avoid leaving the system without a usable
-+	 * console.
-+	 */
-+	if (IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION) &&
-+	    IS_MODULE(CONFIG_FRAMEBUFFER_CONSOLE) &&
-+	    !IS_ENABLED(CONFIG_EXPERT))
-+		request_module_nowait("fbcon");
-+
-+	return drm_dp_aux_dev_init();
- }
- 
- static void __exit drm_kms_helper_exit(void)
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index f64834785c8b..b47c00dea0f2 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2017,6 +2017,7 @@ int bch_btree_check(struct cache_set *c)
- 	if (c->root->level == 0)
- 		return 0;
- 
-+	memset(&check_state, 0, sizeof(struct btree_check_state));
- 	check_state.c = c;
- 	check_state.total_threads = bch_btree_chkthread_nr();
- 	check_state.key_idx = 0;
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index 0145046a45f4..a878b959fbcd 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -901,6 +901,7 @@ void bch_sectors_dirty_init(struct bcache_device *d)
- 		return;
- 	}
- 
-+	memset(&state, 0, sizeof(struct bch_dirty_init_state));
- 	state.c = c;
- 	state.d = d;
- 	state.total_threads = bch_btre_dirty_init_thread_nr();
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index a06466ecca12..a55861ea4206 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -1593,8 +1593,12 @@ int ocelot_init(struct ocelot *ocelot)
- 	ocelot_write_rix(ocelot,
- 			 ANA_PGID_PGID_PGID(GENMASK(ocelot->num_phys_ports, 0)),
- 			 ANA_PGID_PGID, PGID_MC);
--	ocelot_write_rix(ocelot, 0, ANA_PGID_PGID, PGID_MCIPV4);
--	ocelot_write_rix(ocelot, 0, ANA_PGID_PGID, PGID_MCIPV6);
-+	ocelot_write_rix(ocelot,
-+			 ANA_PGID_PGID_PGID(GENMASK(ocelot->num_phys_ports, 0)),
-+			 ANA_PGID_PGID, PGID_MCIPV4);
-+	ocelot_write_rix(ocelot,
-+			 ANA_PGID_PGID_PGID(GENMASK(ocelot->num_phys_ports, 0)),
-+			 ANA_PGID_PGID, PGID_MCIPV6);
- 
- 	/* Allow manual injection via DEVCPU_QS registers, and byte swap these
- 	 * registers endianness.
-diff --git a/fs/xfs/libxfs/xfs_attr.c b/fs/xfs/libxfs/xfs_attr.c
-index 96ac7e562b87..fcca36bbd997 100644
---- a/fs/xfs/libxfs/xfs_attr.c
-+++ b/fs/xfs/libxfs/xfs_attr.c
-@@ -876,21 +876,18 @@ xfs_attr_node_hasname(
- 
- 	state = xfs_da_state_alloc(args);
- 	if (statep != NULL)
--		*statep = NULL;
-+		*statep = state;
- 
- 	/*
- 	 * Search to see if name exists, and get back a pointer to it.
- 	 */
- 	error = xfs_da3_node_lookup_int(state, &retval);
--	if (error) {
--		xfs_da_state_free(state);
--		return error;
--	}
-+	if (error)
-+		retval = error;
- 
--	if (statep != NULL)
--		*statep = state;
--	else
-+	if (!statep)
- 		xfs_da_state_free(state);
-+
- 	return retval;
- }
- 
-diff --git a/fs/xfs/xfs_aops.c b/fs/xfs/xfs_aops.c
-index 4304c6416fbb..4b76a32d2f16 100644
---- a/fs/xfs/xfs_aops.c
-+++ b/fs/xfs/xfs_aops.c
-@@ -145,6 +145,7 @@ xfs_end_ioend(
- 	struct iomap_ioend	*ioend)
- {
- 	struct xfs_inode	*ip = XFS_I(ioend->io_inode);
-+	struct xfs_mount	*mp = ip->i_mount;
- 	xfs_off_t		offset = ioend->io_offset;
- 	size_t			size = ioend->io_size;
- 	unsigned int		nofs_flag;
-@@ -160,18 +161,26 @@ xfs_end_ioend(
- 	/*
- 	 * Just clean up the in-memory strutures if the fs has been shut down.
- 	 */
--	if (XFS_FORCED_SHUTDOWN(ip->i_mount)) {
-+	if (XFS_FORCED_SHUTDOWN(mp)) {
- 		error = -EIO;
- 		goto done;
- 	}
- 
- 	/*
--	 * Clean up any COW blocks on an I/O error.
-+	 * Clean up all COW blocks and underlying data fork delalloc blocks on
-+	 * I/O error. The delalloc punch is required because this ioend was
-+	 * mapped to blocks in the COW fork and the associated pages are no
-+	 * longer dirty. If we don't remove delalloc blocks here, they become
-+	 * stale and can corrupt free space accounting on unmount.
- 	 */
- 	error = blk_status_to_errno(ioend->io_bio->bi_status);
- 	if (unlikely(error)) {
--		if (ioend->io_flags & IOMAP_F_SHARED)
-+		if (ioend->io_flags & IOMAP_F_SHARED) {
- 			xfs_reflink_cancel_cow_range(ip, offset, size, true);
-+			xfs_bmap_punch_delalloc_range(ip,
-+						      XFS_B_TO_FSBT(mp, offset),
-+						      XFS_B_TO_FSB(mp, size));
-+		}
- 		goto done;
- 	}
- 
-diff --git a/fs/xfs/xfs_buf_item_recover.c b/fs/xfs/xfs_buf_item_recover.c
-index d44e8b4a3391..1d649462d731 100644
---- a/fs/xfs/xfs_buf_item_recover.c
-+++ b/fs/xfs/xfs_buf_item_recover.c
-@@ -805,7 +805,7 @@ xlog_recover_get_buf_lsn(
- 	}
- 
- 	if (lsn != (xfs_lsn_t)-1) {
--		if (!uuid_equal(&mp->m_sb.sb_uuid, uuid))
-+		if (!uuid_equal(&mp->m_sb.sb_meta_uuid, uuid))
- 			goto recover_immediately;
- 		return lsn;
- 	}
-diff --git a/fs/xfs/xfs_extfree_item.c b/fs/xfs/xfs_extfree_item.c
-index 5c0395256bd1..11474770d630 100644
---- a/fs/xfs/xfs_extfree_item.c
-+++ b/fs/xfs/xfs_extfree_item.c
-@@ -482,7 +482,7 @@ xfs_extent_free_finish_item(
- 			free->xefi_startblock,
- 			free->xefi_blockcount,
- 			&free->xefi_oinfo, free->xefi_skip_discard);
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- 	return error;
- }
- 
-@@ -502,7 +502,7 @@ xfs_extent_free_cancel_item(
- 	struct xfs_extent_free_item	*free;
- 
- 	free = container_of(item, struct xfs_extent_free_item, xefi_list);
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- }
- 
- const struct xfs_defer_op_type xfs_extent_free_defer_type = {
-@@ -564,7 +564,7 @@ xfs_agfl_free_finish_item(
- 	extp->ext_len = free->xefi_blockcount;
- 	efdp->efd_next_extent++;
- 
--	kmem_free(free);
-+	kmem_cache_free(xfs_bmap_free_item_zone, free);
- 	return error;
- }
- 
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index 5ebd6cdc44a7..05cea7788d49 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1695,7 +1695,10 @@ static int
- xfs_remount_ro(
- 	struct xfs_mount	*mp)
- {
--	int error;
-+	struct xfs_eofblocks	eofb = {
-+		.eof_flags	= XFS_EOF_FLAGS_SYNC,
-+	};
-+	int			error;
- 
- 	/*
- 	 * Cancel background eofb scanning so it cannot race with the final
-@@ -1703,8 +1706,13 @@ xfs_remount_ro(
- 	 */
- 	xfs_stop_block_reaping(mp);
- 
--	/* Get rid of any leftover CoW reservations... */
--	error = xfs_icache_free_cowblocks(mp, NULL);
-+	/*
-+	 * Clear out all remaining COW staging extents and speculative post-EOF
-+	 * preallocations so that we don't leave inodes requiring inactivation
-+	 * cleanups during reclaim on a read-only mount.  We must process every
-+	 * cached inode, so this requires a synchronous cache scan.
-+	 */
-+	error = xfs_icache_free_cowblocks(mp, &eofb);
- 	if (error) {
- 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
- 		return error;
-diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index 9c352357fc8b..92fb738813f3 100644
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -425,7 +425,6 @@ void __init tick_nohz_full_setup(cpumask_var_t cpumask)
- 	cpumask_copy(tick_nohz_full_mask, cpumask);
- 	tick_nohz_full_running = true;
- }
--EXPORT_SYMBOL_GPL(tick_nohz_full_setup);
- 
- static int tick_nohz_cpu_down(unsigned int cpu)
- {
+I'm announcing the release of the 5.15.52 kernel.
+
+All users of the 5.15 kernel series must upgrade.
+
+The updated 5.15.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.15.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/filesystems/idmappings.rst      |   72 --------
+ Makefile                                      |    2 
+ arch/powerpc/include/asm/ftrace.h             |    4 
+ arch/powerpc/kernel/trace/ftrace.c            |   15 +
+ arch/powerpc/mm/mem.c                         |    2 
+ arch/x86/kernel/kvm.c                         |    2 
+ drivers/md/bcache/btree.c                     |    1 
+ drivers/md/bcache/writeback.c                 |    1 
+ drivers/net/ethernet/mscc/ocelot.c            |    8 
+ drivers/net/wireless/realtek/rtw88/rtw8821c.c |   14 +
+ fs/attr.c                                     |   26 ++
+ fs/cachefiles/bind.c                          |    2 
+ fs/ecryptfs/main.c                            |    2 
+ fs/io_uring.c                                 |   28 +--
+ fs/ksmbd/smbacl.c                             |   19 --
+ fs/ksmbd/smbacl.h                             |    5 
+ fs/namespace.c                                |   53 ++++-
+ fs/nfsd/export.c                              |    2 
+ fs/open.c                                     |    8 
+ fs/overlayfs/super.c                          |    2 
+ fs/posix_acl.c                                |   27 ++-
+ fs/proc_namespace.c                           |    2 
+ fs/xattr.c                                    |    6 
+ fs/xfs/libxfs/xfs_attr.c                      |   17 -
+ fs/xfs/xfs_aops.c                             |   15 +
+ fs/xfs/xfs_buf_item_recover.c                 |    2 
+ fs/xfs/xfs_extfree_item.c                     |    6 
+ fs/xfs/xfs_inode.c                            |    8 
+ fs/xfs/xfs_linux.h                            |    1 
+ fs/xfs/xfs_log_cil.c                          |    6 
+ fs/xfs/xfs_super.c                            |   21 +-
+ fs/xfs/xfs_symlink.c                          |    4 
+ include/linux/fs.h                            |  141 ++++-----------
+ include/linux/mnt_idmapping.h                 |  234 ++++++++++++++++++++++++++
+ include/linux/posix_acl_xattr.h               |    4 
+ kernel/time/tick-sched.c                      |    1 
+ security/commoncap.c                          |   15 +
+ 37 files changed, 490 insertions(+), 288 deletions(-)
+
+Brian Foster (1):
+      xfs: punch out data fork delalloc blocks on COW writeback failure
+
+Christian Brauner (12):
+      fs: add is_idmapped_mnt() helper
+      fs: move mapping helpers
+      fs: tweak fsuidgid_has_mapping()
+      fs: account for filesystem mappings
+      docs: update mapping documentation
+      fs: use low-level mapping helpers
+      fs: remove unused low-level mapping helpers
+      fs: port higher-level mapping helpers
+      fs: add i_user_ns() helper
+      fs: support mapped mounts of mapped filesystems
+      fs: fix acl translation
+      fs: account for group membership
+
+Coly Li (1):
+      bcache: memset on stack variables in bch_btree_check() and bch_sectors_dirty_init()
+
+Darrick J. Wong (3):
+      xfs: remove all COW fork extents when remounting readonly
+      xfs: prevent UAF in xfs_log_item_in_current_chkpt
+      xfs: only bother with sync_filesystem during readonly remount
+
+Dave Chinner (1):
+      xfs: check sb_meta_uuid for dabuf buffer recovery
+
+Greg Kroah-Hartman (2):
+      x86, kvm: use proper ASM macros for kvm_vcpu_is_preempted
+      Linux 5.15.52
+
+Guo-Feng Fan (1):
+      rtw88: 8821c: support RFE type4 wifi NIC
+
+Masahiro Yamada (1):
+      tick/nohz: unexport __init-annotated tick_nohz_full_setup()
+
+Naveen N. Rao (1):
+      powerpc/ftrace: Remove ftrace init tramp once kernel init is complete
+
+Pavel Begunkov (1):
+      io_uring: fix not locked access to fixed buf table
+
+Ping-Ke Shih (1):
+      rtw88: rtw8821c: enable rfe 6 devices
+
+Rustam Kovhaev (1):
+      xfs: use kmem_cache_free() for kmem_cache objects
+
+Vladimir Oltean (1):
+      net: mscc: ocelot: allow unregistered IP multicast flooding to CPU
+
+Yang Xu (1):
+      xfs: Fix the free logic of state in xfs_attr_node_hasname
+
