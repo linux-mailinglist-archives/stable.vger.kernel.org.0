@@ -2,141 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF43563C3E
-	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 00:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B4A563E14
+	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 06:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbiGAWR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jul 2022 18:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53496 "EHLO
+        id S230415AbiGBEGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Jul 2022 00:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230401AbiGAWR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jul 2022 18:17:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D446D33EB6;
-        Fri,  1 Jul 2022 15:17:26 -0700 (PDT)
+        with ESMTP id S229486AbiGBEGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 00:06:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23AE2C106;
+        Fri,  1 Jul 2022 21:06:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 872B3B83107;
-        Fri,  1 Jul 2022 22:17:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78602C3411E;
-        Fri,  1 Jul 2022 22:17:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656713844;
-        bh=qn8KeIcg6p6x70nlZj4sdymg43tnl9ycS8r/KVGYWBo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=H83TOqsTu9Z06vEdS6cQCCvGtd0fvP4dXtldHjHFjMHXk01g0BVNzWlZRQrCCFYzK
-         ABV9AmFU9GFLxfaC7rQWPgMbX6NKXYHMG6VeTR5f6W0T70V11W8EptbsABwPxt4W4g
-         i6Wu97DhB1Db6gpS6sR6siOpcV6Qp9Vp9kinSYxRE5xMvFJcn55lQEoMy4ExOiRELX
-         ers5txkf4Ad15PqCkiE/M33G6l07jCKank6GMPjUSVZmUeRSLOflNbh3FKsL+Tmzx7
-         pPD/8UMytSm1y7nErPSxTJlxv0dy3ofPLBrrrqxTMtqw0fHzWymI6aUpmRGY/VME5o
-         aT6xl9JyjNfhg==
-Date:   Fri, 1 Jul 2022 15:17:21 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org
-Cc:     "H. Peter Anvin" <hpa@zytor.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>,
-        Daniel Kolesa <daniel@octaforge.org>,
-        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
-        llvm@lists.linux.dev, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/Kconfig: Fix CONFIG_CC_HAS_SANE_STACKPROTECTOR when
- cross compiling with clang
-Message-ID: <Yr9ycVVIfzHtsYyz@dev-arch.thelio-3990X>
-References: <20220617180845.2788442-1-nathan@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220617180845.2788442-1-nathan@kernel.org>
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84DEB62064;
+        Sat,  2 Jul 2022 04:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1C9CC34114;
+        Sat,  2 Jul 2022 04:06:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1656734774;
+        bh=8A3ImwB742yLa8CwZgQOWsTWfbwq+F0fzshCPTz2tqE=;
+        h=Date:To:From:Subject:From;
+        b=pnqMElhMwcQtw7syZnxtgBgrDaIJsqRp4UwlVeLUKM2mJZ/SwPAazns7RAbwyauHH
+         bhxQS9nknXCxoBB7xSoIS5gZV+KzXPyb860BUMTxZTI+cR+aqzo8Y1PztJMJfWZD1k
+         5VMkP8Z4lRzVuCCJLyyeEv9qRfkol4/omfFIVvzA=
+Date:   Fri, 01 Jul 2022 21:06:14 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, shy828301@gmail.com, osalvador@suse.de,
+        mike.kravetz@oracle.com, liushixin2@huawei.com,
+        linmiaohe@huawei.com, david@redhat.com, naoya.horiguchi@nec.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch added to mm-unstable branch
+Message-Id: <20220702040614.D1C9CC34114@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Gentle ping for review.
 
-On Fri, Jun 17, 2022 at 11:08:46AM -0700, Nathan Chancellor wrote:
-> Chimera Linux notes that CONFIG_CC_HAS_SANE_STACKPROTECTOR cannot be
-> enabled when cross compiling an x86_64 kernel with clang, even though it
-> does work when natively compiling.
-> 
-> When building on aarch64:
-> 
->   $ make -sj"$(nproc)" ARCH=x86_64 LLVM=1 defconfig
-> 
->   $ grep STACKPROTECTOR .config
-> 
-> When building on x86_64:
-> 
->   $ make -sj"$(nproc)" ARCH=x86_64 LLVM=1 defconfig
-> 
->   $ grep STACKPROTECTOR .config
->   CONFIG_CC_HAS_SANE_STACKPROTECTOR=y
->   CONFIG_HAVE_STACKPROTECTOR=y
->   CONFIG_STACKPROTECTOR=y
->   CONFIG_STACKPROTECTOR_STRONG=y
-> 
-> When clang is invoked without a '--target' flag, code is generated for
-> the default target, which is usually the host (it is configurable via
-> cmake). As a result, the has-stack-protector scripts will generate code
-> for the default target but check for x86 specific segment registers,
-> which cannot succeed if the default target is not x86.
-> 
-> $(CLANG_FLAGS) contains an explicit '--target' flag so pass that
-> variable along to the has-stack-protector scripts so that the stack
-> protector can be enabled when cross compiling with clang. The 32-bit
-> stack protector cannot currently be enabled with clang, as it does not
-> support '-mstack-protector-guard-symbol', so this results in no
-> functional change for ARCH=i386 when cross compiling.
-> 
-> Link: https://github.com/chimera-linux/cports/commit/0fb7e506d5f83fdf2104feb22cdac34934561226
-> Link: https://github.com/llvm/llvm-project/issues/48553
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
-> 
-> Fixes: 2a61f4747eea ("stack-protector: test compiler capability in Kconfig and drop AUTO mode")
-> 
-> might be appropriate; I am conflicted on fixes tags for problems that
-> that arise due to use cases that were not considered at the time of a
-> change, as it feels wrong to blame the commit for not looking far enough
-> into the future where it might be common for people to have workstations
-> running another architecture other than x86_64.
-> 
-> Chimera appears to use a 5.15 kernel so a
-> 
-> Cc: stable@vger.kernel.org
-> 
-> might be nice but some maintainers are picky about that so I leave it up
-> to you all.
-> 
->  arch/x86/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index be0b95e51df6..076adde7ead9 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -391,8 +391,8 @@ config PGTABLE_LEVELS
->  
->  config CC_HAS_SANE_STACKPROTECTOR
->  	bool
-> -	default $(success,$(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC)) if 64BIT
-> -	default $(success,$(srctree)/scripts/gcc-x86_32-has-stack-protector.sh $(CC))
-> +	default $(success,$(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC) $(CLANG_FLAGS)) if 64BIT
-> +	default $(success,$(srctree)/scripts/gcc-x86_32-has-stack-protector.sh $(CC) $(CLANG_FLAGS))
->  	help
->  	  We have to make sure stack protector is unconditionally disabled if
->  	  the compiler produces broken code or if it does not let us control
-> 
-> base-commit: b13baccc3850ca8b8cccbf8ed9912dbaa0fdf7f3
-> -- 
-> 2.36.1
-> 
-> 
+The patch titled
+     Subject: mm/hugetlb: separate path for hwpoison entry in copy_hugetlb_page_range()
+has been added to the -mm mm-unstable branch.  Its filename is
+     mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch
+
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch
+
+This patch will later appear in the mm-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: mm/hugetlb: separate path for hwpoison entry in copy_hugetlb_page_range()
+Date: Thu, 30 Jun 2022 11:27:48 +0900
+
+Originally copy_hugetlb_page_range() handles migration entries and
+hwpoisoned entries in similar manner.  But recently the related code path
+has more code for migration entries, and when
+is_writable_migration_entry() was converted to
+!is_readable_migration_entry(), hwpoison entries on source processes got
+to be unexpectedly updated (which is legitimate for migration entries, but
+not for hwpoison entries).  This results in unexpected serious issues like
+kernel panic when forking processes with hwpoison entries in pmd.
+
+Separate the if branch into one for hwpoison entries and one for migration
+entries.
+
+Link: https://lkml.kernel.org/r/20220630022755.3362349-3-naoya.horiguchi@linux.dev
+Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org> # 5.18
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/hugetlb.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range
++++ a/mm/hugetlb.c
+@@ -4803,8 +4803,13 @@ again:
+ 			 * sharing with another vma.
+ 			 */
+ 			;
+-		} else if (unlikely(is_hugetlb_entry_migration(entry) ||
+-				    is_hugetlb_entry_hwpoisoned(entry))) {
++		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry))) {
++			bool uffd_wp = huge_pte_uffd_wp(entry);
++
++			if (!userfaultfd_wp(dst_vma) && uffd_wp)
++				entry = huge_pte_clear_uffd_wp(entry);
++			set_huge_swap_pte_at(dst, addr, dst_pte, entry, sz);
++		} else if (unlikely(is_hugetlb_entry_migration(entry))) {
+ 			swp_entry_t swp_entry = pte_to_swp_entry(entry);
+ 			bool uffd_wp = huge_pte_uffd_wp(entry);
+ 
+_
+
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
+
+mm-hugetlb-check-gigantic_page_runtime_supported-in-return_unused_surplus_pages.patch
+mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch
+mm-hugetlb-make-pud_huge-and-follow_huge_pud-aware-of-non-present-pud-entry.patch
+mm-hwpoison-hugetlb-support-saving-mechanism-of-raw-error-pages.patch
+mm-hwpoison-make-unpoison-aware-of-raw-error-info-in-hwpoisoned-hugepage.patch
+mm-hwpoison-set-pg_hwpoison-for-busy-hugetlb-pages.patch
+mm-hwpoison-make-__page_handle_poison-returns-int.patch
+mm-hwpoison-skip-raw-hwpoison-page-in-freeing-1gb-hugepage.patch
+mm-hwpoison-enable-memory-error-handling-on-1gb-hugepage.patch
+
