@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3440E563E72
-	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 06:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A670563E6D
+	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 06:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232120AbiGBE0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230414AbiGBE0V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 2 Jul 2022 00:26:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58900 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231243AbiGBE0T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 00:26:19 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC16935DE0;
-        Fri,  1 Jul 2022 21:26:18 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id 136so4155676pfy.10;
-        Fri, 01 Jul 2022 21:26:18 -0700 (PDT)
+        with ESMTP id S232016AbiGBE0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 00:26:20 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC3536303;
+        Fri,  1 Jul 2022 21:26:19 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id m14so4086308plg.5;
+        Fri, 01 Jul 2022 21:26:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=TnI/7Ov6YbpdQeEP05xUeEXN9eI+0MLVjCVd9MAZtjk=;
-        b=bXIdLub1Pnvocp7RpggOw6BKJDRQUE3gnyDEdbsb79iJLKs9rvOxArzqx2oqoV1f7d
-         3zla2Zq2cxAtvTl1/HA4ufwc63+/fP1qBC7La7DU+ie5r6dG6MvC4VzW94jpwS5fr28b
-         4DA6csaBBCcwyxhHeXe/76ShCGTyvudTV9zigYs+EuEwNrpM8N/98HVg24rTZoy2wP/k
-         A3/YE3fAxdT1zAniMUtr4bUaGo3rXg3iY9a0MpOYOkQQoZuO+E+vBeJGfWgSnNJkb/8e
-         qkpqOftxhAjGjiZmmC1el9Gsyri9IELVeMGR6DuAFTyEr5iUU7Ym+01l3n5q1/aWXCrg
-         AXrg==
+        bh=8dpcDlwR6UgAXLxdxQBFPJ8Kqg1ETqhfqVNIp7mcNZk=;
+        b=Vthj9m3tngYYIROVhJEkaL7JWxZ0s7vz0dot+0c6BrWKRuA7Ki0rhwDVIcasNvSXpc
+         OsmqWrfn+0XNigUv1ItcNrUyirZTo2Cjc2tk1kR33FfYSK4bcU1bKrbtCSw15iAai/xr
+         tFOCZKlKi9fiRvMrNBo84Ti5AiJGfXnk6uIdkpPadzuYnSZcrHQlL6Tj2bccqaaQTeh3
+         HC/Okd+26UL7jg9n+jQrDxDeQcHsZFXZQCRouRep3rAOqZR4N0/jLPN3bHY5hMWe6NCk
+         qXdhsWlJ5geFuPw8jVON5lJ+wFMbfGeb2e8quXP0hysEwGGFCO9x5qC0qkLz3fr2Phl1
+         9pyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=TnI/7Ov6YbpdQeEP05xUeEXN9eI+0MLVjCVd9MAZtjk=;
-        b=raiDFDiesGnkwYOSqJCVdORew4ZunmsC/I57tNmw21WC5CaNkC+ggRr3lQgm+Xe4wT
-         awRFmWeiCDyzQNyP2KowtIZ2HyRtd9diTlmH0XsC0EovEuioxoAuAMUle6oauR7dHw3T
-         JzDewp1LVozeAJ+4J55baIdC4ZiRxwrWTHbiSSoqjxdA4m8LjTHmGpzjuRIUOb0FZWYa
-         LuLOtKy0HF91Y0w8mEKg4Sky/gEzRTlNO0qjGd2x4m2Ix4ZNGMPd6X7fEikyi7cHQBFB
-         5Qf2P9Wst3xdgD7fLjtaOJQDjLgmjGahEBuEPFI9Hkx7FDb1fNg5Mns4BeZiswxm3+J5
-         Wu9g==
-X-Gm-Message-State: AJIora87iwj8dLNPl5aqqFZ3/Pw4M2QY3AhDGCuuq3jz7eMa11k7+YaA
-        0Bjt1hw9Ch2qLopVBUAdTFM=
-X-Google-Smtp-Source: AGRyM1sXOzvQDqtyzNo8A329BwQufwl42WeRYAYt/7k+ikN5zVMCZpb+DhGacMMhTAHQ8qQXOwVzUg==
-X-Received: by 2002:a63:2ccd:0:b0:411:54ac:5c7e with SMTP id s196-20020a632ccd000000b0041154ac5c7emr15067038pgs.561.1656735978328;
-        Fri, 01 Jul 2022 21:26:18 -0700 (PDT)
+        bh=8dpcDlwR6UgAXLxdxQBFPJ8Kqg1ETqhfqVNIp7mcNZk=;
+        b=UyWgatFAlK5yXneKXwpWcPo+7Xm33/pRUCz/CDzqOtWNC3pQAinylgGwlwsLEIm2Os
+         P1QDRw8WRYQlo6K/CPfgUdkoPcAKEvx5Ri38rA2iYM7AgxNdp87g+dubLTxOA1TwFbLM
+         jlrY70uWLkNw5EMalO+Uzv5rjTjunnzDliGc3KP002K/nGQ23oqjP7mjwpTBTDJBgxvz
+         aFDmxfrYBditDuhuiVFfvFk8hW83cd0zy/BKcsTjfaDHiU1nhQ9qGRN7aUm48We9EsEh
+         J2OrOMaL9Juo10zrQTcNzaWcH3VWTzGGSvHRzgyx+GVbq/ZJddoSQINXmhKInxWUxK8D
+         qKZg==
+X-Gm-Message-State: AJIora/AecUBOzemo6Nfb9RPJPVSA8yZO7ezQUOOhWWsgnrOSz4ftc7w
+        iCsHl+V+lC/YI59g/1ZiHD8=
+X-Google-Smtp-Source: AGRyM1vsbc5MSeVulXe3sQnjanmzmFEPLLYT6pcFzsHsCiy0YajshHAxqtqNJ9FHkhsvi2+1XZXLww==
+X-Received: by 2002:a17:90a:6fc5:b0:1ec:87db:b9f6 with SMTP id e63-20020a17090a6fc500b001ec87dbb9f6mr20617032pjk.104.1656735979173;
+        Fri, 01 Jul 2022 21:26:19 -0700 (PDT)
 Received: from debian.me (subs03-180-214-233-9.three.co.id. [180.214.233.9])
-        by smtp.gmail.com with ESMTPSA id j17-20020a056a00175100b00522c0600de9sm16380010pfc.198.2022.07.01.21.26.17
+        by smtp.gmail.com with ESMTPSA id u9-20020a1709026e0900b0015e8d4eb2cdsm12305552plk.279.2022.07.01.21.26.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 01 Jul 2022 21:26:17 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id 98456103921; Sat,  2 Jul 2022 11:23:53 +0700 (WIB)
+        id 7A5F01038DE; Sat,  2 Jul 2022 11:23:53 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     linux-doc@vger.kernel.org
 Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        kernel test robot <lkp@intel.com>,
         Alasdair Kergon <agk@redhat.com>,
         Mike Snitzer <snitzer@kernel.org>,
         Jonathan Corbet <corbet@lwn.net>,
@@ -63,9 +62,9 @@ Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         dm-devel@redhat.com, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] Documentation: dm writecache: Add missing blank line before optional parameters
-Date:   Sat,  2 Jul 2022 11:23:49 +0700
-Message-Id: <20220702042350.23187-2-bagasdotme@gmail.com>
+Subject: [PATCH 2/2] Documentation: dm writecache: Render status list as list
+Date:   Sat,  2 Jul 2022 11:23:50 +0700
+Message-Id: <20220702042350.23187-3-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220702042350.23187-1-bagasdotme@gmail.com>
 References: <20220702042350.23187-1-bagasdotme@gmail.com>
@@ -81,18 +80,12 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-kernel test robot reported htmldocs warning which first happened 1 year ago:
+The status list isn't rendered as list, but rather as normal paragraph,
+because there is missing blank line between "Status:" line and the list.
 
-Documentation/admin-guide/device-mapper/writecache.rst:23: WARNING: Unexpected indentation.
+Fix the issue by adding the blank line separator.
 
-The warning above is due to missing blank line between numbered list (at
-n. 5) and optional parameters list (as definition list).
-
-Add the blank line to suppress the warning.
-
-Link: https://lore.kernel.org/linux-doc/202207020824.oMJMSB8R-lkp@intel.com/
-Fixes: d284f8248c72d0 ("dm writecache: support optional offset for start of device")
-Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 48debafe4f2fea ("dm: add writecache target")
 Cc: Alasdair Kergon <agk@redhat.com>
 Cc: Mike Snitzer <snitzer@kernel.org>
 Cc: Jonathan Corbet <corbet@lwn.net>
@@ -110,17 +103,17 @@ Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/Documentation/admin-guide/device-mapper/writecache.rst b/Documentation/admin-guide/device-mapper/writecache.rst
-index 10429779a91abc..6bf78b0446acba 100644
+index 6bf78b0446acba..2104812f028129 100644
 --- a/Documentation/admin-guide/device-mapper/writecache.rst
 +++ b/Documentation/admin-guide/device-mapper/writecache.rst
-@@ -20,6 +20,7 @@ Constructor parameters:
-    size)
- 5. the number of optional parameters (the parameters with an argument
-    count as two)
+@@ -75,6 +75,7 @@ Constructor parameters:
+ 		the origin volume in the last n milliseconds
+ 
+ Status:
 +
- 	start_sector n		(default: 0)
- 		offset from the start of cache device in 512-byte sectors
- 	high_watermark n	(default: 50)
+ 1. error indicator - 0 if there was no error, otherwise error number
+ 2. the number of blocks
+ 3. the number of free blocks
 -- 
 An old man doll... just what I always wanted! - Clara
 
