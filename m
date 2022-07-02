@@ -2,99 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2B2563F7F
-	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 12:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16462563FB8
+	for <lists+stable@lfdr.de>; Sat,  2 Jul 2022 13:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbiGBKmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Jul 2022 06:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
+        id S232500AbiGBLKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Jul 2022 07:10:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232221AbiGBKmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 06:42:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F7913DD9
-        for <stable@vger.kernel.org>; Sat,  2 Jul 2022 03:42:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57F5BB80813
-        for <stable@vger.kernel.org>; Sat,  2 Jul 2022 10:42:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3928FC341CA;
-        Sat,  2 Jul 2022 10:42:13 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="TUr6pdwq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1656758530;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=u8fAn9797jRbZNaW0d3FED+Ys0K9zSRMLsQCe2CEo5Q=;
-        b=TUr6pdwqH8nNG5xfM0O+VpKEE1ieV3t8IyMMVH3fO6/K0vgRzNS/rx6+VUhE14oy5i1fK6
-        fhyzTRG1RdA5Bb0H7tJVB4x3rPHrAgTbs9EcYyilPJCk9ied7vToL52kH+pha5xIaWVK5S
-        pPCSJBBV5MlGUeJ+C9eLY8tCX1O2Ab4=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8c993921 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Sat, 2 Jul 2022 10:42:10 +0000 (UTC)
-Date:   Sat, 2 Jul 2022 12:42:06 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Sachin Sant <sachinp@linux.ibm.com>, mpe@ellerman.id.au,
-        benh@kernel.crashing.org, paulus@samba.org
-Cc:     linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH] powerpc/powernv: delay rng of node creation until later
- in boot
-Message-ID: <YsAg/hixHvdxnWNL@zx2c4.com>
-References: <Yr2PQSZWVtr+Y7a2@zx2c4.com>
- <20220630121654.1939181-1-Jason@zx2c4.com>
- <8A9A296D-D7BD-42BE-AB32-C951C29E4C40@linux.ibm.com>
+        with ESMTP id S232506AbiGBLJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jul 2022 07:09:52 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 78A1E165AC;
+        Sat,  2 Jul 2022 04:09:06 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 765DC23A;
+        Sat,  2 Jul 2022 04:08:57 -0700 (PDT)
+Received: from e126311.manchester.arm.com (unknown [10.57.71.6])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7524E3F66F;
+        Sat,  2 Jul 2022 04:08:53 -0700 (PDT)
+Date:   Sat, 2 Jul 2022 12:08:46 +0100
+From:   Kajetan Puchalski <kajetan.puchalski@arm.com>
+To:     Florian Westphal <fw@strlen.de>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        lukasz.luba@arm.com, dietmar.eggemann@arm.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        regressions@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [Regression] stress-ng udp-flood causes kernel panic on Ampere
+ Altra
+Message-ID: <YsAnPhPfWRjpkdmn@e126311.manchester.arm.com>
+References: <Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com>
+ <20220701200110.GA15144@breakpoint.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8A9A296D-D7BD-42BE-AB32-C951C29E4C40@linux.ibm.com>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220701200110.GA15144@breakpoint.cc>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Benjamin, Paul,
-
-On Thu, Jun 30, 2022 at 07:24:05PM +0530, Sachin Sant wrote:
-> > On 30-Jun-2022, at 5:46 PM, Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+On Fri, Jul 01, 2022 at 10:01:10PM +0200, Florian Westphal wrote:
+> Kajetan Puchalski <kajetan.puchalski@arm.com> wrote:
+> > While running the udp-flood test from stress-ng on Ampere Altra (Mt.
+> > Jade platform) I encountered a kernel panic caused by NULL pointer
+> > dereference within nf_conntrack.
 > > 
-> > The of node for the rng must be created much later in boot. Otherwise it
-> > tries to connect to a parent that doesn't yet exist, resulting on this
-> > splat:
-> > 
-> > [    0.000478] kobject: '(null)' ((____ptrval____)): is not initialized, yet kobject_get() is being called.
-> > [    0.002925] [c000000002a0fb30] [c00000000073b0bc] kobject_get+0x8c/0x100 (unreliable)
-> > [    0.003071] [c000000002a0fba0] [c00000000087e464] device_add+0xf4/0xb00
-> > [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] of_device_add+0x64/0x80
-> > [    0.003321] [c000000002a0fcb0] [c000000000a800d0] of_platform_device_create_pdata+0xd0/0x1b0
-> > [    0.003476] [c000000002a0fd00] [c00000000201fa44] pnv_get_random_long_early+0x240/0x2e4
-> > [    0.003623] [c000000002a0fe20] [c000000002060c38] random_init+0xc0/0x214
-> > 
-> > This patch fixes the issue by doing the of node creation inside of
-> > machine_subsys_initcall.
-> > 
-> > Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
-> > Cc: stable@vger.kernel.org
-> > Cc: Michael Ellerman <mpe@ellerman.id.au>
-> > Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > ---
+> > The issue is present in the latest mainline (5.19-rc4), latest stable
+> > (5.18.8), as well as multiple older stable versions. The last working
+> > stable version I found was 5.15.40.
 > 
-> Thanks Jason for the patch. This fixes the reported problem for me.
+> Do I need a special setup for conntrack?
+
+I don't think there was any special setup involved, the config I started
+from was a generic distribution config and I didn't change any
+networking-specific options. In case that's helpful here's the .config I
+used.
+
+https://pastebin.com/Bb2wttdx
+
 > 
-> Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+> No crashes after more than one hour of stress-ng on
+> 1. 4 core amd64 Fedora 5.17 kernel
+> 2. 16 core amd64, linux stable 5.17.15
+> 3. 12 core intel, Fedora 5.18 kernel
+> 4. 3 core aarch64 vm, 5.18.7-200.fc36.aarch64
 > 
-> - Sachin
 
-It sounds like Michael is on vacation for a few weeks. Think you could
-queue this up so we can get POWER8 booting again?
+That would make sense, from further experiments I ran it somehow seems
+to be related to the number of workers being spawned by stress-ng along
+with the CPUs/cores involved.
 
-Sorry I broke things before :-(
+For instance, running the test with <=25 workers (--udp-flood 25 etc.)
+results in the test running fine for at least 15 minutes.
+Running the test with 30 workers results in a panic sometime before it
+hits the 15 minute mark.
+Based on observations there seems to be a corellation between the number
+of workers and how quickly the panic occurs, ie with 30 it takes a few
+minutes, with 160 it consistently happens almost immediately. That also
+holds for various numbers of workers in between.
 
-Jason
+On the CPU/core side of things, the machine in question has two CPU
+sockets with 80 identical cores each. All the panics I've encountered
+happened when stress-ng was ran directly and unbound.
+When I tried using hwloc-bind to bind the process to one of the CPU
+sockets, the test ran for 15 mins with 80 and 160 workers with no issues,
+no matter which CPU it was bound to.
+
+Ie the specific circumstances under which it seems to occur are when the
+test is able to run across multiple CPU sockets with a large number
+of workers being spawned.
+
+> I used standard firewalld ruleset for all of these and manually tuned
+> conntrack settings to make sure the early evict path (as per backtrace)
+> gets exercised.
