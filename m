@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A57A3564541
-	for <lists+stable@lfdr.de>; Sun,  3 Jul 2022 07:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B9E6564544
+	for <lists+stable@lfdr.de>; Sun,  3 Jul 2022 07:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230079AbiGCFFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Jul 2022 01:05:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42746 "EHLO
+        id S231164AbiGCFIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Jul 2022 01:08:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230517AbiGCFFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 01:05:15 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F6EAE6A;
-        Sat,  2 Jul 2022 22:05:14 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id r14so2975137wrg.1;
-        Sat, 02 Jul 2022 22:05:14 -0700 (PDT)
+        with ESMTP id S231319AbiGCFIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 01:08:00 -0400
+Received: from mail-ua1-x936.google.com (mail-ua1-x936.google.com [IPv6:2607:f8b0:4864:20::936])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2B7AE7D;
+        Sat,  2 Jul 2022 22:07:59 -0700 (PDT)
+Received: by mail-ua1-x936.google.com with SMTP id s4so2314293uad.0;
+        Sat, 02 Jul 2022 22:07:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=taaW9WV/agj93cPScPKsI7Gh4xXE49LDvKSkPAGzzPc=;
-        b=FZziPwDAmSBaPjHBbfwpOYKbtb7iDBPMNGqE/xihsYlXCh05Vwcgyur08K5CZ1jZad
-         2bscWGutnxm7Kx5FBXFP1tczAHC+665izcTKTx5hN3kGNwPkEgHSo9qCLhE3wRMWX09k
-         vX7Z/V4RgPb5R09OIZciAG8gKRkDd4SG29bYiwi8uKgwB3fHwxu2XcPPaRNTl8TseBCV
-         cENzSS3jzK+Xr5WVPYkoSqlbHzmQduP5DBvWQd7mEPzUiPp/T7W0S8OqUyhd6F9MeeAe
-         7/2+7qW9Vv/rQE46mRAOCpWcDq8hSi2h6vf8PPXYMr/q3gdb7hJ/yuQAPIVIdpywfMvX
-         tK+Q==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bWMQeQCfVrU36HijvQCkWTCeD2Xa/KiB3aRnlOcQeD8=;
+        b=HA1OIvwEitFccUZz+MDvmDWo0sRx6jt49wi7Onnkd/4ahBaIMqrxMhSE/tTf9IsmPo
+         zWP4Ta00lj2986PUN1omQabJFP7lIbjD4u8/FwMlmJTLTmyuZfu2CuLR3wRLIDsXJf8M
+         0GunXLTZLvmMmOtBtp3t7lxaJbH5/U1vYSmBVfxTxgVpkZauw9txsIMXXNGag6FWRBFk
+         i+usSiUBFy3uDdEZNuWwDOe7+daLVNbkkjAZsPnFlQ966PIt2Xjo/loS7lvtoOKRPsfx
+         VElEvtSvlUYjDTD+Z5aNGp3xS3U50By6B6rSPEjjLeuYUFNcWnsVuqUBQzM1neMlvWTo
+         JaWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=taaW9WV/agj93cPScPKsI7Gh4xXE49LDvKSkPAGzzPc=;
-        b=7dS4tWv5Nf7rpZBLGOKeDeLxB9vwvDPWriBtGExadwEgxj0QnwoEbPOtF3N5llg4+O
-         +XEMIlUixqIo77Br0gmiOdd7AmYIhW2l9M/7ekaQjGCEwHoEsmNwgb/3Tk3hL0y/GvJv
-         QvFv71t1dDffqXvUUW3LE2zyLE6BNZruOmDwE9bKa9glSSSyqQeQ9Dr/ycEW6S08CxWL
-         4TRZl7aK2D9NgxuMWteeRco/Ksh1qpWChHhSAZUz4xLPDmSI4+bWNkGw4f9xGwbZg6Na
-         CniwfOPPFz6FzyHodWxELhzWnYEoH8HQ33Nfinv/jrTBs1eX9xjGfa2YJCeCB3mk4Mnj
-         OHCA==
-X-Gm-Message-State: AJIora+J/B4ZcZLAhldW7quXVDjmJbUdZYkA6soRSJCmmak9wthbW5bP
-        H2QqNbiYcD2Ofctywu5WxMQ=
-X-Google-Smtp-Source: AGRyM1tUi9OGTNNGAnA9LmD+9vcFD5ok6whcqd/TlKNypxN89A63aySH+KG1O8IbIG90kfYm5k8UmQ==
-X-Received: by 2002:a5d:47a5:0:b0:21d:19b8:f8fe with SMTP id 5-20020a5d47a5000000b0021d19b8f8femr20664141wrb.23.1656824713751;
-        Sat, 02 Jul 2022 22:05:13 -0700 (PDT)
-Received: from amir-ThinkPad-T480.lan ([5.29.8.191])
-        by smtp.gmail.com with ESMTPSA id e2-20020adfdbc2000000b0021b9f126fd3sm27028952wrj.14.2022.07.02.22.05.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Jul 2022 22:05:13 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bWMQeQCfVrU36HijvQCkWTCeD2Xa/KiB3aRnlOcQeD8=;
+        b=BEhFYidxlTny1Zg1fuRakWgutK++l0kEnc/45Wzeg1LMCTPTJA070zg4hAR8gNsSrS
+         Qm5CqvOtu8Cp2C2BK0PpuktkVnovUwV1/NUCTgYE2NuhULUJOOOiMvwFU806bfN0c4Q8
+         g/D7XHeraFcimZcXVnMAXUKB6jAd1qJfasFTzjR9lFemQUHfgruyTG2GLc0GmnEe6Xom
+         lKbVl/f1yazThqFOLpArehoU7oyzXjD0VC7FQvrVjjVCqV0allkq3hBEO93FO/ZSyf1O
+         MXJFyzwr6XeJS1XgRwlYYo0BCNsSwzuD5YAxGsPREYpxacmBLR7zlXpbe4joFK7lzbuc
+         dFdQ==
+X-Gm-Message-State: AJIora9+Cw6PVKD74jWY1LR42PaMLu7V5as+0C09TBo4HnSbyoWvuXIK
+        PDiAJcXjDqnJd/dZio2jVIc4JSlPWR7pdEKsu6XST4cu
+X-Google-Smtp-Source: AGRyM1tKBycstcRabMvUEAVRrHv3+dsoEENZdYsHR7GxQznzOZPHMeF/CNEWefjKsojNF2r4k2xLsoBHmITpGhfSAIw=
+X-Received: by 2002:a05:6130:21a:b0:37f:2ab2:879a with SMTP id
+ s26-20020a056130021a00b0037f2ab2879amr11712887uac.9.1656824878400; Sat, 02
+ Jul 2022 22:07:58 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220703050456.3222610-1-amir73il@gmail.com>
+In-Reply-To: <20220703050456.3222610-1-amir73il@gmail.com>
 From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Sun, 3 Jul 2022 08:07:46 +0300
+Message-ID: <CAOQ4uxgcejZHq0MQ6xCjahZLVjUs5unw3oqEm5A1Kkux70kqgg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 v3 0/7] xfs stable patches for 5.10.y (from v5.13)
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
         "Darrick J . Wong" <djwong@kernel.org>,
@@ -55,17 +58,9 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Chandan Babu R <chandan.babu@oracle.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Chandan Babu R <chandanrlinux@gmail.com>,
-        Brian Foster <bfoster@redhat.com>
-Subject: [PATCH 5.10 v3 7/7] xfs: fix xfs_reflink_unshare usage of filemap_write_and_wait_range
-Date:   Sun,  3 Jul 2022 08:04:56 +0300
-Message-Id: <20220703050456.3222610-8-amir73il@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220703050456.3222610-1-amir73il@gmail.com>
-References: <20220703050456.3222610-1-amir73il@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -76,37 +71,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+On Sun, Jul 3, 2022 at 8:05 AM Amir Goldstein <amir73il@gmail.com> wrote:
+>
+> Hi Greg,
+>
+> Following the 5.10.y/5.15.y common series, this is another small
+> "5.10.y only" update.
+>
+> I have two more of these (from v5.14 and v5.15) and after that,
+> 5.10.y should be mostly following 5.15.y.
+>
+> The backports from v5.14 are a little more involved, so the next
+> "5.10.y only" update is going to take a while longer.
+>
 
-commit d4f74e162d238ce00a640af5f0611c3f51dad70e upstream.
+Forgot to say:
 
-The final parameter of filemap_write_and_wait_range is the end of the
-range to flush, not the length of the range to flush.
+Changes from v2:
+- Acked-by Darrick
+- CC stable
 
-Fixes: 46afb0628b86 ("xfs: only flush the unshared range in xfs_reflink_unshare")
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
----
- fs/xfs/xfs_reflink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Changes from v1:
+- None
 
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 6fa05fb78189..aa46b75d75af 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1503,7 +1503,8 @@ xfs_reflink_unshare(
- 	if (error)
- 		goto out;
- 
--	error = filemap_write_and_wait_range(inode->i_mapping, offset, len);
-+	error = filemap_write_and_wait_range(inode->i_mapping, offset,
-+			offset + len - 1);
- 	if (error)
- 		goto out;
- 
--- 
-2.25.1
-
+> Thanks,
+> Amir.
+>
+> Anthony Iliopoulos (1):
+>   xfs: fix xfs_trans slab cache name
+>
+> Darrick J. Wong (1):
+>   xfs: fix xfs_reflink_unshare usage of filemap_write_and_wait_range
+>
+> Dave Chinner (2):
+>   xfs: use current->journal_info for detecting transaction recursion
+>   xfs: update superblock counters correctly for !lazysbcount
+>
+> Gao Xiang (1):
+>   xfs: ensure xfs_errortag_random_default matches XFS_ERRTAG_MAX
+>
+> Pavel Reichl (2):
+>   xfs: rename variable mp to parsing_mp
+>   xfs: Skip repetitive warnings about mount options
+>
+>  fs/iomap/buffered-io.c    |   7 ---
+>  fs/xfs/libxfs/xfs_btree.c |  12 +++-
+>  fs/xfs/libxfs/xfs_sb.c    |  16 ++++-
+>  fs/xfs/xfs_aops.c         |  17 +++++-
+>  fs/xfs/xfs_error.c        |   2 +
+>  fs/xfs/xfs_reflink.c      |   3 +-
+>  fs/xfs/xfs_super.c        | 120 +++++++++++++++++++++-----------------
+>  fs/xfs/xfs_trans.c        |  23 +++-----
+>  fs/xfs/xfs_trans.h        |  30 ++++++++++
+>  9 files changed, 148 insertions(+), 82 deletions(-)
+>
+> --
+> 2.25.1
+>
