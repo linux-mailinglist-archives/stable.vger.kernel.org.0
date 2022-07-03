@@ -2,94 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C914156456F
-	for <lists+stable@lfdr.de>; Sun,  3 Jul 2022 08:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FB2564689
+	for <lists+stable@lfdr.de>; Sun,  3 Jul 2022 11:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbiGCGop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Jul 2022 02:44:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53886 "EHLO
+        id S231658AbiGCJ5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Jul 2022 05:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbiGCGop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 02:44:45 -0400
-X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 02 Jul 2022 23:44:43 PDT
-Received: from mailrelay2-1.pub.mailoutpod1-cph3.one.com (mailrelay2-1.pub.mailoutpod1-cph3.one.com [46.30.210.183])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C670864D0
-        for <stable@vger.kernel.org>; Sat,  2 Jul 2022 23:44:43 -0700 (PDT)
+        with ESMTP id S229503AbiGCJ5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 05:57:24 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52CD7958D;
+        Sun,  3 Jul 2022 02:57:22 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id d2so11778395ejy.1;
+        Sun, 03 Jul 2022 02:57:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ravnborg.org; s=rsa1;
-        h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
-         from:date:from;
-        bh=vxP0cGw3hHh8TfpWoKjeipnz7SqgYobDoDSTvlK7xfI=;
-        b=BdYzAY7AndzrdqXiZrVmQ+K3Y+sJHfZ71LyfcIm95V83WcdXusc6jj3tVIp+LwGtablMQ3VIE6tMF
-         laGLsSRfgztZj/KABU97clWyFT5lNp5Oy/EbAUPcHNQC14gqrjyeZ+/PRnBsYipc1qalyo+x7mehkd
-         PjIGQ80L6+lMug8l33Jk2SaE/r3MD3eeZRRJaxf4xLgd0hbY2GYHHduvanzjNfvfkPneuI52AFweNj
-         IZELEobn/pWDWqOaOQbTnu/m7Yk2aM3GoxH7Al/A1Vj5YMEfsWFdgpnWXV9pAEYvy4iIlvMWFdGjcl
-         gJhBk2ODXhFdTTS6amjCQl7RihyIDAw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed;
-        d=ravnborg.org; s=ed1;
-        h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
-         from:date:from;
-        bh=vxP0cGw3hHh8TfpWoKjeipnz7SqgYobDoDSTvlK7xfI=;
-        b=QJPUfLbpvJmfb1Na9QQPmRMMP/16yIZVld0HfuL7gtHH7x14JBK1p/OoSeWTcK3R1SErQxvhLBSPp
-         xZMyBDXDg==
-X-HalOne-Cookie: 62bbb06fc9a29970a031891bb17428932ea70f5a
-X-HalOne-ID: 787f57d8-fa9b-11ec-a917-d0431ea8a290
-Received: from mailproxy4.cst.dirpod4-cph3.one.com (2-105-2-98-cable.dk.customer.tdc.net [2.105.2.98])
-        by mailrelay2.pub.mailoutpod1-cph3.one.com (Halon) with ESMTPSA
-        id 787f57d8-fa9b-11ec-a917-d0431ea8a290;
-        Sun, 03 Jul 2022 06:43:39 +0000 (UTC)
-Date:   Sun, 3 Jul 2022 08:43:37 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        linux-mips@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, list@opendingux.net,
-        Christophe Branchereau <cbranchereau@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] drm/ingenic: Use the highest possible DMA burst size
-Message-ID: <YsE6mZanHLy9LpBd@ravnborg.org>
-References: <20220702230727.66704-1-paul@crapouillou.net>
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/C/3kmvKdwcy11chQHgeLWo3vKWTC13H+vJEKZUg6aQ=;
+        b=gBAkdTMLRxz7uh4sx7BVV/ieaiZ2UurFW8df0aRzdrmm+6mymLplAIGLfLrkf7mAc/
+         +J3dXmRTlXNfz6Cwxl7B66XZHKinkj6ENi4e1jJtq4P8KeLeh2jVvAK5+4rzzQA3Ual+
+         y68Upda7iibOz+Z5akchFLLJTTiF3a5Aq1D0rEYDJqiJU4v4GUZtffoS+95U/+V9ScFN
+         7s8KL9bV9rjSg0ye4a09cSf59E698eISK3j0+4S6kxZMKT9W1GzT+QCQT8O0JfWD+hQn
+         3yonRCNrZSOki5V9DgbM49GOB4gBskyGajTrLE2xg1+qdSs9ZrIRSu/wr0SKpmH4Gjjr
+         LZdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/C/3kmvKdwcy11chQHgeLWo3vKWTC13H+vJEKZUg6aQ=;
+        b=GZ0ivRBTp1nrGnqmWXO3ogcYLicvejQPFZeNpQNZhHp+h0B0zxVX6pgRJA3m1+nHkd
+         YNKb1/XE/9pPlfBzd8RGh8J5eNHwqDIHEK3Fg0Bf7QcSOyBQA9lf1mA70XxK3neF9FCF
+         ZMVfdAH4qYevak1VzO+Wm9Ps1Yhx3143jhxO4BT/VnZqxanyUqHiWJh3D7sTb8HXiaNb
+         ZXyER98EtYP2A/KYr1eEpacq5J/Bxh4U57znl4N3IGdJrIkWYqOPwKVjzxf3A3LyOirU
+         ZaOnflSCNc6+U/zgZVq02oE/9QULomU9x3qmvvmFAG8m6qZeXJ1LREryKZd3m6pduQ3/
+         pmGA==
+X-Gm-Message-State: AJIora8F2+hwjjf4ex29yGiuM5N+oQlmuQz2vxfGWtCeZ8gkFASDoC6A
+        UUxcwQVlJO7lOJRMy4IkW9w=
+X-Google-Smtp-Source: AGRyM1sH6Rrxv1tF4lmThvYcgtG1sG3EVo7pQGOczrqcukLwu4ZUnCWj9eopFnPQEYP42FfYurzk/A==
+X-Received: by 2002:a17:907:a421:b0:726:ee5f:718a with SMTP id sg33-20020a170907a42100b00726ee5f718amr22866229ejc.368.1656842240662;
+        Sun, 03 Jul 2022 02:57:20 -0700 (PDT)
+Received: from localhost.localdomain (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
+        by smtp.googlemail.com with ESMTPSA id m7-20020a056402050700b004356c0d7436sm18455030edv.42.2022.07.03.02.57.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Jul 2022 02:57:20 -0700 (PDT)
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Christian Marangi <ansuelsmth@gmail.com>,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     kernel test robot <oliver.sang@intel.com>, stable@vger.kernel.org
+Subject: [PATCH] mtd: core: fix NULL pointer dereference with mtd_check_of_node
+Date:   Sun,  3 Jul 2022 11:56:31 +0200
+Message-Id: <20220703095631.16508-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220702230727.66704-1-paul@crapouillou.net>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paul,
+Actually check if mtd dev have a parent to fix NULL pointer dereference
+kernel panic in mtd_check_of_node.
 
-On Sun, Jul 03, 2022 at 12:07:27AM +0100, Paul Cercueil wrote:
-> Until now, when running at the maximum resolution of 1280x720 at 32bpp
-> on the JZ4770 SoC the output was garbled, the X/Y position of the
-> top-left corner of the framebuffer warping to a random position with
-> the whole image being offset accordingly, every time a new frame was
-> being submitted.
-> 
-> This problem can be eliminated by using a bigger burst size for the DMA.
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Fixes: ad9b10d1eaad ("mtd: core: introduce of support for dynamic partitions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/mtd/mtdcore.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Are there any alignment constraints of the framebuffer that depends on
-the burst size? I am hit by this with some atmel IP - which is why I
-ask.
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 6fafea80fd98..48a357fcf2ed 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -558,8 +558,12 @@ static void mtd_check_of_node(struct mtd_info *mtd)
+ 	if (dev_of_node(&mtd->dev))
+ 		return;
+ 
+-	/* Check if a partitions node exist */
++	/* Make sure we have a parent */
+ 	parent = mtd->parent;
++	if (!parent)
++		return;
++
++	/* Check if a partitions node exist */
+ 	parent_dn = dev_of_node(&parent->dev);
+ 	if (!parent_dn)
+ 		return;
+-- 
+2.36.1
 
-Patch looks good and is a-b.
-
-> 
-> Set in each soc_info structure the maximum burst size supported by the
-> corresponding SoC, and use it in the driver.
-> 
-> Set the new value using regmap_update_bits() instead of
-> regmap_set_bits(), since we do want to override the old value of the
-> burst size. (Note that regmap_set_bits() wasn't really valid before for
-> the same reason, but it never seemed to be a problem).
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
