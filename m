@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D01564EC8
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 359E7564ECA
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:36:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232927AbiGDHgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 03:36:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58044 "EHLO
+        id S232808AbiGDHga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 03:36:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232848AbiGDHgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCA2B92
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:14 -0700 (PDT)
+        with ESMTP id S232910AbiGDHga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF016304
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADC54B80DD1
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F58C3411E;
-        Mon,  4 Jul 2022 07:36:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2E09B80DD0
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C082C3411E;
+        Mon,  4 Jul 2022 07:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656920171;
-        bh=WVuJo/DB0PCSetRO3r3ucBsGFLuTKoueQrfzp/CEp7g=;
+        s=korg; t=1656920186;
+        bh=wmV+pzl+Z58pzzFobUNJ84WjF7a1jP+W8OOF0G3VCHY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Nv7I6qdR29JHGLmzYrhKQRgfsxlqMZT3ZvkSbSClH1QZRI3YjYKvTmWT3qlhSQW4Y
-         739qGJvs4hhRzo+IgYnig+1ZWA18W467HsfnW+1pw5pid+D2x9QA5tLEvwfBKPwGZt
-         FlK0OnlIZYCDQrjK/b1hUfq/Jrxio84cApt+tljI=
-Subject: FAILED: patch "[PATCH] ipv6: take care of disable_policy when restoring routes" failed to apply to 4.19-stable tree
-To:     nicolas.dichtel@6wind.com, dforster@brocade.com,
-        dsahern@kernel.org, kuba@kernel.org, siwar.zitouni@6wind.com
+        b=qOinVsw8Kd24Ku7TmWmDpWo11qLopcphjQleLapEmgjPMHbKMk1FMqU/P9dCL9sNn
+         0ERsIdIQweEodlSqbEKnVE36I3N/rohUvt7Gucfss5xmdxyHNc9L4i217n/9D1UeyP
+         Mszi/94BPiWYL/YoaOtRH5BsPLNOmACTbjD5vFvY=
+Subject: FAILED: patch "[PATCH] net: phy: Don't trigger state machine while in suspend" failed to apply to 4.9-stable tree
+To:     lukas@wunner.de, andrew@lunn.ch, kuba@kernel.org,
+        m.szyprowski@samsung.com, rafael.j.wysocki@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 09:36:00 +0200
-Message-ID: <16569201601179@kroah.com>
+Date:   Mon, 04 Jul 2022 09:36:24 +0200
+Message-ID: <1656920184181203@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,62 +60,161 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3b0dc529f56b5f2328244130683210be98f16f7f Mon Sep 17 00:00:00 2001
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Date: Thu, 23 Jun 2022 14:00:15 +0200
-Subject: [PATCH] ipv6: take care of disable_policy when restoring routes
+From 1758bde2e4aa5ff188d53e7d9d388bbb7e12eebb Mon Sep 17 00:00:00 2001
+From: Lukas Wunner <lukas@wunner.de>
+Date: Tue, 28 Jun 2022 12:15:08 +0200
+Subject: [PATCH] net: phy: Don't trigger state machine while in suspend
 
-When routes corresponding to addresses are restored by
-fixup_permanent_addr(), the dst_nopolicy parameter was not set.
-The typical use case is a user that configures an address on a down
-interface and then put this interface up.
+Upon system sleep, mdio_bus_phy_suspend() stops the phy_state_machine(),
+but subsequent interrupts may retrigger it:
 
-Let's take care of this flag in addrconf_f6i_alloc(), so that every callers
-benefit ont it.
+They may have been left enabled to facilitate wakeup and are not
+quiesced until the ->suspend_noirq() phase.  Unwanted interrupts may
+hence occur between mdio_bus_phy_suspend() and dpm_suspend_noirq(),
+as well as between dpm_resume_noirq() and mdio_bus_phy_resume().
 
-CC: stable@kernel.org
-CC: David Forster <dforster@brocade.com>
-Fixes: df789fe75206 ("ipv6: Provide ipv6 version of "disable_policy" sysctl")
-Reported-by: Siwar Zitouni <siwar.zitouni@6wind.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220623120015.32640-1-nicolas.dichtel@6wind.com
+Retriggering the phy_state_machine() through an interrupt is not only
+undesirable for the reason given in mdio_bus_phy_suspend() (freezing it
+midway with phydev->lock held), but also because the PHY may be
+inaccessible after it's suspended:  Accesses to USB-attached PHYs are
+blocked once usb_suspend_both() clears the can_submit flag and PHYs on
+PCI network cards may become inaccessible upon suspend as well.
+
+Amend phy_interrupt() to avoid triggering the state machine if the PHY
+is suspended.  Signal wakeup instead if the attached net_device or its
+parent has been configured as a wakeup source.  (Those conditions are
+identical to mdio_bus_phy_may_suspend().)  Postpone handling of the
+interrupt until the PHY has resumed.
+
+Before stopping the phy_state_machine() in mdio_bus_phy_suspend(),
+wait for a concurrent phy_interrupt() to run to completion.  That is
+necessary because phy_interrupt() may have checked the PHY's suspend
+status before the system sleep transition commenced and it may thus
+retrigger the state machine after it was stopped.
+
+Likewise, after re-enabling interrupt handling in mdio_bus_phy_resume(),
+wait for a concurrent phy_interrupt() to complete to ensure that
+interrupts which it postponed are properly rerun.
+
+The issue was exposed by commit 1ce8b37241ed ("usbnet: smsc95xx: Forward
+PHY interrupts to PHY driver to avoid polling"), but has existed since
+forever.
+
+Fixes: 541cd3ee00a4 ("phylib: Fix deadlock on resume")
+Link: https://lore.kernel.org/netdev/a5315a8a-32c2-962f-f696-de9a26d30091@samsung.com/
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org # v2.6.33+
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/b7f386d04e9b5b0e2738f0125743e30676f309ef.1656410895.git.lukas@wunner.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 1b1932502e9e..5864cbc30db6 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -1109,10 +1109,6 @@ ipv6_add_addr(struct inet6_dev *idev, struct ifa6_config *cfg,
- 		goto out;
- 	}
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index ef62f357b76d..8d3ee3a6495b 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -31,6 +31,7 @@
+ #include <linux/io.h>
+ #include <linux/uaccess.h>
+ #include <linux/atomic.h>
++#include <linux/suspend.h>
+ #include <net/netlink.h>
+ #include <net/genetlink.h>
+ #include <net/sock.h>
+@@ -976,6 +977,28 @@ static irqreturn_t phy_interrupt(int irq, void *phy_dat)
+ 	struct phy_driver *drv = phydev->drv;
+ 	irqreturn_t ret;
  
--	if (net->ipv6.devconf_all->disable_policy ||
--	    idev->cnf.disable_policy)
--		f6i->dst_nopolicy = true;
--
- 	neigh_parms_data_state_setall(idev->nd_parms);
- 
- 	ifa->addr = *cfg->pfx;
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index d25dc83bac62..828355710c57 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -4569,8 +4569,15 @@ struct fib6_info *addrconf_f6i_alloc(struct net *net,
- 	}
- 
- 	f6i = ip6_route_info_create(&cfg, gfp_flags, NULL);
--	if (!IS_ERR(f6i))
-+	if (!IS_ERR(f6i)) {
- 		f6i->dst_nocount = true;
++	/* Wakeup interrupts may occur during a system sleep transition.
++	 * Postpone handling until the PHY has resumed.
++	 */
++	if (IS_ENABLED(CONFIG_PM_SLEEP) && phydev->irq_suspended) {
++		struct net_device *netdev = phydev->attached_dev;
 +
-+		if (!anycast &&
-+		    (net->ipv6.devconf_all->disable_policy ||
-+		     idev->cnf.disable_policy))
-+			f6i->dst_nopolicy = true;
++		if (netdev) {
++			struct device *parent = netdev->dev.parent;
++
++			if (netdev->wol_enabled)
++				pm_system_wakeup();
++			else if (device_may_wakeup(&netdev->dev))
++				pm_wakeup_dev_event(&netdev->dev, 0, true);
++			else if (parent && device_may_wakeup(parent))
++				pm_wakeup_dev_event(parent, 0, true);
++		}
++
++		phydev->irq_rerun = 1;
++		disable_irq_nosync(irq);
++		return IRQ_HANDLED;
 +	}
 +
- 	return f6i;
- }
+ 	mutex_lock(&phydev->lock);
+ 	ret = drv->handle_interrupt(phydev);
+ 	mutex_unlock(&phydev->lock);
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 431a8719c635..46acddd865a7 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -278,6 +278,15 @@ static __maybe_unused int mdio_bus_phy_suspend(struct device *dev)
+ 	if (phydev->mac_managed_pm)
+ 		return 0;
+ 
++	/* Wakeup interrupts may occur during the system sleep transition when
++	 * the PHY is inaccessible. Set flag to postpone handling until the PHY
++	 * has resumed. Wait for concurrent interrupt handler to complete.
++	 */
++	if (phy_interrupt_is_valid(phydev)) {
++		phydev->irq_suspended = 1;
++		synchronize_irq(phydev->irq);
++	}
++
+ 	/* We must stop the state machine manually, otherwise it stops out of
+ 	 * control, possibly with the phydev->lock held. Upon resume, netdev
+ 	 * may call phy routines that try to grab the same lock, and that may
+@@ -315,6 +324,20 @@ static __maybe_unused int mdio_bus_phy_resume(struct device *dev)
+ 	if (ret < 0)
+ 		return ret;
+ no_resume:
++	if (phy_interrupt_is_valid(phydev)) {
++		phydev->irq_suspended = 0;
++		synchronize_irq(phydev->irq);
++
++		/* Rerun interrupts which were postponed by phy_interrupt()
++		 * because they occurred during the system sleep transition.
++		 */
++		if (phydev->irq_rerun) {
++			phydev->irq_rerun = 0;
++			enable_irq(phydev->irq);
++			irq_wake_thread(phydev->irq, phydev);
++		}
++	}
++
+ 	if (phydev->attached_dev && phydev->adjust_link)
+ 		phy_start_machine(phydev);
+ 
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index 508f1149665b..b09f7d36cff2 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -572,6 +572,10 @@ struct macsec_ops;
+  * @mdix_ctrl: User setting of crossover
+  * @pma_extable: Cached value of PMA/PMD Extended Abilities Register
+  * @interrupts: Flag interrupts have been enabled
++ * @irq_suspended: Flag indicating PHY is suspended and therefore interrupt
++ *                 handling shall be postponed until PHY has resumed
++ * @irq_rerun: Flag indicating interrupts occurred while PHY was suspended,
++ *             requiring a rerun of the interrupt handler after resume
+  * @interface: enum phy_interface_t value
+  * @skb: Netlink message for cable diagnostics
+  * @nest: Netlink nest used for cable diagnostics
+@@ -626,6 +630,8 @@ struct phy_device {
+ 
+ 	/* Interrupts are enabled */
+ 	unsigned interrupts:1;
++	unsigned irq_suspended:1;
++	unsigned irq_rerun:1;
+ 
+ 	enum phy_state state;
  
 
