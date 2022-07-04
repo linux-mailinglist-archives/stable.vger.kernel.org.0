@@ -2,71 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 512065658A6
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 16:30:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D555658D9
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 16:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231811AbiGDOaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 10:30:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60736 "EHLO
+        id S233876AbiGDOlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 10:41:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231741AbiGDOaI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 10:30:08 -0400
-Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306E42A7
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:30:04 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VIO43Eh_1656944998;
-Received: from 30.39.89.24(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0VIO43Eh_1656944998)
-          by smtp.aliyun-inc.com;
-          Mon, 04 Jul 2022 22:30:00 +0800
-Message-ID: <a3b54463-2a4b-d244-9c3a-b26ddda734e2@linux.alibaba.com>
-Date:   Mon, 4 Jul 2022 22:29:57 +0800
+        with ESMTP id S233912AbiGDOlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 10:41:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1432BF61;
+        Mon,  4 Jul 2022 07:40:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25E60B81074;
+        Mon,  4 Jul 2022 14:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B97BC3411E;
+        Mon,  4 Jul 2022 14:40:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656945618;
+        bh=YfXvpgNTPd6wqKycqGcp7pXMQrFy8/mCKXTtRgjATvo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cC6SKa+4avw+8gPSbujRBlDN+uYDcG43aLYdUM2yIDqONAm9o+IMxCk6Ac+adI+Ol
+         vn4IG6+iAYdH4p30JLFOya2rsoQnqj5/58ZkiWgQfr35tbmkXGTTgf90/HAM0BtgvB
+         1+wMqFLkEJhz0NmzfaMPUk3gGpGRx6nNRNaWYOhk=
+Date:   Mon, 4 Jul 2022 16:40:16 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     Bagas Sanjaya <bagasdotme@gmail.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, slade@sladewatkins.com,
+        Paulo Alcantara <pc@cjr.nz>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Steve French <stfrench@microsoft.com>
+Subject: Re: [PATCH 5.18 0/6] 5.18.9-rc1 review
+Message-ID: <YsL70A0fxJ6BtwDu@kroah.com>
+References: <20220630133230.239507521@linuxfoundation.org>
+ <Yr6pTvc0Zka7qVfc@debian.me>
+ <Yr6vKgOmqF562oc+@kroah.com>
+ <Yr7M//9X8RdNz+Hu@debian>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.9.1
-Subject: Re: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Bin Yang <bin.yang@intel.com>,
-        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org
-References: <20220704082817.4596-1-wenyang@linux.alibaba.com>
- <YsLJiSZ0mCCEckR2@kroah.com>
-From:   Wen Yang <wenyang@linux.alibaba.com>
-In-Reply-To: <YsLJiSZ0mCCEckR2@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yr7M//9X8RdNz+Hu@debian>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-在 2022/7/4 下午7:05, Greg Kroah-Hartman 写道:
-> On Mon, Jul 04, 2022 at 04:28:17PM +0800, Wen Yang wrote:
->> From: Peter Zijlstra <peterz@infradead.org>
->>
->> commit ab3e9c0b75dcb13e9254ef68caa7f15bc66b6471 upstream.
+On Fri, Jul 01, 2022 at 11:31:27AM +0100, Sudip Mukherjee wrote:
+> On Fri, Jul 01, 2022 at 10:24:10AM +0200, Greg Kroah-Hartman wrote:
+> > On Fri, Jul 01, 2022 at 02:59:10PM +0700, Bagas Sanjaya wrote:
+> > > On Thu, Jun 30, 2022 at 03:47:26PM +0200, Greg Kroah-Hartman wrote:
+> > > > This is the start of the stable review cycle for the 5.18.9 release.
+> > > > There are 6 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > > 
+> > > 
+> > > Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 12.1.0)
+> > > and powerpc (ps3_defconfig, GCC 12.1.0).
+> > > 
+> > > I get a warning on cifs:
+> > > 
+> > >   CC [M]  fs/cifs/connect.o
+> > >   CC      drivers/tty/tty_baudrate.o
+> > >   CC      drivers/tty/tty_jobctrl.o
+> > > fs/cifs/connect.c: In function 'is_path_remote':
+> > > fs/cifs/connect.c:3426:14: warning: unused variable 'nodfs' [-Wunused-variable]
+> > >  3426 |         bool nodfs = cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_DFS;
+> > >       |              ^~~~~
+> > > 
+> > > The culprit is commit 2340f1adf9fbb3 ("cifs: don't call
+> > > cifs_dfs_query_info_nonascii_quirk() if nodfs was set") (upstream commit
+> > > 421ef3d56513b2).
+> > 
+> > Again, gcc-12 is going to have problems with stable releases until
+> > Linus's tree is fixed up entirely.  Once that happens, then I will take
+> > backports to stable kernels to get them to build properly.
 > 
-> This commit id is not in Linus's tree :(
+> I have not tested, but this should be fixed by this one:
+> 
+> 93ed91c020aa ("cifs: fix minor compile warning")
 
+Thanks, now queued up.
 
-Sorry, accidentally added the internal id.
-
-It is this commit id in Linus' tree:
-ddd07b750382adc2b78fdfbec47af8a6e0d8ef37
-
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ddd07b750382adc2b78fdfbec47af8a6e0d8ef37
-
-
---
-Best wishes,
-Wen
+greg k-h
