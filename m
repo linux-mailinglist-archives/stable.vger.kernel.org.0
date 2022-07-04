@@ -2,66 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF084564FCD
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 10:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9056564B39
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 03:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233219AbiGDIfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 04:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
+        id S229801AbiGDBkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Jul 2022 21:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231497AbiGDIfD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 04:35:03 -0400
-X-Greylist: delayed 302 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 04 Jul 2022 01:34:58 PDT
-Received: from mailgw.kylinos.cn (unknown [124.126.103.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 701255FB2
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 01:34:58 -0700 (PDT)
-X-UUID: 74b87baa42e44d56be5f141cc86d2f9e-20220704
-X-Spam-Fingerprint: 0
-X-GW-Reason: 13103
-X-Policy-Incident: 5pS25Lu25Lq66LaF6L+HNeS6uumcgOimgeWuoeaguA==
-X-Content-Feature: ica/max.line-size 76
-        audit/email.address 4
-        dict/adv 1
-        dict/prolog 1
-        dict/software 1
-X-CPASD-INFO: 27fc3a115e8b4dc3a8cf517d60e2ddcf@e4egg2CTX2FhhXqug6eubYFpk5ZlXVe
-        zeGqFYpKUj4aVgnxsTWBnX1OEgnBQYl5dZFZ3dG9RYmBgYlB_i4Jyj1RgXmCCVHSTgHRxhpNhkQ==
-X-CLOUD-ID: 27fc3a115e8b4dc3a8cf517d60e2ddcf
-X-CPASD-SUMMARY: SIP:-1,APTIP:-2.0,KEY:0.0,FROMBLOCK:1,OB:0.0,URL:-5,TVAL:155.
-        0,ESV:0.0,ECOM:-5.0,ML:0.0,FD:0.0,CUTS:325.0,IP:-2.0,MAL:-5.0,PHF:-5.0,PHC:-5
-        .0,SPF:4.0,EDMS:-5,IPLABEL:4352.0,FROMTO:0,AD:0,FFOB:0.0,CFOB:0.0,SPC:0,SIG:-
-        5,AUF:0,DUF:550,ACD:7,DCD:7,SL:0,EISP:0,AG:0,CFC:0.888,CFSR:0.023,UAT:0,RAF:2
-        ,IMG:-5.0,DFA:0,DTA:0,IBL:-2.0,ADI:-5,SBL:0,REDM:0,REIP:0,ESB:0,ATTNUM:0,EAF:
-        0,CID:-5.0,VERSION:2.3.17
-X-CPASD-ID: 74b87baa42e44d56be5f141cc86d2f9e-20220704
-X-CPASD-BLOCK: 1000
-X-CPASD-STAGE: 1
-X-UUID: 74b87baa42e44d56be5f141cc86d2f9e-20220704
-X-User: liuyun01@kylinos.cn
-Received: from [172.16.31.199] [(111.48.58.12)] by mailgw
-        (envelope-from <liuyun01@kylinos.cn>)
-        (Generic MTA)
-        with ESMTP id 232610925; Mon, 04 Jul 2022 09:22:32 +0800
-Message-ID: <bf21d317-8d4b-e237-86b7-be577b5bc652@kylinos.cn>
-Date:   Mon, 4 Jul 2022 09:19:56 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH] firmware: arm_scpi: Ensure scpi_info is not assigned if
- the probe fails
-Content-Language: en-US
-To:     Sudeep Holla <sudeep.holla@arm.com>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     luriwen@kylinos.cn, 15815827059@163.com, cristian.marussi@arm.com,
-        huhai <huhai@kylinos.cn>, stable@vger.kernel.org
-References: <20220701160310.148344-1-sudeep.holla@arm.com>
-From:   Jackie Liu <liuyun01@kylinos.cn>
-In-Reply-To: <20220701160310.148344-1-sudeep.holla@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.1 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
-        MAY_BE_FORGED,NICE_REPLY_A,RDNS_DYNAMIC,SPF_HELO_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR autolearn=no autolearn_force=no
+        with ESMTP id S229648AbiGDBkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 21:40:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E61062DA;
+        Sun,  3 Jul 2022 18:40:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B34B61354;
+        Mon,  4 Jul 2022 01:40:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EB77C341C6;
+        Mon,  4 Jul 2022 01:40:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1656898822;
+        bh=QRatlFXOdrJZqOJ8piCY0aN4RQSwBF3IVmNUc6PNudU=;
+        h=Date:To:From:Subject:From;
+        b=1d+AmekX6yzF7bbHsbMPA9fY1cHdHdlRsnWZnamhqcCFObLy7oesn1LFI2VZmB6SI
+         XxPPcaT1RTtQUxIof2wJAkY3YP5IzbnodBVvgiAxHZgzyEYFLQJqJAEalG0M5PGR5i
+         TgoQXITuHKtdIlBKmrVT08NnPvIh6m9h5qyynHj8=
+Date:   Sun, 03 Jul 2022 18:40:21 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, shy828301@gmail.com, osalvador@suse.de,
+        mike.kravetz@oracle.com, liushixin2@huawei.com,
+        linmiaohe@huawei.com, david@redhat.com, naoya.horiguchi@nec.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch added to mm-unstable branch
+Message-Id: <20220704014022.5EB77C341C6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,157 +47,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sudeep.
 
-Thanks for your patch, It's look good to me.
+The patch titled
+     Subject: mm/hugetlb: separate path for hwpoison entry in copy_hugetlb_page_range()
+has been added to the -mm mm-unstable branch.  Its filename is
+     mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch
 
-Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch
 
-在 2022/7/2 00:03, Sudeep Holla 写道:
-> When scpi probe fails, at any point, we need to ensure that the scpi_info
-> is not set and will remain NULL until the probe succeeds. If it is not
-> taken care, then it could result in kernel panic with a NULL pointer
-> dereference.
+This patch will later appear in the mm-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-I think the null pointer reference is not correct. It should be UAF. The
-logic is as follows:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-scpi_info = devm_zalloc
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-After that if fails, the address will be released, but scpi_info is not
-NULL. Normal, there will be no problem, because scpi_info is alloc by
-kzalloc, so even if scpi_info is not NULL, but scpi_info->scpi_ops is
-NULL, It still work normally.
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
 
-But if another process or thread alloc a new data, if they are same 
-address, and then it is assigned a value, so wild pointer 
-scpi_info->scpi_ops is not NULL now, Then, Panic.
+------------------------------------------------------
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: mm/hugetlb: separate path for hwpoison entry in copy_hugetlb_page_range()
+Date: Mon, 4 Jul 2022 10:33:05 +0900
 
-Thanks.
+Originally copy_hugetlb_page_range() handles migration entries and
+hwpoisoned entries in similar manner.  But recently the related code path
+has more code for migration entries, and when
+is_writable_migration_entry() was converted to
+!is_readable_migration_entry(), hwpoison entries on source processes got
+to be unexpectedly updated (which is legitimate for migration entries, but
+not for hwpoison entries).  This results in unexpected serious issues like
+kernel panic when forking processes with hwpoison entries in pmd.
 
---
-Jackie Liu.
-> 
-> Reported-by: huhai <huhai@kylinos.cn>
-> Cc: stable@vger.kernel.org # 4.19+
-> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-> ---
->   drivers/firmware/arm_scpi.c | 57 +++++++++++++++++++++----------------
->   1 file changed, 32 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/firmware/arm_scpi.c b/drivers/firmware/arm_scpi.c
-> index ddf0b9ff9e15..085a71a00171 100644
-> --- a/drivers/firmware/arm_scpi.c
-> +++ b/drivers/firmware/arm_scpi.c
-> @@ -913,13 +913,14 @@ static int scpi_probe(struct platform_device *pdev)
->   	struct resource res;
->   	struct device *dev = &pdev->dev;
->   	struct device_node *np = dev->of_node;
-> +	struct scpi_drvinfo *scpi_drvinfo;
->   
-> -	scpi_info = devm_kzalloc(dev, sizeof(*scpi_info), GFP_KERNEL);
-> -	if (!scpi_info)
-> +	scpi_drvinfo = devm_kzalloc(dev, sizeof(*scpi_drvinfo), GFP_KERNEL);
-> +	if (!scpi_drvinfo)
->   		return -ENOMEM;
->   
->   	if (of_match_device(legacy_scpi_of_match, &pdev->dev))
-> -		scpi_info->is_legacy = true;
-> +		scpi_drvinfo->is_legacy = true;
->   
->   	count = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
->   	if (count < 0) {
-> @@ -927,19 +928,19 @@ static int scpi_probe(struct platform_device *pdev)
->   		return -ENODEV;
->   	}
->   
-> -	scpi_info->channels = devm_kcalloc(dev, count, sizeof(struct scpi_chan),
-> -					   GFP_KERNEL);
-> -	if (!scpi_info->channels)
-> +	scpi_drvinfo->channels =
-> +		devm_kcalloc(dev, count, sizeof(struct scpi_chan), GFP_KERNEL);
-> +	if (!scpi_drvinfo->channels)
->   		return -ENOMEM;
->   
-> -	ret = devm_add_action(dev, scpi_free_channels, scpi_info);
-> +	ret = devm_add_action(dev, scpi_free_channels, scpi_drvinfo);
->   	if (ret)
->   		return ret;
->   
-> -	for (; scpi_info->num_chans < count; scpi_info->num_chans++) {
-> +	for (; scpi_drvinfo->num_chans < count; scpi_drvinfo->num_chans++) {
->   		resource_size_t size;
-> -		int idx = scpi_info->num_chans;
-> -		struct scpi_chan *pchan = scpi_info->channels + idx;
-> +		int idx = scpi_drvinfo->num_chans;
-> +		struct scpi_chan *pchan = scpi_drvinfo->channels + idx;
->   		struct mbox_client *cl = &pchan->cl;
->   		struct device_node *shmem = of_parse_phandle(np, "shmem", idx);
->   
-> @@ -986,45 +987,51 @@ static int scpi_probe(struct platform_device *pdev)
->   		return ret;
->   	}
->   
-> -	scpi_info->commands = scpi_std_commands;
-> +	scpi_drvinfo->commands = scpi_std_commands;
->   
-> -	platform_set_drvdata(pdev, scpi_info);
-> +	platform_set_drvdata(pdev, scpi_drvinfo);
->   
-> -	if (scpi_info->is_legacy) {
-> +	if (scpi_drvinfo->is_legacy) {
->   		/* Replace with legacy variants */
->   		scpi_ops.clk_set_val = legacy_scpi_clk_set_val;
-> -		scpi_info->commands = scpi_legacy_commands;
-> +		scpi_drvinfo->commands = scpi_legacy_commands;
->   
->   		/* Fill priority bitmap */
->   		for (idx = 0; idx < ARRAY_SIZE(legacy_hpriority_cmds); idx++)
->   			set_bit(legacy_hpriority_cmds[idx],
-> -				scpi_info->cmd_priority);
-> +				scpi_drvinfo->cmd_priority);
->   	}
->   
-> -	ret = scpi_init_versions(scpi_info);
-> +	ret = scpi_init_versions(scpi_drvinfo);
->   	if (ret) {
->   		dev_err(dev, "incorrect or no SCP firmware found\n");
->   		return ret;
->   	}
->   
-> -	if (scpi_info->is_legacy && !scpi_info->protocol_version &&
-> -	    !scpi_info->firmware_version)
-> +	if (scpi_drvinfo->is_legacy && !scpi_drvinfo->protocol_version &&
-> +	    !scpi_drvinfo->firmware_version)
->   		dev_info(dev, "SCP Protocol legacy pre-1.0 firmware\n");
->   	else
->   		dev_info(dev, "SCP Protocol %lu.%lu Firmware %lu.%lu.%lu version\n",
->   			 FIELD_GET(PROTO_REV_MAJOR_MASK,
-> -				   scpi_info->protocol_version),
-> +				   scpi_drvinfo->protocol_version),
->   			 FIELD_GET(PROTO_REV_MINOR_MASK,
-> -				   scpi_info->protocol_version),
-> +				   scpi_drvinfo->protocol_version),
->   			 FIELD_GET(FW_REV_MAJOR_MASK,
-> -				   scpi_info->firmware_version),
-> +				   scpi_drvinfo->firmware_version),
->   			 FIELD_GET(FW_REV_MINOR_MASK,
-> -				   scpi_info->firmware_version),
-> +				   scpi_drvinfo->firmware_version),
->   			 FIELD_GET(FW_REV_PATCH_MASK,
-> -				   scpi_info->firmware_version));
-> -	scpi_info->scpi_ops = &scpi_ops;
-> +				   scpi_drvinfo->firmware_version));
-> +
-> +	scpi_drvinfo->scpi_ops = &scpi_ops;
-> +
-> +	ret = devm_of_platform_populate(dev);
->   
-> -	return devm_of_platform_populate(dev);
-> +	if (!ret)
-> +		scpi_info = scpi_drvinfo;
-> +
-> +	return ret;
->   }
->   
->   static const struct of_device_id scpi_of_match[] = {
+Separate the if branch into one for hwpoison entries and one for migration
+entries.
+
+Link: https://lkml.kernel.org/r/20220704013312.2415700-3-naoya.horiguchi@linux.dev
+Fixes: 6c287605fd56 ("mm: remember exclusively mapped anonymous pages with PG_anon_exclusive")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>	[5.18]
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/hugetlb.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range
++++ a/mm/hugetlb.c
+@@ -4802,8 +4802,13 @@ again:
+ 			 * sharing with another vma.
+ 			 */
+ 			;
+-		} else if (unlikely(is_hugetlb_entry_migration(entry) ||
+-				    is_hugetlb_entry_hwpoisoned(entry))) {
++		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry))) {
++			bool uffd_wp = huge_pte_uffd_wp(entry);
++
++			if (!userfaultfd_wp(dst_vma) && uffd_wp)
++				entry = huge_pte_clear_uffd_wp(entry);
++			set_huge_pte_at(dst, addr, dst_pte, entry);
++		} else if (unlikely(is_hugetlb_entry_migration(entry))) {
+ 			swp_entry_t swp_entry = pte_to_swp_entry(entry);
+ 			bool uffd_wp = huge_pte_uffd_wp(entry);
+ 
+_
+
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
+
+mm-hugetlb-check-gigantic_page_runtime_supported-in-return_unused_surplus_pages.patch
+mm-hugetlb-separate-path-for-hwpoison-entry-in-copy_hugetlb_page_range.patch
+mm-hugetlb-make-pud_huge-and-follow_huge_pud-aware-of-non-present-pud-entry.patch
+mm-hwpoison-hugetlb-support-saving-mechanism-of-raw-error-pages.patch
+mm-hwpoison-make-unpoison-aware-of-raw-error-info-in-hwpoisoned-hugepage.patch
+mm-hwpoison-set-pg_hwpoison-for-busy-hugetlb-pages.patch
+mm-hwpoison-make-__page_handle_poison-returns-int.patch
+mm-hwpoison-skip-raw-hwpoison-page-in-freeing-1gb-hugepage.patch
+mm-hwpoison-enable-memory-error-handling-on-1gb-hugepage.patch
+
