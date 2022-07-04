@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDF1565757
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32250565751
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234870AbiGDNc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39228 "EHLO
+        id S231659AbiGDNcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234899AbiGDNcR (ORCPT
+        with ESMTP id S234898AbiGDNcR (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:32:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F2312AAE
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:29:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71CD511474
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:29:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2A146154B
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:29:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDD97C341C7;
-        Mon,  4 Jul 2022 13:29:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0FD261548
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E809DC341C7;
+        Mon,  4 Jul 2022 13:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656941394;
-        bh=Jhjab9x5OHiCCPKQIHnRiLvIfsB7tyDctg2bV33vso4=;
+        s=korg; t=1656941391;
+        bh=veJLiPLbZ+9/VTi14sMmQA1olVlBV+7u+lBAp59h6ww=;
         h=Subject:To:Cc:From:Date:From;
-        b=hb3QrUJdTrg6tCbPj64RW0Ff/DHQzN/ZpLehHM06utUPEhxxSRu4yLiv8gGwdtUlG
-         WISnzSsqT3F4Va/TjWJEAY3Pg6iEDQduvAQNJ71yhYEStSnvsxCPXKfVv58ok/0V6a
-         2O0qmsLtzpxuUnLSL+D0XFkY/Kvtom2sEnNooVMs=
-Subject: FAILED: patch "[PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return value" failed to apply to 5.4-stable tree
+        b=r0d6BY0jAbCOdlbpT3B/6C7uRUeHe5ulKc2bqqIoJbr10AZZ/p5x5PpaB1fOgTrlw
+         6QbBkdfe/TkpElbTjkkQvh5G6aNvj104JitpteQqCehS/JY9Rf/UvyCWISH2Sz8bGN
+         Mp3bYyJln9IY7T1biZyI7THktMyr+VdthiLMzKBQ=
+Subject: FAILED: patch "[PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return value" failed to apply to 4.14-stable tree
 To:     katrinzhou@tencent.com, dsahern@kernel.org, edumazet@google.com,
         kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 15:29:38 +0200
-Message-ID: <165694137821480@kroah.com>
+Message-ID: <1656941378166222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
