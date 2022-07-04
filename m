@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E4F5656D2
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8F25656E0
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232520AbiGDNR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
+        id S230354AbiGDNTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234667AbiGDNR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:17:27 -0400
+        with ESMTP id S229473AbiGDNTl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:19:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E0BB859
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:17:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB3AB42
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:19:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58CF9B80EEC
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:17:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB77BC341C7;
-        Mon,  4 Jul 2022 13:17:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27E36B80EFD
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:19:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8464DC3411E;
+        Mon,  4 Jul 2022 13:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656940644;
-        bh=ckoZdfFzFL1G9kuzuD06CxMQsl+b1MIiAwqLa/Rb1Qo=;
+        s=korg; t=1656940777;
+        bh=oJCS49p1rngwb8SB6MZLHyj8caK52SsFNRPRYpLnXDI=;
         h=Subject:To:Cc:From:Date:From;
-        b=jmvHyjuYrIzB1YMhThNd4+vitQhSYNLLi0nGbgBHvaN4NiRc2h6WqP8ifZnlK0A+x
-         8sQ6SDghJ0NUjAW8cmusKYofVo4lALwm0QGzX5tf+j3WQQzcXKn1OdChHqocq5wYrC
-         v4ya0ypDMohFnMKCC+nYfvy6MbOOSQXyKw/Qt3FY=
-Subject: FAILED: patch "[PATCH] powerpc/memhotplug: Add add_pages override for PPC" failed to apply to 5.10-stable tree
-To:     aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au,
-        wangkefeng.wang@huawei.com
+        b=SL6/Zs+SfU3YHD1RNh03rNiDvJwC1AbE9KZrK4JB/l2ELzRdj8oc0cWGPJ2MxRkej
+         kVFnvEWHslF7+j1xWxH/xFEY5+JRwM/Pup4hzdBDVBBFo1FJ/ssg8+vjleNhlypcZR
+         9kT9uVqalmFrWS8P2FELoQHTicpDzfylqMXho1Mo=
+Subject: FAILED: patch "[PATCH] epic100: fix use after free on rmmod" failed to apply to 5.4-stable tree
+To:     ztong0001@gmail.com, kuba@kernel.org, romieu@fr.zoreil.com,
+        yiluwu@cs.stonybrook.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 15:17:13 +0200
-Message-ID: <1656940633155176@kroah.com>
+Date:   Mon, 04 Jul 2022 15:19:35 +0200
+Message-ID: <1656940775577@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,113 +60,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ac790d09885d36143076e7e02825c541e8eee899 Mon Sep 17 00:00:00 2001
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Date: Wed, 29 Jun 2022 10:39:25 +0530
-Subject: [PATCH] powerpc/memhotplug: Add add_pages override for PPC
+From 8ee9d82cd0a45e7d050ade598c9f33032a0f2891 Mon Sep 17 00:00:00 2001
+From: Tong Zhang <ztong0001@gmail.com>
+Date: Sun, 26 Jun 2022 21:33:48 -0700
+Subject: [PATCH] epic100: fix use after free on rmmod
 
-With commit ffa0b64e3be5 ("powerpc: Fix virt_addr_valid() for 64-bit Book3E & 32-bit")
-the kernel now validate the addr against high_memory value. This results
-in the below BUG_ON with dax pfns.
+epic_close() calls epic_rx() and uses dma buffer, but in epic_remove_one()
+we already freed the dma buffer. To fix this issue, reorder function calls
+like in the .probe function.
 
-[  635.798741][T26531] kernel BUG at mm/page_alloc.c:5521!
-1:mon> e
-cpu 0x1: Vector: 700 (Program Check) at [c000000007287630]
-    pc: c00000000055ed48: free_pages.part.0+0x48/0x110
-    lr: c00000000053ca70: tlb_finish_mmu+0x80/0xd0
-    sp: c0000000072878d0
-   msr: 800000000282b033
-  current = 0xc00000000afabe00
-  paca    = 0xc00000037ffff300   irqmask: 0x03   irq_happened: 0x05
-    pid   = 26531, comm = 50-landscape-sy
-kernel BUG at :5521!
-Linux version 5.19.0-rc3-14659-g4ec05be7c2e1 (kvaneesh@ltc-boston8) (gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #625 SMP Thu Jun 23 00:35:43 CDT 2022
-1:mon> t
-[link register   ] c00000000053ca70 tlb_finish_mmu+0x80/0xd0
-[c0000000072878d0] c00000000053ca54 tlb_finish_mmu+0x64/0xd0 (unreliable)
-[c000000007287900] c000000000539424 exit_mmap+0xe4/0x2a0
-[c0000000072879e0] c00000000019fc1c mmput+0xcc/0x210
-[c000000007287a20] c000000000629230 begin_new_exec+0x5e0/0xf40
-[c000000007287ae0] c00000000070b3cc load_elf_binary+0x3ac/0x1e00
-[c000000007287c10] c000000000627af0 bprm_execve+0x3b0/0xaf0
-[c000000007287cd0] c000000000628414 do_execveat_common.isra.0+0x1e4/0x310
-[c000000007287d80] c00000000062858c sys_execve+0x4c/0x60
-[c000000007287db0] c00000000002c1b0 system_call_exception+0x160/0x2c0
-[c000000007287e10] c00000000000c53c system_call_common+0xec/0x250
+BUG: KASAN: use-after-free in epic_rx+0xa6/0x7e0 [epic100]
+Call Trace:
+ epic_rx+0xa6/0x7e0 [epic100]
+ epic_close+0xec/0x2f0 [epic100]
+ unregister_netdev+0x18/0x20
+ epic_remove_one+0xaa/0xf0 [epic100]
 
-The fix is to make sure we update high_memory on memory hotplug.
-This is similar to what x86 does in commit 3072e413e305 ("mm/memory_hotplug: introduce add_pages")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Yilun Wu <yiluwu@cs.stonybrook.edu>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
+Link: https://lore.kernel.org/r/20220627043351.25615-1-ztong0001@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-Fixes: ffa0b64e3be5 ("powerpc: Fix virt_addr_valid() for 64-bit Book3E & 32-bit")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220629050925.31447-1-aneesh.kumar@linux.ibm.com
-
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index c2ce2e60c8f0..7aa12e88c580 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -358,6 +358,10 @@ config ARCH_SUSPEND_NONZERO_CPU
- 	def_bool y
- 	depends on PPC_POWERNV || PPC_PSERIES
+diff --git a/drivers/net/ethernet/smsc/epic100.c b/drivers/net/ethernet/smsc/epic100.c
+index a0654e88444c..0329caf63279 100644
+--- a/drivers/net/ethernet/smsc/epic100.c
++++ b/drivers/net/ethernet/smsc/epic100.c
+@@ -1515,14 +1515,14 @@ static void epic_remove_one(struct pci_dev *pdev)
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct epic_private *ep = netdev_priv(dev);
  
-+config ARCH_HAS_ADD_PAGES
-+	def_bool y
-+	depends on ARCH_ENABLE_MEMORY_HOTPLUG
-+
- config PPC_DCR_NATIVE
- 	bool
- 
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 52b77684acda..a97128a48817 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -105,6 +105,37 @@ void __ref arch_remove_linear_mapping(u64 start, u64 size)
- 	vm_unmap_aliases();
++	unregister_netdev(dev);
+ 	dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, ep->tx_ring,
+ 			  ep->tx_ring_dma);
+ 	dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, ep->rx_ring,
+ 			  ep->rx_ring_dma);
+-	unregister_netdev(dev);
+ 	pci_iounmap(pdev, ep->ioaddr);
+-	pci_release_regions(pdev);
+ 	free_netdev(dev);
++	pci_release_regions(pdev);
+ 	pci_disable_device(pdev);
+ 	/* pci_power_off(pdev, -1); */
  }
- 
-+/*
-+ * After memory hotplug the variables max_pfn, max_low_pfn and high_memory need
-+ * updating.
-+ */
-+static void update_end_of_memory_vars(u64 start, u64 size)
-+{
-+	unsigned long end_pfn = PFN_UP(start + size);
-+
-+	if (end_pfn > max_pfn) {
-+		max_pfn = end_pfn;
-+		max_low_pfn = end_pfn;
-+		high_memory = (void *)__va(max_pfn * PAGE_SIZE - 1) + 1;
-+	}
-+}
-+
-+int __ref add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
-+		    struct mhp_params *params)
-+{
-+	int ret;
-+
-+	ret = __add_pages(nid, start_pfn, nr_pages, params);
-+	if (ret)
-+		return ret;
-+
-+	/* update max_pfn, max_low_pfn and high_memory */
-+	update_end_of_memory_vars(start_pfn << PAGE_SHIFT,
-+				  nr_pages << PAGE_SHIFT);
-+
-+	return ret;
-+}
-+
- int __ref arch_add_memory(int nid, u64 start, u64 size,
- 			  struct mhp_params *params)
- {
-@@ -115,7 +146,7 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
- 	rc = arch_create_linear_mapping(nid, start, size, params);
- 	if (rc)
- 		return rc;
--	rc = __add_pages(nid, start_pfn, nr_pages, params);
-+	rc = add_pages(nid, start_pfn, nr_pages, params);
- 	if (rc)
- 		arch_remove_linear_mapping(start, size);
- 	return rc;
 
