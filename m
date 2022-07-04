@@ -2,240 +2,381 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31773564FE2
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 10:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC5656509F
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 11:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231171AbiGDInD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 04:43:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45886 "EHLO
+        id S231835AbiGDJWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 05:22:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229967AbiGDInD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 04:43:03 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6486B7CA;
-        Mon,  4 Jul 2022 01:43:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656924181; x=1688460181;
-  h=date:from:to:cc:subject:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Z5AgiPRT1LGOtg/2zx17iOgDnsUMebMSOWAh7X2B8b0=;
-  b=PLzfuIRDqnM2MznP2V4r1d8SL3JyklyRJQ77HC5NiZKv3tYlwLTp8m6Z
-   gPJo0voHwUrR+QqUHTct1X6TlRk3otAyaRqKWERJ5394ez7lc94/A+v2n
-   nsFb/2hG+VE4sinqRWj9pnT3JQIGXUET3gy+rQzGD/oaSZMveq9vXmzIW
-   vRvrPBHjL1gP7ARRoYBs5tREaTAN5z+Xp2QrBdw48SdHzitilUFV/pZTx
-   WTyzVAAf1xKZ+abxO/7XCCYP/ZMZ7Fuajyg0lqcBpqKmlsB74oWG2+oqR
-   z/nMm2cqV5ymp2pgkP1pzIye0NUszrLjC6+LA0uNmS/EgLKHLwHy8y8Sn
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10397"; a="344752509"
-X-IronPort-AV: E=Sophos;i="5.92,243,1650956400"; 
-   d="scan'208";a="344752509"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 01:43:01 -0700
-X-IronPort-AV: E=Sophos;i="5.92,243,1650956400"; 
-   d="scan'208";a="619194805"
-Received: from maurocar-mobl2.ger.corp.intel.com (HELO maurocar-mobl2) ([10.252.33.112])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 01:42:55 -0700
-Date:   Mon, 4 Jul 2022 10:42:52 +0200
-From:   Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Matthew Brost <matthew.brost@intel.com>,
-        Thomas =?UTF-8?B?SGVsbHN0csO2bQ==?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Thomas Hellstrom <thomas.hellstrom@intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Fei Yang <fei.yang@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Dave Airlie <airlied@redhat.com>, stable@vger.kernel.org,
-        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        John Harrison <John.C.Harrison@intel.com>,
-        Bruce Chang <yu.bruce.chang@intel.com>
-Subject: Re: [PATCH 5/6] drm/i915/gt: Serialize GRDOM access between
- multiple engine resets
-Message-ID: <20220704104252.1ab7c579@maurocar-mobl2>
-In-Reply-To: <4c46e69e-9af7-3c20-7569-7a4b5897ec7d@linux.intel.com>
-References: <cover.1655306128.git.mchehab@kernel.org>
-        <5ee647f243a774927ec328bfca8212abc4957909.1655306128.git.mchehab@kernel.org>
-        <YrRLyg1IJoZpVGfg@intel.intel>
-        <160e613f-a0a8-18ff-5d4b-249d4280caa8@linux.intel.com>
-        <20220627110056.6dfa4f9b@maurocar-mobl2>
-        <d79492ad-b99a-f9a9-f64a-52b94db68a3b@linux.intel.com>
-        <20220629172955.64ffb5c3@maurocar-mobl2>
-        <7e6a9a27-7286-7f21-7fec-b9832b93b10c@linux.intel.com>
-        <20220630083256.35a56cb1@sal.lan>
-        <9477a8f1-3535-ed7f-c491-9ca9f27a10dc@linux.intel.com>
-        <20220630170134.3f89e0a3@sal.lan>
-        <4c46e69e-9af7-3c20-7569-7a4b5897ec7d@linux.intel.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S233650AbiGDJWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 05:22:31 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 93469AE60;
+        Mon,  4 Jul 2022 02:22:29 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A16B523A;
+        Mon,  4 Jul 2022 02:22:29 -0700 (PDT)
+Received: from e126311.manchester.arm.com (unknown [10.57.71.6])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1572B3F792;
+        Mon,  4 Jul 2022 02:22:26 -0700 (PDT)
+Date:   Mon, 4 Jul 2022 10:22:20 +0100
+From:   Kajetan Puchalski <kajetan.puchalski@arm.com>
+To:     Florian Westphal <fw@strlen.de>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        lukasz.luba@arm.com, dietmar.eggemann@arm.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        regressions@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [Regression] stress-ng udp-flood causes kernel panic on Ampere
+ Altra
+Message-ID: <YsKxTAaIgvKMfOoU@e126311.manchester.arm.com>
+References: <Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com>
+ <20220701200110.GA15144@breakpoint.cc>
+ <YsAnPhPfWRjpkdmn@e126311.manchester.arm.com>
+ <20220702205651.GB15144@breakpoint.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220702205651.GB15144@breakpoint.cc>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 1 Jul 2022 08:56:53 +0100
-Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
+On Sat, Jul 02, 2022 at 10:56:51PM +0200, Florian Westphal wrote:
+> > That would make sense, from further experiments I ran it somehow seems
+> > to be related to the number of workers being spawned by stress-ng along
+> > with the CPUs/cores involved.
+> >
+> > For instance, running the test with <=25 workers (--udp-flood 25 etc.)
+> > results in the test running fine for at least 15 minutes.
+> 
+> Ok.  I will let it run for longer on the machines I have access to.
+> 
+> In mean time, you could test attached patch, its simple s/refcount_/atomic_/
+> in nf_conntrack.
+> 
+> If mainline (patch vs. HEAD 69cb6c6556ad89620547318439) crashes for you
+> but works with attached patch someone who understands aarch64 memory ordering
+> would have to look more closely at refcount_XXX functions to see where they
+> might differ from atomic_ ones.
 
-> On 30/06/2022 17:01, Mauro Carvalho Chehab wrote:
-> > Em Thu, 30 Jun 2022 09:12:41 +0100
-> > Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> escreveu:
-> >  =20
-> >> On 30/06/2022 08:32, Mauro Carvalho Chehab wrote: =20
-> >>> Em Wed, 29 Jun 2022 17:02:59 +0100
-> >>> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> escreveu:
-> >>>     =20
-> >>>> On 29/06/2022 16:30, Mauro Carvalho Chehab wrote: =20
-> >>>>> On Tue, 28 Jun 2022 16:49:23 +0100
-> >>>>> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
-> >>>>>        =20
-> >>>>>> .. which for me means a different patch 1, followed by patch 6 (mo=
-ved
-> >>>>>> to be patch 2) would be ideal stable material.
-> >>>>>>
-> >>>>>> Then we have the current patch 2 which is open/unknown (to me at l=
-east).
-> >>>>>>
-> >>>>>> And the rest seem like optimisations which shouldn't be tagged as =
-fixes.
-> >>>>>>
-> >>>>>> Apart from patch 5 which should be cc: stable, but no fixes as agr=
-eed.
-> >>>>>>
-> >>>>>> Could you please double check if what I am suggesting here is feas=
-ible
-> >>>>>> to implement and if it is just send those minimal patches out alon=
-e? =20
-> >>>>>
-> >>>>> Tested and porting just those 3 patches are enough to fix the Broad=
-well
-> >>>>> bug.
-> >>>>>
-> >>>>> So, I submitted a v2 of this series with just those. They all need =
-to
-> >>>>> be backported to stable. =20
-> >>>>
-> >>>> I would really like to give even a smaller fix a try. Something like=
-, although not even compile tested:
-> >>>>
-> >>>> commit 4d5e94aef164772f4d85b3b4c1a46eac9a2bd680
-> >>>> Author: Chris Wilson <chris.p.wilson@intel.com>
-> >>>> Date:   Wed Jun 29 16:25:24 2022 +0100
-> >>>>
-> >>>>        drm/i915/gt: Serialize TLB invalidates with GT resets
-> >>>>       =20
-> >>>>        Avoid trying to invalidate the TLB in the middle of performin=
-g an
-> >>>>        engine reset, as this may result in the reset timing out. Cur=
-rently,
-> >>>>        the TLB invalidate is only serialised by its own mutex, forgo=
-ing the
-> >>>>        uncore lock, but we can take the uncore->lock as well to seri=
-alise
-> >>>>        the mmio access, thereby serialising with the GDRST.
-> >>>>       =20
-> >>>>        Tested on a NUC5i7RYB, BIOS RYBDWi35.86A.0380.2019.0517.1530 =
-with
-> >>>>        i915 selftest/hangcheck.
-> >>>>       =20
-> >>>>        Cc: stable@vger.kernel.org
-> >>>>        Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing b=
-acking store")
-> >>>>        Reported-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> >>>>        Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> >>>>        Reviewed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> >>>>        Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-> >>>>        Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-> >>>>        Acked-by: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel=
-.com>
-> >>>>        Reviewed-by: Andi Shyti <andi.shyti@intel.com>
-> >>>>        Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> >>>>        Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> >>>>
-> >>>> diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i9=
-15/gt/intel_gt.c
-> >>>> index 8da3314bb6bf..aaadd0b02043 100644
-> >>>> --- a/drivers/gpu/drm/i915/gt/intel_gt.c
-> >>>> +++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-> >>>> @@ -952,7 +952,23 @@ void intel_gt_invalidate_tlbs(struct intel_gt *=
-gt)
-> >>>>            mutex_lock(&gt->tlb_invalidate_lock);
-> >>>>            intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
-> >>>>    =20
-> >>>> +       spin_lock_irq(&uncore->lock); /* serialise invalidate with G=
-T reset */
-> >>>> +
-> >>>> +       for_each_engine(engine, gt, id) {
-> >>>> +               struct reg_and_bit rb;
-> >>>> +
-> >>>> +               rb =3D get_reg_and_bit(engine, regs =3D=3D gen8_regs=
-, regs, num);
-> >>>> +               if (!i915_mmio_reg_offset(rb.reg))
-> >>>> +                       continue;
-> >>>> +
-> >>>> +               intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-> >>>> +       }
-> >>>> +
-> >>>> +       spin_unlock_irq(&uncore->lock);
-> >>>> +
-> >>>>            for_each_engine(engine, gt, id) {
-> >>>> +               struct reg_and_bit rb;
-> >>>> +
-> >>>>                    /*
-> >>>>                     * HW architecture suggest typical invalidation t=
-ime at 40us,
-> >>>>                     * with pessimistic cases up to 100us and a recom=
-mendation to
-> >>>> @@ -960,13 +976,11 @@ void intel_gt_invalidate_tlbs(struct intel_gt =
-*gt)
-> >>>>                     */
-> >>>>                    const unsigned int timeout_us =3D 100;
-> >>>>                    const unsigned int timeout_ms =3D 4;
-> >>>> -               struct reg_and_bit rb;
-> >>>>    =20
-> >>>>                    rb =3D get_reg_and_bit(engine, regs =3D=3D gen8_r=
-egs, regs, num);
-> >>>>                    if (!i915_mmio_reg_offset(rb.reg))
-> >>>>                            continue;
-> >>>>    =20
-> >>>> -               intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-> >>>>                    if (__intel_wait_for_register_fw(uncore,
-> >>>>                                                     rb.reg, rb.bit, =
-0,
-> >>>>                                                     timeout_us, time=
-out_ms,
-> >>>>    =20
+I can confirm that the patch seems to solve the issue.
+With it applied on top of the 5.19-rc5 tag the test runs fine for at
+least 15 minutes which was not the case before so it looks like it is
+that aarch64 memory ordering problem.
 
-...
+> 
+> If it still crashes, please try below hunk in addition, although I don't see
+> how it would make a difference.
+> 
+> This is the one spot where the original conversion replaced atomic_inc()
+> with refcount_set(), this is on allocation, refcount is expected to be 0 so
+> refcount_inc() triggers a warning hinting at a use-after free.
+> 
+> diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+> --- a/net/netfilter/nf_conntrack_core.c
+> +++ b/net/netfilter/nf_conntrack_core.c
+> @@ -1776,7 +1776,7 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
+>                 __nf_ct_try_assign_helper(ct, tmpl, GFP_ATOMIC);
+>  
+>         /* Now it is going to be associated with an sk_buff, set refcount to 1. */
+> -       atomic_set(&ct->ct_general.use, 1);
+> +       atomic_inc(&ct->ct_general.use);
+>  
+>         if (exp) {
+>                 if (exp->expectfn)
 
-> What about intel_engine_pm_is_awake, what will you do with that one?
+> From 4234018dff486bdc30f4fe4625c8da1a8e30c2f6 Mon Sep 17 00:00:00 2001
+> From: Florian Westphal <fw@strlen.de>
+> Date: Sat, 2 Jul 2022 22:42:57 +0200
+> Subject: [PATCH 1/1] netfilter: conntrack: revert to atomic_t api
+> 
+> Just for testing.
+> ---
+>  include/linux/netfilter/nf_conntrack_common.h |  6 ++---
+>  include/net/netfilter/nf_conntrack.h          |  2 +-
+>  net/netfilter/nf_conntrack_core.c             | 24 +++++++++----------
+>  net/netfilter/nf_conntrack_expect.c           |  2 +-
+>  net/netfilter/nf_conntrack_netlink.c          |  6 ++---
+>  net/netfilter/nf_conntrack_standalone.c       |  4 ++--
+>  net/netfilter/nf_flow_table_core.c            |  2 +-
+>  net/netfilter/nft_ct.c                        |  4 ++--
+>  net/netfilter/xt_CT.c                         |  2 +-
+>  9 files changed, 26 insertions(+), 26 deletions(-)
+> 
+> diff --git a/include/linux/netfilter/nf_conntrack_common.h b/include/linux/netfilter/nf_conntrack_common.h
+> index 2770db2fa080..48a78944182d 100644
+> --- a/include/linux/netfilter/nf_conntrack_common.h
+> +++ b/include/linux/netfilter/nf_conntrack_common.h
+> @@ -25,7 +25,7 @@ struct ip_conntrack_stat {
+>  #define NFCT_PTRMASK	~(NFCT_INFOMASK)
+>  
+>  struct nf_conntrack {
+> -	refcount_t use;
+> +	atomic_t use;
+>  };
+>  
+>  void nf_conntrack_destroy(struct nf_conntrack *nfct);
+> @@ -33,13 +33,13 @@ void nf_conntrack_destroy(struct nf_conntrack *nfct);
+>  /* like nf_ct_put, but without module dependency on nf_conntrack */
+>  static inline void nf_conntrack_put(struct nf_conntrack *nfct)
+>  {
+> -	if (nfct && refcount_dec_and_test(&nfct->use))
+> +	if (nfct && atomic_dec_and_test(&nfct->use))
+>  		nf_conntrack_destroy(nfct);
+>  }
+>  static inline void nf_conntrack_get(struct nf_conntrack *nfct)
+>  {
+>  	if (nfct)
+> -		refcount_inc(&nfct->use);
+> +		atomic_inc(&nfct->use);
+>  }
+>  
+>  #endif /* _NF_CONNTRACK_COMMON_H */
+> diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
+> index a32be8aa7ed2..9fab0c8835bb 100644
+> --- a/include/net/netfilter/nf_conntrack.h
+> +++ b/include/net/netfilter/nf_conntrack.h
+> @@ -180,7 +180,7 @@ void nf_ct_destroy(struct nf_conntrack *nfct);
+>  /* decrement reference count on a conntrack */
+>  static inline void nf_ct_put(struct nf_conn *ct)
+>  {
+> -	if (ct && refcount_dec_and_test(&ct->ct_general.use))
+> +	if (ct && atomic_dec_and_test(&ct->ct_general.use))
+>  		nf_ct_destroy(&ct->ct_general);
+>  }
+>  
+> diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+> index 082a2fd8d85b..4469e49d78a7 100644
+> --- a/net/netfilter/nf_conntrack_core.c
+> +++ b/net/netfilter/nf_conntrack_core.c
+> @@ -554,7 +554,7 @@ struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
+>  	tmpl->status = IPS_TEMPLATE;
+>  	write_pnet(&tmpl->ct_net, net);
+>  	nf_ct_zone_add(tmpl, zone);
+> -	refcount_set(&tmpl->ct_general.use, 1);
+> +	atomic_set(&tmpl->ct_general.use, 1);
+>  
+>  	return tmpl;
+>  }
+> @@ -586,7 +586,7 @@ void nf_ct_destroy(struct nf_conntrack *nfct)
+>  	struct nf_conn *ct = (struct nf_conn *)nfct;
+>  
+>  	pr_debug("%s(%p)\n", __func__, ct);
+> -	WARN_ON(refcount_read(&nfct->use) != 0);
+> +	WARN_ON(atomic_read(&nfct->use) != 0);
+>  
+>  	if (unlikely(nf_ct_is_template(ct))) {
+>  		nf_ct_tmpl_free(ct);
+> @@ -726,7 +726,7 @@ nf_ct_match(const struct nf_conn *ct1, const struct nf_conn *ct2)
+>  /* caller must hold rcu readlock and none of the nf_conntrack_locks */
+>  static void nf_ct_gc_expired(struct nf_conn *ct)
+>  {
+> -	if (!refcount_inc_not_zero(&ct->ct_general.use))
+> +	if (!atomic_inc_not_zero(&ct->ct_general.use))
+>  		return;
+>  
+>  	if (nf_ct_should_gc(ct))
+> @@ -794,7 +794,7 @@ __nf_conntrack_find_get(struct net *net, const struct nf_conntrack_zone *zone,
+>  		 * in, try to obtain a reference and re-check tuple
+>  		 */
+>  		ct = nf_ct_tuplehash_to_ctrack(h);
+> -		if (likely(refcount_inc_not_zero(&ct->ct_general.use))) {
+> +		if (likely(atomic_inc_not_zero(&ct->ct_general.use))) {
+>  			if (likely(nf_ct_key_equal(h, tuple, zone, net)))
+>  				goto found;
+>  
+> @@ -923,7 +923,7 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
+>  
+>  	smp_wmb();
+>  	/* The caller holds a reference to this object */
+> -	refcount_set(&ct->ct_general.use, 2);
+> +	atomic_set(&ct->ct_general.use, 2);
+>  	__nf_conntrack_hash_insert(ct, hash, reply_hash);
+>  	nf_conntrack_double_unlock(hash, reply_hash);
+>  	NF_CT_STAT_INC(net, insert);
+> @@ -981,7 +981,7 @@ static void __nf_conntrack_insert_prepare(struct nf_conn *ct)
+>  {
+>  	struct nf_conn_tstamp *tstamp;
+>  
+> -	refcount_inc(&ct->ct_general.use);
+> +	atomic_inc(&ct->ct_general.use);
+>  
+>  	/* set conntrack timestamp, if enabled. */
+>  	tstamp = nf_conn_tstamp_find(ct);
+> @@ -1384,7 +1384,7 @@ static unsigned int early_drop_list(struct net *net,
+>  		    nf_ct_is_dying(tmp))
+>  			continue;
+>  
+> -		if (!refcount_inc_not_zero(&tmp->ct_general.use))
+> +		if (!atomic_inc_not_zero(&tmp->ct_general.use))
+>  			continue;
+>  
+>  		/* kill only if still in same netns -- might have moved due to
+> @@ -1533,7 +1533,7 @@ static void gc_worker(struct work_struct *work)
+>  				continue;
+>  
+>  			/* need to take reference to avoid possible races */
+> -			if (!refcount_inc_not_zero(&tmp->ct_general.use))
+> +			if (!atomic_inc_not_zero(&tmp->ct_general.use))
+>  				continue;
+>  
+>  			if (gc_worker_skip_ct(tmp)) {
+> @@ -1640,7 +1640,7 @@ __nf_conntrack_alloc(struct net *net,
+>  	/* Because we use RCU lookups, we set ct_general.use to zero before
+>  	 * this is inserted in any list.
+>  	 */
+> -	refcount_set(&ct->ct_general.use, 0);
+> +	atomic_set(&ct->ct_general.use, 0);
+>  	return ct;
+>  out:
+>  	atomic_dec(&cnet->count);
+> @@ -1665,7 +1665,7 @@ void nf_conntrack_free(struct nf_conn *ct)
+>  	/* A freed object has refcnt == 0, that's
+>  	 * the golden rule for SLAB_TYPESAFE_BY_RCU
+>  	 */
+> -	WARN_ON(refcount_read(&ct->ct_general.use) != 0);
+> +	WARN_ON(atomic_read(&ct->ct_general.use) != 0);
+>  
+>  	if (ct->status & IPS_SRC_NAT_DONE) {
+>  		const struct nf_nat_hook *nat_hook;
+> @@ -1776,7 +1776,7 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
+>  		__nf_ct_try_assign_helper(ct, tmpl, GFP_ATOMIC);
+>  
+>  	/* Now it is going to be associated with an sk_buff, set refcount to 1. */
+> -	refcount_set(&ct->ct_general.use, 1);
+> +	atomic_set(&ct->ct_general.use, 1);
+>  
+>  	if (exp) {
+>  		if (exp->expectfn)
+> @@ -2390,7 +2390,7 @@ get_next_corpse(int (*iter)(struct nf_conn *i, void *data),
+>  
+>  	return NULL;
+>  found:
+> -	refcount_inc(&ct->ct_general.use);
+> +	atomic_inc(&ct->ct_general.use);
+>  	spin_unlock(lockp);
+>  	local_bh_enable();
+>  	return ct;
+> diff --git a/net/netfilter/nf_conntrack_expect.c b/net/netfilter/nf_conntrack_expect.c
+> index 96948e98ec53..84cb05eae410 100644
+> --- a/net/netfilter/nf_conntrack_expect.c
+> +++ b/net/netfilter/nf_conntrack_expect.c
+> @@ -208,7 +208,7 @@ nf_ct_find_expectation(struct net *net,
+>  	 * can be sure the ct cannot disappear underneath.
+>  	 */
+>  	if (unlikely(nf_ct_is_dying(exp->master) ||
+> -		     !refcount_inc_not_zero(&exp->master->ct_general.use)))
+> +		     !atomic_inc_not_zero(&exp->master->ct_general.use)))
+>  		return NULL;
+>  
+>  	if (exp->flags & NF_CT_EXPECT_PERMANENT) {
+> diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+> index 722af5e309ba..d5de0e580e6c 100644
+> --- a/net/netfilter/nf_conntrack_netlink.c
+> +++ b/net/netfilter/nf_conntrack_netlink.c
+> @@ -514,7 +514,7 @@ static int ctnetlink_dump_id(struct sk_buff *skb, const struct nf_conn *ct)
+>  
+>  static int ctnetlink_dump_use(struct sk_buff *skb, const struct nf_conn *ct)
+>  {
+> -	if (nla_put_be32(skb, CTA_USE, htonl(refcount_read(&ct->ct_general.use))))
+> +	if (nla_put_be32(skb, CTA_USE, htonl(atomic_read(&ct->ct_general.use))))
+>  		goto nla_put_failure;
+>  	return 0;
+>  
+> @@ -1204,7 +1204,7 @@ ctnetlink_dump_table(struct sk_buff *skb, struct netlink_callback *cb)
+>  			ct = nf_ct_tuplehash_to_ctrack(h);
+>  			if (nf_ct_is_expired(ct)) {
+>  				if (i < ARRAY_SIZE(nf_ct_evict) &&
+> -				    refcount_inc_not_zero(&ct->ct_general.use))
+> +				    atomic_inc_not_zero(&ct->ct_general.use))
+>  					nf_ct_evict[i++] = ct;
+>  				continue;
+>  			}
+> @@ -1747,7 +1747,7 @@ static int ctnetlink_dump_one_entry(struct sk_buff *skb,
+>  				  NFNL_MSG_TYPE(cb->nlh->nlmsg_type),
+>  				  ct, dying, 0);
+>  	if (res < 0) {
+> -		if (!refcount_inc_not_zero(&ct->ct_general.use))
+> +		if (!atomic_inc_not_zero(&ct->ct_general.use))
+>  			return 0;
+>  
+>  		ctx->last = ct;
+> diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+> index 6ad7bbc90d38..badd3f219533 100644
+> --- a/net/netfilter/nf_conntrack_standalone.c
+> +++ b/net/netfilter/nf_conntrack_standalone.c
+> @@ -303,7 +303,7 @@ static int ct_seq_show(struct seq_file *s, void *v)
+>  	int ret = 0;
+>  
+>  	WARN_ON(!ct);
+> -	if (unlikely(!refcount_inc_not_zero(&ct->ct_general.use)))
+> +	if (unlikely(!atomic_inc_not_zero(&ct->ct_general.use)))
+>  		return 0;
+>  
+>  	if (nf_ct_should_gc(ct)) {
+> @@ -370,7 +370,7 @@ static int ct_seq_show(struct seq_file *s, void *v)
+>  	ct_show_zone(s, ct, NF_CT_DEFAULT_ZONE_DIR);
+>  	ct_show_delta_time(s, ct);
+>  
+> -	seq_printf(s, "use=%u\n", refcount_read(&ct->ct_general.use));
+> +	seq_printf(s, "use=%u\n", atomic_read(&ct->ct_general.use));
+>  
+>  	if (seq_has_overflowed(s))
+>  		goto release;
+> diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+> index f2def06d1070..8b3f91a60ba2 100644
+> --- a/net/netfilter/nf_flow_table_core.c
+> +++ b/net/netfilter/nf_flow_table_core.c
+> @@ -54,7 +54,7 @@ struct flow_offload *flow_offload_alloc(struct nf_conn *ct)
+>  	struct flow_offload *flow;
+>  
+>  	if (unlikely(nf_ct_is_dying(ct) ||
+> -	    !refcount_inc_not_zero(&ct->ct_general.use)))
+> +	    !atomic_inc_not_zero(&ct->ct_general.use)))
+>  		return NULL;
+>  
+>  	flow = kzalloc(sizeof(*flow), GFP_ATOMIC);
+> diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
+> index d8e1614918a1..1b6ead61a8f1 100644
+> --- a/net/netfilter/nft_ct.c
+> +++ b/net/netfilter/nft_ct.c
+> @@ -260,8 +260,8 @@ static void nft_ct_set_zone_eval(const struct nft_expr *expr,
+>  
+>  	ct = this_cpu_read(nft_ct_pcpu_template);
+>  
+> -	if (likely(refcount_read(&ct->ct_general.use) == 1)) {
+> -		refcount_inc(&ct->ct_general.use);
+> +	if (likely(atomic_read(&ct->ct_general.use) == 1)) {
+> +		atomic_inc(&ct->ct_general.use);
+>  		nf_ct_zone_add(ct, &zone);
+>  	} else {
+>  		/* previous skb got queued to userspace, allocate temporary
+> diff --git a/net/netfilter/xt_CT.c b/net/netfilter/xt_CT.c
+> index 267757b0392a..cf2f8c1d4fb5 100644
+> --- a/net/netfilter/xt_CT.c
+> +++ b/net/netfilter/xt_CT.c
+> @@ -24,7 +24,7 @@ static inline int xt_ct_target(struct sk_buff *skb, struct nf_conn *ct)
+>  		return XT_CONTINUE;
+>  
+>  	if (ct) {
+> -		refcount_inc(&ct->ct_general.use);
+> +		atomic_inc(&ct->ct_general.use);
+>  		nf_ct_set(skb, ct, IP_CT_NEW);
+>  	} else {
+>  		nf_ct_set(skb, ct, IP_CT_UNTRACKED);
+> -- 
+> 2.35.1
+> 
 
-Ok, let's keep this series plain simple. I'm dropping PM awake logic
-as you suggested on v3, keeping just the bare minimal required to
-fix the selftest breakage.
-
-That actually means that we're not considering on such backports that TLB=20
-cache invalidation does add performance penalties and might cause apps
-to break.
-
-I suspect that we'll need to also backport at least some of the other
-patches like the PM awake logic and the one that avoids TLB cache=20
-invalidation when the memory was not touched by userspace, but let's
-focus first on fixing the regression pointed by selftest.
-
-Regards,
-Mauro
