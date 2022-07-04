@@ -2,88 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10075564B5F
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 03:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E09564EC7
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233157AbiGDBxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Jul 2022 21:53:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35886 "EHLO
+        id S232515AbiGDHgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 03:36:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233170AbiGDBxD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 21:53:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 316D764FE
-        for <stable@vger.kernel.org>; Sun,  3 Jul 2022 18:52:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656899576;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=MXHOLjF+x/NNTpRql0vA4aCZLVnQEjTWA1vDnXHgxVGdQj+5try1+GCKBkm/9DX9JLT9yd
-        fz7Q0VhOcFe/UvgPMvL1zyp+nVuTUlcCsNXKT+8CQTp/Ok84J4lYoeeol8ZNh2fIxK3y16
-        wR4vJ2ABQsIieYH8Hfvssr+Y7rZFCc4=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-203-7B2TrGnAOmmBQ0-EkcHFdA-1; Sun, 03 Jul 2022 21:52:55 -0400
-X-MC-Unique: 7B2TrGnAOmmBQ0-EkcHFdA-1
-Received: by mail-pj1-f72.google.com with SMTP id u19-20020a17090a891300b001ed01af4131so3732142pjn.1
-        for <stable@vger.kernel.org>; Sun, 03 Jul 2022 18:52:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=LrhyWpLN77ebOBOTtc4dGDCmyddBzsvmRdFykpLt5q2z7C8JRZHAKRWKkD8B9yBLMk
-         ewv9k5nM1n66d9gnfIG1wvnEsVJymTKf/yrxQ/WmIKP9eA7N8GQ4ksTgRAS/mNMiyT/i
-         EIPoJmBV3WdpftevfCAWyRaNdiO9L1LgHv8IcE0jd+ZtG4eVHCvDH8GRw0VF3VJPRQZV
-         HsY2axhMlvq1J57k6g4rhkJWQNJw1qFvupMvhf9uG+xznnBEOXZQN95756xV001K365l
-         F7kOiwFmzg62tASX/b/PGZ40fU4HiQaKQzDuLSmOb7pr6i91N37/7XqCtO5YbqFQlFl2
-         hfRQ==
-X-Gm-Message-State: AJIora9TLNqYhTZjmVKGWM3UsfJo7mXO2HXQORcZUkuMVZM8E6LoFla1
-        EWwORlzm7pJvfgrjwr8PdZa4LlLlv/81ne72WyyoPRyeRY4mL15JxukGXwSGZVPNNwBILEaHxBI
-        qrgnUKNeS1tPy066e
-X-Received: by 2002:a17:90a:1485:b0:1ec:788e:a053 with SMTP id k5-20020a17090a148500b001ec788ea053mr31016140pja.16.1656899573985;
-        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1u8Sm73HYl29mcEbEmk3Z6a37A8y2OdP5f3idLICxDPGrBoxyTSHxhDRsHAFrxMwDkh5wCuzQ==
-X-Received: by 2002:a17:90a:1485:b0:1ec:788e:a053 with SMTP id k5-20020a17090a148500b001ec788ea053mr31016116pja.16.1656899573776;
-        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
-Received: from localhost ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id p2-20020a1709027ec200b00168f08d0d12sm16841927plb.89.2022.07.03.18.52.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
-From:   Coiby Xu <coxu@redhat.com>
-To:     kexec@lists.infradead.org, linux-integrity@vger.kernel.org
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
-        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-s390@vger.kernel.org (open list:S390),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v9 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
-Date:   Mon,  4 Jul 2022 09:52:01 +0800
-Message-Id: <20220704015201.59744-5-coxu@redhat.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220704015201.59744-1-coxu@redhat.com>
-References: <20220704015201.59744-1-coxu@redhat.com>
+        with ESMTP id S232938AbiGDHgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B7469FC3
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A07AB60FA4
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA41C341D1;
+        Mon,  4 Jul 2022 07:36:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656920163;
+        bh=Piu+qIEuW6cAJs8II5JtZ15AF7dEH/IneDZmD/WkXfE=;
+        h=Subject:To:Cc:From:Date:From;
+        b=G5yFM98i6ze11QECZtJUK3Yki/1eVgPBOyik7b+u2X3+AxiD10fP84KOCVbnPK7hb
+         20EC6On7yGWDtPC9ltTnSQNCqIDCExiFs8S0FKAnpYo4n4iUOX9wLvQrGtlSQoydlt
+         vjCHl3+MnDJ26ie4NDsr54K3e5yOKF1Yu6cZ08jI=
+Subject: FAILED: patch "[PATCH] ipv6: take care of disable_policy when restoring routes" failed to apply to 4.14-stable tree
+To:     nicolas.dichtel@6wind.com, dforster@brocade.com,
+        dsahern@kernel.org, kuba@kernel.org, siwar.zitouni@6wind.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jul 2022 09:36:00 +0200
+Message-ID: <1656920160168123@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -91,64 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
 
-commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-adds support for KEXEC_SIG verification with keys from platform keyring
-but the built-in keys and secondary keyring are not used.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Add support for the built-in keys and secondary keyring as x86 does.
+thanks,
 
-Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-Cc: stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
----
- arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+greg k-h
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 8f43575a4dd3..fc6d5f58debe 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len;
-+	int ret;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EBADMSG;
+------------------ original commit in Linus's tree ------------------
+
+From 3b0dc529f56b5f2328244130683210be98f16f7f Mon Sep 17 00:00:00 2001
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Date: Thu, 23 Jun 2022 14:00:15 +0200
+Subject: [PATCH] ipv6: take care of disable_policy when restoring routes
+
+When routes corresponding to addresses are restored by
+fixup_permanent_addr(), the dst_nopolicy parameter was not set.
+The typical use case is a user that configures an address on a down
+interface and then put this interface up.
+
+Let's take care of this flag in addrconf_f6i_alloc(), so that every callers
+benefit ont it.
+
+CC: stable@kernel.org
+CC: David Forster <dforster@brocade.com>
+Fixes: df789fe75206 ("ipv6: Provide ipv6 version of "disable_policy" sysctl")
+Reported-by: Siwar Zitouni <siwar.zitouni@6wind.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220623120015.32640-1-nicolas.dichtel@6wind.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 1b1932502e9e..5864cbc30db6 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -1109,10 +1109,6 @@ ipv6_add_addr(struct inet6_dev *idev, struct ifa6_config *cfg,
+ 		goto out;
  	}
  
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	ret = verify_pkcs7_signature(kernel, kernel_len,
-+				     kernel + kernel_len, sig_len,
-+				     VERIFY_USE_SECONDARY_KEYRING,
-+				     VERIFYING_MODULE_SIGNATURE,
-+				     NULL, NULL);
-+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-+		ret = verify_pkcs7_signature(kernel, kernel_len,
-+					     kernel + kernel_len, sig_len,
-+					     VERIFY_USE_PLATFORM_KEYRING,
-+					     VERIFYING_MODULE_SIGNATURE,
-+					     NULL, NULL);
-+	return ret;
- }
- #endif /* CONFIG_KEXEC_SIG */
+-	if (net->ipv6.devconf_all->disable_policy ||
+-	    idev->cnf.disable_policy)
+-		f6i->dst_nopolicy = true;
+-
+ 	neigh_parms_data_state_setall(idev->nd_parms);
  
--- 
-2.35.3
+ 	ifa->addr = *cfg->pfx;
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index d25dc83bac62..828355710c57 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -4569,8 +4569,15 @@ struct fib6_info *addrconf_f6i_alloc(struct net *net,
+ 	}
+ 
+ 	f6i = ip6_route_info_create(&cfg, gfp_flags, NULL);
+-	if (!IS_ERR(f6i))
++	if (!IS_ERR(f6i)) {
+ 		f6i->dst_nocount = true;
++
++		if (!anycast &&
++		    (net->ipv6.devconf_all->disable_policy ||
++		     idev->cnf.disable_policy))
++			f6i->dst_nopolicy = true;
++	}
++
+ 	return f6i;
+ }
+ 
 
