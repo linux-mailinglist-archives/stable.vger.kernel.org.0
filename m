@@ -2,144 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5197056599E
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 17:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3734D5659EC
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 17:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233437AbiGDPUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 11:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
+        id S233330AbiGDPfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 11:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229585AbiGDPUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 11:20:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7560C5F4C;
-        Mon,  4 Jul 2022 08:20:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AE2C6172F;
-        Mon,  4 Jul 2022 15:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62598C341CE;
-        Mon,  4 Jul 2022 15:20:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656948008;
-        bh=06YFOWy5ci6Ny48R6RNGVBykXsXj0MvRxiXVVF8DTPE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwGYVJhlAmZYDpy38yA6SzXey0ODv2ll15HQX6jQk6W+1C37witucXSPi8V3GqxSs
-         VnXqtS6q29ezCZi2jwrEQR9yOkmegoZQJEdpZIW9f77x+Yj+8j3Sr568k3oeEsrJYr
-         uXvBBenHiLgazJQQizCGdqewnvWgqaUEUoS4Jt3/QK8nQWDo/mGX7ovWtUQXgmMms1
-         RRu3bsk2SmJeqZFN4aACI5o31zLZ5FFU7SpGSc42n2KB+sHftz5aaqV2eVdoEgcpPM
-         Kowc4BLf924CJWCboXyA5rxKts/O0+n7Nl27xHGUTAaYmFihf+4+3xbcK+PJZpORl1
-         IVbrNjMccg9ig==
-Received: from mchehab by mail.kernel.org with local (Exim 4.95)
-        (envelope-from <mchehab@kernel.org>)
-        id 1o8Nrp-009fKZ-66;
-        Mon, 04 Jul 2022 16:20:05 +0100
-From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Thomas Hellstrom <thomas.hellstrom@intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andi Shyti <andi.shyti@intel.com>
-Subject: [PATCH v3 2/2] drm/i915/gt: Serialize TLB invalidates with GT resets
-Date:   Mon,  4 Jul 2022 16:20:04 +0100
-Message-Id: <3ecc1f94290a66b2e682f956b5232b4903c32a2c.1656921701.git.mchehab@kernel.org>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <cover.1656921701.git.mchehab@kernel.org>
-References: <cover.1656921701.git.mchehab@kernel.org>
+        with ESMTP id S229896AbiGDPfR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 11:35:17 -0400
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B8131004;
+        Mon,  4 Jul 2022 08:35:17 -0700 (PDT)
+Received: by mail-qt1-x832.google.com with SMTP id i11so10305879qtr.4;
+        Mon, 04 Jul 2022 08:35:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QTFFfHOI6YQnG89YTN0BkL6VRe09wxYBVtRGLdKuo8w=;
+        b=gVghicEsmuyGCIDY81GeyF84eDZx7G9skjtQt0H7mZlRNXE0kFviMDBORxqroJKvSE
+         o0voT2Vzh9iVPqwT6mpMZ1RtJsKz8/yzBIzmTQoWAAsARkxQnSPGsbFVIx0wvOJdcRVP
+         NOvBjQPdBRnxVHICSzONRJAWVazCY2pumxvP9VvXUYBUiRA1uXDmWQ37tey76vMbFqlp
+         YtW+m3PnMXwjJqO+YsCm4UVNRGiHSOvAFtzZAsdtmWyjJSNljdzFaaeqOmJ0GFnG1686
+         3twPEBJVXfcBPiYx7h8rIB/H5Z2bwUuyuGv2gfxiYzM4hKtbGXXS/IIk63YvY7c1Z4H0
+         +5Kw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QTFFfHOI6YQnG89YTN0BkL6VRe09wxYBVtRGLdKuo8w=;
+        b=cxs6Z+lXMmNZ47aSeTz0WGUOrjwD08g1c+1RTyYaULwKTwjxgZUPlEGOwXit9jZsV6
+         hvI+oCLrmKTr2A1+ONCwoPut9cmapXUt+EDbmCs4uJvJo2jFOJuymOyri30X64aXGqu8
+         cVoVEScGRh+yk1exVcsq+OUovmWLKfYGW6hvDN1BDACppQMrIwoTsnPIvorAVcFbQ1+V
+         5D5O68FtoT8MT8OtrOqtdZNPF75K2idEAnno7xZFdYD1evAANlmUsVGZm0jQR1giimxE
+         7WUDBa2dzshPBFx2wOWbipxc+CLDu9sfv+BENwobzPsxq8HSKkXOIh3x8wbGtbqdiO+y
+         Htvw==
+X-Gm-Message-State: AJIora8/9PECCcxpZT7lRG/TtxekEbgP1b32oqrhRt64Rgt6kdqK0sGe
+        U99ijd+FnP3Rvwc7UwYBMfY2+fkonoM=
+X-Google-Smtp-Source: AGRyM1vT6Mo6kTLC6nM0pEYLN4asr2m3uh+jSITKRTeb/3wuu2MhvClW0zuembMAq3Jn0SLvlR2oyA==
+X-Received: by 2002:a05:622a:1193:b0:31d:40aa:26e with SMTP id m19-20020a05622a119300b0031d40aa026emr9534146qtk.462.1656948915754;
+        Mon, 04 Jul 2022 08:35:15 -0700 (PDT)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id b12-20020a05620a0f8c00b006a34a22bc60sm24366909qkn.9.2022.07.04.08.35.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Jul 2022 08:35:15 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        olteanv@gmail.com, andrew@lunn.ch
+Subject: [PATCH stable 4.9] net: dsa: bcm_sf2: force pause link settings
+Date:   Mon,  4 Jul 2022 08:35:07 -0700
+Message-Id: <20220704153510.3859649-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+From: Doug Berger <opendmb@gmail.com>
 
-Avoid trying to invalidate the TLB in the middle of performing an
-engine reset, as this may result in the reset timing out. Currently,
-the TLB invalidate is only serialised by its own mutex, forgoing the
-uncore lock, but we can take the uncore->lock as well to serialise
-the mmio access, thereby serialising with the GDRST.
+commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream
 
-Tested on a NUC5i7RYB, BIOS RYBDWi35.86A.0380.2019.0517.1530 with
-i915 selftest/hangcheck.
+The pause settings reported by the PHY should also be applied to the GMII port
+status override otherwise the switch will not generate pause frames towards the
+link partner despite the advertisement saying otherwise.
 
-Cc: stable@vger.kernel.org # Up to 4.4
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Reported-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Andi Shyti <andi.shyti@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
+ drivers/net/dsa/bcm_sf2.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-To avoid mailbombing on a large number of people, only mailing lists were C/C on the cover.
-See [PATCH v3 0/2] at: https://lore.kernel.org/all/cover.1656921701.git.mchehab@kernel.org/
-
- drivers/gpu/drm/i915/gt/intel_gt.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index 8da3314bb6bf..68c2b0d8f187 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -952,6 +952,20 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	mutex_lock(&gt->tlb_invalidate_lock);
- 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
- 
-+	spin_lock_irq(&uncore->lock); /* serialise invalidate with GT reset */
-+
-+	for_each_engine(engine, gt, id) {
-+		struct reg_and_bit rb;
-+
-+		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
-+		if (!i915_mmio_reg_offset(rb.reg))
-+			continue;
-+
-+		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 40b3adf7ad99..03f38c36e188 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -671,6 +671,11 @@ static void bcm_sf2_sw_adjust_link(struct dsa_switch *ds, int port,
+ 		reg |= LINK_STS;
+ 	if (phydev->duplex == DUPLEX_FULL)
+ 		reg |= DUPLX_MODE;
++	if (phydev->pause) {
++		if (phydev->asym_pause)
++			reg |= TXFLOW_CNTL;
++		reg |= RXFLOW_CNTL;
 +	}
-+
-+	spin_unlock_irq(&uncore->lock);
-+
- 	for_each_engine(engine, gt, id) {
- 		/*
- 		 * HW architecture suggest typical invalidation time at 40us,
-@@ -966,7 +980,6 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		if (!i915_mmio_reg_offset(rb.reg))
- 			continue;
  
--		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
- 		if (__intel_wait_for_register_fw(uncore,
- 						 rb.reg, rb.bit, 0,
- 						 timeout_us, timeout_ms,
+ 	core_writel(priv, reg, CORE_STS_OVERRIDE_GMIIP_PORT(port));
+ 
 -- 
-2.36.1
+2.25.1
 
