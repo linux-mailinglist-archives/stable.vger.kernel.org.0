@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3095653AB
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 13:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FBEF5653D1
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 13:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231135AbiGDLfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 07:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46428 "EHLO
+        id S233943AbiGDLg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 07:36:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229848AbiGDLfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 07:35:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DC1FD08
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 04:35:47 -0700 (PDT)
+        with ESMTP id S234231AbiGDLg3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 07:36:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE70D11A15
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 04:36:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D88EB80EDF
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 11:35:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F55C3411E;
-        Mon,  4 Jul 2022 11:35:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C13F061660
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 11:36:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3E7C341CA;
+        Mon,  4 Jul 2022 11:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656934545;
-        bh=HRK84s2j32KG81hoXTVf55cVum9lg6QO/pnJsueXTlc=;
+        s=korg; t=1656934575;
+        bh=hNXb3pAyIRBP1cuNfBEpdtEgH+3t4kKBp0jwDQ6cP5M=;
         h=Subject:To:Cc:From:Date:From;
-        b=upwZtOWN81wGWdGDUKAUyYT49qaLiajUfZ5XNJCu0uHza3DBZgY63VZTWXtXxu4qW
-         F8UktFrul7h+GTSd2qlmeq7AOW5nFhLmGKz3I8rkxumoiU+6JItSB96IXmx9nJH+wN
-         9LZn8F8qacTUsThWQP9zZ78u/helfDhHNv3PR9lQ=
-Subject: FAILED: patch "[PATCH] net: tun: stop NAPI when detaching queues" failed to apply to 4.14-stable tree
-To:     kuba@kernel.org, ppenkov@aviatrix.com
+        b=uZM9B9zCCih3DBazJfuhEgOrf1A3Fqagk2jsCOjITWh4rpGvwPmbHy7tMQWA4f6RS
+         ADWNVrcBlLyoKNr2YgjMqQNPRhRmVXAHTpnWy52ESlp4VGTsLpDCU7YKgGsFS3JNPp
+         oOk4nd3SJanLOt/sNPfZ45D/rVzPJ48onN9yBHKo=
+Subject: FAILED: patch "[PATCH] net: fix IFF_TX_SKB_NO_LINEAR definition" failed to apply to 5.15-stable tree
+To:     dan.carpenter@oracle.com, kuba@kernel.org,
+        xuanzhuo@linux.alibaba.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 13:35:42 +0200
-Message-ID: <165693454242194@kroah.com>
+Date:   Mon, 04 Jul 2022 13:36:12 +0200
+Message-ID: <16569345724593@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,56 +60,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a8fc8cb5692aebb9c6f7afd4265366d25dcd1d01 Mon Sep 17 00:00:00 2001
-From: Jakub Kicinski <kuba@kernel.org>
-Date: Wed, 22 Jun 2022 21:21:05 -0700
-Subject: [PATCH] net: tun: stop NAPI when detaching queues
+From 3b89b511ea0c705cc418440e2abf9d692a556d84 Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Thu, 23 Jun 2022 16:32:32 +0300
+Subject: [PATCH] net: fix IFF_TX_SKB_NO_LINEAR definition
 
-While looking at a syzbot report I noticed the NAPI only gets
-disabled before it's deleted. I think that user can detach
-the queue before destroying the device and the NAPI will never
-be stopped.
+The "1<<31" shift has a sign extension bug so IFF_TX_SKB_NO_LINEAR is
+0xffffffff80000000 instead of 0x0000000080000000.
 
-Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
-Acked-by: Petar Penkov <ppenkov@aviatrix.com>
-Link: https://lore.kernel.org/r/20220623042105.2274812-1-kuba@kernel.org
+Fixes: c2ff53d8049f ("net: Add priv_flags for allow tx skb without linear")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://lore.kernel.org/r/YrRrcGttfEVnf85Q@kili
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 7fd0288c3789..e2eb35887394 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -273,6 +273,12 @@ static void tun_napi_init(struct tun_struct *tun, struct tun_file *tfile,
- 	}
- }
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index f615a66c89e9..2563d30736e9 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1671,7 +1671,7 @@ enum netdev_priv_flags {
+ 	IFF_FAILOVER_SLAVE		= 1<<28,
+ 	IFF_L3MDEV_RX_HANDLER		= 1<<29,
+ 	IFF_LIVE_RENAME_OK		= 1<<30,
+-	IFF_TX_SKB_NO_LINEAR		= 1<<31,
++	IFF_TX_SKB_NO_LINEAR		= BIT_ULL(31),
+ 	IFF_CHANGE_PROTO_DOWN		= BIT_ULL(32),
+ };
  
-+static void tun_napi_enable(struct tun_file *tfile)
-+{
-+	if (tfile->napi_enabled)
-+		napi_enable(&tfile->napi);
-+}
-+
- static void tun_napi_disable(struct tun_file *tfile)
- {
- 	if (tfile->napi_enabled)
-@@ -653,8 +659,10 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
- 		if (clean) {
- 			RCU_INIT_POINTER(tfile->tun, NULL);
- 			sock_put(&tfile->sk);
--		} else
-+		} else {
- 			tun_disable_queue(tun, tfile);
-+			tun_napi_disable(tfile);
-+		}
- 
- 		synchronize_net();
- 		tun_flow_delete_by_queue(tun, tun->numqueues + 1);
-@@ -808,6 +816,7 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
- 
- 	if (tfile->detached) {
- 		tun_enable_queue(tfile);
-+		tun_napi_enable(tfile);
- 	} else {
- 		sock_hold(&tfile->sk);
- 		tun_napi_init(tun, tfile, napi, napi_frags);
 
