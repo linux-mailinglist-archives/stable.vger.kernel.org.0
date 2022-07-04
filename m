@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC405656E3
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C98785656E4
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229473AbiGDNTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
+        id S231250AbiGDNUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:20:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230461AbiGDNTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:19:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A25D9B45
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:19:54 -0700 (PDT)
+        with ESMTP id S230461AbiGDNUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:20:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0512BB42
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:20:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64E74B80EFD
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76DBC3411E;
-        Mon,  4 Jul 2022 13:19:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9417861526
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCE4C3411E;
+        Mon,  4 Jul 2022 13:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656940792;
-        bh=HeNjVjFPE6lwIyOS2vKILrYaA3TCWHRmCpIP8XlookA=;
+        s=korg; t=1656940844;
+        bh=hQn9TSbDjqCGTuJOp8qkz4phBxaueOqzU/W0fX6nM94=;
         h=Subject:To:Cc:From:Date:From;
-        b=zCVT9Kbf3mK1JTgecj2wNtZFfgbiCyPP4fXbXPQtEs/6M/4CyelQlhdbPN8KKUF98
-         Auc41ENhcjZ0yzoh8/L4QKqwP2T/oqDiNbriSnHVuT4LfKqnpQHCbN733GKlXD8G8t
-         PoeesUonLV/pAv/Xyo9thKx+ZVgnn4U1qXCxvdAU=
-Subject: FAILED: patch "[PATCH] epic100: fix use after free on rmmod" failed to apply to 4.14-stable tree
-To:     ztong0001@gmail.com, kuba@kernel.org, romieu@fr.zoreil.com,
-        yiluwu@cs.stonybrook.edu
+        b=w7E6N+ugwsJvCtZjcVjc4NwRxxSeI4KHO7EGY2VTRkzUHy9PRg/zaLVEHrDDkWRm1
+         sB7VtdmXi28S5zRoVISbaIzn+19WrMOj6I1PcLWYchHg56mqXyDz7j+fD68FSG/nlh
+         +jRvi5UoKOzVukTAoakchDjjTZoX6GZ5GSXnRmUc=
+Subject: FAILED: patch "[PATCH] tcp: add a missing nf_reset_ct() in 3WHS handling" failed to apply to 5.15-stable tree
+To:     edumazet@google.com, fw@strlen.de, i.maximets@ovn.org,
+        kuba@kernel.org, pablo@netfilter.org, steffen.klassert@secunet.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 15:19:36 +0200
-Message-ID: <165694077657119@kroah.com>
+Date:   Mon, 04 Jul 2022 15:20:41 +0200
+Message-ID: <1656940841199204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,48 +60,70 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8ee9d82cd0a45e7d050ade598c9f33032a0f2891 Mon Sep 17 00:00:00 2001
-From: Tong Zhang <ztong0001@gmail.com>
-Date: Sun, 26 Jun 2022 21:33:48 -0700
-Subject: [PATCH] epic100: fix use after free on rmmod
+From 6f0012e35160cd08a53e46e3b3bbf724b92dfe68 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 23 Jun 2022 05:04:36 +0000
+Subject: [PATCH] tcp: add a missing nf_reset_ct() in 3WHS handling
 
-epic_close() calls epic_rx() and uses dma buffer, but in epic_remove_one()
-we already freed the dma buffer. To fix this issue, reorder function calls
-like in the .probe function.
+When the third packet of 3WHS connection establishment
+contains payload, it is added into socket receive queue
+without the XFRM check and the drop of connection tracking
+context.
 
-BUG: KASAN: use-after-free in epic_rx+0xa6/0x7e0 [epic100]
-Call Trace:
- epic_rx+0xa6/0x7e0 [epic100]
- epic_close+0xec/0x2f0 [epic100]
- unregister_netdev+0x18/0x20
- epic_remove_one+0xaa/0xf0 [epic100]
+This means that if the data is left unread in the socket
+receive queue, conntrack module can not be unloaded.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Yilun Wu <yiluwu@cs.stonybrook.edu>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
-Link: https://lore.kernel.org/r/20220627043351.25615-1-ztong0001@gmail.com
+As most applications usually reads the incoming data
+immediately after accept(), bug has been hiding for
+quite a long time.
+
+Commit 68822bdf76f1 ("net: generalize skb freeing
+deferral to per-cpu lists") exposed this bug because
+even if the application reads this data, the skb
+with nfct state could stay in a per-cpu cache for
+an arbitrary time, if said cpu no longer process RX softirqs.
+
+Many thanks to Ilya Maximets for reporting this issue,
+and for testing various patches:
+https://lore.kernel.org/netdev/20220619003919.394622-1-i.maximets@ovn.org/
+
+Note that I also added a missing xfrm4_policy_check() call,
+although this is probably not a big issue, as the SYN
+packet should have been dropped earlier.
+
+Fixes: b59c270104f0 ("[NETFILTER]: Keep conntrack reference until IPsec policy checks are done")
+Reported-by: Ilya Maximets <i.maximets@ovn.org>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Tested-by: Ilya Maximets <i.maximets@ovn.org>
+Reviewed-by: Ilya Maximets <i.maximets@ovn.org>
+Link: https://lore.kernel.org/r/20220623050436.1290307-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/ethernet/smsc/epic100.c b/drivers/net/ethernet/smsc/epic100.c
-index a0654e88444c..0329caf63279 100644
---- a/drivers/net/ethernet/smsc/epic100.c
-+++ b/drivers/net/ethernet/smsc/epic100.c
-@@ -1515,14 +1515,14 @@ static void epic_remove_one(struct pci_dev *pdev)
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct epic_private *ep = netdev_priv(dev);
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index fe8f23b95d32..da5a3c44c4fb 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1964,7 +1964,10 @@ int tcp_v4_rcv(struct sk_buff *skb)
+ 		struct sock *nsk;
  
-+	unregister_netdev(dev);
- 	dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, ep->tx_ring,
- 			  ep->tx_ring_dma);
- 	dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, ep->rx_ring,
- 			  ep->rx_ring_dma);
--	unregister_netdev(dev);
- 	pci_iounmap(pdev, ep->ioaddr);
--	pci_release_regions(pdev);
- 	free_netdev(dev);
-+	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
- 	/* pci_power_off(pdev, -1); */
- }
+ 		sk = req->rsk_listener;
+-		drop_reason = tcp_inbound_md5_hash(sk, skb,
++		if (!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb))
++			drop_reason = SKB_DROP_REASON_XFRM_POLICY;
++		else
++			drop_reason = tcp_inbound_md5_hash(sk, skb,
+ 						   &iph->saddr, &iph->daddr,
+ 						   AF_INET, dif, sdif);
+ 		if (unlikely(drop_reason)) {
+@@ -2016,6 +2019,7 @@ int tcp_v4_rcv(struct sk_buff *skb)
+ 			}
+ 			goto discard_and_relse;
+ 		}
++		nf_reset_ct(skb);
+ 		if (nsk == sk) {
+ 			reqsk_put(req);
+ 			tcp_v4_restore_cb(skb);
 
