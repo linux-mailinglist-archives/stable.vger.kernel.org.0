@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E09564EC7
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D01564EC8
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232515AbiGDHgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 03:36:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57912 "EHLO
+        id S232927AbiGDHgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 03:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232938AbiGDHgF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B7469FC3
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:04 -0700 (PDT)
+        with ESMTP id S232848AbiGDHgO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCA2B92
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A07AB60FA4
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA41C341D1;
-        Mon,  4 Jul 2022 07:36:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADC54B80DD1
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F58C3411E;
+        Mon,  4 Jul 2022 07:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656920163;
-        bh=Piu+qIEuW6cAJs8II5JtZ15AF7dEH/IneDZmD/WkXfE=;
+        s=korg; t=1656920171;
+        bh=WVuJo/DB0PCSetRO3r3ucBsGFLuTKoueQrfzp/CEp7g=;
         h=Subject:To:Cc:From:Date:From;
-        b=G5yFM98i6ze11QECZtJUK3Yki/1eVgPBOyik7b+u2X3+AxiD10fP84KOCVbnPK7hb
-         20EC6On7yGWDtPC9ltTnSQNCqIDCExiFs8S0FKAnpYo4n4iUOX9wLvQrGtlSQoydlt
-         vjCHl3+MnDJ26ie4NDsr54K3e5yOKF1Yu6cZ08jI=
-Subject: FAILED: patch "[PATCH] ipv6: take care of disable_policy when restoring routes" failed to apply to 4.14-stable tree
+        b=Nv7I6qdR29JHGLmzYrhKQRgfsxlqMZT3ZvkSbSClH1QZRI3YjYKvTmWT3qlhSQW4Y
+         739qGJvs4hhRzo+IgYnig+1ZWA18W467HsfnW+1pw5pid+D2x9QA5tLEvwfBKPwGZt
+         FlK0OnlIZYCDQrjK/b1hUfq/Jrxio84cApt+tljI=
+Subject: FAILED: patch "[PATCH] ipv6: take care of disable_policy when restoring routes" failed to apply to 4.19-stable tree
 To:     nicolas.dichtel@6wind.com, dforster@brocade.com,
         dsahern@kernel.org, kuba@kernel.org, siwar.zitouni@6wind.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 09:36:00 +0200
-Message-ID: <1656920160168123@kroah.com>
+Message-ID: <16569201601179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
