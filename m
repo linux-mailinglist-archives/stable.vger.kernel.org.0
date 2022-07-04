@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0797F564ED5
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E1E564ED8
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbiGDHhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 03:37:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58662 "EHLO
+        id S230098AbiGDHhd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 03:37:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233044AbiGDHhI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:37:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1FEBC23
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:37:06 -0700 (PDT)
+        with ESMTP id S231917AbiGDHhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:37:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495A96304
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1EB2B80DD1
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:37:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3771C3411E;
-        Mon,  4 Jul 2022 07:37:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA7626109E
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:37:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE662C3411E;
+        Mon,  4 Jul 2022 07:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656920224;
-        bh=+kdYn20RxrxnYdt15jsmovJERqvlqUxIjeZ4CVqCjeA=;
+        s=korg; t=1656920242;
+        bh=AWZFVNB/LsbWVg+giOIsQeUTilhGdAj91Gi5bZCLKCY=;
         h=Subject:To:Cc:From:Date:From;
-        b=vbRlzxO4p7b1qRxq6EZIQoJGXnG7q+V4scrawT/NLhALj7+wXvmg282mgem9zjBWM
-         pLIcy2273xxHgPN4cbW9Kn9E52WWXpPWqDhWH//85SRMqyumxKSe2pqMCn5xCtuogu
-         wb4BcOzu8KB2Fi5+1dzBvFBJspww5C6l+5u+rOEI=
-Subject: FAILED: patch "[PATCH] PM / devfreq: Rework freq_table to be local to devfreq struct" failed to apply to 5.18-stable tree
-To:     ansuelsmth@gmail.com, cw00.choi@samsung.com
+        b=Vr8D5ELpxg/zZj0haPDNftGsrK2j3+2iO56vrdxZagT8uIFiTJPUKQgtzDMqfWq4z
+         bKMtd6rr2qZKp7Xq8Lhq2talnGtc2oAu3yP0hu52vXVxriDAV6eq63zu4wDlvhB6tn
+         uYRoHPPTydmappcEO69vBkcbbE4kkziFv+UMi06g=
+Subject: FAILED: patch "[PATCH] s390/archrandom: simplify back to earlier design and" failed to apply to 5.10-stable tree
+To:     Jason@zx2c4.com, agordeev@linux.ibm.com, freude@linux.ibm.com,
+        hca@linux.ibm.com, ifranzki@linux.ibm.com, jchrist@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 09:36:47 +0200
-Message-ID: <16569202076749@kroah.com>
+Date:   Mon, 04 Jul 2022 09:37:11 +0200
+Message-ID: <165692023121374@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.18-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,277 +60,346 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b5d281f6c16dd432b618bdfd36ddba1a58d5b603 Mon Sep 17 00:00:00 2001
-From: Christian Marangi <ansuelsmth@gmail.com>
-Date: Mon, 20 Jun 2022 00:03:51 +0200
-Subject: [PATCH] PM / devfreq: Rework freq_table to be local to devfreq struct
+From e4f74400308cb8abde5fdc9cad609c2aba32110c Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Sat, 11 Jun 2022 00:20:23 +0200
+Subject: [PATCH] s390/archrandom: simplify back to earlier design and
+ initialize earlier
 
-On a devfreq PROBE_DEFER, the freq_table in the driver profile struct,
-is never reset and may be leaved in an undefined state.
+s390x appears to present two RNG interfaces:
+- a "TRNG" that gathers entropy using some hardware function; and
+- a "DRBG" that takes in a seed and expands it.
 
-This comes from the fact that we store the freq_table in the driver
-profile struct that is commonly defined as static and not reset on
-PROBE_DEFER.
-We currently skip the reinit of the freq_table if we found
-it's already defined since a driver may declare his own freq_table.
+Previously, the TRNG was wired up to arch_get_random_{long,int}(), but
+it was observed that this was being called really frequently, resulting
+in high overhead. So it was changed to be wired up to arch_get_random_
+seed_{long,int}(), which was a reasonable decision. Later on, the DRBG
+was then wired up to arch_get_random_{long,int}(), with a complicated
+buffer filling thread, to control overhead and rate.
 
-This logic is flawed in the case devfreq core generate a freq_table, set
-it in the profile struct and then PROBE_DEFER, freeing the freq_table.
-In this case devfreq will found a NOT NULL freq_table that has been
-freed, skip the freq_table generation and probe the driver based on the
-wrong table.
+Fortunately, none of the performance issues matter much now. The RNG
+always attempts to use arch_get_random_seed_{long,int}() first, which
+means a complicated implementation of arch_get_random_{long,int}() isn't
+really valuable or useful to have around. And it's only used when
+reseeding, which means it won't hit the high throughput complications
+that were faced before.
 
-To fix this and correctly handle PROBE_DEFER, use a local freq_table and
-max_state in the devfreq struct and never modify the freq_table present
-in the profile struct if it does provide it.
+So this commit returns to an earlier design of just calling the TRNG in
+arch_get_random_seed_{long,int}(), and returning false in arch_get_
+random_{long,int}().
 
-Fixes: 0ec09ac2cebe ("PM / devfreq: Set the freq_table of devfreq device")
+Part of what makes the simplification possible is that the RNG now seeds
+itself using the TRNG at bootup. But this only works if the TRNG is
+detected early in boot, before random_init() is called. So this commit
+also causes that check to happen in setup_arch().
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>
+Cc: Juergen Christ <jchrist@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220610222023.378448-1-Jason@zx2c4.com
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 
-diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-index 80a1235ef8fb..9602141bb8ec 100644
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -123,7 +123,7 @@ void devfreq_get_freq_range(struct devfreq *devfreq,
- 			    unsigned long *min_freq,
- 			    unsigned long *max_freq)
- {
--	unsigned long *freq_table = devfreq->profile->freq_table;
-+	unsigned long *freq_table = devfreq->freq_table;
- 	s32 qos_min_freq, qos_max_freq;
+diff --git a/arch/s390/crypto/arch_random.c b/arch/s390/crypto/arch_random.c
+index 56007c763902..1f2d40993c4d 100644
+--- a/arch/s390/crypto/arch_random.c
++++ b/arch/s390/crypto/arch_random.c
+@@ -4,232 +4,15 @@
+  *
+  * Copyright IBM Corp. 2017, 2020
+  * Author(s): Harald Freudenberger
+- *
+- * The s390_arch_random_generate() function may be called from random.c
+- * in interrupt context. So this implementation does the best to be very
+- * fast. There is a buffer of random data which is asynchronously checked
+- * and filled by a workqueue thread.
+- * If there are enough bytes in the buffer the s390_arch_random_generate()
+- * just delivers these bytes. Otherwise false is returned until the
+- * worker thread refills the buffer.
+- * The worker fills the rng buffer by pulling fresh entropy from the
+- * high quality (but slow) true hardware random generator. This entropy
+- * is then spread over the buffer with an pseudo random generator PRNG.
+- * As the arch_get_random_seed_long() fetches 8 bytes and the calling
+- * function add_interrupt_randomness() counts this as 1 bit entropy the
+- * distribution needs to make sure there is in fact 1 bit entropy contained
+- * in 8 bytes of the buffer. The current values pull 32 byte entropy
+- * and scatter this into a 2048 byte buffer. So 8 byte in the buffer
+- * will contain 1 bit of entropy.
+- * The worker thread is rescheduled based on the charge level of the
+- * buffer but at least with 500 ms delay to avoid too much CPU consumption.
+- * So the max. amount of rng data delivered via arch_get_random_seed is
+- * limited to 4k bytes per second.
+  */
  
- 	lockdep_assert_held(&devfreq->lock);
-@@ -133,11 +133,11 @@ void devfreq_get_freq_range(struct devfreq *devfreq,
- 	 * The devfreq drivers can initialize this in either ascending or
- 	 * descending order and devfreq core supports both.
- 	 */
--	if (freq_table[0] < freq_table[devfreq->profile->max_state - 1]) {
-+	if (freq_table[0] < freq_table[devfreq->max_state - 1]) {
- 		*min_freq = freq_table[0];
--		*max_freq = freq_table[devfreq->profile->max_state - 1];
-+		*max_freq = freq_table[devfreq->max_state - 1];
- 	} else {
--		*min_freq = freq_table[devfreq->profile->max_state - 1];
-+		*min_freq = freq_table[devfreq->max_state - 1];
- 		*max_freq = freq_table[0];
- 	}
+ #include <linux/kernel.h>
+ #include <linux/atomic.h>
+ #include <linux/random.h>
+-#include <linux/slab.h>
+ #include <linux/static_key.h>
+-#include <linux/workqueue.h>
+-#include <linux/moduleparam.h>
+ #include <asm/cpacf.h>
  
-@@ -169,8 +169,8 @@ static int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
- {
- 	int lev;
+ DEFINE_STATIC_KEY_FALSE(s390_arch_random_available);
  
--	for (lev = 0; lev < devfreq->profile->max_state; lev++)
--		if (freq == devfreq->profile->freq_table[lev])
-+	for (lev = 0; lev < devfreq->max_state; lev++)
-+		if (freq == devfreq->freq_table[lev])
- 			return lev;
- 
- 	return -EINVAL;
-@@ -178,7 +178,6 @@ static int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
- 
- static int set_freq_table(struct devfreq *devfreq)
- {
--	struct devfreq_dev_profile *profile = devfreq->profile;
- 	struct dev_pm_opp *opp;
- 	unsigned long freq;
- 	int i, count;
-@@ -188,25 +187,22 @@ static int set_freq_table(struct devfreq *devfreq)
- 	if (count <= 0)
- 		return -EINVAL;
- 
--	profile->max_state = count;
--	profile->freq_table = devm_kcalloc(devfreq->dev.parent,
--					profile->max_state,
--					sizeof(*profile->freq_table),
--					GFP_KERNEL);
--	if (!profile->freq_table) {
--		profile->max_state = 0;
-+	devfreq->max_state = count;
-+	devfreq->freq_table = devm_kcalloc(devfreq->dev.parent,
-+					   devfreq->max_state,
-+					   sizeof(*devfreq->freq_table),
-+					   GFP_KERNEL);
-+	if (!devfreq->freq_table)
- 		return -ENOMEM;
+ atomic64_t s390_arch_random_counter = ATOMIC64_INIT(0);
+ EXPORT_SYMBOL(s390_arch_random_counter);
+-
+-#define ARCH_REFILL_TICKS (HZ/2)
+-#define ARCH_PRNG_SEED_SIZE 32
+-#define ARCH_RNG_BUF_SIZE 2048
+-
+-static DEFINE_SPINLOCK(arch_rng_lock);
+-static u8 *arch_rng_buf;
+-static unsigned int arch_rng_buf_idx;
+-
+-static void arch_rng_refill_buffer(struct work_struct *);
+-static DECLARE_DELAYED_WORK(arch_rng_work, arch_rng_refill_buffer);
+-
+-bool s390_arch_random_generate(u8 *buf, unsigned int nbytes)
+-{
+-	/* max hunk is ARCH_RNG_BUF_SIZE */
+-	if (nbytes > ARCH_RNG_BUF_SIZE)
+-		return false;
+-
+-	/* lock rng buffer */
+-	if (!spin_trylock(&arch_rng_lock))
+-		return false;
+-
+-	/* try to resolve the requested amount of bytes from the buffer */
+-	arch_rng_buf_idx -= nbytes;
+-	if (arch_rng_buf_idx < ARCH_RNG_BUF_SIZE) {
+-		memcpy(buf, arch_rng_buf + arch_rng_buf_idx, nbytes);
+-		atomic64_add(nbytes, &s390_arch_random_counter);
+-		spin_unlock(&arch_rng_lock);
+-		return true;
 -	}
+-
+-	/* not enough bytes in rng buffer, refill is done asynchronously */
+-	spin_unlock(&arch_rng_lock);
+-
+-	return false;
+-}
+-EXPORT_SYMBOL(s390_arch_random_generate);
+-
+-static void arch_rng_refill_buffer(struct work_struct *unused)
+-{
+-	unsigned int delay = ARCH_REFILL_TICKS;
+-
+-	spin_lock(&arch_rng_lock);
+-	if (arch_rng_buf_idx > ARCH_RNG_BUF_SIZE) {
+-		/* buffer is exhausted and needs refill */
+-		u8 seed[ARCH_PRNG_SEED_SIZE];
+-		u8 prng_wa[240];
+-		/* fetch ARCH_PRNG_SEED_SIZE bytes of entropy */
+-		cpacf_trng(NULL, 0, seed, sizeof(seed));
+-		/* blow this entropy up to ARCH_RNG_BUF_SIZE with PRNG */
+-		memset(prng_wa, 0, sizeof(prng_wa));
+-		cpacf_prno(CPACF_PRNO_SHA512_DRNG_SEED,
+-			   &prng_wa, NULL, 0, seed, sizeof(seed));
+-		cpacf_prno(CPACF_PRNO_SHA512_DRNG_GEN,
+-			   &prng_wa, arch_rng_buf, ARCH_RNG_BUF_SIZE, NULL, 0);
+-		arch_rng_buf_idx = ARCH_RNG_BUF_SIZE;
+-	}
+-	delay += (ARCH_REFILL_TICKS * arch_rng_buf_idx) / ARCH_RNG_BUF_SIZE;
+-	spin_unlock(&arch_rng_lock);
+-
+-	/* kick next check */
+-	queue_delayed_work(system_long_wq, &arch_rng_work, delay);
+-}
+-
+-/*
+- * Here follows the implementation of s390_arch_get_random_long().
+- *
+- * The random longs to be pulled by arch_get_random_long() are
+- * prepared in an 4K buffer which is filled from the NIST 800-90
+- * compliant s390 drbg. By default the random long buffer is refilled
+- * 256 times before the drbg itself needs a reseed. The reseed of the
+- * drbg is done with 32 bytes fetched from the high quality (but slow)
+- * trng which is assumed to deliver 100% entropy. So the 32 * 8 = 256
+- * bits of entropy are spread over 256 * 4KB = 1MB serving 131072
+- * arch_get_random_long() invocations before reseeded.
+- *
+- * How often the 4K random long buffer is refilled with the drbg
+- * before the drbg is reseeded can be adjusted. There is a module
+- * parameter 's390_arch_rnd_long_drbg_reseed' accessible via
+- *   /sys/module/arch_random/parameters/rndlong_drbg_reseed
+- * or as kernel command line parameter
+- *   arch_random.rndlong_drbg_reseed=<value>
+- * This parameter tells how often the drbg fills the 4K buffer before
+- * it is re-seeded by fresh entropy from the trng.
+- * A value of 16 results in reseeding the drbg at every 16 * 4 KB = 64
+- * KB with 32 bytes of fresh entropy pulled from the trng. So a value
+- * of 16 would result in 256 bits entropy per 64 KB.
+- * A value of 256 results in 1MB of drbg output before a reseed of the
+- * drbg is done. So this would spread the 256 bits of entropy among 1MB.
+- * Setting this parameter to 0 forces the reseed to take place every
+- * time the 4K buffer is depleted, so the entropy rises to 256 bits
+- * entropy per 4K or 0.5 bit entropy per arch_get_random_long().  With
+- * setting this parameter to negative values all this effort is
+- * disabled, arch_get_random long() returns false and thus indicating
+- * that the arch_get_random_long() feature is disabled at all.
+- */
+-
+-static unsigned long rndlong_buf[512];
+-static DEFINE_SPINLOCK(rndlong_lock);
+-static int rndlong_buf_index;
+-
+-static int rndlong_drbg_reseed = 256;
+-module_param_named(rndlong_drbg_reseed, rndlong_drbg_reseed, int, 0600);
+-MODULE_PARM_DESC(rndlong_drbg_reseed, "s390 arch_get_random_long() drbg reseed");
+-
+-static inline void refill_rndlong_buf(void)
+-{
+-	static u8 prng_ws[240];
+-	static int drbg_counter;
+-
+-	if (--drbg_counter < 0) {
+-		/* need to re-seed the drbg */
+-		u8 seed[32];
+-
+-		/* fetch seed from trng */
+-		cpacf_trng(NULL, 0, seed, sizeof(seed));
+-		/* seed drbg */
+-		memset(prng_ws, 0, sizeof(prng_ws));
+-		cpacf_prno(CPACF_PRNO_SHA512_DRNG_SEED,
+-			   &prng_ws, NULL, 0, seed, sizeof(seed));
+-		/* re-init counter for drbg */
+-		drbg_counter = rndlong_drbg_reseed;
+-	}
+-
+-	/* fill the arch_get_random_long buffer from drbg */
+-	cpacf_prno(CPACF_PRNO_SHA512_DRNG_GEN, &prng_ws,
+-		   (u8 *) rndlong_buf, sizeof(rndlong_buf),
+-		   NULL, 0);
+-}
+-
+-bool s390_arch_get_random_long(unsigned long *v)
+-{
+-	bool rc = false;
+-	unsigned long flags;
+-
+-	/* arch_get_random_long() disabled ? */
+-	if (rndlong_drbg_reseed < 0)
+-		return false;
+-
+-	/* try to lock the random long lock */
+-	if (!spin_trylock_irqsave(&rndlong_lock, flags))
+-		return false;
+-
+-	if (--rndlong_buf_index >= 0) {
+-		/* deliver next long value from the buffer */
+-		*v = rndlong_buf[rndlong_buf_index];
+-		rc = true;
+-		goto out;
+-	}
+-
+-	/* buffer is depleted and needs refill */
+-	if (in_interrupt()) {
+-		/* delay refill in interrupt context to next caller */
+-		rndlong_buf_index = 0;
+-		goto out;
+-	}
+-
+-	/* refill random long buffer */
+-	refill_rndlong_buf();
+-	rndlong_buf_index = ARRAY_SIZE(rndlong_buf);
+-
+-	/* and provide one random long */
+-	*v = rndlong_buf[--rndlong_buf_index];
+-	rc = true;
+-
+-out:
+-	spin_unlock_irqrestore(&rndlong_lock, flags);
+-	return rc;
+-}
+-EXPORT_SYMBOL(s390_arch_get_random_long);
+-
+-static int __init s390_arch_random_init(void)
+-{
+-	/* all the needed PRNO subfunctions available ? */
+-	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG) &&
+-	    cpacf_query_func(CPACF_PRNO, CPACF_PRNO_SHA512_DRNG_GEN)) {
+-
+-		/* alloc arch random working buffer */
+-		arch_rng_buf = kmalloc(ARCH_RNG_BUF_SIZE, GFP_KERNEL);
+-		if (!arch_rng_buf)
+-			return -ENOMEM;
+-
+-		/* kick worker queue job to fill the random buffer */
+-		queue_delayed_work(system_long_wq,
+-				   &arch_rng_work, ARCH_REFILL_TICKS);
+-
+-		/* enable arch random to the outside world */
+-		static_branch_enable(&s390_arch_random_available);
+-	}
+-
+-	return 0;
+-}
+-arch_initcall(s390_arch_random_init);
+diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
+index 5dc712fde3c7..2c6e1c6ecbe7 100644
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -15,17 +15,13 @@
  
--	for (i = 0, freq = 0; i < profile->max_state; i++, freq++) {
-+	for (i = 0, freq = 0; i < devfreq->max_state; i++, freq++) {
- 		opp = dev_pm_opp_find_freq_ceil(devfreq->dev.parent, &freq);
- 		if (IS_ERR(opp)) {
--			devm_kfree(devfreq->dev.parent, profile->freq_table);
--			profile->max_state = 0;
-+			devm_kfree(devfreq->dev.parent, devfreq->freq_table);
- 			return PTR_ERR(opp);
- 		}
- 		dev_pm_opp_put(opp);
--		profile->freq_table[i] = freq;
-+		devfreq->freq_table[i] = freq;
+ #include <linux/static_key.h>
+ #include <linux/atomic.h>
++#include <asm/cpacf.h>
+ 
+ DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
+ extern atomic64_t s390_arch_random_counter;
+ 
+-bool s390_arch_get_random_long(unsigned long *v);
+-bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
+-
+ static inline bool __must_check arch_get_random_long(unsigned long *v)
+ {
+-	if (static_branch_likely(&s390_arch_random_available))
+-		return s390_arch_get_random_long(v);
+ 	return false;
+ }
+ 
+@@ -37,7 +33,9 @@ static inline bool __must_check arch_get_random_int(unsigned int *v)
+ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+-		return s390_arch_random_generate((u8 *)v, sizeof(*v));
++		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
++		atomic64_add(sizeof(*v), &s390_arch_random_counter);
++		return true;
  	}
- 
- 	return 0;
-@@ -246,7 +242,7 @@ int devfreq_update_status(struct devfreq *devfreq, unsigned long freq)
- 
- 	if (lev != prev_lev) {
- 		devfreq->stats.trans_table[
--			(prev_lev * devfreq->profile->max_state) + lev]++;
-+			(prev_lev * devfreq->max_state) + lev]++;
- 		devfreq->stats.total_trans++;
+ 	return false;
+ }
+@@ -45,7 +43,9 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+-		return s390_arch_random_generate((u8 *)v, sizeof(*v));
++		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
++		atomic64_add(sizeof(*v), &s390_arch_random_counter);
++		return true;
  	}
- 
-@@ -835,6 +831,9 @@ struct devfreq *devfreq_add_device(struct device *dev,
- 		if (err < 0)
- 			goto err_dev;
- 		mutex_lock(&devfreq->lock);
-+	} else {
-+		devfreq->freq_table = devfreq->profile->freq_table;
-+		devfreq->max_state = devfreq->profile->max_state;
- 	}
- 
- 	devfreq->scaling_min_freq = find_available_min_freq(devfreq);
-@@ -870,8 +869,8 @@ struct devfreq *devfreq_add_device(struct device *dev,
- 
- 	devfreq->stats.trans_table = devm_kzalloc(&devfreq->dev,
- 			array3_size(sizeof(unsigned int),
--				    devfreq->profile->max_state,
--				    devfreq->profile->max_state),
-+				    devfreq->max_state,
-+				    devfreq->max_state),
- 			GFP_KERNEL);
- 	if (!devfreq->stats.trans_table) {
- 		mutex_unlock(&devfreq->lock);
-@@ -880,7 +879,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
- 	}
- 
- 	devfreq->stats.time_in_state = devm_kcalloc(&devfreq->dev,
--			devfreq->profile->max_state,
-+			devfreq->max_state,
- 			sizeof(*devfreq->stats.time_in_state),
- 			GFP_KERNEL);
- 	if (!devfreq->stats.time_in_state) {
-@@ -1666,9 +1665,9 @@ static ssize_t available_frequencies_show(struct device *d,
- 
- 	mutex_lock(&df->lock);
- 
--	for (i = 0; i < df->profile->max_state; i++)
-+	for (i = 0; i < df->max_state; i++)
- 		count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
--				"%lu ", df->profile->freq_table[i]);
-+				"%lu ", df->freq_table[i]);
- 
- 	mutex_unlock(&df->lock);
- 	/* Truncate the trailing space */
-@@ -1691,7 +1690,7 @@ static ssize_t trans_stat_show(struct device *dev,
- 
- 	if (!df->profile)
- 		return -EINVAL;
--	max_state = df->profile->max_state;
-+	max_state = df->max_state;
- 
- 	if (max_state == 0)
- 		return sprintf(buf, "Not Supported.\n");
-@@ -1708,19 +1707,17 @@ static ssize_t trans_stat_show(struct device *dev,
- 	len += sprintf(buf + len, "           :");
- 	for (i = 0; i < max_state; i++)
- 		len += sprintf(buf + len, "%10lu",
--				df->profile->freq_table[i]);
-+				df->freq_table[i]);
- 
- 	len += sprintf(buf + len, "   time(ms)\n");
- 
- 	for (i = 0; i < max_state; i++) {
--		if (df->profile->freq_table[i]
--					== df->previous_freq) {
-+		if (df->freq_table[i] == df->previous_freq)
- 			len += sprintf(buf + len, "*");
--		} else {
-+		else
- 			len += sprintf(buf + len, " ");
--		}
--		len += sprintf(buf + len, "%10lu:",
--				df->profile->freq_table[i]);
+ 	return false;
+ }
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 8d91eccc0963..0a37f5de2863 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -875,6 +875,11 @@ static void __init setup_randomness(void)
+ 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
+ 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
+ 	memblock_free(vmms, PAGE_SIZE);
 +
-+		len += sprintf(buf + len, "%10lu:", df->freq_table[i]);
- 		for (j = 0; j < max_state; j++)
- 			len += sprintf(buf + len, "%10u",
- 				df->stats.trans_table[(i * max_state) + j]);
-@@ -1744,7 +1741,7 @@ static ssize_t trans_stat_store(struct device *dev,
- 	if (!df->profile)
- 		return -EINVAL;
++#ifdef CONFIG_ARCH_RANDOM
++	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG))
++		static_branch_enable(&s390_arch_random_available);
++#endif
+ }
  
--	if (df->profile->max_state == 0)
-+	if (df->max_state == 0)
- 		return count;
- 
- 	err = kstrtoint(buf, 10, &value);
-@@ -1752,11 +1749,11 @@ static ssize_t trans_stat_store(struct device *dev,
- 		return -EINVAL;
- 
- 	mutex_lock(&df->lock);
--	memset(df->stats.time_in_state, 0, (df->profile->max_state *
-+	memset(df->stats.time_in_state, 0, (df->max_state *
- 					sizeof(*df->stats.time_in_state)));
- 	memset(df->stats.trans_table, 0, array3_size(sizeof(unsigned int),
--					df->profile->max_state,
--					df->profile->max_state));
-+					df->max_state,
-+					df->max_state));
- 	df->stats.total_trans = 0;
- 	df->stats.last_update = get_jiffies_64();
- 	mutex_unlock(&df->lock);
-diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
-index 69e06725d92b..406ef79c0c46 100644
---- a/drivers/devfreq/governor_passive.c
-+++ b/drivers/devfreq/governor_passive.c
-@@ -144,18 +144,18 @@ static int get_target_freq_with_devfreq(struct devfreq *devfreq,
- 		goto out;
- 
- 	/* Use interpolation if required opps is not available */
--	for (i = 0; i < parent_devfreq->profile->max_state; i++)
--		if (parent_devfreq->profile->freq_table[i] == *freq)
-+	for (i = 0; i < parent_devfreq->max_state; i++)
-+		if (parent_devfreq->freq_table[i] == *freq)
- 			break;
- 
--	if (i == parent_devfreq->profile->max_state)
-+	if (i == parent_devfreq->max_state)
- 		return -EINVAL;
- 
--	if (i < devfreq->profile->max_state) {
--		child_freq = devfreq->profile->freq_table[i];
-+	if (i < devfreq->max_state) {
-+		child_freq = devfreq->freq_table[i];
- 	} else {
--		count = devfreq->profile->max_state;
--		child_freq = devfreq->profile->freq_table[count - 1];
-+		count = devfreq->max_state;
-+		child_freq = devfreq->freq_table[count - 1];
- 	}
- 
- out:
-diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
-index dc10bee75a72..34aab4dd336c 100644
---- a/include/linux/devfreq.h
-+++ b/include/linux/devfreq.h
-@@ -148,6 +148,8 @@ struct devfreq_stats {
-  *		reevaluate operable frequencies. Devfreq users may use
-  *		devfreq.nb to the corresponding register notifier call chain.
-  * @work:	delayed work for load monitoring.
-+ * @freq_table:		current frequency table used by the devfreq driver.
-+ * @max_state:		count of entry present in the frequency table.
-  * @previous_freq:	previously configured frequency value.
-  * @last_status:	devfreq user device info, performance statistics
-  * @data:	Private data of the governor. The devfreq framework does not
-@@ -185,6 +187,9 @@ struct devfreq {
- 	struct notifier_block nb;
- 	struct delayed_work work;
- 
-+	unsigned long *freq_table;
-+	unsigned int max_state;
-+
- 	unsigned long previous_freq;
- 	struct devfreq_dev_status last_status;
- 
+ /*
 
