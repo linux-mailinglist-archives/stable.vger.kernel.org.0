@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E26CA56556A
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 14:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9F156556B
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 14:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbiGDMdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 08:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43008 "EHLO
+        id S234405AbiGDMde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 08:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233092AbiGDMdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 08:33:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D68692627
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 05:33:31 -0700 (PDT)
+        with ESMTP id S234229AbiGDMdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 08:33:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C4EF46
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 05:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D7B9B80EF2
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 12:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 950C3C3411E;
-        Mon,  4 Jul 2022 12:33:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59EFC6136F
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 12:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B3BBC3411E;
+        Mon,  4 Jul 2022 12:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656938009;
-        bh=THflr9JFWI/rCTEan8qUus5whEvppzxJg9+/xggdf2U=;
+        s=korg; t=1656938011;
+        bh=kUbNHoZIkCvmiT6FTpNwJvXzLvFGuSpbqX4IwXsupMg=;
         h=Subject:To:Cc:From:Date:From;
-        b=dL2yG5yK1K3sOH0hiFiRlz0AKuj+I0pc/zRywVu5WXNQ762rISAqRo+bH9YayiVCr
-         fvKWAIT15UuunbThVKsZMWUzDv7IA1pSOYOKf0k7NQZhT/Ix3OOAAILe/fYCPhsXms
-         AsNX3CuoWIWrETw25dWOs5PJDu7awyT5kFEOCIpg=
-Subject: FAILED: patch "[PATCH] hwmon: (occ) Prevent power cap command overwriting poll" failed to apply to 5.10-stable tree
+        b=V044UCq4ML+ttd8f6jHiHTvAgcYgXkq/jBt7NGjlbUkNbOpyl8z1bHUXUUcKUsXXT
+         S1VB8YQ832Fb/mUorIzjYr3ml8QbOw+wj0fXHKQQaZge1j3kI0cHxUGU0oMqmO8pMb
+         7T7FZkhoULeeIcehS2Jz8nl1cKdsUaEYkr9LuGAY=
+Subject: FAILED: patch "[PATCH] hwmon: (occ) Prevent power cap command overwriting poll" failed to apply to 5.4-stable tree
 To:     eajames@linux.ibm.com, linux@roeck-us.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 14:33:18 +0200
-Message-ID: <165693799824126@kroah.com>
+Message-ID: <165693799877153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
