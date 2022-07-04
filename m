@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F0356574F
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6CAF565756
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233983AbiGDNc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39610 "EHLO
+        id S232656AbiGDNcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233854AbiGDNcU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:32:20 -0400
+        with ESMTP id S234210AbiGDNcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:32:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE5011178
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:30:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39DE712AB4
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:30:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7498AB80EEC
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF438C3411E;
-        Mon,  4 Jul 2022 13:30:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7EBDB80F00
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:30:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450A6C3411E;
+        Mon,  4 Jul 2022 13:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656941416;
-        bh=br9RI21vaOh/udX/GN/G3Z2h4Y8PV4j5GMPLBvrg/8A=;
+        s=korg; t=1656941407;
+        bh=iOcmg1D13MaNnMixPwanZn+NRayh8apurhZxCf3FVKs=;
         h=Subject:To:Cc:From:Date:From;
-        b=A2bkOOuqf4dWBaXzMQVtz6bN5uQMp/7S4r/sHK5kOSZXU3AGndz5zzRoHibr9dJOi
-         XxOc+uQxGbXNLVmcCpZbDPBT+sr7srinLeUOSag7UwLY7wic2vDMNOJY1BSqP610xO
-         cGdbsHr9O4/5wNZpd9M8ehkmfnZoS2Unha45BaHs=
-Subject: FAILED: patch "[PATCH] mlxsw: spectrum_router: Fix rollback in tunnel next hop init" failed to apply to 5.4-stable tree
+        b=CuCLo71482OpV9YwuEwZgTq+oGS0gBcmOIwYUpVO7bcBvbLrAoK+jrwFfT8Wz2COH
+         dTUk7ZfyXf7C0OJcdXBA3OVXzxQyDV6xkmZNao5bTf6V+MbQQDcChHEiUbQPX+qAG5
+         63vwBHJudS1gWo+XILh2bNm6ayC2xgK0Fegvt8VI=
+Subject: FAILED: patch "[PATCH] mlxsw: spectrum_router: Fix rollback in tunnel next hop init" failed to apply to 5.10-stable tree
 To:     petrm@nvidia.com, amcohen@nvidia.com, idosch@nvidia.com,
         pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 15:30:05 +0200
-Message-ID: <1656941405188123@kroah.com>
+Message-ID: <165694140522419@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
