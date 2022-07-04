@@ -2,69 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA295659F2
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 17:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBEF565A4B
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 17:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233630AbiGDPf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 11:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53176 "EHLO
+        id S233693AbiGDPpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 11:45:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234362AbiGDPfW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 11:35:22 -0400
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27747B48C;
-        Mon,  4 Jul 2022 08:35:22 -0700 (PDT)
-Received: by mail-qk1-x72f.google.com with SMTP id c137so7011190qkg.5;
-        Mon, 04 Jul 2022 08:35:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=SYVz6RgMwxva5vAR4hhxFqjjc52IC4ZKYB0JkIwDMcQ=;
-        b=XzcXXJEQfRnit2Sk0Wdc+B9FplU2xVf6nmkrVno7W59sLqNiT4zq+EuvRg4kM0tLvY
-         WfwIVHiTYG+l+RTfHgLk2d0D2SVA8GUYDDAxG76fVBnSVKljioTpk/Yt5kjSnYyVZKJP
-         dpKDwjZkXClMedHHvdG2P6MYke1CIP/7VweA4hcSWLMlkrI5POKLXUqqeaCWmpnMYcBk
-         Yvca9KoGTcWZlEAvxeMC9MSj48qANPqMyS17JmEo1pVtFje/wmuSbL8rZ9+V7gDEt9S1
-         4WUbe+PUTqMeHVbGKbLclw9PpuhOBOr551uagFmqLm/eFwizX2r5pKhRtFZfAa/cVNo1
-         11KQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=SYVz6RgMwxva5vAR4hhxFqjjc52IC4ZKYB0JkIwDMcQ=;
-        b=C5kPrF7XCCzHX1m1vFWCsqXgK3aUBEMgyq6AAWiw1ee6/kSHq2dQhzoOOpBgET9ndU
-         aEN668bkz5bY/LFl56r+l9IskX/JYpO/RwU5XAVY3nnvLb+xVXMwuy7Wdc4OK9lDnu3b
-         5YU/N86UHDXxDGRLUY6vy/6ioCaVCUcQPO9rN354fkC8zYELr+L0HoI5mClWd/1a6zoX
-         5FfRsq4Z2ZeEo2vEueghymnhZfzZwNPzSugB7DQ8UX52Aw9u8bqOe+ZWq3PFDyQ/tbz5
-         z1DS+nEnEYFg7kIHXr/KIUSXaBs606Tv7xex2L5UkEeKlrL3vvN1zVn3cYrcnYGnhSJO
-         DveA==
-X-Gm-Message-State: AJIora9q/j8sE6CZqRXLQzFTfxx6aX+P504Al47zanZa0YlL/+DKJQE+
-        G4WNZXgroIPkfdhKkZL3E4h/y0Y00/U=
-X-Google-Smtp-Source: AGRyM1u3BSiIAzO3sZP6naJt1FRXk2EVVGKFDPibkp16OIUopRbZCkKaLUC1BqzUsOXrAP+LWDfHQQ==
-X-Received: by 2002:a37:a1c9:0:b0:6ae:db28:ea0a with SMTP id k192-20020a37a1c9000000b006aedb28ea0amr20372220qke.141.1656948920753;
-        Mon, 04 Jul 2022 08:35:20 -0700 (PDT)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id b12-20020a05620a0f8c00b006a34a22bc60sm24366909qkn.9.2022.07.04.08.35.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jul 2022 08:35:20 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        olteanv@gmail.com, andrew@lunn.ch
-Subject: [PATCH stable 5.4] net: dsa: bcm_sf2: force pause link settings
-Date:   Mon,  4 Jul 2022 08:35:10 -0700
-Message-Id: <20220704153510.3859649-4-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220704153510.3859649-1-f.fainelli@gmail.com>
-References: <20220704153510.3859649-1-f.fainelli@gmail.com>
+        with ESMTP id S234663AbiGDPpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 11:45:21 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A21B10EA
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 08:45:18 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VIO699M_1656949511;
+Received: from localhost.localdomain(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0VIO699M_1656949511)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Jul 2022 23:45:12 +0800
+From:   Wen Yang <wenyang@linux.alibaba.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Bin Yang <bin.yang@intel.com>,
+        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org,
+        Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
+Date:   Mon,  4 Jul 2022 23:45:08 +0800
+Message-Id: <20220704154508.13317-1-wenyang@linux.alibaba.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,37 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream
+commit ddd07b750382adc2b78fdfbec47af8a6e0d8ef37 upstream.
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+CAT has happened, WBINDV is bad (even before CAT blowing away the
+entire cache on a multi-core platform wasn't nice), try not to use it
+ever.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+Cc: Bin Yang <bin.yang@intel.com>
+Cc: Mark Gross <mark.gross@intel.com>
+Link: https://lkml.kernel.org/r/20180919085947.933674526@infradead.org
+Cc: <stable@vger.kernel.org> # 4.19.x
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
- drivers/net/dsa/bcm_sf2.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/mm/pageattr.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 0ee1c0a7b165..282e9e2a50d9 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -602,6 +602,11 @@ static void bcm_sf2_sw_mac_config(struct dsa_switch *ds, int port,
- 		reg |= LINK_STS;
- 	if (state->duplex == DUPLEX_FULL)
- 		reg |= DUPLX_MODE;
-+	if (state->pause & MLO_PAUSE_TXRX_MASK) {
-+		if (state->pause & MLO_PAUSE_TX)
-+			reg |= TXFLOW_CNTL;
-+		reg |= RXFLOW_CNTL;
-+	}
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index 101f3ad0d6ad..ab87da7a6043 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -239,26 +239,12 @@ static void cpa_flush_array(unsigned long *start, int numpages, int cache,
+ 			    int in_flags, struct page **pages)
+ {
+ 	unsigned int i, level;
+-#ifdef CONFIG_PREEMPT
+-	/*
+-	 * Avoid wbinvd() because it causes latencies on all CPUs,
+-	 * regardless of any CPU isolation that may be in effect.
+-	 *
+-	 * This should be extended for CAT enabled systems independent of
+-	 * PREEMPT because wbinvd() does not respect the CAT partitions and
+-	 * this is exposed to unpriviledged users through the graphics
+-	 * subsystem.
+-	 */
+-	unsigned long do_wbinvd = 0;
+-#else
+-	unsigned long do_wbinvd = cache && numpages >= 1024; /* 4M threshold */
+-#endif
  
- 	core_writel(priv, reg, offset);
- }
+ 	BUG_ON(irqs_disabled() && !early_boot_irqs_disabled);
+ 
+-	on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
++	flush_tlb_all();
+ 
+-	if (!cache || do_wbinvd)
++	if (!cache)
+ 		return;
+ 
+ 	/*
 -- 
-2.25.1
+2.19.1.6.gb485710b
 
