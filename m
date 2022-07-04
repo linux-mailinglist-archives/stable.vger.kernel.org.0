@@ -2,89 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99716565743
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBEC565759
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234683AbiGDNcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39268 "EHLO
+        id S234633AbiGDNcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234530AbiGDNb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:31:57 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B71411A
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:28:20 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id g16-20020a17090a7d1000b001ea9f820449so13756622pjl.5
-        for <stable@vger.kernel.org>; Mon, 04 Jul 2022 06:28:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language
-         :from:to:references:in-reply-to:content-transfer-encoding;
-        bh=JHEVI+d7tEPJB9AOP+MWDP4fsBFl54YyhWPmaDUtkVY=;
-        b=RLbZG1v6jlKwBM7hwhuLA9k4dcKjZDYAJvM6ZDAyuq7AmNhZBFPeWF7U3BSo7NOB//
-         mbDNXl6CkaNbbQMETUVYc4VShgrOKJgKDPFYYauRgE/e+PVLH1L5HvpSAq+4hSr4ugWn
-         znb0C9G8Ig1m4pE5h4a9PMWJ0LjyqlK9W+dTwYh63zVIekBXJYxGpYrWr04aOxhfBenS
-         4Lwbax5BhUFUDI8T+39vAD8SMhWhyzz5cOI+4u0Kxh/50E32/ace06SgeT0i4eGyfXHG
-         6DEepZHG8ltcfaFUXwVWY3tHg/a9x58aHGY0hSY3lhcXs9WMEvJyTruGsybY7bTUaNlH
-         UUqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:references:in-reply-to
-         :content-transfer-encoding;
-        bh=JHEVI+d7tEPJB9AOP+MWDP4fsBFl54YyhWPmaDUtkVY=;
-        b=EJxgYFmzIV+YF/n9pGih7Y+LroTV1p/GDz/k/MqB2FAjs9XqEQRl8jh3djZwPPY/dH
-         oLFcllWK0tARC3F/lh3hrA2UgBtL/YuDA21s3xSsjQfRC+GU0wGJdmvzd0NcnBlPmAzv
-         +eoIdmbweVGJbhsWRptDYIOGUh+fx1X7JGjH37I8RYQZufkF//29QXi6CO5IWn6ICEi+
-         ae43ZGOa616NVWanRfv8otkapOa8F/z+gz46gm1YNUy25whYXl9WhvymCTd/pdsB33PF
-         fOglQCdVi36+m1Ctw8y9A29rOCmHXkulLFwh2XcHBHOMSR5TcoeyCWd6Jl5I2QDEG5fZ
-         vFsQ==
-X-Gm-Message-State: AJIora/ahU81K8yScWxfkoPGycmVDzfAB/AaDyUuAEyeg2T7ngdcsxs4
-        r7ntKp1rHXE1nlKYJjNQHifD1g==
-X-Google-Smtp-Source: AGRyM1s+DJ8VT777wrHIRgbunEmu6zRBg5ENqnob/1nRBQjOaxtqg/L1o1ysy/a4/1My7QwgfwQ5Wg==
-X-Received: by 2002:a17:90b:1807:b0:1ef:8aa5:1158 with SMTP id lw7-20020a17090b180700b001ef8aa51158mr4908409pjb.163.1656941299927;
-        Mon, 04 Jul 2022 06:28:19 -0700 (PDT)
-Received: from [192.168.1.100] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id w66-20020a627b45000000b005286697ec68sm2205577pfc.133.2022.07.04.06.28.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Jul 2022 06:28:19 -0700 (PDT)
-Message-ID: <e61ff267-4c75-2fd8-d7f6-bd5e059602bd@kernel.dk>
-Date:   Mon, 4 Jul 2022 07:28:18 -0600
+        with ESMTP id S234812AbiGDNcQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:32:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B32811445
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:29:43 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0E83B80EEA
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7162C341C7;
+        Mon,  4 Jul 2022 13:29:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656941380;
+        bh=W4lv3A2oLzn3Ui/uHFYFIH13NgoNHkd5pf6yrpAL7I0=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ZKHfcs1qM/pYVCmsHfw8yMhCFBquqPdf48HVMSrewNPKrmCLOtYKjigYCM7kX+uBD
+         iFqGArN1t/duLjQisF69qFq+O+35UckmARlp6cm28ls9XfDEAhp3wBjnd7LFKB4hEP
+         Umi3qfiwspDY7Bxkw1L3D6CGMdcI9dC36HLlv4r8=
+Subject: FAILED: patch "[PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return value" failed to apply to 5.10-stable tree
+To:     katrinzhou@tencent.com, dsahern@kernel.org, edumazet@google.com,
+        kuba@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jul 2022 15:29:37 +0200
+Message-ID: <1656941377142241@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: 5.18/15/10 backport
-Content-Language: en-US
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-References: <36e6d08d-89c0-99e3-a248-1ce79315de03@kernel.dk>
- <4d63639d-f285-5585-4b6c-14e0bf7cdb17@kernel.dk>
-In-Reply-To: <4d63639d-f285-5585-4b6c-14e0bf7cdb17@kernel.dk>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/4/22 7:26 AM, Jens Axboe wrote:
-> On 6/30/22 2:45 PM, Jens Axboe wrote:
->> Hi,
->>
->> Can you apply these three patches, one for each of the 5.10, 5.15, and
->> 5.18 stable tree? Doesn't fix any issues of concern, just ensures that
->> we -EINVAL when invalid fields are set in the sqe for these opcodes.
->> This brings it up to par with 5.19 and newer.
-> 
-> Just a reminder on this one, thanks!
 
-Disregard, mid-air collision on emails. Thanks for queueing them up.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
--- 
-Jens Axboe
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d Mon Sep 17 00:00:00 2001
+From: katrinzhou <katrinzhou@tencent.com>
+Date: Tue, 28 Jun 2022 11:50:30 +0800
+Subject: [PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return value
+
+When kcalloc fails, ipip6_tunnel_get_prl() should return -ENOMEM.
+Move the position of label "out" to return correctly.
+
+Addresses-Coverity: ("Unused value")
+Fixes: 300aaeeaab5f ("[IPV6] SIT: Add SIOCGETPRL ioctl to get/dump PRL.")
+Signed-off-by: katrinzhou <katrinzhou@tencent.com>
+Reviewed-by: Eric Dumazet<edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220628035030.1039171-1-zys.zljxml@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index c0b138c20992..6bcd5e419a08 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -323,8 +323,6 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ip_tunnel_prl __u
+ 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL_ACCOUNT | __GFP_NOWARN) :
+ 		NULL;
+ 
+-	rcu_read_lock();
+-
+ 	ca = min(t->prl_count, cmax);
+ 
+ 	if (!kp) {
+@@ -341,7 +339,7 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ip_tunnel_prl __u
+ 		}
+ 	}
+ 
+-	c = 0;
++	rcu_read_lock();
+ 	for_each_prl_rcu(t->prl) {
+ 		if (c >= cmax)
+ 			break;
+@@ -353,7 +351,7 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ip_tunnel_prl __u
+ 		if (kprl.addr != htonl(INADDR_ANY))
+ 			break;
+ 	}
+-out:
++
+ 	rcu_read_unlock();
+ 
+ 	len = sizeof(*kp) * c;
+@@ -362,7 +360,7 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ip_tunnel_prl __u
+ 		ret = -EFAULT;
+ 
+ 	kfree(kp);
+-
++out:
+ 	return ret;
+ }
+ 
 
