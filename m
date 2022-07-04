@@ -2,42 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A74564A5A
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 00:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF084564FCD
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 10:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229447AbiGCWnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Jul 2022 18:43:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
+        id S233219AbiGDIfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 04:35:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229742AbiGCWnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Jul 2022 18:43:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0711D0;
-        Sun,  3 Jul 2022 15:43:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 822D761230;
-        Sun,  3 Jul 2022 22:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD677C341CA;
-        Sun,  3 Jul 2022 22:43:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1656888227;
-        bh=IQMXyxNM4abdWZZR5gbOtEBVM8W9XbSHb2PLmyPyrtU=;
-        h=Date:To:From:Subject:From;
-        b=VY/p/UoYiyvTi4pWXorKZNEftM5NvTlyK+JUUm3KKmTRQErIJR5p3lIq62lA9/4eF
-         QRsYSzS84DCpmxsR9LMzxTymrWXcdlhSPw6DPBhnfuUj1pyqRXwgUUfRUTEknXwI4b
-         IvJSZMuQnEP6go/w378pI/e0Mz/9sXgXOLVetNJE=
-Date:   Sun, 03 Jul 2022 15:43:47 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        mike.kravetz@oracle.com, duanxiongchun@bytedance.com,
-        songmuchun@bytedance.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch removed from -mm tree
-Message-Id: <20220703224347.CD677C341CA@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S231497AbiGDIfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 04:35:03 -0400
+X-Greylist: delayed 302 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 04 Jul 2022 01:34:58 PDT
+Received: from mailgw.kylinos.cn (unknown [124.126.103.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 701255FB2
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 01:34:58 -0700 (PDT)
+X-UUID: 74b87baa42e44d56be5f141cc86d2f9e-20220704
+X-Spam-Fingerprint: 0
+X-GW-Reason: 13103
+X-Policy-Incident: 5pS25Lu25Lq66LaF6L+HNeS6uumcgOimgeWuoeaguA==
+X-Content-Feature: ica/max.line-size 76
+        audit/email.address 4
+        dict/adv 1
+        dict/prolog 1
+        dict/software 1
+X-CPASD-INFO: 27fc3a115e8b4dc3a8cf517d60e2ddcf@e4egg2CTX2FhhXqug6eubYFpk5ZlXVe
+        zeGqFYpKUj4aVgnxsTWBnX1OEgnBQYl5dZFZ3dG9RYmBgYlB_i4Jyj1RgXmCCVHSTgHRxhpNhkQ==
+X-CLOUD-ID: 27fc3a115e8b4dc3a8cf517d60e2ddcf
+X-CPASD-SUMMARY: SIP:-1,APTIP:-2.0,KEY:0.0,FROMBLOCK:1,OB:0.0,URL:-5,TVAL:155.
+        0,ESV:0.0,ECOM:-5.0,ML:0.0,FD:0.0,CUTS:325.0,IP:-2.0,MAL:-5.0,PHF:-5.0,PHC:-5
+        .0,SPF:4.0,EDMS:-5,IPLABEL:4352.0,FROMTO:0,AD:0,FFOB:0.0,CFOB:0.0,SPC:0,SIG:-
+        5,AUF:0,DUF:550,ACD:7,DCD:7,SL:0,EISP:0,AG:0,CFC:0.888,CFSR:0.023,UAT:0,RAF:2
+        ,IMG:-5.0,DFA:0,DTA:0,IBL:-2.0,ADI:-5,SBL:0,REDM:0,REIP:0,ESB:0,ATTNUM:0,EAF:
+        0,CID:-5.0,VERSION:2.3.17
+X-CPASD-ID: 74b87baa42e44d56be5f141cc86d2f9e-20220704
+X-CPASD-BLOCK: 1000
+X-CPASD-STAGE: 1
+X-UUID: 74b87baa42e44d56be5f141cc86d2f9e-20220704
+X-User: liuyun01@kylinos.cn
+Received: from [172.16.31.199] [(111.48.58.12)] by mailgw
+        (envelope-from <liuyun01@kylinos.cn>)
+        (Generic MTA)
+        with ESMTP id 232610925; Mon, 04 Jul 2022 09:22:32 +0800
+Message-ID: <bf21d317-8d4b-e237-86b7-be577b5bc652@kylinos.cn>
+Date:   Mon, 4 Jul 2022 09:19:56 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] firmware: arm_scpi: Ensure scpi_info is not assigned if
+ the probe fails
+Content-Language: en-US
+To:     Sudeep Holla <sudeep.holla@arm.com>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     luriwen@kylinos.cn, 15815827059@163.com, cristian.marussi@arm.com,
+        huhai <huhai@kylinos.cn>, stable@vger.kernel.org
+References: <20220701160310.148344-1-sudeep.holla@arm.com>
+From:   Jackie Liu <liuyun01@kylinos.cn>
+In-Reply-To: <20220701160310.148344-1-sudeep.holla@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=0.1 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
+        MAY_BE_FORGED,NICE_REPLY_A,RDNS_DYNAMIC,SPF_HELO_NONE,
+        T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR autolearn=no autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -45,84 +69,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Sudeep.
 
-The quilt patch titled
-     Subject: mm: sparsemem: fix missing higher order allocation splitting
-has been removed from the -mm tree.  Its filename was
-     mm-sparsemem-fix-missing-higher-order-allocation-splitting.patch
+Thanks for your patch, It's look good to me.
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
 
-------------------------------------------------------
-From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: sparsemem: fix missing higher order allocation splitting
-Date: Mon, 20 Jun 2022 10:30:19 +0800
+在 2022/7/2 00:03, Sudeep Holla 写道:
+> When scpi probe fails, at any point, we need to ensure that the scpi_info
+> is not set and will remain NULL until the probe succeeds. If it is not
+> taken care, then it could result in kernel panic with a NULL pointer
+> dereference.
 
-Higher order allocations for vmemmap pages from buddy allocator must be
-able to be treated as indepdenent small pages as they can be freed
-individually by the caller.  There is no problem for higher order vmemmap
-pages allocated at boot time since each individual small page will be
-initialized at boot time.  However, it will be an issue for memory hotplug
-case since those higher order vmemmap pages are allocated from buddy
-allocator without initializing each individual small page's refcount.  The
-system will panic in put_page_testzero() when CONFIG_DEBUG_VM is enabled
-if the vmemmap page is freed.
+I think the null pointer reference is not correct. It should be UAF. The
+logic is as follows:
 
-Link: https://lkml.kernel.org/r/20220620023019.94257-1-songmuchun@bytedance.com
-Fixes: d8d55f5616cf ("mm: sparsemem: use page table lock to protect kernel pmd operations")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+scpi_info = devm_zalloc
 
- mm/sparse-vmemmap.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+After that if fails, the address will be released, but scpi_info is not
+NULL. Normal, there will be no problem, because scpi_info is alloc by
+kzalloc, so even if scpi_info is not NULL, but scpi_info->scpi_ops is
+NULL, It still work normally.
 
---- a/mm/sparse-vmemmap.c~mm-sparsemem-fix-missing-higher-order-allocation-splitting
-+++ a/mm/sparse-vmemmap.c
-@@ -78,6 +78,14 @@ static int __split_vmemmap_huge_pmd(pmd_
- 
- 	spin_lock(&init_mm.page_table_lock);
- 	if (likely(pmd_leaf(*pmd))) {
-+		/*
-+		 * Higher order allocations from buddy allocator must be able to
-+		 * be treated as indepdenent small pages (as they can be freed
-+		 * individually).
-+		 */
-+		if (!PageReserved(page))
-+			split_page(page, get_order(PMD_SIZE));
-+
- 		/* Make pte visible before pmd. See comment in pmd_install(). */
- 		smp_wmb();
- 		pmd_populate_kernel(&init_mm, pmd, pgtable);
-_
+But if another process or thread alloc a new data, if they are same 
+address, and then it is assigned a value, so wild pointer 
+scpi_info->scpi_ops is not NULL now, Then, Panic.
 
-Patches currently in -mm which might be from songmuchun@bytedance.com are
+Thanks.
 
-mm-memory_hotplug-enumerate-all-supported-section-flags.patch
-mm-memory_hotplug-enumerate-all-supported-section-flags-v5.patch
-mm-memory_hotplug-make-hugetlb_optimize_vmemmap-compatible-with-memmap_on_memory.patch
-mm-memory_hotplug-make-hugetlb_optimize_vmemmap-compatible-with-memmap_on_memory-v5.patch
-mm-hugetlb-remove-minimum_order-variable.patch
-mm-memcontrol-remove-dead-code-and-comments.patch
-mm-rename-unlock_page_lruvec_irq-_irqrestore-to-lruvec_unlock_irq-_irqrestore.patch
-mm-memcontrol-prepare-objcg-api-for-non-kmem-usage.patch
-mm-memcontrol-make-lruvec-lock-safe-when-lru-pages-are-reparented.patch
-mm-vmscan-rework-move_pages_to_lru.patch
-mm-thp-make-split-queue-lock-safe-when-lru-pages-are-reparented.patch
-mm-memcontrol-make-all-the-callers-of-foliopage_memcg-safe.patch
-mm-memcontrol-introduce-memcg_reparent_ops.patch
-mm-memcontrol-use-obj_cgroup-apis-to-charge-the-lru-pages.patch
-mm-lru-add-vm_warn_on_once_folio-to-lru-maintenance-function.patch
-mm-hugetlb_vmemmap-delete-hugetlb_optimize_vmemmap_enabled.patch
-mm-hugetlb_vmemmap-optimize-vmemmap_optimize_mode-handling.patch
-mm-hugetlb_vmemmap-introduce-the-name-hvo.patch
-mm-hugetlb_vmemmap-move-vmemmap-code-related-to-hugetlb-to-hugetlb_vmemmapc.patch
-mm-hugetlb_vmemmap-replace-early_param-with-core_param.patch
-mm-hugetlb_vmemmap-improve-hugetlb_vmemmap-code-readability.patch
-mm-hugetlb_vmemmap-move-code-comments-to-vmemmap_deduprst.patch
-mm-hugetlb_vmemmap-use-ptrs_per_pte-instead-of-pmd_size-page_size.patch
-
+--
+Jackie Liu.
+> 
+> Reported-by: huhai <huhai@kylinos.cn>
+> Cc: stable@vger.kernel.org # 4.19+
+> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> ---
+>   drivers/firmware/arm_scpi.c | 57 +++++++++++++++++++++----------------
+>   1 file changed, 32 insertions(+), 25 deletions(-)
+> 
+> diff --git a/drivers/firmware/arm_scpi.c b/drivers/firmware/arm_scpi.c
+> index ddf0b9ff9e15..085a71a00171 100644
+> --- a/drivers/firmware/arm_scpi.c
+> +++ b/drivers/firmware/arm_scpi.c
+> @@ -913,13 +913,14 @@ static int scpi_probe(struct platform_device *pdev)
+>   	struct resource res;
+>   	struct device *dev = &pdev->dev;
+>   	struct device_node *np = dev->of_node;
+> +	struct scpi_drvinfo *scpi_drvinfo;
+>   
+> -	scpi_info = devm_kzalloc(dev, sizeof(*scpi_info), GFP_KERNEL);
+> -	if (!scpi_info)
+> +	scpi_drvinfo = devm_kzalloc(dev, sizeof(*scpi_drvinfo), GFP_KERNEL);
+> +	if (!scpi_drvinfo)
+>   		return -ENOMEM;
+>   
+>   	if (of_match_device(legacy_scpi_of_match, &pdev->dev))
+> -		scpi_info->is_legacy = true;
+> +		scpi_drvinfo->is_legacy = true;
+>   
+>   	count = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
+>   	if (count < 0) {
+> @@ -927,19 +928,19 @@ static int scpi_probe(struct platform_device *pdev)
+>   		return -ENODEV;
+>   	}
+>   
+> -	scpi_info->channels = devm_kcalloc(dev, count, sizeof(struct scpi_chan),
+> -					   GFP_KERNEL);
+> -	if (!scpi_info->channels)
+> +	scpi_drvinfo->channels =
+> +		devm_kcalloc(dev, count, sizeof(struct scpi_chan), GFP_KERNEL);
+> +	if (!scpi_drvinfo->channels)
+>   		return -ENOMEM;
+>   
+> -	ret = devm_add_action(dev, scpi_free_channels, scpi_info);
+> +	ret = devm_add_action(dev, scpi_free_channels, scpi_drvinfo);
+>   	if (ret)
+>   		return ret;
+>   
+> -	for (; scpi_info->num_chans < count; scpi_info->num_chans++) {
+> +	for (; scpi_drvinfo->num_chans < count; scpi_drvinfo->num_chans++) {
+>   		resource_size_t size;
+> -		int idx = scpi_info->num_chans;
+> -		struct scpi_chan *pchan = scpi_info->channels + idx;
+> +		int idx = scpi_drvinfo->num_chans;
+> +		struct scpi_chan *pchan = scpi_drvinfo->channels + idx;
+>   		struct mbox_client *cl = &pchan->cl;
+>   		struct device_node *shmem = of_parse_phandle(np, "shmem", idx);
+>   
+> @@ -986,45 +987,51 @@ static int scpi_probe(struct platform_device *pdev)
+>   		return ret;
+>   	}
+>   
+> -	scpi_info->commands = scpi_std_commands;
+> +	scpi_drvinfo->commands = scpi_std_commands;
+>   
+> -	platform_set_drvdata(pdev, scpi_info);
+> +	platform_set_drvdata(pdev, scpi_drvinfo);
+>   
+> -	if (scpi_info->is_legacy) {
+> +	if (scpi_drvinfo->is_legacy) {
+>   		/* Replace with legacy variants */
+>   		scpi_ops.clk_set_val = legacy_scpi_clk_set_val;
+> -		scpi_info->commands = scpi_legacy_commands;
+> +		scpi_drvinfo->commands = scpi_legacy_commands;
+>   
+>   		/* Fill priority bitmap */
+>   		for (idx = 0; idx < ARRAY_SIZE(legacy_hpriority_cmds); idx++)
+>   			set_bit(legacy_hpriority_cmds[idx],
+> -				scpi_info->cmd_priority);
+> +				scpi_drvinfo->cmd_priority);
+>   	}
+>   
+> -	ret = scpi_init_versions(scpi_info);
+> +	ret = scpi_init_versions(scpi_drvinfo);
+>   	if (ret) {
+>   		dev_err(dev, "incorrect or no SCP firmware found\n");
+>   		return ret;
+>   	}
+>   
+> -	if (scpi_info->is_legacy && !scpi_info->protocol_version &&
+> -	    !scpi_info->firmware_version)
+> +	if (scpi_drvinfo->is_legacy && !scpi_drvinfo->protocol_version &&
+> +	    !scpi_drvinfo->firmware_version)
+>   		dev_info(dev, "SCP Protocol legacy pre-1.0 firmware\n");
+>   	else
+>   		dev_info(dev, "SCP Protocol %lu.%lu Firmware %lu.%lu.%lu version\n",
+>   			 FIELD_GET(PROTO_REV_MAJOR_MASK,
+> -				   scpi_info->protocol_version),
+> +				   scpi_drvinfo->protocol_version),
+>   			 FIELD_GET(PROTO_REV_MINOR_MASK,
+> -				   scpi_info->protocol_version),
+> +				   scpi_drvinfo->protocol_version),
+>   			 FIELD_GET(FW_REV_MAJOR_MASK,
+> -				   scpi_info->firmware_version),
+> +				   scpi_drvinfo->firmware_version),
+>   			 FIELD_GET(FW_REV_MINOR_MASK,
+> -				   scpi_info->firmware_version),
+> +				   scpi_drvinfo->firmware_version),
+>   			 FIELD_GET(FW_REV_PATCH_MASK,
+> -				   scpi_info->firmware_version));
+> -	scpi_info->scpi_ops = &scpi_ops;
+> +				   scpi_drvinfo->firmware_version));
+> +
+> +	scpi_drvinfo->scpi_ops = &scpi_ops;
+> +
+> +	ret = devm_of_platform_populate(dev);
+>   
+> -	return devm_of_platform_populate(dev);
+> +	if (!ret)
+> +		scpi_info = scpi_drvinfo;
+> +
+> +	return ret;
+>   }
+>   
+>   static const struct of_device_id scpi_of_match[] = {
