@@ -2,114 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C02E956539E
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 13:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C20DF5653A0
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 13:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233761AbiGDLeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 07:34:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45766 "EHLO
+        id S230026AbiGDLez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 07:34:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbiGDLef (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 07:34:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED240E88
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 04:34:34 -0700 (PDT)
+        with ESMTP id S234228AbiGDLew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 07:34:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD75FFD0F
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 04:34:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DB9D614C8
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 11:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5459BC3411E;
-        Mon,  4 Jul 2022 11:34:33 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="TWB6GCLz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1656934471;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vHntRFwipq72a8KSy9j7yxIpOZ+D7/HXHEnMPcV3cuM=;
-        b=TWB6GCLzv5mEacyen/1txgSWaXkVQc4cF4hOpnOk6tTc1Apy87yZqJbifkEP2ZbOpBKy8V
-        oQQ3rm+r+ME2WBqJDC+TSNVJRHWE2sZ5E+BVeXtRuMezPW7l97r495W7RjWxAvcHtcl/gu
-        EPWeoOv89q+wPzmKssEJdDxp2oPRUgc=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 704fd48c (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 4 Jul 2022 11:34:31 +0000 (UTC)
-Date:   Mon, 4 Jul 2022 13:34:22 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Michael Ellerman <michael@ellerman.id.au>
-Cc:     Sachin Sant <sachinp@linux.ibm.com>, benh@kernel.crashing.org,
-        paulus@samba.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] powerpc/powernv: delay rng of node creation until later
- in boot
-Message-ID: <YsLQPpAY6ZZHCOAI@zx2c4.com>
-References: <Yr2PQSZWVtr+Y7a2@zx2c4.com>
- <20220630121654.1939181-1-Jason@zx2c4.com>
- <8A9A296D-D7BD-42BE-AB32-C951C29E4C40@linux.ibm.com>
- <YsAg/hixHvdxnWNL@zx2c4.com>
- <2B9FC5ED-D6B8-4632-ACA4-7CF508EE9C46@ellerman.id.au>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6960FB80D13
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 11:34:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1441C3411E;
+        Mon,  4 Jul 2022 11:34:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1656934489;
+        bh=TNQy5qOhZ0VL86xJFwqjhI/8tJpDPa0shGOa6ckiIFE=;
+        h=Subject:To:Cc:From:Date:From;
+        b=j5PggQ7NiiNaRFbGmvorQuCOeR1FFcSivAWCF0GZ/4pO6OyqPoxlCKMKTkIhV63+8
+         JPSNb7r/HHCk6/Sr7ix8Hb/OM18RnwX7xBuwXdrKFUhw/bozKtKATRctSP2HULeNKt
+         b0FmGspNm/jx+vnNkaK+004yank/AsKGPUB4SAYo=
+Subject: FAILED: patch "[PATCH] net: dsa: bcm_sf2: force pause link settings" failed to apply to 4.9-stable tree
+To:     opendmb@gmail.com, f.fainelli@gmail.com, kuba@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jul 2022 13:34:46 +0200
+Message-ID: <16569344862577@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <2B9FC5ED-D6B8-4632-ACA4-7CF508EE9C46@ellerman.id.au>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Michael,
 
-On Mon, Jul 04, 2022 at 09:14:32PM +1000, Michael Ellerman wrote:
-> 
-> 
-> On 2 July 2022 8:42:06 pm AEST, "Jason A. Donenfeld" <Jason@zx2c4.com> wrote:
-> >Hi Benjamin, Paul,
-> >
-> >On Thu, Jun 30, 2022 at 07:24:05PM +0530, Sachin Sant wrote:
-> >> > On 30-Jun-2022, at 5:46 PM, Jason A. Donenfeld <Jason@zx2c4.com> wrote:
-> >> > 
-> >> > The of node for the rng must be created much later in boot. Otherwise it
-> >> > tries to connect to a parent that doesn't yet exist, resulting on this
-> >> > splat:
-> >> > 
-> >> > [    0.000478] kobject: '(null)' ((____ptrval____)): is not initialized, yet kobject_get() is being called.
-> >> > [    0.002925] [c000000002a0fb30] [c00000000073b0bc] kobject_get+0x8c/0x100 (unreliable)
-> >> > [    0.003071] [c000000002a0fba0] [c00000000087e464] device_add+0xf4/0xb00
-> >> > [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] of_device_add+0x64/0x80
-> >> > [    0.003321] [c000000002a0fcb0] [c000000000a800d0] of_platform_device_create_pdata+0xd0/0x1b0
-> >> > [    0.003476] [c000000002a0fd00] [c00000000201fa44] pnv_get_random_long_early+0x240/0x2e4
-> >> > [    0.003623] [c000000002a0fe20] [c000000002060c38] random_init+0xc0/0x214
-> >> > 
-> >> > This patch fixes the issue by doing the of node creation inside of
-> >> > machine_subsys_initcall.
-> >> > 
-> >> > Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
-> >> > Cc: stable@vger.kernel.org
-> >> > Cc: Michael Ellerman <mpe@ellerman.id.au>
-> >> > Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-> >> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> >> > ---
-> >> 
-> >> Thanks Jason for the patch. This fixes the reported problem for me.
-> >> 
-> >> Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-> >> 
-> >> - Sachin
-> >
-> >It sounds like Michael is on vacation for a few weeks. Think you could
-> >queue this up so we can get POWER8 booting again?
-> 
-> It doesn't break booting for me, but it is an ugly splat.
-> 
-> I'll pick it up into fixes.
-> 
-> I think it's more correct to say the "platform device creation" causes the problem, so I'll update the change log to say that.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Sounds good. Thank you!
+thanks,
 
-Jason
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 7c97bc0128b2eecc703106112679a69d446d1a12 Mon Sep 17 00:00:00 2001
+From: Doug Berger <opendmb@gmail.com>
+Date: Wed, 22 Jun 2022 20:02:04 -0700
+Subject: [PATCH] net: dsa: bcm_sf2: force pause link settings
+
+The pause settings reported by the PHY should also be applied to the GMII port
+status override otherwise the switch will not generate pause frames towards the
+link partner despite the advertisement saying otherwise.
+
+Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 87e81c636339..be0edfa093d0 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -878,6 +878,11 @@ static void bcm_sf2_sw_mac_link_up(struct dsa_switch *ds, int port,
+ 		if (duplex == DUPLEX_FULL)
+ 			reg |= DUPLX_MODE;
+ 
++		if (tx_pause)
++			reg |= TXFLOW_CNTL;
++		if (rx_pause)
++			reg |= RXFLOW_CNTL;
++
+ 		core_writel(priv, reg, offset);
+ 	}
+ 
+
