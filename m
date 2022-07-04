@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CC25656A8
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644105656AA
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233672AbiGDNNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:13:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51906 "EHLO
+        id S233758AbiGDNN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:13:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233381AbiGDNNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:13:16 -0400
+        with ESMTP id S234662AbiGDNN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:13:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B192181
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:13:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD61F19
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:13:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF6C8B80EEB
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:13:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F67EC341C7;
-        Mon,  4 Jul 2022 13:13:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D87C3B80EEB
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47088C341C7;
+        Mon,  4 Jul 2022 13:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656940392;
-        bh=vsLu9Ub4gp1oJOb2ALgJ6LJEFjoQA3Kdn9Z7wRHbu+4=;
+        s=korg; t=1656940400;
+        bh=xF73XFwYhKaga6x40dSy0sb2cKANb9f8BXDvs9oEUeM=;
         h=Subject:To:Cc:From:Date:From;
-        b=F207ltXnMDxr5dyOcS124fs6PCjMh0hOAkOKrnTDSzXNqfvNI0TrQIKJZfgrSGgIP
-         RgRBiksvMNkVLJk+P0d57keyW6n2d3YKg83qXApYxwCBxrsrEmvcD8/ErlUtUGFRsa
-         MlpBwRKTz1Cd4B+FBe5ShrUtB4hVcem0fmm45uyE=
-Subject: FAILED: patch "[PATCH] PM / devfreq: exynos-ppmu: Fix refcount leak in" failed to apply to 4.19-stable tree
+        b=jPDherWIRDBRZ0pX0RTTTI/LiV37+2TbfNC+SvZuKILwSP6QQaSZ/VqCCn6IQPNJK
+         VxSL0rSKBFU1NO7+VzF0I6f5J1RjnEaatlpCDyDJ5dku2p/bwHbYxBZMZleiFVne5b
+         3/bztkK29w4/ChB5vrZV4T+y6TfAEDiuAEv48hXA=
+Subject: FAILED: patch "[PATCH] PM / devfreq: exynos-ppmu: Fix refcount leak in" failed to apply to 4.9-stable tree
 To:     linmq006@gmail.com, cw00.choi@samsung.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 15:13:09 +0200
-Message-ID: <1656940389159154@kroah.com>
+Date:   Mon, 04 Jul 2022 15:13:10 +0200
+Message-ID: <1656940390163254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
