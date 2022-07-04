@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3E256520F
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 12:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC655565239
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 12:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234148AbiGDKWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 06:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44566 "EHLO
+        id S234423AbiGDK0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 06:26:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234227AbiGDKVq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 06:21:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDE6DFF7
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 03:19:58 -0700 (PDT)
+        with ESMTP id S234501AbiGDKZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 06:25:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8CC611465
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 03:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F2346151C
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 10:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBF8C3411E;
-        Mon,  4 Jul 2022 10:19:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D258B80E89
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 10:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49224C3411E;
+        Mon,  4 Jul 2022 10:24:22 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="qAbYRixU"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="TJRM4YgS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1656929993;
+        t=1656930260;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=wr4b0IZFks2/kFa/+eMHT0QwMTXZDR5Lw78RS+EXU+o=;
-        b=qAbYRixUyw4MFfLIAAGQ9mRiY1ea3RBE0jKckpx3BQC3e2e3EZNMJxZC4gwGJtxRK68TT4
-        zy9YGoDo5jAIUxz8P/lvJitJHM0nnFmJhwc3TkpQLt1fE9kVA4go3N0gUtUyxwkxjnnbLr
-        HkQxDQrUZZv5zvvSRi17NHVdXoa8ki8=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id ae53dfa1 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 4 Jul 2022 10:19:53 +0000 (UTC)
+        bh=2DAF4fRKflJ2NNxtdn7vyy+7AgpaIrxqBbqn/M/hAM0=;
+        b=TJRM4YgS/L+AkPp/mqAVhlYXA06Xq7YkdsTXk5MfRe7HFrNYKmKhquvOyHspfb2YXwjBnt
+        GP1GZJ4T6q44lABd+doDdELO3juHOUlFvGA0d3UHlZtPD/gX34UCGWO7qFtVrwb3kU1RMl
+        I4XfHB48I2L2HPE4cMqKZSQMXEIjgVI=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 5a577380 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Mon, 4 Jul 2022 10:24:20 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     gregkh@linuxfoundation.org
 Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
@@ -43,11 +43,11 @@ Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
         Juergen Christ <jchrist@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH stable 5.10] s390/archrandom: simplify back to earlier design and initialize earlier
-Date:   Mon,  4 Jul 2022 12:19:46 +0200
-Message-Id: <20220704101946.315344-1-Jason@zx2c4.com>
-In-Reply-To: <165692023121374@kroah.com>
-References: <165692023121374@kroah.com>
+Subject: [PATCH stable 5.4 4.19] s390/archrandom: simplify back to earlier design and initialize earlier
+Date:   Mon,  4 Jul 2022 12:24:16 +0200
+Message-Id: <20220704102416.326257-1-Jason@zx2c4.com>
+In-Reply-To: <16569202321345@kroah.com>
+References: <16569202321345@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -102,9 +102,9 @@ Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
  arch/s390/crypto/arch_random.c     | 111 +----------------------------
- arch/s390/include/asm/archrandom.h |  13 ++--
+ arch/s390/include/asm/archrandom.h |  21 +++---
  arch/s390/kernel/setup.c           |   5 ++
- 3 files changed, 14 insertions(+), 115 deletions(-)
+ 3 files changed, 18 insertions(+), 119 deletions(-)
 
 diff --git a/arch/s390/crypto/arch_random.c b/arch/s390/crypto/arch_random.c
 index 4cbb4b6d85a8..1f2d40993c4d 100644
@@ -239,7 +239,7 @@ index 4cbb4b6d85a8..1f2d40993c4d 100644
 -}
 -arch_initcall(s390_arch_random_init);
 diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
-index de61ce562052..2c6e1c6ecbe7 100644
+index 9a6835137a16..2c6e1c6ecbe7 100644
 --- a/arch/s390/include/asm/archrandom.h
 +++ b/arch/s390/include/asm/archrandom.h
 @@ -2,7 +2,7 @@
@@ -251,7 +251,7 @@ index de61ce562052..2c6e1c6ecbe7 100644
   *
   * Author: Harald Freudenberger <freude@de.ibm.com>
   *
-@@ -15,12 +15,11 @@
+@@ -15,34 +15,37 @@
  
  #include <linux/static_key.h>
  #include <linux/atomic.h>
@@ -262,11 +262,20 @@ index de61ce562052..2c6e1c6ecbe7 100644
  
 -bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
 -
- static inline bool __must_check arch_get_random_long(unsigned long *v)
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
  {
  	return false;
-@@ -34,7 +33,9 @@ static inline bool __must_check arch_get_random_int(unsigned int *v)
- static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ }
+ 
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return false;
+ }
+ 
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
  {
  	if (static_branch_likely(&s390_arch_random_available)) {
 -		return s390_arch_random_generate((u8 *)v, sizeof(*v));
@@ -276,8 +285,9 @@ index de61ce562052..2c6e1c6ecbe7 100644
  	}
  	return false;
  }
-@@ -42,7 +43,9 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
- static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ 
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
  {
  	if (static_branch_likely(&s390_arch_random_available)) {
 -		return s390_arch_random_generate((u8 *)v, sizeof(*v));
@@ -288,10 +298,10 @@ index de61ce562052..2c6e1c6ecbe7 100644
  	return false;
  }
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index f9f8721dc532..520cf5a152cf 100644
+index 9a0316a067a1..dbc2a718d232 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -1009,6 +1009,11 @@ static void __init setup_randomness(void)
+@@ -1005,6 +1005,11 @@ static void __init setup_randomness(void)
  	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
  		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
  	memblock_free((unsigned long) vmms, PAGE_SIZE);
