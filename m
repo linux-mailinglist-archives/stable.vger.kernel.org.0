@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A96565443
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 14:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68259565440
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 14:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbiGDMCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 08:02:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39084 "EHLO
+        id S233101AbiGDMCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 08:02:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233708AbiGDMCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 08:02:23 -0400
+        with ESMTP id S232113AbiGDMCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 08:02:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 398E511A07
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 05:02:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299A611826
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 05:02:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B45F460F5E
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 12:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC720C3411E;
-        Mon,  4 Jul 2022 12:02:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA28D60F09
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 12:02:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9180DC3411E;
+        Mon,  4 Jul 2022 12:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656936141;
-        bh=0pKmpY+9pih5YIeUyfdOHdHgtKlAukxS5zsSUhrQXSM=;
+        s=korg; t=1656936133;
+        bh=44khWIF0puEdximGz1TYIfcVKxUg/ZWgLiLZmNkqmz0=;
         h=Subject:To:Cc:From:Date:From;
-        b=wUDqlfQ4FgzCvw1nHJl4BAoYFfGT8jItosFuTpHkGdmE4oCMEaMxb+q+u65sJM4RX
-         UHRjedJN5CehzrIDu5ICGUGjlXXUIZ9PoyEQLSP6FWEF6Bjs6iiJmO55pmBIWN0xTl
-         3M7vtyDNatVhqGGNS1crDqJbAOjSKKzhoBz3CaRc=
-Subject: FAILED: patch "[PATCH] selftests: mptcp: Initialize variables to quiet gcc 12" failed to apply to 5.15-stable tree
+        b=1MiXJ9fOPvCTcYcLrR+TCOVxPX70FK73E6cm76uRw6rzWkqxraltJ2YyiauEX+eY6
+         3RbSEXDgrB0fZLSJvrIytbDZePZD+RG5TIFELnRS8hKXjVBaPErHC3ZNzi/dgB7B9o
+         Srw422gSqftMQpp4lsgQRuYV+ah1wfEAVTAw8oDo=
+Subject: FAILED: patch "[PATCH] selftests: mptcp: Initialize variables to quiet gcc 12" failed to apply to 5.10-stable tree
 To:     mathew.j.martineau@linux.intel.com, kuba@kernel.org,
         pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 14:02:10 +0200
-Message-ID: <165693613024235@kroah.com>
+Message-ID: <165693613037148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
