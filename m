@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7435651E9
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 12:18:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3E256520F
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 12:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232341AbiGDKQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 06:16:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35928 "EHLO
+        id S234148AbiGDKWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 06:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233062AbiGDKQN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 06:16:13 -0400
+        with ESMTP id S234227AbiGDKVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 06:21:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2227E0C3
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 03:15:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDE6DFF7
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 03:19:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E8E061515
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 10:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7ACBC3411E;
-        Mon,  4 Jul 2022 10:15:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F2346151C
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 10:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBF8C3411E;
+        Mon,  4 Jul 2022 10:19:55 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="NkIFzLrx"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="qAbYRixU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1656929718;
+        t=1656929993;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=pwSNjYOcOJnw1/843t0EGTibgGPge1BSf8j7rgbxJiQ=;
-        b=NkIFzLrxej6ZN8+wUDrEr7zDizOaPkTwCjF218FcWxsCyCGDnjPztdnMuMRIl2l+flAUq9
-        W8jfjbjjmgAToPUbxaPsiH9ovGedbWvicEIWmnCkiRwgJN90Qq1cV5bVGid4domGswaWnZ
-        Eq4za0RNkW8k15d2UUrWjsptkfvG9Nk=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8e5334b8 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 4 Jul 2022 10:15:17 +0000 (UTC)
+        bh=wr4b0IZFks2/kFa/+eMHT0QwMTXZDR5Lw78RS+EXU+o=;
+        b=qAbYRixUyw4MFfLIAAGQ9mRiY1ea3RBE0jKckpx3BQC3e2e3EZNMJxZC4gwGJtxRK68TT4
+        zy9YGoDo5jAIUxz8P/lvJitJHM0nnFmJhwc3TkpQLt1fE9kVA4go3N0gUtUyxwkxjnnbLr
+        HkQxDQrUZZv5zvvSRi17NHVdXoa8ki8=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id ae53dfa1 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Mon, 4 Jul 2022 10:19:53 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     gregkh@linuxfoundation.org
 Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
@@ -43,11 +43,11 @@ Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
         Juergen Christ <jchrist@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH stable 5.15] s390/archrandom: simplify back to earlier design and initialize earlier
-Date:   Mon,  4 Jul 2022 12:14:46 +0200
-Message-Id: <20220704101446.299825-1-Jason@zx2c4.com>
-In-Reply-To: <1656920231245244@kroah.com>
-References: <1656920231245244@kroah.com>
+Subject: [PATCH stable 5.10] s390/archrandom: simplify back to earlier design and initialize earlier
+Date:   Mon,  4 Jul 2022 12:19:46 +0200
+Message-Id: <20220704101946.315344-1-Jason@zx2c4.com>
+In-Reply-To: <165692023121374@kroah.com>
+References: <165692023121374@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -101,18 +101,21 @@ Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- arch/s390/crypto/arch_random.c     | 217 -----------------------------
- arch/s390/include/asm/archrandom.h |  14 +-
- arch/s390/kernel/setup.c           |   5 +
- 3 files changed, 12 insertions(+), 224 deletions(-)
+ arch/s390/crypto/arch_random.c     | 111 +----------------------------
+ arch/s390/include/asm/archrandom.h |  13 ++--
+ arch/s390/kernel/setup.c           |   5 ++
+ 3 files changed, 14 insertions(+), 115 deletions(-)
 
 diff --git a/arch/s390/crypto/arch_random.c b/arch/s390/crypto/arch_random.c
-index 56007c763902..1f2d40993c4d 100644
+index 4cbb4b6d85a8..1f2d40993c4d 100644
 --- a/arch/s390/crypto/arch_random.c
 +++ b/arch/s390/crypto/arch_random.c
-@@ -4,232 +4,15 @@
+@@ -2,126 +2,17 @@
+ /*
+  * s390 arch random implementation.
   *
-  * Copyright IBM Corp. 2017, 2020
+- * Copyright IBM Corp. 2017, 2018
++ * Copyright IBM Corp. 2017, 2020
   * Author(s): Harald Freudenberger
 - *
 - * The s390_arch_random_generate() function may be called from random.c
@@ -143,7 +146,6 @@ index 56007c763902..1f2d40993c4d 100644
 -#include <linux/slab.h>
  #include <linux/static_key.h>
 -#include <linux/workqueue.h>
--#include <linux/moduleparam.h>
  #include <asm/cpacf.h>
  
  DEFINE_STATIC_KEY_FALSE(s390_arch_random_available);
@@ -214,113 +216,6 @@ index 56007c763902..1f2d40993c4d 100644
 -	queue_delayed_work(system_long_wq, &arch_rng_work, delay);
 -}
 -
--/*
-- * Here follows the implementation of s390_arch_get_random_long().
-- *
-- * The random longs to be pulled by arch_get_random_long() are
-- * prepared in an 4K buffer which is filled from the NIST 800-90
-- * compliant s390 drbg. By default the random long buffer is refilled
-- * 256 times before the drbg itself needs a reseed. The reseed of the
-- * drbg is done with 32 bytes fetched from the high quality (but slow)
-- * trng which is assumed to deliver 100% entropy. So the 32 * 8 = 256
-- * bits of entropy are spread over 256 * 4KB = 1MB serving 131072
-- * arch_get_random_long() invocations before reseeded.
-- *
-- * How often the 4K random long buffer is refilled with the drbg
-- * before the drbg is reseeded can be adjusted. There is a module
-- * parameter 's390_arch_rnd_long_drbg_reseed' accessible via
-- *   /sys/module/arch_random/parameters/rndlong_drbg_reseed
-- * or as kernel command line parameter
-- *   arch_random.rndlong_drbg_reseed=<value>
-- * This parameter tells how often the drbg fills the 4K buffer before
-- * it is re-seeded by fresh entropy from the trng.
-- * A value of 16 results in reseeding the drbg at every 16 * 4 KB = 64
-- * KB with 32 bytes of fresh entropy pulled from the trng. So a value
-- * of 16 would result in 256 bits entropy per 64 KB.
-- * A value of 256 results in 1MB of drbg output before a reseed of the
-- * drbg is done. So this would spread the 256 bits of entropy among 1MB.
-- * Setting this parameter to 0 forces the reseed to take place every
-- * time the 4K buffer is depleted, so the entropy rises to 256 bits
-- * entropy per 4K or 0.5 bit entropy per arch_get_random_long().  With
-- * setting this parameter to negative values all this effort is
-- * disabled, arch_get_random long() returns false and thus indicating
-- * that the arch_get_random_long() feature is disabled at all.
-- */
--
--static unsigned long rndlong_buf[512];
--static DEFINE_SPINLOCK(rndlong_lock);
--static int rndlong_buf_index;
--
--static int rndlong_drbg_reseed = 256;
--module_param_named(rndlong_drbg_reseed, rndlong_drbg_reseed, int, 0600);
--MODULE_PARM_DESC(rndlong_drbg_reseed, "s390 arch_get_random_long() drbg reseed");
--
--static inline void refill_rndlong_buf(void)
--{
--	static u8 prng_ws[240];
--	static int drbg_counter;
--
--	if (--drbg_counter < 0) {
--		/* need to re-seed the drbg */
--		u8 seed[32];
--
--		/* fetch seed from trng */
--		cpacf_trng(NULL, 0, seed, sizeof(seed));
--		/* seed drbg */
--		memset(prng_ws, 0, sizeof(prng_ws));
--		cpacf_prno(CPACF_PRNO_SHA512_DRNG_SEED,
--			   &prng_ws, NULL, 0, seed, sizeof(seed));
--		/* re-init counter for drbg */
--		drbg_counter = rndlong_drbg_reseed;
--	}
--
--	/* fill the arch_get_random_long buffer from drbg */
--	cpacf_prno(CPACF_PRNO_SHA512_DRNG_GEN, &prng_ws,
--		   (u8 *) rndlong_buf, sizeof(rndlong_buf),
--		   NULL, 0);
--}
--
--bool s390_arch_get_random_long(unsigned long *v)
--{
--	bool rc = false;
--	unsigned long flags;
--
--	/* arch_get_random_long() disabled ? */
--	if (rndlong_drbg_reseed < 0)
--		return false;
--
--	/* try to lock the random long lock */
--	if (!spin_trylock_irqsave(&rndlong_lock, flags))
--		return false;
--
--	if (--rndlong_buf_index >= 0) {
--		/* deliver next long value from the buffer */
--		*v = rndlong_buf[rndlong_buf_index];
--		rc = true;
--		goto out;
--	}
--
--	/* buffer is depleted and needs refill */
--	if (in_interrupt()) {
--		/* delay refill in interrupt context to next caller */
--		rndlong_buf_index = 0;
--		goto out;
--	}
--
--	/* refill random long buffer */
--	refill_rndlong_buf();
--	rndlong_buf_index = ARRAY_SIZE(rndlong_buf);
--
--	/* and provide one random long */
--	*v = rndlong_buf[--rndlong_buf_index];
--	rc = true;
--
--out:
--	spin_unlock_irqrestore(&rndlong_lock, flags);
--	return rc;
--}
--EXPORT_SYMBOL(s390_arch_get_random_long);
--
 -static int __init s390_arch_random_init(void)
 -{
 -	/* all the needed PRNO subfunctions available ? */
@@ -344,10 +239,19 @@ index 56007c763902..1f2d40993c4d 100644
 -}
 -arch_initcall(s390_arch_random_init);
 diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
-index 5dc712fde3c7..2c6e1c6ecbe7 100644
+index de61ce562052..2c6e1c6ecbe7 100644
 --- a/arch/s390/include/asm/archrandom.h
 +++ b/arch/s390/include/asm/archrandom.h
-@@ -15,17 +15,13 @@
+@@ -2,7 +2,7 @@
+ /*
+  * Kernel interface for the s390 arch_random_* functions
+  *
+- * Copyright IBM Corp. 2017
++ * Copyright IBM Corp. 2017, 2020
+  *
+  * Author: Harald Freudenberger <freude@de.ibm.com>
+  *
+@@ -15,12 +15,11 @@
  
  #include <linux/static_key.h>
  #include <linux/atomic.h>
@@ -356,17 +260,12 @@ index 5dc712fde3c7..2c6e1c6ecbe7 100644
  DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
  extern atomic64_t s390_arch_random_counter;
  
--bool s390_arch_get_random_long(unsigned long *v);
 -bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
 -
  static inline bool __must_check arch_get_random_long(unsigned long *v)
  {
--	if (static_branch_likely(&s390_arch_random_available))
--		return s390_arch_get_random_long(v);
  	return false;
- }
- 
-@@ -37,7 +33,9 @@ static inline bool __must_check arch_get_random_int(unsigned int *v)
+@@ -34,7 +33,9 @@ static inline bool __must_check arch_get_random_int(unsigned int *v)
  static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
  {
  	if (static_branch_likely(&s390_arch_random_available)) {
@@ -377,7 +276,7 @@ index 5dc712fde3c7..2c6e1c6ecbe7 100644
  	}
  	return false;
  }
-@@ -45,7 +43,9 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+@@ -42,7 +43,9 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
  static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
  {
  	if (static_branch_likely(&s390_arch_random_available)) {
@@ -389,10 +288,10 @@ index 5dc712fde3c7..2c6e1c6ecbe7 100644
  	return false;
  }
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ee67215a678a..8ede12c4ba6b 100644
+index f9f8721dc532..520cf5a152cf 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -880,6 +880,11 @@ static void __init setup_randomness(void)
+@@ -1009,6 +1009,11 @@ static void __init setup_randomness(void)
  	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
  		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
  	memblock_free((unsigned long) vmms, PAGE_SIZE);
