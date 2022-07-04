@@ -2,84 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19DEC5654AF
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 14:15:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C27C5654BA
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 14:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233232AbiGDMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 08:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53024 "EHLO
+        id S234271AbiGDMQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 08:16:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231475AbiGDMPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 08:15:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71DFD4B
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 05:15:35 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 264B7mNI027055;
-        Mon, 4 Jul 2022 12:15:34 GMT
+        with ESMTP id S234260AbiGDMQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 08:16:33 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6440EBC32
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 05:16:29 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 264Bb7uI000416;
+        Mon, 4 Jul 2022 12:16:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : reply-to : in-reply-to : references : message-id : content-type
  : content-transfer-encoding : mime-version; s=pp1;
- bh=JkScCtc1bwIoLBQt5AlOd9fHsFYrZb3FL8YXoeP7e7M=;
- b=Ic6c/AxuThPzHucp/dfCU7IJoa2JKl+rEt+BOZLTy3EDmG/eo9IwWexLgRGZv0G4n+bb
- 0RSz7L5+w1P4N2tSL6eqZAtd2hP+h+uAtTvPzLKl8DIiNt26++wDbsjdWXGnqR4KfgaW
- 2zBwDQ2idLnuIsb6GfPGfpxbumFFz4ENYQc3VUxqhuBZyB3PIdPy4/rUj1jkFf6Hu6B6
- CS4EFjc2CCyooL0YJEbAE8QovIaqL17pufeJX8EdsMOdMrc54S5tKXV1M6NqmPaaAAyU
- mc5JyPgSaIh6JFBp13jq7E+Tjn3Wo0f2DI7m7FHvYSgEoSCqSg3kc3a6srycVR9/0mpe qQ== 
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3xctjk15-1
+ bh=M304c+GOfYVi+VSv5b+t82eldsiGVYQAtrkccN3BnvI=;
+ b=HA7QAXQ8lLUKgjE/2vpqcU1EGJCxjywrK8rOK400/8nMgosT/3Jv7a/E0b2pgMpANf8z
+ aFP4NAXyyJnSmRj01513XFgqWpIPEqnnCz1cZ5wjx/1ZFAanl+Sfp20+KMvGyJfrgBqD
+ P/Mv5iFoFQHktrmjt/+YdVHgK8ooMIN2urgSRhHGfumcLqTYcitA+TTiYQQTC4YyQ4/c
+ COoeLBmC7aoQG9DUWW5IliBbNiOqo//q10MTCaOpfxtUlXDd4KRd8HbU14g6jtSIT9Lh
+ pvCv1WBhFSegnmXPgxINIy+GLoHHwVTcNVcOjsH+pD9i9RcIdXCvUtL4voGAL4pL5k6r YQ== 
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3yg7ryv7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 12:15:34 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 264C6QfS013967;
-        Mon, 4 Jul 2022 12:15:33 GMT
+        Mon, 04 Jul 2022 12:16:28 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 264C5vJx030689;
+        Mon, 4 Jul 2022 12:16:27 GMT
 Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
-        by ppma03wdc.us.ibm.com with ESMTP id 3h2dn94ecc-1
+        by ppma01dal.us.ibm.com with ESMTP id 3h2dn9m4ey-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 12:15:33 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 264CFX6Y37749184
+        Mon, 04 Jul 2022 12:16:27 +0000
+Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 264CGQ2U39846176
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Jul 2022 12:15:33 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 347ECB2064;
-        Mon,  4 Jul 2022 12:15:33 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C6A36B205F;
-        Mon,  4 Jul 2022 12:15:32 +0000 (GMT)
+        Mon, 4 Jul 2022 12:16:26 GMT
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35DC4112061;
+        Mon,  4 Jul 2022 12:16:26 +0000 (GMT)
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C8073112067;
+        Mon,  4 Jul 2022 12:16:25 +0000 (GMT)
 Received: from ltc.linux.ibm.com (unknown [9.10.229.42])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Jul 2022 12:15:32 +0000 (GMT)
-Date:   Mon, 04 Jul 2022 14:15:32 +0200
+        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Jul 2022 12:16:25 +0000 (GMT)
+Date:   Mon, 04 Jul 2022 14:16:25 +0200
 From:   Harald Freudenberger <freude@linux.ibm.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Jason@zx2c4.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
         ifranzki@linux.ibm.com, jchrist@linux.ibm.com,
         stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] s390/archrandom: simplify back to earlier
- design and" failed to apply to 5.10-stable tree
+ design and" failed to apply to 5.4-stable tree
 Reply-To: freude@linux.ibm.com
-In-Reply-To: <165692023121374@kroah.com>
-References: <165692023121374@kroah.com>
+In-Reply-To: <16569202321345@kroah.com>
+References: <16569202321345@kroah.com>
 User-Agent: Roundcube Webmail/1.4.13
-Message-ID: <ecdc97781aa01304ea998d9fe9e5391d@linux.ibm.com>
+Message-ID: <175bf52900b125d6f173ab344c56babb@linux.ibm.com>
 X-Sender: freude@linux.ibm.com
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: nBITEz2DsEiuBX6d4KqAjm9XXZl97bku
-X-Proofpoint-GUID: nBITEz2DsEiuBX6d4KqAjm9XXZl97bku
+X-Proofpoint-GUID: DmnnZyiWOCS-SyIuOVivBOSwcrVzubbY
+X-Proofpoint-ORIG-GUID: DmnnZyiWOCS-SyIuOVivBOSwcrVzubbY
 Content-Transfer-Encoding: 7bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-04_11,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
- priorityscore=1501 mlxscore=0 suspectscore=0 bulkscore=0 impostorscore=0
- phishscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2207040052
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 mlxscore=0 bulkscore=0
+ adultscore=0 mlxlogscore=999 phishscore=0 lowpriorityscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2207040052
 X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
@@ -90,7 +90,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 2022-07-04 09:37, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.10-stable tree.
+> The patch below does not apply to the 5.4-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -464,7 +464,6 @@ On 2022-07-04 09:37, gregkh@linuxfoundation.org wrote:
 >  }
 > 
 >  /*
-Yes, that's understandable. And I think, there is no need to backport 
-this to kernels <= 5.10.
-Thanks
+Fine with me. Skip this patch for kernels <= 5.10.
+Thanks,
 Harald Freudenberger
