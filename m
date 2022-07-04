@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D495656E2
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC405656E3
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbiGDNTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:19:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
+        id S229473AbiGDNTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:19:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbiGDNTw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:19:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD26EB45
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:19:51 -0700 (PDT)
+        with ESMTP id S230461AbiGDNTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:19:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A25D9B45
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:19:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76586B80EEC
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDA2FC3411E;
-        Mon,  4 Jul 2022 13:19:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64E74B80EFD
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:19:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76DBC3411E;
+        Mon,  4 Jul 2022 13:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656940789;
-        bh=upitwytKjB8Ssw76Ert/rjdsj79uC+QKm/MFurqdzKE=;
+        s=korg; t=1656940792;
+        bh=HeNjVjFPE6lwIyOS2vKILrYaA3TCWHRmCpIP8XlookA=;
         h=Subject:To:Cc:From:Date:From;
-        b=pcqrvDIfibcFCTC4i1tHc6UkxwOnGrSyQDMUo9cAYA6Nz9wE6LySSaM9urG0AiGmu
-         PRkxh7kSfc4rcZ1A5CEneJtEmLO34pMNMs3cOTO8/HWFklFya7wGjmpun9jMwro4O0
-         4PhxFm34X5wdGE3M1D5Gh2cXVLdHiCrZVyeM5AB4=
-Subject: FAILED: patch "[PATCH] epic100: fix use after free on rmmod" failed to apply to 4.9-stable tree
+        b=zCVT9Kbf3mK1JTgecj2wNtZFfgbiCyPP4fXbXPQtEs/6M/4CyelQlhdbPN8KKUF98
+         Auc41ENhcjZ0yzoh8/L4QKqwP2T/oqDiNbriSnHVuT4LfKqnpQHCbN733GKlXD8G8t
+         PoeesUonLV/pAv/Xyo9thKx+ZVgnn4U1qXCxvdAU=
+Subject: FAILED: patch "[PATCH] epic100: fix use after free on rmmod" failed to apply to 4.14-stable tree
 To:     ztong0001@gmail.com, kuba@kernel.org, romieu@fr.zoreil.com,
         yiluwu@cs.stonybrook.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 15:19:36 +0200
-Message-ID: <1656940776135205@kroah.com>
+Message-ID: <165694077657119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
