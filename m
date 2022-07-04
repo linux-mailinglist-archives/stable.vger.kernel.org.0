@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A3A564ED0
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0797F564ED5
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233014AbiGDHhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 03:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
+        id S232995AbiGDHhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 03:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232995AbiGDHhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:37:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDB9B92
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:37:03 -0700 (PDT)
+        with ESMTP id S233044AbiGDHhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:37:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1FEBC23
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:37:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69903B80DD0
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C66C3411E;
-        Mon,  4 Jul 2022 07:37:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1EB2B80DD1
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3771C3411E;
+        Mon,  4 Jul 2022 07:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656920221;
-        bh=UOtXAxkErHkclz43neZjhd0rJty/ixc/sLwH/+KINVg=;
+        s=korg; t=1656920224;
+        bh=+kdYn20RxrxnYdt15jsmovJERqvlqUxIjeZ4CVqCjeA=;
         h=Subject:To:Cc:From:Date:From;
-        b=LqnPr8QycAQI1XGMKfi6VcK231sQ6ZF8Pn4iSUK6pCOPJsFRBdGRgxYXgyBCiEMkp
-         m1J+pCs99TKu4mwhutKyWjyeaAyQd4pRukyFxgTrcOAblq5+YFzEHsbR47ikfH0h/t
-         KuGX7kUnx9sEt4U5nvm3syeKGlI4sBKVl1HucpqQ=
-Subject: FAILED: patch "[PATCH] PM / devfreq: Rework freq_table to be local to devfreq struct" failed to apply to 5.15-stable tree
+        b=vbRlzxO4p7b1qRxq6EZIQoJGXnG7q+V4scrawT/NLhALj7+wXvmg282mgem9zjBWM
+         pLIcy2273xxHgPN4cbW9Kn9E52WWXpPWqDhWH//85SRMqyumxKSe2pqMCn5xCtuogu
+         wb4BcOzu8KB2Fi5+1dzBvFBJspww5C6l+5u+rOEI=
+Subject: FAILED: patch "[PATCH] PM / devfreq: Rework freq_table to be local to devfreq struct" failed to apply to 5.18-stable tree
 To:     ansuelsmth@gmail.com, cw00.choi@samsung.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Jul 2022 09:36:47 +0200
-Message-ID: <1656920207188248@kroah.com>
+Message-ID: <16569202076749@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
