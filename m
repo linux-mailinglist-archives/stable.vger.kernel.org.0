@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C80F564ED3
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41526564ECF
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 09:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232994AbiGDHgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 03:36:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58398 "EHLO
+        id S232649AbiGDHgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 03:36:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232930AbiGDHgj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042C0B92
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:38 -0700 (PDT)
+        with ESMTP id S231142AbiGDHgu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 03:36:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0274B92
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 00:36:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A40FFB80DD0
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA486C3411E;
-        Mon,  4 Jul 2022 07:36:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E43EB80DD0
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 07:36:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F247C3411E;
+        Mon,  4 Jul 2022 07:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656920195;
-        bh=VwFiFJcrvFdPa1SW0noRIravt2DI1L9GqEfsx4tDVc0=;
+        s=korg; t=1656920206;
+        bh=WJZ0ZGxTOPEXdWejhSr4NCxY0fk56I3UiMQYcx/3gqo=;
         h=Subject:To:Cc:From:Date:From;
-        b=NRfH4rhuo5f2+Q89uFxSGX7LRdh+8ZT+hhAKWAMFDr/5XBWO88R2gdd9sIIFLuQtE
-         BCy9kq19pFQ1TnoI9ebY5z9rUF/IcnhpfZPc4SV7o/UNvxPvyPyNyd+smBFSpEDS8B
-         WVaZgoS4W1OvW932DhuBKz19PVYd3OKYsyocfds0=
-Subject: FAILED: patch "[PATCH] net: phy: Don't trigger state machine while in suspend" failed to apply to 5.4-stable tree
-To:     lukas@wunner.de, andrew@lunn.ch, kuba@kernel.org,
-        m.szyprowski@samsung.com, rafael.j.wysocki@intel.com
+        b=mUNWKacPWrDZ7k40wI7r5mHPRAHdO4JiP5CXrcXrV7bgl1WtCOOS4HsOo1NlmgEPs
+         UfSSAJoQ3a5M8kAK5VK3dAx55vo/+TrIDMe6ybnK0Q+dWvtuVxErbZVtIUGLUVOmat
+         AqT/b7++HaPXM30pIqMoobL8lKl99L0OSFb6BvY0=
+Subject: FAILED: patch "[PATCH] PM / devfreq: Rework freq_table to be local to devfreq struct" failed to apply to 4.9-stable tree
+To:     ansuelsmth@gmail.com, cw00.choi@samsung.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 09:36:27 +0200
-Message-ID: <165692018784149@kroah.com>
+Date:   Mon, 04 Jul 2022 09:36:43 +0200
+Message-ID: <165692020315821@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,161 +59,277 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1758bde2e4aa5ff188d53e7d9d388bbb7e12eebb Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Tue, 28 Jun 2022 12:15:08 +0200
-Subject: [PATCH] net: phy: Don't trigger state machine while in suspend
+From b5d281f6c16dd432b618bdfd36ddba1a58d5b603 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Mon, 20 Jun 2022 00:03:51 +0200
+Subject: [PATCH] PM / devfreq: Rework freq_table to be local to devfreq struct
 
-Upon system sleep, mdio_bus_phy_suspend() stops the phy_state_machine(),
-but subsequent interrupts may retrigger it:
+On a devfreq PROBE_DEFER, the freq_table in the driver profile struct,
+is never reset and may be leaved in an undefined state.
 
-They may have been left enabled to facilitate wakeup and are not
-quiesced until the ->suspend_noirq() phase.  Unwanted interrupts may
-hence occur between mdio_bus_phy_suspend() and dpm_suspend_noirq(),
-as well as between dpm_resume_noirq() and mdio_bus_phy_resume().
+This comes from the fact that we store the freq_table in the driver
+profile struct that is commonly defined as static and not reset on
+PROBE_DEFER.
+We currently skip the reinit of the freq_table if we found
+it's already defined since a driver may declare his own freq_table.
 
-Retriggering the phy_state_machine() through an interrupt is not only
-undesirable for the reason given in mdio_bus_phy_suspend() (freezing it
-midway with phydev->lock held), but also because the PHY may be
-inaccessible after it's suspended:  Accesses to USB-attached PHYs are
-blocked once usb_suspend_both() clears the can_submit flag and PHYs on
-PCI network cards may become inaccessible upon suspend as well.
+This logic is flawed in the case devfreq core generate a freq_table, set
+it in the profile struct and then PROBE_DEFER, freeing the freq_table.
+In this case devfreq will found a NOT NULL freq_table that has been
+freed, skip the freq_table generation and probe the driver based on the
+wrong table.
 
-Amend phy_interrupt() to avoid triggering the state machine if the PHY
-is suspended.  Signal wakeup instead if the attached net_device or its
-parent has been configured as a wakeup source.  (Those conditions are
-identical to mdio_bus_phy_may_suspend().)  Postpone handling of the
-interrupt until the PHY has resumed.
+To fix this and correctly handle PROBE_DEFER, use a local freq_table and
+max_state in the devfreq struct and never modify the freq_table present
+in the profile struct if it does provide it.
 
-Before stopping the phy_state_machine() in mdio_bus_phy_suspend(),
-wait for a concurrent phy_interrupt() to run to completion.  That is
-necessary because phy_interrupt() may have checked the PHY's suspend
-status before the system sleep transition commenced and it may thus
-retrigger the state machine after it was stopped.
+Fixes: 0ec09ac2cebe ("PM / devfreq: Set the freq_table of devfreq device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 
-Likewise, after re-enabling interrupt handling in mdio_bus_phy_resume(),
-wait for a concurrent phy_interrupt() to complete to ensure that
-interrupts which it postponed are properly rerun.
-
-The issue was exposed by commit 1ce8b37241ed ("usbnet: smsc95xx: Forward
-PHY interrupts to PHY driver to avoid polling"), but has existed since
-forever.
-
-Fixes: 541cd3ee00a4 ("phylib: Fix deadlock on resume")
-Link: https://lore.kernel.org/netdev/a5315a8a-32c2-962f-f696-de9a26d30091@samsung.com/
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: stable@vger.kernel.org # v2.6.33+
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/b7f386d04e9b5b0e2738f0125743e30676f309ef.1656410895.git.lukas@wunner.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index ef62f357b76d..8d3ee3a6495b 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -31,6 +31,7 @@
- #include <linux/io.h>
- #include <linux/uaccess.h>
- #include <linux/atomic.h>
-+#include <linux/suspend.h>
- #include <net/netlink.h>
- #include <net/genetlink.h>
- #include <net/sock.h>
-@@ -976,6 +977,28 @@ static irqreturn_t phy_interrupt(int irq, void *phy_dat)
- 	struct phy_driver *drv = phydev->drv;
- 	irqreturn_t ret;
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index 80a1235ef8fb..9602141bb8ec 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -123,7 +123,7 @@ void devfreq_get_freq_range(struct devfreq *devfreq,
+ 			    unsigned long *min_freq,
+ 			    unsigned long *max_freq)
+ {
+-	unsigned long *freq_table = devfreq->profile->freq_table;
++	unsigned long *freq_table = devfreq->freq_table;
+ 	s32 qos_min_freq, qos_max_freq;
  
-+	/* Wakeup interrupts may occur during a system sleep transition.
-+	 * Postpone handling until the PHY has resumed.
-+	 */
-+	if (IS_ENABLED(CONFIG_PM_SLEEP) && phydev->irq_suspended) {
-+		struct net_device *netdev = phydev->attached_dev;
-+
-+		if (netdev) {
-+			struct device *parent = netdev->dev.parent;
-+
-+			if (netdev->wol_enabled)
-+				pm_system_wakeup();
-+			else if (device_may_wakeup(&netdev->dev))
-+				pm_wakeup_dev_event(&netdev->dev, 0, true);
-+			else if (parent && device_may_wakeup(parent))
-+				pm_wakeup_dev_event(parent, 0, true);
-+		}
-+
-+		phydev->irq_rerun = 1;
-+		disable_irq_nosync(irq);
-+		return IRQ_HANDLED;
-+	}
-+
- 	mutex_lock(&phydev->lock);
- 	ret = drv->handle_interrupt(phydev);
- 	mutex_unlock(&phydev->lock);
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 431a8719c635..46acddd865a7 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -278,6 +278,15 @@ static __maybe_unused int mdio_bus_phy_suspend(struct device *dev)
- 	if (phydev->mac_managed_pm)
- 		return 0;
+ 	lockdep_assert_held(&devfreq->lock);
+@@ -133,11 +133,11 @@ void devfreq_get_freq_range(struct devfreq *devfreq,
+ 	 * The devfreq drivers can initialize this in either ascending or
+ 	 * descending order and devfreq core supports both.
+ 	 */
+-	if (freq_table[0] < freq_table[devfreq->profile->max_state - 1]) {
++	if (freq_table[0] < freq_table[devfreq->max_state - 1]) {
+ 		*min_freq = freq_table[0];
+-		*max_freq = freq_table[devfreq->profile->max_state - 1];
++		*max_freq = freq_table[devfreq->max_state - 1];
+ 	} else {
+-		*min_freq = freq_table[devfreq->profile->max_state - 1];
++		*min_freq = freq_table[devfreq->max_state - 1];
+ 		*max_freq = freq_table[0];
+ 	}
  
-+	/* Wakeup interrupts may occur during the system sleep transition when
-+	 * the PHY is inaccessible. Set flag to postpone handling until the PHY
-+	 * has resumed. Wait for concurrent interrupt handler to complete.
-+	 */
-+	if (phy_interrupt_is_valid(phydev)) {
-+		phydev->irq_suspended = 1;
-+		synchronize_irq(phydev->irq);
-+	}
-+
- 	/* We must stop the state machine manually, otherwise it stops out of
- 	 * control, possibly with the phydev->lock held. Upon resume, netdev
- 	 * may call phy routines that try to grab the same lock, and that may
-@@ -315,6 +324,20 @@ static __maybe_unused int mdio_bus_phy_resume(struct device *dev)
- 	if (ret < 0)
- 		return ret;
- no_resume:
-+	if (phy_interrupt_is_valid(phydev)) {
-+		phydev->irq_suspended = 0;
-+		synchronize_irq(phydev->irq);
-+
-+		/* Rerun interrupts which were postponed by phy_interrupt()
-+		 * because they occurred during the system sleep transition.
-+		 */
-+		if (phydev->irq_rerun) {
-+			phydev->irq_rerun = 0;
-+			enable_irq(phydev->irq);
-+			irq_wake_thread(phydev->irq, phydev);
-+		}
-+	}
-+
- 	if (phydev->attached_dev && phydev->adjust_link)
- 		phy_start_machine(phydev);
+@@ -169,8 +169,8 @@ static int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
+ {
+ 	int lev;
  
-diff --git a/include/linux/phy.h b/include/linux/phy.h
-index 508f1149665b..b09f7d36cff2 100644
---- a/include/linux/phy.h
-+++ b/include/linux/phy.h
-@@ -572,6 +572,10 @@ struct macsec_ops;
-  * @mdix_ctrl: User setting of crossover
-  * @pma_extable: Cached value of PMA/PMD Extended Abilities Register
-  * @interrupts: Flag interrupts have been enabled
-+ * @irq_suspended: Flag indicating PHY is suspended and therefore interrupt
-+ *                 handling shall be postponed until PHY has resumed
-+ * @irq_rerun: Flag indicating interrupts occurred while PHY was suspended,
-+ *             requiring a rerun of the interrupt handler after resume
-  * @interface: enum phy_interface_t value
-  * @skb: Netlink message for cable diagnostics
-  * @nest: Netlink nest used for cable diagnostics
-@@ -626,6 +630,8 @@ struct phy_device {
+-	for (lev = 0; lev < devfreq->profile->max_state; lev++)
+-		if (freq == devfreq->profile->freq_table[lev])
++	for (lev = 0; lev < devfreq->max_state; lev++)
++		if (freq == devfreq->freq_table[lev])
+ 			return lev;
  
- 	/* Interrupts are enabled */
- 	unsigned interrupts:1;
-+	unsigned irq_suspended:1;
-+	unsigned irq_rerun:1;
+ 	return -EINVAL;
+@@ -178,7 +178,6 @@ static int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
  
- 	enum phy_state state;
+ static int set_freq_table(struct devfreq *devfreq)
+ {
+-	struct devfreq_dev_profile *profile = devfreq->profile;
+ 	struct dev_pm_opp *opp;
+ 	unsigned long freq;
+ 	int i, count;
+@@ -188,25 +187,22 @@ static int set_freq_table(struct devfreq *devfreq)
+ 	if (count <= 0)
+ 		return -EINVAL;
+ 
+-	profile->max_state = count;
+-	profile->freq_table = devm_kcalloc(devfreq->dev.parent,
+-					profile->max_state,
+-					sizeof(*profile->freq_table),
+-					GFP_KERNEL);
+-	if (!profile->freq_table) {
+-		profile->max_state = 0;
++	devfreq->max_state = count;
++	devfreq->freq_table = devm_kcalloc(devfreq->dev.parent,
++					   devfreq->max_state,
++					   sizeof(*devfreq->freq_table),
++					   GFP_KERNEL);
++	if (!devfreq->freq_table)
+ 		return -ENOMEM;
+-	}
+ 
+-	for (i = 0, freq = 0; i < profile->max_state; i++, freq++) {
++	for (i = 0, freq = 0; i < devfreq->max_state; i++, freq++) {
+ 		opp = dev_pm_opp_find_freq_ceil(devfreq->dev.parent, &freq);
+ 		if (IS_ERR(opp)) {
+-			devm_kfree(devfreq->dev.parent, profile->freq_table);
+-			profile->max_state = 0;
++			devm_kfree(devfreq->dev.parent, devfreq->freq_table);
+ 			return PTR_ERR(opp);
+ 		}
+ 		dev_pm_opp_put(opp);
+-		profile->freq_table[i] = freq;
++		devfreq->freq_table[i] = freq;
+ 	}
+ 
+ 	return 0;
+@@ -246,7 +242,7 @@ int devfreq_update_status(struct devfreq *devfreq, unsigned long freq)
+ 
+ 	if (lev != prev_lev) {
+ 		devfreq->stats.trans_table[
+-			(prev_lev * devfreq->profile->max_state) + lev]++;
++			(prev_lev * devfreq->max_state) + lev]++;
+ 		devfreq->stats.total_trans++;
+ 	}
+ 
+@@ -835,6 +831,9 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 		if (err < 0)
+ 			goto err_dev;
+ 		mutex_lock(&devfreq->lock);
++	} else {
++		devfreq->freq_table = devfreq->profile->freq_table;
++		devfreq->max_state = devfreq->profile->max_state;
+ 	}
+ 
+ 	devfreq->scaling_min_freq = find_available_min_freq(devfreq);
+@@ -870,8 +869,8 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 
+ 	devfreq->stats.trans_table = devm_kzalloc(&devfreq->dev,
+ 			array3_size(sizeof(unsigned int),
+-				    devfreq->profile->max_state,
+-				    devfreq->profile->max_state),
++				    devfreq->max_state,
++				    devfreq->max_state),
+ 			GFP_KERNEL);
+ 	if (!devfreq->stats.trans_table) {
+ 		mutex_unlock(&devfreq->lock);
+@@ -880,7 +879,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 	}
+ 
+ 	devfreq->stats.time_in_state = devm_kcalloc(&devfreq->dev,
+-			devfreq->profile->max_state,
++			devfreq->max_state,
+ 			sizeof(*devfreq->stats.time_in_state),
+ 			GFP_KERNEL);
+ 	if (!devfreq->stats.time_in_state) {
+@@ -1666,9 +1665,9 @@ static ssize_t available_frequencies_show(struct device *d,
+ 
+ 	mutex_lock(&df->lock);
+ 
+-	for (i = 0; i < df->profile->max_state; i++)
++	for (i = 0; i < df->max_state; i++)
+ 		count += scnprintf(&buf[count], (PAGE_SIZE - count - 2),
+-				"%lu ", df->profile->freq_table[i]);
++				"%lu ", df->freq_table[i]);
+ 
+ 	mutex_unlock(&df->lock);
+ 	/* Truncate the trailing space */
+@@ -1691,7 +1690,7 @@ static ssize_t trans_stat_show(struct device *dev,
+ 
+ 	if (!df->profile)
+ 		return -EINVAL;
+-	max_state = df->profile->max_state;
++	max_state = df->max_state;
+ 
+ 	if (max_state == 0)
+ 		return sprintf(buf, "Not Supported.\n");
+@@ -1708,19 +1707,17 @@ static ssize_t trans_stat_show(struct device *dev,
+ 	len += sprintf(buf + len, "           :");
+ 	for (i = 0; i < max_state; i++)
+ 		len += sprintf(buf + len, "%10lu",
+-				df->profile->freq_table[i]);
++				df->freq_table[i]);
+ 
+ 	len += sprintf(buf + len, "   time(ms)\n");
+ 
+ 	for (i = 0; i < max_state; i++) {
+-		if (df->profile->freq_table[i]
+-					== df->previous_freq) {
++		if (df->freq_table[i] == df->previous_freq)
+ 			len += sprintf(buf + len, "*");
+-		} else {
++		else
+ 			len += sprintf(buf + len, " ");
+-		}
+-		len += sprintf(buf + len, "%10lu:",
+-				df->profile->freq_table[i]);
++
++		len += sprintf(buf + len, "%10lu:", df->freq_table[i]);
+ 		for (j = 0; j < max_state; j++)
+ 			len += sprintf(buf + len, "%10u",
+ 				df->stats.trans_table[(i * max_state) + j]);
+@@ -1744,7 +1741,7 @@ static ssize_t trans_stat_store(struct device *dev,
+ 	if (!df->profile)
+ 		return -EINVAL;
+ 
+-	if (df->profile->max_state == 0)
++	if (df->max_state == 0)
+ 		return count;
+ 
+ 	err = kstrtoint(buf, 10, &value);
+@@ -1752,11 +1749,11 @@ static ssize_t trans_stat_store(struct device *dev,
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&df->lock);
+-	memset(df->stats.time_in_state, 0, (df->profile->max_state *
++	memset(df->stats.time_in_state, 0, (df->max_state *
+ 					sizeof(*df->stats.time_in_state)));
+ 	memset(df->stats.trans_table, 0, array3_size(sizeof(unsigned int),
+-					df->profile->max_state,
+-					df->profile->max_state));
++					df->max_state,
++					df->max_state));
+ 	df->stats.total_trans = 0;
+ 	df->stats.last_update = get_jiffies_64();
+ 	mutex_unlock(&df->lock);
+diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
+index 69e06725d92b..406ef79c0c46 100644
+--- a/drivers/devfreq/governor_passive.c
++++ b/drivers/devfreq/governor_passive.c
+@@ -144,18 +144,18 @@ static int get_target_freq_with_devfreq(struct devfreq *devfreq,
+ 		goto out;
+ 
+ 	/* Use interpolation if required opps is not available */
+-	for (i = 0; i < parent_devfreq->profile->max_state; i++)
+-		if (parent_devfreq->profile->freq_table[i] == *freq)
++	for (i = 0; i < parent_devfreq->max_state; i++)
++		if (parent_devfreq->freq_table[i] == *freq)
+ 			break;
+ 
+-	if (i == parent_devfreq->profile->max_state)
++	if (i == parent_devfreq->max_state)
+ 		return -EINVAL;
+ 
+-	if (i < devfreq->profile->max_state) {
+-		child_freq = devfreq->profile->freq_table[i];
++	if (i < devfreq->max_state) {
++		child_freq = devfreq->freq_table[i];
+ 	} else {
+-		count = devfreq->profile->max_state;
+-		child_freq = devfreq->profile->freq_table[count - 1];
++		count = devfreq->max_state;
++		child_freq = devfreq->freq_table[count - 1];
+ 	}
+ 
+ out:
+diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
+index dc10bee75a72..34aab4dd336c 100644
+--- a/include/linux/devfreq.h
++++ b/include/linux/devfreq.h
+@@ -148,6 +148,8 @@ struct devfreq_stats {
+  *		reevaluate operable frequencies. Devfreq users may use
+  *		devfreq.nb to the corresponding register notifier call chain.
+  * @work:	delayed work for load monitoring.
++ * @freq_table:		current frequency table used by the devfreq driver.
++ * @max_state:		count of entry present in the frequency table.
+  * @previous_freq:	previously configured frequency value.
+  * @last_status:	devfreq user device info, performance statistics
+  * @data:	Private data of the governor. The devfreq framework does not
+@@ -185,6 +187,9 @@ struct devfreq {
+ 	struct notifier_block nb;
+ 	struct delayed_work work;
+ 
++	unsigned long *freq_table;
++	unsigned int max_state;
++
+ 	unsigned long previous_freq;
+ 	struct devfreq_dev_status last_status;
  
 
