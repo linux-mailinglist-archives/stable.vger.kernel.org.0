@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D0C5656C9
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC9A5656CD
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:16:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbiGDNPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:15:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54966 "EHLO
+        id S233294AbiGDNQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:16:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234502AbiGDNPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:15:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED603DFA7
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:15:30 -0700 (PDT)
+        with ESMTP id S232680AbiGDNQq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:16:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95134638A
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:16:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CE8061512
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:15:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B03FC3411E;
-        Mon,  4 Jul 2022 13:15:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D08EB80EFF
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 674D9C3411E;
+        Mon,  4 Jul 2022 13:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656940529;
-        bh=hITlpKZONOu+Frv6iJxBcMY6Lp+GpFWTaRauRej5KkI=;
+        s=korg; t=1656940603;
+        bh=tJT9XIxmQ3Vyniu6Ylh5KKE/g/EPp/nb5KGqOhgXw3I=;
         h=Subject:To:Cc:From:Date:From;
-        b=GqMB9tl26MAfqGOeyXhlYveo13MrLSa3Lbv2jfD+eYnd1oRAz1+0qlpMJZoHc4yCc
-         SXcdpzy6wsuNKJsi6u0V1oPo7wr8A1nQrUyJFi3F9AIA04VcnmwRA5U6rqBjhu2FFg
-         sbCk8yvSsYtpmQxLvt9sb4ZQQRn9GenrswF8WBe0=
-Subject: FAILED: patch "[PATCH] net/sched: act_api: Notify user space if any actions were" failed to apply to 4.14-stable tree
-To:     victor@mojatatu.com, jhs@mojatatu.com, kuba@kernel.org
+        b=X+7QlIk/VwbZEqrD8jRbDdTaV+NSUF2S29zhoZHxnXEG0d7B67xK9kkMhCscN6uEA
+         l/1S032eWtLXmh+rGa+2xzlGnGS3du1o6ZuwIqJCUvhGwxnqR9xbdXwmD5p6NNT++b
+         OscXdp830I6KUsIDRuvuDwap/D7iNl/OE83nNVKc=
+Subject: FAILED: patch "[PATCH] net: sparx5: mdb add/del handle non-sparx5 devices" failed to apply to 5.18-stable tree
+To:     casper.casan@gmail.com, Steen.Hegelund@microchip.com,
+        kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 15:15:16 +0200
-Message-ID: <165694051623737@kroah.com>
+Date:   Mon, 04 Jul 2022 15:16:40 +0200
+Message-ID: <165694060077121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,80 +60,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 76b39b94382f9e0a639e1c70c3253de248cc4c83 Mon Sep 17 00:00:00 2001
-From: Victor Nogueira <victor@mojatatu.com>
-Date: Thu, 23 Jun 2022 11:07:41 -0300
-Subject: [PATCH] net/sched: act_api: Notify user space if any actions were
- flushed before error
+From 9c5de246c1dbe785268fc2e83c88624b92e4ec93 Mon Sep 17 00:00:00 2001
+From: Casper Andersson <casper.casan@gmail.com>
+Date: Thu, 30 Jun 2022 14:22:26 +0200
+Subject: [PATCH] net: sparx5: mdb add/del handle non-sparx5 devices
 
-If during an action flush operation one of the actions is still being
-referenced, the flush operation is aborted and the kernel returns to
-user space with an error. However, if the kernel was able to flush, for
-example, 3 actions and failed on the fourth, the kernel will not notify
-user space that it deleted 3 actions before failing.
+When adding/deleting mdb entries on other net_devices, eg., tap
+interfaces, it should not crash.
 
-This patch fixes that behaviour by notifying user space of how many
-actions were deleted before flush failed and by setting extack with a
-message describing what happened.
-
-Fixes: 55334a5db5cd ("net_sched: act: refuse to remove bound action outside")
-Signed-off-by: Victor Nogueira <victor@mojatatu.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Fixes: 3bacfccdcb2d ("net: sparx5: Add mdb handlers")
+Signed-off-by: Casper Andersson <casper.casan@gmail.com>
+Reviewed-by: Steen Hegelund <Steen.Hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20220630122226.316812-1-casper.casan@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/sched/act_api.c b/net/sched/act_api.c
-index da9733da9868..817065aa2833 100644
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -588,7 +588,8 @@ static int tcf_idr_release_unsafe(struct tc_action *p)
- }
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c b/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
+index 3429660cd2e5..5edc8b7176c8 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
+@@ -396,6 +396,9 @@ static int sparx5_handle_port_mdb_add(struct net_device *dev,
+ 	u32 mact_entry;
+ 	int res, err;
  
- static int tcf_del_walker(struct tcf_idrinfo *idrinfo, struct sk_buff *skb,
--			  const struct tc_action_ops *ops)
-+			  const struct tc_action_ops *ops,
-+			  struct netlink_ext_ack *extack)
- {
- 	struct nlattr *nest;
- 	int n_i = 0;
-@@ -604,20 +605,25 @@ static int tcf_del_walker(struct tcf_idrinfo *idrinfo, struct sk_buff *skb,
- 	if (nla_put_string(skb, TCA_KIND, ops->kind))
- 		goto nla_put_failure;
++	if (!sparx5_netdevice_check(dev))
++		return -EOPNOTSUPP;
++
+ 	if (netif_is_bridge_master(v->obj.orig_dev)) {
+ 		sparx5_mact_learn(spx5, PGID_CPU, v->addr, v->vid);
+ 		return 0;
+@@ -466,6 +469,9 @@ static int sparx5_handle_port_mdb_del(struct net_device *dev,
+ 	u32 mact_entry, res, pgid_entry[3];
+ 	int err;
  
-+	ret = 0;
- 	mutex_lock(&idrinfo->lock);
- 	idr_for_each_entry_ul(idr, p, tmp, id) {
- 		if (IS_ERR(p))
- 			continue;
- 		ret = tcf_idr_release_unsafe(p);
--		if (ret == ACT_P_DELETED) {
-+		if (ret == ACT_P_DELETED)
- 			module_put(ops->owner);
--			n_i++;
--		} else if (ret < 0) {
--			mutex_unlock(&idrinfo->lock);
--			goto nla_put_failure;
--		}
-+		else if (ret < 0)
-+			break;
-+		n_i++;
- 	}
- 	mutex_unlock(&idrinfo->lock);
-+	if (ret < 0) {
-+		if (n_i)
-+			NL_SET_ERR_MSG(extack, "Unable to flush all TC actions");
-+		else
-+			goto nla_put_failure;
-+	}
- 
- 	ret = nla_put_u32(skb, TCA_FCNT, n_i);
- 	if (ret)
-@@ -638,7 +644,7 @@ int tcf_generic_walker(struct tc_action_net *tn, struct sk_buff *skb,
- 	struct tcf_idrinfo *idrinfo = tn->idrinfo;
- 
- 	if (type == RTM_DELACTION) {
--		return tcf_del_walker(idrinfo, skb, ops);
-+		return tcf_del_walker(idrinfo, skb, ops, extack);
- 	} else if (type == RTM_GETACTION) {
- 		return tcf_dump_walker(idrinfo, skb, cb);
- 	} else {
++	if (!sparx5_netdevice_check(dev))
++		return -EOPNOTSUPP;
++
+ 	if (netif_is_bridge_master(v->obj.orig_dev)) {
+ 		sparx5_mact_forget(spx5, v->addr, v->vid);
+ 		return 0;
 
