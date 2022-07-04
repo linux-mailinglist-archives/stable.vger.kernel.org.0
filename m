@@ -2,105 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 122A6565726
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5EF565734
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 15:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233770AbiGDNao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 09:30:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39062 "EHLO
+        id S234703AbiGDNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 09:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231868AbiGDNaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:30:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013A813DFD
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:24:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 997F2B80EFD
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 13:24:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF65CC3411E;
-        Mon,  4 Jul 2022 13:24:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656941063;
-        bh=OuLrUFkc0b33asgITPN79XlEY9YCum7/5J9ZajeKMcM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=UmkW+QUBevycBb+YcHcthxjGsNVl7e1CNmlw/OPY6bdP3rkkZh0Veet4PkJn8ik+Z
-         7ABjnDiwU/dPItObhf31SlQIUy64Jyb/QU6ligsfipb/u0rIZe9SD+9c3DJoXoL8qG
-         nAQ+8TcIEvzOAEzWkWGZk0GPPlrCGa6d6M+xY/W0=
-Subject: FAILED: patch "[PATCH] io_uring: fix provided buffer import" failed to apply to 5.18-stable tree
-To:     dylany@fb.com, axboe@kernel.dk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 15:24:20 +0200
-Message-ID: <1656941060218130@kroah.com>
+        with ESMTP id S233811AbiGDNbR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 09:31:17 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC4526F5
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 06:26:04 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id 145so8924678pga.12
+        for <stable@vger.kernel.org>; Mon, 04 Jul 2022 06:26:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language
+         :from:to:references:in-reply-to:content-transfer-encoding;
+        bh=UuagIt1u3IXFBdgD5nFgh0Bg7zljEhO9IIZVJV9xaZ4=;
+        b=mA7SqDThEfLqlNqB71baDf98WeeuuRxiL6ZUu29ne7+chPJ33tIF2fyStBnVOvGpBD
+         ccKoTvJwkxjVmB7TYIYDskoY7umFFj3z23V32sDi4i6KjiSEnNX6lihwdCsaT+LeYCYf
+         ocAp83U80C3kA1iSibT+x1ebCH6eacTLnBzl/95RBWNc81gY2OpsTlJ1Hpsd+xCnFH+b
+         qxg0b13oUbc9TCGVUrQV04eZ2By7bZZPn1R6OQrYWyZpGVqhJCUdTriripySTJ3fEiir
+         dUyGMkAkA4r493p4765wFg+pQScYsJ39jmVBj9oQznkSW+iBUuZGUbKs6JorR4cXXn8w
+         iBkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:references:in-reply-to
+         :content-transfer-encoding;
+        bh=UuagIt1u3IXFBdgD5nFgh0Bg7zljEhO9IIZVJV9xaZ4=;
+        b=bU3Nki3IsIDBXiME6TJfsBS9nL9KRsy0zp/UZs5F2fQJj9u4krxY1lH2vaS8jrB6Cd
+         5cUzmNQKFo/ZdO6+cAyLHGT7O4yjILdlcPtJE/NI4+7uePYCAfo3CPxRv0xwzQrZCvta
+         YcUjzubfkHcIzC/lDfGDQRp2odzgJ4Sd5Cn2z+sHOuMeSCF/Ml+fTdj9eir+JIJ9IQo6
+         b+VBFKu5dfOQIRFx1b7mD//ZdPFefKde1H1BD/0SkAwVg71aFBlBdBgHYt+it396c9ve
+         0M+lBAWhCyqZ4VkzpeDfse2serLtEHp8MnH3WHCaqlbWHU5huDl5dSxlnCSjtwlrFiel
+         veGg==
+X-Gm-Message-State: AJIora8K23fTdhNzeiuBw0zFGQcl+p+5g89XyCqYRwELBN5ofOIXsFwe
+        wOFShDU7UNXYHSIV6+/9+JIavA==
+X-Google-Smtp-Source: AGRyM1sZUl3nMsYh89A7G+NTD7qQ4r2CjiihSxvWg4mw4qf2raXdQLZzZhp542G8PhCrX0GsJu2VIQ==
+X-Received: by 2002:a05:6a00:15d6:b0:525:3757:4b98 with SMTP id o22-20020a056a0015d600b0052537574b98mr36616806pfu.64.1656941163634;
+        Mon, 04 Jul 2022 06:26:03 -0700 (PDT)
+Received: from [192.168.1.100] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id l7-20020a170903244700b0016bcc35000asm5330012pls.302.2022.07.04.06.26.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Jul 2022 06:26:03 -0700 (PDT)
+Message-ID: <4d63639d-f285-5585-4b6c-14e0bf7cdb17@kernel.dk>
+Date:   Mon, 4 Jul 2022 07:26:02 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: 5.18/15/10 backport
+Content-Language: en-US
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+References: <36e6d08d-89c0-99e3-a248-1ce79315de03@kernel.dk>
+In-Reply-To: <36e6d08d-89c0-99e3-a248-1ce79315de03@kernel.dk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 6/30/22 2:45 PM, Jens Axboe wrote:
+> Hi,
+> 
+> Can you apply these three patches, one for each of the 5.10, 5.15, and
+> 5.18 stable tree? Doesn't fix any issues of concern, just ensures that
+> we -EINVAL when invalid fields are set in the sqe for these opcodes.
+> This brings it up to par with 5.19 and newer.
 
-The patch below does not apply to the 5.18-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Just a reminder on this one, thanks!
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 09007af2b627f0f195c6c53c4829b285cc3990ec Mon Sep 17 00:00:00 2001
-From: Dylan Yudaken <dylany@fb.com>
-Date: Thu, 30 Jun 2022 06:20:06 -0700
-Subject: [PATCH] io_uring: fix provided buffer import
-
-io_import_iovec uses the s pointer, but this was changed immediately
-after the iovec was re-imported and so it was imported into the wrong
-place.
-
-Change the ordering.
-
-Fixes: 2be2eb02e2f5 ("io_uring: ensure reads re-import for selected buffers")
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Link: https://lore.kernel.org/r/20220630132006.2825668-1-dylany@fb.com
-[axboe: ensure we don't half-import as well]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index aeb042ba5cc5..0d491ad15b66 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4318,18 +4318,19 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 		if (unlikely(ret < 0))
- 			return ret;
- 	} else {
-+		rw = req->async_data;
-+		s = &rw->s;
-+
- 		/*
- 		 * Safe and required to re-import if we're using provided
- 		 * buffers, as we dropped the selected one before retry.
- 		 */
--		if (req->flags & REQ_F_BUFFER_SELECT) {
-+		if (io_do_buffer_select(req)) {
- 			ret = io_import_iovec(READ, req, &iovec, s, issue_flags);
- 			if (unlikely(ret < 0))
- 				return ret;
- 		}
- 
--		rw = req->async_data;
--		s = &rw->s;
- 		/*
- 		 * We come here from an earlier attempt, restore our state to
- 		 * match in case it doesn't. It's cheap enough that we don't
+-- 
+Jens Axboe
 
