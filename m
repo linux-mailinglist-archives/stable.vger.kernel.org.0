@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB8D565421
-	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 13:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E42565422
+	for <lists+stable@lfdr.de>; Mon,  4 Jul 2022 13:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbiGDLwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 07:52:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34022 "EHLO
+        id S232580AbiGDLwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 07:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231773AbiGDLwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 07:52:43 -0400
+        with ESMTP id S231810AbiGDLwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 07:52:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C56830D
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 04:52:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775FC30D
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 04:52:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A00A60EC6
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 11:52:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E957C3411E;
-        Mon,  4 Jul 2022 11:52:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A71560DBC
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 11:52:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7E0C341C7;
+        Mon,  4 Jul 2022 11:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656935557;
-        bh=YXt8Qbar3JJBxMbAm8NRSAN4IUiWKIbuHSFCCxbDAXk=;
+        s=korg; t=1656935565;
+        bh=LnQGR5M8LrjDjLSCadgoFaeVulxtfPBuZnhZgE2UzUg=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ioa4zSzSY4mbpHF3OV0wMuGWyAsBEMGju4BRL2fHx3BnyElanmM3b5VLSpSdqif30
-         /st5PXY5YrT8SZ6cJ7l+ofcVROQC1u8g/fwbSCilKBS0wBTREv8uDYEAwXR8Zmisci
-         0TjwbBL8xT31K1xwAr4bB9YWMLsiI8VfEOCTotn8=
-Subject: FAILED: patch "[PATCH] net: dp83822: disable rx error interrupt" failed to apply to 5.4-stable tree
+        b=L1Eo04AKIxLXwklptYzdTh8AzW9ZIgdziRe1kEslkAqezDx5vDrKqgsi871xjSCzx
+         7PspZfoETlQOK3WgPRNfcsYSYZUkrtNDJagl09Y/gi/xqpO/gEaGirjH/HHfQ6Oj5W
+         t9vei27gwp49/XrqAPlbq45RENQ+sliHr9gR/3Qg=
+Subject: FAILED: patch "[PATCH] net: dp83822: disable rx error interrupt" failed to apply to 4.19-stable tree
 To:     enguerrand.de-ribaucourt@savoirfairelinux.com, andrew@lunn.ch,
         kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jul 2022 13:52:34 +0200
-Message-ID: <16569355542086@kroah.com>
+Date:   Mon, 04 Jul 2022 13:52:35 +0200
+Message-ID: <1656935555172209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
