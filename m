@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2360566D39
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 403D0566D7E
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236709AbiGEMVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35976 "EHLO
+        id S229658AbiGEMYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:24:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236486AbiGEMRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:48 -0400
+        with ESMTP id S237106AbiGEMW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:22:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC7B192A0;
-        Tue,  5 Jul 2022 05:12:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237A91EED3;
+        Tue,  5 Jul 2022 05:16:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F640B816B8;
-        Tue,  5 Jul 2022 12:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A614EC341C7;
-        Tue,  5 Jul 2022 12:12:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D94CB817C7;
+        Tue,  5 Jul 2022 12:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C15FC341C7;
+        Tue,  5 Jul 2022 12:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023156;
-        bh=x+8JrTwYQkyjSY8KozZWrMcfxe5iJyL0E374ypPtwbM=;
+        s=korg; t=1657023405;
+        bh=P3bKUJYb8976Oy40u/qKUXR7LPBIJvpj5mASDUwINQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWw1bg99oIGI0bhiTiIlcRktnS4CexS3ktNutAp8YmqC0PjOFtPX8MdULnP7O9Qrt
-         vLOs41D7J//SratOxH3vt5q1F6QtvurCGO7LKKHzeychL6LtrPfI+mB/FrYo7y/kOu
-         d5B6RNy1Kwrwi+GKCR0UjnjC0OQctKEd80uqXe6Q=
+        b=bmhq1EpOeFr/seLMkoaXZUkLMZTvfxI2bjK6izzDDJI30GWzj9yOxfapFI+G5TWap
+         AiF8hAvIFvMHVN6pSJK3wA+ZvQnYJTO/EN0cgv25DwIQ70I36EViZymEUhRB97Sp2s
+         kVEousVjKVNcTYRtUOZvU5CM0RNKoYv/256KDuEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
-        Amit Cohen <amcohen@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 57/98] mlxsw: spectrum_router: Fix rollback in tunnel next hop init
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.18 049/102] io_uring: ensure that send/sendmsg and recv/recvmsg check sqe->ioprio
 Date:   Tue,  5 Jul 2022 13:58:15 +0200
-Message-Id: <20220705115619.202118013@linuxfoundation.org>
+Message-Id: <20220705115619.800016858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 665030fd0c1ed9f505932e6e73e7a2c788787a0a upstream.
+commit 73911426aaaadbae54fa72359b33a7b6a56947db upstream.
 
-In mlxsw_sp_nexthop6_init(), a next hop is always added to the router
-linked list, and mlxsw_sp_nexthop_type_init() is invoked afterwards. When
-that function results in an error, the next hop will not have been removed
-from the linked list. As the error is propagated upwards and the caller
-frees the next hop object, the linked list ends up holding an invalid
-object.
+All other opcodes correctly check if this is set and -EINVAL if it is
+and they don't support that field, for some reason the these were
+forgotten.
 
-A similar issue comes up with mlxsw_sp_nexthop4_init(), where rollback
-block does exist, however does not include the linked list removal.
+This was unified a bit differently in the upstream tree, but had the
+same effect as making sure we error on this field. Rather than have
+a painful backport of the upstream commit, just fixup the mentioned
+opcodes.
 
-Both IPv6 and IPv4 next hops have a similar issue with next-hop counter
-rollbacks. As these were introduced in the same patchset as the next hop
-linked list, include the cleanup in this patch.
-
-Fixes: dbe4598c1e92 ("mlxsw: spectrum_router: Keep nexthops in a linked list")
-Fixes: a5390278a5eb ("mlxsw: spectrum: Add support for setting counters on nexthops")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Amit Cohen <amcohen@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20220629070205.803952-1-idosch@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/io_uring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -4293,6 +4293,8 @@ static int mlxsw_sp_nexthop4_init(struct
- 	return 0;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5254,7 +5254,7 @@ static int io_sendmsg_prep(struct io_kio
  
- err_nexthop_neigh_init:
-+	list_del(&nh->router_list_node);
-+	mlxsw_sp_nexthop_counter_free(mlxsw_sp, nh);
- 	mlxsw_sp_nexthop_remove(mlxsw_sp, nh);
- 	return err;
- }
-@@ -6578,6 +6580,7 @@ static int mlxsw_sp_nexthop6_init(struct
- 				  const struct fib6_info *rt)
- {
- 	struct net_device *dev = rt->fib6_nh->fib_nh_dev;
-+	int err;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (unlikely(sqe->addr2 || sqe->file_index))
++	if (unlikely(sqe->addr2 || sqe->file_index || sqe->ioprio))
+ 		return -EINVAL;
  
- 	nh->nhgi = nh_grp->nhgi;
- 	nh->nh_weight = rt->fib6_nh->fib_nh_weight;
-@@ -6593,7 +6596,16 @@ static int mlxsw_sp_nexthop6_init(struct
- 		return 0;
- 	nh->ifindex = dev->ifindex;
+ 	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
+@@ -5467,7 +5467,7 @@ static int io_recvmsg_prep(struct io_kio
  
--	return mlxsw_sp_nexthop_type_init(mlxsw_sp, nh, dev);
-+	err = mlxsw_sp_nexthop_type_init(mlxsw_sp, nh, dev);
-+	if (err)
-+		goto err_nexthop_type_init;
-+
-+	return 0;
-+
-+err_nexthop_type_init:
-+	list_del(&nh->router_list_node);
-+	mlxsw_sp_nexthop_counter_free(mlxsw_sp, nh);
-+	return err;
- }
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (unlikely(sqe->addr2 || sqe->file_index))
++	if (unlikely(sqe->addr2 || sqe->file_index || sqe->ioprio))
+ 		return -EINVAL;
  
- static void mlxsw_sp_nexthop6_fini(struct mlxsw_sp *mlxsw_sp,
+ 	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
 
 
