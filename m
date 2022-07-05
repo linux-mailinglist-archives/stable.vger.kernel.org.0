@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC88566D2C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD455566BDA
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236627AbiGEMV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36060 "EHLO
+        id S234782AbiGEMKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236525AbiGEMRw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AC31164;
-        Tue,  5 Jul 2022 05:12:47 -0700 (PDT)
+        with ESMTP id S235274AbiGEMIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853762F0;
+        Tue,  5 Jul 2022 05:08:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F159FCE0B30;
-        Tue,  5 Jul 2022 12:12:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCAE4C341C7;
-        Tue,  5 Jul 2022 12:12:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38A02B817CC;
+        Tue,  5 Jul 2022 12:08:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2EBBC341C7;
+        Tue,  5 Jul 2022 12:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023164;
-        bh=yzAS8v6m5CgK6auiL+lv4OCs3UkCk+xlX70L7UqN33A=;
+        s=korg; t=1657022916;
+        bh=a50ej18WXgHGFOycfqcwJ8u6rEn98dcQmIqpBfb7X+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPhIfP0FKrnrxxXXyB/nXSUeNdX0dP0GYyN05H+b6TKg7JCcPTA3AiRw8FSA4WqbS
-         gOD1LQ5ew28tPgFrp7vlK6SRm6IoHhfgFshZlFG2Fts3xbHt93xSuXoh7MA/UKUJab
-         msln73AuVUyCb5HBctM9eKFfqkF17jU900ZzJ9jc=
+        b=V433Peeh6eqWWH82M2Ykpsmh3W9xsGK6/rlSFsB+E1T4i0DkBqPrc9ZFl3glA5f6D
+         YLnu86d0HW61BvvcJG4DWsOZRIerA2HOxcLz6UePyfDQ/Qkw3b/jt+q3foweI3CZk6
+         c7Zhqs9TQ0EU+44sJIjx/lxKLLzbysU50bXZgdmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 60/98] tcp: add a missing nf_reset_ct() in 3WHS handling
-Date:   Tue,  5 Jul 2022 13:58:18 +0200
-Message-Id: <20220705115619.285706602@linuxfoundation.org>
+Subject: [PATCH 5.10 56/84] selftests: mptcp: more stable diag tests
+Date:   Tue,  5 Jul 2022 13:58:19 +0200
+Message-Id: <20220705115616.958466426@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,71 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 6f0012e35160cd08a53e46e3b3bbf724b92dfe68 upstream.
+[ Upstream commit 42fb6cddec3b306c9f6ef136b6438e0de1836431 ]
 
-When the third packet of 3WHS connection establishment
-contains payload, it is added into socket receive queue
-without the XFRM check and the drop of connection tracking
-context.
+The mentioned test-case still use an hard-coded-len sleep to
+wait for a relative large number of connection to be established.
 
-This means that if the data is left unread in the socket
-receive queue, conntrack module can not be unloaded.
+On very slow VM and with debug build such timeout could be exceeded,
+causing failures in our CI.
 
-As most applications usually reads the incoming data
-immediately after accept(), bug has been hiding for
-quite a long time.
+Address the issue polling for the expected condition several times,
+up to an unreasonable high amount of time. On reasonably fast system
+the self-tests will be faster then before, on very slow one we will
+still catch the correct condition.
 
-Commit 68822bdf76f1 ("net: generalize skb freeing
-deferral to per-cpu lists") exposed this bug because
-even if the application reads this data, the skb
-with nfct state could stay in a per-cpu cache for
-an arbitrary time, if said cpu no longer process RX softirqs.
-
-Many thanks to Ilya Maximets for reporting this issue,
-and for testing various patches:
-https://lore.kernel.org/netdev/20220619003919.394622-1-i.maximets@ovn.org/
-
-Note that I also added a missing xfrm4_policy_check() call,
-although this is probably not a big issue, as the SYN
-packet should have been dropped earlier.
-
-Fixes: b59c270104f0 ("[NETFILTER]: Keep conntrack reference until IPsec policy checks are done")
-Reported-by: Ilya Maximets <i.maximets@ovn.org>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Tested-by: Ilya Maximets <i.maximets@ovn.org>
-Reviewed-by: Ilya Maximets <i.maximets@ovn.org>
-Link: https://lore.kernel.org/r/20220623050436.1290307-1-edumazet@google.com
+Fixes: df62f2ec3df6 ("selftests/mptcp: add diag interface tests")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_ipv4.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/net/mptcp/diag.sh | 48 +++++++++++++++++++----
+ 1 file changed, 40 insertions(+), 8 deletions(-)
 
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2014,7 +2014,8 @@ process:
- 		struct sock *nsk;
+diff --git a/tools/testing/selftests/net/mptcp/diag.sh b/tools/testing/selftests/net/mptcp/diag.sh
+index ff821025d309..49dfabded1d4 100755
+--- a/tools/testing/selftests/net/mptcp/diag.sh
++++ b/tools/testing/selftests/net/mptcp/diag.sh
+@@ -61,6 +61,39 @@ chk_msk_nr()
+ 	__chk_nr "grep -c token:" $*
+ }
  
- 		sk = req->rsk_listener;
--		if (unlikely(tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
-+		if (unlikely(!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb) ||
-+			     tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
- 			sk_drops_add(sk, skb);
- 			reqsk_put(req);
- 			goto discard_it;
-@@ -2061,6 +2062,7 @@ process:
- 			}
- 			goto discard_and_relse;
- 		}
-+		nf_reset_ct(skb);
- 		if (nsk == sk) {
- 			reqsk_put(req);
- 			tcp_v4_restore_cb(skb);
++wait_msk_nr()
++{
++	local condition="grep -c token:"
++	local expected=$1
++	local timeout=20
++	local msg nr
++	local max=0
++	local i=0
++
++	shift 1
++	msg=$*
++
++	while [ $i -lt $timeout ]; do
++		nr=$(ss -inmHMN $ns | $condition)
++		[ $nr == $expected ] && break;
++		[ $nr -gt $max ] && max=$nr
++		i=$((i + 1))
++		sleep 1
++	done
++
++	printf "%-50s" "$msg"
++	if [ $i -ge $timeout ]; then
++		echo "[ fail ] timeout while expecting $expected max $max last $nr"
++		ret=$test_cnt
++	elif [ $nr != $expected ]; then
++		echo "[ fail ] expected $expected found $nr"
++		ret=$test_cnt
++	else
++		echo "[  ok  ]"
++	fi
++	test_cnt=$((test_cnt+1))
++}
++
+ chk_msk_fallback_nr()
+ {
+ 		__chk_nr "grep -c fallback" $*
+@@ -109,7 +142,7 @@ ip -n $ns link set dev lo up
+ echo "a" | \
+ 	timeout ${timeout_test} \
+ 		ip netns exec $ns \
+-			./mptcp_connect -p 10000 -l -t ${timeout_poll} \
++			./mptcp_connect -p 10000 -l -t ${timeout_poll} -w 20 \
+ 				0.0.0.0 >/dev/null &
+ wait_local_port_listen $ns 10000
+ chk_msk_nr 0 "no msk on netns creation"
+@@ -117,7 +150,7 @@ chk_msk_nr 0 "no msk on netns creation"
+ echo "b" | \
+ 	timeout ${timeout_test} \
+ 		ip netns exec $ns \
+-			./mptcp_connect -p 10000 -r 0 -t ${timeout_poll} \
++			./mptcp_connect -p 10000 -r 0 -t ${timeout_poll} -w 20 \
+ 				127.0.0.1 >/dev/null &
+ wait_connected $ns 10000
+ chk_msk_nr 2 "after MPC handshake "
+@@ -129,13 +162,13 @@ flush_pids
+ echo "a" | \
+ 	timeout ${timeout_test} \
+ 		ip netns exec $ns \
+-			./mptcp_connect -p 10001 -l -s TCP -t ${timeout_poll} \
++			./mptcp_connect -p 10001 -l -s TCP -t ${timeout_poll} -w 20 \
+ 				0.0.0.0 >/dev/null &
+ wait_local_port_listen $ns 10001
+ echo "b" | \
+ 	timeout ${timeout_test} \
+ 		ip netns exec $ns \
+-			./mptcp_connect -p 10001 -r 0 -t ${timeout_poll} \
++			./mptcp_connect -p 10001 -r 0 -t ${timeout_poll} -w 20 \
+ 				127.0.0.1 >/dev/null &
+ wait_connected $ns 10001
+ chk_msk_fallback_nr 1 "check fallback"
+@@ -146,7 +179,7 @@ for I in `seq 1 $NR_CLIENTS`; do
+ 	echo "a" | \
+ 		timeout ${timeout_test} \
+ 			ip netns exec $ns \
+-				./mptcp_connect -p $((I+10001)) -l -w 10 \
++				./mptcp_connect -p $((I+10001)) -l -w 20 \
+ 					-t ${timeout_poll} 0.0.0.0 >/dev/null &
+ done
+ wait_local_port_listen $ns $((NR_CLIENTS + 10001))
+@@ -155,12 +188,11 @@ for I in `seq 1 $NR_CLIENTS`; do
+ 	echo "b" | \
+ 		timeout ${timeout_test} \
+ 			ip netns exec $ns \
+-				./mptcp_connect -p $((I+10001)) -w 10 \
++				./mptcp_connect -p $((I+10001)) -w 20 \
+ 					-t ${timeout_poll} 127.0.0.1 >/dev/null &
+ done
+-sleep 1.5
+ 
+-chk_msk_nr $((NR_CLIENTS*2)) "many msk socket present"
++wait_msk_nr $((NR_CLIENTS*2)) "many msk socket present"
+ flush_pids
+ 
+ exit $ret
+-- 
+2.35.1
+
 
 
