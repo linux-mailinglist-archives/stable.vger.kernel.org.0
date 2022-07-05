@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30411566BE4
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06418566BF0
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234698AbiGEMJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52266 "EHLO
+        id S234821AbiGEMKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235173AbiGEMIj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:39 -0400
+        with ESMTP id S234283AbiGEMHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C695F18E2B;
-        Tue,  5 Jul 2022 05:08:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7925519021;
+        Tue,  5 Jul 2022 05:06:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6376661967;
-        Tue,  5 Jul 2022 12:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C2F0C341C7;
-        Tue,  5 Jul 2022 12:07:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1673961876;
+        Tue,  5 Jul 2022 12:06:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 201A5C341CD;
+        Tue,  5 Jul 2022 12:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022879;
-        bh=SJn9ehuval0y4TO7dS5awgimnWcbV+wKvBvAH46Ndvs=;
+        s=korg; t=1657022767;
+        bh=svF5i739Bq80o8Vq9mQxW322TDesVXYpo1IegF0LoZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oySB1icD7AVcBZrJR8nBgEAVTJuEfM+q5x/XZEsTApo/fGasLoDyl7qVYxmBif71Y
-         Ihyt/yOUqNcIiJJCpuksyctLTi26HfpvXdzq9UXfh36DlshTHQHMdqPAK56iz/uoY5
-         UD/UC/O8JiRB+osBJHKOfN3C0mqk72daF38nok3Q=
+        b=l215cXiXvvkCcCnXkkGYYUAshPjPi81E4IHxn9x7davoA2tsj9aDRMQHH3aHCIlsP
+         YduYtU6dxBYiCM20/RGxfTCBcQN1TvKPw9z6p8/NKKg9By9Ce5NDZTk+US235Hpq2H
+         jRDR9dXiuS1/Zlnz7OuESey59qbxa86bfgWsffU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 44/84] xfs: ensure xfs_errortag_random_default matches XFS_ERRTAG_MAX
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 31/58] net: dsa: bcm_sf2: force pause link settings
 Date:   Tue,  5 Jul 2022 13:58:07 +0200
-Message-Id: <20220705115616.609865501@linuxfoundation.org>
+Message-Id: <20220705115611.162237133@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Doug Berger <opendmb@gmail.com>
 
-commit b2c2974b8cdf1eb3ef90ff845eb27b19e2187b7e upstream.
+commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
 
-Add the BUILD_BUG_ON to xfs_errortag_add() in order to make sure that
-the length of xfs_errortag_random_default matches XFS_ERRTAG_MAX when
-building.
+The pause settings reported by the PHY should also be applied to the GMII port
+status override otherwise the switch will not generate pause frames towards the
+link partner despite the advertisement saying otherwise.
 
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_error.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/dsa/bcm_sf2.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/xfs/xfs_error.c
-+++ b/fs/xfs/xfs_error.c
-@@ -293,6 +293,8 @@ xfs_errortag_add(
- 	struct xfs_mount	*mp,
- 	unsigned int		error_tag)
- {
-+	BUILD_BUG_ON(ARRAY_SIZE(xfs_errortag_random_default) != XFS_ERRTAG_MAX);
-+
- 	if (error_tag >= XFS_ERRTAG_MAX)
- 		return -EINVAL;
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -602,6 +602,11 @@ force_link:
+ 		reg |= LINK_STS;
+ 	if (state->duplex == DUPLEX_FULL)
+ 		reg |= DUPLX_MODE;
++	if (state->pause & MLO_PAUSE_TXRX_MASK) {
++		if (state->pause & MLO_PAUSE_TX)
++			reg |= TXFLOW_CNTL;
++		reg |= RXFLOW_CNTL;
++	}
  
+ 	core_writel(priv, reg, offset);
+ }
 
 
