@@ -2,70 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB44056704A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 16:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B619567069
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 16:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232644AbiGEOF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 10:05:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52646 "EHLO
+        id S233109AbiGEOJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 10:09:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbiGEOEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 10:04:42 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2553F22523
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 06:52:14 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id h17so4517963wrx.0
-        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 06:52:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=GR2p63BS/ChSrJTErcsL6FDgshrMMqE2JBQFZoqpd64=;
-        b=dqSIKCvXOcVmZzmdj1Hu623wQcxtOTcW0yOApqpVfIKfdp5i2S29GPBXY570h01uG1
-         pTY3r3x3qETrZ1pxCMxOAmxo7zGBbDtBdK4/6ZTWrmDdsBM06jNiqkmdeWTFcPrtQ2fQ
-         myjN9dOjGlVTinbzV7/Z5PsNjlkqgLp7dFDNvHhECBA3HRUEb4elfJdGsPg4GXMX37eB
-         0j/i3YdknzrmnHikx3sfa2iSZ2eE9QnRQigAU+1Un0VJSj1TjojvKJtt+kF2WqQDSOge
-         rM9tTdPQEW5pjj2mvx7IMSkxOYV6ZfVvN+jAn4Ak98e2sr31VfrYRmRmmmz1eZa1mGki
-         LPOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=GR2p63BS/ChSrJTErcsL6FDgshrMMqE2JBQFZoqpd64=;
-        b=qA7Ntoz/6yvwPrET9xvi3HsxiKZEdEoexPNGmO7V4Sj/zutjvi0nwsAiJJSHAt+AiB
-         Qzvyg1yoC0WqpbinGvHPb1KgXA9MK2NetQiT9EugkId8k7j+uZ8Hor8poOp353wiI0o6
-         crWlFbyFYe1fZPnPIrD4CducHoKKVLmRHuYH0X7k/R7Pg8qE3E96r1DOut+/cnXq4JSA
-         HpZfyZRUMwEIcW/G74yaBiLx61AlXkg8GMlK19eWj09U8YJU8OlX+EmaWZT1yvfEhbYL
-         f6XUhstqu0xZhvv5tH5PK7zqVwiMadPkrkSdPAL0FsOPYBTKeTVQb64Oqn3O+9qGTvAE
-         ZrSA==
-X-Gm-Message-State: AJIora9nQXioU3cCpEvL6GpcUjX45aSCMGQQ027bYYKeeIq+OJacVHRD
-        5GDbrcOw/HsS+XE9N1LcxA1AA/NO0kJo2k5okMo=
-X-Google-Smtp-Source: AGRyM1ubMTi4bA741CcjAwvR52sCyVoyrDBDQQ6ifw6PgeZ0IF0dPrqKR+LOFyjp10WkDa7BWbNLcaNfAecJi2SqaKo=
-X-Received: by 2002:adf:f7cd:0:b0:21d:6e8d:ee13 with SMTP id
- a13-20020adff7cd000000b0021d6e8dee13mr6448930wrq.11.1657029132781; Tue, 05
- Jul 2022 06:52:12 -0700 (PDT)
+        with ESMTP id S229648AbiGEOJf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 10:09:35 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8707918C;
+        Tue,  5 Jul 2022 07:00:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1657029622;
+        bh=JLNG6qQbYegLH/nISdsYT1RRx7ezCza6UCEUa1YsOBI=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=MlKRhxYuHsMqqAN1eyxdNeq/nW6MLd238IAXi/V9jUO/oAdBxM25CVC7CaAyN3K+B
+         C9Gv5o+4GEWMN8xmp4Xo0wi9TrC/tFwvKwCudj284lQVOZeNmMXdx/beEkRQZKhL1b
+         2gXGMaG2dRh9gEcGDvRM2UmduUVKvSut2OP78gFA=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.33.105]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MTzay-1o0RLL3ulu-00R1Gy; Tue, 05
+ Jul 2022 16:00:22 +0200
+Message-ID: <97a817b0-bb36-8433-28c1-c43d40e7d354@gmx.de>
+Date:   Tue, 5 Jul 2022 16:00:21 +0200
 MIME-Version: 1.0
-Reply-To: sgtkaylamanthey612@gmail.com
-Sender: finoureine@gmail.com
-Received: by 2002:a7b:cb86:0:0:0:0:0 with HTTP; Tue, 5 Jul 2022 06:52:12 -0700 (PDT)
-From:   Kayla Manthey <sgtkaylamanthey612@gmail.com>
-Date:   Tue, 5 Jul 2022 13:52:12 +0000
-X-Google-Sender-Auth: uPwQFYZLJbMQNO7DqQiRrDWIKy8
-Message-ID: <CAD36dZzAwicrTDs+33JuR0gZHR-0UE08OFg=rXwYiSAb3Egedw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_20,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.18 000/102] 5.18.10-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:s6xLcgfSYwpdeNKTB0cNv0JntjQlj4p1ynJnHCsKyDhIHKSg9YQ
+ 70RGK2l++17Z3eL7VzdwjFBDcGKPMhwZi6ri+dbBXf9MT9GNy1O8pJzBC7XNuz4ScYqWj7l
+ vQY9YB+aL2XpKtb1QzYFfPr9Wjr6ZvuHL6EsempIooHNkYznOmwMa+CTJdQ/Fs3vxZ6bVfj
+ pYHx6oWsJMcSI9DAj1OkQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:r47WwgHunOE=:cThFB1ahH86ZfM9SJq3TzE
+ y6G3JO+ozvwUWqop+ObViMuapRpvDwLY6YGo7Xv1Z7sSGQRgqmr2vVnQcUK6tM4u/TI6hx4Hi
+ SJ8t2j/dsBrpaXh5Ii8hBoe/mJYDMkvREe9uXySOF9a0/dwsCNyts/Q6fvdS2JkbZr1VJTi5M
+ rT0jC+AZOuhc2boQSWwYcALQtra+anw4bB7g2RRL+JLzF+A/i3FAmVZK4QzkTeGfa+7gaJyKr
+ LxahSn4QPyNI1BZtVBQR5f8VqnqygNKoKid5kS1eyb1kD7ZP4BKUVCIHBs6vKl7X+Lw8aTOua
+ 26jBTOKNGL/wICiYKYyy7pH89TX9d0j5+BOif838Qq7UOl7HLonrV2Aa8GZc+HiAQtcEMqvz0
+ FxsX+1abW/n92sf6gHeKpgy42AEeV81MHfkpNSXYI1ifBfUH1rrtbS5cU44Sqf4vc4zV0DaLk
+ QTCozUAj7DRtoSe4ThDLAdgW+//p6LOPYGXnLIL2CDn3E4DR63YkjWGluT1k/iq9kvF3g3lzV
+ KhUXkAGztMeH7AdC+ZZiw2RR2AaBRkkFCB2tRPYvZUGHcWmO+HrLL/Ta652iAJGoWxtkIDE9e
+ 7uB9oyq2H+UxTUYThhHo7CJl7hfWSxE5QVVhVWVqVypslkWZTn/FObYep4rF0kyrxI0V8QOs0
+ hksl5zkoWfakjRtEk2gNjT8KMDoMZXD0w0w2YLlJ/DNnoILz3UySw0VzK3qoDep6kXjzeUKXw
+ 0u6uqBRyHkqXShO/oMySLYLkWJaV/B2f3mixGCmr8uJ46rvUDZDzO8teiP4rXS/rfSUwgX0zQ
+ iLa1sj5dK+EPq8AbRhjLKbfWygFBtYwuIYt5J8DAg9NyZQDyUGNtD0axPHUATRPL2EDD2ol4R
+ 1fVDO4QXe3WtKA3Xwg2UV8j6NAPcZFbtV6Y+lYUgcxg+ZQnjOWCv4KtCjpTGOk49kGivHo+xY
+ 9/bFXVpCSevGpaDodeS+zp5T8kR+K/bSIJ7Gv5Eykhqhljl9fhixTlAis+kQSbBFKPuFL55ot
+ gta/+MQFv7LajSHjW0RxVTvLLjdMsgFGEkMj7/qIRLV1cwO5rEEL0dqqz4W++45neKszY7KLN
+ BnW42VJxfjjOXzocfy4/3sLFm4dDMscKJS4
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dobr=C3=BD den, neobdr=C5=BEel jsem od v=C3=A1s odpov=C4=9B=C4=8F na m=C3=
-=A9 p=C5=99edchoz=C3=AD e-maily,
-pros=C3=ADm zkontrolujte a odpov=C4=9Bzte mi.
+hallo Greg
+
+5.18.10-rc1
+
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 36)
+
+Thanks
+
+Ronald
+
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de
+
