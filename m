@@ -2,77 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C17AB5662EA
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 08:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCAA95662EB
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 08:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbiGEGCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 02:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60226 "EHLO
+        id S229579AbiGEGCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 02:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbiGEGCI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 02:02:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694F5D133
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 23:02:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA4BB6119C
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 06:02:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 005ACC341C7;
-        Tue,  5 Jul 2022 06:02:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657000927;
-        bh=gNiDAzlrK+Aj/EYm+DIzDx8Te69W/dkkQKCqwBFl3gE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KHbZEx/xBqhnjqhT/+ZFysb09JP/ztXi0dl7EszweBW1Yrc/FVcOwFhROqhUhoeSD
-         nWGrSqL2vMy72um1cYEf/zBqB3cUEmQ9vsdwXNUYwXkAMQM+yWDVRILfowXtkNxPPT
-         JDXe8YdO6SNLIdDDm2IYS5n1mNWyERDpnqEB2ozw=
-Date:   Tue, 5 Jul 2022 08:02:02 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     katrinzhou@tencent.com, dsahern@kernel.org, edumazet@google.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return
- value" failed to apply to 4.9-stable tree
-Message-ID: <YsPT2t9mPPMv0fZF@kroah.com>
-References: <16569413791787@kroah.com>
- <20220704194048.47867c80@kernel.org>
+        with ESMTP id S229503AbiGEGCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 02:02:25 -0400
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C59BCD133
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 23:02:23 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VIQiBfx_1657000939;
+Received: from localhost.localdomain(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0VIQiBfx_1657000939)
+          by smtp.aliyun-inc.com;
+          Tue, 05 Jul 2022 14:02:21 +0800
+From:   Wen Yang <wenyang@linux.alibaba.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Bin Yang <bin.yang@intel.com>,
+        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org,
+        Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
+Date:   Tue,  5 Jul 2022 14:02:07 +0800
+Message-Id: <20220705060209.22806-1-wenyang@linux.alibaba.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220704194048.47867c80@kernel.org>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 04, 2022 at 07:40:48PM -0700, Jakub Kicinski wrote:
-> On Mon, 04 Jul 2022 15:29:39 +0200 gregkh@linuxfoundation.org wrote:
-> > The patch below does not apply to the 4.9-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > From adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d Mon Sep 17 00:00:00 2001
-> > From: katrinzhou <katrinzhou@tencent.com>
-> > Date: Tue, 28 Jun 2022 11:50:30 +0800
-> > Subject: [PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return value
-> 
-> FWIW you just need to pull in the nop refactor from commit 284fda1eff8a
-> ("sit: use min") for this one to apply.
+From: Peter Zijlstra <peterz@infradead.org>
 
-Thanks, that worked.
+commit ddd07b750382adc2b78fdfbec47af8a6e0d8ef37 upstream.
 
-greg k-h
+CAT has happened, WBINDV is bad (even before CAT blowing away the
+entire cache on a multi-core platform wasn't nice), try not to use it
+ever.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+Cc: Bin Yang <bin.yang@intel.com>
+Cc: Mark Gross <mark.gross@intel.com>
+Link: https://lkml.kernel.org/r/20180919085947.933674526@infradead.org
+Cc: <stable@vger.kernel.org> # 4.19.x
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+---
+ arch/x86/mm/pageattr.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
+
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index 101f3ad0d6ad..ab87da7a6043 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -239,26 +239,12 @@ static void cpa_flush_array(unsigned long *start, int numpages, int cache,
+ 			    int in_flags, struct page **pages)
+ {
+ 	unsigned int i, level;
+-#ifdef CONFIG_PREEMPT
+-	/*
+-	 * Avoid wbinvd() because it causes latencies on all CPUs,
+-	 * regardless of any CPU isolation that may be in effect.
+-	 *
+-	 * This should be extended for CAT enabled systems independent of
+-	 * PREEMPT because wbinvd() does not respect the CAT partitions and
+-	 * this is exposed to unpriviledged users through the graphics
+-	 * subsystem.
+-	 */
+-	unsigned long do_wbinvd = 0;
+-#else
+-	unsigned long do_wbinvd = cache && numpages >= 1024; /* 4M threshold */
+-#endif
+ 
+ 	BUG_ON(irqs_disabled() && !early_boot_irqs_disabled);
+ 
+-	on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
++	flush_tlb_all();
+ 
+-	if (!cache || do_wbinvd)
++	if (!cache)
+ 		return;
+ 
+ 	/*
+-- 
+2.19.1.6.gb485710b
+
