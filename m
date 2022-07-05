@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE983566BFC
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F4A566B09
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234348AbiGEMK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:10:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49548 "EHLO
+        id S233660AbiGEMDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:03:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235326AbiGEMI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D15A15FFB;
-        Tue,  5 Jul 2022 05:08:58 -0700 (PDT)
+        with ESMTP id S233413AbiGEMDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42EE118378;
+        Tue,  5 Jul 2022 05:03:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C845FB817CE;
-        Tue,  5 Jul 2022 12:08:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17586C341C7;
-        Tue,  5 Jul 2022 12:08:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D886173E;
+        Tue,  5 Jul 2022 12:03:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2671C385A5;
+        Tue,  5 Jul 2022 12:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022935;
-        bh=V878LdBN19s8tRJg3JLUYQbVPB/+HWJ83r+Ig4+/bzc=;
+        s=korg; t=1657022593;
+        bh=+n5TxLBg33L0Ng3gImkPeSt6IK8dHW9730F7EhY42SM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZX39cpaVbNdMjEVYNrizkHyQZACWnw3eRLovNPslWZ2TjEUP/2j6Q/Eo1bnJaQdn+
-         gRALWUBJIWUmwqPM9SVeooUzSapreUBQY+wQvGiFpaDnXP+WzssU7uakSs8X3sop9C
-         yZHeD2bFoinOIo8Sjl3A7eloddXpKA0Oq+z9Nf6M=
+        b=OQH+Qz2HY4DJx82RzAm6LdnjUB2WfFiN8N4rzyDxZ5FBqPcpil0hlgEK7Z4kO9IeM
+         8nvHCIuFOBMhYTo750cpKfZBSuUqZi0fqNUm0ZGLgDEgSu3/rHa857AxwRrG68j4/G
+         YOUzkd9JLkrW2AcSDNTji7+vPzEM6MeANs+rzqaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 62/84] selftests/rseq: Remove useless assignment to cpu variable
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: [PATCH 4.19 33/33] net: usb: qmi_wwan: add Telit 0x1070 composition
 Date:   Tue,  5 Jul 2022 13:58:25 +0200
-Message-Id: <20220705115617.132290829@linuxfoundation.org>
+Message-Id: <20220705115607.683448383@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
+References: <20220705115606.709817198@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,30 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 930378d056eac2c96407b02aafe4938d0ac9cc37 upstream.
+commit 94f2a444f28a649926c410eb9a38afb13a83ebe0 upstream.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-4-mathieu.desnoyers@efficios.com
+Add the following Telit FN990 composition:
+
+0x1070: tty, adb, rmnet, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20211210095722.22269-1-dnlplm@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Fabio Porcedda <fabio.porcedda@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/param_test.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/testing/selftests/rseq/param_test.c
-+++ b/tools/testing/selftests/rseq/param_test.c
-@@ -368,9 +368,7 @@ void *test_percpu_spinlock_thread(void *
- 		abort();
- 	reps = thread_data->reps;
- 	for (i = 0; i < reps; i++) {
--		int cpu = rseq_cpu_start();
--
--		cpu = rseq_this_cpu_lock(&data->lock);
-+		int cpu = rseq_this_cpu_lock(&data->lock);
- 		data->c[cpu].count++;
- 		rseq_percpu_unlock(&data->lock, cpu);
- #ifndef BENCHMARK
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1319,6 +1319,7 @@ static const struct usb_device_id produc
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 
 
