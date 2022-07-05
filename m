@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C820C566AC6
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30411566BE4
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230032AbiGEMCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43828 "EHLO
+        id S234698AbiGEMJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233096AbiGEMBP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39E817AA6;
-        Tue,  5 Jul 2022 05:01:14 -0700 (PDT)
+        with ESMTP id S235173AbiGEMIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C695F18E2B;
+        Tue,  5 Jul 2022 05:08:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86011B817D4;
-        Tue,  5 Jul 2022 12:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCCCBC341CB;
-        Tue,  5 Jul 2022 12:01:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6376661967;
+        Tue,  5 Jul 2022 12:08:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C2F0C341C7;
+        Tue,  5 Jul 2022 12:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022472;
-        bh=IoZTyfzd9DsX/b0gQKO3BlhJTHwTyv/JniQkRhKv3yk=;
+        s=korg; t=1657022879;
+        bh=SJn9ehuval0y4TO7dS5awgimnWcbV+wKvBvAH46Ndvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJOELwScx95d0PlCyyAOwMCbYV11DrtMMbgTLEcbnHw/YOFtHwoG60N3lybszveRc
-         ukiQZRCl2DNBSqRqd5w/aiLIKbK74/2diT40dRmBll7gyMUZ1oHtrckgtIJSMMZVGj
-         A4eArYu+JqS1Eg1013gnz68cAcQu8Lqeq2MoFfkI=
+        b=oySB1icD7AVcBZrJR8nBgEAVTJuEfM+q5x/XZEsTApo/fGasLoDyl7qVYxmBif71Y
+         Ihyt/yOUqNcIiJJCpuksyctLTi26HfpvXdzq9UXfh36DlshTHQHMdqPAK56iz/uoY5
+         UD/UC/O8JiRB+osBJHKOfN3C0mqk72daF38nok3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 19/29] net: dsa: bcm_sf2: force pause link settings
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 44/84] xfs: ensure xfs_errortag_random_default matches XFS_ERRTAG_MAX
 Date:   Tue,  5 Jul 2022 13:58:07 +0200
-Message-Id: <20220705115606.910907553@linuxfoundation.org>
+Message-Id: <20220705115616.609865501@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
-References: <20220705115606.333669144@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
+commit b2c2974b8cdf1eb3ef90ff845eb27b19e2187b7e upstream.
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+Add the BUILD_BUG_ON to xfs_errortag_add() in order to make sure that
+the length of xfs_errortag_random_default matches XFS_ERRTAG_MAX when
+building.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/xfs/xfs_error.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -701,6 +701,11 @@ force_link:
- 		reg |= LINK_STS;
- 	if (phydev->duplex == DUPLEX_FULL)
- 		reg |= DUPLX_MODE;
-+	if (phydev->pause) {
-+		if (phydev->asym_pause)
-+			reg |= TXFLOW_CNTL;
-+		reg |= RXFLOW_CNTL;
-+	}
- 
- 	core_writel(priv, reg, offset);
+--- a/fs/xfs/xfs_error.c
++++ b/fs/xfs/xfs_error.c
+@@ -293,6 +293,8 @@ xfs_errortag_add(
+ 	struct xfs_mount	*mp,
+ 	unsigned int		error_tag)
+ {
++	BUILD_BUG_ON(ARRAY_SIZE(xfs_errortag_random_default) != XFS_ERRTAG_MAX);
++
+ 	if (error_tag >= XFS_ERRTAG_MAX)
+ 		return -EINVAL;
  
 
 
