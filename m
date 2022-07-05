@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2BA566BFF
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 871E4566CC4
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234894AbiGEMKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:10:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
+        id S235982AbiGEMUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233756AbiGEMJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27133897;
-        Tue,  5 Jul 2022 05:09:09 -0700 (PDT)
+        with ESMTP id S236687AbiGEMSD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D2C303;
+        Tue,  5 Jul 2022 05:13:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12FF3B817CE;
-        Tue,  5 Jul 2022 12:09:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515CCC341C7;
-        Tue,  5 Jul 2022 12:09:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31835B8170A;
+        Tue,  5 Jul 2022 12:13:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94EB8C341C7;
+        Tue,  5 Jul 2022 12:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022946;
-        bh=/tWmGCqwNuBv2ZFBAZMFfrnGTqFYVqZFwG8JGBoUnSk=;
+        s=korg; t=1657023197;
+        bh=4GEgYCEnwS3jo4co62+qa1rrweAnMQPv1nxxIg3AMEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4y4XZNryMATqKq2fvfY5Wzd+sOkO5Pdli2tg/mpD2QSBIsyfcevSFjha5kY0VQui
-         zW3fBDzHwu3HyNGJcV75HO/wDFsKrFinNzNXjvOb2rf/Sk/2Wcjtd12CgATHZHZ//8
-         4BesQDzwQh2cBt4gaojRhhy4l3Gp6P/+HZQz38ck=
+        b=yUuq22002H/wgyOCtXA5N6u4suf2rYYfANa3Bm9j9KwXNeLa9pwkGaX44gimsAZAa
+         Q76D8Mteqwe/FbUURqvWxiSU/CvUEeQI0vbcgH2F4/xy7XTGsoohDhW698m6AP21a8
+         cDwBNlonUZqB36NnlCkHIIePUG/f85FCuYPjo/Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 66/84] selftests/rseq: Uplift rseq selftests for compatibility with glibc-2.35
+Subject: [PATCH 5.15 71/98] selftests/rseq: Fix ppc32 offsets by using long rather than off_t
 Date:   Tue,  5 Jul 2022 13:58:29 +0200
-Message-Id: <20220705115617.250441897@linuxfoundation.org>
+Message-Id: <20220705115619.591505568@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,280 +56,148 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 233e667e1ae3e348686bd9dd0172e62a09d852e1 upstream.
+commit 26dc8a6d8e11552f3b797b5aafe01071ca32d692 upstream.
 
-glibc-2.35 (upcoming release date 2022-02-01) exposes the rseq per-thread
-data in the TCB, accessible at an offset from the thread pointer, rather
-than through an actual Thread-Local Storage (TLS) variable, as the
-Linux kernel selftests initially expected.
+The semantic of off_t is for file offsets. We mean to use it as an
+offset from a pointer. We really expect it to fit in a single register,
+and not use a 64-bit type on 32-bit architectures.
 
-The __rseq_abi TLS and glibc-2.35's ABI for per-thread data cannot
-actively coexist in a process, because the kernel supports only a single
-rseq registration per thread.
-
-Here is the scheme introduced to ensure selftests can work both with an
-older glibc and with glibc-2.35+:
-
-- librseq exposes its own "rseq_offset, rseq_size, rseq_flags" ABI.
-
-- librseq queries for glibc rseq ABI (__rseq_offset, __rseq_size,
-  __rseq_flags) using dlsym() in a librseq library constructor. If those
-  are found, copy their values into rseq_offset, rseq_size, and
-  rseq_flags.
-
-- Else, if those glibc symbols are not found, handle rseq registration
-  from librseq and use its own IE-model TLS to implement the rseq ABI
-  per-thread storage.
+Fix runtime issues on ppc32 where the offset is always 0 due to
+inconsistency between the argument type (off_t -> 64-bit) and type
+expected by the inline assembler (32-bit).
 
 Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-8-mathieu.desnoyers@efficios.com
+Link: https://lkml.kernel.org/r/20220124171253.22072-11-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/Makefile |    2 
- tools/testing/selftests/rseq/rseq.c   |  161 ++++++++++++++++------------------
- tools/testing/selftests/rseq/rseq.h   |   13 ++
- 3 files changed, 88 insertions(+), 88 deletions(-)
+ tools/testing/selftests/rseq/basic_percpu_ops_test.c |    2 +-
+ tools/testing/selftests/rseq/param_test.c            |    2 +-
+ tools/testing/selftests/rseq/rseq-arm.h              |    2 +-
+ tools/testing/selftests/rseq/rseq-arm64.h            |    2 +-
+ tools/testing/selftests/rseq/rseq-mips.h             |    2 +-
+ tools/testing/selftests/rseq/rseq-ppc.h              |    2 +-
+ tools/testing/selftests/rseq/rseq-s390.h             |    2 +-
+ tools/testing/selftests/rseq/rseq-skip.h             |    2 +-
+ tools/testing/selftests/rseq/rseq-x86.h              |    6 +++---
+ 9 files changed, 11 insertions(+), 11 deletions(-)
 
---- a/tools/testing/selftests/rseq/Makefile
-+++ b/tools/testing/selftests/rseq/Makefile
-@@ -6,7 +6,7 @@ endif
+--- a/tools/testing/selftests/rseq/basic_percpu_ops_test.c
++++ b/tools/testing/selftests/rseq/basic_percpu_ops_test.c
+@@ -167,7 +167,7 @@ struct percpu_list_node *this_cpu_list_p
+ 	for (;;) {
+ 		struct percpu_list_node *head;
+ 		intptr_t *targetptr, expectnot, *load;
+-		off_t offset;
++		long offset;
+ 		int ret, cpu;
  
- CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L$(OUTPUT) -Wl,-rpath=./ \
- 	  $(CLANG_FLAGS)
--LDLIBS += -lpthread
-+LDLIBS += -lpthread -ldl
+ 		cpu = rseq_cpu_start();
+--- a/tools/testing/selftests/rseq/param_test.c
++++ b/tools/testing/selftests/rseq/param_test.c
+@@ -549,7 +549,7 @@ struct percpu_list_node *this_cpu_list_p
+ 	for (;;) {
+ 		struct percpu_list_node *head;
+ 		intptr_t *targetptr, expectnot, *load;
+-		off_t offset;
++		long offset;
+ 		int ret;
  
- # Own dependencies because we only want to build against 1st prerequisite, but
- # still track changes to header files and depend on shared object.
---- a/tools/testing/selftests/rseq/rseq.c
-+++ b/tools/testing/selftests/rseq/rseq.c
-@@ -26,103 +26,113 @@
- #include <assert.h>
- #include <signal.h>
- #include <limits.h>
-+#include <dlfcn.h>
+ 		cpu = rseq_cpu_start();
+--- a/tools/testing/selftests/rseq/rseq-arm.h
++++ b/tools/testing/selftests/rseq/rseq-arm.h
+@@ -217,7 +217,7 @@ error2:
  
- #include "../kselftest.h"
- #include "rseq.h"
- 
--__thread struct rseq_abi __rseq_abi = {
--	.cpu_id = RSEQ_ABI_CPU_ID_UNINITIALIZED,
--};
-+static const int *libc_rseq_offset_p;
-+static const unsigned int *libc_rseq_size_p;
-+static const unsigned int *libc_rseq_flags_p;
-+
-+/* Offset from the thread pointer to the rseq area.  */
-+int rseq_offset;
-+
-+/* Size of the registered rseq area.  0 if the registration was
-+   unsuccessful.  */
-+unsigned int rseq_size = -1U;
- 
--/*
-- * Shared with other libraries. This library may take rseq ownership if it is
-- * still 0 when executing the library constructor. Set to 1 by library
-- * constructor when handling rseq. Set to 0 in destructor if handling rseq.
-- */
--int __rseq_handled;
-+/* Flags used during rseq registration.  */
-+unsigned int rseq_flags;
- 
--/* Whether this library have ownership of rseq registration. */
- static int rseq_ownership;
- 
--static __thread volatile uint32_t __rseq_refcount;
-+static
-+__thread struct rseq_abi __rseq_abi __attribute__((tls_model("initial-exec"))) = {
-+	.cpu_id = RSEQ_ABI_CPU_ID_UNINITIALIZED,
-+};
- 
--static void signal_off_save(sigset_t *oldset)
-+static int sys_rseq(struct rseq_abi *rseq_abi, uint32_t rseq_len,
-+		    int flags, uint32_t sig)
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
  {
--	sigset_t set;
--	int ret;
--
--	sigfillset(&set);
--	ret = pthread_sigmask(SIG_BLOCK, &set, oldset);
--	if (ret)
--		abort();
-+	return syscall(__NR_rseq, rseq_abi, rseq_len, flags, sig);
- }
+ 	RSEQ_INJECT_C(9)
  
--static void signal_restore(sigset_t oldset)
-+int rseq_available(void)
+--- a/tools/testing/selftests/rseq/rseq-arm64.h
++++ b/tools/testing/selftests/rseq/rseq-arm64.h
+@@ -259,7 +259,7 @@ error2:
+ 
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
  {
--	int ret;
-+	int rc;
+ 	RSEQ_INJECT_C(9)
  
--	ret = pthread_sigmask(SIG_SETMASK, &oldset, NULL);
--	if (ret)
-+	rc = sys_rseq(NULL, 0, 0, 0);
-+	if (rc != -1)
- 		abort();
--}
--
--static int sys_rseq(volatile struct rseq_abi *rseq_abi, uint32_t rseq_len,
--		    int flags, uint32_t sig)
--{
--	return syscall(__NR_rseq, rseq_abi, rseq_len, flags, sig);
-+	switch (errno) {
-+	case ENOSYS:
-+		return 0;
-+	case EINVAL:
-+		return 1;
-+	default:
-+		abort();
-+	}
- }
+--- a/tools/testing/selftests/rseq/rseq-mips.h
++++ b/tools/testing/selftests/rseq/rseq-mips.h
+@@ -222,7 +222,7 @@ error2:
  
- int rseq_register_current_thread(void)
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
  {
--	int rc, ret = 0;
--	sigset_t oldset;
-+	int rc;
+ 	RSEQ_INJECT_C(9)
  
--	if (!rseq_ownership)
-+	if (!rseq_ownership) {
-+		/* Treat libc's ownership as a successful registration. */
- 		return 0;
--	signal_off_save(&oldset);
--	if (__rseq_refcount == UINT_MAX) {
--		ret = -1;
--		goto end;
- 	}
--	if (__rseq_refcount++)
--		goto end;
- 	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq_abi), 0, RSEQ_SIG);
--	if (!rc) {
--		assert(rseq_current_cpu_raw() >= 0);
--		goto end;
--	}
--	if (errno != EBUSY)
--		RSEQ_WRITE_ONCE(__rseq_abi.cpu_id, RSEQ_ABI_CPU_ID_REGISTRATION_FAILED);
--	ret = -1;
--	__rseq_refcount--;
--end:
--	signal_restore(oldset);
--	return ret;
-+	if (rc)
-+		return -1;
-+	assert(rseq_current_cpu_raw() >= 0);
-+	return 0;
- }
+--- a/tools/testing/selftests/rseq/rseq-ppc.h
++++ b/tools/testing/selftests/rseq/rseq-ppc.h
+@@ -270,7 +270,7 @@ error2:
  
- int rseq_unregister_current_thread(void)
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
  {
--	int rc, ret = 0;
--	sigset_t oldset;
-+	int rc;
+ 	RSEQ_INJECT_C(9)
  
--	if (!rseq_ownership)
-+	if (!rseq_ownership) {
-+		/* Treat libc's ownership as a successful unregistration. */
- 		return 0;
--	signal_off_save(&oldset);
--	if (!__rseq_refcount) {
--		ret = -1;
--		goto end;
- 	}
--	if (--__rseq_refcount)
--		goto end;
--	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq_abi),
--		      RSEQ_ABI_FLAG_UNREGISTER, RSEQ_SIG);
--	if (!rc)
--		goto end;
--	__rseq_refcount = 1;
--	ret = -1;
--end:
--	signal_restore(oldset);
--	return ret;
-+	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq_abi), RSEQ_ABI_FLAG_UNREGISTER, RSEQ_SIG);
-+	if (rc)
-+		return -1;
-+	return 0;
-+}
-+
-+static __attribute__((constructor))
-+void rseq_init(void)
-+{
-+	libc_rseq_offset_p = dlsym(RTLD_NEXT, "__rseq_offset");
-+	libc_rseq_size_p = dlsym(RTLD_NEXT, "__rseq_size");
-+	libc_rseq_flags_p = dlsym(RTLD_NEXT, "__rseq_flags");
-+	if (libc_rseq_size_p && libc_rseq_offset_p && libc_rseq_flags_p) {
-+		/* rseq registration owned by glibc */
-+		rseq_offset = *libc_rseq_offset_p;
-+		rseq_size = *libc_rseq_size_p;
-+		rseq_flags = *libc_rseq_flags_p;
-+		return;
-+	}
-+	if (!rseq_available())
-+		return;
-+	rseq_ownership = 1;
-+	rseq_offset = (void *)&__rseq_abi - rseq_thread_pointer();
-+	rseq_size = sizeof(struct rseq_abi);
-+	rseq_flags = 0;
-+}
-+
-+static __attribute__((destructor))
-+void rseq_exit(void)
-+{
-+	if (!rseq_ownership)
-+		return;
-+	rseq_offset = 0;
-+	rseq_size = -1U;
-+	rseq_ownership = 0;
- }
- 
- int32_t rseq_fallback_current_cpu(void)
-@@ -136,20 +146,3 @@ int32_t rseq_fallback_current_cpu(void)
- 	}
- 	return cpu;
- }
--
--void __attribute__((constructor)) rseq_init(void)
--{
--	/* Check whether rseq is handled by another library. */
--	if (__rseq_handled)
--		return;
--	__rseq_handled = 1;
--	rseq_ownership = 1;
--}
--
--void __attribute__((destructor)) rseq_fini(void)
--{
--	if (!rseq_ownership)
--		return;
--	__rseq_handled = 0;
--	rseq_ownership = 0;
--}
---- a/tools/testing/selftests/rseq/rseq.h
-+++ b/tools/testing/selftests/rseq/rseq.h
-@@ -43,12 +43,19 @@
- #define RSEQ_INJECT_FAILED
- #endif
- 
--extern __thread struct rseq_abi __rseq_abi;
--extern int __rseq_handled;
-+#include "rseq-thread-pointer.h"
-+
-+/* Offset from the thread pointer to the rseq area.  */
-+extern int rseq_offset;
-+/* Size of the registered rseq area.  0 if the registration was
-+   unsuccessful.  */
-+extern unsigned int rseq_size;
-+/* Flags used during rseq registration.  */
-+extern unsigned int rseq_flags;
- 
- static inline struct rseq_abi *rseq_get_abi(void)
+--- a/tools/testing/selftests/rseq/rseq-s390.h
++++ b/tools/testing/selftests/rseq/rseq-s390.h
+@@ -198,7 +198,7 @@ error2:
+  */
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
  {
--	return &__rseq_abi;
-+	return (struct rseq_abi *) ((uintptr_t) rseq_thread_pointer() + rseq_offset);
- }
+ 	RSEQ_INJECT_C(9)
  
- #define rseq_likely(x)		__builtin_expect(!!(x), 1)
+--- a/tools/testing/selftests/rseq/rseq-skip.h
++++ b/tools/testing/selftests/rseq/rseq-skip.h
+@@ -13,7 +13,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
+ {
+ 	return -1;
+ }
+--- a/tools/testing/selftests/rseq/rseq-x86.h
++++ b/tools/testing/selftests/rseq/rseq-x86.h
+@@ -172,7 +172,7 @@ error2:
+  */
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
+ {
+ 	RSEQ_INJECT_C(9)
+ 
+@@ -286,7 +286,7 @@ error1:
+  *  *pval += inc;
+  */
+ static inline __attribute__((always_inline))
+-int rseq_offset_deref_addv(intptr_t *ptr, off_t off, intptr_t inc, int cpu)
++int rseq_offset_deref_addv(intptr_t *ptr, long off, intptr_t inc, int cpu)
+ {
+ 	RSEQ_INJECT_C(9)
+ 
+@@ -750,7 +750,7 @@ error2:
+  */
+ static inline __attribute__((always_inline))
+ int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
+-			       off_t voffp, intptr_t *load, int cpu)
++			       long voffp, intptr_t *load, int cpu)
+ {
+ 	RSEQ_INJECT_C(9)
+ 
 
 
