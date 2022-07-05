@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D97566B47
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81B23566C57
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:14:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233808AbiGEMFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:05:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
+        id S235614AbiGEMOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:14:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233809AbiGEMEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:04:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CD318B10;
-        Tue,  5 Jul 2022 05:04:12 -0700 (PDT)
+        with ESMTP id S235933AbiGEMNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:13:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C438E1A825;
+        Tue,  5 Jul 2022 05:10:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBDF4618C1;
-        Tue,  5 Jul 2022 12:04:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1374C341CD;
-        Tue,  5 Jul 2022 12:04:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07169B817C7;
+        Tue,  5 Jul 2022 12:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A8F6C385A2;
+        Tue,  5 Jul 2022 12:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022651;
-        bh=GFOw2R84yg4QcKnn41alywsiSA7JiGvxuKNGWf0T9sA=;
+        s=korg; t=1657023052;
+        bh=YNQxg1jTelACrdlbznmES/RRjoWJRAX91Bt+PqCCJz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ygpreDfTwVfi6yWr1EupNY/EPbdFU1DFbbWCygGJrPHSA1flyBsKJtKF0I1YZ2u9l
-         KlLB1QzggisSLm9SxF55Jf1FgbJ3/Yfb2d5IdIWQvI4QxQzrvvsIzzI9HidVf+dGcQ
-         zgSMn3P7k3E26+36aTT675vrtj/tK6T155xuJ+xg=
+        b=mieNze8paUN45OZuJcBzm1hV9c8dY4CtNIxECSY4ReJDewTJknRohMCUFAUnv6v4k
+         gqwmh5RuB7X8swiPNb792truG1vJSaUmqQVOTi2CxizfLu8SxWXMAQh9oSdTp3O3rO
+         9tWP8kwZQLjtiLqm2Qj8/RMofQxqRZHOndOHeVG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Ye <chris.ye@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.4 02/58] nvdimm: Fix badblocks clear off-by-one error
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.15 20/98] virtio-net: fix race between ndo_open() and virtio_device_ready()
 Date:   Tue,  5 Jul 2022 13:57:38 +0200
-Message-Id: <20220705115610.311469402@linuxfoundation.org>
+Message-Id: <20220705115618.161586506@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Ye <chris.ye@intel.com>
+From: Jason Wang <jasowang@redhat.com>
 
-commit ef9102004a87cb3f8b26e000a095a261fc0467d3 upstream.
+commit 50c0ada627f56c92f5953a8bf9158b045ad026a1 upstream.
 
-nvdimm_clear_badblocks_region() validates badblock clearing requests
-against the span of the region, however it compares the inclusive
-badblock request range to the exclusive region range. Fix up the
-off-by-one error.
+We currently call virtio_device_ready() after netdev
+registration. Since ndo_open() can be called immediately
+after register_netdev, this means there exists a race between
+ndo_open() and virtio_device_ready(): the driver may start to use the
+device before DRIVER_OK which violates the spec.
 
-Fixes: 23f498448362 ("libnvdimm: rework region badblocks clearing")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chris Ye <chris.ye@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/165404219489.2445897.9792886413715690399.stgit@dwillia2-xfh
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fix this by switching to use register_netdevice() and protect the
+virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
+only be called after virtio_device_ready().
+
+Fixes: 4baf1e33d0842 ("virtio_net: enable VQs early")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Message-Id: <20220617072949.30734-1-jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/bus.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/virtio_net.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -187,8 +187,8 @@ static int nvdimm_clear_badblocks_region
- 	ndr_end = nd_region->ndr_start + nd_region->ndr_size - 1;
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3241,14 +3241,20 @@ static int virtnet_probe(struct virtio_d
+ 		}
+ 	}
  
- 	/* make sure we are in the region */
--	if (ctx->phys < nd_region->ndr_start
--			|| (ctx->phys + ctx->cleared) > ndr_end)
-+	if (ctx->phys < nd_region->ndr_start ||
-+	    (ctx->phys + ctx->cleared - 1) > ndr_end)
- 		return 0;
+-	err = register_netdev(dev);
++	/* serialize netdev register + virtio_device_ready() with ndo_open() */
++	rtnl_lock();
++
++	err = register_netdevice(dev);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering device failed\n");
++		rtnl_unlock();
+ 		goto free_failover;
+ 	}
  
- 	sector = (ctx->phys - nd_region->ndr_start) / 512;
+ 	virtio_device_ready(vdev);
+ 
++	rtnl_unlock();
++
+ 	err = virtnet_cpu_notif_add(vi);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering cpu notifier failed\n");
 
 
