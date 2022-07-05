@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A456C566B8B
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C609566DA6
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232280AbiGEMJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46690 "EHLO
+        id S237975AbiGEM0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:26:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233477AbiGEMGK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F2419011;
-        Tue,  5 Jul 2022 05:05:30 -0700 (PDT)
+        with ESMTP id S236295AbiGEMYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:24:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B67E1F608;
+        Tue,  5 Jul 2022 05:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB927618C1;
-        Tue,  5 Jul 2022 12:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB493C341C7;
-        Tue,  5 Jul 2022 12:05:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 274F2B817AC;
+        Tue,  5 Jul 2022 12:17:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85136C341C8;
+        Tue,  5 Jul 2022 12:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022729;
-        bh=vNhVnI9d0jwzfUiVzH7UAXhDhkUSrvox9ojw7yW7HGE=;
+        s=korg; t=1657023432;
+        bh=GeTD58uduZiejFzFApSnWerqS5iezgYI/9IH7l6TcDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZI2qU6/mrQi1UfVrQcnB6F9e1fgKU/jT8IHdoUHCtocs/9+ET7GoBMPWjvIS6GhKN
-         IhEbMij7Rqxf7EvrY7FYI3nFAa2MeorwlyN3afPnQT6fMOMTW1gJFmSMZmNY6yWHm8
-         sOUgRKmnHbJ0/+Sld++VtcAFgnTV+V6+8AyGVy18=
+        b=Y4oDWpbwsSgyNHdNNhOo3x6cOWgVRsloQhhhWsyOUGcH5t/ixr8peAnit7wBGCum/
+         SApa7CuOFU3+fyxmC61XgHp13/uVhY0G/J9Rew1UDeVAU+ndtDJTeU3Sx8AlUoVJhI
+         fQRxWsiZ66zr0mhZtEMZzZCUj2R4u9EOVJKXRKAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 47/58] selftests/rseq: Fix: work-around asm goto compiler bugs
-Date:   Tue,  5 Jul 2022 13:58:23 +0200
-Message-Id: <20220705115611.623228584@linuxfoundation.org>
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.18 058/102] net: bonding: fix possible NULL deref in rlb code
+Date:   Tue,  5 Jul 2022 13:58:24 +0200
+Message-Id: <20220705115620.053784125@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,1051 +58,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b53823fb2ef854222853be164f3b1e815f315144 upstream.
+commit ab84db251c04d38b8dc7ee86e13d4050bedb1c88 upstream.
 
-gcc and clang each have their own compiler bugs with respect to asm
-goto. Implement a work-around for compiler versions known to have those
-bugs.
+syzbot has two reports involving the same root cause.
 
-gcc prior to 4.8.2 miscompiles asm goto.
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58670
+bond_alb_initialize() must not set bond->alb_info.rlb_enabled
+if a memory allocation error is detected.
 
-gcc prior to 8.1.0 miscompiles asm goto at O1.
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=103908
+Report 1:
 
-clang prior to version 13.0.1 miscompiles asm goto at O2.
-https://github.com/llvm/llvm-project/issues/52735
+general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+CPU: 0 PID: 12276 Comm: kworker/u4:10 Not tainted 5.19.0-rc3-syzkaller-00132-g3b89b511ea0c #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+RIP: 0010:rlb_clear_slave+0x10e/0x690 drivers/net/bonding/bond_alb.c:393
+Code: 8e fc 83 fb ff 0f 84 74 02 00 00 e8 cc 2a 8e fc 48 8b 44 24 08 89 dd 48 c1 e5 06 4c 8d 34 28 49 8d 7e 14 48 89 f8 48 c1 e8 03 <42> 0f b6 14 20 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
+RSP: 0018:ffffc90018a8f678 EFLAGS: 00010203
+RAX: 0000000000000002 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88803375bb00 RSI: ffffffff84ec4ac4 RDI: 0000000000000014
+RBP: 0000000000000000 R08: 0000000000000005 R09: 00000000ffffffff
+R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
+R13: ffff8880ac889000 R14: 0000000000000000 R15: ffff88815a668c80
+FS: 0000000000000000(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00005597077e10b0 CR3: 0000000026668000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+bond_alb_deinit_slave+0x43c/0x6b0 drivers/net/bonding/bond_alb.c:1663
+__bond_release_one.cold+0x383/0xd53 drivers/net/bonding/bond_main.c:2370
+bond_slave_netdev_event drivers/net/bonding/bond_main.c:3778 [inline]
+bond_netdev_event+0x993/0xad0 drivers/net/bonding/bond_main.c:3889
+notifier_call_chain+0xb5/0x200 kernel/notifier.c:87
+call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1945
+call_netdevice_notifiers_extack net/core/dev.c:1983 [inline]
+call_netdevice_notifiers net/core/dev.c:1997 [inline]
+unregister_netdevice_many+0x948/0x18b0 net/core/dev.c:10839
+default_device_exit_batch+0x449/0x590 net/core/dev.c:11333
+ops_exit_list+0x125/0x170 net/core/net_namespace.c:167
+cleanup_net+0x4ea/0xb00 net/core/net_namespace.c:594
+process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+</TASK>
 
-Work around these issues by adding a volatile inline asm with
-memory clobber in the fallthrough after the asm goto and at each
-label target.  Emit this for all compilers in case other similar
-issues are found in the future.
+Report 2:
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-14-mathieu.desnoyers@efficios.com
+general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
+CPU: 1 PID: 5206 Comm: syz-executor.1 Not tainted 5.18.0-syzkaller-12108-g58f9d52ff689 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:rlb_req_update_slave_clients+0x109/0x2f0 drivers/net/bonding/bond_alb.c:502
+Code: 5d 18 8f fc 41 80 3e 00 0f 85 a5 01 00 00 89 d8 48 c1 e0 06 49 03 84 24 68 01 00 00 48 8d 78 30 49 89 c7 48 89 fa 48 c1 ea 03 <80> 3c 2a 00 0f 85 98 01 00 00 4d 39 6f 30 75 83 e8 22 18 8f fc 49
+RSP: 0018:ffffc9000300ee80 EFLAGS: 00010206
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffc90016c11000
+RDX: 0000000000000006 RSI: ffffffff84eb6bf3 RDI: 0000000000000030
+RBP: dffffc0000000000 R08: 0000000000000005 R09: 00000000ffffffff
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff888027c80c80
+R13: ffff88807d7ff800 R14: ffffed1004f901bd R15: 0000000000000000
+FS:  00007f6f46c58700(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020010000 CR3: 00000000516cc000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ alb_fasten_mac_swap+0x886/0xa80 drivers/net/bonding/bond_alb.c:1070
+ bond_alb_handle_active_change+0x624/0x1050 drivers/net/bonding/bond_alb.c:1765
+ bond_change_active_slave+0xfa1/0x29b0 drivers/net/bonding/bond_main.c:1173
+ bond_select_active_slave+0x23f/0xa50 drivers/net/bonding/bond_main.c:1253
+ bond_enslave+0x3b34/0x53b0 drivers/net/bonding/bond_main.c:2159
+ do_set_master+0x1c8/0x220 net/core/rtnetlink.c:2577
+ rtnl_newlink_create net/core/rtnetlink.c:3380 [inline]
+ __rtnl_newlink+0x13ac/0x17e0 net/core/rtnetlink.c:3580
+ rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3593
+ rtnetlink_rcv_msg+0x43a/0xc90 net/core/rtnetlink.c:6089
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2501
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x917/0xe10 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:734
+ ____sys_sendmsg+0x6eb/0x810 net/socket.c:2492
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2546
+ __sys_sendmsg net/socket.c:2575 [inline]
+ __do_sys_sendmsg net/socket.c:2584 [inline]
+ __se_sys_sendmsg net/socket.c:2582 [inline]
+ __x64_sys_sendmsg+0x132/0x220 net/socket.c:2582
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7f6f45a89109
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f6f46c58168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f6f45b9c030 RCX: 00007f6f45a89109
+RDX: 0000000000000000 RSI: 0000000020000080 RDI: 0000000000000006
+RBP: 00007f6f45ae308d R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffed99029af R14: 00007f6f46c58300 R15: 0000000000022000
+ </TASK>
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20220627102813.126264-1-edumazet@google.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/compiler.h   |   30 +++++++++++++
- tools/testing/selftests/rseq/rseq-arm.h   |   39 +++++++++++++++++
- tools/testing/selftests/rseq/rseq-arm64.h |   45 +++++++++++++++++--
- tools/testing/selftests/rseq/rseq-ppc.h   |   39 +++++++++++++++++
- tools/testing/selftests/rseq/rseq-s390.h  |   29 ++++++++++++
- tools/testing/selftests/rseq/rseq-x86.h   |   68 ++++++++++++++++++++++++++++++
- tools/testing/selftests/rseq/rseq.h       |    1 
- 7 files changed, 245 insertions(+), 6 deletions(-)
- create mode 100644 tools/testing/selftests/rseq/compiler.h
+ drivers/net/bonding/bond_alb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- /dev/null
-+++ b/tools/testing/selftests/rseq/compiler.h
-@@ -0,0 +1,30 @@
-+/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
-+/*
-+ * rseq/compiler.h
-+ *
-+ * Work-around asm goto compiler bugs.
-+ *
-+ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-+ */
-+
-+#ifndef RSEQ_COMPILER_H
-+#define RSEQ_COMPILER_H
-+
-+/*
-+ * gcc prior to 4.8.2 miscompiles asm goto.
-+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58670
-+ *
-+ * gcc prior to 8.1.0 miscompiles asm goto at O1.
-+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=103908
-+ *
-+ * clang prior to version 13.0.1 miscompiles asm goto at O2.
-+ * https://github.com/llvm/llvm-project/issues/52735
-+ *
-+ * Work around these issues by adding a volatile inline asm with
-+ * memory clobber in the fallthrough after the asm goto and at each
-+ * label target.  Emit this for all compilers in case other similar
-+ * issues are found in the future.
-+ */
-+#define rseq_after_asm_goto()	asm volatile ("" : : : "memory")
-+
-+#endif  /* RSEQ_COMPILER_H_ */
---- a/tools/testing/selftests/rseq/rseq-arm.h
-+++ b/tools/testing/selftests/rseq/rseq-arm.h
-@@ -195,16 +195,21 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -263,16 +268,21 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -317,12 +327,15 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		  , error1
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- #endif
- }
-@@ -384,16 +397,21 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -456,16 +474,21 @@ int rseq_cmpeqv_trystorev_storev_release
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -532,18 +555,24 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		  , error1, error2, error3
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("1st expected value comparison failed");
- error3:
-+	rseq_after_asm_goto();
- 	rseq_bug("2nd expected value comparison failed");
- #endif
- }
-@@ -652,16 +681,21 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -771,16 +805,21 @@ int rseq_cmpeqv_trymemcpy_storev_release
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
---- a/tools/testing/selftests/rseq/rseq-arm64.h
-+++ b/tools/testing/selftests/rseq/rseq-arm64.h
-@@ -242,17 +242,21 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		  , error1, error2
- #endif
- 	);
--
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -300,16 +304,21 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -348,12 +357,15 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		  , error1
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- #endif
- }
-@@ -402,17 +414,21 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
--
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -461,17 +477,21 @@ int rseq_cmpeqv_trystorev_storev_release
- 		  , error1, error2
- #endif
- 	);
--
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -522,19 +542,24 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		  , error1, error2, error3
- #endif
- 	);
--
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- error3:
-+	rseq_after_asm_goto();
- 	rseq_bug("2nd expected value comparison failed");
- #endif
- }
-@@ -584,17 +609,21 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
--
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -644,17 +673,21 @@ int rseq_cmpeqv_trymemcpy_storev_release
- 		  , error1, error2
- #endif
- 	);
--
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
---- a/tools/testing/selftests/rseq/rseq-ppc.h
-+++ b/tools/testing/selftests/rseq/rseq-ppc.h
-@@ -254,16 +254,21 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -322,16 +327,21 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -378,12 +388,15 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		  , error1
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- #endif
- }
-@@ -442,16 +455,21 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -512,16 +530,21 @@ int rseq_cmpeqv_trystorev_storev_release
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -583,18 +606,24 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		  , error1, error2, error3
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("1st expected value comparison failed");
- error3:
-+	rseq_after_asm_goto();
- 	rseq_bug("2nd expected value comparison failed");
- #endif
- }
-@@ -659,16 +688,21 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -735,16 +769,21 @@ int rseq_cmpeqv_trymemcpy_storev_release
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
---- a/tools/testing/selftests/rseq/rseq-s390.h
-+++ b/tools/testing/selftests/rseq/rseq-s390.h
-@@ -178,16 +178,21 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -248,16 +253,21 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -301,12 +311,15 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		  , error1
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- #endif
- }
-@@ -364,16 +377,21 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -443,18 +461,24 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		  , error1, error2, error3
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("1st expected value comparison failed");
- error3:
-+	rseq_after_asm_goto();
- 	rseq_bug("2nd expected value comparison failed");
- #endif
- }
-@@ -555,16 +579,21 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
---- a/tools/testing/selftests/rseq/rseq-x86.h
-+++ b/tools/testing/selftests/rseq/rseq-x86.h
-@@ -152,16 +152,21 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -220,16 +225,21 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -269,12 +279,15 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		  , error1
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- #endif
- }
-@@ -387,16 +400,21 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -464,18 +482,24 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		  , error1, error2, error3
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("1st expected value comparison failed");
- error3:
-+	rseq_after_asm_goto();
- 	rseq_bug("2nd expected value comparison failed");
- #endif
- }
-@@ -574,16 +598,21 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -730,16 +759,21 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -798,16 +832,21 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -847,12 +886,15 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		  , error1
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- #endif
- }
-@@ -909,16 +951,21 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -977,16 +1024,21 @@ int rseq_cmpeqv_trystorev_storev_release
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
+--- a/drivers/net/bonding/bond_alb.c
++++ b/drivers/net/bonding/bond_alb.c
+@@ -1302,12 +1302,12 @@ int bond_alb_initialize(struct bonding *
+ 		return res;
  
-@@ -1047,18 +1099,24 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		  , error1, error2, error3
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("1st expected value comparison failed");
- error3:
-+	rseq_after_asm_goto();
- 	rseq_bug("2nd expected value comparison failed");
- #endif
- }
-@@ -1161,16 +1219,21 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
-@@ -1274,16 +1337,21 @@ int rseq_cmpeqv_trymemcpy_storev_release
- 		  , error1, error2
- #endif
- 	);
-+	rseq_after_asm_goto();
- 	return 0;
- abort:
-+	rseq_after_asm_goto();
- 	RSEQ_INJECT_FAILED
- 	return -1;
- cmpfail:
-+	rseq_after_asm_goto();
- 	return 1;
- #ifdef RSEQ_COMPARE_TWICE
- error1:
-+	rseq_after_asm_goto();
- 	rseq_bug("cpu_id comparison failed");
- error2:
-+	rseq_after_asm_goto();
- 	rseq_bug("expected value comparison failed");
- #endif
- }
---- a/tools/testing/selftests/rseq/rseq.h
-+++ b/tools/testing/selftests/rseq/rseq.h
-@@ -17,6 +17,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include "rseq-abi.h"
-+#include "compiler.h"
- 
- /*
-  * Empty code injection macros, override when testing.
+ 	if (rlb_enabled) {
+-		bond->alb_info.rlb_enabled = 1;
+ 		res = rlb_initialize(bond);
+ 		if (res) {
+ 			tlb_deinitialize(bond);
+ 			return res;
+ 		}
++		bond->alb_info.rlb_enabled = 1;
+ 	} else {
+ 		bond->alb_info.rlb_enabled = 0;
+ 	}
 
 
