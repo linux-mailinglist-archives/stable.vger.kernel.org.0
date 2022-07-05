@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E021A566B28
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E56566A9A
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233650AbiGEMEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:04:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
+        id S232756AbiGEMAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:00:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233648AbiGEMDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFDE183AE;
-        Tue,  5 Jul 2022 05:03:49 -0700 (PDT)
+        with ESMTP id S232759AbiGEMAO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FE317E34;
+        Tue,  5 Jul 2022 05:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5AF4B817DB;
-        Tue,  5 Jul 2022 12:03:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEE1C341C7;
-        Tue,  5 Jul 2022 12:03:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D317B817D4;
+        Tue,  5 Jul 2022 12:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 958FEC341CD;
+        Tue,  5 Jul 2022 12:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022626;
-        bh=fIJ71LFwY8NmF/B/WJizK9o4DM+7UQK0t57cHu5LTPE=;
+        s=korg; t=1657022408;
+        bh=MDRErYeUWSJwKsBCQCGe+p0aMtjXUNffMWGsG7Pl+a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHCjO5kFgbLfFairohTWs5JVCUOfrFcfKzCvj3R/J0Yw+om3J9qM9/vV7+O/AdjxI
-         6s/i39CggBi0FXIYtqEzuQv6WA6IRA/bZfvXcB6WYcAJy+BC3ltLt/wuSVRYnV6NdP
-         U8MZkS6PXijWAjgF3ooR0pQe7B21rZSEgymr0AAQ=
+        b=o8cyUgyEuBD8O86NMNxSE5OiwAlsZgiDqWqCfm62axmP4KGxoOGxSRPCjs42ubQya
+         f6pBbLeR/6oaDuFG0CtV65ItK0BV4XCYnugvLkbFfC5vOIwdctKmUFSQHx3V4HHQ9w
+         1YuJEf7ZOq9AYdOnJYWFChtJNXzHpLj7ka1rmgeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.4 11/58] virtio-net: fix race between ndo_open() and virtio_device_ready()
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 06/29] usbnet: fix memory allocation in helpers
 Date:   Tue,  5 Jul 2022 13:57:47 +0200
-Message-Id: <20220705115610.577320870@linuxfoundation.org>
+Message-Id: <20220705115605.933108860@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
+References: <20220705115605.742248854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 50c0ada627f56c92f5953a8bf9158b045ad026a1 upstream.
+commit e65af5403e462ccd7dff6a045a886c64da598c2e upstream.
 
-We currently call virtio_device_ready() after netdev
-registration. Since ndo_open() can be called immediately
-after register_netdev, this means there exists a race between
-ndo_open() and virtio_device_ready(): the driver may start to use the
-device before DRIVER_OK which violates the spec.
+usbnet provides some helper functions that are also used in
+the context of reset() operations. During a reset the other
+drivers on a device are unable to operate. As that can be block
+drivers, a driver for another interface cannot use paging
+in its memory allocations without risking a deadlock.
+Use GFP_NOIO in the helpers.
 
-Fix this by switching to use register_netdevice() and protect the
-virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
-only be called after virtio_device_ready().
-
-Fixes: 4baf1e33d0842 ("virtio_net: enable VQs early")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20220617072949.30734-1-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220628093517.7469-1-oneukum@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/usb/usbnet.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3219,14 +3219,20 @@ static int virtnet_probe(struct virtio_d
- 		}
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1952,7 +1952,7 @@ static int __usbnet_read_cmd(struct usbn
+ 		   cmd, reqtype, value, index, size);
+ 
+ 	if (size) {
+-		buf = kmalloc(size, GFP_KERNEL);
++		buf = kmalloc(size, GFP_NOIO);
+ 		if (!buf)
+ 			goto out;
  	}
+@@ -1984,7 +1984,7 @@ static int __usbnet_write_cmd(struct usb
+ 		   cmd, reqtype, value, index, size);
  
--	err = register_netdev(dev);
-+	/* serialize netdev register + virtio_device_ready() with ndo_open() */
-+	rtnl_lock();
-+
-+	err = register_netdevice(dev);
- 	if (err) {
- 		pr_debug("virtio_net: registering device failed\n");
-+		rtnl_unlock();
- 		goto free_failover;
- 	}
- 
- 	virtio_device_ready(vdev);
- 
-+	rtnl_unlock();
-+
- 	err = virtnet_cpu_notif_add(vi);
- 	if (err) {
- 		pr_debug("virtio_net: registering cpu notifier failed\n");
+ 	if (data) {
+-		buf = kmemdup(data, size, GFP_KERNEL);
++		buf = kmemdup(data, size, GFP_NOIO);
+ 		if (!buf)
+ 			goto out;
+ 	} else {
 
 
