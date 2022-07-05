@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 602B7566A8D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F0D566AB3
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232769AbiGEMAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:00:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
+        id S232468AbiGEMBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:01:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232682AbiGEMAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A635817E02;
-        Tue,  5 Jul 2022 04:59:50 -0700 (PDT)
+        with ESMTP id S232882AbiGEMAy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C277718343;
+        Tue,  5 Jul 2022 05:00:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 433996174B;
-        Tue,  5 Jul 2022 11:59:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56841C341CD;
-        Tue,  5 Jul 2022 11:59:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C20B617DB;
+        Tue,  5 Jul 2022 12:00:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68778C341C7;
+        Tue,  5 Jul 2022 12:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022389;
-        bh=nH/iHHTgnKhb3862t/o5lYm7uKzkZ4FjTsdDg0b0vZ8=;
+        s=korg; t=1657022452;
+        bh=Fjz4FNY8X9b8x9Bgqc8fzqlaOfq4GfGD4PoiPWMxbug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LomNs9icWo6Ir/bCREsK1cDpFkM5EW+qBNP5hiSrhInU2+LAz5KxOazOVEcf6kmsJ
-         yeDO+1bQqt6zZqY4o8ovY97eCw2Wcn7p3PmuzirZJ1WT2EAzNP3MNGlmmu4h/qR4O6
-         jmLnKBAaZ0hKnfWrukvt890gj0lXKjDC1RNlkbZ0=
+        b=vpfC2e6iq6ESR42alnR/8O/v5oMOle3xJLMw6Qj11aghcHbPL8epm4zZRipIWiNxt
+         j82nRyHeMgnwieQkBoQ6QYUx5QIpuQT3IXjQLLqlO2wej/XJWINRf5Tjqo9Jl/qvIa
+         CtcvHE2e9GZUDaysByh879Ezw355FMtJEs+Lxe8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Lesokhin <ilyal@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 19/29] net: Rename and export copy_skb_header
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 12/29] netfilter: nft_dynset: restore set element counter when failing to update
 Date:   Tue,  5 Jul 2022 13:58:00 +0200
-Message-Id: <20220705115606.315387213@linuxfoundation.org>
+Message-Id: <20220705115606.706201363@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-References: <20220705115605.742248854@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Lesokhin <ilyal@mellanox.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 08303c189581c985e60f588ad92a041e46b6e307 upstream.
+commit 05907f10e235680cc7fb196810e4ad3215d5e648 upstream.
 
-[ jgross@suse.com: added as needed by XSA-403 mitigation ]
+This patch fixes a race condition.
 
-copy_skb_header is renamed to skb_copy_header and
-exported. Exposing this function give more flexibility
-in copying SKBs.
-skb_copy and skb_copy_expand do not give enough control
-over which parts are copied.
+nft_rhash_update() might fail for two reasons:
 
-Signed-off-by: Ilya Lesokhin <ilyal@mellanox.com>
-Signed-off-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- Element already exists in the hashtable.
+- Another packet won race to insert an entry in the hashtable.
+
+In both cases, new() has already bumped the counter via atomic_add_unless(),
+therefore, decrement the set element counter.
+
+Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    1 +
- net/core/skbuff.c      |    9 +++++----
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ net/netfilter/nft_set_hash.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -975,6 +975,7 @@ static inline struct sk_buff *alloc_skb_
- struct sk_buff *skb_morph(struct sk_buff *dst, struct sk_buff *src);
- int skb_copy_ubufs(struct sk_buff *skb, gfp_t gfp_mask);
- struct sk_buff *skb_clone(struct sk_buff *skb, gfp_t priority);
-+void skb_copy_header(struct sk_buff *new, const struct sk_buff *old);
- struct sk_buff *skb_copy(const struct sk_buff *skb, gfp_t priority);
- struct sk_buff *__pskb_copy_fclone(struct sk_buff *skb, int headroom,
- 				   gfp_t gfp_mask, bool fclone);
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1071,7 +1071,7 @@ static void skb_headers_offset_update(st
- 	skb->inner_mac_header += off;
- }
- 
--static void copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
-+void skb_copy_header(struct sk_buff *new, const struct sk_buff *old)
- {
- 	__copy_skb_header(new, old);
- 
-@@ -1079,6 +1079,7 @@ static void copy_skb_header(struct sk_bu
- 	skb_shinfo(new)->gso_segs = skb_shinfo(old)->gso_segs;
- 	skb_shinfo(new)->gso_type = skb_shinfo(old)->gso_type;
- }
-+EXPORT_SYMBOL(skb_copy_header);
- 
- static inline int skb_alloc_rx_flag(const struct sk_buff *skb)
- {
-@@ -1122,7 +1123,7 @@ struct sk_buff *skb_copy(const struct sk
- 	if (skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len))
- 		BUG();
- 
--	copy_skb_header(n, skb);
-+	skb_copy_header(n, skb);
- 	return n;
- }
- EXPORT_SYMBOL(skb_copy);
-@@ -1185,7 +1186,7 @@ struct sk_buff *__pskb_copy_fclone(struc
- 		skb_clone_fraglist(n);
+--- a/net/netfilter/nft_set_hash.c
++++ b/net/netfilter/nft_set_hash.c
+@@ -127,6 +127,7 @@ static bool nft_rhash_update(struct nft_
+ 	/* Another cpu may race to insert the element with the same key */
+ 	if (prev) {
+ 		nft_set_elem_destroy(set, he, true);
++		atomic_dec(&set->nelems);
+ 		he = prev;
  	}
  
--	copy_skb_header(n, skb);
-+	skb_copy_header(n, skb);
- out:
- 	return n;
+@@ -136,6 +137,7 @@ out:
+ 
+ err2:
+ 	nft_set_elem_destroy(set, he, true);
++	atomic_dec(&set->nelems);
+ err1:
+ 	return false;
  }
-@@ -1356,7 +1357,7 @@ struct sk_buff *skb_copy_expand(const st
- 			  skb->len + head_copy_len))
- 		BUG();
- 
--	copy_skb_header(n, skb);
-+	skb_copy_header(n, skb);
- 
- 	skb_headers_offset_update(n, newheadroom - oldheadroom);
- 
 
 
