@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5183E566BB3
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38327566B4D
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234439AbiGEMJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46104 "EHLO
+        id S233871AbiGEMFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234584AbiGEMHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:43 -0400
+        with ESMTP id S233877AbiGEME6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:04:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2B3192B1;
-        Tue,  5 Jul 2022 05:06:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 455661582A;
+        Tue,  5 Jul 2022 05:04:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C15BB817CE;
-        Tue,  5 Jul 2022 12:06:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F5FC341CD;
-        Tue,  5 Jul 2022 12:06:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5ABEB817D6;
+        Tue,  5 Jul 2022 12:04:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B500C341C7;
+        Tue,  5 Jul 2022 12:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022803;
-        bh=A3qOj5tL46J93KWO7+54TFWF3EI/YpjYTSY9CkP5LXs=;
+        s=korg; t=1657022670;
+        bh=pUFp6/3scQrGuJuRmoh62gE3QtAdFwZDYcYQtMCktuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uSxaU/QfHaZJRfSqplfMazNA37qkO1f8+p9OM6zCmccMkzCfvzN/skoDsS7G40lqA
-         PyhimIuJHqk/w7wQUjUqzYNK8iIhqrI00uheJRU66Ceo6rsQ+o48zrcr76fTdZ7Ykk
-         cy6SWyPii1XR2kkpFHnkyTvwYyo+DyIfq/rqQCjc=
+        b=J+D8xuC9pjpCNOL8+Y6lW4FaadM4SgEwJOGrEHFd/oXe+ElEhoXB95BuuXF6rq+re
+         m/6AiYu5og/KsBbw+0i4jDPLL8rOL3s31NbZQXP44vVYRxtQvAdmf8uo8fFdUlXbQJ
+         ge2RoCI9A8fs3BRPuaaPsFB9uAMWY17Cj9+nzefg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 16/84] net: dsa: bcm_sf2: force pause link settings
+        stable@vger.kernel.org,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 03/58] powerpc/prom_init: Fix kernel config grep
 Date:   Tue,  5 Jul 2022 13:57:39 +0200
-Message-Id: <20220705115615.800909329@linuxfoundation.org>
+Message-Id: <20220705115610.340855622@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Liam Howlett <liam.howlett@oracle.com>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
+commit 6886da5f49e6d86aad76807a93f3eef5e4f01b10 upstream.
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+When searching for config options, use the KCONFIG_CONFIG shell variable
+so that builds using non-standard config locations work.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 26deb04342e3 ("powerpc: prepare string/mem functions for KASAN")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220624011745.4060795-1-Liam.Howlett@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/kernel/prom_init_check.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -774,6 +774,11 @@ static void bcm_sf2_sw_mac_link_up(struc
- 		if (duplex == DUPLEX_FULL)
- 			reg |= DUPLX_MODE;
+--- a/arch/powerpc/kernel/prom_init_check.sh
++++ b/arch/powerpc/kernel/prom_init_check.sh
+@@ -13,7 +13,7 @@
+ # If you really need to reference something from prom_init.o add
+ # it to the list below:
  
-+		if (tx_pause)
-+			reg |= TXFLOW_CNTL;
-+		if (rx_pause)
-+			reg |= RXFLOW_CNTL;
-+
- 		core_writel(priv, reg, offset);
- 	}
- 
+-grep "^CONFIG_KASAN=y$" .config >/dev/null
++grep "^CONFIG_KASAN=y$" ${KCONFIG_CONFIG} >/dev/null
+ if [ $? -eq 0 ]
+ then
+ 	MEM_FUNCS="__memcpy __memset"
 
 
