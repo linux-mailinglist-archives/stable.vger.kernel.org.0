@@ -2,121 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1593D56632D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 08:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D6E3566375
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 08:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229807AbiGEG1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 02:27:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43208 "EHLO
+        id S230004AbiGEG40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 02:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229805AbiGEG1A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 02:27:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF0D1A1AB
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 23:26:59 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C8996126B
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 06:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57917C341CD;
-        Tue,  5 Jul 2022 06:26:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657002418;
-        bh=9l+xemeTQL4sv8mX2GxZrBzP6Q+NWBDiXfJNctzijCU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UVhHz4j5/kBsxglaHyH4rdPkWNZxEyJxy/gHG9/PXhbj6B8CsEHvZHIPf/UWNVnPW
-         Kd5wEVvkKU2o0uK3dWEBK/E0Cn6UDjf1q3CaJ9DWpOSlgV4h4hwxIo7lXgztPDzdno
-         HjLoNToU9ZmkhsbVYiQGoStZwBDxeSApfYA1nwLM=
-Date:   Tue, 5 Jul 2022 08:26:56 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Wen Yang <wenyang@linux.alibaba.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Bin Yang <bin.yang@intel.com>,
-        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
-Message-ID: <YsPZsIonf8QuedkT@kroah.com>
-References: <20220705060209.22806-1-wenyang@linux.alibaba.com>
+        with ESMTP id S229762AbiGEG4Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 02:56:25 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5F15FCC;
+        Mon,  4 Jul 2022 23:56:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=5hLcT9xMVVzWgNKqqBmeG2OD0SVhyFx7tF2XI4e10ho=; b=OrdoIFEWbb0n0hObbZmkM6rpUp
+        WLOYx5hp+p4cM0Qcxla+JsBLLJczm+rRa/WFDJqsyh2YDJlMKGtbvx2yUbeyEeCVEBv0D/ynsvKh8
+        r4PEQZpeLwnrzxGHrT6TVwpTBn3DIykpT/3eVQ9HYG89kREed5/Txlixcm1d0OgeHkWQ=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1o8cTo-009LCx-PL; Tue, 05 Jul 2022 08:56:16 +0200
+Date:   Tue, 5 Jul 2022 08:56:16 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>, stable@vger.kernel.org,
+        Doug Berger <opendmb@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: Re: [PATCH stable 4.9] net: dsa: bcm_sf2: force pause link settings
+Message-ID: <YsPgkExHpr1NFdJw@lunn.ch>
+References: <20220704153510.3859649-1-f.fainelli@gmail.com>
+ <20220704233457.tgnenjn3ct6us75i@skbuf>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220705060209.22806-1-wenyang@linux.alibaba.com>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220704233457.tgnenjn3ct6us75i@skbuf>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 05, 2022 at 02:02:07PM +0800, Wen Yang wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
+On Tue, Jul 05, 2022 at 02:34:57AM +0300, Vladimir Oltean wrote:
+> Hi Florian,
 > 
-> commit ddd07b750382adc2b78fdfbec47af8a6e0d8ef37 upstream.
+> On Mon, Jul 04, 2022 at 08:35:07AM -0700, Florian Fainelli wrote:
+> > From: Doug Berger <opendmb@gmail.com>
+> > 
+> > commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream
+> > 
+> > The pause settings reported by the PHY should also be applied to the GMII port
+> > status override otherwise the switch will not generate pause frames towards the
+> > link partner despite the advertisement saying otherwise.
+> > 
+> > Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
+> > Signed-off-by: Doug Berger <opendmb@gmail.com>
+> > Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> > ---
+> >  drivers/net/dsa/bcm_sf2.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> > 
+> > diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+> > index 40b3adf7ad99..03f38c36e188 100644
+> > --- a/drivers/net/dsa/bcm_sf2.c
+> > +++ b/drivers/net/dsa/bcm_sf2.c
+> > @@ -671,6 +671,11 @@ static void bcm_sf2_sw_adjust_link(struct dsa_switch *ds, int port,
+> >  		reg |= LINK_STS;
+> >  	if (phydev->duplex == DUPLEX_FULL)
+> >  		reg |= DUPLX_MODE;
+> > +	if (phydev->pause) {
+> > +		if (phydev->asym_pause)
+> > +			reg |= TXFLOW_CNTL;
+> > +		reg |= RXFLOW_CNTL;
+> > +	}
 > 
-> CAT has happened, WBINDV is bad (even before CAT blowing away the
-> entire cache on a multi-core platform wasn't nice), try not to use it
-> ever.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Reviewed-by: Dave Hansen <dave.hansen@intel.com>
-> Cc: Bin Yang <bin.yang@intel.com>
-> Cc: Mark Gross <mark.gross@intel.com>
-> Link: https://lkml.kernel.org/r/20180919085947.933674526@infradead.org
-> Cc: <stable@vger.kernel.org> # 4.19.x
-> Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-> ---
->  arch/x86/mm/pageattr.c | 18 ++----------------
->  1 file changed, 2 insertions(+), 16 deletions(-)
-> 
-> diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-> index 101f3ad0d6ad..ab87da7a6043 100644
-> --- a/arch/x86/mm/pageattr.c
-> +++ b/arch/x86/mm/pageattr.c
-> @@ -239,26 +239,12 @@ static void cpa_flush_array(unsigned long *start, int numpages, int cache,
->  			    int in_flags, struct page **pages)
->  {
->  	unsigned int i, level;
-> -#ifdef CONFIG_PREEMPT
-> -	/*
-> -	 * Avoid wbinvd() because it causes latencies on all CPUs,
-> -	 * regardless of any CPU isolation that may be in effect.
-> -	 *
-> -	 * This should be extended for CAT enabled systems independent of
-> -	 * PREEMPT because wbinvd() does not respect the CAT partitions and
-> -	 * this is exposed to unpriviledged users through the graphics
-> -	 * subsystem.
-> -	 */
-> -	unsigned long do_wbinvd = 0;
-> -#else
-> -	unsigned long do_wbinvd = cache && numpages >= 1024; /* 4M threshold */
-> -#endif
->  
->  	BUG_ON(irqs_disabled() && !early_boot_irqs_disabled);
->  
-> -	on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
-> +	flush_tlb_all();
->  
-> -	if (!cache || do_wbinvd)
-> +	if (!cache)
->  		return;
->  
->  	/*
-> -- 
-> 2.19.1.6.gb485710b
-> 
+> Is this correct? phydev->pause and phydev->asym_pause keep the Pause and
+> Asym_Pause bits advertised by the link partner. In other words, in this
+> manual resolution you are ignoring what the local switch port has
+> advertised.
 
-As stated before, I am not allowed to accept this due to it being a
-requirement of a closed source kernel module.  Please do not keep
-resending it hoping we will forget or I will have to add this to my
-email filters.
+linkmode_resolve_pause() is not used yet outside of phylink, but
+should help here.
 
-thanks,
-
-greg k-h
+       Andrew
