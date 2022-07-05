@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CAF566BB0
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C7E566C4D
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233877AbiGEMJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46968 "EHLO
+        id S235458AbiGEMNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234516AbiGEMHk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18E119291;
-        Tue,  5 Jul 2022 05:06:35 -0700 (PDT)
+        with ESMTP id S235864AbiGEMNT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:13:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39BC71A3BF;
+        Tue,  5 Jul 2022 05:10:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74BD26185A;
-        Tue,  5 Jul 2022 12:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82745C341C7;
-        Tue,  5 Jul 2022 12:06:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FD91B817C7;
+        Tue,  5 Jul 2022 12:10:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3708C341C8;
+        Tue,  5 Jul 2022 12:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022794;
+        s=korg; t=1657023047;
         bh=ojVVyqHMsNws7IUWUyfgKvfwGFsinLE48/w5rLAl30c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvptHa449F1fuFWg14+lfy1Bx+Q9WBpRgSw3MGVKKe0rlEVZDiGkF8nNYbcbJdogr
-         gs+oK+PDg8SITaHjP/nFVETVB7Y8z6NdqUtC2Z6h+fPo/XPoWp5J8icQX1IadFwvym
-         iHeRJ+QriNStFJM9YNFRnm3xWnyDzR+8+qBjY6Nw=
+        b=2uho8VTCuR/46AVDc1RkQQ0BALibFYLhqMqJIs6YYJaA5TzndA4DUwz8LEqv4cMh8
+         P/diR/Ffrxp0y7Ur57imkzaCCXsvnxyVIa7VFhhFbdSmURTPE+Q0xAY8GGd58dJpDW
+         s4PN8gsE2lL5gZgldA3ru+AlveQfa5hoBfGe6bBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jose Alonso <joalonsof@gmail.com>,
         Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.10 13/84] net: usb: ax88179_178a: Fix packet receiving
-Date:   Tue,  5 Jul 2022 13:57:36 +0200
-Message-Id: <20220705115615.714867674@linuxfoundation.org>
+Subject: [PATCH 5.15 19/98] net: usb: ax88179_178a: Fix packet receiving
+Date:   Tue,  5 Jul 2022 13:57:37 +0200
+Message-Id: <20220705115618.132938727@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
