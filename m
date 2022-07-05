@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD475566B04
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74683566C16
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233288AbiGEMDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:03:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45912 "EHLO
+        id S235071AbiGEMLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:11:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233335AbiGEMDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799412678;
-        Tue,  5 Jul 2022 05:03:07 -0700 (PDT)
+        with ESMTP id S234570AbiGEMJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAE1D18E03;
+        Tue,  5 Jul 2022 05:09:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3277FB817CC;
-        Tue,  5 Jul 2022 12:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84042C341C7;
-        Tue,  5 Jul 2022 12:03:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E5AD61965;
+        Tue,  5 Jul 2022 12:09:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25067C341CE;
+        Tue,  5 Jul 2022 12:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022584;
-        bh=/aOISrxqtcV/v6gbf+x+bUzb5Xu0m7u7VY+xKWOLbwg=;
+        s=korg; t=1657022977;
+        bh=YMVr9fZPQq1V9/lhdWidHBImzFSQEEi0DyhJerbTpmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RP6pkJEZLJxDDodJo7ZTVWtUvBcRKPqU9SnC71GhmsOf494pU2CUC2gC2kVXGXmh+
-         itpjGEzklmZoGIrqcOkKqjDTaTcyLUVT4A6x1YdT7aRGSWefM2hziEMHDttYulQWOm
-         zeUGoyOd0duHqasgTCsqHmPND1Sfw2aTCrcigpas=
+        b=mAe7J7HE2yyjkPtMXCTra3LaSiAjInlCMBwB24ZnnxNW8UeZb+s05RBmaoJbzLzCd
+         wGbwE7Hjkxj+dGc++Y2a7Wb2ETMNU0YPe7VTcKxPzt2dariMhO4XhU2cXURNZaWklg
+         z62DoubgOY5bTxpyCJwCmKJX4Tu/4h0tlhmCLZ8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, willemb@google.com,
-        Dimitris Michailidis <dmichail@fungible.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 09/33] selftests/net: pass ipv6_args to udpgso_benchs IPv6 TCP test
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 38/84] io_uring: ensure that send/sendmsg and recv/recvmsg check sqe->ioprio
 Date:   Tue,  5 Jul 2022 13:58:01 +0200
-Message-Id: <20220705115606.983782657@linuxfoundation.org>
+Message-Id: <20220705115616.433740062@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitris Michailidis <d.michailidis@fungible.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit b968080808f7f28b89aa495b7402ba48eb17ee93 upstream.
+commit 73911426aaaadbae54fa72359b33a7b6a56947db upstream.
 
-udpgso_bench.sh has been running its IPv6 TCP test with IPv4 arguments
-since its initial conmit. Looks like a typo.
+All other opcodes correctly check if this is set and -EINVAL if it is
+and they don't support that field, for some reason the these were
+forgotten.
 
-Fixes: 3a687bef148d ("selftests: udp gso benchmark")
-Cc: willemb@google.com
-Signed-off-by: Dimitris Michailidis <dmichail@fungible.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20220623000234.61774-1-dmichail@fungible.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This was unified a bit differently in the upstream tree, but had the
+same effect as making sure we error on this field. Rather than have
+a painful backport of the upstream commit, just fixup the mentioned
+opcodes.
+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/udpgso_bench.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/testing/selftests/net/udpgso_bench.sh
-+++ b/tools/testing/selftests/net/udpgso_bench.sh
-@@ -57,7 +57,7 @@ run_all() {
- 	run_udp "${ipv4_args}"
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4366,6 +4366,8 @@ static int io_sendmsg_prep(struct io_kio
  
- 	echo "ipv6"
--	run_tcp "${ipv4_args}"
-+	run_tcp "${ipv6_args}"
- 	run_udp "${ipv6_args}"
- }
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
++	if (unlikely(sqe->addr2 || sqe->splice_fd_in || sqe->ioprio))
++		return -EINVAL;
  
+ 	sr->msg_flags = READ_ONCE(sqe->msg_flags);
+ 	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
+@@ -4601,6 +4603,8 @@ static int io_recvmsg_prep(struct io_kio
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
++	if (unlikely(sqe->addr2 || sqe->splice_fd_in || sqe->ioprio))
++		return -EINVAL;
+ 
+ 	sr->msg_flags = READ_ONCE(sqe->msg_flags);
+ 	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
 
 
