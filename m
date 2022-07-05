@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC40566E21
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B34F566E23
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235264AbiGEMbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55328 "EHLO
+        id S238294AbiGEMb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:31:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237976AbiGEM0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:46 -0400
+        with ESMTP id S237978AbiGEM0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A35A18E13;
-        Tue,  5 Jul 2022 05:18:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D9418E14;
+        Tue,  5 Jul 2022 05:18:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 051ED61984;
-        Tue,  5 Jul 2022 12:18:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14460C341C7;
-        Tue,  5 Jul 2022 12:18:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C45E861984;
+        Tue,  5 Jul 2022 12:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2196C341C7;
+        Tue,  5 Jul 2022 12:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023532;
-        bh=ADwui9E0rfIJoCR/H1EoQbMIg5U6xbIwzSp52+1nWDs=;
+        s=korg; t=1657023535;
+        bh=O7UsWvCnucR8zz8LyErL09aD5BVJeTIzCK2A9a2eboE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXHU2SmYknjpyzeo4UprzpEODAD5ler7kyF0bREDbN1gjQoBcniRSZpEKmcpjpsKk
-         JYKBSS8qJ6l1F+do30bZ1AFPAVA94DAoAiOPqOBQ34J2T1gY3aQkukyN3O4K06I+9a
-         gWhHbc5n/1I71/lTzFiYxfcDg8AEQdGPlBIx1YKE=
+        b=HuPQjK5WjzneNM8YOaQCBBFD6LKoHs4m+dKRw6ALb4QpF0HjcJe+jmcE+E0mX/tB6
+         G9tId6xdwhk8RuulFBnupNFNygJLNQeB9Ce/8W6SItGhx1oOG5HuPEQSpCFCPZ2qf7
+         P7a0VBJQE6mkJu29IdwLA05uEZVpn4uAXagUaN7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casper Andersson <casper.casan@gmail.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 095/102] net: sparx5: mdb add/del handle non-sparx5 devices
-Date:   Tue,  5 Jul 2022 13:59:01 +0200
-Message-Id: <20220705115621.116971720@linuxfoundation.org>
+Subject: [PATCH 5.18 096/102] hwmon: (ibmaem) dont call platform_device_del() if platform_device_add() fails
+Date:   Tue,  5 Jul 2022 13:59:02 +0200
+Message-Id: <20220705115621.144667668@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
 References: <20220705115618.410217782@linuxfoundation.org>
@@ -55,47 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casper Andersson <casper.casan@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9c5de246c1dbe785268fc2e83c88624b92e4ec93 ]
+[ Upstream commit d0e51022a025ca5350fafb8e413a6fe5d4baf833 ]
 
-When adding/deleting mdb entries on other net_devices, eg., tap
-interfaces, it should not crash.
+If platform_device_add() fails, it no need to call platform_device_del(), split
+platform_device_unregister() into platform_device_del/put(), so platform_device_put()
+can be called separately.
 
-Fixes: 3bacfccdcb2d ("net: sparx5: Add mdb handlers")
-Signed-off-by: Casper Andersson <casper.casan@gmail.com>
-Reviewed-by: Steen Hegelund <Steen.Hegelund@microchip.com>
-Link: https://lore.kernel.org/r/20220630122226.316812-1-casper.casan@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8808a793f052 ("ibmaem: new driver for power/energy/temp meters in IBM System X hardware")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220701074153.4021556-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hwmon/ibmaem.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c b/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
-index 3429660cd2e5..5edc8b7176c8 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
-@@ -396,6 +396,9 @@ static int sparx5_handle_port_mdb_add(struct net_device *dev,
- 	u32 mact_entry;
- 	int res, err;
+diff --git a/drivers/hwmon/ibmaem.c b/drivers/hwmon/ibmaem.c
+index de6baf6ca3d1..dab4908b78a8 100644
+--- a/drivers/hwmon/ibmaem.c
++++ b/drivers/hwmon/ibmaem.c
+@@ -550,7 +550,7 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
  
-+	if (!sparx5_netdevice_check(dev))
-+		return -EOPNOTSUPP;
-+
- 	if (netif_is_bridge_master(v->obj.orig_dev)) {
- 		sparx5_mact_learn(spx5, PGID_CPU, v->addr, v->vid);
- 		return 0;
-@@ -466,6 +469,9 @@ static int sparx5_handle_port_mdb_del(struct net_device *dev,
- 	u32 mact_entry, res, pgid_entry[3];
- 	int err;
+ 	res = platform_device_add(data->pdev);
+ 	if (res)
+-		goto ipmi_err;
++		goto dev_add_err;
  
-+	if (!sparx5_netdevice_check(dev))
-+		return -EOPNOTSUPP;
-+
- 	if (netif_is_bridge_master(v->obj.orig_dev)) {
- 		sparx5_mact_forget(spx5, v->addr, v->vid);
- 		return 0;
+ 	platform_set_drvdata(data->pdev, data);
+ 
+@@ -598,7 +598,9 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
+ 	ipmi_destroy_user(data->ipmi.user);
+ ipmi_err:
+ 	platform_set_drvdata(data->pdev, NULL);
+-	platform_device_unregister(data->pdev);
++	platform_device_del(data->pdev);
++dev_add_err:
++	platform_device_put(data->pdev);
+ dev_err:
+ 	ida_simple_remove(&aem_ida, data->id);
+ id_err:
+@@ -690,7 +692,7 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
+ 
+ 	res = platform_device_add(data->pdev);
+ 	if (res)
+-		goto ipmi_err;
++		goto dev_add_err;
+ 
+ 	platform_set_drvdata(data->pdev, data);
+ 
+@@ -738,7 +740,9 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
+ 	ipmi_destroy_user(data->ipmi.user);
+ ipmi_err:
+ 	platform_set_drvdata(data->pdev, NULL);
+-	platform_device_unregister(data->pdev);
++	platform_device_del(data->pdev);
++dev_add_err:
++	platform_device_put(data->pdev);
+ dev_err:
+ 	ida_simple_remove(&aem_ida, data->id);
+ id_err:
 -- 
 2.35.1
 
