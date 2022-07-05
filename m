@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C812566B1A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6718566B86
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233568AbiGEMEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:04:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44412 "EHLO
+        id S234222AbiGEMHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:07:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233322AbiGEMCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ABD7186CD;
-        Tue,  5 Jul 2022 05:02:18 -0700 (PDT)
+        with ESMTP id S233346AbiGEMGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2705C18E35;
+        Tue,  5 Jul 2022 05:05:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BAF3CCE1B87;
-        Tue,  5 Jul 2022 12:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF66C36AE5;
-        Tue,  5 Jul 2022 12:02:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C87C4B817C7;
+        Tue,  5 Jul 2022 12:05:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 397AFC341C7;
+        Tue,  5 Jul 2022 12:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022535;
-        bh=7IZW/plT//M+qNPKohn68SEQjce+pTBJGYC4fgLZmNA=;
+        s=korg; t=1657022723;
+        bh=0bluImkZpCzaYQZjKlD4t1mEqrwXpo6gaWJYtmqZ4uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCZbub9GRJc8fwnhBEhl3/SD8vwJZajrP+55GbQu6jq9G8R7LeQeVnFfd3cdkb8AG
-         bI82mOx+WJKBL54kCxqwSXsi3idn2iocGGAl0rB0r18jfPj6MghmN2eSrphhO+/87/
-         CWD/zFgI6J0UuGjFFgFI51T3tWjXx5yUk4RJImI8=
+        b=tBKthNQ22j1qUhvSjxw52n96R/yLWrJxy7pOuBhTsfrBZIl9lQADAiFqjXGi34Qmi
+         n0IW0CVMpS6/0DiFukHYr8YdCI4oPvrFLO7XchYOonj9A9jDLQkmAUNMtnDg3MdJCg
+         paWNYgoM8JDU1vN38iEUD3woZqDb7VjxM1gtzXcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
-        Leon Romanovsky <leonro@nvidia.com>
-Subject: [PATCH 4.19 12/33] RDMA/qedr: Fix reporting QP timeout attribute
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 28/58] net: tun: avoid disabling NAPI twice
 Date:   Tue,  5 Jul 2022 13:58:04 +0200
-Message-Id: <20220705115607.069496784@linuxfoundation.org>
+Message-Id: <20220705115611.074797102@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 118f767413ada4eef7825fbd4af7c0866f883441 upstream.
+commit ff1fa2081d173b01cebe2fbf0a2d0f1cee9ce4b5 upstream.
 
-Make sure to save the passed QP timeout attribute when the QP gets modified,
-so when calling query QP the right value is reported and not the
-converted value that is required by the firmware. This issue was found
-while running the pyverbs tests.
+Eric reports that syzbot made short work out of my speculative
+fix. Indeed when queue gets detached its tfile->tun remains,
+so we would try to stop NAPI twice with a detach(), close()
+sequence.
 
-Fixes: cecbcddf6461 ("qedr: Add support for QP verbs")
-Link: https://lore.kernel.org/r/20220525132029.84813-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Alternative fix would be to move tun_napi_disable() to
+tun_detach_all() and let the NAPI run after the queue
+has been detached.
+
+Fixes: a8fc8cb5692a ("net: tun: stop NAPI when detaching queues")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220629181911.372047-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qedr/qedr.h  |    1 +
- drivers/infiniband/hw/qedr/verbs.c |    4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/tun.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/qedr/qedr.h
-+++ b/drivers/infiniband/hw/qedr/qedr.h
-@@ -407,6 +407,7 @@ struct qedr_qp {
- 	u32 sq_psn;
- 	u32 qkey;
- 	u32 dest_qp_num;
-+	u8 timeout;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -696,7 +696,8 @@ static void __tun_detach(struct tun_file
+ 	tun = rtnl_dereference(tfile->tun);
  
- 	/* Relevant to qps created from kernel space only (ULPs) */
- 	u8 prev_wqe_size;
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -2376,6 +2376,8 @@ int qedr_modify_qp(struct ib_qp *ibqp, s
- 					1 << max_t(int, attr->timeout - 8, 0);
- 		else
- 			qp_params.ack_timeout = 0;
-+
-+		qp->timeout = attr->timeout;
+ 	if (tun && clean) {
+-		tun_napi_disable(tfile);
++		if (!tfile->detached)
++			tun_napi_disable(tfile);
+ 		tun_napi_del(tfile);
  	}
  
- 	if (attr_mask & IB_QP_RETRY_CNT) {
-@@ -2535,7 +2537,7 @@ int qedr_query_qp(struct ib_qp *ibqp,
- 	rdma_ah_set_dgid_raw(&qp_attr->ah_attr, &params.dgid.bytes[0]);
- 	rdma_ah_set_port_num(&qp_attr->ah_attr, 1);
- 	rdma_ah_set_sl(&qp_attr->ah_attr, 0);
--	qp_attr->timeout = params.timeout;
-+	qp_attr->timeout = qp->timeout;
- 	qp_attr->rnr_retry = params.rnr_retry;
- 	qp_attr->retry_cnt = params.retry_cnt;
- 	qp_attr->min_rnr_timer = params.min_rnr_nak_timer;
 
 
