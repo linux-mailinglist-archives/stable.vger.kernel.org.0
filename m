@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B06566BDF
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C706E566D4E
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233753AbiGEMJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49548 "EHLO
+        id S229872AbiGEMWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235192AbiGEMIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:41 -0400
+        with ESMTP id S236295AbiGEMRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB714186ED;
-        Tue,  5 Jul 2022 05:08:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D42141902C;
+        Tue,  5 Jul 2022 05:12:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 931CDB817CE;
-        Tue,  5 Jul 2022 12:08:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C8BC341CD;
-        Tue,  5 Jul 2022 12:08:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D09BB817D3;
+        Tue,  5 Jul 2022 12:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEE51C385A9;
+        Tue,  5 Jul 2022 12:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022885;
-        bh=gKbmN6uWZ82Xii3MsIXGKeH4v7WVPEI8RzIUV0Mz5fQ=;
+        s=korg; t=1657023136;
+        bh=s/yqnEjkyOmsRsGcNykfxHRinV2YJeryeE0pvGvcV80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpZU+GVPSAq4iFQ+Flv18vw8zcqqR3s1U0q5SOFrq2J23JtwdfwZ+pq0jfImufwCM
-         qSvmaS95KXGVhXYxGvYoc4ckUm2DXGnHVLFNrFQbid/z8f0yV6/+VzHC3D2Erp0K3u
-         lmoXDuwrD8nZmJuuU3E9P9oyXAaRIpdshnjHXB9Y=
+        b=aKrHuzYWtE3WXIDZLYjtjchV5z912AJHIyY+y9OSau0iZclmoV/Z5KPK+k4xxvWYo
+         k+gQ53G3b0DBIE876+8pLZ+08E0cPH5TD5+187W5cRdLM80RWhu3gBvWHN7EW04ZJj
+         mFDJBOuWb05uWfuH3h0rgRTC4mtStE3UwM2/CoIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
-        Zorro Lang <zlang@redhat.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Brian Foster <bfoster@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 46/84] xfs: update superblock counters correctly for !lazysbcount
+        stable@vger.kernel.org, Yilun Wu <yiluwu@cs.stonybrook.edu>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Francois Romieu <romieu@fr.zoreil.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 51/98] epic100: fix use after free on rmmod
 Date:   Tue,  5 Jul 2022 13:58:09 +0200
-Message-Id: <20220705115616.670135979@linuxfoundation.org>
+Message-Id: <20220705115619.033332801@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,73 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit 6543990a168acf366f4b6174d7bd46ba15a8a2a6 upstream.
+commit 8ee9d82cd0a45e7d050ade598c9f33032a0f2891 upstream.
 
-Keep the mount superblock counters up to date for !lazysbcount
-filesystems so that when we log the superblock they do not need
-updating in any way because they are already correct.
+epic_close() calls epic_rx() and uses dma buffer, but in epic_remove_one()
+we already freed the dma buffer. To fix this issue, reorder function calls
+like in the .probe function.
 
-It's found by what Zorro reported:
-1. mkfs.xfs -f -l lazy-count=0 -m crc=0 $dev
-2. mount $dev $mnt
-3. fsstress -d $mnt -p 100 -n 1000 (maybe need more or less io load)
-4. umount $mnt
-5. xfs_repair -n $dev
-and I've seen no problem with this patch.
+BUG: KASAN: use-after-free in epic_rx+0xa6/0x7e0 [epic100]
+Call Trace:
+ epic_rx+0xa6/0x7e0 [epic100]
+ epic_close+0xec/0x2f0 [epic100]
+ unregister_netdev+0x18/0x20
+ epic_remove_one+0xaa/0xf0 [epic100]
 
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reported-by: Zorro Lang <zlang@redhat.com>
-Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Yilun Wu <yiluwu@cs.stonybrook.edu>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
+Link: https://lore.kernel.org/r/20220627043351.25615-1-ztong0001@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_sb.c |   16 +++++++++++++---
- fs/xfs/xfs_trans.c     |    3 +++
- 2 files changed, 16 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/smsc/epic100.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/libxfs/xfs_sb.c
-+++ b/fs/xfs/libxfs/xfs_sb.c
-@@ -956,9 +956,19 @@ xfs_log_sb(
- 	struct xfs_mount	*mp = tp->t_mountp;
- 	struct xfs_buf		*bp = xfs_trans_getsb(tp);
+--- a/drivers/net/ethernet/smsc/epic100.c
++++ b/drivers/net/ethernet/smsc/epic100.c
+@@ -1513,14 +1513,14 @@ static void epic_remove_one(struct pci_d
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct epic_private *ep = netdev_priv(dev);
  
--	mp->m_sb.sb_icount = percpu_counter_sum(&mp->m_icount);
--	mp->m_sb.sb_ifree = percpu_counter_sum(&mp->m_ifree);
--	mp->m_sb.sb_fdblocks = percpu_counter_sum(&mp->m_fdblocks);
-+	/*
-+	 * Lazy sb counters don't update the in-core superblock so do that now.
-+	 * If this is at unmount, the counters will be exactly correct, but at
-+	 * any other time they will only be ballpark correct because of
-+	 * reservations that have been taken out percpu counters. If we have an
-+	 * unclean shutdown, this will be corrected by log recovery rebuilding
-+	 * the counters from the AGF block counts.
-+	 */
-+	if (xfs_sb_version_haslazysbcount(&mp->m_sb)) {
-+		mp->m_sb.sb_icount = percpu_counter_sum(&mp->m_icount);
-+		mp->m_sb.sb_ifree = percpu_counter_sum(&mp->m_ifree);
-+		mp->m_sb.sb_fdblocks = percpu_counter_sum(&mp->m_fdblocks);
-+	}
- 
- 	xfs_sb_to_disk(bp->b_addr, &mp->m_sb);
- 	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_SB_BUF);
---- a/fs/xfs/xfs_trans.c
-+++ b/fs/xfs/xfs_trans.c
-@@ -615,6 +615,9 @@ xfs_trans_unreserve_and_mod_sb(
- 
- 	/* apply remaining deltas */
- 	spin_lock(&mp->m_sb_lock);
-+	mp->m_sb.sb_fdblocks += tp->t_fdblocks_delta + tp->t_res_fdblocks_delta;
-+	mp->m_sb.sb_icount += idelta;
-+	mp->m_sb.sb_ifree += ifreedelta;
- 	mp->m_sb.sb_frextents += rtxdelta;
- 	mp->m_sb.sb_dblocks += tp->t_dblocks_delta;
- 	mp->m_sb.sb_agcount += tp->t_agcount_delta;
++	unregister_netdev(dev);
+ 	dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, ep->tx_ring,
+ 			  ep->tx_ring_dma);
+ 	dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, ep->rx_ring,
+ 			  ep->rx_ring_dma);
+-	unregister_netdev(dev);
+ 	pci_iounmap(pdev, ep->ioaddr);
+-	pci_release_regions(pdev);
+ 	free_netdev(dev);
++	pci_release_regions(pdev);
+ 	pci_disable_device(pdev);
+ 	/* pci_power_off(pdev, -1); */
+ }
 
 
