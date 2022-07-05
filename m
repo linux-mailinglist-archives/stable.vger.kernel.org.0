@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7499566DB4
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDEF566B22
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237903AbiGEM0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:26:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
+        id S233642AbiGEMEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235796AbiGEMYd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:24:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F0C1F602;
-        Tue,  5 Jul 2022 05:17:11 -0700 (PDT)
+        with ESMTP id S231331AbiGEMDi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0959517A96;
+        Tue,  5 Jul 2022 05:03:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5C9161ABC;
-        Tue,  5 Jul 2022 12:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C193CC341CB;
-        Tue,  5 Jul 2022 12:17:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9A8E4CE1B86;
+        Tue,  5 Jul 2022 12:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D97FC341C7;
+        Tue,  5 Jul 2022 12:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023430;
-        bh=Pv20hZ6MibaibPaGYKswI47gYlx8KHg9vXJ+EQIoDbI=;
+        s=korg; t=1657022612;
+        bh=k4N6KH1YWbQV3DGzZLvNHzX7b6DSgKb1L14QGC7GHeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FK7F1VGs4b1j09cBbvV4L98Up1NYKa4R185wvsudckvppcKoWH/zXn/Z68sPA5nmN
-         SFnfizCX1PdvkSLVZzBRXqFluDC4VKhEO6k06Rf0gPq4/99p6ruMRNvcUV/R+8Q2GJ
-         A+spDmuJ33vdZK13BogWIwX7jkZpGfJEwNgqd5RQ=
+        b=RZS5K6XoFr9qq1J/PTe5IxQLI+6DG55csFYz48/644JglOzHO0FtzS4OhhJqMXBGk
+         SFH/Q9brCR/cD0rWIyzjLu0CbbXa/ZcfRPpVCLDCaeTYM51hEr/20XDHtpbGdjvrWe
+         5SD1BibMBZzaqZf/Foac2RbK94tOEyjx+GdEgrB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Lundin <glance@acc.umu.se>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 057/102] net: asix: fix "cant send until first packet is send" issue
+        stable@vger.kernel.org,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 31/33] xen/arm: Fix race in RB-tree based P2M accounting
 Date:   Tue,  5 Jul 2022 13:58:23 +0200
-Message-Id: <20220705115620.025886140@linuxfoundation.org>
+Message-Id: <20220705115607.625593510@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
+References: <20220705115606.709817198@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
 
-commit 805206e66fab4ba1e0ebd19402006d62cd1d4902 upstream.
+commit b75cd218274e01d026dc5240e86fdeb44bbed0c8 upstream.
 
-If cable is attached after probe sequence, the usbnet framework would
-not automatically start processing RX packets except at least one
-packet was transmitted.
+During the PV driver life cycle the mappings are added to
+the RB-tree by set_foreign_p2m_mapping(), which is called from
+gnttab_map_refs() and are removed by clear_foreign_p2m_mapping()
+which is called from gnttab_unmap_refs(). As both functions end
+up calling __set_phys_to_machine_multi() which updates the RB-tree,
+this function can be called concurrently.
 
-On systems with any kind of address auto configuration this issue was
-not detected, because some packets are send immediately after link state
-is changed to "running".
+There is already a "p2m_lock" to protect against concurrent accesses,
+but the problem is that the first read of "phys_to_mach.rb_node"
+in __set_phys_to_machine_multi() is not covered by it, so this might
+lead to the incorrect mappings update (removing in our case) in RB-tree.
 
-With this patch we will notify usbnet about link status change provided by the
-PHYlib.
+In my environment the related issue happens rarely and only when
+PV net backend is running, the xen_add_phys_to_mach_entry() claims
+that it cannot add new pfn <-> mfn mapping to the tree since it is
+already exists which results in a failure when mapping foreign pages.
 
-Fixes: e532a096be0e ("net: usb: asix: ax88772: add phylib support")
-Reported-by: Anton Lundin <glance@acc.umu.se>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Tested-by: Anton Lundin <glance@acc.umu.se>
-Link: https://lore.kernel.org/r/20220624075139.3139300-1-o.rempel@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+But there might be other bad consequences related to the non-protected
+root reads such use-after-free, etc.
+
+While at it, also fix the similar usage in __pfn_to_mfn(), so
+initialize "struct rb_node *n" with the "p2m_lock" held in both
+functions to avoid possible bad consequences.
+
+This is CVE-2022-33744 / XSA-406.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/asix_common.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/xen/p2m.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/asix_common.c
-+++ b/drivers/net/usb/asix_common.c
-@@ -431,6 +431,7 @@ void asix_adjust_link(struct net_device
+--- a/arch/arm/xen/p2m.c
++++ b/arch/arm/xen/p2m.c
+@@ -61,11 +61,12 @@ out:
  
- 	asix_write_medium_mode(dev, mode, 0);
- 	phy_print_status(phydev);
-+	usbnet_link_change(dev, phydev->link, 0);
- }
+ unsigned long __pfn_to_mfn(unsigned long pfn)
+ {
+-	struct rb_node *n = phys_to_mach.rb_node;
++	struct rb_node *n;
+ 	struct xen_p2m_entry *entry;
+ 	unsigned long irqflags;
  
- int asix_write_gpio(struct usbnet *dev, u16 value, int sleep, int in_pm)
+ 	read_lock_irqsave(&p2m_lock, irqflags);
++	n = phys_to_mach.rb_node;
+ 	while (n) {
+ 		entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
+ 		if (entry->pfn <= pfn &&
+@@ -151,10 +152,11 @@ bool __set_phys_to_machine_multi(unsigne
+ 	int rc;
+ 	unsigned long irqflags;
+ 	struct xen_p2m_entry *p2m_entry;
+-	struct rb_node *n = phys_to_mach.rb_node;
++	struct rb_node *n;
+ 
+ 	if (mfn == INVALID_P2M_ENTRY) {
+ 		write_lock_irqsave(&p2m_lock, irqflags);
++		n = phys_to_mach.rb_node;
+ 		while (n) {
+ 			p2m_entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
+ 			if (p2m_entry->pfn <= pfn &&
 
 
