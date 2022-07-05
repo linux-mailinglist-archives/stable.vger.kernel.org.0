@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCAA95662EB
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 08:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EDDE5662EC
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 08:02:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbiGEGCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 02:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60358 "EHLO
+        id S229596AbiGEGC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 02:02:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbiGEGCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 02:02:25 -0400
-Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C59BCD133
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 23:02:23 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VIQiBfx_1657000939;
-Received: from localhost.localdomain(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0VIQiBfx_1657000939)
+        with ESMTP id S229588AbiGEGC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 02:02:27 -0400
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0927DF7C
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 23:02:26 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VIQiBgn_1657000941;
+Received: from localhost.localdomain(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0VIQiBgn_1657000941)
           by smtp.aliyun-inc.com;
-          Tue, 05 Jul 2022 14:02:21 +0800
+          Tue, 05 Jul 2022 14:02:22 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
@@ -27,10 +27,12 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Bin Yang <bin.yang@intel.com>,
         Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org,
         Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
-Date:   Tue,  5 Jul 2022 14:02:07 +0800
-Message-Id: <20220705060209.22806-1-wenyang@linux.alibaba.com>
+Subject: [PATCH 4.14] x86/mm/cpa: Unconditionally avoid WBINDV when we can
+Date:   Tue,  5 Jul 2022 14:02:08 +0800
+Message-Id: <20220705060209.22806-2-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220705060209.22806-1-wenyang@linux.alibaba.com>
+References: <20220705060209.22806-1-wenyang@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
@@ -57,7 +59,8 @@ Reviewed-by: Dave Hansen <dave.hansen@intel.com>
 Cc: Bin Yang <bin.yang@intel.com>
 Cc: Mark Gross <mark.gross@intel.com>
 Link: https://lkml.kernel.org/r/20180919085947.933674526@infradead.org
-Cc: <stable@vger.kernel.org> # 4.19.x
+Cc: <stable@vger.kernel.org> # 4.14.x: d2479a3: x86/pti: Fix boot problems from Global-bit setting
+Cc: <stable@vger.kernel.org> # 4.14.x
 Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
  arch/x86/mm/pageattr.c | 18 ++----------------
