@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF3B566A94
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF554566D42
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232688AbiGEMAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:00:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
+        id S236352AbiGEMVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232643AbiGEL7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 07:59:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01AC31091;
-        Tue,  5 Jul 2022 04:59:48 -0700 (PDT)
+        with ESMTP id S236977AbiGEMS1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B14319C32;
+        Tue,  5 Jul 2022 05:13:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 929626179A;
-        Tue,  5 Jul 2022 11:59:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A00C2C36AE3;
-        Tue,  5 Jul 2022 11:59:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A820B817DA;
+        Tue,  5 Jul 2022 12:13:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C0FC341CB;
+        Tue,  5 Jul 2022 12:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022387;
-        bh=8yXwt5fDYM0Ni43eWkCW3PtpY1Ok5HaaZ+H9RI5f51c=;
+        s=korg; t=1657023225;
+        bh=VXNZnHRcm5Fh6+9sf6g8wx9wGuj2YCXXfVd+GM/Akmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DjsSw/8GVHQ08Ef+qA45vIxuUVRECBNHTmZij+Q6U3kgbb9voluPVQ79qtwPFEv66
-         MFkT3XlktN73vXVCVl4xuoVbio5sRWya3ChjkGq3eP+9Knx1jFDDlO1KE+d21M4rzu
-         K4jEWKpI0dyMZ4UJAkc3NiMAxebbaPl0GB8nVU34=
+        b=JLn6Adl6J16WE3r23+yg8JtUZXG14BIMr13K+J8r5bojoDb65GWfY42lwX7tWtGiX
+         BL6BSczpR1AQWPkbS5qlLeafSPmIZ6qsE0cYZH4vJ6Pwun2gz78q1E8wEjY2NszdC4
+         TLLSUXZT/QFUYK0bJ+IkCIjv3Pf6WgpLrm/zA5hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, katrinzhou <katrinzhou@tencent.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 18/29] ipv6/sit: fix ipip6_tunnel_get_prl return value
+Subject: [PATCH 5.15 41/98] net/dsa/hirschmann: Add missing of_node_get() in hellcreek_led_setup()
 Date:   Tue,  5 Jul 2022 13:57:59 +0200
-Message-Id: <20220705115606.285853914@linuxfoundation.org>
+Message-Id: <20220705115618.755108434@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-References: <20220705115605.742248854@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: katrinzhou <katrinzhou@tencent.com>
+From: Liang He <windhl@126.com>
 
-commit adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d upstream.
+commit 16d584d2fc8f4ea36203af45a76becd7093586f1 upstream.
 
-When kcalloc fails, ipip6_tunnel_get_prl() should return -ENOMEM.
-Move the position of label "out" to return correctly.
+of_find_node_by_name() will decrease the refcount of its first arg and
+we need a of_node_get() to keep refcount balance.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 300aaeeaab5f ("[IPV6] SIT: Add SIOCGETPRL ioctl to get/dump PRL.")
-Signed-off-by: katrinzhou <katrinzhou@tencent.com>
-Reviewed-by: Eric Dumazet<edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220628035030.1039171-1-zys.zljxml@gmail.com
+Fixes: 7d9ee2e8ff15 ("net: dsa: hellcreek: Add PTP status LEDs")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220622040621.4094304-1-windhl@126.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/dsa/hirschmann/hellcreek_ptp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -308,8 +308,6 @@ static int ipip6_tunnel_get_prl(struct i
- 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL) :
- 		NULL;
+--- a/drivers/net/dsa/hirschmann/hellcreek_ptp.c
++++ b/drivers/net/dsa/hirschmann/hellcreek_ptp.c
+@@ -300,6 +300,7 @@ static int hellcreek_led_setup(struct he
+ 	const char *label, *state;
+ 	int ret = -EINVAL;
  
--	rcu_read_lock();
--
- 	ca = min(t->prl_count, cmax);
- 
- 	if (!kp) {
-@@ -325,7 +323,7 @@ static int ipip6_tunnel_get_prl(struct i
- 		}
- 	}
- 
--	c = 0;
-+	rcu_read_lock();
- 	for_each_prl_rcu(t->prl) {
- 		if (c >= cmax)
- 			break;
-@@ -337,7 +335,7 @@ static int ipip6_tunnel_get_prl(struct i
- 		if (kprl.addr != htonl(INADDR_ANY))
- 			break;
- 	}
--out:
-+
- 	rcu_read_unlock();
- 
- 	len = sizeof(*kp) * c;
-@@ -346,7 +344,7 @@ out:
- 		ret = -EFAULT;
- 
- 	kfree(kp);
--
-+out:
- 	return ret;
- }
- 
++	of_node_get(hellcreek->dev->of_node);
+ 	leds = of_find_node_by_name(hellcreek->dev->of_node, "leds");
+ 	if (!leds) {
+ 		dev_err(hellcreek->dev, "No LEDs specified in device tree!\n");
 
 
