@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DC44566C14
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589C5566B49
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233916AbiGEMLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54468 "EHLO
+        id S233506AbiGEMFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:05:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234488AbiGEMJf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3107518B19;
-        Tue,  5 Jul 2022 05:09:34 -0700 (PDT)
+        with ESMTP id S233834AbiGEMEi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:04:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED2A18B21;
+        Tue,  5 Jul 2022 05:04:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF32BB817CC;
-        Tue,  5 Jul 2022 12:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560F3C341D2;
-        Tue,  5 Jul 2022 12:09:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B215BB817E1;
+        Tue,  5 Jul 2022 12:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F06C36AE3;
+        Tue,  5 Jul 2022 12:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022971;
-        bh=j36jchCM8ILfEg2ys9QtiIQAKWlq+mioJDKE0WBqCYM=;
+        s=korg; t=1657022662;
+        bh=5jkvhh7RyOWNuugdqiUVq0gQskA5p/QLvh+4aoBou74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYxjFbAHZE6kGAYoKsJ6vcZE+4xIX96URD2MT0ZvbWxMFO0LE54H9N2KMXAhTbLE8
-         tidXn8YPzYgPj/YQxGIcLOFeflkj6i70buQ+RdUZ0SCaRyI+Y1yuDoOpbJ1Eftzb5o
-         ANQxBDIEsXHlwWZIlr7dOPuD/WMHwEQBn9EGZDy4=
+        b=TpZPx0F1zHUdKZYY1/8QKUiH9wMWFPno9hTEjB4TaI9/l7QJVM0YfXcPz3qgahz6R
+         o6B+rwHS0f6Hmr3QdM+s+3Sf9FMVos9bYmOIBG+mAMgPVo0tsFA5oiIv37K7h86p4d
+         JJD69otrnPdGGI+6rCnRD4fdmgGZUrNrvo1Xn51c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 36/84] tipc: move bc link creation back to tipc_node_create
+        stable@vger.kernel.org, Victor Nogueira <victor@mojatatu.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 23/58] net/sched: act_api: Notify user space if any actions were flushed before error
 Date:   Tue,  5 Jul 2022 13:57:59 +0200
-Message-Id: <20220705115616.376873020@linuxfoundation.org>
+Message-Id: <20220705115610.932214413@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Victor Nogueira <victor@mojatatu.com>
 
-commit cb8092d70a6f5f01ec1490fce4d35efed3ed996c upstream.
+commit 76b39b94382f9e0a639e1c70c3253de248cc4c83 upstream.
 
-Shuang Li reported a NULL pointer dereference crash:
+If during an action flush operation one of the actions is still being
+referenced, the flush operation is aborted and the kernel returns to
+user space with an error. However, if the kernel was able to flush, for
+example, 3 actions and failed on the fourth, the kernel will not notify
+user space that it deleted 3 actions before failing.
 
-  [] BUG: kernel NULL pointer dereference, address: 0000000000000068
-  [] RIP: 0010:tipc_link_is_up+0x5/0x10 [tipc]
-  [] Call Trace:
-  []  <IRQ>
-  []  tipc_bcast_rcv+0xa2/0x190 [tipc]
-  []  tipc_node_bc_rcv+0x8b/0x200 [tipc]
-  []  tipc_rcv+0x3af/0x5b0 [tipc]
-  []  tipc_udp_recv+0xc7/0x1e0 [tipc]
+This patch fixes that behaviour by notifying user space of how many
+actions were deleted before flush failed and by setting extack with a
+message describing what happened.
 
-It was caused by the 'l' passed into tipc_bcast_rcv() is NULL. When it
-creates a node in tipc_node_check_dest(), after inserting the new node
-into hashtable in tipc_node_create(), it creates the bc link. However,
-there is a gap between this insert and bc link creation, a bc packet
-may come in and get the node from the hashtable then try to dereference
-its bc link, which is NULL.
-
-This patch is to fix it by moving the bc link creation before inserting
-into the hashtable.
-
-Note that for a preliminary node becoming "real", the bc link creation
-should also be called before it's rehashed, as we don't create it for
-preliminary nodes.
-
-Fixes: 4cbf8ac2fe5a ("tipc: enable creating a "preliminary" node")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 55334a5db5cd ("net_sched: act: refuse to remove bound action outside")
+Signed-off-by: Victor Nogueira <victor@mojatatu.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/node.c |   41 ++++++++++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 19 deletions(-)
+ net/sched/act_api.c |   22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -456,8 +456,8 @@ struct tipc_node *tipc_node_create(struc
- 				   bool preliminary)
- {
- 	struct tipc_net *tn = net_generic(net, tipc_net_id);
-+	struct tipc_link *l, *snd_l = tipc_bc_sndlink(net);
- 	struct tipc_node *n, *temp_node;
--	struct tipc_link *l;
- 	unsigned long intv;
- 	int bearer_id;
- 	int i;
-@@ -472,6 +472,16 @@ struct tipc_node *tipc_node_create(struc
- 			goto exit;
- 		/* A preliminary node becomes "real" now, refresh its data */
- 		tipc_node_write_lock(n);
-+		if (!tipc_link_bc_create(net, tipc_own_addr(net), addr, peer_id, U16_MAX,
-+					 tipc_link_min_win(snd_l), tipc_link_max_win(snd_l),
-+					 n->capabilities, &n->bc_entry.inputq1,
-+					 &n->bc_entry.namedq, snd_l, &n->bc_entry.link)) {
-+			pr_warn("Broadcast rcv link refresh failed, no memory\n");
-+			tipc_node_write_unlock_fast(n);
-+			tipc_node_put(n);
-+			n = NULL;
-+			goto exit;
-+		}
- 		n->preliminary = false;
- 		n->addr = addr;
- 		hlist_del_rcu(&n->hash);
-@@ -551,7 +561,16 @@ update:
- 	n->signature = INVALID_NODE_SIG;
- 	n->active_links[0] = INVALID_BEARER_ID;
- 	n->active_links[1] = INVALID_BEARER_ID;
--	n->bc_entry.link = NULL;
-+	if (!preliminary &&
-+	    !tipc_link_bc_create(net, tipc_own_addr(net), addr, peer_id, U16_MAX,
-+				 tipc_link_min_win(snd_l), tipc_link_max_win(snd_l),
-+				 n->capabilities, &n->bc_entry.inputq1,
-+				 &n->bc_entry.namedq, snd_l, &n->bc_entry.link)) {
-+		pr_warn("Broadcast rcv link creation failed, no memory\n");
-+		kfree(n);
-+		n = NULL;
-+		goto exit;
-+	}
- 	tipc_node_get(n);
- 	timer_setup(&n->timer, tipc_node_timeout, 0);
- 	/* Start a slow timer anyway, crypto needs it */
-@@ -1128,7 +1147,7 @@ void tipc_node_check_dest(struct net *ne
- 			  bool *respond, bool *dupl_addr)
- {
- 	struct tipc_node *n;
--	struct tipc_link *l, *snd_l;
-+	struct tipc_link *l;
- 	struct tipc_link_entry *le;
- 	bool addr_match = false;
- 	bool sign_match = false;
-@@ -1148,22 +1167,6 @@ void tipc_node_check_dest(struct net *ne
- 		return;
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -287,7 +287,8 @@ static int tcf_idr_release_unsafe(struct
+ }
  
- 	tipc_node_write_lock(n);
--	if (unlikely(!n->bc_entry.link)) {
--		snd_l = tipc_bc_sndlink(net);
--		if (!tipc_link_bc_create(net, tipc_own_addr(net),
--					 addr, peer_id, U16_MAX,
--					 tipc_link_min_win(snd_l),
--					 tipc_link_max_win(snd_l),
--					 n->capabilities,
--					 &n->bc_entry.inputq1,
--					 &n->bc_entry.namedq, snd_l,
--					 &n->bc_entry.link)) {
--			pr_warn("Broadcast rcv link creation failed, no mem\n");
--			tipc_node_write_unlock_fast(n);
--			tipc_node_put(n);
--			return;
+ static int tcf_del_walker(struct tcf_idrinfo *idrinfo, struct sk_buff *skb,
+-			  const struct tc_action_ops *ops)
++			  const struct tc_action_ops *ops,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct nlattr *nest;
+ 	int n_i = 0;
+@@ -303,20 +304,25 @@ static int tcf_del_walker(struct tcf_idr
+ 	if (nla_put_string(skb, TCA_KIND, ops->kind))
+ 		goto nla_put_failure;
+ 
++	ret = 0;
+ 	mutex_lock(&idrinfo->lock);
+ 	idr_for_each_entry_ul(idr, p, tmp, id) {
+ 		if (IS_ERR(p))
+ 			continue;
+ 		ret = tcf_idr_release_unsafe(p);
+-		if (ret == ACT_P_DELETED) {
++		if (ret == ACT_P_DELETED)
+ 			module_put(ops->owner);
+-			n_i++;
+-		} else if (ret < 0) {
+-			mutex_unlock(&idrinfo->lock);
+-			goto nla_put_failure;
 -		}
--	}
++		else if (ret < 0)
++			break;
++		n_i++;
+ 	}
+ 	mutex_unlock(&idrinfo->lock);
++	if (ret < 0) {
++		if (n_i)
++			NL_SET_ERR_MSG(extack, "Unable to flush all TC actions");
++		else
++			goto nla_put_failure;
++	}
  
- 	le = &n->links[b->identity];
+ 	ret = nla_put_u32(skb, TCA_FCNT, n_i);
+ 	if (ret)
+@@ -337,7 +343,7 @@ int tcf_generic_walker(struct tc_action_
+ 	struct tcf_idrinfo *idrinfo = tn->idrinfo;
  
+ 	if (type == RTM_DELACTION) {
+-		return tcf_del_walker(idrinfo, skb, ops);
++		return tcf_del_walker(idrinfo, skb, ops, extack);
+ 	} else if (type == RTM_GETACTION) {
+ 		return tcf_dump_walker(idrinfo, skb, cb);
+ 	} else {
 
 
