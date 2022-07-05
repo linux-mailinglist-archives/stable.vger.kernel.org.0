@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98199566C8F
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C160B566BA9
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbiGEMQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:16:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35976 "EHLO
+        id S234342AbiGEMJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235199AbiGEMOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:14:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B5C18E3C;
-        Tue,  5 Jul 2022 05:11:37 -0700 (PDT)
+        with ESMTP id S234428AbiGEMHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25D01902C;
+        Tue,  5 Jul 2022 05:06:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 198C8B817D6;
-        Tue,  5 Jul 2022 12:11:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5864DC341C8;
-        Tue,  5 Jul 2022 12:11:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8051B61806;
+        Tue,  5 Jul 2022 12:06:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D7EC385A2;
+        Tue,  5 Jul 2022 12:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023094;
-        bh=tXppN8BcPgQ4XAzOGRUOpzB7tCna+gCnSSASx3UTd4I=;
+        s=korg; t=1657022783;
+        bh=36+4ZDYC4CLujRBchcBNuJ618y3mx5X8Y/pZqGVeE1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7JLUr8VKGBed3yfF2d9fNSVJZHxKZZ8Sc6yE0TYqJteIJqrddqDZuYM/ImeAQGqb
-         XPA5AARg3MBGrN9A0jZE7DvPNPsz4wN5A2z43KGe6gNTCyps9quQgrJVBpsinqytvg
-         Z27XeXRr3ovHfLdWHY5FFYrnfLnknXwzDXTZdr0Q=
+        b=TSWPdIXo2MDmc7wDxdFmy6w1lWBhbX1u/17ggSU+6IrItKTlw2a1psP9sHn7hEFEm
+         VJNdMD4NKELc2AyFfMPmFn73EzRAK2fFLti7cVPNLCXbhiQlmfUlicdhK/p+62opI7
+         GSlt0qvzuNu25dfN+vWUfmJXTO/OTfd+A0uD+/ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-cifs@vger.kernel.org,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Hyunchul Lee <hyc.lee@gmail.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 05/98] ksmbd: use vfs_llseek instead of dereferencing NULL
-Date:   Tue,  5 Jul 2022 13:57:23 +0200
-Message-Id: <20220705115617.728426832@linuxfoundation.org>
+        stable@vger.kernel.org, Ruili Ji <ruiliji2@amd.com>,
+        Philip Yang <philip.yang@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 01/84] drm/amdgpu: To flush tlb for MMHUB of RAVEN series
+Date:   Tue,  5 Jul 2022 13:57:24 +0200
+Message-Id: <20220705115615.369222070@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,48 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Ruili Ji <ruiliji2@amd.com>
 
-commit 067baa9a37b32b95fdeabccde4b0cb6a2cf95f96 upstream.
+commit 5cb0e3fb2c54eabfb3f932a1574bff1774946bc0 upstream.
 
-By not checking whether llseek is NULL, this might jump to NULL. Also,
-it doesn't check FMODE_LSEEK. Fix this by using vfs_llseek(), which
-always does the right thing.
+amdgpu: [mmhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:32769, for process test_basic pid 3305 thread test_basic pid 3305)
+amdgpu: in page starting at address 0x00007ff990003000 from IH client 0x12 (VMC)
+amdgpu: VM_L2_PROTECTION_FAULT_STATUS:0x00840051
+amdgpu: Faulty UTCL2 client ID: MP1 (0x0)
+amdgpu: MORE_FAULTS: 0x1
+amdgpu: WALKER_ERROR: 0x0
+amdgpu: PERMISSION_FAULTS: 0x5
+amdgpu: MAPPING_ERROR: 0x0
+amdgpu: RW: 0x1
 
-Fixes: f44158485826 ("cifsd: add file operations")
+When memory is allocated by kfd, no one triggers the tlb flush for MMHUB0.
+There is page fault from MMHUB0.
+
+v2:fix indentation
+v3:change subject and fix indentation
+
+Signed-off-by: Ruili Ji <ruiliji2@amd.com>
+Reviewed-by: Philip Yang <philip.yang@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Cc: linux-cifs@vger.kernel.org
-Cc: Ronnie Sahlberg <lsahlber@redhat.com>
-Cc: Hyunchul Lee <hyc.lee@gmail.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Reviewed-by: Namjae Jeon <linkinjeon@kernel.org>
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/vfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ksmbd/vfs.c
-+++ b/fs/ksmbd/vfs.c
-@@ -1051,7 +1051,7 @@ int ksmbd_vfs_fqar_lseek(struct ksmbd_fi
- 	*out_count = 0;
- 	end = start + length;
- 	while (start < end && *out_count < in_count) {
--		extent_start = f->f_op->llseek(f, start, SEEK_DATA);
-+		extent_start = vfs_llseek(f, start, SEEK_DATA);
- 		if (extent_start < 0) {
- 			if (extent_start != -ENXIO)
- 				ret = (int)extent_start;
-@@ -1061,7 +1061,7 @@ int ksmbd_vfs_fqar_lseek(struct ksmbd_fi
- 		if (extent_start >= end)
- 			break;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c
+@@ -689,7 +689,8 @@ int amdgpu_amdkfd_flush_gpu_tlb_pasid(st
+ 	const uint32_t flush_type = 0;
+ 	bool all_hub = false;
  
--		extent_end = f->f_op->llseek(f, extent_start, SEEK_HOLE);
-+		extent_end = vfs_llseek(f, extent_start, SEEK_HOLE);
- 		if (extent_end < 0) {
- 			if (extent_end != -ENXIO)
- 				ret = (int)extent_end;
+-	if (adev->family == AMDGPU_FAMILY_AI)
++	if (adev->family == AMDGPU_FAMILY_AI ||
++	    adev->family == AMDGPU_FAMILY_RV)
+ 		all_hub = true;
+ 
+ 	return amdgpu_gmc_flush_gpu_tlb_pasid(adev, pasid, flush_type, all_hub);
 
 
