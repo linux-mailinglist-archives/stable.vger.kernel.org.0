@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A34B566B08
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3497E566B6D
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbiGEMDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46026 "EHLO
+        id S234063AbiGEMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233403AbiGEMDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FD7418374;
-        Tue,  5 Jul 2022 05:03:13 -0700 (PDT)
+        with ESMTP id S234011AbiGEMFo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 474E518E23;
+        Tue,  5 Jul 2022 05:05:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC283B817D4;
-        Tue,  5 Jul 2022 12:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2750AC385A2;
-        Tue,  5 Jul 2022 12:03:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E02AEB817CC;
+        Tue,  5 Jul 2022 12:05:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F1CC341C7;
+        Tue,  5 Jul 2022 12:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022590;
-        bh=QbrYS/RU5R8iMp2wKanbvTD0Py0IUdqsvNxuUk9AJB4=;
+        s=korg; t=1657022706;
+        bh=G9rKul6QLomKJrTc71bzE9xvfktuMjJvjc1FJYL1LoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaMWpRZglWL5Zs1L2KiPI4ui63yVr52qlLRMoWHTlIo7qFqesJ4YJ5iwoyVuKvRiK
-         3uaX52BvbusZtlgdB9miaMJqt+nc9M58Xpt8QaY6RB/x3YQUK1vqJmQq8rih58vl9Z
-         XXQhAOKBypOpUAhQht1oMz++cu/fpP4t0FNmFsHc=
+        b=hm879B9X3IMIcTa6TfDoc+vFB9S/7nZWTQrzsx8p8OzAXW9cStDDecSJ72Wrhgskz
+         wPc5iZKWYyyMpQ36OOlJvqDIhk8om98C6YkciyIkiuW/EBQ7VpV7PZxbtQsaO6Da4e
+         /IPT/i0RvlU4H4AsKoiVtpw8hxw9ol6eaoSyddN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 24/33] net: dsa: bcm_sf2: force pause link settings
+        stable@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 40/58] selftests/rseq: Introduce thread pointer getters
 Date:   Tue,  5 Jul 2022 13:58:16 +0200
-Message-Id: <20220705115607.421454267@linuxfoundation.org>
+Message-Id: <20220705115611.424171379@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
+commit 886ddfba933f5ce9d76c278165d834d114ba4ffc upstream.
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+This is done in preparation for the selftest uplift to become compatible
+with glibc-2.35.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+glibc-2.35 exposes the rseq per-thread data in the TCB, accessible
+at an offset from the thread pointer.
+
+The toolchains do not implement accessing the thread pointer on all
+architectures. Provide thread pointer getters for ppc and x86 which
+lack (or lacked until recently) toolchain support.
+
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124171253.22072-7-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ tools/testing/selftests/rseq/rseq-generic-thread-pointer.h |   25 ++++++++
+ tools/testing/selftests/rseq/rseq-ppc-thread-pointer.h     |   30 +++++++++
+ tools/testing/selftests/rseq/rseq-thread-pointer.h         |   19 ++++++
+ tools/testing/selftests/rseq/rseq-x86-thread-pointer.h     |   40 +++++++++++++
+ 4 files changed, 114 insertions(+)
+ create mode 100644 tools/testing/selftests/rseq/rseq-generic-thread-pointer.h
+ create mode 100644 tools/testing/selftests/rseq/rseq-ppc-thread-pointer.h
+ create mode 100644 tools/testing/selftests/rseq/rseq-thread-pointer.h
+ create mode 100644 tools/testing/selftests/rseq/rseq-x86-thread-pointer.h
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -599,6 +599,11 @@ force_link:
- 		reg |= LINK_STS;
- 	if (state->duplex == DUPLEX_FULL)
- 		reg |= DUPLX_MODE;
-+	if (state->pause & MLO_PAUSE_TXRX_MASK) {
-+		if (state->pause & MLO_PAUSE_TX)
-+			reg |= TXFLOW_CNTL;
-+		reg |= RXFLOW_CNTL;
-+	}
- 
- 	core_writel(priv, reg, offset);
- }
+--- /dev/null
++++ b/tools/testing/selftests/rseq/rseq-generic-thread-pointer.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
++/*
++ * rseq-generic-thread-pointer.h
++ *
++ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
++ */
++
++#ifndef _RSEQ_GENERIC_THREAD_POINTER
++#define _RSEQ_GENERIC_THREAD_POINTER
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/* Use gcc builtin thread pointer. */
++static inline void *rseq_thread_pointer(void)
++{
++	return __builtin_thread_pointer();
++}
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+--- /dev/null
++++ b/tools/testing/selftests/rseq/rseq-ppc-thread-pointer.h
+@@ -0,0 +1,30 @@
++/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
++/*
++ * rseq-ppc-thread-pointer.h
++ *
++ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
++ */
++
++#ifndef _RSEQ_PPC_THREAD_POINTER
++#define _RSEQ_PPC_THREAD_POINTER
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++static inline void *rseq_thread_pointer(void)
++{
++#ifdef __powerpc64__
++	register void *__result asm ("r13");
++#else
++	register void *__result asm ("r2");
++#endif
++	asm ("" : "=r" (__result));
++	return __result;
++}
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+--- /dev/null
++++ b/tools/testing/selftests/rseq/rseq-thread-pointer.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
++/*
++ * rseq-thread-pointer.h
++ *
++ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
++ */
++
++#ifndef _RSEQ_THREAD_POINTER
++#define _RSEQ_THREAD_POINTER
++
++#if defined(__x86_64__) || defined(__i386__)
++#include "rseq-x86-thread-pointer.h"
++#elif defined(__PPC__)
++#include "rseq-ppc-thread-pointer.h"
++#else
++#include "rseq-generic-thread-pointer.h"
++#endif
++
++#endif
+--- /dev/null
++++ b/tools/testing/selftests/rseq/rseq-x86-thread-pointer.h
+@@ -0,0 +1,40 @@
++/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
++/*
++ * rseq-x86-thread-pointer.h
++ *
++ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
++ */
++
++#ifndef _RSEQ_X86_THREAD_POINTER
++#define _RSEQ_X86_THREAD_POINTER
++
++#include <features.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#if __GNUC_PREREQ (11, 1)
++static inline void *rseq_thread_pointer(void)
++{
++	return __builtin_thread_pointer();
++}
++#else
++static inline void *rseq_thread_pointer(void)
++{
++	void *__result;
++
++# ifdef __x86_64__
++	__asm__ ("mov %%fs:0, %0" : "=r" (__result));
++# else
++	__asm__ ("mov %%gs:0, %0" : "=r" (__result));
++# endif
++	return __result;
++}
++#endif /* !GCC 11 */
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
 
 
