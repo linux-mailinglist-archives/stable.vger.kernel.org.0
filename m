@@ -2,102 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F158E56761F
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 20:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DF056765A
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 20:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229617AbiGESFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 14:05:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48662 "EHLO
+        id S231679AbiGESY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 14:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbiGESFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 14:05:05 -0400
-Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABCA7E2D;
-        Tue,  5 Jul 2022 11:05:03 -0700 (PDT)
-Received: by mail-qk1-x72d.google.com with SMTP id n10so9295656qkn.10;
-        Tue, 05 Jul 2022 11:05:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=RDGxknCK3Bu0rdr+aOilg6e0CsRw1PhYNqzuZfhAF2k=;
-        b=gwomkPhqoEwqbzrhlQReIcF0q5lZu8bsQRvSxI98mydKzv5zNh0EegF4IggYNiQQyc
-         Tm6A8UpQHf96Te45ywkdT/Dv0rNHI+8L7/07EuvS+bPNZVjXeRojrpKxEC6YSE6NHzt8
-         M13GyZ55wlmcYLlPwTQ6H+3GtOFd50qSKmYzf+5F8gDte2kiNw9UfUQ6X+KuywCfpndY
-         KntN+stdn0GGqiWfbIqa0b12uNPmcqqBXnWpRSmWsJE4D0CtKMtxKPnnHDISM/WuU0/K
-         c/OxwHpM2uc3xt0ZPH9zM/UDNgHNMKrTL4feT0cR6+n+5aWGhWt+s694U8yYWqfY0w+h
-         l4bA==
+        with ESMTP id S231488AbiGESY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 14:24:26 -0400
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595DC15FE6;
+        Tue,  5 Jul 2022 11:24:25 -0700 (PDT)
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-31c89111f23so67332417b3.0;
+        Tue, 05 Jul 2022 11:24:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=RDGxknCK3Bu0rdr+aOilg6e0CsRw1PhYNqzuZfhAF2k=;
-        b=x+rd/aREddKWYVdYByr+2UrewJw8UpXhzO+BUOqigJGUuTnK8EyQK6MGDXVyzaVn2O
-         A5Qq+BYxYfMMYGSrmb9as3rDq9Z6C3bknjRAURWpFaNa4H0OvfCWQXodYVenTfrA+/kU
-         k/jhOJTDmBYFY66f9GnHTYQ2GlQcf/RFPPM5qSAI46RsbAmm/nPxXRv4UrBvuxhVrVNT
-         GrM1RlGn6OKe1hhoUzMnLobm8uteyV5nRvXPffgVqLqJuOEQoyNu9M0kLNPl95i3yOZP
-         yVt+pQHoVj4TIOCHEbfR3Dvajw25SGpNa8hky35RWuCuvLZWH1Ph05j6YrFtLjFEJZUe
-         bHOg==
-X-Gm-Message-State: AJIora/Tra0Iu7pee482MXDaJYO/uTA6JKXDipXXt7NCRUtMSPL+90x+
-        nGwfEsmOBZDdyTzmSSX0Ftk=
-X-Google-Smtp-Source: AGRyM1uH10r6CbayMt5xBDE8/MzxDRuwHDQeX3MjCLxiasS+0NqngTAli0FUSW7C4AeZhrEcI6elSQ==
-X-Received: by 2002:a37:a85:0:b0:6af:ab2:9d1e with SMTP id 127-20020a370a85000000b006af0ab29d1emr23801934qkk.695.1657044302643;
-        Tue, 05 Jul 2022 11:05:02 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id fy20-20020a05622a5a1400b0031ab9d1d6c1sm4956851qtb.74.2022.07.05.11.04.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Jul 2022 11:05:02 -0700 (PDT)
-Message-ID: <54199447-e476-4029-5c46-a32bfb4838b2@gmail.com>
-Date:   Tue, 5 Jul 2022 11:04:55 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5DQkzNjQz/4vp49g3ADoI4xuDSB+9/8InZKErLv94+w=;
+        b=O7WkMavd7fF5Pv606dCSyNP6CoHYNZKuX+w/PHgGG2wJrKnJExOHHMyBuoyiH38OMd
+         reSfSMdkR5smH2kq48bF/+4+nR5cU/wIzJMRedJ76Hf1nbbPJatxxDI9YB3a/efvblrk
+         0OasRrnioNmrvQ7W605qQ7hqwyLgN35dkNIMNGPRj1PuOtxzHKYu2HLXunwAZDNaXGIg
+         qiCYFj1fA4z1GAsV3BErLKUjVBpVEb1gcYq4iOD2xdJ1m1n99KLUvbL7fhS/SGwXcBfD
+         KpT7ps9HPOWK0tAeWwCx/qMY9gaMDTqa1YTPMlEP4/gHbiBsfuPqNsIwym/MhYiRXHap
+         mwwg==
+X-Gm-Message-State: AJIora/+77X+ZhCn3bm9fX+J09WQtlycJJWCUf3vmXyGL9JC24AIkYlq
+        qVoftxtFDBMMQ9vjPnCdoITPXi/Mxs6aADJiNBy347EQ
+X-Google-Smtp-Source: AGRyM1s3MQGk1vxHUO+TD8bguf5JMzaxg/BOkmuaYjhh5D61R/nmIjIU2pqJVOu5QP6y0MBByRRXJlJyG9OA+KSnpvU=
+X-Received: by 2002:a81:a184:0:b0:31c:b00e:b5c4 with SMTP id
+ y126-20020a81a184000000b0031cb00eb5c4mr10080903ywg.149.1657045464483; Tue, 05
+ Jul 2022 11:24:24 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 5.10 00/84] 5.10.129-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220705115615.323395630@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220630022317.15734-1-gch981213@gmail.com> <b84edc24-0a3a-a4d2-6481-fb3d4cee6dda@amd.com>
+ <CAJsYDVL=fgExYdw3JB-59rCwOqTbSt2N0Xw2WCmoTSzOQEMRRg@mail.gmail.com>
+In-Reply-To: <CAJsYDVL=fgExYdw3JB-59rCwOqTbSt2N0Xw2WCmoTSzOQEMRRg@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 5 Jul 2022 20:24:13 +0200
+Message-ID: <CAJZ5v0g7JOcYTwwLxPws38abn_EVGjG0+QY9E+qpM=guhF11tA@mail.gmail.com>
+Subject: Re: [PATCH v5] ACPI: skip IRQ1 override on 3 Ryzen 6000 laptops
+To:     Chuanhong Guo <gch981213@gmail.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Limonciello, Mario" <mario.limonciello@amd.com>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Tighe Donnelly <tighe.donnelly@protonmail.com>,
+        Kent Hou Man <knthmn0@gmail.com>,
+        Len Brown <lenb@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/5/22 04:57, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.129 release.
-> There are 84 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.129-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Fri, Jul 1, 2022 at 2:45 PM Chuanhong Guo <gch981213@gmail.com> wrote:
+>
+> On Fri, Jul 1, 2022 at 4:12 AM Limonciello, Mario
+> <mario.limonciello@amd.com> wrote:
+> > However I do want to point out that Windows doesn't care about legacy
+> > format or not.  This bug where keyboard doesn't work only popped up on
+> > Linux.
+> >
+> > Given the number of systems with the bug is appearing to grow I wonder
+> > if the right answer is actually a new heuristic that doesn't apply the
+> > kernel override for polarity inversion anymore.  Maybe if the system is
+> > 2022 or newer?  Or on the ACPI version?
+>
+> The previous attempt to limit the scope of IRQ override ends up
+> breaking some other buggy devices:
+> https://patchwork.kernel.org/project/linux-acpi/patch/20210728151958.15205-1-hui.wang@canonical.com/
+>
+> It's unfortunate that the original author of this IRQ override doesn't
+> limit the scope to their exact devices.
+>
+> Hi, Rafael! What do you think? should we skip this IRQ override
+> one-by-one or add a different matching logic to check the bios date
+> instead?
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+It would be better to find something precise enough to identify the
+machines in question without pulling in the others and use that for
+skipping the override instead of listing them all one by one in the
+blocklist.
