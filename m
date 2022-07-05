@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E3A566AB2
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D663566B31
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbiGEMBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:01:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43254 "EHLO
+        id S233277AbiGEMFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:05:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232988AbiGEMAr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BB218374;
-        Tue,  5 Jul 2022 05:00:47 -0700 (PDT)
+        with ESMTP id S233684AbiGEMD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B520186D6;
+        Tue,  5 Jul 2022 05:03:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA7B7B817CC;
-        Tue,  5 Jul 2022 12:00:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3268DC341CB;
-        Tue,  5 Jul 2022 12:00:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1D22B817CE;
+        Tue,  5 Jul 2022 12:03:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E68C341CE;
+        Tue,  5 Jul 2022 12:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022444;
-        bh=IcjmW3CAugrd2BO89KzfYurHCbYolgfhJ8RSBNK+o58=;
+        s=korg; t=1657022634;
+        bh=BU7yS32bQeqVeewCQEfaeiKxYRiMPoNjXR5PPIiHaig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KsawS7kUQZf3rLb7a2dNX9XbU3AIZaIdNCMxuMtkfyjOe8YN+Ii3vfHEIe7oi7wMl
-         Ynw7iSZI59IQenZZNwxjYqFCWd933gzX56GayDqorDTU9vpl07vDu/FX6yoDmaV3vc
-         Lo0uhGary2RIlW6t5BOcWBBmCUDSkgLBqa0VaW04=
+        b=FwoH70Af4PqRTz2gGNvlYzTTZjF6p58+7ZR74c3yfiv6I8I2qfu9XP9lx5/Xj2sDB
+         wjaOaGTKUrBno4yZNbE2JM64lWMhQ3CWr9m0rOXVvwe2lbEsoT75L0URLNGnkKaniY
+         Snt4R344vfiNVkpHgtSUbc3a72btMvAz7r32eqMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Ye <chris.ye@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 4.14 01/29] nvdimm: Fix badblocks clear off-by-one error
-Date:   Tue,  5 Jul 2022 13:57:49 +0200
-Message-Id: <20220705115606.379999939@linuxfoundation.org>
+        stable@vger.kernel.org, Petar Penkov <ppenkov@aviatrix.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 14/58] net: tun: stop NAPI when detaching queues
+Date:   Tue,  5 Jul 2022 13:57:50 +0200
+Message-Id: <20220705115610.663956499@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
-References: <20220705115606.333669144@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,38 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Ye <chris.ye@intel.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit ef9102004a87cb3f8b26e000a095a261fc0467d3 upstream.
+commit a8fc8cb5692aebb9c6f7afd4265366d25dcd1d01 upstream.
 
-nvdimm_clear_badblocks_region() validates badblock clearing requests
-against the span of the region, however it compares the inclusive
-badblock request range to the exclusive region range. Fix up the
-off-by-one error.
+While looking at a syzbot report I noticed the NAPI only gets
+disabled before it's deleted. I think that user can detach
+the queue before destroying the device and the NAPI will never
+be stopped.
 
-Fixes: 23f498448362 ("libnvdimm: rework region badblocks clearing")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chris Ye <chris.ye@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/165404219489.2445897.9792886413715690399.stgit@dwillia2-xfh
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
+Acked-by: Petar Penkov <ppenkov@aviatrix.com>
+Link: https://lore.kernel.org/r/20220623042105.2274812-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/bus.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/tun.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -192,8 +192,8 @@ static int nvdimm_clear_badblocks_region
- 	ndr_end = nd_region->ndr_start + nd_region->ndr_size - 1;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -327,6 +327,12 @@ static void tun_napi_init(struct tun_str
+ 	}
+ }
  
- 	/* make sure we are in the region */
--	if (ctx->phys < nd_region->ndr_start
--			|| (ctx->phys + ctx->cleared) > ndr_end)
-+	if (ctx->phys < nd_region->ndr_start ||
-+	    (ctx->phys + ctx->cleared - 1) > ndr_end)
- 		return 0;
++static void tun_napi_enable(struct tun_file *tfile)
++{
++	if (tfile->napi_enabled)
++		napi_enable(&tfile->napi);
++}
++
+ static void tun_napi_disable(struct tun_file *tfile)
+ {
+ 	if (tfile->napi_enabled)
+@@ -709,8 +715,10 @@ static void __tun_detach(struct tun_file
+ 		if (clean) {
+ 			RCU_INIT_POINTER(tfile->tun, NULL);
+ 			sock_put(&tfile->sk);
+-		} else
++		} else {
+ 			tun_disable_queue(tun, tfile);
++			tun_napi_disable(tfile);
++		}
  
- 	sector = (ctx->phys - nd_region->ndr_start) / 512;
+ 		synchronize_net();
+ 		tun_flow_delete_by_queue(tun, tun->numqueues + 1);
+@@ -864,6 +872,7 @@ static int tun_attach(struct tun_struct
+ 
+ 	if (tfile->detached) {
+ 		tun_enable_queue(tfile);
++		tun_napi_enable(tfile);
+ 	} else {
+ 		sock_hold(&tfile->sk);
+ 		tun_napi_init(tun, tfile, napi, napi_frags);
 
 
