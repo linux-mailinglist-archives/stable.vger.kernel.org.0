@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5A4566C49
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18766566BCB
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235442AbiGEMNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:13:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54408 "EHLO
+        id S234642AbiGEMJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235552AbiGEMMd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:12:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E30C19C0E;
-        Tue,  5 Jul 2022 05:10:25 -0700 (PDT)
+        with ESMTP id S235050AbiGEMIZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E1015FFB;
+        Tue,  5 Jul 2022 05:07:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E108B817CC;
-        Tue,  5 Jul 2022 12:10:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76404C341CB;
-        Tue,  5 Jul 2022 12:10:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB98B817DB;
+        Tue,  5 Jul 2022 12:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87C8C341C7;
+        Tue,  5 Jul 2022 12:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023022;
-        bh=hmENZ+/vWQlRjjnTe5XQ7swfxKx5MpsYPkF68SH6ml0=;
+        s=korg; t=1657022852;
+        bh=pUFp6/3scQrGuJuRmoh62gE3QtAdFwZDYcYQtMCktuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpH+KEoqn3EMubUPNaAA/GT/fgAgW77jpV5hj9ngGEleC0YW8/rzuVReszy0YVqDu
-         Kp3QQhVeuwS8F3apEbdtj+7pQntrIdMDtO1xZpcfq96TUc0kE1jgKFquIbscsz/m0c
-         n4evKoqzWmYNRwizrISQElEswYWNsvdpTUtDz0LM=
+        b=VfhtBMF+bZhxxYRftojrtKOGizaJzlxGJBb6hMnPILDQhK3y/AA3Mjslq1TqL/6hd
+         QodAbLwIJfy/dFP4pTPANVkg4mv8Hnxm0gteo3aIeOI02KEPhk7e6oC/CdsAatnt1G
+         f0yZP1s+wU64tuNHU5r1Bch07Ftx3TkzJjJ3NWQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Ye <chris.ye@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.15 10/98] nvdimm: Fix badblocks clear off-by-one error
+        stable@vger.kernel.org,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 05/84] powerpc/prom_init: Fix kernel config grep
 Date:   Tue,  5 Jul 2022 13:57:28 +0200
-Message-Id: <20220705115617.872093890@linuxfoundation.org>
+Message-Id: <20220705115615.483122211@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Ye <chris.ye@intel.com>
+From: Liam Howlett <liam.howlett@oracle.com>
 
-commit ef9102004a87cb3f8b26e000a095a261fc0467d3 upstream.
+commit 6886da5f49e6d86aad76807a93f3eef5e4f01b10 upstream.
 
-nvdimm_clear_badblocks_region() validates badblock clearing requests
-against the span of the region, however it compares the inclusive
-badblock request range to the exclusive region range. Fix up the
-off-by-one error.
+When searching for config options, use the KCONFIG_CONFIG shell variable
+so that builds using non-standard config locations work.
 
-Fixes: 23f498448362 ("libnvdimm: rework region badblocks clearing")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chris Ye <chris.ye@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/165404219489.2445897.9792886413715690399.stgit@dwillia2-xfh
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 26deb04342e3 ("powerpc: prepare string/mem functions for KASAN")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220624011745.4060795-1-Liam.Howlett@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvdimm/bus.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/prom_init_check.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -185,8 +185,8 @@ static int nvdimm_clear_badblocks_region
- 	ndr_end = nd_region->ndr_start + nd_region->ndr_size - 1;
+--- a/arch/powerpc/kernel/prom_init_check.sh
++++ b/arch/powerpc/kernel/prom_init_check.sh
+@@ -13,7 +13,7 @@
+ # If you really need to reference something from prom_init.o add
+ # it to the list below:
  
- 	/* make sure we are in the region */
--	if (ctx->phys < nd_region->ndr_start
--			|| (ctx->phys + ctx->cleared) > ndr_end)
-+	if (ctx->phys < nd_region->ndr_start ||
-+	    (ctx->phys + ctx->cleared - 1) > ndr_end)
- 		return 0;
- 
- 	sector = (ctx->phys - nd_region->ndr_start) / 512;
+-grep "^CONFIG_KASAN=y$" .config >/dev/null
++grep "^CONFIG_KASAN=y$" ${KCONFIG_CONFIG} >/dev/null
+ if [ $? -eq 0 ]
+ then
+ 	MEM_FUNCS="__memcpy __memset"
 
 
