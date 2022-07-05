@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 871E4566CC4
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D198C566B97
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235982AbiGEMUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35708 "EHLO
+        id S234080AbiGEMJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236687AbiGEMSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D2C303;
-        Tue,  5 Jul 2022 05:13:20 -0700 (PDT)
+        with ESMTP id S234075AbiGEMGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451E6B10;
+        Tue,  5 Jul 2022 05:05:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31835B8170A;
-        Tue,  5 Jul 2022 12:13:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94EB8C341C7;
-        Tue,  5 Jul 2022 12:13:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5EA3618BC;
+        Tue,  5 Jul 2022 12:05:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5988C36AF9;
+        Tue,  5 Jul 2022 12:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023197;
-        bh=4GEgYCEnwS3jo4co62+qa1rrweAnMQPv1nxxIg3AMEQ=;
+        s=korg; t=1657022748;
+        bh=ePqjnMbn5sJMyG/Uk/PGDWQjEKsg5rOMaiI9dmyuPqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUuq22002H/wgyOCtXA5N6u4suf2rYYfANa3Bm9j9KwXNeLa9pwkGaX44gimsAZAa
-         Q76D8Mteqwe/FbUURqvWxiSU/CvUEeQI0vbcgH2F4/xy7XTGsoohDhW698m6AP21a8
-         cDwBNlonUZqB36NnlCkHIIePUG/f85FCuYPjo/Tk=
+        b=o+78HSCOcmMwbYt+YeJcG8gMbDLBf/RsQjVSiZL7em+u6CnJeFhxesk8T7ZgGNF+x
+         dpRdExPXMBYstlQB+A9g6MWgnzMNsjO0onqLzZ9N8rdrWuMFjAZ5Zr5YhK9o/NH2E+
+         uq2P6Xgfcwrz+TaifOQPw0zO9glGdC+hRE5kRXmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.15 71/98] selftests/rseq: Fix ppc32 offsets by using long rather than off_t
-Date:   Tue,  5 Jul 2022 13:58:29 +0200
-Message-Id: <20220705115619.591505568@linuxfoundation.org>
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 54/58] xen/blkfront: force data bouncing when backend is untrusted
+Date:   Tue,  5 Jul 2022 13:58:30 +0200
+Message-Id: <20220705115611.837138873@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,150 +54,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit 26dc8a6d8e11552f3b797b5aafe01071ca32d692 upstream.
+commit 2400617da7eebf9167d71a46122828bc479d64c9 upstream.
 
-The semantic of off_t is for file offsets. We mean to use it as an
-offset from a pointer. We really expect it to fit in a single register,
-and not use a 64-bit type on 32-bit architectures.
+Split the current bounce buffering logic used with persistent grants
+into it's own option, and allow enabling it independently of
+persistent grants.  This allows to reuse the same code paths to
+perform the bounce buffering required to avoid leaking contiguous data
+in shared pages not part of the request fragments.
 
-Fix runtime issues on ppc32 where the offset is always 0 due to
-inconsistency between the argument type (off_t -> 64-bit) and type
-expected by the inline assembler (32-bit).
+Reporting whether the backend is to be trusted can be done using a
+module parameter, or from the xenstore frontend path as set by the
+toolstack when adding the device.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-11-mathieu.desnoyers@efficios.com
+This is CVE-2022-33742, part of XSA-403.
+
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/basic_percpu_ops_test.c |    2 +-
- tools/testing/selftests/rseq/param_test.c            |    2 +-
- tools/testing/selftests/rseq/rseq-arm.h              |    2 +-
- tools/testing/selftests/rseq/rseq-arm64.h            |    2 +-
- tools/testing/selftests/rseq/rseq-mips.h             |    2 +-
- tools/testing/selftests/rseq/rseq-ppc.h              |    2 +-
- tools/testing/selftests/rseq/rseq-s390.h             |    2 +-
- tools/testing/selftests/rseq/rseq-skip.h             |    2 +-
- tools/testing/selftests/rseq/rseq-x86.h              |    6 +++---
- 9 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/block/xen-blkfront.c |   49 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
 
---- a/tools/testing/selftests/rseq/basic_percpu_ops_test.c
-+++ b/tools/testing/selftests/rseq/basic_percpu_ops_test.c
-@@ -167,7 +167,7 @@ struct percpu_list_node *this_cpu_list_p
- 	for (;;) {
- 		struct percpu_list_node *head;
- 		intptr_t *targetptr, expectnot, *load;
--		off_t offset;
-+		long offset;
- 		int ret, cpu;
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -151,6 +151,10 @@ static unsigned int xen_blkif_max_ring_o
+ module_param_named(max_ring_page_order, xen_blkif_max_ring_order, int, 0444);
+ MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the shared ring");
  
- 		cpu = rseq_cpu_start();
---- a/tools/testing/selftests/rseq/param_test.c
-+++ b/tools/testing/selftests/rseq/param_test.c
-@@ -549,7 +549,7 @@ struct percpu_list_node *this_cpu_list_p
- 	for (;;) {
- 		struct percpu_list_node *head;
- 		intptr_t *targetptr, expectnot, *load;
--		off_t offset;
-+		long offset;
- 		int ret;
++static bool __read_mostly xen_blkif_trusted = true;
++module_param_named(trusted, xen_blkif_trusted, bool, 0644);
++MODULE_PARM_DESC(trusted, "Is the backend trusted");
++
+ #define BLK_RING_SIZE(info)	\
+ 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
  
- 		cpu = rseq_cpu_start();
---- a/tools/testing/selftests/rseq/rseq-arm.h
-+++ b/tools/testing/selftests/rseq/rseq-arm.h
-@@ -217,7 +217,7 @@ error2:
+@@ -211,6 +215,7 @@ struct blkfront_info
+ 	unsigned int feature_discard:1;
+ 	unsigned int feature_secdiscard:1;
+ 	unsigned int feature_persistent:1;
++	unsigned int bounce:1;
+ 	unsigned int discard_granularity;
+ 	unsigned int discard_alignment;
+ 	/* Number of 4KB segments handled */
+@@ -300,7 +305,7 @@ static int fill_grant_buffer(struct blkf
+ 		if (!gnt_list_entry)
+ 			goto out_of_memory;
  
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
+-		if (info->feature_persistent) {
++		if (info->bounce) {
+ 			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
+ 			if (!granted_page) {
+ 				kfree(gnt_list_entry);
+@@ -320,7 +325,7 @@ out_of_memory:
+ 	list_for_each_entry_safe(gnt_list_entry, n,
+ 	                         &rinfo->grants, node) {
+ 		list_del(&gnt_list_entry->node);
+-		if (info->feature_persistent)
++		if (info->bounce)
+ 			__free_page(gnt_list_entry->page);
+ 		kfree(gnt_list_entry);
+ 		i--;
+@@ -366,7 +371,7 @@ static struct grant *get_grant(grant_ref
+ 	/* Assign a gref to this page */
+ 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
+ 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
+-	if (info->feature_persistent)
++	if (info->bounce)
+ 		grant_foreign_access(gnt_list_entry, info);
+ 	else {
+ 		/* Grant access to the GFN passed by the caller */
+@@ -390,7 +395,7 @@ static struct grant *get_indirect_grant(
+ 	/* Assign a gref to this page */
+ 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
+ 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
+-	if (!info->feature_persistent) {
++	if (!info->bounce) {
+ 		struct page *indirect_page;
+ 
+ 		/* Fetch a pre-allocated page to use for indirect grefs */
+@@ -705,7 +710,7 @@ static int blkif_queue_rw_req(struct req
+ 		.grant_idx = 0,
+ 		.segments = NULL,
+ 		.rinfo = rinfo,
+-		.need_copy = rq_data_dir(req) && info->feature_persistent,
++		.need_copy = rq_data_dir(req) && info->bounce,
+ 	};
+ 
+ 	/*
+@@ -1026,11 +1031,12 @@ static void xlvbd_flush(struct blkfront_
  {
- 	RSEQ_INJECT_C(9)
- 
---- a/tools/testing/selftests/rseq/rseq-arm64.h
-+++ b/tools/testing/selftests/rseq/rseq-arm64.h
-@@ -259,7 +259,7 @@ error2:
- 
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	RSEQ_INJECT_C(9)
- 
---- a/tools/testing/selftests/rseq/rseq-mips.h
-+++ b/tools/testing/selftests/rseq/rseq-mips.h
-@@ -222,7 +222,7 @@ error2:
- 
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	RSEQ_INJECT_C(9)
- 
---- a/tools/testing/selftests/rseq/rseq-ppc.h
-+++ b/tools/testing/selftests/rseq/rseq-ppc.h
-@@ -270,7 +270,7 @@ error2:
- 
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	RSEQ_INJECT_C(9)
- 
---- a/tools/testing/selftests/rseq/rseq-s390.h
-+++ b/tools/testing/selftests/rseq/rseq-s390.h
-@@ -198,7 +198,7 @@ error2:
-  */
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	RSEQ_INJECT_C(9)
- 
---- a/tools/testing/selftests/rseq/rseq-skip.h
-+++ b/tools/testing/selftests/rseq/rseq-skip.h
-@@ -13,7 +13,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	return -1;
+ 	blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
+ 			      info->feature_fua ? true : false);
+-	pr_info("blkfront: %s: %s %s %s %s %s\n",
++	pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
+ 		info->gd->disk_name, flush_info(info),
+ 		"persistent grants:", info->feature_persistent ?
+ 		"enabled;" : "disabled;", "indirect descriptors:",
+-		info->max_indirect_segments ? "enabled;" : "disabled;");
++		info->max_indirect_segments ? "enabled;" : "disabled;",
++		"bounce buffer:", info->bounce ? "enabled" : "disabled;");
  }
---- a/tools/testing/selftests/rseq/rseq-x86.h
-+++ b/tools/testing/selftests/rseq/rseq-x86.h
-@@ -172,7 +172,7 @@ error2:
-  */
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	RSEQ_INJECT_C(9)
  
-@@ -286,7 +286,7 @@ error1:
-  *  *pval += inc;
-  */
- static inline __attribute__((always_inline))
--int rseq_offset_deref_addv(intptr_t *ptr, off_t off, intptr_t inc, int cpu)
-+int rseq_offset_deref_addv(intptr_t *ptr, long off, intptr_t inc, int cpu)
- {
- 	RSEQ_INJECT_C(9)
+ static int xen_translate_vdev(int vdevice, int *minor, unsigned int *offset)
+@@ -1265,7 +1271,7 @@ static void blkif_free_ring(struct blkfr
+ 	if (!list_empty(&rinfo->indirect_pages)) {
+ 		struct page *indirect_page, *n;
  
-@@ -750,7 +750,7 @@ error2:
-  */
- static inline __attribute__((always_inline))
- int rseq_cmpnev_storeoffp_load(intptr_t *v, intptr_t expectnot,
--			       off_t voffp, intptr_t *load, int cpu)
-+			       long voffp, intptr_t *load, int cpu)
- {
- 	RSEQ_INJECT_C(9)
+-		BUG_ON(info->feature_persistent);
++		BUG_ON(info->bounce);
+ 		list_for_each_entry_safe(indirect_page, n, &rinfo->indirect_pages, lru) {
+ 			list_del(&indirect_page->lru);
+ 			__free_page(indirect_page);
+@@ -1282,7 +1288,7 @@ static void blkif_free_ring(struct blkfr
+ 							  0, 0UL);
+ 				rinfo->persistent_gnts_c--;
+ 			}
+-			if (info->feature_persistent)
++			if (info->bounce)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+@@ -1303,7 +1309,7 @@ static void blkif_free_ring(struct blkfr
+ 		for (j = 0; j < segs; j++) {
+ 			persistent_gnt = rinfo->shadow[i].grants_used[j];
+ 			gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
+-			if (info->feature_persistent)
++			if (info->bounce)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+@@ -1493,7 +1499,7 @@ static int blkif_completion(unsigned lon
+ 	data.s = s;
+ 	num_sg = s->num_sg;
  
+-	if (bret->operation == BLKIF_OP_READ && info->feature_persistent) {
++	if (bret->operation == BLKIF_OP_READ && info->bounce) {
+ 		for_each_sg(s->sg, sg, num_sg, i) {
+ 			BUG_ON(sg->offset + sg->length > PAGE_SIZE);
+ 
+@@ -1552,7 +1558,7 @@ static int blkif_completion(unsigned lon
+ 				 * Add the used indirect page back to the list of
+ 				 * available pages for indirect grefs.
+ 				 */
+-				if (!info->feature_persistent) {
++				if (!info->bounce) {
+ 					indirect_page = s->indirect_grants[i]->page;
+ 					list_add(&indirect_page->lru, &rinfo->indirect_pages);
+ 				}
+@@ -1847,6 +1853,10 @@ static int talk_to_blkback(struct xenbus
+ 	if (!info)
+ 		return -ENODEV;
+ 
++	/* Check if backend is trusted. */
++	info->bounce = !xen_blkif_trusted ||
++		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
++
+ 	max_page_order = xenbus_read_unsigned(info->xbdev->otherend,
+ 					      "max-ring-page-order", 0);
+ 	ring_page_order = min(xen_blkif_max_ring_order, max_page_order);
+@@ -2273,10 +2283,10 @@ static int blkfront_setup_indirect(struc
+ 	if (err)
+ 		goto out_of_memory;
+ 
+-	if (!info->feature_persistent && info->max_indirect_segments) {
++	if (!info->bounce && info->max_indirect_segments) {
+ 		/*
+-		 * We are using indirect descriptors but not persistent
+-		 * grants, we need to allocate a set of pages that can be
++		 * We are using indirect descriptors but don't have a bounce
++		 * buffer, we need to allocate a set of pages that can be
+ 		 * used for mapping indirect grefs
+ 		 */
+ 		int num = INDIRECT_GREFS(grants) * BLK_RING_SIZE(info);
+@@ -2376,6 +2386,8 @@ static void blkfront_gather_backend_feat
+ 	info->feature_persistent =
+ 		!!xenbus_read_unsigned(info->xbdev->otherend,
+ 				       "feature-persistent", 0);
++	if (info->feature_persistent)
++		info->bounce = true;
+ 
+ 	indirect_segments = xenbus_read_unsigned(info->xbdev->otherend,
+ 					"feature-max-indirect-segments", 0);
+@@ -2751,6 +2763,13 @@ static void blkfront_delay_work(struct w
+ 	struct blkfront_info *info;
+ 	bool need_schedule_work = false;
+ 
++	/*
++	 * Note that when using bounce buffers but not persistent grants
++	 * there's no need to run blkfront_delay_work because grants are
++	 * revoked in blkif_completion or else an error is reported and the
++	 * connection is closed.
++	 */
++
+ 	mutex_lock(&blkfront_mutex);
+ 
+ 	list_for_each_entry(info, &info_list, info_list) {
 
 
