@@ -2,84 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 298D656621A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 06:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B98056622F
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 06:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233957AbiGEEEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 00:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40212 "EHLO
+        id S234299AbiGEEUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 00:20:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230004AbiGEEEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 00:04:33 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B0B12D19;
-        Mon,  4 Jul 2022 21:04:33 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id bh13so4408530pgb.4;
-        Mon, 04 Jul 2022 21:04:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=GUeJvKk4WtvFDE4nbMc2nM4EyZaO/tAGnMRaTC8sqXI=;
-        b=M30+cdDmHQAMOExKZy6W7NFmt6k6RzO+Pr+4QdVfk5mjm1NLKXlbcF88FtJJ7RfCUi
-         5cs7g27NY/Ua+oN7z+Kb+Qc71Pl7bEnSVhXKLrjeA4ZspXss6TyQ/PfVQS6pK+7Lx1ze
-         5DKNmY4YVU2sWy/TRCgrTxhd+rwNhEPwc5p0L5bbakAH7Y67N2YlZUKO31+A2Wg9jAOY
-         TEVkugibkj+U9REf4LUL+S5eAVCqj5TNN8KvV6fJ3GwpzRA+j7HTsLbfnU7gQTzhz0ws
-         lQs40R+KFvjFVZm6SmZSk9w5fVDer/sM1rH1hPbIfLdy66tGmisLFD7ZYcuEbSMCgY8l
-         SFrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=GUeJvKk4WtvFDE4nbMc2nM4EyZaO/tAGnMRaTC8sqXI=;
-        b=N0qx96DGD37Woq1zUDAHVncXKIQFGfe53YVL4jpv0tSwJKTw9hi00xCR2MbHy0jvNT
-         YWLWOfFjCgQ5Dx5Hoxuf0ER0A+FPRCm7rmaFtFmVZAk1fY4DrLwa4Fi/0JHaJDnHdFBl
-         l2dFc/Mv2SwUKAiLlauH6Sjo2p+f7gW5+Vjv8AlV7tJifvqR9t3AVw+mvEMFpfvwP8y0
-         6iGDa/iZLmR/tHwtBnSWg/6nLie3EmOj59hXDQmanuarIO9LstalZ0Opz3Q+vBHpMX9Z
-         dJy6c5WxKxfHDoPZlrwrz0/R+AOS+eX9Il/5FKh42yy/CMsySNYo5L+j6lbqs/yx77ch
-         3Sgw==
-X-Gm-Message-State: AJIora9R+VF9n6VyF0KNkm43u8xyxJhum2pxPZBX85lFFE0fPK6R7MUN
-        6kc72Q733fwlnute2n94lOX3nBSU0aQuuw==
-X-Google-Smtp-Source: AGRyM1sShYqd965qsgVGHzMhNDc+xGICEibMnV8x51jtsis7/Mr2ydAHrJPxLwI70e+bSsl4VBdYww==
-X-Received: by 2002:a63:287:0:b0:412:2f6e:7fc with SMTP id 129-20020a630287000000b004122f6e07fcmr8844898pgc.185.1656993872242;
-        Mon, 04 Jul 2022 21:04:32 -0700 (PDT)
-Received: from Negi ([68.181.16.243])
-        by smtp.gmail.com with ESMTPSA id i1-20020a17090a718100b001ef87123615sm3360257pjk.37.2022.07.04.21.04.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jul 2022 21:04:31 -0700 (PDT)
-Date:   Mon, 4 Jul 2022 21:04:30 -0700
-From:   Soumya Negi <soumya.negi97@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        syzbot+9d567e08d3970bfd8271@syzkaller.appspotmail.com,
-        syzkaller-bugs@googlegroups.com,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        stable@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Test patch for KASAN: global-out-of-bounds Read in
- detach_capi_ctr
-Message-ID: <20220705040430.GA18661@Negi>
-References: <CAHH-VXdqp0ZGKyJWE76zdyKwhv104JRA8ujUY5NoYO47HC9XWQ@mail.gmail.com>
- <20220704112619.GZ16517@kadam>
- <YsLU6XL1HBnQR79P@kroah.com>
+        with ESMTP id S232076AbiGEEUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 00:20:40 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10978E009
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 21:20:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656994839; x=1688530839;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=Whp3q+OS0CZUyllYOMs7sfnpeEoA6yx6a8lLdhw7r0c=;
+  b=H0hRN0U8tj7WXTB3l3vJbIFbhmejFVe1GvsE7wVpSab1kpFdfDB0B1+x
+   O0UqwA5tcuwICsLBfY/0Pl5zYs/9b3n7OUIbyaNwkqx5Z/59L2FhgxzxQ
+   bM0spt4PFaNqDFPWMPTsrNoIB8V17n2uWQ/wMNmo1kNYfoNoTONWfN+ep
+   fN7Lv1ZSLngkxOGudqzxfxYErXD8GUEKvYByJH3xk7kD0/DHmcsiOFTMV
+   N2slBR3G532ZbAWMk10sKzUUhgYEn91G77myamScJVNl/87dkD7nztoD9
+   /tIps2pnJJfxS2n6J33tFCVthTjmrXSTE4cvfYiO/i5AtvytLKVeRxG68
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10398"; a="284356931"
+X-IronPort-AV: E=Sophos;i="5.92,245,1650956400"; 
+   d="scan'208";a="284356931"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 21:20:38 -0700
+X-IronPort-AV: E=Sophos;i="5.92,245,1650956400"; 
+   d="scan'208";a="649910722"
+Received: from swatichx-mobl.amr.corp.intel.com (HELO [10.212.242.218]) ([10.212.242.218])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 21:20:37 -0700
+Message-ID: <bd35c4f9-90c5-fffc-193d-02bd42b04008@intel.com>
+Date:   Mon, 4 Jul 2022 21:18:44 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YsLU6XL1HBnQR79P@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
+Content-Language: en-US
+To:     Wen Yang <wenyang@linux.alibaba.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bin Yang <bin.yang@intel.com>,
+        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org
+References: <20220704154508.13317-1-wenyang@linux.alibaba.com>
+ <YsMOWwHRUdQ/zLmx@kroah.com>
+ <36b71543-fc3f-2787-06b8-2d38f1ee5b93@linux.alibaba.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+In-Reply-To: <36b71543-fc3f-2787-06b8-2d38f1ee5b93@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks for letting me know. Is there a way I can check whether an open
-syzbot bug already has a fix as in this case? Right now I am thinking
-of running the reproducer on linux-next as well before starting on a
-bug.
+On 7/4/22 20:45, Wen Yang wrote:> On a 128-core Intel(R) Xeon(R)
+Platinum 8369B CPU @ 2.90GHz server,
+> when the user program frequently calls nv_alloc_system_pages to
+> allocate large memory,
 
-Regards
-Soumya
+We seem to be repeating the same conversation we had back in November of
+last year:
+
+> https://lore.kernel.org/all/9c415df9-9575-8217-03e9-a6bbf20a491a@linux.alibaba.com/T/#u
+
+It's the binary nvidia driver doing unusual stuff again.  Please talk to
+the folks you got that driver from.
