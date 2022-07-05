@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D835A566D51
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857D1566BB6
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236842AbiGEMWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:22:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
+        id S234460AbiGEMJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237556AbiGEMTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D57B18E1A;
-        Tue,  5 Jul 2022 05:15:13 -0700 (PDT)
+        with ESMTP id S234651AbiGEMHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8952193C7;
+        Tue,  5 Jul 2022 05:06:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 407ADB8170A;
-        Tue,  5 Jul 2022 12:15:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A02C341C7;
-        Tue,  5 Jul 2022 12:15:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F38016196B;
+        Tue,  5 Jul 2022 12:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE18C341CD;
+        Tue,  5 Jul 2022 12:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023311;
-        bh=Ksb1/PcP0ywMCJuFBLWwNgkMw+7Bu7olf1MzbZcnlgw=;
+        s=korg; t=1657022808;
+        bh=i9iHaXZQFWZI8UBoun2kJF0PJzjl4NwWTkVIdZdQ/tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bq/v9Q6yWmX7hOGnl+Ur4DbYu0Vw/H9G/95xdJjKwOkAlWQ1EukcNRExWdLQ7PGCR
-         EZErdFKoeo5OeWyH1+m8fJhK/hmnkcP2i1jxadmRdT9p0GXXw69igJQeh9FMDlvGPq
-         XW4dcYl7SzPyKoteWGJYoEXjN7O7Zg9eGsZpvVPw=
+        b=vujEEiSlqmK6Qy68ZcmihQsMCJf3Auu2Nste6zHfSwzxrWMxIgc45nEQFxIm80dbL
+         M/ESMwyenagYNtwYWIl/sgwtE5pj6vZ1J+/wuLUGwFXAz7vMfAh8t96T8UEEeKT1Wu
+         9F3Q0GS8iT8jjZ1rZnTxXiNtrMkRkOu5qYLxrNNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.18 015/102] parisc/unaligned: Fix emulate_ldw() breakage
+        stable@vger.kernel.org, Petar Penkov <ppenkov@aviatrix.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 18/84] net: tun: stop NAPI when detaching queues
 Date:   Tue,  5 Jul 2022 13:57:41 +0200
-Message-Id: <20220705115618.848258989@linuxfoundation.org>
+Message-Id: <20220705115615.858128566@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 96b80fcd2705fc50ebe1f7f3ce204e861b3099ab upstream.
+commit a8fc8cb5692aebb9c6f7afd4265366d25dcd1d01 upstream.
 
-The commit e8aa7b17fe41 broke the 32-bit load-word unalignment exception
-handler because it calculated the wrong amount of bits by which the value
-should be shifted. This patch fixes it.
+While looking at a syzbot report I noticed the NAPI only gets
+disabled before it's deleted. I think that user can detach
+the queue before destroying the device and the NAPI will never
+be stopped.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Fixes: e8aa7b17fe41 ("parisc/unaligned: Rewrite inline assembly of emulate_ldw()")
-Cc: stable@vger.kernel.org   # v5.18
+Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
+Acked-by: Petar Penkov <ppenkov@aviatrix.com>
+Link: https://lore.kernel.org/r/20220623042105.2274812-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/unaligned.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/tun.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/parisc/kernel/unaligned.c b/arch/parisc/kernel/unaligned.c
-index ed1e88a74dc4..bac581b5ecfc 100644
---- a/arch/parisc/kernel/unaligned.c
-+++ b/arch/parisc/kernel/unaligned.c
-@@ -146,7 +146,7 @@ static int emulate_ldw(struct pt_regs *regs, int toreg, int flop)
- "	depw	%%r0,31,2,%4\n"
- "1:	ldw	0(%%sr1,%4),%0\n"
- "2:	ldw	4(%%sr1,%4),%3\n"
--"	subi	32,%4,%2\n"
-+"	subi	32,%2,%2\n"
- "	mtctl	%2,11\n"
- "	vshd	%0,%3,%0\n"
- "3:	\n"
--- 
-2.37.0
-
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -279,6 +279,12 @@ static void tun_napi_init(struct tun_str
+ 	}
+ }
+ 
++static void tun_napi_enable(struct tun_file *tfile)
++{
++	if (tfile->napi_enabled)
++		napi_enable(&tfile->napi);
++}
++
+ static void tun_napi_disable(struct tun_file *tfile)
+ {
+ 	if (tfile->napi_enabled)
+@@ -659,8 +665,10 @@ static void __tun_detach(struct tun_file
+ 		if (clean) {
+ 			RCU_INIT_POINTER(tfile->tun, NULL);
+ 			sock_put(&tfile->sk);
+-		} else
++		} else {
+ 			tun_disable_queue(tun, tfile);
++			tun_napi_disable(tfile);
++		}
+ 
+ 		synchronize_net();
+ 		tun_flow_delete_by_queue(tun, tun->numqueues + 1);
+@@ -814,6 +822,7 @@ static int tun_attach(struct tun_struct
+ 
+ 	if (tfile->detached) {
+ 		tun_enable_queue(tfile);
++		tun_napi_enable(tfile);
+ 	} else {
+ 		sock_hold(&tfile->sk);
+ 		tun_napi_init(tun, tfile, napi, napi_frags);
 
 
