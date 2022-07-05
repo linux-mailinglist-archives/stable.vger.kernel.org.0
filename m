@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5B0566D35
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9955F566BF8
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236044AbiGEMVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35998 "EHLO
+        id S234864AbiGEMKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236493AbiGEMRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C3791839C;
-        Tue,  5 Jul 2022 05:12:44 -0700 (PDT)
+        with ESMTP id S235271AbiGEMIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5159618391;
+        Tue,  5 Jul 2022 05:08:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5749B817AC;
-        Tue,  5 Jul 2022 12:12:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD17C341C7;
-        Tue,  5 Jul 2022 12:12:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2DE26185C;
+        Tue,  5 Jul 2022 12:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9F8FC341C7;
+        Tue,  5 Jul 2022 12:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023161;
-        bh=mPTr9w/jCgfpxCpItUJAnZZ9omfa6Os7VYXh26GUht0=;
+        s=korg; t=1657022913;
+        bh=5umilpb4rX0IlcTKtL3SqiOhJ1aAiUdT9PfzUNpBy0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBaIeSyF0+MKhw1hLYI+mBTZq6gplngBpMdX44gONmfeAQZ/zQLMCyAkePk/u0Ex5
-         kmaQzUfRHDKdHuzSmQ083yBJBV+iIyraW3xI0CbZfu0qYOYnPPptSvAyR6pdKUmDOQ
-         e+8siMWeKaEM8D3ykF+AMRaUpbF1NtRyzucdHeHM=
+        b=cdLtkDOvnM8pYxq5v0lZpKKmbHKkMe5n5Ss0LH4fATRVF46jTksz7FVBZQeRqoS+5
+         VrnhUjnbRSM3HqvK4ITQ7NGXvbmh3AJcbGNJyXUm2g4Wil0aBYfSj3gFYsp81EirxQ
+         gDRZItVPiI/7SfiLJ+Ga9XZBIlfhicynI9BOXOXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 59/98] MAINTAINERS: add Leah as xfs maintainer for 5.15.y
-Date:   Tue,  5 Jul 2022 13:58:17 +0200
-Message-Id: <20220705115619.257428199@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH 5.10 55/84] selftests: mptcp: fix diag instability
+Date:   Tue,  5 Jul 2022 13:58:18 +0200
+Message-Id: <20220705115616.929907196@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +56,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leah Rumancik <leah.rumancik@gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-Update MAINTAINERS for xfs in an effort to help direct bots/questions
-about xfs in 5.15.y.
+[ Upstream commit 0cd33c5ffec12bd77a1c02db2469fac08f840939 ]
 
-Note: 5.10.y and 5.4.y will have different updates to their
-respective MAINTAINERS files for this effort.
+Instead of waiting for an arbitrary amount of time for the MPTCP
+MP_CAPABLE handshake to complete, explicitly wait for the relevant
+socket to enter into the established status.
 
-Suggested-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Additionally let the data transfer application use the slowest
+transfer mode available (-r), to cope with very slow host, or
+high jitter caused by hosting VMs.
+
+Fixes: df62f2ec3df6 ("selftests/mptcp: add diag interface tests")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/258
+Reported-and-tested-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- MAINTAINERS |    1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/net/mptcp/diag.sh | 44 +++++++++++++++++++----
+ 1 file changed, 37 insertions(+), 7 deletions(-)
 
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -20579,6 +20579,7 @@ F:	drivers/xen/*swiotlb*
+diff --git a/tools/testing/selftests/net/mptcp/diag.sh b/tools/testing/selftests/net/mptcp/diag.sh
+index 2674ba20d524..ff821025d309 100755
+--- a/tools/testing/selftests/net/mptcp/diag.sh
++++ b/tools/testing/selftests/net/mptcp/diag.sh
+@@ -71,6 +71,36 @@ chk_msk_remote_key_nr()
+ 		__chk_nr "grep -c remote_key" $*
+ }
  
- XFS FILESYSTEM
- C:	irc://irc.oftc.net/xfs
-+M:	Leah Rumancik <leah.rumancik@gmail.com>
- M:	Darrick J. Wong <djwong@kernel.org>
- M:	linux-xfs@vger.kernel.org
- L:	linux-xfs@vger.kernel.org
++# $1: ns, $2: port
++wait_local_port_listen()
++{
++	local listener_ns="${1}"
++	local port="${2}"
++
++	local port_hex i
++
++	port_hex="$(printf "%04X" "${port}")"
++	for i in $(seq 10); do
++		ip netns exec "${listener_ns}" cat /proc/net/tcp | \
++			awk "BEGIN {rc=1} {if (\$2 ~ /:${port_hex}\$/ && \$4 ~ /0A/) {rc=0; exit}} END {exit rc}" &&
++			break
++		sleep 0.1
++	done
++}
++
++wait_connected()
++{
++	local listener_ns="${1}"
++	local port="${2}"
++
++	local port_hex i
++
++	port_hex="$(printf "%04X" "${port}")"
++	for i in $(seq 10); do
++		ip netns exec ${listener_ns} grep -q " 0100007F:${port_hex} " /proc/net/tcp && break
++		sleep 0.1
++	done
++}
+ 
+ trap cleanup EXIT
+ ip netns add $ns
+@@ -81,15 +111,15 @@ echo "a" | \
+ 		ip netns exec $ns \
+ 			./mptcp_connect -p 10000 -l -t ${timeout_poll} \
+ 				0.0.0.0 >/dev/null &
+-sleep 0.1
++wait_local_port_listen $ns 10000
+ chk_msk_nr 0 "no msk on netns creation"
+ 
+ echo "b" | \
+ 	timeout ${timeout_test} \
+ 		ip netns exec $ns \
+-			./mptcp_connect -p 10000 -j -t ${timeout_poll} \
++			./mptcp_connect -p 10000 -r 0 -t ${timeout_poll} \
+ 				127.0.0.1 >/dev/null &
+-sleep 0.1
++wait_connected $ns 10000
+ chk_msk_nr 2 "after MPC handshake "
+ chk_msk_remote_key_nr 2 "....chk remote_key"
+ chk_msk_fallback_nr 0 "....chk no fallback"
+@@ -101,13 +131,13 @@ echo "a" | \
+ 		ip netns exec $ns \
+ 			./mptcp_connect -p 10001 -l -s TCP -t ${timeout_poll} \
+ 				0.0.0.0 >/dev/null &
+-sleep 0.1
++wait_local_port_listen $ns 10001
+ echo "b" | \
+ 	timeout ${timeout_test} \
+ 		ip netns exec $ns \
+-			./mptcp_connect -p 10001 -j -t ${timeout_poll} \
++			./mptcp_connect -p 10001 -r 0 -t ${timeout_poll} \
+ 				127.0.0.1 >/dev/null &
+-sleep 0.1
++wait_connected $ns 10001
+ chk_msk_fallback_nr 1 "check fallback"
+ flush_pids
+ 
+@@ -119,7 +149,7 @@ for I in `seq 1 $NR_CLIENTS`; do
+ 				./mptcp_connect -p $((I+10001)) -l -w 10 \
+ 					-t ${timeout_poll} 0.0.0.0 >/dev/null &
+ done
+-sleep 0.1
++wait_local_port_listen $ns $((NR_CLIENTS + 10001))
+ 
+ for I in `seq 1 $NR_CLIENTS`; do
+ 	echo "b" | \
+-- 
+2.35.1
+
 
 
