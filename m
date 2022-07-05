@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 323CB566D98
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7100A566B90
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236735AbiGEM0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50474 "EHLO
+        id S233963AbiGEMJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236704AbiGEMZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79B5D1B795;
-        Tue,  5 Jul 2022 05:17:29 -0700 (PDT)
+        with ESMTP id S233823AbiGEMGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DC010B8;
+        Tue,  5 Jul 2022 05:05:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27D79B816A4;
-        Tue,  5 Jul 2022 12:17:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 920F9C341C7;
-        Tue,  5 Jul 2022 12:17:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAB34B817CE;
+        Tue,  5 Jul 2022 12:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 372C7C341C7;
+        Tue,  5 Jul 2022 12:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023446;
-        bh=81SZrL4AZzjPMj0AWmvyapy6rKSrJNXgVKvmT/d/C2g=;
+        s=korg; t=1657022745;
+        bh=K52TrGq1aFPFEStWsMUZmS0HuOAk2NHW/vx/U7mCB8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wp2O/7FAXyailzcxtvKGrMtyNjcgOZAacKyfsaJacqgRkf9uxkholX1uu3gkT1CDo
-         K2KjKvLWWxSr1KgAs7V4ol1YR70PM0zkUID2JNSY5+GKsU4SQz7VgIoU0hiCKpxLgq
-         sfFp4alVsldt6XpbCyPuYUBOK7xTxjYQ0LMkFCHI=
+        b=geTnHcAIkPMt4hbv3O01x7IT9f6F1aoimBI9KSWmd9LqhI3O1uY1DeqPWFpTAQUVH
+         FYURR9CZOTsJ1m32AoK1Fz51f4wAHgguyovF+2Kf7CBmFLsD3w/18sF2vxagAtQpJT
+         xaB1UXf0ldeyjNKzeH22BvYqRa884ytgpVhbc03Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.18 063/102] powerpc/memhotplug: Add add_pages override for PPC
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 53/58] xen/netfront: force data bouncing when backend is untrusted
 Date:   Tue,  5 Jul 2022 13:58:29 +0200
-Message-Id: <20220705115620.195642512@linuxfoundation.org>
+Message-Id: <20220705115611.809633002@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,114 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit ac790d09885d36143076e7e02825c541e8eee899 upstream.
+commit 4491001c2e0fa69efbb748c96ec96b100a5cdb7e upstream.
 
-With commit ffa0b64e3be5 ("powerpc: Fix virt_addr_valid() for 64-bit Book3E & 32-bit")
-the kernel now validate the addr against high_memory value. This results
-in the below BUG_ON with dax pfns.
+Bounce all data on the skbs to be transmitted into zeroed pages if the
+backend is untrusted. This avoids leaking data present in the pages
+shared with the backend but not part of the skb fragments.  This
+requires introducing a new helper in order to allocate skbs with a
+size multiple of XEN_PAGE_SIZE so we don't leak contiguous data on the
+granted pages.
 
-[  635.798741][T26531] kernel BUG at mm/page_alloc.c:5521!
-1:mon> e
-cpu 0x1: Vector: 700 (Program Check) at [c000000007287630]
-    pc: c00000000055ed48: free_pages.part.0+0x48/0x110
-    lr: c00000000053ca70: tlb_finish_mmu+0x80/0xd0
-    sp: c0000000072878d0
-   msr: 800000000282b033
-  current = 0xc00000000afabe00
-  paca    = 0xc00000037ffff300   irqmask: 0x03   irq_happened: 0x05
-    pid   = 26531, comm = 50-landscape-sy
-kernel BUG at :5521!
-Linux version 5.19.0-rc3-14659-g4ec05be7c2e1 (kvaneesh@ltc-boston8) (gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #625 SMP Thu Jun 23 00:35:43 CDT 2022
-1:mon> t
-[link register   ] c00000000053ca70 tlb_finish_mmu+0x80/0xd0
-[c0000000072878d0] c00000000053ca54 tlb_finish_mmu+0x64/0xd0 (unreliable)
-[c000000007287900] c000000000539424 exit_mmap+0xe4/0x2a0
-[c0000000072879e0] c00000000019fc1c mmput+0xcc/0x210
-[c000000007287a20] c000000000629230 begin_new_exec+0x5e0/0xf40
-[c000000007287ae0] c00000000070b3cc load_elf_binary+0x3ac/0x1e00
-[c000000007287c10] c000000000627af0 bprm_execve+0x3b0/0xaf0
-[c000000007287cd0] c000000000628414 do_execveat_common.isra.0+0x1e4/0x310
-[c000000007287d80] c00000000062858c sys_execve+0x4c/0x60
-[c000000007287db0] c00000000002c1b0 system_call_exception+0x160/0x2c0
-[c000000007287e10] c00000000000c53c system_call_common+0xec/0x250
+Reporting whether the backend is to be trusted can be done using a
+module parameter, or from the xenstore frontend path as set by the
+toolstack when adding the device.
 
-The fix is to make sure we update high_memory on memory hotplug.
-This is similar to what x86 does in commit 3072e413e305 ("mm/memory_hotplug: introduce add_pages")
+This is CVE-2022-33741, part of XSA-403.
 
-Fixes: ffa0b64e3be5 ("powerpc: Fix virt_addr_valid() for 64-bit Book3E & 32-bit")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220629050925.31447-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Kconfig  |    4 ++++
- arch/powerpc/mm/mem.c |   33 ++++++++++++++++++++++++++++++++-
- 2 files changed, 36 insertions(+), 1 deletion(-)
+ drivers/net/xen-netfront.c |   50 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 48 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -358,6 +358,10 @@ config ARCH_SUSPEND_NONZERO_CPU
- 	def_bool y
- 	depends on PPC_POWERNV || PPC_PSERIES
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -63,6 +63,10 @@ module_param_named(max_queues, xennet_ma
+ MODULE_PARM_DESC(max_queues,
+ 		 "Maximum number of queues per virtual interface");
  
-+config ARCH_HAS_ADD_PAGES
-+	def_bool y
-+	depends on ARCH_ENABLE_MEMORY_HOTPLUG
++static bool __read_mostly xennet_trusted = true;
++module_param_named(trusted, xennet_trusted, bool, 0644);
++MODULE_PARM_DESC(trusted, "Is the backend trusted");
 +
- config PPC_DCR_NATIVE
- 	bool
+ #define XENNET_TIMEOUT  (5 * HZ)
  
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -103,6 +103,37 @@ void __ref arch_remove_linear_mapping(u6
- 	vm_unmap_aliases();
+ static const struct ethtool_ops xennet_ethtool_ops;
+@@ -163,6 +167,9 @@ struct netfront_info {
+ 	/* Is device behaving sane? */
+ 	bool broken;
+ 
++	/* Should skbs be bounced into a zeroed buffer? */
++	bool bounce;
++
+ 	atomic_t rx_gso_checksum_fixup;
+ };
+ 
+@@ -590,6 +597,34 @@ static void xennet_mark_tx_pending(struc
+ 		queue->tx_link[i] = TX_PENDING;
  }
  
-+/*
-+ * After memory hotplug the variables max_pfn, max_low_pfn and high_memory need
-+ * updating.
-+ */
-+static void update_end_of_memory_vars(u64 start, u64 size)
++struct sk_buff *bounce_skb(const struct sk_buff *skb)
 +{
-+	unsigned long end_pfn = PFN_UP(start + size);
++	unsigned int headerlen = skb_headroom(skb);
++	/* Align size to allocate full pages and avoid contiguous data leaks */
++	unsigned int size = ALIGN(skb_end_offset(skb) + skb->data_len,
++				  XEN_PAGE_SIZE);
++	struct sk_buff *n = alloc_skb(size, GFP_ATOMIC | __GFP_ZERO);
 +
-+	if (end_pfn > max_pfn) {
-+		max_pfn = end_pfn;
-+		max_low_pfn = end_pfn;
-+		high_memory = (void *)__va(max_pfn * PAGE_SIZE - 1) + 1;
++	if (!n)
++		return NULL;
++
++	if (!IS_ALIGNED((uintptr_t)n->head, XEN_PAGE_SIZE)) {
++		WARN_ONCE(1, "misaligned skb allocated\n");
++		kfree_skb(n);
++		return NULL;
 +	}
++
++	/* Set the data pointer */
++	skb_reserve(n, headerlen);
++	/* Set the tail pointer and length */
++	skb_put(n, skb->len);
++
++	BUG_ON(skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len));
++
++	skb_copy_header(n, skb);
++	return n;
 +}
 +
-+int __ref add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
-+		    struct mhp_params *params)
-+{
-+	int ret;
+ #define MAX_XEN_SKB_FRAGS (65536 / XEN_PAGE_SIZE + 1)
+ 
+ static netdev_tx_t xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -642,9 +677,13 @@ static netdev_tx_t xennet_start_xmit(str
+ 
+ 	/* The first req should be at least ETH_HLEN size or the packet will be
+ 	 * dropped by netback.
++	 *
++	 * If the backend is not trusted bounce all data to zeroed pages to
++	 * avoid exposing contiguous data on the granted page not belonging to
++	 * the skb.
+ 	 */
+-	if (unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
+-		nskb = skb_copy(skb, GFP_ATOMIC);
++	if (np->bounce || unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
++		nskb = bounce_skb(skb);
+ 		if (!nskb)
+ 			goto drop;
+ 		dev_consume_skb_any(skb);
+@@ -1950,6 +1989,10 @@ static int talk_to_netback(struct xenbus
+ 
+ 	info->netdev->irq = 0;
+ 
++	/* Check if backend is trusted. */
++	info->bounce = !xennet_trusted ||
++		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
 +
-+	ret = __add_pages(nid, start_pfn, nr_pages, params);
-+	if (ret)
-+		return ret;
-+
-+	/* update max_pfn, max_low_pfn and high_memory */
-+	update_end_of_memory_vars(start_pfn << PAGE_SHIFT,
-+				  nr_pages << PAGE_SHIFT);
-+
-+	return ret;
-+}
-+
- int __ref arch_add_memory(int nid, u64 start, u64 size,
- 			  struct mhp_params *params)
- {
-@@ -113,7 +144,7 @@ int __ref arch_add_memory(int nid, u64 s
- 	rc = arch_create_linear_mapping(nid, start, size, params);
- 	if (rc)
- 		return rc;
--	rc = __add_pages(nid, start_pfn, nr_pages, params);
-+	rc = add_pages(nid, start_pfn, nr_pages, params);
- 	if (rc)
- 		arch_remove_linear_mapping(start, size);
- 	return rc;
+ 	/* Check if backend supports multiple queues */
+ 	max_queues = xenbus_read_unsigned(info->xbdev->otherend,
+ 					  "multi-queue-max-queues", 1);
+@@ -2103,6 +2146,9 @@ static int xennet_connect(struct net_dev
+ 	err = talk_to_netback(np->xbdev, np);
+ 	if (err)
+ 		return err;
++	if (np->bounce)
++		dev_info(&np->xbdev->dev,
++			 "bouncing transmitted data to zeroed pages\n");
+ 
+ 	/* talk_to_netback() sets the correct number of queues */
+ 	num_queues = dev->real_num_tx_queues;
 
 
