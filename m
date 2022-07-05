@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A8AF566CD5
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18183566D25
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236133AbiGEMU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37076 "EHLO
+        id S236571AbiGEMVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:21:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236804AbiGEMSP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7704B1A040;
-        Tue,  5 Jul 2022 05:13:40 -0700 (PDT)
+        with ESMTP id S237657AbiGEMTd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11D41D332;
+        Tue,  5 Jul 2022 05:15:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD41AB817D3;
-        Tue,  5 Jul 2022 12:13:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B1A9C341C7;
-        Tue,  5 Jul 2022 12:13:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DF9A61985;
+        Tue,  5 Jul 2022 12:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E7BC341C8;
+        Tue,  5 Jul 2022 12:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023217;
-        bh=fc03KRv4n05doHcwdHMzyIPbV+2wmIbCP3pcCivNDTA=;
+        s=korg; t=1657023357;
+        bh=eMgQAijeT18dC49W4cKDYQ9S19R4cwyj5ZWYofwazjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VX+lNMgz9EigBGo67j9SyrQK/VBsWcDjn/miS0iSmgChR3upELJ1S2lUupASZte8m
-         lekcRr2ulFL1LXIkdrMkIDjQRiu41sgKFU3j57YIG3ey8SNyR6QNgBX2Qswre/t9QN
-         cycfsDsEBM9/ov/hZZCaBfZ19e2AipGXxU+nHOms=
+        b=sEAr1Evm8lPzXvwesgaSNNIAaQsyZzZ2Sg1rFMpUmZ1eECK/QSI7eWbGy2mo1mALs
+         4bHhuU+TggLhEuVUY2cz4OjC1IQiGPgJZ0OceLKe2SBFopfNJDmgVtA6ceCokve4Ga
+         y6SDRNdIZF4kvmtUdJAOs47RG6Z6evuwObnbOJXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.15 38/98] vdpa/mlx5: Update Control VQ callback information
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 030/102] net: fix IFF_TX_SKB_NO_LINEAR definition
 Date:   Tue,  5 Jul 2022 13:57:56 +0200
-Message-Id: <20220705115618.671566885@linuxfoundation.org>
+Message-Id: <20220705115619.271174544@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 40f2f3e94178d45e4ee6078effba2dfc76f6f5ba upstream.
+commit 3b89b511ea0c705cc418440e2abf9d692a556d84 upstream.
 
-The control VQ specific information is stored in the dedicated struct
-mlx5_control_vq. When the callback is updated through
-mlx5_vdpa_set_vq_cb(), make sure to update the control VQ struct.
+The "1<<31" shift has a sign extension bug so IFF_TX_SKB_NO_LINEAR is
+0xffffffff80000000 instead of 0x0000000080000000.
 
-Fixes: 5262912ef3cf ("vdpa/mlx5: Add support for control VQ and MAC setting")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Message-Id: <20220613075958.511064-1-elic@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com)
+Fixes: c2ff53d8049f ("net: Add priv_flags for allow tx skb without linear")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://lore.kernel.org/r/YrRrcGttfEVnf85Q@kili
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/netdevice.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1698,6 +1698,8 @@ static void mlx5_vdpa_set_vq_cb(struct v
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1653,7 +1653,7 @@ enum netdev_priv_flags {
+ 	IFF_FAILOVER_SLAVE		= 1<<28,
+ 	IFF_L3MDEV_RX_HANDLER		= 1<<29,
+ 	IFF_LIVE_RENAME_OK		= 1<<30,
+-	IFF_TX_SKB_NO_LINEAR		= 1<<31,
++	IFF_TX_SKB_NO_LINEAR		= BIT_ULL(31),
+ 	IFF_CHANGE_PROTO_DOWN		= BIT_ULL(32),
+ };
  
- 	ndev->event_cbs[idx] = *cb;
-+	if (is_ctrl_vq_idx(mvdev, idx))
-+		mvdev->cvq.event_cb = *cb;
- }
- 
- static void mlx5_cvq_notify(struct vringh *vring)
 
 
