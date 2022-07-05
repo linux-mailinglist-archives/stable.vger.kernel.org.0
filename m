@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04730566AF2
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AA7566B63
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:06:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbiGEMDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:03:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44502 "EHLO
+        id S233819AbiGEMGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:06:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233479AbiGEMCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:48 -0400
+        with ESMTP id S233817AbiGEMFl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B7017E24;
-        Tue,  5 Jul 2022 05:02:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17E34186E2;
+        Tue,  5 Jul 2022 05:05:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 558C46173E;
-        Tue,  5 Jul 2022 12:02:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC8DC341C7;
-        Tue,  5 Jul 2022 12:02:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7733D618BB;
+        Tue,  5 Jul 2022 12:05:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E5AC341CB;
+        Tue,  5 Jul 2022 12:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022565;
-        bh=SXmRZFD2xfdnrP0KXmfOX5o4TBcr2vkmByZwV+abKlk=;
+        s=korg; t=1657022703;
+        bh=/E7ZciFTuh+xANJHnWiwbSc9EvWXUbjCIgEr5QjGafk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1KE+DDSI7cfS9Q8NEYuFExQdWEpCJgae6puO/JkkAwiCY2YtEgUbIhNhQsrGhImA
-         c9QtdO6+KJYXrIdCt5R5G4kKbFhoy6qweS+1UEe9AeJe2pke//zKYPVR9+bDuVYg0Q
-         svypFu/QTMAyfNV9UHMGK+kLD9EgQaXZQxh+S7XU=
+        b=M0TfI2HwmNO7E48I6fvdeSVJGEaPrZfjFQZUBg8xojTh+ojOXUMZdztSFM4VADaId
+         jNWxX3Fg7/4o6N9RSsltCxBKEqlQeCbCucCORLz0asqYjruQZ7zcknk/8DVKkbMUbJ
+         jfEIZbaIg8KhNuowpFohXCaVXKKz937qCRTmTTlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 22/33] xen/gntdev: Avoid blocking in unmap_grant_pages()
-Date:   Tue,  5 Jul 2022 13:58:14 +0200
-Message-Id: <20220705115607.363657904@linuxfoundation.org>
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 39/58] selftests/rseq: Introduce rseq_get_abi() helper
+Date:   Tue,  5 Jul 2022 13:58:15 +0200
+Message-Id: <20220705115611.395303204@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,367 +54,645 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit dbe97cff7dd9f0f75c524afdd55ad46be3d15295 upstream.
+commit e546cd48ccc456074ddb8920732aef4af65d7ca7 upstream.
 
-unmap_grant_pages() currently waits for the pages to no longer be used.
-In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
-deadlock against i915: i915 was waiting for gntdev's MMU notifier to
-finish, while gntdev was waiting for i915 to free its pages.  I also
-believe this is responsible for various deadlocks I have experienced in
-the past.
+This is done in preparation for the selftest uplift to become compatible
+with glibc-2.35.
 
-Avoid these problems by making unmap_grant_pages async.  This requires
-making it return void, as any errors will not be available when the
-function returns.  Fortunately, the only use of the return value is a
-WARN_ON(), which can be replaced by a WARN_ON when the error is
-detected.  Additionally, a failed call will not prevent further calls
-from being made, but this is harmless.
+glibc-2.35 exposes the rseq per-thread data in the TCB, accessible
+at an offset from the thread pointer, rather than through an actual
+Thread-Local Storage (TLS) variable, as the kernel selftests initially
+expected.
 
-Because unmap_grant_pages is now async, the grant handle will be sent to
-INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
-handle.  Instead, a separate bool array is allocated for this purpose.
-This wastes memory, but stuffing this information in padding bytes is
-too fragile.  Furthermore, it is necessary to grab a reference to the
-map before making the asynchronous call, and release the reference when
-the call returns.
+Introduce a rseq_get_abi() helper, initially using the __rseq_abi
+TLS variable, in preparation for changing this userspace ABI for one
+which is compatible with glibc-2.35.
 
-It is also necessary to guard against reentrancy in gntdev_map_put(),
-and to handle the case where userspace tries to map a mapping whose
-contents have not all been freed yet.
+Note that the __rseq_abi TLS and glibc-2.35's ABI for per-thread data
+cannot actively coexist in a process, because the kernel supports only
+a single rseq registration per thread.
 
-Fixes: 745282256c75 ("xen/gntdev: safely unmap grants in case they are still in use")
-Cc: stable@vger.kernel.org
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220622022726.2538-1-demi@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124171253.22072-6-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/gntdev-common.h |    8 ++
- drivers/xen/gntdev.c        |  146 ++++++++++++++++++++++++++++++--------------
- 2 files changed, 109 insertions(+), 45 deletions(-)
+ tools/testing/selftests/rseq/rseq-arm.h   |   32 +++++++++++++++---------------
+ tools/testing/selftests/rseq/rseq-arm64.h |   32 +++++++++++++++---------------
+ tools/testing/selftests/rseq/rseq-mips.h  |   32 +++++++++++++++---------------
+ tools/testing/selftests/rseq/rseq-ppc.h   |   32 +++++++++++++++---------------
+ tools/testing/selftests/rseq/rseq-s390.h  |   24 +++++++++++-----------
+ tools/testing/selftests/rseq/rseq-x86.h   |   30 ++++++++++++++--------------
+ tools/testing/selftests/rseq/rseq.h       |   11 +++++++---
+ 7 files changed, 99 insertions(+), 94 deletions(-)
 
---- a/drivers/xen/gntdev-common.h
-+++ b/drivers/xen/gntdev-common.h
-@@ -15,6 +15,8 @@
- #include <linux/mman.h>
- #include <linux/mmu_notifier.h>
- #include <linux/types.h>
-+#include <xen/interface/event_channel.h>
-+#include <xen/grant_table.h>
- 
- struct gntdev_dmabuf_priv;
- 
-@@ -61,6 +63,7 @@ struct gntdev_grant_map {
- 	struct gnttab_unmap_grant_ref *unmap_ops;
- 	struct gnttab_map_grant_ref   *kmap_ops;
- 	struct gnttab_unmap_grant_ref *kunmap_ops;
-+	bool *being_removed;
- 	struct page **pages;
- 	unsigned long pages_vm_start;
- 
-@@ -78,6 +81,11 @@ struct gntdev_grant_map {
- 	/* Needed to avoid allocation in gnttab_dma_free_pages(). */
- 	xen_pfn_t *frames;
+--- a/tools/testing/selftests/rseq/rseq-arm.h
++++ b/tools/testing/selftests/rseq/rseq-arm.h
+@@ -185,8 +185,8 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -255,8 +255,8 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -316,8 +316,8 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"m" (*v),
+ 		  [count]		"Ir" (count)
+ 		  RSEQ_INJECT_INPUT
+@@ -381,8 +381,8 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -457,8 +457,8 @@ int rseq_cmpeqv_trystorev_storev_release
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -537,8 +537,8 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -657,8 +657,8 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ 		"8:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+@@ -782,8 +782,8 @@ int rseq_cmpeqv_trymemcpy_storev_release
+ 		"8:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+--- a/tools/testing/selftests/rseq/rseq-arm64.h
++++ b/tools/testing/selftests/rseq/rseq-arm64.h
+@@ -230,8 +230,8 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"Qo" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -287,8 +287,8 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"Qo" (*v),
+ 		  [expectnot]		"r" (expectnot),
+ 		  [load]		"Qo" (*load),
+@@ -337,8 +337,8 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"Qo" (*v),
+ 		  [count]		"r" (count)
+ 		  RSEQ_INJECT_INPUT
+@@ -388,8 +388,8 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [expect]		"r" (expect),
+ 		  [v]			"Qo" (*v),
+ 		  [newv]		"r" (newv),
+@@ -447,8 +447,8 @@ int rseq_cmpeqv_trystorev_storev_release
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [expect]		"r" (expect),
+ 		  [v]			"Qo" (*v),
+ 		  [newv]		"r" (newv),
+@@ -508,8 +508,8 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"Qo" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [v2]			"Qo" (*v2),
+@@ -569,8 +569,8 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [expect]		"r" (expect),
+ 		  [v]			"Qo" (*v),
+ 		  [newv]		"r" (newv),
+@@ -629,8 +629,8 @@ int rseq_cmpeqv_trymemcpy_storev_release
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"Qo" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"Qo" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [expect]		"r" (expect),
+ 		  [v]			"Qo" (*v),
+ 		  [newv]		"r" (newv),
+--- a/tools/testing/selftests/rseq/rseq-mips.h
++++ b/tools/testing/selftests/rseq/rseq-mips.h
+@@ -190,8 +190,8 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -258,8 +258,8 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -319,8 +319,8 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"m" (*v),
+ 		  [count]		"Ir" (count)
+ 		  RSEQ_INJECT_INPUT
+@@ -382,8 +382,8 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -456,8 +456,8 @@ int rseq_cmpeqv_trystorev_storev_release
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -532,8 +532,8 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		"5:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -649,8 +649,8 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ 		"8:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+@@ -771,8 +771,8 @@ int rseq_cmpeqv_trymemcpy_storev_release
+ 		"8:\n\t"
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+--- a/tools/testing/selftests/rseq/rseq-ppc.h
++++ b/tools/testing/selftests/rseq/rseq-ppc.h
+@@ -235,8 +235,8 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -301,8 +301,8 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -359,8 +359,8 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [count]		"r" (count)
+@@ -419,8 +419,8 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -489,8 +489,8 @@ int rseq_cmpeqv_trystorev_storev_release
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -560,8 +560,8 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -635,8 +635,8 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+@@ -711,8 +711,8 @@ int rseq_cmpeqv_trymemcpy_storev_release
+ 		RSEQ_ASM_DEFINE_ABORT(4, abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+--- a/tools/testing/selftests/rseq/rseq-s390.h
++++ b/tools/testing/selftests/rseq/rseq-s390.h
+@@ -165,8 +165,8 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -233,8 +233,8 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -288,8 +288,8 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [count]		"r" (count)
+@@ -347,8 +347,8 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -426,8 +426,8 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -534,8 +534,8 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
  #endif
-+
-+	/* Number of live grants */
-+	atomic_t live_grants;
-+	/* Needed to avoid allocation in __unmap_grant_pages */
-+	struct gntab_unmap_queue_data unmap_data;
- };
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [current_cpu_id]	"m" (__rseq_abi.cpu_id),
+-		  [rseq_cs]		"m" (__rseq_abi.rseq_cs),
++		  [current_cpu_id]	"m" (rseq_get_abi()->cpu_id),
++		  [rseq_cs]		"m" (rseq_get_abi()->rseq_cs),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+--- a/tools/testing/selftests/rseq/rseq-x86.h
++++ b/tools/testing/selftests/rseq/rseq-x86.h
+@@ -141,7 +141,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -207,7 +207,7 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -258,7 +258,7 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [count]		"er" (count)
+@@ -314,7 +314,7 @@ int rseq_offset_deref_addv(intptr_t *ptr
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [ptr]			"m" (*ptr),
+ 		  [off]			"er" (off),
+@@ -372,7 +372,7 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -449,7 +449,7 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -555,7 +555,7 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ #endif
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+@@ -719,7 +719,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -785,7 +785,7 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -836,7 +836,7 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [count]		"ir" (count)
+@@ -894,7 +894,7 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"m" (newv2),
+@@ -962,7 +962,7 @@ int rseq_cmpeqv_trystorev_storev_release
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -1032,7 +1032,7 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -1142,7 +1142,7 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ #endif
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"m" (expect),
+@@ -1255,7 +1255,7 @@ int rseq_cmpeqv_trymemcpy_storev_release
+ #endif
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (&__rseq_abi),
++		  [rseq_abi]		"r" (rseq_get_abi()),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"m" (expect),
+--- a/tools/testing/selftests/rseq/rseq.h
++++ b/tools/testing/selftests/rseq/rseq.h
+@@ -46,6 +46,11 @@
+ extern __thread struct rseq_abi __rseq_abi;
+ extern int __rseq_handled;
  
- struct gntdev_grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count,
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -64,11 +64,12 @@ MODULE_PARM_DESC(limit, "Maximum number
- 
- static atomic_t pages_mapped = ATOMIC_INIT(0);
- 
-+/* True in PV mode, false otherwise */
- static int use_ptemod;
- #define populate_freeable_maps use_ptemod
- 
--static int unmap_grant_pages(struct gntdev_grant_map *map,
--			     int offset, int pages);
-+static void unmap_grant_pages(struct gntdev_grant_map *map,
-+			      int offset, int pages);
- 
- static struct miscdevice gntdev_miscdev;
- 
-@@ -125,6 +126,7 @@ static void gntdev_free_map(struct gntde
- 	kfree(map->unmap_ops);
- 	kfree(map->kmap_ops);
- 	kfree(map->kunmap_ops);
-+	kfree(map->being_removed);
- 	kfree(map);
- }
- 
-@@ -144,12 +146,15 @@ struct gntdev_grant_map *gntdev_alloc_ma
- 	add->kmap_ops  = kcalloc(count, sizeof(add->kmap_ops[0]), GFP_KERNEL);
- 	add->kunmap_ops = kcalloc(count, sizeof(add->kunmap_ops[0]), GFP_KERNEL);
- 	add->pages     = kcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
-+	add->being_removed =
-+		kcalloc(count, sizeof(add->being_removed[0]), GFP_KERNEL);
- 	if (NULL == add->grants    ||
- 	    NULL == add->map_ops   ||
- 	    NULL == add->unmap_ops ||
- 	    NULL == add->kmap_ops  ||
- 	    NULL == add->kunmap_ops ||
--	    NULL == add->pages)
-+	    NULL == add->pages     ||
-+	    NULL == add->being_removed)
- 		goto err;
- 
- #ifdef CONFIG_XEN_GRANT_DMA_ALLOC
-@@ -245,6 +250,35 @@ void gntdev_put_map(struct gntdev_priv *
- 		return;
- 
- 	atomic_sub(map->count, &pages_mapped);
-+	if (map->pages && !use_ptemod) {
-+		/*
-+		 * Increment the reference count.  This ensures that the
-+		 * subsequent call to unmap_grant_pages() will not wind up
-+		 * re-entering itself.  It *can* wind up calling
-+		 * gntdev_put_map() recursively, but such calls will be with a
-+		 * reference count greater than 1, so they will return before
-+		 * this code is reached.  The recursion depth is thus limited to
-+		 * 1.  Do NOT use refcount_inc() here, as it will detect that
-+		 * the reference count is zero and WARN().
-+		 */
-+		refcount_set(&map->users, 1);
-+
-+		/*
-+		 * Unmap the grants.  This may or may not be asynchronous, so it
-+		 * is possible that the reference count is 1 on return, but it
-+		 * could also be greater than 1.
-+		 */
-+		unmap_grant_pages(map, 0, map->count);
-+
-+		/* Check if the memory now needs to be freed */
-+		if (!refcount_dec_and_test(&map->users))
-+			return;
-+
-+		/*
-+		 * All pages have been returned to the hypervisor, so free the
-+		 * map.
-+		 */
-+	}
- 
- 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
- 		notify_remote_via_evtchn(map->notify.event);
-@@ -302,6 +336,7 @@ static int set_grant_ptes_as_special(pte
- 
- int gntdev_map_grant_pages(struct gntdev_grant_map *map)
- {
-+	size_t alloced = 0;
- 	int i, err = 0;
- 
- 	if (!use_ptemod) {
-@@ -350,87 +385,109 @@ int gntdev_map_grant_pages(struct gntdev
- 			map->pages, map->count);
- 
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status == GNTST_okay)
-+		if (map->map_ops[i].status == GNTST_okay) {
- 			map->unmap_ops[i].handle = map->map_ops[i].handle;
--		else if (!err)
-+			if (!use_ptemod)
-+				alloced++;
-+		} else if (!err)
- 			err = -EINVAL;
- 
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
- 		if (use_ptemod) {
--			if (map->kmap_ops[i].status == GNTST_okay)
-+			if (map->kmap_ops[i].status == GNTST_okay) {
-+				if (map->map_ops[i].status == GNTST_okay)
-+					alloced++;
- 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
--			else if (!err)
-+			} else if (!err)
- 				err = -EINVAL;
- 		}
- 	}
-+	atomic_add(alloced, &map->live_grants);
- 	return err;
- }
- 
--static int __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
--			       int pages)
-+static void __unmap_grant_pages_done(int result,
-+		struct gntab_unmap_queue_data *data)
- {
--	int i, err = 0;
--	struct gntab_unmap_queue_data unmap_data;
-+	unsigned int i;
-+	struct gntdev_grant_map *map = data->data;
-+	unsigned int offset = data->unmap_ops - map->unmap_ops;
-+
-+	for (i = 0; i < data->count; i++) {
-+		WARN_ON(map->unmap_ops[offset+i].status);
-+		pr_debug("unmap handle=%d st=%d\n",
-+			map->unmap_ops[offset+i].handle,
-+			map->unmap_ops[offset+i].status);
-+		map->unmap_ops[offset+i].handle = -1;
-+	}
-+	/*
-+	 * Decrease the live-grant counter.  This must happen after the loop to
-+	 * prevent premature reuse of the grants by gnttab_mmap().
-+	 */
-+	atomic_sub(data->count, &map->live_grants);
- 
-+	/* Release reference taken by __unmap_grant_pages */
-+	gntdev_put_map(NULL, map);
++static inline struct rseq_abi *rseq_get_abi(void)
++{
++	return &__rseq_abi;
 +}
 +
-+static void __unmap_grant_pages(struct gntdev_grant_map *map, int offset,
-+			       int pages)
-+{
- 	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
- 		int pgno = (map->notify.addr >> PAGE_SHIFT);
-+
- 		if (pgno >= offset && pgno < offset + pages) {
- 			/* No need for kmap, pages are in lowmem */
- 			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
-+
- 			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
- 			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
- 		}
- 	}
- 
--	unmap_data.unmap_ops = map->unmap_ops + offset;
--	unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
--	unmap_data.pages = map->pages + offset;
--	unmap_data.count = pages;
-+	map->unmap_data.unmap_ops = map->unmap_ops + offset;
-+	map->unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
-+	map->unmap_data.pages = map->pages + offset;
-+	map->unmap_data.count = pages;
-+	map->unmap_data.done = __unmap_grant_pages_done;
-+	map->unmap_data.data = map;
-+	refcount_inc(&map->users); /* to keep map alive during async call below */
- 
--	err = gnttab_unmap_refs_sync(&unmap_data);
--	if (err)
--		return err;
--
--	for (i = 0; i < pages; i++) {
--		if (map->unmap_ops[offset+i].status)
--			err = -EINVAL;
--		pr_debug("unmap handle=%d st=%d\n",
--			map->unmap_ops[offset+i].handle,
--			map->unmap_ops[offset+i].status);
--		map->unmap_ops[offset+i].handle = -1;
--	}
--	return err;
-+	gnttab_unmap_refs_async(&map->unmap_data);
- }
- 
--static int unmap_grant_pages(struct gntdev_grant_map *map, int offset,
--			     int pages)
-+static void unmap_grant_pages(struct gntdev_grant_map *map, int offset,
-+			      int pages)
+ #define rseq_likely(x)		__builtin_expect(!!(x), 1)
+ #define rseq_unlikely(x)	__builtin_expect(!!(x), 0)
+ #define rseq_barrier()		__asm__ __volatile__("" : : : "memory")
+@@ -108,7 +113,7 @@ int32_t rseq_fallback_current_cpu(void);
+  */
+ static inline int32_t rseq_current_cpu_raw(void)
  {
--	int range, err = 0;
-+	int range;
-+
-+	if (atomic_read(&map->live_grants) == 0)
-+		return; /* Nothing to do */
- 
- 	pr_debug("unmap %d+%d [%d+%d]\n", map->index, map->count, offset, pages);
- 
- 	/* It is possible the requested range will have a "hole" where we
- 	 * already unmapped some of the grants. Only unmap valid ranges.
- 	 */
--	while (pages && !err) {
--		while (pages && map->unmap_ops[offset].handle == -1) {
-+	while (pages) {
-+		while (pages && map->being_removed[offset]) {
- 			offset++;
- 			pages--;
- 		}
- 		range = 0;
- 		while (range < pages) {
--			if (map->unmap_ops[offset+range].handle == -1)
-+			if (map->being_removed[offset + range])
- 				break;
-+			map->being_removed[offset + range] = true;
- 			range++;
- 		}
--		err = __unmap_grant_pages(map, offset, range);
-+		if (range)
-+			__unmap_grant_pages(map, offset, range);
- 		offset += range;
- 		pages -= range;
- 	}
--
--	return err;
+-	return RSEQ_ACCESS_ONCE(__rseq_abi.cpu_id);
++	return RSEQ_ACCESS_ONCE(rseq_get_abi()->cpu_id);
  }
  
- /* ------------------------------------------------------------------ */
-@@ -500,7 +557,6 @@ static int unmap_if_in_range(struct gntd
- 			      bool blockable)
+ /*
+@@ -124,7 +129,7 @@ static inline int32_t rseq_current_cpu_r
+  */
+ static inline uint32_t rseq_cpu_start(void)
  {
- 	unsigned long mstart, mend;
--	int err;
- 
- 	if (!in_range(map, start, end))
- 		return 0;
-@@ -514,10 +570,9 @@ static int unmap_if_in_range(struct gntd
- 			map->index, map->count,
- 			map->vma->vm_start, map->vma->vm_end,
- 			start, end, mstart, mend);
--	err = unmap_grant_pages(map,
-+	unmap_grant_pages(map,
- 				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
- 				(mend - mstart) >> PAGE_SHIFT);
--	WARN_ON(err);
- 
- 	return 0;
+-	return RSEQ_ACCESS_ONCE(__rseq_abi.cpu_id_start);
++	return RSEQ_ACCESS_ONCE(rseq_get_abi()->cpu_id_start);
  }
-@@ -558,7 +613,6 @@ static void mn_release(struct mmu_notifi
+ 
+ static inline uint32_t rseq_current_cpu(void)
+@@ -139,7 +144,7 @@ static inline uint32_t rseq_current_cpu(
+ 
+ static inline void rseq_clear_rseq_cs(void)
  {
- 	struct gntdev_priv *priv = container_of(mn, struct gntdev_priv, mn);
- 	struct gntdev_grant_map *map;
--	int err;
- 
- 	mutex_lock(&priv->lock);
- 	list_for_each_entry(map, &priv->maps, next) {
-@@ -567,8 +621,7 @@ static void mn_release(struct mmu_notifi
- 		pr_debug("map %d+%d (%lx %lx)\n",
- 				map->index, map->count,
- 				map->vma->vm_start, map->vma->vm_end);
--		err = unmap_grant_pages(map, /* offset */ 0, map->count);
--		WARN_ON(err);
-+		unmap_grant_pages(map, /* offset */ 0, map->count);
- 	}
- 	list_for_each_entry(map, &priv->freeable_maps, next) {
- 		if (!map->vma)
-@@ -576,8 +629,7 @@ static void mn_release(struct mmu_notifi
- 		pr_debug("map %d+%d (%lx %lx)\n",
- 				map->index, map->count,
- 				map->vma->vm_start, map->vma->vm_end);
--		err = unmap_grant_pages(map, /* offset */ 0, map->count);
--		WARN_ON(err);
-+		unmap_grant_pages(map, /* offset */ 0, map->count);
- 	}
- 	mutex_unlock(&priv->lock);
+-	RSEQ_WRITE_ONCE(__rseq_abi.rseq_cs.arch.ptr, 0);
++	RSEQ_WRITE_ONCE(rseq_get_abi()->rseq_cs.arch.ptr, 0);
  }
-@@ -1113,6 +1165,10 @@ static int gntdev_mmap(struct file *flip
- 		goto unlock_out;
- 	}
  
-+	if (atomic_read(&map->live_grants)) {
-+		err = -EAGAIN;
-+		goto unlock_out;
-+	}
- 	refcount_inc(&map->users);
- 
- 	vma->vm_ops = &gntdev_vmops;
+ /*
 
 
