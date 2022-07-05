@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19338566ADE
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2360566D39
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231818AbiGEMCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:02:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44486 "EHLO
+        id S236709AbiGEMVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:21:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233150AbiGEMBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:40 -0400
+        with ESMTP id S236486AbiGEMRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CE4918395;
-        Tue,  5 Jul 2022 05:01:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC7B192A0;
+        Tue,  5 Jul 2022 05:12:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26136B817D2;
-        Tue,  5 Jul 2022 12:01:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F56CC341C7;
-        Tue,  5 Jul 2022 12:01:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F640B816B8;
+        Tue,  5 Jul 2022 12:12:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A614EC341C7;
+        Tue,  5 Jul 2022 12:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022497;
-        bh=k4N6KH1YWbQV3DGzZLvNHzX7b6DSgKb1L14QGC7GHeU=;
+        s=korg; t=1657023156;
+        bh=x+8JrTwYQkyjSY8KozZWrMcfxe5iJyL0E374ypPtwbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iax06IvFnV13hbDfNOtJiapPhTO/keK60O3aHukHvkVTUfWtfXGu+zZR18IzURDM8
-         ahO/pDEc7waaGxlZJq9gxIjKjK6ej3/2LowUMak8ZG855V5S5m1dwKKXKjSbjivJga
-         gqWnf76gAbj+ch9CCqXi1y8szEBGIiTIM4ttOi/Y=
+        b=DWw1bg99oIGI0bhiTiIlcRktnS4CexS3ktNutAp8YmqC0PjOFtPX8MdULnP7O9Qrt
+         vLOs41D7J//SratOxH3vt5q1F6QtvurCGO7LKKHzeychL6LtrPfI+mB/FrYo7y/kOu
+         d5B6RNy1Kwrwi+GKCR0UjnjC0OQctKEd80uqXe6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 27/29] xen/arm: Fix race in RB-tree based P2M accounting
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Amit Cohen <amcohen@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.15 57/98] mlxsw: spectrum_router: Fix rollback in tunnel next hop init
 Date:   Tue,  5 Jul 2022 13:58:15 +0200
-Message-Id: <20220705115607.143563466@linuxfoundation.org>
+Message-Id: <20220705115619.202118013@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
-References: <20220705115606.333669144@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+From: Petr Machata <petrm@nvidia.com>
 
-commit b75cd218274e01d026dc5240e86fdeb44bbed0c8 upstream.
+commit 665030fd0c1ed9f505932e6e73e7a2c788787a0a upstream.
 
-During the PV driver life cycle the mappings are added to
-the RB-tree by set_foreign_p2m_mapping(), which is called from
-gnttab_map_refs() and are removed by clear_foreign_p2m_mapping()
-which is called from gnttab_unmap_refs(). As both functions end
-up calling __set_phys_to_machine_multi() which updates the RB-tree,
-this function can be called concurrently.
+In mlxsw_sp_nexthop6_init(), a next hop is always added to the router
+linked list, and mlxsw_sp_nexthop_type_init() is invoked afterwards. When
+that function results in an error, the next hop will not have been removed
+from the linked list. As the error is propagated upwards and the caller
+frees the next hop object, the linked list ends up holding an invalid
+object.
 
-There is already a "p2m_lock" to protect against concurrent accesses,
-but the problem is that the first read of "phys_to_mach.rb_node"
-in __set_phys_to_machine_multi() is not covered by it, so this might
-lead to the incorrect mappings update (removing in our case) in RB-tree.
+A similar issue comes up with mlxsw_sp_nexthop4_init(), where rollback
+block does exist, however does not include the linked list removal.
 
-In my environment the related issue happens rarely and only when
-PV net backend is running, the xen_add_phys_to_mach_entry() claims
-that it cannot add new pfn <-> mfn mapping to the tree since it is
-already exists which results in a failure when mapping foreign pages.
+Both IPv6 and IPv4 next hops have a similar issue with next-hop counter
+rollbacks. As these were introduced in the same patchset as the next hop
+linked list, include the cleanup in this patch.
 
-But there might be other bad consequences related to the non-protected
-root reads such use-after-free, etc.
-
-While at it, also fix the similar usage in __pfn_to_mfn(), so
-initialize "struct rb_node *n" with the "p2m_lock" held in both
-functions to avoid possible bad consequences.
-
-This is CVE-2022-33744 / XSA-406.
-
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: dbe4598c1e92 ("mlxsw: spectrum_router: Keep nexthops in a linked list")
+Fixes: a5390278a5eb ("mlxsw: spectrum: Add support for setting counters on nexthops")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220629070205.803952-1-idosch@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/xen/p2m.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -61,11 +61,12 @@ out:
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -4293,6 +4293,8 @@ static int mlxsw_sp_nexthop4_init(struct
+ 	return 0;
  
- unsigned long __pfn_to_mfn(unsigned long pfn)
+ err_nexthop_neigh_init:
++	list_del(&nh->router_list_node);
++	mlxsw_sp_nexthop_counter_free(mlxsw_sp, nh);
+ 	mlxsw_sp_nexthop_remove(mlxsw_sp, nh);
+ 	return err;
+ }
+@@ -6578,6 +6580,7 @@ static int mlxsw_sp_nexthop6_init(struct
+ 				  const struct fib6_info *rt)
  {
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
- 	struct xen_p2m_entry *entry;
- 	unsigned long irqflags;
+ 	struct net_device *dev = rt->fib6_nh->fib_nh_dev;
++	int err;
  
- 	read_lock_irqsave(&p2m_lock, irqflags);
-+	n = phys_to_mach.rb_node;
- 	while (n) {
- 		entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 		if (entry->pfn <= pfn &&
-@@ -151,10 +152,11 @@ bool __set_phys_to_machine_multi(unsigne
- 	int rc;
- 	unsigned long irqflags;
- 	struct xen_p2m_entry *p2m_entry;
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
+ 	nh->nhgi = nh_grp->nhgi;
+ 	nh->nh_weight = rt->fib6_nh->fib_nh_weight;
+@@ -6593,7 +6596,16 @@ static int mlxsw_sp_nexthop6_init(struct
+ 		return 0;
+ 	nh->ifindex = dev->ifindex;
  
- 	if (mfn == INVALID_P2M_ENTRY) {
- 		write_lock_irqsave(&p2m_lock, irqflags);
-+		n = phys_to_mach.rb_node;
- 		while (n) {
- 			p2m_entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 			if (p2m_entry->pfn <= pfn &&
+-	return mlxsw_sp_nexthop_type_init(mlxsw_sp, nh, dev);
++	err = mlxsw_sp_nexthop_type_init(mlxsw_sp, nh, dev);
++	if (err)
++		goto err_nexthop_type_init;
++
++	return 0;
++
++err_nexthop_type_init:
++	list_del(&nh->router_list_node);
++	mlxsw_sp_nexthop_counter_free(mlxsw_sp, nh);
++	return err;
+ }
+ 
+ static void mlxsw_sp_nexthop6_fini(struct mlxsw_sp *mlxsw_sp,
 
 
