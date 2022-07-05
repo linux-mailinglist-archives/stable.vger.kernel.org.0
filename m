@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E885B566BBD
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78BF6566B23
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234526AbiGEMJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52222 "EHLO
+        id S233843AbiGEMEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234833AbiGEMIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E77B19C1C;
-        Tue,  5 Jul 2022 05:07:07 -0700 (PDT)
+        with ESMTP id S233646AbiGEMDs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E5F183A7;
+        Tue,  5 Jul 2022 05:03:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C87BB817CE;
-        Tue,  5 Jul 2022 12:07:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76215C341C7;
-        Tue,  5 Jul 2022 12:07:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 961B1CE1B86;
+        Tue,  5 Jul 2022 12:03:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A41C341C7;
+        Tue,  5 Jul 2022 12:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022824;
-        bh=dy7bOytgF344lIFWXNRmT21pW2lZa+vQbXwQxR7s3v4=;
+        s=korg; t=1657022623;
+        bh=jL9a3+Iim4Drpb/Uw5KapxOSpel6wGH1UWLnPpXnZWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrSIaw/YQEhtDVis9N3IPlodE8txTZ+985VrsFmXJc+crN+p3EYPI9AqUY6Rqb614
-         EFfYu8aoEeAmKQsflixvAyr15F6RKL5SNa1dKdsY82yzKHSBNJqTWcqX/XB89scGIv
-         eLEb5cbEN5by31x1T8YPXKQ7FpUJWQ+qDMDODBTQ=
+        b=Y9hFcLinSoyJiQu5Z8EAcRH+yCIJKQRdHqIk5+onoiLVJ9gbg+31uyUgM8V/YMtg8
+         RjcWN/WcTkYXardAv8iQ2ARKRQXb5LwCcc5KsRNnWdZmt2EYS8LoPteLFMWCnwu85K
+         JQUiVz6dnpAMnpnibMcWAipxZI8NIrcymtta3wtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 23/84] linux/dim: Fix divide by 0 in RDMA DIM
+        stable@vger.kernel.org, Jose Alonso <joalonsof@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.4 10/58] net: usb: ax88179_178a: Fix packet receiving
 Date:   Tue,  5 Jul 2022 13:57:46 +0200
-Message-Id: <20220705115616.003366060@linuxfoundation.org>
+Message-Id: <20220705115610.548928478@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +53,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Liu <thomas.liu@ucloud.cn>
+From: Jose Alonso <joalonsof@gmail.com>
 
-commit 0fe3dbbefb74a8575f61d7801b08dbc50523d60d upstream.
+commit f8ebb3ac881b17712e1d5967c97ab1806b16d3d6 upstream.
 
-Fix a divide 0 error in rdma_dim_stats_compare() when prev->cpe_ratio ==
-0.
+This patch corrects packet receiving in ax88179_rx_fixup.
 
-CallTrace:
-  Hardware name: H3C R4900 G3/RS33M2C9S, BIOS 2.00.37P21 03/12/2020
-  task: ffff880194b78000 task.stack: ffffc90006714000
-  RIP: 0010:backport_rdma_dim+0x10e/0x240 [mlx_compat]
-  RSP: 0018:ffff880c10e83ec0 EFLAGS: 00010202
-  RAX: 0000000000002710 RBX: ffff88096cd7f780 RCX: 0000000000000064
-  RDX: 0000000000000000 RSI: 0000000000000002 RDI: 0000000000000001
-  RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 000000001d7c6c09
-  R13: ffff88096cd7f780 R14: ffff880b174fe800 R15: 0000000000000000
-  FS:  0000000000000000(0000) GS:ffff880c10e80000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00000000a0965b00 CR3: 000000000200a003 CR4: 00000000007606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  PKRU: 55555554
-  Call Trace:
-   <IRQ>
-   ib_poll_handler+0x43/0x80 [ib_core]
-   irq_poll_softirq+0xae/0x110
-   __do_softirq+0xd1/0x28c
-   irq_exit+0xde/0xf0
-   do_IRQ+0x54/0xe0
-   common_interrupt+0x8f/0x8f
-   </IRQ>
-   ? cpuidle_enter_state+0xd9/0x2a0
-   ? cpuidle_enter_state+0xc7/0x2a0
-   ? do_idle+0x170/0x1d0
-   ? cpu_startup_entry+0x6f/0x80
-   ? start_secondary+0x1b9/0x210
-   ? secondary_startup_64+0xa5/0xb0
-  Code: 0f 87 e1 00 00 00 8b 4c 24 14 44 8b 43 14 89 c8 4d 63 c8 44 29 c0 99 31 d0 29 d0 31 d2 48 98 48 8d 04 80 48 8d 04 80 48 c1 e0 02 <49> f7 f1 48 83 f8 0a 0f 86 c1 00 00 00 44 39 c1 7f 10 48 89 df
-  RIP: backport_rdma_dim+0x10e/0x240 [mlx_compat] RSP: ffff880c10e83ec0
+- problem observed:
+  ifconfig shows allways a lot of 'RX Errors' while packets
+  are received normally.
 
-Fixes: f4915455dcf0 ("linux/dim: Implement RDMA adaptive moderation (DIM)")
-Link: https://lore.kernel.org/r/20220627140004.3099-1-thomas.liu@ucloud.cn
-Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Acked-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+  This occurs because ax88179_rx_fixup does not recognise properly
+  the usb urb received.
+  The packets are normally processed and at the end, the code exits
+  with 'return 0', generating RX Errors.
+  (pkt_cnt==-2 and ptk_hdr over field rx_hdr trying to identify
+   another packet there)
+
+  This is a usb urb received by "tcpdump -i usbmon2 -X" on a
+  little-endian CPU:
+  0x0000:  eeee f8e3 3b19 87a0 94de 80e3 daac 0800
+           ^         packet 1 start (pkt_len = 0x05ec)
+           ^^^^      IP alignment pseudo header
+                ^    ethernet packet start
+           last byte ethernet packet   v
+           padding (8-bytes aligned)     vvvv vvvv
+  0x05e0:  c92d d444 1420 8a69 83dd 272f e82b 9811
+  0x05f0:  eeee f8e3 3b19 87a0 94de 80e3 daac 0800
+  ...      ^ packet 2
+  0x0be0:  eeee f8e3 3b19 87a0 94de 80e3 daac 0800
+  ...
+  0x1130:  9d41 9171 8a38 0ec5 eeee f8e3 3b19 87a0
+  ...
+  0x1720:  8cfc 15ff 5e4c e85c eeee f8e3 3b19 87a0
+  ...
+  0x1d10:  ecfa 2a3a 19ab c78c eeee f8e3 3b19 87a0
+  ...
+  0x2070:  eeee f8e3 3b19 87a0 94de 80e3 daac 0800
+  ...      ^ packet 7
+  0x2120:  7c88 4ca5 5c57 7dcc 0d34 7577 f778 7e0a
+  0x2130:  f032 e093 7489 0740 3008 ec05 0000 0080
+                               ====1==== ====2====
+           hdr_off             ^
+           pkt_len = 0x05ec         ^^^^
+           AX_RXHDR_*=0x00830  ^^^^   ^
+           pkt_len = 0                        ^^^^
+           AX_RXHDR_DROP_ERR=0x80000000  ^^^^   ^
+  0x2140:  3008 ec05 0000 0080 3008 5805 0000 0080
+  0x2150:  3008 ec05 0000 0080 3008 ec05 0000 0080
+  0x2160:  3008 5803 0000 0080 3008 c800 0000 0080
+           ===11==== ===12==== ===13==== ===14====
+  0x2170:  0000 0000 0e00 3821
+                     ^^^^ ^^^^ rx_hdr
+                     ^^^^      pkt_cnt=14
+                          ^^^^ hdr_off=0x2138
+           ^^^^ ^^^^           padding
+
+  The dump shows that pkt_cnt is the number of entrys in the
+  per-packet metadata. It is "2 * packet count".
+  Each packet have two entrys. The first have a valid
+  value (pkt_len and AX_RXHDR_*) and the second have a
+  dummy-header 0x80000000 (pkt_len=0 with AX_RXHDR_DROP_ERR).
+  Why exists dummy-header for each packet?!?
+  My guess is that this was done probably to align the
+  entry for each packet to 64-bits and maintain compatibility
+  with old firmware.
+  There is also a padding (0x00000000) before the rx_hdr to
+  align the end of rx_hdr to 64-bit.
+  Note that packets have a alignment of 64-bits (8-bytes).
+
+  This patch assumes that the dummy-header and the last
+  padding are optional. So it preserves semantics and
+  recognises the same valid packets as the current code.
+
+  This patch was made using only the dumpfile information and
+  tested with only one device:
+  0b95:1790 ASIX Electronics Corp. AX88179 Gigabit Ethernet
+
+Fixes: 57bc3d3ae8c1 ("net: usb: ax88179_178a: Fix out-of-bounds accesses in RX fixup")
+Fixes: e2ca90c276e1 ("ax88179_178a: ASIX AX88179_178A USB 3.0/2.0 to gigabit ethernet adapter driver")
+Signed-off-by: Jose Alonso <joalonsof@gmail.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/d6970bb04bf67598af4d316eaeb1792040b18cfd.camel@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/dim.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/ax88179_178a.c |  101 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 76 insertions(+), 25 deletions(-)
 
---- a/include/linux/dim.h
-+++ b/include/linux/dim.h
-@@ -21,7 +21,7 @@
-  * We consider 10% difference as significant.
-  */
- #define IS_SIGNIFICANT_DIFF(val, ref) \
--	(((100UL * abs((val) - (ref))) / (ref)) > 10)
-+	((ref) && (((100UL * abs((val) - (ref))) / (ref)) > 10))
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1365,6 +1365,42 @@ static int ax88179_rx_fixup(struct usbne
+ 	 * are bundled into this buffer and where we can find an array of
+ 	 * per-packet metadata (which contains elements encoded into u16).
+ 	 */
++
++	/* SKB contents for current firmware:
++	 *   <packet 1> <padding>
++	 *   ...
++	 *   <packet N> <padding>
++	 *   <per-packet metadata entry 1> <dummy header>
++	 *   ...
++	 *   <per-packet metadata entry N> <dummy header>
++	 *   <padding2> <rx_hdr>
++	 *
++	 * where:
++	 *   <packet N> contains pkt_len bytes:
++	 *		2 bytes of IP alignment pseudo header
++	 *		packet received
++	 *   <per-packet metadata entry N> contains 4 bytes:
++	 *		pkt_len and fields AX_RXHDR_*
++	 *   <padding>	0-7 bytes to terminate at
++	 *		8 bytes boundary (64-bit).
++	 *   <padding2> 4 bytes to make rx_hdr terminate at
++	 *		8 bytes boundary (64-bit)
++	 *   <dummy-header> contains 4 bytes:
++	 *		pkt_len=0 and AX_RXHDR_DROP_ERR
++	 *   <rx-hdr>	contains 4 bytes:
++	 *		pkt_cnt and hdr_off (offset of
++	 *		  <per-packet metadata entry 1>)
++	 *
++	 * pkt_cnt is number of entrys in the per-packet metadata.
++	 * In current firmware there is 2 entrys per packet.
++	 * The first points to the packet and the
++	 *  second is a dummy header.
++	 * This was done probably to align fields in 64-bit and
++	 *  maintain compatibility with old firmware.
++	 * This code assumes that <dummy header> and <padding2> are
++	 *  optional.
++	 */
++
+ 	if (skb->len < 4)
+ 		return 0;
+ 	skb_trim(skb, skb->len - 4);
+@@ -1378,51 +1414,66 @@ static int ax88179_rx_fixup(struct usbne
+ 	/* Make sure that the bounds of the metadata array are inside the SKB
+ 	 * (and in front of the counter at the end).
+ 	 */
+-	if (pkt_cnt * 2 + hdr_off > skb->len)
++	if (pkt_cnt * 4 + hdr_off > skb->len)
+ 		return 0;
+ 	pkt_hdr = (u32 *)(skb->data + hdr_off);
  
- /*
-  * Calculate the gap between two values.
+ 	/* Packets must not overlap the metadata array */
+ 	skb_trim(skb, hdr_off);
+ 
+-	for (; ; pkt_cnt--, pkt_hdr++) {
++	for (; pkt_cnt > 0; pkt_cnt--, pkt_hdr++) {
++		u16 pkt_len_plus_padd;
+ 		u16 pkt_len;
+ 
+ 		le32_to_cpus(pkt_hdr);
+ 		pkt_len = (*pkt_hdr >> 16) & 0x1fff;
++		pkt_len_plus_padd = (pkt_len + 7) & 0xfff8;
+ 
+-		if (pkt_len > skb->len)
++		/* Skip dummy header used for alignment
++		 */
++		if (pkt_len == 0)
++			continue;
++
++		if (pkt_len_plus_padd > skb->len)
+ 			return 0;
+ 
+ 		/* Check CRC or runt packet */
+-		if (((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) == 0) &&
+-		    pkt_len >= 2 + ETH_HLEN) {
+-			bool last = (pkt_cnt == 0);
+-
+-			if (last) {
+-				ax_skb = skb;
+-			} else {
+-				ax_skb = skb_clone(skb, GFP_ATOMIC);
+-				if (!ax_skb)
+-					return 0;
+-			}
+-			ax_skb->len = pkt_len;
+-			/* Skip IP alignment pseudo header */
+-			skb_pull(ax_skb, 2);
+-			skb_set_tail_pointer(ax_skb, ax_skb->len);
+-			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
+-			ax88179_rx_checksum(ax_skb, pkt_hdr);
++		if ((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) ||
++		    pkt_len < 2 + ETH_HLEN) {
++			dev->net->stats.rx_errors++;
++			skb_pull(skb, pkt_len_plus_padd);
++			continue;
++		}
+ 
+-			if (last)
+-				return 1;
++		/* last packet */
++		if (pkt_len_plus_padd == skb->len) {
++			skb_trim(skb, pkt_len);
+ 
+-			usbnet_skb_return(dev, ax_skb);
++			/* Skip IP alignment pseudo header */
++			skb_pull(skb, 2);
++
++			skb->truesize = SKB_TRUESIZE(pkt_len_plus_padd);
++			ax88179_rx_checksum(skb, pkt_hdr);
++			return 1;
+ 		}
+ 
+-		/* Trim this packet away from the SKB */
+-		if (!skb_pull(skb, (pkt_len + 7) & 0xFFF8))
++		ax_skb = skb_clone(skb, GFP_ATOMIC);
++		if (!ax_skb)
+ 			return 0;
++		skb_trim(ax_skb, pkt_len);
++
++		/* Skip IP alignment pseudo header */
++		skb_pull(ax_skb, 2);
++
++		skb->truesize = pkt_len_plus_padd +
++				SKB_DATA_ALIGN(sizeof(struct sk_buff));
++		ax88179_rx_checksum(ax_skb, pkt_hdr);
++		usbnet_skb_return(dev, ax_skb);
++
++		skb_pull(skb, pkt_len_plus_padd);
+ 	}
++
++	return 0;
+ }
+ 
+ static struct sk_buff *
 
 
