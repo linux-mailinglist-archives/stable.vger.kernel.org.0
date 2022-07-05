@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3B1566CFC
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2726A566AB0
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236226AbiGEMUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
+        id S233139AbiGEMB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:01:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237713AbiGEMTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D471DA4B;
-        Tue,  5 Jul 2022 05:16:09 -0700 (PDT)
+        with ESMTP id S232906AbiGEMAx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9421582A;
+        Tue,  5 Jul 2022 05:00:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 93A0DCE0B30;
-        Tue,  5 Jul 2022 12:16:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0CEC341C7;
-        Tue,  5 Jul 2022 12:16:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43818B817D6;
+        Tue,  5 Jul 2022 12:00:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A57C341C7;
+        Tue,  5 Jul 2022 12:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023366;
-        bh=8bLMYHf95marlCqFhRmxPyQ53mIa89hnbdJuut+qldk=;
+        s=korg; t=1657022450;
+        bh=v40g/hBBeQmr4W1jpD2WWBoeCsbWUBpQuUMf2B4Nk+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZL6+dTVglgVb6HY3gSHY8P+SgDeQe2Y+6gDpEk0CN79QX9HkVzsQzFZH8sHpiIhlt
-         9ExzNetswML5C/yEH73lLsmf2Njcr58PtKcuFUi/JfrIxsxfcFPB1S9Q5BURosi6t+
-         OcQ95TUYkbkmmE2f29U+IGYK9YfhB0dAsVQ1gSTY=
+        b=w/MvqmlVg21K862aYaNaM7oCo1AKs0XPifoAulMSIf3EFGUQrBXdephxWByfCIT+A
+         srvDo/WLNTs3lKsueqV0Vds+lj5Y6BQ2oQreTDiBJlu+sS+svLKFtoG692y42GkpNc
+         0DKKJ6EeShr1OEUnOD/aP9cHiQpzsU9S5lY+YmYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
-        Leon Romanovsky <leonro@nvidia.com>
-Subject: [PATCH 5.18 033/102] RDMA/qedr: Fix reporting QP timeout attribute
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 4.14 11/29] caif_virtio: fix race between virtio_device_ready() and ndo_open()
 Date:   Tue,  5 Jul 2022 13:57:59 +0200
-Message-Id: <20220705115619.354704633@linuxfoundation.org>
+Message-Id: <20220705115606.676585095@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
 
-commit 118f767413ada4eef7825fbd4af7c0866f883441 upstream.
+commit 11a37eb66812ce6a06b79223ad530eb0e1d7294d upstream.
 
-Make sure to save the passed QP timeout attribute when the QP gets modified,
-so when calling query QP the right value is reported and not the
-converted value that is required by the firmware. This issue was found
-while running the pyverbs tests.
+We currently depend on probe() calling virtio_device_ready() -
+which happens after netdev
+registration. Since ndo_open() can be called immediately
+after register_netdev, this means there exists a race between
+ndo_open() and virtio_device_ready(): the driver may start to use the
+device (e.g. TX) before DRIVER_OK which violates the spec.
 
-Fixes: cecbcddf6461 ("qedr: Add support for QP verbs")
-Link: https://lore.kernel.org/r/20220525132029.84813-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Fix this by switching to use register_netdevice() and protect the
+virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
+only be called after virtio_device_ready().
+
+Fixes: 0d2e1a2926b18 ("caif_virtio: Introduce caif over virtio")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Message-Id: <20220620051115.3142-3-jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qedr/qedr.h  |    1 +
- drivers/infiniband/hw/qedr/verbs.c |    4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/caif/caif_virtio.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/qedr/qedr.h
-+++ b/drivers/infiniband/hw/qedr/qedr.h
-@@ -418,6 +418,7 @@ struct qedr_qp {
- 	u32 sq_psn;
- 	u32 qkey;
- 	u32 dest_qp_num;
-+	u8 timeout;
+--- a/drivers/net/caif/caif_virtio.c
++++ b/drivers/net/caif/caif_virtio.c
+@@ -727,13 +727,21 @@ static int cfv_probe(struct virtio_devic
+ 	/* Carrier is off until netdevice is opened */
+ 	netif_carrier_off(netdev);
  
- 	/* Relevant to qps created from kernel space only (ULPs) */
- 	u8 prev_wqe_size;
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -2612,6 +2612,8 @@ int qedr_modify_qp(struct ib_qp *ibqp, s
- 					1 << max_t(int, attr->timeout - 8, 0);
- 		else
- 			qp_params.ack_timeout = 0;
++	/* serialize netdev register + virtio_device_ready() with ndo_open() */
++	rtnl_lock();
 +
-+		qp->timeout = attr->timeout;
+ 	/* register Netdev */
+-	err = register_netdev(netdev);
++	err = register_netdevice(netdev);
+ 	if (err) {
++		rtnl_unlock();
+ 		dev_err(&vdev->dev, "Unable to register netdev (%d)\n", err);
+ 		goto err;
  	}
  
- 	if (attr_mask & IB_QP_RETRY_CNT) {
-@@ -2771,7 +2773,7 @@ int qedr_query_qp(struct ib_qp *ibqp,
- 	rdma_ah_set_dgid_raw(&qp_attr->ah_attr, &params.dgid.bytes[0]);
- 	rdma_ah_set_port_num(&qp_attr->ah_attr, 1);
- 	rdma_ah_set_sl(&qp_attr->ah_attr, 0);
--	qp_attr->timeout = params.timeout;
-+	qp_attr->timeout = qp->timeout;
- 	qp_attr->rnr_retry = params.rnr_retry;
- 	qp_attr->retry_cnt = params.retry_cnt;
- 	qp_attr->min_rnr_timer = params.min_rnr_nak_timer;
++	virtio_device_ready(vdev);
++
++	rtnl_unlock();
++
+ 	debugfs_init(cfv);
+ 
+ 	return 0;
 
 
