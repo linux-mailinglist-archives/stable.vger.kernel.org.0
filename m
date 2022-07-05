@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C39566B4C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602B7566A8D
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbiGEMFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47406 "EHLO
+        id S232769AbiGEMAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:00:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233844AbiGEMEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:04:43 -0400
+        with ESMTP id S232682AbiGEMAD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC3618B2E;
-        Tue,  5 Jul 2022 05:04:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A635817E02;
+        Tue,  5 Jul 2022 04:59:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DFCF6184D;
-        Tue,  5 Jul 2022 12:04:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA508C341C7;
-        Tue,  5 Jul 2022 12:04:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 433996174B;
+        Tue,  5 Jul 2022 11:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56841C341CD;
+        Tue,  5 Jul 2022 11:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022665;
-        bh=pi0yuvUo0INeWeeBNDTrhtBI9Uyc0igfEaaagSDVd48=;
+        s=korg; t=1657022389;
+        bh=nH/iHHTgnKhb3862t/o5lYm7uKzkZ4FjTsdDg0b0vZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tECKmMC5BbnmqTWjTVI85gq4gUSrNH3A7wrNeIzmRXfuS0MhhO27Splyvl1QHL6BK
-         iUUvYnulck5LAoNPqtQ90y5q/gWivnzn9W1IR2TbLJkGwXPZn9Apekx9qNxlG9pxhK
-         yoBoCvquNosV4EnKgylbEIEqLxTlhelKWD8dfzlg=
+        b=LomNs9icWo6Ir/bCREsK1cDpFkM5EW+qBNP5hiSrhInU2+LAz5KxOazOVEcf6kmsJ
+         yeDO+1bQqt6zZqY4o8ovY97eCw2Wcn7p3PmuzirZJ1WT2EAzNP3MNGlmmu4h/qR4O6
+         jmLnKBAaZ0hKnfWrukvt890gj0lXKjDC1RNlkbZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.4 24/58] net: bonding: fix possible NULL deref in rlb code
+        stable@vger.kernel.org, Ilya Lesokhin <ilyal@mellanox.com>,
+        Boris Pismenny <borisp@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 19/29] net: Rename and export copy_skb_header
 Date:   Tue,  5 Jul 2022 13:58:00 +0200
-Message-Id: <20220705115610.961403097@linuxfoundation.org>
+Message-Id: <20220705115606.315387213@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
+References: <20220705115605.742248854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,140 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ilya Lesokhin <ilyal@mellanox.com>
 
-commit ab84db251c04d38b8dc7ee86e13d4050bedb1c88 upstream.
+commit 08303c189581c985e60f588ad92a041e46b6e307 upstream.
 
-syzbot has two reports involving the same root cause.
+[ jgross@suse.com: added as needed by XSA-403 mitigation ]
 
-bond_alb_initialize() must not set bond->alb_info.rlb_enabled
-if a memory allocation error is detected.
+copy_skb_header is renamed to skb_copy_header and
+exported. Exposing this function give more flexibility
+in copying SKBs.
+skb_copy and skb_copy_expand do not give enough control
+over which parts are copied.
 
-Report 1:
-
-general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
-CPU: 0 PID: 12276 Comm: kworker/u4:10 Not tainted 5.19.0-rc3-syzkaller-00132-g3b89b511ea0c #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-RIP: 0010:rlb_clear_slave+0x10e/0x690 drivers/net/bonding/bond_alb.c:393
-Code: 8e fc 83 fb ff 0f 84 74 02 00 00 e8 cc 2a 8e fc 48 8b 44 24 08 89 dd 48 c1 e5 06 4c 8d 34 28 49 8d 7e 14 48 89 f8 48 c1 e8 03 <42> 0f b6 14 20 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
-RSP: 0018:ffffc90018a8f678 EFLAGS: 00010203
-RAX: 0000000000000002 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88803375bb00 RSI: ffffffff84ec4ac4 RDI: 0000000000000014
-RBP: 0000000000000000 R08: 0000000000000005 R09: 00000000ffffffff
-R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
-R13: ffff8880ac889000 R14: 0000000000000000 R15: ffff88815a668c80
-FS: 0000000000000000(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00005597077e10b0 CR3: 0000000026668000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<TASK>
-bond_alb_deinit_slave+0x43c/0x6b0 drivers/net/bonding/bond_alb.c:1663
-__bond_release_one.cold+0x383/0xd53 drivers/net/bonding/bond_main.c:2370
-bond_slave_netdev_event drivers/net/bonding/bond_main.c:3778 [inline]
-bond_netdev_event+0x993/0xad0 drivers/net/bonding/bond_main.c:3889
-notifier_call_chain+0xb5/0x200 kernel/notifier.c:87
-call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1945
-call_netdevice_notifiers_extack net/core/dev.c:1983 [inline]
-call_netdevice_notifiers net/core/dev.c:1997 [inline]
-unregister_netdevice_many+0x948/0x18b0 net/core/dev.c:10839
-default_device_exit_batch+0x449/0x590 net/core/dev.c:11333
-ops_exit_list+0x125/0x170 net/core/net_namespace.c:167
-cleanup_net+0x4ea/0xb00 net/core/net_namespace.c:594
-process_one_work+0x996/0x1610 kernel/workqueue.c:2289
-worker_thread+0x665/0x1080 kernel/workqueue.c:2436
-kthread+0x2e9/0x3a0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
-</TASK>
-
-Report 2:
-
-general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
-CPU: 1 PID: 5206 Comm: syz-executor.1 Not tainted 5.18.0-syzkaller-12108-g58f9d52ff689 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:rlb_req_update_slave_clients+0x109/0x2f0 drivers/net/bonding/bond_alb.c:502
-Code: 5d 18 8f fc 41 80 3e 00 0f 85 a5 01 00 00 89 d8 48 c1 e0 06 49 03 84 24 68 01 00 00 48 8d 78 30 49 89 c7 48 89 fa 48 c1 ea 03 <80> 3c 2a 00 0f 85 98 01 00 00 4d 39 6f 30 75 83 e8 22 18 8f fc 49
-RSP: 0018:ffffc9000300ee80 EFLAGS: 00010206
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffc90016c11000
-RDX: 0000000000000006 RSI: ffffffff84eb6bf3 RDI: 0000000000000030
-RBP: dffffc0000000000 R08: 0000000000000005 R09: 00000000ffffffff
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff888027c80c80
-R13: ffff88807d7ff800 R14: ffffed1004f901bd R15: 0000000000000000
-FS:  00007f6f46c58700(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020010000 CR3: 00000000516cc000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- alb_fasten_mac_swap+0x886/0xa80 drivers/net/bonding/bond_alb.c:1070
- bond_alb_handle_active_change+0x624/0x1050 drivers/net/bonding/bond_alb.c:1765
- bond_change_active_slave+0xfa1/0x29b0 drivers/net/bonding/bond_main.c:1173
- bond_select_active_slave+0x23f/0xa50 drivers/net/bonding/bond_main.c:1253
- bond_enslave+0x3b34/0x53b0 drivers/net/bonding/bond_main.c:2159
- do_set_master+0x1c8/0x220 net/core/rtnetlink.c:2577
- rtnl_newlink_create net/core/rtnetlink.c:3380 [inline]
- __rtnl_newlink+0x13ac/0x17e0 net/core/rtnetlink.c:3580
- rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3593
- rtnetlink_rcv_msg+0x43a/0xc90 net/core/rtnetlink.c:6089
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2501
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x917/0xe10 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:734
- ____sys_sendmsg+0x6eb/0x810 net/socket.c:2492
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2546
- __sys_sendmsg net/socket.c:2575 [inline]
- __do_sys_sendmsg net/socket.c:2584 [inline]
- __se_sys_sendmsg net/socket.c:2582 [inline]
- __x64_sys_sendmsg+0x132/0x220 net/socket.c:2582
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7f6f45a89109
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f6f46c58168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f6f45b9c030 RCX: 00007f6f45a89109
-RDX: 0000000000000000 RSI: 0000000020000080 RDI: 0000000000000006
-RBP: 00007f6f45ae308d R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffed99029af R14: 00007f6f46c58300 R15: 0000000000022000
- </TASK>
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
-Cc: Veaceslav Falico <vfalico@gmail.com>
-Cc: Andy Gospodarek <andy@greyhouse.net>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/20220627102813.126264-1-edumazet@google.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Ilya Lesokhin <ilyal@mellanox.com>
+Signed-off-by: Boris Pismenny <borisp@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_alb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/skbuff.h |    1 +
+ net/core/skbuff.c      |    9 +++++----
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/net/bonding/bond_alb.c
-+++ b/drivers/net/bonding/bond_alb.c
-@@ -1276,12 +1276,12 @@ int bond_alb_initialize(struct bonding *
- 		return res;
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -975,6 +975,7 @@ static inline struct sk_buff *alloc_skb_
+ struct sk_buff *skb_morph(struct sk_buff *dst, struct sk_buff *src);
+ int skb_copy_ubufs(struct sk_buff *skb, gfp_t gfp_mask);
+ struct sk_buff *skb_clone(struct sk_buff *skb, gfp_t priority);
++void skb_copy_header(struct sk_buff *new, const struct sk_buff *old);
+ struct sk_buff *skb_copy(const struct sk_buff *skb, gfp_t priority);
+ struct sk_buff *__pskb_copy_fclone(struct sk_buff *skb, int headroom,
+ 				   gfp_t gfp_mask, bool fclone);
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1071,7 +1071,7 @@ static void skb_headers_offset_update(st
+ 	skb->inner_mac_header += off;
+ }
  
- 	if (rlb_enabled) {
--		bond->alb_info.rlb_enabled = 1;
- 		res = rlb_initialize(bond);
- 		if (res) {
- 			tlb_deinitialize(bond);
- 			return res;
- 		}
-+		bond->alb_info.rlb_enabled = 1;
- 	} else {
- 		bond->alb_info.rlb_enabled = 0;
+-static void copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
++void skb_copy_header(struct sk_buff *new, const struct sk_buff *old)
+ {
+ 	__copy_skb_header(new, old);
+ 
+@@ -1079,6 +1079,7 @@ static void copy_skb_header(struct sk_bu
+ 	skb_shinfo(new)->gso_segs = skb_shinfo(old)->gso_segs;
+ 	skb_shinfo(new)->gso_type = skb_shinfo(old)->gso_type;
+ }
++EXPORT_SYMBOL(skb_copy_header);
+ 
+ static inline int skb_alloc_rx_flag(const struct sk_buff *skb)
+ {
+@@ -1122,7 +1123,7 @@ struct sk_buff *skb_copy(const struct sk
+ 	if (skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len))
+ 		BUG();
+ 
+-	copy_skb_header(n, skb);
++	skb_copy_header(n, skb);
+ 	return n;
+ }
+ EXPORT_SYMBOL(skb_copy);
+@@ -1185,7 +1186,7 @@ struct sk_buff *__pskb_copy_fclone(struc
+ 		skb_clone_fraglist(n);
  	}
+ 
+-	copy_skb_header(n, skb);
++	skb_copy_header(n, skb);
+ out:
+ 	return n;
+ }
+@@ -1356,7 +1357,7 @@ struct sk_buff *skb_copy_expand(const st
+ 			  skb->len + head_copy_len))
+ 		BUG();
+ 
+-	copy_skb_header(n, skb);
++	skb_copy_header(n, skb);
+ 
+ 	skb_headers_offset_update(n, newheadroom - oldheadroom);
+ 
 
 
