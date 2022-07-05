@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2D7566BE2
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A46566D1E
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234079AbiGEMKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53268 "EHLO
+        id S236520AbiGEMVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235285AbiGEMIu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200D6E07;
-        Tue,  5 Jul 2022 05:08:47 -0700 (PDT)
+        with ESMTP id S236601AbiGEMR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933C0193D6;
+        Tue,  5 Jul 2022 05:13:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B71EAB817D2;
-        Tue,  5 Jul 2022 12:08:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077FEC341CB;
-        Tue,  5 Jul 2022 12:08:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 461F0B817C7;
+        Tue,  5 Jul 2022 12:13:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92B7FC341C7;
+        Tue,  5 Jul 2022 12:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022924;
-        bh=gDNm9VkZhtxww4I2NnBeE9/UzhtLtDxB4AKiTkuqLKY=;
+        s=korg; t=1657023181;
+        bh=WajH14n4LRoP5ygMUz/2lERUermXm1YHm+rjDQexCvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VY9ow9+R3Pj6Elnzras0eOl9Sv2Jg0WU95SM9ZmK6ENF+BuVnBUdK6zPoY0alqPQA
-         NY60VBjYxMP9E6iI7pJK22ziISLs/cBCnkdWgSRfhNcuCptJcRvytYVhmjKq2E2tjh
-         KW/CLKFmmoKqiL/ii0c3Zf+o5L9wv/xRIxnoUzc4=
+        b=04D9ePD91JzSJDxl5qotscU5PqA9x2gI73C1izx8S5oLnw9U10HoS0aYPP4gkJolD
+         kOjv4qZoAsYfKY0RXOJZ/ACjJQ2ctIuHp2hT/dMBV/S4e0udBNER3JYJNZERnmLQq/
+         6yOdyhIceAVdDauWUxd7nJcNXynonG9j6zxVnOGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 59/84] hwmon: (ibmaem) dont call platform_device_del() if platform_device_add() fails
-Date:   Tue,  5 Jul 2022 13:58:22 +0200
-Message-Id: <20220705115617.045351103@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.15 65/98] selftests/rseq: Remove volatile from __rseq_abi
+Date:   Tue,  5 Jul 2022 13:58:23 +0200
+Message-Id: <20220705115619.424790355@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-[ Upstream commit d0e51022a025ca5350fafb8e413a6fe5d4baf833 ]
+commit 94b80a19ebfe347a01301d750040a61c38200e2b upstream.
 
-If platform_device_add() fails, it no need to call platform_device_del(), split
-platform_device_unregister() into platform_device_del/put(), so platform_device_put()
-can be called separately.
+This is done in preparation for the selftest uplift to become compatible
+with glibc-2.35.
 
-Fixes: 8808a793f052 ("ibmaem: new driver for power/energy/temp meters in IBM System X hardware")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220701074153.4021556-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+All accesses to the __rseq_abi fields are volatile, but remove the
+volatile from the TLS variable declaration, otherwise we are stuck with
+volatile for the upcoming rseq_get_abi() helper.
+
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124171253.22072-5-mathieu.desnoyers@efficios.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/ibmaem.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ tools/testing/selftests/rseq/rseq.c |    4 ++--
+ tools/testing/selftests/rseq/rseq.h |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/ibmaem.c b/drivers/hwmon/ibmaem.c
-index a4ec85207782..2e6d6a5cffa1 100644
---- a/drivers/hwmon/ibmaem.c
-+++ b/drivers/hwmon/ibmaem.c
-@@ -550,7 +550,7 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
+--- a/tools/testing/selftests/rseq/rseq.c
++++ b/tools/testing/selftests/rseq/rseq.c
+@@ -30,7 +30,7 @@
+ #include "../kselftest.h"
+ #include "rseq.h"
  
- 	res = platform_device_add(data->pdev);
- 	if (res)
--		goto ipmi_err;
-+		goto dev_add_err;
+-__thread volatile struct rseq_abi __rseq_abi = {
++__thread struct rseq_abi __rseq_abi = {
+ 	.cpu_id = RSEQ_ABI_CPU_ID_UNINITIALIZED,
+ };
  
- 	platform_set_drvdata(data->pdev, data);
+@@ -92,7 +92,7 @@ int rseq_register_current_thread(void)
+ 		goto end;
+ 	}
+ 	if (errno != EBUSY)
+-		__rseq_abi.cpu_id = RSEQ_ABI_CPU_ID_REGISTRATION_FAILED;
++		RSEQ_WRITE_ONCE(__rseq_abi.cpu_id, RSEQ_ABI_CPU_ID_REGISTRATION_FAILED);
+ 	ret = -1;
+ 	__rseq_refcount--;
+ end:
+--- a/tools/testing/selftests/rseq/rseq.h
++++ b/tools/testing/selftests/rseq/rseq.h
+@@ -43,7 +43,7 @@
+ #define RSEQ_INJECT_FAILED
+ #endif
  
-@@ -598,7 +598,9 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
- 	ipmi_destroy_user(data->ipmi.user);
- ipmi_err:
- 	platform_set_drvdata(data->pdev, NULL);
--	platform_device_unregister(data->pdev);
-+	platform_device_del(data->pdev);
-+dev_add_err:
-+	platform_device_put(data->pdev);
- dev_err:
- 	ida_simple_remove(&aem_ida, data->id);
- id_err:
-@@ -690,7 +692,7 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
+-extern __thread volatile struct rseq_abi __rseq_abi;
++extern __thread struct rseq_abi __rseq_abi;
+ extern int __rseq_handled;
  
- 	res = platform_device_add(data->pdev);
- 	if (res)
--		goto ipmi_err;
-+		goto dev_add_err;
+ #define rseq_likely(x)		__builtin_expect(!!(x), 1)
+@@ -139,7 +139,7 @@ static inline uint32_t rseq_current_cpu(
  
- 	platform_set_drvdata(data->pdev, data);
+ static inline void rseq_clear_rseq_cs(void)
+ {
+-	__rseq_abi.rseq_cs.arch.ptr = 0;
++	RSEQ_WRITE_ONCE(__rseq_abi.rseq_cs.arch.ptr, 0);
+ }
  
-@@ -738,7 +740,9 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
- 	ipmi_destroy_user(data->ipmi.user);
- ipmi_err:
- 	platform_set_drvdata(data->pdev, NULL);
--	platform_device_unregister(data->pdev);
-+	platform_device_del(data->pdev);
-+dev_add_err:
-+	platform_device_put(data->pdev);
- dev_err:
- 	ida_simple_remove(&aem_ida, data->id);
- id_err:
--- 
-2.35.1
-
+ /*
 
 
