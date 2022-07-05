@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A9E566C3F
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9263566D5B
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234831AbiGEMNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53658 "EHLO
+        id S233834AbiGEMWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:22:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235582AbiGEMMh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:12:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CDDD193DA;
-        Tue,  5 Jul 2022 05:10:29 -0700 (PDT)
+        with ESMTP id S237749AbiGEMTp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A191DA63;
+        Tue,  5 Jul 2022 05:16:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0249618BC;
-        Tue,  5 Jul 2022 12:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBAE1C341C7;
-        Tue,  5 Jul 2022 12:10:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C78CFB817C7;
+        Tue,  5 Jul 2022 12:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C59CC341C7;
+        Tue,  5 Jul 2022 12:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023028;
-        bh=CdltY3YtFYtmK68cdI/9Kb2Y0PHRiuO7d/0xZbESO4Q=;
+        s=korg; t=1657023371;
+        bh=S5VZ16MVAsamjg1oH37WupoF04UNs1l/MFw9ZvMgLjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfaeOwW1IwZeTrCIzodu+A+f/HYMVZu4bKW3UB+Qe7YDtLdGygoMQO0U+uoRaEfb3
-         HhJH7FwqQjeWvQhqJYUUSKuQBd6syh+mom3Tdu4uS9jxboPgPjP04f8XH5nooGzI8P
-         vsRK17eVxtQQ0XRRnaHh3dsnsTAvfkQuI9GJSjI0=
+        b=HTy/eALPeCR7mIEMznLJqEYuRLmes8OtTZhNZ49+6vPkCNeIsaCePLBjjEMkwqOOX
+         URCfc964BL8FcTOI6/3MZ1qK6KsLs9B1P2H8PfwF11mKbbceVVxxFGcl/bBYozeMKp
+         R0yWNIwWyrb8X7/D2RhVgpQg9kxQbipln8Mn8neA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 12/98] powerpc/book3e: Fix PUD allocation size in map_kernel_page()
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.18 004/102] ksmbd: set the range of bytes to zero without extending file size in FSCTL_ZERO_DATA
 Date:   Tue,  5 Jul 2022 13:57:30 +0200
-Message-Id: <20220705115617.930064260@linuxfoundation.org>
+Message-Id: <20220705115618.540113896@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 986481618023e18e187646b0fff05a3c337531cb upstream.
+commit 18e39fb960e6a908ac5230b57e3d0d6c25232368 upstream.
 
-Commit 2fb4706057bc ("powerpc: add support for folded p4d page tables")
-erroneously changed PUD setup to a mix of PMD and PUD. Fix it.
+generic/091, 263 test failed since commit f66f8b94e7f2 ("cifs: when
+extending a file with falloc we should make files not-sparse").
+FSCTL_ZERO_DATA sets the range of bytes to zero without extending file
+size. The VFS_FALLOCATE_FL_KEEP_SIZE flag should be used even on
+non-sparse files.
 
-While at it, use PTE_TABLE_SIZE instead of PAGE_SIZE for PTE tables
-in order to avoid any confusion.
-
-Fixes: 2fb4706057bc ("powerpc: add support for folded p4d page tables")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/95ddfd6176d53e6c85e13bd1c358359daa56775f.1655974558.git.christophe.leroy@csgroup.eu
+Cc: stable@vger.kernel.org
+Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/nohash/book3e_pgtable.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ksmbd/vfs.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/nohash/book3e_pgtable.c
-+++ b/arch/powerpc/mm/nohash/book3e_pgtable.c
-@@ -95,8 +95,8 @@ int __ref map_kernel_page(unsigned long
- 		pgdp = pgd_offset_k(ea);
- 		p4dp = p4d_offset(pgdp, ea);
- 		if (p4d_none(*p4dp)) {
--			pmdp = early_alloc_pgtable(PMD_TABLE_SIZE);
--			p4d_populate(&init_mm, p4dp, pmdp);
-+			pudp = early_alloc_pgtable(PUD_TABLE_SIZE);
-+			p4d_populate(&init_mm, p4dp, pudp);
- 		}
- 		pudp = pud_offset(p4dp, ea);
- 		if (pud_none(*pudp)) {
-@@ -105,7 +105,7 @@ int __ref map_kernel_page(unsigned long
- 		}
- 		pmdp = pmd_offset(pudp, ea);
- 		if (!pmd_present(*pmdp)) {
--			ptep = early_alloc_pgtable(PAGE_SIZE);
-+			ptep = early_alloc_pgtable(PTE_TABLE_SIZE);
- 			pmd_populate_kernel(&init_mm, pmdp, ptep);
- 		}
- 		ptep = pte_offset_kernel(pmdp, ea);
+--- a/fs/ksmbd/vfs.c
++++ b/fs/ksmbd/vfs.c
+@@ -1015,7 +1015,9 @@ int ksmbd_vfs_zero_data(struct ksmbd_wor
+ 				     FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+ 				     off, len);
+ 
+-	return vfs_fallocate(fp->filp, FALLOC_FL_ZERO_RANGE, off, len);
++	return vfs_fallocate(fp->filp,
++			     FALLOC_FL_ZERO_RANGE | FALLOC_FL_KEEP_SIZE,
++			     off, len);
+ }
+ 
+ int ksmbd_vfs_fqar_lseek(struct ksmbd_file *fp, loff_t start, loff_t length,
 
 
