@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B088566E1A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E45566D27
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237635AbiGEMbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54986 "EHLO
+        id S235283AbiGEMVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:21:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235589AbiGEM0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE456183BC;
-        Tue,  5 Jul 2022 05:18:39 -0700 (PDT)
+        with ESMTP id S237408AbiGEMTJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6188A1CFF8;
+        Tue,  5 Jul 2022 05:14:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E497619A6;
-        Tue,  5 Jul 2022 12:18:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F45C341C7;
-        Tue,  5 Jul 2022 12:18:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE606619F7;
+        Tue,  5 Jul 2022 12:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 059E0C341C7;
+        Tue,  5 Jul 2022 12:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023518;
-        bh=5x5kfHb/YFMwxL5zWAPdXhpL4OhMDYPtuWCt/60+ydo=;
+        s=korg; t=1657023269;
+        bh=gDNm9VkZhtxww4I2NnBeE9/UzhtLtDxB4AKiTkuqLKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5npsJcvAGL8+zqWFTuTSRYNutRVBDlDokeHi/sDIgb3J6M4jL9AczazdJpW/1lnH
-         JQ1njFoGaAdpfhGCGsqJ/wdNtN55AL+WEgE1PCyltUEFop3r9AQaDy4cVPEnbKlSPj
-         A+wG3u7bfj3A7b5g0iZC4NRqDHd5BvBNnbISzyHY=
+        b=iZDeNzTP1gRUHO3ot2xebC6EAInj4s4swFJmzlE7c0CZ339o5qep0uzccIYe6WsHD
+         2F4XRzvv1hzdr14QPcrI+KBSSjNoajaOZNEd86BGNYTlDMfDqaVeLNAARq4vvGN9ie
+         TQ7Fn0kWTfDI1IN7sJMKFltVlU3b/yld/elDorww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Stefan Seyfried <seife+kernel@b1-systems.com>,
-        Kenneth Chan <kenneth.t.chan@gmail.com>
-Subject: [PATCH 5.18 090/102] platform/x86: panasonic-laptop: revert "Resolve hotkey double trigger bug"
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 98/98] hwmon: (ibmaem) dont call platform_device_del() if platform_device_add() fails
 Date:   Tue,  5 Jul 2022 13:58:56 +0200
-Message-Id: <20220705115620.976380132@linuxfoundation.org>
+Message-Id: <20220705115620.354412491@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 83a5ddc3dc561c40d948b85553514aaba99123d8 ]
+[ Upstream commit d0e51022a025ca5350fafb8e413a6fe5d4baf833 ]
 
-In hindsight blindly throwing away most of the key-press events is not
-a good idea. So revert commit ed83c9171829 ("platform/x86:
-panasonic-laptop: Resolve hotkey double trigger bug").
+If platform_device_add() fails, it no need to call platform_device_del(), split
+platform_device_unregister() into platform_device_del/put(), so platform_device_put()
+can be called separately.
 
-Fixes: ed83c9171829 ("platform/x86: panasonic-laptop: Resolve hotkey double trigger bug")
-Reported-and-tested-by: Stefan Seyfried <seife+kernel@b1-systems.com>
-Reported-and-tested-by: Kenneth Chan <kenneth.t.chan@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220624112340.10130-5-hdegoede@redhat.com
+Fixes: 8808a793f052 ("ibmaem: new driver for power/energy/temp meters in IBM System X hardware")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220701074153.4021556-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/panasonic-laptop.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/hwmon/ibmaem.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
-index 26e31ac09dc6..2e6531dd15f9 100644
---- a/drivers/platform/x86/panasonic-laptop.c
-+++ b/drivers/platform/x86/panasonic-laptop.c
-@@ -783,12 +783,8 @@ static void acpi_pcc_generate_keyinput(struct pcc_acpi *pcc)
- 					key, 0x80, false);
- 	}
+diff --git a/drivers/hwmon/ibmaem.c b/drivers/hwmon/ibmaem.c
+index a4ec85207782..2e6d6a5cffa1 100644
+--- a/drivers/hwmon/ibmaem.c
++++ b/drivers/hwmon/ibmaem.c
+@@ -550,7 +550,7 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
  
--	/* for the magic values, see panasonic_keymap[] above */
--	if (key == 7 || key == 9 || key == 10) {
--		if (!sparse_keymap_report_event(hotk_input_dev,
--						key, updown, false))
--			pr_err("Unknown hotkey event: 0x%04llx\n", result);
--	}
-+	if (!sparse_keymap_report_event(hotk_input_dev, key, updown, false))
-+		pr_err("Unknown hotkey event: 0x%04llx\n", result);
- }
+ 	res = platform_device_add(data->pdev);
+ 	if (res)
+-		goto ipmi_err;
++		goto dev_add_err;
  
- static void acpi_pcc_hotkey_notify(struct acpi_device *device, u32 event)
+ 	platform_set_drvdata(data->pdev, data);
+ 
+@@ -598,7 +598,9 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
+ 	ipmi_destroy_user(data->ipmi.user);
+ ipmi_err:
+ 	platform_set_drvdata(data->pdev, NULL);
+-	platform_device_unregister(data->pdev);
++	platform_device_del(data->pdev);
++dev_add_err:
++	platform_device_put(data->pdev);
+ dev_err:
+ 	ida_simple_remove(&aem_ida, data->id);
+ id_err:
+@@ -690,7 +692,7 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
+ 
+ 	res = platform_device_add(data->pdev);
+ 	if (res)
+-		goto ipmi_err;
++		goto dev_add_err;
+ 
+ 	platform_set_drvdata(data->pdev, data);
+ 
+@@ -738,7 +740,9 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
+ 	ipmi_destroy_user(data->ipmi.user);
+ ipmi_err:
+ 	platform_set_drvdata(data->pdev, NULL);
+-	platform_device_unregister(data->pdev);
++	platform_device_del(data->pdev);
++dev_add_err:
++	platform_device_put(data->pdev);
+ dev_err:
+ 	ida_simple_remove(&aem_ida, data->id);
+ id_err:
 -- 
 2.35.1
 
