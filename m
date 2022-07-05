@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A966C566D7A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADC6566AE1
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234272AbiGEMYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40632 "EHLO
+        id S230489AbiGEMCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236327AbiGEMVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:21:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 567B81EC5B;
-        Tue,  5 Jul 2022 05:16:42 -0700 (PDT)
+        with ESMTP id S231135AbiGEMBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A29418356;
+        Tue,  5 Jul 2022 05:01:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E2FFB817D6;
-        Tue,  5 Jul 2022 12:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC7ADC341C7;
-        Tue,  5 Jul 2022 12:16:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0B26184A;
+        Tue,  5 Jul 2022 12:01:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0000C341C7;
+        Tue,  5 Jul 2022 12:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023399;
-        bh=yW6P9YuM9s9xi88y9L2oz/Ysp91Ihvn+tkdKgZ6/CXA=;
+        s=korg; t=1657022494;
+        bh=zlk6f9vOJB8weBnkiCKJdA1tSvlOjwDX1031HjkIl0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWlzaDYyl+x1HYqhZmL2Ij+mUGUqgAbGitinutWrwZC6tmgv2Y+eVhAxPSXB+wW/n
-         t53wx3c/OQ+OPHtyQSYy9WzcCpO4AHrZJXSCTfD8Ps2LMeDfy6aQUTOXcqRzc0x5p7
-         2v9W/M+Vd7E9qb1RrC4kepJkZZZjp2J6Bm9CVQZ8=
+        b=U9qWg7o7i3p4LXd1Y+qZAFjpvOhB4tREGuzXRFqGcPFg/gst94MpPeSBv+5hpjfws
+         aMNo+x3JyMbzA0FQDcwLs9iOtn6d2rWIZZh56zCYmf0oDKFa2mHQLwaG34Gl6kz9ad
+         1huI1Txivd7DcQ9XYuQErqKz1lekO2n07WGskjak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        Luis Henriques <lhenriques@suse.de>,
-        He Zhe <zhe.he@windriver.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.18 047/102] vfs: fix copy_file_range() regression in cross-fs copies
-Date:   Tue,  5 Jul 2022 13:58:13 +0200
-Message-Id: <20220705115619.744439744@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 26/29] xen/blkfront: force data bouncing when backend is untrusted
+Date:   Tue,  5 Jul 2022 13:58:14 +0200
+Message-Id: <20220705115607.114216075@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,251 +54,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit 868f9f2f8e004bfe0d3935b1976f625b2924893b upstream.
+commit 2400617da7eebf9167d71a46122828bc479d64c9 upstream.
 
-A regression has been reported by Nicolas Boichat, found while using the
-copy_file_range syscall to copy a tracefs file.
+Split the current bounce buffering logic used with persistent grants
+into it's own option, and allow enabling it independently of
+persistent grants.  This allows to reuse the same code paths to
+perform the bounce buffering required to avoid leaking contiguous data
+in shared pages not part of the request fragments.
 
-Before commit 5dae222a5ff0 ("vfs: allow copy_file_range to copy across
-devices") the kernel would return -EXDEV to userspace when trying to
-copy a file across different filesystems.  After this commit, the
-syscall doesn't fail anymore and instead returns zero (zero bytes
-copied), as this file's content is generated on-the-fly and thus reports
-a size of zero.
+Reporting whether the backend is to be trusted can be done using a
+module parameter, or from the xenstore frontend path as set by the
+toolstack when adding the device.
 
-Another regression has been reported by He Zhe - the assertion of
-WARN_ON_ONCE(ret == -EOPNOTSUPP) can be triggered from userspace when
-copying from a sysfs file whose read operation may return -EOPNOTSUPP.
+This is CVE-2022-33742, part of XSA-403.
 
-Since we do not have test coverage for copy_file_range() between any two
-types of filesystems, the best way to avoid these sort of issues in the
-future is for the kernel to be more picky about filesystems that are
-allowed to do copy_file_range().
-
-This patch restores some cross-filesystem copy restrictions that existed
-prior to commit 5dae222a5ff0 ("vfs: allow copy_file_range to copy across
-devices"), namely, cross-sb copy is not allowed for filesystems that do
-not implement ->copy_file_range().
-
-Filesystems that do implement ->copy_file_range() have full control of
-the result - if this method returns an error, the error is returned to
-the user.  Before this change this was only true for fs that did not
-implement the ->remap_file_range() operation (i.e.  nfsv3).
-
-Filesystems that do not implement ->copy_file_range() still fall-back to
-the generic_copy_file_range() implementation when the copy is within the
-same sb.  This helps the kernel can maintain a more consistent story
-about which filesystems support copy_file_range().
-
-nfsd and ksmbd servers are modified to fall-back to the
-generic_copy_file_range() implementation in case vfs_copy_file_range()
-fails with -EOPNOTSUPP or -EXDEV, which preserves behavior of
-server-side-copy.
-
-fall-back to generic_copy_file_range() is not implemented for the smb
-operation FSCTL_DUPLICATE_EXTENTS_TO_FILE, which is arguably a correct
-change of behavior.
-
-Fixes: 5dae222a5ff0 ("vfs: allow copy_file_range to copy across devices")
-Link: https://lore.kernel.org/linux-fsdevel/20210212044405.4120619-1-drinkcat@chromium.org/
-Link: https://lore.kernel.org/linux-fsdevel/CANMq1KDZuxir2LM5jOTm0xx+BnvW=ZmpsG47CyHFJwnw7zSX6Q@mail.gmail.com/
-Link: https://lore.kernel.org/linux-fsdevel/20210126135012.1.If45b7cdc3ff707bc1efa17f5366057d60603c45f@changeid/
-Link: https://lore.kernel.org/linux-fsdevel/20210630161320.29006-1-lhenriques@suse.de/
-Reported-by: Nicolas Boichat <drinkcat@chromium.org>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Luis Henriques <lhenriques@suse.de>
-Fixes: 64bf5ff58dff ("vfs: no fallback for ->copy_file_range")
-Link: https://lore.kernel.org/linux-fsdevel/20f17f64-88cb-4e80-07c1-85cb96c83619@windriver.com/
-Reported-by: He Zhe <zhe.he@windriver.com>
-Tested-by: Namjae Jeon <linkinjeon@kernel.org>
-Tested-by: Luis Henriques <lhenriques@suse.de>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2pdu.c |   16 ++++++++---
- fs/ksmbd/vfs.c     |    4 ++
- fs/nfsd/vfs.c      |    8 ++++-
- fs/read_write.c    |   77 ++++++++++++++++++++++++++++++-----------------------
- 4 files changed, 68 insertions(+), 37 deletions(-)
+ drivers/block/xen-blkfront.c |   42 +++++++++++++++++++++++++++---------------
+ 1 file changed, 27 insertions(+), 15 deletions(-)
 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -7815,14 +7815,24 @@ int smb2_ioctl(struct ksmbd_work *work)
- 		src_off = le64_to_cpu(dup_ext->SourceFileOffset);
- 		dst_off = le64_to_cpu(dup_ext->TargetFileOffset);
- 		length = le64_to_cpu(dup_ext->ByteCount);
--		cloned = vfs_clone_file_range(fp_in->filp, src_off, fp_out->filp,
--					      dst_off, length, 0);
-+		/*
-+		 * XXX: It is not clear if FSCTL_DUPLICATE_EXTENTS_TO_FILE
-+		 * should fall back to vfs_copy_file_range().  This could be
-+		 * beneficial when re-exporting nfs/smb mount, but note that
-+		 * this can result in partial copy that returns an error status.
-+		 * If/when FSCTL_DUPLICATE_EXTENTS_TO_FILE_EX is implemented,
-+		 * fall back to vfs_copy_file_range(), should be avoided when
-+		 * the flag DUPLICATE_EXTENTS_DATA_EX_SOURCE_ATOMIC is set.
-+		 */
-+		cloned = vfs_clone_file_range(fp_in->filp, src_off,
-+					      fp_out->filp, dst_off, length, 0);
- 		if (cloned == -EXDEV || cloned == -EOPNOTSUPP) {
- 			ret = -EOPNOTSUPP;
- 			goto dup_ext_out;
- 		} else if (cloned != length) {
- 			cloned = vfs_copy_file_range(fp_in->filp, src_off,
--						     fp_out->filp, dst_off, length, 0);
-+						     fp_out->filp, dst_off,
-+						     length, 0);
- 			if (cloned != length) {
- 				if (cloned < 0)
- 					ret = cloned;
---- a/fs/ksmbd/vfs.c
-+++ b/fs/ksmbd/vfs.c
-@@ -1779,6 +1779,10 @@ int ksmbd_vfs_copy_file_ranges(struct ks
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -148,6 +148,10 @@ static unsigned int xen_blkif_max_ring_o
+ module_param_named(max_ring_page_order, xen_blkif_max_ring_order, int, S_IRUGO);
+ MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the shared ring");
  
- 		ret = vfs_copy_file_range(src_fp->filp, src_off,
- 					  dst_fp->filp, dst_off, len, 0);
-+		if (ret == -EOPNOTSUPP || ret == -EXDEV)
-+			ret = generic_copy_file_range(src_fp->filp, src_off,
-+						      dst_fp->filp, dst_off,
-+						      len, 0);
- 		if (ret < 0)
- 			return ret;
++static bool __read_mostly xen_blkif_trusted = true;
++module_param_named(trusted, xen_blkif_trusted, bool, 0644);
++MODULE_PARM_DESC(trusted, "Is the backend trusted");
++
+ #define BLK_RING_SIZE(info)	\
+ 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
  
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -577,6 +577,7 @@ out_err:
- ssize_t nfsd_copy_file_range(struct file *src, u64 src_pos, struct file *dst,
- 			     u64 dst_pos, u64 count)
+@@ -208,6 +212,7 @@ struct blkfront_info
+ 	unsigned int feature_discard:1;
+ 	unsigned int feature_secdiscard:1;
+ 	unsigned int feature_persistent:1;
++	unsigned int bounce:1;
+ 	unsigned int discard_granularity;
+ 	unsigned int discard_alignment;
+ 	/* Number of 4KB segments handled */
+@@ -301,7 +306,7 @@ static int fill_grant_buffer(struct blkf
+ 		if (!gnt_list_entry)
+ 			goto out_of_memory;
+ 
+-		if (info->feature_persistent) {
++		if (info->bounce) {
+ 			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
+ 			if (!granted_page) {
+ 				kfree(gnt_list_entry);
+@@ -321,7 +326,7 @@ out_of_memory:
+ 	list_for_each_entry_safe(gnt_list_entry, n,
+ 	                         &rinfo->grants, node) {
+ 		list_del(&gnt_list_entry->node);
+-		if (info->feature_persistent)
++		if (info->bounce)
+ 			__free_page(gnt_list_entry->page);
+ 		kfree(gnt_list_entry);
+ 		i--;
+@@ -367,7 +372,7 @@ static struct grant *get_grant(grant_ref
+ 	/* Assign a gref to this page */
+ 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
+ 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
+-	if (info->feature_persistent)
++	if (info->bounce)
+ 		grant_foreign_access(gnt_list_entry, info);
+ 	else {
+ 		/* Grant access to the GFN passed by the caller */
+@@ -391,7 +396,7 @@ static struct grant *get_indirect_grant(
+ 	/* Assign a gref to this page */
+ 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
+ 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
+-	if (!info->feature_persistent) {
++	if (!info->bounce) {
+ 		struct page *indirect_page;
+ 
+ 		/* Fetch a pre-allocated page to use for indirect grefs */
+@@ -706,7 +711,7 @@ static int blkif_queue_rw_req(struct req
+ 		.grant_idx = 0,
+ 		.segments = NULL,
+ 		.rinfo = rinfo,
+-		.need_copy = rq_data_dir(req) && info->feature_persistent,
++		.need_copy = rq_data_dir(req) && info->bounce,
+ 	};
+ 
+ 	/*
+@@ -1027,11 +1032,12 @@ static void xlvbd_flush(struct blkfront_
  {
-+	ssize_t ret;
- 
- 	/*
- 	 * Limit copy to 4MB to prevent indefinitely blocking an nfsd
-@@ -587,7 +588,12 @@ ssize_t nfsd_copy_file_range(struct file
- 	 * limit like this and pipeline multiple COPY requests.
- 	 */
- 	count = min_t(u64, count, 1 << 22);
--	return vfs_copy_file_range(src, src_pos, dst, dst_pos, count, 0);
-+	ret = vfs_copy_file_range(src, src_pos, dst, dst_pos, count, 0);
-+
-+	if (ret == -EOPNOTSUPP || ret == -EXDEV)
-+		ret = generic_copy_file_range(src, src_pos, dst, dst_pos,
-+					      count, 0);
-+	return ret;
+ 	blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
+ 			      info->feature_fua ? true : false);
+-	pr_info("blkfront: %s: %s %s %s %s %s\n",
++	pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
+ 		info->gd->disk_name, flush_info(info),
+ 		"persistent grants:", info->feature_persistent ?
+ 		"enabled;" : "disabled;", "indirect descriptors:",
+-		info->max_indirect_segments ? "enabled;" : "disabled;");
++		info->max_indirect_segments ? "enabled;" : "disabled;",
++		"bounce buffer:", info->bounce ? "enabled" : "disabled;");
  }
  
- __be32 nfsd4_vfs_fallocate(struct svc_rqst *rqstp, struct svc_fh *fhp,
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1381,28 +1381,6 @@ ssize_t generic_copy_file_range(struct f
- }
- EXPORT_SYMBOL(generic_copy_file_range);
+ static int xen_translate_vdev(int vdevice, int *minor, unsigned int *offset)
+@@ -1266,7 +1272,7 @@ static void blkif_free_ring(struct blkfr
+ 	if (!list_empty(&rinfo->indirect_pages)) {
+ 		struct page *indirect_page, *n;
  
--static ssize_t do_copy_file_range(struct file *file_in, loff_t pos_in,
--				  struct file *file_out, loff_t pos_out,
--				  size_t len, unsigned int flags)
--{
--	/*
--	 * Although we now allow filesystems to handle cross sb copy, passing
--	 * a file of the wrong filesystem type to filesystem driver can result
--	 * in an attempt to dereference the wrong type of ->private_data, so
--	 * avoid doing that until we really have a good reason.  NFS defines
--	 * several different file_system_type structures, but they all end up
--	 * using the same ->copy_file_range() function pointer.
--	 */
--	if (file_out->f_op->copy_file_range &&
--	    file_out->f_op->copy_file_range == file_in->f_op->copy_file_range)
--		return file_out->f_op->copy_file_range(file_in, pos_in,
--						       file_out, pos_out,
--						       len, flags);
--
--	return generic_copy_file_range(file_in, pos_in, file_out, pos_out, len,
--				       flags);
--}
--
- /*
-  * Performs necessary checks before doing a file copy
-  *
-@@ -1424,6 +1402,24 @@ static int generic_copy_file_checks(stru
- 	if (ret)
- 		return ret;
+-		BUG_ON(info->feature_persistent);
++		BUG_ON(info->bounce);
+ 		list_for_each_entry_safe(indirect_page, n, &rinfo->indirect_pages, lru) {
+ 			list_del(&indirect_page->lru);
+ 			__free_page(indirect_page);
+@@ -1283,7 +1289,7 @@ static void blkif_free_ring(struct blkfr
+ 				continue;
  
-+	/*
-+	 * We allow some filesystems to handle cross sb copy, but passing
-+	 * a file of the wrong filesystem type to filesystem driver can result
-+	 * in an attempt to dereference the wrong type of ->private_data, so
-+	 * avoid doing that until we really have a good reason.
-+	 *
-+	 * nfs and cifs define several different file_system_type structures
-+	 * and several different sets of file_operations, but they all end up
-+	 * using the same ->copy_file_range() function pointer.
-+	 */
-+	if (file_out->f_op->copy_file_range) {
-+		if (file_in->f_op->copy_file_range !=
-+		    file_out->f_op->copy_file_range)
-+			return -EXDEV;
-+	} else if (file_inode(file_in)->i_sb != file_inode(file_out)->i_sb) {
-+		return -EXDEV;
-+	}
+ 			rinfo->persistent_gnts_c--;
+-			if (info->feature_persistent)
++			if (info->bounce)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+@@ -1303,7 +1309,7 @@ static void blkif_free_ring(struct blkfr
+ 		for (j = 0; j < segs; j++) {
+ 			persistent_gnt = rinfo->shadow[i].grants_used[j];
+ 			gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
+-			if (info->feature_persistent)
++			if (info->bounce)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+@@ -1493,7 +1499,7 @@ static int blkif_completion(unsigned lon
+ 	data.s = s;
+ 	num_sg = s->num_sg;
+ 
+-	if (bret->operation == BLKIF_OP_READ && info->feature_persistent) {
++	if (bret->operation == BLKIF_OP_READ && info->bounce) {
+ 		for_each_sg(s->sg, sg, num_sg, i) {
+ 			BUG_ON(sg->offset + sg->length > PAGE_SIZE);
+ 
+@@ -1552,7 +1558,7 @@ static int blkif_completion(unsigned lon
+ 				 * Add the used indirect page back to the list of
+ 				 * available pages for indirect grefs.
+ 				 */
+-				if (!info->feature_persistent) {
++				if (!info->bounce) {
+ 					indirect_page = s->indirect_grants[i]->page;
+ 					list_add(&indirect_page->lru, &rinfo->indirect_pages);
+ 				}
+@@ -1841,6 +1847,10 @@ static int talk_to_blkback(struct xenbus
+ 	if (!info)
+ 		return -ENODEV;
+ 
++	/* Check if backend is trusted. */
++	info->bounce = !xen_blkif_trusted ||
++		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
 +
- 	/* Don't touch certain kinds of inodes */
- 	if (IS_IMMUTABLE(inode_out))
- 		return -EPERM;
-@@ -1489,26 +1485,41 @@ ssize_t vfs_copy_file_range(struct file
- 	file_start_write(file_out);
+ 	max_page_order = xenbus_read_unsigned(info->xbdev->otherend,
+ 					      "max-ring-page-order", 0);
+ 	ring_page_order = min(xen_blkif_max_ring_order, max_page_order);
+@@ -2256,10 +2266,10 @@ static int blkfront_setup_indirect(struc
+ 	if (err)
+ 		goto out_of_memory;
  
- 	/*
--	 * Try cloning first, this is supported by more file systems, and
--	 * more efficient if both clone and copy are supported (e.g. NFS).
-+	 * Cloning is supported by more file systems, so we implement copy on
-+	 * same sb using clone, but for filesystems where both clone and copy
-+	 * are supported (e.g. nfs,cifs), we only call the copy method.
- 	 */
-+	if (file_out->f_op->copy_file_range) {
-+		ret = file_out->f_op->copy_file_range(file_in, pos_in,
-+						      file_out, pos_out,
-+						      len, flags);
-+		goto done;
-+	}
-+
- 	if (file_in->f_op->remap_file_range &&
- 	    file_inode(file_in)->i_sb == file_inode(file_out)->i_sb) {
--		loff_t cloned;
--
--		cloned = file_in->f_op->remap_file_range(file_in, pos_in,
-+		ret = file_in->f_op->remap_file_range(file_in, pos_in,
- 				file_out, pos_out,
- 				min_t(loff_t, MAX_RW_COUNT, len),
- 				REMAP_FILE_CAN_SHORTEN);
--		if (cloned > 0) {
--			ret = cloned;
-+		if (ret > 0)
- 			goto done;
--		}
- 	}
+-	if (!info->feature_persistent && info->max_indirect_segments) {
++	if (!info->bounce && info->max_indirect_segments) {
+ 		/*
+-		 * We are using indirect descriptors but not persistent
+-		 * grants, we need to allocate a set of pages that can be
++		 * We are using indirect descriptors but don't have a bounce
++		 * buffer, we need to allocate a set of pages that can be
+ 		 * used for mapping indirect grefs
+ 		 */
+ 		int num = INDIRECT_GREFS(grants) * BLK_RING_SIZE(info);
+@@ -2352,6 +2362,8 @@ static void blkfront_gather_backend_feat
+ 	info->feature_persistent =
+ 		!!xenbus_read_unsigned(info->xbdev->otherend,
+ 				       "feature-persistent", 0);
++	if (info->feature_persistent)
++		info->bounce = true;
  
--	ret = do_copy_file_range(file_in, pos_in, file_out, pos_out, len,
--				flags);
--	WARN_ON_ONCE(ret == -EOPNOTSUPP);
-+	/*
-+	 * We can get here for same sb copy of filesystems that do not implement
-+	 * ->copy_file_range() in case filesystem does not support clone or in
-+	 * case filesystem supports clone but rejected the clone request (e.g.
-+	 * because it was not block aligned).
-+	 *
-+	 * In both cases, fall back to kernel copy so we are able to maintain a
-+	 * consistent story about which filesystems support copy_file_range()
-+	 * and which filesystems do not, that will allow userspace tools to
-+	 * make consistent desicions w.r.t using copy_file_range().
-+	 */
-+	ret = generic_copy_file_range(file_in, pos_in, file_out, pos_out, len,
-+				      flags);
-+
- done:
- 	if (ret > 0) {
- 		fsnotify_access(file_in);
+ 	indirect_segments = xenbus_read_unsigned(info->xbdev->otherend,
+ 					"feature-max-indirect-segments", 0);
 
 
