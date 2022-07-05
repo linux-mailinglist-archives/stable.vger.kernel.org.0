@@ -2,323 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9730956780B
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 21:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE030567874
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 22:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbiGETvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 15:51:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47386 "EHLO
+        id S229453AbiGEUci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 16:32:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229922AbiGETvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 15:51:06 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6982C1CB10
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 12:51:05 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so9149176pjf.2
-        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 12:51:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=D0V3xGTAUV69Bje5DC1liC9aNj5JN8ZFgMOL7a7eWsI=;
-        b=SNdAm6JofQZNI1buvnByFnOg99U/57bUwhQvyKBvFW4DtgfcSk4uA4R2CdLRZQjcg4
-         9Wm9SGD+gtPJHwxPwE+uBP1XGbBbfipgbi1tSn4lnHJdnWypwD8ETE01tbv3XLPK8fpx
-         8Y7JNp0mfXLTNRKVl/in1EmtJPD7NiYWD6u8Misz3PbTv4uBAaJb971NmBEQpnc/Nvlr
-         UfxfNLx4nbzb1BKNWqY+QgPGzokyzM9Tk+HmevgCPucqxFmArrT+P3i5uCpT2PLqM8nd
-         vlXt2BeUjrcCmMw3zsHKPhd8ESGZsum/i3pNkMDZa6kZdaY68dNCJIgIW67CaB+R9Tgh
-         gZYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=D0V3xGTAUV69Bje5DC1liC9aNj5JN8ZFgMOL7a7eWsI=;
-        b=Z/P7b+aPrELGnBjm6hwRGsLbtmFEQiK2EoWusxIF3iDcXzk3U08VFrXBm1ipQhHm/f
-         wAYdnmZz/LNCZ5GtIYF6/tWyXiUoiAhGpMMPKW0p3HRRl67up0aKjHCHVNjCpYW0d4/M
-         DmtevEZMhmKOOLx7fWrFlH97SCq7NlIQSlLV/oq0z2xX9UuNbStqwyNVT4DcOcRQb8EU
-         1pGfYN2q7p/X9QvugzDzcpoqsdn7oohm+IWOQ04ziy5DoQ2ZX0dkJKvmlt8S9OWgTUS8
-         abiPfhajbcf4viCdmEt2nU8q5diyzP8qOkjkPzcoXKoEwJCkGGkGjo0plhBBs9Z4eTNQ
-         umSg==
-X-Gm-Message-State: AJIora9ta3+4sD1UpjKXa6+KG91aMbuWIdzeSvgVmzzFo2rotDSPkFEF
-        ubDw/IjPb+Q9amuz+CyRwiVqV8mZ+hDz5sS4
-X-Google-Smtp-Source: AGRyM1usuO20OCaqI9gHIUIBQYk8GOux0KSKlgzNUTU9AURP15Tc2UgoBq7l7iSdfw8FA0axPwAzKg==
-X-Received: by 2002:a17:902:8645:b0:16b:dbe2:111f with SMTP id y5-20020a170902864500b0016bdbe2111fmr15526618plt.145.1657050664723;
-        Tue, 05 Jul 2022 12:51:04 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j11-20020a170902da8b00b0016bff65d5cbsm25234plx.194.2022.07.05.12.51.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Jul 2022 12:51:04 -0700 (PDT)
-Message-ID: <62c49628.1c69fb81.a482f.00b3@mx.google.com>
-Date:   Tue, 05 Jul 2022 12:51:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.52-98-gc89c3559309a
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 194 runs,
- 6 regressions (v5.15.52-98-gc89c3559309a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S231535AbiGEUce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 16:32:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078621B7BA;
+        Tue,  5 Jul 2022 13:32:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9833461C0D;
+        Tue,  5 Jul 2022 20:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E90B8C341C8;
+        Tue,  5 Jul 2022 20:32:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1657053152;
+        bh=ZyoSSSeK/2msTcwEXg/f8m333ya+IMUL0XKBF6AoHL8=;
+        h=Date:To:From:Subject:From;
+        b=odGBpje+IvaZO18ipBc0oESuXANy+QIsy0qqZSVcp9KXa3kWdjueYkoFr/gERapXe
+         HZBbQr/Sp8M1vxrnsUIZ1spBXs/UlrzikRwy8XJjfG3+gSe9o0g4HTRJNEY2r2/Y6u
+         93hg2o1kYZjU2E9z2S9ykFBcUP04Ei8hl7T0agno=
+Date:   Tue, 05 Jul 2022 13:32:31 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        stable@vger.kernel.org, riel@surriel.com,
+        kirill.shutemov@linux.intel.com, clm@fb.com, josef@toxicpanda.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220705203231.E90B8C341C8@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 194 runs, 6 regressions (v5.15.52-98-gc89c35=
-59309a)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm: fix page leak with multiple threads mapping the same page
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
+
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Josef Bacik <josef@toxicpanda.com>
+Subject: mm: fix page leak with multiple threads mapping the same page
+Date: Tue, 5 Jul 2022 16:00:36 -0400
+
+We have an application with a lot of threads that use a shared mmap backed
+by tmpfs mounted with -o huge=within_size.  This application started
+leaking loads of huge pages when we upgraded to a recent kernel.
+
+Using the page ref tracepoints and a BPF program written by Tejun Heo we
+were able to determine that these pages would have multiple refcounts from
+the page fault path, but when it came to unmap time we wouldn't drop the
+number of refs we had added from the faults.
+
+I wrote a reproducer that mmap'ed a file backed by tmpfs with -o
+huge=always, and then spawned 20 threads all looping faulting random
+offsets in this map, while using madvise(MADV_DONTNEED) randomly for huge
+page aligned ranges.  This very quickly reproduced the problem.
+
+The problem here is that we check for the case that we have multiple
+threads faulting in a range that was previously unmapped.  One thread maps
+the PMD, the other thread loses the race and then returns 0.  However at
+this point we already have the page, and we are no longer putting this
+page into the processes address space, and so we leak the page.  We
+actually did the correct thing prior to f9ce0be71d1f, however it looks
+like Kirill copied what we do in the anonymous page case.  In the
+anonymous page case we don't yet have a page, so we don't have to drop a
+reference on anything.  Previously we did the correct thing for file based
+faults by returning VM_FAULT_NOPAGE so we correctly drop the reference on
+the page we faulted in.
+
+Fix this by returning VM_FAULT_NOPAGE in the pmd_devmap_trans_unstable()
+case, this makes us drop the ref on the page properly, and now my
+reproducer no longer leaks the huge pages.
+
+Link: https://lkml.kernel.org/r/2b798acfd95c9ab9395fe85e8d5a835e2e10a920.1657051137.git.josef@toxicpanda.com
+Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/memory.c~mm-fix-page-leak-with-multiple-threads-mapping-the-same-page
++++ a/mm/memory.c
+@@ -4371,7 +4371,7 @@ vm_fault_t finish_fault(struct vm_fault
+ 
+ 	/* See comment in handle_pte_fault() */
+ 	if (pmd_devmap_trans_unstable(vmf->pmd))
+-		return 0;
++		return VM_FAULT_NOPAGE;
+ 
+ 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
+ 				      vmf->address, &vmf->ptl);
+_
+
+Patches currently in -mm which might be from josef@toxicpanda.com are
+
+mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
 
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-beagle-xm         | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig =
-       | 1          =
-
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig  =
-       | 1          =
-
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-rk3399-gru-kevin  | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chro=
-mebook | 1          =
-
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | multi_v7_defconfig  =
-       | 1          =
-
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.52-98-gc89c3559309a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.52-98-gc89c3559309a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c89c3559309a77317e258dac15b09ceb6a15de13 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-beagle-xm         | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c460d081911bebfea39bd5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c460d081911bebfea39=
-bd6
-        failing since 96 days (last pass: v5.15.31-2-g57d4301e22c2, first f=
-ail: v5.15.31-3-g4ae45332eb9c) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig  =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c4642d329bbb9737a39be3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c4642d329bbb9737a39=
-be4
-        failing since 24 days (last pass: v5.15.45-667-g99a55c4a9ecc0, firs=
-t fail: v5.15.45-798-g69fa874c62551) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c46261e62ac6f117a39bd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c46261e62ac6f117a39=
-bd1
-        failing since 1 day (last pass: v5.15.51-43-gad3bd1f3e86e, first fa=
-il: v5.15.51-60-g300ca5992dde) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-rk3399-gru-kevin  | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chro=
-mebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c45ee8e18a315d11a39be2
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62c45ee8e18a315d11a39c08
-        failing since 119 days (last pass: v5.15.26-42-gc89c0807b943, first=
- fail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-07-05T15:55:08.088587  /lava-6755389/1/../bin/lava-test-case
-    2022-07-05T15:55:08.099644  <8>[   33.549710] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | multi_v7_defconfig  =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c486731756bfcd1aa39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra=
-124-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra=
-124-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c486731756bfcd1aa39=
-bce
-        failing since 27 days (last pass: v5.15.45-652-g938d073d082af, firs=
-t fail: v5.15.45-667-g6f48aa0f6b54d) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c483ca24fee4edd5a39fac
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra124=
--nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
-98-gc89c3559309a/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra124=
--nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c483ca24fee4edd5a39=
-fad
-        failing since 16 days (last pass: v5.15.45-915-gfe83bcae3c626, firs=
-t fail: v5.15.48-44-gaa2f7b1f36db5) =
-
- =20
