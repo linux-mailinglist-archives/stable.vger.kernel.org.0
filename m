@@ -2,151 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F125661F5
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 05:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 298D656621A
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 06:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbiGEDph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 23:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58984 "EHLO
+        id S233957AbiGEEEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 00:04:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229727AbiGEDpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 23:45:36 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4BD2BE5
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 20:45:34 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VIPwcot_1656992730;
-Received: from 30.178.65.49(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0VIPwcot_1656992730)
-          by smtp.aliyun-inc.com;
-          Tue, 05 Jul 2022 11:45:31 +0800
-Message-ID: <36b71543-fc3f-2787-06b8-2d38f1ee5b93@linux.alibaba.com>
-Date:   Tue, 5 Jul 2022 11:45:29 +0800
+        with ESMTP id S230004AbiGEEEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 00:04:33 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B0B12D19;
+        Mon,  4 Jul 2022 21:04:33 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id bh13so4408530pgb.4;
+        Mon, 04 Jul 2022 21:04:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=GUeJvKk4WtvFDE4nbMc2nM4EyZaO/tAGnMRaTC8sqXI=;
+        b=M30+cdDmHQAMOExKZy6W7NFmt6k6RzO+Pr+4QdVfk5mjm1NLKXlbcF88FtJJ7RfCUi
+         5cs7g27NY/Ua+oN7z+Kb+Qc71Pl7bEnSVhXKLrjeA4ZspXss6TyQ/PfVQS6pK+7Lx1ze
+         5DKNmY4YVU2sWy/TRCgrTxhd+rwNhEPwc5p0L5bbakAH7Y67N2YlZUKO31+A2Wg9jAOY
+         TEVkugibkj+U9REf4LUL+S5eAVCqj5TNN8KvV6fJ3GwpzRA+j7HTsLbfnU7gQTzhz0ws
+         lQs40R+KFvjFVZm6SmZSk9w5fVDer/sM1rH1hPbIfLdy66tGmisLFD7ZYcuEbSMCgY8l
+         SFrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=GUeJvKk4WtvFDE4nbMc2nM4EyZaO/tAGnMRaTC8sqXI=;
+        b=N0qx96DGD37Woq1zUDAHVncXKIQFGfe53YVL4jpv0tSwJKTw9hi00xCR2MbHy0jvNT
+         YWLWOfFjCgQ5Dx5Hoxuf0ER0A+FPRCm7rmaFtFmVZAk1fY4DrLwa4Fi/0JHaJDnHdFBl
+         l2dFc/Mv2SwUKAiLlauH6Sjo2p+f7gW5+Vjv8AlV7tJifvqR9t3AVw+mvEMFpfvwP8y0
+         6iGDa/iZLmR/tHwtBnSWg/6nLie3EmOj59hXDQmanuarIO9LstalZ0Opz3Q+vBHpMX9Z
+         dJy6c5WxKxfHDoPZlrwrz0/R+AOS+eX9Il/5FKh42yy/CMsySNYo5L+j6lbqs/yx77ch
+         3Sgw==
+X-Gm-Message-State: AJIora9R+VF9n6VyF0KNkm43u8xyxJhum2pxPZBX85lFFE0fPK6R7MUN
+        6kc72Q733fwlnute2n94lOX3nBSU0aQuuw==
+X-Google-Smtp-Source: AGRyM1sShYqd965qsgVGHzMhNDc+xGICEibMnV8x51jtsis7/Mr2ydAHrJPxLwI70e+bSsl4VBdYww==
+X-Received: by 2002:a63:287:0:b0:412:2f6e:7fc with SMTP id 129-20020a630287000000b004122f6e07fcmr8844898pgc.185.1656993872242;
+        Mon, 04 Jul 2022 21:04:32 -0700 (PDT)
+Received: from Negi ([68.181.16.243])
+        by smtp.gmail.com with ESMTPSA id i1-20020a17090a718100b001ef87123615sm3360257pjk.37.2022.07.04.21.04.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Jul 2022 21:04:31 -0700 (PDT)
+Date:   Mon, 4 Jul 2022 21:04:30 -0700
+From:   Soumya Negi <soumya.negi97@gmail.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        syzbot+9d567e08d3970bfd8271@syzkaller.appspotmail.com,
+        syzkaller-bugs@googlegroups.com,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        stable@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Test patch for KASAN: global-out-of-bounds Read in
+ detach_capi_ctr
+Message-ID: <20220705040430.GA18661@Negi>
+References: <CAHH-VXdqp0ZGKyJWE76zdyKwhv104JRA8ujUY5NoYO47HC9XWQ@mail.gmail.com>
+ <20220704112619.GZ16517@kadam>
+ <YsLU6XL1HBnQR79P@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.9.1
-Subject: Re: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Bin Yang <bin.yang@intel.com>,
-        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org
-References: <20220704154508.13317-1-wenyang@linux.alibaba.com>
- <YsMOWwHRUdQ/zLmx@kroah.com>
-From:   Wen Yang <wenyang@linux.alibaba.com>
-In-Reply-To: <YsMOWwHRUdQ/zLmx@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YsLU6XL1HBnQR79P@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Thanks for letting me know. Is there a way I can check whether an open
+syzbot bug already has a fix as in this case? Right now I am thinking
+of running the reproducer on linux-next as well before starting on a
+bug.
 
-
-在 2022/7/4 下午11:59, Greg Kroah-Hartman 写道:
-> On Mon, Jul 04, 2022 at 11:45:08PM +0800, Wen Yang wrote:
->> From: Peter Zijlstra <peterz@infradead.org>
->>
->> commit ddd07b750382adc2b78fdfbec47af8a6e0d8ef37 upstream.
->>
->> CAT has happened, WBINDV is bad (even before CAT blowing away the
->> entire cache on a multi-core platform wasn't nice), try not to use it
->> ever.
->>
->> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
->> Reviewed-by: Dave Hansen <dave.hansen@intel.com>
->> Cc: Bin Yang <bin.yang@intel.com>
->> Cc: Mark Gross <mark.gross@intel.com>
->> Link: https://lkml.kernel.org/r/20180919085947.933674526@infradead.org
->> Cc: <stable@vger.kernel.org> # 4.19.x
->> Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
->> ---
->>   arch/x86/mm/pageattr.c | 18 ++----------------
->>   1 file changed, 2 insertions(+), 16 deletions(-)
->>
->> diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
->> index 101f3ad0d6ad..ab87da7a6043 100644
->> --- a/arch/x86/mm/pageattr.c
->> +++ b/arch/x86/mm/pageattr.c
->> @@ -239,26 +239,12 @@ static void cpa_flush_array(unsigned long *start, int numpages, int cache,
->>   			    int in_flags, struct page **pages)
->>   {
->>   	unsigned int i, level;
->> -#ifdef CONFIG_PREEMPT
->> -	/*
->> -	 * Avoid wbinvd() because it causes latencies on all CPUs,
->> -	 * regardless of any CPU isolation that may be in effect.
->> -	 *
->> -	 * This should be extended for CAT enabled systems independent of
->> -	 * PREEMPT because wbinvd() does not respect the CAT partitions and
->> -	 * this is exposed to unpriviledged users through the graphics
->> -	 * subsystem.
->> -	 */
->> -	unsigned long do_wbinvd = 0;
->> -#else
->> -	unsigned long do_wbinvd = cache && numpages >= 1024; /* 4M threshold */
->> -#endif
->>   
->>   	BUG_ON(irqs_disabled() && !early_boot_irqs_disabled);
->>   
->> -	on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
->> +	flush_tlb_all();
->>   
->> -	if (!cache || do_wbinvd)
->> +	if (!cache)
->>   		return;
->>   
->>   	/*
->> -- 
->> 2.19.1.6.gb485710b
->>
-> 
-> Why is this needed on 4.19.y?  What problem does it solve, it looks only
-> like an optimization, not a bugfix.
-> 
-> And if it's a bugfix, why only 4.19.y, why not older kernels too?
-> 
-> We need more information here please.
-> 
-
-On a 128-core Intel(R) Xeon(R) Platinum 8369B CPU @ 2.90GHz server, when 
-the user program frequently calls nv_alloc_system_pages to allocate 
-large memory, it often causes a delay of about 200 milliseconds for the 
-entire system. In this way, other latency-sensitive tasks on this system 
-are heavily impacted, causing stability issues in large-scale clusters 
-as well.
-
-nv_alloc_system_pages
--> _set_memory_array
--> change_page_attr_set_clr
--> cpa_flush_array
--> on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
-
-
-This patch can be directly merged into the 4.19 kernel to solve this 
-problem, and most of the machines in our production environment are 4.19 
-kernels.
-
-We're also happy to apply it to the 4.14 and 4.9 kernels, and send the 
-corresponding patches soon, although there are very few such servers in 
-our production clusters.
-
-
---
-Best wishes,
-Wen
-
-
-
-
-
-
-
-
+Regards
+Soumya
