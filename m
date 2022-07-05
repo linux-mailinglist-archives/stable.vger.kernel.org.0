@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FE2566C20
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF39566DC7
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234851AbiGEMLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
+        id S236977AbiGEM1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:27:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233998AbiGEMKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:10:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8806518E37;
-        Tue,  5 Jul 2022 05:09:51 -0700 (PDT)
+        with ESMTP id S237339AbiGEMZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6E3B10;
+        Tue,  5 Jul 2022 05:17:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9478B817DA;
-        Tue,  5 Jul 2022 12:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C0B8C341C7;
-        Tue,  5 Jul 2022 12:09:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 675C561983;
+        Tue,  5 Jul 2022 12:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FDEFC341C7;
+        Tue,  5 Jul 2022 12:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022988;
-        bh=WuuSJuTTkvZY6tfwa6klBJfO8MirsENKQ0hsHuEAZS4=;
+        s=korg; t=1657023474;
+        bh=rsVKk2lESA91fg3Gj3C/Wvb3ZqWorPFEk5GCBGeD4Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvsXflEMdfVGE0SW4zf0X/qmFMPXjAAS7xPIQSKEtdr6Tlv1qGsgsboOsoT+XUkMa
-         Qd1zp6htvw68DK7C6gUXDIS4NvByp4dsy7gRlpWOjk/71o7MTmxpqSVRgsvcw+w1nJ
-         2VMUa2AVI8y/Z6RPn9b5E9j6aiFw3DahkB8jLauc=
+        b=qZ7N0iJ+yjeCt7wJQqd6KSfLdCH9r9ep4Ix/KVhbcxQB5Ze6D60uDlkIQp2uOrSuC
+         31lpg3zbfaN3RhY+EsYopl2Omoc8kC+hH7pF+JDAHcmp+TCsXMaon3wD7dDcEDSVWM
+         aNqM0YhQjbjboVN7fJ63sDIKn1Us0tvQLovZN7b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 75/84] selftests/rseq: Change type of rseq_offset to ptrdiff_t
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.18 072/102] nvmet-tcp: fix regression in data_digest calculation
 Date:   Tue,  5 Jul 2022 13:58:38 +0200
-Message-Id: <20220705115617.510784609@linuxfoundation.org>
+Message-Id: <20220705115620.452354110@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 889c5d60fbcf332c8b6ab7054d45f2768914a375 upstream.
+commit ed0691cf55140ce0f3fb100225645d902cce904b upstream.
 
-Just before the 2.35 release of glibc, the __rseq_offset userspace ABI
-was changed from int to ptrdiff_t.
+Data digest calculation iterates over command mapped iovec. However
+since commit bac04454ef9f we unmap the iovec before we handle the data
+digest, and since commit 69b85e1f1d1d we clear nr_mapped when we unmap
+the iov.
 
-Adapt to this change in the kernel selftests.
+Instead of open-coding the command iov traversal, simply call
+crypto_ahash_digest with the command sg that is already allocated (we
+already do that for the send path). Rename nvmet_tcp_send_ddgst to
+nvmet_tcp_calc_ddgst and call it from send and recv paths.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://sourceware.org/pipermail/libc-alpha/2022-February/136024.html
+Fixes: 69b85e1f1d1d ("nvmet-tcp: add an helper to free the cmd buffers")
+Fixes: bac04454ef9f ("nvmet-tcp: fix kmap leak when data digest in use")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/rseq-x86.h |   14 +++++++-------
- tools/testing/selftests/rseq/rseq.c     |    5 +++--
- tools/testing/selftests/rseq/rseq.h     |    3 ++-
- 3 files changed, 12 insertions(+), 10 deletions(-)
+ drivers/nvme/target/tcp.c |   23 +++--------------------
+ 1 file changed, 3 insertions(+), 20 deletions(-)
 
---- a/tools/testing/selftests/rseq/rseq-x86.h
-+++ b/tools/testing/selftests/rseq/rseq-x86.h
-@@ -143,7 +143,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  [v]			"m" (*v),
- 		  [expect]		"r" (expect),
- 		  [newv]		"r" (newv)
-@@ -214,7 +214,7 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [v]			"m" (*v),
- 		  [expectnot]		"r" (expectnot),
-@@ -270,7 +270,7 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [v]			"m" (*v),
- 		  [count]		"er" (count)
-@@ -329,7 +329,7 @@ int rseq_offset_deref_addv(intptr_t *ptr
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [ptr]			"m" (*ptr),
- 		  [off]			"er" (off),
-@@ -387,7 +387,7 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* try store input */
- 		  [v2]			"m" (*v2),
- 		  [newv2]		"r" (newv2),
-@@ -469,7 +469,7 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* cmp2 input */
- 		  [v2]			"m" (*v2),
- 		  [expect2]		"r" (expect2),
-@@ -581,7 +581,7 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- #endif
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [v]			"m" (*v),
- 		  [expect]		"r" (expect),
---- a/tools/testing/selftests/rseq/rseq.c
-+++ b/tools/testing/selftests/rseq/rseq.c
-@@ -27,16 +27,17 @@
- #include <signal.h>
- #include <limits.h>
- #include <dlfcn.h>
-+#include <stddef.h>
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -405,7 +405,7 @@ err:
+ 	return NVME_SC_INTERNAL;
+ }
  
- #include "../kselftest.h"
- #include "rseq.h"
+-static void nvmet_tcp_send_ddgst(struct ahash_request *hash,
++static void nvmet_tcp_calc_ddgst(struct ahash_request *hash,
+ 		struct nvmet_tcp_cmd *cmd)
+ {
+ 	ahash_request_set_crypt(hash, cmd->req.sg,
+@@ -413,23 +413,6 @@ static void nvmet_tcp_send_ddgst(struct
+ 	crypto_ahash_digest(hash);
+ }
  
--static const int *libc_rseq_offset_p;
-+static const ptrdiff_t *libc_rseq_offset_p;
- static const unsigned int *libc_rseq_size_p;
- static const unsigned int *libc_rseq_flags_p;
+-static void nvmet_tcp_recv_ddgst(struct ahash_request *hash,
+-		struct nvmet_tcp_cmd *cmd)
+-{
+-	struct scatterlist sg;
+-	struct kvec *iov;
+-	int i;
+-
+-	crypto_ahash_init(hash);
+-	for (i = 0, iov = cmd->iov; i < cmd->nr_mapped; i++, iov++) {
+-		sg_init_one(&sg, iov->iov_base, iov->iov_len);
+-		ahash_request_set_crypt(hash, &sg, NULL, iov->iov_len);
+-		crypto_ahash_update(hash);
+-	}
+-	ahash_request_set_crypt(hash, NULL, (void *)&cmd->exp_ddgst, 0);
+-	crypto_ahash_final(hash);
+-}
+-
+ static void nvmet_setup_c2h_data_pdu(struct nvmet_tcp_cmd *cmd)
+ {
+ 	struct nvme_tcp_data_pdu *pdu = cmd->data_pdu;
+@@ -454,7 +437,7 @@ static void nvmet_setup_c2h_data_pdu(str
  
- /* Offset from the thread pointer to the rseq area.  */
--int rseq_offset;
-+ptrdiff_t rseq_offset;
+ 	if (queue->data_digest) {
+ 		pdu->hdr.flags |= NVME_TCP_F_DDGST;
+-		nvmet_tcp_send_ddgst(queue->snd_hash, cmd);
++		nvmet_tcp_calc_ddgst(queue->snd_hash, cmd);
+ 	}
  
- /* Size of the registered rseq area.  0 if the registration was
-    unsuccessful.  */
---- a/tools/testing/selftests/rseq/rseq.h
-+++ b/tools/testing/selftests/rseq/rseq.h
-@@ -16,6 +16,7 @@
- #include <errno.h>
- #include <stdio.h>
- #include <stdlib.h>
-+#include <stddef.h>
- #include "rseq-abi.h"
- #include "compiler.h"
+ 	if (cmd->queue->hdr_digest) {
+@@ -1137,7 +1120,7 @@ static void nvmet_tcp_prep_recv_ddgst(st
+ {
+ 	struct nvmet_tcp_queue *queue = cmd->queue;
  
-@@ -47,7 +48,7 @@
- #include "rseq-thread-pointer.h"
- 
- /* Offset from the thread pointer to the rseq area.  */
--extern int rseq_offset;
-+extern ptrdiff_t rseq_offset;
- /* Size of the registered rseq area.  0 if the registration was
-    unsuccessful.  */
- extern unsigned int rseq_size;
+-	nvmet_tcp_recv_ddgst(queue->rcv_hash, cmd);
++	nvmet_tcp_calc_ddgst(queue->rcv_hash, cmd);
+ 	queue->offset = 0;
+ 	queue->left = NVME_TCP_DIGEST_LENGTH;
+ 	queue->rcv_state = NVMET_TCP_RECV_DDGST;
 
 
