@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F1D566BC3
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52F6566B38
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234590AbiGEMJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46140 "EHLO
+        id S233290AbiGEMFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:05:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234957AbiGEMIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A50186F1;
-        Tue,  5 Jul 2022 05:07:22 -0700 (PDT)
+        with ESMTP id S233739AbiGEMEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:04:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFC6186EF;
+        Tue,  5 Jul 2022 05:04:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A406F61968;
-        Tue,  5 Jul 2022 12:07:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B304BC341CB;
-        Tue,  5 Jul 2022 12:07:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F41F61806;
+        Tue,  5 Jul 2022 12:04:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A24C341C7;
+        Tue,  5 Jul 2022 12:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022841;
-        bh=9WUR7wsYVs6fTDwuVts3+ftYZs+EiI8bnRN5ph2z1TU=;
+        s=korg; t=1657022643;
+        bh=32NJMC0s5CjllmvErXiC++NFIfdW1o0siO8fgtY6M6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SY7aRqgxpF5BOEKV6cXhdHsRF6Ctlv//66p7knvgdovh8dpyMDBCoCM8/nweDBDUZ
-         Lm8i3Jj0QEuO6nYh7nvWSt0bu4ub9fsV/rf37Jak/w6qLR9XQQGbjx8pSkXq3Nepaj
-         JkuK5EJ5usYHzDLJh9JbEYBx84M+Hk2LDJ3Luf4E=
+        b=T5XUYbHnDnsGGyb+iLx2IcE7u7KLUFICwM0Z9l3mAJjaytXmVJt3jRO7OPf+ijwV6
+         mv++jDpIPadnaGFtiGZyijNy3cIHQ3onJeDHkkp81o49j1Oz8rROm/PFC9Hz0Ttn6I
+         kRIrRnfgOcgav7kzXpjLf1q4NuSFOnEX5y71+yr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH 5.10 29/84] s390: remove unneeded select BUILD_BIN2C
-Date:   Tue,  5 Jul 2022 13:57:52 +0200
-Message-Id: <20220705115616.175548908@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 17/58] usbnet: fix memory allocation in helpers
+Date:   Tue,  5 Jul 2022 13:57:53 +0200
+Message-Id: <20220705115610.749856705@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 25deecb21c18ee29e3be8ac6177b2a9504c33d2d upstream.
+commit e65af5403e462ccd7dff6a045a886c64da598c2e upstream.
 
-Since commit 4c0f032d4963 ("s390/purgatory: Omit use of bin2c"),
-s390 builds the purgatory without using bin2c.
+usbnet provides some helper functions that are also used in
+the context of reset() operations. During a reset the other
+drivers on a device are unable to operate. As that can be block
+drivers, a driver for another interface cannot use paging
+in its memory allocations without risking a deadlock.
+Use GFP_NOIO in the helpers.
 
-Remove 'select BUILD_BIN2C' to avoid the unneeded build of bin2c.
-
-Fixes: 4c0f032d4963 ("s390/purgatory: Omit use of bin2c")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20220613170902.1775211-1-masahiroy@kernel.org
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220628093517.7469-1-oneukum@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/usb/usbnet.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -507,7 +507,6 @@ config KEXEC
- config KEXEC_FILE
- 	bool "kexec file based system call"
- 	select KEXEC_CORE
--	select BUILD_BIN2C
- 	depends on CRYPTO
- 	depends on CRYPTO_SHA256
- 	depends on CRYPTO_SHA256_S390
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1987,7 +1987,7 @@ static int __usbnet_read_cmd(struct usbn
+ 		   cmd, reqtype, value, index, size);
+ 
+ 	if (size) {
+-		buf = kmalloc(size, GFP_KERNEL);
++		buf = kmalloc(size, GFP_NOIO);
+ 		if (!buf)
+ 			goto out;
+ 	}
+@@ -2019,7 +2019,7 @@ static int __usbnet_write_cmd(struct usb
+ 		   cmd, reqtype, value, index, size);
+ 
+ 	if (data) {
+-		buf = kmemdup(data, size, GFP_KERNEL);
++		buf = kmemdup(data, size, GFP_NOIO);
+ 		if (!buf)
+ 			goto out;
+ 	} else {
 
 
