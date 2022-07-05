@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D8B1566C61
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC8F2566B58
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235514AbiGEMO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53746 "EHLO
+        id S233428AbiGEMF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:05:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235956AbiGEMN1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:13:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49F8B18B19;
-        Tue,  5 Jul 2022 05:10:59 -0700 (PDT)
+        with ESMTP id S233918AbiGEMFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499D317E22;
+        Tue,  5 Jul 2022 05:04:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B99AD619AF;
-        Tue,  5 Jul 2022 12:10:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C771EC341C7;
-        Tue,  5 Jul 2022 12:10:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A52766190B;
+        Tue,  5 Jul 2022 12:04:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE41C341CB;
+        Tue,  5 Jul 2022 12:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023058;
-        bh=GpAELpXa6Ga52L9rDUJkSFouJ4QBEHX3NS8TB3eieoE=;
+        s=korg; t=1657022676;
+        bh=EWbhujnAMtHpYF/xosUJ3dY70/+NT5WgglLtH/DHuMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbkxpoV5xGt7JtakyxJehFDnZkRuts3MUzubBbzB+oi+YX5c1UgFIzKkBhTZpk1V4
-         PphaAUnp0DA62T2Y3u03YwhvGbGGgmfDwIdAaDcasgigahDPLr8JI3zphlVuwMAi3R
-         m2t20FwfS1bDT7febtvJW+6dv0o2aisDQOkNFln0=
+        b=b1jtd0gtTZHdgpfu4hJ/D5+DM4ivy0GmCb1Ll+M4C/fLgbbFeZuqVOWGHBLg1lhdX
+         Q3IGdICBQGJvh9lpRU7bs/1k3Fab3Cmwf0p+ZtA+EuFVAImOLXgjkKUOfy2jNKx7Kd
+         vUdc49Z8anPEj2Zef9UX8nUQ8PPTk6ZcoxaOOALs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 22/98] net: dsa: bcm_sf2: force pause link settings
-Date:   Tue,  5 Jul 2022 13:57:40 +0200
-Message-Id: <20220705115618.221068131@linuxfoundation.org>
+        stable@vger.kernel.org, Heinz Mauelshagen <heinzm@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.4 05/58] dm raid: fix accesses beyond end of raid member array
+Date:   Tue,  5 Jul 2022 13:57:41 +0200
+Message-Id: <20220705115610.401694686@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Heinz Mauelshagen <heinzm@redhat.com>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
+commit 332bd0778775d0cf105c4b9e03e460b590749916 upstream.
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+On dm-raid table load (using raid_ctr), dm-raid allocates an array
+rs->devs[rs->raid_disks] for the raid device members. rs->raid_disks
+is defined by the number of raid metadata and image tupples passed
+into the target's constructor.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In the case of RAID layout changes being requested, that number can be
+different from the current number of members for existing raid sets as
+defined in their superblocks. Example RAID layout changes include:
+- raid1 legs being added/removed
+- raid4/5/6/10 number of stripes changed (stripe reshaping)
+- takeover to higher raid level (e.g. raid5 -> raid6)
+
+When accessing array members, rs->raid_disks must be used in control
+loops instead of the potentially larger value in rs->md.raid_disks.
+Otherwise it will cause memory access beyond the end of the rs->devs
+array.
+
+Fix this by changing code that is prone to out-of-bounds access.
+Also fix validate_raid_redundancy() to validate all devices that are
+added. Also, use braces to help clean up raid_iterate_devices().
+
+The out-of-bounds memory accesses was discovered using KASAN.
+
+This commit was verified to pass all LVM2 RAID tests (with KASAN
+enabled).
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Heinz Mauelshagen <heinzm@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/md/dm-raid.c |   34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -865,6 +865,11 @@ static void bcm_sf2_sw_mac_link_up(struc
- 		if (duplex == DUPLEX_FULL)
- 			reg |= DUPLX_MODE;
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -998,12 +998,13 @@ static int validate_region_size(struct r
+ static int validate_raid_redundancy(struct raid_set *rs)
+ {
+ 	unsigned int i, rebuild_cnt = 0;
+-	unsigned int rebuilds_per_group = 0, copies;
++	unsigned int rebuilds_per_group = 0, copies, raid_disks;
+ 	unsigned int group_size, last_group_start;
  
-+		if (tx_pause)
-+			reg |= TXFLOW_CNTL;
-+		if (rx_pause)
-+			reg |= RXFLOW_CNTL;
-+
- 		core_writel(priv, reg, offset);
- 	}
+-	for (i = 0; i < rs->md.raid_disks; i++)
+-		if (!test_bit(In_sync, &rs->dev[i].rdev.flags) ||
+-		    !rs->dev[i].rdev.sb_page)
++	for (i = 0; i < rs->raid_disks; i++)
++		if (!test_bit(FirstUse, &rs->dev[i].rdev.flags) &&
++		    ((!test_bit(In_sync, &rs->dev[i].rdev.flags) ||
++		      !rs->dev[i].rdev.sb_page)))
+ 			rebuild_cnt++;
  
+ 	switch (rs->md.level) {
+@@ -1043,8 +1044,9 @@ static int validate_raid_redundancy(stru
+ 		 *	    A	 A    B	   B	C
+ 		 *	    C	 D    D	   E	E
+ 		 */
++		raid_disks = min(rs->raid_disks, rs->md.raid_disks);
+ 		if (__is_raid10_near(rs->md.new_layout)) {
+-			for (i = 0; i < rs->md.raid_disks; i++) {
++			for (i = 0; i < raid_disks; i++) {
+ 				if (!(i % copies))
+ 					rebuilds_per_group = 0;
+ 				if ((!rs->dev[i].rdev.sb_page ||
+@@ -1067,10 +1069,10 @@ static int validate_raid_redundancy(stru
+ 		 * results in the need to treat the last (potentially larger)
+ 		 * set differently.
+ 		 */
+-		group_size = (rs->md.raid_disks / copies);
+-		last_group_start = (rs->md.raid_disks / group_size) - 1;
++		group_size = (raid_disks / copies);
++		last_group_start = (raid_disks / group_size) - 1;
+ 		last_group_start *= group_size;
+-		for (i = 0; i < rs->md.raid_disks; i++) {
++		for (i = 0; i < raid_disks; i++) {
+ 			if (!(i % copies) && !(i > last_group_start))
+ 				rebuilds_per_group = 0;
+ 			if ((!rs->dev[i].rdev.sb_page ||
+@@ -1585,7 +1587,7 @@ static sector_t __rdev_sectors(struct ra
+ {
+ 	int i;
+ 
+-	for (i = 0; i < rs->md.raid_disks; i++) {
++	for (i = 0; i < rs->raid_disks; i++) {
+ 		struct md_rdev *rdev = &rs->dev[i].rdev;
+ 
+ 		if (!test_bit(Journal, &rdev->flags) &&
+@@ -3746,13 +3748,13 @@ static int raid_iterate_devices(struct d
+ 	unsigned int i;
+ 	int r = 0;
+ 
+-	for (i = 0; !r && i < rs->md.raid_disks; i++)
+-		if (rs->dev[i].data_dev)
+-			r = fn(ti,
+-				 rs->dev[i].data_dev,
+-				 0, /* No offset on data devs */
+-				 rs->md.dev_sectors,
+-				 data);
++	for (i = 0; !r && i < rs->raid_disks; i++) {
++		if (rs->dev[i].data_dev) {
++			r = fn(ti, rs->dev[i].data_dev,
++			       0, /* No offset on data devs */
++			       rs->md.dev_sectors, data);
++		}
++	}
+ 
+ 	return r;
+ }
 
 
