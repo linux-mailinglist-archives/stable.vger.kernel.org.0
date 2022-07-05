@@ -2,136 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68935567923
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 23:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 190EC567937
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 23:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231342AbiGEVDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 17:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41870 "EHLO
+        id S231542AbiGEVR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 17:17:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbiGEVDD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 17:03:03 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6613965D9
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 14:03:02 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id g20-20020a17090a579400b001ed52939d72so13845656pji.4
-        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 14:03:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=T7jfukz90Ob2JfdVQehLAL1rB3Phy+zQ5zWoyzZ+bgo=;
-        b=o1f7n1RmCZmCNSlG0/vbZHJdePzHTDBV+8mZZVlMk+HCHTa+pkQ9r2oM2kFWpIpf+l
-         2GgNane8uY5cmNJ4vhKPDuftIRcx9DWgwD32BTIKQe3RhxVVgHg09/rM+sIVv2YaUzBh
-         /7gy4vTiL1KT9XDsTWTJ1JzM056rfpWk/Ncv4N4nHGcu2N4UQ3X21gbVgaOUytppPOWw
-         c4KvI9kfEwZ89NMqdunGBD52gDos+4mEg1/FPnXiNH1ARFWQIiLjssaJ1le6OFCfG1dn
-         UI/fGTsJvhYsLHAoRSSa9a0I6o77LdFPcpOx3KW687AqJ/8cywSncm/ayU3zFEayG61S
-         1LVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=T7jfukz90Ob2JfdVQehLAL1rB3Phy+zQ5zWoyzZ+bgo=;
-        b=MZxNX2V/XJ1lJ1a0yoAz5FXP14HMv7NPs7tPO8CWUI16DUqvtc74E3Dxtsfhrl2z82
-         g8xYoUjAr5QH49SQ/wLgkTKGg9NmNZMNqMksaMAMVMlxLG/OD5jpJChRFQJbWTjzaw97
-         kb/TsD5qe7oGvvqJIDxIk9gJ1yq/niIAArK/gj6dy/KQ4PT0lOIf/vSHqPm0vVvRJzKe
-         8XsIJRO6PMsZTiuRbGvNAHvFV/jLTjpx/icZi72/8WYseMosDET6+41v2FCACqbglncn
-         a3hny1BGQlpL6kY19O34YRUdfRynYcK7dI8Vs1ZQF6lThJh15I38wP7eV0n1orwdn4qH
-         2tig==
-X-Gm-Message-State: AJIora+bXHjftWJmJeikOOdRt9kNxKIx/E9q+iVVNFTFD5E2geRp+gTj
-        cw1CzKgnDvZw7IjSkufzGp6YBC/17I98k6kwse6rXw==
-X-Google-Smtp-Source: AGRyM1vNwtUgaI6PQwYqr9dYDCI11Ymb0dBL4dk8ktVRiYsGIERWQ319Gx3XCjjD3MaD+AsqhUrqI8SAjDWw9Bpgwy0=
-X-Received: by 2002:a17:903:11c9:b0:16b:8293:c5a1 with SMTP id
- q9-20020a17090311c900b0016b8293c5a1mr42502139plh.72.1657054981629; Tue, 05
- Jul 2022 14:03:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220705150002.2016207-1-varadgautam@google.com> <YsRkPUcrMj+JU0Om@kroah.com>
-In-Reply-To: <YsRkPUcrMj+JU0Om@kroah.com>
-From:   Varad Gautam <varadgautam@google.com>
-Date:   Tue, 5 Jul 2022 23:02:50 +0200
-Message-ID: <CAOLDJOJ_v75WqGt2mZa0h-GgF+NThFBY5DvasH+9LLVgLrrvog@mail.gmail.com>
-Subject: Re: [PATCH] thermal: sysfs: Perform bounds check when storing thermal states
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, linux-pm@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        with ESMTP id S229534AbiGEVR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 17:17:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C619B13DC9;
+        Tue,  5 Jul 2022 14:17:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E4C261CC8;
+        Tue,  5 Jul 2022 21:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D417C341C7;
+        Tue,  5 Jul 2022 21:17:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1657055875;
+        bh=XUyRH/1dhdKrw7qc8bL9oWo7NlvnVd5Ro3PgQ/6t8W0=;
+        h=Date:To:From:Subject:From;
+        b=Ndw1KaFjl44poJqtZAllsvUxeo0c8voU/Vzmuaot8UGxt66gBW1m+F3Ab1tY9zw58
+         ozJh1emXwGtbjJrZIO6CI6H3rbIx/9K2bBGM+CWOQpIs6JJ37/lMIWnGklid5j8xyq
+         BhlIVzmsbmWgVGFax3v7pRLIk73yTt9Ks6tgXmLw=
+Date:   Tue, 05 Jul 2022 14:17:54 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        william.kucharski@oracle.com, stable@vger.kernel.org,
+        jhubbard@nvidia.com, jgg@ziepe.ca, jack@suse.cz,
+        dan.j.williams@intel.com, songmuchun@bytedance.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-fix-missing-wake-up-event-for-fsdax-pages.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220705211755.9D417C341C7@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 5, 2022 at 6:18 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Jul 05, 2022 at 03:00:02PM +0000, Varad Gautam wrote:
-> > Check that a user-provided thermal state is within the maximum
-> > thermal states supported by a given driver before attempting to
-> > apply it. This prevents a subsequent OOB access in
-> > thermal_cooling_device_stats_update() while performing
-> > state-transition accounting on drivers that do not have this check
-> > in their set_cur_state() handle.
-> >
-> > Signed-off-by: Varad Gautam <varadgautam@google.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/thermal/thermal_sysfs.c | 12 +++++++++++-
-> >  1 file changed, 11 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
-> > index 1c4aac8464a7..0c6b0223b133 100644
-> > --- a/drivers/thermal/thermal_sysfs.c
-> > +++ b/drivers/thermal/thermal_sysfs.c
-> > @@ -607,7 +607,7 @@ cur_state_store(struct device *dev, struct device_attribute *attr,
-> >               const char *buf, size_t count)
-> >  {
-> >       struct thermal_cooling_device *cdev = to_cooling_device(dev);
-> > -     unsigned long state;
-> > +     unsigned long state, max_state;
-> >       int result;
-> >
-> >       if (sscanf(buf, "%ld\n", &state) != 1)
-> > @@ -618,10 +618,20 @@ cur_state_store(struct device *dev, struct device_attribute *attr,
-> >
-> >       mutex_lock(&cdev->lock);
-> >
-> > +     result = cdev->ops->get_max_state(cdev, &max_state);
-> > +     if (result)
-> > +             goto unlock;
-> > +
-> > +     if (state > max_state) {
-> > +             result = -EINVAL;
-> > +             goto unlock;
-> > +     }
-> > +
-> >       result = cdev->ops->set_cur_state(cdev, state);
->
-> Why doesn't set_cur_state() check the max state before setting it?  Why
-> are the callers forced to always check it before?  That feels wrong...
->
 
-The problem lies in thermal_cooling_device_stats_update(), not set_cur_state().
+The patch titled
+     Subject: mm: fix missing wake-up event for FSDAX pages
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-fix-missing-wake-up-event-for-fsdax-pages.patch
 
-If ->set_cur_state() doesn't error out on invalid state,
-thermal_cooling_device_stats_update() does a:
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-fix-missing-wake-up-event-for-fsdax-pages.patch
 
-stats->trans_table[stats->state * stats->max_states + new_state]++;
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-stats->trans_table reserves space depending on max_states, but we'd end up
-reading/writing outside it. cur_state_store() can prevent this regardless of
-the driver's ->set_cur_state() implementation.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Regards,
-Varad
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-> thanks,
->
-> greg k-h
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Muchun Song <songmuchun@bytedance.com>
+Subject: mm: fix missing wake-up event for FSDAX pages
+Date: Tue, 5 Jul 2022 20:35:32 +0800
+
+FSDAX page refcounts are 1-based, rather than 0-based: if refcount is 1,
+then the page is freed.  The FSDAX pages can be pinned through GUP, then
+they will be unpinned via unpin_user_page() using a folio variant to put
+the page, however, folio variants did not consider this special case, the
+result will be to miss a wakeup event (like the user of
+__fuse_dax_break_layouts()).  Since FSDAX pages are only possible get by
+GUP users, so fix GUP instead of folio_put() to lower overhead.
+
+Link: https://lkml.kernel.org/r/20220705123532.283-1-songmuchun@bytedance.com
+Fixes: d8ddc099c6b3 ("mm/gup: Add gup_put_folio()")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/mm.h |   14 +++++++++-----
+ mm/gup.c           |    6 ++++--
+ mm/memremap.c      |    6 +++---
+ 3 files changed, 16 insertions(+), 10 deletions(-)
+
+--- a/include/linux/mm.h~mm-fix-missing-wake-up-event-for-fsdax-pages
++++ a/include/linux/mm.h
+@@ -1130,23 +1130,27 @@ static inline bool is_zone_movable_page(
+ #if defined(CONFIG_ZONE_DEVICE) && defined(CONFIG_FS_DAX)
+ DECLARE_STATIC_KEY_FALSE(devmap_managed_key);
+ 
+-bool __put_devmap_managed_page(struct page *page);
+-static inline bool put_devmap_managed_page(struct page *page)
++bool __put_devmap_managed_page_refs(struct page *page, int refs);
++static inline bool put_devmap_managed_page_refs(struct page *page, int refs)
+ {
+ 	if (!static_branch_unlikely(&devmap_managed_key))
+ 		return false;
+ 	if (!is_zone_device_page(page))
+ 		return false;
+-	return __put_devmap_managed_page(page);
++	return __put_devmap_managed_page_refs(page, refs);
+ }
+-
+ #else /* CONFIG_ZONE_DEVICE && CONFIG_FS_DAX */
+-static inline bool put_devmap_managed_page(struct page *page)
++static inline bool put_devmap_managed_page_refs(struct page *page, int refs)
+ {
+ 	return false;
+ }
+ #endif /* CONFIG_ZONE_DEVICE && CONFIG_FS_DAX */
+ 
++static inline bool put_devmap_managed_page(struct page *page)
++{
++	return put_devmap_managed_page_refs(page, 1);
++}
++
+ /* 127: arbitrary random number, small enough to assemble well */
+ #define folio_ref_zero_or_close_to_overflow(folio) \
+ 	((unsigned int) folio_ref_count(folio) + 127u <= 127u)
+--- a/mm/gup.c~mm-fix-missing-wake-up-event-for-fsdax-pages
++++ a/mm/gup.c
+@@ -87,7 +87,8 @@ retry:
+ 	 * belongs to this folio.
+ 	 */
+ 	if (unlikely(page_folio(page) != folio)) {
+-		folio_put_refs(folio, refs);
++		if (!put_devmap_managed_page_refs(&folio->page, refs))
++			folio_put_refs(folio, refs);
+ 		goto retry;
+ 	}
+ 
+@@ -176,7 +177,8 @@ static void gup_put_folio(struct folio *
+ 			refs *= GUP_PIN_COUNTING_BIAS;
+ 	}
+ 
+-	folio_put_refs(folio, refs);
++	if (!put_devmap_managed_page_refs(&folio->page, refs))
++		folio_put_refs(folio, refs);
+ }
+ 
+ /**
+--- a/mm/memremap.c~mm-fix-missing-wake-up-event-for-fsdax-pages
++++ a/mm/memremap.c
+@@ -499,7 +499,7 @@ void free_zone_device_page(struct page *
+ }
+ 
+ #ifdef CONFIG_FS_DAX
+-bool __put_devmap_managed_page(struct page *page)
++bool __put_devmap_managed_page_refs(struct page *page, int refs)
+ {
+ 	if (page->pgmap->type != MEMORY_DEVICE_FS_DAX)
+ 		return false;
+@@ -509,9 +509,9 @@ bool __put_devmap_managed_page(struct pa
+ 	 * refcount is 1, then the page is free and the refcount is
+ 	 * stable because nobody holds a reference on the page.
+ 	 */
+-	if (page_ref_dec_return(page) == 1)
++	if (page_ref_sub_return(page, refs) == 1)
+ 		wake_up_var(&page->_refcount);
+ 	return true;
+ }
+-EXPORT_SYMBOL(__put_devmap_managed_page);
++EXPORT_SYMBOL(__put_devmap_managed_page_refs);
+ #endif /* CONFIG_FS_DAX */
+_
+
+Patches currently in -mm which might be from songmuchun@bytedance.com are
+
+mm-fix-missing-wake-up-event-for-fsdax-pages.patch
+mm-memcontrol-remove-dead-code-and-comments.patch
+mm-rename-unlock_page_lruvec_irq-_irqrestore-to-lruvec_unlock_irq-_irqrestore.patch
+mm-memcontrol-prepare-objcg-api-for-non-kmem-usage.patch
+mm-memcontrol-make-lruvec-lock-safe-when-lru-pages-are-reparented.patch
+mm-vmscan-rework-move_pages_to_lru.patch
+mm-thp-make-split-queue-lock-safe-when-lru-pages-are-reparented.patch
+mm-memcontrol-make-all-the-callers-of-foliopage_memcg-safe.patch
+mm-memcontrol-introduce-memcg_reparent_ops.patch
+mm-memcontrol-use-obj_cgroup-apis-to-charge-the-lru-pages.patch
+mm-lru-add-vm_warn_on_once_folio-to-lru-maintenance-function.patch
+mm-hugetlb_vmemmap-delete-hugetlb_optimize_vmemmap_enabled.patch
+mm-hugetlb_vmemmap-optimize-vmemmap_optimize_mode-handling.patch
+mm-hugetlb_vmemmap-introduce-the-name-hvo.patch
+mm-hugetlb_vmemmap-move-vmemmap-code-related-to-hugetlb-to-hugetlb_vmemmapc.patch
+mm-hugetlb_vmemmap-replace-early_param-with-core_param.patch
+mm-hugetlb_vmemmap-improve-hugetlb_vmemmap-code-readability.patch
+mm-hugetlb_vmemmap-move-code-comments-to-vmemmap_deduprst.patch
+mm-hugetlb_vmemmap-use-ptrs_per_pte-instead-of-pmd_size-page_size.patch
+
