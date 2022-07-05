@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D376566E19
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C271D566CDC
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237592AbiGEMbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S236164AbiGEMU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235601AbiGEM0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 834F115A25;
-        Tue,  5 Jul 2022 05:18:38 -0700 (PDT)
+        with ESMTP id S237376AbiGEMTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A135E1A83B;
+        Tue,  5 Jul 2022 05:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F3B6B8170A;
-        Tue,  5 Jul 2022 12:18:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D487C341C7;
-        Tue,  5 Jul 2022 12:18:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D4EC619FC;
+        Tue,  5 Jul 2022 12:14:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49CE3C341C8;
+        Tue,  5 Jul 2022 12:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023515;
-        bh=do6yYSyQxfB6PbEl2YYs7ab3cyfGJYZV04POplKETk0=;
+        s=korg; t=1657023266;
+        bh=0rKe4uWzpN82tpSDutmkRLrPOnVLFYSIZSRH479o06I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLx9kWH1ZYMWtalyYt2T1bOQ7RPqtUeynaYkuWsvRto4Fn9x71cBqysZ54dW8+GJr
-         a1JSlvEcg7UWwWJvxiJrf0+37ywStz8JnW/K7MRX7DSUk7cjdiDfEuoDWkyv1+O5p0
-         Kz75M9p2ZaYrJFF9WmdWEcdNd4BECyk0+L0/qiXQ=
+        b=mTQt+PPhoPvcr4huGlNxSa9dVPux3RFBEAwvOzypY83wmQ/+efQI/+urJJvI58ZDp
+         IvWU+IUfMdx9heTv6yf3q0Tq8glSFg2VvFpDfHwRrRDlGBRhKvtokSKcIvOUgVmYw/
+         0/++otwJ0SBHed/tVEcZ3GfUQ1OT2T+xMjFgqFQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 089/102] platform/x86: panasonic-laptop: sort includes alphabetically
+Subject: [PATCH 5.15 97/98] hwmon: (occ) Prevent power cap command overwriting poll response
 Date:   Tue,  5 Jul 2022 13:58:55 +0200
-Message-Id: <20220705115620.947890321@linuxfoundation.org>
+Message-Id: <20220705115620.326725674@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit fe4326c8d18dc8a54affdc9ab269ad92dafef659 ]
+[ Upstream commit 1bbb2809040a1f9c7c53c9f06c21aa83275ed27b ]
 
-Sort includes alphabetically, small cleanup patch in preparation of
-further changes.
+Currently, the response to the power cap command overwrites the
+first eight bytes of the poll response, since the commands use
+the same buffer. This means that user's get the wrong data between
+the time of sending the power cap and the next poll response update.
+Fix this by specifying a different buffer for the power cap command
+response.
 
-Fixes: ed83c9171829 ("platform/x86: panasonic-laptop: Resolve hotkey double trigger bug")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220624112340.10130-4-hdegoede@redhat.com
+Fixes: 5b5513b88002 ("hwmon: Add On-Chip Controller (OCC) hwmon driver")
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220628203029.51747-1-eajames@linux.ibm.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/panasonic-laptop.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/hwmon/occ/common.c |  5 +++--
+ drivers/hwmon/occ/common.h |  3 ++-
+ drivers/hwmon/occ/p8_i2c.c | 13 +++++++------
+ drivers/hwmon/occ/p9_sbe.c |  7 +++----
+ 4 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
-index ca6137f4000f..26e31ac09dc6 100644
---- a/drivers/platform/x86/panasonic-laptop.c
-+++ b/drivers/platform/x86/panasonic-laptop.c
-@@ -119,20 +119,19 @@
-  *		- v0.1  start from toshiba_acpi driver written by John Belmonte
-  */
+diff --git a/drivers/hwmon/occ/common.c b/drivers/hwmon/occ/common.c
+index 0cb4a0a6cbc1..bbe5e4ef4113 100644
+--- a/drivers/hwmon/occ/common.c
++++ b/drivers/hwmon/occ/common.c
+@@ -145,7 +145,7 @@ static int occ_poll(struct occ *occ)
+ 	cmd[6] = 0;			/* checksum lsb */
  
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/init.h>
--#include <linux/types.h>
-+#include <linux/acpi.h>
- #include <linux/backlight.h>
- #include <linux/ctype.h>
--#include <linux/seq_file.h>
--#include <linux/uaccess.h>
--#include <linux/slab.h>
--#include <linux/acpi.h>
-+#include <linux/init.h>
- #include <linux/input.h>
- #include <linux/input/sparse-keymap.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
- #include <linux/platform_device.h>
--
-+#include <linux/seq_file.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/uaccess.h>
+ 	/* mutex should already be locked if necessary */
+-	rc = occ->send_cmd(occ, cmd, sizeof(cmd));
++	rc = occ->send_cmd(occ, cmd, sizeof(cmd), &occ->resp, sizeof(occ->resp));
+ 	if (rc) {
+ 		occ->last_error = rc;
+ 		if (occ->error_count++ > OCC_ERROR_COUNT_THRESHOLD)
+@@ -182,6 +182,7 @@ static int occ_set_user_power_cap(struct occ *occ, u16 user_power_cap)
+ {
+ 	int rc;
+ 	u8 cmd[8];
++	u8 resp[8];
+ 	__be16 user_power_cap_be = cpu_to_be16(user_power_cap);
  
- MODULE_AUTHOR("Hiroshi Miura <miura@da-cha.org>");
- MODULE_AUTHOR("David Bronaugh <dbronaugh@linuxboxen.org>");
+ 	cmd[0] = 0;	/* sequence number */
+@@ -198,7 +199,7 @@ static int occ_set_user_power_cap(struct occ *occ, u16 user_power_cap)
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = occ->send_cmd(occ, cmd, sizeof(cmd));
++	rc = occ->send_cmd(occ, cmd, sizeof(cmd), resp, sizeof(resp));
+ 
+ 	mutex_unlock(&occ->lock);
+ 
+diff --git a/drivers/hwmon/occ/common.h b/drivers/hwmon/occ/common.h
+index 5020117be740..7abf19102062 100644
+--- a/drivers/hwmon/occ/common.h
++++ b/drivers/hwmon/occ/common.h
+@@ -96,7 +96,8 @@ struct occ {
+ 
+ 	int powr_sample_time_us;	/* average power sample time */
+ 	u8 poll_cmd_data;		/* to perform OCC poll command */
+-	int (*send_cmd)(struct occ *occ, u8 *cmd, size_t len);
++	int (*send_cmd)(struct occ *occ, u8 *cmd, size_t len, void *resp,
++			size_t resp_len);
+ 
+ 	unsigned long next_update;
+ 	struct mutex lock;		/* lock OCC access */
+diff --git a/drivers/hwmon/occ/p8_i2c.c b/drivers/hwmon/occ/p8_i2c.c
+index 9e61e1fb5142..c35c07964d85 100644
+--- a/drivers/hwmon/occ/p8_i2c.c
++++ b/drivers/hwmon/occ/p8_i2c.c
+@@ -111,7 +111,8 @@ static int p8_i2c_occ_putscom_be(struct i2c_client *client, u32 address,
+ 				      be32_to_cpu(data1));
+ }
+ 
+-static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
++static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len,
++			       void *resp, size_t resp_len)
+ {
+ 	int i, rc;
+ 	unsigned long start;
+@@ -120,7 +121,7 @@ static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
+ 	const long wait_time = msecs_to_jiffies(OCC_CMD_IN_PRG_WAIT_MS);
+ 	struct p8_i2c_occ *ctx = to_p8_i2c_occ(occ);
+ 	struct i2c_client *client = ctx->client;
+-	struct occ_response *resp = &occ->resp;
++	struct occ_response *or = (struct occ_response *)resp;
+ 
+ 	start = jiffies;
+ 
+@@ -151,7 +152,7 @@ static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
+ 			return rc;
+ 
+ 		/* wait for OCC */
+-		if (resp->return_status == OCC_RESP_CMD_IN_PRG) {
++		if (or->return_status == OCC_RESP_CMD_IN_PRG) {
+ 			rc = -EALREADY;
+ 
+ 			if (time_after(jiffies, start + timeout))
+@@ -163,7 +164,7 @@ static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
+ 	} while (rc);
+ 
+ 	/* check the OCC response */
+-	switch (resp->return_status) {
++	switch (or->return_status) {
+ 	case OCC_RESP_CMD_IN_PRG:
+ 		rc = -ETIMEDOUT;
+ 		break;
+@@ -192,8 +193,8 @@ static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
+ 	if (rc < 0)
+ 		return rc;
+ 
+-	data_length = get_unaligned_be16(&resp->data_length);
+-	if (data_length > OCC_RESP_DATA_BYTES)
++	data_length = get_unaligned_be16(&or->data_length);
++	if ((data_length + 7) > resp_len)
+ 		return -EMSGSIZE;
+ 
+ 	/* fetch the rest of the response data */
+diff --git a/drivers/hwmon/occ/p9_sbe.c b/drivers/hwmon/occ/p9_sbe.c
+index 9709f2b9c052..14923e78e1f3 100644
+--- a/drivers/hwmon/occ/p9_sbe.c
++++ b/drivers/hwmon/occ/p9_sbe.c
+@@ -16,18 +16,17 @@ struct p9_sbe_occ {
+ 
+ #define to_p9_sbe_occ(x)	container_of((x), struct p9_sbe_occ, occ)
+ 
+-static int p9_sbe_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
++static int p9_sbe_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len,
++			       void *resp, size_t resp_len)
+ {
+-	struct occ_response *resp = &occ->resp;
+ 	struct p9_sbe_occ *ctx = to_p9_sbe_occ(occ);
+-	size_t resp_len = sizeof(*resp);
+ 	int rc;
+ 
+ 	rc = fsi_occ_submit(ctx->sbe, cmd, len, resp, &resp_len);
+ 	if (rc < 0)
+ 		return rc;
+ 
+-	switch (resp->return_status) {
++	switch (((struct occ_response *)resp)->return_status) {
+ 	case OCC_RESP_CMD_IN_PRG:
+ 		rc = -ETIMEDOUT;
+ 		break;
 -- 
 2.35.1
 
