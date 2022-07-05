@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C2C566A8B
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4274566C76
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:15:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232919AbiGEMA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:00:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42272 "EHLO
+        id S235502AbiGEMPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:15:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232803AbiGEMAL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F7CA17E1A;
-        Tue,  5 Jul 2022 05:00:07 -0700 (PDT)
+        with ESMTP id S232512AbiGEMOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:14:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E114818E25;
+        Tue,  5 Jul 2022 05:11:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0134617B0;
-        Tue,  5 Jul 2022 12:00:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F33C341C7;
-        Tue,  5 Jul 2022 12:00:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCF4619BF;
+        Tue,  5 Jul 2022 12:11:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89265C341C7;
+        Tue,  5 Jul 2022 12:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022406;
-        bh=ZN8+uRs5APM5boRIUc32C4EweShCfPrlV3ERh7NNzEI=;
+        s=korg; t=1657023077;
+        bh=dy7bOytgF344lIFWXNRmT21pW2lZa+vQbXwQxR7s3v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLztnbHSAvktNbR9PaXzq5Kqkt2G6pz2BhoXwdrJ2zmIi7ZceQPsK1dSobjEZgoju
-         hyIeWfe3b98je69XAAgl3ZEVnH1M3swZOmuff7jtDNxQWAR3J1y4FK0nzxtWSbzrfD
-         teehVweEM9GN5VXTGoQL88OL+m9GXybi1y5zFnPc=
+        b=QcJJ38o9hiIogKceuO0WxPs2lvmnO+tjVKmIBlw/K0fJQoZ8c3GQLBMzDmxuE1a0H
+         /Wwmf3y2R8aKcRz4qhEAlpgMC75xyTeC2xWObtkAmqEfKt7/Iumjdiyl30JFuPNiXF
+         hT5RFgsepo6kCDxweB9hWqfUKCoyy9poP2vSHmpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9 05/29] usbnet: make sure no NULL pointer is passed through
-Date:   Tue,  5 Jul 2022 13:57:46 +0200
-Message-Id: <20220705115605.903898317@linuxfoundation.org>
+        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.15 29/98] linux/dim: Fix divide by 0 in RDMA DIM
+Date:   Tue,  5 Jul 2022 13:57:47 +0200
+Message-Id: <20220705115618.419776878@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-References: <20220705115605.742248854@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Tao Liu <thomas.liu@ucloud.cn>
 
-commit 6c22fce07c97f765af1808ec3be007847e0b47d1 upstream.
+commit 0fe3dbbefb74a8575f61d7801b08dbc50523d60d upstream.
 
-Coverity reports:
+Fix a divide 0 error in rdma_dim_stats_compare() when prev->cpe_ratio ==
+0.
 
-** CID 751368:  Null pointer dereferences  (FORWARD_NULL)
-/drivers/net/usb/usbnet.c: 1925 in __usbnet_read_cmd()
+CallTrace:
+  Hardware name: H3C R4900 G3/RS33M2C9S, BIOS 2.00.37P21 03/12/2020
+  task: ffff880194b78000 task.stack: ffffc90006714000
+  RIP: 0010:backport_rdma_dim+0x10e/0x240 [mlx_compat]
+  RSP: 0018:ffff880c10e83ec0 EFLAGS: 00010202
+  RAX: 0000000000002710 RBX: ffff88096cd7f780 RCX: 0000000000000064
+  RDX: 0000000000000000 RSI: 0000000000000002 RDI: 0000000000000001
+  RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: 000000001d7c6c09
+  R13: ffff88096cd7f780 R14: ffff880b174fe800 R15: 0000000000000000
+  FS:  0000000000000000(0000) GS:ffff880c10e80000(0000)
+  knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000a0965b00 CR3: 000000000200a003 CR4: 00000000007606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   <IRQ>
+   ib_poll_handler+0x43/0x80 [ib_core]
+   irq_poll_softirq+0xae/0x110
+   __do_softirq+0xd1/0x28c
+   irq_exit+0xde/0xf0
+   do_IRQ+0x54/0xe0
+   common_interrupt+0x8f/0x8f
+   </IRQ>
+   ? cpuidle_enter_state+0xd9/0x2a0
+   ? cpuidle_enter_state+0xc7/0x2a0
+   ? do_idle+0x170/0x1d0
+   ? cpu_startup_entry+0x6f/0x80
+   ? start_secondary+0x1b9/0x210
+   ? secondary_startup_64+0xa5/0xb0
+  Code: 0f 87 e1 00 00 00 8b 4c 24 14 44 8b 43 14 89 c8 4d 63 c8 44 29 c0 99 31 d0 29 d0 31 d2 48 98 48 8d 04 80 48 8d 04 80 48 c1 e0 02 <49> f7 f1 48 83 f8 0a 0f 86 c1 00 00 00 44 39 c1 7f 10 48 89 df
+  RIP: backport_rdma_dim+0x10e/0x240 [mlx_compat] RSP: ffff880c10e83ec0
 
-________________________________________________________________________________________________________
+Fixes: f4915455dcf0 ("linux/dim: Implement RDMA adaptive moderation (DIM)")
+Link: https://lore.kernel.org/r/20220627140004.3099-1-thomas.liu@ucloud.cn
+Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Acked-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ include/linux/dim.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1951,7 +1951,7 @@ static int __usbnet_read_cmd(struct usbn
- 		   " value=0x%04x index=0x%04x size=%d\n",
- 		   cmd, reqtype, value, index, size);
+--- a/include/linux/dim.h
++++ b/include/linux/dim.h
+@@ -21,7 +21,7 @@
+  * We consider 10% difference as significant.
+  */
+ #define IS_SIGNIFICANT_DIFF(val, ref) \
+-	(((100UL * abs((val) - (ref))) / (ref)) > 10)
++	((ref) && (((100UL * abs((val) - (ref))) / (ref)) > 10))
  
--	if (data) {
-+	if (size) {
- 		buf = kmalloc(size, GFP_KERNEL);
- 		if (!buf)
- 			goto out;
-@@ -1960,8 +1960,13 @@ static int __usbnet_read_cmd(struct usbn
- 	err = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
- 			      cmd, reqtype, value, index, buf, size,
- 			      USB_CTRL_GET_TIMEOUT);
--	if (err > 0 && err <= size)
--		memcpy(data, buf, err);
-+	if (err > 0 && err <= size) {
-+        if (data)
-+            memcpy(data, buf, err);
-+        else
-+            netdev_dbg(dev->net,
-+                "Huh? Data requested but thrown away.\n");
-+    }
- 	kfree(buf);
- out:
- 	return err;
-@@ -1982,7 +1987,13 @@ static int __usbnet_write_cmd(struct usb
- 		buf = kmemdup(data, size, GFP_KERNEL);
- 		if (!buf)
- 			goto out;
--	}
-+	} else {
-+        if (size) {
-+            WARN_ON_ONCE(1);
-+            err = -EINVAL;
-+            goto out;
-+        }
-+    }
- 
- 	err = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
- 			      cmd, reqtype, value, index, buf, size,
+ /*
+  * Calculate the gap between two values.
 
 
