@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1444566B5B
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4888566C62
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbiGEMGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:06:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
+        id S235717AbiGEMO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:14:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233362AbiGEMFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 582DA17E17;
-        Tue,  5 Jul 2022 05:04:44 -0700 (PDT)
+        with ESMTP id S234734AbiGEMNf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:13:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1D918B26;
+        Tue,  5 Jul 2022 05:11:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0481B817CC;
-        Tue,  5 Jul 2022 12:04:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED1EC341C7;
-        Tue,  5 Jul 2022 12:04:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B92F619BF;
+        Tue,  5 Jul 2022 12:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4D2C341C7;
+        Tue,  5 Jul 2022 12:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022681;
-        bh=H8VzTj+MhLAayh71X8H5G6CUZVkthOOnhSz5rxXoOJo=;
+        s=korg; t=1657023066;
+        bh=AzEppktl3iMXpKZKusDV5yRb60MSK4FbE+GTaPKMriY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrFzpFdmyT/fuT+ny7T4Ounrx5qF3gfDn/p4+UxJoTZrU3nwGUIv0pH1evXmj8gOm
-         YEL6DSJlE/Lo8WW24FBDbRHVgthWOmpDUM+OzR/vWqw0H0a4OvJsSilC0tNd+ZMSIN
-         LZKNL8jhhlBQdm1u6Ng11sW8/LRaAdrW6rPglGjg=
+        b=WCx+097BsW8ClSN6TFIn4wXxe7Wx2yhLjD4wWEn8vbeVKMWhx0nFDPMVAYmIhuW4j
+         p87aRy3eMz+pAW0CmqmPgwpEcmXLx+0/3xg4P/ASw08zIgfIzDesUf7B/UtFxMrX6N
+         Q7DdtfI8fOXdP6IMBgdvoLfxMWxBh1BZ6gUGHEVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Ingo Franzki <ifranzki@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH 5.4 07/58] s390/archrandom: simplify back to earlier design and initialize earlier
+        Enguerrand de Ribaucourt 
+        <enguerrand.de-ribaucourt@savoirfairelinux.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 25/98] net: dp83822: disable false carrier interrupt
 Date:   Tue,  5 Jul 2022 13:57:43 +0200
-Message-Id: <20220705115610.461671736@linuxfoundation.org>
+Message-Id: <20220705115618.306901068@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,255 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
 
-commit e4f74400308cb8abde5fdc9cad609c2aba32110c upstream.
+commit c96614eeab663646f57f67aa591e015abd8bd0ba upstream.
 
-s390x appears to present two RNG interfaces:
-- a "TRNG" that gathers entropy using some hardware function; and
-- a "DRBG" that takes in a seed and expands it.
+When unplugging an Ethernet cable, false carrier events were produced by
+the PHY at a very high rate. Once the false carrier counter full, an
+interrupt was triggered every few clock cycles until the cable was
+replugged. This resulted in approximately 10k/s interrupts.
 
-Previously, the TRNG was wired up to arch_get_random_{long,int}(), but
-it was observed that this was being called really frequently, resulting
-in high overhead. So it was changed to be wired up to arch_get_random_
-seed_{long,int}(), which was a reasonable decision. Later on, the DRBG
-was then wired up to arch_get_random_{long,int}(), with a complicated
-buffer filling thread, to control overhead and rate.
+Since the false carrier counter (FCSCR) is never used, we can safely
+disable this interrupt.
 
-Fortunately, none of the performance issues matter much now. The RNG
-always attempts to use arch_get_random_seed_{long,int}() first, which
-means a complicated implementation of arch_get_random_{long,int}() isn't
-really valuable or useful to have around. And it's only used when
-reseeding, which means it won't hit the high throughput complications
-that were faced before.
+In addition to improving performance, this also solved MDIO read
+timeouts I was randomly encountering with an i.MX8 fec MAC because of
+the interrupt flood. The interrupt count and MDIO timeout fix were
+tested on a v5.4.110 kernel.
 
-So this commit returns to an earlier design of just calling the TRNG in
-arch_get_random_seed_{long,int}(), and returning false in arch_get_
-random_{long,int}().
-
-Part of what makes the simplification possible is that the RNG now seeds
-itself using the TRNG at bootup. But this only works if the TRNG is
-detected early in boot, before random_init() is called. So this commit
-also causes that check to happen in setup_arch().
-
-Cc: stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Ingo Franzki <ifranzki@linux.ibm.com>
-Cc: Juergen Christ <jchrist@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20220610222023.378448-1-Jason@zx2c4.com
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
+Signed-off-by: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/crypto/arch_random.c     |  111 -------------------------------------
- arch/s390/include/asm/archrandom.h |   21 ++++---
- arch/s390/kernel/setup.c           |    5 +
- 3 files changed, 18 insertions(+), 119 deletions(-)
+ drivers/net/phy/dp83822.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/s390/crypto/arch_random.c
-+++ b/arch/s390/crypto/arch_random.c
-@@ -2,126 +2,17 @@
- /*
-  * s390 arch random implementation.
-  *
-- * Copyright IBM Corp. 2017, 2018
-+ * Copyright IBM Corp. 2017, 2020
-  * Author(s): Harald Freudenberger
-- *
-- * The s390_arch_random_generate() function may be called from random.c
-- * in interrupt context. So this implementation does the best to be very
-- * fast. There is a buffer of random data which is asynchronously checked
-- * and filled by a workqueue thread.
-- * If there are enough bytes in the buffer the s390_arch_random_generate()
-- * just delivers these bytes. Otherwise false is returned until the
-- * worker thread refills the buffer.
-- * The worker fills the rng buffer by pulling fresh entropy from the
-- * high quality (but slow) true hardware random generator. This entropy
-- * is then spread over the buffer with an pseudo random generator PRNG.
-- * As the arch_get_random_seed_long() fetches 8 bytes and the calling
-- * function add_interrupt_randomness() counts this as 1 bit entropy the
-- * distribution needs to make sure there is in fact 1 bit entropy contained
-- * in 8 bytes of the buffer. The current values pull 32 byte entropy
-- * and scatter this into a 2048 byte buffer. So 8 byte in the buffer
-- * will contain 1 bit of entropy.
-- * The worker thread is rescheduled based on the charge level of the
-- * buffer but at least with 500 ms delay to avoid too much CPU consumption.
-- * So the max. amount of rng data delivered via arch_get_random_seed is
-- * limited to 4k bytes per second.
-  */
+--- a/drivers/net/phy/dp83822.c
++++ b/drivers/net/phy/dp83822.c
+@@ -229,7 +229,6 @@ static int dp83822_config_intr(struct ph
+ 			return misr_status;
  
- #include <linux/kernel.h>
- #include <linux/atomic.h>
- #include <linux/random.h>
--#include <linux/slab.h>
- #include <linux/static_key.h>
--#include <linux/workqueue.h>
- #include <asm/cpacf.h>
- 
- DEFINE_STATIC_KEY_FALSE(s390_arch_random_available);
- 
- atomic64_t s390_arch_random_counter = ATOMIC64_INIT(0);
- EXPORT_SYMBOL(s390_arch_random_counter);
--
--#define ARCH_REFILL_TICKS (HZ/2)
--#define ARCH_PRNG_SEED_SIZE 32
--#define ARCH_RNG_BUF_SIZE 2048
--
--static DEFINE_SPINLOCK(arch_rng_lock);
--static u8 *arch_rng_buf;
--static unsigned int arch_rng_buf_idx;
--
--static void arch_rng_refill_buffer(struct work_struct *);
--static DECLARE_DELAYED_WORK(arch_rng_work, arch_rng_refill_buffer);
--
--bool s390_arch_random_generate(u8 *buf, unsigned int nbytes)
--{
--	/* max hunk is ARCH_RNG_BUF_SIZE */
--	if (nbytes > ARCH_RNG_BUF_SIZE)
--		return false;
--
--	/* lock rng buffer */
--	if (!spin_trylock(&arch_rng_lock))
--		return false;
--
--	/* try to resolve the requested amount of bytes from the buffer */
--	arch_rng_buf_idx -= nbytes;
--	if (arch_rng_buf_idx < ARCH_RNG_BUF_SIZE) {
--		memcpy(buf, arch_rng_buf + arch_rng_buf_idx, nbytes);
--		atomic64_add(nbytes, &s390_arch_random_counter);
--		spin_unlock(&arch_rng_lock);
--		return true;
--	}
--
--	/* not enough bytes in rng buffer, refill is done asynchronously */
--	spin_unlock(&arch_rng_lock);
--
--	return false;
--}
--EXPORT_SYMBOL(s390_arch_random_generate);
--
--static void arch_rng_refill_buffer(struct work_struct *unused)
--{
--	unsigned int delay = ARCH_REFILL_TICKS;
--
--	spin_lock(&arch_rng_lock);
--	if (arch_rng_buf_idx > ARCH_RNG_BUF_SIZE) {
--		/* buffer is exhausted and needs refill */
--		u8 seed[ARCH_PRNG_SEED_SIZE];
--		u8 prng_wa[240];
--		/* fetch ARCH_PRNG_SEED_SIZE bytes of entropy */
--		cpacf_trng(NULL, 0, seed, sizeof(seed));
--		/* blow this entropy up to ARCH_RNG_BUF_SIZE with PRNG */
--		memset(prng_wa, 0, sizeof(prng_wa));
--		cpacf_prno(CPACF_PRNO_SHA512_DRNG_SEED,
--			   &prng_wa, NULL, 0, seed, sizeof(seed));
--		cpacf_prno(CPACF_PRNO_SHA512_DRNG_GEN,
--			   &prng_wa, arch_rng_buf, ARCH_RNG_BUF_SIZE, NULL, 0);
--		arch_rng_buf_idx = ARCH_RNG_BUF_SIZE;
--	}
--	delay += (ARCH_REFILL_TICKS * arch_rng_buf_idx) / ARCH_RNG_BUF_SIZE;
--	spin_unlock(&arch_rng_lock);
--
--	/* kick next check */
--	queue_delayed_work(system_long_wq, &arch_rng_work, delay);
--}
--
--static int __init s390_arch_random_init(void)
--{
--	/* all the needed PRNO subfunctions available ? */
--	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG) &&
--	    cpacf_query_func(CPACF_PRNO, CPACF_PRNO_SHA512_DRNG_GEN)) {
--
--		/* alloc arch random working buffer */
--		arch_rng_buf = kmalloc(ARCH_RNG_BUF_SIZE, GFP_KERNEL);
--		if (!arch_rng_buf)
--			return -ENOMEM;
--
--		/* kick worker queue job to fill the random buffer */
--		queue_delayed_work(system_long_wq,
--				   &arch_rng_work, ARCH_REFILL_TICKS);
--
--		/* enable arch random to the outside world */
--		static_branch_enable(&s390_arch_random_available);
--	}
--
--	return 0;
--}
--arch_initcall(s390_arch_random_init);
---- a/arch/s390/include/asm/archrandom.h
-+++ b/arch/s390/include/asm/archrandom.h
-@@ -2,7 +2,7 @@
- /*
-  * Kernel interface for the s390 arch_random_* functions
-  *
-- * Copyright IBM Corp. 2017
-+ * Copyright IBM Corp. 2017, 2020
-  *
-  * Author: Harald Freudenberger <freude@de.ibm.com>
-  *
-@@ -15,34 +15,37 @@
- 
- #include <linux/static_key.h>
- #include <linux/atomic.h>
-+#include <asm/cpacf.h>
- 
- DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
- extern atomic64_t s390_arch_random_counter;
- 
--bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
--
--static inline bool arch_get_random_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_long(unsigned long *v)
- {
- 	return false;
- }
- 
--static inline bool arch_get_random_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_int(unsigned int *v)
- {
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
- {
- 	if (static_branch_likely(&s390_arch_random_available)) {
--		return s390_arch_random_generate((u8 *)v, sizeof(*v));
-+		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
-+		atomic64_add(sizeof(*v), &s390_arch_random_counter);
-+		return true;
- 	}
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- {
- 	if (static_branch_likely(&s390_arch_random_available)) {
--		return s390_arch_random_generate((u8 *)v, sizeof(*v));
-+		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
-+		atomic64_add(sizeof(*v), &s390_arch_random_counter);
-+		return true;
- 	}
- 	return false;
- }
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1005,6 +1005,11 @@ static void __init setup_randomness(void
- 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
- 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
- 	memblock_free((unsigned long) vmms, PAGE_SIZE);
-+
-+#ifdef CONFIG_ARCH_RANDOM
-+	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG))
-+		static_branch_enable(&s390_arch_random_available);
-+#endif
- }
- 
- /*
+ 		misr_status |= (DP83822_RX_ERR_HF_INT_EN |
+-				DP83822_FALSE_CARRIER_HF_INT_EN |
+ 				DP83822_LINK_STAT_INT_EN |
+ 				DP83822_ENERGY_DET_INT_EN |
+ 				DP83822_LINK_QUAL_INT_EN);
 
 
