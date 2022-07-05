@@ -2,142 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2AAA56745C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 18:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F3DE5674DB
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 18:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229658AbiGEQbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 12:31:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
+        id S231305AbiGEQxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 12:53:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229721AbiGEQbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 12:31:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7303A183A6;
-        Tue,  5 Jul 2022 09:31:41 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 51C1ACE1C35;
-        Tue,  5 Jul 2022 16:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B55C341CA;
-        Tue,  5 Jul 2022 16:31:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657038697;
-        bh=9iaIjTB6QH828vGInWWa01bZE4sAESoku2uPYuAZIAA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UwbGlo4Eud8EqRMTlivzhrJaUQ8FitBR6ZUTjqjyEbAOpIk+38VORhI8ajJJmJSmY
-         LrH1dHe8sQd9xYgSnsxIa5AysohtNasCSWe+LS6VfZhlN0vbKYzR/98R4OAzANb7b3
-         3ItThntjEeum9/lzg0ZMbvWjF8WGAY0kQDs6dQGA=
-Date:   Tue, 5 Jul 2022 18:31:35 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Matthieu Baerts <matthieu.baerts@tessares.net>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Paolo Abeni <pabeni@redhat.com>,
-        Geliang Tang <geliangtang@gmail.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        MPTCP Upstream <mptcp@lists.linux.dev>
-Subject: Re: [PATCH 5.10 51/84] selftests: mptcp: add ADD_ADDR timeout test
- case
-Message-ID: <YsRnZ/wmcqGiYzOt@kroah.com>
-References: <20220705115615.323395630@linuxfoundation.org>
- <20220705115616.814163273@linuxfoundation.org>
- <a2260559-86af-74ff-ca95-d494688d5ea7@tessares.net>
+        with ESMTP id S229521AbiGEQxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 12:53:46 -0400
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 756D33BF;
+        Tue,  5 Jul 2022 09:53:45 -0700 (PDT)
+Received: by mail-qk1-x72d.google.com with SMTP id v6so9160491qkh.2;
+        Tue, 05 Jul 2022 09:53:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=Lq4C3lgBb4tVK1r3gMPlQP1ZB+PVm+FPgR6q4DpS5Ps=;
+        b=E6oMW3fCcrKNrCVHSxbo4QZKPwP1woMz+j3zhuxXfjyUOD/1ANWSzS8grcDGe4/Prh
+         kagkue0MJsmF0pnbBAos9+mm7RLdTbWa3Tkwe4oxENZTWl2gRkoKRLZux6hCye88mRUQ
+         eqXHvFqranvkhzFjEgyPwKhCdYwhHPam6nsCcchHm7YjvDMOUKsKFBgBsjZmoWwjamCK
+         S9s8mf8o+FHThRFvF4kQbYtOdOnsQkr2Bgi5tW+B3xcRUrtIQ85Bi7Yt+id2tRBqWZSY
+         vQBjYWzvdfwFSvz1YTlVwRHpwd/GbOgVIYVKlqwnynfspqwxKTQlsdwAt68CJHD9qXIY
+         RgtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Lq4C3lgBb4tVK1r3gMPlQP1ZB+PVm+FPgR6q4DpS5Ps=;
+        b=XJCcAi3lHqxPe7nVZmygqh4uuw3+Id92Wm2IF6B2M6GY3NH3wg3Lxif5JmsmOgynpA
+         1Vq7B7yKwygXZxpU75rxrFovfdVLdyYLpEMSQHDk7m370yVj5Fkk4b9M1u74SYOnK2KR
+         52ux8bJfAd/ju0ooE09uwSl3LSxhUAKfcOn2AQ356QgSBUhgCaHgl0lEg+jGEb3Tsp8u
+         Qc1xxy1p+dHwqBMO4/CVIHvlnL+8Y3EF23PMfzuNizEbQaSpnRrHXfxMQhfKwiEZAS+Z
+         va3CpKd6iJX79K/UE44DfBUJTknoNr45eVx/gIwazPn/ejg3nhxeUCWR+J4Z/iT3G33L
+         WTzA==
+X-Gm-Message-State: AJIora99v/gg2lC310J5Q6M92eVeOolBuGRFT8gON6qayCnktEFRHL65
+        Xe/NaJtS+1fX8opwQMdW/v89xhpzoyg=
+X-Google-Smtp-Source: AGRyM1uYs2K46qAjt5KFYhdIRbfxJLTNOrAbmKohlOlKrLZQjsgnzH+WoiqnBDiRLDicvvS9uxFV7A==
+X-Received: by 2002:a05:620a:284b:b0:6b4:8685:2aa6 with SMTP id h11-20020a05620a284b00b006b486852aa6mr2470148qkp.780.1657040024567;
+        Tue, 05 Jul 2022 09:53:44 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id u12-20020a05620a454c00b006afd667535asm18196211qkp.83.2022.07.05.09.53.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Jul 2022 09:53:44 -0700 (PDT)
+Message-ID: <811a7622-09f5-70c3-0de8-597e778d1836@gmail.com>
+Date:   Tue, 5 Jul 2022 09:53:41 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a2260559-86af-74ff-ca95-d494688d5ea7@tessares.net>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 4.9 00/29] 4.9.322-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220705115605.742248854@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 05, 2022 at 05:59:22PM +0200, Matthieu Baerts wrote:
-> Hi Greg, Sasha,
+On 7/5/22 04:57, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.322 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> (+ MPTCP upstream ML)
+> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
+> Anything received after that time might be too late.
 > 
-> First, thank you again for maintaining the stable branches!
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.322-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
 > 
-> On 05/07/2022 13:58, Greg Kroah-Hartman wrote:
-> > From: Geliang Tang <geliangtang@gmail.com>
-> > 
-> > [ Upstream commit 8d014eaa9254a9b8e0841df40dd36782b451579a ]
-> > 
-> > This patch added the test case for retransmitting ADD_ADDR when timeout
-> > occurs. It set NS1's add_addr_timeout to 1 second, and drop NS2's ADD_ADDR
-> > echo packets.
-> TL;DR: Could it be possible to drop all selftests MPTCP patches from
-> v5.10 queue please?
+> thanks,
 > 
-> 
-> I was initially reacting on this patch because it looks like it depends on:
-> 
->   93f323b9cccc ("mptcp: add a new sysctl add_addr_timeout")
-> 
-> and indirectly to:
-> 
->   9ce7deff92e8 ("docs: networking: mptcp: Add MPTCP sysctl entries")
-> 
-> to have "net.mptcp.add_addr_timeout" sysctl knob needed for this new
-> selftest.
-> 
-> But then I tried to understand why this current patch ("selftests:
-> mptcp: add ADD_ADDR timeout test case") has been selected for 5.10. I
-> guess it was to ease the backport of another one, right?
-> Looking at the 'series' file in 5.10 queue, it seems the new
-> "selftests-mptcp-more-stable-diag-tests" patch requires 5 other patches:
-> 
-> -> selftests-mptcp-more-stable-diag-tests.patch
->  -> selftests-mptcp-fix-diag-instability.patch
->   -> selftests-mptcp-launch-mptcp_connect-with-timeout.patch
->    -> selftests-mptcp-add-add_addr-ipv6-test-cases.patch
->     -> selftests-mptcp-add-link-failure-test-case.patch
->      -> selftests-mptcp-add-add_addr-timeout-test-case.patch
-> 
-> 
-> When looking at these patches in more detail, it looks like "selftests:
-> mptcp: add ADD_ADDR IPv6 test cases" depends on a new feature only
-> available from v5.11: ADD_ADDR for IPv6.
-> 
-> 
-> Could it be possible to drop all these patches from v5.10 then please?
+> greg k-h
 
-Sure, but leave them in for 5.15.y and 5.18.y?
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-> The two recent fixes for the "diag" selftest mainly helps on slow / busy
-> CI. I think it is not worth backporting them to v5.10.
-> 
-> 
-> (Note that if we want "selftests: mptcp: fix diag instability" patch, we
-> also need 2e580a63b5c2 ("selftests: mptcp: add cfg_do_w for cfg_remove")
-> and the top part of 8da6229b9524 ("selftests: mptcp: timeout testcases
-> for multi addresses"): the list starts to be long.)
-> 
-> 
-> One last thing: it looks like when Sasha adds patches to a stable queue,
-> a notification is sent to less people than when Greg adds patches. For
-> example here, I have not been notified for this patch when added to the
-> queue while I was one of the reviewers. I already got notifications from
-> Greg when I was a reviewer on other patches.
-> Is it normal? Do you only cc people who signed off on the patch?
-
-I cc: everyone on the commit, Sasha should also do that but sometimes
-his script acts up.
-
-> It looks like you don't cc maintainers from the MAINTAINERS file but
-> that's probably on purpose. I didn't get cc for all MPTCP patches of the
-> series here but I guess I can always subscribe to 'stable' ML for that.
-
-No, we don't use the MAINTAINERS file, that would just be too noisy as
-ideally who ever the MAINTAINER was, they already saw this as the commit
-is already in Linus's tree.
-
-thanks,
-
-greg k-h
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
