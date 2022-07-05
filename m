@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37A7B566D1A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B5B566BBC
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236506AbiGEMVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37066 "EHLO
+        id S234513AbiGEMJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237580AbiGEMTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9A41D320;
-        Tue,  5 Jul 2022 05:15:22 -0700 (PDT)
+        with ESMTP id S234812AbiGEMIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8865819C0E;
+        Tue,  5 Jul 2022 05:07:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79336619E2;
-        Tue,  5 Jul 2022 12:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A4B0C341C8;
-        Tue,  5 Jul 2022 12:15:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE7466185C;
+        Tue,  5 Jul 2022 12:07:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B40C4C36AF2;
+        Tue,  5 Jul 2022 12:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023321;
-        bh=6vtMtvnMKcOp3rLFFzFcjg0nyVIUE85PXXLARnqvPeM=;
+        s=korg; t=1657022822;
+        bh=p9Ok6rpgiTUosxVgNWnRJH6ar2JH1KUS+uf1ggRWfT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCMeA8+fTj7Dl86BKaNvvKWA6cZhpiqtX5OF0x0E3hp1nzbNYQPnXEh0aI+boNQur
-         ENgE/ipUnYshHfjug1PGpvuah72L39uuQICTm+R5P0xqWVD+dTcPWfsW4a5fdBmPWB
-         ELY55UblcPmQmHkAm2opH0gv+Yq7AcKRsOEc0pFs=
+        b=zfomB45i1a5V7XtTi100Ka1MP5xAabSBoenUjoMb3X3p4cvRyi83h2TnA4NWodVBP
+         Et9WNXJhTnTG4Vj3Qi7uvt6YK/VtUo5Y/CO8DfvvMQlEhS6lcASFFCopiOXi/xf8Bk
+         BszXBlYTAzgmOAXObh98FK2gkHw95FoW222Nv0/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinzhou Su <Jinzhou.Su@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.18 019/102] cpufreq: amd-pstate: Add resume and suspend callbacks
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 22/84] RDMA/cm: Fix memory leak in ib_cm_insert_listen
 Date:   Tue,  5 Jul 2022 13:57:45 +0200
-Message-Id: <20220705115618.964128291@linuxfoundation.org>
+Message-Id: <20220705115615.974240906@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinzhou Su <Jinzhou.Su@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit b376471fb47d4905e72fe73e9eeed228f8f2f230 upstream.
+commit 2990f223ffa7bb25422956b9f79f9176a5b38346 upstream.
 
-When system resumes from S3, the CPPC enable register will be
-cleared and reset to 0.
+cm_alloc_id_priv() allocates resource for the cm_id_priv. When
+cm_init_listen() fails it doesn't free it, leading to memory leak.
 
-So enable the CPPC interface by writing 1 to this register on
-system resume and disable it during system suspend.
+Add the missing error unwind.
 
-Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
-Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
-Acked-by: Huang Rui <ray.huang@amd.com>
-[ rjw: Subject and changelog edits ]
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 98f67156a80f ("RDMA/cm: Simplify establishing a listen cm_id")
+Link: https://lore.kernel.org/r/20220621052546.4821-1-linmq006@gmail.com
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/amd-pstate.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/infiniband/core/cm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/cpufreq/amd-pstate.c
-+++ b/drivers/cpufreq/amd-pstate.c
-@@ -566,6 +566,28 @@ static int amd_pstate_cpu_exit(struct cp
- 	return 0;
- }
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -1280,8 +1280,10 @@ struct ib_cm_id *ib_cm_insert_listen(str
+ 		return ERR_CAST(cm_id_priv);
  
-+static int amd_pstate_cpu_resume(struct cpufreq_policy *policy)
-+{
-+	int ret;
-+
-+	ret = amd_pstate_enable(true);
-+	if (ret)
-+		pr_err("failed to enable amd-pstate during resume, return %d\n", ret);
-+
-+	return ret;
-+}
-+
-+static int amd_pstate_cpu_suspend(struct cpufreq_policy *policy)
-+{
-+	int ret;
-+
-+	ret = amd_pstate_enable(false);
-+	if (ret)
-+		pr_err("failed to disable amd-pstate during suspend, return %d\n", ret);
-+
-+	return ret;
-+}
-+
- /* Sysfs attributes */
+ 	err = cm_init_listen(cm_id_priv, service_id, 0);
+-	if (err)
++	if (err) {
++		ib_destroy_cm_id(&cm_id_priv->id);
+ 		return ERR_PTR(err);
++	}
  
- /*
-@@ -636,6 +658,8 @@ static struct cpufreq_driver amd_pstate_
- 	.target		= amd_pstate_target,
- 	.init		= amd_pstate_cpu_init,
- 	.exit		= amd_pstate_cpu_exit,
-+	.suspend	= amd_pstate_cpu_suspend,
-+	.resume		= amd_pstate_cpu_resume,
- 	.set_boost	= amd_pstate_set_boost,
- 	.name		= "amd-pstate",
- 	.attr           = amd_pstate_attr,
+ 	spin_lock_irq(&cm_id_priv->lock);
+ 	listen_id_priv = cm_insert_listen(cm_id_priv, cm_handler);
 
 
