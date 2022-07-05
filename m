@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE030567874
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 22:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6397B56787B
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 22:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiGEUci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 16:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
+        id S230133AbiGEUgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 16:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231535AbiGEUce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 16:32:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078621B7BA;
-        Tue,  5 Jul 2022 13:32:33 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9833461C0D;
-        Tue,  5 Jul 2022 20:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E90B8C341C8;
-        Tue,  5 Jul 2022 20:32:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1657053152;
-        bh=ZyoSSSeK/2msTcwEXg/f8m333ya+IMUL0XKBF6AoHL8=;
-        h=Date:To:From:Subject:From;
-        b=odGBpje+IvaZO18ipBc0oESuXANy+QIsy0qqZSVcp9KXa3kWdjueYkoFr/gERapXe
-         HZBbQr/Sp8M1vxrnsUIZ1spBXs/UlrzikRwy8XJjfG3+gSe9o0g4HTRJNEY2r2/Y6u
-         93hg2o1kYZjU2E9z2S9ykFBcUP04Ei8hl7T0agno=
-Date:   Tue, 05 Jul 2022 13:32:31 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, riel@surriel.com,
-        kirill.shutemov@linux.intel.com, clm@fb.com, josef@toxicpanda.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220705203231.E90B8C341C8@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S229973AbiGEUgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 16:36:07 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B23CD192B4;
+        Tue,  5 Jul 2022 13:36:05 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 6867C1C0001; Tue,  5 Jul 2022 22:36:02 +0200 (CEST)
+Date:   Tue, 5 Jul 2022 22:36:02 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 05/29] usbnet: make sure no NULL pointer is passed
+ through
+Message-ID: <20220705203601.GA3184@amd>
+References: <20220705115605.742248854@linuxfoundation.org>
+ <20220705115605.903898317@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Disposition: inline
+In-Reply-To: <20220705115605.903898317@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,92 +41,83 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm: fix page leak with multiple threads mapping the same page
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
+Hi!
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+> From: Oliver Neukum <oneukum@suse.com>
+>=20
+> commit 6c22fce07c97f765af1808ec3be007847e0b47d1 upstream.
+>=20
+> Coverity reports:
+>=20
+> ** CID 751368:  Null pointer dereferences  (FORWARD_NULL)
+> /drivers/net/usb/usbnet.c: 1925 in __usbnet_read_cmd()
+>=20
+> _________________________________________________________________________=
+_______________________________
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+There's something wrong here. Changelog is cut, so signed-offs are
+missing. It is wrong in git, too.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+There's something wrong with the whitespace in the patch (indentation
+by 4 spaces instead of tab), too.
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
+Best regards,
+								Pavel
+							=09
+> --- a/drivers/net/usb/usbnet.c
+> +++ b/drivers/net/usb/usbnet.c
+> @@ -1960,8 +1960,13 @@ static int __usbnet_read_cmd(struct usbn
+>  	err =3D usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+>  			      cmd, reqtype, value, index, buf, size,
+>  			      USB_CTRL_GET_TIMEOUT);
+> -	if (err > 0 && err <=3D size)
+> -		memcpy(data, buf, err);
+> +	if (err > 0 && err <=3D size) {
+> +        if (data)
+> +            memcpy(data, buf, err);
+> +        else
+> +            netdev_dbg(dev->net,
+> +                "Huh? Data requested but thrown away.\n");
+> +    }
+>  	kfree(buf);
+>  out:
+>  	return err;
+> @@ -1982,7 +1987,13 @@ static int __usbnet_write_cmd(struct usb
+>  		buf =3D kmemdup(data, size, GFP_KERNEL);
+>  		if (!buf)
+>  			goto out;
+> -	}
+> +	} else {
+> +        if (size) {
+> +            WARN_ON_ONCE(1);
+> +            err =3D -EINVAL;
+> +            goto out;
+> +        }
+> +    }
+> =20
+>  	err =3D usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+>  			      cmd, reqtype, value, index, buf, size,
+>=20
 
-------------------------------------------------------
-From: Josef Bacik <josef@toxicpanda.com>
-Subject: mm: fix page leak with multiple threads mapping the same page
-Date: Tue, 5 Jul 2022 16:00:36 -0400
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-We have an application with a lot of threads that use a shared mmap backed
-by tmpfs mounted with -o huge=within_size.  This application started
-leaking loads of huge pages when we upgraded to a recent kernel.
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Using the page ref tracepoints and a BPF program written by Tejun Heo we
-were able to determine that these pages would have multiple refcounts from
-the page fault path, but when it came to unmap time we wouldn't drop the
-number of refs we had added from the faults.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-I wrote a reproducer that mmap'ed a file backed by tmpfs with -o
-huge=always, and then spawned 20 threads all looping faulting random
-offsets in this map, while using madvise(MADV_DONTNEED) randomly for huge
-page aligned ranges.  This very quickly reproduced the problem.
+iEYEARECAAYFAmLEoLEACgkQMOfwapXb+vIZqwCfX0mpHAw+0dynaI7ZHL1Nxgdg
+fK8AnidRkrzg/vEgwd4aM0QcENMUoVx6
+=arxU
+-----END PGP SIGNATURE-----
 
-The problem here is that we check for the case that we have multiple
-threads faulting in a range that was previously unmapped.  One thread maps
-the PMD, the other thread loses the race and then returns 0.  However at
-this point we already have the page, and we are no longer putting this
-page into the processes address space, and so we leak the page.  We
-actually did the correct thing prior to f9ce0be71d1f, however it looks
-like Kirill copied what we do in the anonymous page case.  In the
-anonymous page case we don't yet have a page, so we don't have to drop a
-reference on anything.  Previously we did the correct thing for file based
-faults by returning VM_FAULT_NOPAGE so we correctly drop the reference on
-the page we faulted in.
-
-Fix this by returning VM_FAULT_NOPAGE in the pmd_devmap_trans_unstable()
-case, this makes us drop the ref on the page properly, and now my
-reproducer no longer leaks the huge pages.
-
-Link: https://lkml.kernel.org/r/2b798acfd95c9ab9395fe85e8d5a835e2e10a920.1657051137.git.josef@toxicpanda.com
-Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Chris Mason <clm@fb.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memory.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/memory.c~mm-fix-page-leak-with-multiple-threads-mapping-the-same-page
-+++ a/mm/memory.c
-@@ -4371,7 +4371,7 @@ vm_fault_t finish_fault(struct vm_fault
- 
- 	/* See comment in handle_pte_fault() */
- 	if (pmd_devmap_trans_unstable(vmf->pmd))
--		return 0;
-+		return VM_FAULT_NOPAGE;
- 
- 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
- 				      vmf->address, &vmf->ptl);
-_
-
-Patches currently in -mm which might be from josef@toxicpanda.com are
-
-mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
-
+--C7zPtVaVf+AK4Oqc--
