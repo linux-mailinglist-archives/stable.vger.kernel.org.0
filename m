@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D54A566B20
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6801566B7A
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233803AbiGEMEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:04:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
+        id S233465AbiGEMGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233584AbiGEMD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68065A452;
-        Tue,  5 Jul 2022 05:03:28 -0700 (PDT)
+        with ESMTP id S233466AbiGEMF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26630186F5;
+        Tue,  5 Jul 2022 05:05:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8F6161840;
-        Tue,  5 Jul 2022 12:03:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5672C341C7;
-        Tue,  5 Jul 2022 12:03:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABE6AB817CC;
+        Tue,  5 Jul 2022 12:05:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAE9C341CB;
+        Tue,  5 Jul 2022 12:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022607;
-        bh=4lGC9wPlWgidYt13xPf/COkjcdBym5EWOr6CukIF40A=;
+        s=korg; t=1657022720;
+        bh=wQ9jqvqxdCSyauW0dyP00+syI+DWg0HVsGbiqf7qvcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fM6IdCHpcMvIvskKHw11/+8oER/DIoSSOyq9FIZKZ0mJD4k6pJy5yo31kwuW5WtYu
-         bqdlaFFaCtOdfPD4T9UuJUKmDdOMDQzx8Z4cvjlllUA0o/NkAvhqI2PQBSaMHXRVDH
-         eEOGyhlTY1DzyvSWjsEPtRbKn+NSf7RroxUalazE=
+        b=Xs/U85kSXRSHr94Q8QII8ak4TMiioo/WGiKU4efi9kuYwR4bwLN6i2DnimyI6BZK3
+         j/Me/sOUkSW6T+Jx6ZciBXGbWMD/cczQSfdGOg+lhpbcdVRO1Nnz/MyxAKyTXNoSOq
+         7HWwlF1FPXWTHPNdiL1rIePq7HD1k0K3hYie+DRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 29/33] xen/netfront: force data bouncing when backend is untrusted
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 45/58] selftests/rseq: Fix warnings about #if checks of undefined tokens
 Date:   Tue,  5 Jul 2022 13:58:21 +0200
-Message-Id: <20220705115607.566490972@linuxfoundation.org>
+Message-Id: <20220705115611.566216635@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,125 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 4491001c2e0fa69efbb748c96ec96b100a5cdb7e upstream.
+commit d7ed99ade3e62b755584eea07b4e499e79240527 upstream.
 
-Bounce all data on the skbs to be transmitted into zeroed pages if the
-backend is untrusted. This avoids leaking data present in the pages
-shared with the backend but not part of the skb fragments.  This
-requires introducing a new helper in order to allocate skbs with a
-size multiple of XEN_PAGE_SIZE so we don't leak contiguous data on the
-granted pages.
-
-Reporting whether the backend is to be trusted can be done using a
-module parameter, or from the xenstore frontend path as set by the
-toolstack when adding the device.
-
-This is CVE-2022-33741, part of XSA-403.
-
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124171253.22072-12-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |   50 +++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 2 deletions(-)
+ tools/testing/selftests/rseq/param_test.c |    2 +-
+ tools/testing/selftests/rseq/rseq-x86.h   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -63,6 +63,10 @@ module_param_named(max_queues, xennet_ma
- MODULE_PARM_DESC(max_queues,
- 		 "Maximum number of queues per virtual interface");
+--- a/tools/testing/selftests/rseq/param_test.c
++++ b/tools/testing/selftests/rseq/param_test.c
+@@ -159,7 +159,7 @@ unsigned int yield_mod_cnt, nr_abort;
+ 	"	cbnz	" INJECT_ASM_REG ", 222b\n"			\
+ 	"333:\n"
  
-+static bool __read_mostly xennet_trusted = true;
-+module_param_named(trusted, xennet_trusted, bool, 0644);
-+MODULE_PARM_DESC(trusted, "Is the backend trusted");
-+
- #define XENNET_TIMEOUT  (5 * HZ)
+-#elif __PPC__
++#elif defined(__PPC__)
  
- static const struct ethtool_ops xennet_ethtool_ops;
-@@ -163,6 +167,9 @@ struct netfront_info {
- 	/* Is device behaving sane? */
- 	bool broken;
+ #define RSEQ_INJECT_INPUT \
+ 	, [loop_cnt_1]"m"(loop_cnt[1]) \
+--- a/tools/testing/selftests/rseq/rseq-x86.h
++++ b/tools/testing/selftests/rseq/rseq-x86.h
+@@ -600,7 +600,7 @@ int rseq_cmpeqv_trymemcpy_storev_release
  
-+	/* Should skbs be bounced into a zeroed buffer? */
-+	bool bounce;
-+
- 	atomic_t rx_gso_checksum_fixup;
- };
+ #endif /* !RSEQ_SKIP_FASTPATH */
  
-@@ -593,6 +600,34 @@ static void xennet_mark_tx_pending(struc
- 		queue->tx_link[i] = TX_PENDING;
- }
+-#elif __i386__
++#elif defined(__i386__)
  
-+struct sk_buff *bounce_skb(const struct sk_buff *skb)
-+{
-+	unsigned int headerlen = skb_headroom(skb);
-+	/* Align size to allocate full pages and avoid contiguous data leaks */
-+	unsigned int size = ALIGN(skb_end_offset(skb) + skb->data_len,
-+				  XEN_PAGE_SIZE);
-+	struct sk_buff *n = alloc_skb(size, GFP_ATOMIC | __GFP_ZERO);
-+
-+	if (!n)
-+		return NULL;
-+
-+	if (!IS_ALIGNED((uintptr_t)n->head, XEN_PAGE_SIZE)) {
-+		WARN_ONCE(1, "misaligned skb allocated\n");
-+		kfree_skb(n);
-+		return NULL;
-+	}
-+
-+	/* Set the data pointer */
-+	skb_reserve(n, headerlen);
-+	/* Set the tail pointer and length */
-+	skb_put(n, skb->len);
-+
-+	BUG_ON(skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len));
-+
-+	skb_copy_header(n, skb);
-+	return n;
-+}
-+
- #define MAX_XEN_SKB_FRAGS (65536 / XEN_PAGE_SIZE + 1)
- 
- static netdev_tx_t xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -645,9 +680,13 @@ static netdev_tx_t xennet_start_xmit(str
- 
- 	/* The first req should be at least ETH_HLEN size or the packet will be
- 	 * dropped by netback.
-+	 *
-+	 * If the backend is not trusted bounce all data to zeroed pages to
-+	 * avoid exposing contiguous data on the granted page not belonging to
-+	 * the skb.
- 	 */
--	if (unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
--		nskb = skb_copy(skb, GFP_ATOMIC);
-+	if (np->bounce || unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
-+		nskb = bounce_skb(skb);
- 		if (!nskb)
- 			goto drop;
- 		dev_consume_skb_any(skb);
-@@ -1953,6 +1992,10 @@ static int talk_to_netback(struct xenbus
- 
- 	info->netdev->irq = 0;
- 
-+	/* Check if backend is trusted. */
-+	info->bounce = !xennet_trusted ||
-+		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
-+
- 	/* Check if backend supports multiple queues */
- 	max_queues = xenbus_read_unsigned(info->xbdev->otherend,
- 					  "multi-queue-max-queues", 1);
-@@ -2106,6 +2149,9 @@ static int xennet_connect(struct net_dev
- 	err = talk_to_netback(np->xbdev, np);
- 	if (err)
- 		return err;
-+	if (np->bounce)
-+		dev_info(&np->xbdev->dev,
-+			 "bouncing transmitted data to zeroed pages\n");
- 
- 	/* talk_to_netback() sets the correct number of queues */
- 	num_queues = dev->real_num_tx_queues;
+ #define rseq_smp_mb()	\
+ 	__asm__ __volatile__ ("lock; addl $0,-128(%%esp)" ::: "memory", "cc")
 
 
