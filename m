@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE09566E2F
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB07D566AEE
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237951AbiGEMb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55670 "EHLO
+        id S233313AbiGEMDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236570AbiGEM0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FF7C1903D;
-        Tue,  5 Jul 2022 05:19:15 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E065861984;
-        Tue,  5 Jul 2022 12:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC24C341C7;
-        Tue,  5 Jul 2022 12:19:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023554;
-        bh=eQyiGUsTpyX0QuJXNAt6t6TjeqSqJjJyqf0tE+DcXkY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rb237297oCP8j0oczXTb5iy+CM32jz+DpkftKHcQxAXYYaraEGT6eHY9lwjm93IDf
-         vS+2Xl9j5657qPoGrdV8GzlhS+77cvH+SCNvEeCA6ZN6Xaa4fcf0BKsollFkofhDbK
-         8et3B1VA1yF1P7WoC4JK/4HjbceN8jktijMg/F1Y=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.18 102/102] xen/arm: Fix race in RB-tree based P2M accounting
-Date:   Tue,  5 Jul 2022 13:59:08 +0200
-Message-Id: <20220705115621.313807716@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
-User-Agent: quilt/0.66
+        with ESMTP id S233393AbiGEMCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:36 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81AAA2678
+        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 05:02:31 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id r82so15925255oig.2
+        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 05:02:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=D+zGmOIGUk0g/OJEteeytXyb/Ac+wRFqlw+yBe19vPQ=;
+        b=g7cBSo6BEKXgifjfH+SP2dIfS3UNti/um3XmPbuH+lZYkmCrOaiKxUWITMxC7r3sku
+         64ctbDSCqks1f+/y9VhcfvvYK+kuFrWJzF74a7q6H0oB1XTLXvyrZKCccZJLIHaR81ix
+         G69ZmdjPqYAmB1xe8NDv7xa91IhJM4D3e9zsNXhc4KYMLn235dycLKswjPfadqjeuPA/
+         eL7oiZt73b+CAm+3BdacoAsvdkRwHIwUGde3KsHxvHHTSSwbtGuPzfqcN4fD2HALeYu9
+         GLZNuq2KOJ64b/gnhC7rk3fLl/1f7gVJ4zLO5TEnppUkxgnknkd7rDHn/Qy8rZ24xrg0
+         gDng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=D+zGmOIGUk0g/OJEteeytXyb/Ac+wRFqlw+yBe19vPQ=;
+        b=AKShNMP85ZsNfvpAJDQ4hLsSWl+5g4KPuzwojjg68M1oTDm0F6oDlRxWke47Qb1lZl
+         QatyI5DfJ/oO7fijiLWbGv1M6C4aFssXtZOE+ADg8Xo/cb73BMv5mX1lL9N+yLHb/QsA
+         H18s9xXVuX/Q2tJsIM5lCSiQlUJquiFpDa6XRUuMnGG7RTN9ksSp/zffEFnTh6yhrYfP
+         ufyBreornqiin7qOQE3fgFrlPA2cad69fYwKKQoNOWGj5d/8pT3WNiRIbBC9Zm5Nl4sy
+         5XI5gtON26fKA0TjodsnmfLacWJin9o/zY13oLObjJnTzmZK1WBzJuUiLDs6DLCmNyBu
+         74Og==
+X-Gm-Message-State: AJIora9jT+UiGopJCEpskf9t7j96i9/LpDKw1IrARqR1Ugc2ypvd4S63
+        wjIK66Xv3+AELpN3BDeZdMmsxW7Nchs6vPOMFR0=
+X-Google-Smtp-Source: AGRyM1svlEoQQC7BadS8adFxWqsyte1RkUSp9znbMC+DOsD3PZIcrtvLQiig85bTOxAEXMKGzDsoiA3qHbpj/qTZDlA=
+X-Received: by 2002:a05:6808:bcb:b0:337:9b08:9b79 with SMTP id
+ o11-20020a0568080bcb00b003379b089b79mr11175675oik.27.1657022550784; Tue, 05
+ Jul 2022 05:02:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <CAHkwnC9408BG+FBPM1NvrivxcPLf2+Sr_cZ74ir7SB5BrtFebw@mail.gmail.com>
+ <YsQj3dIMxZcGYb70@kroah.com>
+In-Reply-To: <YsQj3dIMxZcGYb70@kroah.com>
+From:   Fabio Porcedda <fabio.porcedda@gmail.com>
+Date:   Tue, 5 Jul 2022 14:02:19 +0200
+Message-ID: <CAHkwnC8bADw6d=H6XyMYHz0oyfN52nM20MMRoNgh6kbfG8Rvgw@mail.gmail.com>
+Subject: Re: Backport support for Telit device IDs to 5.15/5.10/5.4/4.19/4.14/4.9
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        jorgen.storvist@gmail.com, Carlo Lobrano <c.lobrano@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Il giorno mar 5 lug 2022 alle ore 13:43 Greg KH
+<gregkh@linuxfoundation.org> ha scritto:
+>
+> On Tue, Jul 05, 2022 at 01:32:34PM +0200, Fabio Porcedda wrote:
+> > Hi,
+> > Can you please backport the following commits in order to support new
+> > Telit device IDs?
+> >
+> > The following one just for 4.9:
+> > commit 1986af16e8ed355822600c24b3d2f0be46b573df
+> >   qmi_wwan: Added support for Telit LN940 series
+> >
+> > The following one just for 4.9:
+> > commit b4e467c82f8c12af78b6f6fa5730cb7dea7af1b4
+> >    net: usb: qmi_wwan: add Telit 0x1260 and 0x1261 compositions
+> >
+> > The following one just for 4.9:
+> > commit 5fd8477ed8ca77e64b93d44a6dae4aa70c191396
+> >     net: usb: qmi_wwan: add Telit LE910Cx 0x1230 composition
+> >
+> > The following one for 4.9/4.14/4.19/5.4/5.10:
+> > commit 8d17a33b076d24aa4861f336a125c888fb918605
+> >     net: usb: qmi_wwan: add Telit 0x1060 composition
+> >
+> > The following one for 4.9/4.14/4.19/5.4/5.10/5.15:
+> > commit 94f2a444f28a649926c410eb9a38afb13a83ebe0
+> >     net: usb: qmi_wwan: add Telit 0x1070 composition
+>
+> All queued up now, but you REALLY should move off of 4.9.y at this point
+> in time as it is going to be dropped from support pretty soon and you
+> should not be using that for any new hardware types.
 
-commit b75cd218274e01d026dc5240e86fdeb44bbed0c8 upstream.
+Thanks for the feedback, I agree with you, I just want to improve the
+support as much as possible even for projects that use old versions.
 
-During the PV driver life cycle the mappings are added to
-the RB-tree by set_foreign_p2m_mapping(), which is called from
-gnttab_map_refs() and are removed by clear_foreign_p2m_mapping()
-which is called from gnttab_unmap_refs(). As both functions end
-up calling __set_phys_to_machine_multi() which updates the RB-tree,
-this function can be called concurrently.
-
-There is already a "p2m_lock" to protect against concurrent accesses,
-but the problem is that the first read of "phys_to_mach.rb_node"
-in __set_phys_to_machine_multi() is not covered by it, so this might
-lead to the incorrect mappings update (removing in our case) in RB-tree.
-
-In my environment the related issue happens rarely and only when
-PV net backend is running, the xen_add_phys_to_mach_entry() claims
-that it cannot add new pfn <-> mfn mapping to the tree since it is
-already exists which results in a failure when mapping foreign pages.
-
-But there might be other bad consequences related to the non-protected
-root reads such use-after-free, etc.
-
-While at it, also fix the similar usage in __pfn_to_mfn(), so
-initialize "struct rb_node *n" with the "p2m_lock" held in both
-functions to avoid possible bad consequences.
-
-This is CVE-2022-33744 / XSA-406.
-
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm/xen/p2m.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -63,11 +63,12 @@ out:
- 
- unsigned long __pfn_to_mfn(unsigned long pfn)
- {
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
- 	struct xen_p2m_entry *entry;
- 	unsigned long irqflags;
- 
- 	read_lock_irqsave(&p2m_lock, irqflags);
-+	n = phys_to_mach.rb_node;
- 	while (n) {
- 		entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 		if (entry->pfn <= pfn &&
-@@ -152,10 +153,11 @@ bool __set_phys_to_machine_multi(unsigne
- 	int rc;
- 	unsigned long irqflags;
- 	struct xen_p2m_entry *p2m_entry;
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
- 
- 	if (mfn == INVALID_P2M_ENTRY) {
- 		write_lock_irqsave(&p2m_lock, irqflags);
-+		n = phys_to_mach.rb_node;
- 		while (n) {
- 			p2m_entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 			if (p2m_entry->pfn <= pfn &&
-
-
+Regads
+-- 
+Fabio Porcedda
