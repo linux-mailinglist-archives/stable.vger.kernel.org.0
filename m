@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 606BC566BAE
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F031D566C4B
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbiGEMJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46690 "EHLO
+        id S229795AbiGEMNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:13:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234472AbiGEMHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:34 -0400
+        with ESMTP id S235796AbiGEMNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:13:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A5618E3A;
-        Tue,  5 Jul 2022 05:06:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58321A395;
+        Tue,  5 Jul 2022 05:10:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89EC1B817C7;
-        Tue,  5 Jul 2022 12:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01B63C341CB;
-        Tue,  5 Jul 2022 12:06:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34205B817CC;
+        Tue,  5 Jul 2022 12:10:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88007C341C7;
+        Tue,  5 Jul 2022 12:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022789;
-        bh=erAfyOiIq47UiL83B/f1Y/WqCMoMo+YT8WLAClCV6Zg=;
+        s=korg; t=1657023041;
+        bh=bQxN3bh++1R1mBIbbNcGTPNamM2kdxz0RwMIs1cqQhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SO4jPhJcb8TllOEXg34v6nmHd9674dRHu1Naln+rXs7J7A7ezFjesx7Zjb9JA4Yt7
-         QfaXt49v2xosUvxL8h5JIM46H9GggrjnlCtoIyTtTOcK36uUa92Qbdvp1LFZ8FdfGH
-         Vb0bFh2kW3jD+/hlbHx0O1q2yLD6cpKQERBhHtoE=
+        b=Ct9GPQxt6sD58WeG9rsP5rXQSZdTP9TV199heiSNA9qIqsCak18HQiyvWjBGiybgn
+         tir522pA9pq/sB7GcYoYyL2rmVxc1apQFev2Oq1m5m1Ww4SIxakum7i/+58xYQircy
+         zRfJhVwoLbCiZQUsYddsJAXiI34odcDycN8Re054=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Bruce Fields <bfields@fieldses.org>,
         Zorro Lang <zlang@redhat.com>,
         Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.10 11/84] SUNRPC: Fix READ_PLUS crasher
-Date:   Tue,  5 Jul 2022 13:57:34 +0200
-Message-Id: <20220705115615.658418689@linuxfoundation.org>
+Subject: [PATCH 5.15 17/98] SUNRPC: Fix READ_PLUS crasher
+Date:   Tue,  5 Jul 2022 13:57:35 +0200
+Message-Id: <20220705115618.074752079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,7 +74,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/sunrpc/xdr.c
 +++ b/net/sunrpc/xdr.c
-@@ -752,7 +752,7 @@ static __be32 *xdr_get_next_encode_buffe
+@@ -979,7 +979,7 @@ static __be32 *xdr_get_next_encode_buffe
  	 */
  	xdr->p = (void *)p + frag2bytes;
  	space_left = xdr->buf->buflen - xdr->buf->len;
