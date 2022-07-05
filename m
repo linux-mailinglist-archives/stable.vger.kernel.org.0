@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A610D566AA4
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:01:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9F5566D14
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232754AbiGEMAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42424 "EHLO
+        id S236467AbiGEMVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232915AbiGEMAZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0CA617AA9;
-        Tue,  5 Jul 2022 05:00:23 -0700 (PDT)
+        with ESMTP id S235727AbiGEMQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:16:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED7FE1BE97;
+        Tue,  5 Jul 2022 05:12:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D9B0615BA;
-        Tue,  5 Jul 2022 12:00:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F36FC341CB;
-        Tue,  5 Jul 2022 12:00:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A17B4B817D3;
+        Tue,  5 Jul 2022 12:12:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F40E1C341CB;
+        Tue,  5 Jul 2022 12:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022422;
-        bh=tzDjnjlaKhKTSC3fvhSwqoYA+PawvDQB5b1YDrEt7Pg=;
+        s=korg; t=1657023122;
+        bh=4wrempK14aI2Lwl5s7i72OMdEzbm8xpeW9Zz4Lk8IKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SL9VglNEID8k9r82/Qe0j7FmvlvTvTOnSItmiJ6MJex28TZEOxpbDyGSYYWabPamF
-         LHKIEZ9YnctY5caEQPAtMTTpDe4LM9L7UJKV678wLmMhz92UheEoPaS6JDjMG9IxN5
-         cEREC9Wfn9fn7R9GW0+3N82vwEFXRQ+SuYD13kIM=
+        b=iRtR4udUrbFmhwjwUh129ELraV30j2IyRvWdePAuKWjyWEIhV0N0NcjY/FJGdGg27
+         GIScz6H6aLveaQDTMzDWFeMVOhc45H2wIbxDI0WV95BnF6CMCpDqmi5V8t8Emr8c5F
+         Yd+6dGdya4XvmWhEfXg4HZHnkZz65gb3/unzqx5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.9 23/29] xen/blkfront: force data bouncing when backend is untrusted
+        Maksym Glubokiy <maksym.glubokiy@plvision.eu>,
+        Yevhen Orlov <yevhen.orlov@plvision.eu>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 46/98] net: bonding: fix use-after-free after 802.3ad slave unbind
 Date:   Tue,  5 Jul 2022 13:58:04 +0200
-Message-Id: <20220705115606.431125807@linuxfoundation.org>
+Message-Id: <20220705115618.894640564@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-References: <20220705115605.742248854@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,192 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Yevhen Orlov <yevhen.orlov@plvision.eu>
 
-commit 2400617da7eebf9167d71a46122828bc479d64c9 upstream.
+commit 050133e1aa2cb49bb17be847d48a4431598ef562 upstream.
 
-Split the current bounce buffering logic used with persistent grants
-into it's own option, and allow enabling it independently of
-persistent grants.  This allows to reuse the same code paths to
-perform the bounce buffering required to avoid leaking contiguous data
-in shared pages not part of the request fragments.
+commit 0622cab0341c ("bonding: fix 802.3ad aggregator reselection"),
+resolve case, when there is several aggregation groups in the same bond.
+bond_3ad_unbind_slave will invalidate (clear) aggregator when
+__agg_active_ports return zero. So, ad_clear_agg can be executed even, when
+num_of_ports!=0. Than bond_3ad_unbind_slave can be executed again for,
+previously cleared aggregator. NOTE: at this time bond_3ad_unbind_slave
+will not update slave ports list, because lag_ports==NULL. So, here we
+got slave ports, pointing to freed aggregator memory.
 
-Reporting whether the backend is to be trusted can be done using a
-module parameter, or from the xenstore frontend path as set by the
-toolstack when adding the device.
+Fix with checking actual number of ports in group (as was before
+commit 0622cab0341c ("bonding: fix 802.3ad aggregator reselection") ),
+before ad_clear_agg().
 
-This is CVE-2022-33742, part of XSA-403.
+The KASAN logs are as follows:
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+[  767.617392] ==================================================================
+[  767.630776] BUG: KASAN: use-after-free in bond_3ad_state_machine_handler+0x13dc/0x1470
+[  767.638764] Read of size 2 at addr ffff00011ba9d430 by task kworker/u8:7/767
+[  767.647361] CPU: 3 PID: 767 Comm: kworker/u8:7 Tainted: G           O 5.15.11 #15
+[  767.655329] Hardware name: DNI AmazonGo1 A7040 board (DT)
+[  767.660760] Workqueue: lacp_1 bond_3ad_state_machine_handler
+[  767.666468] Call trace:
+[  767.668930]  dump_backtrace+0x0/0x2d0
+[  767.672625]  show_stack+0x24/0x30
+[  767.675965]  dump_stack_lvl+0x68/0x84
+[  767.679659]  print_address_description.constprop.0+0x74/0x2b8
+[  767.685451]  kasan_report+0x1f0/0x260
+[  767.689148]  __asan_load2+0x94/0xd0
+[  767.692667]  bond_3ad_state_machine_handler+0x13dc/0x1470
+
+Fixes: 0622cab0341c ("bonding: fix 802.3ad aggregator reselection")
+Co-developed-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
+Signed-off-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
+Signed-off-by: Yevhen Orlov <yevhen.orlov@plvision.eu>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20220629012914.361-1-yevhen.orlov@plvision.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |   45 ++++++++++++++++++++++++++++---------------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ drivers/net/bonding/bond_3ad.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -144,6 +144,10 @@ static unsigned int xen_blkif_max_ring_o
- module_param_named(max_ring_page_order, xen_blkif_max_ring_order, int, S_IRUGO);
- MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the shared ring");
- 
-+static bool __read_mostly xen_blkif_trusted = true;
-+module_param_named(trusted, xen_blkif_trusted, bool, 0644);
-+MODULE_PARM_DESC(trusted, "Is the backend trusted");
-+
- #define BLK_RING_SIZE(info)	\
- 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
- 
-@@ -206,6 +210,7 @@ struct blkfront_info
- 	unsigned int discard_granularity;
- 	unsigned int discard_alignment;
- 	unsigned int feature_persistent:1;
-+	unsigned int bounce:1;
- 	/* Number of 4KB segments handled */
- 	unsigned int max_indirect_segments;
- 	int is_ready;
-@@ -296,7 +301,7 @@ static int fill_grant_buffer(struct blkf
- 		if (!gnt_list_entry)
- 			goto out_of_memory;
- 
--		if (info->feature_persistent) {
-+		if (info->bounce) {
- 			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
- 			if (!granted_page) {
- 				kfree(gnt_list_entry);
-@@ -316,7 +321,7 @@ out_of_memory:
- 	list_for_each_entry_safe(gnt_list_entry, n,
- 	                         &rinfo->grants, node) {
- 		list_del(&gnt_list_entry->node);
--		if (info->feature_persistent)
-+		if (info->bounce)
- 			__free_page(gnt_list_entry->page);
- 		kfree(gnt_list_entry);
- 		i--;
-@@ -362,7 +367,7 @@ static struct grant *get_grant(grant_ref
- 	/* Assign a gref to this page */
- 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
- 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
--	if (info->feature_persistent)
-+	if (info->bounce)
- 		grant_foreign_access(gnt_list_entry, info);
- 	else {
- 		/* Grant access to the GFN passed by the caller */
-@@ -386,7 +391,7 @@ static struct grant *get_indirect_grant(
- 	/* Assign a gref to this page */
- 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
- 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
--	if (!info->feature_persistent) {
-+	if (!info->bounce) {
- 		struct page *indirect_page;
- 
- 		/* Fetch a pre-allocated page to use for indirect grefs */
-@@ -701,7 +706,7 @@ static int blkif_queue_rw_req(struct req
- 		.grant_idx = 0,
- 		.segments = NULL,
- 		.rinfo = rinfo,
--		.need_copy = rq_data_dir(req) && info->feature_persistent,
-+		.need_copy = rq_data_dir(req) && info->bounce,
- 	};
- 
- 	/*
-@@ -1015,11 +1020,12 @@ static void xlvbd_flush(struct blkfront_
- {
- 	blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
- 			      info->feature_fua ? true : false);
--	pr_info("blkfront: %s: %s %s %s %s %s\n",
-+	pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
- 		info->gd->disk_name, flush_info(info),
- 		"persistent grants:", info->feature_persistent ?
- 		"enabled;" : "disabled;", "indirect descriptors:",
--		info->max_indirect_segments ? "enabled;" : "disabled;");
-+		info->max_indirect_segments ? "enabled;" : "disabled;",
-+		"bounce buffer:", info->bounce ? "enabled" : "disabled;");
- }
- 
- static int xen_translate_vdev(int vdevice, int *minor, unsigned int *offset)
-@@ -1254,7 +1260,7 @@ static void blkif_free_ring(struct blkfr
- 	if (!list_empty(&rinfo->indirect_pages)) {
- 		struct page *indirect_page, *n;
- 
--		BUG_ON(info->feature_persistent);
-+		BUG_ON(info->bounce);
- 		list_for_each_entry_safe(indirect_page, n, &rinfo->indirect_pages, lru) {
- 			list_del(&indirect_page->lru);
- 			__free_page(indirect_page);
-@@ -1271,7 +1277,7 @@ static void blkif_free_ring(struct blkfr
- 				continue;
- 
- 			rinfo->persistent_gnts_c--;
--			if (info->feature_persistent)
-+			if (info->bounce)
- 				__free_page(persistent_gnt->page);
- 			kfree(persistent_gnt);
- 		}
-@@ -1291,7 +1297,7 @@ static void blkif_free_ring(struct blkfr
- 		for (j = 0; j < segs; j++) {
- 			persistent_gnt = rinfo->shadow[i].grants_used[j];
- 			gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
--			if (info->feature_persistent)
-+			if (info->bounce)
- 				__free_page(persistent_gnt->page);
- 			kfree(persistent_gnt);
- 		}
-@@ -1481,7 +1487,7 @@ static int blkif_completion(unsigned lon
- 	data.s = s;
- 	num_sg = s->num_sg;
- 
--	if (bret->operation == BLKIF_OP_READ && info->feature_persistent) {
-+	if (bret->operation == BLKIF_OP_READ && info->bounce) {
- 		for_each_sg(s->sg, sg, num_sg, i) {
- 			BUG_ON(sg->offset + sg->length > PAGE_SIZE);
- 
-@@ -1540,7 +1546,7 @@ static int blkif_completion(unsigned lon
- 				 * Add the used indirect page back to the list of
- 				 * available pages for indirect grefs.
- 				 */
--				if (!info->feature_persistent) {
-+				if (!info->bounce) {
- 					indirect_page = s->indirect_grants[i]->page;
- 					list_add(&indirect_page->lru, &rinfo->indirect_pages);
- 				}
-@@ -1822,6 +1828,13 @@ static int talk_to_blkback(struct xenbus
- 	int err;
- 	unsigned int i, max_page_order = 0;
- 	unsigned int ring_page_order = 0;
-+	unsigned int trusted;
-+
-+	/* Check if backend is trusted. */
-+	err = xenbus_scanf(XBT_NIL, dev->nodename, "trusted", "%u", &trusted);
-+	if (err < 0)
-+		trusted = 1;
-+	info->bounce = !xen_blkif_trusted || !trusted;
- 
- 	err = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
- 			   "max-ring-page-order", "%u", &max_page_order);
-@@ -2301,10 +2314,10 @@ static int blkfront_setup_indirect(struc
- 	if (err)
- 		goto out_of_memory;
- 
--	if (!info->feature_persistent && info->max_indirect_segments) {
-+	if (!info->bounce && info->max_indirect_segments) {
- 		/*
--		 * We are using indirect descriptors but not persistent
--		 * grants, we need to allocate a set of pages that can be
-+		 * We are using indirect descriptors but don't have a bounce
-+		 * buffer, we need to allocate a set of pages that can be
- 		 * used for mapping indirect grefs
- 		 */
- 		int num = INDIRECT_GREFS(grants) * BLK_RING_SIZE(info);
-@@ -2410,6 +2423,8 @@ static void blkfront_gather_backend_feat
- 		info->feature_persistent = 0;
- 	else
- 		info->feature_persistent = persistent;
-+	if (info->feature_persistent)
-+		info->bounce = true;
- 
- 	err = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
- 			   "feature-max-indirect-segments", "%u",
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -2228,7 +2228,8 @@ void bond_3ad_unbind_slave(struct slave
+ 				temp_aggregator->num_of_ports--;
+ 				if (__agg_active_ports(temp_aggregator) == 0) {
+ 					select_new_active_agg = temp_aggregator->is_active;
+-					ad_clear_agg(temp_aggregator);
++					if (temp_aggregator->num_of_ports == 0)
++						ad_clear_agg(temp_aggregator);
+ 					if (select_new_active_agg) {
+ 						slave_info(bond->dev, slave->dev, "Removing an active aggregator\n");
+ 						/* select new active aggregator */
 
 
