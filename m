@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 128C4566D0E
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FEFA566ADC
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236415AbiGEMU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
+        id S230504AbiGEMCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237028AbiGEMSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703EC1A3B3;
-        Tue,  5 Jul 2022 05:13:52 -0700 (PDT)
+        with ESMTP id S231465AbiGEMBx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB25183A2;
+        Tue,  5 Jul 2022 05:01:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD208619B9;
-        Tue,  5 Jul 2022 12:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E956DC341C7;
-        Tue,  5 Jul 2022 12:13:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9310EB817D3;
+        Tue,  5 Jul 2022 12:01:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C9EC341C7;
+        Tue,  5 Jul 2022 12:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023231;
-        bh=mWzakzAFCV63PIMMYja2uPuyb3HlopSPTzWsMv9g3WU=;
+        s=korg; t=1657022505;
+        bh=c6vtjDsUvTnnXR8XpyHcPF4t2AXKtHHBZEfEQCOfs4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTv0VLnjnZjrh62A//QOHoP/cs40qi+V9UinW7h+Uw4oyKl2gszBjK01Db2YS/Yio
-         r9ONoxn96SGX6YE3gGKOObzuK0vcSWF1qPKH/yLoDyt/8pjr0onGSe0RRbLLPQVccL
-         RuObyIYkz34BAyZQtsQSEJQUJ2eDW9iuHLkCO+Ts=
+        b=KlTfuwBXzT/Lswa+N1RD0F8ph0fmZ7isU6YHHcZOU5QxgT5ZkncSUra0vVUStOHap
+         SM6XpFR/bkgUlG3fL1E8uOPtkeRoLxp9JfAJMMYI16L0tSWkHSzNcWMMyPVnaMCmNT
+         RO1GUqEqmRECtwcHI6ymV0ib9my2W5oTfhOmFV54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 33/98] net: ipv6: unexport __init-annotated seg6_hmac_net_init()
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.14 03/29] dm raid: fix KASAN warning in raid5_add_disks
 Date:   Tue,  5 Jul 2022 13:57:51 +0200
-Message-Id: <20220705115618.532198514@linuxfoundation.org>
+Message-Id: <20220705115606.440077428@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 53ad46169fe2996fe1b623ba6c9c4fa33847876f upstream.
+commit 617b365872a247480e9dcd50a32c8d1806b21861 upstream.
 
-As of commit 5801f064e351 ("net: ipv6: unexport __init-annotated seg6_hmac_init()"),
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+There's a KASAN warning in raid5_add_disk when running the LVM testsuite.
+The warning happens in the test
+lvconvert-raid-reshape-linear_to_raid6-single-type.sh. We fix the warning
+by verifying that rdev->saved_raid_disk is within limits.
 
-This remove the EXPORT_SYMBOL to fix modpost warning:
-
-WARNING: modpost: vmlinux.o(___ksymtab+seg6_hmac_net_init+0x0): Section mismatch in reference from the variable __ksymtab_seg6_hmac_net_init to the function .init.text:seg6_hmac_net_init()
-The symbol seg6_hmac_net_init is exported and annotated __init
-Fix this by removing the __init annotation of seg6_hmac_net_init or drop the export.
-
-Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20220628033134.21088-1-yuehaibing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/seg6_hmac.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/md/raid5.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/seg6_hmac.c
-+++ b/net/ipv6/seg6_hmac.c
-@@ -408,7 +408,6 @@ int __net_init seg6_hmac_net_init(struct
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -7689,6 +7689,7 @@ static int raid5_add_disk(struct mddev *
+ 	 */
+ 	if (rdev->saved_raid_disk >= 0 &&
+ 	    rdev->saved_raid_disk >= first &&
++	    rdev->saved_raid_disk <= last &&
+ 	    conf->disks[rdev->saved_raid_disk].rdev == NULL)
+ 		first = rdev->saved_raid_disk;
  
- 	return 0;
- }
--EXPORT_SYMBOL(seg6_hmac_net_init);
- 
- void seg6_hmac_exit(void)
- {
 
 
