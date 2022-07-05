@@ -2,121 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A67567682
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 20:31:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5749567698
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 20:35:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231570AbiGESbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 14:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38678 "EHLO
+        id S230143AbiGESf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 14:35:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231234AbiGESbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 14:31:24 -0400
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291DB1CFEF;
-        Tue,  5 Jul 2022 11:31:23 -0700 (PDT)
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-31caffa4a45so46145967b3.3;
-        Tue, 05 Jul 2022 11:31:23 -0700 (PDT)
+        with ESMTP id S229579AbiGESf0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 14:35:26 -0400
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27E81B788;
+        Tue,  5 Jul 2022 11:35:25 -0700 (PDT)
+Received: by mail-qt1-x830.google.com with SMTP id he28so14979887qtb.13;
+        Tue, 05 Jul 2022 11:35:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=K3ANGA9COA4MMtJSmut/YkX0sUWRxxgBhif9VA2suTA=;
+        b=dRjpV3OGUyInIAavU/wGrYhLBGs15X4rwm6uaD3AoPly8lK7lOnIIxz7QiNx5NL2vJ
+         iOFbIfAn098JKl4I/eGvSaByIJWE6zkzmTEFEkO8hTB8hu4e0pE6tfXVyS0/guqDKjcI
+         wj4L6djr7V7O/f6bl0FQ9oBNmK6tV+A3waPeI19ijckjrVL8QGSXEwDJ0Zo4FHVfo8dM
+         3jnCpKOMekykUp6T+zI6g+b7gG5BMiHWtb3REntdMYmRmYFAOU7FebQ4SR3hZzxkaT1n
+         DV671cAFoG3AuCdCN4SzirgG5p5zoNc6pljSbg0vI2+wNQYy4rpkG/cM5kljWRd1rTOW
+         fyig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=W6hukL7B2L1BwxNslotJavxUddmkxk+OohGZWY84yU8=;
-        b=hswwj192jo5nRVAOQ79R9glcovakp/ip/fdunL89uyVkFp5JteXkRbLyaFJDaVIpc3
-         meb8jki8s3IxOwfTh8msqlWZTE3vA0prB4iyTQ6YjmaAf3hmVDTxJSZuODI0Vu72RFEv
-         23eWGOcXxW9+KR1cAsfQ/9jNBMuUEHdLrMe9XyTIOgfzDWGKx1c9ulQXxBR44g2jHrkn
-         FOl4IC1GuIN5uwJciA7OCZer/G0wSTLKRNhtl7pwkt4yrQ984c0ztrznEtsIY5H3lAvG
-         vo6Cg0qCMnIaRhxCaWjTKXfdQ1V9O74NZTxJuhFWQE/RXcxw8wpLpCAx1NnrHJG8tPPt
-         g85w==
-X-Gm-Message-State: AJIora8/vq7BglIq1PQ6deMjAYzEnTB7+sA+OwReeuGNYDFXA6Q2dT8C
-        lt7jLiuBHB1C76Pyninp718Ov4DLVh+t592uAhM=
-X-Google-Smtp-Source: AGRyM1t/fXIbLK4LOjtkjSo0hXN2bOO29vTGdHLhb5iwUnkhafwJp4vskczPEW9bcv0AiYfyJb2Gny9Oy4j8M5y0lDI=
-X-Received: by 2002:a0d:c486:0:b0:31c:3b63:91fe with SMTP id
- g128-20020a0dc486000000b0031c3b6391femr36249582ywd.7.1657045882313; Tue, 05
- Jul 2022 11:31:22 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=K3ANGA9COA4MMtJSmut/YkX0sUWRxxgBhif9VA2suTA=;
+        b=gO+/dtGiLuxhaEYq4WOZtBGl1Aq8y1JCW1QvMEi3zNKUoRMzZffHUMmL+GWO4nGsUn
+         pVklRPfXf6HFYGj3NuRQ3uBfrz9OnZLOQYKyrGSJClNo3ZQipEgYvanPPoGUUpRqy5cu
+         +VAW0gMIhXkFYezmqo1EZGbth4cWddvhhomT20tSe6eMp3FS7I9VQT388+LMN3TkX5hl
+         51/cldBXWsKZKERduHJPnd6mpqpCsxkXAvZ6Utt9AVRdzeEWWoZmv7OZqNXRNVjccHt1
+         oYLCQ2q1ByfoAyq5UlRf+pjv1BaLf9BxrBH5diTTSFRKcUWKU6xFzCtTw2IdNuhGP1eC
+         gpJg==
+X-Gm-Message-State: AJIora+rhkXQDEqbzZbJrWNFDd/XUmYu08sP5OeGqeHjY2Vx3f+VSm2i
+        hf3bSMudo6WdTTh2D7R/xVk=
+X-Google-Smtp-Source: AGRyM1tWkSs0rL0x/2uCgQ99Rqyx8vX1BGmRGeQy1e5CHMrlNDKCgYSIvhwgtbzSsM6kp6TdwRQQVg==
+X-Received: by 2002:a05:6214:62c:b0:470:76ae:2c17 with SMTP id a12-20020a056214062c00b0047076ae2c17mr33773323qvx.65.1657046124751;
+        Tue, 05 Jul 2022 11:35:24 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id c21-20020ac87d95000000b003172da668desm24738257qtd.50.2022.07.05.11.35.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Jul 2022 11:35:24 -0700 (PDT)
+Message-ID: <e5467cb1-f7aa-7c19-d8ba-a1cb928e38a4@gmail.com>
+Date:   Tue, 5 Jul 2022 11:35:21 -0700
 MIME-Version: 1.0
-References: <20220630022317.15734-1-gch981213@gmail.com> <b84edc24-0a3a-a4d2-6481-fb3d4cee6dda@amd.com>
- <CAJsYDVL=fgExYdw3JB-59rCwOqTbSt2N0Xw2WCmoTSzOQEMRRg@mail.gmail.com>
- <CAJZ5v0g7JOcYTwwLxPws38abn_EVGjG0+QY9E+qpM=guhF11tA@mail.gmail.com> <MN0PR12MB61010151CDD4D74F75619684E2819@MN0PR12MB6101.namprd12.prod.outlook.com>
-In-Reply-To: <MN0PR12MB61010151CDD4D74F75619684E2819@MN0PR12MB6101.namprd12.prod.outlook.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 5 Jul 2022 20:31:11 +0200
-Message-ID: <CAJZ5v0h8_AEH2XgB_Zk2NKH01wBo9+YaB=V557m9H_1PBy_wQw@mail.gmail.com>
-Subject: Re: [PATCH v5] ACPI: skip IRQ1 override on 3 Ryzen 6000 laptops
-To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Chuanhong Guo <gch981213@gmail.com>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Tighe Donnelly <tighe.donnelly@protonmail.com>,
-        Kent Hou Man <knthmn0@gmail.com>,
-        Len Brown <lenb@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 5.15 00/98] 5.15.53-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220705115617.568350164@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 5, 2022 at 8:27 PM Limonciello, Mario
-<Mario.Limonciello@amd.com> wrote:
->
-> [Public]
->
-> > -----Original Message-----
-> > From: Rafael J. Wysocki <rafael@kernel.org>
-> > Sent: Tuesday, July 5, 2022 13:24
-> > To: Chuanhong Guo <gch981213@gmail.com>
-> > Cc: Rafael J. Wysocki <rafael@kernel.org>; Limonciello, Mario
-> > <Mario.Limonciello@amd.com>; ACPI Devel Maling List <linux-
-> > acpi@vger.kernel.org>; Stable <stable@vger.kernel.org>; Tighe Donnelly
-> > <tighe.donnelly@protonmail.com>; Kent Hou Man <knthmn0@gmail.com>;
-> > Len Brown <lenb@kernel.org>; open list <linux-kernel@vger.kernel.org>
-> > Subject: Re: [PATCH v5] ACPI: skip IRQ1 override on 3 Ryzen 6000 laptops
-> >
-> > On Fri, Jul 1, 2022 at 2:45 PM Chuanhong Guo <gch981213@gmail.com>
-> > wrote:
-> > >
-> > > On Fri, Jul 1, 2022 at 4:12 AM Limonciello, Mario
-> > > <mario.limonciello@amd.com> wrote:
-> > > > However I do want to point out that Windows doesn't care about legacy
-> > > > format or not.  This bug where keyboard doesn't work only popped up on
-> > > > Linux.
-> > > >
-> > > > Given the number of systems with the bug is appearing to grow I wonder
-> > > > if the right answer is actually a new heuristic that doesn't apply the
-> > > > kernel override for polarity inversion anymore.  Maybe if the system is
-> > > > 2022 or newer?  Or on the ACPI version?
-> > >
-> > > The previous attempt to limit the scope of IRQ override ends up
-> > > breaking some other buggy devices:
-> > >
-> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fpatc
-> > hwork.kernel.org%2Fproject%2Flinux-
-> > acpi%2Fpatch%2F20210728151958.15205-1-
-> > hui.wang%40canonical.com%2F&amp;data=05%7C01%7Cmario.limonciello%4
-> > 0amd.com%7C106955e4611344d3bc3808da5eb3971d%7C3dd8961fe4884e608
-> > e11a82d994e183d%7C0%7C0%7C637926422673112765%7CUnknown%7CTWF
-> > pbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXV
-> > CI6Mn0%3D%7C3000%7C%7C%7C&amp;sdata=xOaRbkCv9EMhpLO%2BGAP
-> > mDjEhQ78xjYFBvehLZdg1k1I%3D&amp;reserved=0
-> > >
-> > > It's unfortunate that the original author of this IRQ override doesn't
-> > > limit the scope to their exact devices.
-> > >
-> > > Hi, Rafael! What do you think? should we skip this IRQ override
-> > > one-by-one or add a different matching logic to check the bios date
-> > > instead?
-> >
-> > It would be better to find something precise enough to identify the
-> > machines in question without pulling in the others and use that for
-> > skipping the override instead of listing them all one by one in the
-> > blocklist.
->
-> How about using the CPU family/model in this case?
+On 7/5/22 04:57, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.53 release.
+> There are 98 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.53-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-That would work for me.  The code in question is all quirks anyway.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
