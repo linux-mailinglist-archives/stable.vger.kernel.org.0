@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6801566B7A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CFFD566BE9
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbiGEMGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
+        id S234142AbiGEMKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233466AbiGEMF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26630186F5;
-        Tue,  5 Jul 2022 05:05:23 -0700 (PDT)
+        with ESMTP id S235281AbiGEMIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5540CEC;
+        Tue,  5 Jul 2022 05:08:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABE6AB817CC;
-        Tue,  5 Jul 2022 12:05:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAE9C341CB;
-        Tue,  5 Jul 2022 12:05:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40A4E61967;
+        Tue,  5 Jul 2022 12:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40095C341C7;
+        Tue,  5 Jul 2022 12:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022720;
-        bh=wQ9jqvqxdCSyauW0dyP00+syI+DWg0HVsGbiqf7qvcg=;
+        s=korg; t=1657022921;
+        bh=4Enehw5wGC95sMNR+U+t4HM8jXp329nqCaZZ6QrRrSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xs/U85kSXRSHr94Q8QII8ak4TMiioo/WGiKU4efi9kuYwR4bwLN6i2DnimyI6BZK3
-         j/Me/sOUkSW6T+Jx6ZciBXGbWMD/cczQSfdGOg+lhpbcdVRO1Nnz/MyxAKyTXNoSOq
-         7HWwlF1FPXWTHPNdiL1rIePq7HD1k0K3hYie+DRQ=
+        b=fsRjIKMC3Zem2/fc5GqmyVic5li8Usmf9zCga/lf3bjf8IZrdchW8GfzLeIHqRdO+
+         6PzI8RFYWMJyGHP7Bxbm9jZ1caqzQmMYQFPOGkleFFl68zIFxAyAUR6veGIHOIvbuY
+         lbqYN8lyaJJWDDs2cjq0uj1rLl+tQ9KGI+kM/o/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 45/58] selftests/rseq: Fix warnings about #if checks of undefined tokens
+        stable@vger.kernel.org, katrinzhou <katrinzhou@tencent.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 58/84] ipv6/sit: fix ipip6_tunnel_get_prl return value
 Date:   Tue,  5 Jul 2022 13:58:21 +0200
-Message-Id: <20220705115611.566216635@linuxfoundation.org>
+Message-Id: <20220705115617.016648134@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: katrinzhou <katrinzhou@tencent.com>
 
-commit d7ed99ade3e62b755584eea07b4e499e79240527 upstream.
+[ Upstream commit adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d ]
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-12-mathieu.desnoyers@efficios.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When kcalloc fails, ipip6_tunnel_get_prl() should return -ENOMEM.
+Move the position of label "out" to return correctly.
+
+Addresses-Coverity: ("Unused value")
+Fixes: 300aaeeaab5f ("[IPV6] SIT: Add SIOCGETPRL ioctl to get/dump PRL.")
+Signed-off-by: katrinzhou <katrinzhou@tencent.com>
+Reviewed-by: Eric Dumazet<edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220628035030.1039171-1-zys.zljxml@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/rseq/param_test.c |    2 +-
- tools/testing/selftests/rseq/rseq-x86.h   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/sit.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/tools/testing/selftests/rseq/param_test.c
-+++ b/tools/testing/selftests/rseq/param_test.c
-@@ -159,7 +159,7 @@ unsigned int yield_mod_cnt, nr_abort;
- 	"	cbnz	" INJECT_ASM_REG ", 222b\n"			\
- 	"333:\n"
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index 0be82586ce32..3c92e8cacbba 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -321,8 +321,6 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ifreq *ifr)
+ 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL | __GFP_NOWARN) :
+ 		NULL;
  
--#elif __PPC__
-+#elif defined(__PPC__)
+-	rcu_read_lock();
+-
+ 	ca = min(t->prl_count, cmax);
  
- #define RSEQ_INJECT_INPUT \
- 	, [loop_cnt_1]"m"(loop_cnt[1]) \
---- a/tools/testing/selftests/rseq/rseq-x86.h
-+++ b/tools/testing/selftests/rseq/rseq-x86.h
-@@ -600,7 +600,7 @@ int rseq_cmpeqv_trymemcpy_storev_release
+ 	if (!kp) {
+@@ -338,7 +336,7 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ifreq *ifr)
+ 		}
+ 	}
  
- #endif /* !RSEQ_SKIP_FASTPATH */
+-	c = 0;
++	rcu_read_lock();
+ 	for_each_prl_rcu(t->prl) {
+ 		if (c >= cmax)
+ 			break;
+@@ -350,7 +348,7 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ifreq *ifr)
+ 		if (kprl.addr != htonl(INADDR_ANY))
+ 			break;
+ 	}
+-out:
++
+ 	rcu_read_unlock();
  
--#elif __i386__
-+#elif defined(__i386__)
+ 	len = sizeof(*kp) * c;
+@@ -359,7 +357,7 @@ static int ipip6_tunnel_get_prl(struct net_device *dev, struct ifreq *ifr)
+ 		ret = -EFAULT;
  
- #define rseq_smp_mb()	\
- 	__asm__ __volatile__ ("lock; addl $0,-128(%%esp)" ::: "memory", "cc")
+ 	kfree(kp);
+-
++out:
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
+
 
 
