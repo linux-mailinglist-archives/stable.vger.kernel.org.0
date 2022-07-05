@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D15566BCE
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE476566C4F
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233362AbiGEMJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52350 "EHLO
+        id S235450AbiGEMNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235082AbiGEMIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B89186D3;
-        Tue,  5 Jul 2022 05:07:41 -0700 (PDT)
+        with ESMTP id S235677AbiGEMMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:12:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85301A05C;
+        Tue,  5 Jul 2022 05:10:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E7796185C;
-        Tue,  5 Jul 2022 12:07:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22895C341CB;
-        Tue,  5 Jul 2022 12:07:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F550B817CC;
+        Tue,  5 Jul 2022 12:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80B30C341C7;
+        Tue,  5 Jul 2022 12:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022860;
-        bh=kiwQyK9ntmVW3hHr9CAFTxn6uTKHmMpvRSP1nqt2+4s=;
+        s=korg; t=1657023033;
+        bh=PFhbweEncxSZIfwG7OMdvxCwMAgzwjrfOLaj2s0aC5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1+tp1AxZb7PfwERRywVSjmu+AaaKxFDs1BM2dMMSGymUK7Y2BRVu1t2ki0Opl4tR
-         hReQ82nwqnONy1N+TswxZT8aIdVhj61uTKT6PZehg2KFrYn8OjsmGz+GI+D3hbMHi4
-         LN9yGzW526kZEhbpm8QqnOuxD6yxYGhhnCm2/eBU=
+        b=A3EafwPoJues9QAqtRr3TG7V1ztDETewJ/ixalK6pOo4F3FGe3Yof6PTAm4SiAsDO
+         K5ROD0DAP0selRiGoauXUOkPtEvCvzUZRDDARH1lFbIsJhahsEkh43itaTwUHO7/j/
+         EsFI1ZJYRrcgmNPE2cDPq/jkz5QyIn5l4Lkg8Pww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Heinz Mauelshagen <heinzm@redhat.com>,
         Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.10 08/84] dm raid: fix accesses beyond end of raid member array
-Date:   Tue,  5 Jul 2022 13:57:31 +0200
-Message-Id: <20220705115615.572161247@linuxfoundation.org>
+Subject: [PATCH 5.15 14/98] dm raid: fix accesses beyond end of raid member array
+Date:   Tue,  5 Jul 2022 13:57:32 +0200
+Message-Id: <20220705115617.988323268@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/md/dm-raid.c
 +++ b/drivers/md/dm-raid.c
-@@ -1002,12 +1002,13 @@ static int validate_region_size(struct r
+@@ -1001,12 +1001,13 @@ static int validate_region_size(struct r
  static int validate_raid_redundancy(struct raid_set *rs)
  {
  	unsigned int i, rebuild_cnt = 0;
@@ -111,7 +111,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			rebuild_cnt++;
  
  	switch (rs->md.level) {
-@@ -1047,8 +1048,9 @@ static int validate_raid_redundancy(stru
+@@ -1046,8 +1047,9 @@ static int validate_raid_redundancy(stru
  		 *	    A	 A    B	   B	C
  		 *	    C	 D    D	   E	E
  		 */
@@ -122,7 +122,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  				if (!(i % copies))
  					rebuilds_per_group = 0;
  				if ((!rs->dev[i].rdev.sb_page ||
-@@ -1071,10 +1073,10 @@ static int validate_raid_redundancy(stru
+@@ -1070,10 +1072,10 @@ static int validate_raid_redundancy(stru
  		 * results in the need to treat the last (potentially larger)
  		 * set differently.
  		 */
@@ -136,7 +136,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			if (!(i % copies) && !(i > last_group_start))
  				rebuilds_per_group = 0;
  			if ((!rs->dev[i].rdev.sb_page ||
-@@ -1589,7 +1591,7 @@ static sector_t __rdev_sectors(struct ra
+@@ -1588,7 +1590,7 @@ static sector_t __rdev_sectors(struct ra
  {
  	int i;
  
@@ -145,7 +145,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		struct md_rdev *rdev = &rs->dev[i].rdev;
  
  		if (!test_bit(Journal, &rdev->flags) &&
-@@ -3732,13 +3734,13 @@ static int raid_iterate_devices(struct d
+@@ -3771,13 +3773,13 @@ static int raid_iterate_devices(struct d
  	unsigned int i;
  	int r = 0;
  
