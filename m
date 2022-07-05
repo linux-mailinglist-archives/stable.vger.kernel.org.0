@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB7D566271
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 06:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57AD566279
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 06:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiGEEjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 00:39:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53824 "EHLO
+        id S229450AbiGEEp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 00:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbiGEEjJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 00:39:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3163810FEE
-        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 21:39:08 -0700 (PDT)
+        with ESMTP id S229448AbiGEEp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 00:45:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A33511C0D;
+        Mon,  4 Jul 2022 21:45:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5BE5618DC
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 04:39:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CEFC341C7;
-        Tue,  5 Jul 2022 04:39:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84F32618DC;
+        Tue,  5 Jul 2022 04:45:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F32C341C7;
+        Tue,  5 Jul 2022 04:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1656995947;
-        bh=/YhtlBZVkiY3b+YhyAzl0WObXYbUdNxcQoMFOxViWVk=;
+        s=korg; t=1656996323;
+        bh=4OKa312gSztYB28gDrHucUBNOZKSp1RZDpv9qj0Mfe4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cmVCiU8M+/rMoCETlBgHsxS3ba8yMp5h2bR4SK98r7p2EhT2X91+VOSyXq/cDyj+t
-         T4Vgyz8o3pM6avNOUWZlVMOY1W7VjnkL7RJ3wcbd3zLf3geVP8ScD/We12TBlNrWgu
-         JjFlN341rncFgL7HPsSOulxekpfTrDrClx4H7K90=
-Date:   Tue, 5 Jul 2022 06:39:04 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Wen Yang <wenyang@linux.alibaba.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Bin Yang <bin.yang@intel.com>,
-        Mark Gross <mark.gross@intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19] x86/mm/cpa: Unconditionally avoid WBINDV when we can
-Message-ID: <YsPAaNKwTWfkiZTy@kroah.com>
-References: <20220704154508.13317-1-wenyang@linux.alibaba.com>
- <YsMOWwHRUdQ/zLmx@kroah.com>
- <36b71543-fc3f-2787-06b8-2d38f1ee5b93@linux.alibaba.com>
+        b=E5mUMXy9KXKmwGkeJvkLgKzNF4aPIAaf4xqLh40ZsWsH40ynewmYN+nfmer9uYGve
+         GxnSVuossYtnyibi/N9Vna6bV4xmz1ehdSy9CrNF27cxUWoA+a+XVOY4Hkhvw413LM
+         DNVYZkBh5VYfTbJPLJyvj0QtF6DoNSFKmeiCXtBE=
+Date:   Tue, 5 Jul 2022 06:45:21 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Soumya Negi <soumya.negi97@gmail.com>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        syzbot+9d567e08d3970bfd8271@syzkaller.appspotmail.com,
+        syzkaller-bugs@googlegroups.com,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        stable@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Test patch for KASAN: global-out-of-bounds Read in
+ detach_capi_ctr
+Message-ID: <YsPB4Ze6Jw1B9VrM@kroah.com>
+References: <CAHH-VXdqp0ZGKyJWE76zdyKwhv104JRA8ujUY5NoYO47HC9XWQ@mail.gmail.com>
+ <20220704112619.GZ16517@kadam>
+ <YsLU6XL1HBnQR79P@kroah.com>
+ <20220705040430.GA18661@Negi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <36b71543-fc3f-2787-06b8-2d38f1ee5b93@linux.alibaba.com>
+In-Reply-To: <20220705040430.GA18661@Negi>
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -57,93 +57,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 05, 2022 at 11:45:29AM +0800, Wen Yang wrote:
-> 
-> 
-> 在 2022/7/4 下午11:59, Greg Kroah-Hartman 写道:
-> > On Mon, Jul 04, 2022 at 11:45:08PM +0800, Wen Yang wrote:
-> > > From: Peter Zijlstra <peterz@infradead.org>
-> > > 
-> > > commit ddd07b750382adc2b78fdfbec47af8a6e0d8ef37 upstream.
-> > > 
-> > > CAT has happened, WBINDV is bad (even before CAT blowing away the
-> > > entire cache on a multi-core platform wasn't nice), try not to use it
-> > > ever.
-> > > 
-> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > > Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> > > Reviewed-by: Dave Hansen <dave.hansen@intel.com>
-> > > Cc: Bin Yang <bin.yang@intel.com>
-> > > Cc: Mark Gross <mark.gross@intel.com>
-> > > Link: https://lkml.kernel.org/r/20180919085947.933674526@infradead.org
-> > > Cc: <stable@vger.kernel.org> # 4.19.x
-> > > Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-> > > ---
-> > >   arch/x86/mm/pageattr.c | 18 ++----------------
-> > >   1 file changed, 2 insertions(+), 16 deletions(-)
-> > > 
-> > > diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-> > > index 101f3ad0d6ad..ab87da7a6043 100644
-> > > --- a/arch/x86/mm/pageattr.c
-> > > +++ b/arch/x86/mm/pageattr.c
-> > > @@ -239,26 +239,12 @@ static void cpa_flush_array(unsigned long *start, int numpages, int cache,
-> > >   			    int in_flags, struct page **pages)
-> > >   {
-> > >   	unsigned int i, level;
-> > > -#ifdef CONFIG_PREEMPT
-> > > -	/*
-> > > -	 * Avoid wbinvd() because it causes latencies on all CPUs,
-> > > -	 * regardless of any CPU isolation that may be in effect.
-> > > -	 *
-> > > -	 * This should be extended for CAT enabled systems independent of
-> > > -	 * PREEMPT because wbinvd() does not respect the CAT partitions and
-> > > -	 * this is exposed to unpriviledged users through the graphics
-> > > -	 * subsystem.
-> > > -	 */
-> > > -	unsigned long do_wbinvd = 0;
-> > > -#else
-> > > -	unsigned long do_wbinvd = cache && numpages >= 1024; /* 4M threshold */
-> > > -#endif
-> > >   	BUG_ON(irqs_disabled() && !early_boot_irqs_disabled);
-> > > -	on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
-> > > +	flush_tlb_all();
-> > > -	if (!cache || do_wbinvd)
-> > > +	if (!cache)
-> > >   		return;
-> > >   	/*
-> > > -- 
-> > > 2.19.1.6.gb485710b
-> > > 
-> > 
-> > Why is this needed on 4.19.y?  What problem does it solve, it looks only
-> > like an optimization, not a bugfix.
-> > 
-> > And if it's a bugfix, why only 4.19.y, why not older kernels too?
-> > 
-> > We need more information here please.
-> > 
-> 
-> On a 128-core Intel(R) Xeon(R) Platinum 8369B CPU @ 2.90GHz server, when the
-> user program frequently calls nv_alloc_system_pages to allocate large
-> memory, it often causes a delay of about 200 milliseconds for the entire
-> system. In this way, other latency-sensitive tasks on this system are
-> heavily impacted, causing stability issues in large-scale clusters as well.
-> 
-> nv_alloc_system_pages
-> -> _set_memory_array
-> -> change_page_attr_set_clr
-> -> cpa_flush_array
-> -> on_each_cpu(__cpa_flush_all, (void *) do_wbinvd, 1);
-> 
-> 
-> This patch can be directly merged into the 4.19 kernel to solve this
-> problem, and most of the machines in our production environment are 4.19
-> kernels.
+On Mon, Jul 04, 2022 at 09:04:30PM -0700, Soumya Negi wrote:
+> Thanks for letting me know. Is there a way I can check whether an open
+> syzbot bug already has a fix as in this case? Right now I am thinking
+> of running the reproducer on linux-next as well before starting on a
+> bug.
 
-Ah.  So what has changed from last year when I rejected this then:
-	https://lore.kernel.org/all/9c415df9-9575-8217-03e9-a6bbf20a491a@linux.alibaba.com/T/#m06369d080fa97eda3dd6a8eaf54a8ca2d430b3ab
-
-Please do not try to submit previously-rejected patches, that is very
-disingenuous.
-
-greg k-h
+I have no context at all as to what you are referring to here, sorry.
