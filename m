@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFED6566E01
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8E4566C44
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231970AbiGEMa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:30:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52730 "EHLO
+        id S235169AbiGEMNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:13:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237680AbiGEMZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F89D63;
-        Tue,  5 Jul 2022 05:18:14 -0700 (PDT)
+        with ESMTP id S235175AbiGEMLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:11:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF39310;
+        Tue,  5 Jul 2022 05:10:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E0072CE1B22;
-        Tue,  5 Jul 2022 12:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD4E8C341C7;
-        Tue,  5 Jul 2022 12:18:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4391F6185C;
+        Tue,  5 Jul 2022 12:10:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1F9C341CB;
+        Tue,  5 Jul 2022 12:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023491;
-        bh=gJPHiYJw2eD9q/XdjDFanrKWV7ZlkQz5rUWrohNBK+w=;
+        s=korg; t=1657023008;
+        bh=PXnYC5Q5J8r1ipXlW9fyoi7kFwV9c2wah0J2rCfcv6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lG3w1PXaVRCraj3hDfUN9UZ6LNbsW1jZC54Ja/exrZnsVCAZktB1/SzLC+YLZ04JZ
-         y75pttEMRuG1UMmf+njrHWBBN4mr8pFNaM2KKo0IXvDm+YP9uCL/bDzJyNtoXoef4k
-         avecZjzNhWXr2NKSg6JkJDo0Wr57PnsPmrldSuHw=
+        b=Krz5NzTgPvZPEzCUrdu4halsI0/DQowgKOWVzRGUwk+isUbioyKEG7DMMr/53snja
+         2bwx7srYsLtgoFyIwpspIKZAjpZ1+eqAjgcBHXQ5EYrbynJrH222SLXH+xVBR7jArb
+         dsgl+P3vRmRTPNMz8q83mc1Au4yHvvBGB7Ci9iaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, katrinzhou <katrinzhou@tencent.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 077/102] ipv6/sit: fix ipip6_tunnel_get_prl return value
-Date:   Tue,  5 Jul 2022 13:58:43 +0200
-Message-Id: <20220705115620.595403664@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 81/84] xen/arm: Fix race in RB-tree based P2M accounting
+Date:   Tue,  5 Jul 2022 13:58:44 +0200
+Message-Id: <20220705115617.683179375@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: katrinzhou <katrinzhou@tencent.com>
+From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
 
-commit adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d upstream.
+commit b75cd218274e01d026dc5240e86fdeb44bbed0c8 upstream.
 
-When kcalloc fails, ipip6_tunnel_get_prl() should return -ENOMEM.
-Move the position of label "out" to return correctly.
+During the PV driver life cycle the mappings are added to
+the RB-tree by set_foreign_p2m_mapping(), which is called from
+gnttab_map_refs() and are removed by clear_foreign_p2m_mapping()
+which is called from gnttab_unmap_refs(). As both functions end
+up calling __set_phys_to_machine_multi() which updates the RB-tree,
+this function can be called concurrently.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 300aaeeaab5f ("[IPV6] SIT: Add SIOCGETPRL ioctl to get/dump PRL.")
-Signed-off-by: katrinzhou <katrinzhou@tencent.com>
-Reviewed-by: Eric Dumazet<edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220628035030.1039171-1-zys.zljxml@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+There is already a "p2m_lock" to protect against concurrent accesses,
+but the problem is that the first read of "phys_to_mach.rb_node"
+in __set_phys_to_machine_multi() is not covered by it, so this might
+lead to the incorrect mappings update (removing in our case) in RB-tree.
+
+In my environment the related issue happens rarely and only when
+PV net backend is running, the xen_add_phys_to_mach_entry() claims
+that it cannot add new pfn <-> mfn mapping to the tree since it is
+already exists which results in a failure when mapping foreign pages.
+
+But there might be other bad consequences related to the non-protected
+root reads such use-after-free, etc.
+
+While at it, also fix the similar usage in __pfn_to_mfn(), so
+initialize "struct rb_node *n" with the "p2m_lock" held in both
+functions to avoid possible bad consequences.
+
+This is CVE-2022-33744 / XSA-406.
+
+Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/arm/xen/p2m.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -323,8 +323,6 @@ static int ipip6_tunnel_get_prl(struct n
- 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL_ACCOUNT | __GFP_NOWARN) :
- 		NULL;
+--- a/arch/arm/xen/p2m.c
++++ b/arch/arm/xen/p2m.c
+@@ -62,11 +62,12 @@ out:
  
--	rcu_read_lock();
--
- 	ca = min(t->prl_count, cmax);
+ unsigned long __pfn_to_mfn(unsigned long pfn)
+ {
+-	struct rb_node *n = phys_to_mach.rb_node;
++	struct rb_node *n;
+ 	struct xen_p2m_entry *entry;
+ 	unsigned long irqflags;
  
- 	if (!kp) {
-@@ -341,7 +339,7 @@ static int ipip6_tunnel_get_prl(struct n
- 		}
- 	}
+ 	read_lock_irqsave(&p2m_lock, irqflags);
++	n = phys_to_mach.rb_node;
+ 	while (n) {
+ 		entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
+ 		if (entry->pfn <= pfn &&
+@@ -153,10 +154,11 @@ bool __set_phys_to_machine_multi(unsigne
+ 	int rc;
+ 	unsigned long irqflags;
+ 	struct xen_p2m_entry *p2m_entry;
+-	struct rb_node *n = phys_to_mach.rb_node;
++	struct rb_node *n;
  
--	c = 0;
-+	rcu_read_lock();
- 	for_each_prl_rcu(t->prl) {
- 		if (c >= cmax)
- 			break;
-@@ -353,7 +351,7 @@ static int ipip6_tunnel_get_prl(struct n
- 		if (kprl.addr != htonl(INADDR_ANY))
- 			break;
- 	}
--out:
-+
- 	rcu_read_unlock();
- 
- 	len = sizeof(*kp) * c;
-@@ -362,7 +360,7 @@ out:
- 		ret = -EFAULT;
- 
- 	kfree(kp);
--
-+out:
- 	return ret;
- }
- 
+ 	if (mfn == INVALID_P2M_ENTRY) {
+ 		write_lock_irqsave(&p2m_lock, irqflags);
++		n = phys_to_mach.rb_node;
+ 		while (n) {
+ 			p2m_entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
+ 			if (p2m_entry->pfn <= pfn &&
 
 
