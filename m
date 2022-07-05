@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54545566DC3
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146F8566C0F
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238021AbiGEM07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:26:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51850 "EHLO
+        id S235001AbiGEMKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236963AbiGEMZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967A51902B;
-        Tue,  5 Jul 2022 05:17:47 -0700 (PDT)
+        with ESMTP id S234466AbiGEMJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA31018B18;
+        Tue,  5 Jul 2022 05:09:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 331F561AC4;
-        Tue,  5 Jul 2022 12:17:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAA0C341C7;
-        Tue,  5 Jul 2022 12:17:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C750B817DE;
+        Tue,  5 Jul 2022 12:09:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90BE3C341C7;
+        Tue,  5 Jul 2022 12:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023466;
-        bh=S/jElzlayL1J+y5ZjSboB6qcAO1oqCfb2sqhoDqm/rY=;
+        s=korg; t=1657022968;
+        bh=5c7BhSRYocMhrgIWB3Twgfa4TD8kY27Q6S157VnSqGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj8sGVZv7Ur14bLeJFdsuN2wArK9Xmyt7B1lNjLHsofAGAv9OPqx1QbqB22Nmr/0u
-         mq0Pea0DRlVkN+KgZ2BEbc8VOWVRIMtFavXxp7tuGK/cjJQjSd5naJGaYIkIZCTgHq
-         5qJaI5RjFQQIe68lyS7jueWMC8pnmjz1m3t8wrG4=
+        b=XEb9iJKmQ/l5xm1K8+lhX0x+SlIKYuf7PIxPexZ9SSEob7QozFgLVhfieI1qM6mDS
+         D5ow21fy/8qT4bv0pazAcB8KVeKGfKHyhNCFJoOAm9PVBHlt3jS4Rzc2pJ32HzJSiC
+         xjJpDMoDCsXKBGVcltPQTYIH9WT3PEpbSxQInOGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yilun Wu <yiluwu@cs.stonybrook.edu>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Francois Romieu <romieu@fr.zoreil.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 069/102] epic100: fix use after free on rmmod
-Date:   Tue,  5 Jul 2022 13:58:35 +0200
-Message-Id: <20220705115620.364534662@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 73/84] selftests/rseq: x86-64: use %fs segment selector for accessing rseq thread area
+Date:   Tue,  5 Jul 2022 13:58:36 +0200
+Message-Id: <20220705115617.453242405@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 8ee9d82cd0a45e7d050ade598c9f33032a0f2891 upstream.
+commit 4e15bb766b6c6e963a4d33629034d0ec3b7637df upstream.
 
-epic_close() calls epic_rx() and uses dma buffer, but in epic_remove_one()
-we already freed the dma buffer. To fix this issue, reorder function calls
-like in the .probe function.
+Rather than use rseq_get_abi() and pass its result through a register to
+the inline assembler, directly access the per-thread rseq area through a
+memory reference combining the %fs segment selector, the constant offset
+of the field in struct rseq, and the rseq_offset value (in a register).
 
-BUG: KASAN: use-after-free in epic_rx+0xa6/0x7e0 [epic100]
-Call Trace:
- epic_rx+0xa6/0x7e0 [epic100]
- epic_close+0xec/0x2f0 [epic100]
- unregister_netdev+0x18/0x20
- epic_remove_one+0xaa/0xf0 [epic100]
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Yilun Wu <yiluwu@cs.stonybrook.edu>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
-Link: https://lore.kernel.org/r/20220627043351.25615-1-ztong0001@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124171253.22072-15-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/smsc/epic100.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/rseq/rseq-x86.h |   58 ++++++++++++++++----------------
+ 1 file changed, 30 insertions(+), 28 deletions(-)
 
---- a/drivers/net/ethernet/smsc/epic100.c
-+++ b/drivers/net/ethernet/smsc/epic100.c
-@@ -1515,14 +1515,14 @@ static void epic_remove_one(struct pci_d
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct epic_private *ep = netdev_priv(dev);
+--- a/tools/testing/selftests/rseq/rseq-x86.h
++++ b/tools/testing/selftests/rseq/rseq-x86.h
+@@ -28,6 +28,8 @@
  
-+	unregister_netdev(dev);
- 	dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, ep->tx_ring,
- 			  ep->tx_ring_dma);
- 	dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, ep->rx_ring,
- 			  ep->rx_ring_dma);
--	unregister_netdev(dev);
- 	pci_iounmap(pdev, ep->ioaddr);
--	pci_release_regions(pdev);
- 	free_netdev(dev);
-+	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
- 	/* pci_power_off(pdev, -1); */
- }
+ #ifdef __x86_64__
+ 
++#define RSEQ_ASM_TP_SEGMENT	%%fs
++
+ #define rseq_smp_mb()	\
+ 	__asm__ __volatile__ ("lock; addl $0,-128(%%rsp)" ::: "memory", "cc")
+ #define rseq_smp_rmb()	rseq_barrier()
+@@ -123,14 +125,14 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_EXIT_POINT(1f, %l[error2])
+ #endif
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz %l[cmpfail]\n\t"
+ 		RSEQ_INJECT_ASM(4)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), %l[error1])
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), %l[error1])
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz %l[error2]\n\t"
+ #endif
+@@ -141,7 +143,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
+ 		  [newv]		"r" (newv)
+@@ -189,15 +191,15 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_EXIT_POINT(1f, %l[error2])
+ #endif
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ 		"movq %[v], %%rbx\n\t"
+ 		"cmpq %%rbx, %[expectnot]\n\t"
+ 		"je %l[cmpfail]\n\t"
+ 		RSEQ_INJECT_ASM(4)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), %l[error1])
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), %l[error1])
+ 		"movq %[v], %%rbx\n\t"
+ 		"cmpq %%rbx, %[expectnot]\n\t"
+ 		"je %l[error2]\n\t"
+@@ -212,7 +214,7 @@ int rseq_cmpnev_storeoffp_load(intptr_t
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expectnot]		"r" (expectnot),
+@@ -255,11 +257,11 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_EXIT_POINT(1f, %l[error1])
+ #endif
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), %l[error1])
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), %l[error1])
+ #endif
+ 		/* final store */
+ 		"addq %[count], %[v]\n\t"
+@@ -268,7 +270,7 @@ int rseq_addv(intptr_t *v, intptr_t coun
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [count]		"er" (count)
+@@ -309,11 +311,11 @@ int rseq_offset_deref_addv(intptr_t *ptr
+ 		RSEQ_ASM_DEFINE_EXIT_POINT(1f, %l[error1])
+ #endif
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), %l[error1])
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), %l[error1])
+ #endif
+ 		/* get p+v */
+ 		"movq %[ptr], %%rbx\n\t"
+@@ -327,7 +329,7 @@ int rseq_offset_deref_addv(intptr_t *ptr
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  /* final store input */
+ 		  [ptr]			"m" (*ptr),
+ 		  [off]			"er" (off),
+@@ -364,14 +366,14 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_EXIT_POINT(1f, %l[error2])
+ #endif
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz %l[cmpfail]\n\t"
+ 		RSEQ_INJECT_ASM(4)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), %l[error1])
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), %l[error1])
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz %l[error2]\n\t"
+ #endif
+@@ -385,7 +387,7 @@ int rseq_cmpeqv_trystorev_storev(intptr_
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  /* try store input */
+ 		  [v2]			"m" (*v2),
+ 		  [newv2]		"r" (newv2),
+@@ -444,8 +446,8 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_EXIT_POINT(1f, %l[error3])
+ #endif
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz %l[cmpfail]\n\t"
+@@ -454,7 +456,7 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		"jnz %l[cmpfail]\n\t"
+ 		RSEQ_INJECT_ASM(5)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), %l[error1])
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), %l[error1])
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz %l[error2]\n\t"
+ 		"cmpq %[v2], %[expect2]\n\t"
+@@ -467,7 +469,7 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
+ 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  /* cmp2 input */
+ 		  [v2]			"m" (*v2),
+ 		  [expect2]		"r" (expect2),
+@@ -524,14 +526,14 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ 		"movq %[dst], %[rseq_scratch1]\n\t"
+ 		"movq %[len], %[rseq_scratch2]\n\t"
+ 		/* Start rseq by storing table entry pointer into rseq_cs. */
+-		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_CS_OFFSET(%[rseq_abi]))
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 4f)
++		RSEQ_ASM_STORE_RSEQ_CS(1, 3b, RSEQ_ASM_TP_SEGMENT:RSEQ_CS_OFFSET(%[rseq_offset]))
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 4f)
+ 		RSEQ_INJECT_ASM(3)
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz 5f\n\t"
+ 		RSEQ_INJECT_ASM(4)
+ #ifdef RSEQ_COMPARE_TWICE
+-		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_CPU_ID_OFFSET(%[rseq_abi]), 6f)
++		RSEQ_ASM_CMP_CPU_ID(cpu_id, RSEQ_ASM_TP_SEGMENT:RSEQ_CPU_ID_OFFSET(%[rseq_offset]), 6f)
+ 		"cmpq %[v], %[expect]\n\t"
+ 		"jnz 7f\n\t"
+ #endif
+@@ -579,7 +581,7 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
+ #endif
+ 		: /* gcc asm goto does not allow outputs */
+ 		: [cpu_id]		"r" (cpu),
+-		  [rseq_abi]		"r" (rseq_get_abi()),
++		  [rseq_offset]		"r" ((long)rseq_offset),
+ 		  /* final store input */
+ 		  [v]			"m" (*v),
+ 		  [expect]		"r" (expect),
 
 
