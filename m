@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85AD8566C8C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B417D566BC8
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235696AbiGEMQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:16:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36058 "EHLO
+        id S233529AbiGEMJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235706AbiGEMO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:14:27 -0400
+        with ESMTP id S234982AbiGEMIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206801B78D;
-        Tue,  5 Jul 2022 05:11:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54CABFB;
+        Tue,  5 Jul 2022 05:07:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7186F619B0;
-        Tue,  5 Jul 2022 12:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86D1BC341D0;
-        Tue,  5 Jul 2022 12:11:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82CEE61876;
+        Tue,  5 Jul 2022 12:07:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88AEBC341CB;
+        Tue,  5 Jul 2022 12:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023102;
-        bh=4VffuFBxs2+Cw1NgmCBgYbNd/PCK0ylS0ls8k/lR60A=;
+        s=korg; t=1657022843;
+        bh=6bvRQgKM8o4blQnkTyXNbT0gjJ66CoJpNC1JpGEAqeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxsC9StSwC9Q79FevEVDmS8Xrj/jK0O6S61jVOy4zoYc4VVd1k2yMMxIWoHIlWfBW
-         +oPPcG00ZwR8yvenPWm+91+mLU4XjzirlOBVgXmVjTXbSKZRcU0MOwNu+PtetvXhXS
-         4MI0zs0lAAedD3BiTT9Pjy0WRnE7XsfxjDkGhGok=
+        b=qewEhHqJk2oWzcbvZy1GZF4Mn9J1SE+ZoBJhx4PK1QwM97MA0zuTyfQ2eedIXixk8
+         b+1ieayNVZO+46fIHxQeWvzYFIayHHbbQGFk5sYbVz9EShWcHS7GJeqblqeFuVzjG4
+         bILI6s26ZxLQArQiqnTdUG5p22ktLTTBxH0Zj6Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Keith Busch <kbusch@kernel.org>,
         Chaitanya Kulkarni <kch@nvidia.com>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.15 08/98] nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG SX6000LNP (AKA SPECTRIX S40G)
+Subject: [PATCH 5.10 03/84] nvme-pci: add NVME_QUIRK_BOGUS_NID for ADATA XPG SX6000LNP (AKA SPECTRIX S40G)
 Date:   Tue,  5 Jul 2022 13:57:26 +0200
-Message-Id: <20220705115617.815773044@linuxfoundation.org>
+Message-Id: <20220705115615.427196550@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -99,9 +99,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -3342,7 +3342,8 @@ static const struct pci_device_id nvme_i
- 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST |
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+@@ -3245,7 +3245,8 @@ static const struct pci_device_id nvme_i
+ 	{ PCI_DEVICE(0x1d1d, 0x2601),	/* CNEX Granby */
+ 		.driver_data = NVME_QUIRK_LIGHTNVM, },
  	{ PCI_DEVICE(0x10ec, 0x5762),   /* ADATA SX6000LNP */
 -		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
 +		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN |
