@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3FD8566D47
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ED68566E28
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236790AbiGEMV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36112 "EHLO
+        id S237966AbiGEMbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:31:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237160AbiGEMSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246A81A810;
-        Tue,  5 Jul 2022 05:14:03 -0700 (PDT)
+        with ESMTP id S236543AbiGEM0s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DC11902F;
+        Tue,  5 Jul 2022 05:19:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A99EA61988;
-        Tue,  5 Jul 2022 12:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B73B7C341C7;
-        Tue,  5 Jul 2022 12:14:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAB1AB817C7;
+        Tue,  5 Jul 2022 12:19:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE16C341C7;
+        Tue,  5 Jul 2022 12:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023242;
-        bh=xL9dQRPN4zdH0w5rxZ6Brj37J5MkQpsogia5Wn8fOkI=;
+        s=korg; t=1657023543;
+        bh=/NrK7TAForsqDNMywqJK8GoptfroW+Cz4lcwd33z3JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ae3CEmg7b/Y+og6Vd8l4K+QZFRtXMjvu92RJQOTUsy0LxUUwTpnft2nj/M8sonbTX
-         nWj6yUlTpaMkG49ygEpXewJjPhfqAJo7TV91VVE+K3M6gsPDOn2JL/pLbuzILk+9Tc
-         FSSGCgQMJgU4HEWWUodhQZgYIWYYULSsXTWeLwV4=
+        b=dAXq/Fux9nQx2Dn2pIK4fkxNnBtnSeUR39ndfJuf6/8yyqoEgb/rwzdkKrB83alK3
+         tNdIM6OV055Q093BadaHcP/XIbGDg546iT9P1nBVHqCeOEZNx/FGN/ABRvpVzXi7K/
+         Twd8UO0/aWBwBfE+wE44sxN9p4dLfp6pvgYC1E34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 89/98] drivers: cpufreq: Add missing of_node_put() in qoriq-cpufreq.c
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.18 081/102] cifs: fix minor compile warning
 Date:   Tue,  5 Jul 2022 13:58:47 +0200
-Message-Id: <20220705115620.096287667@linuxfoundation.org>
+Message-Id: <20220705115620.709940288@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 4ff5a9b6d95f3524bf6d27147df497eb21968300 ]
+commit 93ed91c020aa4f021600a633f1f87790a5e50b91 upstream.
 
-In qoriq_cpufreq_probe(), of_find_matching_node() will return a
-node pointer with refcount incremented. We should use of_node_put()
-when it is not used anymore.
+Add ifdef around nodfs variable from patch:
+  "cifs: don't call cifs_dfs_query_info_nonascii_quirk() if nodfs was set"
+which is unused when CONFIG_DFS_UPCALL is not set.
 
-Fixes: 157f527639da ("cpufreq: qoriq: convert to a platform driver")
-[ Viresh: Fixed Author's name in commit log ]
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qoriq-cpufreq.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/connect.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/cpufreq/qoriq-cpufreq.c b/drivers/cpufreq/qoriq-cpufreq.c
-index 6b6b20da2bcf..573b417e1483 100644
---- a/drivers/cpufreq/qoriq-cpufreq.c
-+++ b/drivers/cpufreq/qoriq-cpufreq.c
-@@ -275,6 +275,7 @@ static int qoriq_cpufreq_probe(struct platform_device *pdev)
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3423,7 +3423,9 @@ static int is_path_remote(struct mount_c
+ 	struct cifs_tcon *tcon = mnt_ctx->tcon;
+ 	struct smb3_fs_context *ctx = mnt_ctx->fs_ctx;
+ 	char *full_path;
++#ifdef CONFIG_CIFS_DFS_UPCALL
+ 	bool nodfs = cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_DFS;
++#endif
  
- 	np = of_find_matching_node(NULL, qoriq_cpufreq_blacklist);
- 	if (np) {
-+		of_node_put(np);
- 		dev_info(&pdev->dev, "Disabling due to erratum A-008083");
- 		return -ENODEV;
- 	}
--- 
-2.35.1
-
+ 	if (!server->ops->is_path_accessible)
+ 		return -EOPNOTSUPP;
 
 
