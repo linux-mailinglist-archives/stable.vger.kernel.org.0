@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F2F4566D17
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B24566E2C
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236478AbiGEMVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
+        id S238293AbiGEMbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237269AbiGEMS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6921A826;
-        Tue,  5 Jul 2022 05:14:15 -0700 (PDT)
+        with ESMTP id S237993AbiGEM0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A5019284;
+        Tue,  5 Jul 2022 05:19:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 241F7B817AC;
-        Tue,  5 Jul 2022 12:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84007C341C7;
-        Tue,  5 Jul 2022 12:14:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C76DB619A6;
+        Tue,  5 Jul 2022 12:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBB0FC341C7;
+        Tue,  5 Jul 2022 12:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023252;
-        bh=mXwYS3tDZj+FB8MJFc//EosuhjiE1AeB0xL3ixvneEs=;
+        s=korg; t=1657023565;
+        bh=HdYYE3I5KhDfAvnpBS4PTQiqIye2bFN7nkq1ChD7oNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WlQpC99RsFo/8cFcy38UmcQP+yhojFob9TCI7ZWjCzHrd5j6j8ZrRXNmpxFwqe9R
-         XIL0ICWasSu0icxGLC2IVaA7woOZLTR9yGBDSULb9dPd/Wc5iiWKDufZChIhttI84C
-         bd6ZKXrmCBsPOS+u518ZI9elCmx0F9YV23GgIok0=
+        b=oWI0CAEDtyJLoe2zLARU+iio3w8Z6CD0WJFmThn/vhPvnuuXbSjKCsDTRbiJAf1ye
+         w+Xp4lWxa4S2uuTT4hca6IZqheFrx01MOzgNitgebc2oh3tsElz4gwiCkH36LJuwlv
+         t+NlsL7ibv1SXFXyEaANq3wgjwK5K/e8GD+FqnSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Stefan Seyfried <seife+kernel@b1-systems.com>,
-        Kenneth Chan <kenneth.t.chan@gmail.com>
-Subject: [PATCH 5.15 93/98] platform/x86: panasonic-laptop: dont report duplicate brightness key-presses
+        stable@vger.kernel.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Anshuman Gupta <anshuman.gupta@intel.com>,
+        Badal Nilawar <badal.nilawar@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 085/102] drm/i915/dgfx: Disable d3cold at gfx root port
 Date:   Tue,  5 Jul 2022 13:58:51 +0200
-Message-Id: <20220705115620.207967081@linuxfoundation.org>
+Message-Id: <20220705115620.826013908@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +56,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Anshuman Gupta <anshuman.gupta@intel.com>
 
-[ Upstream commit 1f2c9de83a50447a2d7166f6273ab0c0e97cd68e ]
+[ Upstream commit 7d23a80dc9720a378707edc03a7275d5a372355f ]
 
-The brightness key-presses might also get reported by the ACPI video bus,
-check for this and in this case don't report the presses to avoid reporting
-2 presses for a single key-press.
+Currently i915 disables d3cold for i915 pci dev.
+This blocks D3 for i915 gfx pci upstream bridge (VSP).
+Let's disable d3cold at gfx root port to make sure that
+i915 gfx VSP can transition to D3 to save some power.
 
-Fixes: ed83c9171829 ("platform/x86: panasonic-laptop: Resolve hotkey double trigger bug")
-Reported-and-tested-by: Stefan Seyfried <seife+kernel@b1-systems.com>
-Reported-and-tested-by: Kenneth Chan <kenneth.t.chan@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220624112340.10130-6-hdegoede@redhat.com
+We don't need to disable/enable d3cold in rpm, s2idle
+suspend/resume handlers. Disabling/Enabling d3cold at
+gfx root port in probe/remove phase is sufficient.
+
+Fixes: 1a085e23411d ("drm/i915: Disable D3Cold in s2idle and runtime pm")
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
+Reviewed-by: Badal Nilawar <badal.nilawar@intel.com>
+Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220616122249.5007-1-anshuman.gupta@intel.com
+(cherry picked from commit 138c2fca6f408f397ea8fbbbf33203f244d96e01)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/Kconfig            | 1 +
- drivers/platform/x86/panasonic-laptop.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/gpu/drm/i915/i915_driver.c | 34 +++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index e21ea3d23e6f..50a5c4f3cefd 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -871,6 +871,7 @@ config PANASONIC_LAPTOP
- 	tristate "Panasonic Laptop Extras"
- 	depends on INPUT && ACPI
- 	depends on BACKLIGHT_CLASS_DEVICE
-+	depends on ACPI_VIDEO=n || ACPI_VIDEO
- 	select INPUT_SPARSEKMAP
- 	help
- 	  This driver adds support for access to backlight control and hotkeys
-diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
-index cd3c23593eee..65ca863ffb9f 100644
---- a/drivers/platform/x86/panasonic-laptop.c
-+++ b/drivers/platform/x86/panasonic-laptop.c
-@@ -132,6 +132,7 @@
- #include <linux/slab.h>
- #include <linux/types.h>
- #include <linux/uaccess.h>
-+#include <acpi/video.h>
+diff --git a/drivers/gpu/drm/i915/i915_driver.c b/drivers/gpu/drm/i915/i915_driver.c
+index 62b3f332bbf5..0478fa6259eb 100644
+--- a/drivers/gpu/drm/i915/i915_driver.c
++++ b/drivers/gpu/drm/i915/i915_driver.c
+@@ -538,6 +538,7 @@ static int i915_set_dma_info(struct drm_i915_private *i915)
+ static int i915_driver_hw_probe(struct drm_i915_private *dev_priv)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev_priv->drm.dev);
++	struct pci_dev *root_pdev;
+ 	int ret;
  
- MODULE_AUTHOR("Hiroshi Miura <miura@da-cha.org>");
- MODULE_AUTHOR("David Bronaugh <dbronaugh@linuxboxen.org>");
-@@ -783,6 +784,13 @@ static void acpi_pcc_generate_keyinput(struct pcc_acpi *pcc)
- 					key, 0x80, false);
- 	}
+ 	if (i915_inject_probe_failure(dev_priv))
+@@ -651,6 +652,15 @@ static int i915_driver_hw_probe(struct drm_i915_private *dev_priv)
+ 
+ 	intel_bw_init_hw(dev_priv);
  
 +	/*
-+	 * Don't report brightness key-presses if they are also reported
-+	 * by the ACPI video bus.
++	 * FIXME: Temporary hammer to avoid freezing the machine on our DGFX
++	 * This should be totally removed when we handle the pci states properly
++	 * on runtime PM and on s2idle cases.
 +	 */
-+	if ((key == 1 || key == 2) && acpi_video_handles_brightness_key_presses())
-+		return;
++	root_pdev = pcie_find_root_port(pdev);
++	if (root_pdev)
++		pci_d3cold_disable(root_pdev);
 +
- 	if (!sparse_keymap_report_event(hotk_input_dev, key, updown, false))
- 		pr_err("Unknown hotkey event: 0x%04llx\n", result);
+ 	return 0;
+ 
+ err_msi:
+@@ -674,11 +684,16 @@ static int i915_driver_hw_probe(struct drm_i915_private *dev_priv)
+ static void i915_driver_hw_remove(struct drm_i915_private *dev_priv)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev_priv->drm.dev);
++	struct pci_dev *root_pdev;
+ 
+ 	i915_perf_fini(dev_priv);
+ 
+ 	if (pdev->msi_enabled)
+ 		pci_disable_msi(pdev);
++
++	root_pdev = pcie_find_root_port(pdev);
++	if (root_pdev)
++		pci_d3cold_enable(root_pdev);
  }
+ 
+ /**
+@@ -1195,14 +1210,6 @@ static int i915_drm_suspend_late(struct drm_device *dev, bool hibernation)
+ 		goto out;
+ 	}
+ 
+-	/*
+-	 * FIXME: Temporary hammer to avoid freezing the machine on our DGFX
+-	 * This should be totally removed when we handle the pci states properly
+-	 * on runtime PM and on s2idle cases.
+-	 */
+-	if (suspend_to_idle(dev_priv))
+-		pci_d3cold_disable(pdev);
+-
+ 	pci_disable_device(pdev);
+ 	/*
+ 	 * During hibernation on some platforms the BIOS may try to access
+@@ -1367,8 +1374,6 @@ static int i915_drm_resume_early(struct drm_device *dev)
+ 
+ 	pci_set_master(pdev);
+ 
+-	pci_d3cold_enable(pdev);
+-
+ 	disable_rpm_wakeref_asserts(&dev_priv->runtime_pm);
+ 
+ 	ret = vlv_resume_prepare(dev_priv, false);
+@@ -1545,7 +1550,6 @@ static int intel_runtime_suspend(struct device *kdev)
+ {
+ 	struct drm_i915_private *dev_priv = kdev_to_i915(kdev);
+ 	struct intel_runtime_pm *rpm = &dev_priv->runtime_pm;
+-	struct pci_dev *pdev = to_pci_dev(dev_priv->drm.dev);
+ 	int ret;
+ 
+ 	if (drm_WARN_ON_ONCE(&dev_priv->drm, !HAS_RUNTIME_PM(dev_priv)))
+@@ -1591,12 +1595,6 @@ static int intel_runtime_suspend(struct device *kdev)
+ 		drm_err(&dev_priv->drm,
+ 			"Unclaimed access detected prior to suspending\n");
+ 
+-	/*
+-	 * FIXME: Temporary hammer to avoid freezing the machine on our DGFX
+-	 * This should be totally removed when we handle the pci states properly
+-	 * on runtime PM and on s2idle cases.
+-	 */
+-	pci_d3cold_disable(pdev);
+ 	rpm->suspended = true;
+ 
+ 	/*
+@@ -1635,7 +1633,6 @@ static int intel_runtime_resume(struct device *kdev)
+ {
+ 	struct drm_i915_private *dev_priv = kdev_to_i915(kdev);
+ 	struct intel_runtime_pm *rpm = &dev_priv->runtime_pm;
+-	struct pci_dev *pdev = to_pci_dev(dev_priv->drm.dev);
+ 	int ret;
+ 
+ 	if (drm_WARN_ON_ONCE(&dev_priv->drm, !HAS_RUNTIME_PM(dev_priv)))
+@@ -1648,7 +1645,6 @@ static int intel_runtime_resume(struct device *kdev)
+ 
+ 	intel_opregion_notify_adapter(dev_priv, PCI_D0);
+ 	rpm->suspended = false;
+-	pci_d3cold_enable(pdev);
+ 	if (intel_uncore_unclaimed_mmio(&dev_priv->uncore))
+ 		drm_dbg(&dev_priv->drm,
+ 			"Unclaimed access during suspend, bios?\n");
 -- 
 2.35.1
 
