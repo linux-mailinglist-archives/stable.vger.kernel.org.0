@@ -2,139 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F46565FBE
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 01:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE0BF566152
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 04:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229849AbiGDXfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jul 2022 19:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34520 "EHLO
+        id S231238AbiGECkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jul 2022 22:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiGDXfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 19:35:02 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D75C2BC3;
-        Mon,  4 Jul 2022 16:35:01 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id eq6so13255545edb.6;
-        Mon, 04 Jul 2022 16:35:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=T8S0l8y9d8Axnt5vHKcfa4KW+KyScMqV4sAI/irB22c=;
-        b=djDAMtpfqnkI0WF6TGgtPkzlMpfSoeYlDDNgE6j8sY8HpSm54gda2piV9ltBSZrvg3
-         SSVuf/WyApMz/hclgRyNMOcNCDZtVwvIq2TtoIiNI2s+tX81GatXIUojo/l3YWSolpBY
-         gwU9xw+DXKp2ogpRNzU9EflHjuuB57+a6C7CETy68HMOiOWi95UhQ38UeBIQMsV7pprY
-         VkUYDQ4iAiJH3oVYQpyl4elEWWi87xUp9C/yOvLpnQl7Ud4vDGgOuyfA1zQpMhq5fhab
-         2hMTgk6TGlNTf90/1polYojoeDDayil6EdQ95g0HNeKZScgKOtzAmSw3eLyk+kDES6m2
-         lqGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=T8S0l8y9d8Axnt5vHKcfa4KW+KyScMqV4sAI/irB22c=;
-        b=iXCKmW2KpApsozVcVGZLos5aqL6g1M+j43+p3Qmt3p16C/sPdkEWHoNxWwjRNfE857
-         yJHDLfVN7fhXzCSnMUzXFXMJVpfaOigOuor0b/x5aEMAoylcJPVBQFB9ury1s003w+/A
-         Q6L4TVmPiPFRvOoETWkW4xakpMrdTHpNZ/mDK4iTfYq3gU6HG7/mq1G8Hkp2HQG/9vy3
-         02BjhSM1uH2jPjS/QXMfluEsfJEkfJkLR2JOdTFXUxYSpdzffe69oEo46NpTzx7Pm7Tr
-         QJ3oQxlcDh49GCU0wI4zeD785MQ/S93GMwae/dyY57H5T3y9didcSdW42vba/1hNcPrF
-         5a1g==
-X-Gm-Message-State: AJIora+/1SyEng4JMzPFAChnwYvMsowkk1AJkDQidvxVas7Pgli2AeOX
-        bjUyBaS/w91T4unUtcL8aMP0oDF+9pfalDiE
-X-Google-Smtp-Source: AGRyM1uodonDapeOyqMZ310HkDK2VMS5hY2SPriOX5HIFT6St6SrPc+6yDST4p88DwqpSBQcwPISPA==
-X-Received: by 2002:a05:6402:249d:b0:437:8622:6de8 with SMTP id q29-20020a056402249d00b0043786226de8mr42730595eda.113.1656977699772;
-        Mon, 04 Jul 2022 16:34:59 -0700 (PDT)
-Received: from skbuf ([188.25.231.173])
-        by smtp.gmail.com with ESMTPSA id s8-20020a508dc8000000b00435c10b5daesm21554012edh.34.2022.07.04.16.34.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jul 2022 16:34:58 -0700 (PDT)
-Date:   Tue, 5 Jul 2022 02:34:57 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        andrew@lunn.ch
-Subject: Re: [PATCH stable 4.9] net: dsa: bcm_sf2: force pause link settings
-Message-ID: <20220704233457.tgnenjn3ct6us75i@skbuf>
-References: <20220704153510.3859649-1-f.fainelli@gmail.com>
+        with ESMTP id S230312AbiGECkx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jul 2022 22:40:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E2111153
+        for <stable@vger.kernel.org>; Mon,  4 Jul 2022 19:40:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C840B8129F
+        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 02:40:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C61C3411E;
+        Tue,  5 Jul 2022 02:40:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656988849;
+        bh=2vpdBnbSxNoDHIuYnWskaqjOue0mcYSqHZRb8YwmDxY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=iZ8TUNB7ybOjHgRyEAYe7bnLTDdQfZkrckBP2KdtvyWk5EF45bwY6sSldAyGM9F2l
+         qK88wnnIYpD6chXO2Ty1E2BWYONRnL2R0ruYAzdflUIGoQsSAbwSNUysFiNKJ9Swla
+         dPVHNeBg4H9wUZBTtD10dMpcbNkR+fvTNkw0d0mTF6Zzz5+TsYcb+DTnhHeFt1AwMt
+         sQH8kONsW7iVr9hm29YoVO/44kTc7Ur4xlQmY75RxwH/34o561kk8I4vwZmBf71J9n
+         gFQJxHNWhsNBia1L2ltB+uDsfn0dW5fJCj1nxgc8Q+XPxnxG1eKb+rskSlG1r2p0Ue
+         ziIJLLLqQlPrg==
+Date:   Mon, 4 Jul 2022 19:40:48 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     katrinzhou@tencent.com, dsahern@kernel.org, edumazet@google.com,
+        <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] ipv6/sit: fix ipip6_tunnel_get_prl
+ return value" failed to apply to 4.9-stable tree
+Message-ID: <20220704194048.47867c80@kernel.org>
+In-Reply-To: <16569413791787@kroah.com>
+References: <16569413791787@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220704153510.3859649-1-f.fainelli@gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Florian,
-
-On Mon, Jul 04, 2022 at 08:35:07AM -0700, Florian Fainelli wrote:
-> From: Doug Berger <opendmb@gmail.com>
+On Mon, 04 Jul 2022 15:29:39 +0200 gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
-> commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream
+> thanks,
 > 
-> The pause settings reported by the PHY should also be applied to the GMII port
-> status override otherwise the switch will not generate pause frames towards the
-> link partner despite the advertisement saying otherwise.
+> greg k-h
 > 
-> Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-> Signed-off-by: Doug Berger <opendmb@gmail.com>
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
->  drivers/net/dsa/bcm_sf2.c | 5 +++++
->  1 file changed, 5 insertions(+)
+> ------------------ original commit in Linus's tree ------------------
 > 
-> diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-> index 40b3adf7ad99..03f38c36e188 100644
-> --- a/drivers/net/dsa/bcm_sf2.c
-> +++ b/drivers/net/dsa/bcm_sf2.c
-> @@ -671,6 +671,11 @@ static void bcm_sf2_sw_adjust_link(struct dsa_switch *ds, int port,
->  		reg |= LINK_STS;
->  	if (phydev->duplex == DUPLEX_FULL)
->  		reg |= DUPLX_MODE;
-> +	if (phydev->pause) {
-> +		if (phydev->asym_pause)
-> +			reg |= TXFLOW_CNTL;
-> +		reg |= RXFLOW_CNTL;
-> +	}
+> From adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d Mon Sep 17 00:00:00 2001
+> From: katrinzhou <katrinzhou@tencent.com>
+> Date: Tue, 28 Jun 2022 11:50:30 +0800
+> Subject: [PATCH] ipv6/sit: fix ipip6_tunnel_get_prl return value
 
-Is this correct? phydev->pause and phydev->asym_pause keep the Pause and
-Asym_Pause bits advertised by the link partner. In other words, in this
-manual resolution you are ignoring what the local switch port has
-advertised.
-
-To give you an example (I'm looking at the infamous Table 28B–3—Pause
-resolution from IEEE 802.3).
-
-Your logic, simplified, says: enable TXFLOW_CNTL as local device
-resolution iff the link partner advertised PAUSE=1 && ASM_DIR=1, and
-RXFLOW_CNTL if the link partner advertised PAUSE=1 at all.
-
-The most trivial counter-example is if we (local device) advertise
-PAUSE=0 ASM_DIR=0 (this can be achieved with ethtool rx off tx off).
-That is one way to rig the negotiated flow control to off/off regardless
-of what the link partner has advertised. But your logic would enable
-local capabilities just because the link partner said so, ignoring what
-was advertised here.
-
-Another example is if the local station advertises PAUSE=1, ASM_DIR=1,
-and remote PAUSE=0, ASM_DIR=1. According to IEEE, the link partners
-should agree on "rx on tx off" for the local system, and "tx on rx off"
-for the link partner. But your logic does not even enter the first "if"
-condition, because phydev->pause (link partner's PAUSE advertisement) is
-0. So neither TXFLOW_CNTL nor RXFLOW_CNTL will be enabled locally,
-despite the expectation and what is printed by phy_print_status().
-
->  
->  	core_writel(priv, reg, CORE_STS_OVERRIDE_GMIIP_PORT(port));
->  
-> -- 
-> 2.25.1
-> 
+FWIW you just need to pull in the nop refactor from commit 284fda1eff8a
+("sit: use min") for this one to apply.
