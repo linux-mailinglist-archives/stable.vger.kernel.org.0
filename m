@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3497E566B6D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44300566B16
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbiGEMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:06:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
+        id S231326AbiGEMET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:04:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234011AbiGEMFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 474E518E23;
-        Tue,  5 Jul 2022 05:05:09 -0700 (PDT)
+        with ESMTP id S233159AbiGEMBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8131839A;
+        Tue,  5 Jul 2022 05:01:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E02AEB817CC;
-        Tue,  5 Jul 2022 12:05:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F1CC341C7;
-        Tue,  5 Jul 2022 12:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49E52617C9;
+        Tue,  5 Jul 2022 12:01:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CF68C341C7;
+        Tue,  5 Jul 2022 12:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022706;
-        bh=G9rKul6QLomKJrTc71bzE9xvfktuMjJvjc1FJYL1LoQ=;
+        s=korg; t=1657022499;
+        bh=/wYvsUJnxuTUS1B4t+EWOKud8Tk4NduNwwo9s+mmy08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hm879B9X3IMIcTa6TfDoc+vFB9S/7nZWTQrzsx8p8OzAXW9cStDDecSJ72Wrhgskz
-         wPc5iZKWYyyMpQ36OOlJvqDIhk8om98C6YkciyIkiuW/EBQ7VpV7PZxbtQsaO6Da4e
-         /IPT/i0RvlU4H4AsKoiVtpw8hxw9ol6eaoSyddN0=
+        b=Vf+PY2mSo8J9DmGsMztP9yYc/ydDnW1CjcmLrXnCSiOvW0A+6rsaN9tM5LyDVvVmG
+         p8Nq9U+EcNTQSfHFE1or7cEkQfneFA80syP+loX78h1TfL2K3Al1QzuseLZotqOPKO
+         QSSWM7CUX1OfPHm8RiDZzdWOm8K8qcQjIVxOhWbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 40/58] selftests/rseq: Introduce thread pointer getters
+        stable@vger.kernel.org, Carlo Lobrano <c.lobrano@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: [PATCH 4.14 28/29] net: usb: qmi_wwan: add Telit 0x1060 composition
 Date:   Tue,  5 Jul 2022 13:58:16 +0200
-Message-Id: <20220705115611.424171379@linuxfoundation.org>
+Message-Id: <20220705115607.173990178@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,160 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Carlo Lobrano <c.lobrano@gmail.com>
 
-commit 886ddfba933f5ce9d76c278165d834d114ba4ffc upstream.
+commit 8d17a33b076d24aa4861f336a125c888fb918605 upstream.
 
-This is done in preparation for the selftest uplift to become compatible
-with glibc-2.35.
+This patch adds support for Telit LN920 0x1060 composition
 
-glibc-2.35 exposes the rseq per-thread data in the TCB, accessible
-at an offset from the thread pointer.
+0x1060: tty, adb, rmnet, tty, tty, tty, tty
 
-The toolchains do not implement accessing the thread pointer on all
-architectures. Provide thread pointer getters for ppc and x86 which
-lack (or lacked until recently) toolchain support.
-
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-7-mathieu.desnoyers@efficios.com
+Signed-off-by: Carlo Lobrano <c.lobrano@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Fabio Porcedda <fabio.porcedda@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/rseq-generic-thread-pointer.h |   25 ++++++++
- tools/testing/selftests/rseq/rseq-ppc-thread-pointer.h     |   30 +++++++++
- tools/testing/selftests/rseq/rseq-thread-pointer.h         |   19 ++++++
- tools/testing/selftests/rseq/rseq-x86-thread-pointer.h     |   40 +++++++++++++
- 4 files changed, 114 insertions(+)
- create mode 100644 tools/testing/selftests/rseq/rseq-generic-thread-pointer.h
- create mode 100644 tools/testing/selftests/rseq/rseq-ppc-thread-pointer.h
- create mode 100644 tools/testing/selftests/rseq/rseq-thread-pointer.h
- create mode 100644 tools/testing/selftests/rseq/rseq-x86-thread-pointer.h
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- /dev/null
-+++ b/tools/testing/selftests/rseq/rseq-generic-thread-pointer.h
-@@ -0,0 +1,25 @@
-+/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
-+/*
-+ * rseq-generic-thread-pointer.h
-+ *
-+ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-+ */
-+
-+#ifndef _RSEQ_GENERIC_THREAD_POINTER
-+#define _RSEQ_GENERIC_THREAD_POINTER
-+
-+#ifdef __cplusplus
-+extern "C" {
-+#endif
-+
-+/* Use gcc builtin thread pointer. */
-+static inline void *rseq_thread_pointer(void)
-+{
-+	return __builtin_thread_pointer();
-+}
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
---- /dev/null
-+++ b/tools/testing/selftests/rseq/rseq-ppc-thread-pointer.h
-@@ -0,0 +1,30 @@
-+/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
-+/*
-+ * rseq-ppc-thread-pointer.h
-+ *
-+ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-+ */
-+
-+#ifndef _RSEQ_PPC_THREAD_POINTER
-+#define _RSEQ_PPC_THREAD_POINTER
-+
-+#ifdef __cplusplus
-+extern "C" {
-+#endif
-+
-+static inline void *rseq_thread_pointer(void)
-+{
-+#ifdef __powerpc64__
-+	register void *__result asm ("r13");
-+#else
-+	register void *__result asm ("r2");
-+#endif
-+	asm ("" : "=r" (__result));
-+	return __result;
-+}
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
---- /dev/null
-+++ b/tools/testing/selftests/rseq/rseq-thread-pointer.h
-@@ -0,0 +1,19 @@
-+/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
-+/*
-+ * rseq-thread-pointer.h
-+ *
-+ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-+ */
-+
-+#ifndef _RSEQ_THREAD_POINTER
-+#define _RSEQ_THREAD_POINTER
-+
-+#if defined(__x86_64__) || defined(__i386__)
-+#include "rseq-x86-thread-pointer.h"
-+#elif defined(__PPC__)
-+#include "rseq-ppc-thread-pointer.h"
-+#else
-+#include "rseq-generic-thread-pointer.h"
-+#endif
-+
-+#endif
---- /dev/null
-+++ b/tools/testing/selftests/rseq/rseq-x86-thread-pointer.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: LGPL-2.1-only OR MIT */
-+/*
-+ * rseq-x86-thread-pointer.h
-+ *
-+ * (C) Copyright 2021 - Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-+ */
-+
-+#ifndef _RSEQ_X86_THREAD_POINTER
-+#define _RSEQ_X86_THREAD_POINTER
-+
-+#include <features.h>
-+
-+#ifdef __cplusplus
-+extern "C" {
-+#endif
-+
-+#if __GNUC_PREREQ (11, 1)
-+static inline void *rseq_thread_pointer(void)
-+{
-+	return __builtin_thread_pointer();
-+}
-+#else
-+static inline void *rseq_thread_pointer(void)
-+{
-+	void *__result;
-+
-+# ifdef __x86_64__
-+	__asm__ ("mov %%fs:0, %0" : "=r" (__result));
-+# else
-+	__asm__ ("mov %%gs:0, %0" : "=r" (__result));
-+# endif
-+	return __result;
-+}
-+#endif /* !GCC 11 */
-+
-+#ifdef __cplusplus
-+}
-+#endif
-+
-+#endif
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1307,6 +1307,7 @@ static const struct usb_device_id produc
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 
 
