@@ -2,129 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B425676EF
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 20:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 927565676F2
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 20:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbiGESyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 14:54:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55606 "EHLO
+        id S230417AbiGESz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 14:55:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbiGESyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 14:54:01 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B84C1658C;
-        Tue,  5 Jul 2022 11:54:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657047241; x=1688583241;
-  h=date:from:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=jy5NhYWnWv4OHjHj7j8+j/6G/mQekzx7zQG7r8h8CYw=;
-  b=ME7rBK8vJiDaySGt1QdyXQetd/62Q2ftUp9igrUWf7d3N5SV36+3k+rI
-   eoH3kjwx7HcyIzIwzb7cd8pO/UQUlATDT0s9kVYn3wqfmUcv0MfLxM+FI
-   +3wV2ls8RFCCBbWFXZ8xYdz6mND3uhqF9OoztTQWiwMK6+1qh/Rkpbd74
-   JC9j2Y6GY/5eN3r5YpxoL/JywDvmfZ8xrug7CmrzVajOqcTKdXM0KSgNs
-   VcZiIc5hLN6bW7YpS6RR+FIEIsa/w6lpgwWhsR8UO4Hh6QxUXcNDQbU7p
-   sxC6/dmB5rbmEEB2srSWFoMdcFxVbzShxw62ApXg+5pa2/Ly6tH4/ZStF
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10399"; a="282201901"
-X-IronPort-AV: E=Sophos;i="5.92,247,1650956400"; 
-   d="scan'208";a="282201901"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jul 2022 11:54:00 -0700
-X-IronPort-AV: E=Sophos;i="5.92,247,1650956400"; 
-   d="scan'208";a="695775841"
-Received: from atongsak-mobl1.amr.corp.intel.com ([10.209.113.116])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jul 2022 11:54:00 -0700
-Date:   Tue, 5 Jul 2022 11:54:00 -0700 (PDT)
-From:   Mat Martineau <mathew.j.martineau@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Paolo Abeni <pabeni@redhat.com>,
-        Geliang Tang <geliangtang@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        MPTCP Upstream <mptcp@lists.linux.dev>
-Subject: Re: [PATCH 5.10 51/84] selftests: mptcp: add ADD_ADDR timeout test
- case
-In-Reply-To: <YsRnZ/wmcqGiYzOt@kroah.com>
-Message-ID: <86b7155-839d-381e-4927-dd607366c7e6@linux.intel.com>
-References: <20220705115615.323395630@linuxfoundation.org> <20220705115616.814163273@linuxfoundation.org> <a2260559-86af-74ff-ca95-d494688d5ea7@tessares.net> <YsRnZ/wmcqGiYzOt@kroah.com>
+        with ESMTP id S230185AbiGESz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 14:55:26 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E93DF1CB08;
+        Tue,  5 Jul 2022 11:55:25 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id v6so9437014qkh.2;
+        Tue, 05 Jul 2022 11:55:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=m5OR+vYvLk7fq/8PywhjYcdun4fEozhrDnSvUgt9T54=;
+        b=l+7xCJLQ8WYZMwxdiYQzxDzGG0oxRp7AoAD7t/MaQAGG0+iG0E4/eewpSYzu4daFwQ
+         XvtwcgP5uHu2iD5UFcgbPMcD+BKibK8Q+42z9JsWqLWo413S0tcliuYCs1yT4KUJQ5w2
+         EoOWxiC1YO2rFyOvEO1vjfP1xYlAMIsgNw+1COjbQiGZLfnBd2A6kLQM9wd46tSu1umc
+         kF5+7PXN+ivOGQ3+DoHFp3O/7im4Zhk8YPQsOvoKXnT1P9BUBuGYdGfFYzgrJe+kiCdy
+         Mk6zpb1PI+hi9m9R7ozFp/yfYZJ8h47kdFbWof7FX1baUm2TALqirejSpM6r2oPbTuyC
+         tM+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=m5OR+vYvLk7fq/8PywhjYcdun4fEozhrDnSvUgt9T54=;
+        b=OpKk+BvBYudVhOEPAYxTSqE6DjnvQzHq7cG2RPaPMLooWyW6f43pzZlYwPpkaxgZTF
+         N63KfBnEAxeuFj2AU4XQu0HgBFhQEMpnWC7sGQXKTMPRJxXcH0UmwDwqwjad033yivpM
+         /aurbu3AqX+o+jRW5h1KGa9wU87LTXuBE4r2VuLm7EKkDPNG3I1yuUGfDMUQZjeUC14T
+         dXfZeEuWxBSJVXC4wAys6T8/1WXRlrDgyJvHWVvHueuY+9a6MV1/HfnQ8ELE/RQdTc3e
+         lNcg5U4PFVa+ZSV2IjSDlpe00AG+Mewkvmp3fIirDKqBFdnZr/ALjS4Lj3l28jU9v3IH
+         yI7A==
+X-Gm-Message-State: AJIora/NcqhGAYPiLy+S7QmmW/JDpSO5qfObSZ/nr5h/WHfLbGbo3SVi
+        YYbvTkJD/Qy9yKvkngB3LgQ=
+X-Google-Smtp-Source: AGRyM1u815lUoBe6Z3OZYbTAl4VS99Sdo58BNtbnafuZhzAD36HGDfiihPRaMznNPAgxAzTf+zlW5Q==
+X-Received: by 2002:ae9:ec0a:0:b0:6b2:843e:9e59 with SMTP id h10-20020ae9ec0a000000b006b2843e9e59mr9236527qkg.366.1657047325020;
+        Tue, 05 Jul 2022 11:55:25 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id j17-20020a05620a289100b006a793bde241sm30729016qkp.63.2022.07.05.11.55.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Jul 2022 11:55:24 -0700 (PDT)
+Message-ID: <c36a0389-240e-609c-cd33-cb07b4f34256@gmail.com>
+Date:   Tue, 5 Jul 2022 11:55:22 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=US-ASCII
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 5.18 000/102] 5.18.10-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220705115618.410217782@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 5 Jul 2022, Greg Kroah-Hartman wrote:
+On 7/5/22 04:57, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.10 release.
+> There are 102 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-> On Tue, Jul 05, 2022 at 05:59:22PM +0200, Matthieu Baerts wrote:
->> Hi Greg, Sasha,
->>
->> (+ MPTCP upstream ML)
->>
->> First, thank you again for maintaining the stable branches!
->>
->> On 05/07/2022 13:58, Greg Kroah-Hartman wrote:
->>> From: Geliang Tang <geliangtang@gmail.com>
->>>
->>> [ Upstream commit 8d014eaa9254a9b8e0841df40dd36782b451579a ]
->>>
->>> This patch added the test case for retransmitting ADD_ADDR when timeout
->>> occurs. It set NS1's add_addr_timeout to 1 second, and drop NS2's ADD_ADDR
->>> echo packets.
->> TL;DR: Could it be possible to drop all selftests MPTCP patches from
->> v5.10 queue please?
->>
->>
->> I was initially reacting on this patch because it looks like it depends on:
->>
->>   93f323b9cccc ("mptcp: add a new sysctl add_addr_timeout")
->>
->> and indirectly to:
->>
->>   9ce7deff92e8 ("docs: networking: mptcp: Add MPTCP sysctl entries")
->>
->> to have "net.mptcp.add_addr_timeout" sysctl knob needed for this new
->> selftest.
->>
->> But then I tried to understand why this current patch ("selftests:
->> mptcp: add ADD_ADDR timeout test case") has been selected for 5.10. I
->> guess it was to ease the backport of another one, right?
->> Looking at the 'series' file in 5.10 queue, it seems the new
->> "selftests-mptcp-more-stable-diag-tests" patch requires 5 other patches:
->>
->> -> selftests-mptcp-more-stable-diag-tests.patch
->>  -> selftests-mptcp-fix-diag-instability.patch
->>   -> selftests-mptcp-launch-mptcp_connect-with-timeout.patch
->>    -> selftests-mptcp-add-add_addr-ipv6-test-cases.patch
->>     -> selftests-mptcp-add-link-failure-test-case.patch
->>      -> selftests-mptcp-add-add_addr-timeout-test-case.patch
->>
->>
->> When looking at these patches in more detail, it looks like "selftests:
->> mptcp: add ADD_ADDR IPv6 test cases" depends on a new feature only
->> available from v5.11: ADD_ADDR for IPv6.
->>
->>
->> Could it be possible to drop all these patches from v5.10 then please?
->
-> Sure, but leave them in for 5.15.y and 5.18.y?
->
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Hi Greg -
-
-I'm the other MPTCP maintainer, jumping in here due to Matt's time zone.
-
-Yes: leave selftests-mptcp-more-stable-diag-tests.patch in 5.15.y and 
-5.18.y
-
---
-Mat Martineau
-Intel
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
