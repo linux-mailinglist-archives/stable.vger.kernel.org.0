@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFB1C566C41
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 884F8566E17
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235061AbiGEMNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:13:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54638 "EHLO
+        id S237548AbiGEMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:31:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235048AbiGEMMD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:12:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E7218391;
-        Tue,  5 Jul 2022 05:10:15 -0700 (PDT)
+        with ESMTP id S232812AbiGEM0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BD665BE;
+        Tue,  5 Jul 2022 05:18:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F23E1618BC;
-        Tue,  5 Jul 2022 12:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09AEDC341C8;
-        Tue,  5 Jul 2022 12:10:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A2A2B816A4;
+        Tue,  5 Jul 2022 12:18:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA2BC341C7;
+        Tue,  5 Jul 2022 12:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023014;
-        bh=zmkDDPImj2zKkuzqDMWjPUrtCyaVNBOMW0LNhRkXrn8=;
+        s=korg; t=1657023513;
+        bh=t+jAMUHlwRXalBDL3MFKIWQzbrorRRuqCTlbXnSuoew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BGrSr3nUvSEaCMkDaKKFbBcKHUC5NdaFQUc3Jd6+O4jXoQ7UkZN2HCgvPevdSv37Z
-         s/NioxDW9cOtaJJx+V+bcs/bLz/3+hnNK7WnT9V2NgcQOm4uL8so5S0WsfbwPpiAM6
-         Nr2ehASvCQcv50ZsLQfTPuvw/UZHbhUb4R3r7/lQ=
+        b=0wT1eglxkCWhR5dZYaatcGq/DTKqM6CHB2m1sMyY2jM7wmx+Ipnn8t+dzUQ1atqCT
+         aBtMBQ3TdTLL3YHT5DtL9LKyE2L7VJFDaAvhDAtxmOyhp15eNYV8ae5iODS82UTf2T
+         GBWp518+ZZqMaQWvCCthlS/Zhh5X3p67b0vwvyC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH 5.10 83/84] net: usb: qmi_wwan: add Telit 0x1070 composition
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 080/102] net: tun: avoid disabling NAPI twice
 Date:   Tue,  5 Jul 2022 13:58:46 +0200
-Message-Id: <20220705115617.741054397@linuxfoundation.org>
+Message-Id: <20220705115620.681778566@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 94f2a444f28a649926c410eb9a38afb13a83ebe0 upstream.
+commit ff1fa2081d173b01cebe2fbf0a2d0f1cee9ce4b5 upstream.
 
-Add the following Telit FN990 composition:
+Eric reports that syzbot made short work out of my speculative
+fix. Indeed when queue gets detached its tfile->tun remains,
+so we would try to stop NAPI twice with a detach(), close()
+sequence.
 
-0x1070: tty, adb, rmnet, tty, tty, tty, tty
+Alternative fix would be to move tun_napi_disable() to
+tun_detach_all() and let the NAPI run after the queue
+has been detached.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20211210095722.22269-1-dnlplm@gmail.com
+Fixes: a8fc8cb5692a ("net: tun: stop NAPI when detaching queues")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220629181911.372047-1-kuba@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Fabio Porcedda <fabio.porcedda@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/tun.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1294,6 +1294,7 @@ static const struct usb_device_id produc
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -641,7 +641,8 @@ static void __tun_detach(struct tun_file
+ 	tun = rtnl_dereference(tfile->tun);
+ 
+ 	if (tun && clean) {
+-		tun_napi_disable(tfile);
++		if (!tfile->detached)
++			tun_napi_disable(tfile);
+ 		tun_napi_del(tfile);
+ 	}
+ 
 
 
