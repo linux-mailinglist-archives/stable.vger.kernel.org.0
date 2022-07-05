@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41102566B8D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC48566D99
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233920AbiGEMJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46914 "EHLO
+        id S237989AbiGEM0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233951AbiGEMGM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F3A2F0;
-        Tue,  5 Jul 2022 05:05:41 -0700 (PDT)
+        with ESMTP id S231266AbiGEMYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:24:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B2C1F60D;
+        Tue,  5 Jul 2022 05:17:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB2BD6185A;
-        Tue,  5 Jul 2022 12:05:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3808C341C7;
-        Tue,  5 Jul 2022 12:05:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1C67B817AC;
+        Tue,  5 Jul 2022 12:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2FBC341CB;
+        Tue,  5 Jul 2022 12:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022740;
-        bh=IWKfm8F1cPA6juHn4lr3qCQxyVHdxkVKzToPP41rfm4=;
+        s=korg; t=1657023441;
+        bh=4wrempK14aI2Lwl5s7i72OMdEzbm8xpeW9Zz4Lk8IKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZfE0Hu9eU0xbV7fSm5isORTKCKutyHUa1VCMF56YA90dgaOfDTJE2785GIbaLG1n
-         uvG7pdOf2T8j2m+cALAG2KgUVK4LVceG5Y6Jy0hDwp4aJS9RkR4PLgA1xOwFR66pwl
-         CY7jmYQBsBVMrP8vMKWKAcwpdKJ87GJB189YIK10=
+        b=PchrN6eqVUq8LoveQG/s4Ayrl3ZpD+vl2Lsh2k9i75Cus2SVm0Fk8HtYap8VWhQFB
+         hUaqkSjwX5B/QDHiKjstQaCmGSqS8gGva4eppP17g2V3m/wVkX5G/tUuVTpzmXkBmu
+         CbUP+TAZ9/5ZWxi58Pq4d9Wzwg2830oYf/n709yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 51/58] xen/blkfront: fix leaking data in shared pages
+        Maksym Glubokiy <maksym.glubokiy@plvision.eu>,
+        Yevhen Orlov <yevhen.orlov@plvision.eu>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 061/102] net: bonding: fix use-after-free after 802.3ad slave unbind
 Date:   Tue,  5 Jul 2022 13:58:27 +0200
-Message-Id: <20220705115611.751901630@linuxfoundation.org>
+Message-Id: <20220705115620.139254675@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Yevhen Orlov <yevhen.orlov@plvision.eu>
 
-commit 2f446ffe9d737e9a844b97887919c4fda18246e7 upstream.
+commit 050133e1aa2cb49bb17be847d48a4431598ef562 upstream.
 
-When allocating pages to be used for shared communication with the
-backend always zero them, this avoids leaking unintended data present
-on the pages.
+commit 0622cab0341c ("bonding: fix 802.3ad aggregator reselection"),
+resolve case, when there is several aggregation groups in the same bond.
+bond_3ad_unbind_slave will invalidate (clear) aggregator when
+__agg_active_ports return zero. So, ad_clear_agg can be executed even, when
+num_of_ports!=0. Than bond_3ad_unbind_slave can be executed again for,
+previously cleared aggregator. NOTE: at this time bond_3ad_unbind_slave
+will not update slave ports list, because lag_ports==NULL. So, here we
+got slave ports, pointing to freed aggregator memory.
 
-This is CVE-2022-26365, part of XSA-403.
+Fix with checking actual number of ports in group (as was before
+commit 0622cab0341c ("bonding: fix 802.3ad aggregator reselection") ),
+before ad_clear_agg().
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+The KASAN logs are as follows:
+
+[  767.617392] ==================================================================
+[  767.630776] BUG: KASAN: use-after-free in bond_3ad_state_machine_handler+0x13dc/0x1470
+[  767.638764] Read of size 2 at addr ffff00011ba9d430 by task kworker/u8:7/767
+[  767.647361] CPU: 3 PID: 767 Comm: kworker/u8:7 Tainted: G           O 5.15.11 #15
+[  767.655329] Hardware name: DNI AmazonGo1 A7040 board (DT)
+[  767.660760] Workqueue: lacp_1 bond_3ad_state_machine_handler
+[  767.666468] Call trace:
+[  767.668930]  dump_backtrace+0x0/0x2d0
+[  767.672625]  show_stack+0x24/0x30
+[  767.675965]  dump_stack_lvl+0x68/0x84
+[  767.679659]  print_address_description.constprop.0+0x74/0x2b8
+[  767.685451]  kasan_report+0x1f0/0x260
+[  767.689148]  __asan_load2+0x94/0xd0
+[  767.692667]  bond_3ad_state_machine_handler+0x13dc/0x1470
+
+Fixes: 0622cab0341c ("bonding: fix 802.3ad aggregator reselection")
+Co-developed-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
+Signed-off-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
+Signed-off-by: Yevhen Orlov <yevhen.orlov@plvision.eu>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20220629012914.361-1-yevhen.orlov@plvision.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_3ad.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -301,7 +301,7 @@ static int fill_grant_buffer(struct blkf
- 			goto out_of_memory;
- 
- 		if (info->feature_persistent) {
--			granted_page = alloc_page(GFP_NOIO);
-+			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
- 			if (!granted_page) {
- 				kfree(gnt_list_entry);
- 				goto out_of_memory;
-@@ -1744,7 +1744,7 @@ static int setup_blkring(struct xenbus_d
- 	for (i = 0; i < info->nr_ring_pages; i++)
- 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
- 
--	sring = alloc_pages_exact(ring_size, GFP_NOIO);
-+	sring = alloc_pages_exact(ring_size, GFP_NOIO | __GFP_ZERO);
- 	if (!sring) {
- 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
- 		return -ENOMEM;
-@@ -2283,7 +2283,8 @@ static int blkfront_setup_indirect(struc
- 
- 		BUG_ON(!list_empty(&rinfo->indirect_pages));
- 		for (i = 0; i < num; i++) {
--			struct page *indirect_page = alloc_page(GFP_KERNEL);
-+			struct page *indirect_page = alloc_page(GFP_KERNEL |
-+			                                        __GFP_ZERO);
- 			if (!indirect_page)
- 				goto out_of_memory;
- 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -2228,7 +2228,8 @@ void bond_3ad_unbind_slave(struct slave
+ 				temp_aggregator->num_of_ports--;
+ 				if (__agg_active_ports(temp_aggregator) == 0) {
+ 					select_new_active_agg = temp_aggregator->is_active;
+-					ad_clear_agg(temp_aggregator);
++					if (temp_aggregator->num_of_ports == 0)
++						ad_clear_agg(temp_aggregator);
+ 					if (select_new_active_agg) {
+ 						slave_info(bond->dev, slave->dev, "Removing an active aggregator\n");
+ 						/* select new active aggregator */
 
 
