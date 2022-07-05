@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D952E566C1C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805DA566D12
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234749AbiGEMLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:11:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
+        id S236454AbiGEMU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:20:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233562AbiGEMJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C5410AF;
-        Tue,  5 Jul 2022 05:09:46 -0700 (PDT)
+        with ESMTP id S235076AbiGEMQ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:16:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD471BE9B;
+        Tue,  5 Jul 2022 05:12:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92458B817DF;
-        Tue,  5 Jul 2022 12:09:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4F71C341C7;
-        Tue,  5 Jul 2022 12:09:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22B7B619AF;
+        Tue,  5 Jul 2022 12:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A380C341C8;
+        Tue,  5 Jul 2022 12:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022983;
-        bh=nj9gHPg7uznCfqsQsw7iNCAR8hNQqtJnD0jrFEtTG1I=;
+        s=korg; t=1657023119;
+        bh=DLmVq64ijXGPUQWlCgQoxcagw9iIf3gK9IgQk8qCHrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=igJgwACmSzxc6KRw3/OWb33kplsa49umP01dob1jGj3AkM6BVA02X8uRQaT5a+AnS
-         AA2H3ViqPz7Xh5xicpnhOsTR1jwf8DCtaJnfdC1b1IrB7tr9gAyc4AskdA51ufTg/J
-         peNcBfzuT6OO85w4jC5RpBuP2/nEiQhYmev5UMSk=
+        b=FbzZ1BajUeONfbe94ALR+hfAnwYeZsjYxxMguMAqR8Jd8+9xALearuKw18oIrLfN9
+         21j8tl7Nqzw7WitihKvwgrFkNdJzOhKZsOGDRYQ1O2wKhTx6307bN7HIjxDZkckQa6
+         7EYPD8cwHhEcHqt3Jzxx+XY0V8EO70TNb7gMkUz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 40/84] net: tun: avoid disabling NAPI twice
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 45/98] net: phy: ax88772a: fix lost pause advertisement configuration
 Date:   Tue,  5 Jul 2022 13:58:03 +0200
-Message-Id: <20220705115616.490925970@linuxfoundation.org>
+Message-Id: <20220705115618.866567600@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit ff1fa2081d173b01cebe2fbf0a2d0f1cee9ce4b5 upstream.
+commit fa152f626b24ec2ca3489100d8c5c0a0bce4e2ef upstream.
 
-Eric reports that syzbot made short work out of my speculative
-fix. Indeed when queue gets detached its tfile->tun remains,
-so we would try to stop NAPI twice with a detach(), close()
-sequence.
+In case of asix_ax88772a_link_change_notify() workaround, we run soft
+reset which will automatically clear MII_ADVERTISE configuration. The
+PHYlib framework do not know about changed configuration state of the
+PHY, so we need use phy_init_hw() to reinit PHY configuration.
 
-Alternative fix would be to move tun_napi_disable() to
-tun_detach_all() and let the NAPI run after the queue
-has been detached.
-
-Fixes: a8fc8cb5692a ("net: tun: stop NAPI when detaching queues")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220629181911.372047-1-kuba@kernel.org
+Fixes: dde258469257 ("net: usb/phy: asix: add support for ax88772A/C PHYs")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220628114349.3929928-1-o.rempel@pengutronix.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/ax88796b.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -646,7 +646,8 @@ static void __tun_detach(struct tun_file
- 	tun = rtnl_dereference(tfile->tun);
+diff --git a/drivers/net/phy/ax88796b.c b/drivers/net/phy/ax88796b.c
+index 457896337505..0f1e617a26c9 100644
+--- a/drivers/net/phy/ax88796b.c
++++ b/drivers/net/phy/ax88796b.c
+@@ -88,8 +88,10 @@ static void asix_ax88772a_link_change_notify(struct phy_device *phydev)
+ 	/* Reset PHY, otherwise MII_LPA will provide outdated information.
+ 	 * This issue is reproducible only with some link partner PHYs
+ 	 */
+-	if (phydev->state == PHY_NOLINK && phydev->drv->soft_reset)
+-		phydev->drv->soft_reset(phydev);
++	if (phydev->state == PHY_NOLINK) {
++		phy_init_hw(phydev);
++		phy_start_aneg(phydev);
++	}
+ }
  
- 	if (tun && clean) {
--		tun_napi_disable(tfile);
-+		if (!tfile->detached)
-+			tun_napi_disable(tfile);
- 		tun_napi_del(tfile);
- 	}
- 
+ static struct phy_driver asix_driver[] = {
+-- 
+2.37.0
+
 
 
