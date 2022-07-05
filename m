@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EDF566E15
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B23566BE7
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237481AbiGEMbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
+        id S234716AbiGEMJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237960AbiGEM02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520D9630D;
-        Tue,  5 Jul 2022 05:18:30 -0700 (PDT)
+        with ESMTP id S235207AbiGEMIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AFD118345;
+        Tue,  5 Jul 2022 05:08:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 035FCB8170A;
-        Tue,  5 Jul 2022 12:18:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9E3C341C7;
-        Tue,  5 Jul 2022 12:18:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B1994CE1B87;
+        Tue,  5 Jul 2022 12:08:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A16D5C341CB;
+        Tue,  5 Jul 2022 12:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023507;
-        bh=IyAY60xbrSdkFFbgrfZdUCHoU7VC9nCnMrRzTpbJl44=;
+        s=korg; t=1657022888;
+        bh=hoLSOmY0encCMcz8kriaTtmJ2l5lUCnPyPwV9DNXjwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QIsFqeOO5tIZ7WaifPnHGGDvcKyNEJhFXCVj1HeTB2KWaJL+uZH2PhtfMdf7SvPH9
-         o6xcrDG3oQ9ROcutH7BTy33AFgnwccvAu8L0nHR1KXi6oUCH+FKlaZo/7MFz9yZ9Du
-         mUv+nxcYX9uNCHKcTiAgfZ9t7NitBcaXLeJdg/JM=
+        b=EO3WomPOx4r2bh3AqJRzJWADdoZMQfntWhEfoM6owW3/2cNRoEzy4E3dSGb4zNpr2
+         p8azuwiLB4t3qHyqyOdrJLFQY3PtyasnuiaW3U2jk64m80gKXrY+drGBsS4ykAqiPb
+         /bmE1xqNz/v0nGDVjfpNx4ftL63fhlyqPiHE0Dy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.18 044/102] NFS: restore module put when manager exits.
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 47/84] xfs: fix xfs_reflink_unshare usage of filemap_write_and_wait_range
 Date:   Tue,  5 Jul 2022 13:58:10 +0200
-Message-Id: <20220705115619.661600798@linuxfoundation.org>
+Message-Id: <20220705115616.699746148@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 080abad71e99d2becf38c978572982130b927a28 upstream.
+commit d4f74e162d238ce00a640af5f0611c3f51dad70e upstream.
 
-Commit f49169c97fce ("NFSD: Remove svc_serv_ops::svo_module") removed
-calls to module_put_and_kthread_exit() from threads that acted as SUNRPC
-servers and had a related svc_serv_ops structure.  This was correct.
+The final parameter of filemap_write_and_wait_range is the end of the
+range to flush, not the length of the range to flush.
 
-It ALSO removed the module_put_and_kthread_exit() call from
-nfs4_run_state_manager() which is NOT a SUNRPC service.
-
-Consequently every time the NFSv4 state manager runs the module count
-increments and won't be decremented.  So the nfsv4 module cannot be
-unloaded.
-
-So restore the module_put_and_kthread_exit() call.
-
-Fixes: f49169c97fce ("NFSD: Remove svc_serv_ops::svo_module")
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 46afb0628b86 ("xfs: only flush the unshared range in xfs_reflink_unshare")
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4state.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/xfs_reflink.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -2743,5 +2743,6 @@ again:
- 		goto again;
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1503,7 +1503,8 @@ xfs_reflink_unshare(
+ 	if (error)
+ 		goto out;
  
- 	nfs_put_client(clp);
-+	module_put_and_kthread_exit(0);
- 	return 0;
- }
+-	error = filemap_write_and_wait_range(inode->i_mapping, offset, len);
++	error = filemap_write_and_wait_range(inode->i_mapping, offset,
++			offset + len - 1);
+ 	if (error)
+ 		goto out;
+ 
 
 
