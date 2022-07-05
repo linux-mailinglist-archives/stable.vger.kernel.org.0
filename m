@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1317D566B89
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE6A566BFB
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233472AbiGEMJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
+        id S233804AbiGEMK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233890AbiGEMGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D26BA3;
-        Tue,  5 Jul 2022 05:05:38 -0700 (PDT)
+        with ESMTP id S235333AbiGEMJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3353F15FFD;
+        Tue,  5 Jul 2022 05:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D52161806;
-        Tue,  5 Jul 2022 12:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F4FDC341CB;
-        Tue,  5 Jul 2022 12:05:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C407961856;
+        Tue,  5 Jul 2022 12:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B1FC341CB;
+        Tue,  5 Jul 2022 12:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022737;
-        bh=WuuSJuTTkvZY6tfwa6klBJfO8MirsENKQ0hsHuEAZS4=;
+        s=korg; t=1657022938;
+        bh=WajH14n4LRoP5ygMUz/2lERUermXm1YHm+rjDQexCvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwuEpJHD3dGthEm9UnbV6cPCDPTpqeveugIeBRdJRN4UMt5kaafKh2yRblkvglWNl
-         yp8GxrTEBUWzzigd9ntSvssTCdabOeuRSJUoMLqe7mv/xeywbABRtAtGm8eJM0jnak
-         fdwpjVwvJ/ZkHhU0s6C7Y2rGlHRXEsfkv6nb+2B8=
+        b=BkBnPRUy5BHsWWmWLcI0XvIYvmPdF8N+E6cQm5xNH7xv64s8diPIQLLGz+aWInKN4
+         oJEi8inztue3pKdOq5bVWOMr8QusOuuH034O4E/b442abdS8ee/rFyCQEy30wHxTH7
+         W6kJNsEwtYWYqEmcdHx2QBSXgcrQUC2JFb6yQxxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 50/58] selftests/rseq: Change type of rseq_offset to ptrdiff_t
+Subject: [PATCH 5.10 63/84] selftests/rseq: Remove volatile from __rseq_abi
 Date:   Tue,  5 Jul 2022 13:58:26 +0200
-Message-Id: <20220705115611.723288741@linuxfoundation.org>
+Message-Id: <20220705115617.161220823@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,128 +56,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 889c5d60fbcf332c8b6ab7054d45f2768914a375 upstream.
+commit 94b80a19ebfe347a01301d750040a61c38200e2b upstream.
 
-Just before the 2.35 release of glibc, the __rseq_offset userspace ABI
-was changed from int to ptrdiff_t.
+This is done in preparation for the selftest uplift to become compatible
+with glibc-2.35.
 
-Adapt to this change in the kernel selftests.
+All accesses to the __rseq_abi fields are volatile, but remove the
+volatile from the TLS variable declaration, otherwise we are stuck with
+volatile for the upcoming rseq_get_abi() helper.
 
 Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://sourceware.org/pipermail/libc-alpha/2022-February/136024.html
+Link: https://lkml.kernel.org/r/20220124171253.22072-5-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/rseq-x86.h |   14 +++++++-------
- tools/testing/selftests/rseq/rseq.c     |    5 +++--
- tools/testing/selftests/rseq/rseq.h     |    3 ++-
- 3 files changed, 12 insertions(+), 10 deletions(-)
+ tools/testing/selftests/rseq/rseq.c |    4 ++--
+ tools/testing/selftests/rseq/rseq.h |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/rseq/rseq-x86.h
-+++ b/tools/testing/selftests/rseq/rseq-x86.h
-@@ -143,7 +143,7 @@ int rseq_cmpeqv_storev(intptr_t *v, intp
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  [v]			"m" (*v),
- 		  [expect]		"r" (expect),
- 		  [newv]		"r" (newv)
-@@ -214,7 +214,7 @@ int rseq_cmpnev_storeoffp_load(intptr_t
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [v]			"m" (*v),
- 		  [expectnot]		"r" (expectnot),
-@@ -270,7 +270,7 @@ int rseq_addv(intptr_t *v, intptr_t coun
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [v]			"m" (*v),
- 		  [count]		"er" (count)
-@@ -329,7 +329,7 @@ int rseq_offset_deref_addv(intptr_t *ptr
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [ptr]			"m" (*ptr),
- 		  [off]			"er" (off),
-@@ -387,7 +387,7 @@ int rseq_cmpeqv_trystorev_storev(intptr_
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* try store input */
- 		  [v2]			"m" (*v2),
- 		  [newv2]		"r" (newv2),
-@@ -469,7 +469,7 @@ int rseq_cmpeqv_cmpeqv_storev(intptr_t *
- 		RSEQ_ASM_DEFINE_ABORT(4, "", abort)
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* cmp2 input */
- 		  [v2]			"m" (*v2),
- 		  [expect2]		"r" (expect2),
-@@ -581,7 +581,7 @@ int rseq_cmpeqv_trymemcpy_storev(intptr_
- #endif
- 		: /* gcc asm goto does not allow outputs */
- 		: [cpu_id]		"r" (cpu),
--		  [rseq_offset]		"r" ((long)rseq_offset),
-+		  [rseq_offset]		"r" (rseq_offset),
- 		  /* final store input */
- 		  [v]			"m" (*v),
- 		  [expect]		"r" (expect),
 --- a/tools/testing/selftests/rseq/rseq.c
 +++ b/tools/testing/selftests/rseq/rseq.c
-@@ -27,16 +27,17 @@
- #include <signal.h>
- #include <limits.h>
- #include <dlfcn.h>
-+#include <stddef.h>
- 
+@@ -30,7 +30,7 @@
  #include "../kselftest.h"
  #include "rseq.h"
  
--static const int *libc_rseq_offset_p;
-+static const ptrdiff_t *libc_rseq_offset_p;
- static const unsigned int *libc_rseq_size_p;
- static const unsigned int *libc_rseq_flags_p;
+-__thread volatile struct rseq_abi __rseq_abi = {
++__thread struct rseq_abi __rseq_abi = {
+ 	.cpu_id = RSEQ_ABI_CPU_ID_UNINITIALIZED,
+ };
  
- /* Offset from the thread pointer to the rseq area.  */
--int rseq_offset;
-+ptrdiff_t rseq_offset;
- 
- /* Size of the registered rseq area.  0 if the registration was
-    unsuccessful.  */
+@@ -92,7 +92,7 @@ int rseq_register_current_thread(void)
+ 		goto end;
+ 	}
+ 	if (errno != EBUSY)
+-		__rseq_abi.cpu_id = RSEQ_ABI_CPU_ID_REGISTRATION_FAILED;
++		RSEQ_WRITE_ONCE(__rseq_abi.cpu_id, RSEQ_ABI_CPU_ID_REGISTRATION_FAILED);
+ 	ret = -1;
+ 	__rseq_refcount--;
+ end:
 --- a/tools/testing/selftests/rseq/rseq.h
 +++ b/tools/testing/selftests/rseq/rseq.h
-@@ -16,6 +16,7 @@
- #include <errno.h>
- #include <stdio.h>
- #include <stdlib.h>
-+#include <stddef.h>
- #include "rseq-abi.h"
- #include "compiler.h"
+@@ -43,7 +43,7 @@
+ #define RSEQ_INJECT_FAILED
+ #endif
  
-@@ -47,7 +48,7 @@
- #include "rseq-thread-pointer.h"
+-extern __thread volatile struct rseq_abi __rseq_abi;
++extern __thread struct rseq_abi __rseq_abi;
+ extern int __rseq_handled;
  
- /* Offset from the thread pointer to the rseq area.  */
--extern int rseq_offset;
-+extern ptrdiff_t rseq_offset;
- /* Size of the registered rseq area.  0 if the registration was
-    unsuccessful.  */
- extern unsigned int rseq_size;
+ #define rseq_likely(x)		__builtin_expect(!!(x), 1)
+@@ -139,7 +139,7 @@ static inline uint32_t rseq_current_cpu(
+ 
+ static inline void rseq_clear_rseq_cs(void)
+ {
+-	__rseq_abi.rseq_cs.arch.ptr = 0;
++	RSEQ_WRITE_ONCE(__rseq_abi.rseq_cs.arch.ptr, 0);
+ }
+ 
+ /*
 
 
