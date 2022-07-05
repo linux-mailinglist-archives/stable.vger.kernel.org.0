@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CCAD566D49
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24954566DC5
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236383AbiGEMWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
+        id S238024AbiGEM1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:27:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237054AbiGEMSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:18:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1413E1A806;
-        Tue,  5 Jul 2022 05:13:55 -0700 (PDT)
+        with ESMTP id S231463AbiGEMZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F801902C;
+        Tue,  5 Jul 2022 05:17:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EF3061988;
-        Tue,  5 Jul 2022 12:13:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCDEC341C7;
-        Tue,  5 Jul 2022 12:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8BA461AC8;
+        Tue,  5 Jul 2022 12:17:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E4BC341C7;
+        Tue,  5 Jul 2022 12:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023234;
-        bh=O17ehTDfhjE4F+lUosr/S96RFM/locaGX05TwGTLqUg=;
+        s=korg; t=1657023469;
+        bh=7YshR3Vuu9QEnbxCieJqLjKwWNdbjo9+x0rVKqgu9Pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCrXZKsDj1r98aqoIrMOwkCaoAI9V5lL7E4BOcvgeaiCfl/1XQAExWRksYwRBjctR
-         mGdShPRcJaGzbe8Ku+APwtY7I1ZRQAvKSoWQAIlJwgn7gxT+U3PszU1kSRiZpF8gUw
-         OS0mlL2F2qVqxxz6MTDWFFNfu3qJ0gD7EM1tiM60=
+        b=OZGX56SkCi+ZuIiGYHbBXVABWZn5NxVaLNhmGQBpy5pLboVWe137sZskJ5UJjWiuM
+         ewA/EbOPG9EfImUwUMDWqMmtO810XDrjD5dpUnZ0q8bonmUDscWCckPeqON6OCtEmO
+         dYvfN0T30QdW5bu2IaghiHJMMDEVvLHl+NjT4YQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.15 78/98] xen/blkfront: fix leaking data in shared pages
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.18 070/102] cpufreq: qcom-hw: Dont do lmh things without a throttle interrupt
 Date:   Tue,  5 Jul 2022 13:58:36 +0200
-Message-Id: <20220705115619.788036686@linuxfoundation.org>
+Message-Id: <20220705115620.393287150@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 2f446ffe9d737e9a844b97887919c4fda18246e7 upstream.
+commit 668a7a12ded7077d4fd7ad1305667e559907e5bb upstream.
 
-When allocating pages to be used for shared communication with the
-backend always zero them, this avoids leaking unintended data present
-on the pages.
+Offlining cpu6 and cpu7 and then onlining cpu6 hangs on
+sc7180-trogdor-lazor because the throttle interrupt doesn't exist.
+Similarly, things go sideways when suspend/resume runs. That's because
+the qcom_cpufreq_hw_cpu_online() and qcom_cpufreq_hw_lmh_exit()
+functions are calling genirq APIs with an interrupt value of '-6', i.e.
+-ENXIO, and that isn't good.
 
-This is CVE-2022-26365, part of XSA-403.
+Check the value of the throttle interrupt like we already do in other
+functions in this file and bail out early from lmh code to fix the hang.
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: Rob Clark <robdclark@chromium.org>
+Cc: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: a1eb080a0447 ("cpufreq: qcom-hw: provide online/offline operations")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -312,7 +312,7 @@ static int fill_grant_buffer(struct blkf
- 			goto out_of_memory;
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index 0253731d6d25..36c79580fba2 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -442,6 +442,9 @@ static int qcom_cpufreq_hw_cpu_online(struct cpufreq_policy *policy)
+ 	struct platform_device *pdev = cpufreq_get_driver_data();
+ 	int ret;
  
- 		if (info->feature_persistent) {
--			granted_page = alloc_page(GFP_NOIO);
-+			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
- 			if (!granted_page) {
- 				kfree(gnt_list_entry);
- 				goto out_of_memory;
-@@ -1692,7 +1692,7 @@ static int setup_blkring(struct xenbus_d
- 	for (i = 0; i < info->nr_ring_pages; i++)
- 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
++	if (data->throttle_irq <= 0)
++		return 0;
++
+ 	ret = irq_set_affinity_hint(data->throttle_irq, policy->cpus);
+ 	if (ret)
+ 		dev_err(&pdev->dev, "Failed to set CPU affinity of %s[%d]\n",
+@@ -469,6 +472,9 @@ static int qcom_cpufreq_hw_cpu_offline(struct cpufreq_policy *policy)
  
--	sring = alloc_pages_exact(ring_size, GFP_NOIO);
-+	sring = alloc_pages_exact(ring_size, GFP_NOIO | __GFP_ZERO);
- 	if (!sring) {
- 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
- 		return -ENOMEM;
-@@ -2209,7 +2209,8 @@ static int blkfront_setup_indirect(struc
+ static void qcom_cpufreq_hw_lmh_exit(struct qcom_cpufreq_data *data)
+ {
++	if (data->throttle_irq <= 0)
++		return;
++
+ 	free_irq(data->throttle_irq, data);
+ }
  
- 		BUG_ON(!list_empty(&rinfo->indirect_pages));
- 		for (i = 0; i < num; i++) {
--			struct page *indirect_page = alloc_page(GFP_KERNEL);
-+			struct page *indirect_page = alloc_page(GFP_KERNEL |
-+			                                        __GFP_ZERO);
- 			if (!indirect_page)
- 				goto out_of_memory;
- 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
+-- 
+2.37.0
+
 
 
