@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E56566A9A
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CC4566BBE
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232756AbiGEMAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
+        id S234534AbiGEMJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232759AbiGEMAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FE317E34;
-        Tue,  5 Jul 2022 05:00:11 -0700 (PDT)
+        with ESMTP id S234869AbiGEMIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C29F19C23;
+        Tue,  5 Jul 2022 05:07:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D317B817D4;
-        Tue,  5 Jul 2022 12:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 958FEC341CD;
-        Tue,  5 Jul 2022 12:00:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADD97B817D3;
+        Tue,  5 Jul 2022 12:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26192C341C7;
+        Tue,  5 Jul 2022 12:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022408;
-        bh=MDRErYeUWSJwKsBCQCGe+p0aMtjXUNffMWGsG7Pl+a8=;
+        s=korg; t=1657022827;
+        bh=y/o+4zy/HaXrnIxbwHPvN5SdEM1ID5ViUPleT7MAwaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8cyUgyEuBD8O86NMNxSE5OiwAlsZgiDqWqCfm62axmP4KGxoOGxSRPCjs42ubQya
-         f6pBbLeR/6oaDuFG0CtV65ItK0BV4XCYnugvLkbFfC5vOIwdctKmUFSQHx3V4HHQ9w
-         1YuJEf7ZOq9AYdOnJYWFChtJNXzHpLj7ka1rmgeU=
+        b=sIcPMLDun+2bKCdMDVv4JikooezkZ5zNEx0EKcF/F4c0KOf4cjcz4ogyR4lyCUhI9
+         1H3ajDR8tAXS/4kej/5vV20TSdGG+WitLP6OWeyNFSY5uEeHUalybKVFz7qv0nj8xD
+         RZqSMFnLGMjEtw+K/iAoQxVMGWNKhwiXfAURNAPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 06/29] usbnet: fix memory allocation in helpers
+Subject: [PATCH 5.10 24/84] usbnet: fix memory allocation in helpers
 Date:   Tue,  5 Jul 2022 13:57:47 +0200
-Message-Id: <20220705115605.933108860@linuxfoundation.org>
+Message-Id: <20220705115616.032125567@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-References: <20220705115605.742248854@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -1952,7 +1952,7 @@ static int __usbnet_read_cmd(struct usbn
+@@ -1969,7 +1969,7 @@ static int __usbnet_read_cmd(struct usbn
  		   cmd, reqtype, value, index, size);
  
  	if (size) {
@@ -84,7 +84,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (!buf)
  			goto out;
  	}
-@@ -1984,7 +1984,7 @@ static int __usbnet_write_cmd(struct usb
+@@ -2001,7 +2001,7 @@ static int __usbnet_write_cmd(struct usb
  		   cmd, reqtype, value, index, size);
  
  	if (data) {
