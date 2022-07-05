@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5F1566C04
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAA5566BEE
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234011AbiGEMKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:10:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
+        id S233413AbiGEMKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231980AbiGEMJT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D6D18345;
-        Tue,  5 Jul 2022 05:09:18 -0700 (PDT)
+        with ESMTP id S233454AbiGEMGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971B218B35;
+        Tue,  5 Jul 2022 05:06:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6531861965;
-        Tue,  5 Jul 2022 12:09:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F349C385A5;
-        Tue,  5 Jul 2022 12:09:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEE5961806;
+        Tue,  5 Jul 2022 12:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F78C341C7;
+        Tue,  5 Jul 2022 12:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022957;
-        bh=fb5507BRvRaLsnk6R3xvXMZucIZUqeaGpwagamhkkw8=;
+        s=korg; t=1657022759;
+        bh=/yME1pixWaTPzCNQ+h58b3L5P5mzojmpuiwY6mpK0uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UyziBGTTJWJbvyJXLNj2rsek7E0QlxLJxQjqYSeAf15Usn9qnKnWN5xxX27sRdsHG
-         SbR0ozu/4cvdtstEkezYJi9tbJh3O2FhCb1yYNs0Vr0EPM9lFrHJr6KReacXKr/RP5
-         jNSm3kMYgsUOY0yctgf9jEGdPD2I/UnfBoSTgQs8=
+        b=hIC7hWQq7FBd+uBDkcLIg95gkxffx6VxS0+W9R6XrRTuzGBqxOPRHSeBuBGyjxhAG
+         mrJMhapL75Lw7imqDSlaAPkvgxy7jtNjnNfsvMsCkjrm57NZzxxFDU6V1yMy87lXY6
+         Mu/Q6C/bxIpaa8Ys2keQKogVos1xwMoFJDFyoZX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 70/84] selftests/rseq: Fix warnings about #if checks of undefined tokens
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: [PATCH 5.4 57/58] net: usb: qmi_wwan: add Telit 0x1070 composition
 Date:   Tue,  5 Jul 2022 13:58:33 +0200
-Message-Id: <20220705115617.365840873@linuxfoundation.org>
+Message-Id: <20220705115611.922805851@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit d7ed99ade3e62b755584eea07b4e499e79240527 upstream.
+commit 94f2a444f28a649926c410eb9a38afb13a83ebe0 upstream.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-12-mathieu.desnoyers@efficios.com
+Add the following Telit FN990 composition:
+
+0x1070: tty, adb, rmnet, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20211210095722.22269-1-dnlplm@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Fabio Porcedda <fabio.porcedda@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/param_test.c |    2 +-
- tools/testing/selftests/rseq/rseq-x86.h   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/testing/selftests/rseq/param_test.c
-+++ b/tools/testing/selftests/rseq/param_test.c
-@@ -161,7 +161,7 @@ unsigned int yield_mod_cnt, nr_abort;
- 	"	cbnz	" INJECT_ASM_REG ", 222b\n"			\
- 	"333:\n"
- 
--#elif __PPC__
-+#elif defined(__PPC__)
- 
- #define RSEQ_INJECT_INPUT \
- 	, [loop_cnt_1]"m"(loop_cnt[1]) \
---- a/tools/testing/selftests/rseq/rseq-x86.h
-+++ b/tools/testing/selftests/rseq/rseq-x86.h
-@@ -600,7 +600,7 @@ int rseq_cmpeqv_trymemcpy_storev_release
- 
- #endif /* !RSEQ_SKIP_FASTPATH */
- 
--#elif __i386__
-+#elif defined(__i386__)
- 
- #define rseq_smp_mb()	\
- 	__asm__ __volatile__ ("lock; addl $0,-128(%%esp)" ::: "memory", "cc")
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1316,6 +1316,7 @@ static const struct usb_device_id produc
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 
 
