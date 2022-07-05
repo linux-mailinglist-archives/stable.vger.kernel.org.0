@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF28566C7D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03CB566B2E
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236009AbiGEMP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:15:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54526 "EHLO
+        id S233879AbiGEME6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:04:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235587AbiGEMOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:14:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 715B31AF0E;
-        Tue,  5 Jul 2022 05:11:27 -0700 (PDT)
+        with ESMTP id S233669AbiGEMDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:03:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF551186CB;
+        Tue,  5 Jul 2022 05:03:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E22C619B0;
-        Tue,  5 Jul 2022 12:11:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157FEC341C7;
-        Tue,  5 Jul 2022 12:11:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6AF75CE1B88;
+        Tue,  5 Jul 2022 12:03:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 802B5C341C7;
+        Tue,  5 Jul 2022 12:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023086;
-        bh=vL0arXI7ti0jT6m6fv3+MgrGNiDpDyse8ySN/98+12c=;
+        s=korg; t=1657022631;
+        bh=BiSDEqMPiyO2HcGsS2ka2zvduxSjiJpI8CDelLrm34M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyElU3SLNVhFXhMm0SoGRvYtEvG1uEM1ltZRS7I+2oL50M6nTy8eWBQ+6/d6eRpKb
-         yiIeuOlNDaOpDT8+ug2Ai5D52+JdEls9XxGnM26+ANwtGux4Em3R/JxxzJws1e7EZb
-         vDFxK+RrVNEVh4Knicf1J+MvdUccbmgVN7QAnsAM=
+        b=qfVNB72mdeuX92IETpcNciDy8rnfhy16orUeu5AI3euhj6JKnlad54pXDRBc4ILT+
+         b20ekCF7I59foDR4d/UhfwVuEwKMHvVy8MEEWEfe2v9WNTafID8FeuEBpJ3RuPyXsJ
+         v/3wQF7eox9fZTeG/9B4MaokzJLZ4hdM0PtXMiyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        stable@vger.kernel.org,
+        syzbot+b75c138e9286ac742647@syzkaller.appspotmail.com,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 31/98] usbnet: fix memory allocation in helpers
+Subject: [PATCH 5.4 13/58] net: tun: unlink NAPI from device on destruction
 Date:   Tue,  5 Jul 2022 13:57:49 +0200
-Message-Id: <20220705115618.476059786@linuxfoundation.org>
+Message-Id: <20220705115610.635400409@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
+References: <20220705115610.236040773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit e65af5403e462ccd7dff6a045a886c64da598c2e upstream.
+commit 3b9bc84d311104906d2b4995a9a02d7b7ddab2db upstream.
 
-usbnet provides some helper functions that are also used in
-the context of reset() operations. During a reset the other
-drivers on a device are unable to operate. As that can be block
-drivers, a driver for another interface cannot use paging
-in its memory allocations without risking a deadlock.
-Use GFP_NOIO in the helpers.
+Syzbot found a race between tun file and device destruction.
+NAPIs live in struct tun_file which can get destroyed before
+the netdev so we have to del them explicitly. The current
+code is missing deleting the NAPI if the queue was detached
+first.
 
-Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220628093517.7469-1-oneukum@suse.com
+Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
+Reported-by: syzbot+b75c138e9286ac742647@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220623042039.2274708-1-kuba@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/tun.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -2002,7 +2002,7 @@ static int __usbnet_read_cmd(struct usbn
- 		   cmd, reqtype, value, index, size);
- 
- 	if (size) {
--		buf = kmalloc(size, GFP_KERNEL);
-+		buf = kmalloc(size, GFP_NOIO);
- 		if (!buf)
- 			goto out;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -783,6 +783,7 @@ static void tun_detach_all(struct net_de
+ 		sock_put(&tfile->sk);
  	}
-@@ -2034,7 +2034,7 @@ static int __usbnet_write_cmd(struct usb
- 		   cmd, reqtype, value, index, size);
- 
- 	if (data) {
--		buf = kmemdup(data, size, GFP_KERNEL);
-+		buf = kmemdup(data, size, GFP_NOIO);
- 		if (!buf)
- 			goto out;
- 	} else {
+ 	list_for_each_entry_safe(tfile, tmp, &tun->disabled, next) {
++		tun_napi_del(tfile);
+ 		tun_enable_queue(tfile);
+ 		tun_queue_purge(tfile);
+ 		xdp_rxq_info_unreg(&tfile->xdp_rxq);
 
 
