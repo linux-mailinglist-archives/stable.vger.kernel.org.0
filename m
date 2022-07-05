@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5A6566B56
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7069566BB4
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233467AbiGEMF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:05:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46458 "EHLO
+        id S234442AbiGEMJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233916AbiGEMFN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:05:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0182515FF4;
-        Tue,  5 Jul 2022 05:04:35 -0700 (PDT)
+        with ESMTP id S234626AbiGEMHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B79192BF;
+        Tue,  5 Jul 2022 05:06:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CD2BB817E1;
-        Tue,  5 Jul 2022 12:04:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD7B4C341C7;
-        Tue,  5 Jul 2022 12:04:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15D05B817CC;
+        Tue,  5 Jul 2022 12:06:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 575B5C341CB;
+        Tue,  5 Jul 2022 12:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022673;
-        bh=Xf/Ge2KvjiZb23gT7lk55mqe0xDzPV0YbzEZ/ET/f6s=;
+        s=korg; t=1657022805;
+        bh=E5YABQN7CX2xcNUWZOZH99E/RjMbQ0oA1Q2OAU7l6Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwPkzldNnh4N/kU4ENUzeNwqQvgNWBu9uEhE5p5siXMvHsyu2bS3B1RoNx6pSQCFN
-         FWx5XPSTk8fCQc7ERNXB3VoPzQHfpGxlBeYPur4oXKqoeJpV4oIopQVzznlbavR9MF
-         o77bXzXW0x4oZ7yp+gXTrMHN7ZMzvjj9gJGNcagI=
+        b=RLz7FoVXdSx97ET/zFF6zrEYMNyzadejNNk2aB/4/FbZcbMz3uBGvQeunSCjsfhtN
+         oPbPWs1QBSS+pmf8n2u4Esc7TA2SX9bNtKQEGXPB3pZofzpDlGKs7wWaOCxRRtQWR9
+         Y/5fXxAX44Z28tYK2hV+gr9PM6VmiTJupKs7ROt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 04/58] powerpc/bpf: Fix use of user_pt_regs in uapi
+        syzbot+b75c138e9286ac742647@syzkaller.appspotmail.com,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 17/84] net: tun: unlink NAPI from device on destruction
 Date:   Tue,  5 Jul 2022 13:57:40 +0200
-Message-Id: <20220705115610.371818499@linuxfoundation.org>
+Message-Id: <20220705115615.829569288@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit b21bd5a4b130f8370861478d2880985daace5913 upstream.
+commit 3b9bc84d311104906d2b4995a9a02d7b7ddab2db upstream.
 
-Trying to build a .c file that includes <linux/bpf_perf_event.h>:
-  $ cat test_bpf_headers.c
-  #include <linux/bpf_perf_event.h>
+Syzbot found a race between tun file and device destruction.
+NAPIs live in struct tun_file which can get destroyed before
+the netdev so we have to del them explicitly. The current
+code is missing deleting the NAPI if the queue was detached
+first.
 
-throws the below error:
-  /usr/include/linux/bpf_perf_event.h:14:28: error: field ‘regs’ has incomplete type
-     14 |         bpf_user_pt_regs_t regs;
-	|                            ^~~~
-
-This is because we typedef bpf_user_pt_regs_t to 'struct user_pt_regs'
-in arch/powerpc/include/uaps/asm/bpf_perf_event.h, but 'struct
-user_pt_regs' is not exposed to userspace.
-
-Powerpc has both pt_regs and user_pt_regs structures. However, unlike
-arm64 and s390, we expose user_pt_regs to userspace as just 'pt_regs'.
-As such, we should typedef bpf_user_pt_regs_t to 'struct pt_regs' for
-userspace.
-
-Within the kernel though, we want to typedef bpf_user_pt_regs_t to
-'struct user_pt_regs'.
-
-Remove arch/powerpc/include/uapi/asm/bpf_perf_event.h so that the
-uapi/asm-generic version of the header is exposed to userspace.
-Introduce arch/powerpc/include/asm/bpf_perf_event.h so that we can
-typedef bpf_user_pt_regs_t to 'struct user_pt_regs' for use within the
-kernel.
-
-Note that this was not showing up with the bpf selftest build since
-tools/include/uapi/asm/bpf_perf_event.h didn't include the powerpc
-variant.
-
-Fixes: a6460b03f945ee ("powerpc/bpf: Fix broken uapi for BPF_PROG_TYPE_PERF_EVENT")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-[mpe: Use typical naming for header include guard]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220627191119.142867-1-naveen.n.rao@linux.vnet.ibm.com
+Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
+Reported-by: syzbot+b75c138e9286ac742647@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220623042039.2274708-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/bpf_perf_event.h      |    9 +++++++++
- arch/powerpc/include/uapi/asm/bpf_perf_event.h |    9 ---------
- 2 files changed, 9 insertions(+), 9 deletions(-)
- create mode 100644 arch/powerpc/include/asm/bpf_perf_event.h
- delete mode 100644 arch/powerpc/include/uapi/asm/bpf_perf_event.h
+ drivers/net/tun.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- /dev/null
-+++ b/arch/powerpc/include/asm/bpf_perf_event.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_POWERPC_BPF_PERF_EVENT_H
-+#define _ASM_POWERPC_BPF_PERF_EVENT_H
-+
-+#include <asm/ptrace.h>
-+
-+typedef struct user_pt_regs bpf_user_pt_regs_t;
-+
-+#endif /* _ASM_POWERPC_BPF_PERF_EVENT_H */
---- a/arch/powerpc/include/uapi/asm/bpf_perf_event.h
-+++ /dev/null
-@@ -1,9 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--#ifndef _UAPI__ASM_BPF_PERF_EVENT_H__
--#define _UAPI__ASM_BPF_PERF_EVENT_H__
--
--#include <asm/ptrace.h>
--
--typedef struct user_pt_regs bpf_user_pt_regs_t;
--
--#endif /* _UAPI__ASM_BPF_PERF_EVENT_H__ */
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -733,6 +733,7 @@ static void tun_detach_all(struct net_de
+ 		sock_put(&tfile->sk);
+ 	}
+ 	list_for_each_entry_safe(tfile, tmp, &tun->disabled, next) {
++		tun_napi_del(tfile);
+ 		tun_enable_queue(tfile);
+ 		tun_queue_purge(tfile);
+ 		xdp_rxq_info_unreg(&tfile->xdp_rxq);
 
 
