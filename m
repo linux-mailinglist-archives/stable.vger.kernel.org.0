@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2CA566CA3
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61140566ADF
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235088AbiGEMT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:19:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35672 "EHLO
+        id S231448AbiGEMCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236459AbiGEMRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA01F18374;
-        Tue,  5 Jul 2022 05:12:33 -0700 (PDT)
+        with ESMTP id S230026AbiGEMBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF09618375;
+        Tue,  5 Jul 2022 05:01:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1CA54CE1B85;
-        Tue,  5 Jul 2022 12:12:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090F1C341C7;
-        Tue,  5 Jul 2022 12:12:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1631B817D4;
+        Tue,  5 Jul 2022 12:01:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5485C341C7;
+        Tue,  5 Jul 2022 12:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023150;
-        bh=gJPHiYJw2eD9q/XdjDFanrKWV7ZlkQz5rUWrohNBK+w=;
+        s=korg; t=1657022491;
+        bh=whB7DChqKjNXM6KulnnZB0EMSPHoC3atR9z0QHm4pT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8PV70dRvOf9lUO08H4QFrFNXjFvcMEofrW5eedoRez+Fnt31nfWYTRFELA950laF
-         c1vbgVWgpywrKkIoi9VAdPIfj+pH/Hzupr0INLLmZlNwRYbydUZOmsGaVfGxknGAMx
-         7nmFWUSllCGExP2cjmiKLiY8kqkJYvFAptONz/pg=
+        b=r8tNRXc7cFM/Qh5+bg584xm5qgRAFA6RM2fqZ8IX4DJTFrD5MGg/08/GsHkjVw337
+         ZhZWmdEI/wlWXouVX3SW62RISj9PLZtudoG1LmGZ7U9T0DnV/aIC34A3rO8OJEvsaM
+         LE2FWOTb3WtCyWmU/062RhUoO2bcXIaONQdjlnys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, katrinzhou <katrinzhou@tencent.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 55/98] ipv6/sit: fix ipip6_tunnel_get_prl return value
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 25/29] xen/netfront: force data bouncing when backend is untrusted
 Date:   Tue,  5 Jul 2022 13:58:13 +0200
-Message-Id: <20220705115619.145089903@linuxfoundation.org>
+Message-Id: <20220705115607.084848474@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: katrinzhou <katrinzhou@tencent.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit adabdd8f6acabc0c3fdbba2e7f5a2edd9c5ef22d upstream.
+commit 4491001c2e0fa69efbb748c96ec96b100a5cdb7e upstream.
 
-When kcalloc fails, ipip6_tunnel_get_prl() should return -ENOMEM.
-Move the position of label "out" to return correctly.
+Bounce all data on the skbs to be transmitted into zeroed pages if the
+backend is untrusted. This avoids leaking data present in the pages
+shared with the backend but not part of the skb fragments.  This
+requires introducing a new helper in order to allocate skbs with a
+size multiple of XEN_PAGE_SIZE so we don't leak contiguous data on the
+granted pages.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 300aaeeaab5f ("[IPV6] SIT: Add SIOCGETPRL ioctl to get/dump PRL.")
-Signed-off-by: katrinzhou <katrinzhou@tencent.com>
-Reviewed-by: Eric Dumazet<edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220628035030.1039171-1-zys.zljxml@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reporting whether the backend is to be trusted can be done using a
+module parameter, or from the xenstore frontend path as set by the
+toolstack when adding the device.
+
+This is CVE-2022-33741, part of XSA-403.
+
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/xen-netfront.c |   50 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 48 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -323,8 +323,6 @@ static int ipip6_tunnel_get_prl(struct n
- 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL_ACCOUNT | __GFP_NOWARN) :
- 		NULL;
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -63,6 +63,10 @@ module_param_named(max_queues, xennet_ma
+ MODULE_PARM_DESC(max_queues,
+ 		 "Maximum number of queues per virtual interface");
  
--	rcu_read_lock();
--
- 	ca = min(t->prl_count, cmax);
- 
- 	if (!kp) {
-@@ -341,7 +339,7 @@ static int ipip6_tunnel_get_prl(struct n
- 		}
- 	}
- 
--	c = 0;
-+	rcu_read_lock();
- 	for_each_prl_rcu(t->prl) {
- 		if (c >= cmax)
- 			break;
-@@ -353,7 +351,7 @@ static int ipip6_tunnel_get_prl(struct n
- 		if (kprl.addr != htonl(INADDR_ANY))
- 			break;
- 	}
--out:
++static bool __read_mostly xennet_trusted = true;
++module_param_named(trusted, xennet_trusted, bool, 0644);
++MODULE_PARM_DESC(trusted, "Is the backend trusted");
 +
- 	rcu_read_unlock();
+ #define XENNET_TIMEOUT  (5 * HZ)
  
- 	len = sizeof(*kp) * c;
-@@ -362,7 +360,7 @@ out:
- 		ret = -EFAULT;
+ static const struct ethtool_ops xennet_ethtool_ops;
+@@ -163,6 +167,9 @@ struct netfront_info {
+ 	/* Is device behaving sane? */
+ 	bool broken;
  
- 	kfree(kp);
--
-+out:
- 	return ret;
++	/* Should skbs be bounced into a zeroed buffer? */
++	bool bounce;
++
+ 	atomic_t rx_gso_checksum_fixup;
+ };
+ 
+@@ -592,6 +599,34 @@ static void xennet_mark_tx_pending(struc
+ 		queue->tx_link[i] = TX_PENDING;
  }
  
++struct sk_buff *bounce_skb(const struct sk_buff *skb)
++{
++	unsigned int headerlen = skb_headroom(skb);
++	/* Align size to allocate full pages and avoid contiguous data leaks */
++	unsigned int size = ALIGN(skb_end_offset(skb) + skb->data_len,
++				  XEN_PAGE_SIZE);
++	struct sk_buff *n = alloc_skb(size, GFP_ATOMIC | __GFP_ZERO);
++
++	if (!n)
++		return NULL;
++
++	if (!IS_ALIGNED((uintptr_t)n->head, XEN_PAGE_SIZE)) {
++		WARN_ONCE(1, "misaligned skb allocated\n");
++		kfree_skb(n);
++		return NULL;
++	}
++
++	/* Set the data pointer */
++	skb_reserve(n, headerlen);
++	/* Set the tail pointer and length */
++	skb_put(n, skb->len);
++
++	BUG_ON(skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len));
++
++	skb_copy_header(n, skb);
++	return n;
++}
++
+ #define MAX_XEN_SKB_FRAGS (65536 / XEN_PAGE_SIZE + 1)
+ 
+ static int xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -644,9 +679,13 @@ static int xennet_start_xmit(struct sk_b
+ 
+ 	/* The first req should be at least ETH_HLEN size or the packet will be
+ 	 * dropped by netback.
++	 *
++	 * If the backend is not trusted bounce all data to zeroed pages to
++	 * avoid exposing contiguous data on the granted page not belonging to
++	 * the skb.
+ 	 */
+-	if (unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
+-		nskb = skb_copy(skb, GFP_ATOMIC);
++	if (np->bounce || unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
++		nskb = bounce_skb(skb);
+ 		if (!nskb)
+ 			goto drop;
+ 		dev_consume_skb_any(skb);
+@@ -1946,6 +1985,10 @@ static int talk_to_netback(struct xenbus
+ 
+ 	info->netdev->irq = 0;
+ 
++	/* Check if backend is trusted. */
++	info->bounce = !xennet_trusted ||
++		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
++
+ 	/* Check if backend supports multiple queues */
+ 	max_queues = xenbus_read_unsigned(info->xbdev->otherend,
+ 					  "multi-queue-max-queues", 1);
+@@ -2099,6 +2142,9 @@ static int xennet_connect(struct net_dev
+ 	err = talk_to_netback(np->xbdev, np);
+ 	if (err)
+ 		return err;
++	if (np->bounce)
++		dev_info(&np->xbdev->dev,
++			 "bouncing transmitted data to zeroed pages\n");
+ 
+ 	/* talk_to_netback() sets the correct number of queues */
+ 	num_queues = dev->real_num_tx_queues;
 
 
