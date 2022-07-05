@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24954566DC5
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430B0566D0C
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238024AbiGEM1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:27:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
+        id S236396AbiGEMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231463AbiGEMZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:32 -0400
+        with ESMTP id S237357AbiGEMTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F801902C;
-        Tue,  5 Jul 2022 05:17:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA721CFF1;
+        Tue,  5 Jul 2022 05:14:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8BA461AC8;
-        Tue,  5 Jul 2022 12:17:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E4BC341C7;
-        Tue,  5 Jul 2022 12:17:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50FC2619B9;
+        Tue,  5 Jul 2022 12:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6D7C341C7;
+        Tue,  5 Jul 2022 12:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023469;
-        bh=7YshR3Vuu9QEnbxCieJqLjKwWNdbjo9+x0rVKqgu9Pg=;
+        s=korg; t=1657023263;
+        bh=pyhdauLBoqSjSiGXmzPG8RWnckzy4jcB2XZZJLH8K1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZGX56SkCi+ZuIiGYHbBXVABWZn5NxVaLNhmGQBpy5pLboVWe137sZskJ5UJjWiuM
-         ewA/EbOPG9EfImUwUMDWqMmtO810XDrjD5dpUnZ0q8bonmUDscWCckPeqON6OCtEmO
-         dYvfN0T30QdW5bu2IaghiHJMMDEVvLHl+NjT4YQE=
+        b=jmxTF0ZZoO7KCybPUd7fNTO7UdeKRENRCU4ckWrUtqqPXy90/XBbP62NNgp4pyuHf
+         aixOxXrEis+URQ5k1LboP3RISQJMbcMBw4MnuKf9ZVL2A5BMopwwCzCngNkYniN0A9
+         XA4E7rzH58Htbp+kh2JRzMOFnV8XVmFpSI51VkYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.18 070/102] cpufreq: qcom-hw: Dont do lmh things without a throttle interrupt
-Date:   Tue,  5 Jul 2022 13:58:36 +0200
-Message-Id: <20220705115620.393287150@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.15 79/98] xen/netfront: fix leaking data in shared pages
+Date:   Tue,  5 Jul 2022 13:58:37 +0200
+Message-Id: <20220705115619.815256649@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit 668a7a12ded7077d4fd7ad1305667e559907e5bb upstream.
+commit 307c8de2b02344805ebead3440d8feed28f2f010 upstream.
 
-Offlining cpu6 and cpu7 and then onlining cpu6 hangs on
-sc7180-trogdor-lazor because the throttle interrupt doesn't exist.
-Similarly, things go sideways when suspend/resume runs. That's because
-the qcom_cpufreq_hw_cpu_online() and qcom_cpufreq_hw_lmh_exit()
-functions are calling genirq APIs with an interrupt value of '-6', i.e.
--ENXIO, and that isn't good.
+When allocating pages to be used for shared communication with the
+backend always zero them, this avoids leaking unintended data present
+on the pages.
 
-Check the value of the throttle interrupt like we already do in other
-functions in this file and bail out early from lmh code to fix the hang.
+This is CVE-2022-33740, part of XSA-403.
 
-Reported-by: Rob Clark <robdclark@chromium.org>
-Cc: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Fixes: a1eb080a0447 ("cpufreq: qcom-hw: provide online/offline operations")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/xen-netfront.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index 0253731d6d25..36c79580fba2 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -442,6 +442,9 @@ static int qcom_cpufreq_hw_cpu_online(struct cpufreq_policy *policy)
- 	struct platform_device *pdev = cpufreq_get_driver_data();
- 	int ret;
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -273,7 +273,8 @@ static struct sk_buff *xennet_alloc_one_
+ 	if (unlikely(!skb))
+ 		return NULL;
  
-+	if (data->throttle_irq <= 0)
-+		return 0;
-+
- 	ret = irq_set_affinity_hint(data->throttle_irq, policy->cpus);
- 	if (ret)
- 		dev_err(&pdev->dev, "Failed to set CPU affinity of %s[%d]\n",
-@@ -469,6 +472,9 @@ static int qcom_cpufreq_hw_cpu_offline(struct cpufreq_policy *policy)
- 
- static void qcom_cpufreq_hw_lmh_exit(struct qcom_cpufreq_data *data)
- {
-+	if (data->throttle_irq <= 0)
-+		return;
-+
- 	free_irq(data->throttle_irq, data);
- }
- 
--- 
-2.37.0
-
+-	page = page_pool_dev_alloc_pages(queue->page_pool);
++	page = page_pool_alloc_pages(queue->page_pool,
++				     GFP_ATOMIC | __GFP_NOWARN | __GFP_ZERO);
+ 	if (unlikely(!page)) {
+ 		kfree_skb(skb);
+ 		return NULL;
 
 
