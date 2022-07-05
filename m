@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6ECA566C00
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F387566D9F
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbiGEMKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:10:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52344 "EHLO
+        id S238007AbiGEM04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:26:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234054AbiGEMJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:14 -0400
+        with ESMTP id S231904AbiGEMZ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF5B1838B;
-        Tue,  5 Jul 2022 05:09:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AFFE1B7AF;
+        Tue,  5 Jul 2022 05:17:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB54261856;
-        Tue,  5 Jul 2022 12:09:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6144C341CF;
-        Tue,  5 Jul 2022 12:09:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 269A761983;
+        Tue,  5 Jul 2022 12:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ACA3C341C7;
+        Tue,  5 Jul 2022 12:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022952;
-        bh=XqE9c5jeIO8PhFmnmhzW9vcEqEU/9Q+JgXFOCaQYJAc=;
+        s=korg; t=1657023455;
+        bh=E/RhKELd2XMIJKei+fQXXP00rg8+FgoKBR2TNdH2JsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8Rghiz/Pv0PQm96t3r8tx10Z6MXl8fNrUGluUafpUmBRuBHIR6UmiHRKeP1CSAaj
-         JzJjaJgq9k9K4zHRnORBN99mr2JV7YBAySeNLAoQVM7jkalRpB7LXGvcFqi5EyAInV
-         +gixVviPI8URfSPh4d1Q7iTB6jN/6Rd8aknenyuk=
+        b=Y4d7+8yjAf2/XQJT3UrtyEXmZ1y6L8OIBXRks/UoBKAzb5X6ZyTkw6SomTJw92O2c
+         K67vd/X6KhLqpbYSx8m1pqEtSuVbjkw3icvuOIk035sSZQEbfg/if9cEDo7/aoPaUY
+         uqexbN3xe4WUfN19yBJEYZtb3szwwZSvoUBu2O/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 68/84] selftests/rseq: Fix ppc32 missing instruction selection "u" and "x" for load/store
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.18 065/102] platform/x86: ideapad-laptop: Add Ideapad 5 15ITL05 to ideapad_dytc_v4_allow_table[]
 Date:   Tue,  5 Jul 2022 13:58:31 +0200
-Message-Id: <20220705115617.308807524@linuxfoundation.org>
+Message-Id: <20220705115620.251879929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,188 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit de6b52a21420a18dc8a36438d581efd1313d5fe3 upstream.
+commit 8853e8ce9b576e0a3aad8381e19a117964d445fa upstream.
 
-Building the rseq basic test  with
-gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.12)
-Target: powerpc-linux-gnu
+The Ideapad 5 15ITL05 uses DYTC version 4 for platform-profile
+control. This has been tested successfully with the ideapad-laptop
+DYTC version 5 code; Add the Ideapad 5 15ITL05 to the
+ideapad_dytc_v4_allow_table[].
 
-leads to these errors:
-
-/tmp/ccieEWxU.s: Assembler messages:
-/tmp/ccieEWxU.s:118: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:118: Error: junk at end of line: `,8'
-/tmp/ccieEWxU.s:121: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:121: Error: junk at end of line: `,8'
-/tmp/ccieEWxU.s:626: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:626: Error: junk at end of line: `,8'
-/tmp/ccieEWxU.s:629: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:629: Error: junk at end of line: `,8'
-/tmp/ccieEWxU.s:735: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:735: Error: junk at end of line: `,8'
-/tmp/ccieEWxU.s:738: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:738: Error: junk at end of line: `,8'
-/tmp/ccieEWxU.s:741: Error: syntax error; found `,', expected `('
-/tmp/ccieEWxU.s:741: Error: junk at end of line: `,8'
-Makefile:581: recipe for target 'basic_percpu_ops_test.o' failed
-
-Based on discussion with Linux powerpc maintainers and review of
-the use of the "m" operand in powerpc kernel code, add the missing
-%Un%Xn (where n is operand number) to the lwz, stw, ld, and std
-instructions when used with "m" operands.
-
-Using "WORD" to mean either a 32-bit or 64-bit type depending on
-the architecture is misleading. The term "WORD" really means a
-32-bit type in both 32-bit and 64-bit powerpc assembler. The intent
-here is to wrap load/store to intptr_t into common macros for both
-32-bit and 64-bit.
-
-Rename the macros with a RSEQ_ prefix, and use the terms "INT"
-for always 32-bit type, and "LONG" for architecture bitness-sized
-type.
-
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220124171253.22072-10-mathieu.desnoyers@efficios.com
+Fixes: 599482c58ebd ("platform/x86: ideapad-laptop: Add platform support for Ideapad 5 Pro 16ACH6-82L5")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213297
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220627130850.313537-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/rseq-ppc.h |   55 ++++++++++++++++----------------
- 1 file changed, 28 insertions(+), 27 deletions(-)
+ drivers/platform/x86/ideapad-laptop.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/rseq/rseq-ppc.h
-+++ b/tools/testing/selftests/rseq/rseq-ppc.h
-@@ -47,10 +47,13 @@ do {									\
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -871,12 +871,18 @@ static void dytc_profile_refresh(struct
+ static const struct dmi_system_id ideapad_dytc_v4_allow_table[] = {
+ 	{
+ 		/* Ideapad 5 Pro 16ACH6 */
+-		.ident = "LENOVO 82L5",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "82L5")
+ 		}
+ 	},
++	{
++		/* Ideapad 5 15ITL05 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "IdeaPad 5 15ITL05")
++		}
++	},
+ 	{}
+ };
  
- #ifdef __PPC64__
- 
--#define STORE_WORD	"std "
--#define LOAD_WORD	"ld "
--#define LOADX_WORD	"ldx "
--#define CMP_WORD	"cmpd "
-+#define RSEQ_STORE_LONG(arg)	"std%U[" __rseq_str(arg) "]%X[" __rseq_str(arg) "] "	/* To memory ("m" constraint) */
-+#define RSEQ_STORE_INT(arg)	"stw%U[" __rseq_str(arg) "]%X[" __rseq_str(arg) "] "	/* To memory ("m" constraint) */
-+#define RSEQ_LOAD_LONG(arg)	"ld%U[" __rseq_str(arg) "]%X[" __rseq_str(arg) "] "	/* From memory ("m" constraint) */
-+#define RSEQ_LOAD_INT(arg)	"lwz%U[" __rseq_str(arg) "]%X[" __rseq_str(arg) "] "	/* From memory ("m" constraint) */
-+#define RSEQ_LOADX_LONG		"ldx "							/* From base register ("b" constraint) */
-+#define RSEQ_CMP_LONG		"cmpd "
-+#define RSEQ_CMP_LONG_INT	"cmpdi "
- 
- #define __RSEQ_ASM_DEFINE_TABLE(label, version, flags,				\
- 			start_ip, post_commit_offset, abort_ip)			\
-@@ -89,10 +92,13 @@ do {									\
- 
- #else /* #ifdef __PPC64__ */
- 
--#define STORE_WORD	"stw "
--#define LOAD_WORD	"lwz "
--#define LOADX_WORD	"lwzx "
--#define CMP_WORD	"cmpw "
-+#define RSEQ_STORE_LONG(arg)	"stw%U[" __rseq_str(arg) "]%X[" __rseq_str(arg) "] "	/* To memory ("m" constraint) */
-+#define RSEQ_STORE_INT(arg)	RSEQ_STORE_LONG(arg)					/* To memory ("m" constraint) */
-+#define RSEQ_LOAD_LONG(arg)	"lwz%U[" __rseq_str(arg) "]%X[" __rseq_str(arg) "] "	/* From memory ("m" constraint) */
-+#define RSEQ_LOAD_INT(arg)	RSEQ_LOAD_LONG(arg)					/* From memory ("m" constraint) */
-+#define RSEQ_LOADX_LONG		"lwzx "							/* From base register ("b" constraint) */
-+#define RSEQ_CMP_LONG		"cmpw "
-+#define RSEQ_CMP_LONG_INT	"cmpwi "
- 
- #define __RSEQ_ASM_DEFINE_TABLE(label, version, flags,				\
- 			start_ip, post_commit_offset, abort_ip)			\
-@@ -125,7 +131,7 @@ do {									\
- 		RSEQ_INJECT_ASM(1)						\
- 		"lis %%r17, (" __rseq_str(cs_label) ")@ha\n\t"			\
- 		"addi %%r17, %%r17, (" __rseq_str(cs_label) ")@l\n\t"		\
--		"stw %%r17, %[" __rseq_str(rseq_cs) "]\n\t"			\
-+		RSEQ_STORE_INT(rseq_cs) "%%r17, %[" __rseq_str(rseq_cs) "]\n\t"	\
- 		__rseq_str(label) ":\n\t"
- 
- #endif /* #ifdef __PPC64__ */
-@@ -136,7 +142,7 @@ do {									\
- 
- #define RSEQ_ASM_CMP_CPU_ID(cpu_id, current_cpu_id, label)			\
- 		RSEQ_INJECT_ASM(2)						\
--		"lwz %%r17, %[" __rseq_str(current_cpu_id) "]\n\t"		\
-+		RSEQ_LOAD_INT(current_cpu_id) "%%r17, %[" __rseq_str(current_cpu_id) "]\n\t" \
- 		"cmpw cr7, %[" __rseq_str(cpu_id) "], %%r17\n\t"		\
- 		"bne- cr7, " __rseq_str(label) "\n\t"
- 
-@@ -153,25 +159,25 @@ do {									\
-  * 	RSEQ_ASM_OP_* (else): doesn't have hard-code registers(unless cr7)
-  */
- #define RSEQ_ASM_OP_CMPEQ(var, expect, label)					\
--		LOAD_WORD "%%r17, %[" __rseq_str(var) "]\n\t"			\
--		CMP_WORD "cr7, %%r17, %[" __rseq_str(expect) "]\n\t"		\
-+		RSEQ_LOAD_LONG(var) "%%r17, %[" __rseq_str(var) "]\n\t"		\
-+		RSEQ_CMP_LONG "cr7, %%r17, %[" __rseq_str(expect) "]\n\t"		\
- 		"bne- cr7, " __rseq_str(label) "\n\t"
- 
- #define RSEQ_ASM_OP_CMPNE(var, expectnot, label)				\
--		LOAD_WORD "%%r17, %[" __rseq_str(var) "]\n\t"			\
--		CMP_WORD "cr7, %%r17, %[" __rseq_str(expectnot) "]\n\t"		\
-+		RSEQ_LOAD_LONG(var) "%%r17, %[" __rseq_str(var) "]\n\t"		\
-+		RSEQ_CMP_LONG "cr7, %%r17, %[" __rseq_str(expectnot) "]\n\t"		\
- 		"beq- cr7, " __rseq_str(label) "\n\t"
- 
- #define RSEQ_ASM_OP_STORE(value, var)						\
--		STORE_WORD "%[" __rseq_str(value) "], %[" __rseq_str(var) "]\n\t"
-+		RSEQ_STORE_LONG(var) "%[" __rseq_str(value) "], %[" __rseq_str(var) "]\n\t"
- 
- /* Load @var to r17 */
- #define RSEQ_ASM_OP_R_LOAD(var)							\
--		LOAD_WORD "%%r17, %[" __rseq_str(var) "]\n\t"
-+		RSEQ_LOAD_LONG(var) "%%r17, %[" __rseq_str(var) "]\n\t"
- 
- /* Store r17 to @var */
- #define RSEQ_ASM_OP_R_STORE(var)						\
--		STORE_WORD "%%r17, %[" __rseq_str(var) "]\n\t"
-+		RSEQ_STORE_LONG(var) "%%r17, %[" __rseq_str(var) "]\n\t"
- 
- /* Add @count to r17 */
- #define RSEQ_ASM_OP_R_ADD(count)						\
-@@ -179,11 +185,11 @@ do {									\
- 
- /* Load (r17 + voffp) to r17 */
- #define RSEQ_ASM_OP_R_LOADX(voffp)						\
--		LOADX_WORD "%%r17, %[" __rseq_str(voffp) "], %%r17\n\t"
-+		RSEQ_LOADX_LONG "%%r17, %[" __rseq_str(voffp) "], %%r17\n\t"
- 
- /* TODO: implement a faster memcpy. */
- #define RSEQ_ASM_OP_R_MEMCPY() \
--		"cmpdi %%r19, 0\n\t" \
-+		RSEQ_CMP_LONG_INT "%%r19, 0\n\t" \
- 		"beq 333f\n\t" \
- 		"addi %%r20, %%r20, -1\n\t" \
- 		"addi %%r21, %%r21, -1\n\t" \
-@@ -191,16 +197,16 @@ do {									\
- 		"lbzu %%r18, 1(%%r20)\n\t" \
- 		"stbu %%r18, 1(%%r21)\n\t" \
- 		"addi %%r19, %%r19, -1\n\t" \
--		"cmpdi %%r19, 0\n\t" \
-+		RSEQ_CMP_LONG_INT "%%r19, 0\n\t" \
- 		"bne 222b\n\t" \
- 		"333:\n\t" \
- 
- #define RSEQ_ASM_OP_R_FINAL_STORE(var, post_commit_label)			\
--		STORE_WORD "%%r17, %[" __rseq_str(var) "]\n\t"			\
-+		RSEQ_STORE_LONG(var) "%%r17, %[" __rseq_str(var) "]\n\t"			\
- 		__rseq_str(post_commit_label) ":\n\t"
- 
- #define RSEQ_ASM_OP_FINAL_STORE(value, var, post_commit_label)			\
--		STORE_WORD "%[" __rseq_str(value) "], %[" __rseq_str(var) "]\n\t" \
-+		RSEQ_STORE_LONG(var) "%[" __rseq_str(value) "], %[" __rseq_str(var) "]\n\t" \
- 		__rseq_str(post_commit_label) ":\n\t"
- 
- static inline __attribute__((always_inline))
-@@ -743,9 +749,4 @@ error2:
- #endif
- }
- 
--#undef STORE_WORD
--#undef LOAD_WORD
--#undef LOADX_WORD
--#undef CMP_WORD
--
- #endif /* !RSEQ_SKIP_FASTPATH */
 
 
