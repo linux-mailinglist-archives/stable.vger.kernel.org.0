@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A991566D36
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1989566D7B
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236260AbiGEMVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
+        id S232584AbiGEMYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:24:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236465AbiGEMRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D241838B;
-        Tue,  5 Jul 2022 05:12:34 -0700 (PDT)
+        with ESMTP id S236898AbiGEMWV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:22:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736E61EC7E;
+        Tue,  5 Jul 2022 05:16:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFCE561985;
-        Tue,  5 Jul 2022 12:12:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0BFDC341C7;
-        Tue,  5 Jul 2022 12:12:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63A44B817D2;
+        Tue,  5 Jul 2022 12:16:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BABC341C7;
+        Tue,  5 Jul 2022 12:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023153;
-        bh=q9bhnEFvIZsC21+a56GkhDC+EX25L8c5gcgtpFn5qyw=;
+        s=korg; t=1657023402;
+        bh=SxEx45m+FeN+Ug2bbYW0UuEaNfwSzL2M/Kss9ZJVAfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdjKahtC75x246gMoVoXf0HP8WtnguLp6eYB/SEs7rUm0LdL5BgTnbfUJKI3lqynr
-         Dkb94U6anvPG4DPGabbGqpzJZUwFtyriOUM2TCCBQGtepBYNp3VNqj1uX4HPKjEogL
-         x12s0OK6F7LY1sgNo//Kqeq4EPtJqAVg/2sS9hUw=
+        b=dXKoT0fZZa2IsVMS6mLZ7sl779ZUl6UxYHExFv36bzmtoMIsI3ZmjXyeJL8E+Eoyf
+         Qw55V7bgYTb3J5x0graaXucNrcTKG9kfcDsJSLppeGJfYHPKjvrVMEcSp+8+gNtrLj
+         Wq/ppVYGU9ph+OWIVAYfIWu5ziXhj01gSR6VEWtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 56/98] ipv6: fix lockdep splat in in6_dump_addrs()
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.18 048/102] caif_virtio: fix race between virtio_device_ready() and ndo_open()
 Date:   Tue,  5 Jul 2022 13:58:14 +0200
-Message-Id: <20220705115619.173684342@linuxfoundation.org>
+Message-Id: <20220705115619.772193552@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jason Wang <jasowang@redhat.com>
 
-commit 4e43e64d0f1332fcc503babad4dc31aead7131ca upstream.
+commit 11a37eb66812ce6a06b79223ad530eb0e1d7294d upstream.
 
-As reported by syzbot, we should not use rcu_dereference()
-when rcu_read_lock() is not held.
+We currently depend on probe() calling virtio_device_ready() -
+which happens after netdev
+registration. Since ndo_open() can be called immediately
+after register_netdev, this means there exists a race between
+ndo_open() and virtio_device_ready(): the driver may start to use the
+device (e.g. TX) before DRIVER_OK which violates the spec.
 
-WARNING: suspicious RCU usage
-5.19.0-rc2-syzkaller #0 Not tainted
+Fix this by switching to use register_netdevice() and protect the
+virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
+only be called after virtio_device_ready().
 
-net/ipv6/addrconf.c:5175 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-1 lock held by syz-executor326/3617:
- #0: ffffffff8d5848e8 (rtnl_mutex){+.+.}-{3:3}, at: netlink_dump+0xae/0xc20 net/netlink/af_netlink.c:2223
-
-stack backtrace:
-CPU: 0 PID: 3617 Comm: syz-executor326 Not tainted 5.19.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- in6_dump_addrs+0x12d1/0x1790 net/ipv6/addrconf.c:5175
- inet6_dump_addr+0x9c1/0xb50 net/ipv6/addrconf.c:5300
- netlink_dump+0x541/0xc20 net/netlink/af_netlink.c:2275
- __netlink_dump_start+0x647/0x900 net/netlink/af_netlink.c:2380
- netlink_dump_start include/linux/netlink.h:245 [inline]
- rtnetlink_rcv_msg+0x73e/0xc90 net/core/rtnetlink.c:6046
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2501
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x917/0xe10 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:734
- ____sys_sendmsg+0x6eb/0x810 net/socket.c:2492
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2546
- __sys_sendmsg net/socket.c:2575 [inline]
- __do_sys_sendmsg net/socket.c:2584 [inline]
- __se_sys_sendmsg net/socket.c:2582 [inline]
- __x64_sys_sendmsg+0x132/0x220 net/socket.c:2582
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Fixes: 88e2ca308094 ("mld: convert ifmcaddr6 to RCU")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Taehee Yoo <ap420073@gmail.com>
-Link: https://lore.kernel.org/r/20220628121248.858695-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 0d2e1a2926b18 ("caif_virtio: Introduce caif over virtio")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Message-Id: <20220620051115.3142-3-jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrconf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/caif/caif_virtio.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -5166,9 +5166,9 @@ next:
- 		fillargs->event = RTM_GETMULTICAST;
+--- a/drivers/net/caif/caif_virtio.c
++++ b/drivers/net/caif/caif_virtio.c
+@@ -721,13 +721,21 @@ static int cfv_probe(struct virtio_devic
+ 	/* Carrier is off until netdevice is opened */
+ 	netif_carrier_off(netdev);
  
- 		/* multicast address */
--		for (ifmca = rcu_dereference(idev->mc_list);
-+		for (ifmca = rtnl_dereference(idev->mc_list);
- 		     ifmca;
--		     ifmca = rcu_dereference(ifmca->next), ip_idx++) {
-+		     ifmca = rtnl_dereference(ifmca->next), ip_idx++) {
- 			if (ip_idx < s_ip_idx)
- 				continue;
- 			err = inet6_fill_ifmcaddr(skb, ifmca, fillargs);
++	/* serialize netdev register + virtio_device_ready() with ndo_open() */
++	rtnl_lock();
++
+ 	/* register Netdev */
+-	err = register_netdev(netdev);
++	err = register_netdevice(netdev);
+ 	if (err) {
++		rtnl_unlock();
+ 		dev_err(&vdev->dev, "Unable to register netdev (%d)\n", err);
+ 		goto err;
+ 	}
+ 
++	virtio_device_ready(vdev);
++
++	rtnl_unlock();
++
+ 	debugfs_init(cfv);
+ 
+ 	return 0;
 
 
