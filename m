@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB3BF566D58
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 002A7566A80
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 13:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236872AbiGEMWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
+        id S232384AbiGEL7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 07:59:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236557AbiGEMRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A772193C8;
-        Tue,  5 Jul 2022 05:12:53 -0700 (PDT)
+        with ESMTP id S232108AbiGEL7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 07:59:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FFFC1582A;
+        Tue,  5 Jul 2022 04:59:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 265816199F;
-        Tue,  5 Jul 2022 12:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F88C341C7;
-        Tue,  5 Jul 2022 12:12:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61EF0B817CC;
+        Tue,  5 Jul 2022 11:59:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0EA6C341C7;
+        Tue,  5 Jul 2022 11:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023172;
-        bh=SxEx45m+FeN+Ug2bbYW0UuEaNfwSzL2M/Kss9ZJVAfE=;
+        s=korg; t=1657022373;
+        bh=tpiyEXn88fsmM6J9Y6FUx7OOFUOVV+53Ew27/QlsE4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vl2Hxo742WULJnkMpGcddesgLPw8x7KaPAtK4R1SZt4GStA0Z1n7Whvtlr/xgWfQU
-         calPWlTwIxzAKXC6VNOC7DbevonHESCdE2TSVRbc8WVDz0kbdTMvmo0kb3Ocd0jTzd
-         YFYsAUOk+hTciJR5ZNC+XBlm22BgRzUEEuGKSPxY=
+        b=Zj3cdy5kbcszhckQvqqaR7nnmvFjKWcmZT3rhl6L2DmYLMAjVjQgFdCl1D6vwQ17C
+         uHWYRno8k8Hx4GuFuZFqJVAcbi2zAgbQ9oGIpmcOWl7ovioTsxCnrZ8M5x/wO/HSal
+         ZcPqk/teWH/mioRGY3WbWnbas2G5AHuE83oV7/Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.15 36/98] caif_virtio: fix race between virtio_device_ready() and ndo_open()
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 13/29] NFC: nxp-nci: Dont issue a zero length i2c_master_read()
 Date:   Tue,  5 Jul 2022 13:57:54 +0200
-Message-Id: <20220705115618.615667154@linuxfoundation.org>
+Message-Id: <20220705115606.139233334@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
+References: <20220705115605.742248854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Michael Walle <michael@walle.cc>
 
-commit 11a37eb66812ce6a06b79223ad530eb0e1d7294d upstream.
+commit eddd95b9423946aaacb55cac6a9b2cea8ab944fc upstream.
 
-We currently depend on probe() calling virtio_device_ready() -
-which happens after netdev
-registration. Since ndo_open() can be called immediately
-after register_netdev, this means there exists a race between
-ndo_open() and virtio_device_ready(): the driver may start to use the
-device (e.g. TX) before DRIVER_OK which violates the spec.
+There are packets which doesn't have a payload. In that case, the second
+i2c_master_read() will have a zero length. But because the NFC
+controller doesn't have any data left, it will NACK the I2C read and
+-ENXIO will be returned. In case there is no payload, just skip the
+second i2c master read.
 
-Fix this by switching to use register_netdevice() and protect the
-virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
-only be called after virtio_device_ready().
-
-Fixes: 0d2e1a2926b18 ("caif_virtio: Introduce caif over virtio")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20220620051115.3142-3-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/caif/caif_virtio.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/nfc/nxp-nci/i2c.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/caif/caif_virtio.c
-+++ b/drivers/net/caif/caif_virtio.c
-@@ -721,13 +721,21 @@ static int cfv_probe(struct virtio_devic
- 	/* Carrier is off until netdevice is opened */
- 	netif_carrier_off(netdev);
+--- a/drivers/nfc/nxp-nci/i2c.c
++++ b/drivers/nfc/nxp-nci/i2c.c
+@@ -180,6 +180,9 @@ static int nxp_nci_i2c_nci_read(struct n
+ 	memcpy(skb_put(*skb, NCI_CTRL_HDR_SIZE), (void *) &header,
+ 	       NCI_CTRL_HDR_SIZE);
  
-+	/* serialize netdev register + virtio_device_ready() with ndo_open() */
-+	rtnl_lock();
++	if (!header.plen)
++		return 0;
 +
- 	/* register Netdev */
--	err = register_netdev(netdev);
-+	err = register_netdevice(netdev);
- 	if (err) {
-+		rtnl_unlock();
- 		dev_err(&vdev->dev, "Unable to register netdev (%d)\n", err);
- 		goto err;
- 	}
- 
-+	virtio_device_ready(vdev);
-+
-+	rtnl_unlock();
-+
- 	debugfs_init(cfv);
- 
- 	return 0;
+ 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
+ 	if (r != header.plen) {
+ 		nfc_err(&client->dev,
 
 
