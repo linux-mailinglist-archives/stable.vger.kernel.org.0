@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB6D566AF5
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEF3566AD9
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231135AbiGEMDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:03:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42220 "EHLO
+        id S230017AbiGEMCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:02:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233422AbiGEMCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C28E17AAA;
-        Tue,  5 Jul 2022 05:02:41 -0700 (PDT)
+        with ESMTP id S233032AbiGEMBc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518DF17AA9;
+        Tue,  5 Jul 2022 05:01:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADBB561830;
-        Tue,  5 Jul 2022 12:02:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B07C341C7;
-        Tue,  5 Jul 2022 12:02:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0374B817DA;
+        Tue,  5 Jul 2022 12:01:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 344AFC341C7;
+        Tue,  5 Jul 2022 12:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022560;
-        bh=IXuzRz5oVHoJYP8Vq7RjV2ZsHhZp2usTsI+g98gYu2w=;
+        s=korg; t=1657022488;
+        bh=FKkgouZZjBPUrb7Wvw9iFLZz7PIMsh/l6Yr1v91nFWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fjeo3Y9A+jJ6YI9lZusj+SJK+7zV7kmzJID2znPyRgcWjlKdZvLea/d/wjOmT15aF
-         rw+yF5Ypfdk0pSGqJZBawKgfk53dmQCNAWBNYHTlSHHIS5DVtwXDqvz65tZeHEnc6+
-         BIWyWO1+7+AshWx+IEjNGej+kl2mg3lx6aOeACvs=
+        b=KhNDMZkud+vWwVZXM6/zbM5Fq1KpK5FJBxGFYWAWamXzA7KelCd/dxFhSPxG0q9vr
+         +OGdc9bjPjbIlzD85wlM5sG88jDhNmbsO12UZzq+Q6s8NxsGOKtUd1kJZWFMzpqEEf
+         9ioeZwePZTRn0nUpxn5dMidbPPfB59df1zQhJgfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 20/33] NFC: nxp-nci: Dont issue a zero length i2c_master_read()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 24/29] xen/netfront: fix leaking data in shared pages
 Date:   Tue,  5 Jul 2022 13:58:12 +0200
-Message-Id: <20220705115607.304839322@linuxfoundation.org>
+Message-Id: <20220705115607.055647740@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit eddd95b9423946aaacb55cac6a9b2cea8ab944fc upstream.
+commit 307c8de2b02344805ebead3440d8feed28f2f010 upstream.
 
-There are packets which doesn't have a payload. In that case, the second
-i2c_master_read() will have a zero length. But because the NFC
-controller doesn't have any data left, it will NACK the I2C read and
--ENXIO will be returned. In case there is no payload, just skip the
-second i2c master read.
+When allocating pages to be used for shared communication with the
+backend always zero them, this avoids leaking unintended data present
+on the pages.
 
-Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is CVE-2022-33740, part of XSA-403.
+
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/nxp-nci/i2c.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/xen-netfront.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nfc/nxp-nci/i2c.c
-+++ b/drivers/nfc/nxp-nci/i2c.c
-@@ -178,6 +178,9 @@ static int nxp_nci_i2c_nci_read(struct n
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -261,7 +261,7 @@ static struct sk_buff *xennet_alloc_one_
+ 	if (unlikely(!skb))
+ 		return NULL;
  
- 	skb_put_data(*skb, (void *)&header, NCI_CTRL_HDR_SIZE);
- 
-+	if (!header.plen)
-+		return 0;
-+
- 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
- 	if (r != header.plen) {
- 		nfc_err(&client->dev,
+-	page = alloc_page(GFP_ATOMIC | __GFP_NOWARN);
++	page = alloc_page(GFP_ATOMIC | __GFP_NOWARN | __GFP_ZERO);
+ 	if (!page) {
+ 		kfree_skb(skb);
+ 		return NULL;
 
 
