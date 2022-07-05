@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC0E566CC7
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0369E566D94
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236006AbiGEMUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36288 "EHLO
+        id S237668AbiGEMZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:25:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236554AbiGEMRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:54 -0400
+        with ESMTP id S237758AbiGEMX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:23:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FC2183B9;
-        Tue,  5 Jul 2022 05:12:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549CD1F2E8;
+        Tue,  5 Jul 2022 05:17:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D303619A6;
-        Tue,  5 Jul 2022 12:12:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E5AEC341C7;
-        Tue,  5 Jul 2022 12:12:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2818619A6;
+        Tue,  5 Jul 2022 12:16:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E6CC341CF;
+        Tue,  5 Jul 2022 12:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023169;
-        bh=KLewugvlQfnHhOK3fgli2q9qbyOzLhQxzieXn0BcCdI=;
+        s=korg; t=1657023419;
+        bh=k72HzVDHclsjuR7LjWeQkdL1aop7Rqwdft4saXofnRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jnpui4DS7tMvR5BIqA4kYcc9rvw0vb9XmzBYAiimdcbYoQfZqJDknRo75y2L3KdW+
-         s6roqgz7jrTIoOApC+CMBES6+TIAvWkSkbLtHm4SYejImh9wOSvisQLBqKz3ZqbVUG
-         7CdE+pLA7HKiJ6subq8s9+CTFRP3o2SuaJtUmA7A=
+        b=iE9dT1H0cBRVjPxwNjX21rOQ4nuV15We8Kd8j81AlAvLZCU0sPOc3aVDA2Y+yeayf
+         K8remREQXYbuxkTb4nFfMKsISJG9b5ut6wQTqs1ZyO4DdL337GJvXJIUQDYmV3u/3x
+         7aM8dK+lZnMIx0bkOZNIP2RkkRChhFKf73TN/yOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.15 62/98] selftests/rseq: remove ARRAY_SIZE define from individual tests
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.18 054/102] netfilter: nft_dynset: restore set element counter when failing to update
 Date:   Tue,  5 Jul 2022 13:58:20 +0200
-Message-Id: <20220705115619.341529183@linuxfoundation.org>
+Message-Id: <20220705115619.941134483@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 07ad4f7629d4802ff0d962b0ac23ea6445964e2a upstream.
+commit 05907f10e235680cc7fb196810e4ad3215d5e648 upstream.
 
-ARRAY_SIZE is defined in several selftests. Remove definitions from
-individual test files and include header file for the define instead.
-ARRAY_SIZE define is added in a separate patch to prepare for this
-change.
+This patch fixes a race condition.
 
-Remove ARRAY_SIZE from rseq tests and pickup the one defined in
-kselftest.h.
+nft_rhash_update() might fail for two reasons:
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+- Element already exists in the hashtable.
+- Another packet won race to insert an entry in the hashtable.
+
+In both cases, new() has already bumped the counter via atomic_add_unless(),
+therefore, decrement the set element counter.
+
+Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rseq/basic_percpu_ops_test.c |    3 +--
- tools/testing/selftests/rseq/rseq.c                  |    3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ net/netfilter/nft_set_hash.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/testing/selftests/rseq/basic_percpu_ops_test.c
-+++ b/tools/testing/selftests/rseq/basic_percpu_ops_test.c
-@@ -9,10 +9,9 @@
- #include <string.h>
- #include <stddef.h>
+--- a/net/netfilter/nft_set_hash.c
++++ b/net/netfilter/nft_set_hash.c
+@@ -143,6 +143,7 @@ static bool nft_rhash_update(struct nft_
+ 	/* Another cpu may race to insert the element with the same key */
+ 	if (prev) {
+ 		nft_set_elem_destroy(set, he, true);
++		atomic_dec(&set->nelems);
+ 		he = prev;
+ 	}
  
-+#include "../kselftest.h"
- #include "rseq.h"
+@@ -152,6 +153,7 @@ out:
  
--#define ARRAY_SIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))
--
- struct percpu_lock_entry {
- 	intptr_t v;
- } __attribute__((aligned(128)));
---- a/tools/testing/selftests/rseq/rseq.c
-+++ b/tools/testing/selftests/rseq/rseq.c
-@@ -27,10 +27,9 @@
- #include <signal.h>
- #include <limits.h>
- 
-+#include "../kselftest.h"
- #include "rseq.h"
- 
--#define ARRAY_SIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))
--
- __thread volatile struct rseq __rseq_abi = {
- 	.cpu_id = RSEQ_CPU_ID_UNINITIALIZED,
- };
+ err2:
+ 	nft_set_elem_destroy(set, he, true);
++	atomic_dec(&set->nelems);
+ err1:
+ 	return false;
+ }
 
 
