@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 884F8566E17
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD3F566C22
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237548AbiGEMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54788 "EHLO
+        id S235210AbiGEMLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:11:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232812AbiGEM0f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BD665BE;
-        Tue,  5 Jul 2022 05:18:35 -0700 (PDT)
+        with ESMTP id S234933AbiGEMKf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:10:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E5F19010;
+        Tue,  5 Jul 2022 05:09:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A2A2B816A4;
-        Tue,  5 Jul 2022 12:18:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA2BC341C7;
-        Tue,  5 Jul 2022 12:18:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2C444CE1B85;
+        Tue,  5 Jul 2022 12:09:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19C15C341CB;
+        Tue,  5 Jul 2022 12:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023513;
-        bh=t+jAMUHlwRXalBDL3MFKIWQzbrorRRuqCTlbXnSuoew=;
+        s=korg; t=1657022991;
+        bh=h1TJpbxhHeOkxOVbqQejat1yI8D9rlDJA79PnW6mL2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wT1eglxkCWhR5dZYaatcGq/DTKqM6CHB2m1sMyY2jM7wmx+Ipnn8t+dzUQ1atqCT
-         aBtMBQ3TdTLL3YHT5DtL9LKyE2L7VJFDaAvhDAtxmOyhp15eNYV8ae5iODS82UTf2T
-         GBWp518+ZZqMaQWvCCthlS/Zhh5X3p67b0vwvyC8=
+        b=hybBnsk0CeRTKgmUTa8Gu6k/eeHaVhgJWF5V+MMohawn9m8mQGutBv0fd82lcl26Q
+         glsMEL0AUZRyQ0WQaFK7cPeIVoq0Cv4XgYohl0apldf6FQP+M+FJEXcG3t6NF7oxMR
+         u2ywPFzMOc99mjysLrfHtZvR+7C2L6k1DSSrvY8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 080/102] net: tun: avoid disabling NAPI twice
-Date:   Tue,  5 Jul 2022 13:58:46 +0200
-Message-Id: <20220705115620.681778566@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.10 84/84] clocksource/drivers/ixp4xx: remove EXPORT_SYMBOL_GPL from ixp4xx_timer_setup()
+Date:   Tue,  5 Jul 2022 13:58:47 +0200
+Message-Id: <20220705115617.769435398@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit ff1fa2081d173b01cebe2fbf0a2d0f1cee9ce4b5 upstream.
+ixp4xx_timer_setup is exported, and so can not be an __init function.
+But it does not need to be exported as it is only called from one
+in-kernel function, so just remove the EXPORT_SYMBOL_GPL() marking to
+resolve the build warning.
 
-Eric reports that syzbot made short work out of my speculative
-fix. Indeed when queue gets detached its tfile->tun remains,
-so we would try to stop NAPI twice with a detach(), close()
-sequence.
+This is fixed "properly" in commit 41929c9f628b
+("clocksource/drivers/ixp4xx: Drop boardfile probe path") but that can
+not be backported to older kernels as the reworking of the IXP4xx
+codebase is not suitable for stable releases.
 
-Alternative fix would be to move tun_napi_disable() to
-tun_detach_all() and let the NAPI run after the queue
-has been detached.
-
-Fixes: a8fc8cb5692a ("net: tun: stop NAPI when detaching queues")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220629181911.372047-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clocksource/timer-ixp4xx.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -641,7 +641,8 @@ static void __tun_detach(struct tun_file
- 	tun = rtnl_dereference(tfile->tun);
- 
- 	if (tun && clean) {
--		tun_napi_disable(tfile);
-+		if (!tfile->detached)
-+			tun_napi_disable(tfile);
- 		tun_napi_del(tfile);
+--- a/drivers/clocksource/timer-ixp4xx.c
++++ b/drivers/clocksource/timer-ixp4xx.c
+@@ -258,7 +258,6 @@ void __init ixp4xx_timer_setup(resource_
  	}
+ 	ixp4xx_timer_register(base, timer_irq, timer_freq);
+ }
+-EXPORT_SYMBOL_GPL(ixp4xx_timer_setup);
  
+ #ifdef CONFIG_OF
+ static __init int ixp4xx_of_timer_init(struct device_node *np)
 
 
