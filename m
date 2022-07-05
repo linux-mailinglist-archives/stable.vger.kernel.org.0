@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A84CB566D1F
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC67566C38
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234531AbiGEMVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37396 "EHLO
+        id S235409AbiGEMMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:12:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237474AbiGEMTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D53D21D0D4;
-        Tue,  5 Jul 2022 05:14:42 -0700 (PDT)
+        with ESMTP id S235080AbiGEMLK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:11:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D001903A;
+        Tue,  5 Jul 2022 05:10:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A6FFB8170A;
-        Tue,  5 Jul 2022 12:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EFBC341C7;
-        Tue,  5 Jul 2022 12:14:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ED3861961;
+        Tue,  5 Jul 2022 12:10:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B84C341CB;
+        Tue,  5 Jul 2022 12:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023280;
-        bh=eQyiGUsTpyX0QuJXNAt6t6TjeqSqJjJyqf0tE+DcXkY=;
+        s=korg; t=1657023002;
+        bh=1wrGgyMEcfHfpQ8blAp9wst8VdYJvLxFcfkgvMldp74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdSNOfTYYTuG3OLx55baV9BDQL0uTrGy1ffimAq745pd37ZRQB/2OgJDb6jIcw9CY
-         8OxXmyGqDpjdTwH4K9Rn30YAlot+Eu4i656zcgaIZctp8gFV4P6z5qtzIUA5XbqDL2
-         U5RU/c7VTviHReWEOLQlNBRg2qafeqYKBpu7+MkQ=
+        b=ZyQ4KyzV/d4Bkf/LNRsdALLeOMOtvCkWsaTlYHGkT6qirAYZj+Jbsgxh7qdIBLUCG
+         N9GqhfKm5feYULBzuZ7g+YJ1auiGBbh40ZOcsluu4XWr2KR/G3Ys4+ctcr935rDC5U
+         XkbUtedszPbZ1vf2XJbNgyKf9R/zAxAJZsuwTDT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.15 83/98] xen/arm: Fix race in RB-tree based P2M accounting
-Date:   Tue,  5 Jul 2022 13:58:41 +0200
-Message-Id: <20220705115619.928285828@linuxfoundation.org>
+Subject: [PATCH 5.10 79/84] xen/blkfront: force data bouncing when backend is untrusted
+Date:   Tue,  5 Jul 2022 13:58:42 +0200
+Message-Id: <20220705115617.625057237@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +54,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-commit b75cd218274e01d026dc5240e86fdeb44bbed0c8 upstream.
+commit 2400617da7eebf9167d71a46122828bc479d64c9 upstream.
 
-During the PV driver life cycle the mappings are added to
-the RB-tree by set_foreign_p2m_mapping(), which is called from
-gnttab_map_refs() and are removed by clear_foreign_p2m_mapping()
-which is called from gnttab_unmap_refs(). As both functions end
-up calling __set_phys_to_machine_multi() which updates the RB-tree,
-this function can be called concurrently.
+Split the current bounce buffering logic used with persistent grants
+into it's own option, and allow enabling it independently of
+persistent grants.  This allows to reuse the same code paths to
+perform the bounce buffering required to avoid leaking contiguous data
+in shared pages not part of the request fragments.
 
-There is already a "p2m_lock" to protect against concurrent accesses,
-but the problem is that the first read of "phys_to_mach.rb_node"
-in __set_phys_to_machine_multi() is not covered by it, so this might
-lead to the incorrect mappings update (removing in our case) in RB-tree.
+Reporting whether the backend is to be trusted can be done using a
+module parameter, or from the xenstore frontend path as set by the
+toolstack when adding the device.
 
-In my environment the related issue happens rarely and only when
-PV net backend is running, the xen_add_phys_to_mach_entry() claims
-that it cannot add new pfn <-> mfn mapping to the tree since it is
-already exists which results in a failure when mapping foreign pages.
+This is CVE-2022-33742, part of XSA-403.
 
-But there might be other bad consequences related to the non-protected
-root reads such use-after-free, etc.
-
-While at it, also fix the similar usage in __pfn_to_mfn(), so
-initialize "struct rb_node *n" with the "p2m_lock" held in both
-functions to avoid possible bad consequences.
-
-This is CVE-2022-33744 / XSA-406.
-
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/xen/p2m.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/block/xen-blkfront.c |   49 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
 
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -63,11 +63,12 @@ out:
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -151,6 +151,10 @@ static unsigned int xen_blkif_max_ring_o
+ module_param_named(max_ring_page_order, xen_blkif_max_ring_order, int, 0444);
+ MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the shared ring");
  
- unsigned long __pfn_to_mfn(unsigned long pfn)
++static bool __read_mostly xen_blkif_trusted = true;
++module_param_named(trusted, xen_blkif_trusted, bool, 0644);
++MODULE_PARM_DESC(trusted, "Is the backend trusted");
++
+ #define BLK_RING_SIZE(info)	\
+ 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
+ 
+@@ -208,6 +212,7 @@ struct blkfront_info
+ 	unsigned int feature_discard:1;
+ 	unsigned int feature_secdiscard:1;
+ 	unsigned int feature_persistent:1;
++	unsigned int bounce:1;
+ 	unsigned int discard_granularity;
+ 	unsigned int discard_alignment;
+ 	/* Number of 4KB segments handled */
+@@ -310,7 +315,7 @@ static int fill_grant_buffer(struct blkf
+ 		if (!gnt_list_entry)
+ 			goto out_of_memory;
+ 
+-		if (info->feature_persistent) {
++		if (info->bounce) {
+ 			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
+ 			if (!granted_page) {
+ 				kfree(gnt_list_entry);
+@@ -330,7 +335,7 @@ out_of_memory:
+ 	list_for_each_entry_safe(gnt_list_entry, n,
+ 	                         &rinfo->grants, node) {
+ 		list_del(&gnt_list_entry->node);
+-		if (info->feature_persistent)
++		if (info->bounce)
+ 			__free_page(gnt_list_entry->page);
+ 		kfree(gnt_list_entry);
+ 		i--;
+@@ -376,7 +381,7 @@ static struct grant *get_grant(grant_ref
+ 	/* Assign a gref to this page */
+ 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
+ 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
+-	if (info->feature_persistent)
++	if (info->bounce)
+ 		grant_foreign_access(gnt_list_entry, info);
+ 	else {
+ 		/* Grant access to the GFN passed by the caller */
+@@ -400,7 +405,7 @@ static struct grant *get_indirect_grant(
+ 	/* Assign a gref to this page */
+ 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
+ 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
+-	if (!info->feature_persistent) {
++	if (!info->bounce) {
+ 		struct page *indirect_page;
+ 
+ 		/* Fetch a pre-allocated page to use for indirect grefs */
+@@ -715,7 +720,7 @@ static int blkif_queue_rw_req(struct req
+ 		.grant_idx = 0,
+ 		.segments = NULL,
+ 		.rinfo = rinfo,
+-		.need_copy = rq_data_dir(req) && info->feature_persistent,
++		.need_copy = rq_data_dir(req) && info->bounce,
+ 	};
+ 
+ 	/*
+@@ -1035,11 +1040,12 @@ static void xlvbd_flush(struct blkfront_
  {
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
- 	struct xen_p2m_entry *entry;
- 	unsigned long irqflags;
+ 	blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
+ 			      info->feature_fua ? true : false);
+-	pr_info("blkfront: %s: %s %s %s %s %s\n",
++	pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
+ 		info->gd->disk_name, flush_info(info),
+ 		"persistent grants:", info->feature_persistent ?
+ 		"enabled;" : "disabled;", "indirect descriptors:",
+-		info->max_indirect_segments ? "enabled;" : "disabled;");
++		info->max_indirect_segments ? "enabled;" : "disabled;",
++		"bounce buffer:", info->bounce ? "enabled" : "disabled;");
+ }
  
- 	read_lock_irqsave(&p2m_lock, irqflags);
-+	n = phys_to_mach.rb_node;
- 	while (n) {
- 		entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 		if (entry->pfn <= pfn &&
-@@ -152,10 +153,11 @@ bool __set_phys_to_machine_multi(unsigne
- 	int rc;
- 	unsigned long irqflags;
- 	struct xen_p2m_entry *p2m_entry;
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
+ static int xen_translate_vdev(int vdevice, int *minor, unsigned int *offset)
+@@ -1273,7 +1279,7 @@ static void blkif_free_ring(struct blkfr
+ 	if (!list_empty(&rinfo->indirect_pages)) {
+ 		struct page *indirect_page, *n;
  
- 	if (mfn == INVALID_P2M_ENTRY) {
- 		write_lock_irqsave(&p2m_lock, irqflags);
-+		n = phys_to_mach.rb_node;
- 		while (n) {
- 			p2m_entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 			if (p2m_entry->pfn <= pfn &&
+-		BUG_ON(info->feature_persistent);
++		BUG_ON(info->bounce);
+ 		list_for_each_entry_safe(indirect_page, n, &rinfo->indirect_pages, lru) {
+ 			list_del(&indirect_page->lru);
+ 			__free_page(indirect_page);
+@@ -1290,7 +1296,7 @@ static void blkif_free_ring(struct blkfr
+ 							  0, 0UL);
+ 				rinfo->persistent_gnts_c--;
+ 			}
+-			if (info->feature_persistent)
++			if (info->bounce)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+@@ -1311,7 +1317,7 @@ static void blkif_free_ring(struct blkfr
+ 		for (j = 0; j < segs; j++) {
+ 			persistent_gnt = rinfo->shadow[i].grants_used[j];
+ 			gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
+-			if (info->feature_persistent)
++			if (info->bounce)
+ 				__free_page(persistent_gnt->page);
+ 			kfree(persistent_gnt);
+ 		}
+@@ -1501,7 +1507,7 @@ static int blkif_completion(unsigned lon
+ 	data.s = s;
+ 	num_sg = s->num_sg;
+ 
+-	if (bret->operation == BLKIF_OP_READ && info->feature_persistent) {
++	if (bret->operation == BLKIF_OP_READ && info->bounce) {
+ 		for_each_sg(s->sg, sg, num_sg, i) {
+ 			BUG_ON(sg->offset + sg->length > PAGE_SIZE);
+ 
+@@ -1560,7 +1566,7 @@ static int blkif_completion(unsigned lon
+ 				 * Add the used indirect page back to the list of
+ 				 * available pages for indirect grefs.
+ 				 */
+-				if (!info->feature_persistent) {
++				if (!info->bounce) {
+ 					indirect_page = s->indirect_grants[i]->page;
+ 					list_add(&indirect_page->lru, &rinfo->indirect_pages);
+ 				}
+@@ -1857,6 +1863,10 @@ static int talk_to_blkback(struct xenbus
+ 	if (!info)
+ 		return -ENODEV;
+ 
++	/* Check if backend is trusted. */
++	info->bounce = !xen_blkif_trusted ||
++		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
++
+ 	max_page_order = xenbus_read_unsigned(info->xbdev->otherend,
+ 					      "max-ring-page-order", 0);
+ 	ring_page_order = min(xen_blkif_max_ring_order, max_page_order);
+@@ -2283,10 +2293,10 @@ static int blkfront_setup_indirect(struc
+ 	if (err)
+ 		goto out_of_memory;
+ 
+-	if (!info->feature_persistent && info->max_indirect_segments) {
++	if (!info->bounce && info->max_indirect_segments) {
+ 		/*
+-		 * We are using indirect descriptors but not persistent
+-		 * grants, we need to allocate a set of pages that can be
++		 * We are using indirect descriptors but don't have a bounce
++		 * buffer, we need to allocate a set of pages that can be
+ 		 * used for mapping indirect grefs
+ 		 */
+ 		int num = INDIRECT_GREFS(grants) * BLK_RING_SIZE(info);
+@@ -2387,6 +2397,8 @@ static void blkfront_gather_backend_feat
+ 		info->feature_persistent =
+ 			!!xenbus_read_unsigned(info->xbdev->otherend,
+ 					       "feature-persistent", 0);
++	if (info->feature_persistent)
++		info->bounce = true;
+ 
+ 	indirect_segments = xenbus_read_unsigned(info->xbdev->otherend,
+ 					"feature-max-indirect-segments", 0);
+@@ -2760,6 +2772,13 @@ static void blkfront_delay_work(struct w
+ 	struct blkfront_info *info;
+ 	bool need_schedule_work = false;
+ 
++	/*
++	 * Note that when using bounce buffers but not persistent grants
++	 * there's no need to run blkfront_delay_work because grants are
++	 * revoked in blkif_completion or else an error is reported and the
++	 * connection is closed.
++	 */
++
+ 	mutex_lock(&blkfront_mutex);
+ 
+ 	list_for_each_entry(info, &info_list, info_list) {
 
 
