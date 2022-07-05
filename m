@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18766566BCB
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D59E4566CFF
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234642AbiGEMJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46968 "EHLO
+        id S236246AbiGEMUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:20:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235050AbiGEMIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:25 -0400
+        with ESMTP id S237589AbiGEMT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E1015FFB;
-        Tue,  5 Jul 2022 05:07:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B4C81D322;
+        Tue,  5 Jul 2022 05:15:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB98B817DB;
-        Tue,  5 Jul 2022 12:07:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87C8C341C7;
-        Tue,  5 Jul 2022 12:07:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5578B8170A;
+        Tue,  5 Jul 2022 12:15:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DE5AC341C8;
+        Tue,  5 Jul 2022 12:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022852;
-        bh=pUFp6/3scQrGuJuRmoh62gE3QtAdFwZDYcYQtMCktuE=;
+        s=korg; t=1657023324;
+        bh=vAqLUSXYnGusguVFKmIeqit7LtXRJ0gPrimnbNFOycQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfhtBMF+bZhxxYRftojrtKOGizaJzlxGJBb6hMnPILDQhK3y/AA3Mjslq1TqL/6hd
-         QodAbLwIJfy/dFP4pTPANVkg4mv8Hnxm0gteo3aIeOI02KEPhk7e6oC/CdsAatnt1G
-         f0yZP1s+wU64tuNHU5r1Bch07Ftx3TkzJjJ3NWQw=
+        b=XzqIYtFTduPQ5vl7E8/q15Ubz3Nt8otorgJsoFPmnB/qgYGlHnApey0s/iGP1LJII
+         zmEUKByeP917B1+SoraSXvLIpJaKLMpQw3ZnB9BVMaRAVwgt3/qnKMgXSvtRh4ea7W
+         z7qgQip4ex/9s1TEzoafMBSKnpQfaSDXW1VMO28o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 05/84] powerpc/prom_init: Fix kernel config grep
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Subject: [PATCH 5.18 002/102] Revert "drm/amdgpu/display: set vblank_disable_immediate for DC"
 Date:   Tue,  5 Jul 2022 13:57:28 +0200
-Message-Id: <20220705115615.483122211@linuxfoundation.org>
+Message-Id: <20220705115618.482984868@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
-References: <20220705115615.323395630@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Howlett <liam.howlett@oracle.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 6886da5f49e6d86aad76807a93f3eef5e4f01b10 upstream.
+commit a775e4e4941bf2f326aa36c58f67bd6c96cac717 upstream.
 
-When searching for config options, use the KCONFIG_CONFIG shell variable
-so that builds using non-standard config locations work.
+This reverts commit 92020e81ddbeac351ea4a19bcf01743f32b9c800.
 
-Fixes: 26deb04342e3 ("powerpc: prepare string/mem functions for KASAN")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220624011745.4060795-1-Liam.Howlett@oracle.com
+This causes stuttering and timeouts with DMCUB for some users
+so revert it until we understand why and safely enable it
+to save power.
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1887
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/prom_init_check.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c           |    1 +
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    3 ---
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/prom_init_check.sh
-+++ b/arch/powerpc/kernel/prom_init_check.sh
-@@ -13,7 +13,7 @@
- # If you really need to reference something from prom_init.o add
- # it to the list below:
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
+@@ -333,6 +333,7 @@ int amdgpu_irq_init(struct amdgpu_device
+ 	if (!amdgpu_device_has_dc_support(adev)) {
+ 		if (!adev->enable_virtual_display)
+ 			/* Disable vblank IRQs aggressively for power-saving */
++			/* XXX: can this be enabled for DC? */
+ 			adev_to_drm(adev)->vblank_disable_immediate = true;
  
--grep "^CONFIG_KASAN=y$" .config >/dev/null
-+grep "^CONFIG_KASAN=y$" ${KCONFIG_CONFIG} >/dev/null
- if [ $? -eq 0 ]
- then
- 	MEM_FUNCS="__memcpy __memset"
+ 		r = drm_vblank_init(adev_to_drm(adev), adev->mode_info.num_crtc);
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4286,9 +4286,6 @@ static int amdgpu_dm_initialize_drm_devi
+ 	}
+ #endif
+ 
+-	/* Disable vblank IRQs aggressively for power-saving. */
+-	adev_to_drm(adev)->vblank_disable_immediate = true;
+-
+ 	/* loops over all connectors on the board */
+ 	for (i = 0; i < link_cnt; i++) {
+ 		struct dc_link *link = NULL;
 
 
