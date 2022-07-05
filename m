@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38327566B4D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF529566CC9
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:20:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbiGEMFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
+        id S235235AbiGEMT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:19:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233877AbiGEME6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:04:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 455661582A;
-        Tue,  5 Jul 2022 05:04:33 -0700 (PDT)
+        with ESMTP id S237548AbiGEMTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D9C1D30D;
+        Tue,  5 Jul 2022 05:15:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5ABEB817D6;
-        Tue,  5 Jul 2022 12:04:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B500C341C7;
-        Tue,  5 Jul 2022 12:04:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2501F61A05;
+        Tue,  5 Jul 2022 12:15:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26CA1C341C8;
+        Tue,  5 Jul 2022 12:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022670;
-        bh=pUFp6/3scQrGuJuRmoh62gE3QtAdFwZDYcYQtMCktuE=;
+        s=korg; t=1657023305;
+        bh=T40zdxywro7IQXivdwFVP6SiDEIg9+gi3ZgflT7NzNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+D8xuC9pjpCNOL8+Y6lW4FaadM4SgEwJOGrEHFd/oXe+ElEhoXB95BuuXF6rq+re
-         m/6AiYu5og/KsBbw+0i4jDPLL8rOL3s31NbZQXP44vVYRxtQvAdmf8uo8fFdUlXbQJ
-         ge2RoCI9A8fs3BRPuaaPsFB9uAMWY17Cj9+nzefg=
+        b=N2a86jmZND7HgejHZsP2x26Eyj2Z37SO7aqNkb9DDb4XIEzUr3p0UKJkPhtMd6orb
+         garHXEbRZvtgqQRAgbLRlzFEXdcJc4XAqh2aRF6jrJX4npOb4KPPFVkQrnDQ6BBpeX
+         wKnBoe8L1096SuodsjUrwk12z2FyzSuhQW5ouHJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 03/58] powerpc/prom_init: Fix kernel config grep
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Xiubo Li <xiubli@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.18 013/102] ceph: wait on async create before checking caps for syncfs
 Date:   Tue,  5 Jul 2022 13:57:39 +0200
-Message-Id: <20220705115610.340855622@linuxfoundation.org>
+Message-Id: <20220705115618.792158060@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Howlett <liam.howlett@oracle.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 6886da5f49e6d86aad76807a93f3eef5e4f01b10 upstream.
+commit 8692969e9164c15474b356b9898e5b9b21a85643 upstream.
 
-When searching for config options, use the KCONFIG_CONFIG shell variable
-so that builds using non-standard config locations work.
+Currently, we'll call ceph_check_caps, but if we're still waiting
+on the reply, we'll end up spinning around on the same inode in
+flush_dirty_session_caps. Wait for the async create reply before
+flushing caps.
 
-Fixes: 26deb04342e3 ("powerpc: prepare string/mem functions for KASAN")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220624011745.4060795-1-Liam.Howlett@oracle.com
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/55823
+Fixes: fbed7045f552 ("ceph: wait for async create reply before sending any cap messages")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/prom_init_check.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/caps.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/kernel/prom_init_check.sh
-+++ b/arch/powerpc/kernel/prom_init_check.sh
-@@ -13,7 +13,7 @@
- # If you really need to reference something from prom_init.o add
- # it to the list below:
- 
--grep "^CONFIG_KASAN=y$" .config >/dev/null
-+grep "^CONFIG_KASAN=y$" ${KCONFIG_CONFIG} >/dev/null
- if [ $? -eq 0 ]
- then
- 	MEM_FUNCS="__memcpy __memset"
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -4358,6 +4358,7 @@ static void flush_dirty_session_caps(str
+ 		ihold(inode);
+ 		dout("flush_dirty_caps %llx.%llx\n", ceph_vinop(inode));
+ 		spin_unlock(&mdsc->cap_dirty_lock);
++		ceph_wait_on_async_create(inode);
+ 		ceph_check_caps(ci, CHECK_CAPS_FLUSH, NULL);
+ 		iput(inode);
+ 		spin_lock(&mdsc->cap_dirty_lock);
 
 
