@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 430B0566D0C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92326566DC6
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236396AbiGEMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36090 "EHLO
+        id S238027AbiGEM1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:27:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237357AbiGEMTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:03 -0400
+        with ESMTP id S237090AbiGEMZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA721CFF1;
-        Tue,  5 Jul 2022 05:14:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E2C19030;
+        Tue,  5 Jul 2022 05:17:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50FC2619B9;
-        Tue,  5 Jul 2022 12:14:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6D7C341C7;
-        Tue,  5 Jul 2022 12:14:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9099B61984;
+        Tue,  5 Jul 2022 12:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2978C341C7;
+        Tue,  5 Jul 2022 12:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023263;
-        bh=pyhdauLBoqSjSiGXmzPG8RWnckzy4jcB2XZZJLH8K1Y=;
+        s=korg; t=1657023472;
+        bh=U34rNph8eGw3+zf4eWrSb9z9cFtpi/8N4RJeKWPzRlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmxTF0ZZoO7KCybPUd7fNTO7UdeKRENRCU4ckWrUtqqPXy90/XBbP62NNgp4pyuHf
-         aixOxXrEis+URQ5k1LboP3RISQJMbcMBw4MnuKf9ZVL2A5BMopwwCzCngNkYniN0A9
-         XA4E7rzH58Htbp+kh2JRzMOFnV8XVmFpSI51VkYs=
+        b=t9LXiUUSolwrlQx4yIo8TGCube3h5er8nAv/PQrcpdi+xwRkDpSizbsGsnRW98TEl
+         m13OmbbyF5n+zL/uGBonhH0VRjnRNfSbkydOCqZJ+ZuY0TObqOkfooNgxt0aTgAk7V
+         +RBU/mT8GcT3ukG9M9cLQdi3nCoR34RDpnDE8cHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.15 79/98] xen/netfront: fix leaking data in shared pages
+        stable@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 071/102] tcp: add a missing nf_reset_ct() in 3WHS handling
 Date:   Tue,  5 Jul 2022 13:58:37 +0200
-Message-Id: <20220705115619.815256649@linuxfoundation.org>
+Message-Id: <20220705115620.423946059@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 307c8de2b02344805ebead3440d8feed28f2f010 upstream.
+commit 6f0012e35160cd08a53e46e3b3bbf724b92dfe68 upstream.
 
-When allocating pages to be used for shared communication with the
-backend always zero them, this avoids leaking unintended data present
-on the pages.
+When the third packet of 3WHS connection establishment
+contains payload, it is added into socket receive queue
+without the XFRM check and the drop of connection tracking
+context.
 
-This is CVE-2022-33740, part of XSA-403.
+This means that if the data is left unread in the socket
+receive queue, conntrack module can not be unloaded.
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+As most applications usually reads the incoming data
+immediately after accept(), bug has been hiding for
+quite a long time.
+
+Commit 68822bdf76f1 ("net: generalize skb freeing
+deferral to per-cpu lists") exposed this bug because
+even if the application reads this data, the skb
+with nfct state could stay in a per-cpu cache for
+an arbitrary time, if said cpu no longer process RX softirqs.
+
+Many thanks to Ilya Maximets for reporting this issue,
+and for testing various patches:
+https://lore.kernel.org/netdev/20220619003919.394622-1-i.maximets@ovn.org/
+
+Note that I also added a missing xfrm4_policy_check() call,
+although this is probably not a big issue, as the SYN
+packet should have been dropped earlier.
+
+Fixes: b59c270104f0 ("[NETFILTER]: Keep conntrack reference until IPsec policy checks are done")
+Reported-by: Ilya Maximets <i.maximets@ovn.org>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Tested-by: Ilya Maximets <i.maximets@ovn.org>
+Reviewed-by: Ilya Maximets <i.maximets@ovn.org>
+Link: https://lore.kernel.org/r/20220623050436.1290307-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_ipv4.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -273,7 +273,8 @@ static struct sk_buff *xennet_alloc_one_
- 	if (unlikely(!skb))
- 		return NULL;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1965,7 +1965,10 @@ process:
+ 		struct sock *nsk;
  
--	page = page_pool_dev_alloc_pages(queue->page_pool);
-+	page = page_pool_alloc_pages(queue->page_pool,
-+				     GFP_ATOMIC | __GFP_NOWARN | __GFP_ZERO);
- 	if (unlikely(!page)) {
- 		kfree_skb(skb);
- 		return NULL;
+ 		sk = req->rsk_listener;
+-		drop_reason = tcp_inbound_md5_hash(sk, skb,
++		if (!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb))
++			drop_reason = SKB_DROP_REASON_XFRM_POLICY;
++		else
++			drop_reason = tcp_inbound_md5_hash(sk, skb,
+ 						   &iph->saddr, &iph->daddr,
+ 						   AF_INET, dif, sdif);
+ 		if (unlikely(drop_reason)) {
+@@ -2017,6 +2020,7 @@ process:
+ 			}
+ 			goto discard_and_relse;
+ 		}
++		nf_reset_ct(skb);
+ 		if (nsk == sk) {
+ 			reqsk_put(req);
+ 			tcp_v4_restore_cb(skb);
 
 
