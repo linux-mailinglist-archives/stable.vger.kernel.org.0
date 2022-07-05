@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE598566AEC
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE02566AA9
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233278AbiGEMDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:03:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43632 "EHLO
+        id S233093AbiGEMBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:01:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233339AbiGEMCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844C7186D0;
-        Tue,  5 Jul 2022 05:02:21 -0700 (PDT)
+        with ESMTP id S232930AbiGEMA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:00:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E6917E1E;
+        Tue,  5 Jul 2022 05:00:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2381A61841;
-        Tue,  5 Jul 2022 12:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307BCC341CF;
-        Tue,  5 Jul 2022 12:02:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B24E96174B;
+        Tue,  5 Jul 2022 12:00:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFEC7C341C7;
+        Tue,  5 Jul 2022 12:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022540;
-        bh=ZCEvK/ssw1FYqzNYmSy+iICx8eG53Ow3fNJtoXKBqiE=;
+        s=korg; t=1657022428;
+        bh=HG4R9376kqUl5heoDz1IozNmzD8Czn1YD5tSkHrgoyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKsP2WM6i1hiBUng7yYkm5TGrjdJngVVVRxvGnVOlsrXRa/SYMvybAP+mIdoF9tPe
-         zAseKhGp1cbftmmyvKwRVELAMkaxIYN1/iiGaGz1SHBcEpDG04znar1B/nPmnWOq++
-         V3k7P0iaC7qK8dtOGLd6AizVXB0C68oJN8TYzlvM=
+        b=y3aFLZNc5YXbu0xYiUQF7sCLGZ762/uAO+9zKj2N5f0EqvBKBLrS26FF1N8Fn7TEJ
+         ULTZCTNI1ix0NT3jR+UB/chR9Sd19Qdr8ntAbqTL6bmn8rT9vYcSwAdRRjkIJNBayr
+         Ylb/fgI8cxhqNkAVdCPQvTRLfI0KpHVkFkW0r5GU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 14/33] net: ipv6: unexport __init-annotated seg6_hmac_net_init()
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 25/29] qmi_wwan: Added support for Telit LN940 series
 Date:   Tue,  5 Jul 2022 13:58:06 +0200
-Message-Id: <20220705115607.127077109@linuxfoundation.org>
+Message-Id: <20220705115606.489959288@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
+References: <20220705115605.742248854@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Jörgen Storvist <jorgen.storvist@gmail.com>
 
-commit 53ad46169fe2996fe1b623ba6c9c4fa33847876f upstream.
+commit 1986af16e8ed355822600c24b3d2f0be46b573df upstream.
 
-As of commit 5801f064e351 ("net: ipv6: unexport __init-annotated seg6_hmac_init()"),
-EXPORT_SYMBOL and __init is a bad combination because the .init.text
-section is freed up after the initialization. Hence, modules cannot
-use symbols annotated __init. The access to a freed symbol may end up
-with kernel panic.
+Added support for the Telit LN940 series cellular modules QMI interface.
+QMI_QUIRK_SET_DTR quirk requied for Qualcomm MDM9x40 chipset.
 
-This remove the EXPORT_SYMBOL to fix modpost warning:
-
-WARNING: modpost: vmlinux.o(___ksymtab+seg6_hmac_net_init+0x0): Section mismatch in reference from the variable __ksymtab_seg6_hmac_net_init to the function .init.text:seg6_hmac_net_init()
-The symbol seg6_hmac_net_init is exported and annotated __init
-Fix this by removing the __init annotation of seg6_hmac_net_init or drop the export.
-
-Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20220628033134.21088-1-yuehaibing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/seg6_hmac.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/seg6_hmac.c
-+++ b/net/ipv6/seg6_hmac.c
-@@ -415,7 +415,6 @@ int __net_init seg6_hmac_net_init(struct
- 
- 	return 0;
- }
--EXPORT_SYMBOL(seg6_hmac_net_init);
- 
- void seg6_hmac_exit(void)
- {
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -932,6 +932,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1201, 2)},	/* Telit LE920, LE920A4 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1900, 1)},	/* Telit LN940 series */
+ 	{QMI_FIXED_INTF(0x1c9e, 0x9801, 3)},	/* Telewell TW-3G HSPA+ */
+ 	{QMI_FIXED_INTF(0x1c9e, 0x9803, 4)},	/* Telewell TW-3G HSPA+ */
+ 	{QMI_FIXED_INTF(0x1c9e, 0x9b01, 3)},	/* XS Stick W100-2 from 4G Systems */
 
 
