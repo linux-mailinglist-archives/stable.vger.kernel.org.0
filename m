@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2E7566C78
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7A16566C89
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235562AbiGEMPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:15:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54482 "EHLO
+        id S235037AbiGEMQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235567AbiGEMOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:14:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90F418E29;
-        Tue,  5 Jul 2022 05:11:21 -0700 (PDT)
+        with ESMTP id S235077AbiGEMOZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:14:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54A31AF36;
+        Tue,  5 Jul 2022 05:11:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58680619BF;
-        Tue,  5 Jul 2022 12:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B66C341C8;
-        Tue,  5 Jul 2022 12:11:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 17ED5CE0B30;
+        Tue,  5 Jul 2022 12:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F97C341C7;
+        Tue,  5 Jul 2022 12:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023080;
-        bh=3ibA2K3zrXlCUOmjKjECKjcfhQ8LGpRYnMrZvWrQmZk=;
+        s=korg; t=1657023092;
+        bh=KC8MqfMyQx1/g+nburEZ84WUna6TZcVN6nJKmHnEhw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnNuA+Dar7Ih7orUhSeAE5KMM7G/yCA9emlZk+hU4KaDn0QXeQBUPhqJPaulBE5Kx
-         yzJwEUkAF8owZV+TOyPy4gMbJxY99e55xZJZdN5VHX28zFqwiKD5izWwROrHB7xLjL
-         7B1zZ5wkgiEP+PtXUE5VdedDG3Y12LJyrm6jHJns=
+        b=ehE+3cfjYCOPG8XHEqDOKfKGGfF9XAV9A8z3FIDc3+wMUmzfeHj+Vg9k9ZfotgD5y
+         XPbobwhd2YVsKJMfghu/0AKc1NHCONFZNB8sngs0Tr6npXzKxyZuAn32ZxI4vOXeGB
+         ENNt6eSBUy9OwNV65+XSda2bb2cbaLnZyG5jDOAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
         Namjae Jeon <linkinjeon@kernel.org>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 03/98] ksmbd: set the range of bytes to zero without extending file size in FSCTL_ZERO_DATA
-Date:   Tue,  5 Jul 2022 13:57:21 +0200
-Message-Id: <20220705115617.670005125@linuxfoundation.org>
+Subject: [PATCH 5.15 04/98] ksmbd: check invalid FileOffset and BeyondFinalZero in FSCTL_ZERO_DATA
+Date:   Tue,  5 Jul 2022 13:57:22 +0200
+Message-Id: <20220705115617.699117389@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
 References: <20220705115617.568350164@linuxfoundation.org>
@@ -56,13 +56,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 18e39fb960e6a908ac5230b57e3d0d6c25232368 upstream.
+commit b5e5f9dfc915ff05b41dff56181e1dae101712bd upstream.
 
-generic/091, 263 test failed since commit f66f8b94e7f2 ("cifs: when
-extending a file with falloc we should make files not-sparse").
-FSCTL_ZERO_DATA sets the range of bytes to zero without extending file
-size. The VFS_FALLOCATE_FL_KEEP_SIZE flag should be used even on
-non-sparse files.
+FileOffset should not be greater than BeyondFinalZero in FSCTL_ZERO_DATA.
+And don't call ksmbd_vfs_zero_data() if length is zero.
 
 Cc: stable@vger.kernel.org
 Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
@@ -70,21 +67,56 @@ Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/vfs.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ksmbd/smb2pdu.c |   29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
---- a/fs/ksmbd/vfs.c
-+++ b/fs/ksmbd/vfs.c
-@@ -1018,7 +1018,9 @@ int ksmbd_vfs_zero_data(struct ksmbd_wor
- 				     FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
- 				     off, len);
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -7684,7 +7684,7 @@ int smb2_ioctl(struct ksmbd_work *work)
+ 	{
+ 		struct file_zero_data_information *zero_data;
+ 		struct ksmbd_file *fp;
+-		loff_t off, len;
++		loff_t off, len, bfz;
  
--	return vfs_fallocate(fp->filp, FALLOC_FL_ZERO_RANGE, off, len);
-+	return vfs_fallocate(fp->filp,
-+			     FALLOC_FL_ZERO_RANGE | FALLOC_FL_KEEP_SIZE,
-+			     off, len);
- }
+ 		if (!test_tree_conn_flag(work->tcon, KSMBD_TREE_CONN_FLAG_WRITABLE)) {
+ 			ksmbd_debug(SMB,
+@@ -7701,19 +7701,26 @@ int smb2_ioctl(struct ksmbd_work *work)
+ 		zero_data =
+ 			(struct file_zero_data_information *)&req->Buffer[0];
  
- int ksmbd_vfs_fqar_lseek(struct ksmbd_file *fp, loff_t start, loff_t length,
+-		fp = ksmbd_lookup_fd_fast(work, id);
+-		if (!fp) {
+-			ret = -ENOENT;
++		off = le64_to_cpu(zero_data->FileOffset);
++		bfz = le64_to_cpu(zero_data->BeyondFinalZero);
++		if (off > bfz) {
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 
+-		off = le64_to_cpu(zero_data->FileOffset);
+-		len = le64_to_cpu(zero_data->BeyondFinalZero) - off;
+-
+-		ret = ksmbd_vfs_zero_data(work, fp, off, len);
+-		ksmbd_fd_put(work, fp);
+-		if (ret < 0)
+-			goto out;
++		len = bfz - off;
++		if (len) {
++			fp = ksmbd_lookup_fd_fast(work, id);
++			if (!fp) {
++				ret = -ENOENT;
++				goto out;
++			}
++
++			ret = ksmbd_vfs_zero_data(work, fp, off, len);
++			ksmbd_fd_put(work, fp);
++			if (ret < 0)
++				goto out;
++		}
+ 		break;
+ 	}
+ 	case FSCTL_QUERY_ALLOCATED_RANGES:
 
 
