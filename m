@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAA5566BEE
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E8C566DBB
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbiGEMKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
+        id S237345AbiGEM05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:26:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233454AbiGEMGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971B218B35;
-        Tue,  5 Jul 2022 05:06:00 -0700 (PDT)
+        with ESMTP id S236909AbiGEMZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:25:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E33991902E;
+        Tue,  5 Jul 2022 05:17:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEE5961806;
-        Tue,  5 Jul 2022 12:05:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F78C341C7;
-        Tue,  5 Jul 2022 12:05:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71D1BB817D1;
+        Tue,  5 Jul 2022 12:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAEA0C341C7;
+        Tue,  5 Jul 2022 12:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022759;
-        bh=/yME1pixWaTPzCNQ+h58b3L5P5mzojmpuiwY6mpK0uM=;
+        s=korg; t=1657023461;
+        bh=jzkFDmSMQEdcCXzeN1VJevw4S6A6EmA4JQDB+UhsubQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIC7hWQq7FBd+uBDkcLIg95gkxffx6VxS0+W9R6XrRTuzGBqxOPRHSeBuBGyjxhAG
-         mrJMhapL75Lw7imqDSlaAPkvgxy7jtNjnNfsvMsCkjrm57NZzxxFDU6V1yMy87lXY6
-         Mu/Q6C/bxIpaa8Ys2keQKogVos1xwMoFJDFyoZX4=
+        b=vsLmreln28ZdQIwwR5OQrzqVG2XBw+61r3CX4fkHBCkA2YP0AMITgU5GT+/DJ3NuT
+         wxHTVlEHWDdxFvY4fCPhPJPxAqwNy8nw1u/t3qcRRVFvwxou+3npll4S3LVdK60UMa
+         aYewrG+eHkyMLUk315oounDberwzQYI9pT4uRjX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH 5.4 57/58] net: usb: qmi_wwan: add Telit 0x1070 composition
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 067/102] NFC: nxp-nci: Dont issue a zero length i2c_master_read()
 Date:   Tue,  5 Jul 2022 13:58:33 +0200
-Message-Id: <20220705115611.922805851@linuxfoundation.org>
+Message-Id: <20220705115620.308295445@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-commit 94f2a444f28a649926c410eb9a38afb13a83ebe0 upstream.
+commit eddd95b9423946aaacb55cac6a9b2cea8ab944fc upstream.
 
-Add the following Telit FN990 composition:
+There are packets which doesn't have a payload. In that case, the second
+i2c_master_read() will have a zero length. But because the NFC
+controller doesn't have any data left, it will NACK the I2C read and
+-ENXIO will be returned. In case there is no payload, just skip the
+second i2c master read.
 
-0x1070: tty, adb, rmnet, tty, tty, tty, tty
-
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20211210095722.22269-1-dnlplm@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Fabio Porcedda <fabio.porcedda@gmail.com>
+Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/nfc/nxp-nci/i2c.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1316,6 +1316,7 @@ static const struct usb_device_id produc
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
+--- a/drivers/nfc/nxp-nci/i2c.c
++++ b/drivers/nfc/nxp-nci/i2c.c
+@@ -162,6 +162,9 @@ static int nxp_nci_i2c_nci_read(struct n
+ 
+ 	skb_put_data(*skb, (void *)&header, NCI_CTRL_HDR_SIZE);
+ 
++	if (!header.plen)
++		return 0;
++
+ 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
+ 	if (r != header.plen) {
+ 		nfc_err(&client->dev,
 
 
