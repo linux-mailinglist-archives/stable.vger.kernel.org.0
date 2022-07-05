@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AF6566B14
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84094566D00
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233401AbiGEMEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:04:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43680 "EHLO
+        id S236259AbiGEMUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:20:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233349AbiGEMCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B7B18388;
-        Tue,  5 Jul 2022 05:02:24 -0700 (PDT)
+        with ESMTP id S236272AbiGEMRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0AC1C125;
+        Tue,  5 Jul 2022 05:12:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E94306173E;
-        Tue,  5 Jul 2022 12:02:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2662C341C7;
-        Tue,  5 Jul 2022 12:02:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91973B8170A;
+        Tue,  5 Jul 2022 12:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09705C341CF;
+        Tue,  5 Jul 2022 12:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022543;
-        bh=v40g/hBBeQmr4W1jpD2WWBoeCsbWUBpQuUMf2B4Nk+o=;
+        s=korg; t=1657023133;
+        bh=qtR+L+imlhsuaNM4K5Mt9oLNyF1AorjqhC75DA53sHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EM5zKQ8KrIxl0wAgM0T/5Rt/gc87j2mAFwdlpSXG1QSCk7IAR7Xqesrym0Q8794Sk
-         d2xVtxaayPomn/ztJPyANnUBAXZeaDTncxs0Yag67GX/X7qdBA8JShcOd+JUkzTo3R
-         PRyqGz42hSIoX+GiPeusMNkLj+8qTwRIpIPZqMno=
+        b=riHuFNSf89/OOL5h9zvL789nfQc5NFYbEOqWDWGZyX5UXUUdN1mKJDL9zRdYyGMMr
+         5lP48hyWTy4CnIckGL2sTweQnw1rs2XuPoKYrt93eQ8pfaHCAMgEzD8VXSWT3+P+HM
+         DkNj+cX0xkGaeUoW4WTnHbEUAZ77FcHR4bLlCGgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 4.19 15/33] caif_virtio: fix race between virtio_device_ready() and ndo_open()
-Date:   Tue,  5 Jul 2022 13:58:07 +0200
-Message-Id: <20220705115607.156060173@linuxfoundation.org>
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 50/98] tipc: move bc link creation back to tipc_node_create
+Date:   Tue,  5 Jul 2022 13:58:08 +0200
+Message-Id: <20220705115619.005195067@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+References: <20220705115617.568350164@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 11a37eb66812ce6a06b79223ad530eb0e1d7294d upstream.
+commit cb8092d70a6f5f01ec1490fce4d35efed3ed996c upstream.
 
-We currently depend on probe() calling virtio_device_ready() -
-which happens after netdev
-registration. Since ndo_open() can be called immediately
-after register_netdev, this means there exists a race between
-ndo_open() and virtio_device_ready(): the driver may start to use the
-device (e.g. TX) before DRIVER_OK which violates the spec.
+Shuang Li reported a NULL pointer dereference crash:
 
-Fix this by switching to use register_netdevice() and protect the
-virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
-only be called after virtio_device_ready().
+  [] BUG: kernel NULL pointer dereference, address: 0000000000000068
+  [] RIP: 0010:tipc_link_is_up+0x5/0x10 [tipc]
+  [] Call Trace:
+  []  <IRQ>
+  []  tipc_bcast_rcv+0xa2/0x190 [tipc]
+  []  tipc_node_bc_rcv+0x8b/0x200 [tipc]
+  []  tipc_rcv+0x3af/0x5b0 [tipc]
+  []  tipc_udp_recv+0xc7/0x1e0 [tipc]
 
-Fixes: 0d2e1a2926b18 ("caif_virtio: Introduce caif over virtio")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20220620051115.3142-3-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+It was caused by the 'l' passed into tipc_bcast_rcv() is NULL. When it
+creates a node in tipc_node_check_dest(), after inserting the new node
+into hashtable in tipc_node_create(), it creates the bc link. However,
+there is a gap between this insert and bc link creation, a bc packet
+may come in and get the node from the hashtable then try to dereference
+its bc link, which is NULL.
+
+This patch is to fix it by moving the bc link creation before inserting
+into the hashtable.
+
+Note that for a preliminary node becoming "real", the bc link creation
+should also be called before it's rehashed, as we don't create it for
+preliminary nodes.
+
+Fixes: 4cbf8ac2fe5a ("tipc: enable creating a "preliminary" node")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/caif/caif_virtio.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/tipc/node.c |   41 ++++++++++++++++++++++-------------------
+ 1 file changed, 22 insertions(+), 19 deletions(-)
 
---- a/drivers/net/caif/caif_virtio.c
-+++ b/drivers/net/caif/caif_virtio.c
-@@ -727,13 +727,21 @@ static int cfv_probe(struct virtio_devic
- 	/* Carrier is off until netdevice is opened */
- 	netif_carrier_off(netdev);
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -472,8 +472,8 @@ struct tipc_node *tipc_node_create(struc
+ 				   bool preliminary)
+ {
+ 	struct tipc_net *tn = net_generic(net, tipc_net_id);
++	struct tipc_link *l, *snd_l = tipc_bc_sndlink(net);
+ 	struct tipc_node *n, *temp_node;
+-	struct tipc_link *l;
+ 	unsigned long intv;
+ 	int bearer_id;
+ 	int i;
+@@ -488,6 +488,16 @@ struct tipc_node *tipc_node_create(struc
+ 			goto exit;
+ 		/* A preliminary node becomes "real" now, refresh its data */
+ 		tipc_node_write_lock(n);
++		if (!tipc_link_bc_create(net, tipc_own_addr(net), addr, peer_id, U16_MAX,
++					 tipc_link_min_win(snd_l), tipc_link_max_win(snd_l),
++					 n->capabilities, &n->bc_entry.inputq1,
++					 &n->bc_entry.namedq, snd_l, &n->bc_entry.link)) {
++			pr_warn("Broadcast rcv link refresh failed, no memory\n");
++			tipc_node_write_unlock_fast(n);
++			tipc_node_put(n);
++			n = NULL;
++			goto exit;
++		}
+ 		n->preliminary = false;
+ 		n->addr = addr;
+ 		hlist_del_rcu(&n->hash);
+@@ -567,7 +577,16 @@ update:
+ 	n->signature = INVALID_NODE_SIG;
+ 	n->active_links[0] = INVALID_BEARER_ID;
+ 	n->active_links[1] = INVALID_BEARER_ID;
+-	n->bc_entry.link = NULL;
++	if (!preliminary &&
++	    !tipc_link_bc_create(net, tipc_own_addr(net), addr, peer_id, U16_MAX,
++				 tipc_link_min_win(snd_l), tipc_link_max_win(snd_l),
++				 n->capabilities, &n->bc_entry.inputq1,
++				 &n->bc_entry.namedq, snd_l, &n->bc_entry.link)) {
++		pr_warn("Broadcast rcv link creation failed, no memory\n");
++		kfree(n);
++		n = NULL;
++		goto exit;
++	}
+ 	tipc_node_get(n);
+ 	timer_setup(&n->timer, tipc_node_timeout, 0);
+ 	/* Start a slow timer anyway, crypto needs it */
+@@ -1155,7 +1174,7 @@ void tipc_node_check_dest(struct net *ne
+ 			  bool *respond, bool *dupl_addr)
+ {
+ 	struct tipc_node *n;
+-	struct tipc_link *l, *snd_l;
++	struct tipc_link *l;
+ 	struct tipc_link_entry *le;
+ 	bool addr_match = false;
+ 	bool sign_match = false;
+@@ -1175,22 +1194,6 @@ void tipc_node_check_dest(struct net *ne
+ 		return;
  
-+	/* serialize netdev register + virtio_device_ready() with ndo_open() */
-+	rtnl_lock();
-+
- 	/* register Netdev */
--	err = register_netdev(netdev);
-+	err = register_netdevice(netdev);
- 	if (err) {
-+		rtnl_unlock();
- 		dev_err(&vdev->dev, "Unable to register netdev (%d)\n", err);
- 		goto err;
- 	}
+ 	tipc_node_write_lock(n);
+-	if (unlikely(!n->bc_entry.link)) {
+-		snd_l = tipc_bc_sndlink(net);
+-		if (!tipc_link_bc_create(net, tipc_own_addr(net),
+-					 addr, peer_id, U16_MAX,
+-					 tipc_link_min_win(snd_l),
+-					 tipc_link_max_win(snd_l),
+-					 n->capabilities,
+-					 &n->bc_entry.inputq1,
+-					 &n->bc_entry.namedq, snd_l,
+-					 &n->bc_entry.link)) {
+-			pr_warn("Broadcast rcv link creation failed, no mem\n");
+-			tipc_node_write_unlock_fast(n);
+-			tipc_node_put(n);
+-			return;
+-		}
+-	}
  
-+	virtio_device_ready(vdev);
-+
-+	rtnl_unlock();
-+
- 	debugfs_init(cfv);
+ 	le = &n->links[b->identity];
  
- 	return 0;
 
 
