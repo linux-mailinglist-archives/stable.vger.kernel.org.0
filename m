@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF76566B18
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D952E566C1C
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:11:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233318AbiGEMEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44316 "EHLO
+        id S234749AbiGEMLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:11:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233300AbiGEMCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBB1186C0;
-        Tue,  5 Jul 2022 05:02:13 -0700 (PDT)
+        with ESMTP id S233562AbiGEMJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C5410AF;
+        Tue,  5 Jul 2022 05:09:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 091AF617B9;
-        Tue,  5 Jul 2022 12:02:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B77C341C7;
-        Tue,  5 Jul 2022 12:02:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92458B817DF;
+        Tue,  5 Jul 2022 12:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4F71C341C7;
+        Tue,  5 Jul 2022 12:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022532;
-        bh=agdFxK753EBUOj8N9zT75LstaCVGEjxIZQx/VTP1TVQ=;
+        s=korg; t=1657022983;
+        bh=nj9gHPg7uznCfqsQsw7iNCAR8hNQqtJnD0jrFEtTG1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0n34H9xvBEGqR4o5gIp6eCrdihn1bJpbuqv1VE599teoSstt6GCLSrCUuaMFQXSfS
-         hiDyZErMQG3RoWqGGkgOw+M4qvoTl8pfVA5OVUG+oh7zRMS694tSnbzaTlan8Ug3VP
-         1b0mjJLEVdX2wNLxvBfLXPo9j3wNx1qGVEUkjapc=
+        b=igJgwACmSzxc6KRw3/OWb33kplsa49umP01dob1jGj3AkM6BVA02X8uRQaT5a+AnS
+         AA2H3ViqPz7Xh5xicpnhOsTR1jwf8DCtaJnfdC1b1IrB7tr9gAyc4AskdA51ufTg/J
+         peNcBfzuT6OO85w4jC5RpBuP2/nEiQhYmev5UMSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petar Penkov <ppenkov@aviatrix.com>,
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 11/33] net: tun: stop NAPI when detaching queues
+Subject: [PATCH 5.10 40/84] net: tun: avoid disabling NAPI twice
 Date:   Tue,  5 Jul 2022 13:58:03 +0200
-Message-Id: <20220705115607.041196563@linuxfoundation.org>
+Message-Id: <20220705115616.490925970@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-References: <20220705115606.709817198@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +56,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-commit a8fc8cb5692aebb9c6f7afd4265366d25dcd1d01 upstream.
+commit ff1fa2081d173b01cebe2fbf0a2d0f1cee9ce4b5 upstream.
 
-While looking at a syzbot report I noticed the NAPI only gets
-disabled before it's deleted. I think that user can detach
-the queue before destroying the device and the NAPI will never
-be stopped.
+Eric reports that syzbot made short work out of my speculative
+fix. Indeed when queue gets detached its tfile->tun remains,
+so we would try to stop NAPI twice with a detach(), close()
+sequence.
 
-Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
-Acked-by: Petar Penkov <ppenkov@aviatrix.com>
-Link: https://lore.kernel.org/r/20220623042105.2274812-1-kuba@kernel.org
+Alternative fix would be to move tun_napi_disable() to
+tun_detach_all() and let the NAPI run after the queue
+has been detached.
+
+Fixes: a8fc8cb5692a ("net: tun: stop NAPI when detaching queues")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220629181911.372047-1-kuba@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/tun.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -333,6 +333,12 @@ static void tun_napi_init(struct tun_str
- 	}
- }
+@@ -646,7 +646,8 @@ static void __tun_detach(struct tun_file
+ 	tun = rtnl_dereference(tfile->tun);
  
-+static void tun_napi_enable(struct tun_file *tfile)
-+{
-+	if (tfile->napi_enabled)
-+		napi_enable(&tfile->napi);
-+}
-+
- static void tun_napi_disable(struct tun_file *tfile)
- {
- 	if (tfile->napi_enabled)
-@@ -723,8 +729,10 @@ static void __tun_detach(struct tun_file
- 		if (clean) {
- 			RCU_INIT_POINTER(tfile->tun, NULL);
- 			sock_put(&tfile->sk);
--		} else
-+		} else {
- 			tun_disable_queue(tun, tfile);
+ 	if (tun && clean) {
+-		tun_napi_disable(tfile);
++		if (!tfile->detached)
 +			tun_napi_disable(tfile);
-+		}
+ 		tun_napi_del(tfile);
+ 	}
  
- 		synchronize_net();
- 		tun_flow_delete_by_queue(tun, tun->numqueues + 1);
-@@ -878,6 +886,7 @@ static int tun_attach(struct tun_struct
- 
- 	if (tfile->detached) {
- 		tun_enable_queue(tfile);
-+		tun_napi_enable(tfile);
- 	} else {
- 		sock_hold(&tfile->sk);
- 		tun_napi_init(tun, tfile, napi, napi_frags);
 
 
