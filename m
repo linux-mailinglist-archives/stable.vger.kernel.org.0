@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80243566D74
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1CA566BAB
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236944AbiGEMW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:22:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
+        id S234392AbiGEMJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:09:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237827AbiGEMTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 449C61E3DD;
-        Tue,  5 Jul 2022 05:16:21 -0700 (PDT)
+        with ESMTP id S234456AbiGEMHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:07:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695741903F;
+        Tue,  5 Jul 2022 05:06:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80074619B9;
-        Tue,  5 Jul 2022 12:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FB8C341C7;
-        Tue,  5 Jul 2022 12:16:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9CF9B817CE;
+        Tue,  5 Jul 2022 12:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A0B4C341C7;
+        Tue,  5 Jul 2022 12:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023379;
-        bh=0K93LLavEfQYsy3uxPhTBfrPbOOzfUMfmuR5iFYW/uU=;
+        s=korg; t=1657022786;
+        bh=2sqPHMKILJgQ3Z7FOBGxrzfBzpctdjnBINZBcAhOOHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFu/gbbFsWg3PcAE5cwZ2bcF7pAbMviu1LYeC9rseZ+JbVEb0WK1VMZsXjjVMZTqR
-         yEBiFE/JFABiVQ4WsrzeX7EORwtKZGnpxeOnWGO9U8cbrYdelEQNQhauvtz2++NhuY
-         zucdnJEeGRnysHEqXQPJN2Na2cEb9G3du/ESIvBU=
+        b=ELmDR/Cd8E6OBrqdkfPvJ9rOPD3izmGnrUxJXpZnN1+B3VUFiQ+/zxV0ak3Odu7AK
+         l32XxRNcAVGPCly95jnJGIqbkVSn+IHziIjq0TZwEnbjzInPoKaOACJMg26zs/gRA9
+         hgYDU4RzIxNk8XcpfwSuDeVYVueV8oYpUN80lH3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        David Forster <dforster@brocade.com>,
-        Siwar Zitouni <siwar.zitouni@6wind.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 007/102] ipv6: take care of disable_policy when restoring routes
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Ingo Franzki <ifranzki@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH 5.10 10/84] s390/archrandom: simplify back to earlier design and initialize earlier
 Date:   Tue,  5 Jul 2022 13:57:33 +0200
-Message-Id: <20220705115618.623537187@linuxfoundation.org>
+Message-Id: <20220705115615.630051587@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
-References: <20220705115618.410217782@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,63 +58,245 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 3b0dc529f56b5f2328244130683210be98f16f7f upstream.
+commit e4f74400308cb8abde5fdc9cad609c2aba32110c upstream.
 
-When routes corresponding to addresses are restored by
-fixup_permanent_addr(), the dst_nopolicy parameter was not set.
-The typical use case is a user that configures an address on a down
-interface and then put this interface up.
+s390x appears to present two RNG interfaces:
+- a "TRNG" that gathers entropy using some hardware function; and
+- a "DRBG" that takes in a seed and expands it.
 
-Let's take care of this flag in addrconf_f6i_alloc(), so that every callers
-benefit ont it.
+Previously, the TRNG was wired up to arch_get_random_{long,int}(), but
+it was observed that this was being called really frequently, resulting
+in high overhead. So it was changed to be wired up to arch_get_random_
+seed_{long,int}(), which was a reasonable decision. Later on, the DRBG
+was then wired up to arch_get_random_{long,int}(), with a complicated
+buffer filling thread, to control overhead and rate.
 
-CC: stable@kernel.org
-CC: David Forster <dforster@brocade.com>
-Fixes: df789fe75206 ("ipv6: Provide ipv6 version of "disable_policy" sysctl")
-Reported-by: Siwar Zitouni <siwar.zitouni@6wind.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220623120015.32640-1-nicolas.dichtel@6wind.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fortunately, none of the performance issues matter much now. The RNG
+always attempts to use arch_get_random_seed_{long,int}() first, which
+means a complicated implementation of arch_get_random_{long,int}() isn't
+really valuable or useful to have around. And it's only used when
+reseeding, which means it won't hit the high throughput complications
+that were faced before.
+
+So this commit returns to an earlier design of just calling the TRNG in
+arch_get_random_seed_{long,int}(), and returning false in arch_get_
+random_{long,int}().
+
+Part of what makes the simplification possible is that the RNG now seeds
+itself using the TRNG at bootup. But this only works if the TRNG is
+detected early in boot, before random_init() is called. So this commit
+also causes that check to happen in setup_arch().
+
+Cc: stable@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>
+Cc: Juergen Christ <jchrist@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20220610222023.378448-1-Jason@zx2c4.com
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrconf.c |    4 ----
- net/ipv6/route.c    |    9 ++++++++-
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ arch/s390/crypto/arch_random.c     |  111 -------------------------------------
+ arch/s390/include/asm/archrandom.h |   13 ++--
+ arch/s390/kernel/setup.c           |    5 +
+ 3 files changed, 14 insertions(+), 115 deletions(-)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -1109,10 +1109,6 @@ ipv6_add_addr(struct inet6_dev *idev, st
- 		goto out;
- 	}
+--- a/arch/s390/crypto/arch_random.c
++++ b/arch/s390/crypto/arch_random.c
+@@ -2,126 +2,17 @@
+ /*
+  * s390 arch random implementation.
+  *
+- * Copyright IBM Corp. 2017, 2018
++ * Copyright IBM Corp. 2017, 2020
+  * Author(s): Harald Freudenberger
+- *
+- * The s390_arch_random_generate() function may be called from random.c
+- * in interrupt context. So this implementation does the best to be very
+- * fast. There is a buffer of random data which is asynchronously checked
+- * and filled by a workqueue thread.
+- * If there are enough bytes in the buffer the s390_arch_random_generate()
+- * just delivers these bytes. Otherwise false is returned until the
+- * worker thread refills the buffer.
+- * The worker fills the rng buffer by pulling fresh entropy from the
+- * high quality (but slow) true hardware random generator. This entropy
+- * is then spread over the buffer with an pseudo random generator PRNG.
+- * As the arch_get_random_seed_long() fetches 8 bytes and the calling
+- * function add_interrupt_randomness() counts this as 1 bit entropy the
+- * distribution needs to make sure there is in fact 1 bit entropy contained
+- * in 8 bytes of the buffer. The current values pull 32 byte entropy
+- * and scatter this into a 2048 byte buffer. So 8 byte in the buffer
+- * will contain 1 bit of entropy.
+- * The worker thread is rescheduled based on the charge level of the
+- * buffer but at least with 500 ms delay to avoid too much CPU consumption.
+- * So the max. amount of rng data delivered via arch_get_random_seed is
+- * limited to 4k bytes per second.
+  */
  
--	if (net->ipv6.devconf_all->disable_policy ||
--	    idev->cnf.disable_policy)
--		f6i->dst_nopolicy = true;
+ #include <linux/kernel.h>
+ #include <linux/atomic.h>
+ #include <linux/random.h>
+-#include <linux/slab.h>
+ #include <linux/static_key.h>
+-#include <linux/workqueue.h>
+ #include <asm/cpacf.h>
+ 
+ DEFINE_STATIC_KEY_FALSE(s390_arch_random_available);
+ 
+ atomic64_t s390_arch_random_counter = ATOMIC64_INIT(0);
+ EXPORT_SYMBOL(s390_arch_random_counter);
 -
- 	neigh_parms_data_state_setall(idev->nd_parms);
+-#define ARCH_REFILL_TICKS (HZ/2)
+-#define ARCH_PRNG_SEED_SIZE 32
+-#define ARCH_RNG_BUF_SIZE 2048
+-
+-static DEFINE_SPINLOCK(arch_rng_lock);
+-static u8 *arch_rng_buf;
+-static unsigned int arch_rng_buf_idx;
+-
+-static void arch_rng_refill_buffer(struct work_struct *);
+-static DECLARE_DELAYED_WORK(arch_rng_work, arch_rng_refill_buffer);
+-
+-bool s390_arch_random_generate(u8 *buf, unsigned int nbytes)
+-{
+-	/* max hunk is ARCH_RNG_BUF_SIZE */
+-	if (nbytes > ARCH_RNG_BUF_SIZE)
+-		return false;
+-
+-	/* lock rng buffer */
+-	if (!spin_trylock(&arch_rng_lock))
+-		return false;
+-
+-	/* try to resolve the requested amount of bytes from the buffer */
+-	arch_rng_buf_idx -= nbytes;
+-	if (arch_rng_buf_idx < ARCH_RNG_BUF_SIZE) {
+-		memcpy(buf, arch_rng_buf + arch_rng_buf_idx, nbytes);
+-		atomic64_add(nbytes, &s390_arch_random_counter);
+-		spin_unlock(&arch_rng_lock);
+-		return true;
+-	}
+-
+-	/* not enough bytes in rng buffer, refill is done asynchronously */
+-	spin_unlock(&arch_rng_lock);
+-
+-	return false;
+-}
+-EXPORT_SYMBOL(s390_arch_random_generate);
+-
+-static void arch_rng_refill_buffer(struct work_struct *unused)
+-{
+-	unsigned int delay = ARCH_REFILL_TICKS;
+-
+-	spin_lock(&arch_rng_lock);
+-	if (arch_rng_buf_idx > ARCH_RNG_BUF_SIZE) {
+-		/* buffer is exhausted and needs refill */
+-		u8 seed[ARCH_PRNG_SEED_SIZE];
+-		u8 prng_wa[240];
+-		/* fetch ARCH_PRNG_SEED_SIZE bytes of entropy */
+-		cpacf_trng(NULL, 0, seed, sizeof(seed));
+-		/* blow this entropy up to ARCH_RNG_BUF_SIZE with PRNG */
+-		memset(prng_wa, 0, sizeof(prng_wa));
+-		cpacf_prno(CPACF_PRNO_SHA512_DRNG_SEED,
+-			   &prng_wa, NULL, 0, seed, sizeof(seed));
+-		cpacf_prno(CPACF_PRNO_SHA512_DRNG_GEN,
+-			   &prng_wa, arch_rng_buf, ARCH_RNG_BUF_SIZE, NULL, 0);
+-		arch_rng_buf_idx = ARCH_RNG_BUF_SIZE;
+-	}
+-	delay += (ARCH_REFILL_TICKS * arch_rng_buf_idx) / ARCH_RNG_BUF_SIZE;
+-	spin_unlock(&arch_rng_lock);
+-
+-	/* kick next check */
+-	queue_delayed_work(system_long_wq, &arch_rng_work, delay);
+-}
+-
+-static int __init s390_arch_random_init(void)
+-{
+-	/* all the needed PRNO subfunctions available ? */
+-	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG) &&
+-	    cpacf_query_func(CPACF_PRNO, CPACF_PRNO_SHA512_DRNG_GEN)) {
+-
+-		/* alloc arch random working buffer */
+-		arch_rng_buf = kmalloc(ARCH_RNG_BUF_SIZE, GFP_KERNEL);
+-		if (!arch_rng_buf)
+-			return -ENOMEM;
+-
+-		/* kick worker queue job to fill the random buffer */
+-		queue_delayed_work(system_long_wq,
+-				   &arch_rng_work, ARCH_REFILL_TICKS);
+-
+-		/* enable arch random to the outside world */
+-		static_branch_enable(&s390_arch_random_available);
+-	}
+-
+-	return 0;
+-}
+-arch_initcall(s390_arch_random_init);
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -2,7 +2,7 @@
+ /*
+  * Kernel interface for the s390 arch_random_* functions
+  *
+- * Copyright IBM Corp. 2017
++ * Copyright IBM Corp. 2017, 2020
+  *
+  * Author: Harald Freudenberger <freude@de.ibm.com>
+  *
+@@ -15,12 +15,11 @@
  
- 	ifa->addr = *cfg->pfx;
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -4565,8 +4565,15 @@ struct fib6_info *addrconf_f6i_alloc(str
+ #include <linux/static_key.h>
+ #include <linux/atomic.h>
++#include <asm/cpacf.h>
+ 
+ DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
+ extern atomic64_t s390_arch_random_counter;
+ 
+-bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
+-
+ static inline bool __must_check arch_get_random_long(unsigned long *v)
+ {
+ 	return false;
+@@ -34,7 +33,9 @@ static inline bool __must_check arch_get
+ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+-		return s390_arch_random_generate((u8 *)v, sizeof(*v));
++		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
++		atomic64_add(sizeof(*v), &s390_arch_random_counter);
++		return true;
  	}
- 
- 	f6i = ip6_route_info_create(&cfg, gfp_flags, NULL);
--	if (!IS_ERR(f6i))
-+	if (!IS_ERR(f6i)) {
- 		f6i->dst_nocount = true;
+ 	return false;
+ }
+@@ -42,7 +43,9 @@ static inline bool __must_check arch_get
+ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+-		return s390_arch_random_generate((u8 *)v, sizeof(*v));
++		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
++		atomic64_add(sizeof(*v), &s390_arch_random_counter);
++		return true;
+ 	}
+ 	return false;
+ }
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -1009,6 +1009,11 @@ static void __init setup_randomness(void
+ 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
+ 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
+ 	memblock_free((unsigned long) vmms, PAGE_SIZE);
 +
-+		if (!anycast &&
-+		    (net->ipv6.devconf_all->disable_policy ||
-+		     idev->cnf.disable_policy))
-+			f6i->dst_nopolicy = true;
-+	}
-+
- 	return f6i;
++#ifdef CONFIG_ARCH_RANDOM
++	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG))
++		static_branch_enable(&s390_arch_random_available);
++#endif
  }
  
+ /*
 
 
