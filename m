@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 738455675E9
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 19:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 762B3567606
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 19:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231331AbiGERlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 13:41:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33094 "EHLO
+        id S232935AbiGERyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 13:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233135AbiGERlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 13:41:00 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C163119006
-        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 10:40:59 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id 128so12125427pfv.12
-        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 10:40:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PtIJc1V44i7iDoaFrvSomAJEobelVC17mDSBnJa/XI8=;
-        b=k0lYFUTzr4bctLKA26lOthDvdiNNS+s3oaU2zwpZykuNXV3j2gpZjbvQZUzIMaP/NK
-         K1q39nxfcxXBYz1f4LWUpczEjhy8kHENZbZPwp5OYtKMtGt8bbyrUimaU6rgeSVnUACg
-         /U1c9UB3lKC+/kFz54iDZTmZaxeFFmBPeiAWJvnKzsXeMar2oigmeQsEtQvMpY8Dxgzd
-         KTzTouQJgOWaRgA3+q28ylntCdb0m/td3f0RoQq0yzy4TekaE067vRfMfYFPWSDPukSP
-         gZ3ejJOdanpz9LMDppvAYKsm7YiuFUDsLcaRkIuldlEDWGKlj0F00m08lt+Vg3/4mxC7
-         Wekg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PtIJc1V44i7iDoaFrvSomAJEobelVC17mDSBnJa/XI8=;
-        b=NCHV6nL2XmA3p/j2TaGXwuLiDdyDNpcgCA4Fw1OfYvEIY+I0wH71KO2zKr5pMTlgHd
-         a7GXO3aHNvS4dDdW9kHndbzi2TzNhmCSTcqczXSWis9UZRQ51sPsti4MWAdJk8aua48O
-         71G0+wEY1hyKqsXL+vY8M9BNSXvmc6J8AMtI3HHvewWPDMdtNe9Ow1pULP4nBFUxDLr3
-         5ofG+FGp1AHB544Sn8iw+Afa9v6B7Oq4U/iXri6naVC+whBfCavcfAUxI2sy+lCJQZJZ
-         IWYQIGoZAjxC3i2r/I4b+yZ78u4C4xNEimWRwErKDHZk7qi/xUrsKkzaXhjv+RSoOET7
-         wmDQ==
-X-Gm-Message-State: AJIora+cynZHhqIe13EdOpUPybwUaPKRnoZYLDlDl9F2toBhFg4pXGJF
-        NovInRAn/DkapKljyq0dMeZn8a1hWSyEyhek
-X-Google-Smtp-Source: AGRyM1ukNDclC40QCxFk4Eo3H+rrODfgs0aEzQ30Jgcphn+fFVrBXK06XZNb4cqsrofOZ5J6C9NZPw==
-X-Received: by 2002:a62:e919:0:b0:51e:7b6e:5a3b with SMTP id j25-20020a62e919000000b0051e7b6e5a3bmr41836614pfh.78.1657042858920;
-        Tue, 05 Jul 2022 10:40:58 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s9-20020a170902a50900b0016b7dd323e5sm18483859plq.127.2022.07.05.10.40.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Jul 2022 10:40:58 -0700 (PDT)
-Message-ID: <62c477aa.1c69fb81.1a61a.ab00@mx.google.com>
-Date:   Tue, 05 Jul 2022 10:40:58 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232649AbiGERyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 13:54:54 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1690913E9B;
+        Tue,  5 Jul 2022 10:54:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1657043693; x=1688579693;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Km880PB9XZc0BJUMeh8tRcEuJbGickfi/0b4M5YX+Ik=;
+  b=Dbk6BVmeVH+oQSjaCEaG23oR6hE3X+YRYvntD1+zKwwFMKnYK7KJ0Ip6
+   x6to0msA+GuH5Ad48/PVEUPZKf4FUDGVmnPrETCWrADcHAOkV+RlDsE+O
+   qxHgxhm4KETVTG7kg2wKkpVlv+ANhdY1+GJ2bO9tob8mhglAzCtcJ4cW1
+   a53l6T58RsRpla3iLrM3Z0EDT2dUcJHRVRh7ij2Ru4PIW7Gn7bNwa7cpg
+   cqaHsgw3J8GQJd+7qcYjOJr6/qJPWkiZVsGEG6GGHrZu9lJY5E5upHcE1
+   3P7KxBs0glCU6H0AHAw5zPwSHfk5yruBpCimIypSDWzCPteuCBbNEQ5hK
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10399"; a="272208264"
+X-IronPort-AV: E=Sophos;i="5.92,247,1650956400"; 
+   d="scan'208";a="272208264"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jul 2022 10:47:52 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,247,1650956400"; 
+   d="scan'208";a="919813843"
+Received: from lkp-server01.sh.intel.com (HELO 68b931ab7ac1) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 05 Jul 2022 10:47:49 -0700
+Received: from kbuild by 68b931ab7ac1 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1o8meK-000JRZ-Uh;
+        Tue, 05 Jul 2022 17:47:48 +0000
+Date:   Wed, 6 Jul 2022 01:47:27 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Nishanth Menon <nm@ti.com>,
+        Javier Martinez Canillas <javier@osg.samsung.com>,
+        Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <jic23@kernel.org>
+Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
+        linux-iio@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] iio: adc: ti-adc128s052: Fix number of channels when
+ device tree is used
+Message-ID: <202207060155.zkacpxjc-lkp@intel.com>
+References: <20220630230107.13438-1-nm@ti.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.52-99-gbcb9695d82c0
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.15.y baseline: 172 runs,
- 5 regressions (v5.15.52-99-gbcb9695d82c0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220630230107.13438-1-nm@ti.com>
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,219 +70,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 172 runs, 5 regressions (v5.15.52-99-gbcb9=
-695d82c0)
+Hi Nishanth,
 
-Regressions Summary
--------------------
+I love your patch! Perhaps something to improve:
 
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig  =
-       | 1          =
+[auto build test WARNING on jic23-iio/togreg]
+[also build test WARNING on linus/master v5.19-rc5 next-20220705]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | tegra_defconfig     =
-       | 1          =
+url:    https://github.com/intel-lab-lkp/linux/commits/Nishanth-Menon/iio-adc-ti-adc128s052-Fix-number-of-channels-when-device-tree-is-used/20220701-070342
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git togreg
+config: nios2-randconfig-r036-20220703 (https://download.01.org/0day-ci/archive/20220706/202207060155.zkacpxjc-lkp@intel.com/config)
+compiler: nios2-linux-gcc (GCC) 11.3.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/d5184722ec9ae186da9bed1497e4804297f2040b
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Nishanth-Menon/iio-adc-ti-adc128s052-Fix-number-of-channels-when-device-tree-is-used/20220701-070342
+        git checkout d5184722ec9ae186da9bed1497e4804297f2040b
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=nios2 SHELL=/bin/bash drivers/iio/adc/
 
-rk3399-gru-kevin  | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chro=
-mebook | 1          =
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
 
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | multi_v7_defconfig  =
-       | 1          =
+All warnings (new ones prefixed by >>):
 
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.52-99-gbcb9695d82c0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.52-99-gbcb9695d82c0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bcb9695d82c0c96cd7ee1714e1652f06b1b4099b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig  =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c455cee8f6d512e7a39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jets=
-on-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jets=
-on-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
+>> drivers/iio/adc/ti-adc128s052.c:185:50: warning: initialization of 'const void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     185 |         { .compatible = "ti,adc122s021", .data = 1},
+         |                                                  ^
+   drivers/iio/adc/ti-adc128s052.c:185:50: note: (near initialization for 'adc128_of_match[1].data')
+   drivers/iio/adc/ti-adc128s052.c:186:50: warning: initialization of 'const void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     186 |         { .compatible = "ti,adc122s051", .data = 1},
+         |                                                  ^
+   drivers/iio/adc/ti-adc128s052.c:186:50: note: (near initialization for 'adc128_of_match[2].data')
+   drivers/iio/adc/ti-adc128s052.c:187:50: warning: initialization of 'const void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     187 |         { .compatible = "ti,adc122s101", .data = 1},
+         |                                                  ^
+   drivers/iio/adc/ti-adc128s052.c:187:50: note: (near initialization for 'adc128_of_match[3].data')
+   drivers/iio/adc/ti-adc128s052.c:188:50: warning: initialization of 'const void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     188 |         { .compatible = "ti,adc124s021", .data = 2},
+         |                                                  ^
+   drivers/iio/adc/ti-adc128s052.c:188:50: note: (near initialization for 'adc128_of_match[4].data')
+   drivers/iio/adc/ti-adc128s052.c:189:50: warning: initialization of 'const void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     189 |         { .compatible = "ti,adc124s051", .data = 2},
+         |                                                  ^
+   drivers/iio/adc/ti-adc128s052.c:189:50: note: (near initialization for 'adc128_of_match[5].data')
+   drivers/iio/adc/ti-adc128s052.c:190:50: warning: initialization of 'const void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     190 |         { .compatible = "ti,adc124s101", .data = 2},
+         |                                                  ^
+   drivers/iio/adc/ti-adc128s052.c:190:50: note: (near initialization for 'adc128_of_match[6].data')
 
 
+vim +185 drivers/iio/adc/ti-adc128s052.c
 
-  * baseline.login: https://kernelci.org/test/case/id/62c455cee8f6d512e7a39=
-bce
-        failing since 7 days (last pass: v5.15.48-116-gadd0aacf730e, first =
-fail: v5.15.50-136-g2c21dc5c2cb6) =
+   182	
+   183	static const struct of_device_id adc128_of_match[] = {
+   184		{ .compatible = "ti,adc128s052", .data = 0},
+ > 185		{ .compatible = "ti,adc122s021", .data = 1},
+   186		{ .compatible = "ti,adc122s051", .data = 1},
+   187		{ .compatible = "ti,adc122s101", .data = 1},
+   188		{ .compatible = "ti,adc124s021", .data = 2},
+   189		{ .compatible = "ti,adc124s051", .data = 2},
+   190		{ .compatible = "ti,adc124s101", .data = 2},
+   191		{ /* sentinel */ },
+   192	};
+   193	MODULE_DEVICE_TABLE(of, adc128_of_match);
+   194	
 
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-jetson-tk1        | arm   | lab-baylibre  | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c45415287a9d63dca39bf5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-=
-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c45415287a9d63dca39=
-bf6
-        new failure (last pass: v5.15.52) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-rk3399-gru-kevin  | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chro=
-mebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c441b54a8cd03508a39be7
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62c441b64a8cd03508a39c09
-        failing since 119 days (last pass: v5.15.26, first fail: v5.15.26-2=
-58-g7b9aacd770fa)
-
-    2022-07-05T13:50:23.662582  <8>[   32.709040] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-07-05T13:50:24.685998  /lava-6754597/1/../bin/lava-test-case
-    2022-07-05T13:50:24.696719  <8>[   33.743279] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | multi_v7_defconfig  =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c4678570de720a09a39bcd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-teg=
-ra124-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-teg=
-ra124-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c4678570de720a09a39=
-bce
-        failing since 40 days (last pass: v5.15.41-133-g03faf123d8c8, first=
- fail: v5.15.42) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig           =
-       | regressions
-------------------+-------+---------------+----------+---------------------=
--------+------------
-tegra124-nyan-big | arm   | lab-collabora | gcc-10   | tegra_defconfig     =
-       | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c45e8f25ffad230aa39bfd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra1=
-24-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.5=
-2-99-gbcb9695d82c0/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra1=
-24-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c45e8f25ffad230aa39=
-bfe
-        failing since 40 days (last pass: v5.15.41-133-g03faf123d8c8, first=
- fail: v5.15.42) =
-
- =20
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
