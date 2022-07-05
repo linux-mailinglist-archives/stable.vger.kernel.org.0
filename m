@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12967566A83
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CC6566D54
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232625AbiGEL7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 07:59:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41798 "EHLO
+        id S236853AbiGEMWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:22:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232576AbiGEL7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 07:59:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F13017AA4;
-        Tue,  5 Jul 2022 04:59:41 -0700 (PDT)
+        with ESMTP id S237664AbiGEMTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B38D1AF20;
+        Tue,  5 Jul 2022 05:16:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E004BB817DB;
-        Tue,  5 Jul 2022 11:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B438C341CB;
-        Tue,  5 Jul 2022 11:59:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AC0561A98;
+        Tue,  5 Jul 2022 12:16:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32ED4C341C7;
+        Tue,  5 Jul 2022 12:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022378;
-        bh=CQl6euab5xGbNlx53hUvYix1BiHS9rLNvUdVGXVQJ1E=;
+        s=korg; t=1657023360;
+        bh=AzEppktl3iMXpKZKusDV5yRb60MSK4FbE+GTaPKMriY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUix//m/gDRrnnjV2IGYjMNC3ymutWZOB0H+1+l3cuMtdr33s4Ht10TbGlS0zQHKa
-         De/5FR76ZNqEEgZbjRBwj5nAAgX32pSnLy+A/7OrgpR0Re86E5ywzmbdoSu91zrV0K
-         4ix7YvRprwTt4WXB39zSRvubE9SY4PDGA+daIg6M=
+        b=rAVPffiHjhXA73R6fPBwDqZjafyUugLz/rCQXRoeKgPtu7zWNVHPljPzXaus5ZlFv
+         dLhO5Bn6EYaGMnxegYpwZyHvr40dhtRI0goaAOCG7ieP1D6cyvQUOKuUWYCzbUCKrR
+         EUnq+jZJjj/T2+nyyrLCdwzGTe6N58ZDwexeJTxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/29] hwmon: (ibmaem) dont call platform_device_del() if platform_device_add() fails
-Date:   Tue,  5 Jul 2022 13:57:56 +0200
-Message-Id: <20220705115606.198393714@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Enguerrand de Ribaucourt 
+        <enguerrand.de-ribaucourt@savoirfairelinux.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 031/102] net: dp83822: disable false carrier interrupt
+Date:   Tue,  5 Jul 2022 13:57:57 +0200
+Message-Id: <20220705115619.299386367@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-References: <20220705115605.742248854@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
 
-[ Upstream commit d0e51022a025ca5350fafb8e413a6fe5d4baf833 ]
+commit c96614eeab663646f57f67aa591e015abd8bd0ba upstream.
 
-If platform_device_add() fails, it no need to call platform_device_del(), split
-platform_device_unregister() into platform_device_del/put(), so platform_device_put()
-can be called separately.
+When unplugging an Ethernet cable, false carrier events were produced by
+the PHY at a very high rate. Once the false carrier counter full, an
+interrupt was triggered every few clock cycles until the cable was
+replugged. This resulted in approximately 10k/s interrupts.
 
-Fixes: 8808a793f052 ("ibmaem: new driver for power/energy/temp meters in IBM System X hardware")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220701074153.4021556-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since the false carrier counter (FCSCR) is never used, we can safely
+disable this interrupt.
+
+In addition to improving performance, this also solved MDIO read
+timeouts I was randomly encountering with an i.MX8 fec MAC because of
+the interrupt flood. The interrupt count and MDIO timeout fix were
+tested on a v5.4.110 kernel.
+
+Fixes: 87461f7a58ab ("net: phy: DP83822 initial driver submission")
+Signed-off-by: Enguerrand de Ribaucourt <enguerrand.de-ribaucourt@savoirfairelinux.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/ibmaem.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/phy/dp83822.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/hwmon/ibmaem.c
-+++ b/drivers/hwmon/ibmaem.c
-@@ -563,7 +563,7 @@ static int aem_init_aem1_inst(struct aem
+--- a/drivers/net/phy/dp83822.c
++++ b/drivers/net/phy/dp83822.c
+@@ -229,7 +229,6 @@ static int dp83822_config_intr(struct ph
+ 			return misr_status;
  
- 	res = platform_device_add(data->pdev);
- 	if (res)
--		goto ipmi_err;
-+		goto dev_add_err;
- 
- 	platform_set_drvdata(data->pdev, data);
- 
-@@ -611,7 +611,9 @@ hwmon_reg_err:
- 	ipmi_destroy_user(data->ipmi.user);
- ipmi_err:
- 	platform_set_drvdata(data->pdev, NULL);
--	platform_device_unregister(data->pdev);
-+	platform_device_del(data->pdev);
-+dev_add_err:
-+	platform_device_put(data->pdev);
- dev_err:
- 	ida_simple_remove(&aem_ida, data->id);
- id_err:
-@@ -703,7 +705,7 @@ static int aem_init_aem2_inst(struct aem
- 
- 	res = platform_device_add(data->pdev);
- 	if (res)
--		goto ipmi_err;
-+		goto dev_add_err;
- 
- 	platform_set_drvdata(data->pdev, data);
- 
-@@ -751,7 +753,9 @@ hwmon_reg_err:
- 	ipmi_destroy_user(data->ipmi.user);
- ipmi_err:
- 	platform_set_drvdata(data->pdev, NULL);
--	platform_device_unregister(data->pdev);
-+	platform_device_del(data->pdev);
-+dev_add_err:
-+	platform_device_put(data->pdev);
- dev_err:
- 	ida_simple_remove(&aem_ida, data->id);
- id_err:
+ 		misr_status |= (DP83822_RX_ERR_HF_INT_EN |
+-				DP83822_FALSE_CARRIER_HF_INT_EN |
+ 				DP83822_LINK_STAT_INT_EN |
+ 				DP83822_ENERGY_DET_INT_EN |
+ 				DP83822_LINK_QUAL_INT_EN);
 
 
