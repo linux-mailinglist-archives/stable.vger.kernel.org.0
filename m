@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7100A566B90
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2BA566BFF
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233963AbiGEMJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47330 "EHLO
+        id S234894AbiGEMKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233823AbiGEMGR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:06:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DC010B8;
-        Tue,  5 Jul 2022 05:05:48 -0700 (PDT)
+        with ESMTP id S233756AbiGEMJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:09:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27133897;
+        Tue,  5 Jul 2022 05:09:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAB34B817CE;
-        Tue,  5 Jul 2022 12:05:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 372C7C341C7;
-        Tue,  5 Jul 2022 12:05:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12FF3B817CE;
+        Tue,  5 Jul 2022 12:09:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515CCC341C7;
+        Tue,  5 Jul 2022 12:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022745;
-        bh=K52TrGq1aFPFEStWsMUZmS0HuOAk2NHW/vx/U7mCB8g=;
+        s=korg; t=1657022946;
+        bh=/tWmGCqwNuBv2ZFBAZMFfrnGTqFYVqZFwG8JGBoUnSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=geTnHcAIkPMt4hbv3O01x7IT9f6F1aoimBI9KSWmd9LqhI3O1uY1DeqPWFpTAQUVH
-         FYURR9CZOTsJ1m32AoK1Fz51f4wAHgguyovF+2Kf7CBmFLsD3w/18sF2vxagAtQpJT
-         xaB1UXf0ldeyjNKzeH22BvYqRa884ytgpVhbc03Q=
+        b=r4y4XZNryMATqKq2fvfY5Wzd+sOkO5Pdli2tg/mpD2QSBIsyfcevSFjha5kY0VQui
+         zW3fBDzHwu3HyNGJcV75HO/wDFsKrFinNzNXjvOb2rf/Sk/2Wcjtd12CgATHZHZ//8
+         4BesQDzwQh2cBt4gaojRhhy4l3Gp6P/+HZQz38ck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 53/58] xen/netfront: force data bouncing when backend is untrusted
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 66/84] selftests/rseq: Uplift rseq selftests for compatibility with glibc-2.35
 Date:   Tue,  5 Jul 2022 13:58:29 +0200
-Message-Id: <20220705115611.809633002@linuxfoundation.org>
+Message-Id: <20220705115617.250441897@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115610.236040773@linuxfoundation.org>
-References: <20220705115610.236040773@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,125 +54,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 4491001c2e0fa69efbb748c96ec96b100a5cdb7e upstream.
+commit 233e667e1ae3e348686bd9dd0172e62a09d852e1 upstream.
 
-Bounce all data on the skbs to be transmitted into zeroed pages if the
-backend is untrusted. This avoids leaking data present in the pages
-shared with the backend but not part of the skb fragments.  This
-requires introducing a new helper in order to allocate skbs with a
-size multiple of XEN_PAGE_SIZE so we don't leak contiguous data on the
-granted pages.
+glibc-2.35 (upcoming release date 2022-02-01) exposes the rseq per-thread
+data in the TCB, accessible at an offset from the thread pointer, rather
+than through an actual Thread-Local Storage (TLS) variable, as the
+Linux kernel selftests initially expected.
 
-Reporting whether the backend is to be trusted can be done using a
-module parameter, or from the xenstore frontend path as set by the
-toolstack when adding the device.
+The __rseq_abi TLS and glibc-2.35's ABI for per-thread data cannot
+actively coexist in a process, because the kernel supports only a single
+rseq registration per thread.
 
-This is CVE-2022-33741, part of XSA-403.
+Here is the scheme introduced to ensure selftests can work both with an
+older glibc and with glibc-2.35+:
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+- librseq exposes its own "rseq_offset, rseq_size, rseq_flags" ABI.
+
+- librseq queries for glibc rseq ABI (__rseq_offset, __rseq_size,
+  __rseq_flags) using dlsym() in a librseq library constructor. If those
+  are found, copy their values into rseq_offset, rseq_size, and
+  rseq_flags.
+
+- Else, if those glibc symbols are not found, handle rseq registration
+  from librseq and use its own IE-model TLS to implement the rseq ABI
+  per-thread storage.
+
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124171253.22072-8-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |   50 +++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 2 deletions(-)
+ tools/testing/selftests/rseq/Makefile |    2 
+ tools/testing/selftests/rseq/rseq.c   |  161 ++++++++++++++++------------------
+ tools/testing/selftests/rseq/rseq.h   |   13 ++
+ 3 files changed, 88 insertions(+), 88 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -63,6 +63,10 @@ module_param_named(max_queues, xennet_ma
- MODULE_PARM_DESC(max_queues,
- 		 "Maximum number of queues per virtual interface");
+--- a/tools/testing/selftests/rseq/Makefile
++++ b/tools/testing/selftests/rseq/Makefile
+@@ -6,7 +6,7 @@ endif
  
-+static bool __read_mostly xennet_trusted = true;
-+module_param_named(trusted, xennet_trusted, bool, 0644);
-+MODULE_PARM_DESC(trusted, "Is the backend trusted");
+ CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L$(OUTPUT) -Wl,-rpath=./ \
+ 	  $(CLANG_FLAGS)
+-LDLIBS += -lpthread
++LDLIBS += -lpthread -ldl
+ 
+ # Own dependencies because we only want to build against 1st prerequisite, but
+ # still track changes to header files and depend on shared object.
+--- a/tools/testing/selftests/rseq/rseq.c
++++ b/tools/testing/selftests/rseq/rseq.c
+@@ -26,103 +26,113 @@
+ #include <assert.h>
+ #include <signal.h>
+ #include <limits.h>
++#include <dlfcn.h>
+ 
+ #include "../kselftest.h"
+ #include "rseq.h"
+ 
+-__thread struct rseq_abi __rseq_abi = {
+-	.cpu_id = RSEQ_ABI_CPU_ID_UNINITIALIZED,
+-};
++static const int *libc_rseq_offset_p;
++static const unsigned int *libc_rseq_size_p;
++static const unsigned int *libc_rseq_flags_p;
 +
- #define XENNET_TIMEOUT  (5 * HZ)
- 
- static const struct ethtool_ops xennet_ethtool_ops;
-@@ -163,6 +167,9 @@ struct netfront_info {
- 	/* Is device behaving sane? */
- 	bool broken;
- 
-+	/* Should skbs be bounced into a zeroed buffer? */
-+	bool bounce;
++/* Offset from the thread pointer to the rseq area.  */
++int rseq_offset;
 +
- 	atomic_t rx_gso_checksum_fixup;
- };
++/* Size of the registered rseq area.  0 if the registration was
++   unsuccessful.  */
++unsigned int rseq_size = -1U;
  
-@@ -590,6 +597,34 @@ static void xennet_mark_tx_pending(struc
- 		queue->tx_link[i] = TX_PENDING;
+-/*
+- * Shared with other libraries. This library may take rseq ownership if it is
+- * still 0 when executing the library constructor. Set to 1 by library
+- * constructor when handling rseq. Set to 0 in destructor if handling rseq.
+- */
+-int __rseq_handled;
++/* Flags used during rseq registration.  */
++unsigned int rseq_flags;
+ 
+-/* Whether this library have ownership of rseq registration. */
+ static int rseq_ownership;
+ 
+-static __thread volatile uint32_t __rseq_refcount;
++static
++__thread struct rseq_abi __rseq_abi __attribute__((tls_model("initial-exec"))) = {
++	.cpu_id = RSEQ_ABI_CPU_ID_UNINITIALIZED,
++};
+ 
+-static void signal_off_save(sigset_t *oldset)
++static int sys_rseq(struct rseq_abi *rseq_abi, uint32_t rseq_len,
++		    int flags, uint32_t sig)
+ {
+-	sigset_t set;
+-	int ret;
+-
+-	sigfillset(&set);
+-	ret = pthread_sigmask(SIG_BLOCK, &set, oldset);
+-	if (ret)
+-		abort();
++	return syscall(__NR_rseq, rseq_abi, rseq_len, flags, sig);
  }
  
-+struct sk_buff *bounce_skb(const struct sk_buff *skb)
-+{
-+	unsigned int headerlen = skb_headroom(skb);
-+	/* Align size to allocate full pages and avoid contiguous data leaks */
-+	unsigned int size = ALIGN(skb_end_offset(skb) + skb->data_len,
-+				  XEN_PAGE_SIZE);
-+	struct sk_buff *n = alloc_skb(size, GFP_ATOMIC | __GFP_ZERO);
-+
-+	if (!n)
-+		return NULL;
-+
-+	if (!IS_ALIGNED((uintptr_t)n->head, XEN_PAGE_SIZE)) {
-+		WARN_ONCE(1, "misaligned skb allocated\n");
-+		kfree_skb(n);
-+		return NULL;
+-static void signal_restore(sigset_t oldset)
++int rseq_available(void)
+ {
+-	int ret;
++	int rc;
+ 
+-	ret = pthread_sigmask(SIG_SETMASK, &oldset, NULL);
+-	if (ret)
++	rc = sys_rseq(NULL, 0, 0, 0);
++	if (rc != -1)
+ 		abort();
+-}
+-
+-static int sys_rseq(volatile struct rseq_abi *rseq_abi, uint32_t rseq_len,
+-		    int flags, uint32_t sig)
+-{
+-	return syscall(__NR_rseq, rseq_abi, rseq_len, flags, sig);
++	switch (errno) {
++	case ENOSYS:
++		return 0;
++	case EINVAL:
++		return 1;
++	default:
++		abort();
 +	}
-+
-+	/* Set the data pointer */
-+	skb_reserve(n, headerlen);
-+	/* Set the tail pointer and length */
-+	skb_put(n, skb->len);
-+
-+	BUG_ON(skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len));
-+
-+	skb_copy_header(n, skb);
-+	return n;
+ }
+ 
+ int rseq_register_current_thread(void)
+ {
+-	int rc, ret = 0;
+-	sigset_t oldset;
++	int rc;
+ 
+-	if (!rseq_ownership)
++	if (!rseq_ownership) {
++		/* Treat libc's ownership as a successful registration. */
+ 		return 0;
+-	signal_off_save(&oldset);
+-	if (__rseq_refcount == UINT_MAX) {
+-		ret = -1;
+-		goto end;
+ 	}
+-	if (__rseq_refcount++)
+-		goto end;
+ 	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq_abi), 0, RSEQ_SIG);
+-	if (!rc) {
+-		assert(rseq_current_cpu_raw() >= 0);
+-		goto end;
+-	}
+-	if (errno != EBUSY)
+-		RSEQ_WRITE_ONCE(__rseq_abi.cpu_id, RSEQ_ABI_CPU_ID_REGISTRATION_FAILED);
+-	ret = -1;
+-	__rseq_refcount--;
+-end:
+-	signal_restore(oldset);
+-	return ret;
++	if (rc)
++		return -1;
++	assert(rseq_current_cpu_raw() >= 0);
++	return 0;
+ }
+ 
+ int rseq_unregister_current_thread(void)
+ {
+-	int rc, ret = 0;
+-	sigset_t oldset;
++	int rc;
+ 
+-	if (!rseq_ownership)
++	if (!rseq_ownership) {
++		/* Treat libc's ownership as a successful unregistration. */
+ 		return 0;
+-	signal_off_save(&oldset);
+-	if (!__rseq_refcount) {
+-		ret = -1;
+-		goto end;
+ 	}
+-	if (--__rseq_refcount)
+-		goto end;
+-	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq_abi),
+-		      RSEQ_ABI_FLAG_UNREGISTER, RSEQ_SIG);
+-	if (!rc)
+-		goto end;
+-	__rseq_refcount = 1;
+-	ret = -1;
+-end:
+-	signal_restore(oldset);
+-	return ret;
++	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq_abi), RSEQ_ABI_FLAG_UNREGISTER, RSEQ_SIG);
++	if (rc)
++		return -1;
++	return 0;
 +}
 +
- #define MAX_XEN_SKB_FRAGS (65536 / XEN_PAGE_SIZE + 1)
- 
- static netdev_tx_t xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -642,9 +677,13 @@ static netdev_tx_t xennet_start_xmit(str
- 
- 	/* The first req should be at least ETH_HLEN size or the packet will be
- 	 * dropped by netback.
-+	 *
-+	 * If the backend is not trusted bounce all data to zeroed pages to
-+	 * avoid exposing contiguous data on the granted page not belonging to
-+	 * the skb.
- 	 */
--	if (unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
--		nskb = skb_copy(skb, GFP_ATOMIC);
-+	if (np->bounce || unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
-+		nskb = bounce_skb(skb);
- 		if (!nskb)
- 			goto drop;
- 		dev_consume_skb_any(skb);
-@@ -1950,6 +1989,10 @@ static int talk_to_netback(struct xenbus
- 
- 	info->netdev->irq = 0;
- 
-+	/* Check if backend is trusted. */
-+	info->bounce = !xennet_trusted ||
-+		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
++static __attribute__((constructor))
++void rseq_init(void)
++{
++	libc_rseq_offset_p = dlsym(RTLD_NEXT, "__rseq_offset");
++	libc_rseq_size_p = dlsym(RTLD_NEXT, "__rseq_size");
++	libc_rseq_flags_p = dlsym(RTLD_NEXT, "__rseq_flags");
++	if (libc_rseq_size_p && libc_rseq_offset_p && libc_rseq_flags_p) {
++		/* rseq registration owned by glibc */
++		rseq_offset = *libc_rseq_offset_p;
++		rseq_size = *libc_rseq_size_p;
++		rseq_flags = *libc_rseq_flags_p;
++		return;
++	}
++	if (!rseq_available())
++		return;
++	rseq_ownership = 1;
++	rseq_offset = (void *)&__rseq_abi - rseq_thread_pointer();
++	rseq_size = sizeof(struct rseq_abi);
++	rseq_flags = 0;
++}
 +
- 	/* Check if backend supports multiple queues */
- 	max_queues = xenbus_read_unsigned(info->xbdev->otherend,
- 					  "multi-queue-max-queues", 1);
-@@ -2103,6 +2146,9 @@ static int xennet_connect(struct net_dev
- 	err = talk_to_netback(np->xbdev, np);
- 	if (err)
- 		return err;
-+	if (np->bounce)
-+		dev_info(&np->xbdev->dev,
-+			 "bouncing transmitted data to zeroed pages\n");
++static __attribute__((destructor))
++void rseq_exit(void)
++{
++	if (!rseq_ownership)
++		return;
++	rseq_offset = 0;
++	rseq_size = -1U;
++	rseq_ownership = 0;
+ }
  
- 	/* talk_to_netback() sets the correct number of queues */
- 	num_queues = dev->real_num_tx_queues;
+ int32_t rseq_fallback_current_cpu(void)
+@@ -136,20 +146,3 @@ int32_t rseq_fallback_current_cpu(void)
+ 	}
+ 	return cpu;
+ }
+-
+-void __attribute__((constructor)) rseq_init(void)
+-{
+-	/* Check whether rseq is handled by another library. */
+-	if (__rseq_handled)
+-		return;
+-	__rseq_handled = 1;
+-	rseq_ownership = 1;
+-}
+-
+-void __attribute__((destructor)) rseq_fini(void)
+-{
+-	if (!rseq_ownership)
+-		return;
+-	__rseq_handled = 0;
+-	rseq_ownership = 0;
+-}
+--- a/tools/testing/selftests/rseq/rseq.h
++++ b/tools/testing/selftests/rseq/rseq.h
+@@ -43,12 +43,19 @@
+ #define RSEQ_INJECT_FAILED
+ #endif
+ 
+-extern __thread struct rseq_abi __rseq_abi;
+-extern int __rseq_handled;
++#include "rseq-thread-pointer.h"
++
++/* Offset from the thread pointer to the rseq area.  */
++extern int rseq_offset;
++/* Size of the registered rseq area.  0 if the registration was
++   unsuccessful.  */
++extern unsigned int rseq_size;
++/* Flags used during rseq registration.  */
++extern unsigned int rseq_flags;
+ 
+ static inline struct rseq_abi *rseq_get_abi(void)
+ {
+-	return &__rseq_abi;
++	return (struct rseq_abi *) ((uintptr_t) rseq_thread_pointer() + rseq_offset);
+ }
+ 
+ #define rseq_likely(x)		__builtin_expect(!!(x), 1)
 
 
