@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 129F8566D1D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3680C566AF0
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234505AbiGEMVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:21:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
+        id S233032AbiGEMDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:03:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236314AbiGEMRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:17:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FEDE1C904;
-        Tue,  5 Jul 2022 05:12:20 -0700 (PDT)
+        with ESMTP id S233401AbiGEMCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:02:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3F317AA9;
+        Tue,  5 Jul 2022 05:02:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80CCF619A6;
-        Tue,  5 Jul 2022 12:12:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91002C341C8;
-        Tue,  5 Jul 2022 12:12:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24960B817D6;
+        Tue,  5 Jul 2022 12:02:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C87C341C7;
+        Tue,  5 Jul 2022 12:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023138;
-        bh=Zvrqgx3TWHUPdHczpbHvYScItmS0flh1Wg5GahmqYxw=;
+        s=korg; t=1657022551;
+        bh=b6w3Tl/YDZM1RVBwx6PWhyX1ZlZFKFIlHJHoiiJxQdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xN66xuqmC+14N6+OuvUuFcNUpaKoMKWIGu3mNnVBj7OUeqk0ZutEQv+vAy6pk41qW
-         5RGH9hRipH3kkcYG7UAPhZ7N89tg6FqLmCyrgGC7+Jad5R+vTwS2+736ecnv81I4Mk
-         9tcLIMcPdYBwGL0/wiYAF/KhPyU+y7i7RvSizG+w=
+        b=OmJPejHFqXzHmeu50Su1Nq8l7bO0ezfS46PIYwSamhQ+H2eRAO/o1hH5TZEitpEtH
+         NNbdppnRLL2WjHKISSdXAnrE2+cRUfwS9gGpyUVA75SPdGY1b6KTIXIVScfJ1TdzY9
+         R8mQ3DLAOVlDxk6MSDNprztGzINZHxr4HbGPT6Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 52/98] io_uring: ensure that send/sendmsg and recv/recvmsg check sqe->ioprio
+        stable@vger.kernel.org,
+        Maksym Glubokiy <maksym.glubokiy@plvision.eu>,
+        Yevhen Orlov <yevhen.orlov@plvision.eu>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 18/33] net: bonding: fix use-after-free after 802.3ad slave unbind
 Date:   Tue,  5 Jul 2022 13:58:10 +0200
-Message-Id: <20220705115619.061142527@linuxfoundation.org>
+Message-Id: <20220705115607.243126778@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
+References: <20220705115606.709817198@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Yevhen Orlov <yevhen.orlov@plvision.eu>
 
-commit 73911426aaaadbae54fa72359b33a7b6a56947db upstream.
+commit 050133e1aa2cb49bb17be847d48a4431598ef562 upstream.
 
-All other opcodes correctly check if this is set and -EINVAL if it is
-and they don't support that field, for some reason the these were
-forgotten.
+commit 0622cab0341c ("bonding: fix 802.3ad aggregator reselection"),
+resolve case, when there is several aggregation groups in the same bond.
+bond_3ad_unbind_slave will invalidate (clear) aggregator when
+__agg_active_ports return zero. So, ad_clear_agg can be executed even, when
+num_of_ports!=0. Than bond_3ad_unbind_slave can be executed again for,
+previously cleared aggregator. NOTE: at this time bond_3ad_unbind_slave
+will not update slave ports list, because lag_ports==NULL. So, here we
+got slave ports, pointing to freed aggregator memory.
 
-This was unified a bit differently in the upstream tree, but had the
-same effect as making sure we error on this field. Rather than have
-a painful backport of the upstream commit, just fixup the mentioned
-opcodes.
+Fix with checking actual number of ports in group (as was before
+commit 0622cab0341c ("bonding: fix 802.3ad aggregator reselection") ),
+before ad_clear_agg().
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The KASAN logs are as follows:
+
+[  767.617392] ==================================================================
+[  767.630776] BUG: KASAN: use-after-free in bond_3ad_state_machine_handler+0x13dc/0x1470
+[  767.638764] Read of size 2 at addr ffff00011ba9d430 by task kworker/u8:7/767
+[  767.647361] CPU: 3 PID: 767 Comm: kworker/u8:7 Tainted: G           O 5.15.11 #15
+[  767.655329] Hardware name: DNI AmazonGo1 A7040 board (DT)
+[  767.660760] Workqueue: lacp_1 bond_3ad_state_machine_handler
+[  767.666468] Call trace:
+[  767.668930]  dump_backtrace+0x0/0x2d0
+[  767.672625]  show_stack+0x24/0x30
+[  767.675965]  dump_stack_lvl+0x68/0x84
+[  767.679659]  print_address_description.constprop.0+0x74/0x2b8
+[  767.685451]  kasan_report+0x1f0/0x260
+[  767.689148]  __asan_load2+0x94/0xd0
+[  767.692667]  bond_3ad_state_machine_handler+0x13dc/0x1470
+
+Fixes: 0622cab0341c ("bonding: fix 802.3ad aggregator reselection")
+Co-developed-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
+Signed-off-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
+Signed-off-by: Yevhen Orlov <yevhen.orlov@plvision.eu>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20220629012914.361-1-yevhen.orlov@plvision.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/bonding/bond_3ad.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4788,6 +4788,8 @@ static int io_sendmsg_prep(struct io_kio
- 		return -EINVAL;
- 	if (unlikely(sqe->addr2 || sqe->file_index))
- 		return -EINVAL;
-+	if (unlikely(sqe->addr2 || sqe->file_index || sqe->ioprio))
-+		return -EINVAL;
- 
- 	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	sr->len = READ_ONCE(sqe->len);
-@@ -5011,6 +5013,8 @@ static int io_recvmsg_prep(struct io_kio
- 		return -EINVAL;
- 	if (unlikely(sqe->addr2 || sqe->file_index))
- 		return -EINVAL;
-+	if (unlikely(sqe->addr2 || sqe->file_index || sqe->ioprio))
-+		return -EINVAL;
- 
- 	sr->umsg = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	sr->len = READ_ONCE(sqe->len);
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -2199,7 +2199,8 @@ void bond_3ad_unbind_slave(struct slave
+ 				temp_aggregator->num_of_ports--;
+ 				if (__agg_active_ports(temp_aggregator) == 0) {
+ 					select_new_active_agg = temp_aggregator->is_active;
+-					ad_clear_agg(temp_aggregator);
++					if (temp_aggregator->num_of_ports == 0)
++						ad_clear_agg(temp_aggregator);
+ 					if (select_new_active_agg) {
+ 						netdev_info(bond->dev, "Removing an active aggregator\n");
+ 						/* select new active aggregator */
 
 
