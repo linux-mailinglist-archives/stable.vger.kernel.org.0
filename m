@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 805DA566D12
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B55C1566AC0
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236454AbiGEMU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:20:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
+        id S230356AbiGEMBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:01:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235076AbiGEMQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:16:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD471BE9B;
-        Tue,  5 Jul 2022 05:12:00 -0700 (PDT)
+        with ESMTP id S231303AbiGEMBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A741018385;
+        Tue,  5 Jul 2022 05:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22B7B619AF;
-        Tue,  5 Jul 2022 12:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A380C341C8;
-        Tue,  5 Jul 2022 12:11:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BC73B817D2;
+        Tue,  5 Jul 2022 12:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1B0FC341C7;
+        Tue,  5 Jul 2022 12:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023119;
-        bh=DLmVq64ijXGPUQWlCgQoxcagw9iIf3gK9IgQk8qCHrM=;
+        s=korg; t=1657022461;
+        bh=eWhg2Htyke+OsaZs7/m9A1zorj1Ngbbnj7Lp253PPtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbzZ1BajUeONfbe94ALR+hfAnwYeZsjYxxMguMAqR8Jd8+9xALearuKw18oIrLfN9
-         21j8tl7Nqzw7WitihKvwgrFkNdJzOhKZsOGDRYQ1O2wKhTx6307bN7HIjxDZkckQa6
-         7EYPD8cwHhEcHqt3Jzxx+XY0V8EO70TNb7gMkUz0=
+        b=tF6otWVo2qTraYsPiw5Y1bOj41hPgucT30uGk6fAgI5qwGnPYTz0bVIqmDEqSA6zy
+         YVFS9SFrfMHbH991LPdDPdGXsR8gTGGMCI25L0HVTcQ2tUwOW+nhL7ly9Ukj1MP+GF
+         C44Va3LINguzyQh9GGsUYjOwIAhoYpe5APuRSvVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 45/98] net: phy: ax88772a: fix lost pause advertisement configuration
+        stable@vger.kernel.org, Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 15/29] nfc: nfcmrvl: Fix irq_of_parse_and_map() return value
 Date:   Tue,  5 Jul 2022 13:58:03 +0200
-Message-Id: <20220705115618.866567600@linuxfoundation.org>
+Message-Id: <20220705115606.793844092@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
+References: <20220705115606.333669144@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit fa152f626b24ec2ca3489100d8c5c0a0bce4e2ef upstream.
+commit 5a478a653b4cca148d5c89832f007ec0809d7e6d upstream.
 
-In case of asix_ax88772a_link_change_notify() workaround, we run soft
-reset which will automatically clear MII_ADVERTISE configuration. The
-PHYlib framework do not know about changed configuration state of the
-PHY, so we need use phy_init_hw() to reinit PHY configuration.
+The irq_of_parse_and_map() returns 0 on failure, not a negative ERRNO.
 
-Fixes: dde258469257 ("net: usb/phy: asix: add support for ax88772A/C PHYs")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220628114349.3929928-1-o.rempel@pengutronix.de
+Reported-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Fixes: caf6e49bf6d0 ("NFC: nfcmrvl: add spi driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220627124048.296253-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/ax88796b.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nfc/nfcmrvl/i2c.c |    6 +++---
+ drivers/nfc/nfcmrvl/spi.c |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/phy/ax88796b.c b/drivers/net/phy/ax88796b.c
-index 457896337505..0f1e617a26c9 100644
---- a/drivers/net/phy/ax88796b.c
-+++ b/drivers/net/phy/ax88796b.c
-@@ -88,8 +88,10 @@ static void asix_ax88772a_link_change_notify(struct phy_device *phydev)
- 	/* Reset PHY, otherwise MII_LPA will provide outdated information.
- 	 * This issue is reproducible only with some link partner PHYs
- 	 */
--	if (phydev->state == PHY_NOLINK && phydev->drv->soft_reset)
--		phydev->drv->soft_reset(phydev);
-+	if (phydev->state == PHY_NOLINK) {
-+		phy_init_hw(phydev);
-+		phy_start_aneg(phydev);
-+	}
- }
+--- a/drivers/nfc/nfcmrvl/i2c.c
++++ b/drivers/nfc/nfcmrvl/i2c.c
+@@ -186,9 +186,9 @@ static int nfcmrvl_i2c_parse_dt(struct d
+ 		pdata->irq_polarity = IRQF_TRIGGER_RISING;
  
- static struct phy_driver asix_driver[] = {
--- 
-2.37.0
-
+ 	ret = irq_of_parse_and_map(node, 0);
+-	if (ret < 0) {
+-		pr_err("Unable to get irq, error: %d\n", ret);
+-		return ret;
++	if (!ret) {
++		pr_err("Unable to get irq\n");
++		return -EINVAL;
+ 	}
+ 	pdata->irq = ret;
+ 
+--- a/drivers/nfc/nfcmrvl/spi.c
++++ b/drivers/nfc/nfcmrvl/spi.c
+@@ -129,9 +129,9 @@ static int nfcmrvl_spi_parse_dt(struct d
+ 	}
+ 
+ 	ret = irq_of_parse_and_map(node, 0);
+-	if (ret < 0) {
+-		pr_err("Unable to get irq, error: %d\n", ret);
+-		return ret;
++	if (!ret) {
++		pr_err("Unable to get irq\n");
++		return -EINVAL;
+ 	}
+ 	pdata->irq = ret;
+ 
 
 
