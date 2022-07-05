@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39628566C5D
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D835A566D51
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234584AbiGEMO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33318 "EHLO
+        id S236842AbiGEMWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:22:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235976AbiGEMNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:13:30 -0400
+        with ESMTP id S237556AbiGEMTV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:19:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CCEA1A833;
-        Tue,  5 Jul 2022 05:11:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D57B18E1A;
+        Tue,  5 Jul 2022 05:15:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21070B817C7;
-        Tue,  5 Jul 2022 12:11:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 790ADC341C7;
-        Tue,  5 Jul 2022 12:11:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 407ADB8170A;
+        Tue,  5 Jul 2022 12:15:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A02C341C7;
+        Tue,  5 Jul 2022 12:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023060;
-        bh=ZVMKvq6nEv0PjRmO1sVB9snpTOPkH4ykEw7NIvNnQzU=;
+        s=korg; t=1657023311;
+        bh=Ksb1/PcP0ywMCJuFBLWwNgkMw+7Bu7olf1MzbZcnlgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AIMcJ9mFjNzeUn/ZNZTSr9kimLp80q2RvfsyqGgf6NtUtOm12XDvDXzA0mNes3qBI
-         fOayrXIvYGKUQX5CSw0+JcNbnHyJo5F3mpTZsNRgsNuTyQbbQzLeLcuWj4CILq7OvE
-         dH5UTkIdgyDHRpTuzq6qNHuDnAvO+kJn2plseQgk=
+        b=Bq/v9Q6yWmX7hOGnl+Ur4DbYu0Vw/H9G/95xdJjKwOkAlWQ1EukcNRExWdLQ7PGCR
+         EZErdFKoeo5OeWyH1+m8fJhK/hmnkcP2i1jxadmRdT9p0GXXw69igJQeh9FMDlvGPq
+         XW4dcYl7SzPyKoteWGJYoEXjN7O7Zg9eGsZpvVPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b75c138e9286ac742647@syzkaller.appspotmail.com,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 23/98] net: tun: unlink NAPI from device on destruction
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.18 015/102] parisc/unaligned: Fix emulate_ldw() breakage
 Date:   Tue,  5 Jul 2022 13:57:41 +0200
-Message-Id: <20220705115618.249763820@linuxfoundation.org>
+Message-Id: <20220705115618.848258989@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
-References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
+References: <20220705115618.410217782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 3b9bc84d311104906d2b4995a9a02d7b7ddab2db upstream.
+commit 96b80fcd2705fc50ebe1f7f3ce204e861b3099ab upstream.
 
-Syzbot found a race between tun file and device destruction.
-NAPIs live in struct tun_file which can get destroyed before
-the netdev so we have to del them explicitly. The current
-code is missing deleting the NAPI if the queue was detached
-first.
+The commit e8aa7b17fe41 broke the 32-bit load-word unalignment exception
+handler because it calculated the wrong amount of bits by which the value
+should be shifted. This patch fixes it.
 
-Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
-Reported-by: syzbot+b75c138e9286ac742647@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20220623042039.2274708-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: e8aa7b17fe41 ("parisc/unaligned: Rewrite inline assembly of emulate_ldw()")
+Cc: stable@vger.kernel.org   # v5.18
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/kernel/unaligned.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -728,6 +728,7 @@ static void tun_detach_all(struct net_de
- 		sock_put(&tfile->sk);
- 	}
- 	list_for_each_entry_safe(tfile, tmp, &tun->disabled, next) {
-+		tun_napi_del(tfile);
- 		tun_enable_queue(tfile);
- 		tun_queue_purge(tfile);
- 		xdp_rxq_info_unreg(&tfile->xdp_rxq);
+diff --git a/arch/parisc/kernel/unaligned.c b/arch/parisc/kernel/unaligned.c
+index ed1e88a74dc4..bac581b5ecfc 100644
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -146,7 +146,7 @@ static int emulate_ldw(struct pt_regs *regs, int toreg, int flop)
+ "	depw	%%r0,31,2,%4\n"
+ "1:	ldw	0(%%sr1,%4),%0\n"
+ "2:	ldw	4(%%sr1,%4),%3\n"
+-"	subi	32,%4,%2\n"
++"	subi	32,%2,%2\n"
+ "	mtctl	%2,11\n"
+ "	vshd	%0,%3,%0\n"
+ "3:	\n"
+-- 
+2.37.0
+
 
 
