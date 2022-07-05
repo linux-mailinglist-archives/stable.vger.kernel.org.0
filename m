@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADC6566AE1
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3AC3566BD8
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230489AbiGEMCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44334 "EHLO
+        id S233970AbiGEMKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbiGEMBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A29418356;
-        Tue,  5 Jul 2022 05:01:35 -0700 (PDT)
+        with ESMTP id S235246AbiGEMIo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CAE10AF;
+        Tue,  5 Jul 2022 05:08:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0B26184A;
-        Tue,  5 Jul 2022 12:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0000C341C7;
-        Tue,  5 Jul 2022 12:01:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40A01B817D2;
+        Tue,  5 Jul 2022 12:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A256BC341C7;
+        Tue,  5 Jul 2022 12:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022494;
-        bh=zlk6f9vOJB8weBnkiCKJdA1tSvlOjwDX1031HjkIl0s=;
+        s=korg; t=1657022902;
+        bh=BeZeInl2iFvJGNFLXV69eOTfrCOZqJMpzSiDqs4gYSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9qWg7o7i3p4LXd1Y+qZAFjpvOhB4tREGuzXRFqGcPFg/gst94MpPeSBv+5hpjfws
-         aMNo+x3JyMbzA0FQDcwLs9iOtn6d2rWIZZh56zCYmf0oDKFa2mHQLwaG34Gl6kz9ad
-         1huI1Txivd7DcQ9XYuQErqKz1lekO2n07WGskjak=
+        b=tQRpNcF/6v2fEiqa6f6ZBAuYxcl5fooWXjIWzmYBXf9kNZ2K5+mzEW7O/48ySOaRc
+         n9jDBsROzJfBRGZtn6a2DSDuxS9e3lBp5j+zdkSekyshDr6klp6t0ycEZm9rpHhVvZ
+         wfjhhLxAvGRe8Zs756xcVPRCMrHX1dlF4J+b5gb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 26/29] xen/blkfront: force data bouncing when backend is untrusted
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Geliang Tang <geliangtang@gmail.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 51/84] selftests: mptcp: add ADD_ADDR timeout test case
 Date:   Tue,  5 Jul 2022 13:58:14 +0200
-Message-Id: <20220705115607.114216075@linuxfoundation.org>
+Message-Id: <20220705115616.814163273@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
-References: <20220705115606.333669144@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,189 +58,239 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Geliang Tang <geliangtang@gmail.com>
 
-commit 2400617da7eebf9167d71a46122828bc479d64c9 upstream.
+[ Upstream commit 8d014eaa9254a9b8e0841df40dd36782b451579a ]
 
-Split the current bounce buffering logic used with persistent grants
-into it's own option, and allow enabling it independently of
-persistent grants.  This allows to reuse the same code paths to
-perform the bounce buffering required to avoid leaking contiguous data
-in shared pages not part of the request fragments.
+This patch added the test case for retransmitting ADD_ADDR when timeout
+occurs. It set NS1's add_addr_timeout to 1 second, and drop NS2's ADD_ADDR
+echo packets.
 
-Reporting whether the backend is to be trusted can be done using a
-module parameter, or from the xenstore frontend path as set by the
-toolstack when adding the device.
+Here we need to slow down the transfer process of all data to let the
+ADD_ADDR suboptions can be retransmitted three times. So we added a new
+parameter "speed" for do_transfer, it can be set with fast or slow.
 
-This is CVE-2022-33742, part of XSA-403.
+We also added three new optional parameters for run_tests, and dropped
+run_remove_tests function.
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since we added the netfilter rules in this test case, we need to update
+the "config" file.
+
+Suggested-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Suggested-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/xen-blkfront.c |   42 +++++++++++++++++++++++++++---------------
- 1 file changed, 27 insertions(+), 15 deletions(-)
+ tools/testing/selftests/net/mptcp/config      | 10 ++
+ .../testing/selftests/net/mptcp/mptcp_join.sh | 94 ++++++++++++++-----
+ 2 files changed, 80 insertions(+), 24 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -148,6 +148,10 @@ static unsigned int xen_blkif_max_ring_o
- module_param_named(max_ring_page_order, xen_blkif_max_ring_order, int, S_IRUGO);
- MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the shared ring");
+diff --git a/tools/testing/selftests/net/mptcp/config b/tools/testing/selftests/net/mptcp/config
+index 741a1c4f4ae8..0faaccd21447 100644
+--- a/tools/testing/selftests/net/mptcp/config
++++ b/tools/testing/selftests/net/mptcp/config
+@@ -5,3 +5,13 @@ CONFIG_INET_DIAG=m
+ CONFIG_INET_MPTCP_DIAG=m
+ CONFIG_VETH=y
+ CONFIG_NET_SCH_NETEM=m
++CONFIG_NETFILTER=y
++CONFIG_NETFILTER_ADVANCED=y
++CONFIG_NETFILTER_NETLINK=m
++CONFIG_NF_TABLES=m
++CONFIG_NFT_COUNTER=m
++CONFIG_NFT_COMPAT=m
++CONFIG_NETFILTER_XTABLES=m
++CONFIG_NETFILTER_XT_MATCH_BPF=m
++CONFIG_NF_TABLES_IPV4=y
++CONFIG_NF_TABLES_IPV6=y
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_join.sh b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+index 08f53d86dedc..0d93b243695f 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+@@ -13,6 +13,24 @@ capture=0
  
-+static bool __read_mostly xen_blkif_trusted = true;
-+module_param_named(trusted, xen_blkif_trusted, bool, 0644);
-+MODULE_PARM_DESC(trusted, "Is the backend trusted");
+ TEST_COUNT=0
+ 
++# generated using "nfbpf_compile '(ip && (ip[54] & 0xf0) == 0x30) ||
++#				  (ip6 && (ip6[74] & 0xf0) == 0x30)'"
++CBPF_MPTCP_SUBOPTION_ADD_ADDR="14,
++			       48 0 0 0,
++			       84 0 0 240,
++			       21 0 3 64,
++			       48 0 0 54,
++			       84 0 0 240,
++			       21 6 7 48,
++			       48 0 0 0,
++			       84 0 0 240,
++			       21 0 4 96,
++			       48 0 0 74,
++			       84 0 0 240,
++			       21 0 1 48,
++			       6 0 0 65535,
++			       6 0 0 0"
 +
- #define BLK_RING_SIZE(info)	\
- 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
- 
-@@ -208,6 +212,7 @@ struct blkfront_info
- 	unsigned int feature_discard:1;
- 	unsigned int feature_secdiscard:1;
- 	unsigned int feature_persistent:1;
-+	unsigned int bounce:1;
- 	unsigned int discard_granularity;
- 	unsigned int discard_alignment;
- 	/* Number of 4KB segments handled */
-@@ -301,7 +306,7 @@ static int fill_grant_buffer(struct blkf
- 		if (!gnt_list_entry)
- 			goto out_of_memory;
- 
--		if (info->feature_persistent) {
-+		if (info->bounce) {
- 			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
- 			if (!granted_page) {
- 				kfree(gnt_list_entry);
-@@ -321,7 +326,7 @@ out_of_memory:
- 	list_for_each_entry_safe(gnt_list_entry, n,
- 	                         &rinfo->grants, node) {
- 		list_del(&gnt_list_entry->node);
--		if (info->feature_persistent)
-+		if (info->bounce)
- 			__free_page(gnt_list_entry->page);
- 		kfree(gnt_list_entry);
- 		i--;
-@@ -367,7 +372,7 @@ static struct grant *get_grant(grant_ref
- 	/* Assign a gref to this page */
- 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
- 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
--	if (info->feature_persistent)
-+	if (info->bounce)
- 		grant_foreign_access(gnt_list_entry, info);
- 	else {
- 		/* Grant access to the GFN passed by the caller */
-@@ -391,7 +396,7 @@ static struct grant *get_indirect_grant(
- 	/* Assign a gref to this page */
- 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
- 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
--	if (!info->feature_persistent) {
-+	if (!info->bounce) {
- 		struct page *indirect_page;
- 
- 		/* Fetch a pre-allocated page to use for indirect grefs */
-@@ -706,7 +711,7 @@ static int blkif_queue_rw_req(struct req
- 		.grant_idx = 0,
- 		.segments = NULL,
- 		.rinfo = rinfo,
--		.need_copy = rq_data_dir(req) && info->feature_persistent,
-+		.need_copy = rq_data_dir(req) && info->bounce,
- 	};
- 
- 	/*
-@@ -1027,11 +1032,12 @@ static void xlvbd_flush(struct blkfront_
+ init()
  {
- 	blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
- 			      info->feature_fua ? true : false);
--	pr_info("blkfront: %s: %s %s %s %s %s\n",
-+	pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
- 		info->gd->disk_name, flush_info(info),
- 		"persistent grants:", info->feature_persistent ?
- 		"enabled;" : "disabled;", "indirect descriptors:",
--		info->max_indirect_segments ? "enabled;" : "disabled;");
-+		info->max_indirect_segments ? "enabled;" : "disabled;",
-+		"bounce buffer:", info->bounce ? "enabled" : "disabled;");
+ 	capout=$(mktemp)
+@@ -82,6 +100,26 @@ reset_with_cookies()
+ 	done
  }
  
- static int xen_translate_vdev(int vdevice, int *minor, unsigned int *offset)
-@@ -1266,7 +1272,7 @@ static void blkif_free_ring(struct blkfr
- 	if (!list_empty(&rinfo->indirect_pages)) {
- 		struct page *indirect_page, *n;
- 
--		BUG_ON(info->feature_persistent);
-+		BUG_ON(info->bounce);
- 		list_for_each_entry_safe(indirect_page, n, &rinfo->indirect_pages, lru) {
- 			list_del(&indirect_page->lru);
- 			__free_page(indirect_page);
-@@ -1283,7 +1289,7 @@ static void blkif_free_ring(struct blkfr
- 				continue;
- 
- 			rinfo->persistent_gnts_c--;
--			if (info->feature_persistent)
-+			if (info->bounce)
- 				__free_page(persistent_gnt->page);
- 			kfree(persistent_gnt);
- 		}
-@@ -1303,7 +1309,7 @@ static void blkif_free_ring(struct blkfr
- 		for (j = 0; j < segs; j++) {
- 			persistent_gnt = rinfo->shadow[i].grants_used[j];
- 			gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
--			if (info->feature_persistent)
-+			if (info->bounce)
- 				__free_page(persistent_gnt->page);
- 			kfree(persistent_gnt);
- 		}
-@@ -1493,7 +1499,7 @@ static int blkif_completion(unsigned lon
- 	data.s = s;
- 	num_sg = s->num_sg;
- 
--	if (bret->operation == BLKIF_OP_READ && info->feature_persistent) {
-+	if (bret->operation == BLKIF_OP_READ && info->bounce) {
- 		for_each_sg(s->sg, sg, num_sg, i) {
- 			BUG_ON(sg->offset + sg->length > PAGE_SIZE);
- 
-@@ -1552,7 +1558,7 @@ static int blkif_completion(unsigned lon
- 				 * Add the used indirect page back to the list of
- 				 * available pages for indirect grefs.
- 				 */
--				if (!info->feature_persistent) {
-+				if (!info->bounce) {
- 					indirect_page = s->indirect_grants[i]->page;
- 					list_add(&indirect_page->lru, &rinfo->indirect_pages);
- 				}
-@@ -1841,6 +1847,10 @@ static int talk_to_blkback(struct xenbus
- 	if (!info)
- 		return -ENODEV;
- 
-+	/* Check if backend is trusted. */
-+	info->bounce = !xen_blkif_trusted ||
-+		       !xenbus_read_unsigned(dev->nodename, "trusted", 1);
++reset_with_add_addr_timeout()
++{
++	local ip="${1:-4}"
++	local tables
 +
- 	max_page_order = xenbus_read_unsigned(info->xbdev->otherend,
- 					      "max-ring-page-order", 0);
- 	ring_page_order = min(xen_blkif_max_ring_order, max_page_order);
-@@ -2256,10 +2266,10 @@ static int blkfront_setup_indirect(struc
- 	if (err)
- 		goto out_of_memory;
++	tables="iptables"
++	if [ $ip -eq 6 ]; then
++		tables="ip6tables"
++	fi
++
++	reset
++
++	ip netns exec $ns1 sysctl -q net.mptcp.add_addr_timeout=1
++	ip netns exec $ns2 $tables -A OUTPUT -p tcp \
++		-m tcp --tcp-option 30 \
++		-m bpf --bytecode \
++		"$CBPF_MPTCP_SUBOPTION_ADD_ADDR" \
++		-j DROP
++}
++
+ for arg in "$@"; do
+ 	if [ "$arg" = "-c" ]; then
+ 		capture=1
+@@ -94,6 +132,17 @@ if [ $? -ne 0 ];then
+ 	exit $ksft_skip
+ fi
  
--	if (!info->feature_persistent && info->max_indirect_segments) {
-+	if (!info->bounce && info->max_indirect_segments) {
- 		/*
--		 * We are using indirect descriptors but not persistent
--		 * grants, we need to allocate a set of pages that can be
-+		 * We are using indirect descriptors but don't have a bounce
-+		 * buffer, we need to allocate a set of pages that can be
- 		 * used for mapping indirect grefs
- 		 */
- 		int num = INDIRECT_GREFS(grants) * BLK_RING_SIZE(info);
-@@ -2352,6 +2362,8 @@ static void blkfront_gather_backend_feat
- 	info->feature_persistent =
- 		!!xenbus_read_unsigned(info->xbdev->otherend,
- 				       "feature-persistent", 0);
-+	if (info->feature_persistent)
-+		info->bounce = true;
++iptables -V > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not run all tests without iptables tool"
++	exit $ksft_skip
++fi
++
++ip6tables -V > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not run all tests without ip6tables tool"
++	exit $ksft_skip
++fi
  
- 	indirect_segments = xenbus_read_unsigned(info->xbdev->otherend,
- 					"feature-max-indirect-segments", 0);
+ check_transfer()
+ {
+@@ -135,6 +184,7 @@ do_transfer()
+ 	connect_addr="$5"
+ 	rm_nr_ns1="$6"
+ 	rm_nr_ns2="$7"
++	speed="$8"
+ 
+ 	port=$((10000+$TEST_COUNT))
+ 	TEST_COUNT=$((TEST_COUNT+1))
+@@ -159,7 +209,7 @@ do_transfer()
+ 		sleep 1
+ 	fi
+ 
+-	if [[ $rm_nr_ns1 -eq 0 && $rm_nr_ns2 -eq 0 ]]; then
++	if [ $speed = "fast" ]; then
+ 		mptcp_connect="./mptcp_connect -j"
+ 	else
+ 		mptcp_connect="./mptcp_connect -r"
+@@ -250,26 +300,13 @@ run_tests()
+ 	listener_ns="$1"
+ 	connector_ns="$2"
+ 	connect_addr="$3"
++	rm_nr_ns1="${4:-0}"
++	rm_nr_ns2="${5:-0}"
++	speed="${6:-fast}"
+ 	lret=0
+ 
+-	do_transfer ${listener_ns} ${connector_ns} MPTCP MPTCP ${connect_addr} 0 0
+-	lret=$?
+-	if [ $lret -ne 0 ]; then
+-		ret=$lret
+-		return
+-	fi
+-}
+-
+-run_remove_tests()
+-{
+-	listener_ns="$1"
+-	connector_ns="$2"
+-	connect_addr="$3"
+-	rm_nr_ns1="$4"
+-	rm_nr_ns2="$5"
+-	lret=0
+-
+-	do_transfer ${listener_ns} ${connector_ns} MPTCP MPTCP ${connect_addr} ${rm_nr_ns1} ${rm_nr_ns2}
++	do_transfer ${listener_ns} ${connector_ns} MPTCP MPTCP ${connect_addr} \
++		${rm_nr_ns1} ${rm_nr_ns2} ${speed}
+ 	lret=$?
+ 	if [ $lret -ne 0 ]; then
+ 		ret=$lret
+@@ -491,12 +528,21 @@ run_tests $ns1 $ns2 10.0.1.1
+ chk_join_nr "multiple subflows and signal" 3 3 3
+ chk_add_nr 1 1
+ 
++# add_addr timeout
++reset_with_add_addr_timeout
++ip netns exec $ns1 ./pm_nl_ctl limits 0 1
++ip netns exec $ns2 ./pm_nl_ctl limits 1 1
++ip netns exec $ns1 ./pm_nl_ctl add 10.0.2.1 flags signal
++run_tests $ns1 $ns2 10.0.1.1 0 0 slow
++chk_join_nr "signal address, ADD_ADDR timeout" 1 1 1
++chk_add_nr 4 0
++
+ # single subflow, remove
+ reset
+ ip netns exec $ns1 ./pm_nl_ctl limits 0 1
+ ip netns exec $ns2 ./pm_nl_ctl limits 0 1
+ ip netns exec $ns2 ./pm_nl_ctl add 10.0.3.2 flags subflow
+-run_remove_tests $ns1 $ns2 10.0.1.1 0 1
++run_tests $ns1 $ns2 10.0.1.1 0 1 slow
+ chk_join_nr "remove single subflow" 1 1 1
+ chk_rm_nr 1 1
+ 
+@@ -506,7 +552,7 @@ ip netns exec $ns1 ./pm_nl_ctl limits 0 2
+ ip netns exec $ns2 ./pm_nl_ctl limits 0 2
+ ip netns exec $ns2 ./pm_nl_ctl add 10.0.2.2 flags subflow
+ ip netns exec $ns2 ./pm_nl_ctl add 10.0.3.2 flags subflow
+-run_remove_tests $ns1 $ns2 10.0.1.1 0 2
++run_tests $ns1 $ns2 10.0.1.1 0 2 slow
+ chk_join_nr "remove multiple subflows" 2 2 2
+ chk_rm_nr 2 2
+ 
+@@ -515,7 +561,7 @@ reset
+ ip netns exec $ns1 ./pm_nl_ctl limits 0 1
+ ip netns exec $ns1 ./pm_nl_ctl add 10.0.2.1 flags signal
+ ip netns exec $ns2 ./pm_nl_ctl limits 1 1
+-run_remove_tests $ns1 $ns2 10.0.1.1 1 0
++run_tests $ns1 $ns2 10.0.1.1 1 0 slow
+ chk_join_nr "remove single address" 1 1 1
+ chk_add_nr 1 1
+ chk_rm_nr 0 0
+@@ -526,7 +572,7 @@ ip netns exec $ns1 ./pm_nl_ctl limits 0 2
+ ip netns exec $ns1 ./pm_nl_ctl add 10.0.2.1 flags signal
+ ip netns exec $ns2 ./pm_nl_ctl limits 1 2
+ ip netns exec $ns2 ./pm_nl_ctl add 10.0.3.2 flags subflow
+-run_remove_tests $ns1 $ns2 10.0.1.1 1 1
++run_tests $ns1 $ns2 10.0.1.1 1 1 slow
+ chk_join_nr "remove subflow and signal" 2 2 2
+ chk_add_nr 1 1
+ chk_rm_nr 1 1
+@@ -538,7 +584,7 @@ ip netns exec $ns1 ./pm_nl_ctl add 10.0.2.1 flags signal
+ ip netns exec $ns2 ./pm_nl_ctl limits 1 3
+ ip netns exec $ns2 ./pm_nl_ctl add 10.0.3.2 flags subflow
+ ip netns exec $ns2 ./pm_nl_ctl add 10.0.4.2 flags subflow
+-run_remove_tests $ns1 $ns2 10.0.1.1 1 2
++run_tests $ns1 $ns2 10.0.1.1 1 2 slow
+ chk_join_nr "remove subflows and signal" 3 3 3
+ chk_add_nr 1 1
+ chk_rm_nr 2 2
+-- 
+2.35.1
+
 
 
