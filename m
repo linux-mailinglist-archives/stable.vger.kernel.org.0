@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12EB9566E1C
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D595566E20
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237641AbiGEMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55096 "EHLO
+        id S238069AbiGEMbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:31:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237971AbiGEM0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDFA389E;
-        Tue,  5 Jul 2022 05:18:49 -0700 (PDT)
+        with ESMTP id S235976AbiGEM0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:26:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF3118B2D;
+        Tue,  5 Jul 2022 05:18:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50D3EB817C7;
-        Tue,  5 Jul 2022 12:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E4EAC341C7;
-        Tue,  5 Jul 2022 12:18:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D01161A3D;
+        Tue,  5 Jul 2022 12:18:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A214C341C7;
+        Tue,  5 Jul 2022 12:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657023526;
-        bh=OYpYXUIwxm70zT8gpt/gdGEt6Te47cQXCvwyPR79rMk=;
+        s=korg; t=1657023529;
+        bh=h3DDDGZB2qjDKZitOmDgiiz5Usvu8cFrm0N1ASIINAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSG+CIWuoOO0yDokD4bFw2LCGjqGNpIEcErf83FlRcjHQhPd8BBcBgfxig8/2d1ju
-         wcHh72b9t3ijZcX42fZ4Z0giZ3PTZsGLknZUKsPZWMrRKy7f6SffpiZW2TDO19mYXK
-         E6EfzE4sY3TOdyRB5MVj8qAtHYSgBuWuN+q0Xds0=
+        b=sRT63QO+gFaQJAqMjZN8KZ8i7dMMU01JI5np+a9Iil4lGtnOZZiaTtA7lQEsem1db
+         hS5kjP11XyiC7lVuJp8lcac8Zxi+C3UcbYdpsmnvFeZJK5MFNf22Teu0sO2PmaWII8
+         An9zHbiPZKG7MsxFU4AvW43IaAKJDS0nATd6JeBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
-        Simon Ser <contact@emersion.fr>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Casper Andersson <casper.casan@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 093/102] drm/fourcc: fix integer type usage in uapi header
-Date:   Tue,  5 Jul 2022 13:58:59 +0200
-Message-Id: <20220705115621.060858752@linuxfoundation.org>
+Subject: [PATCH 5.18 094/102] net: sparx5: Add handling of host MDB entries
+Date:   Tue,  5 Jul 2022 13:59:00 +0200
+Message-Id: <20220705115621.088985844@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220705115618.410217782@linuxfoundation.org>
 References: <20220705115618.410217782@linuxfoundation.org>
@@ -55,61 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Casper Andersson <casper.casan@gmail.com>
 
-[ Upstream commit 20b8264394b33adb1640a485a62a84bc1388b6a3 ]
+[ Upstream commit 1c1ed5a48411e1686997157c21633653fbe045c6 ]
 
-Kernel uapi headers are supposed to use __[us]{8,16,32,64} types defined
-by <linux/types.h> as opposed to 'uint32_t' and similar. See [1] for the
-relevant discussion about this topic. In this particular case, the usage
-of 'uint64_t' escaped headers_check as these macros are not being called
-here. However, the following program triggers a compilation error:
+Handle adding and removing MDB entries for host
 
-  #include <drm/drm_fourcc.h>
-
-  int main()
-  {
-  	unsigned long x = AMD_FMT_MOD_CLEAR(RB);
-  	return 0;
-  }
-
-gcc error:
-  drm.c:5:27: error: ‘uint64_t’ undeclared (first use in this function)
-      5 |         unsigned long x = AMD_FMT_MOD_CLEAR(RB);
-        |                           ^~~~~~~~~~~~~~~~~
-
-This patch changes AMD_FMT_MOD_{SET,CLEAR} macros to use the correct
-integer types, which fixes the above issue.
-
-  [1] https://lkml.org/lkml/2019/6/5/18
-
-Fixes: 8ba16d599374 ("drm/fourcc: Add AMD DRM modifiers.")
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Reviewed-by: Simon Ser <contact@emersion.fr>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Casper Andersson <casper.casan@gmail.com>
+Link: https://lore.kernel.org/r/20220503093922.1630804-1-casper.casan@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/drm/drm_fourcc.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/microchip/sparx5/sparx5_switchdev.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/include/uapi/drm/drm_fourcc.h b/include/uapi/drm/drm_fourcc.h
-index fc0c1454d275..7b9e3f9a0f00 100644
---- a/include/uapi/drm/drm_fourcc.h
-+++ b/include/uapi/drm/drm_fourcc.h
-@@ -1375,11 +1375,11 @@ drm_fourcc_canonicalize_nvidia_format_mod(__u64 modifier)
- #define AMD_FMT_MOD_PIPE_MASK 0x7
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c b/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
+index 5389fffc694a..3429660cd2e5 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c
+@@ -396,6 +396,11 @@ static int sparx5_handle_port_mdb_add(struct net_device *dev,
+ 	u32 mact_entry;
+ 	int res, err;
  
- #define AMD_FMT_MOD_SET(field, value) \
--	((uint64_t)(value) << AMD_FMT_MOD_##field##_SHIFT)
-+	((__u64)(value) << AMD_FMT_MOD_##field##_SHIFT)
- #define AMD_FMT_MOD_GET(field, value) \
- 	(((value) >> AMD_FMT_MOD_##field##_SHIFT) & AMD_FMT_MOD_##field##_MASK)
- #define AMD_FMT_MOD_CLEAR(field) \
--	(~((uint64_t)AMD_FMT_MOD_##field##_MASK << AMD_FMT_MOD_##field##_SHIFT))
-+	(~((__u64)AMD_FMT_MOD_##field##_MASK << AMD_FMT_MOD_##field##_SHIFT))
++	if (netif_is_bridge_master(v->obj.orig_dev)) {
++		sparx5_mact_learn(spx5, PGID_CPU, v->addr, v->vid);
++		return 0;
++	}
++
+ 	/* When VLAN unaware the vlan value is not parsed and we receive vid 0.
+ 	 * Fall back to bridge vid 1.
+ 	 */
+@@ -461,6 +466,11 @@ static int sparx5_handle_port_mdb_del(struct net_device *dev,
+ 	u32 mact_entry, res, pgid_entry[3];
+ 	int err;
  
- #if defined(__cplusplus)
- }
++	if (netif_is_bridge_master(v->obj.orig_dev)) {
++		sparx5_mact_forget(spx5, v->addr, v->vid);
++		return 0;
++	}
++
+ 	if (!br_vlan_enabled(spx5->hw_bridge_dev))
+ 		vid = 1;
+ 	else
+@@ -500,6 +510,7 @@ static int sparx5_handle_port_obj_add(struct net_device *dev,
+ 						  SWITCHDEV_OBJ_PORT_VLAN(obj));
+ 		break;
+ 	case SWITCHDEV_OBJ_ID_PORT_MDB:
++	case SWITCHDEV_OBJ_ID_HOST_MDB:
+ 		err = sparx5_handle_port_mdb_add(dev, nb,
+ 						 SWITCHDEV_OBJ_PORT_MDB(obj));
+ 		break;
+@@ -552,6 +563,7 @@ static int sparx5_handle_port_obj_del(struct net_device *dev,
+ 						  SWITCHDEV_OBJ_PORT_VLAN(obj)->vid);
+ 		break;
+ 	case SWITCHDEV_OBJ_ID_PORT_MDB:
++	case SWITCHDEV_OBJ_ID_HOST_MDB:
+ 		err = sparx5_handle_port_mdb_del(dev, nb,
+ 						 SWITCHDEV_OBJ_PORT_MDB(obj));
+ 		break;
 -- 
 2.35.1
 
