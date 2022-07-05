@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D845D566AD8
-	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6A0566BE3
+	for <lists+stable@lfdr.de>; Tue,  5 Jul 2022 14:10:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232981AbiGEMCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 08:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43384 "EHLO
+        id S234725AbiGEMKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 08:10:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233141AbiGEMB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:01:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF74D1582A;
-        Tue,  5 Jul 2022 05:01:28 -0700 (PDT)
+        with ESMTP id S235205AbiGEMIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 08:08:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA0FC18E3F;
+        Tue,  5 Jul 2022 05:08:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C8C1B817CC;
-        Tue,  5 Jul 2022 12:01:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 848E6C341C7;
-        Tue,  5 Jul 2022 12:01:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6723661968;
+        Tue,  5 Jul 2022 12:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F4D3C341CB;
+        Tue,  5 Jul 2022 12:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657022485;
-        bh=16qWtBAtgeBJRudyGfkIKclqH02YQfiB4Ii4vSjWRng=;
+        s=korg; t=1657022890;
+        bh=I3S82u24jWu80vnRKie8qpSc4ajvVZZJzoHtD/bSW0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QL/fHu42HQQFw+kWLZ/6ObX7lK0YjVBFIwWX4AGPMFPx1N02bhwHeZiT/NsD3XcU5
-         W3I9dP2BKvmDf8zzY68ZowKFHjxWBQYGSLHZ4U1F3ZjwrJttmWA/NkWrsn/rZrKzR5
-         jZ2Y5Cln6ocXM8VMgjsY2xtVEk5zxrqrnIsI2szQ=
+        b=E3Am/M7fFCnikJL0w8mqU19VA/zMD3yWrDh09mYWeno8uWDcc7pMAK8bfY2Xv0llK
+         sbpIMmXVIhmpKjbUXi/8eyZ+p+sJ0giNptO/fwc9j4MfQcJoStDN5Iut/BE0Oq4JXS
+         YER0F+2Era10uBTDIzSXzUu79T01CY/xHCWoWxCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 23/29] xen/blkfront: fix leaking data in shared pages
+        stable@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 48/84] tcp: add a missing nf_reset_ct() in 3WHS handling
 Date:   Tue,  5 Jul 2022 13:58:11 +0200
-Message-Id: <20220705115607.027328709@linuxfoundation.org>
+Message-Id: <20220705115616.728392676@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220705115606.333669144@linuxfoundation.org>
-References: <20220705115606.333669144@linuxfoundation.org>
+In-Reply-To: <20220705115615.323395630@linuxfoundation.org>
+References: <20220705115615.323395630@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 2f446ffe9d737e9a844b97887919c4fda18246e7 upstream.
+commit 6f0012e35160cd08a53e46e3b3bbf724b92dfe68 upstream.
 
-When allocating pages to be used for shared communication with the
-backend always zero them, this avoids leaking unintended data present
-on the pages.
+When the third packet of 3WHS connection establishment
+contains payload, it is added into socket receive queue
+without the XFRM check and the drop of connection tracking
+context.
 
-This is CVE-2022-26365, part of XSA-403.
+This means that if the data is left unread in the socket
+receive queue, conntrack module can not be unloaded.
 
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+As most applications usually reads the incoming data
+immediately after accept(), bug has been hiding for
+quite a long time.
+
+Commit 68822bdf76f1 ("net: generalize skb freeing
+deferral to per-cpu lists") exposed this bug because
+even if the application reads this data, the skb
+with nfct state could stay in a per-cpu cache for
+an arbitrary time, if said cpu no longer process RX softirqs.
+
+Many thanks to Ilya Maximets for reporting this issue,
+and for testing various patches:
+https://lore.kernel.org/netdev/20220619003919.394622-1-i.maximets@ovn.org/
+
+Note that I also added a missing xfrm4_policy_check() call,
+although this is probably not a big issue, as the SYN
+packet should have been dropped earlier.
+
+Fixes: b59c270104f0 ("[NETFILTER]: Keep conntrack reference until IPsec policy checks are done")
+Reported-by: Ilya Maximets <i.maximets@ovn.org>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Tested-by: Ilya Maximets <i.maximets@ovn.org>
+Reviewed-by: Ilya Maximets <i.maximets@ovn.org>
+Link: https://lore.kernel.org/r/20220623050436.1290307-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/ipv4/tcp_ipv4.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -302,7 +302,7 @@ static int fill_grant_buffer(struct blkf
- 			goto out_of_memory;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1980,7 +1980,8 @@ process:
+ 		struct sock *nsk;
  
- 		if (info->feature_persistent) {
--			granted_page = alloc_page(GFP_NOIO);
-+			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
- 			if (!granted_page) {
- 				kfree(gnt_list_entry);
- 				goto out_of_memory;
-@@ -1744,7 +1744,7 @@ static int setup_blkring(struct xenbus_d
- 	for (i = 0; i < info->nr_ring_pages; i++)
- 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
- 
--	sring = alloc_pages_exact(ring_size, GFP_NOIO);
-+	sring = alloc_pages_exact(ring_size, GFP_NOIO | __GFP_ZERO);
- 	if (!sring) {
- 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
- 		return -ENOMEM;
-@@ -2266,7 +2266,8 @@ static int blkfront_setup_indirect(struc
- 
- 		BUG_ON(!list_empty(&rinfo->indirect_pages));
- 		for (i = 0; i < num; i++) {
--			struct page *indirect_page = alloc_page(GFP_NOIO);
-+			struct page *indirect_page = alloc_page(GFP_NOIO |
-+			                                        __GFP_ZERO);
- 			if (!indirect_page)
- 				goto out_of_memory;
- 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
+ 		sk = req->rsk_listener;
+-		if (unlikely(tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
++		if (unlikely(!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb) ||
++			     tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
+ 			sk_drops_add(sk, skb);
+ 			reqsk_put(req);
+ 			goto discard_it;
+@@ -2019,6 +2020,7 @@ process:
+ 			}
+ 			goto discard_and_relse;
+ 		}
++		nf_reset_ct(skb);
+ 		if (nsk == sk) {
+ 			reqsk_put(req);
+ 			tcp_v4_restore_cb(skb);
 
 
