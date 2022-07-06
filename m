@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA4A2568D0F
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F73568CFC
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234001AbiGFPcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:32:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46148 "EHLO
+        id S234078AbiGFPdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234021AbiGFPc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:32:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2432228712;
-        Wed,  6 Jul 2022 08:32:05 -0700 (PDT)
+        with ESMTP id S234092AbiGFPcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:32:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A2628E2B;
+        Wed,  6 Jul 2022 08:32:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A299F61FBE;
-        Wed,  6 Jul 2022 15:32:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B260C3411C;
-        Wed,  6 Jul 2022 15:32:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B284B81D8E;
+        Wed,  6 Jul 2022 15:32:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E70AFC341C8;
+        Wed,  6 Jul 2022 15:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121524;
-        bh=y6aJHwCIQHyCu5/Fc4D/l0yJ7hgPW18XIm1lCNu9rnI=;
+        s=k20201202; t=1657121532;
+        bh=XuABzMacapUPj02uf/mQtFYuIsg4w+Lm1rTeYvXdPwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2Td0r0LFkLPZIsdjvYAmMookNHwCeThctur9B1khBtajvzCTXHoHbUPdDRmnbUXw
-         2Z4HShYtAY4szK7BCGlni8FMaEksfjEYIhKZiN+fSCpO3xhM5vUPsoAXIqP2pZEm+c
-         nkdCTvfWPb52RhCsfWN0XHODcIOzJTauiiYLeutreCFvN6QQpAT8L6BhuRYM/UOCw4
-         ok/wYSEcO8j0/mdCg45kggrGDtExsvj+k+D54M472gIrCH5tNcGX/zINV98+2hUZgX
-         1QKs6v6xhZQkOITdZFL6YRXzGCKCqIF80NP8yFyirGxHatp77BhFFVVz6Aw4nRLSbz
-         6Ll1EaygV57cg==
+        b=d85yc1fXPTuo+5DTb9lZNpk3qdvpsTD35tRcvdoreP264b02QrZZRznufYjVb+cpv
+         ehg3jM5DVRJICo0rXpwRd9RHxISYdy9OEU7+reFwFfRElI0zn68hhPD8Wt9/X55wf4
+         xvbJFIDa9POTFiMVU+wURc5pgBR2LHPWYQWZutPkfcaW0Xh8Jr+1m+z+By1QxFA08F
+         o1SoHlPt1xSK672Jup0qRZe/Ph17BvpluyRNc/IdNry1IGGmnk/bTng4hE2dcZeLS0
+         ZFrtrcCa77ULktqktGxQPJI9sOuqttbpdMy/6+h2uozboGQaLMvCRY49q1TiRpqpm3
+         VND35yVOfD3Ug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Cohen <elic@nvidia.com>,
+Cc:     Parav Pandit <parav@nvidia.com>,
         "Michael S . Tsirkin" <mst@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
         Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, si-wei.liu@oracle.com,
-        parav@nvidia.com, virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.15 03/18] vdpa/mlx5: Initialize CVQ vringh only once
-Date:   Wed,  6 Jul 2022 11:31:38 -0400
-Message-Id: <20220706153153.1598076-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, dan.carpenter@oracle.com,
+        gautam.dawar@xilinx.com, guanjun@linux.alibaba.com,
+        elic@nvidia.com, virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.15 04/18] vduse: Tie vduse mgmtdev and its device
+Date:   Wed,  6 Jul 2022 11:31:39 -0400
+Message-Id: <20220706153153.1598076-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153153.1598076-1-sashal@kernel.org>
 References: <20220706153153.1598076-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,91 +60,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit ace9252446ec615cd79a5f77d90edb25c0b9d024 ]
+[ Upstream commit 0e0348ac3f0a6e6606f1aa5acb1803ada913aa3d ]
 
-Currently, CVQ vringh is initialized inside setup_virtqueues() which is
-called every time a memory update is done. This is undesirable since it
-resets all the context of the vring, including the available and used
-indices.
+vduse devices are not backed by any real devices such as PCI. Hence it
+doesn't have any parent device linked to it.
 
-Move the initialization to mlx5_vdpa_set_status() when
-VIRTIO_CONFIG_S_DRIVER_OK is set.
+Kernel driver model in [1] suggests to avoid an empty device
+release callback.
 
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Message-Id: <20220613075958.511064-2-elic@nvidia.com>
+Hence tie the mgmtdevice object's life cycle to an allocate dummy struct
+device instead of static one.
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/core-api/kobject.rst?h=v5.18-rc7#n284
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Message-Id: <20220613195223.473966-1-parav@nvidia.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/vdpa/vdpa_user/vduse_dev.c | 60 ++++++++++++++++++------------
+ 1 file changed, 37 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index e4258f40dcd7..26bd5bba0d89 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1896,7 +1896,6 @@ static int verify_driver_features(struct mlx5_vdpa_dev *mvdev, u64 features)
- static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
- {
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
--	struct mlx5_control_vq *cvq = &mvdev->cvq;
- 	int err;
- 	int i;
- 
-@@ -1906,16 +1905,6 @@ static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
- 			goto err_vq;
- 	}
- 
--	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)) {
--		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
--					MLX5_CVQ_MAX_ENT, false,
--					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
--					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
--					(struct vring_used *)(uintptr_t)cvq->device_addr);
--		if (err)
--			goto err_vq;
--	}
--
- 	return 0;
- 
- err_vq:
-@@ -2182,6 +2171,21 @@ static void clear_vqs_ready(struct mlx5_vdpa_net *ndev)
- 	ndev->mvdev.cvq.ready = false;
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 9270398caf15..73e67fa88972 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -1466,16 +1466,12 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
+ 	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
  }
  
-+static int setup_cvq_vring(struct mlx5_vdpa_dev *mvdev)
-+{
-+	struct mlx5_control_vq *cvq = &mvdev->cvq;
-+	int err = 0;
-+
-+	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ))
-+		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
-+					MLX5_CVQ_MAX_ENT, false,
-+					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
-+					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
-+					(struct vring_used *)(uintptr_t)cvq->device_addr);
-+
-+	return err;
-+}
-+
- static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
- {
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-@@ -2192,6 +2196,11 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+-static void vduse_mgmtdev_release(struct device *dev)
+-{
+-}
+-
+-static struct device vduse_mgmtdev = {
+-	.init_name = "vduse",
+-	.release = vduse_mgmtdev_release,
++struct vduse_mgmt_dev {
++	struct vdpa_mgmt_dev mgmt_dev;
++	struct device dev;
+ };
  
- 	if ((status ^ ndev->mvdev.status) & VIRTIO_CONFIG_S_DRIVER_OK) {
- 		if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
-+			err = setup_cvq_vring(mvdev);
-+			if (err) {
-+				mlx5_vdpa_warn(mvdev, "failed to setup control VQ vring\n");
-+				goto err_setup;
-+			}
- 			err = setup_driver(mvdev);
- 			if (err) {
- 				mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
+-static struct vdpa_mgmt_dev mgmt_dev;
++static struct vduse_mgmt_dev *vduse_mgmt;
+ 
+ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+ {
+@@ -1500,7 +1496,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+ 	}
+ 	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
+ 	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
+-	vdev->vdpa.mdev = &mgmt_dev;
++	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
+ 
+ 	return 0;
+ }
+@@ -1545,34 +1541,52 @@ static struct virtio_device_id id_table[] = {
+ 	{ 0 },
+ };
+ 
+-static struct vdpa_mgmt_dev mgmt_dev = {
+-	.device = &vduse_mgmtdev,
+-	.id_table = id_table,
+-	.ops = &vdpa_dev_mgmtdev_ops,
+-};
++static void vduse_mgmtdev_release(struct device *dev)
++{
++	struct vduse_mgmt_dev *mgmt_dev;
++
++	mgmt_dev = container_of(dev, struct vduse_mgmt_dev, dev);
++	kfree(mgmt_dev);
++}
+ 
+ static int vduse_mgmtdev_init(void)
+ {
+ 	int ret;
+ 
+-	ret = device_register(&vduse_mgmtdev);
+-	if (ret)
++	vduse_mgmt = kzalloc(sizeof(*vduse_mgmt), GFP_KERNEL);
++	if (!vduse_mgmt)
++		return -ENOMEM;
++
++	ret = dev_set_name(&vduse_mgmt->dev, "vduse");
++	if (ret) {
++		kfree(vduse_mgmt);
+ 		return ret;
++	}
+ 
+-	ret = vdpa_mgmtdev_register(&mgmt_dev);
++	vduse_mgmt->dev.release = vduse_mgmtdev_release;
++
++	ret = device_register(&vduse_mgmt->dev);
+ 	if (ret)
+-		goto err;
++		goto dev_reg_err;
+ 
+-	return 0;
+-err:
+-	device_unregister(&vduse_mgmtdev);
++	vduse_mgmt->mgmt_dev.id_table = id_table;
++	vduse_mgmt->mgmt_dev.ops = &vdpa_dev_mgmtdev_ops;
++	vduse_mgmt->mgmt_dev.device = &vduse_mgmt->dev;
++	ret = vdpa_mgmtdev_register(&vduse_mgmt->mgmt_dev);
++	if (ret)
++		device_unregister(&vduse_mgmt->dev);
++
++	return ret;
++
++dev_reg_err:
++	put_device(&vduse_mgmt->dev);
+ 	return ret;
+ }
+ 
+ static void vduse_mgmtdev_exit(void)
+ {
+-	vdpa_mgmtdev_unregister(&mgmt_dev);
+-	device_unregister(&vduse_mgmtdev);
++	vdpa_mgmtdev_unregister(&vduse_mgmt->mgmt_dev);
++	device_unregister(&vduse_mgmt->dev);
+ }
+ 
+ static int vduse_init(void)
 -- 
 2.35.1
 
