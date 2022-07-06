@@ -2,67 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C430567FCE
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 09:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EF8567EF8
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 08:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231658AbiGFH1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 03:27:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47064 "EHLO
+        id S229648AbiGFGyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 02:54:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231126AbiGFH1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 03:27:41 -0400
-Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0E422536
-        for <stable@vger.kernel.org>; Wed,  6 Jul 2022 00:27:40 -0700 (PDT)
-Received: by mail-io1-xd34.google.com with SMTP id v185so13235878ioe.11
-        for <stable@vger.kernel.org>; Wed, 06 Jul 2022 00:27:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Z42Yq4p3a/8ZNPXXetAGi/YqdHiE8zz9pG0iRo2on0s=;
-        b=gOeD008ucnQuUXjTa3Ayigus4RjUCjSTCtGWYVsYUQY7zudq1VWTTfFblT+GXwYLjq
-         mwQz8o5cAYx/Ao2CevqjQcEKO6jM3wk70IIgmvmUvVHKQ1dwm1fH1+TpDGCWctoVq1J+
-         /vBrQAyXIq4VGvV6ujkjoPbRP1PXRc6d+5iA87XQcIfxfMzqRxBlL3Iy4Cjinu4QmgPa
-         X28zyyJvFrlbE4xiGv2HS1iA7Y1woNhyLrv2yT38TQnaBgyK+qiRN3qh1iTOIfbGQrOk
-         bOMn/5Ta/L1k+pgkNAX/QQYch+PIKEowe5sWJj56bKr2jbE2ZOUH5BFjKCymDrxahOEG
-         nitQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Z42Yq4p3a/8ZNPXXetAGi/YqdHiE8zz9pG0iRo2on0s=;
-        b=fdgkMwkhLY6pWtaYFM7Bv8rr4NZRy+vyQM4WPI94Li+ikMr4h+53Ysd7EYRybi6bWE
-         G9NNb3Shom9miqYuVA2ZPhTB++Yjtsk3Sw21y4LVfdhqfEivTF4aQtzOffyGn5SAauEY
-         9Saib/GKI9prmGf660RQBXK30H+sTzPcftQod0GhANqQ0tZP6UFt6RH4DHcthuCQIhsp
-         h162+eFvZzDvsJ3oN7FYcUfeMRvYh6dgqZQfmHW5+e9Cm2LlXyA02Hg0pOn/kXWD1pSE
-         j2qTCUGe+o6vtxiCtXsUW1jd1CsWKzv7ifkQ99F/IFsUfnRJY7LGsupmWgl/KIfc9+lC
-         YKyA==
-X-Gm-Message-State: AJIora80gOh/HTtZEVKImBy2RV9Q5TNR4kkNEW2CiNUvKU0Vgu/xx1Oc
-        gtCgf9LvQrnhjzeXTucI50pYX9YTX7q1C4b/QFO2tqGzen7Lmg==
-X-Google-Smtp-Source: AGRyM1sQr9SevlFDyBBoYKwKLtwH0DJSFOKoz98m6Z+jmLezovOzt8RcYuaxLU/Ub+sQlk1u02wIRDSyFPWmwPpZAgQ=
-X-Received: by 2002:a05:6638:468e:b0:33e:be92:ec40 with SMTP id
- bq14-20020a056638468e00b0033ebe92ec40mr12492484jab.74.1657092459946; Wed, 06
- Jul 2022 00:27:39 -0700 (PDT)
+        with ESMTP id S229477AbiGFGyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 02:54:45 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA751B791;
+        Tue,  5 Jul 2022 23:54:44 -0700 (PDT)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Ld9Fr6YdJzhZ0N;
+        Wed,  6 Jul 2022 14:52:16 +0800 (CST)
+Received: from dggpemm100009.china.huawei.com (7.185.36.113) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Wed, 6 Jul 2022 14:54:27 +0800
+Received: from huawei.com (10.175.113.32) by dggpemm100009.china.huawei.com
+ (7.185.36.113) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Wed, 6 Jul
+ 2022 14:54:27 +0800
+From:   Liu Shixin <liushixin2@huawei.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+        William Kucharski <william.kucharski@oracle.com>,
+        "Christoph Hellwig" <hch@lst.de>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Liu Shixin <liushixin2@huawei.com>
+Subject: [PATCH 5.15 v2] mm/filemap: fix UAF in find_lock_entries
+Date:   Wed, 6 Jul 2022 15:30:45 +0800
+Message-ID: <20220706073045.1398379-1-liushixin2@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20220705115605.742248854@linuxfoundation.org>
-In-Reply-To: <20220705115605.742248854@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 6 Jul 2022 12:57:28 +0530
-Message-ID: <CA+G9fYuxCLC=9UpCLNJxVQaVzeKQo5iT=8R7ram2hxW44r4JYQ@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/29] 4.9.322-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.113.32]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm100009.china.huawei.com (7.185.36.113)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,114 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 5 Jul 2022 at 17:30, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.322 release.
-> There are 29 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.322-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Release refcount after xas_set to fix UAF which may cause panic like this:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+ page:ffffea000491fa40 refcount:1 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x1247e9
+ head:ffffea000491fa00 order:3 compound_mapcount:0 compound_pincount:0
+ memcg:ffff888104f91091
+ flags: 0x2fffff80010200(slab|head|node=0|zone=2|lastcpupid=0x1fffff)
+...
+page dumped because: VM_BUG_ON_PAGE(PageTail(page))
+ ------------[ cut here ]------------
+ kernel BUG at include/linux/page-flags.h:632!
+ invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN
+ CPU: 1 PID: 7642 Comm: sh Not tainted 5.15.51-dirty #26
+...
+ Call Trace:
+  <TASK>
+  __invalidate_mapping_pages+0xe7/0x540
+  drop_pagecache_sb+0x159/0x320
+  iterate_supers+0x120/0x240
+  drop_caches_sysctl_handler+0xaa/0xe0
+  proc_sys_call_handler+0x2b4/0x480
+  new_sync_write+0x3d6/0x5c0
+  vfs_write+0x446/0x7a0
+  ksys_write+0x105/0x210
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f52b5733130
+...
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+This problem has been fixed on mainline by patch 6b24ca4a1a8d ("mm: Use
+multi-index entries in the page cache") since it deletes the related code.
 
-## Build
-* kernel: 4.9.322-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.9.y
-* git commit: af28a1763ea89ae07f1fdbcc0b07489a876718c1
-* git describe: v4.9.321-30-gaf28a1763ea8
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
-21-30-gaf28a1763ea8
+Fixes: 5c211ba29deb ("mm: add and use find_lock_entries")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+---
+ mm/filemap.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-## Test Regressions (compared to v4.9.321)
-No test regressions found.
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 00e391e75880..2c65dd314c49 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2090,7 +2090,11 @@ unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
+ 
+ 	rcu_read_lock();
+ 	while ((page = find_get_entry(&xas, end, XA_PRESENT))) {
++		unsigned long next_idx = xas.xa_index;
++
+ 		if (!xa_is_value(page)) {
++			if (PageTransHuge(page))
++				next_idx = page->index + thp_nr_pages(page);
+ 			if (page->index < start)
+ 				goto put;
+ 			if (page->index + thp_nr_pages(page) - 1 > end)
+@@ -2111,11 +2115,9 @@ unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
+ put:
+ 		put_page(page);
+ next:
+-		if (!xa_is_value(page) && PageTransHuge(page)) {
+-			unsigned int nr_pages = thp_nr_pages(page);
+-
++		if (next_idx != xas.xa_index) {
+ 			/* Final THP may cross MAX_LFS_FILESIZE on 32-bit */
+-			xas_set(&xas, page->index + nr_pages);
++			xas_set(&xas, next_idx);
+ 			if (xas.xa_index < nr_pages)
+ 				break;
+ 		}
+-- 
+2.25.1
 
-## Metric Regressions (compared to v4.9.321)
-No metric regressions found.
-
-## Test Fixes (compared to v4.9.321)
-No test fixes found.
-
-## Metric Fixes (compared to v4.9.321)
-No metric fixes found.
-
-## Test result summary
-total: 96765, pass: 84217, fail: 210, skip: 10851, xfail: 1487
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 254 total, 249 passed, 5 failed
-* arm64: 50 total, 43 passed, 7 failed
-* i386: 26 total, 23 passed, 3 failed
-* mips: 33 total, 33 passed, 0 failed
-* parisc: 12 total, 0 passed, 12 failed
-* powerpc: 36 total, 16 passed, 20 failed
-* s390: 12 total, 9 passed, 3 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 45 total, 44 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
