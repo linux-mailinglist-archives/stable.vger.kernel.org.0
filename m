@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9AC3568D3A
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9774F568D3C
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234116AbiGFPda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:33:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44222 "EHLO
+        id S234130AbiGFPdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:33:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234138AbiGFPch (ORCPT
+        with ESMTP id S234140AbiGFPch (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:32:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E527A29802;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD4A29804;
         Wed,  6 Jul 2022 08:32:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 988EDB81ADA;
-        Wed,  6 Jul 2022 15:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D7FC341CB;
-        Wed,  6 Jul 2022 15:32:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15F8561FF1;
+        Wed,  6 Jul 2022 15:32:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78CAC341CD;
+        Wed,  6 Jul 2022 15:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121534;
-        bh=aArpVS4VNheVFDiOhTep3qwKK7+LFJJviBSs/dkrB5s=;
+        s=k20201202; t=1657121536;
+        bh=GqYSiyEiYN54B9KbL1CA43tpPPB30YDlNdA9ZXdKhCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zj61nxLdI5J32pUTuW7OYjTE8WJ+uOxHmXfLyW+7XO3dwCFhmU1+Ls/r4I33RWFCK
-         NuDfSaJ2PBy1JCukTrr6GAtFjNsgA7ldkSQpH3mgOSZfkVb1QGpsP/9e+5ruseFyJO
-         IvoEWFqzFwGzqqgVEhRz9RAQFnTb5XUQM6KUCjNNbQ1l6Fs9OJpFBmdX1YUCBIf6MZ
-         3xYZRjKia12CY7M+BpdppILx6SvfuTjnlb4MhwEfHQzBlurVDVp31S30vsfkM0KntU
-         kuQHt1zyjjoSmvxAo/nr40Dv0dE1T6ZL9OR7N3u3C0gfwKPcv7dIBaN9/OM6lWKkwo
-         7tvyEh1Tfw9Yg==
+        b=uPiuXQ1OciCptQAm8NurlZ6qSbq6OIbjM7n07vbeq6RAIb0WlmXf+Be8xuwXL5hx/
+         jUUBtf/dJ6LErVGST4VNWuVfaaNecJRDe381ScXi2t0kcWLRi947IRjF0Junckyi4k
+         8Cs542HP9nXu617vNAG8HU8Q62iF7S9zi2p90HEesorfj8ArCJ60nf2WRUyfj/D0Rf
+         NBsp3qTpr3cyBK846wks3WtAT0Kekw+fMFFtDwJHKiCioEcWC4uBht+G/n6cHrkMiY
+         x93nUcs52V5l9ZYwgQbnU1gG3oFZQ9lFE3n3rHmD0spHycZgOva5V65t1phVz8rwB0
+         Ewn8BAo/E1Mzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.15 06/18] virtio_mmio: Restore guest page size on resume
-Date:   Wed,  6 Jul 2022 11:31:41 -0400
-Message-Id: <20220706153153.1598076-6-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Radim Hrazdil <rhrazdil@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
+        roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 07/18] netfilter: br_netfilter: do not skip all hooks with 0 priority
+Date:   Wed,  6 Jul 2022 11:31:42 -0400
+Message-Id: <20220706153153.1598076-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153153.1598076-1-sashal@kernel.org>
 References: <20220706153153.1598076-1-sashal@kernel.org>
@@ -57,42 +61,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit e0c2ce8217955537dd5434baeba061f209797119 ]
+[ Upstream commit c2577862eeb0be94f151f2f1fff662b028061b00 ]
 
-Virtio devices might lose their state when the VMM is restarted
-after a suspend to disk (hibernation) cycle. This means that the
-guest page size register must be restored for the virtio_mmio legacy
-interface, since otherwise the virtio queues are not functional.
+When br_netfilter module is loaded, skbs may be diverted to the
+ipv4/ipv6 hooks, just like as if we were routing.
 
-This is particularly problematic for QEMU that currently still defaults
-to using the legacy interface for virtio_mmio. Write the guest page
-size register again in virtio_mmio_restore() to make legacy virtio_mmio
-devices work correctly after hibernation.
+Unfortunately, bridge filter hooks with priority 0 may be skipped
+in this case.
 
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Message-Id: <20220621110621.3638025-3-stephan.gerhold@kernkonzept.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Example:
+1. an nftables bridge ruleset is loaded, with a prerouting
+   hook that has priority 0.
+2. interface is added to the bridge.
+3. no tcp packet is ever seen by the bridge prerouting hook.
+4. flush the ruleset
+5. load the bridge ruleset again.
+6. tcp packets are processed as expected.
+
+After 1) the only registered hook is the bridge prerouting hook, but its
+not called yet because the bridge hasn't been brought up yet.
+
+After 2), hook order is:
+   0 br_nf_pre_routing // br_netfilter internal hook
+   0 chain bridge f prerouting // nftables bridge ruleset
+
+The packet is diverted to br_nf_pre_routing.
+If call-iptables is off, the nftables bridge ruleset is called as expected.
+
+But if its enabled, br_nf_hook_thresh() will skip it because it assumes
+that all 0-priority hooks had been called previously in bridge context.
+
+To avoid this, check for the br_nf_pre_routing hook itself, we need to
+resume directly after it, even if this hook has a priority of 0.
+
+Unfortunately, this still results in different packet flow.
+With this fix, the eval order after in 3) is:
+1. br_nf_pre_routing
+2. ip(6)tables (if enabled)
+3. nftables bridge
+
+but after 5 its the much saner:
+1. nftables bridge
+2. br_nf_pre_routing
+3. ip(6)tables (if enabled)
+
+Unfortunately I don't see a solution here:
+It would be possible to move br_nf_pre_routing to a higher priority
+so that it will be called later in the pipeline, but this also impacts
+ebtables evaluation order, and would still result in this very ordering
+problem for all nftables-bridge hooks with the same priority as the
+br_nf_pre_routing one.
+
+Searching back through the git history I don't think this has
+ever behaved in any other way, hence, no fixes-tag.
+
+Reported-by: Radim Hrazdil <rhrazdil@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/bridge/br_netfilter_hooks.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 7522832529dd..fe696aafaed8 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -556,6 +556,9 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 68c0d0f92890..10a2c7bca719 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -1012,9 +1012,24 @@ int br_nf_hook_thresh(unsigned int hook, struct net *net,
+ 		return okfn(net, sk, skb);
  
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
+ 	ops = nf_hook_entries_get_hook_ops(e);
+-	for (i = 0; i < e->num_hook_entries &&
+-	      ops[i]->priority <= NF_BR_PRI_BRNF; i++)
+-		;
++	for (i = 0; i < e->num_hook_entries; i++) {
++		/* These hooks have already been called */
++		if (ops[i]->priority < NF_BR_PRI_BRNF)
++			continue;
 +
- 	return virtio_device_restore(&vm_dev->vdev);
- }
++		/* These hooks have not been called yet, run them. */
++		if (ops[i]->priority > NF_BR_PRI_BRNF)
++			break;
++
++		/* take a closer look at NF_BR_PRI_BRNF. */
++		if (ops[i]->hook == br_nf_pre_routing) {
++			/* This hook diverted the skb to this function,
++			 * hooks after this have not been run yet.
++			 */
++			i++;
++			break;
++		}
++	}
  
+ 	nf_hook_state_init(&state, hook, NFPROTO_BRIDGE, indev, outdev,
+ 			   sk, net, okfn);
 -- 
 2.35.1
 
