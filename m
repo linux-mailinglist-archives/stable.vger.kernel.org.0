@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91C4568D2C
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4247568D37
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233780AbiGFPbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44164 "EHLO
+        id S233822AbiGFPbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233781AbiGFPbJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:31:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5325B26127;
-        Wed,  6 Jul 2022 08:31:06 -0700 (PDT)
+        with ESMTP id S233795AbiGFPbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:31:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3331EC57;
+        Wed,  6 Jul 2022 08:31:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E493B61FE8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64834B81D93;
+        Wed,  6 Jul 2022 15:31:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB824C341C8;
         Wed,  6 Jul 2022 15:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0815C3411C;
-        Wed,  6 Jul 2022 15:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121465;
-        bh=aArpVS4VNheVFDiOhTep3qwKK7+LFJJviBSs/dkrB5s=;
+        s=k20201202; t=1657121467;
+        bh=Z4jm9HYnjTDaIJzWkTxE02HWzcZimkwrxhl4fDPJ6vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbE7mkkg9UfI21kF5HqUIL21ItaEPBVtRGn/kbuW1SSIM5Dz5UU0g48rIeUTObzAR
-         aA8HUj+QEyb3bI91bVV1Q2Q4s/Klbomnuf7eY8HJNehSIe7Cwt6iSetzCT+YYR5nZG
-         kIfbEF3eEHmw40PoliJvqHp6a8OAUnL8qIeVqRvPM5pGAYuTE/lX9rXkiCjkTi4YvY
-         Fy7MJlVqxyzNNYx5kLBO4eut9BMjVNk4JVtZhg/KiqXiplW/mAEGvUZRlM+Bkm/5Mx
-         3xEUN/ZjPfkzONSReNMvQuF0KxxHjRv7Vl/FYHUBSSQawbcSfF03BSWij7k8g4okg/
-         ZFwQADyvI0dJw==
+        b=S5tQvx7nwFNt3QEPxmIFwtloxbVgH3kZYxb/uVvkd5HzGtNJ3YCQDdreiworaxynD
+         g863nC95cljxyWjUm0iQDwOy+CvW88SETDb7ahElr7rrsO+R7d9hYxdtgkZY7mtnKN
+         JtUviCUsSfnMUDhTq7s7eJT44E9Iab+7DBPynkCcp3zdLFR8CATdnS9rNAl6QjYMiy
+         AO9qmMbpmnz4DoUbAl6A7rBXUBdXT7gmLIbQUJhj2V1cf8U5tKGS9AWWA6RIMGeDFA
+         bS5UfWGxnYeuH6ElPMiPfVMBGtAgAiuCIpH96L0oN0gwxS2kTknwAefVCZ9aKAhV05
+         lBa1QyCSsuoYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.18 07/22] virtio_mmio: Restore guest page size on resume
-Date:   Wed,  6 Jul 2022 11:30:25 -0400
-Message-Id: <20220706153041.1597639-7-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 08/22] netfilter: nf_tables: avoid skb access on nf_stolen
+Date:   Wed,  6 Jul 2022 11:30:26 -0400
+Message-Id: <20220706153041.1597639-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153041.1597639-1-sashal@kernel.org>
 References: <20220706153041.1597639-1-sashal@kernel.org>
@@ -57,42 +59,248 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit e0c2ce8217955537dd5434baeba061f209797119 ]
+[ Upstream commit e34b9ed96ce3b06c79bf884009b16961ca478f87 ]
 
-Virtio devices might lose their state when the VMM is restarted
-after a suspend to disk (hibernation) cycle. This means that the
-guest page size register must be restored for the virtio_mmio legacy
-interface, since otherwise the virtio queues are not functional.
+When verdict is NF_STOLEN, the skb might have been freed.
 
-This is particularly problematic for QEMU that currently still defaults
-to using the legacy interface for virtio_mmio. Write the guest page
-size register again in virtio_mmio_restore() to make legacy virtio_mmio
-devices work correctly after hibernation.
+When tracing is enabled, this can result in a use-after-free:
+1. access to skb->nf_trace
+2. access to skb->mark
+3. computation of trace id
+4. dump of packet payload
 
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Message-Id: <20220621110621.3638025-3-stephan.gerhold@kernkonzept.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+To avoid 1, keep a cached copy of skb->nf_trace in the
+trace state struct.
+Refresh this copy whenever verdict is != STOLEN.
+
+Avoid 2 by skipping skb->mark access if verdict is STOLEN.
+
+3 is avoided by precomputing the trace id.
+
+Only dump the packet when verdict is not "STOLEN".
+
+Reported-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/net/netfilter/nf_tables.h | 16 ++++++-----
+ net/netfilter/nf_tables_core.c    | 24 ++++++++++++++---
+ net/netfilter/nf_tables_trace.c   | 44 +++++++++++++++++--------------
+ 3 files changed, 55 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 7522832529dd..fe696aafaed8 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -556,6 +556,9 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 279ae0fff7ad..5c4e5a96a984 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1338,24 +1338,28 @@ void nft_unregister_flowtable_type(struct nf_flowtable_type *type);
+ /**
+  *	struct nft_traceinfo - nft tracing information and state
+  *
++ *	@trace: other struct members are initialised
++ *	@nf_trace: copy of skb->nf_trace before rule evaluation
++ *	@type: event type (enum nft_trace_types)
++ *	@skbid: hash of skb to be used as trace id
++ *	@packet_dumped: packet headers sent in a previous traceinfo message
+  *	@pkt: pktinfo currently processed
+  *	@basechain: base chain currently processed
+  *	@chain: chain currently processed
+  *	@rule:  rule that was evaluated
+  *	@verdict: verdict given by rule
+- *	@type: event type (enum nft_trace_types)
+- *	@packet_dumped: packet headers sent in a previous traceinfo message
+- *	@trace: other struct members are initialised
+  */
+ struct nft_traceinfo {
++	bool				trace;
++	bool				nf_trace;
++	bool				packet_dumped;
++	enum nft_trace_types		type:8;
++	u32				skbid;
+ 	const struct nft_pktinfo	*pkt;
+ 	const struct nft_base_chain	*basechain;
+ 	const struct nft_chain		*chain;
+ 	const struct nft_rule_dp	*rule;
+ 	const struct nft_verdict	*verdict;
+-	enum nft_trace_types		type;
+-	bool				packet_dumped;
+-	bool				trace;
+ };
  
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
+ void nft_trace_init(struct nft_traceinfo *info, const struct nft_pktinfo *pkt,
+diff --git a/net/netfilter/nf_tables_core.c b/net/netfilter/nf_tables_core.c
+index 53f40e473855..3ddce24ac76d 100644
+--- a/net/netfilter/nf_tables_core.c
++++ b/net/netfilter/nf_tables_core.c
+@@ -25,9 +25,7 @@ static noinline void __nft_trace_packet(struct nft_traceinfo *info,
+ 					const struct nft_chain *chain,
+ 					enum nft_trace_types type)
+ {
+-	const struct nft_pktinfo *pkt = info->pkt;
+-
+-	if (!info->trace || !pkt->skb->nf_trace)
++	if (!info->trace || !info->nf_trace)
+ 		return;
+ 
+ 	info->chain = chain;
+@@ -42,11 +40,24 @@ static inline void nft_trace_packet(struct nft_traceinfo *info,
+ 				    enum nft_trace_types type)
+ {
+ 	if (static_branch_unlikely(&nft_trace_enabled)) {
++		const struct nft_pktinfo *pkt = info->pkt;
 +
- 	return virtio_device_restore(&vm_dev->vdev);
++		info->nf_trace = pkt->skb->nf_trace;
+ 		info->rule = rule;
+ 		__nft_trace_packet(info, chain, type);
+ 	}
  }
  
++static inline void nft_trace_copy_nftrace(struct nft_traceinfo *info)
++{
++	if (static_branch_unlikely(&nft_trace_enabled)) {
++		const struct nft_pktinfo *pkt = info->pkt;
++
++		if (info->trace)
++			info->nf_trace = pkt->skb->nf_trace;
++	}
++}
++
+ static void nft_bitwise_fast_eval(const struct nft_expr *expr,
+ 				  struct nft_regs *regs)
+ {
+@@ -85,6 +96,7 @@ static noinline void __nft_trace_verdict(struct nft_traceinfo *info,
+ 					 const struct nft_chain *chain,
+ 					 const struct nft_regs *regs)
+ {
++	const struct nft_pktinfo *pkt = info->pkt;
+ 	enum nft_trace_types type;
+ 
+ 	switch (regs->verdict.code) {
+@@ -92,8 +104,13 @@ static noinline void __nft_trace_verdict(struct nft_traceinfo *info,
+ 	case NFT_RETURN:
+ 		type = NFT_TRACETYPE_RETURN;
+ 		break;
++	case NF_STOLEN:
++		type = NFT_TRACETYPE_RULE;
++		/* can't access skb->nf_trace; use copy */
++		break;
+ 	default:
+ 		type = NFT_TRACETYPE_RULE;
++		info->nf_trace = pkt->skb->nf_trace;
+ 		break;
+ 	}
+ 
+@@ -254,6 +271,7 @@ nft_do_chain(struct nft_pktinfo *pkt, void *priv)
+ 		switch (regs.verdict.code) {
+ 		case NFT_BREAK:
+ 			regs.verdict.code = NFT_CONTINUE;
++			nft_trace_copy_nftrace(&info);
+ 			continue;
+ 		case NFT_CONTINUE:
+ 			nft_trace_packet(&info, chain, rule,
+diff --git a/net/netfilter/nf_tables_trace.c b/net/netfilter/nf_tables_trace.c
+index 5041725423c2..1163ba9c1401 100644
+--- a/net/netfilter/nf_tables_trace.c
++++ b/net/netfilter/nf_tables_trace.c
+@@ -7,7 +7,7 @@
+ #include <linux/module.h>
+ #include <linux/static_key.h>
+ #include <linux/hash.h>
+-#include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <linux/if_vlan.h>
+ #include <linux/init.h>
+ #include <linux/skbuff.h>
+@@ -25,22 +25,6 @@
+ DEFINE_STATIC_KEY_FALSE(nft_trace_enabled);
+ EXPORT_SYMBOL_GPL(nft_trace_enabled);
+ 
+-static int trace_fill_id(struct sk_buff *nlskb, struct sk_buff *skb)
+-{
+-	__be32 id;
+-
+-	/* using skb address as ID results in a limited number of
+-	 * values (and quick reuse).
+-	 *
+-	 * So we attempt to use as many skb members that will not
+-	 * change while skb is with netfilter.
+-	 */
+-	id = (__be32)jhash_2words(hash32_ptr(skb), skb_get_hash(skb),
+-				  skb->skb_iif);
+-
+-	return nla_put_be32(nlskb, NFTA_TRACE_ID, id);
+-}
+-
+ static int trace_fill_header(struct sk_buff *nlskb, u16 type,
+ 			     const struct sk_buff *skb,
+ 			     int off, unsigned int len)
+@@ -186,6 +170,7 @@ void nft_trace_notify(struct nft_traceinfo *info)
+ 	struct nlmsghdr *nlh;
+ 	struct sk_buff *skb;
+ 	unsigned int size;
++	u32 mark = 0;
+ 	u16 event;
+ 
+ 	if (!nfnetlink_has_listeners(nft_net(pkt), NFNLGRP_NFTRACE))
+@@ -229,7 +214,7 @@ void nft_trace_notify(struct nft_traceinfo *info)
+ 	if (nla_put_be32(skb, NFTA_TRACE_TYPE, htonl(info->type)))
+ 		goto nla_put_failure;
+ 
+-	if (trace_fill_id(skb, pkt->skb))
++	if (nla_put_u32(skb, NFTA_TRACE_ID, info->skbid))
+ 		goto nla_put_failure;
+ 
+ 	if (nla_put_string(skb, NFTA_TRACE_CHAIN, info->chain->name))
+@@ -249,16 +234,24 @@ void nft_trace_notify(struct nft_traceinfo *info)
+ 	case NFT_TRACETYPE_RULE:
+ 		if (nft_verdict_dump(skb, NFTA_TRACE_VERDICT, info->verdict))
+ 			goto nla_put_failure;
++
++		/* pkt->skb undefined iff NF_STOLEN, disable dump */
++		if (info->verdict->code == NF_STOLEN)
++			info->packet_dumped = true;
++		else
++			mark = pkt->skb->mark;
++
+ 		break;
+ 	case NFT_TRACETYPE_POLICY:
++		mark = pkt->skb->mark;
++
+ 		if (nla_put_be32(skb, NFTA_TRACE_POLICY,
+ 				 htonl(info->basechain->policy)))
+ 			goto nla_put_failure;
+ 		break;
+ 	}
+ 
+-	if (pkt->skb->mark &&
+-	    nla_put_be32(skb, NFTA_TRACE_MARK, htonl(pkt->skb->mark)))
++	if (mark && nla_put_be32(skb, NFTA_TRACE_MARK, htonl(mark)))
+ 		goto nla_put_failure;
+ 
+ 	if (!info->packet_dumped) {
+@@ -283,9 +276,20 @@ void nft_trace_init(struct nft_traceinfo *info, const struct nft_pktinfo *pkt,
+ 		    const struct nft_verdict *verdict,
+ 		    const struct nft_chain *chain)
+ {
++	static siphash_key_t trace_key __read_mostly;
++	struct sk_buff *skb = pkt->skb;
++
+ 	info->basechain = nft_base_chain(chain);
+ 	info->trace = true;
++	info->nf_trace = pkt->skb->nf_trace;
+ 	info->packet_dumped = false;
+ 	info->pkt = pkt;
+ 	info->verdict = verdict;
++
++	net_get_random_once(&trace_key, sizeof(trace_key));
++
++	info->skbid = (u32)siphash_3u32(hash32_ptr(skb),
++					skb_get_hash(skb),
++					skb->skb_iif,
++					&trace_key);
+ }
 -- 
 2.35.1
 
