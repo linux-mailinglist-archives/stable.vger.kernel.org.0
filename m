@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F203E568CFD
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7C0568D11
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233687AbiGFPbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:31:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44150 "EHLO
+        id S233786AbiGFPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233735AbiGFPbJ (ORCPT
+        with ESMTP id S233784AbiGFPbJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:31:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB7625EA3;
-        Wed,  6 Jul 2022 08:31:02 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE6F2611B;
+        Wed,  6 Jul 2022 08:31:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E721E61FDB;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CEB1B81D95;
+        Wed,  6 Jul 2022 15:31:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C7EC341CE;
         Wed,  6 Jul 2022 15:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224F1C3411C;
-        Wed,  6 Jul 2022 15:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121461;
-        bh=8ZHzkmLK7hTG93tf9ENQrj40e40dnzUne2DsY5NsBh4=;
+        s=k20201202; t=1657121462;
+        bh=2s+Qy8PAT+eFTqzOukEbXvmcPXQSWYaLsQ5kNH32U4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oG2W8kgW99ZnDqaJ98QlDpQeKFEqCj96WlBnYF6lfMvTxE0CBi1X9sGNEM9rJ2/C7
-         7Ik3Bn0PYKz+CKjFWVepdH1QjivKonWBpWBecbbrCcxwXPOqfmGHKL5JFVdZeutEqx
-         WRHboCsX+qBDZ6xfXMLJLg1cvlm7N/vwp2bahB943l44EXKd7laP7659U7zSc9+ASU
-         hX7sJR3Rr8xNDpvLVHxa6Ie5wN0Ox+N4XpzUOFJLqPDppefq/hJKTRKTMYsqEPc3Py
-         296lVjW9RUIng+rU/hwpzYwSfPMnGOL5B6/mWPwQaqGMrZgqPaHhNoO9fW4JX5JB9h
-         Ylaz+Y4Z7e+WQ==
+        b=gLmpnbvwWfZxphHiLjvDPeHFIH2RFvLUcK+eOilhnP5E9BBUHOq/ThBXLoGqgagi0
+         RG86K3WvfIXG6ePNQey85qPOmk+Up9Try73vcsU7sDQzV2Yb4qUXf7HVwaYscezCEG
+         Ev5EAkfCZ8ySjh7wGr4AxEm7GkNPXZ6yCKadY/ETkWGQDeWhQczxzNZMJKntSxwpzt
+         FXQg9S1hbuWPaa/lnPuGm7zDUk09AA5Hm+EBOgC85I/yfgN1RdbFa1KHeznmBVpfLq
+         gDBnbOtUoh7n0SL8p/gpaFgn33Y2ct+NHpBEvRgQZHwjoroTHGU61WQkmrbqQNepLG
+         mf6AxpOVJUtjA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Parav Pandit <parav@nvidia.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dan.carpenter@oracle.com,
-        elic@nvidia.com, gautam.dawar@xilinx.com,
-        guanjun@linux.alibaba.com,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.18 04/22] vduse: Tie vduse mgmtdev and its device
-Date:   Wed,  6 Jul 2022 11:30:22 -0400
-Message-Id: <20220706153041.1597639-4-sashal@kernel.org>
+Cc:     Gayatri Kammela <gayatri.kammela@linux.intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "David E . Box" <david.e.box@linux.intel.com>,
+        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, david.e.box@intel.com,
+        markgross@kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 05/22] platform/x86: intel/pmc: Add Alder Lake N support to PMC core driver
+Date:   Wed,  6 Jul 2022 11:30:23 -0400
+Message-Id: <20220706153041.1597639-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153041.1597639-1-sashal@kernel.org>
 References: <20220706153041.1597639-1-sashal@kernel.org>
@@ -61,132 +61,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Gayatri Kammela <gayatri.kammela@linux.intel.com>
 
-[ Upstream commit 0e0348ac3f0a6e6606f1aa5acb1803ada913aa3d ]
+[ Upstream commit d63eae6747eb8b3192e89712f6553c6aa162f872 ]
 
-vduse devices are not backed by any real devices such as PCI. Hence it
-doesn't have any parent device linked to it.
+Add Alder Lake N (ADL-N) to the list of the platforms that Intel's
+PMC core driver supports. Alder Lake N reuses all the TigerLake PCH IPs.
 
-Kernel driver model in [1] suggests to avoid an empty device
-release callback.
-
-Hence tie the mgmtdevice object's life cycle to an allocate dummy struct
-device instead of static one.
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/core-api/kobject.rst?h=v5.18-rc7#n284
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Message-Id: <20220613195223.473966-1-parav@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: David E. Box <david.e.box@linux.intel.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@linux.intel.com>
+Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
+Link: https://lore.kernel.org/r/20220615002751.3371730-1-gayatri.kammela@linux.intel.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 60 ++++++++++++++++++------------
- 1 file changed, 37 insertions(+), 23 deletions(-)
+ drivers/platform/x86/intel/pmc/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 160e40d03084..02709f8a78bd 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1475,16 +1475,12 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
- 	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
- }
- 
--static void vduse_mgmtdev_release(struct device *dev)
--{
--}
--
--static struct device vduse_mgmtdev = {
--	.init_name = "vduse",
--	.release = vduse_mgmtdev_release,
-+struct vduse_mgmt_dev {
-+	struct vdpa_mgmt_dev mgmt_dev;
-+	struct device dev;
- };
- 
--static struct vdpa_mgmt_dev mgmt_dev;
-+static struct vduse_mgmt_dev *vduse_mgmt;
- 
- static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- {
-@@ -1509,7 +1505,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 	}
- 	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
- 	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
--	vdev->vdpa.mdev = &mgmt_dev;
-+	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
- 
- 	return 0;
- }
-@@ -1555,34 +1551,52 @@ static struct virtio_device_id id_table[] = {
- 	{ 0 },
- };
- 
--static struct vdpa_mgmt_dev mgmt_dev = {
--	.device = &vduse_mgmtdev,
--	.id_table = id_table,
--	.ops = &vdpa_dev_mgmtdev_ops,
--};
-+static void vduse_mgmtdev_release(struct device *dev)
-+{
-+	struct vduse_mgmt_dev *mgmt_dev;
-+
-+	mgmt_dev = container_of(dev, struct vduse_mgmt_dev, dev);
-+	kfree(mgmt_dev);
-+}
- 
- static int vduse_mgmtdev_init(void)
- {
- 	int ret;
- 
--	ret = device_register(&vduse_mgmtdev);
--	if (ret)
-+	vduse_mgmt = kzalloc(sizeof(*vduse_mgmt), GFP_KERNEL);
-+	if (!vduse_mgmt)
-+		return -ENOMEM;
-+
-+	ret = dev_set_name(&vduse_mgmt->dev, "vduse");
-+	if (ret) {
-+		kfree(vduse_mgmt);
- 		return ret;
-+	}
- 
--	ret = vdpa_mgmtdev_register(&mgmt_dev);
-+	vduse_mgmt->dev.release = vduse_mgmtdev_release;
-+
-+	ret = device_register(&vduse_mgmt->dev);
- 	if (ret)
--		goto err;
-+		goto dev_reg_err;
- 
--	return 0;
--err:
--	device_unregister(&vduse_mgmtdev);
-+	vduse_mgmt->mgmt_dev.id_table = id_table;
-+	vduse_mgmt->mgmt_dev.ops = &vdpa_dev_mgmtdev_ops;
-+	vduse_mgmt->mgmt_dev.device = &vduse_mgmt->dev;
-+	ret = vdpa_mgmtdev_register(&vduse_mgmt->mgmt_dev);
-+	if (ret)
-+		device_unregister(&vduse_mgmt->dev);
-+
-+	return ret;
-+
-+dev_reg_err:
-+	put_device(&vduse_mgmt->dev);
- 	return ret;
- }
- 
- static void vduse_mgmtdev_exit(void)
- {
--	vdpa_mgmtdev_unregister(&mgmt_dev);
--	device_unregister(&vduse_mgmtdev);
-+	vdpa_mgmtdev_unregister(&vduse_mgmt->mgmt_dev);
-+	device_unregister(&vduse_mgmt->dev);
- }
- 
- static int vduse_init(void)
+diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
+index 8ee15a7252c7..c3ec5dc88bbf 100644
+--- a/drivers/platform/x86/intel/pmc/core.c
++++ b/drivers/platform/x86/intel/pmc/core.c
+@@ -1911,6 +1911,7 @@ static const struct x86_cpu_id intel_pmc_core_ids[] = {
+ 	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_L,	&icl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ROCKETLAKE,		&tgl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&tgl_reg_map),
++	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_N,		&tgl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_P,        &tgl_reg_map),
+ 	{}
 -- 
 2.35.1
 
