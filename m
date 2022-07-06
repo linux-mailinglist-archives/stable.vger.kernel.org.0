@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03806568DAA
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7BA568D77
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234599AbiGFPio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:38:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57602 "EHLO
+        id S234512AbiGFPiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234615AbiGFPhg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:37:36 -0400
+        with ESMTP id S234632AbiGFPhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:37:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2750D2AC63;
-        Wed,  6 Jul 2022 08:34:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB892AE28;
+        Wed,  6 Jul 2022 08:34:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7290EB81D94;
-        Wed,  6 Jul 2022 15:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48623C341CD;
-        Wed,  6 Jul 2022 15:33:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2AD7B81D90;
+        Wed,  6 Jul 2022 15:34:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C67C341CB;
+        Wed,  6 Jul 2022 15:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121638;
-        bh=86GZffUJNDdRz1Q8/xH57X1zgjufQMhaT9F2jEs4Lh8=;
+        s=k20201202; t=1657121639;
+        bh=3wNf9MU5nkqkVJi/QAPuv9CYhltkS5PKt+M/rdroE8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZ1xOlobG7BOY7YIncGk/NvavX4yMirMLq0NcBbbvLHPd6dg02l9PzUeC7kqMkQWM
-         nWsxlSUZ0QJZ3ulINZOEEHHl4uEiYEV7xCmHr4t/25nIkgcK60qc4m3BdhC0DBqZ6F
-         zkmybmuloR5HvW00xPKdOJJ4tJsk8jSvwSbQT55To+pOFxTDqOwDWvAPacpNJCHsRb
-         Ob2JaCGIFHACRR+VS7VFPgcufzMy7fY0gKSQEU1wW7g9vNcw4B3TcmN/l1lj2pRGVY
-         zY7CJcL8E5DW1NUc8zYAwQO8ZhgLQT+RPtq+jCtS5bFfEInxUAy9mYsUJs2lqGpS8X
-         babchvxNa9gEA==
+        b=TISIF1x/BWlids3Yk5gyFque8Zwohrzly9hYUppfH0KF7+LaS5PrK26fThqhBR2pB
+         tzV6Qcr7wvmmFSEXS5CH8RXhBLUQaQwl5QIRJDZquzdoenhnnN6vInfbOSIrBZD59r
+         fzQKG2T7b9xB4lRlDKobfFgymX+iZVYJ66UBC1avYhrnS/BJcry6TaHIm6w2lPtIlD
+         rz++iwQod7GXURwqq153GgmpxnqKFrW1WqSqUt5v67ASwZQMYVqBNGFkD24VQsP5py
+         Gob20SugkKFeYCQGvHypvBkhRwfQNP9t9kTrr89MIVfPraD0lCd8+JS+a2JsejZbGu
+         L9e3GTMQH8XwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>, Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        mpe@ellerman.id.au, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 4/8] cpufreq: pmac32-cpufreq: Fix refcount leak bug
-Date:   Wed,  6 Jul 2022 11:33:46 -0400
-Message-Id: <20220706153351.1598805-4-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jorge Lopez <jorge.lopez2@hp.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 5/8] platform/x86: hp-wmi: Ignore Sanitization Mode event
+Date:   Wed,  6 Jul 2022 11:33:47 -0400
+Message-Id: <20220706153351.1598805-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153351.1598805-1-sashal@kernel.org>
 References: <20220706153351.1598805-1-sashal@kernel.org>
@@ -57,36 +58,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit ccd7567d4b6cf187fdfa55f003a9e461ee629e36 ]
+[ Upstream commit 9ab762a84b8094540c18a170e5ddd6488632c456 ]
 
-In pmac_cpufreq_init_MacRISC3(), we need to add corresponding
-of_node_put() for the three node pointers whose refcount have
-been incremented by of_find_node_by_name().
+After system resume the hp-wmi driver may complain:
+[ 702.620180] hp_wmi: Unknown event_id - 23 - 0x0
 
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+According to HP it means 'Sanitization Mode' and it's harmless to just
+ignore the event.
+
+Cc: Jorge Lopez <jorge.lopez2@hp.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20220628123726.250062-1-kai.heng.feng@canonical.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/pmac32-cpufreq.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/platform/x86/hp-wmi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/cpufreq/pmac32-cpufreq.c b/drivers/cpufreq/pmac32-cpufreq.c
-index e225edb5c359..ce0dda1a4241 100644
---- a/drivers/cpufreq/pmac32-cpufreq.c
-+++ b/drivers/cpufreq/pmac32-cpufreq.c
-@@ -474,6 +474,10 @@ static int pmac_cpufreq_init_MacRISC3(struct device_node *cpunode)
- 	if (slew_done_gpio_np)
- 		slew_done_gpio = read_gpio(slew_done_gpio_np);
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 93fadd4abf14..f911410bb4c7 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -75,6 +75,7 @@ enum hp_wmi_event_ids {
+ 	HPWMI_BACKLIT_KB_BRIGHTNESS	= 0x0D,
+ 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
+ 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
++	HPWMI_SANITIZATION_MODE		= 0x17,
+ };
  
-+	of_node_put(volt_gpio_np);
-+	of_node_put(freq_gpio_np);
-+	of_node_put(slew_done_gpio_np);
-+
- 	/* If we use the frequency GPIOs, calculate the min/max speeds based
- 	 * on the bus frequencies
- 	 */
+ struct bios_args {
+@@ -631,6 +632,8 @@ static void hp_wmi_notify(u32 value, void *context)
+ 		break;
+ 	case HPWMI_BATTERY_CHARGE_PERIOD:
+ 		break;
++	case HPWMI_SANITIZATION_MODE:
++		break;
+ 	default:
+ 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
+ 		break;
 -- 
 2.35.1
 
