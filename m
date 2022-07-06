@@ -2,107 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A9356855E
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 12:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7EC35685CC
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 12:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229680AbiGFKWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 06:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60926 "EHLO
+        id S230030AbiGFKjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 06:39:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233205AbiGFKVt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 06:21:49 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E332715A;
-        Wed,  6 Jul 2022 03:21:33 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id v14so21379624wra.5;
-        Wed, 06 Jul 2022 03:21:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=uEHh4GEP9EGPyx2OPtnoe9ayGXgmmZLOmFwUk1Akya8=;
-        b=Gbd5BjMdj/NZowumQ+VnsG0Y7aMPE4mv0fXyAewoMbgxf5bna1GgTD7fbMNzMct/LS
-         X4DO7FDPaOp85/oV5GInGQhXrA+bPY9JqxvJK86jdJXYJ+k2oC+ut1tQ6CHhBW61EOVC
-         y+eTl3iCcgKeXjBcMQBFiOHuLnu3AYtOgjSJcdcW7KdHVCEp0YywYt9t93dXu3/X/Atk
-         +bxF99Q8zYfmJTiAsUAw6BtmFXt/1zmK2AW8dIV0UXAGx9TBd9NyjnoWabnICclG0355
-         gOILpiogZ7KFe592jOTVN0oOaVQvLFZ2mVLz+nsSc7/PJA0o79HN2j2mSXwi37HQxbMV
-         ep1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=uEHh4GEP9EGPyx2OPtnoe9ayGXgmmZLOmFwUk1Akya8=;
-        b=MfJFtpCkMH3msvsQegCMxkBmvAqP+UQ1oeyWX7fJGf7KgMCMtbgx6xV8wSP/+yTtSh
-         geJfpJGBsa6QkEqBdKtivzuAhPwBvPyY5kb2Z0n1jZWt0Rw7dTp2vY0q/nUk76R31RIw
-         7Af/UX3Q86GbMcw+y3VL0zE/1awGk1znqWKVEocz4Fq9hNVS2WLFF48SCyCfBchLAHUT
-         4x5m+yX4s+hNSUI0T68WPaFEvYBlmrpIylt9A+0R8S8+iORETkquz5bjnJ06GdlXOepj
-         dEBcsfTfTTIT5wHGJHMx+swNbIc8eYWwctD1zoltTB8sGLgNlSIDniV0MFMS5HxmKara
-         9JLg==
-X-Gm-Message-State: AJIora8oPkIRn1bNzVWrDgqCJafsAu+C+JL50YGzunNzIMkAOBgNwrrb
-        bwmRQ/A4DTW67YqHgWGzF4M=
-X-Google-Smtp-Source: AGRyM1skWE3Dv/8Q1wMYa1A89flq9kAodkHzWPqKswBbq9td3sdVT6+aUfBnz8oWuBc9sjU/2HpF9Q==
-X-Received: by 2002:adf:d1eb:0:b0:21b:dbb5:fe05 with SMTP id g11-20020adfd1eb000000b0021bdbb5fe05mr36960896wrd.651.1657102892039;
-        Wed, 06 Jul 2022 03:21:32 -0700 (PDT)
-Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id t5-20020a1c4605000000b0039db31f6372sm21875103wma.2.2022.07.06.03.21.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Jul 2022 03:21:31 -0700 (PDT)
-Date:   Wed, 6 Jul 2022 11:21:29 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/33] 4.19.251-rc1 review
-Message-ID: <YsViKbbTLcySS6ka@debian>
-References: <20220705115606.709817198@linuxfoundation.org>
+        with ESMTP id S229599AbiGFKjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 06:39:53 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AADAE2716B;
+        Wed,  6 Jul 2022 03:39:52 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8006F1042;
+        Wed,  6 Jul 2022 03:39:52 -0700 (PDT)
+Received: from e126311.manchester.arm.com (unknown [10.57.71.227])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2C5EF3F66F;
+        Wed,  6 Jul 2022 03:39:49 -0700 (PDT)
+Date:   Wed, 6 Jul 2022 11:39:40 +0100
+From:   Kajetan Puchalski <kajetan.puchalski@arm.com>
+To:     Will Deacon <will@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        lukasz.luba@arm.com, dietmar.eggemann@arm.com,
+        mark.rutland@arm.com, broonie@kernel.org,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        regressions@lists.linux.dev, linux-kernel@vger.kernel.org,
+        peterz@infradead.org, kajetan.puchalski@arm.com
+Subject: Re: [Regression] stress-ng udp-flood causes kernel panic on Ampere
+ Altra
+Message-ID: <YsVmbOqzACeo1rO4@e126311.manchester.arm.com>
+References: <Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com>
+ <20220701200110.GA15144@breakpoint.cc>
+ <YsAnPhPfWRjpkdmn@e126311.manchester.arm.com>
+ <20220702205651.GB15144@breakpoint.cc>
+ <YsKxTAaIgvKMfOoU@e126311.manchester.arm.com>
+ <YsLGoU7q5hP67TJJ@e126311.manchester.arm.com>
+ <YsQYIoJK3iqJ68Tq@e126311.manchester.arm.com>
+ <20220705105749.GA711@willie-the-truck>
+ <20220705110724.GB711@willie-the-truck>
+ <20220705112449.GA931@willie-the-truck>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220705115606.709817198@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220705112449.GA931@willie-the-truck>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Tue, Jul 05, 2022 at 01:57:52PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.251 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Jul 05, 2022 at 12:24:49PM +0100, Will Deacon wrote:
+> > > Sorry, but I have absolutely no context here. We have a handy document
+> > > describing the differences between atomic_t and refcount_t:
+> > > 
+> > > 	Documentation/core-api/refcount-vs-atomic.rst
+> > > 
+> > > What else do you need to know?
+> > 
+> > Hmm, and I see a tonne of *_inc_not_zero() conversions in 719774377622
+> > ("netfilter: conntrack: convert to refcount_t api") which mean that you
+> > no longer have ordering to subsequent reads in the absence of an address
+> > dependency.
 > 
-> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
-> Anything received after that time might be too late.
+> I think the patch above needs auditing with the relaxed behaviour in mind,
+> but for the specific crash reported here possibly something like the diff
+> below?
+> 
+> Will
+> 
+> --->8
+> 
+> diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+> index 082a2fd8d85b..5ad9fcc84269 100644
+> --- a/net/netfilter/nf_conntrack_core.c
+> +++ b/net/netfilter/nf_conntrack_core.c
+> @@ -1394,6 +1394,7 @@ static unsigned int early_drop_list(struct net *net,
+>                  * already fired or someone else deleted it. Just drop ref
+>                  * and move to next entry.
+>                  */
+> +               smp_rmb();      /* XXX: Why? */
+>                 if (net_eq(nf_ct_net(tmp), net) &&
+>                     nf_ct_is_confirmed(tmp) &&
+>                     nf_ct_delete(tmp, 0, 0))
+> 
 
-Build test (gcc version 11.3.1 20220627):
-mips: 63 configs -> no  failure
-arm: 115 configs -> no failure
-arm64: 2 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
-
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/1455
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
+Just to follow up, I think you're right, the patch in question should be
+audited further for other missing memory barrier issues.
+While this one smp_rmb() helps a lot, ie lets the test run for at least
+an hour or two, an overnight 6 hour test still resulted in the same
+crash somewhere along the way so it looks like it's not the only one
+that's needed.
