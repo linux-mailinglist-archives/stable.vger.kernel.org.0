@@ -2,148 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1CF567C17
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 04:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D6D567C8F
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 05:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230070AbiGFCsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jul 2022 22:48:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
+        id S229689AbiGFDeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jul 2022 23:34:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbiGFCsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 22:48:09 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2971A05C;
-        Tue,  5 Jul 2022 19:48:07 -0700 (PDT)
-Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Ld3nl48DhzcftB;
-        Wed,  6 Jul 2022 10:46:03 +0800 (CST)
-Received: from dggpemm100009.china.huawei.com (7.185.36.113) by
- dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 6 Jul 2022 10:48:04 +0800
-Received: from huawei.com (10.175.113.32) by dggpemm100009.china.huawei.com
- (7.185.36.113) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Wed, 6 Jul
- 2022 10:48:04 +0800
-From:   Liu Shixin <liushixin2@huawei.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
-        William Kucharski <william.kucharski@oracle.com>,
-        "Christoph Hellwig" <hch@lst.de>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Liu Shixin <liushixin2@huawei.com>
-Subject: [PATCH 5.15] mm/filemap: fix UAF in find_lock_entries
-Date:   Wed, 6 Jul 2022 11:24:34 +0800
-Message-ID: <20220706032434.579610-1-liushixin2@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229480AbiGFDef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jul 2022 23:34:35 -0400
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2BF65AB
+        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 20:34:33 -0700 (PDT)
+Received: by mail-pf1-x436.google.com with SMTP id w185so9524665pfb.4
+        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 20:34:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+jZcTLd0uhnPTsp/RWeXfIm6MxH1xo2fh8ug+vRFmwc=;
+        b=b5xuSjChqgFH1d3h5fK9PPoO89bjqEQSq9Mv0q25lykxeAgvYPwSNLMUGY9ofI2i7+
+         b1lrEp9Wr8/o0BgIjRryzuFtskvVSbn3yjXn6U8RG75UutXfESLQvcgsCRRr+uzwGz5h
+         VUSqvTcP7s8Q+e3ZFk1frJLi/z3SDIiPL87IToFn07nrs3pSj1WCGDCYxqzHiQzuHkdy
+         T9ZyhicziCoDUIg8kMvJHCzDJaXZ4zPTy7AEM7Kpc8Sr2mIytb9VbGfHn1yoN+2dbhwu
+         u+/UjFLsNJEdsKN6SDvvCBZ7jnG4x2Ys7NS6lORkscyiNPe5EWAdfmAjiYKO/lriFYtf
+         WQZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+jZcTLd0uhnPTsp/RWeXfIm6MxH1xo2fh8ug+vRFmwc=;
+        b=Sbqi/2z2NmbNu1Rypuvy5xA4dxUYWRVbTAXmwBRuncpJOEf+ItrAvVK1ONQq+ESil+
+         DX7M2ewMasxZIQur5qIwnUNpzpsLqlFX0KkDs6mJmBtn/XxRUT08h+7REKW9Q4oRqUdV
+         B/P+c3vMCXsXEI6A3/LXQbLrWT9SJZkZEd1nAEiBCDM6Cx6wgZ1egUhdi60tFwzsD0vm
+         4IGa/vaa5nins1f5O60tuSFtUZ4mF95X0NieppRmB0ytGEzvX9LaYJO2oDFHqlS41OTI
+         3+hdGMDqyONX7pWJq1ERCRPuxN1fMDn2kqkMB0sHTAcrW6RBssWRqNktdhyWuVveHbOR
+         nuHQ==
+X-Gm-Message-State: AJIora/OYy63jLLnhw5ys4LeAEKkXWjlgGYbpS2meQPRuOp2tPWl7HWS
+        u+Si59ZwgpP2TZGKFw+4FIpFd4iOLBQLMnF4
+X-Google-Smtp-Source: AGRyM1sQCx0hOJ3q6l6w202dReF2nwXFkpnIHpGUx86hFmQBeSG1pQ5GL2MxxzdIpQhHsj7uYLoZXA==
+X-Received: by 2002:a63:2c89:0:b0:411:66bf:9efc with SMTP id s131-20020a632c89000000b0041166bf9efcmr31961331pgs.589.1657078473141;
+        Tue, 05 Jul 2022 20:34:33 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t17-20020a170902e85100b00162529828aesm24489033plg.109.2022.07.05.20.34.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Jul 2022 20:34:32 -0700 (PDT)
+Message-ID: <62c502c8.1c69fb81.3cc52.3ceb@mx.google.com>
+Date:   Tue, 05 Jul 2022 20:34:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.32]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm100009.china.huawei.com (7.185.36.113)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.52-98-g46dd125f577c
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 106 runs,
+ 2 regressions (v5.15.52-98-g46dd125f577c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Release refcount after xas_set to fix UAF which may cause panic like this:
+stable-rc/queue/5.15 baseline: 106 runs, 2 regressions (v5.15.52-98-g46dd12=
+5f577c)
 
- page:ffffea000491fa40 refcount:1 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x1247e9
- head:ffffea000491fa00 order:3 compound_mapcount:0 compound_pincount:0
- memcg:ffff888104f91091
- flags: 0x2fffff80010200(slab|head|node=0|zone=2|lastcpupid=0x1fffff)
-...
-page dumped because: VM_BUG_ON_PAGE(PageTail(page))
- ------------[ cut here ]------------
- kernel BUG at include/linux/page-flags.h:632!
- invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN
- CPU: 1 PID: 7642 Comm: sh Not tainted 5.15.51-dirty #26
-...
- Call Trace:
-  <TASK>
-  __invalidate_mapping_pages+0xe7/0x540
-  drop_pagecache_sb+0x159/0x320
-  iterate_supers+0x120/0x240
-  drop_caches_sysctl_handler+0xaa/0xe0
-  proc_sys_call_handler+0x2b4/0x480
-  new_sync_write+0x3d6/0x5c0
-  vfs_write+0x446/0x7a0
-  ksys_write+0x105/0x210
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f52b5733130
-...
+Regressions Summary
+-------------------
 
-This problem has been fixed on mainline by patch 6b24ca4a1a8d ("mm: Use
-multi-index entries in the page cache") since it deletes the related code.
+platform                | arch  | lab         | compiler | defconfig       =
+   | regressions
+------------------------+-------+-------------+----------+-----------------=
+---+------------
+at91sam9g20ek           | arm   | lab-broonie | gcc-10   | multi_v5_defconf=
+ig | 1          =
 
-Fixes: 5c211ba29deb ("mm: add and use find_lock_entries")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
----
- mm/filemap.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe  | gcc-10   | defconfig       =
+   | 1          =
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 00e391e75880..24b5d7ebdc29 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2087,16 +2087,18 @@ unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
- {
- 	XA_STATE(xas, &mapping->i_pages, start);
- 	struct page *page;
-+	bool putpage;
- 
- 	rcu_read_lock();
- 	while ((page = find_get_entry(&xas, end, XA_PRESENT))) {
-+		putpage = true;
- 		if (!xa_is_value(page)) {
- 			if (page->index < start)
--				goto put;
-+				goto next;
- 			if (page->index + thp_nr_pages(page) - 1 > end)
--				goto put;
-+				goto next;
- 			if (!trylock_page(page))
--				goto put;
-+				goto next;
- 			if (page->mapping != mapping || PageWriteback(page))
- 				goto unlock;
- 			VM_BUG_ON_PAGE(!thp_contains(page, xas.xa_index),
-@@ -2105,20 +2107,24 @@ unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
- 		indices[pvec->nr] = xas.xa_index;
- 		if (!pagevec_add(pvec, page))
- 			break;
-+		putpage = false;
- 		goto next;
- unlock:
- 		unlock_page(page);
--put:
--		put_page(page);
- next:
- 		if (!xa_is_value(page) && PageTransHuge(page)) {
- 			unsigned int nr_pages = thp_nr_pages(page);
- 
- 			/* Final THP may cross MAX_LFS_FILESIZE on 32-bit */
- 			xas_set(&xas, page->index + nr_pages);
--			if (xas.xa_index < nr_pages)
-+			if (xas.xa_index < nr_pages) {
-+				if (putpage)
-+					put_page(page);
- 				break;
-+			}
- 		}
-+		if (putpage)
-+			put_page(page);
- 	}
- 	rcu_read_unlock();
- 
--- 
-2.25.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.52-98-g46dd125f577c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.52-98-g46dd125f577c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      46dd125f577c06dad24210e06632b12e76cb14fc =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab         | compiler | defconfig       =
+   | regressions
+------------------------+-------+-------------+----------+-----------------=
+---+------------
+at91sam9g20ek           | arm   | lab-broonie | gcc-10   | multi_v5_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62c4ca368046284b04a39c2e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
+98-g46dd125f577c/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam=
+9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
+98-g46dd125f577c/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam=
+9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62c4ca368046284b04a39=
+c2f
+        new failure (last pass: v5.15.52-98-gc89c3559309a) =
+
+ =
+
+
+
+platform                | arch  | lab         | compiler | defconfig       =
+   | regressions
+------------------------+-------+-------------+----------+-----------------=
+---+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe  | gcc-10   | defconfig       =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62c4cd5b552bc62b05a39c00
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
+98-g46dd125f577c/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.52-=
+98-g46dd125f577c/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62c4cd5b552bc62b05a39=
+c01
+        new failure (last pass: v5.15.52-98-gc89c3559309a) =
+
+ =20
