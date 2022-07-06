@@ -2,257 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3DC567ED7
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 08:44:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61BD7567EDB
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 08:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229714AbiGFGoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 02:44:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
+        id S229891AbiGFGov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 02:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbiGFGoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 02:44:01 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB37E1836A;
-        Tue,  5 Jul 2022 23:44:00 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id o4so20553207wrh.3;
-        Tue, 05 Jul 2022 23:44:00 -0700 (PDT)
+        with ESMTP id S229793AbiGFGov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 02:44:51 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BA31B79C
+        for <stable@vger.kernel.org>; Tue,  5 Jul 2022 23:44:48 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id d3so13157904ioi.9
+        for <stable@vger.kernel.org>; Tue, 05 Jul 2022 23:44:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jms.id.au; s=google;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4jwvmj1pp+GjRzWGjVPIaD2zx1OzglEoesXu15FzsLo=;
-        b=CWrqX0z0bxlea48ov1zxt8KGOwoPpvw/rQGKGYDwXHOaEcwW3iuuE4zCb+FY1pBwGQ
-         tf+OUt0/bJ2z+6Z+kMIWnGTVbTcybEul3ytR14dvLRwcl3uoVUmv0fF1+1mf9L+aSGur
-         bafBQgdh62Ce09TUB6tjKwGXssDTZujaODWHM=
+         :cc:content-transfer-encoding;
+        bh=2IzNfa/vbKDQoeuVf66JOAoxqYDPZGMAf+JWm59layo=;
+        b=w67yh27am51h7Z7k+mAplbD/DUh0gnQVoPr9Cl6sfq2gI9i99lO1J/sNFiuXLxVqOV
+         yQEzjVf0Qg23uplwNJQ3nVvcy0Y15sc7JtGIX52VLP5WkLct1GusnEJNZiOqG3SU+EGp
+         LqX2WsCN9x6cPqXSvAQMZYhGg5qI2I2UKc0uYU3ijmVftGDi2HSndE8vv7pf8ak5O+zU
+         taGYDW56zgUpbp2qBOmcwBHsELDDgAf3YW184qGKBIjS8OdS1xYaiyaCHOWJtQd9td+T
+         GqZybggU10D/cXpGXqEroHa8AL/29SHneux/Y3sI9GJ1GFL5wpqkhix/BsmGyWMtn/uv
+         ziwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4jwvmj1pp+GjRzWGjVPIaD2zx1OzglEoesXu15FzsLo=;
-        b=ESXbIK02PFHZHj5FNlZXQzSniZ/LBgbyhCyHCqd0XQWCdzPPdGzg6yfiBMIhBgZnAE
-         0xfqU011ZPqPW3/HDu29UqeSBGF9y8/8/KJD41OZs/tAbxQvn+NwGiRg8CLNBPsdCQnZ
-         KTMbOHTyQpj9YYBCyM0yONbeWTqZJgZA2ad+L2mQ7V/AfrZppBqmTicQZeyGrl5b3sKi
-         EY7gsTxdNUeTYGZ4nLj3oeqRwPD+AfYwWsbqEEcH6hLvtXorkVn1gCVtmSjiqdU6aRcH
-         QxUZwyyyjFREtvSUDU/ics2x+X3OK5ECGw97BXPqFk2J14UtrA9F4tC7x9RI5iC6K4NW
-         eO+A==
-X-Gm-Message-State: AJIora/98Hq7r0NuQXo6+wAvNtJ9In2VdvT46GP0XLppndfa6XSBOnoe
-        qNlrxaXDQjPERmsrD1WuDPIdcQ1POek/BLYv3WE=
-X-Google-Smtp-Source: AGRyM1uVmvHyQuqipT+NDCpQ86ZMLF1Uu8iyiixWuraKKpfqAdRINQbt1Yg703PoIZGKW2ir1GTlh0GoyiPdDqUDFe0=
-X-Received: by 2002:a05:6000:993:b0:21b:8f16:5b3f with SMTP id
- by19-20020a056000099300b0021b8f165b3fmr33562123wrb.628.1657089839060; Tue, 05
- Jul 2022 23:43:59 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=2IzNfa/vbKDQoeuVf66JOAoxqYDPZGMAf+JWm59layo=;
+        b=5qZNE6xF/c/h297uKL9MNZjXOzstuxrytLllf74ZbcTOymes1y1kufdpWAmL8ZSFG8
+         QXi7BFBbV4BVkCrftyx7oRgxEA7/HjUkUsOemC/fpPhRju3su3mTGWLqnYnNnJnn5Teb
+         /sgfNbDYUXXjxuUzyE8VnEI6+alyRq7vFpkw3nooclC3IcFoDQsqGesCWVETzjfs+8wh
+         +CrsXl/EJ5c+dUG9nlzn0Vz9mIj/+bhU8V0XKhBxScE/eyxI91xqfjJjE3K3rFYHkPmh
+         ULxK8EMrsdJGTsY0PrWOYVBZk0PZpjfk8yrogPZR6fLRlDwO/9BPoDfndJcPt16ANkab
+         5UWQ==
+X-Gm-Message-State: AJIora+Kx+S56/3koeu9MUroyXoNeA+0cK4fOMjEaSdN3ErJhAfKZeM/
+        GZHGTCBMx8Ia2l1usL/MV2wHddImgRTXuaRtLFIG+A==
+X-Google-Smtp-Source: AGRyM1voCs7IxyO+W1v29uV1VpembdH2KW3MLHWFtlZS9R1CAgeyBu6QSWwkCFtOwglf3YUev+qqgkpGQtADL0c0vEE=
+X-Received: by 2002:a05:6638:14d1:b0:339:e8ea:a7c4 with SMTP id
+ l17-20020a05663814d100b00339e8eaa7c4mr24640693jak.309.1657089887279; Tue, 05
+ Jul 2022 23:44:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220705115617.568350164@linuxfoundation.org> <20220705115620.297922907@linuxfoundation.org>
-In-Reply-To: <20220705115620.297922907@linuxfoundation.org>
-From:   Joel Stanley <joel@jms.id.au>
-Date:   Wed, 6 Jul 2022 06:43:47 +0000
-Message-ID: <CACPK8Xf0eujAq_oHzQn15hZyTL+QtDEaL5eUFCiODS+C06fW2Q@mail.gmail.com>
-Subject: Re: [PATCH 5.15 96/98] hwmon: (occ) Remove sequence numbering and
- checksum calculation
+References: <20220705115617.568350164@linuxfoundation.org>
+In-Reply-To: <20220705115617.568350164@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 6 Jul 2022 12:14:36 +0530
+Message-ID: <CA+G9fYt3o4uTM+oVyv55S4trvt26F1W_vNNMTPfZ509U-K4LpA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/98] 5.15.53-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 5 Jul 2022 at 12:14, Greg Kroah-Hartman
+On Tue, 5 Jul 2022 at 17:41, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> From: Eddie James <eajames@linux.ibm.com>
+> This is the start of the stable review cycle for the 5.15.53 release.
+> There are 98 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> [ Upstream commit 908dbf0242e21dd95c69a1b0935814cd1abfc134 ]
+> Responses should be made by Thu, 07 Jul 2022 11:55:56 +0000.
+> Anything received after that time might be too late.
 >
-> Checksumming of the request and sequence numbering is now done in the
-> OCC interface driver in order to keep unique sequence numbers. So
-> remove those in the hwmon driver. Also, add the command length to the
-> send_cmd function pointer, since the checksum must be placed in the
-> last two bytes of the command. The submit interface must receive the
-> exact size of the command - previously it could be rounded to the
-> nearest 8 bytes with no consequence.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.53-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
 >
-> Signed-off-by: Eddie James <eajames@linux.ibm.com>
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
-> Link: https://lore.kernel.org/r/20210721190231.117185-3-eajames@linux.ibm.com
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> thanks,
+>
+> greg k-h
 
-If this patch is being backported then we must also backport:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-  62f79f3d0eb9 ("fsi: occ: Force sequence numbering per OCC")
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I was only cc'd on this one so I assume that means 62f79f3d0eb9 is not
-already in the queue.
+## Build
+* kernel: 5.15.53-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: bcb9695d82c0c96cd7ee1714e1652f06b1b4099b
+* git describe: v5.15.52-99-gbcb9695d82c0
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.52-99-gbcb9695d82c0
 
-> ---
->  drivers/hwmon/occ/common.c | 30 ++++++++++++------------------
->  drivers/hwmon/occ/common.h |  3 +--
->  drivers/hwmon/occ/p8_i2c.c | 15 +++++++++------
->  drivers/hwmon/occ/p9_sbe.c |  4 ++--
->  4 files changed, 24 insertions(+), 28 deletions(-)
->
-> diff --git a/drivers/hwmon/occ/common.c b/drivers/hwmon/occ/common.c
-> index ae664613289c..0cb4a0a6cbc1 100644
-> --- a/drivers/hwmon/occ/common.c
-> +++ b/drivers/hwmon/occ/common.c
-> @@ -132,22 +132,20 @@ struct extended_sensor {
->  static int occ_poll(struct occ *occ)
->  {
->         int rc;
-> -       u16 checksum = occ->poll_cmd_data + occ->seq_no + 1;
-> -       u8 cmd[8];
-> +       u8 cmd[7];
->         struct occ_poll_response_header *header;
->
->         /* big endian */
-> -       cmd[0] = occ->seq_no++;         /* sequence number */
-> +       cmd[0] = 0;                     /* sequence number */
->         cmd[1] = 0;                     /* cmd type */
->         cmd[2] = 0;                     /* data length msb */
->         cmd[3] = 1;                     /* data length lsb */
->         cmd[4] = occ->poll_cmd_data;    /* data */
-> -       cmd[5] = checksum >> 8;         /* checksum msb */
-> -       cmd[6] = checksum & 0xFF;       /* checksum lsb */
-> -       cmd[7] = 0;
-> +       cmd[5] = 0;                     /* checksum msb */
-> +       cmd[6] = 0;                     /* checksum lsb */
->
->         /* mutex should already be locked if necessary */
-> -       rc = occ->send_cmd(occ, cmd);
-> +       rc = occ->send_cmd(occ, cmd, sizeof(cmd));
->         if (rc) {
->                 occ->last_error = rc;
->                 if (occ->error_count++ > OCC_ERROR_COUNT_THRESHOLD)
-> @@ -184,25 +182,23 @@ static int occ_set_user_power_cap(struct occ *occ, u16 user_power_cap)
->  {
->         int rc;
->         u8 cmd[8];
-> -       u16 checksum = 0x24;
->         __be16 user_power_cap_be = cpu_to_be16(user_power_cap);
->
-> -       cmd[0] = 0;
-> -       cmd[1] = 0x22;
-> -       cmd[2] = 0;
-> -       cmd[3] = 2;
-> +       cmd[0] = 0;     /* sequence number */
-> +       cmd[1] = 0x22;  /* cmd type */
-> +       cmd[2] = 0;     /* data length msb */
-> +       cmd[3] = 2;     /* data length lsb */
->
->         memcpy(&cmd[4], &user_power_cap_be, 2);
->
-> -       checksum += cmd[4] + cmd[5];
-> -       cmd[6] = checksum >> 8;
-> -       cmd[7] = checksum & 0xFF;
-> +       cmd[6] = 0;     /* checksum msb */
-> +       cmd[7] = 0;     /* checksum lsb */
->
->         rc = mutex_lock_interruptible(&occ->lock);
->         if (rc)
->                 return rc;
->
-> -       rc = occ->send_cmd(occ, cmd);
-> +       rc = occ->send_cmd(occ, cmd, sizeof(cmd));
->
->         mutex_unlock(&occ->lock);
->
-> @@ -1144,8 +1140,6 @@ int occ_setup(struct occ *occ, const char *name)
->  {
->         int rc;
->
-> -       /* start with 1 to avoid false match with zero-initialized SRAM buffer */
-> -       occ->seq_no = 1;
->         mutex_init(&occ->lock);
->         occ->groups[0] = &occ->group;
->
-> diff --git a/drivers/hwmon/occ/common.h b/drivers/hwmon/occ/common.h
-> index e6df719770e8..5020117be740 100644
-> --- a/drivers/hwmon/occ/common.h
-> +++ b/drivers/hwmon/occ/common.h
-> @@ -95,9 +95,8 @@ struct occ {
->         struct occ_sensors sensors;
->
->         int powr_sample_time_us;        /* average power sample time */
-> -       u8 seq_no;
->         u8 poll_cmd_data;               /* to perform OCC poll command */
-> -       int (*send_cmd)(struct occ *occ, u8 *cmd);
-> +       int (*send_cmd)(struct occ *occ, u8 *cmd, size_t len);
->
->         unsigned long next_update;
->         struct mutex lock;              /* lock OCC access */
-> diff --git a/drivers/hwmon/occ/p8_i2c.c b/drivers/hwmon/occ/p8_i2c.c
-> index 0cf8588be35a..9e61e1fb5142 100644
-> --- a/drivers/hwmon/occ/p8_i2c.c
-> +++ b/drivers/hwmon/occ/p8_i2c.c
-> @@ -97,18 +97,21 @@ static int p8_i2c_occ_putscom_u32(struct i2c_client *client, u32 address,
->  }
->
->  static int p8_i2c_occ_putscom_be(struct i2c_client *client, u32 address,
-> -                                u8 *data)
-> +                                u8 *data, size_t len)
->  {
-> -       __be32 data0, data1;
-> +       __be32 data0 = 0, data1 = 0;
->
-> -       memcpy(&data0, data, 4);
-> -       memcpy(&data1, data + 4, 4);
-> +       memcpy(&data0, data, min_t(size_t, len, 4));
-> +       if (len > 4) {
-> +               len -= 4;
-> +               memcpy(&data1, data + 4, min_t(size_t, len, 4));
-> +       }
->
->         return p8_i2c_occ_putscom_u32(client, address, be32_to_cpu(data0),
->                                       be32_to_cpu(data1));
->  }
->
-> -static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd)
-> +static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
->  {
->         int i, rc;
->         unsigned long start;
-> @@ -127,7 +130,7 @@ static int p8_i2c_occ_send_cmd(struct occ *occ, u8 *cmd)
->                 return rc;
->
->         /* write command (expected to already be BE), we need bus-endian... */
-> -       rc = p8_i2c_occ_putscom_be(client, OCB_DATA3, cmd);
-> +       rc = p8_i2c_occ_putscom_be(client, OCB_DATA3, cmd, len);
->         if (rc)
->                 return rc;
->
-> diff --git a/drivers/hwmon/occ/p9_sbe.c b/drivers/hwmon/occ/p9_sbe.c
-> index f6387cc0b754..9709f2b9c052 100644
-> --- a/drivers/hwmon/occ/p9_sbe.c
-> +++ b/drivers/hwmon/occ/p9_sbe.c
-> @@ -16,14 +16,14 @@ struct p9_sbe_occ {
->
->  #define to_p9_sbe_occ(x)       container_of((x), struct p9_sbe_occ, occ)
->
-> -static int p9_sbe_occ_send_cmd(struct occ *occ, u8 *cmd)
-> +static int p9_sbe_occ_send_cmd(struct occ *occ, u8 *cmd, size_t len)
->  {
->         struct occ_response *resp = &occ->resp;
->         struct p9_sbe_occ *ctx = to_p9_sbe_occ(occ);
->         size_t resp_len = sizeof(*resp);
->         int rc;
->
-> -       rc = fsi_occ_submit(ctx->sbe, cmd, 8, resp, &resp_len);
-> +       rc = fsi_occ_submit(ctx->sbe, cmd, len, resp, &resp_len);
->         if (rc < 0)
->                 return rc;
->
-> --
-> 2.35.1
->
->
->
+## Test Regressions (compared to v5.15.52)
+No test regressions found.
+
+## Metric Regressions (compared to v5.15.52)
+No metric regressions found.
+
+## Test Fixes (compared to v5.15.52)
+No test fixes found.
+
+## Metric Fixes (compared to v5.15.52)
+No metric fixes found.
+
+## Test result summary
+total: 126830, pass: 113520, fail: 294, skip: 12336, xfail: 680
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 313 total, 310 passed, 3 failed
+* arm64: 68 total, 68 passed, 0 failed
+* i386: 57 total, 50 passed, 7 failed
+* mips: 53 total, 50 passed, 3 failed
+* parisc: 14 total, 14 passed, 0 failed
+* powerpc: 59 total, 56 passed, 3 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 26 total, 23 passed, 3 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x86_64: 62 total, 61 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-complianc[
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
