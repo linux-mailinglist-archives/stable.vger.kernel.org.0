@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23309568D5F
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCCBA568D56
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234286AbiGFPgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234448AbiGFPgh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 6 Jul 2022 11:36:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234289AbiGFPfv (ORCPT
+        with ESMTP id S233634AbiGFPfv (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:35:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 080A428E3E;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90ED529802;
         Wed,  6 Jul 2022 08:33:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95B67B81DA1;
-        Wed,  6 Jul 2022 15:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E3B9C341CF;
-        Wed,  6 Jul 2022 15:33:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDCDD61FB9;
+        Wed,  6 Jul 2022 15:33:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB2CC341CA;
+        Wed,  6 Jul 2022 15:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121611;
-        bh=xGghK/000nkzlwE1Ow+hHRRrqU5Gk5XuDqiFw+ahnJU=;
+        s=k20201202; t=1657121613;
+        bh=Yw1cm3JhKlVE2R7wAKrVZv123GVIsGEG7oAIY1LzBr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hznQIxY2qUGm/2ETYiwhPq2H8mpLIHp0Py0jvJtgrTIdL6CBcvgC9rXdpLuOFeGr3
-         NXBbrExUqruriCIcWsMvJ+FSJcvn1ZXdjbtc6o/nfSEYh4Ls2RCTyDFbRoMezNcJz1
-         dF/xxYEYrkiyAB+5u3/ED+eac3w0+But0SxBl0Zmo5mYHDg9AbDBvIvYjMnI7LDO6c
-         zR1r4EE1zAOxPOcgTRZ6dKmhBUsBu2hVL5B984kkF1Jnq/5ky0RDvHup+1ZxfnkzQ9
-         Kpq+kreDx/TxAJ+ba2Pl3VjZWfffNZQMfCISbELmL25KdQk8rQN977Bxa9f5vKfHqf
-         1/+KpUFa7OfEA==
+        b=nBo5Pxcy9YNQlTGZuXiGLbo/WiOjVt8VdWiA45otI1i8zcuutlUtIXvc6zO11GaFd
+         ABn41BT+OLbc8+4pPbdG18Jpxx7ozohBhAYWl9dThlgPsbtY4uq7XZgDFnkSGtRmKo
+         y919/kLT2ImfeFEc99ar8Sj7L2OhBec3Xt2uKjd5+ZePbW2ScmpLw1AyhFCCuVcpD+
+         gEbTgtL+fkuxhU0gz2P38SaaXWeWSlKBuuLbAou6nVZ8MIafWTY55vByi2tKV/mLei
+         KduoV7gFnJHzGOLx9xYgv/kZVYZfA01YzGleTjaTrQ3+N4Wc1+SEf4QQGDjCcFlV6q
+         QYIRn/HkssabA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Walle <michael@walle.cc>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/9] NFC: nxp-nci: don't print header length mismatch on i2c error
-Date:   Wed,  6 Jul 2022 11:33:13 -0400
-Message-Id: <20220706153316.1598554-7-sashal@kernel.org>
+Cc:     Ruozhu Li <liruozhu@huawei.com>, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 8/9] nvme: fix regression when disconnect a recovering ctrl
+Date:   Wed,  6 Jul 2022 11:33:14 -0400
+Message-Id: <20220706153316.1598554-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153316.1598554-1-sashal@kernel.org>
 References: <20220706153316.1598554-1-sashal@kernel.org>
@@ -57,48 +57,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Ruozhu Li <liruozhu@huawei.com>
 
-[ Upstream commit 9577fc5fdc8b07b891709af6453545db405e24ad ]
+[ Upstream commit f7f70f4aa09dc43d7455c060143e86a017c30548 ]
 
-Don't print a misleading header length mismatch error if the i2c call
-returns an error. Instead just return the error code without any error
-message.
+We encountered a problem that the disconnect command hangs.
+After analyzing the log and stack, we found that the triggering
+process is as follows:
+CPU0                          CPU1
+                                nvme_rdma_error_recovery_work
+                                  nvme_rdma_teardown_io_queues
+nvme_do_delete_ctrl                 nvme_stop_queues
+  nvme_remove_namespaces
+  --clear ctrl->namespaces
+                                    nvme_start_queues
+                                    --no ns in ctrl->namespaces
+    nvme_ns_remove                  return(because ctrl is deleting)
+      blk_freeze_queue
+        blk_mq_freeze_queue_wait
+        --wait for ns to unquiesce to clean infligt IO, hang forever
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This problem was not found in older kernels because we will flush
+err work in nvme_stop_ctrl before nvme_remove_namespaces.It does not
+seem to be modified for functional reasons, the patch can be revert
+to solve the problem.
+
+Revert commit 794a4cb3d2f7 ("nvme: remove the .stop_ctrl callout")
+
+Signed-off-by: Ruozhu Li <liruozhu@huawei.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nxp-nci/i2c.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c |  2 ++
+ drivers/nvme/host/nvme.h |  1 +
+ drivers/nvme/host/rdma.c | 12 +++++++++---
+ drivers/nvme/host/tcp.c  | 10 +++++++---
+ 4 files changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nfc/nxp-nci/i2c.c b/drivers/nfc/nxp-nci/i2c.c
-index 9f60e4dc5a90..a45064b3389c 100644
---- a/drivers/nfc/nxp-nci/i2c.c
-+++ b/drivers/nfc/nxp-nci/i2c.c
-@@ -122,7 +122,9 @@ static int nxp_nci_i2c_fw_read(struct nxp_nci_i2c_phy *phy,
- 	skb_put_data(*skb, &header, NXP_NCI_FW_HDR_LEN);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 79e22618817d..d2ea6ca37c41 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4034,6 +4034,8 @@ void nvme_stop_ctrl(struct nvme_ctrl *ctrl)
+ 	nvme_stop_keep_alive(ctrl);
+ 	flush_work(&ctrl->async_event_work);
+ 	cancel_work_sync(&ctrl->fw_act_work);
++	if (ctrl->ops->stop_ctrl)
++		ctrl->ops->stop_ctrl(ctrl);
+ }
+ EXPORT_SYMBOL_GPL(nvme_stop_ctrl);
  
- 	r = i2c_master_recv(client, skb_put(*skb, frame_len), frame_len);
--	if (r != frame_len) {
-+	if (r < 0) {
-+		goto fw_read_exit_free_skb;
-+	} else if (r != frame_len) {
- 		nfc_err(&client->dev,
- 			"Invalid frame length: %u (expected %zu)\n",
- 			r, frame_len);
-@@ -163,7 +165,9 @@ static int nxp_nci_i2c_nci_read(struct nxp_nci_i2c_phy *phy,
- 	skb_put_data(*skb, (void *)&header, NCI_CTRL_HDR_SIZE);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 1d1431dd4f9e..81a5b968253f 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -402,6 +402,7 @@ struct nvme_ctrl_ops {
+ 	void (*free_ctrl)(struct nvme_ctrl *ctrl);
+ 	void (*submit_async_event)(struct nvme_ctrl *ctrl);
+ 	void (*delete_ctrl)(struct nvme_ctrl *ctrl);
++	void (*stop_ctrl)(struct nvme_ctrl *ctrl);
+ 	int (*get_address)(struct nvme_ctrl *ctrl, char *buf, int size);
+ };
  
- 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
--	if (r != header.plen) {
-+	if (r < 0) {
-+		goto nci_read_exit_free_skb;
-+	} else if (r != header.plen) {
- 		nfc_err(&client->dev,
- 			"Invalid frame payload length: %u (expected %u)\n",
- 			r, header.plen);
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 4213c71b02a4..d5d7b2f98edc 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -973,6 +973,14 @@ static void nvme_rdma_teardown_io_queues(struct nvme_rdma_ctrl *ctrl,
+ 	}
+ }
+ 
++static void nvme_rdma_stop_ctrl(struct nvme_ctrl *nctrl)
++{
++	struct nvme_rdma_ctrl *ctrl = to_rdma_ctrl(nctrl);
++
++	cancel_work_sync(&ctrl->err_work);
++	cancel_delayed_work_sync(&ctrl->reconnect_work);
++}
++
+ static void nvme_rdma_free_ctrl(struct nvme_ctrl *nctrl)
+ {
+ 	struct nvme_rdma_ctrl *ctrl = to_rdma_ctrl(nctrl);
+@@ -1947,9 +1955,6 @@ static const struct blk_mq_ops nvme_rdma_admin_mq_ops = {
+ 
+ static void nvme_rdma_shutdown_ctrl(struct nvme_rdma_ctrl *ctrl, bool shutdown)
+ {
+-	cancel_work_sync(&ctrl->err_work);
+-	cancel_delayed_work_sync(&ctrl->reconnect_work);
+-
+ 	nvme_rdma_teardown_io_queues(ctrl, shutdown);
+ 	blk_mq_quiesce_queue(ctrl->ctrl.admin_q);
+ 	if (shutdown)
+@@ -1999,6 +2004,7 @@ static const struct nvme_ctrl_ops nvme_rdma_ctrl_ops = {
+ 	.submit_async_event	= nvme_rdma_submit_async_event,
+ 	.delete_ctrl		= nvme_rdma_delete_ctrl,
+ 	.get_address		= nvmf_get_address,
++	.stop_ctrl		= nvme_rdma_stop_ctrl,
+ };
+ 
+ /*
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 4378344f0e7a..2a27ac9aedba 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1973,9 +1973,6 @@ static void nvme_tcp_error_recovery_work(struct work_struct *work)
+ 
+ static void nvme_tcp_teardown_ctrl(struct nvme_ctrl *ctrl, bool shutdown)
+ {
+-	cancel_work_sync(&to_tcp_ctrl(ctrl)->err_work);
+-	cancel_delayed_work_sync(&to_tcp_ctrl(ctrl)->connect_work);
+-
+ 	nvme_tcp_teardown_io_queues(ctrl, shutdown);
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
+ 	if (shutdown)
+@@ -2014,6 +2011,12 @@ static void nvme_reset_ctrl_work(struct work_struct *work)
+ 	nvme_tcp_reconnect_or_remove(ctrl);
+ }
+ 
++static void nvme_tcp_stop_ctrl(struct nvme_ctrl *ctrl)
++{
++	cancel_work_sync(&to_tcp_ctrl(ctrl)->err_work);
++	cancel_delayed_work_sync(&to_tcp_ctrl(ctrl)->connect_work);
++}
++
+ static void nvme_tcp_free_ctrl(struct nvme_ctrl *nctrl)
+ {
+ 	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
+@@ -2322,6 +2325,7 @@ static const struct nvme_ctrl_ops nvme_tcp_ctrl_ops = {
+ 	.submit_async_event	= nvme_tcp_submit_async_event,
+ 	.delete_ctrl		= nvme_tcp_delete_ctrl,
+ 	.get_address		= nvmf_get_address,
++	.stop_ctrl		= nvme_tcp_stop_ctrl,
+ };
+ 
+ static bool
 -- 
 2.35.1
 
