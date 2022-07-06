@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B324568CFA
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 713FB568D2B
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233806AbiGFPbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44144 "EHLO
+        id S233701AbiGFPbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:31:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233796AbiGFPbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:31:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5B61EEE6;
-        Wed,  6 Jul 2022 08:31:10 -0700 (PDT)
+        with ESMTP id S233711AbiGFPbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:31:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B6324F32;
+        Wed,  6 Jul 2022 08:31:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA0AC61FDD;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BE8361FE4;
+        Wed,  6 Jul 2022 15:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7764C385A2;
         Wed,  6 Jul 2022 15:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3270C385A5;
-        Wed,  6 Jul 2022 15:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121469;
-        bh=ZWyNL/PLV0KBvNJrAWbcNjFGF/dSsbZ4x/okfB1xgSk=;
+        s=k20201202; t=1657121470;
+        bh=FTub9thA/XFO0HIXNb1G0/Bw07j1NqKpudxVT0lkUAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKR8OejCcF+4qjF7yC1r8uvZuBpI568iyRQKP3fcJcnksfQSTUO7ap52V6DnkS56a
-         rat1ijcttwnK0McpfGLmi3dCghxk61Vf6F2Be1gAmEJ4pKpl8K+Jhnj2JjX8/bPGZD
-         knurJdv3v6ZBFy3ZWTyee19XZNJ3XGl4PztrSwz7tQyjQ89m9ekhlNKehHxg5S5RSM
-         V83wB3yPshFmT0nxpXWktlsRsqLcAqzgZJsrqI31NANLu2k28x0QJHvMEtJUWuTK9a
-         CtEFa5yu910lciWuBultyvhD/uobXYisNB7PNbCFe4nVSC2c6+/fHYo4F9vrV7gnZz
-         MY7lj8HVV7yBw==
+        b=g+umth7GvC6YR5L8Y6axWMXXPEtlfEzeSeDk1IHW93o/K6WmrfKHvkYGYvgueBVU5
+         1rZpnUlYloYFn16Y+Y8QufDUzoXhfrANZW7CrZ2MZpjLdSG5W4dZ4dfnF3qCw9gegI
+         9C0bGBr+C3IbI4wr0m4OQBANJlFLGnCATw2IKXh2qRNJm/SzCoIg78nbSIKuFXodKv
+         NuplPYzTCjJkQHhUbIHHqlbI/KQXUDXipo6XxflzSTsGhjiPCQICJ70Lb4RZk8AJKT
+         I6qnWwefTVrnXiCUoWBTB8s+rVqUi0OnCydLB+2vTJOa65fY81sbvZz1AjLmdg08ha
+         sjJq5n8sqI99g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Radim Hrazdil <rhrazdil@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
-        roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 09/22] netfilter: br_netfilter: do not skip all hooks with 0 priority
-Date:   Wed,  6 Jul 2022 11:30:27 -0400
-Message-Id: <20220706153041.1597639-9-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 10/22] scsi: hisi_sas: Limit max hw sectors for v3 HW
+Date:   Wed,  6 Jul 2022 11:30:28 -0400
+Message-Id: <20220706153041.1597639-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153041.1597639-1-sashal@kernel.org>
 References: <20220706153041.1597639-1-sashal@kernel.org>
@@ -61,102 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit c2577862eeb0be94f151f2f1fff662b028061b00 ]
+[ Upstream commit fce54ed027577517df1e74b7d54dc2b1bd536887 ]
 
-When br_netfilter module is loaded, skbs may be diverted to the
-ipv4/ipv6 hooks, just like as if we were routing.
+If the controller is behind an IOMMU then the IOMMU IOVA caching range can
+affect performance, as discussed in [0].
 
-Unfortunately, bridge filter hooks with priority 0 may be skipped
-in this case.
+Limit the max HW sectors to not exceed this limit. We need to hardcode the
+value until a proper DMA mapping API is available.
 
-Example:
-1. an nftables bridge ruleset is loaded, with a prerouting
-   hook that has priority 0.
-2. interface is added to the bridge.
-3. no tcp packet is ever seen by the bridge prerouting hook.
-4. flush the ruleset
-5. load the bridge ruleset again.
-6. tcp packets are processed as expected.
+[0] https://lore.kernel.org/linux-iommu/20210129092120.1482-1-thunder.leizhen@huawei.com/
 
-After 1) the only registered hook is the bridge prerouting hook, but its
-not called yet because the bridge hasn't been brought up yet.
-
-After 2), hook order is:
-   0 br_nf_pre_routing // br_netfilter internal hook
-   0 chain bridge f prerouting // nftables bridge ruleset
-
-The packet is diverted to br_nf_pre_routing.
-If call-iptables is off, the nftables bridge ruleset is called as expected.
-
-But if its enabled, br_nf_hook_thresh() will skip it because it assumes
-that all 0-priority hooks had been called previously in bridge context.
-
-To avoid this, check for the br_nf_pre_routing hook itself, we need to
-resume directly after it, even if this hook has a priority of 0.
-
-Unfortunately, this still results in different packet flow.
-With this fix, the eval order after in 3) is:
-1. br_nf_pre_routing
-2. ip(6)tables (if enabled)
-3. nftables bridge
-
-but after 5 its the much saner:
-1. nftables bridge
-2. br_nf_pre_routing
-3. ip(6)tables (if enabled)
-
-Unfortunately I don't see a solution here:
-It would be possible to move br_nf_pre_routing to a higher priority
-so that it will be called later in the pipeline, but this also impacts
-ebtables evaluation order, and would still result in this very ordering
-problem for all nftables-bridge hooks with the same priority as the
-br_nf_pre_routing one.
-
-Searching back through the git history I don't think this has
-ever behaved in any other way, hence, no fixes-tag.
-
-Reported-by: Radim Hrazdil <rhrazdil@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/r/1655988119-223714-1-git-send-email-john.garry@huawei.com
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 4fd882686b04..ff4779036649 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -1012,9 +1012,24 @@ int br_nf_hook_thresh(unsigned int hook, struct net *net,
- 		return okfn(net, sk, skb);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 7d819fc0395e..eb86afb21aab 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2782,6 +2782,7 @@ static int slave_configure_v3_hw(struct scsi_device *sdev)
+ 	struct hisi_hba *hisi_hba = shost_priv(shost);
+ 	struct device *dev = hisi_hba->dev;
+ 	int ret = sas_slave_configure(sdev);
++	unsigned int max_sectors;
  
- 	ops = nf_hook_entries_get_hook_ops(e);
--	for (i = 0; i < e->num_hook_entries &&
--	      ops[i]->priority <= NF_BR_PRI_BRNF; i++)
--		;
-+	for (i = 0; i < e->num_hook_entries; i++) {
-+		/* These hooks have already been called */
-+		if (ops[i]->priority < NF_BR_PRI_BRNF)
-+			continue;
-+
-+		/* These hooks have not been called yet, run them. */
-+		if (ops[i]->priority > NF_BR_PRI_BRNF)
-+			break;
-+
-+		/* take a closer look at NF_BR_PRI_BRNF. */
-+		if (ops[i]->hook == br_nf_pre_routing) {
-+			/* This hook diverted the skb to this function,
-+			 * hooks after this have not been run yet.
-+			 */
-+			i++;
-+			break;
-+		}
-+	}
+ 	if (ret)
+ 		return ret;
+@@ -2799,6 +2800,12 @@ static int slave_configure_v3_hw(struct scsi_device *sdev)
+ 		}
+ 	}
  
- 	nf_hook_state_init(&state, hook, NFPROTO_BRIDGE, indev, outdev,
- 			   sk, net, okfn);
++	/* Set according to IOMMU IOVA caching limit */
++	max_sectors = min_t(size_t, queue_max_hw_sectors(sdev->request_queue),
++			    (PAGE_SIZE * 32) >> SECTOR_SHIFT);
++
++	blk_queue_max_hw_sectors(sdev->request_queue, max_sectors);
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
