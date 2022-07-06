@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E47B568D5C
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 704BE568D5A
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234207AbiGFPfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:35:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44584 "EHLO
+        id S233995AbiGFPgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:36:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233956AbiGFPfN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:35:13 -0400
+        with ESMTP id S234238AbiGFPfb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:35:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D367E2A43B;
-        Wed,  6 Jul 2022 08:33:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2222A70C;
+        Wed,  6 Jul 2022 08:33:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4213EB81D97;
-        Wed,  6 Jul 2022 15:33:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F62C341CA;
-        Wed,  6 Jul 2022 15:33:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78724B81D98;
+        Wed,  6 Jul 2022 15:33:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 604F1C385A2;
+        Wed,  6 Jul 2022 15:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121591;
-        bh=xGghK/000nkzlwE1Ow+hHRRrqU5Gk5XuDqiFw+ahnJU=;
+        s=k20201202; t=1657121592;
+        bh=/PBo5aChT/HITL0n8XQjCAQovVMDJHQ5AmS2ELAt8oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBd7NheMp9ckJdnloWwK4eMBHfpIOk4gCkw4wk6ocZg35Ech2sKQA277KXxRLrw7u
-         8z1MZdD6KS0KbC5srgeUYxC1hQa7XcHS21mp3ovhc0zTwbg1M4sPJnY8I0HvU35B5y
-         Kb5265SmVv+lqDtOUwMKKiOjy2choReURELk/Yub72jwC99eyOb1N13EKphnHbmod7
-         vzWQ65d7IzBDSObBUIwtNNcz1Gi18TwwikAuTL8Kypb2+ngqfGfdBM/80mqXfeov6Q
-         f5jLvR2/upYJL9fuN740ZGCPevtFGD+gtz+tZI09aHbUKc6Y6Nw7dT8wSIuIZ4HBQk
-         13+YFF/5lECiw==
+        b=U/nmFYmn/KTwgG+VLroPzHYn5HYrFKTZoR/qj/CaZoWXqDwYRwnDlEUodUsKPcijE
+         XtL/64AMa2vAxdL+wMrsVoAE2KwvNnp0Z4g0mWnvp/5D3SFok9PWJ9E9nG+Mf5CqDH
+         jDhYCAqrwYGfTLEn475mOhpqA6bkWRL0JfkhtR4lK0oXru1qmyFQEw6JcJctG/dcf1
+         hzRxNZ5xwR8ThcKVLqJ/ZeHqPb+Fo0XEf0tXcMlIHEQXMgV7BAr+XMy850M/LL2nfH
+         /ZaInOrukde1IAnn91r+YWQ9FhTKdjB6gq3kndHUdg1IVl5R0d6BGTbz1FDIv8utjn
+         qy3YBKjQ7iNOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Walle <michael@walle.cc>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/11] NFC: nxp-nci: don't print header length mismatch on i2c error
-Date:   Wed,  6 Jul 2022 11:32:53 -0400
-Message-Id: <20220706153256.1598411-8-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 09/11] nvme-tcp: always fail a request when sending it failed
+Date:   Wed,  6 Jul 2022 11:32:54 -0400
+Message-Id: <20220706153256.1598411-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153256.1598411-1-sashal@kernel.org>
 References: <20220706153256.1598411-1-sashal@kernel.org>
@@ -57,48 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 9577fc5fdc8b07b891709af6453545db405e24ad ]
+[ Upstream commit 41d07df7de841bfbc32725ce21d933ad358f2844 ]
 
-Don't print a misleading header length mismatch error if the i2c call
-returns an error. Instead just return the error code without any error
-message.
+queue stoppage and inflight requests cancellation is fully fenced from
+io_work and thus failing a request from this context. Hence we don't
+need to try to guess from the socket retcode if this failure is because
+the queue is about to be torn down or not.
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We are perfectly safe to just fail it, the request will not be cancelled
+later on.
+
+This solves possible very long shutdown delays when the users issues a
+'nvme disconnect-all'
+
+Reported-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nxp-nci/i2c.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/nvme/host/tcp.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/nfc/nxp-nci/i2c.c b/drivers/nfc/nxp-nci/i2c.c
-index 9f60e4dc5a90..a45064b3389c 100644
---- a/drivers/nfc/nxp-nci/i2c.c
-+++ b/drivers/nfc/nxp-nci/i2c.c
-@@ -122,7 +122,9 @@ static int nxp_nci_i2c_fw_read(struct nxp_nci_i2c_phy *phy,
- 	skb_put_data(*skb, &header, NXP_NCI_FW_HDR_LEN);
- 
- 	r = i2c_master_recv(client, skb_put(*skb, frame_len), frame_len);
--	if (r != frame_len) {
-+	if (r < 0) {
-+		goto fw_read_exit_free_skb;
-+	} else if (r != frame_len) {
- 		nfc_err(&client->dev,
- 			"Invalid frame length: %u (expected %zu)\n",
- 			r, frame_len);
-@@ -163,7 +165,9 @@ static int nxp_nci_i2c_nci_read(struct nxp_nci_i2c_phy *phy,
- 	skb_put_data(*skb, (void *)&header, NCI_CTRL_HDR_SIZE);
- 
- 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
--	if (r != header.plen) {
-+	if (r < 0) {
-+		goto nci_read_exit_free_skb;
-+	} else if (r != header.plen) {
- 		nfc_err(&client->dev,
- 			"Invalid frame payload length: %u (expected %u)\n",
- 			r, header.plen);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 7e3932033707..d5e162f2c23a 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1149,8 +1149,7 @@ static int nvme_tcp_try_send(struct nvme_tcp_queue *queue)
+ 	} else if (ret < 0) {
+ 		dev_err(queue->ctrl->ctrl.device,
+ 			"failed to send request %d\n", ret);
+-		if (ret != -EPIPE && ret != -ECONNRESET)
+-			nvme_tcp_fail_request(queue->request);
++		nvme_tcp_fail_request(queue->request);
+ 		nvme_tcp_done_send_req(queue);
+ 	}
+ 	return ret;
 -- 
 2.35.1
 
