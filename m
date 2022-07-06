@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68841568D65
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A50BA568D6B
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234435AbiGFPhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45476 "EHLO
+        id S234558AbiGFPiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:38:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234004AbiGFPgf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:36:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27C022A971;
-        Wed,  6 Jul 2022 08:33:45 -0700 (PDT)
+        with ESMTP id S233634AbiGFPgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:36:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986E11CFC8;
+        Wed,  6 Jul 2022 08:33:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A00A061FF9;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A867B81D90;
+        Wed,  6 Jul 2022 15:33:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96618C341CE;
         Wed,  6 Jul 2022 15:33:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B1FC36AE2;
-        Wed,  6 Jul 2022 15:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121624;
-        bh=3wNf9MU5nkqkVJi/QAPuv9CYhltkS5PKt+M/rdroE8Q=;
+        s=k20201202; t=1657121625;
+        bh=08xxHGUudMtdS1OarUIzc4kUHpP8gjuUZlzB8ABPe2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jMEn63oDeXzKFhfi48PmZoUEf+4ut0uBEesIqPTR19YcMN1ZyzCUJKGQqk2Z+AlXg
-         Wa03ecoxaqf6BjZkU0k6iEbpLP2NyoDtOgSvAo2Okc+wc6bQrm86jhMn7yBBR4nZ8V
-         j3Y6XXRIjJ4bZDclG2G12haeIwNUnBLQ1fQHn0FW0K4hYickrKTMPQA1wtzYIdkXBl
-         rxW30xPjV8vQFQAAhGGLZQ21PC7ribAPVVVrndCczfZg6MB7db/anNNXQZQW0OeN0h
-         H9ss7VRJI5qdKvIB1n9oTxNGhxAUbJy4jM8QvQjqYSSy5C5qBhBNJTThYaER3Y1fXL
-         u8Hhh6NjbUzkQ==
+        b=pDa1FuaXAGlKqKbX0bLgISs5lriSuLEY2hjvV6yuM14c39B4TtR30eibthTi+HbJf
+         aAKpE4YMI8xqY0BGbDhrZVtH3UaYVejGrdMM/Dm2nYUQvUfY2gTcY0q6TNQr08tIFI
+         pgN8fXBS00RozduhjOyhpHZuAr/aL37Xij+iH+NJMRWzMQa6366QqVuTxt6lPWlpIf
+         PxwFQ5NSGCqgmNBEhhBehIEUtA4R3Ufyg4a1srxFpn2cusXas3KHx+5MYHVaNK6Y9r
+         7UO2KmU2mar62VU/HSvV9vEb5Rlw8bQ1lURvr+PILVFzvJ1FLSFb9vFv/hyG6BQ22d
+         RBud8Fpctz3og==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jorge Lopez <jorge.lopez2@hp.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/8] platform/x86: hp-wmi: Ignore Sanitization Mode event
-Date:   Wed,  6 Jul 2022 11:33:32 -0400
-Message-Id: <20220706153335.1598699-5-sashal@kernel.org>
+Cc:     Hangyu Hua <hbh25y@gmail.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jmaloy@redhat.com,
+        ying.xue@windriver.com, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 6/8] net: tipc: fix possible refcount leak in tipc_sk_create()
+Date:   Wed,  6 Jul 2022 11:33:33 -0400
+Message-Id: <20220706153335.1598699-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153335.1598699-1-sashal@kernel.org>
 References: <20220706153335.1598699-1-sashal@kernel.org>
@@ -58,47 +60,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 9ab762a84b8094540c18a170e5ddd6488632c456 ]
+[ Upstream commit 00aff3590fc0a73bddd3b743863c14e76fd35c0c ]
 
-After system resume the hp-wmi driver may complain:
-[ 702.620180] hp_wmi: Unknown event_id - 23 - 0x0
+Free sk in case tipc_sk_insert() fails.
 
-According to HP it means 'Sanitization Mode' and it's harmless to just
-ignore the event.
-
-Cc: Jorge Lopez <jorge.lopez2@hp.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20220628123726.250062-1-kai.heng.feng@canonical.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp-wmi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/tipc/socket.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index 93fadd4abf14..f911410bb4c7 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -75,6 +75,7 @@ enum hp_wmi_event_ids {
- 	HPWMI_BACKLIT_KB_BRIGHTNESS	= 0x0D,
- 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
- 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
-+	HPWMI_SANITIZATION_MODE		= 0x17,
- };
- 
- struct bios_args {
-@@ -631,6 +632,8 @@ static void hp_wmi_notify(u32 value, void *context)
- 		break;
- 	case HPWMI_BATTERY_CHARGE_PERIOD:
- 		break;
-+	case HPWMI_SANITIZATION_MODE:
-+		break;
- 	default:
- 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
- 		break;
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 6c18b4565ab5..8266452c143b 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -453,6 +453,7 @@ static int tipc_sk_create(struct net *net, struct socket *sock,
+ 	sock_init_data(sock, sk);
+ 	tipc_set_sk_state(sk, TIPC_OPEN);
+ 	if (tipc_sk_insert(tsk)) {
++		sk_free(sk);
+ 		pr_warn("Socket create failed; port number exhausted\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.35.1
 
