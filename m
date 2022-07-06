@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FD4568D40
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5677B568D8E
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233268AbiGFPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:33:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46096 "EHLO
+        id S234163AbiGFPd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:33:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233960AbiGFPcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:32:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058ED26571;
-        Wed,  6 Jul 2022 08:32:19 -0700 (PDT)
+        with ESMTP id S234006AbiGFPc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:32:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE24026570;
+        Wed,  6 Jul 2022 08:32:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 399D861FF2;
-        Wed,  6 Jul 2022 15:32:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6ECDC341CA;
-        Wed,  6 Jul 2022 15:32:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50DC0B81D8E;
+        Wed,  6 Jul 2022 15:32:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11BA0C341C8;
+        Wed,  6 Jul 2022 15:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121537;
-        bh=ftRCXwc4371VseYpxVHNBx88Hlwn+pfvaap8UhlLLAs=;
+        s=k20201202; t=1657121539;
+        bh=2tvJ+fipO4VZmFYhZ9As3c1NcfOg4s2bZwVEwvLpA6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fD0wdxUJMs0dJE8UsCD0uXOMVilowVFImSROLQTJvStbo7MpU6zV//moHuK4eLDmN
-         Yyj4F2GazyyjPLdIzvMZ+IuW2vhR3IVUf/PLmt6lcqGtrYy3CHFRQYB2+ZLQ1iW+Gg
-         v3WWSygbXpXrPUMi/wjbgLWEoalCK6YqoROdNfi512EUA2i3oDpFPnqtPHspSjjewe
-         wc33n41akXCTtCS72rx/xIDc719gxSVdnTdPWq07EWnK+xwe/vBkN40cxWaTRXOIH8
-         UaCI2csJGk1xVb2oq8AxmyMI4/fvrM4tmV6LOB7hW/LnhkRneDm2WZHi1F2mMVPDfp
-         tNxh5uyuQErhA==
+        b=ilCDhFZJt/Q2Snut441k9GZxbZLf1viePwZlKYh6rDdu+yszJiL7xw0At1WNvDbAA
+         HrvS88ooELOd8Sa2nqE4EkifAw0Fu66toDzsAA09meJh3zLlOqTy3zxQevE2Z6ZTbr
+         +KEzSXNnS4UcphPcwlQyz4HvQS/EeNd+OpuCZ5cBTs0ErLNuWoWTBqL5oLLZAhV0dP
+         gYAKZwVgGB18UqKVN/TjVkgvFn7dn67lzWmDaQXwQDtrkTfQUsPdmrk16Avn5cfNjm
+         obuI6oqM14pxaRm2Tj5ralRSx7Fg4RgeWwqTRMPxYvt/0o6E3gVRUFlfz30pc1S3q3
+         J9Bh6BAoJ9RVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 08/18] scsi: hisi_sas: Limit max hw sectors for v3 HW
-Date:   Wed,  6 Jul 2022 11:31:43 -0400
-Message-Id: <20220706153153.1598076-8-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>, Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        mpe@ellerman.id.au, linux-pm@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 09/18] cpufreq: pmac32-cpufreq: Fix refcount leak bug
+Date:   Wed,  6 Jul 2022 11:31:44 -0400
+Message-Id: <20220706153153.1598076-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153153.1598076-1-sashal@kernel.org>
 References: <20220706153153.1598076-1-sashal@kernel.org>
@@ -57,51 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit fce54ed027577517df1e74b7d54dc2b1bd536887 ]
+[ Upstream commit ccd7567d4b6cf187fdfa55f003a9e461ee629e36 ]
 
-If the controller is behind an IOMMU then the IOMMU IOVA caching range can
-affect performance, as discussed in [0].
+In pmac_cpufreq_init_MacRISC3(), we need to add corresponding
+of_node_put() for the three node pointers whose refcount have
+been incremented by of_find_node_by_name().
 
-Limit the max HW sectors to not exceed this limit. We need to hardcode the
-value until a proper DMA mapping API is available.
-
-[0] https://lore.kernel.org/linux-iommu/20210129092120.1482-1-thunder.leizhen@huawei.com/
-
-Link: https://lore.kernel.org/r/1655988119-223714-1-git-send-email-john.garry@huawei.com
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/cpufreq/pmac32-cpufreq.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 1f5e0688c0c8..15c7451fb30f 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2758,6 +2758,7 @@ static int slave_configure_v3_hw(struct scsi_device *sdev)
- 	struct hisi_hba *hisi_hba = shost_priv(shost);
- 	struct device *dev = hisi_hba->dev;
- 	int ret = sas_slave_configure(sdev);
-+	unsigned int max_sectors;
+diff --git a/drivers/cpufreq/pmac32-cpufreq.c b/drivers/cpufreq/pmac32-cpufreq.c
+index 4f20c6a9108d..8e41fe9ee870 100644
+--- a/drivers/cpufreq/pmac32-cpufreq.c
++++ b/drivers/cpufreq/pmac32-cpufreq.c
+@@ -470,6 +470,10 @@ static int pmac_cpufreq_init_MacRISC3(struct device_node *cpunode)
+ 	if (slew_done_gpio_np)
+ 		slew_done_gpio = read_gpio(slew_done_gpio_np);
  
- 	if (ret)
- 		return ret;
-@@ -2775,6 +2776,12 @@ static int slave_configure_v3_hw(struct scsi_device *sdev)
- 		}
- 	}
- 
-+	/* Set according to IOMMU IOVA caching limit */
-+	max_sectors = min_t(size_t, queue_max_hw_sectors(sdev->request_queue),
-+			    (PAGE_SIZE * 32) >> SECTOR_SHIFT);
++	of_node_put(volt_gpio_np);
++	of_node_put(freq_gpio_np);
++	of_node_put(slew_done_gpio_np);
 +
-+	blk_queue_max_hw_sectors(sdev->request_queue, max_sectors);
-+
- 	return 0;
- }
- 
+ 	/* If we use the frequency GPIOs, calculate the min/max speeds based
+ 	 * on the bus frequencies
+ 	 */
 -- 
 2.35.1
 
