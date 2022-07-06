@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F73568CFC
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53341568D14
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 17:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234078AbiGFPdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 11:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
+        id S234087AbiGFPd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 11:33:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234092AbiGFPcf (ORCPT
+        with ESMTP id S234100AbiGFPcf (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 11:32:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A2628E2B;
-        Wed,  6 Jul 2022 08:32:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4518928E3B;
+        Wed,  6 Jul 2022 08:32:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B284B81D8E;
-        Wed,  6 Jul 2022 15:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E70AFC341C8;
-        Wed,  6 Jul 2022 15:32:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 841FEB81D97;
+        Wed,  6 Jul 2022 15:32:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E05C3411C;
+        Wed,  6 Jul 2022 15:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657121532;
-        bh=XuABzMacapUPj02uf/mQtFYuIsg4w+Lm1rTeYvXdPwA=;
+        s=k20201202; t=1657121533;
+        bh=03dBgzcmkR/ZZgI2wyRT32ne7whuWwal3v7bzdM0djc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d85yc1fXPTuo+5DTb9lZNpk3qdvpsTD35tRcvdoreP264b02QrZZRznufYjVb+cpv
-         ehg3jM5DVRJICo0rXpwRd9RHxISYdy9OEU7+reFwFfRElI0zn68hhPD8Wt9/X55wf4
-         xvbJFIDa9POTFiMVU+wURc5pgBR2LHPWYQWZutPkfcaW0Xh8Jr+1m+z+By1QxFA08F
-         o1SoHlPt1xSK672Jup0qRZe/Ph17BvpluyRNc/IdNry1IGGmnk/bTng4hE2dcZeLS0
-         ZFrtrcCa77ULktqktGxQPJI9sOuqttbpdMy/6+h2uozboGQaLMvCRY49q1TiRpqpm3
-         VND35yVOfD3Ug==
+        b=fVz2KBVizwJbkh29C29JyY+mUKkZG+N3HPzJalNCr/K4Uq3qEVheQahKIqk4X7QxY
+         hAWEviGnT9Y8qHULHRFyhCM4nXTqdZxdvS7AgBfBzuPwOpcy6NyGeZAA4yItg++bvW
+         iDaPiQtnoZPaj0w5ERf3U32UXMpYCRIWQvraq8qAWGW42T93ZBGjjQsyMKEY8UZ2Uq
+         EF2TBGdrkzk1hnNVwwJtAMJyHK6EXPEiqDvdPRnD+HTx7GNVVmH5pfYVxMkblDr61b
+         dGQx+EAlB48M9GzYvl2y1wGFFHZ+9Tz8oNnf9v7XMB+P16xjLCuCw4hHFz9XTa/XXm
+         fDH5tSP1jrCgA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Parav Pandit <parav@nvidia.com>,
+Cc:     Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
         "Michael S . Tsirkin" <mst@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dan.carpenter@oracle.com,
-        gautam.dawar@xilinx.com, guanjun@linux.alibaba.com,
-        elic@nvidia.com, virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.15 04/18] vduse: Tie vduse mgmtdev and its device
-Date:   Wed,  6 Jul 2022 11:31:39 -0400
-Message-Id: <20220706153153.1598076-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.15 05/18] virtio_mmio: Add missing PM calls to freeze/restore
+Date:   Wed,  6 Jul 2022 11:31:40 -0400
+Message-Id: <20220706153153.1598076-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220706153153.1598076-1-sashal@kernel.org>
 References: <20220706153153.1598076-1-sashal@kernel.org>
@@ -60,132 +57,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit 0e0348ac3f0a6e6606f1aa5acb1803ada913aa3d ]
+[ Upstream commit ed7ac37fde33ccd84e4bd2b9363c191f925364c7 ]
 
-vduse devices are not backed by any real devices such as PCI. Hence it
-doesn't have any parent device linked to it.
+Most virtio drivers provide freeze/restore callbacks to finish up
+device usage before suspend and to reinitialize the virtio device after
+resume. However, these callbacks are currently only called when using
+virtio_pci. virtio_mmio does not have any PM ops defined.
 
-Kernel driver model in [1] suggests to avoid an empty device
-release callback.
+This causes problems for example after suspend to disk (hibernation),
+since the virtio devices might lose their state after the VMM is
+restarted. Calling virtio_device_freeze()/restore() ensures that
+the virtio devices are re-initialized correctly.
 
-Hence tie the mgmtdevice object's life cycle to an allocate dummy struct
-device instead of static one.
+Fix this by implementing the dev_pm_ops for virtio_mmio,
+similar to virtio_pci_common.
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/core-api/kobject.rst?h=v5.18-rc7#n284
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Message-Id: <20220613195223.473966-1-parav@nvidia.com>
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Message-Id: <20220621110621.3638025-2-stephan.gerhold@kernkonzept.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 60 ++++++++++++++++++------------
- 1 file changed, 37 insertions(+), 23 deletions(-)
+ drivers/virtio/virtio_mmio.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 9270398caf15..73e67fa88972 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1466,16 +1466,12 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
- 	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
- }
- 
--static void vduse_mgmtdev_release(struct device *dev)
--{
--}
--
--static struct device vduse_mgmtdev = {
--	.init_name = "vduse",
--	.release = vduse_mgmtdev_release,
-+struct vduse_mgmt_dev {
-+	struct vdpa_mgmt_dev mgmt_dev;
-+	struct device dev;
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 1dd396d4bebb..7522832529dd 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -62,6 +62,7 @@
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/pm.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+@@ -543,6 +544,25 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
+ 	.get_shm_region = vm_get_shm_region,
  };
  
--static struct vdpa_mgmt_dev mgmt_dev;
-+static struct vduse_mgmt_dev *vduse_mgmt;
- 
- static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- {
-@@ -1500,7 +1496,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 	}
- 	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
- 	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
--	vdev->vdpa.mdev = &mgmt_dev;
-+	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
- 
- 	return 0;
- }
-@@ -1545,34 +1541,52 @@ static struct virtio_device_id id_table[] = {
- 	{ 0 },
- };
- 
--static struct vdpa_mgmt_dev mgmt_dev = {
--	.device = &vduse_mgmtdev,
--	.id_table = id_table,
--	.ops = &vdpa_dev_mgmtdev_ops,
--};
-+static void vduse_mgmtdev_release(struct device *dev)
++#ifdef CONFIG_PM_SLEEP
++static int virtio_mmio_freeze(struct device *dev)
 +{
-+	struct vduse_mgmt_dev *mgmt_dev;
++	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
 +
-+	mgmt_dev = container_of(dev, struct vduse_mgmt_dev, dev);
-+	kfree(mgmt_dev);
++	return virtio_device_freeze(&vm_dev->vdev);
 +}
++
++static int virtio_mmio_restore(struct device *dev)
++{
++	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
++
++	return virtio_device_restore(&vm_dev->vdev);
++}
++
++static const struct dev_pm_ops virtio_mmio_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
++};
++#endif
  
- static int vduse_mgmtdev_init(void)
+ static void virtio_mmio_release_dev(struct device *_d)
  {
- 	int ret;
+@@ -786,6 +806,9 @@ static struct platform_driver virtio_mmio_driver = {
+ 		.name	= "virtio-mmio",
+ 		.of_match_table	= virtio_mmio_match,
+ 		.acpi_match_table = ACPI_PTR(virtio_mmio_acpi_match),
++#ifdef CONFIG_PM_SLEEP
++		.pm	= &virtio_mmio_pm_ops,
++#endif
+ 	},
+ };
  
--	ret = device_register(&vduse_mgmtdev);
--	if (ret)
-+	vduse_mgmt = kzalloc(sizeof(*vduse_mgmt), GFP_KERNEL);
-+	if (!vduse_mgmt)
-+		return -ENOMEM;
-+
-+	ret = dev_set_name(&vduse_mgmt->dev, "vduse");
-+	if (ret) {
-+		kfree(vduse_mgmt);
- 		return ret;
-+	}
- 
--	ret = vdpa_mgmtdev_register(&mgmt_dev);
-+	vduse_mgmt->dev.release = vduse_mgmtdev_release;
-+
-+	ret = device_register(&vduse_mgmt->dev);
- 	if (ret)
--		goto err;
-+		goto dev_reg_err;
- 
--	return 0;
--err:
--	device_unregister(&vduse_mgmtdev);
-+	vduse_mgmt->mgmt_dev.id_table = id_table;
-+	vduse_mgmt->mgmt_dev.ops = &vdpa_dev_mgmtdev_ops;
-+	vduse_mgmt->mgmt_dev.device = &vduse_mgmt->dev;
-+	ret = vdpa_mgmtdev_register(&vduse_mgmt->mgmt_dev);
-+	if (ret)
-+		device_unregister(&vduse_mgmt->dev);
-+
-+	return ret;
-+
-+dev_reg_err:
-+	put_device(&vduse_mgmt->dev);
- 	return ret;
- }
- 
- static void vduse_mgmtdev_exit(void)
- {
--	vdpa_mgmtdev_unregister(&mgmt_dev);
--	device_unregister(&vduse_mgmtdev);
-+	vdpa_mgmtdev_unregister(&vduse_mgmt->mgmt_dev);
-+	device_unregister(&vduse_mgmt->dev);
- }
- 
- static int vduse_init(void)
 -- 
 2.35.1
 
