@@ -2,102 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5CD56846F
-	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 11:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D4F56848A
+	for <lists+stable@lfdr.de>; Wed,  6 Jul 2022 12:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbiGFJ5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jul 2022 05:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
+        id S231861AbiGFKBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jul 2022 06:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232365AbiGFJ5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 05:57:00 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87AC925D9
-        for <stable@vger.kernel.org>; Wed,  6 Jul 2022 02:56:58 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id m184so8533824wme.1
-        for <stable@vger.kernel.org>; Wed, 06 Jul 2022 02:56:58 -0700 (PDT)
+        with ESMTP id S230523AbiGFKBd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jul 2022 06:01:33 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8428924BE8
+        for <stable@vger.kernel.org>; Wed,  6 Jul 2022 03:01:31 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id l12so7890569plk.13
+        for <stable@vger.kernel.org>; Wed, 06 Jul 2022 03:01:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oQmMEm8R63yDBFMVBDKxeDcvs7uNNmm4G/6GcZxeIkg=;
-        b=xcHKPZCFLH+4W4z7z/H/8MzyO4wHmtY3vAz2gkL5sf6QCFGE9oJDTPO/YnSyjqDqu3
-         hFZHoSxsOVrkUgYG1IEuzZ1nmebOOkeJwH1hTDcWBRoS2dLx9I0T7BH/AuI60qMMIJ5+
-         hho9Mb97ejPk8C8lUl+bZi7mfCMWZwPQ3KvuMUvrbCJHIXDKloFc1OmFiIQ0LgRy7OXK
-         EPEw+rMKAxmgZc57xFDdWNQaTUVwb0h9hudbnlF+gqVLNaDUATveSyEcpYUsWDtEhyKP
-         VFcSUtb4xRBx2rW5wo+h+kkQopISxtJlX/rh3TpNBt+6k5vLet1wwoaU+TNO8LCRfcz1
-         YtVA==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=izBSDhEo5LkaKfHP1dONDKBae8Gt8mJVPobNlAoGfDM=;
+        b=MlcF3wqO/V85e/FqvG2aKl03wiSIMQfXYBvfKy2OGFsF7Hq0mu82AfoCPBm8llGBTi
+         4JMDyKlzabIHgWrhoKInoq421y2c1Fy+ra3rx6oynfgzzzqzKSXoAOIlwV+blu87b7TZ
+         Mc67S/8G/Oqyk4Yarl2CubxK1nBLs4lAAte3QXQ54vehyNTVD8VpE39mr2OtOvLwKkCf
+         ld3D8IE4H08vVLiRaDxZCkNz/wRYxAoZrLaECNgWa3VQCWJQbOE/gHbhpZCQCUf2Zc2x
+         2cJxnn/piI3hVeWPvn0No/DgH8UqaieLhSfEnTVVN8VLArdT41QJg+BwwbXhttkk5ZR5
+         gwOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=oQmMEm8R63yDBFMVBDKxeDcvs7uNNmm4G/6GcZxeIkg=;
-        b=DBz+lMusRdew1nxSDIS4MxFTVGn3q4bqaWGxSjXQNxDBHMDCOSTrIXAfJeFIa2UB2l
-         niC7XAT/E84FyTmqB4/WrmWJMV6NG0FRaPuk0c+XppmSl0tX7FlKgIBAzxj03MERZqMT
-         CRcbRIE603H3BVGyQhJUqF5E2j6ts+yod+zr1UX3wQ3PYohoaG04+2GTVjsc7SOkVDgd
-         KGxapDkPmdFTt+fnUvkKMpdtwobi5EQ4Gn/0xBgbxt9u7zoM3UDs6Vichn4Koip4ibqK
-         UqxS2cmfwVpu+2nMZCRhM/J7tMMzyZvZXlDqy5TGnnbrGTyQuXCaFsO5d/Qmt+srnTZX
-         gOjQ==
-X-Gm-Message-State: AJIora/n+iKlpdnGJDTyjtm04VMnaexU21PQHJLNAt+/lLqGmN6MlJOk
-        Rb+yv6Dr9vouGrzqHtXCpVmLag==
-X-Google-Smtp-Source: AGRyM1uU55Ngph1vNp6yKEA3e3ftMEDUT75j78jU8Ow98uLQ55SnXHsTE3ElD47QQ82ShMCXfG10NQ==
-X-Received: by 2002:a05:600c:4f48:b0:3a0:45dd:8bd5 with SMTP id m8-20020a05600c4f4800b003a045dd8bd5mr43952822wmq.80.1657101417104;
-        Wed, 06 Jul 2022 02:56:57 -0700 (PDT)
-Received: from srini-hackbase.lan (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
-        by smtp.gmail.com with ESMTPSA id u1-20020a5d6ac1000000b0021b95bcaf7fsm7723390wrw.59.2022.07.06.02.56.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Jul 2022 02:56:56 -0700 (PDT)
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-To:     vkoul@kernel.org
-Cc:     yung-chuan.liao@linux.intel.com,
-        pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org,
-        linux-arm-msm@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] soundwire: qcom: Check device status before reading devid
-Date:   Wed,  6 Jul 2022 10:56:44 +0100
-Message-Id: <20220706095644.5852-1-srinivas.kandagatla@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=izBSDhEo5LkaKfHP1dONDKBae8Gt8mJVPobNlAoGfDM=;
+        b=tsj6dcUNeqfyEKPTZovSPx+ysIAsaRRX1wVRMk80tkTOCPJOamyjykxaP4/oEmG156
+         doF1JnN+8lamgb6AHIPvjRVesHmy/Kl6fICR0M+i0DAuACLv3uU7iZW+RQOUQGAzEIKg
+         CdH5+dA4x+RyfQdBT2SYuwXzDIAlHcCoXvRuySrlWIvmJyjPNrzH1mRTrUwggE6TXMmh
+         NNIIegF2nGRTcD7A7lEIhAnipRWefLjA1GjN/sjXSbNxpWwMGDCNMA104zWbvj0TeuQV
+         4bf5AD/5reDotfBMgP5PUULZWqk+mKmT7OyyxsK+ldOKQsBj0PiXrmwm2nT8oBWvkuLQ
+         +WWg==
+X-Gm-Message-State: AJIora+g9ph4CStOp24WSSN2XffOnavb945w9UFoW76qePZrlCgfkZ4V
+        qWQCsDqSg2byMq3OaAv/NmMEE99892PoMceNCYytMg==
+X-Google-Smtp-Source: AGRyM1v3ziWKPv53EFicedDG8HWTa+LjL5AiWoFupEyKusVCvS/6LLjFV+/tJzX/UcthosxH8pT/GY30l6NARdYD9xs=
+X-Received: by 2002:a17:90b:38c2:b0:1ed:474a:a668 with SMTP id
+ nn2-20020a17090b38c200b001ed474aa668mr47273440pjb.201.1657101690952; Wed, 06
+ Jul 2022 03:01:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+References: <20220705150002.2016207-1-varadgautam@google.com>
+ <YsRkPUcrMj+JU0Om@kroah.com> <CAOLDJOJ_v75WqGt2mZa0h-GgF+NThFBY5DvasH+9LLVgLrrvog@mail.gmail.com>
+ <YsUvgWmrk+ZfUy3t@kroah.com> <CAOLDJOJug5jYpaSjY1tAYWNo0QRM4NB+wM2Vd2=Lf_O7TRjVCg@mail.gmail.com>
+ <6eed01c90fafe681cccba2f227d65f2e9bfb8348.camel@intel.com> <YsVUB76c2b0EkRBb@kroah.com>
+In-Reply-To: <YsVUB76c2b0EkRBb@kroah.com>
+From:   Varad Gautam <varadgautam@google.com>
+Date:   Wed, 6 Jul 2022 12:01:19 +0200
+Message-ID: <CAOLDJOJLvSUMqF37H13aiH59Pm4_t6esRxy7Ej3Grhr4fmSGQA@mail.gmail.com>
+Subject: Re: [PATCH] thermal: sysfs: Perform bounds check when storing thermal states
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Zhang Rui <rui.zhang@intel.com>, linux-kernel@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>, linux-pm@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As per hardware datasheet its recommended that we check the device
-status before reading devid assigned by auto-enumeration.
+On Wed, Jul 6, 2022 at 11:21 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Jul 06, 2022 at 04:51:59PM +0800, Zhang Rui wrote:
+> > On Wed, 2022-07-06 at 09:16 +0200, Varad Gautam wrote:
+> > > On Wed, Jul 6, 2022 at 8:45 AM Greg KH <gregkh@linuxfoundation.org>
+> > > wrote:
+> > > >
+> > > > On Tue, Jul 05, 2022 at 11:02:50PM +0200, Varad Gautam wrote:
+> > > > > On Tue, Jul 5, 2022 at 6:18 PM Greg KH <
+> > > > > gregkh@linuxfoundation.org> wrote:
+> > > > > >
+> > > > > > On Tue, Jul 05, 2022 at 03:00:02PM +0000, Varad Gautam wrote:
+> > > > > > > Check that a user-provided thermal state is within the
+> > > > > > > maximum
+> > > > > > > thermal states supported by a given driver before attempting
+> > > > > > > to
+> > > > > > > apply it. This prevents a subsequent OOB access in
+> > > > > > > thermal_cooling_device_stats_update() while performing
+> > > > > > > state-transition accounting on drivers that do not have this
+> > > > > > > check
+> > > > > > > in their set_cur_state() handle.
+> > > > > > >
+> > > > > > > Signed-off-by: Varad Gautam <varadgautam@google.com>
+> > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > ---
+> > > > > > >  drivers/thermal/thermal_sysfs.c | 12 +++++++++++-
+> > > > > > >  1 file changed, 11 insertions(+), 1 deletion(-)
+> > > > > > >
+> > > > > > > diff --git a/drivers/thermal/thermal_sysfs.c
+> > > > > > > b/drivers/thermal/thermal_sysfs.c
+> > > > > > > index 1c4aac8464a7..0c6b0223b133 100644
+> > > > > > > --- a/drivers/thermal/thermal_sysfs.c
+> > > > > > > +++ b/drivers/thermal/thermal_sysfs.c
+> > > > > > > @@ -607,7 +607,7 @@ cur_state_store(struct device *dev,
+> > > > > > > struct device_attribute *attr,
+> > > > > > >               const char *buf, size_t count)
+> > > > > > >  {
+> > > > > > >       struct thermal_cooling_device *cdev =
+> > > > > > > to_cooling_device(dev);
+> > > > > > > -     unsigned long state;
+> > > > > > > +     unsigned long state, max_state;
+> > > > > > >       int result;
+> > > > > > >
+> > > > > > >       if (sscanf(buf, "%ld\n", &state) != 1)
+> > > > > > > @@ -618,10 +618,20 @@ cur_state_store(struct device *dev,
+> > > > > > > struct device_attribute *attr,
+> > > > > > >
+> > > > > > >       mutex_lock(&cdev->lock);
+> > > > > > >
+> > > > > > > +     result = cdev->ops->get_max_state(cdev, &max_state);
+> > > > > > > +     if (result)
+> > > > > > > +             goto unlock;
+> > > > > > > +
+> > > > > > > +     if (state > max_state) {
+> > > > > > > +             result = -EINVAL;
+> > > > > > > +             goto unlock;
+> > > > > > > +     }
+> > > > > > > +
+> > > > > > >       result = cdev->ops->set_cur_state(cdev, state);
+> > > > > >
+> > > > > > Why doesn't set_cur_state() check the max state before setting
+> > > > > > it?  Why
+> > > > > > are the callers forced to always check it before?  That feels
+> > > > > > wrong...
+> > > > > >
+> > > > >
+> > > > > The problem lies in thermal_cooling_device_stats_update(), not
+> > > > > set_cur_state().
+> > > > >
+> > > > > If ->set_cur_state() doesn't error out on invalid state,
+> > > > > thermal_cooling_device_stats_update() does a:
+> > > > >
+> > > > > stats->trans_table[stats->state * stats->max_states +
+> > > > > new_state]++;
+> > > > >
+> > > > > stats->trans_table reserves space depending on max_states, but
+> > > > > we'd end up
+> > > > > reading/writing outside it. cur_state_store() can prevent this
+> > > > > regardless of
+> > > > > the driver's ->set_cur_state() implementation.
+> > > >
+> > > > Why wouldn't cur_state_store() check for an out-of-bounds condition
+> > > > by
+> > > > calling get_max_state() and then return an error if it is invalid,
+> > > > preventing thermal_cooling_device_stats_update() from ever being
+> > > > called?
+> > > >
+> > >
+> > > That's what this patch does, it adds the out-of-bounds check.
+> >
+> > No, I think Greg' question is
+> > why cdev->ops->set_cur_state() return 0 when setting a cooling state
+> > that exceeds the maximum cooling state?
+>
+> Yes, that is what I am asking, it should not allow a state to be
+> exceeded.
+>
 
-Without this patch we see SoundWire devices with invalid enumeration
-addresses on the bus.
+Indeed, it is upto the driver to return !0 from cdev->ops->set_cur_state()
+when setting state > max - and it is a driver bug for not doing so.
 
-Cc: stable@vger.kernel.org
-Fixes: a6e6581942ca ("soundwire: qcom: add auto enumeration support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
----
- drivers/soundwire/qcom.c | 4 ++++
- 1 file changed, 4 insertions(+)
+But a buggy driver should not lead to cur_state_store() performing an OOB
+access.
 
-diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
-index dbf793e7e5d7..9df970eeca45 100644
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -480,6 +480,10 @@ static int qcom_swrm_enumerate(struct sdw_bus *bus)
- 	char *buf1 = (char *)&val1, *buf2 = (char *)&val2;
- 
- 	for (i = 1; i <= SDW_MAX_DEVICES; i++) {
-+		/* do not continue if the status is Not Present  */
-+		if (!ctrl->status[i])
-+			continue;
-+
- 		/*SCP_Devid5 - Devid 4*/
- 		ctrl->reg_read(ctrl, SWRM_ENUMERATOR_SLAVE_DEV_ID_1(i), &val1);
- 
--- 
-2.25.1
-
+> thanks,
+>
+> greg k-h
