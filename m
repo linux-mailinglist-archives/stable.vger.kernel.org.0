@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AE356A68B
-	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 17:02:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94AA856A6C6
+	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 17:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235922AbiGGPCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 11:02:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
+        id S236192AbiGGPRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jul 2022 11:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236355AbiGGPC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 11:02:27 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E558E338
-        for <stable@vger.kernel.org>; Thu,  7 Jul 2022 08:02:26 -0700 (PDT)
+        with ESMTP id S229928AbiGGPRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 11:17:33 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 269742CDCE
+        for <stable@vger.kernel.org>; Thu,  7 Jul 2022 08:17:32 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 9D6791FF4C;
-        Thu,  7 Jul 2022 15:02:25 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id D606B22151;
+        Thu,  7 Jul 2022 15:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1657206145; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1657207050; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=0CDgvngUvPOpfqCUkavzbjnEfaDXlNMmJqKIjmqQmOU=;
-        b=b/AkAYeca3d6daYNLykYUPe+Yuh/Fq3snOFZGXDjDkIkx4HaT4UGnCHQc+mFLdIbUqBkTh
-        UMvjKuHpAbE7D308k2BvkYPrE4jd0uqPUdQGFrsxqtEVKS1Lht+hNRKbIuPovEx+EVafdt
-        Laq1vKJdjKf2aIsPr68Ki5ioO19dUQE=
+        bh=EIzzg0Cq8u7o7t1e2TDFumaHeO3KtAwvShZje7r/70I=;
+        b=B1jbsR+STH0/qyeZpaqsk6npYlaekh6RZrmH3CHOuoqpWOJ6Kj1bkKfjMGafWDruBAkF/R
+        E255TAbXNg7mnsaVlH/tCqt30+TdDS/QThTdTxIoTsNitu/NAZILpFR3WnabF3J9ijipOk
+        mQYQvosgjes2txMWq1E7azCEvoJQs5I=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1657206145;
+        s=susede2_ed25519; t=1657207050;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=0CDgvngUvPOpfqCUkavzbjnEfaDXlNMmJqKIjmqQmOU=;
-        b=KXyxhTMbnAYx6IIwR6/odx67VOdQzqZs8j9YgPdenPRTN5Q1ygmsrW14qElRrC9fUWGbmR
-        Z55OT6bAP5O/6eDg==
+        bh=EIzzg0Cq8u7o7t1e2TDFumaHeO3KtAwvShZje7r/70I=;
+        b=I7bijUL/loTp+ZNIa+u4lA2dZdR1dLFcAs651ISubnSWoluPm74/Edrxj1kpFgY+X9q74U
+        PEIziZSErDoBb/AQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 770F713461;
-        Thu,  7 Jul 2022 15:02:25 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A60BA13461;
+        Thu,  7 Jul 2022 15:17:30 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id 9n9PHIH1xmL9QAAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Thu, 07 Jul 2022 15:02:25 +0000
+        id Mv7QJwr5xmKnRwAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Thu, 07 Jul 2022 15:17:30 +0000
 From:   Vlastimil Babka <vbabka@suse.cz>
 To:     stable@vger.kernel.org
 Cc:     Jann Horn <jannh@google.com>, Christoph Lameter <cl@linux.com>,
@@ -53,9 +53,9 @@ Cc:     Jann Horn <jannh@google.com>, Christoph Lameter <cl@linux.com>,
         Hyeonggon Yoo <42.hyeyoo@gmail.com>,
         Muchun Song <songmuchun@bytedance.com>, linux-mm@kvack.org,
         Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 5.15-stable] mm/slub: add missing TID updates on slab deactivation
-Date:   Thu,  7 Jul 2022 17:02:16 +0200
-Message-Id: <20220707150216.3134-1-vbabka@suse.cz>
+Subject: [PATCH 5.10-stable 5.4-stable 4.19-stable 4.14-stable] mm/slub: add missing TID updates on slab deactivation
+Date:   Thu,  7 Jul 2022 17:17:23 +0200
+Message-Id: <20220707151723.18702-1-vbabka@suse.cz>
 X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -155,29 +155,38 @@ Tested-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
 Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Link: https://lore.kernel.org/r/20220608182205.2945720-1-jannh@google.com
 ---
- mm/slub.c | 2 ++
- 1 file changed, 2 insertions(+)
+ mm/slub.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/mm/slub.c b/mm/slub.c
-index b75eebc0350e..519bbbad7b2f 100644
+index 1384dc906833..b395ef064544 100644
 --- a/mm/slub.c
 +++ b/mm/slub.c
-@@ -2935,6 +2935,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+@@ -2297,6 +2297,7 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+ 
+ 	c->page = NULL;
+ 	c->freelist = NULL;
++	c->tid = next_tid(c->tid);
+ }
+ 
+ /*
+@@ -2430,8 +2431,6 @@ static inline void flush_slab(struct kmem_cache *s, struct kmem_cache_cpu *c)
+ {
+ 	stat(s, CPUSLAB_FLUSH);
+ 	deactivate_slab(s, c->page, c->freelist, c);
+-
+-	c->tid = next_tid(c->tid);
+ }
+ 
+ /*
+@@ -2717,6 +2716,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
  
  	if (!freelist) {
  		c->page = NULL;
 +		c->tid = next_tid(c->tid);
- 		local_unlock_irqrestore(&s->cpu_slab->lock, flags);
  		stat(s, DEACTIVATE_BYPASS);
  		goto new_slab;
-@@ -2967,6 +2968,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
- 	freelist = c->freelist;
- 	c->page = NULL;
- 	c->freelist = NULL;
-+	c->tid = next_tid(c->tid);
- 	local_unlock_irqrestore(&s->cpu_slab->lock, flags);
- 	deactivate_slab(s, page, freelist);
- 
+ 	}
 -- 
 2.36.1
 
