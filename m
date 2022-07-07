@@ -2,135 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 057C656A1CF
-	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 14:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12AE356A68B
+	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 17:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235415AbiGGMRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 08:17:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50818 "EHLO
+        id S235922AbiGGPCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jul 2022 11:02:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235374AbiGGMRE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 08:17:04 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7D8237CF;
-        Thu,  7 Jul 2022 05:17:03 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id bn33so603636ljb.13;
-        Thu, 07 Jul 2022 05:17:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=qfuJzO7Or1hWutQ+055wT2mkGtRVlLJZKOvJBQUacs4=;
-        b=nhjLdyUgzSBGyn9ZAj9Ub70NCHUDRm68Jc3D8pHg16pEAyy4eIBz8CFJ92r42zwS5U
-         QJ52CTfsvnFoJha09WyzpHei+Ry/IBYgzRaPd8LKbawqC9/7HNj6RlwhJTX/4hXNuxrU
-         rfd4g0b7g5vksVaBDympNxGUSHaHqAOOe9CAogCovSJUVS3shKhWOH5XgnasXrza/ABq
-         rbG8LTAKWsNs07O/K6K9Ly4yZVcMM1ntnpR71nN0rKxtS6qYTfJxak3yo8/oa3C5+vgA
-         8YA9yU4OQHAVr7iSC5uNFke6y12oFkObkS/KpknxC+of6uHN4U5pgUuZwQAd8bYOo5vL
-         VOlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=qfuJzO7Or1hWutQ+055wT2mkGtRVlLJZKOvJBQUacs4=;
-        b=k/LYaWKFOrCcInpi+XbpkND47J0vykzuniQJ0xEaxg1/oC/Ba9otzOdAwF+VaEWW6y
-         iutk1q3Nwa8yxebg9j0cOr7PArab13Pn2521thaw9CPgbj7f+8wro3K+pQqZL/Vyk5Pr
-         N6hlvHzPR1GV1h8XpVWHb8Nmaq10xlxwXMVxqh78Qr1XiRu7LIDKAbub1q7i2zYZseVL
-         fvpTo/eLtcKaR4q2NXoCeQWdvnJZSiY8bchdj3P++qiO2VWtFadSEFg8eFB7FznPGQ4j
-         pikXqDhZuxPFiyP68GnBYtkCn2UY8hfqsBJP1+8w0ldo9UtlxqOfz3qH92yKev5R86Fc
-         Arog==
-X-Gm-Message-State: AJIora91DAwIXo02dbrMpgNBdTheDve+ZVsS9QNXKWlbEWoijrKJ7+Hn
-        mZvcWKt4BzPx6M3pXs+vSEJbBzqeaRvuOLoHQctOU45UUKA=
-X-Google-Smtp-Source: AGRyM1s+RbuwD2N4/3CLcjeaFbbM5o6RlMijDKSoUc4v3+elnXOrfUTLZJKzeYT7+jrC2vqoDXH+dHqmr0CFLZgOaNE=
-X-Received: by 2002:a2e:8608:0:b0:25d:3cb6:c306 with SMTP id
- a8-20020a2e8608000000b0025d3cb6c306mr6265880lji.389.1657196221230; Thu, 07
- Jul 2022 05:17:01 -0700 (PDT)
+        with ESMTP id S236355AbiGGPC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 11:02:27 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E558E338
+        for <stable@vger.kernel.org>; Thu,  7 Jul 2022 08:02:26 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 9D6791FF4C;
+        Thu,  7 Jul 2022 15:02:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1657206145; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=0CDgvngUvPOpfqCUkavzbjnEfaDXlNMmJqKIjmqQmOU=;
+        b=b/AkAYeca3d6daYNLykYUPe+Yuh/Fq3snOFZGXDjDkIkx4HaT4UGnCHQc+mFLdIbUqBkTh
+        UMvjKuHpAbE7D308k2BvkYPrE4jd0uqPUdQGFrsxqtEVKS1Lht+hNRKbIuPovEx+EVafdt
+        Laq1vKJdjKf2aIsPr68Ki5ioO19dUQE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1657206145;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=0CDgvngUvPOpfqCUkavzbjnEfaDXlNMmJqKIjmqQmOU=;
+        b=KXyxhTMbnAYx6IIwR6/odx67VOdQzqZs8j9YgPdenPRTN5Q1ygmsrW14qElRrC9fUWGbmR
+        Z55OT6bAP5O/6eDg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 770F713461;
+        Thu,  7 Jul 2022 15:02:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 9n9PHIH1xmL9QAAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Thu, 07 Jul 2022 15:02:25 +0000
+From:   Vlastimil Babka <vbabka@suse.cz>
+To:     stable@vger.kernel.org
+Cc:     Jann Horn <jannh@google.com>, Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Muchun Song <songmuchun@bytedance.com>, linux-mm@kvack.org,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 5.15-stable] mm/slub: add missing TID updates on slab deactivation
+Date:   Thu,  7 Jul 2022 17:02:16 +0200
+Message-Id: <20220707150216.3134-1-vbabka@suse.cz>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220706164043.417780-1-jandryuk@gmail.com> <5687473ad4da4c26a85b6d230cfc011a@huawei.com>
-In-Reply-To: <5687473ad4da4c26a85b6d230cfc011a@huawei.com>
-From:   Jason Andryuk <jandryuk@gmail.com>
-Date:   Thu, 7 Jul 2022 08:16:49 -0400
-Message-ID: <CAKf6xpu6Pg7fdg4F5Qk4twinCjaOxYQpwq+N=1+WX19nT=xmOg@mail.gmail.com>
-Subject: Re: [PATCH] tpm_tis: Hold locality open during probe
-To:     "chenjun (AM)" <chenjun102@huawei.com>
-Cc:     Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 7, 2022 at 3:48 AM chenjun (AM) <chenjun102@huawei.com> wrote:
->
-> =E5=9C=A8 2022/7/7 0:41, Jason Andryuk =E5=86=99=E9=81=93:
-> > WEC TPMs (in 1.2 mode) and NTC (in 2.0 mode) have been observer to
-> > frequently, but intermittently, fail probe with:
-> > tpm_tis: probe of 00:09 failed with error -1
-> >
-> > Added debugging output showed that the request_locality in
-> > tpm_tis_core_init succeeds, but then the tpm_chip_start fails when its
-> > call to tpm_request_locality -> request_locality fails.
-> >
-> > The access register in check_locality would show:
-> > 0x80 TPM_ACCESS_VALID
-> > 0x82 TPM_ACCESS_VALID | TPM_ACCESS_REQUEST_USE
-> > 0x80 TPM_ACCESS_VALID
-> > continuing until it times out. TPM_ACCESS_ACTIVE_LOCALITY (0x20) doesn'=
-t
-> > get set which would end the wait.
-> >
-> > My best guess is something racy was going on between release_locality's
-> > write and request_locality's write.  There is no wait in
-> > release_locality to ensure that the locality is released, so the
-> > subsequent request_locality could confuse the TPM?
-> >
-> > tpm_chip_start grabs locality 0, and updates chip->locality.  Call that
-> > before the TPM_INT_ENABLE write, and drop the explicit request/release
-> > calls.  tpm_chip_stop performs the release.  With this, we switch to
-> > using chip->locality instead of priv->locality.  The probe failure is
-> > not seen after this.
-> >
-> > commit 0ef333f5ba7f ("tpm: add request_locality before write
-> > TPM_INT_ENABLE") added a request_locality/release_locality pair around
-> > tpm_tis_write32 TPM_INT_ENABLE, but there is a read of
-> > TPM_INT_ENABLE for the intmask which should also have the locality
-> > grabbed.  tpm_chip_start is moved before that to have the locality open
-> > during the read.
-> >
-> > Fixes: 0ef333f5ba7f ("tpm: add request_locality before write TPM_INT_EN=
-ABLE")
->
-> 0ef333f5ba7f is probably not the commit that introduced the problem? As
-> you said the problem was in 5.4 and the commit was merged in 5.16.
+From: Jann Horn <jannh@google.com>
 
-I was imprecise with my versions.  0ef333f5ba7f was backported to
-stable-5.4.y as 13af3a9b1ba6 in 5.4.174.  I was running 5.4.163 on
-some systems without problem, but the probe failures started after
-jumping to 5.4.200.
+commit eeaa345e128515135ccb864c04482180c08e3259 upstream.
 
-Other systems showing the probe failures were 5.15.29 (which has
-0ef333f5ba7f backported as ea1fd8364c9f 5.15.17) and 5.17.y (5.17.5 I
-think) from a Fedora 36 USB drive.
+The fastpath in slab_alloc_node() assumes that c->slab is stable as long as
+the TID stays the same. However, two places in __slab_alloc() currently
+don't update the TID when deactivating the CPU slab.
 
-Other machines run fine with 0ef333f5ba7f which is part of why I
-didn't notice it earlier between 5.4.613 and 5.4.200.
+If multiple operations race the right way, this could lead to an object
+getting lost; or, in an even more unlikely situation, it could even lead to
+an object being freed onto the wrong slab's freelist, messing up the
+`inuse` counter and eventually causing a page to be freed to the page
+allocator while it still contains slab objects.
 
-At the top I wrote: "frequently, but intermittently, fail probe".  To
-expand on that: Basically on the affected machines, the probe during
-boot fails.  In one instance, I repeatedly ran `echo 00:05 >
-/sys/bus/pnp/drivers/tpm_tis/bind`, and it successfully probed on the
-7th try.  So something racy seems to be going on.
+(I haven't actually tested these cases though, this is just based on
+looking at the code. Writing testcases for this stuff seems like it'd be
+a pain...)
 
-Regards,
-Jason
+The race leading to state inconsistency is (all operations on the same CPU
+and kmem_cache):
+
+ - task A: begin do_slab_free():
+    - read TID
+    - read pcpu freelist (==NULL)
+    - check `slab == c->slab` (true)
+ - [PREEMPT A->B]
+ - task B: begin slab_alloc_node():
+    - fastpath fails (`c->freelist` is NULL)
+    - enter __slab_alloc()
+    - slub_get_cpu_ptr() (disables preemption)
+    - enter ___slab_alloc()
+    - take local_lock_irqsave()
+    - read c->freelist as NULL
+    - get_freelist() returns NULL
+    - write `c->slab = NULL`
+    - drop local_unlock_irqrestore()
+    - goto new_slab
+    - slub_percpu_partial() is NULL
+    - get_partial() returns NULL
+    - slub_put_cpu_ptr() (enables preemption)
+ - [PREEMPT B->A]
+ - task A: finish do_slab_free():
+    - this_cpu_cmpxchg_double() succeeds()
+    - [CORRUPT STATE: c->slab==NULL, c->freelist!=NULL]
+
+From there, the object on c->freelist will get lost if task B is allowed to
+continue from here: It will proceed to the retry_load_slab label,
+set c->slab, then jump to load_freelist, which clobbers c->freelist.
+
+But if we instead continue as follows, we get worse corruption:
+
+ - task A: run __slab_free() on object from other struct slab:
+    - CPU_PARTIAL_FREE case (slab was on no list, is now on pcpu partial)
+ - task A: run slab_alloc_node() with NUMA node constraint:
+    - fastpath fails (c->slab is NULL)
+    - call __slab_alloc()
+    - slub_get_cpu_ptr() (disables preemption)
+    - enter ___slab_alloc()
+    - c->slab is NULL: goto new_slab
+    - slub_percpu_partial() is non-NULL
+    - set c->slab to slub_percpu_partial(c)
+    - [CORRUPT STATE: c->slab points to slab-1, c->freelist has objects
+      from slab-2]
+    - goto redo
+    - node_match() fails
+    - goto deactivate_slab
+    - existing c->freelist is passed into deactivate_slab()
+    - inuse count of slab-1 is decremented to account for object from
+      slab-2
+
+At this point, the inuse count of slab-1 is 1 lower than it should be.
+This means that if we free all allocated objects in slab-1 except for one,
+SLUB will think that slab-1 is completely unused, and may free its page,
+leading to use-after-free.
+
+Fixes: c17dda40a6a4e ("slub: Separate out kmem_cache_cpu processing from deactivate_slab")
+Fixes: 03e404af26dc2 ("slub: fast release on full slab")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: Christoph Lameter <cl@linux.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Link: https://lore.kernel.org/r/20220608182205.2945720-1-jannh@google.com
+---
+ mm/slub.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/mm/slub.c b/mm/slub.c
+index b75eebc0350e..519bbbad7b2f 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -2935,6 +2935,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+ 
+ 	if (!freelist) {
+ 		c->page = NULL;
++		c->tid = next_tid(c->tid);
+ 		local_unlock_irqrestore(&s->cpu_slab->lock, flags);
+ 		stat(s, DEACTIVATE_BYPASS);
+ 		goto new_slab;
+@@ -2967,6 +2968,7 @@ static void *___slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
+ 	freelist = c->freelist;
+ 	c->page = NULL;
+ 	c->freelist = NULL;
++	c->tid = next_tid(c->tid);
+ 	local_unlock_irqrestore(&s->cpu_slab->lock, flags);
+ 	deactivate_slab(s, page, freelist);
+ 
+-- 
+2.36.1
+
