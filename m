@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B493756A773
+	by mail.lfdr.de (Postfix) with ESMTP id 3F11856A772
 	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 18:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235596AbiGGQI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 12:08:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45942 "EHLO
+        id S235690AbiGGQI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jul 2022 12:08:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235659AbiGGQI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 12:08:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98E2233A3A;
-        Thu,  7 Jul 2022 09:08:20 -0700 (PDT)
+        with ESMTP id S235661AbiGGQI0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 12:08:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3A933E27;
+        Thu,  7 Jul 2022 09:08:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06F00B82124;
-        Thu,  7 Jul 2022 16:08:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 320C5C341C0;
-        Thu,  7 Jul 2022 16:08:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42FE9623D3;
+        Thu,  7 Jul 2022 16:08:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5214CC341C0;
+        Thu,  7 Jul 2022 16:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657210097;
-        bh=/WVYhJvMryexQLfDht/RC6e2pPBNPIwaZz5SqiB1M80=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/nO/VLBLOixipAQooF6oZiviN4aSYhsYwaAT+vEc4m5HBg9uG4zR5k1fZnzBgCHf
-         3rpMJZPritm7d0FLFTQN0/nA9yiXGFBl29JuwTEHZpvIa7Ir9T1o4ZR0xkN7CHimWl
-         e3sJ9K41gfC+p+/qZB2dNOdUUVvqWRG109FG03E4=
+        s=korg; t=1657210100;
+        bh=5EnJIFL10in2oed2CtVnmxNJDop7J++6e1s0pL9vB2U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rDmDxsU6JjonBj317riU0Ats+LE8NzB15uVnYxr3ckkIp9i85N44Gvjh8FZQ6Yifm
+         A3L+l2aC/R1P9CH4Y09TlWzmEjMyMrBkpuP/3A7mN/MU3N/8oFHzxhqWADnqkrxtm7
+         ZMS+Lria1wHKknLhchXE+/Z8hrXANTFoIPavE7ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.322
-Date:   Thu,  7 Jul 2022 18:08:10 +0200
-Message-Id: <165721008912130@kroah.com>
+Subject: Linux 4.14.287
+Date:   Thu,  7 Jul 2022 18:08:13 +0200
+Message-Id: <165721009435145@kroah.com>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <165721008935130@kroah.com>
-References: <165721008935130@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -51,1494 +49,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 4b9b412d5fb8..bd4c898a9940 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 321
-+SUBLEVEL = 322
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/arm/xen/p2m.c b/arch/arm/xen/p2m.c
-index b4ec8d1b0bef..dc8f41deea1e 100644
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -61,11 +61,12 @@ static int xen_add_phys_to_mach_entry(struct xen_p2m_entry *new)
- 
- unsigned long __pfn_to_mfn(unsigned long pfn)
- {
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
- 	struct xen_p2m_entry *entry;
- 	unsigned long irqflags;
- 
- 	read_lock_irqsave(&p2m_lock, irqflags);
-+	n = phys_to_mach.rb_node;
- 	while (n) {
- 		entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 		if (entry->pfn <= pfn &&
-@@ -151,10 +152,11 @@ bool __set_phys_to_machine_multi(unsigned long pfn,
- 	int rc;
- 	unsigned long irqflags;
- 	struct xen_p2m_entry *p2m_entry;
--	struct rb_node *n = phys_to_mach.rb_node;
-+	struct rb_node *n;
- 
- 	if (mfn == INVALID_P2M_ENTRY) {
- 		write_lock_irqsave(&p2m_lock, irqflags);
-+		n = phys_to_mach.rb_node;
- 		while (n) {
- 			p2m_entry = rb_entry(n, struct xen_p2m_entry, rbnode_phys);
- 			if (p2m_entry->pfn <= pfn &&
-diff --git a/arch/powerpc/include/asm/ppc-opcode.h b/arch/powerpc/include/asm/ppc-opcode.h
-index b7067590f15c..8cb3c929641a 100644
---- a/arch/powerpc/include/asm/ppc-opcode.h
-+++ b/arch/powerpc/include/asm/ppc-opcode.h
-@@ -134,6 +134,7 @@
- #define PPC_INST_COPY			0x7c00060c
- #define PPC_INST_COPY_FIRST		0x7c20060c
- #define PPC_INST_CP_ABORT		0x7c00068c
-+#define PPC_INST_DARN			0x7c0005e6
- #define PPC_INST_DCBA			0x7c0005ec
- #define PPC_INST_DCBA_MASK		0xfc0007fe
- #define PPC_INST_DCBAL			0x7c2005ec
-@@ -328,6 +329,9 @@
- 
- /* Deal with instructions that older assemblers aren't aware of */
- #define	PPC_CP_ABORT		stringify_in_c(.long PPC_INST_CP_ABORT)
-+#define PPC_DARN(t, l)		stringify_in_c(.long PPC_INST_DARN |  \
-+						___PPC_RT(t)	   |  \
-+						(((l) & 0x3) << 16))
- #define	PPC_DCBAL(a, b)		stringify_in_c(.long PPC_INST_DCBAL | \
- 					__PPC_RA(a) | __PPC_RB(b))
- #define	PPC_DCBZL(a, b)		stringify_in_c(.long PPC_INST_DCBZL | \
-diff --git a/arch/powerpc/platforms/powernv/powernv.h b/arch/powerpc/platforms/powernv/powernv.h
-index da7c843ac7f1..e98e14a5db4d 100644
---- a/arch/powerpc/platforms/powernv/powernv.h
-+++ b/arch/powerpc/platforms/powernv/powernv.h
-@@ -27,4 +27,6 @@ extern void opal_event_shutdown(void);
- 
- bool cpu_core_split_required(void);
- 
-+void pnv_rng_init(void);
-+
- #endif /* _POWERNV_H */
-diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-index 5dcbdea1afac..dc13ed3f6c2b 100644
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -16,11 +16,14 @@
- #include <linux/slab.h>
- #include <linux/smp.h>
- #include <asm/archrandom.h>
-+#include <asm/cputable.h>
- #include <asm/io.h>
- #include <asm/prom.h>
- #include <asm/machdep.h>
- #include <asm/smp.h>
-+#include "powernv.h"
- 
-+#define DARN_ERR 0xFFFFFFFFFFFFFFFFul
- 
- struct powernv_rng {
- 	void __iomem *regs;
-@@ -30,7 +33,6 @@ struct powernv_rng {
- 
- static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
- 
--
- int powernv_hwrng_present(void)
- {
- 	struct powernv_rng *rng;
-@@ -45,7 +47,11 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- 	unsigned long parity;
- 
- 	/* Calculate the parity of the value */
--	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
-+	asm (".machine push;   \
-+	      .machine power7; \
-+	      popcntd %0,%1;   \
-+	      .machine pop;"
-+	     : "=r" (parity) : "r" (val));
- 
- 	/* xor our value with the previous mask */
- 	val ^= rng->mask;
-@@ -67,6 +73,38 @@ int powernv_get_random_real_mode(unsigned long *v)
- 	return 1;
- }
- 
-+static int powernv_get_random_darn(unsigned long *v)
-+{
-+	unsigned long val;
-+
-+	/* Using DARN with L=1 - 64-bit conditioned random number */
-+	asm volatile(PPC_DARN(%0, 1) : "=r"(val));
-+
-+	if (val == DARN_ERR)
-+		return 0;
-+
-+	*v = val;
-+
-+	return 1;
-+}
-+
-+static int __init initialise_darn(void)
-+{
-+	unsigned long val;
-+	int i;
-+
-+	if (!cpu_has_feature(CPU_FTR_ARCH_300))
-+		return -ENODEV;
-+
-+	for (i = 0; i < 10; i++) {
-+		if (powernv_get_random_darn(&val)) {
-+			ppc_md.get_random_seed = powernv_get_random_darn;
-+			return 0;
-+		}
-+	}
-+	return -EIO;
-+}
-+
- int powernv_get_random_long(unsigned long *v)
- {
- 	struct powernv_rng *rng;
-@@ -88,7 +126,7 @@ static __init void rng_init_per_cpu(struct powernv_rng *rng,
- 
- 	chip_id = of_get_ibm_chip_id(dn);
- 	if (chip_id == -1)
--		pr_warn("No ibm,chip-id found for %s.\n", dn->full_name);
-+		pr_warn("No ibm,chip-id found for %pOF.\n", dn);
- 
- 	for_each_possible_cpu(cpu) {
- 		if (per_cpu(powernv_rng, cpu) == NULL ||
-@@ -126,30 +164,55 @@ static __init int rng_create(struct device_node *dn)
- 
- 	rng_init_per_cpu(rng, dn);
- 
--	pr_info_once("Registering arch random hook.\n");
--
- 	ppc_md.get_random_seed = powernv_get_random_long;
- 
- 	return 0;
- }
- 
--static __init int rng_init(void)
-+static int __init pnv_get_random_long_early(unsigned long *v)
- {
- 	struct device_node *dn;
--	int rc;
-+
-+	if (!slab_is_available())
-+		return 0;
-+
-+	if (cmpxchg(&ppc_md.get_random_seed, pnv_get_random_long_early,
-+		    NULL) != pnv_get_random_long_early)
-+		return 0;
- 
- 	for_each_compatible_node(dn, NULL, "ibm,power-rng") {
--		rc = rng_create(dn);
--		if (rc) {
--			pr_err("Failed creating rng for %s (%d).\n",
--				dn->full_name, rc);
-+		if (rng_create(dn))
- 			continue;
--		}
--
- 		/* Create devices for hwrng driver */
- 		of_platform_device_create(dn, NULL, NULL);
- 	}
- 
-+	if (!ppc_md.get_random_seed)
-+		return 0;
-+	return ppc_md.get_random_seed(v);
-+}
-+
-+void __init pnv_rng_init(void)
-+{
-+	struct device_node *dn;
-+
-+	/* Prefer darn over the rest. */
-+	if (!initialise_darn())
-+		return;
-+
-+	dn = of_find_compatible_node(NULL, NULL, "ibm,power-rng");
-+	if (dn)
-+		ppc_md.get_random_seed = pnv_get_random_long_early;
-+
-+	of_node_put(dn);
-+}
-+
-+static int __init pnv_rng_late_init(void)
-+{
-+	unsigned long v;
-+	/* In case it wasn't called during init for some other reason. */
-+	if (ppc_md.get_random_seed == pnv_get_random_long_early)
-+		pnv_get_random_long_early(&v);
- 	return 0;
- }
--machine_subsys_initcall(powernv, rng_init);
-+machine_subsys_initcall(powernv, pnv_rng_late_init);
-diff --git a/arch/powerpc/platforms/powernv/setup.c b/arch/powerpc/platforms/powernv/setup.c
-index b77d5eed9520..e97b714d30d7 100644
---- a/arch/powerpc/platforms/powernv/setup.c
-+++ b/arch/powerpc/platforms/powernv/setup.c
-@@ -168,6 +168,8 @@ static void __init pnv_setup_arch(void)
- 	powersave_nap = 1;
- 
- 	/* XXX PMCS */
-+
-+	pnv_rng_init();
- }
- 
- static void __init pnv_init(void)
-diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-index 17ea0ba50278..9c907c1a4a1c 100644
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -144,6 +144,10 @@ static unsigned int xen_blkif_max_ring_order;
- module_param_named(max_ring_page_order, xen_blkif_max_ring_order, int, S_IRUGO);
- MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the shared ring");
- 
-+static bool __read_mostly xen_blkif_trusted = true;
-+module_param_named(trusted, xen_blkif_trusted, bool, 0644);
-+MODULE_PARM_DESC(trusted, "Is the backend trusted");
-+
- #define BLK_RING_SIZE(info)	\
- 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
- 
-@@ -206,6 +210,7 @@ struct blkfront_info
- 	unsigned int discard_granularity;
- 	unsigned int discard_alignment;
- 	unsigned int feature_persistent:1;
-+	unsigned int bounce:1;
- 	/* Number of 4KB segments handled */
- 	unsigned int max_indirect_segments;
- 	int is_ready;
-@@ -296,8 +301,8 @@ static int fill_grant_buffer(struct blkfront_ring_info *rinfo, int num)
- 		if (!gnt_list_entry)
- 			goto out_of_memory;
- 
--		if (info->feature_persistent) {
--			granted_page = alloc_page(GFP_NOIO);
-+		if (info->bounce) {
-+			granted_page = alloc_page(GFP_NOIO | __GFP_ZERO);
- 			if (!granted_page) {
- 				kfree(gnt_list_entry);
- 				goto out_of_memory;
-@@ -316,7 +321,7 @@ static int fill_grant_buffer(struct blkfront_ring_info *rinfo, int num)
- 	list_for_each_entry_safe(gnt_list_entry, n,
- 	                         &rinfo->grants, node) {
- 		list_del(&gnt_list_entry->node);
--		if (info->feature_persistent)
-+		if (info->bounce)
- 			__free_page(gnt_list_entry->page);
- 		kfree(gnt_list_entry);
- 		i--;
-@@ -362,7 +367,7 @@ static struct grant *get_grant(grant_ref_t *gref_head,
- 	/* Assign a gref to this page */
- 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
- 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
--	if (info->feature_persistent)
-+	if (info->bounce)
- 		grant_foreign_access(gnt_list_entry, info);
- 	else {
- 		/* Grant access to the GFN passed by the caller */
-@@ -386,7 +391,7 @@ static struct grant *get_indirect_grant(grant_ref_t *gref_head,
- 	/* Assign a gref to this page */
- 	gnt_list_entry->gref = gnttab_claim_grant_reference(gref_head);
- 	BUG_ON(gnt_list_entry->gref == -ENOSPC);
--	if (!info->feature_persistent) {
-+	if (!info->bounce) {
- 		struct page *indirect_page;
- 
- 		/* Fetch a pre-allocated page to use for indirect grefs */
-@@ -701,7 +706,7 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
- 		.grant_idx = 0,
- 		.segments = NULL,
- 		.rinfo = rinfo,
--		.need_copy = rq_data_dir(req) && info->feature_persistent,
-+		.need_copy = rq_data_dir(req) && info->bounce,
- 	};
- 
- 	/*
-@@ -1015,11 +1020,12 @@ static void xlvbd_flush(struct blkfront_info *info)
- {
- 	blk_queue_write_cache(info->rq, info->feature_flush ? true : false,
- 			      info->feature_fua ? true : false);
--	pr_info("blkfront: %s: %s %s %s %s %s\n",
-+	pr_info("blkfront: %s: %s %s %s %s %s %s %s\n",
- 		info->gd->disk_name, flush_info(info),
- 		"persistent grants:", info->feature_persistent ?
- 		"enabled;" : "disabled;", "indirect descriptors:",
--		info->max_indirect_segments ? "enabled;" : "disabled;");
-+		info->max_indirect_segments ? "enabled;" : "disabled;",
-+		"bounce buffer:", info->bounce ? "enabled" : "disabled;");
- }
- 
- static int xen_translate_vdev(int vdevice, int *minor, unsigned int *offset)
-@@ -1254,7 +1260,7 @@ static void blkif_free_ring(struct blkfront_ring_info *rinfo)
- 	if (!list_empty(&rinfo->indirect_pages)) {
- 		struct page *indirect_page, *n;
- 
--		BUG_ON(info->feature_persistent);
-+		BUG_ON(info->bounce);
- 		list_for_each_entry_safe(indirect_page, n, &rinfo->indirect_pages, lru) {
- 			list_del(&indirect_page->lru);
- 			__free_page(indirect_page);
-@@ -1271,7 +1277,7 @@ static void blkif_free_ring(struct blkfront_ring_info *rinfo)
- 				continue;
- 
- 			rinfo->persistent_gnts_c--;
--			if (info->feature_persistent)
-+			if (info->bounce)
- 				__free_page(persistent_gnt->page);
- 			kfree(persistent_gnt);
- 		}
-@@ -1291,7 +1297,7 @@ static void blkif_free_ring(struct blkfront_ring_info *rinfo)
- 		for (j = 0; j < segs; j++) {
- 			persistent_gnt = rinfo->shadow[i].grants_used[j];
- 			gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
--			if (info->feature_persistent)
-+			if (info->bounce)
- 				__free_page(persistent_gnt->page);
- 			kfree(persistent_gnt);
- 		}
-@@ -1481,7 +1487,7 @@ static int blkif_completion(unsigned long *id,
- 	data.s = s;
- 	num_sg = s->num_sg;
- 
--	if (bret->operation == BLKIF_OP_READ && info->feature_persistent) {
-+	if (bret->operation == BLKIF_OP_READ && info->bounce) {
- 		for_each_sg(s->sg, sg, num_sg, i) {
- 			BUG_ON(sg->offset + sg->length > PAGE_SIZE);
- 
-@@ -1540,7 +1546,7 @@ static int blkif_completion(unsigned long *id,
- 				 * Add the used indirect page back to the list of
- 				 * available pages for indirect grefs.
- 				 */
--				if (!info->feature_persistent) {
-+				if (!info->bounce) {
- 					indirect_page = s->indirect_grants[i]->page;
- 					list_add(&indirect_page->lru, &rinfo->indirect_pages);
- 				}
-@@ -1729,7 +1735,7 @@ static int setup_blkring(struct xenbus_device *dev,
- 	for (i = 0; i < info->nr_ring_pages; i++)
- 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
- 
--	sring = alloc_pages_exact(ring_size, GFP_NOIO);
-+	sring = alloc_pages_exact(ring_size, GFP_NOIO | __GFP_ZERO);
- 	if (!sring) {
- 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
- 		return -ENOMEM;
-@@ -1822,6 +1828,13 @@ static int talk_to_blkback(struct xenbus_device *dev,
- 	int err;
- 	unsigned int i, max_page_order = 0;
- 	unsigned int ring_page_order = 0;
-+	unsigned int trusted;
-+
-+	/* Check if backend is trusted. */
-+	err = xenbus_scanf(XBT_NIL, dev->nodename, "trusted", "%u", &trusted);
-+	if (err < 0)
-+		trusted = 1;
-+	info->bounce = !xen_blkif_trusted || !trusted;
- 
- 	err = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
- 			   "max-ring-page-order", "%u", &max_page_order);
-@@ -2301,17 +2314,18 @@ static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo)
- 	if (err)
- 		goto out_of_memory;
- 
--	if (!info->feature_persistent && info->max_indirect_segments) {
-+	if (!info->bounce && info->max_indirect_segments) {
- 		/*
--		 * We are using indirect descriptors but not persistent
--		 * grants, we need to allocate a set of pages that can be
-+		 * We are using indirect descriptors but don't have a bounce
-+		 * buffer, we need to allocate a set of pages that can be
- 		 * used for mapping indirect grefs
- 		 */
- 		int num = INDIRECT_GREFS(grants) * BLK_RING_SIZE(info);
- 
- 		BUG_ON(!list_empty(&rinfo->indirect_pages));
- 		for (i = 0; i < num; i++) {
--			struct page *indirect_page = alloc_page(GFP_NOIO);
-+			struct page *indirect_page = alloc_page(GFP_NOIO |
-+			                                        __GFP_ZERO);
- 			if (!indirect_page)
- 				goto out_of_memory;
- 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
-@@ -2409,6 +2423,8 @@ static void blkfront_gather_backend_features(struct blkfront_info *info)
- 		info->feature_persistent = 0;
- 	else
- 		info->feature_persistent = persistent;
-+	if (info->feature_persistent)
-+		info->bounce = true;
- 
- 	err = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
- 			   "feature-max-indirect-segments", "%u",
-diff --git a/drivers/hwmon/ibmaem.c b/drivers/hwmon/ibmaem.c
-index 1f643782ce04..c9cfc958e853 100644
---- a/drivers/hwmon/ibmaem.c
-+++ b/drivers/hwmon/ibmaem.c
-@@ -563,7 +563,7 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
- 
- 	res = platform_device_add(data->pdev);
- 	if (res)
--		goto ipmi_err;
-+		goto dev_add_err;
- 
- 	platform_set_drvdata(data->pdev, data);
- 
-@@ -611,7 +611,9 @@ static int aem_init_aem1_inst(struct aem_ipmi_data *probe, u8 module_handle)
- 	ipmi_destroy_user(data->ipmi.user);
- ipmi_err:
- 	platform_set_drvdata(data->pdev, NULL);
--	platform_device_unregister(data->pdev);
-+	platform_device_del(data->pdev);
-+dev_add_err:
-+	platform_device_put(data->pdev);
- dev_err:
- 	ida_simple_remove(&aem_ida, data->id);
- id_err:
-@@ -703,7 +705,7 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
- 
- 	res = platform_device_add(data->pdev);
- 	if (res)
--		goto ipmi_err;
-+		goto dev_add_err;
- 
- 	platform_set_drvdata(data->pdev, data);
- 
-@@ -751,7 +753,9 @@ static int aem_init_aem2_inst(struct aem_ipmi_data *probe,
- 	ipmi_destroy_user(data->ipmi.user);
- ipmi_err:
- 	platform_set_drvdata(data->pdev, NULL);
--	platform_device_unregister(data->pdev);
-+	platform_device_del(data->pdev);
-+dev_add_err:
-+	platform_device_put(data->pdev);
- dev_err:
- 	ida_simple_remove(&aem_ida, data->id);
- id_err:
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 1e9321410bbb..b396e78b1b6d 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -7322,6 +7322,7 @@ static int raid5_add_disk(struct mddev *mddev, struct md_rdev *rdev)
- 	 */
- 	if (rdev->saved_raid_disk >= 0 &&
- 	    rdev->saved_raid_disk >= first &&
-+	    rdev->saved_raid_disk <= last &&
- 	    conf->disks[rdev->saved_raid_disk].rdev == NULL)
- 		first = rdev->saved_raid_disk;
- 
-diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
-index 578d8e12e2d2..8ec0671f9711 100644
---- a/drivers/net/bonding/bond_3ad.c
-+++ b/drivers/net/bonding/bond_3ad.c
-@@ -2163,7 +2163,8 @@ void bond_3ad_unbind_slave(struct slave *slave)
- 				temp_aggregator->num_of_ports--;
- 				if (__agg_active_ports(temp_aggregator) == 0) {
- 					select_new_active_agg = temp_aggregator->is_active;
--					ad_clear_agg(temp_aggregator);
-+					if (temp_aggregator->num_of_ports == 0)
-+						ad_clear_agg(temp_aggregator);
- 					if (select_new_active_agg) {
- 						netdev_info(bond->dev, "Removing an active aggregator\n");
- 						/* select new active aggregator */
-diff --git a/drivers/net/bonding/bond_alb.c b/drivers/net/bonding/bond_alb.c
-index 1f8fbd7776fb..df81b525156f 100644
---- a/drivers/net/bonding/bond_alb.c
-+++ b/drivers/net/bonding/bond_alb.c
-@@ -1264,12 +1264,12 @@ int bond_alb_initialize(struct bonding *bond, int rlb_enabled)
- 		return res;
- 
- 	if (rlb_enabled) {
--		bond->alb_info.rlb_enabled = 1;
- 		res = rlb_initialize(bond);
- 		if (res) {
- 			tlb_deinitialize(bond);
- 			return res;
- 		}
-+		bond->alb_info.rlb_enabled = 1;
- 	} else {
- 		bond->alb_info.rlb_enabled = 0;
- 	}
-diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
-index b306210b02b7..b91c7c7b253c 100644
---- a/drivers/net/caif/caif_virtio.c
-+++ b/drivers/net/caif/caif_virtio.c
-@@ -727,13 +727,21 @@ static int cfv_probe(struct virtio_device *vdev)
- 	/* Carrier is off until netdevice is opened */
- 	netif_carrier_off(netdev);
- 
-+	/* serialize netdev register + virtio_device_ready() with ndo_open() */
-+	rtnl_lock();
-+
- 	/* register Netdev */
--	err = register_netdev(netdev);
-+	err = register_netdevice(netdev);
- 	if (err) {
-+		rtnl_unlock();
- 		dev_err(&vdev->dev, "Unable to register netdev (%d)\n", err);
- 		goto err;
- 	}
- 
-+	virtio_device_ready(vdev);
-+
-+	rtnl_unlock();
-+
- 	debugfs_init(cfv);
- 
- 	return 0;
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index 738d10fc595c..48938d00ff7e 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1373,6 +1373,42 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 	 * are bundled into this buffer and where we can find an array of
- 	 * per-packet metadata (which contains elements encoded into u16).
- 	 */
-+
-+	/* SKB contents for current firmware:
-+	 *   <packet 1> <padding>
-+	 *   ...
-+	 *   <packet N> <padding>
-+	 *   <per-packet metadata entry 1> <dummy header>
-+	 *   ...
-+	 *   <per-packet metadata entry N> <dummy header>
-+	 *   <padding2> <rx_hdr>
-+	 *
-+	 * where:
-+	 *   <packet N> contains pkt_len bytes:
-+	 *		2 bytes of IP alignment pseudo header
-+	 *		packet received
-+	 *   <per-packet metadata entry N> contains 4 bytes:
-+	 *		pkt_len and fields AX_RXHDR_*
-+	 *   <padding>	0-7 bytes to terminate at
-+	 *		8 bytes boundary (64-bit).
-+	 *   <padding2> 4 bytes to make rx_hdr terminate at
-+	 *		8 bytes boundary (64-bit)
-+	 *   <dummy-header> contains 4 bytes:
-+	 *		pkt_len=0 and AX_RXHDR_DROP_ERR
-+	 *   <rx-hdr>	contains 4 bytes:
-+	 *		pkt_cnt and hdr_off (offset of
-+	 *		  <per-packet metadata entry 1>)
-+	 *
-+	 * pkt_cnt is number of entrys in the per-packet metadata.
-+	 * In current firmware there is 2 entrys per packet.
-+	 * The first points to the packet and the
-+	 *  second is a dummy header.
-+	 * This was done probably to align fields in 64-bit and
-+	 *  maintain compatibility with old firmware.
-+	 * This code assumes that <dummy header> and <padding2> are
-+	 *  optional.
-+	 */
-+
- 	if (skb->len < 4)
- 		return 0;
- 	skb_trim(skb, skb->len - 4);
-@@ -1387,51 +1423,66 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 	/* Make sure that the bounds of the metadata array are inside the SKB
- 	 * (and in front of the counter at the end).
- 	 */
--	if (pkt_cnt * 2 + hdr_off > skb->len)
-+	if (pkt_cnt * 4 + hdr_off > skb->len)
- 		return 0;
- 	pkt_hdr = (u32 *)(skb->data + hdr_off);
- 
- 	/* Packets must not overlap the metadata array */
- 	skb_trim(skb, hdr_off);
- 
--	for (; ; pkt_cnt--, pkt_hdr++) {
-+	for (; pkt_cnt > 0; pkt_cnt--, pkt_hdr++) {
-+		u16 pkt_len_plus_padd;
- 		u16 pkt_len;
- 
- 		le32_to_cpus(pkt_hdr);
- 		pkt_len = (*pkt_hdr >> 16) & 0x1fff;
-+		pkt_len_plus_padd = (pkt_len + 7) & 0xfff8;
- 
--		if (pkt_len > skb->len)
-+		/* Skip dummy header used for alignment
-+		 */
-+		if (pkt_len == 0)
-+			continue;
-+
-+		if (pkt_len_plus_padd > skb->len)
- 			return 0;
- 
- 		/* Check CRC or runt packet */
--		if (((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) == 0) &&
--		    pkt_len >= 2 + ETH_HLEN) {
--			bool last = (pkt_cnt == 0);
--
--			if (last) {
--				ax_skb = skb;
--			} else {
--				ax_skb = skb_clone(skb, GFP_ATOMIC);
--				if (!ax_skb)
--					return 0;
--			}
--			ax_skb->len = pkt_len;
--			/* Skip IP alignment pseudo header */
--			skb_pull(ax_skb, 2);
--			skb_set_tail_pointer(ax_skb, ax_skb->len);
--			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
--			ax88179_rx_checksum(ax_skb, pkt_hdr);
-+		if ((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) ||
-+		    pkt_len < 2 + ETH_HLEN) {
-+			dev->net->stats.rx_errors++;
-+			skb_pull(skb, pkt_len_plus_padd);
-+			continue;
-+		}
- 
--			if (last)
--				return 1;
-+		/* last packet */
-+		if (pkt_len_plus_padd == skb->len) {
-+			skb_trim(skb, pkt_len);
- 
--			usbnet_skb_return(dev, ax_skb);
-+			/* Skip IP alignment pseudo header */
-+			skb_pull(skb, 2);
-+
-+			skb->truesize = SKB_TRUESIZE(pkt_len_plus_padd);
-+			ax88179_rx_checksum(skb, pkt_hdr);
-+			return 1;
- 		}
- 
--		/* Trim this packet away from the SKB */
--		if (!skb_pull(skb, (pkt_len + 7) & 0xFFF8))
-+		ax_skb = skb_clone(skb, GFP_ATOMIC);
-+		if (!ax_skb)
- 			return 0;
-+		skb_trim(ax_skb, pkt_len);
-+
-+		/* Skip IP alignment pseudo header */
-+		skb_pull(ax_skb, 2);
-+
-+		skb->truesize = pkt_len_plus_padd +
-+				SKB_DATA_ALIGN(sizeof(struct sk_buff));
-+		ax88179_rx_checksum(ax_skb, pkt_hdr);
-+		usbnet_skb_return(dev, ax_skb);
-+
-+		skb_pull(skb, pkt_len_plus_padd);
- 	}
-+
-+	return 0;
- }
- 
- static struct sk_buff *
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 003c53a5bb33..db37cf9281e1 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -928,10 +928,16 @@ static const struct usb_device_id products[] = {
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1201, 2)},	/* Telit LE920, LE920A4 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1230, 2)},	/* Telit LE910Cx */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1260, 2)},	/* Telit LE910Cx */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1261, 2)},	/* Telit LE910Cx */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1900, 1)},	/* Telit LN940 series */
- 	{QMI_FIXED_INTF(0x1c9e, 0x9801, 3)},	/* Telewell TW-3G HSPA+ */
- 	{QMI_FIXED_INTF(0x1c9e, 0x9803, 4)},	/* Telewell TW-3G HSPA+ */
- 	{QMI_FIXED_INTF(0x1c9e, 0x9b01, 3)},	/* XS Stick W100-2 from 4G Systems */
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index 6a004742ec71..4b7a9672d92b 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1951,8 +1951,8 @@ static int __usbnet_read_cmd(struct usbnet *dev, u8 cmd, u8 reqtype,
- 		   " value=0x%04x index=0x%04x size=%d\n",
- 		   cmd, reqtype, value, index, size);
- 
--	if (data) {
--		buf = kmalloc(size, GFP_KERNEL);
-+	if (size) {
-+		buf = kmalloc(size, GFP_NOIO);
- 		if (!buf)
- 			goto out;
- 	}
-@@ -1960,8 +1960,13 @@ static int __usbnet_read_cmd(struct usbnet *dev, u8 cmd, u8 reqtype,
- 	err = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
- 			      cmd, reqtype, value, index, buf, size,
- 			      USB_CTRL_GET_TIMEOUT);
--	if (err > 0 && err <= size)
--		memcpy(data, buf, err);
-+	if (err > 0 && err <= size) {
-+        if (data)
-+            memcpy(data, buf, err);
-+        else
-+            netdev_dbg(dev->net,
-+                "Huh? Data requested but thrown away.\n");
-+    }
- 	kfree(buf);
- out:
- 	return err;
-@@ -1979,10 +1984,16 @@ static int __usbnet_write_cmd(struct usbnet *dev, u8 cmd, u8 reqtype,
- 		   cmd, reqtype, value, index, size);
- 
- 	if (data) {
--		buf = kmemdup(data, size, GFP_KERNEL);
-+		buf = kmemdup(data, size, GFP_NOIO);
- 		if (!buf)
- 			goto out;
--	}
-+	} else {
-+        if (size) {
-+            WARN_ON_ONCE(1);
-+            err = -EINVAL;
-+            goto out;
-+        }
-+    }
- 
- 	err = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
- 			      cmd, reqtype, value, index, buf, size,
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 82dcd44b3e5e..cae036f5299a 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -62,6 +62,10 @@ module_param_named(max_queues, xennet_max_queues, uint, 0644);
- MODULE_PARM_DESC(max_queues,
- 		 "Maximum number of queues per virtual interface");
- 
-+static bool __read_mostly xennet_trusted = true;
-+module_param_named(trusted, xennet_trusted, bool, 0644);
-+MODULE_PARM_DESC(trusted, "Is the backend trusted");
-+
- #define XENNET_TIMEOUT  (5 * HZ)
- 
- static const struct ethtool_ops xennet_ethtool_ops;
-@@ -162,6 +166,9 @@ struct netfront_info {
- 	/* Is device behaving sane? */
- 	bool broken;
- 
-+	/* Should skbs be bounced into a zeroed buffer? */
-+	bool bounce;
-+
- 	atomic_t rx_gso_checksum_fixup;
- };
- 
-@@ -260,7 +267,7 @@ static struct sk_buff *xennet_alloc_one_rx_buffer(struct netfront_queue *queue)
- 	if (unlikely(!skb))
- 		return NULL;
- 
--	page = alloc_page(GFP_ATOMIC | __GFP_NOWARN);
-+	page = alloc_page(GFP_ATOMIC | __GFP_NOWARN | __GFP_ZERO);
- 	if (!page) {
- 		kfree_skb(skb);
- 		return NULL;
-@@ -591,6 +598,34 @@ static void xennet_mark_tx_pending(struct netfront_queue *queue)
- 		queue->tx_link[i] = TX_PENDING;
- }
- 
-+struct sk_buff *bounce_skb(const struct sk_buff *skb)
-+{
-+	unsigned int headerlen = skb_headroom(skb);
-+	/* Align size to allocate full pages and avoid contiguous data leaks */
-+	unsigned int size = ALIGN(skb_end_offset(skb) + skb->data_len,
-+				  XEN_PAGE_SIZE);
-+	struct sk_buff *n = alloc_skb(size, GFP_ATOMIC | __GFP_ZERO);
-+
-+	if (!n)
-+		return NULL;
-+
-+	if (!IS_ALIGNED((uintptr_t)n->head, XEN_PAGE_SIZE)) {
-+		WARN_ONCE(1, "misaligned skb allocated\n");
-+		kfree_skb(n);
-+		return NULL;
-+	}
-+
-+	/* Set the data pointer */
-+	skb_reserve(n, headerlen);
-+	/* Set the tail pointer and length */
-+	skb_put(n, skb->len);
-+
-+	BUG_ON(skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len));
-+
-+	skb_copy_header(n, skb);
-+	return n;
-+}
-+
- #define MAX_XEN_SKB_FRAGS (65536 / XEN_PAGE_SIZE + 1)
- 
- static int xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-@@ -643,9 +678,13 @@ static int xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	/* The first req should be at least ETH_HLEN size or the packet will be
- 	 * dropped by netback.
-+	 *
-+	 * If the backend is not trusted bounce all data to zeroed pages to
-+	 * avoid exposing contiguous data on the granted page not belonging to
-+	 * the skb.
- 	 */
--	if (unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
--		nskb = skb_copy(skb, GFP_ATOMIC);
-+	if (np->bounce || unlikely(PAGE_SIZE - offset < ETH_HLEN)) {
-+		nskb = bounce_skb(skb);
- 		if (!nskb)
- 			goto drop;
- 		dev_kfree_skb_any(skb);
-@@ -1962,9 +2001,16 @@ static int talk_to_netback(struct xenbus_device *dev,
- 	unsigned int max_queues = 0;
- 	struct netfront_queue *queue = NULL;
- 	unsigned int num_queues = 1;
-+	unsigned int trusted;
- 
- 	info->netdev->irq = 0;
- 
-+	/* Check if backend is trusted. */
-+	err = xenbus_scanf(XBT_NIL, dev->nodename, "trusted", "%u", &trusted);
-+	if (err < 0)
-+		trusted = 1;
-+	info->bounce = !xennet_trusted || !trusted;
-+
- 	/* Check if backend supports multiple queues */
- 	err = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
- 			   "multi-queue-max-queues", "%u", &max_queues);
-@@ -2129,6 +2175,9 @@ static int xennet_connect(struct net_device *dev)
- 	err = talk_to_netback(np->xbdev, np);
- 	if (err)
- 		return err;
-+	if (np->bounce)
-+		dev_info(&np->xbdev->dev,
-+			 "bouncing transmitted data to zeroed pages\n");
- 
- 	/* talk_to_netback() sets the correct number of queues */
- 	num_queues = dev->real_num_tx_queues;
-diff --git a/drivers/nfc/nfcmrvl/i2c.c b/drivers/nfc/nfcmrvl/i2c.c
-index 78b7aa835c81..bb546cabe809 100644
---- a/drivers/nfc/nfcmrvl/i2c.c
-+++ b/drivers/nfc/nfcmrvl/i2c.c
-@@ -186,9 +186,9 @@ static int nfcmrvl_i2c_parse_dt(struct device_node *node,
- 		pdata->irq_polarity = IRQF_TRIGGER_RISING;
- 
- 	ret = irq_of_parse_and_map(node, 0);
--	if (ret < 0) {
--		pr_err("Unable to get irq, error: %d\n", ret);
--		return ret;
-+	if (!ret) {
-+		pr_err("Unable to get irq\n");
-+		return -EINVAL;
- 	}
- 	pdata->irq = ret;
- 
-diff --git a/drivers/nfc/nfcmrvl/spi.c b/drivers/nfc/nfcmrvl/spi.c
-index fc8e78a29d77..d66c83efdd7d 100644
---- a/drivers/nfc/nfcmrvl/spi.c
-+++ b/drivers/nfc/nfcmrvl/spi.c
-@@ -130,9 +130,9 @@ static int nfcmrvl_spi_parse_dt(struct device_node *node,
- 	}
- 
- 	ret = irq_of_parse_and_map(node, 0);
--	if (ret < 0) {
--		pr_err("Unable to get irq, error: %d\n", ret);
--		return ret;
-+	if (!ret) {
-+		pr_err("Unable to get irq\n");
-+		return -EINVAL;
- 	}
- 	pdata->irq = ret;
- 
-diff --git a/drivers/nfc/nxp-nci/i2c.c b/drivers/nfc/nxp-nci/i2c.c
-index 7eab97585f22..a4f1a981e2dd 100644
---- a/drivers/nfc/nxp-nci/i2c.c
-+++ b/drivers/nfc/nxp-nci/i2c.c
-@@ -180,6 +180,9 @@ static int nxp_nci_i2c_nci_read(struct nxp_nci_i2c_phy *phy,
- 	memcpy(skb_put(*skb, NCI_CTRL_HDR_SIZE), (void *) &header,
- 	       NCI_CTRL_HDR_SIZE);
- 
-+	if (!header.plen)
-+		return 0;
-+
- 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
- 	if (r != header.plen) {
- 		nfc_err(&client->dev,
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 69d59102ff1b..2c3248e71e9c 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -57,6 +57,7 @@ MODULE_PARM_DESC(limit, "Maximum number of grants that may be mapped by "
- 
- static atomic_t pages_mapped = ATOMIC_INIT(0);
- 
-+/* True in PV mode, false otherwise */
- static int use_ptemod;
- #define populate_freeable_maps use_ptemod
- 
-@@ -92,11 +93,16 @@ struct grant_map {
- 	struct gnttab_unmap_grant_ref *unmap_ops;
- 	struct gnttab_map_grant_ref   *kmap_ops;
- 	struct gnttab_unmap_grant_ref *kunmap_ops;
-+	bool *being_removed;
- 	struct page **pages;
- 	unsigned long pages_vm_start;
-+	/* Number of live grants */
-+	atomic_t live_grants;
-+	/* Needed to avoid allocation in unmap_grant_pages */
-+	struct gntab_unmap_queue_data unmap_data;
- };
- 
--static int unmap_grant_pages(struct grant_map *map, int offset, int pages);
-+static void unmap_grant_pages(struct grant_map *map, int offset, int pages);
- 
- /* ------------------------------------------------------------------ */
- 
-@@ -127,6 +133,7 @@ static void gntdev_free_map(struct grant_map *map)
- 	kfree(map->unmap_ops);
- 	kfree(map->kmap_ops);
- 	kfree(map->kunmap_ops);
-+	kfree(map->being_removed);
- 	kfree(map);
- }
- 
-@@ -145,12 +152,15 @@ static struct grant_map *gntdev_alloc_map(struct gntdev_priv *priv, int count)
- 	add->kmap_ops  = kcalloc(count, sizeof(add->kmap_ops[0]), GFP_KERNEL);
- 	add->kunmap_ops = kcalloc(count, sizeof(add->kunmap_ops[0]), GFP_KERNEL);
- 	add->pages     = kcalloc(count, sizeof(add->pages[0]), GFP_KERNEL);
-+	add->being_removed =
-+		kcalloc(count, sizeof(add->being_removed[0]), GFP_KERNEL);
- 	if (NULL == add->grants    ||
- 	    NULL == add->map_ops   ||
- 	    NULL == add->unmap_ops ||
- 	    NULL == add->kmap_ops  ||
- 	    NULL == add->kunmap_ops ||
--	    NULL == add->pages)
-+	    NULL == add->pages     ||
-+	    NULL == add->being_removed)
- 		goto err;
- 
- 	if (gnttab_alloc_pages(count, add->pages))
-@@ -215,6 +225,34 @@ static void gntdev_put_map(struct gntdev_priv *priv, struct grant_map *map)
- 		return;
- 
- 	atomic_sub(map->count, &pages_mapped);
-+	if (map->pages && !use_ptemod) {
-+		/*
-+		 * Increment the reference count.  This ensures that the
-+		 * subsequent call to unmap_grant_pages() will not wind up
-+		 * re-entering itself.  It *can* wind up calling
-+		 * gntdev_put_map() recursively, but such calls will be with a
-+		 * reference count greater than 1, so they will return before
-+		 * this code is reached.  The recursion depth is thus limited to
-+		 * 1.
-+		 */
-+		atomic_set(&map->users, 1);
-+
-+		/*
-+		 * Unmap the grants.  This may or may not be asynchronous, so it
-+		 * is possible that the reference count is 1 on return, but it
-+		 * could also be greater than 1.
-+		 */
-+		unmap_grant_pages(map, 0, map->count);
-+
-+		/* Check if the memory now needs to be freed */
-+		if (!atomic_dec_and_test(&map->users))
-+			return;
-+
-+		/*
-+		 * All pages have been returned to the hypervisor, so free the
-+		 * map.
-+		 */
-+	}
- 
- 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
- 		notify_remote_via_evtchn(map->notify.event);
-@@ -272,6 +310,7 @@ static int set_grant_ptes_as_special(pte_t *pte, pgtable_t token,
- 
- static int map_grant_pages(struct grant_map *map)
- {
-+	size_t alloced = 0;
- 	int i, err = 0;
- 
- 	if (!use_ptemod) {
-@@ -320,85 +359,107 @@ static int map_grant_pages(struct grant_map *map)
- 			map->pages, map->count);
- 
- 	for (i = 0; i < map->count; i++) {
--		if (map->map_ops[i].status == GNTST_okay)
-+		if (map->map_ops[i].status == GNTST_okay) {
- 			map->unmap_ops[i].handle = map->map_ops[i].handle;
--		else if (!err)
-+			if (!use_ptemod)
-+				alloced++;
-+		} else if (!err)
- 			err = -EINVAL;
- 
- 		if (map->flags & GNTMAP_device_map)
- 			map->unmap_ops[i].dev_bus_addr = map->map_ops[i].dev_bus_addr;
- 
- 		if (use_ptemod) {
--			if (map->kmap_ops[i].status == GNTST_okay)
-+			if (map->kmap_ops[i].status == GNTST_okay) {
-+				if (map->map_ops[i].status == GNTST_okay)
-+					alloced++;
- 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
--			else if (!err)
-+			} else if (!err)
- 				err = -EINVAL;
- 		}
- 	}
-+	atomic_add(alloced, &map->live_grants);
- 	return err;
- }
- 
--static int __unmap_grant_pages(struct grant_map *map, int offset, int pages)
-+static void __unmap_grant_pages_done(int result,
-+		struct gntab_unmap_queue_data *data)
- {
--	int i, err = 0;
--	struct gntab_unmap_queue_data unmap_data;
-+	unsigned int i;
-+	struct grant_map *map = data->data;
-+	unsigned int offset = data->unmap_ops - map->unmap_ops;
-+
-+	for (i = 0; i < data->count; i++) {
-+		WARN_ON(map->unmap_ops[offset+i].status);
-+		pr_debug("unmap handle=%d st=%d\n",
-+			map->unmap_ops[offset+i].handle,
-+			map->unmap_ops[offset+i].status);
-+		map->unmap_ops[offset+i].handle = -1;
-+	}
-+	/*
-+	 * Decrease the live-grant counter.  This must happen after the loop to
-+	 * prevent premature reuse of the grants by gnttab_mmap().
-+	 */
-+	atomic_sub(data->count, &map->live_grants);
- 
-+	/* Release reference taken by unmap_grant_pages */
-+	gntdev_put_map(NULL, map);
-+}
-+
-+static void __unmap_grant_pages(struct grant_map *map, int offset, int pages)
-+{
- 	if (map->notify.flags & UNMAP_NOTIFY_CLEAR_BYTE) {
- 		int pgno = (map->notify.addr >> PAGE_SHIFT);
-+
- 		if (pgno >= offset && pgno < offset + pages) {
- 			/* No need for kmap, pages are in lowmem */
- 			uint8_t *tmp = pfn_to_kaddr(page_to_pfn(map->pages[pgno]));
-+
- 			tmp[map->notify.addr & (PAGE_SIZE-1)] = 0;
- 			map->notify.flags &= ~UNMAP_NOTIFY_CLEAR_BYTE;
- 		}
- 	}
- 
--	unmap_data.unmap_ops = map->unmap_ops + offset;
--	unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
--	unmap_data.pages = map->pages + offset;
--	unmap_data.count = pages;
-+	map->unmap_data.unmap_ops = map->unmap_ops + offset;
-+	map->unmap_data.kunmap_ops = use_ptemod ? map->kunmap_ops + offset : NULL;
-+	map->unmap_data.pages = map->pages + offset;
-+	map->unmap_data.count = pages;
-+	map->unmap_data.done = __unmap_grant_pages_done;
-+	map->unmap_data.data = map;
-+	atomic_inc(&map->users); /* to keep map alive during async call below */
- 
--	err = gnttab_unmap_refs_sync(&unmap_data);
--	if (err)
--		return err;
--
--	for (i = 0; i < pages; i++) {
--		if (map->unmap_ops[offset+i].status)
--			err = -EINVAL;
--		pr_debug("unmap handle=%d st=%d\n",
--			map->unmap_ops[offset+i].handle,
--			map->unmap_ops[offset+i].status);
--		map->unmap_ops[offset+i].handle = -1;
--	}
--	return err;
-+	gnttab_unmap_refs_async(&map->unmap_data);
- }
- 
--static int unmap_grant_pages(struct grant_map *map, int offset, int pages)
-+static void unmap_grant_pages(struct grant_map *map, int offset, int pages)
- {
--	int range, err = 0;
-+	int range;
-+
-+	if (atomic_read(&map->live_grants) == 0)
-+		return; /* Nothing to do */
- 
- 	pr_debug("unmap %d+%d [%d+%d]\n", map->index, map->count, offset, pages);
- 
- 	/* It is possible the requested range will have a "hole" where we
- 	 * already unmapped some of the grants. Only unmap valid ranges.
- 	 */
--	while (pages && !err) {
--		while (pages && map->unmap_ops[offset].handle == -1) {
-+	while (pages) {
-+		while (pages && map->being_removed[offset]) {
- 			offset++;
- 			pages--;
- 		}
- 		range = 0;
- 		while (range < pages) {
--			if (map->unmap_ops[offset+range].handle == -1)
-+			if (map->being_removed[offset + range])
- 				break;
-+			map->being_removed[offset + range] = true;
- 			range++;
- 		}
--		err = __unmap_grant_pages(map, offset, range);
-+		if (range)
-+			__unmap_grant_pages(map, offset, range);
- 		offset += range;
- 		pages -= range;
- 	}
--
--	return err;
- }
- 
- /* ------------------------------------------------------------------ */
-@@ -454,7 +515,6 @@ static void unmap_if_in_range(struct grant_map *map,
- 			      unsigned long start, unsigned long end)
- {
- 	unsigned long mstart, mend;
--	int err;
- 
- 	if (!map->vma)
- 		return;
-@@ -468,10 +528,9 @@ static void unmap_if_in_range(struct grant_map *map,
- 			map->index, map->count,
- 			map->vma->vm_start, map->vma->vm_end,
- 			start, end, mstart, mend);
--	err = unmap_grant_pages(map,
-+	unmap_grant_pages(map,
- 				(mstart - map->vma->vm_start) >> PAGE_SHIFT,
- 				(mend - mstart) >> PAGE_SHIFT);
--	WARN_ON(err);
- }
- 
- static void mn_invl_range_start(struct mmu_notifier *mn,
-@@ -503,7 +562,6 @@ static void mn_release(struct mmu_notifier *mn,
- {
- 	struct gntdev_priv *priv = container_of(mn, struct gntdev_priv, mn);
- 	struct grant_map *map;
--	int err;
- 
- 	mutex_lock(&priv->lock);
- 	list_for_each_entry(map, &priv->maps, next) {
-@@ -512,8 +570,7 @@ static void mn_release(struct mmu_notifier *mn,
- 		pr_debug("map %d+%d (%lx %lx)\n",
- 				map->index, map->count,
- 				map->vma->vm_start, map->vma->vm_end);
--		err = unmap_grant_pages(map, /* offset */ 0, map->count);
--		WARN_ON(err);
-+		unmap_grant_pages(map, /* offset */ 0, map->count);
- 	}
- 	list_for_each_entry(map, &priv->freeable_maps, next) {
- 		if (!map->vma)
-@@ -521,8 +578,7 @@ static void mn_release(struct mmu_notifier *mn,
- 		pr_debug("map %d+%d (%lx %lx)\n",
- 				map->index, map->count,
- 				map->vma->vm_start, map->vma->vm_end);
--		err = unmap_grant_pages(map, /* offset */ 0, map->count);
--		WARN_ON(err);
-+		unmap_grant_pages(map, /* offset */ 0, map->count);
- 	}
- 	mutex_unlock(&priv->lock);
- }
-@@ -1012,6 +1068,10 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
- 		goto unlock_out;
- 	}
- 
-+	if (atomic_read(&map->live_grants)) {
-+		err = -EAGAIN;
-+		goto unlock_out;
-+	}
- 	atomic_inc(&map->users);
- 
- 	vma->vm_ops = &gntdev_vmops;
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index dab550cf29c1..827d69d66394 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -975,6 +975,7 @@ static inline struct sk_buff *alloc_skb_head(gfp_t priority)
- struct sk_buff *skb_morph(struct sk_buff *dst, struct sk_buff *src);
- int skb_copy_ubufs(struct sk_buff *skb, gfp_t gfp_mask);
- struct sk_buff *skb_clone(struct sk_buff *skb, gfp_t priority);
-+void skb_copy_header(struct sk_buff *new, const struct sk_buff *old);
- struct sk_buff *skb_copy(const struct sk_buff *skb, gfp_t priority);
- struct sk_buff *__pskb_copy_fclone(struct sk_buff *skb, int headroom,
- 				   gfp_t gfp_mask, bool fclone);
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 41d328a93790..22b216629f9b 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1071,7 +1071,7 @@ static void skb_headers_offset_update(struct sk_buff *skb, int off)
- 	skb->inner_mac_header += off;
- }
- 
--static void copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
-+void skb_copy_header(struct sk_buff *new, const struct sk_buff *old)
- {
- 	__copy_skb_header(new, old);
- 
-@@ -1079,6 +1079,7 @@ static void copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
- 	skb_shinfo(new)->gso_segs = skb_shinfo(old)->gso_segs;
- 	skb_shinfo(new)->gso_type = skb_shinfo(old)->gso_type;
- }
-+EXPORT_SYMBOL(skb_copy_header);
- 
- static inline int skb_alloc_rx_flag(const struct sk_buff *skb)
- {
-@@ -1122,7 +1123,7 @@ struct sk_buff *skb_copy(const struct sk_buff *skb, gfp_t gfp_mask)
- 	if (skb_copy_bits(skb, -headerlen, n->head, headerlen + skb->len))
- 		BUG();
- 
--	copy_skb_header(n, skb);
-+	skb_copy_header(n, skb);
- 	return n;
- }
- EXPORT_SYMBOL(skb_copy);
-@@ -1185,7 +1186,7 @@ struct sk_buff *__pskb_copy_fclone(struct sk_buff *skb, int headroom,
- 		skb_clone_fraglist(n);
- 	}
- 
--	copy_skb_header(n, skb);
-+	skb_copy_header(n, skb);
- out:
- 	return n;
- }
-@@ -1356,7 +1357,7 @@ struct sk_buff *skb_copy_expand(const struct sk_buff *skb,
- 			  skb->len + head_copy_len))
- 		BUG();
- 
--	copy_skb_header(n, skb);
-+	skb_copy_header(n, skb);
- 
- 	skb_headers_offset_update(n, newheadroom - oldheadroom);
- 
-diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index 07e545fd2a3d..560aedccfa1a 100644
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -308,9 +308,7 @@ static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
- 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL) :
- 		NULL;
- 
--	rcu_read_lock();
--
--	ca = t->prl_count < cmax ? t->prl_count : cmax;
-+	ca = min(t->prl_count, cmax);
- 
- 	if (!kp) {
- 		/* We don't try hard to allocate much memory for
-@@ -325,7 +323,7 @@ static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
- 		}
- 	}
- 
--	c = 0;
-+	rcu_read_lock();
- 	for_each_prl_rcu(t->prl) {
- 		if (c >= cmax)
- 			break;
-@@ -337,7 +335,7 @@ static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
- 		if (kprl.addr != htonl(INADDR_ANY))
- 			break;
- 	}
--out:
-+
- 	rcu_read_unlock();
- 
- 	len = sizeof(*kp) * c;
-@@ -346,7 +344,7 @@ static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
- 		ret = -EFAULT;
- 
- 	kfree(kp);
--
-+out:
- 	return ret;
- }
- 
-diff --git a/net/netfilter/nft_set_hash.c b/net/netfilter/nft_set_hash.c
-index a3dface3e6e6..8a4159684641 100644
---- a/net/netfilter/nft_set_hash.c
-+++ b/net/netfilter/nft_set_hash.c
-@@ -121,6 +121,7 @@ static bool nft_hash_update(struct nft_set *set, const u32 *key,
- 	/* Another cpu may race to insert the element with the same key */
- 	if (prev) {
- 		nft_set_elem_destroy(set, he, true);
-+		atomic_dec(&set->nelems);
- 		he = prev;
- 	}
- 
-@@ -130,6 +131,7 @@ static bool nft_hash_update(struct nft_set *set, const u32 *key,
- 
- err2:
- 	nft_set_elem_destroy(set, he, true);
-+	atomic_dec(&set->nelems);
- err1:
- 	return false;
- }
-diff --git a/net/rose/rose_timer.c b/net/rose/rose_timer.c
-index bc5469d6d9cb..a7b344896936 100644
---- a/net/rose/rose_timer.c
-+++ b/net/rose/rose_timer.c
-@@ -34,95 +34,95 @@ static void rose_idletimer_expiry(unsigned long);
- 
- void rose_start_heartbeat(struct sock *sk)
- {
--	del_timer(&sk->sk_timer);
-+	sk_stop_timer(sk, &sk->sk_timer);
- 
- 	sk->sk_timer.data     = (unsigned long)sk;
- 	sk->sk_timer.function = &rose_heartbeat_expiry;
- 	sk->sk_timer.expires  = jiffies + 5 * HZ;
- 
--	add_timer(&sk->sk_timer);
-+	sk_reset_timer(sk, &sk->sk_timer, sk->sk_timer.expires);
- }
- 
- void rose_start_t1timer(struct sock *sk)
- {
- 	struct rose_sock *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
-+	sk_stop_timer(sk, &rose->timer);
- 
- 	rose->timer.data     = (unsigned long)sk;
- 	rose->timer.function = &rose_timer_expiry;
- 	rose->timer.expires  = jiffies + rose->t1;
- 
--	add_timer(&rose->timer);
-+	sk_reset_timer(sk, &rose->timer, rose->timer.expires);
- }
- 
- void rose_start_t2timer(struct sock *sk)
- {
- 	struct rose_sock *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
-+	sk_stop_timer(sk, &rose->timer);
- 
- 	rose->timer.data     = (unsigned long)sk;
- 	rose->timer.function = &rose_timer_expiry;
- 	rose->timer.expires  = jiffies + rose->t2;
- 
--	add_timer(&rose->timer);
-+	sk_reset_timer(sk, &rose->timer, rose->timer.expires);
- }
- 
- void rose_start_t3timer(struct sock *sk)
- {
- 	struct rose_sock *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
-+	sk_stop_timer(sk, &rose->timer);
- 
- 	rose->timer.data     = (unsigned long)sk;
- 	rose->timer.function = &rose_timer_expiry;
- 	rose->timer.expires  = jiffies + rose->t3;
- 
--	add_timer(&rose->timer);
-+	sk_reset_timer(sk, &rose->timer, rose->timer.expires);
- }
- 
- void rose_start_hbtimer(struct sock *sk)
- {
- 	struct rose_sock *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
-+	sk_stop_timer(sk, &rose->timer);
- 
- 	rose->timer.data     = (unsigned long)sk;
- 	rose->timer.function = &rose_timer_expiry;
- 	rose->timer.expires  = jiffies + rose->hb;
- 
--	add_timer(&rose->timer);
-+	sk_reset_timer(sk, &rose->timer, rose->timer.expires);
- }
- 
- void rose_start_idletimer(struct sock *sk)
- {
- 	struct rose_sock *rose = rose_sk(sk);
- 
--	del_timer(&rose->idletimer);
-+	sk_stop_timer(sk, &rose->timer);
- 
- 	if (rose->idle > 0) {
- 		rose->idletimer.data     = (unsigned long)sk;
- 		rose->idletimer.function = &rose_idletimer_expiry;
- 		rose->idletimer.expires  = jiffies + rose->idle;
- 
--		add_timer(&rose->idletimer);
-+		sk_reset_timer(sk, &rose->idletimer, rose->idletimer.expires);
- 	}
- }
- 
- void rose_stop_heartbeat(struct sock *sk)
- {
--	del_timer(&sk->sk_timer);
-+	sk_stop_timer(sk, &sk->sk_timer);
- }
- 
- void rose_stop_timer(struct sock *sk)
- {
--	del_timer(&rose_sk(sk)->timer);
-+	sk_stop_timer(sk, &rose_sk(sk)->timer);
- }
- 
- void rose_stop_idletimer(struct sock *sk)
- {
--	del_timer(&rose_sk(sk)->idletimer);
-+	sk_stop_timer(sk, &rose_sk(sk)->idletimer);
- }
- 
- static void rose_heartbeat_expiry(unsigned long param)
-@@ -139,6 +139,7 @@ static void rose_heartbeat_expiry(unsigned long param)
- 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
- 			bh_unlock_sock(sk);
- 			rose_destroy_socket(sk);
-+			sock_put(sk);
- 			return;
- 		}
- 		break;
-@@ -161,6 +162,7 @@ static void rose_heartbeat_expiry(unsigned long param)
- 
- 	rose_start_heartbeat(sk);
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
- 
- static void rose_timer_expiry(unsigned long param)
-@@ -190,6 +192,7 @@ static void rose_timer_expiry(unsigned long param)
- 		break;
- 	}
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
- 
- static void rose_idletimer_expiry(unsigned long param)
-@@ -213,4 +216,5 @@ static void rose_idletimer_expiry(unsigned long param)
- 		sock_set_flag(sk, SOCK_DEAD);
- 	}
- 	bh_unlock_sock(sk);
-+	sock_put(sk);
- }
-diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
-index 06b4b76edd9d..e0b217f3aae9 100644
---- a/net/sunrpc/xdr.c
-+++ b/net/sunrpc/xdr.c
-@@ -544,7 +544,7 @@ static __be32 *xdr_get_next_encode_buffer(struct xdr_stream *xdr,
- 	 */
- 	xdr->p = (void *)p + frag2bytes;
- 	space_left = xdr->buf->buflen - xdr->buf->len;
--	if (space_left - nbytes >= PAGE_SIZE)
-+	if (space_left - frag1bytes >= PAGE_SIZE)
- 		xdr->end = (void *)p + PAGE_SIZE;
- 	else
- 		xdr->end = (void *)p + space_left - frag1bytes;
+I'm announcing the release of the 4.14.287 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                           |    2 
+ arch/arm/xen/p2m.c                 |    6 +
+ arch/s390/crypto/arch_random.c     |   20 -----
+ arch/s390/include/asm/archrandom.h |   32 +++-----
+ arch/s390/kernel/setup.c           |    5 +
+ drivers/block/xen-blkfront.c       |   49 +++++++-----
+ drivers/hwmon/ibmaem.c             |   12 ++-
+ drivers/infiniband/hw/qedr/qedr.h  |    1 
+ drivers/infiniband/hw/qedr/verbs.c |    4 -
+ drivers/md/dm-raid.c               |   34 ++++----
+ drivers/md/raid5.c                 |    1 
+ drivers/net/bonding/bond_3ad.c     |    3 
+ drivers/net/bonding/bond_alb.c     |    2 
+ drivers/net/caif/caif_virtio.c     |   10 ++
+ drivers/net/usb/ax88179_178a.c     |  101 +++++++++++++++++++------
+ drivers/net/usb/qmi_wwan.c         |    2 
+ drivers/net/usb/usbnet.c           |    4 -
+ drivers/net/xen-netfront.c         |   52 ++++++++++++-
+ drivers/nfc/nfcmrvl/i2c.c          |    6 -
+ drivers/nfc/nfcmrvl/spi.c          |    6 -
+ drivers/nfc/nxp-nci/i2c.c          |    3 
+ drivers/nvdimm/bus.c               |    4 -
+ drivers/xen/gntdev.c               |  145 ++++++++++++++++++++++++++-----------
+ include/linux/skbuff.h             |    1 
+ net/core/skbuff.c                  |    9 +-
+ net/ipv6/seg6_hmac.c               |    1 
+ net/ipv6/sit.c                     |   10 +-
+ net/netfilter/nft_set_hash.c       |    2 
+ net/rose/rose_timer.c              |   34 ++++----
+ net/sunrpc/xdr.c                   |    2 
+ 30 files changed, 376 insertions(+), 187 deletions(-)
+
+Carlo Lobrano (1):
+      net: usb: qmi_wwan: add Telit 0x1060 composition
+
+Chris Ye (1):
+      nvdimm: Fix badblocks clear off-by-one error
+
+Chuck Lever (1):
+      SUNRPC: Fix READ_PLUS crasher
+
+Daniele Palmas (1):
+      net: usb: qmi_wwan: add Telit 0x1070 composition
+
+Demi Marie Obenour (1):
+      xen/gntdev: Avoid blocking in unmap_grant_pages()
+
+Duoming Zhou (1):
+      net: rose: fix UAF bugs caused by timer handler
+
+Eric Dumazet (1):
+      net: bonding: fix possible NULL deref in rlb code
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.287
+
+Heinz Mauelshagen (1):
+      dm raid: fix accesses beyond end of raid member array
+
+Ilya Lesokhin (1):
+      net: Rename and export copy_skb_header
+
+Jason A. Donenfeld (1):
+      s390/archrandom: simplify back to earlier design and initialize earlier
+
+Jason Wang (1):
+      caif_virtio: fix race between virtio_device_ready() and ndo_open()
+
+Jose Alonso (1):
+      net: usb: ax88179_178a: Fix packet receiving
+
+Kamal Heib (1):
+      RDMA/qedr: Fix reporting QP timeout attribute
+
+Krzysztof Kozlowski (1):
+      nfc: nfcmrvl: Fix irq_of_parse_and_map() return value
+
+Michael Walle (1):
+      NFC: nxp-nci: Don't issue a zero length i2c_master_read()
+
+Mikulas Patocka (1):
+      dm raid: fix KASAN warning in raid5_add_disks
+
+Oleksandr Tyshchenko (1):
+      xen/arm: Fix race in RB-tree based P2M accounting
+
+Oliver Neukum (1):
+      usbnet: fix memory allocation in helpers
+
+Pablo Neira Ayuso (1):
+      netfilter: nft_dynset: restore set element counter when failing to update
+
+Roger Pau Monne (4):
+      xen/blkfront: fix leaking data in shared pages
+      xen/netfront: fix leaking data in shared pages
+      xen/netfront: force data bouncing when backend is untrusted
+      xen/blkfront: force data bouncing when backend is untrusted
+
+Yang Yingliang (1):
+      hwmon: (ibmaem) don't call platform_device_del() if platform_device_add() fails
+
+Yevhen Orlov (1):
+      net: bonding: fix use-after-free after 802.3ad slave unbind
+
+YueHaibing (1):
+      net: ipv6: unexport __init-annotated seg6_hmac_net_init()
+
+katrinzhou (1):
+      ipv6/sit: fix ipip6_tunnel_get_prl return value
+
+kernel test robot (1):
+      sit: use min
+
