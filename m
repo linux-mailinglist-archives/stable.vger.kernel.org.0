@@ -2,202 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C1B56AEE0
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 01:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80B056AF26
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 01:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236446AbiGGXNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 19:13:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55856 "EHLO
+        id S236972AbiGGXoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jul 2022 19:44:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236216AbiGGXNW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 19:13:22 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED63675AA;
-        Thu,  7 Jul 2022 16:13:21 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id e132so20911894pgc.5;
-        Thu, 07 Jul 2022 16:13:21 -0700 (PDT)
+        with ESMTP id S236867AbiGGXoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 19:44:37 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E10B6D551
+        for <stable@vger.kernel.org>; Thu,  7 Jul 2022 16:44:36 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id s27so20930394pga.13
+        for <stable@vger.kernel.org>; Thu, 07 Jul 2022 16:44:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OIcLV8kY/4SFYYSts/C4rokiyhVrQ9h9RsVtESZwx4g=;
-        b=kmnDhDib02O5Wv6KPqwoOtSr3sLKFrfLTPoSaZZWRZKDT72ZxKo6fuVpo7NMQREPQx
-         1LGC8477toNm0a8IX5OV6mjwmGZOhg5nyaqo7k1E1eYLdPJ/BpBV9Ol607jo0VNSykt4
-         bS9Aik0XkawYoIbuB4InT5euT8rD5spDUzLnsN3cpcaoKRrpKd2PWcKHG6h5CPPOnFGA
-         na+SUnyyy10xMGBKpTCQmmvz507gE23oLpgs/galAjTVMaML/vd4GaSnlqH8uM8AEHIi
-         VZHMRgCpYoFlO19YyGVicQt0ICBfftgZJUWTSzUBj8aHWkseHxHfuIhWq0eutkVyJIWu
-         B5Fw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=RFPhFMNXdbAGfHbMBn9qlp/M2zRTnTH1oYLcTwSXgeM=;
+        b=YcBYE+PWSza7P2NtWFn3s0clksjjr6kcZVJPrq0J9TRzl7j+nB1eRTxUShLwIuiDn7
+         ymeDtE7We/RBHRWTd5m5VPiyFinU0BBfp6UWA4eLoKKQ+iq1c5K9zZdbBHzwzClSm6cv
+         ELJrrpvkxk6k2gCvhOSRKyDXaTGCGl6cNsPNjBNJf5Bwl1qDpkrVBGBn1NElmuIyjK8P
+         dcNfshehIyMvBYUWLdwERnQ+gv0lzrBWhWO1xE8IzYdlwv9ysNsOgIYfYcWyjLeGFWND
+         z6oTyKxxWHlcnuNj/9RK4LJMv9qmRqfRfYmKel+5eyGTJ4/KGgFDxF3JInbvH2nl1a4R
+         lYOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OIcLV8kY/4SFYYSts/C4rokiyhVrQ9h9RsVtESZwx4g=;
-        b=kAYR4EOkhNTBP4i1QegJ6x9l+FvcavgrD7XWz6zlaGGW9SZt4cXQn7AmCTYtei7VR6
-         Mltm3U0HOCLH+BKqkxqC8S7Cj+X8l9dyYfDePeJ0aUfYTauB2THVrysGyIOYcRrUK80x
-         8LnUlMsOuqSYLj5rx/sXpyAiv6jN6Mfk4iv5ctlqeuUooR2H373t0KgMJEbvw3ry7mip
-         xTyPHUNogb/YfDKmOWI/AN5/FVu//9AGl0Jw69BpCWdGd/5HAHz6FwboCXZK+mKkPef/
-         mYP3rnSKSKYozFd/rYV27F2JPCADCUn6UDoIgFK54J2rJVZ9wQqoYSccKy5F+b50Rin9
-         kzKw==
-X-Gm-Message-State: AJIora924QZrzuShzzHqWExophsnD9xwwzf5m4LExcG6QfJNVpbARLxL
-        TCNibxwVmpPvWNmV+X/LZ4PgcoRUEfhJBCOyTr6HXXATys4=
-X-Google-Smtp-Source: AGRyM1u3a+3w28svCbjLMJnd59/2pf1FgF142X/03RAI0L9Bo4RxtPDkMcvTkkHRheiHALGbmTwVOm/R2OeEjmPtvfQ=
-X-Received: by 2002:a63:89c6:0:b0:415:b609:2458 with SMTP id
- v189-20020a6389c6000000b00415b6092458mr92317pgd.76.1657235601002; Thu, 07 Jul
- 2022 16:13:21 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=RFPhFMNXdbAGfHbMBn9qlp/M2zRTnTH1oYLcTwSXgeM=;
+        b=TOWGto1YLU6MdXtc9dh32+JEVSQg/We5J/xIOKehlp9t2WIkrhpS445dysZBDlE8au
+         p0zwQz7kroq5NnOLrGyO1IM7K64iI9QfToCpXlVto5upm64LcJCu+/E8FzgOrPIS2ueh
+         Fh85rdOnA7goM5vvL8+AYuuW4YIUWt/wdoHlhtXovQsUuZLAR5dXD0THHBh2dsjNdQXg
+         gBf6UeVlYnwChJJDNXcjAxtBLvMEsX3HiGpWs/F9NEt+2an1c93QZg14eiEnjC0G4Bhx
+         5mw9bexLxonuku4JJEww5ywea/M2N/Nt6FFG57vsngMmv54F1fcMoz6SGAH9xoKG5Eb4
+         NQAA==
+X-Gm-Message-State: AJIora+f/ElBId1x5dytp6dv1kur1Rme7Af3RkiskxfjopsolbCWcwVz
+        gBDaLgJgTkH9rSstqVK4+VLXa2ldqizrtxMI
+X-Google-Smtp-Source: AGRyM1t6My6wJFdfq4rTQ53d9s9mXeCIhZAWj2F/aqWir+uxsy4cCtWhC4gPUWZM/4zJ2coArN0r9A==
+X-Received: by 2002:aa7:88cc:0:b0:51c:319e:772c with SMTP id k12-20020aa788cc000000b0051c319e772cmr755511pff.41.1657237475417;
+        Thu, 07 Jul 2022 16:44:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q6-20020aa79606000000b0052a75004c51sm300210pfg.146.2022.07.07.16.44.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Jul 2022 16:44:34 -0700 (PDT)
+Message-ID: <62c76fe2.1c69fb81.d6cf0.09f2@mx.google.com>
+Date:   Thu, 07 Jul 2022 16:44:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220513192342.7C8A0C34100@smtp.kernel.org>
-In-Reply-To: <20220513192342.7C8A0C34100@smtp.kernel.org>
-From:   Andrei Vagin <avagin@gmail.com>
-Date:   Thu, 7 Jul 2022 16:13:09 -0700
-Message-ID: <CANaxB-zXrkhzXzSUjon+4Y63GPJZNvhHyc+CmN6meUvCxh8BEw@mail.gmail.com>
-Subject: Re: [merged mm-nonmm-stable] fs-sendfile-handles-o_nonblock-of-out_fd.patch
- removed from -mm tree
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     mm-commits@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.10
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.18.y baseline: 150 runs, 4 regressions (v5.18.10)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 13, 2022 at 12:23 PM Andrew Morton
-<akpm@linux-foundation.org> wrote:
->
->
-> The quilt patch titled
->      Subject: fs: sendfile handles O_NONBLOCK of out_fd
-> has been removed from the -mm tree.  Its filename was
->      fs-sendfile-handles-o_nonblock-of-out_fd.patch
->
-> This patch was dropped because it was merged into the mm-nonmm-stable branch\nof git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+stable/linux-5.18.y baseline: 150 runs, 4 regressions (v5.18.10)
 
-Andrew, sorry for bothering you. I can't find this patch in mm-nonmm-stable
-and it has not been merged to the Linus' tree. Do I miss something?
+Regressions Summary
+-------------------
 
->
-> ------------------------------------------------------
-> From: Andrei Vagin <avagin@gmail.com>
-> Subject: fs: sendfile handles O_NONBLOCK of out_fd
->
-> sendfile has to return EAGAIN if out_fd is nonblocking and the write into
-> it would block.
->
-> Here is a small reproducer for the problem:
->
-> #define _GNU_SOURCE /* See feature_test_macros(7) */
-> #include <fcntl.h>
-> #include <stdio.h>
-> #include <unistd.h>
-> #include <errno.h>
-> #include <sys/stat.h>
-> #include <sys/types.h>
-> #include <sys/sendfile.h>
->
->
-> #define FILE_SIZE (1UL << 30)
-> int main(int argc, char **argv) {
->         int p[2], fd;
->
->         if (pipe2(p, O_NONBLOCK))
->                 return 1;
->
->         fd = open(argv[1], O_RDWR | O_TMPFILE, 0666);
->         if (fd < 0)
->                 return 1;
->         ftruncate(fd, FILE_SIZE);
->
->         if (sendfile(p[1], fd, 0, FILE_SIZE) == -1) {
->                 fprintf(stderr, "FAIL\n");
->         }
->         if (sendfile(p[1], fd, 0, FILE_SIZE) != -1 || errno != EAGAIN) {
->                 fprintf(stderr, "FAIL\n");
->         }
->         return 0;
-> }
->
-> It worked before b964bf53e540, it is stuck after b964bf53e540, and it
-> works again with this fix.
->
-> This regression occurred because do_splice_direct() calls pipe_write
-> that handles O_NONBLOCK.  Here is a trace log from the reproducer:
->
->  1)               |  __x64_sys_sendfile64() {
->  1)               |    do_sendfile() {
->  1)               |      __fdget()
->  1)               |      rw_verify_area()
->  1)               |      __fdget()
->  1)               |      rw_verify_area()
->  1)               |      do_splice_direct() {
->  1)               |        rw_verify_area()
->  1)               |        splice_direct_to_actor() {
->  1)               |          do_splice_to() {
->  1)               |            rw_verify_area()
->  1)               |            generic_file_splice_read()
->  1) + 74.153 us   |          }
->  1)               |          direct_splice_actor() {
->  1)               |            iter_file_splice_write() {
->  1)               |              __kmalloc()
->  1)   0.148 us    |              pipe_lock();
->  1)   0.153 us    |              splice_from_pipe_next.part.0();
->  1)   0.162 us    |              page_cache_pipe_buf_confirm();
-> ... 16 times
->  1)   0.159 us    |              page_cache_pipe_buf_confirm();
->  1)               |              vfs_iter_write() {
->  1)               |                do_iter_write() {
->  1)               |                  rw_verify_area()
->  1)               |                  do_iter_readv_writev() {
->  1)               |                    pipe_write() {
->  1)               |                      mutex_lock()
->  1)   0.153 us    |                      mutex_unlock();
->  1)   1.368 us    |                    }
->  1)   1.686 us    |                  }
->  1)   5.798 us    |                }
->  1)   6.084 us    |              }
->  1)   0.174 us    |              kfree();
->  1)   0.152 us    |              pipe_unlock();
->  1) + 14.461 us   |            }
->  1) + 14.783 us   |          }
->  1)   0.164 us    |          page_cache_pipe_buf_release();
-> ... 16 times
->  1)   0.161 us    |          page_cache_pipe_buf_release();
->  1)               |          touch_atime()
->  1) + 95.854 us   |        }
->  1) + 99.784 us   |      }
->  1) ! 107.393 us  |    }
->  1) ! 107.699 us  |  }
->
-> Link: https://lkml.kernel.org/r/20220415005015.525191-1-avagin@gmail.com
-> Fixes: b964bf53e540 ("teach sendfile(2) to handle send-to-pipe directly")
-> Signed-off-by: Andrei Vagin <avagin@gmail.com>
-> Cc: Al Viro <viro@zeniv.linux.org.uk>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> ---
->
->  fs/read_write.c |    3 +++
->  1 file changed, 3 insertions(+)
->
-> --- a/fs/read_write.c~fs-sendfile-handles-o_nonblock-of-out_fd
-> +++ a/fs/read_write.c
-> @@ -1247,6 +1247,9 @@ static ssize_t do_sendfile(int out_fd, i
->                                           count, fl);
->                 file_end_write(out.file);
->         } else {
-> +               if (out.file->f_flags & O_NONBLOCK)
-> +                       fl |= SPLICE_F_NONBLOCK;
-> +
->                 retval = splice_file_to_pipe(in.file, opipe, &pos, count, fl);
->         }
->
-> _
->
-> Patches currently in -mm which might be from avagin@gmail.com are
->
->
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+kontron-pitx-imx8m           | arm64 | lab-kontron   | gcc-10   | defconfig=
+                  | 1          =
+
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+sun50i-a64-bananapi-m64      | arm64 | lab-clabbe    | gcc-10   | defconfig=
+                  | 1          =
+
+tegra124-nyan-big            | arm   | lab-collabora | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
+/v5.18.10/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.18.y
+  Describe: v5.18.10
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      bc560cecaa8b2517932808fa939e36371ffa036e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+kontron-pitx-imx8m           | arm64 | lab-kontron   | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62c73c23a28494d8d5a39bd2
+
+  Results:     51 PASS, 1 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/62c=
+73c23a28494d8d5a39be9
+        new failure (last pass: v5.18.8)
+
+    2022-07-07T20:03:35.232683  /lava-138317/1/../bin/lava-test-case
+    2022-07-07T20:03:35.233059  <8>[   16.624977] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>
+    2022-07-07T20:03:35.233301  /lava-138317/1/../bin/lava-test-case
+    2022-07-07T20:03:35.233524  <8>[   16.644723] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dimx8mq-usb-phy-driver-present RESULT=3Dpass>
+    2022-07-07T20:03:35.233748  /lava-138317/1/../bin/lava-test-case
+    2022-07-07T20:03:35.233964  <8>[   16.665854] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dimx8mq-usb-phy0-probed RESULT=3Dpass>
+    2022-07-07T20:03:35.234180  /lava-138317/1/../bin/lava-test-case   =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62c73e247fad7b3060a39c05
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kukui-=
+jacuzzi-juniper-sku16.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kukui-=
+jacuzzi-juniper-sku16.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62c73e247fad7b3060a39=
+c06
+        new failure (last pass: v5.18.8) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sun50i-a64-bananapi-m64      | arm64 | lab-clabbe    | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62c73c787da2cae1c2a39bdd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62c73c787da2cae1c2a39=
+bde
+        failing since 31 days (last pass: v5.18.1, first fail: v5.18.2) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+tegra124-nyan-big            | arm   | lab-collabora | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62c7652a4480e67033a39bdb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra124-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
+rm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra124-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220624.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62c7652a4480e67033a39=
+bdc
+        new failure (last pass: v5.18.8) =
+
+ =20
