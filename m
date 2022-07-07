@@ -2,119 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9938456AED5
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 01:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C1B56AEE0
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 01:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236763AbiGGXIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 19:08:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53100 "EHLO
+        id S236446AbiGGXNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jul 2022 19:13:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236533AbiGGXIT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 19:08:19 -0400
-Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED37510FFB;
-        Thu,  7 Jul 2022 16:08:18 -0700 (PDT)
+        with ESMTP id S236216AbiGGXNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 19:13:22 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED63675AA;
+        Thu,  7 Jul 2022 16:13:21 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id e132so20911894pgc.5;
+        Thu, 07 Jul 2022 16:13:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1657235299; x=1688771299;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=BZUSo8zL8IjB95QmzdXoVQEVWKVqu0Qf0g8IoUOX6Zg=;
-  b=nCeRv3Va4kMi4yYfV2qYGMW63V9gN3V4G2eAppLuSu+jcXwor2c+X6KX
-   kv6iAV3JQAYFQCwP9LUuE7DSX2smnRWvLrv9UYjm6uXxwr2pYVFioSViL
-   lS5s4j2lb/76doq6Bwloau0Xc1UQmUCL11CuC0rpPH82ZuGnh6hoQYw/q
-   o=;
-X-IronPort-AV: E=Sophos;i="5.92,253,1650931200"; 
-   d="scan'208";a="215935675"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1d-1c3c2014.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-2101.iad2.amazon.com with ESMTP; 07 Jul 2022 23:08:08 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-iad-1d-1c3c2014.us-east-1.amazon.com (Postfix) with ESMTPS id 90C96CAEB9;
-        Thu,  7 Jul 2022 23:08:06 +0000 (UTC)
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.36; Thu, 7 Jul 2022 23:08:05 +0000
-Received: from 88665a182662.ant.amazon.com (10.43.162.50) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.9;
- Thu, 7 Jul 2022 23:08:02 +0000
-From:   Kuniyuki Iwashima <kuniyu@amazon.com>
-To:     <stable@vger.kernel.org>, <linux-xfs@vger.kernel.org>
-CC:     Kuniyuki Iwashima <kuniyu@amazon.com>, Ke Xu <kkexu@amazon.com>,
-        "Ayushman Dutta" <ayudutta@amazon.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        "Darrick J . Wong" <djwong@kernel.org>
-Subject: [PATCH stable 4.9, 4.14, 4.19, 5.4, 5.10] xfs: remove incorrect ASSERT in xfs_rename
-Date:   Thu, 7 Jul 2022 16:07:53 -0700
-Message-ID: <20220707230753.32743-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=OIcLV8kY/4SFYYSts/C4rokiyhVrQ9h9RsVtESZwx4g=;
+        b=kmnDhDib02O5Wv6KPqwoOtSr3sLKFrfLTPoSaZZWRZKDT72ZxKo6fuVpo7NMQREPQx
+         1LGC8477toNm0a8IX5OV6mjwmGZOhg5nyaqo7k1E1eYLdPJ/BpBV9Ol607jo0VNSykt4
+         bS9Aik0XkawYoIbuB4InT5euT8rD5spDUzLnsN3cpcaoKRrpKd2PWcKHG6h5CPPOnFGA
+         na+SUnyyy10xMGBKpTCQmmvz507gE23oLpgs/galAjTVMaML/vd4GaSnlqH8uM8AEHIi
+         VZHMRgCpYoFlO19YyGVicQt0ICBfftgZJUWTSzUBj8aHWkseHxHfuIhWq0eutkVyJIWu
+         B5Fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=OIcLV8kY/4SFYYSts/C4rokiyhVrQ9h9RsVtESZwx4g=;
+        b=kAYR4EOkhNTBP4i1QegJ6x9l+FvcavgrD7XWz6zlaGGW9SZt4cXQn7AmCTYtei7VR6
+         Mltm3U0HOCLH+BKqkxqC8S7Cj+X8l9dyYfDePeJ0aUfYTauB2THVrysGyIOYcRrUK80x
+         8LnUlMsOuqSYLj5rx/sXpyAiv6jN6Mfk4iv5ctlqeuUooR2H373t0KgMJEbvw3ry7mip
+         xTyPHUNogb/YfDKmOWI/AN5/FVu//9AGl0Jw69BpCWdGd/5HAHz6FwboCXZK+mKkPef/
+         mYP3rnSKSKYozFd/rYV27F2JPCADCUn6UDoIgFK54J2rJVZ9wQqoYSccKy5F+b50Rin9
+         kzKw==
+X-Gm-Message-State: AJIora924QZrzuShzzHqWExophsnD9xwwzf5m4LExcG6QfJNVpbARLxL
+        TCNibxwVmpPvWNmV+X/LZ4PgcoRUEfhJBCOyTr6HXXATys4=
+X-Google-Smtp-Source: AGRyM1u3a+3w28svCbjLMJnd59/2pf1FgF142X/03RAI0L9Bo4RxtPDkMcvTkkHRheiHALGbmTwVOm/R2OeEjmPtvfQ=
+X-Received: by 2002:a63:89c6:0:b0:415:b609:2458 with SMTP id
+ v189-20020a6389c6000000b00415b6092458mr92317pgd.76.1657235601002; Thu, 07 Jul
+ 2022 16:13:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.162.50]
-X-ClientProxiedBy: EX13D24UWB004.ant.amazon.com (10.43.161.4) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220513192342.7C8A0C34100@smtp.kernel.org>
+In-Reply-To: <20220513192342.7C8A0C34100@smtp.kernel.org>
+From:   Andrei Vagin <avagin@gmail.com>
+Date:   Thu, 7 Jul 2022 16:13:09 -0700
+Message-ID: <CANaxB-zXrkhzXzSUjon+4Y63GPJZNvhHyc+CmN6meUvCxh8BEw@mail.gmail.com>
+Subject: Re: [merged mm-nonmm-stable] fs-sendfile-handles-o_nonblock-of-out_fd.patch
+ removed from -mm tree
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     mm-commits@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+On Fri, May 13, 2022 at 12:23 PM Andrew Morton
+<akpm@linux-foundation.org> wrote:
+>
+>
+> The quilt patch titled
+>      Subject: fs: sendfile handles O_NONBLOCK of out_fd
+> has been removed from the -mm tree.  Its filename was
+>      fs-sendfile-handles-o_nonblock-of-out_fd.patch
+>
+> This patch was dropped because it was merged into the mm-nonmm-stable branch\nof git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-commit e445976537ad139162980bee015b7364e5b64fff upstream.
+Andrew, sorry for bothering you. I can't find this patch in mm-nonmm-stable
+and it has not been merged to the Linus' tree. Do I miss something?
 
-Ayushman Dutta reported our 5.10 kernel hit the warning.  It was because
-the original commit misses a Fixes tag and was not backported to the stable
-tree.  The fix is merged in 5.16, but it conflicts in 4.9 - 5.10 because
-of the idmapped mount changes:
-
-  ++<<<<<<< HEAD
-   +      ASSERT(!(flags & (RENAME_NOREPLACE | RENAME_EXCHANGE)));
-   +      error = xfs_rename_alloc_whiteout(target_dp, &wip);
-  ++=======
-  +       error = xfs_rename_alloc_whiteout(mnt_userns, target_dp, &wip);
-  ++>>>>>>> e445976537ad (xfs: remove incorrect ASSERT in xfs_rename)
-
-We can resolve this by removing mnt_userns from the argument.
-
-This ASSERT in xfs_rename is a) incorrect, because
-(RENAME_WHITEOUT|RENAME_NOREPLACE) is a valid combination, and
-b) unnecessary, because actual invalid flag combinations are already
-handled at the vfs level in do_renameat2() before we get called.
-So, remove it.
-
-Reported-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Fixes: 7dcf5c3e4527 ("xfs: add RENAME_WHITEOUT support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
----
-I confirmed this can be applied cleanly on the latest 4.9 - 5.10 stable
-branch, but if there is any problem, please let me know.
----
- fs/xfs/xfs_inode.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index e958b1c74561..03497741aef7 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -3170,7 +3170,6 @@ xfs_rename(
- 	 * appropriately.
- 	 */
- 	if (flags & RENAME_WHITEOUT) {
--		ASSERT(!(flags & (RENAME_NOREPLACE | RENAME_EXCHANGE)));
- 		error = xfs_rename_alloc_whiteout(target_dp, &wip);
- 		if (error)
- 			return error;
--- 
-2.30.2
-
+>
+> ------------------------------------------------------
+> From: Andrei Vagin <avagin@gmail.com>
+> Subject: fs: sendfile handles O_NONBLOCK of out_fd
+>
+> sendfile has to return EAGAIN if out_fd is nonblocking and the write into
+> it would block.
+>
+> Here is a small reproducer for the problem:
+>
+> #define _GNU_SOURCE /* See feature_test_macros(7) */
+> #include <fcntl.h>
+> #include <stdio.h>
+> #include <unistd.h>
+> #include <errno.h>
+> #include <sys/stat.h>
+> #include <sys/types.h>
+> #include <sys/sendfile.h>
+>
+>
+> #define FILE_SIZE (1UL << 30)
+> int main(int argc, char **argv) {
+>         int p[2], fd;
+>
+>         if (pipe2(p, O_NONBLOCK))
+>                 return 1;
+>
+>         fd = open(argv[1], O_RDWR | O_TMPFILE, 0666);
+>         if (fd < 0)
+>                 return 1;
+>         ftruncate(fd, FILE_SIZE);
+>
+>         if (sendfile(p[1], fd, 0, FILE_SIZE) == -1) {
+>                 fprintf(stderr, "FAIL\n");
+>         }
+>         if (sendfile(p[1], fd, 0, FILE_SIZE) != -1 || errno != EAGAIN) {
+>                 fprintf(stderr, "FAIL\n");
+>         }
+>         return 0;
+> }
+>
+> It worked before b964bf53e540, it is stuck after b964bf53e540, and it
+> works again with this fix.
+>
+> This regression occurred because do_splice_direct() calls pipe_write
+> that handles O_NONBLOCK.  Here is a trace log from the reproducer:
+>
+>  1)               |  __x64_sys_sendfile64() {
+>  1)               |    do_sendfile() {
+>  1)               |      __fdget()
+>  1)               |      rw_verify_area()
+>  1)               |      __fdget()
+>  1)               |      rw_verify_area()
+>  1)               |      do_splice_direct() {
+>  1)               |        rw_verify_area()
+>  1)               |        splice_direct_to_actor() {
+>  1)               |          do_splice_to() {
+>  1)               |            rw_verify_area()
+>  1)               |            generic_file_splice_read()
+>  1) + 74.153 us   |          }
+>  1)               |          direct_splice_actor() {
+>  1)               |            iter_file_splice_write() {
+>  1)               |              __kmalloc()
+>  1)   0.148 us    |              pipe_lock();
+>  1)   0.153 us    |              splice_from_pipe_next.part.0();
+>  1)   0.162 us    |              page_cache_pipe_buf_confirm();
+> ... 16 times
+>  1)   0.159 us    |              page_cache_pipe_buf_confirm();
+>  1)               |              vfs_iter_write() {
+>  1)               |                do_iter_write() {
+>  1)               |                  rw_verify_area()
+>  1)               |                  do_iter_readv_writev() {
+>  1)               |                    pipe_write() {
+>  1)               |                      mutex_lock()
+>  1)   0.153 us    |                      mutex_unlock();
+>  1)   1.368 us    |                    }
+>  1)   1.686 us    |                  }
+>  1)   5.798 us    |                }
+>  1)   6.084 us    |              }
+>  1)   0.174 us    |              kfree();
+>  1)   0.152 us    |              pipe_unlock();
+>  1) + 14.461 us   |            }
+>  1) + 14.783 us   |          }
+>  1)   0.164 us    |          page_cache_pipe_buf_release();
+> ... 16 times
+>  1)   0.161 us    |          page_cache_pipe_buf_release();
+>  1)               |          touch_atime()
+>  1) + 95.854 us   |        }
+>  1) + 99.784 us   |      }
+>  1) ! 107.393 us  |    }
+>  1) ! 107.699 us  |  }
+>
+> Link: https://lkml.kernel.org/r/20220415005015.525191-1-avagin@gmail.com
+> Fixes: b964bf53e540 ("teach sendfile(2) to handle send-to-pipe directly")
+> Signed-off-by: Andrei Vagin <avagin@gmail.com>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+>
+>  fs/read_write.c |    3 +++
+>  1 file changed, 3 insertions(+)
+>
+> --- a/fs/read_write.c~fs-sendfile-handles-o_nonblock-of-out_fd
+> +++ a/fs/read_write.c
+> @@ -1247,6 +1247,9 @@ static ssize_t do_sendfile(int out_fd, i
+>                                           count, fl);
+>                 file_end_write(out.file);
+>         } else {
+> +               if (out.file->f_flags & O_NONBLOCK)
+> +                       fl |= SPLICE_F_NONBLOCK;
+> +
+>                 retval = splice_file_to_pipe(in.file, opipe, &pos, count, fl);
+>         }
+>
+> _
+>
+> Patches currently in -mm which might be from avagin@gmail.com are
+>
+>
