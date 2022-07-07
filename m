@@ -2,72 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83114569942
-	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 06:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4804569C26
+	for <lists+stable@lfdr.de>; Thu,  7 Jul 2022 09:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231579AbiGGE0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 00:26:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45962 "EHLO
+        id S235118AbiGGHtK convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 7 Jul 2022 03:49:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbiGGE0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 00:26:15 -0400
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45F472FFE2
-        for <stable@vger.kernel.org>; Wed,  6 Jul 2022 21:26:14 -0700 (PDT)
-Received: by mail-lf1-x131.google.com with SMTP id t25so29103053lfg.7
-        for <stable@vger.kernel.org>; Wed, 06 Jul 2022 21:26:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=UcCFg7gvbR0NRs94vlZqK+C6du2P02A0Wagpw4eeUFM=;
-        b=bQ8HAfmMG8/kx78fLRWVZdMm2rIxcZPL7sZSjHvP+kQrdYwI4aBTSJjp6tlgPYqHI9
-         EIZWCFjtAIRb/MFQcwqJD7ZsECK//vzko8TinkzpJs8V8+F/o54fSlDDonB+gxiEkpTI
-         ENoFU/1jCJVMeQIuWrIIbvfrHfUZsFhxGwmb7PiC9HSdbtzHYsk5bCUveZvnBWi41yi8
-         hfcL86Ll5ntLyj6S7l08TdUJS0e0vpUwbn209PBVmii1j/1kPbj5PKnOjuyVUpe4piJC
-         0SLPQOejCQRDvTaii4Lsjx9jA9BBfBHbjm5pa3EDy6EEOkCXXYkyR5l7ikmB5JuDDmGA
-         Dl+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=UcCFg7gvbR0NRs94vlZqK+C6du2P02A0Wagpw4eeUFM=;
-        b=5/mvGIU5Wq9081xnMdaMeSJjJoMMRDd/KvO4UvbZOJowfSefUWfdguKY1FKma42q3j
-         KkLougEc789cVXGdZxHFKM/dzGw4SW/TAksB/+ztcwwgsQgtc/I301nl0yQaXuvG/V01
-         diynT4o5JqUTHsodqua92Aki/dqNC0CZtTXLtARE9khPy9wURBmZgreF0Sg6EAwyVCaD
-         PhEOjR09bYNCRRl65QRaZ2hP6sJ8FRg5ojvFJemwwUdlKFUrr9LNsDXYB2MLcDxHA+6m
-         UT/JJKriVSHITVs2tyRD3v1FXFRt0RQKfXgSU+Qx59pItIzzT0wpSajXJ5RiILKHp5k2
-         qYhw==
-X-Gm-Message-State: AJIora/DDSJ5i6Vj8OB0ICUORwZlhw28bJHvaFUFhVhKZi68ZfrAxfRf
-        0hsuuI4rysRK9/eAwJR0M4wtFsW1ObO1IElFav4=
-X-Google-Smtp-Source: AGRyM1u6rjy6hdh1nSiZe6Ct97M9PwpTIXP9+Q8koKkvdLoWY9nsHt299ZAG7BVXZ88JVafT/yDkDone+4LlUx3HZic=
-X-Received: by 2002:a05:6512:3593:b0:47f:8ec5:d7eb with SMTP id
- m19-20020a056512359300b0047f8ec5d7ebmr29928548lfr.275.1657167972577; Wed, 06
- Jul 2022 21:26:12 -0700 (PDT)
+        with ESMTP id S235122AbiGGHsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 03:48:52 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D50232EEC;
+        Thu,  7 Jul 2022 00:48:42 -0700 (PDT)
+Received: from dggpemm500020.china.huawei.com (unknown [172.30.72.53])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LdpRW5bldz1DDRG;
+        Thu,  7 Jul 2022 15:47:51 +0800 (CST)
+Received: from dggpemm500008.china.huawei.com (7.185.36.136) by
+ dggpemm500020.china.huawei.com (7.185.36.49) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 7 Jul 2022 15:48:40 +0800
+Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
+ dggpemm500008.china.huawei.com (7.185.36.136) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 7 Jul 2022 15:48:40 +0800
+Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
+ dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2375.024;
+ Thu, 7 Jul 2022 15:48:40 +0800
+From:   "chenjun (AM)" <chenjun102@huawei.com>
+To:     Jason Andryuk <jandryuk@gmail.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+CC:     James Bottomley <James.Bottomley@HansenPartnership.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm_tis: Hold locality open during probe
+Thread-Topic: [PATCH] tpm_tis: Hold locality open during probe
+Thread-Index: AQHYkVc7QBSxEshmGkyZ5C0kkbOHTA==
+Date:   Thu, 7 Jul 2022 07:48:40 +0000
+Message-ID: <5687473ad4da4c26a85b6d230cfc011a@huawei.com>
+References: <20220706164043.417780-1-jandryuk@gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.174.178.43]
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Received: by 2002:a2e:a285:0:0:0:0:0 with HTTP; Wed, 6 Jul 2022 21:26:11 -0700 (PDT)
-Reply-To: dertimarbe@gmail.com
-From:   Martin Derick <wiessampei@gmail.com>
-Date:   Thu, 7 Jul 2022 05:26:11 +0100
-Message-ID: <CAA9JgzbVrmxGZfH8WL_ZJFrwOeqoGp=5SJevp_Qgk0ve-mTAWA@mail.gmail.com>
-Subject: Good Morning
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+在 2022/7/7 0:41, Jason Andryuk 写道:
+> WEC TPMs (in 1.2 mode) and NTC (in 2.0 mode) have been observer to
+> frequently, but intermittently, fail probe with:
+> tpm_tis: probe of 00:09 failed with error -1
+> 
+> Added debugging output showed that the request_locality in
+> tpm_tis_core_init succeeds, but then the tpm_chip_start fails when its
+> call to tpm_request_locality -> request_locality fails.
+> 
+> The access register in check_locality would show:
+> 0x80 TPM_ACCESS_VALID
+> 0x82 TPM_ACCESS_VALID | TPM_ACCESS_REQUEST_USE
+> 0x80 TPM_ACCESS_VALID
+> continuing until it times out. TPM_ACCESS_ACTIVE_LOCALITY (0x20) doesn't
+> get set which would end the wait.
+> 
+> My best guess is something racy was going on between release_locality's
+> write and request_locality's write.  There is no wait in
+> release_locality to ensure that the locality is released, so the
+> subsequent request_locality could confuse the TPM?
+> 
+> tpm_chip_start grabs locality 0, and updates chip->locality.  Call that
+> before the TPM_INT_ENABLE write, and drop the explicit request/release
+> calls.  tpm_chip_stop performs the release.  With this, we switch to
+> using chip->locality instead of priv->locality.  The probe failure is
+> not seen after this.
+> 
+> commit 0ef333f5ba7f ("tpm: add request_locality before write
+> TPM_INT_ENABLE") added a request_locality/release_locality pair around
+> tpm_tis_write32 TPM_INT_ENABLE, but there is a read of
+> TPM_INT_ENABLE for the intmask which should also have the locality
+> grabbed.  tpm_chip_start is moved before that to have the locality open
+> during the read.
+> 
+> Fixes: 0ef333f5ba7f ("tpm: add request_locality before write TPM_INT_ENABLE")
+
+0ef333f5ba7f is probably not the commit that introduced the problem? As 
+you said the problem was in 5.4 and the commit was merged in 5.16.
+
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+> ---
+> The probe failure was seen on 5.4, 5.15 and 5.17.
+> 
+> commit e42acf104d6e ("tpm_tis: Clean up locality release") removed the
+> release wait.  I haven't tried, but re-introducing that would probably
+> fix this issue.  It's hard to know apriori when a synchronous wait is
+> needed, and they don't seem to be needed typically.  Re-introducing the
+> wait would re-introduce a wait in all cases.
+> 
+> Surrounding the read of TPM_INT_ENABLE with grabbing the locality may
+> not be necessary?  It looks like the code only grabs a locality for
+> writing, but that asymmetry is surprising to me.
+> 
+> tpm_chip and tpm_tis_data track the locality separately.  Should the
+> tpm_tis_data one be removed so they don't get out of sync?
+> ---
+>   drivers/char/tpm/tpm_tis_core.c | 20 ++++++++------------
+>   1 file changed, 8 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+> index dc56b976d816..529c241800c0 100644
+> --- a/drivers/char/tpm/tpm_tis_core.c
+> +++ b/drivers/char/tpm/tpm_tis_core.c
+> @@ -986,8 +986,13 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+>   		goto out_err;
+>   	}
+>   
+> +	/* Grabs locality 0. */
+> +	rc = tpm_chip_start(chip);
+> +	if (rc)
+> +		goto out_err;
+> +
+>   	/* Take control of the TPM's interrupt hardware and shut it off */
+> -	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
+> +	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(chip->locality), &intmask);
+>   	if (rc < 0)
+>   		goto out_err;
+>   
+> @@ -995,19 +1000,10 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+>   		   TPM_INTF_DATA_AVAIL_INT | TPM_INTF_STS_VALID_INT;
+>   	intmask &= ~TPM_GLOBAL_INT_ENABLE;
+>   
+> -	rc = request_locality(chip, 0);
+> -	if (rc < 0) {
+> -		rc = -ENODEV;
+> -		goto out_err;
+> -	}
+> -
+> -	tpm_tis_write32(priv, TPM_INT_ENABLE(priv->locality), intmask);
+> -	release_locality(chip, 0);
+> +	tpm_tis_write32(priv, TPM_INT_ENABLE(chip->locality), intmask);
+>   
+> -	rc = tpm_chip_start(chip);
+> -	if (rc)
+> -		goto out_err;
+>   	rc = tpm2_probe(chip);
+> +	/* Releases locality 0. */
+>   	tpm_chip_stop(chip);
+>   	if (rc)
+>   		goto out_err;
+> 
+
+
 -- 
-Dear Friend,
-I and my committee members have a need for an individual/ company. Who
-is willing to partner with us, in having some funds procured overseas.
-I will send more details, on the project. As soon as I receive your
-reply.
-Best Regards,
-Martin Derick.
+Regards
+Chen Jun
