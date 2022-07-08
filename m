@@ -2,244 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E80B056AF26
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 01:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879BE56AF71
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 02:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236972AbiGGXoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jul 2022 19:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
+        id S229572AbiGHAOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jul 2022 20:14:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236867AbiGGXoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 19:44:37 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E10B6D551
-        for <stable@vger.kernel.org>; Thu,  7 Jul 2022 16:44:36 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id s27so20930394pga.13
-        for <stable@vger.kernel.org>; Thu, 07 Jul 2022 16:44:36 -0700 (PDT)
+        with ESMTP id S230016AbiGHAOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jul 2022 20:14:09 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141776EE92;
+        Thu,  7 Jul 2022 17:14:09 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id b9so6139601pfp.10;
+        Thu, 07 Jul 2022 17:14:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RFPhFMNXdbAGfHbMBn9qlp/M2zRTnTH1oYLcTwSXgeM=;
-        b=YcBYE+PWSza7P2NtWFn3s0clksjjr6kcZVJPrq0J9TRzl7j+nB1eRTxUShLwIuiDn7
-         ymeDtE7We/RBHRWTd5m5VPiyFinU0BBfp6UWA4eLoKKQ+iq1c5K9zZdbBHzwzClSm6cv
-         ELJrrpvkxk6k2gCvhOSRKyDXaTGCGl6cNsPNjBNJf5Bwl1qDpkrVBGBn1NElmuIyjK8P
-         dcNfshehIyMvBYUWLdwERnQ+gv0lzrBWhWO1xE8IzYdlwv9ysNsOgIYfYcWyjLeGFWND
-         z6oTyKxxWHlcnuNj/9RK4LJMv9qmRqfRfYmKel+5eyGTJ4/KGgFDxF3JInbvH2nl1a4R
-         lYOw==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EPIqDUDwUL8GcLZII6giZ1lM/7jnEq1hR9ruxU38etY=;
+        b=Zgd9Mzhrgu975THaR3rV8Hknxs7yBMfORZclz7hgD7q9Fa8mFVKt9QMutgq4zHtZSP
+         90WLNv3UVc6ui9XvAVsvQqdSB/WnoNmu5ynw0o3Akud7Kms6n/DfWTRpQyJ2Z2MIqZZT
+         B+k8rz0+a2KUGEa9CHCV7ft9BaWyR0a1FUYMKfBpB359mcPzLhVMijXzYL61XF6Aeocv
+         /LjZN8FaYWolw5h0ljAFH9/as+usV540aGZs8mHKZjlXd2F6hxzPuN0KuYSPpAz5tleK
+         6QHebSG+gczugSEXWgzTVYAWmXUTiaDMzue6IMlHdLojdZT/EIDWAYUjk4xvp8ip1do5
+         +GKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RFPhFMNXdbAGfHbMBn9qlp/M2zRTnTH1oYLcTwSXgeM=;
-        b=TOWGto1YLU6MdXtc9dh32+JEVSQg/We5J/xIOKehlp9t2WIkrhpS445dysZBDlE8au
-         p0zwQz7kroq5NnOLrGyO1IM7K64iI9QfToCpXlVto5upm64LcJCu+/E8FzgOrPIS2ueh
-         Fh85rdOnA7goM5vvL8+AYuuW4YIUWt/wdoHlhtXovQsUuZLAR5dXD0THHBh2dsjNdQXg
-         gBf6UeVlYnwChJJDNXcjAxtBLvMEsX3HiGpWs/F9NEt+2an1c93QZg14eiEnjC0G4Bhx
-         5mw9bexLxonuku4JJEww5ywea/M2N/Nt6FFG57vsngMmv54F1fcMoz6SGAH9xoKG5Eb4
-         NQAA==
-X-Gm-Message-State: AJIora+f/ElBId1x5dytp6dv1kur1Rme7Af3RkiskxfjopsolbCWcwVz
-        gBDaLgJgTkH9rSstqVK4+VLXa2ldqizrtxMI
-X-Google-Smtp-Source: AGRyM1t6My6wJFdfq4rTQ53d9s9mXeCIhZAWj2F/aqWir+uxsy4cCtWhC4gPUWZM/4zJ2coArN0r9A==
-X-Received: by 2002:aa7:88cc:0:b0:51c:319e:772c with SMTP id k12-20020aa788cc000000b0051c319e772cmr755511pff.41.1657237475417;
-        Thu, 07 Jul 2022 16:44:35 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q6-20020aa79606000000b0052a75004c51sm300210pfg.146.2022.07.07.16.44.33
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EPIqDUDwUL8GcLZII6giZ1lM/7jnEq1hR9ruxU38etY=;
+        b=ORGQO/RVAOq575YOJfYc8hRSjr8UIFEjO6J+eO/Oz2N4/li374OAemKwO3OqEcEmoh
+         OZm7ftqzGycikUHFVTVO2KK3gVnKAVwtSVjmdTbVrR3GTnVM0I9adDXo+5xLDJ3or9VJ
+         tlLsp/xj1fSlM2z02RlNlI0oQBfg7/+sACpicLh/HYqH7q8MbOsunzPoOA1FMDpf8qy7
+         P8eWUklMZdoVIj6CFOrogYuXZ3K+ATKEMfQDSZ5+LojemNPZPz33tuB7KXYRHKeDk2S1
+         1304QVe3Aj9H1HssgpeNmqv/uTlbAAe71iz7uLYF56adKEQ0JHE7fgoi/RMiOJWslJKH
+         mUNg==
+X-Gm-Message-State: AJIora9XVK/ZoJdi33kFWRMNgmyLC9FsaMwadNFR6DeZmaB4g/Zqc6Sx
+        n/6QWDc8g510X+c82/s5JV1F3y8bVnw=
+X-Google-Smtp-Source: AGRyM1srMNsNREHvzkYJIXlogrslrHy5Vja65MpLfTgalTmHZgsp3NLmlhMlXo2e/ApQfmbjFEsxcA==
+X-Received: by 2002:a62:1891:0:b0:528:5d43:c3ab with SMTP id 139-20020a621891000000b005285d43c3abmr886621pfy.79.1657239248208;
+        Thu, 07 Jul 2022 17:14:08 -0700 (PDT)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id t14-20020a62ea0e000000b00525521a288dsm27340169pfh.28.2022.07.07.17.14.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Jul 2022 16:44:34 -0700 (PDT)
-Message-ID: <62c76fe2.1c69fb81.d6cf0.09f2@mx.google.com>
-Date:   Thu, 07 Jul 2022 16:44:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 07 Jul 2022 17:14:07 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        olteanv@gmail.com, andrew@lunn.ch
+Subject: [PATCH stable 4.9 v3] net: dsa: bcm_sf2: force pause link settings
+Date:   Thu,  7 Jul 2022 17:14:04 -0700
+Message-Id: <20220708001405.1743251-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.10
-X-Kernelci-Branch: linux-5.18.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.18.y baseline: 150 runs, 4 regressions (v5.18.10)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.18.y baseline: 150 runs, 4 regressions (v5.18.10)
+From: Doug Berger <opendmb@gmail.com>
 
-Regressions Summary
--------------------
+commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-kontron-pitx-imx8m           | arm64 | lab-kontron   | gcc-10   | defconfig=
-                  | 1          =
+The pause settings reported by the PHY should also be applied to the
+GMII port status override otherwise the switch will not generate pause
+frames towards the link partner despite the advertisement saying
+otherwise.
 
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
+Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+Changes in v3:
 
-sun50i-a64-bananapi-m64      | arm64 | lab-clabbe    | gcc-10   | defconfig=
-                  | 1          =
+- gate the flow control enabling to links that are auto-negotiated and
+  in full duplex
 
-tegra124-nyan-big            | arm   | lab-collabora | gcc-10   | multi_v7_=
-defconfig         | 1          =
+Changes in v2:
 
+- use both local and remote advertisement to determine when to apply
+  flow control settings
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
-/v5.18.10/plan/baseline/
+ drivers/net/dsa/bcm_sf2.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.18.y
-  Describe: v5.18.10
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      bc560cecaa8b2517932808fa939e36371ffa036e =
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 40b3adf7ad99..f3d61f2bb0f7 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -600,7 +600,9 @@ static void bcm_sf2_sw_adjust_link(struct dsa_switch *ds, int port,
+ 	struct bcm_sf2_priv *priv = bcm_sf2_to_priv(ds);
+ 	struct ethtool_eee *p = &priv->port_sts[port].eee;
+ 	u32 id_mode_dis = 0, port_mode;
++	u16 lcl_adv = 0, rmt_adv = 0;
+ 	const char *str = NULL;
++	u8 flowctrl = 0;
+ 	u32 reg;
+ 
+ 	switch (phydev->interface) {
+@@ -667,10 +669,27 @@ static void bcm_sf2_sw_adjust_link(struct dsa_switch *ds, int port,
+ 		break;
+ 	}
+ 
++	if (phydev->duplex == DUPLEX_FULL &&
++	    phydev->autoneg == AUTONEG_ENABLE) {
++		if (phydev->pause)
++			rmt_adv = LPA_PAUSE_CAP;
++		if (phydev->asym_pause)
++			rmt_adv |= LPA_PAUSE_ASYM;
++		if (phydev->advertising & ADVERTISED_Pause)
++			lcl_adv = ADVERTISE_PAUSE_CAP;
++		if (phydev->advertising & ADVERTISED_Asym_Pause)
++			lcl_adv |= ADVERTISE_PAUSE_ASYM;
++		flowctrl = mii_resolve_flowctrl_fdx(lcl_adv, rmt_adv);
++	}
++
+ 	if (phydev->link)
+ 		reg |= LINK_STS;
+ 	if (phydev->duplex == DUPLEX_FULL)
+ 		reg |= DUPLX_MODE;
++	if (flowctrl & FLOW_CTRL_TX)
++		reg |= TXFLOW_CNTL;
++	if (flowctrl & FLOW_CTRL_RX)
++		reg |= RXFLOW_CNTL;
+ 
+ 	core_writel(priv, reg, CORE_STS_OVERRIDE_GMIIP_PORT(port));
+ 
+-- 
+2.25.1
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-kontron-pitx-imx8m           | arm64 | lab-kontron   | gcc-10   | defconfig=
-                  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c73c23a28494d8d5a39bd2
-
-  Results:     51 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/62c=
-73c23a28494d8d5a39be9
-        new failure (last pass: v5.18.8)
-
-    2022-07-07T20:03:35.232683  /lava-138317/1/../bin/lava-test-case
-    2022-07-07T20:03:35.233059  <8>[   16.624977] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>
-    2022-07-07T20:03:35.233301  /lava-138317/1/../bin/lava-test-case
-    2022-07-07T20:03:35.233524  <8>[   16.644723] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dimx8mq-usb-phy-driver-present RESULT=3Dpass>
-    2022-07-07T20:03:35.233748  /lava-138317/1/../bin/lava-test-case
-    2022-07-07T20:03:35.233964  <8>[   16.665854] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dimx8mq-usb-phy0-probed RESULT=3Dpass>
-    2022-07-07T20:03:35.234180  /lava-138317/1/../bin/lava-test-case   =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c73e247fad7b3060a39c05
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kukui-=
-jacuzzi-juniper-sku16.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kukui-=
-jacuzzi-juniper-sku16.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c73e247fad7b3060a39=
-c06
-        new failure (last pass: v5.18.8) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-sun50i-a64-bananapi-m64      | arm64 | lab-clabbe    | gcc-10   | defconfig=
-                  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c73c787da2cae1c2a39bdd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c73c787da2cae1c2a39=
-bde
-        failing since 31 days (last pass: v5.18.1, first fail: v5.18.2) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-tegra124-nyan-big            | arm   | lab-collabora | gcc-10   | multi_v7_=
-defconfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62c7652a4480e67033a39bdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra124-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.10/a=
-rm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegra124-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220624.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62c7652a4480e67033a39=
-bdc
-        new failure (last pass: v5.18.8) =
-
- =20
