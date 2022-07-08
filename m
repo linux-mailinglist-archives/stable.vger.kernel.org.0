@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA1856B882
+	by mail.lfdr.de (Postfix) with ESMTP id 3E54856B880
 	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 13:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237825AbiGHL1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jul 2022 07:27:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53648 "EHLO
+        id S237833AbiGHL1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jul 2022 07:27:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237827AbiGHL1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 07:27:05 -0400
+        with ESMTP id S237823AbiGHL1E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 07:27:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F9D904E1
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:27:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9C0904DB
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:27:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3D7E624AB
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:27:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCFE1C341C7;
-        Fri,  8 Jul 2022 11:27:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0627D624C2
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E6DC341CD;
+        Fri,  8 Jul 2022 11:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657279624;
-        bh=IUOI+09nImQzKFruDuGv2llyq5r98jswgXwOTQuZ8A4=;
+        s=korg; t=1657279621;
+        bh=SgwLGBueEGAljF96dA+VaF09+BsgxgxnWIGPKOKOAyw=;
         h=Subject:To:Cc:From:Date:From;
-        b=ByGKXKAioEhARkaUEfybQd2yDLaFFC3VHcwt1JUM8rVhi7v+jn0JW26XTlOCu4eZl
-         hXTrW0PdBRhL0HD9mrLr49rok69VIvpsCSWd/VDGUm6ycyUpKoXPtuXXawQehb4jN+
-         RW4SP9RvhtUnJDK5P3hIwds8sgWmQV3el+M2dOxA=
-Subject: FAILED: patch "[PATCH] can: mcp251xfd: mcp251xfd_register_get_dev_id(): use correct" failed to apply to 5.10-stable tree
+        b=y8Fw92PEro+7Xs9CR2cRlv72w7riLXj+pVZlLcv+EowMydnVyGrGMdfTSQBkuQhTw
+         +LQcLYqgJpGS/4O4RfyC0CjzMbUukVMS6tdbrwWQuUra14N8hW88RqHmFGOgi9SJe+
+         hnkrf/saecr4Y/KagvlNgnYAPPJbGkSPyZwLilHg=
+Subject: FAILED: patch "[PATCH] can: mcp251xfd: mcp251xfd_register_get_dev_id(): use correct" failed to apply to 5.15-stable tree
 To:     mkl@pengutronix.de, manivannan.sadhasivam@linaro.org,
         rasmus.villemoes@prevas.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 08 Jul 2022 13:26:53 +0200
-Message-ID: <16572796136867@kroah.com>
+Message-ID: <1657279613184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
