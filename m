@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B04C56B813
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 13:09:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B140A56B801
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 13:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237975AbiGHLIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237919AbiGHLIx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 8 Jul 2022 07:08:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237919AbiGHLIw (ORCPT
+        with ESMTP id S237973AbiGHLIw (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 07:08:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12156D559
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:08:50 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E561D7969E
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:08:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D2D4B825C1
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA2C8C341C0;
-        Fri,  8 Jul 2022 11:08:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 747AE6236A
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8421DC341C0;
+        Fri,  8 Jul 2022 11:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657278528;
-        bh=HTemASEVwOEkLTtHQY/xoGLwre/FUI/ziuBfryuY9QQ=;
+        s=korg; t=1657278530;
+        bh=brGupO1c2TwP1dxlngRzwTrI4UC/cWLPFXZPdTPR3S4=;
         h=Subject:To:Cc:From:Date:From;
-        b=a/pHgoBpy+pTaP7KSfOGucpbaYHMNya0YuRx6yKBj91hgBYgF7c94ERdmR3kOnBgg
-         VgvCi7fRKC2OAPgcvZSPpVlvgjZt7HHTWfJq9CLb//pP3qg4F3c0COO1u5K0aYYkoi
-         HhwOr2PKlCoZltNPtrOq2Wz2kEkHpynE3okSTaGw=
-Subject: FAILED: patch "[PATCH] can: kvaser_usb: kvaser_usb_leaf: fix bittiming limits" failed to apply to 5.4-stable tree
+        b=05rtCwfyptLRvsssVRYwg9lZP9Q89Yn9A6W7jkTho01hC5/GdqNCFW7J7io7xYpoF
+         QmNiuyq2dcwTbL1C1dN61b0+awP9zwYJ+MBff3VaiUlCfcMzQ68bK0k6JonzXf+2cz
+         BZg3T6mNkAzHl7WUOU+iYYFI/JLUfBWvqIOw5Jb0=
+Subject: FAILED: patch "[PATCH] can: kvaser_usb: kvaser_usb_leaf: fix bittiming limits" failed to apply to 4.9-stable tree
 To:     extja@kvaser.com, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 08 Jul 2022 13:08:30 +0200
-Message-ID: <1657278510184144@kroah.com>
+Date:   Fri, 08 Jul 2022 13:08:31 +0200
+Message-ID: <165727851168242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
