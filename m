@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1CF56B7FA
+	by mail.lfdr.de (Postfix) with ESMTP id 44C8356B7F9
 	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 13:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237810AbiGHLF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jul 2022 07:05:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37696 "EHLO
+        id S237922AbiGHLGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jul 2022 07:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237402AbiGHLF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 07:05:56 -0400
+        with ESMTP id S237402AbiGHLGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 07:06:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C28F7696D
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:05:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B996A7696D
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:06:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E04ED62465
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:05:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E37B2C341CA;
-        Fri,  8 Jul 2022 11:05:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56BA162465
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A850C341C0;
+        Fri,  8 Jul 2022 11:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657278354;
-        bh=fDMW1MaCfzu/tiPQ9tV5wSOSZ2UPD2m01vij/FFlGAI=;
+        s=korg; t=1657278362;
+        bh=jT99TOiZjmcAzPdq3mVa2cPkkVoJx8Ex3myjJjmkrf8=;
         h=Subject:To:Cc:From:Date:From;
-        b=j81OSgRUUzMghHEVYnJ7fhfjVdjhGuMl0hjC144d7UBkhydxNY71AUayiAEO5G0fq
-         uKW74Q7PHNlsgEOBq0zAIgO4UWsMf+r0mtLLmPaBItWJjoZLqj9eQ6nkSM5wsvgJT7
-         a++Vi8KN19PcJZSs8zc1ot/S4PPxY8zfc5Qsd62I=
-Subject: FAILED: patch "[PATCH] can: bcm: use call_rcu() instead of costly synchronize_rcu()" failed to apply to 4.14-stable tree
+        b=b2UyC4thDib5OvXf9yBdB8lKyHi4RQ3DZ7/HNVjNe2CMP7dK4N5MOQ0RixSdaniR6
+         n613i7aa1KRooajjot8aOpZOMgeXj/CZ75UAlm2JLBZhUk0RUpUkWIfbFEtUFEC8Gf
+         T7wmc2zrJkoEx55iSlP2TDB6WXaUvU4yzY/4vt4E=
+Subject: FAILED: patch "[PATCH] can: bcm: use call_rcu() instead of costly synchronize_rcu()" failed to apply to 4.9-stable tree
 To:     socketcan@hartkopp.net, cascardo@canonical.com,
         edumazet@google.com, mkl@pengutronix.de, nslusarek@gmx.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 08 Jul 2022 13:05:51 +0200
-Message-ID: <165727835110589@kroah.com>
+Date:   Fri, 08 Jul 2022 13:05:52 +0200
+Message-ID: <165727835213982@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
