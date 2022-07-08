@@ -2,119 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C608256B542
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 11:22:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDBC56B575
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 11:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236956AbiGHJTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jul 2022 05:19:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41228 "EHLO
+        id S237312AbiGHJWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jul 2022 05:22:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237594AbiGHJTx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 05:19:53 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00372B275
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 02:19:51 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id n10so4390313wrc.4
-        for <stable@vger.kernel.org>; Fri, 08 Jul 2022 02:19:51 -0700 (PDT)
+        with ESMTP id S237298AbiGHJWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 05:22:51 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B282FFCA
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 02:22:49 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id cp18-20020a17090afb9200b001ef79e8484aso1087992pjb.1
+        for <stable@vger.kernel.org>; Fri, 08 Jul 2022 02:22:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PptGorTxjueK0BkpVkd4NY/mKFPaLMQm6cTbjHqcrCE=;
-        b=SHTU0z8s/x67zbarXNuW2mDWM561kcaRaygDJ4oSRjSCV/zaKc5TJOgOCQlLwBgdBf
-         4sOUniqCTUuXD/7qNpEfcogaZljao5lviAo86VkoMi8Viag4HamiRVhuMSENoiJurKF7
-         Hum7JIYIi3tW6qk9RvKYHtIG/HA3X6BVpfEGKXpkbYbq7HCqXXhXviSOWouZCyRG23rc
-         LJKOg2Or9BSYPHf2Rl7X5udN8yEED8Q4eZBtgrUwAUkcio0Wc+9mfruLAivgIekd/D1c
-         fLsw6HkFPY8vuhYrrso+xSK5FFrTTz71qE2kevQptWyNF3iiRSyw1VDUmQMo2R19XEBo
-         QnkA==
+        d=fortu-net.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Y0gFTgEw8o/sZzcpqT/zqeJVyFwXwGnVGICet2zwIx0=;
+        b=sBE6RD34qzqgs778DVxBQqGSxgy5SBH9j19gPIGTpGn01WSwkFlOGZ+0RiCGEdX9mW
+         BCWm4cukAIrNz3heoRcLqTnzf6Fb79D91vPm7Lul7XyT1jL0ol+sPsszXJGakic9tb/8
+         gfR1UWNSuMBmeFIxDl4gwFfphGhhWoH3sPlGZpW4bMJlQCmRA5UcpHxESPODbmJXEAr4
+         kdFbbvX83cDRmE7PQ+GWVqwtNaCR1AulbaGNQ/KsDJNhiwS4zGei/rWMUrMhN939PioD
+         uBXBidrjE5H0VGsKmPBH6sczfM+gMgRxw7aC42HHLotuLdaGJ16/YLJvLW1aDXSceD/L
+         GKFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PptGorTxjueK0BkpVkd4NY/mKFPaLMQm6cTbjHqcrCE=;
-        b=oQg3IWhHFeNlUft6Uniok8o3Utz+KD2/218lMu1ezWYN9jgJF7h1jf3encIOshL/Ar
-         5tKUEJX5qS79kzWfOr3orFde7Smdt6734PDqZUhNSurRFE/F0umreAfsOXUcdQhYESmY
-         pZhHrHH/ARl7wTrvm6VaCmK/UC/Y27mLD8GEAx5EU6EaHZOqFoWRHr75UKl6uwMau/zv
-         ubWX7kyVx40hwnyr3BjLJaP8aAoOUsXBD0oMaNVRz6tyA3aLLBWqTriTkqSNm7FRIKtL
-         c7tVMvEwZYzG1B272d1ke19DdrwNyRnXOZVYu+igxZnleFec/6rdnMcf8g5qgcLYVzqJ
-         UEmw==
-X-Gm-Message-State: AJIora92AkscgH0f00Cic7HgfvE5rYiBICr6WtE+5omGUZm3xHNTKSE/
-        xgImyA+JmdOVI4I+GmJh7GyWoA==
-X-Google-Smtp-Source: AGRyM1uWv/iV+kj/F3IZZvcq3KKQwo17/HCdoCPv6stWzqiggs21mnV4sgPoJvMFYTSDJUxj4Cs/Sg==
-X-Received: by 2002:a5d:4d0b:0:b0:21d:819e:5765 with SMTP id z11-20020a5d4d0b000000b0021d819e5765mr2271137wrt.232.1657271990382;
-        Fri, 08 Jul 2022 02:19:50 -0700 (PDT)
-Received: from srini-hackbase.lan (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
-        by smtp.gmail.com with ESMTPSA id ba15-20020a0560001c0f00b0021bae66362esm37943490wrb.58.2022.07.08.02.19.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Jul 2022 02:19:49 -0700 (PDT)
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-To:     vkoul@kernel.org
-Cc:     yung-chuan.liao@linux.intel.com,
-        pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org,
-        linux-arm-msm@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH] soundwire: qcom: fix max auto-enumeration devices
-Date:   Fri,  8 Jul 2022 10:19:47 +0100
-Message-Id: <20220708091947.5610-1-srinivas.kandagatla@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Y0gFTgEw8o/sZzcpqT/zqeJVyFwXwGnVGICet2zwIx0=;
+        b=fgSN6dEjAZqwQbourtALuFyY2zp/kT7cYD5Pn4DCGQCCW7D+DL2Klr57VnCFCPScgC
+         9o9ShT7Yc/FOJ717wnUA18pYRgLh+8FtRUAJR+XFaPHXRJvlH6Uqoh3PZ/jQeildFnt6
+         rtYTj34xduLNRN36kBNL5ALcdf0pGQhgAtMRleMoWsi1hAinBaPahXSjNsVds8tq/2hN
+         F419iTYrBWZ6ZAbDYVhS/KAZYvz7W1yBf6tVBNFYmkFVRbA4+pYNE9MZfv/yRJ0VzOw7
+         mPDmNNv4h3DtHNx66T+Dpf5PyEtdf6Q9guICpJkOQY/IYNAMWQ6x3vAs/7vwIDOUstW7
+         aW/g==
+X-Gm-Message-State: AJIora/dOJozXyVk2nj1MdUF7V+oQ95LxMyniqGpoKbWhA4N88FgYT2o
+        rCfu1xpOjPIlh8IahedorKAL5LjGab/+TQSPXBj5Q1J1jsNpcYYF8nJY
+X-Google-Smtp-Source: AGRyM1uSZoyIcGr4GVhCV/Gjjw1nutNmCi1SbSgTEu383XlWcc1SQglU0jXyjf7VafdFTCkZc0/UUxzUY0BmyFrRH8k=
+X-Received: by 2002:a17:90b:1b07:b0:1ec:c617:a314 with SMTP id
+ nu7-20020a17090b1b0700b001ecc617a314mr2890719pjb.214.1657272169161; Fri, 08
+ Jul 2022 02:22:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220328111828.1554086-1-sashal@kernel.org> <20220328111828.1554086-42-sashal@kernel.org>
+ <872f2a21-7bf7-0cc3-298f-f817429f6997@fortu.net> <MN0PR12MB6101729CF68952653E8F55EFE2839@MN0PR12MB6101.namprd12.prod.outlook.com>
+In-Reply-To: <MN0PR12MB6101729CF68952653E8F55EFE2839@MN0PR12MB6101.namprd12.prod.outlook.com>
+From:   Tom Crossland <tomc@fortu.net>
+Date:   Fri, 8 Jul 2022 11:22:38 +0200
+Message-ID: <CACdrSeLjKDDpBG3=FZowro_vPGNmwbwvF6iVKw7QkVhgU6LgxQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.17 42/43] Revert "ACPI: Pass the same
+ capabilities to the _OSC regardless of the query flag"
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        "Huang, Ray" <Ray.Huang@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "rafael@kernel.org" <rafael@kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Controller only supports up to max of 1-11 device ids via auto-enumeration,
-and it has only those many registers.
+I can confirm that the ACPI BIOS Errors no longer appear in the kernel
+log using mainline 5.19.0-rc5 with the patch applied.
 
-In the existing code, we can protentially cross this boundary and read incorrect
-registers.
+Many thanks
 
-Cc: stable@vger.kernel.org
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: a6e6581942ca ("soundwire: qcom: add auto enumeration support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
----
-Thanks to Dan for reporting an overflow issue, which turned out to be
-another issue, where we could read registers that do not belong to
-auto-enumeration devid.
-Either way this fixes both issues, one reported by Dan and other
-incorrect register access.
-
-Thanks,
-Srini
-
- drivers/soundwire/qcom.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
-index 9df970eeca45..dd1365a44458 100644
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -119,6 +119,8 @@
- #define MAX_FIFO_RD_RETRY 3
- #define SWR_OVERFLOW_RETRY_COUNT 30
- #define SWRM_LINK_STATUS_RETRY_CNT 100
-+/* devid 1 - 11 */
-+#define SWRM_MAX_AUTO_ENUM_DEVICES	11
- 
- enum {
- 	MASTER_ID_WSA = 1,
-@@ -479,7 +481,7 @@ static int qcom_swrm_enumerate(struct sdw_bus *bus)
- 	int i;
- 	char *buf1 = (char *)&val1, *buf2 = (char *)&val2;
- 
--	for (i = 1; i <= SDW_MAX_DEVICES; i++) {
-+	for (i = 1; i <= SWRM_MAX_AUTO_ENUM_DEVICES; i++) {
- 		/* do not continue if the status is Not Present  */
- 		if (!ctrl->status[i])
- 			continue;
--- 
-2.25.1
-
+On Thu, Jul 7, 2022 at 11:36 PM Limonciello, Mario
+<Mario.Limonciello@amd.com> wrote:
+>
+> [Public]
+>
+>
+>
+> > -----Original Message-----
+> > From: Tom Crossland <tomc@fortu.net>
+> > Sent: Thursday, July 7, 2022 16:31
+> > To: Sasha Levin <sashal@kernel.org>; linux-kernel@vger.kernel.org;
+> > stable@vger.kernel.org
+> > Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>; Limonciello, Mario
+> > <Mario.Limonciello@amd.com>; Huang, Ray <Ray.Huang@amd.com>; Mika
+> > Westerberg <mika.westerberg@linux.intel.com>; rafael@kernel.org; linux-
+> > acpi@vger.kernel.org
+> > Subject: Re: [PATCH AUTOSEL 5.17 42/43] Revert "ACPI: Pass the same
+> > capabilities to the _OSC regardless of the query flag"
+> >
+> > Hi, I'm observing the issue described here which I think is due to a
+> > recent regression:
+> >
+> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.c
+> > om%2Fintel%2Flinux-intel-
+> > lts%2Fissues%2F22&amp;data=05%7C01%7CMario.Limonciello%40amd.com%7
+> > C77419b612f9540e333ff08da606002ee%7C3dd8961fe4884e608e11a82d994e18
+> > 3d%7C0%7C0%7C637928263354159054%7CUnknown%7CTWFpbGZsb3d8eyJWI
+> > joiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C300
+> > 0%7C%7C%7C&amp;sdata=X%2FEAU9GbRD%2FfYxCMUmnWI1cJ8dk8sICk0iYu
+> > %2BKGqtl4%3D&amp;reserved=0
+> >
+> > sudo dmesg -t -l err
+> >
+> > ACPI BIOS Error (bug): Could not resolve symbol [\_PR.PR00._CPC],
+> > AE_NOT_FOUND (20211217/psargs-330)
+> > ACPI Error: Aborting method \_PR.PR01._CPC due to previous error
+> > (AE_NOT_FOUND) (20211217/psparse-529)
+> > ACPI BIOS Error (bug): Could not resolve symbol [\_PR.PR00._CPC],
+> > AE_NOT_FOUND (20211217/psargs-330)
+> > ACPI Error: Aborting method \_PR.PR02._CPC due to previous error
+> > (AE_NOT_FOUND) (20211217/psparse-529)
+> > ACPI BIOS Error (bug): Could not resolve symbol [\_PR.PR00._CPC],
+> > AE_NOT_FOUND (20211217/psargs-330)
+> > ACPI Error: Aborting method \_PR.PR03._CPC due to previous error
+> > (AE_NOT_FOUND) (20211217/psparse-529)
+> >
+> > System:
+> >    Kernel: 5.18.9-arch1-1 arch: x86_64 bits: 64 compiler: gcc v: 12.1.0
+> >      parameters: initrd=\intel-ucode.img initrd=\initramfs-linux.img
+> >      root=xxx intel_iommu=on iommu=pt
+> >   Machine:
+> >    Type: Desktop Mobo: Intel model: NUC7i5BNB v: J31144-304 serial: <filter>
+> >      UEFI: Intel v: BNKBL357.86A.0088.2022.0125.1102 date: 01/25/2022
+> >
+> > I hope this is the correct forum to report the issue. Apologies if not.
+> >
+>
+> This is the fix for it:
+>
+> https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git/commit/?h=linux-next&id=7feec7430edddb87c24b0a86b08a03d0b496a755
+>
+>
+> > On 28/03/2022 13.18, Sasha Levin wrote:
+> > > From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+> > >
+> > > [ Upstream commit 2ca8e6285250c07a2e5a22ecbfd59b5a4ef73484 ]
+> > >
+> > > Revert commit 159d8c274fd9 ("ACPI: Pass the same capabilities to the
+> > > _OSC regardless of the query flag") which caused legitimate usage
+> > > scenarios (when the platform firmware does not want the OS to control
+> > > certain platform features controlled by the system bus scope _OSC) to
+> > > break and was misguided by some misleading language in the _OSC
+> > > definition in the ACPI specification (in particular, Section 6.2.11.1.3
+> > > "Sequence of _OSC Calls" that contradicts other perts of the _OSC
+> > > definition).
+> > >
+> > > Link:
+> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.ker
+> > nel.org%2Flinux-
+> > acpi%2FCAJZ5v0iStA0JmO0H3z%2BVgQsVuQONVjKPpw0F5HKfiq%3DGb6B5yw%
+> > 40mail.gmail.com&amp;data=05%7C01%7CMario.Limonciello%40amd.com%7C
+> > 77419b612f9540e333ff08da606002ee%7C3dd8961fe4884e608e11a82d994e183
+> > d%7C0%7C0%7C637928263354159054%7CUnknown%7CTWFpbGZsb3d8eyJWIj
+> > oiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C300
+> > 0%7C%7C%7C&amp;sdata=Te3BK%2B0q2QmrqqoG5mbV%2FNguoMgiwzILNHl
+> > %2BhUMLFlY%3D&amp;reserved=0
+> > > Reported-by: Mario Limonciello <Mario.Limonciello@amd.com>
+> > > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > > Tested-by: Mario Limonciello <mario.limonciello@amd.com>
+> > > Acked-by: Huang Rui <ray.huang@amd.com>
+> > > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >   drivers/acpi/bus.c | 27 +++++++++++++++++++--------
+> > >   1 file changed, 19 insertions(+), 8 deletions(-)
+> > >
+> > > diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+> > > index 07f604832fd6..079b952ab59f 100644
+> > > --- a/drivers/acpi/bus.c
+> > > +++ b/drivers/acpi/bus.c
+> > > @@ -332,21 +332,32 @@ static void
+> > acpi_bus_osc_negotiate_platform_control(void)
+> > >     if (ACPI_FAILURE(acpi_run_osc(handle, &context)))
+> > >             return;
+> > >
+> > > -   kfree(context.ret.pointer);
+> > > +   capbuf_ret = context.ret.pointer;
+> > > +   if (context.ret.length <= OSC_SUPPORT_DWORD) {
+> > > +           kfree(context.ret.pointer);
+> > > +           return;
+> > > +   }
+> > >
+> > > -   /* Now run _OSC again with query flag clear */
+> > > +   /*
+> > > +    * Now run _OSC again with query flag clear and with the caps
+> > > +    * supported by both the OS and the platform.
+> > > +    */
+> > >     capbuf[OSC_QUERY_DWORD] = 0;
+> > > +   capbuf[OSC_SUPPORT_DWORD] =
+> > capbuf_ret[OSC_SUPPORT_DWORD];
+> > > +   kfree(context.ret.pointer);
+> > >
+> > >     if (ACPI_FAILURE(acpi_run_osc(handle, &context)))
+> > >             return;
+> > >
+> > >     capbuf_ret = context.ret.pointer;
+> > > -   osc_sb_apei_support_acked =
+> > > -           capbuf_ret[OSC_SUPPORT_DWORD] &
+> > OSC_SB_APEI_SUPPORT;
+> > > -   osc_pc_lpi_support_confirmed =
+> > > -           capbuf_ret[OSC_SUPPORT_DWORD] &
+> > OSC_SB_PCLPI_SUPPORT;
+> > > -   osc_sb_native_usb4_support_confirmed =
+> > > -           capbuf_ret[OSC_SUPPORT_DWORD] &
+> > OSC_SB_NATIVE_USB4_SUPPORT;
+> > > +   if (context.ret.length > OSC_SUPPORT_DWORD) {
+> > > +           osc_sb_apei_support_acked =
+> > > +                   capbuf_ret[OSC_SUPPORT_DWORD] &
+> > OSC_SB_APEI_SUPPORT;
+> > > +           osc_pc_lpi_support_confirmed =
+> > > +                   capbuf_ret[OSC_SUPPORT_DWORD] &
+> > OSC_SB_PCLPI_SUPPORT;
+> > > +           osc_sb_native_usb4_support_confirmed =
+> > > +                   capbuf_ret[OSC_SUPPORT_DWORD] &
+> > OSC_SB_NATIVE_USB4_SUPPORT;
+> > > +   }
+> > >
+> > >     kfree(context.ret.pointer);
+> > >   }
