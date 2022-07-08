@@ -2,71 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DFA456B6EC
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 12:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E1CF56B7FA
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 13:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237866AbiGHKL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jul 2022 06:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56562 "EHLO
+        id S237810AbiGHLF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jul 2022 07:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237509AbiGHKL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 06:11:57 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2D184EDA
-        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 03:11:47 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id m6-20020a05600c3b0600b003a0489f412cso679274wms.1
-        for <stable@vger.kernel.org>; Fri, 08 Jul 2022 03:11:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=81okasB3g0ekpD8niaqxxgdkdfiBn6Pr7NqUFt5DBEo=;
-        b=GG2oup2rv/ga/OnSyutUz+S+rBqREaqHTkx+gB+ADu7sa0SBu42CvT0CSElqsSFWhZ
-         Lr+Q+l6DrU4UfBc4bH621yyvfTEU4ylv+RH1Qh6aYwDQLAT7A12x2AvYvn1Y/mZi8lCc
-         ZgMh604fWqZ1iW9+KCdZhf7fgB0+R2ZUU8QivYy9x1NeN7j2K7nYu+dAmgiMXpxsorOk
-         2xwOdjbOJb7p9A6g6OG88iO66uVe81StH6gcxVck63+H2Hec41b86vbLy5uy6DQk06ji
-         x6PwtSvJU7OHxBxCehyjzcRmW0ftH/T6m9vqDIIyfLsqRUzMCMGBtGulWCzeKTegq8mB
-         mTFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=81okasB3g0ekpD8niaqxxgdkdfiBn6Pr7NqUFt5DBEo=;
-        b=Ez5UQeUXsa/ks3YOUIZ3wGAOqprdZrZAZaSVbu4CRSQ0QzmJ0cuY3sObeRUfEEw1L/
-         vGcJX33YfE2+RbGiPRIlKbEWFMlQJhNozWTyCQr/okr+r4G43SeYV/AtO1rF5cffSvcm
-         5DjdsyhLf4XaP08TNIk/4g2P/xa8VWgveO27zBKK62LshBF4zEiT6WM5GFxF0uolGiKL
-         R/10AsWc84/v2qpfvBR/t/Z6mf/FzLbJofUiDrDUxenXKAeuu9pNVQmqcJzmQscGDKBm
-         MN9/fe4NiV4gVF15dhOw7xOmXyqELXhLuFI35jUP8iK8Hw78cYoMnjnseSZkLRAQoNl6
-         titg==
-X-Gm-Message-State: AJIora8Fj/TKv/kJ4JSukZGnnUpODyXnd9qhN35dXzYenteckb6tnMyl
-        IT1N481hW0kq8FwKl43rNaRIiw==
-X-Google-Smtp-Source: AGRyM1vDkPE98jrS2Me8n5r7/R9H34mgmtL+Fc/cv224985Zm6C1y8NPkd/Aw90Ph3on7smNzjvWCA==
-X-Received: by 2002:a05:600c:4243:b0:3a2:db2d:ebdc with SMTP id r3-20020a05600c424300b003a2db2debdcmr1786084wmm.41.1657275106530;
-        Fri, 08 Jul 2022 03:11:46 -0700 (PDT)
-Received: from [192.168.86.238] (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
-        by smtp.googlemail.com with ESMTPSA id bk12-20020a0560001d8c00b0021d7050ace4sm327428wrb.77.2022.07.08.03.11.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 Jul 2022 03:11:45 -0700 (PDT)
-Message-ID: <42056cab-237c-3f3a-da43-5138be64243b@linaro.org>
-Date:   Fri, 8 Jul 2022 11:11:44 +0100
+        with ESMTP id S237402AbiGHLF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 07:05:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C28F7696D
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 04:05:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E04ED62465
+        for <stable@vger.kernel.org>; Fri,  8 Jul 2022 11:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E37B2C341CA;
+        Fri,  8 Jul 2022 11:05:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657278354;
+        bh=fDMW1MaCfzu/tiPQ9tV5wSOSZ2UPD2m01vij/FFlGAI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=j81OSgRUUzMghHEVYnJ7fhfjVdjhGuMl0hjC144d7UBkhydxNY71AUayiAEO5G0fq
+         uKW74Q7PHNlsgEOBq0zAIgO4UWsMf+r0mtLLmPaBItWJjoZLqj9eQ6nkSM5wsvgJT7
+         a++Vi8KN19PcJZSs8zc1ot/S4PPxY8zfc5Qsd62I=
+Subject: FAILED: patch "[PATCH] can: bcm: use call_rcu() instead of costly synchronize_rcu()" failed to apply to 4.14-stable tree
+To:     socketcan@hartkopp.net, cascardo@canonical.com,
+        edumazet@google.com, mkl@pengutronix.de, nslusarek@gmx.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 08 Jul 2022 13:05:51 +0200
+Message-ID: <165727835110589@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH] soundwire: qcom: fix max auto-enumeration devices
-Content-Language: en-US
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     vkoul@kernel.org, yung-chuan.liao@linux.intel.com,
-        pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org,
-        linux-arm-msm@vger.kernel.org, stable@vger.kernel.org
-References: <20220708091947.5610-1-srinivas.kandagatla@linaro.org>
- <20220708100453.GM2316@kadam>
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-In-Reply-To: <20220708100453.GM2316@kadam>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -76,66 +49,106 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 08/07/2022 11:04, Dan Carpenter wrote:
-> On Fri, Jul 08, 2022 at 10:19:47AM +0100, Srinivas Kandagatla wrote:
->> Controller only supports up to max of 1-11 device ids via auto-enumeration,
->> and it has only those many registers.
->>
->> In the existing code, we can protentially cross this boundary and read incorrect
->> registers.
->>
->> Cc: stable@vger.kernel.org
->> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
->> Fixes: a6e6581942ca ("soundwire: qcom: add auto enumeration support")
->> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
->> ---
->> Thanks to Dan for reporting an overflow issue, which turned out to be
->> another issue, where we could read registers that do not belong to
->> auto-enumeration devid.
->> Either way this fixes both issues, one reported by Dan and other
->> incorrect register access.
->>
->> Thanks,
->> Srini
->>
->>   drivers/soundwire/qcom.c | 4 +++-
->>   1 file changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
->> index 9df970eeca45..dd1365a44458 100644
->> --- a/drivers/soundwire/qcom.c
->> +++ b/drivers/soundwire/qcom.c
->> @@ -119,6 +119,8 @@
->>   #define MAX_FIFO_RD_RETRY 3
->>   #define SWR_OVERFLOW_RETRY_COUNT 30
->>   #define SWRM_LINK_STATUS_RETRY_CNT 100
->> +/* devid 1 - 11 */
->> +#define SWRM_MAX_AUTO_ENUM_DEVICES	11
->>   
->>   enum {
->>   	MASTER_ID_WSA = 1,
->> @@ -479,7 +481,7 @@ static int qcom_swrm_enumerate(struct sdw_bus *bus)
->>   	int i;
->>   	char *buf1 = (char *)&val1, *buf2 = (char *)&val2;
->>   
->> -	for (i = 1; i <= SDW_MAX_DEVICES; i++) {
->> +	for (i = 1; i <= SWRM_MAX_AUTO_ENUM_DEVICES; i++) {
-> 
-> I'm sorry, I don't understand.  Both of these defines are 11 so this
-> doesn't change anything?
-> 
-My bad, I thought this was 15...
+thanks,
 
+greg k-h
 
---srini
+------------------ original commit in Linus's tree ------------------
 
+From f1b4e32aca0811aa011c76e5d6cf2fa19224b386 Mon Sep 17 00:00:00 2001
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Fri, 20 May 2022 20:32:39 +0200
+Subject: [PATCH] can: bcm: use call_rcu() instead of costly synchronize_rcu()
 
-> regards,
-> dan carpenter
-> 
->>   		/* do not continue if the status is Not Present  */
->>   		if (!ctrl->status[i])
->>   			continue;
->> -- 
->> 2.25.1
+In commit d5f9023fa61e ("can: bcm: delay release of struct bcm_op
+after synchronize_rcu()") Thadeu Lima de Souza Cascardo introduced two
+synchronize_rcu() calls in bcm_release() (only once at socket close)
+and in bcm_delete_rx_op() (called on removal of each single bcm_op).
+
+Unfortunately this slow removal of the bcm_op's affects user space
+applications like cansniffer where the modification of a filter
+removes 2048 bcm_op's which blocks the cansniffer application for
+40(!) seconds.
+
+In commit 181d4447905d ("can: gw: use call_rcu() instead of costly
+synchronize_rcu()") Eric Dumazet replaced the synchronize_rcu() calls
+with several call_rcu()'s to safely remove the data structures after
+the removal of CAN ID subscriptions with can_rx_unregister() calls.
+
+This patch adopts Erics approach for the can-bcm which should be
+applicable since the removal of tasklet_kill() in bcm_remove_op() and
+the introduction of the HRTIMER_MODE_SOFT timer handling in Linux 5.4.
+
+Fixes: d5f9023fa61e ("can: bcm: delay release of struct bcm_op after synchronize_rcu()") # >= 5.4
+Link: https://lore.kernel.org/all/20220520183239.19111-1-socketcan@hartkopp.net
+Cc: stable@vger.kernel.org
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 65ee1b784a30..e60161bec850 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -100,6 +100,7 @@ static inline u64 get_u64(const struct canfd_frame *cp, int offset)
+ 
+ struct bcm_op {
+ 	struct list_head list;
++	struct rcu_head rcu;
+ 	int ifindex;
+ 	canid_t can_id;
+ 	u32 flags;
+@@ -718,10 +719,9 @@ static struct bcm_op *bcm_find_op(struct list_head *ops,
+ 	return NULL;
+ }
+ 
+-static void bcm_remove_op(struct bcm_op *op)
++static void bcm_free_op_rcu(struct rcu_head *rcu_head)
+ {
+-	hrtimer_cancel(&op->timer);
+-	hrtimer_cancel(&op->thrtimer);
++	struct bcm_op *op = container_of(rcu_head, struct bcm_op, rcu);
+ 
+ 	if ((op->frames) && (op->frames != &op->sframe))
+ 		kfree(op->frames);
+@@ -732,6 +732,14 @@ static void bcm_remove_op(struct bcm_op *op)
+ 	kfree(op);
+ }
+ 
++static void bcm_remove_op(struct bcm_op *op)
++{
++	hrtimer_cancel(&op->timer);
++	hrtimer_cancel(&op->thrtimer);
++
++	call_rcu(&op->rcu, bcm_free_op_rcu);
++}
++
+ static void bcm_rx_unreg(struct net_device *dev, struct bcm_op *op)
+ {
+ 	if (op->rx_reg_dev == dev) {
+@@ -757,6 +765,9 @@ static int bcm_delete_rx_op(struct list_head *ops, struct bcm_msg_head *mh,
+ 		if ((op->can_id == mh->can_id) && (op->ifindex == ifindex) &&
+ 		    (op->flags & CAN_FD_FRAME) == (mh->flags & CAN_FD_FRAME)) {
+ 
++			/* disable automatic timer on frame reception */
++			op->flags |= RX_NO_AUTOTIMER;
++
+ 			/*
+ 			 * Don't care if we're bound or not (due to netdev
+ 			 * problems) can_rx_unregister() is always a save
+@@ -785,7 +796,6 @@ static int bcm_delete_rx_op(struct list_head *ops, struct bcm_msg_head *mh,
+ 						  bcm_rx_handler, op);
+ 
+ 			list_del(&op->list);
+-			synchronize_rcu();
+ 			bcm_remove_op(op);
+ 			return 1; /* done */
+ 		}
+
