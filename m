@@ -2,109 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A191556C07E
-	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 20:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C987256C0BD
+	for <lists+stable@lfdr.de>; Fri,  8 Jul 2022 20:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238460AbiGHQg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jul 2022 12:36:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50706 "EHLO
+        id S238354AbiGHQiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jul 2022 12:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238549AbiGHQg7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 12:36:59 -0400
-Received: from smtp-fw-6002.amazon.com (smtp-fw-6002.amazon.com [52.95.49.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8BC4167EF;
-        Fri,  8 Jul 2022 09:36:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1657298218; x=1688834218;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=BknkyAPrm5VBVvoOhYx5ncloGt6kCZ64NEbfyFnrRMU=;
-  b=lkHI0LkuzvGWFuzn0HYri2wUjtarL/Fpa77yj8eM/dnBYldtKPeVs1sm
-   jVLoENzyqr0R3Ex8aQ+MpswYlsgqs8aMRDPdESTYrvujtllYmWgmYiM2G
-   Qll6e+DxC+m39Qt2SuuuNEqemZXazdNEqlFgNwv0sMqIT6RTFqVimxkjN
-   g=;
-X-IronPort-AV: E=Sophos;i="5.92,256,1650931200"; 
-   d="scan'208";a="219528291"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-pdx-2a-6a4112b2.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6002.iad6.amazon.com with ESMTP; 08 Jul 2022 16:36:45 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-2a-6a4112b2.us-west-2.amazon.com (Postfix) with ESMTPS id 11CBD4C00A5;
-        Fri,  8 Jul 2022 16:36:45 +0000 (UTC)
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.36; Fri, 8 Jul 2022 16:36:44 +0000
-Received: from 88665a182662.ant.amazon.com (10.43.162.50) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.9;
- Fri, 8 Jul 2022 16:36:41 +0000
-From:   Kuniyuki Iwashima <kuniyu@amazon.com>
-To:     <djwong@kernel.org>
-CC:     <amir73il@gmail.com>, <ayudutta@amazon.com>, <kkexu@amazon.com>,
-        <kuniyu@amazon.com>, <linux-xfs@vger.kernel.org>,
-        <lrumancik@google.com>, <pbonzini@redhat.com>,
-        <sandeen@redhat.com>, <stable@vger.kernel.org>
-Subject: Re: [PATCH stable 5.15] xfs: remove incorrect ASSERT in xfs_rename
-Date:   Fri, 8 Jul 2022 09:36:32 -0700
-Message-ID: <20220708163632.65870-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <YshTjclKanmcBsUW@magnolia>
-References: <YshTjclKanmcBsUW@magnolia>
+        with ESMTP id S238157AbiGHQiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jul 2022 12:38:11 -0400
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C92167EF;
+        Fri,  8 Jul 2022 09:38:10 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id 9040A3200991;
+        Fri,  8 Jul 2022 12:38:07 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Fri, 08 Jul 2022 12:38:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
+        :date:from:from:in-reply-to:message-id:mime-version:reply-to
+        :sender:subject:subject:to:to; s=fm2; t=1657298287; x=
+        1657384687; bh=KD3KK4qajRC4Z0kzf0DDUjxSr4hqLBOJDRxjLaucINg=; b=q
+        vLxgIKuFC9yzKX461LjgdJMWMb9Xyo+11lTUGLsx2F9h/WCW6SY6oERYr0cRMVS0
+        /Y4lvJssLCd0jg/a9xBGkHwLd/r0ustBBzr0WA/lGzEUtN+pZUw1xIeqIdWuuXKI
+        vnViVizKvI3nB9OV7CZPngbOfxmPjKRQQKbDVuqOffWidX9wHysfk+IjBilaqAOS
+        wDXLvoU3g3/RGOAJO0BvT1ztK4pBD+4bB3as/RE1PZaCZBwMfkAdDYLmVN3+Q4w4
+        iyRv+nvZ7dd18s/kDKp4dCpZH/L8NF6BAhNSUQLCMP3JyfUvjSceTO05HIPlWh0e
+        A1Aa4ljtr80IS2jcfN3cg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+        1657298287; x=1657384687; bh=KD3KK4qajRC4Z0kzf0DDUjxSr4hqLBOJDRx
+        jLaucINg=; b=AKODzjS5CvBQrpFFeAv2qZM719ZlgB3lopIVrjETHjrnhMgorr0
+        q+Ku5nSW2FDeCpzXWgPBevNMkixlMzReBFcQdnQlLUU0RnTm50uveIqdTfdbF8+5
+        WONajGkHTmt0avv/ql559heolfebQldp8Gqj1uml74rxFpBE3u66f4Wa7CDMuyua
+        /RN3LELv+nSJNjMcMT5PxBCugeRikOBANDwORh1rpR+R/5hq3ILeCgEAIlfrs1VR
+        lfeSD1k4YAoYVECEAOj8TtVXlFpI+v8dgMRfWK+redI21MGyClfG6Nf6QI8NZhsw
+        lL8Egc87vJD1xU0gt7wdkExz2CPvnzXMn6w==
+X-ME-Sender: <xms:bl3IYn5IDJYGgTjBdEBi85JdzLTy-2vVy79y4Z9162OUOj8hg_33Jw>
+    <xme:bl3IYs4tekzTf_SETpKsx34JlBCtfWgeoi63Ya6L6JfcpZOauIhp2gH-Ck_7uuNhT
+    L74S9NpJdFBaeQ>
+X-ME-Received: <xmr:bl3IYufsdCpo6lfsBlL9gbo_BsPQXR2nqO4BocYxTvria27rAp_9SpRlhJ_mmPel-ZUXd0-LQJoU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudeijedguddtfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeffvghmihcu
+    ofgrrhhivgcuqfgsvghnohhurhcuoeguvghmihesihhnvhhishhisghlvghthhhinhhgsh
+    hlrggsrdgtohhmqeenucggtffrrghtthgvrhhnpedvfeegkedvkefgffegkefhieejtdff
+    keehhfelheefjeeutefgleeggfdtveeileenucevlhhushhtvghrufhiiigvpedtnecurf
+    grrhgrmhepmhgrihhlfhhrohhmpeguvghmihesihhnvhhishhisghlvghthhhinhhgshhl
+    rggsrdgtohhm
+X-ME-Proxy: <xmx:bl3IYoLUdxxOo2wGKmFyCSCVq6iH_CKOnUKBUvcETebjFw2bFzQp3g>
+    <xmx:bl3IYrILDqgnfPM0OYKRR9z9iFK-g92beucRh_UbyQWFD6x6FYjQMw>
+    <xmx:bl3IYhyDe9EQUdmUNw4w1pkq2OOtWOD0h5XxQXShKd1FJzQRwBByVw>
+    <xmx:b13IYj2wDvQEH5ebPkIBOC7ArFoi8yD04FHJ4979FfWWX-TiOyDoSQ>
+Feedback-ID: iac594737:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 8 Jul 2022 12:38:06 -0400 (EDT)
+From:   Demi Marie Obenour <demi@invisiblethingslab.com>
+To:     Juergen Gross <jgross@suse.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     Linux kernel regressions <regressions@lists.linux.dev>,
+        stable@vger.kernel.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Xen developer discussion <xen-devel@lists.xenproject.org>
+Subject: gntdev warning fixes
+Date:   Fri,  8 Jul 2022 12:37:44 -0400
+Message-Id: <20220708163750.2005-1-demi@invisiblethingslab.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.162.50]
-X-ClientProxiedBy: EX13D20UWA004.ant.amazon.com (10.43.160.62) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From:   "Darrick J. Wong" <djwong@kernel.org>
-Date:   Fri, 8 Jul 2022 08:55:57 -0700
-> On Fri, Jul 08, 2022 at 08:54:13AM -0700, Darrick J. Wong wrote:
-> > On Thu, Jul 07, 2022 at 03:58:35PM -0700, Kuniyuki Iwashima wrote:
-> > > From: Eric Sandeen <sandeen@redhat.com>
-> > > 
-> > > commit e445976537ad139162980bee015b7364e5b64fff upstream.
-> > > 
-> > > Ayushman Dutta reported our 5.10 kernel hit the warning.  It was because
-> > > the original commit misses a Fixes tag and was not backported to the stable
-> > > tree.  The fix is merged in 5.16, so please backport it to 5.15 first.
-> > > 
-> > > This ASSERT in xfs_rename is a) incorrect, because
-> > > (RENAME_WHITEOUT|RENAME_NOREPLACE) is a valid combination, and
-> > > b) unnecessary, because actual invalid flag combinations are already
-> > > handled at the vfs level in do_renameat2() before we get called.
-> > > So, remove it.
-> > > 
-> > > Reported-by: Paolo Bonzini <pbonzini@redhat.com>
-> > > Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-> > > Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-> > > Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-> > > Fixes: 7dcf5c3e4527 ("xfs: add RENAME_WHITEOUT support")
-> > > Reported-by: Ayushman Dutta <ayudutta@amazon.com>
-> > > Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-> > 
-> > Looks good to me, but you really ought to send 5.10 patches to the 5.10
-> > XFS maintainer (Amir, now cc'd).  (Yes, this is a recent change.) ;)
-> 
-> ...and of course the first thing that happens is that I mix up the 5.10
-> and 5.15 patches.
-> 
-> Amir is the 5.10 maintainer, Leah is the 5.15 maintainer.  Sorry about
-> the mixup.  /me pours himself a third(!) cup of coffee.
+The recent gntdev fixes introduced two incorrect WARN_ON()s, which
+triggered immediately on my system.  Patches for master and all
+supported stable versions follow.
 
-Thank you for taking a look!
 
-And sorry that I'm not familiar with xfs workflow and didn't know each
-version has dedicated maintainers.
-
-Is there a doc like Documentation/process/maintainer-netdev.rst as both of
-Amir and Leah seem not listed in the xfs entry of MAINTAINERS...?
