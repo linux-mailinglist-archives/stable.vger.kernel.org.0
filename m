@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F9956C7F9
-	for <lists+stable@lfdr.de>; Sat,  9 Jul 2022 10:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383A856C7FA
+	for <lists+stable@lfdr.de>; Sat,  9 Jul 2022 10:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229509AbiGIIWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jul 2022 04:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59114 "EHLO
+        id S229463AbiGIIXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jul 2022 04:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbiGIIWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Jul 2022 04:22:47 -0400
+        with ESMTP id S229469AbiGIIXK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Jul 2022 04:23:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8571877483
-        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 01:22:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0270A77480
+        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 01:23:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24FA460EB4
-        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 08:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F570C3411C;
-        Sat,  9 Jul 2022 08:22:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C4C60DB5
+        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 08:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A542DC3411C;
+        Sat,  9 Jul 2022 08:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657354965;
-        bh=oRzHdIcKhuWrj8K3zGGqQ5iXWMKvTQoNMVu5qGgajDI=;
+        s=korg; t=1657354989;
+        bh=AMvIdNQEXJDm7rHiF7V4eMvfocG2SMxPGpYnSkKz0Mg=;
         h=Subject:To:Cc:From:Date:From;
-        b=jeJLlsEM25ap+J5DJ0FBfBxuOcNPfLzl9aWUdzg4bWLU1PYZ8citeLgI3RNF42j0L
-         bZhJH7a+TojFm0S+MONnyMuC2EdB+XUhXNB35crscCR00St3rLA2AeZSOzTo2F6LNY
-         ozP4pKVupv/k7mlr0Qw317lW18uZ6UdaSHWN8tW4=
-Subject: FAILED: patch "[PATCH] PM: runtime: Fix supplier device management during consumer" failed to apply to 4.19-stable tree
-To:     rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org,
-        peter.wang@mediatek.com, stable@vger.kernel.org
+        b=qtAZ6BYtO5Jlm3dtLI0XPQODDxEDlS0wExSIhAY9eoc2miii9213/0dpIGZ2Z/rYn
+         HFSmw8oB6Ct4Az3bCcMYa7ZbVd7D8eJw0w5nb+yskPEWANQ59BOkUXPea4iArhst0S
+         E4fxHb76o3PwtNULdtJrwjSim51eH/NE02xqieiA=
+Subject: FAILED: patch "[PATCH] ACPI: CPPC: Only probe for _CPC if CPPC v2 is acked" failed to apply to 5.18-stable tree
+To:     mario.limonciello@amd.com, cuihao.leo@gmail.com,
+        mika.westerberg@linux.intel.com, rafael.j.wysocki@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 09 Jul 2022 10:22:42 +0200
-Message-ID: <1657354962114216@kroah.com>
+Date:   Sat, 09 Jul 2022 10:23:06 +0200
+Message-ID: <1657354986188134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,104 +60,110 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 887371066039011144b4a94af97d9328df6869a2 Mon Sep 17 00:00:00 2001
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date: Thu, 30 Jun 2022 21:16:41 +0200
-Subject: [PATCH] PM: runtime: Fix supplier device management during consumer
- probe
+From 7feec7430edddb87c24b0a86b08a03d0b496a755 Mon Sep 17 00:00:00 2001
+From: Mario Limonciello <mario.limonciello@amd.com>
+Date: Tue, 5 Jul 2022 13:29:14 -0500
+Subject: [PATCH] ACPI: CPPC: Only probe for _CPC if CPPC v2 is acked
 
-Because pm_runtime_get_suppliers() bumps up the rpm_active counter
-of each device link to a supplier of the given device in addition
-to bumping up the supplier's PM-runtime usage counter, a runtime
-suspend of the consumer device may case the latter to go down to 0
-when pm_runtime_put_suppliers() is running on a remote CPU.  If that
-happens after pm_runtime_put_suppliers() has released power.lock for
-the consumer device, and a runtime resume of that device takes place
-immediately after it, before pm_runtime_put() is called for the
-supplier, that pm_runtime_put() call may cause the supplier to be
-suspended even though the consumer is active.
+Previously the kernel used to ignore whether the firmware masked CPPC
+or CPPCv2 and would just pretend that it worked.
 
-To prevent that from happening, modify pm_runtime_get_suppliers() to
-call pm_runtime_get_sync() for the given device's suppliers without
-touching the rpm_active counters of the involved device links
-Accordingly, modify pm_runtime_put_suppliers() to call pm_runtime_put()
-for the given device's suppliers without looking at the rpm_active
-counters of the device links at hand.  [This is analogous to what
-happened before commit 4c06c4e6cf63 ("driver core: Fix possible
-supplier PM-usage counter imbalance").]
+When support for the USB4 bit in _OSC was introduced from commit
+9e1f561afb ("ACPI: Execute platform _OSC also with query bit clear")
+the kernel began to look at the return when the query bit was clear.
 
-Since pm_runtime_get_suppliers() sets supplier_preactivated for each
-device link where the supplier's PM-runtime usage counter has been
-incremented and pm_runtime_put_suppliers() calls pm_runtime_put() for
-the suppliers whose device links have supplier_preactivated set, the
-PM-runtime usage counter is balanced for each supplier and this is
-independent of the runtime suspend and resume of the consumer device.
+This caused regressions that were misdiagnosed and attempted to be solved
+as part of commit 2ca8e6285250 ("Revert "ACPI: Pass the same capabilities
+to the _OSC regardless of the query flag""). This caused a different
+regression where non-Intel systems weren't able to negotiate _OSC
+properly.
 
-However, in case a device link with DL_FLAG_PM_RUNTIME set is dropped
-during the consumer device probe, so pm_runtime_get_suppliers() bumps
-up the supplier's PM-runtime usage counter, but it cannot be dropped by
-pm_runtime_put_suppliers(), make device_link_release_fn() take care of
-that.
+This was reverted in commit 2ca8e6285250 ("Revert "ACPI: Pass the same
+capabilities to the _OSC regardless of the query flag"") and attempted to
+be fixed by commit c42fa24b4475 ("ACPI: bus: Avoid using CPPC if not
+supported by firmware") but the regression still returned.
 
-Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
-Reported-by: Peter Wang <peter.wang@mediatek.com>
+These systems with the regression only load support for CPPC from an SSDT
+dynamically when _OSC reports CPPC v2.  Avoid the problem by not letting
+CPPC satisfy the requirement in `acpi_cppc_processor_probe`.
+
+Reported-by: CUI Hao <cuihao.leo@gmail.com>
+Reported-by: maxim.novozhilov@gmail.com
+Reported-by: lethe.tree@protonmail.com
+Reported-by: garystephenwright@gmail.com
+Reported-by: galaxyking0419@gmail.com
+Fixes: c42fa24b4475 ("ACPI: bus: Avoid using CPPC if not supported by firmware")
+Fixes: 2ca8e6285250 ("Revert "ACPI Pass the same capabilities to the _OSC regardless of the query flag"")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213023
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2075387
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: CUI Hao <cuihao.leo@gmail.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Peter Wang <peter.wang@mediatek.com>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 58aa49527d3a..460d6f163e41 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -487,6 +487,16 @@ static void device_link_release_fn(struct work_struct *work)
- 	device_link_synchronize_removal();
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 86fa61a21826..e2db1bdd9dd2 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -298,7 +298,7 @@ EXPORT_SYMBOL_GPL(osc_cpc_flexible_adr_space_confirmed);
+ bool osc_sb_native_usb4_support_confirmed;
+ EXPORT_SYMBOL_GPL(osc_sb_native_usb4_support_confirmed);
  
- 	pm_runtime_release_supplier(link);
-+	/*
-+	 * If supplier_preactivated is set, the link has been dropped between
-+	 * the pm_runtime_get_suppliers() and pm_runtime_put_suppliers() calls
-+	 * in __driver_probe_device().  In that case, drop the supplier's
-+	 * PM-runtime usage counter to remove the reference taken by
-+	 * pm_runtime_get_suppliers().
-+	 */
-+	if (link->supplier_preactivated)
-+		pm_runtime_put_noidle(link->supplier);
+-bool osc_sb_cppc_not_supported;
++bool osc_sb_cppc2_support_acked;
+ 
+ static u8 sb_uuid_str[] = "0811B06E-4A27-44F9-8D60-3CBBC22E7B48";
+ static void acpi_bus_osc_negotiate_platform_control(void)
+@@ -358,11 +358,6 @@ static void acpi_bus_osc_negotiate_platform_control(void)
+ 		return;
+ 	}
+ 
+-#ifdef CONFIG_ACPI_CPPC_LIB
+-	osc_sb_cppc_not_supported = !(capbuf_ret[OSC_SUPPORT_DWORD] &
+-			(OSC_SB_CPC_SUPPORT | OSC_SB_CPCV2_SUPPORT));
+-#endif
+-
+ 	/*
+ 	 * Now run _OSC again with query flag clear and with the caps
+ 	 * supported by both the OS and the platform.
+@@ -376,6 +371,10 @@ static void acpi_bus_osc_negotiate_platform_control(void)
+ 
+ 	capbuf_ret = context.ret.pointer;
+ 	if (context.ret.length > OSC_SUPPORT_DWORD) {
++#ifdef CONFIG_ACPI_CPPC_LIB
++		osc_sb_cppc2_support_acked = capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_CPCV2_SUPPORT;
++#endif
 +
- 	pm_request_idle(link->supplier);
+ 		osc_sb_apei_support_acked =
+ 			capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_APEI_SUPPORT;
+ 		osc_pc_lpi_support_confirmed =
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index 903528f7e187..d64facbda0fb 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -684,8 +684,10 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
+ 	acpi_status status;
+ 	int ret = -ENODATA;
  
- 	put_device(link->consumer);
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index 23cc4c377d77..949907e2e242 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -1768,7 +1768,6 @@ void pm_runtime_get_suppliers(struct device *dev)
- 		if (link->flags & DL_FLAG_PM_RUNTIME) {
- 			link->supplier_preactivated = true;
- 			pm_runtime_get_sync(link->supplier);
--			refcount_inc(&link->rpm_active);
- 		}
+-	if (osc_sb_cppc_not_supported)
++	if (!osc_sb_cppc2_support_acked) {
++		pr_debug("CPPC v2 _OSC not acked\n");
+ 		return -ENODEV;
++	}
  
- 	device_links_read_unlock(idx);
-@@ -1788,19 +1787,8 @@ void pm_runtime_put_suppliers(struct device *dev)
- 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node,
- 				device_links_read_lock_held())
- 		if (link->supplier_preactivated) {
--			bool put;
--
- 			link->supplier_preactivated = false;
--
--			spin_lock_irq(&dev->power.lock);
--
--			put = pm_runtime_status_suspended(dev) &&
--			      refcount_dec_not_one(&link->rpm_active);
--
--			spin_unlock_irq(&dev->power.lock);
--
--			if (put)
--				pm_runtime_put(link->supplier);
-+			pm_runtime_put(link->supplier);
- 		}
+ 	/* Parse the ACPI _CPC table for this CPU. */
+ 	status = acpi_evaluate_object_typed(handle, "_CPC", NULL, &output,
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 4f82a5bc6d98..44975c1bbe12 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -584,7 +584,7 @@ acpi_status acpi_run_osc(acpi_handle handle, struct acpi_osc_context *context);
+ extern bool osc_sb_apei_support_acked;
+ extern bool osc_pc_lpi_support_confirmed;
+ extern bool osc_sb_native_usb4_support_confirmed;
+-extern bool osc_sb_cppc_not_supported;
++extern bool osc_sb_cppc2_support_acked;
+ extern bool osc_cpc_flexible_adr_space_confirmed;
  
- 	device_links_read_unlock(idx);
+ /* USB4 Capabilities */
 
