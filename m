@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81ED956C7F4
-	for <lists+stable@lfdr.de>; Sat,  9 Jul 2022 10:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3429356C7F5
+	for <lists+stable@lfdr.de>; Sat,  9 Jul 2022 10:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229469AbiGIIV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jul 2022 04:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
+        id S229463AbiGIIVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jul 2022 04:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbiGIIV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Jul 2022 04:21:27 -0400
+        with ESMTP id S229477AbiGIIVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Jul 2022 04:21:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4794677480
-        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 01:21:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC9B77480
+        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 01:21:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D682960EB4
-        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 08:21:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD75BC3411C;
-        Sat,  9 Jul 2022 08:21:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F13160EB2
+        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 08:21:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B5B1C341CA;
+        Sat,  9 Jul 2022 08:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657354885;
-        bh=xdySjptKgXNRemeFWXlzVf+DDzUuDgGQJsY98Mkj6UY=;
+        s=korg; t=1657354895;
+        bh=yP2dF6QtcWVphsI41X4a4cd/e5/So49gXAevplLPKBM=;
         h=Subject:To:Cc:From:Date:From;
-        b=bUWd+MS1y7z/NSYBPF2W597I6/WLVO3trJQrbFtg1mVDuoyM20VqVLSvf9jj7rBbm
-         5cQZ8bXsaKK4bKEvAToylqbGAe1O4hJnN69Codkb+yjmvEJmEIt+5EVeu3QPEl7LGM
-         Qj5+Dm30G+H3ky3/T0XI0H2AKeF3vlCZ+cxXj76M=
-Subject: FAILED: patch "[PATCH] PM: runtime: Redefine pm_runtime_release_supplier()" failed to apply to 5.4-stable tree
+        b=COF2Z4J5qLUlTBjho/BOPJinB9MhgkPLxu4ITUMMCZ7BvOxvXfY53z26RYkDCXLq7
+         csPa4uHVQddhihpmzQPZ2zNVjeqSlLiWxfa1/SuQgvwvhiyCy5L1wO/BEG0RV8ymi/
+         tP1ftMqXB+YfKxMokBGW68HXyUYTnZ+3+9HpDG2c=
+Subject: FAILED: patch "[PATCH] PM: runtime: Redefine pm_runtime_release_supplier()" failed to apply to 4.19-stable tree
 To:     rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 09 Jul 2022 10:21:22 +0200
-Message-ID: <1657354882158179@kroah.com>
+Date:   Sat, 09 Jul 2022 10:21:32 +0200
+Message-ID: <1657354892181171@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
