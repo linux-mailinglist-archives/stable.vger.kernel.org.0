@@ -2,93 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BF856C95A
-	for <lists+stable@lfdr.de>; Sat,  9 Jul 2022 14:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4EB56C994
+	for <lists+stable@lfdr.de>; Sat,  9 Jul 2022 15:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229454AbiGIMQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jul 2022 08:16:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        id S229462AbiGINj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jul 2022 09:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbiGIMQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Jul 2022 08:16:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D49E2A71E
-        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 05:16:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE5EBB817D3
-        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 12:16:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0263DC3411C;
-        Sat,  9 Jul 2022 12:16:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657368973;
-        bh=rMjBF98f/tTkE6EmyrnMBwWnkPZpny9CbBqepIotJAo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uxIvn24b12EZQ1v7BMdcyCzydJH+FDCfMgQKhunioxPK6qr+s8NTIA9rRiMP84yv0
-         WD8qV9FEhA2zpLoYAIDfdJcNX/4UwQJgi9xRh6zeJHVlonUOMM8+g5UU72u+h2dCY0
-         WM8whtZgEktNpFwc+QDEodOYfT/8ZxP+wJ49Lv5k=
-Date:   Sat, 9 Jul 2022 14:16:10 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Grund <theflamefire89@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [GIT 4.9] LSM,security,selinux,smack: Backport of LSM changes
-Message-ID: <YslxiluWV9YnPPAY@kroah.com>
-References: <4230dd79-b64f-14e6-3614-02e4acb3f284@gmail.com>
+        with ESMTP id S229454AbiGINj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Jul 2022 09:39:56 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E6F3193C7
+        for <stable@vger.kernel.org>; Sat,  9 Jul 2022 06:39:55 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id j22so1953109ejs.2
+        for <stable@vger.kernel.org>; Sat, 09 Jul 2022 06:39:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:to:cc:subject:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=OIKOjffMzDdFr1Pkj2IgKiq+3ZPzAiIvojaYyolCQmc=;
+        b=oPAEpYqVgQh6T6SSNOe0P19lbUejVn+nodoxFeeyNwBMBYd+hIGFW+W9WlFBnB/UqQ
+         7aC3KK1eDlwHFcBTW84/UM4FcQafxve/x6tGtMoeTbkeNk9NJBQeBMUqJtNKdUeGzHts
+         cTUX6C3x8Kwzo6puG/bK26Qi3SeXjvkG2GZ+oYVbN/Mt6xnH+CU1+N+KkXVDMH10kU/1
+         D7j0rzNK4AxGwIPI7H8C8NAz65JvW125Rs7o+LwGG4BXEt1ERUqAFShrppysrKblhe7I
+         Z4cOhahAa3WNA8RqRAh0P6KxYAAQsLU+8llcN15r3dyAs+jPNIIL0qSwk3HhROv6hWpw
+         CWKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:to:cc:subject:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=OIKOjffMzDdFr1Pkj2IgKiq+3ZPzAiIvojaYyolCQmc=;
+        b=G2UOA0FD3YtMa7AhmYQrUdkk7FTHDa9/Qusqo/LqGXaNFtbbD+hII5GUBJtFeA5JGj
+         uqoAugawh1DxmdGp8XdGS7tlggkCqCp0qzdmgijyKM3vJXpg4mCLdd/2kepYGOvCn+JR
+         5B3nouoYzkid3h9NhiLOKgC467Mg82ulPiXh3RCN2p8ivyFbDi9MgXoiNp23lQHfQXX5
+         f9t8FlF4kEQROFQuIJGW0XweScgIl4GG8P3I418/AheAWHU/9wiua13FxxWxauNkQhd9
+         G7KTcriAi9qyQZOrY/FWKsUfmmGOgdCPn7Bo2ECdcwr5GwxUzR3FQZ+sFszfXO1ohG+p
+         RlRw==
+X-Gm-Message-State: AJIora9GUu0HPZHyiU3tIqGbZm1p/JV1duG4gndkkomjN90RW94Gj+KA
+        nOmkyBvEsQRPgxh6SOHOQ/+jxnMZc/w=
+X-Google-Smtp-Source: AGRyM1tHwBnX8eJNu2/DBByhTQLnPLtqc4YZkZ7l822GC1U3/EaOFUi9O++Dr8L1ZwDTryrn9hp04g==
+X-Received: by 2002:a17:907:6e26:b0:726:97af:9846 with SMTP id sd38-20020a1709076e2600b0072697af9846mr9018341ejc.300.1657373993286;
+        Sat, 09 Jul 2022 06:39:53 -0700 (PDT)
+Received: from Ansuel-xps. (93-42-70-190.ip85.fastwebnet.it. [93.42.70.190])
+        by smtp.gmail.com with ESMTPSA id g12-20020aa7d1cc000000b00435726bd375sm980394edp.57.2022.07.09.06.39.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 09 Jul 2022 06:39:52 -0700 (PDT)
+Message-ID: <62c98528.1c69fb81.27e32.168c@mx.google.com>
+X-Google-Original-Message-ID: <YsmFJ4QxVb673UZ1@Ansuel-xps.>
+Date:   Sat, 9 Jul 2022 15:39:51 +0200
+From:   Christian Marangi <ansuelsmth@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jakub Kicinski <kuba@kernel.org>, gregkh@linuxfoundation.org
+Subject: Re: [PATCH] net: dsa: qca8k: reset cpu port on MTU change
+References: <20220628143010.17526-1-ansuelsmth@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4230dd79-b64f-14e6-3614-02e4acb3f284@gmail.com>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220628143010.17526-1-ansuelsmth@gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 09, 2022 at 02:07:17PM +0200, Alexander Grund wrote:
-> The following changes since commit 445514206988935e5ef0e80588d7481aa3cd3b7b:
+On Tue, Jun 28, 2022 at 04:30:10PM +0200, Christian Marangi wrote:
+> commit 386228c694bf1e7a7688e44412cb33500b0ac585 upstream.
 > 
->   Linux 4.9.322 (2022-07-07 17:30:12 +0200)
+> It was discovered that the Documentation lacks of a fundamental detail
+> on how to correctly change the MAX_FRAME_SIZE of the switch.
 > 
-> are available in the Git repository at:
+> In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
+> switch panics and cease to send any packet. This cause the mgmt ethernet
+> system to not receive any packet (the slow fallback still works) and
+> makes the device not reachable. To recover from this a switch reset is
+> required.
 > 
->   https://github.com/Flamefire/android_kernel_sony_msm8998.git lsm_hooks_backport_4.9
-
-I can not take a git pull for stable patches, as my bot says:
-
-<formletter>
-
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
-
-Please just send them to us in patch form like all other stable
-submissions.
-
-> for you to fetch changes up to 911aa0e49633be52c7a2de8c99de87b6bf3a7604:
+> To correctly handle this, turn off the cpu ports before changing the
+> MAX_FRAME_SIZE and turn on again after the value is applied.
 > 
->   LSM: Initialize security_hook_heads upon registration. (2022-07-09 12:51:42 +0200)
+> Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+> Link: https://lore.kernel.org/r/20220621151122.10220-1-ansuelsmth@gmail.com
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> [ backport: fix conflict using the old port_sts struct instead of bitmap ]
+
+Cc Greg wonder if this has some problems or I pushed it badly? (first
+time I try to push a fixed backport)
+
+> ---
+>  drivers/net/dsa/qca8k.c | 23 +++++++++++++++++++++--
+>  1 file changed, 21 insertions(+), 2 deletions(-)
 > 
-> All commits are cherry-picks/backports from mainline.
-> The intend was to apply the last commit ("LSM: Initialize security_hook_heads upon registration.") with as few changes as possible.
+> diff --git a/drivers/net/dsa/qca8k.c b/drivers/net/dsa/qca8k.c
+> index a984f06f6f04..67869c8cbeaa 100644
+> --- a/drivers/net/dsa/qca8k.c
+> +++ b/drivers/net/dsa/qca8k.c
+> @@ -1599,7 +1599,7 @@ static int
+>  qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+>  {
+>  	struct qca8k_priv *priv = ds->priv;
+> -	int i, mtu = 0;
+> +	int ret, i, mtu = 0;
+>  
+>  	priv->port_mtu[port] = new_mtu;
+>  
+> @@ -1607,8 +1607,27 @@ qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+>  		if (priv->port_mtu[i] > mtu)
+>  			mtu = priv->port_mtu[i];
+>  
+> +	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
+> +	 * the switch panics.
+> +	 * Turn off both cpu ports before applying the new value to prevent
+> +	 * this.
+> +	 */
+> +	if (priv->port_sts[0].enabled)
+> +		qca8k_port_set_status(priv, 0, 0);
+> +
+> +	if (priv->port_sts[6].enabled)
+> +		qca8k_port_set_status(priv, 6, 0);
+> +
+>  	/* Include L2 header / FCS length */
+> -	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
+> +	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
+> +
+> +	if (priv->port_sts[0].enabled)
+> +		qca8k_port_set_status(priv, 0, 1);
+> +
+> +	if (priv->port_sts[6].enabled)
+> +		qca8k_port_set_status(priv, 6, 1);
+> +
+> +	return ret;
+>  }
+>  
+>  static int
+> -- 
+> 2.36.1
+> 
 
-Why?
-
-> This revealed added/removed/changed hooks and related changes which seem valuable to have in 4.9 and via the CIP in 4.4 SLTS.
-
-What is "CIP"?
-
-> For additional Context: I initially backported those directly to CIPs v4.4-st14 and tested those on an ARM64 Android device from SONY. [1]
-
-I have no context or understand this, sorry :(
-
-thanks,
-
-greg k-h
+-- 
+	Ansuel
