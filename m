@@ -2,184 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57BB756CF3C
-	for <lists+stable@lfdr.de>; Sun, 10 Jul 2022 15:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1EB256CF44
+	for <lists+stable@lfdr.de>; Sun, 10 Jul 2022 15:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbiGJNLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Jul 2022 09:11:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45540 "EHLO
+        id S229616AbiGJNXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Jul 2022 09:23:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiGJNLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Jul 2022 09:11:32 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F9010FC8
-        for <stable@vger.kernel.org>; Sun, 10 Jul 2022 06:11:28 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id e15so3467239edj.2
-        for <stable@vger.kernel.org>; Sun, 10 Jul 2022 06:11:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=v8A42bFnP8PDJ6oqLgxb+pydr5GSE8P6Tlv7SdCq3Ao=;
-        b=Pibho/tyv+nOI9f8RbeOsEGYUct8P7o9xV4yLi92YUuH+MTksafgiK/UFsHYIhrlmt
-         A1ivRPI62fJ9G33t4zyWwZRBnYBrKTMg1tbt1ymYR5hwT9/bJxse8HlEn5RTW9BOvb6Q
-         nmY+lC5cTxJz3PPi60o1Cfy662h0agF5qxtnptxr0O+OhjTrhE2dbRzSJOMnuoIc1hce
-         et7VW0IcfK+yzytSgIJ6W/CEMXke0BL2MpEwd42k/7bRcwajqAHj/xhQrde9q7DXCwzv
-         6l/Q2sjIErBi9ulExFuM0waUEq1HLpEylC20VX+OJnk5PIdwQXCoadyFRSBa3PzT+SiH
-         BE7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=v8A42bFnP8PDJ6oqLgxb+pydr5GSE8P6Tlv7SdCq3Ao=;
-        b=nRY6US4XYKN8zAkHkC3dAQjIffTwA0a3/imh/1M2ZKBy31qHqBTmDQrbcfvbAawUkh
-         ivUd1oRO4Wl66NmtKBTXBhgHpol+lcJ5btDHSZXeRh1YZmF+LyU7H9JTWVpxXlDSHvXP
-         lZC00M0aCz9UjR1BntjwSkZeJmuXWR1UChfThBBG9ashXtgHhkAWjuFZPxwgjsG11Bhd
-         pbaW8YyuBoQJcT5PPpyd+Ce8zbof4zu1ifBzudSuMTAyvv6nrNhKA3naaNr3gwxtUs3n
-         +agioYmqOAjGwE8xxFX2kuXV3Ym6FSqV3gqsNYkEVwFbUwKhKD9bD/VsZVRiW/Wx1s75
-         Uy+w==
-X-Gm-Message-State: AJIora/8ENaT6NkxbGkfPWj+dtPmdjfq9MV89fDe2tqrZEm0icUjHH9M
-        2KeeiiLBL1VgaB1nAR5yl9aZA70PEMwrAQ==
-X-Google-Smtp-Source: AGRyM1tH6VQlSpcRCj+iyZZZl3cP56WAtoh4SzUETOFXxVbmlxEQi7qoh9ApYlvhj/ljnanD3L6q/w==
-X-Received: by 2002:a05:6402:194d:b0:43a:82da:b0f3 with SMTP id f13-20020a056402194d00b0043a82dab0f3mr18477535edz.104.1657458686282;
-        Sun, 10 Jul 2022 06:11:26 -0700 (PDT)
-Received: from alex-Mint.fritz.box (p200300f6af42a000bd655b56da6a0a3d.dip0.t-ipconnect.de. [2003:f6:af42:a000:bd65:5b56:da6a:a3d])
-        by smtp.googlemail.com with ESMTPSA id i19-20020a170906115300b007262b9f7120sm1565763eja.167.2022.07.10.06.11.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Jul 2022 06:11:25 -0700 (PDT)
-From:   theflamefire89@gmail.com
-To:     stable@vger.kernel.org
-Cc:     James Morris <jmorris@namei.org>
-Subject: [PATCH 2/2] security: mark LSM hooks as __ro_after_init
-Date:   Sun, 10 Jul 2022 15:10:55 +0200
-Message-Id: <20220710131055.12934-2-theflamefire89@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220710131055.12934-1-theflamefire89@gmail.com>
-References: <20220710131055.12934-1-theflamefire89@gmail.com>
+        with ESMTP id S229469AbiGJNXW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Jul 2022 09:23:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E76412D18
+        for <stable@vger.kernel.org>; Sun, 10 Jul 2022 06:23:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25A0861228
+        for <stable@vger.kernel.org>; Sun, 10 Jul 2022 13:23:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 261FDC3411E;
+        Sun, 10 Jul 2022 13:23:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657459400;
+        bh=E8diCNsgLQd7mgXPlOH9YJYO0Dmiu891KPdX6bsPspE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Bg0Xnlrgef6b6idam0zNYJ8qKPmlMLwnQ2+gdW+6LCKyQbu8I9AbT6Fxd/9fchqMP
+         +0/qZhki2UhF+zUPn2jmPwWh2Y3pLAKHHr7Gkh/y9aHGvcAfkgjYwdh+ifvju5mxu2
+         hIxksVwFZQuErMeDlZqdv9pzEYsdSnkVKhW8LKLc=
+Date:   Sun, 10 Jul 2022 15:23:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alexander Grund <theflamefire89@gmail.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [GIT 4.9] LSM,security,selinux,smack: Backport of LSM changes
+Message-ID: <YsrSxQQB82eDdn0+@kroah.com>
+References: <4230dd79-b64f-14e6-3614-02e4acb3f284@gmail.com>
+ <YslxiluWV9YnPPAY@kroah.com>
+ <81f96354-cbed-26e4-9f3f-5287095ccece@gmail.com>
+ <YsqyxydY1kbufgng@kroah.com>
+ <1c9e8498-0621-4466-bfbc-4f166c633727@gmail.com>
+ <YsrKlIEV2ytKcWb8@kroah.com>
+ <077a6d7d-e0a0-fab1-12df-871baa9be765@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <077a6d7d-e0a0-fab1-12df-871baa9be765@gmail.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morris <jmorris@namei.org>
+On Sun, Jul 10, 2022 at 03:02:52PM +0200, Alexander Grund wrote:
+> On 10.07.22 14:48, Greg KH wrote:
+> >>> What 4.4.y Android devices are still supported by their vendors?  And
+> >>> are they still getting kernel updates?
+> >>
+> >> Actually the issue is that those devices are not supported by their vendors anymore, so they may only get updates through LineageOS.
+> >> That is a third-party Android build where maintainers rely on proprietary binaries from the original phone which are tied to a specific kernel.
+> >> Hence when the device falls out of support having a 4.4 kernel in the last release there is no way for those maintainers to switch to a newer kernel.
+> >> That's the situation e.g. I am in right now: Providing (mostly) security updates for a good phone that fell out of vendor support
+> >> by using LineageOS for an updated Android system and e.g. the CIP maintained SLTS 4.4 kernel.
+> >> And I know of at least 2 other devices using the same kernel as they share the platform.
+> > 
+> > All of those devices that wish to keep working should just forward port
+> > their tree to newer kernel versions so that they can stay secure and
+> > working properly.  It is far easier to do that than to attempt to keep
+> > older kernel trees alive over time.  I've done both in the past and it's
+> > always simpler to move forward.
+> > 
+> > So why not just do that instead of attempting to keep these old kernels
+> > alive?  Do the effort once and then you can rely on the community's
+> > help.  Otherwise you are stuck on your own for forever.
+> 
+> Because forward porting is not possible.
+> As mentioned the original device vendor does no longer support those devices
+> so what the community has is a blob of binaries compiled against a specific
+> kernel version with no access to their sources.
 
-commit ca97d939db114c8d1619e10a3b82af8615372dae upstream.
+That's a lovely GPL violation that I am sure those vendors would be glad
+to fix up and provide the source for.  Especially if those vendors are
+wanting to use newer kernel versions in newer devices :)
 
-Mark all of the registration hooks as __ro_after_init (via the
-__lsm_ro_after_init macro).
+> As those binaries (mostly hardware "drivers") are required to use the device,
+> recompilation isn't possible and they are likely coupled to the kernel version
+> specific API/ABI "we" (me and maintainers of similar devices) have to stick to that kernel.
 
-Signed-off-by: James Morris <james.l.morris@oracle.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Alexander Grund <git@grundis.de>
----
- security/apparmor/lsm.c    | 2 +-
- security/commoncap.c       | 2 +-
- security/security.c        | 2 +-
- security/selinux/hooks.c   | 2 +-
- security/smack/smack_lsm.c | 2 +-
- security/tomoyo/tomoyo.c   | 2 +-
- security/yama/yama_lsm.c   | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+If you do not know what sources those blobs are built from, then trying
+to keep a stable abi is very very difficult, as I know from experience.
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 02cc952b86aa..7b527c44857c 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -584,7 +584,7 @@ static int apparmor_task_setrlimit(struct task_struct *task,
- 	return error;
- }
- 
--static struct security_hook_list apparmor_hooks[] = {
-+static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ptrace_access_check, apparmor_ptrace_access_check),
- 	LSM_HOOK_INIT(ptrace_traceme, apparmor_ptrace_traceme),
- 	LSM_HOOK_INIT(capget, apparmor_capget),
-diff --git a/security/commoncap.c b/security/commoncap.c
-index b86aca8d6798..0708c7f4df5f 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -1071,7 +1071,7 @@ int cap_mmap_file(struct file *file, unsigned long reqprot,
- 
- #ifdef CONFIG_SECURITY
- 
--struct security_hook_list capability_hooks[] = {
-+struct security_hook_list capability_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(capable, cap_capable),
- 	LSM_HOOK_INIT(settime, cap_settime),
- 	LSM_HOOK_INIT(ptrace_access_check, cap_ptrace_access_check),
-diff --git a/security/security.c b/security/security.c
-index 9a13d72a6446..b53c802c384b 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1596,7 +1596,7 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
- }
- #endif /* CONFIG_AUDIT */
- 
--struct security_hook_heads security_hook_heads = {
-+struct security_hook_heads security_hook_heads __lsm_ro_after_init = {
- 	.binder_set_context_mgr =
- 		LIST_HEAD_INIT(security_hook_heads.binder_set_context_mgr),
- 	.binder_transaction =
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b456c8630608..f60dfac48a99 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6118,7 +6118,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
- 
- #endif
- 
--static struct security_hook_list selinux_hooks[] = {
-+static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
- 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
- 	LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 84ed47195cdd..7926a374a567 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4620,7 +4620,7 @@ static int smack_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
- 	return 0;
- }
- 
--static struct security_hook_list smack_hooks[] = {
-+static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ptrace_access_check, smack_ptrace_access_check),
- 	LSM_HOOK_INIT(ptrace_traceme, smack_ptrace_traceme),
- 	LSM_HOOK_INIT(syslog, smack_syslog),
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index 75c998700190..f1dce33d9542 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -496,7 +496,7 @@ static int tomoyo_socket_sendmsg(struct socket *sock, struct msghdr *msg,
-  * tomoyo_security_ops is a "struct security_operations" which is used for
-  * registering TOMOYO.
-  */
--static struct security_hook_list tomoyo_hooks[] = {
-+static struct security_hook_list tomoyo_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(cred_alloc_blank, tomoyo_cred_alloc_blank),
- 	LSM_HOOK_INIT(cred_prepare, tomoyo_cred_prepare),
- 	LSM_HOOK_INIT(cred_transfer, tomoyo_cred_transfer),
-diff --git a/security/yama/yama_lsm.c b/security/yama/yama_lsm.c
-index 5367f854fadc..be7e40c7e552 100644
---- a/security/yama/yama_lsm.c
-+++ b/security/yama/yama_lsm.c
-@@ -416,7 +416,7 @@ int yama_ptrace_traceme(struct task_struct *parent)
- 	return rc;
- }
- 
--static struct security_hook_list yama_hooks[] = {
-+static struct security_hook_list yama_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ptrace_access_check, yama_ptrace_access_check),
- 	LSM_HOOK_INIT(ptrace_traceme, yama_ptrace_traceme),
- 	LSM_HOOK_INIT(task_prctl, yama_task_prctl),
--- 
-2.25.1
+Good luck!
 
+greg k-h
