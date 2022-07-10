@@ -2,129 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D89956D0BE
-	for <lists+stable@lfdr.de>; Sun, 10 Jul 2022 20:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5ED56D0C5
+	for <lists+stable@lfdr.de>; Sun, 10 Jul 2022 20:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229495AbiGJSc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Jul 2022 14:32:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37720 "EHLO
+        id S229629AbiGJSlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Jul 2022 14:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbiGJSc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Jul 2022 14:32:28 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BD7BF5F
-        for <stable@vger.kernel.org>; Sun, 10 Jul 2022 11:32:27 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id f11so2156616pgj.7
-        for <stable@vger.kernel.org>; Sun, 10 Jul 2022 11:32:27 -0700 (PDT)
+        with ESMTP id S229614AbiGJSlR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Jul 2022 14:41:17 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35282140CC;
+        Sun, 10 Jul 2022 11:41:16 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id 19so3960620ljz.4;
+        Sun, 10 Jul 2022 11:41:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=JFPsuqBm1JTxEiEis+zwRz0IbxziQSPhVJsI163Wnwo=;
-        b=olbxSQ1XdDDzpx35KHov1vSvN4rNhw3orWF+TrxZ31YLKJSVbmx43B/i5n4/NtWzkx
-         a51DR6G41QA+HIz0q6BHLeNtg8sIrZrQfHAYVmqCK3kvfC8SwGfaj+VKIZAJGxE8qNnL
-         h+snMdxM65cVVGz9jRcvwhowjI6WhPFDpfAV7+VaQJXCCvmwB9gAsaxXMgF35ipTClJ1
-         rOzP8rcK1TmjgKXqvM6NSAiRjZF7Yq4OvekApI8IeReTjW8wkzeN51MpNiTtQukrmU2I
-         z76yl2az/nQBdjtb00ybzUWBMAkI/D+7LZQXGaZ9RUmJiXlnX/y7IzJgbNKwRjtWDbyr
-         qe9g==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=kDNBr0d7sr3bD6/9LJRssalA5Q9uqgboJ4YbUUnhl90=;
+        b=nixMDEFgetF4NTqiQPaRAnY8pB2LxNhDzqQNiQZM+x+7rPjCo96SCjNo73ZtucKREs
+         4DomXt/K4X9l+gqdgy0l/tMyyzLqEgypS5zp0jG7X+7GtjlthVkYKxRwiMQrrmGPkjC+
+         z6u6Fiaax0K6v9OFYPjUp3wPGVCBWAyMRB+2LhPQD2Nv8C3OzM0rdPUYto2X0+WxJvzq
+         edjPVg7WY7pz2blcWi/ORDaMBTtuV5VcNMW0+jjgaQBIHsxlFz7n34LNVIVH3rXOIdoq
+         yEXCVcl5XeBTF34dxPLnTuGQlfDxV1wbq6PVAZmJUXbmDXPmZyFEERH309HsaNav3fLz
+         miNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=JFPsuqBm1JTxEiEis+zwRz0IbxziQSPhVJsI163Wnwo=;
-        b=hC+mZR/fGD0IJ+anYpBZ4sp9/E/ijCTXnGdLevb29lEc8uXTzF77FXNqdrx/rAYLNw
-         nRe+CJcswHNVGsHco2InlTSt/o+ZNUNafanNfzhWg9J9o6yTPEwOOO/cHAh1xadSX4zY
-         rnREwus4S5mK363FDfO9OuN1o/LOMYMbq8xVoCOChk/3/Cpgjb/VHNLvHu/i6mOIzpsa
-         fOAI/CrjttI7pZ+pWiPMv/r5iRYY/oZFeaU3Y8mHqXcqDMoshWGbbrUjeHcIk7Ugk/1H
-         NvHRlSHmiFNsGlzR+mXO+DADjA94coppY7WYYQqkpzBbCKDhpNyrTOHUoYR4m1d0qcAT
-         XeOQ==
-X-Gm-Message-State: AJIora/JbE2WMElvcZL+cDw+SvQI+28VcOjA19zihYF+eoNJLAKVm2RN
-        BSxSIPx8S57dFAkla619+H7OMvG+IgVftM9qB+M=
-X-Google-Smtp-Source: AGRyM1sfdvnuvOHpfif29ZJT+CgpCjonUVvcidiL8YgfZQJ8XcN7BI/vBwrs6VdCjLerjjI7vWgCI/A4hkM2ut8NSQs=
-X-Received: by 2002:a65:464d:0:b0:412:6e9f:a4e7 with SMTP id
- k13-20020a65464d000000b004126e9fa4e7mr12385831pgr.104.1657477947464; Sun, 10
- Jul 2022 11:32:27 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=kDNBr0d7sr3bD6/9LJRssalA5Q9uqgboJ4YbUUnhl90=;
+        b=7p4nmO5IG9kfXaud2/Uq3IQPuPxA+27gDaRXoCUhTW+YKwO4fXP3op1hnD2KR/62p0
+         bYxJZKL0wnZCy5nSORwAQ4fJ9ka2hcky7E6GUXUVNU76tOWPUjMSVbO356gb8UdmqagQ
+         pMmDvAfoes+/qsPIb9Nowaol+179E8sMWDWtXRukqbUX4JmzUu1kLEUnIH6QpgiVB3GL
+         oUqZ/unepb8gZBh6mZA9UlNRGuE2bUFhVj5yzvoXpVwG32kIu6NDc7HA8YSectg3eTEI
+         RLXoxSWVnxJiXpoMe8FnHMoK0Y74GdXsTQQMQ7adpZwFhYiNXwwtdv8dxyd3zYMSNgAR
+         wLMw==
+X-Gm-Message-State: AJIora+SUpD8UrJLk5L089dL2GZs2hnhDi2IPgCGrYJvKadePmHbwjtA
+        bX7Q/GxtVxljkCYcCe0Jk/E=
+X-Google-Smtp-Source: AGRyM1vqZQpxm5rycecwqamCyqWpncRzRJRVims5di3aDXGfRaAnVtSqvJN12pIp1Rbm6skgECufWw==
+X-Received: by 2002:a2e:8404:0:b0:250:cde7:e9e3 with SMTP id z4-20020a2e8404000000b00250cde7e9e3mr7771898ljg.289.1657478474488;
+        Sun, 10 Jul 2022 11:41:14 -0700 (PDT)
+Received: from [192.168.1.70] (90-224-163-144-no555.tbcn.telia.com. [90.224.163.144])
+        by smtp.googlemail.com with ESMTPSA id q12-20020a056512210c00b00489daae997fsm394439lfr.10.2022.07.10.11.41.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 10 Jul 2022 11:41:14 -0700 (PDT)
+Message-ID: <5059cce9-76b4-b19c-2d97-c1e54c7dd87d@gmail.com>
+Date:   Sun, 10 Jul 2022 20:40:30 +0200
 MIME-Version: 1.0
-Sender: w9013938821@gmail.com
-Received: by 2002:ac4:c7d7:0:b0:4e2:9b9:cb1e with HTTP; Sun, 10 Jul 2022
- 11:32:27 -0700 (PDT)
-From:   Agnes George <agnesmrsgeorge@gmail.com>
-Date:   Sun, 10 Jul 2022 18:32:27 +0000
-X-Google-Sender-Auth: OJVQbARlfZPmo38JB1bkVi3G3Ok
-Message-ID: <CANr-Pa7pptsuowDRdRneuycp8XcGHZtmk+pi4w9uxZTLTPAg5Q@mail.gmail.com>
-Subject: Dearest beloved in the Lord,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.1 required=5.0 tests=BAYES_80,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,LOTS_OF_MONEY,MILLION_HUNDRED,MONEY_FORM_SHORT,
-        MONEY_FRAUD_3,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:529 listed in]
-        [list.dnswl.org]
-        *  2.0 BAYES_80 BODY: Bayes spam probability is 80 to 95%
-        *      [score: 0.9417]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [w9013938821[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [w9013938821[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 MILLION_HUNDRED BODY: Million "One to Nine" Hundred
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 T_FILL_THIS_FORM_SHORT Fill in a short form with personal
-        *      information
-        *  0.0 MONEY_FORM_SHORT Lots of money if you fill out a short form
-        *  3.0 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-        *  0.0 MONEY_FRAUD_3 Lots of money and several fraud phrases
-X-Spam-Level: *****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 4.14 1/4] can: kvaser_usb: Add struct kvaser_usb_dev_cfg
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, linux-can@vger.kernel.org,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Jimmy Assarsson <extja@kvaser.com>
+References: <20220708184653.280882-1-extja@kvaser.com>
+ <20220708184653.280882-2-extja@kvaser.com> <YsrgbqIFfcxXesWw@kroah.com>
+From:   Jimmy Assarsson <jimmyassarsson@gmail.com>
+In-Reply-To: <YsrgbqIFfcxXesWw@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dearest beloved in the Lord,
+On 7/10/22 16:21, Greg KH wrote:
+> On Fri, Jul 08, 2022 at 08:46:50PM +0200, Jimmy Assarsson wrote:
+>> Add struct kvaser_usb_dev_cfg to ease backporting of upstream commits:
+>> 49f274c72357 (can: kvaser_usb: replace run-time checks with struct kvaser_usb_driver_info)
+>> e6c80e601053 (can: kvaser_usb: kvaser_usb_leaf: fix CAN clock frequency regression)
+>> b3b6df2c56d8 (can: kvaser_usb: kvaser_usb_leaf: fix bittiming limits)
+> 
+> What upstream commit is this from?
 
-I am Ms. Agnes George,  a 75 year old British woman. I was born an orphan
-and GOD blessed me abundantly with riches but no children nor husband which
-makes me an unhappy woman. Now I am affected with cancer of the lung and
-breast with a partial stroke which has affected my speech. I can no longer
-talk well and half of my body is paralyzed, I sent this email to you with
-the help of my private female nurse.
+Hi Greg,
 
-My condition is really deteriorating day by day and it is really giving me
-lots to think about.  This has prompted my decision to donate all I have
-for charity; I have made numerous donations all over the world. After going
-through your profile, I decided to make my last donation of Ten Million
-Five Hundred Thousand United Kingdom Pounds  (UK=C2=A310.500, 000, 00) to y=
-ou as
-my investment manager. I want you to build an Orphanage home with my name (
-Agnes George  ) in your country.
+The original upstream commit introducing struct kvaser_usb_dev_cfg is
+7259124eac7d1b76b41c7a9cb2511a30556deebe
+can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c
+And was first merged to 4.19.
 
-If you are willing and able to do this task for the sake of humanity then
-send me below information for more details to receive the funds.
+This was part of a major restructure of the driver to add support for new type of devices.
 
-1. Name...................................................
 
-2. Phone number...............................
+And upstream commit
+commit fb12797ab1fef480ad8a32a30984844444eeb00d
+can: kvaser_usb: get CAN clock frequency from device
+introduced kvaser_usb_leaf_dev_cfg_{8,16,24,32}mhz
 
-3. Address.............................................
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+>> ---
+>>   drivers/net/can/usb/kvaser_usb.c | 76 ++++++++++++++++++++++----------
+>>   1 file changed, 52 insertions(+), 24 deletions(-)
+>>
+>> diff --git a/drivers/net/can/usb/kvaser_usb.c b/drivers/net/can/usb/kvaser_usb.c
+>> index 9742e32d5cd5..6759868924b2 100644
+>> --- a/drivers/net/can/usb/kvaser_usb.c
+>> +++ b/drivers/net/can/usb/kvaser_usb.c
+>> @@ -31,10 +31,6 @@
+>>   #define USB_SEND_TIMEOUT		1000 /* msecs */
+>>   #define USB_RECV_TIMEOUT		1000 /* msecs */
+>>   #define RX_BUFFER_SIZE			3072
+>> -#define KVASER_USB_CAN_CLOCK_8MHZ	8000000
+>> -#define KVASER_USB_CAN_CLOCK_16MHZ	16000000
+>> -#define KVASER_USB_CAN_CLOCK_24MHZ	24000000
+>> -#define KVASER_USB_CAN_CLOCK_32MHZ	32000000
+> 
+> You also deleted these, you didn't really describe any of this in the
+> changelog text at all :(
 
-4. Country of Origin and residence
+They where replaced by const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_{8,16,24,32}mhz.
+Sorry for not mentioning this.
 
-Ms. Agnes George.
+> Why not just backport the needed commit instead of this unknown one?
+
+Sure, if you prefer it :)
+In that case I would also like to backport the rest of the patches related to the
+adding of kvaser_usb/kvaser_usb_hydra.c, if you don't mind?
+
+Best regards,
+jimmy
+
+
+> thanks,
+> 
+> greg k-h
