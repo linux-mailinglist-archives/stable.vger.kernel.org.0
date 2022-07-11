@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9153956FBDE
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 751B756FBE0
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:36:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231968AbiGKJgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:36:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52884 "EHLO
+        id S232769AbiGKJg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232118AbiGKJeu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:34:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D086330;
-        Mon, 11 Jul 2022 02:18:42 -0700 (PDT)
+        with ESMTP id S232787AbiGKJfG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:35:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B7E52FCC;
+        Mon, 11 Jul 2022 02:18:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 183FEB80833;
-        Mon, 11 Jul 2022 09:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB0FC34115;
-        Mon, 11 Jul 2022 09:18:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9EA39CE1257;
+        Mon, 11 Jul 2022 09:18:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A8D0C34115;
+        Mon, 11 Jul 2022 09:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531119;
-        bh=mtlslkPZOGbYO1mkm2rsME8Fmx8ft0J7wjRxl8Q0S6k=;
+        s=korg; t=1657531122;
+        bh=Rt/Sio1pJh64bojAYm8X1d6JRxSAP0jT01fXLbbdLhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTHyPNEtckOlWmioD52H87fPcpfwPgg+Xz0udjgVcw3qnedyPkqiVWqmVpUdfmdNd
-         1LcQ0OPHXQ04FxeewAxHtj4kUfB8DTB7keAJMm1q6sI9erJ2euzCVGe8p6OZ5rh75S
-         NCDQEZ787T68JiX51QduU5mWqVbMWZXVT9JpE5Ns=
+        b=VDTrIBbAKh4MvlxlQSuJhmM+7YgnDPP1f3RshffKqVDWqnyRaojs7oCibEOqVCItb
+         0DuHZrBVJjd22ZW+TpfhlsOpUXvgUPZ6A/LsPcWKzpqpWSgvySF+L1FLus0Lg3OfC6
+         T80/GGcaSNz4TLIhfXv31yj4EafvUStQb/VeijRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samin Guo <samin.guo@starfivetech.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.18 103/112] dmaengine: dw-axi-dmac: Fix RMW on channel suspend register
-Date:   Mon, 11 Jul 2022 11:07:43 +0200
-Message-Id: <20220711090552.494344585@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Rob Herring <robh@kernel.org>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.18 104/112] dt-bindings: dma: allwinner,sun50i-a64-dma: Fix min/max typo
+Date:   Mon, 11 Jul 2022 11:07:44 +0200
+Message-Id: <20220711090552.522591209@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
 References: <20220711090549.543317027@linuxfoundation.org>
@@ -54,57 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <kernel@esmil.dk>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 49db68d45bdcad06e28a420d5d911e4178389666 upstream.
+commit 607a48c78e6b427b0b684d24e61c19e846ad65d6 upstream.
 
-When the DMA is configured for more than 8 channels the bits controlling
-suspend moves to another register. However when adding support for this
-the new register would be completely overwritten in one case and
-overwritten with values from the old register in another case.
+The conditional block for variants with a second clock should have set
+minItems, not maxItems, which was already 2. Since clock-names requires
+two items, this typo should not have caused any problems.
 
-Found by comparing the parallel implementation of more than 8 channel
-support for the StarFive JH7100 SoC by Samin.
-
-Fixes: 824351668a41 ("dmaengine: dw-axi-dmac: support DMAX_NUM_CHANNELS > 8")
-Co-developed-by: Samin Guo <samin.guo@starfivetech.com>
-Signed-off-by: Samin Guo <samin.guo@starfivetech.com>
-Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
-Link: https://lore.kernel.org/r/20220627090939.1775717-1-emil.renner.berthing@canonical.com
+Fixes: edd14218bd66 ("dt-bindings: dmaengine: Convert Allwinner A31 and A64 DMA to a schema")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220702031903.21703-1-samuel@sholland.org
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-+++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -1164,8 +1164,9 @@ static int dma_chan_pause(struct dma_cha
- 			BIT(chan->id) << DMAC_CHAN_SUSP_WE_SHIFT;
- 		axi_dma_iowrite32(chan->chip, DMAC_CHEN, val);
- 	} else {
--		val = BIT(chan->id) << DMAC_CHAN_SUSP2_SHIFT |
--		      BIT(chan->id) << DMAC_CHAN_SUSP2_WE_SHIFT;
-+		val = axi_dma_ioread32(chan->chip, DMAC_CHSUSPREG);
-+		val |= BIT(chan->id) << DMAC_CHAN_SUSP2_SHIFT |
-+			BIT(chan->id) << DMAC_CHAN_SUSP2_WE_SHIFT;
- 		axi_dma_iowrite32(chan->chip, DMAC_CHSUSPREG, val);
- 	}
+--- a/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
++++ b/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
+@@ -64,7 +64,7 @@ if:
+ then:
+   properties:
+     clocks:
+-      maxItems: 2
++      minItems: 2
  
-@@ -1190,12 +1191,13 @@ static inline void axi_chan_resume(struc
- {
- 	u32 val;
- 
--	val = axi_dma_ioread32(chan->chip, DMAC_CHEN);
- 	if (chan->chip->dw->hdata->reg_map_8_channels) {
-+		val = axi_dma_ioread32(chan->chip, DMAC_CHEN);
- 		val &= ~(BIT(chan->id) << DMAC_CHAN_SUSP_SHIFT);
- 		val |=  (BIT(chan->id) << DMAC_CHAN_SUSP_WE_SHIFT);
- 		axi_dma_iowrite32(chan->chip, DMAC_CHEN, val);
- 	} else {
-+		val = axi_dma_ioread32(chan->chip, DMAC_CHSUSPREG);
- 		val &= ~(BIT(chan->id) << DMAC_CHAN_SUSP2_SHIFT);
- 		val |=  (BIT(chan->id) << DMAC_CHAN_SUSP2_WE_SHIFT);
- 		axi_dma_iowrite32(chan->chip, DMAC_CHSUSPREG, val);
+   required:
+     - clock-names
 
 
