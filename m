@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D743456F9C9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F49F56FD5D
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbiGKJI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46730 "EHLO
+        id S233648AbiGKJye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230060AbiGKJIV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:08:21 -0400
+        with ESMTP id S233943AbiGKJx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:53:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF8F6255A0;
-        Mon, 11 Jul 2022 02:07:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4294AEF53;
+        Mon, 11 Jul 2022 02:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3D4C61183;
-        Mon, 11 Jul 2022 09:07:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09DD0C34115;
-        Mon, 11 Jul 2022 09:07:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9487D6136F;
+        Mon, 11 Jul 2022 09:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F6C1C36AED;
+        Mon, 11 Jul 2022 09:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530465;
-        bh=lPdGCGY4nCPJiAo2k5l1xKVFPxrsnk/2+JWwawIClYA=;
+        s=korg; t=1657531541;
+        bh=nY92Q6t9HQ1EGT2GXplwzbOzFAiJHfULIB3VSs63zjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itdkMG6JjUujmTh/CDihpCuzpBdkUTy+uA6c0T6DFTB1BPStItwjfE5M+fFf2byZE
-         mIW6Y0xWDky4/ulsFTFqtqmLECbCeOYpb5qumGuThJAktZIQ+8s7imejawvgbdBkHn
-         5tpbvb7cMc4kF0lUukb0HGfRof9C1w2RDUJYolj0=
+        b=Wgko3kNsBIzDMdOsWkE0CyVbcojpPg6XqkMicw5x20s1dVk9X0lk0HXhILEHYJY2P
+         p4DL36uH8ZvW2d5XAd1TYIM52MpvHXd/gJxf5c6j6sXdA9XhRqEiKzdyK8jq1ZFWPH
+         KdxOZ3lbO7su0vO1T4OmlONJXfGTKagbqcTxjK1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Itay Iellin <ieitayie@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 14/17] ida: dont use BUG_ON() for debugging
+        stable@vger.kernel.org,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 143/230] drm/i915: Fix a race between vma / object destruction and unbinding
 Date:   Mon, 11 Jul 2022 11:06:39 +0200
-Message-Id: <20220711090536.687509539@linuxfoundation.org>
+Message-Id: <20220711090608.119577076@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 
-commit fc82bbf4dede758007763867d0282353c06d1121 upstream.
+[ Upstream commit bc1922e5d349db4be14c55513102c024c2ae8a50 ]
 
-This is another old BUG_ON() that just shouldn't exist (see also commit
-a382f8fee42c: "signal handling: don't use BUG_ON() for debugging").
+The vma destruction code was using an unlocked advisory check for
+drm_mm_node_allocated() to avoid racing with eviction code unbinding
+the vma.
 
-In fact, as Matthew Wilcox points out, this condition shouldn't really
-even result in a warning, since a negative id allocation result is just
-a normal allocation failure:
+This is very fragile and prohibits the dereference of non-refcounted
+pointers of dying vmas after a call to __i915_vma_unbind(). It also
+prohibits the dereference of vma->obj of refcounted pointers of
+dying vmas after a call to __i915_vma_unbind(), since even if a
+refcount is held on the vma, that won't guarantee that its backing
+object doesn't get destroyed.
 
-  "I wonder if we should even warn here -- sure, the caller is trying to
-   free something that wasn't allocated, but we don't warn for
-   kfree(NULL)"
+So introduce an unbind under the vm mutex at object destroy time,
+removing all weak references of the vma and its object from the
+object vma list and from the vm bound list.
 
-and goes on to point out how that current error check is only causing
-people to unnecessarily do their own index range checking before freeing
-it.
-
-This was noted by Itay Iellin, because the bluetooth HCI socket cookie
-code does *not* do that range checking, and ends up just freeing the
-error case too, triggering the BUG_ON().
-
-The HCI code requires CAP_NET_RAW, and seems to just result in an ugly
-splat, but there really is no reason to BUG_ON() here, and we have
-generally striven for allocation models where it's always ok to just do
-
-    free(alloc());
-
-even if the allocation were to fail for some random reason (usually
-obviously that "random" reason being some resource limit).
-
-Fixes: 88eca0207cf1 ("ida: simplified functions for id allocation")
-Reported-by: Itay Iellin <ieitayie@gmail.com>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220127115622.302970-1-thomas.hellstrom@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/idr.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_object.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/lib/idr.c
-+++ b/lib/idr.c
-@@ -498,7 +498,9 @@ void ida_simple_remove(struct ida *ida,
- {
- 	unsigned long flags;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.c b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+index 6fb9afb65034..5f48d5ea5c15 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+@@ -224,6 +224,12 @@ void __i915_gem_free_object(struct drm_i915_gem_object *obj)
+ 			GEM_BUG_ON(vma->obj != obj);
+ 			spin_unlock(&obj->vma.lock);
  
--	BUG_ON((int)id < 0);
-+	if ((int)id < 0)
-+		return;
++			/* Verify that the vma is unbound under the vm mutex. */
++			mutex_lock(&vma->vm->mutex);
++			atomic_and(~I915_VMA_PIN_MASK, &vma->flags);
++			__i915_vma_unbind(vma);
++			mutex_unlock(&vma->vm->mutex);
 +
- 	spin_lock_irqsave(&simple_ida_lock, flags);
- 	ida_remove(ida, id);
- 	spin_unlock_irqrestore(&simple_ida_lock, flags);
+ 			__i915_vma_put(vma);
+ 
+ 			spin_lock(&obj->vma.lock);
+-- 
+2.35.1
+
 
 
