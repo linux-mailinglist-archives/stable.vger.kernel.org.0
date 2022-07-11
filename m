@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4680056F9D3
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E036356F9BF
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230283AbiGKJJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:09:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50632 "EHLO
+        id S229702AbiGKJIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:08:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbiGKJI4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:08:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA11B22BD7;
-        Mon, 11 Jul 2022 02:07:57 -0700 (PDT)
+        with ESMTP id S231176AbiGKJHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF00D24952;
+        Mon, 11 Jul 2022 02:07:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6747E6118F;
-        Mon, 11 Jul 2022 09:07:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7F7C34115;
-        Mon, 11 Jul 2022 09:07:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64601B80E7D;
+        Mon, 11 Jul 2022 09:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A57E2C34115;
+        Mon, 11 Jul 2022 09:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530476;
-        bh=ZG6w6HKvEceL0MQx2SuxvYp351/gMcj+5D29fCM8eL4=;
+        s=korg; t=1657530449;
+        bh=VtGNo2A9OFnwe6G3BOiowxmO1MwkozVOw/vTKsK1Tig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtrRazPmNc/O/L9LfUxzlVDtjcHf6VyHhqXWdfm7qqpqxi85f2cCIBv5v3pcofKPa
-         sDEug1kIWP0Y13IHMy4XoB4GzOWQMaaevQRVuHNqmk5mBpJwiQ4iYWmrTZq2yZJ8Is
-         E4Hie5WxxHCVipTTsTi1wuTkyFaEaf/0jfUm1XOs=
+        b=C9HVi0s+Db0RT862Z6rROmaUKgszBJofuvS2CATI06woVMn6eppwYCSO8DGCS6vPc
+         kJ2WJmxHcMvpR65wRAXxDb4r0iTnHBJPuZRlGEilADvp8+h+p7++IScRtDwn6Y0XKk
+         6tDuxhqAlfQ3L5t2MCeJCweKY43h4a52WfVg5UyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 4.14 02/17] mm/slub: add missing TID updates on slab deactivation
-Date:   Mon, 11 Jul 2022 11:06:27 +0200
-Message-Id: <20220711090536.325380578@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/14] pinctrl: sunxi: a83t: Fix NAND function name for some pins
+Date:   Mon, 11 Jul 2022 11:06:28 +0200
+Message-Id: <20220711090535.795538668@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+References: <20220711090535.517697227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,122 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit eeaa345e128515135ccb864c04482180c08e3259 upstream.
+[ Upstream commit aaefa29270d9551b604165a08406543efa9d16f5 ]
 
-The fastpath in slab_alloc_node() assumes that c->slab is stable as long as
-the TID stays the same. However, two places in __slab_alloc() currently
-don't update the TID when deactivating the CPU slab.
+The other NAND pins on Port C use the "nand0" function name.
+"nand0" also matches all of the other Allwinner SoCs.
 
-If multiple operations race the right way, this could lead to an object
-getting lost; or, in an even more unlikely situation, it could even lead to
-an object being freed onto the wrong slab's freelist, messing up the
-`inuse` counter and eventually causing a page to be freed to the page
-allocator while it still contains slab objects.
-
-(I haven't actually tested these cases though, this is just based on
-looking at the code. Writing testcases for this stuff seems like it'd be
-a pain...)
-
-The race leading to state inconsistency is (all operations on the same CPU
-and kmem_cache):
-
- - task A: begin do_slab_free():
-    - read TID
-    - read pcpu freelist (==NULL)
-    - check `slab == c->slab` (true)
- - [PREEMPT A->B]
- - task B: begin slab_alloc_node():
-    - fastpath fails (`c->freelist` is NULL)
-    - enter __slab_alloc()
-    - slub_get_cpu_ptr() (disables preemption)
-    - enter ___slab_alloc()
-    - take local_lock_irqsave()
-    - read c->freelist as NULL
-    - get_freelist() returns NULL
-    - write `c->slab = NULL`
-    - drop local_unlock_irqrestore()
-    - goto new_slab
-    - slub_percpu_partial() is NULL
-    - get_partial() returns NULL
-    - slub_put_cpu_ptr() (enables preemption)
- - [PREEMPT B->A]
- - task A: finish do_slab_free():
-    - this_cpu_cmpxchg_double() succeeds()
-    - [CORRUPT STATE: c->slab==NULL, c->freelist!=NULL]
-
->From there, the object on c->freelist will get lost if task B is allowed to
-continue from here: It will proceed to the retry_load_slab label,
-set c->slab, then jump to load_freelist, which clobbers c->freelist.
-
-But if we instead continue as follows, we get worse corruption:
-
- - task A: run __slab_free() on object from other struct slab:
-    - CPU_PARTIAL_FREE case (slab was on no list, is now on pcpu partial)
- - task A: run slab_alloc_node() with NUMA node constraint:
-    - fastpath fails (c->slab is NULL)
-    - call __slab_alloc()
-    - slub_get_cpu_ptr() (disables preemption)
-    - enter ___slab_alloc()
-    - c->slab is NULL: goto new_slab
-    - slub_percpu_partial() is non-NULL
-    - set c->slab to slub_percpu_partial(c)
-    - [CORRUPT STATE: c->slab points to slab-1, c->freelist has objects
-      from slab-2]
-    - goto redo
-    - node_match() fails
-    - goto deactivate_slab
-    - existing c->freelist is passed into deactivate_slab()
-    - inuse count of slab-1 is decremented to account for object from
-      slab-2
-
-At this point, the inuse count of slab-1 is 1 lower than it should be.
-This means that if we free all allocated objects in slab-1 except for one,
-SLUB will think that slab-1 is completely unused, and may free its page,
-leading to use-after-free.
-
-Fixes: c17dda40a6a4e ("slub: Separate out kmem_cache_cpu processing from deactivate_slab")
-Fixes: 03e404af26dc2 ("slub: fast release on full slab")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Link: https://lore.kernel.org/r/20220608182205.2945720-1-jannh@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4730f33f0d82 ("pinctrl: sunxi: add allwinner A83T PIO controller support")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220526024956.49500-1-samuel@sholland.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -2171,6 +2171,7 @@ redo:
- 
- 	c->page = NULL;
- 	c->freelist = NULL;
-+	c->tid = next_tid(c->tid);
- }
- 
- /*
-@@ -2306,8 +2307,6 @@ static inline void flush_slab(struct kme
- {
- 	stat(s, CPUSLAB_FLUSH);
- 	deactivate_slab(s, c->page, c->freelist, c);
--
--	c->tid = next_tid(c->tid);
- }
- 
- /*
-@@ -2592,6 +2591,7 @@ redo:
- 
- 	if (!freelist) {
- 		c->page = NULL;
-+		c->tid = next_tid(c->tid);
- 		stat(s, DEACTIVATE_BYPASS);
- 		goto new_slab;
- 	}
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
+index 383977ea3a3c..0b5aba4bf338 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
+@@ -158,26 +158,26 @@ static const struct sunxi_desc_pin sun8i_a83t_pins[] = {
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 14),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ6 */
++		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ6 */
+ 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D6 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 15),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ7 */
++		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ7 */
+ 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D7 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 16),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand"),		/* DQS */
++		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQS */
+ 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* RST */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 17),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand")),		/* CE2 */
++		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE2 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 18),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand")),		/* CE3 */
++		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE3 */
+ 	/* Hole */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+-- 
+2.35.1
+
 
 
