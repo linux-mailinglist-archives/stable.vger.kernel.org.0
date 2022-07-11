@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4791056FD96
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB26556FB7F
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233725AbiGKJ5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:57:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49064 "EHLO
+        id S232619AbiGKJbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:31:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233999AbiGKJ5M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:57:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A618AB418F;
-        Mon, 11 Jul 2022 02:26:51 -0700 (PDT)
+        with ESMTP id S231664AbiGKJbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCDE643F;
+        Mon, 11 Jul 2022 02:17:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 327A06112E;
-        Mon, 11 Jul 2022 09:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41C78C341C0;
-        Mon, 11 Jul 2022 09:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D4FE61226;
+        Mon, 11 Jul 2022 09:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85A55C34115;
+        Mon, 11 Jul 2022 09:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531609;
-        bh=K6jNGp2dUuNiWhAggovJ4j01QWBZArB13C35cE1qd8I=;
+        s=korg; t=1657531011;
+        bh=J9c10HAnH2hw2pDgYHAA0dGZKXuDFaJLoxPb6YbGnLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITfnJHzMeBvGuDvRVmUq3jRukw7SF7bjaxLUwHPgM84djZO0vonrSASIMGsvQDJ3H
-         lQp8f4p1jqhzmpyZgBFvTj7YkQfnmvVwcBoz79XyxXuvneov/0MS0MwyNuEIP4MjOs
-         +RB7B29lNhewzdG1ZXj2Br5Ih2yIFhIXOVspel/w=
+        b=1FGiIJKhKwp9rWtYQi+vMYinCO4PzcgToob9im5CBlfpaOIR2glZsRkbu6AKQ+Y4V
+         IHs42czp+8G2XCH72lkE4lZjhhcQolmzogMTZAFgpdf8A+HduNnjy3KUdqOLq/0ScB
+         FSgbEb3WULy99nr6tuGzO+c3ecZlSQRJrHDl1NdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.ibm.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 166/230] powerpc/powernv: delay rng platform device creation until later in boot
-Date:   Mon, 11 Jul 2022 11:07:02 +0200
-Message-Id: <20220711090608.769497319@linuxfoundation.org>
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 063/112] arm64: dts: imx8mp-evk: correct I2C1 pad settings
+Date:   Mon, 11 Jul 2022 11:07:03 +0200
+Message-Id: <20220711090551.362280006@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit 887502826549caa7e4215fd9e628f48f14c0825a upstream.
+[ Upstream commit 05a7f43478e890513d571f36660bfedc1482a588 ]
 
-The platform device for the rng must be created much later in boot.
-Otherwise it tries to connect to a parent that doesn't yet exist,
-resulting in this splat:
+According to RM bit layout, BIT3 and BIT0 are reserved.
+ 8  7   6   5   4   3  2 1  0
+PE HYS PUE ODE FSEL X  DSE  X
 
-  [    0.000478] kobject: '(null)' ((____ptrval____)): is not initialized, yet kobject_get() is being called.
-  [    0.002925] [c000000002a0fb30] [c00000000073b0bc] kobject_get+0x8c/0x100 (unreliable)
-  [    0.003071] [c000000002a0fba0] [c00000000087e464] device_add+0xf4/0xb00
-  [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] of_device_add+0x64/0x80
-  [    0.003321] [c000000002a0fcb0] [c000000000a800d0] of_platform_device_create_pdata+0xd0/0x1b0
-  [    0.003476] [c000000002a0fd00] [c00000000201fa44] pnv_get_random_long_early+0x240/0x2e4
-  [    0.003623] [c000000002a0fe20] [c000000002060c38] random_init+0xc0/0x214
+Although function is not broken, we should not set reserved bit.
 
-This patch fixes the issue by doing the platform device creation inside
-of machine_subsys_initcall.
-
-Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
-Cc: stable@vger.kernel.org
-Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-[mpe: Change "of node" to "platform device" in change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220630121654.1939181-1-Jason@zx2c4.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5497bc2a2bff ("arm64: dts: imx8mp-evk: Add PMIC device")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/rng.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -176,12 +176,8 @@ static int __init pnv_get_random_long_ea
- 		    NULL) != pnv_get_random_long_early)
- 		return 0;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+index 938757b26add..b4499d9953ed 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+@@ -467,8 +467,8 @@
  
--	for_each_compatible_node(dn, NULL, "ibm,power-rng") {
--		if (rng_create(dn))
--			continue;
--		/* Create devices for hwrng driver */
--		of_platform_device_create(dn, NULL, NULL);
--	}
-+	for_each_compatible_node(dn, NULL, "ibm,power-rng")
-+		rng_create(dn);
+ 	pinctrl_i2c1: i2c1grp {
+ 		fsl,pins = <
+-			MX8MP_IOMUXC_I2C1_SCL__I2C1_SCL		0x400001c3
+-			MX8MP_IOMUXC_I2C1_SDA__I2C1_SDA		0x400001c3
++			MX8MP_IOMUXC_I2C1_SCL__I2C1_SCL		0x400001c2
++			MX8MP_IOMUXC_I2C1_SDA__I2C1_SDA		0x400001c2
+ 		>;
+ 	};
  
- 	if (!ppc_md.get_random_seed)
- 		return 0;
-@@ -205,10 +201,18 @@ void __init pnv_rng_init(void)
- 
- static int __init pnv_rng_late_init(void)
- {
-+	struct device_node *dn;
- 	unsigned long v;
-+
- 	/* In case it wasn't called during init for some other reason. */
- 	if (ppc_md.get_random_seed == pnv_get_random_long_early)
- 		pnv_get_random_long_early(&v);
-+
-+	if (ppc_md.get_random_seed == powernv_get_random_long) {
-+		for_each_compatible_node(dn, NULL, "ibm,power-rng")
-+			of_platform_device_create(dn, NULL, NULL);
-+	}
-+
- 	return 0;
- }
- machine_subsys_initcall(powernv, pnv_rng_late_init);
+-- 
+2.35.1
+
 
 
