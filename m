@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F5256FAAB
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EAE756FA62
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbiGKJUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42918 "EHLO
+        id S231519AbiGKJRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:17:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231410AbiGKJUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7FF51A37;
-        Mon, 11 Jul 2022 02:12:29 -0700 (PDT)
+        with ESMTP id S230365AbiGKJPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:15:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58E353F332;
+        Mon, 11 Jul 2022 02:11:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21ED461148;
-        Mon, 11 Jul 2022 09:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F2BC34115;
-        Mon, 11 Jul 2022 09:12:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FECCB80E76;
+        Mon, 11 Jul 2022 09:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0543CC34115;
+        Mon, 11 Jul 2022 09:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530748;
-        bh=JnbQUXFmoCPU/Ryxi5nJ3JILasfWjNYUzM7FYb5s3Dg=;
+        s=korg; t=1657530658;
+        bh=lh7AYL4Z8YvuRd3eo1vbbmlhCCo0hOo/6FSah1I1Stk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9ZBqAkNkHn3qZPHtAeTw6LNJGJ7LVghiL1/34ziFvGq2rLy3Jud6rUjZStX+fJO9
-         3mK8MOheL+aP7ichuIA6WPkwlvCl/pVwvAGo48+8Q7+SkLvl/Sn873kqNVic+2pCDO
-         f1HjFPRsM9vFUJ3UucWKV6ZRq+KFyGbNdn6hfT2k=
+        b=ttCFD4c1a39pDJZTyf2efmbF+298BJi+ya9f9hUXfLVv/W9h88iGk+AJ+IlA7j9ST
+         tTn+L3F2cs7SYenZpLSoJEtJnqToGbxn7qHFMAL+UXOZ0qkN8Qtr4/wQS2pC8dW0Ka
+         mzEz02yvb32zMH+uShWzgB2lGopM2ecJtlyTRxmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/55] pinctrl: sunxi: a83t: Fix NAND function name for some pins
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable <stable@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.4 32/38] misc: rtsx_usb: set return value in rsp_buf alloc err path
 Date:   Mon, 11 Jul 2022 11:07:14 +0200
-Message-Id: <20220711090542.536268245@linuxfoundation.org>
+Message-Id: <20220711090539.674421302@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit aaefa29270d9551b604165a08406543efa9d16f5 ]
+commit 2cd37c2e72449a7add6da1183d20a6247d6db111 upstream.
 
-The other NAND pins on Port C use the "nand0" function name.
-"nand0" also matches all of the other Allwinner SoCs.
+Set return value in rsp_buf alloc error path before going to
+error handling.
 
-Fixes: 4730f33f0d82 ("pinctrl: sunxi: add allwinner A83T PIO controller support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220526024956.49500-1-samuel@sholland.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/misc/cardreader/rtsx_usb.c:639:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
+           if (!ucr->rsp_buf)
+               ^~~~~~~~~~~~~
+   drivers/misc/cardreader/rtsx_usb.c:678:9: note: uninitialized use occurs here
+           return ret;
+                  ^~~
+   drivers/misc/cardreader/rtsx_usb.c:639:2: note: remove the 'if' if its condition is always false
+           if (!ucr->rsp_buf)
+           ^~~~~~~~~~~~~~~~~~
+   drivers/misc/cardreader/rtsx_usb.c:622:9: note: initialize the variable 'ret' to silence this warning
+           int ret;
+                  ^
+                   = 0
+
+Fixes: 3776c7855985 ("misc: rtsx_usb: use separate command and response buffers")
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220701165352.15687-1-skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/misc/cardreader/rtsx_usb.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-index 4ada80317a3b..b5c1a8f363f3 100644
---- a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-@@ -158,26 +158,26 @@ static const struct sunxi_desc_pin sun8i_a83t_pins[] = {
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 14),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ6 */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ6 */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D6 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ7 */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ7 */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D7 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 16),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQS */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQS */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* RST */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 17),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand")),		/* CE2 */
-+		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE2 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 18),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand")),		/* CE3 */
-+		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE3 */
- 	/* Hole */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
--- 
-2.35.1
-
+--- a/drivers/misc/cardreader/rtsx_usb.c
++++ b/drivers/misc/cardreader/rtsx_usb.c
+@@ -636,8 +636,10 @@ static int rtsx_usb_probe(struct usb_int
+ 		return -ENOMEM;
+ 
+ 	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
+-	if (!ucr->rsp_buf)
++	if (!ucr->rsp_buf) {
++		ret = -ENOMEM;
+ 		goto out_free_cmd_buf;
++	}
+ 
+ 	usb_set_intfdata(intf, ucr);
+ 
 
 
