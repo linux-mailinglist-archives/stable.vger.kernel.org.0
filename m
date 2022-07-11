@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0947256F9DD
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B33D56F9B8
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbiGKJKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:10:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47102 "EHLO
+        id S230510AbiGKJH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230162AbiGKJJe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:34 -0400
+        with ESMTP id S231208AbiGKJH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B967228705;
-        Mon, 11 Jul 2022 02:08:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C53237F7;
+        Mon, 11 Jul 2022 02:07:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA36611A5;
-        Mon, 11 Jul 2022 09:08:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E7EC34115;
-        Mon, 11 Jul 2022 09:08:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A37046118B;
+        Mon, 11 Jul 2022 09:07:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B74C1C34115;
+        Mon, 11 Jul 2022 09:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530490;
-        bh=lYtXQwvRK4CFn7nBebGXd73gog73aQFaLKjhL0F+3Pc=;
+        s=korg; t=1657530443;
+        bh=CJBE30fgZXe3monlOPi4HZcMFV3BbSj4yu2McIeje50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3fb1bwBCp9VGNkx/oOEns4Pg/BeKaEw//8SVWBTjtLyqUwz2ngxmSjFpDMkQr+4K
-         dJAjSOEMzRPzGFiZk5Q2j+mvS9XwQaw5VtOseRwsb0ciLTsBq3E3Qt/mzN1sNwS9s1
-         +vCeZgIX7pLvKLJ25/DdP/NJj1jbk/mf/mdZcN0E=
+        b=HNRQ8Tu33DMPl+ei8Onm3VdsTtjX0FobV0DYi8ejyi8Do8fg6837eKXihQHLGs5mt
+         +Cgq85OZJFDtUFToNPZa7des8tbjag53QPAqdWH42AfN6SynE2Qm4j5MNlFjFneZaV
+         +eisbcTUmzMIEMWrAjb725+04fYOd8W7z0bk1g1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Zhang, Bernice" <bernice.zhang@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Yian Chen <yian.chen@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Zhang@vger.kernel.org
-Subject: [PATCH 4.14 07/17] iommu/vt-d: Fix PCI bus rescan device hot add
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.9 13/14] dmaengine: ti: Fix refcount leak in ti_dra7_xbar_route_allocate
 Date:   Mon, 11 Jul 2022 11:06:32 +0200
-Message-Id: <20220711090536.477219460@linuxfoundation.org>
+Message-Id: <20220711090535.914709317@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+References: <20220711090535.517697227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yian Chen <yian.chen@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 316f92a705a4c2bf4712135180d56f3cca09243a upstream.
+commit c132fe78ad7b4ce8b5d49a501a15c29d08eeb23a upstream.
 
-Notifier calling chain uses priority to determine the execution
-order of the notifiers or listeners registered to the chain.
-PCI bus device hot add utilizes the notification mechanism.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not needed anymore.
 
-The current code sets low priority (INT_MIN) to Intel
-dmar_pci_bus_notifier and postpones DMAR decoding after adding
-new device into IOMMU. The result is that struct device pointer
-cannot be found in DRHD search for the new device's DMAR/IOMMU.
-Subsequently, the device is put under the "catch-all" IOMMU
-instead of the correct one. This could cause system hang when
-device TLB invalidation is sent to the wrong IOMMU. Invalidation
-timeout error and hard lockup have been observed and data
-inconsistency/crush may occur as well.
+Add missing of_node_put() in to fix this.
 
-This patch fixes the issue by setting a positive priority(1) for
-dmar_pci_bus_notifier while the priority of IOMMU bus notifier
-uses the default value(0), therefore DMAR decoding will be in
-advance of DRHD search for a new device to find the correct IOMMU.
-
-Following is a 2-step example that triggers the bug by simulating
-PCI device hot add behavior in Intel Sapphire Rapids server.
-
-echo 1 > /sys/bus/pci/devices/0000:6a:01.0/remove
-echo 1 > /sys/bus/pci/rescan
-
-Fixes: 59ce0515cdaf ("iommu/vt-d: Update DRHD/RMRR/ATSR device scope")
-Cc: stable@vger.kernel.org # v3.15+
-Reported-by: Zhang, Bernice <bernice.zhang@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Yian Chen <yian.chen@intel.com>
-Link: https://lore.kernel.org/r/20220521002115.1624069-1-yian.chen@intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: ec9bfa1e1a79 ("dmaengine: ti-dma-crossbar: dra7: Use bitops instead of idr")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220605042723.17668-2-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/dmar.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ti-dma-crossbar.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -374,7 +374,7 @@ static int dmar_pci_bus_notifier(struct
- 
- static struct notifier_block dmar_pci_bus_nb = {
- 	.notifier_call = dmar_pci_bus_notifier,
--	.priority = INT_MIN,
-+	.priority = 1,
- };
- 
- static struct dmar_drhd_unit *
+--- a/drivers/dma/ti-dma-crossbar.c
++++ b/drivers/dma/ti-dma-crossbar.c
+@@ -274,6 +274,7 @@ static void *ti_dra7_xbar_route_allocate
+ 		mutex_unlock(&xbar->mutex);
+ 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
+ 		kfree(map);
++		of_node_put(dma_spec->np);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	set_bit(map->xbar_out, xbar->dma_inuse);
 
 
