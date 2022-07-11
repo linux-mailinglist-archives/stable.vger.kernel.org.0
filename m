@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA29556F9C3
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0A556FDAA
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbiGKJIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:08:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46792 "EHLO
+        id S234186AbiGKJ7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:59:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231202AbiGKJH5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:57 -0400
+        with ESMTP id S234194AbiGKJ63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7522824BD1;
-        Mon, 11 Jul 2022 02:07:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E8360536;
+        Mon, 11 Jul 2022 02:27:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 140F461183;
-        Mon, 11 Jul 2022 09:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24217C34115;
-        Mon, 11 Jul 2022 09:07:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2370A61370;
+        Mon, 11 Jul 2022 09:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B06C34115;
+        Mon, 11 Jul 2022 09:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530454;
-        bh=K6jNGp2dUuNiWhAggovJ4j01QWBZArB13C35cE1qd8I=;
+        s=korg; t=1657531642;
+        bh=QV3wDxkxr74z3UkBITYTHGpxhZq8sdSdwFhGqaxO/UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2fov78FFlOSy9i4P6VekJJqeiT4gKFzmb2fvrqTyNiRLbEJyNX/cjxDddxzUimnN
-         0Vk85lvMH98rACAMcIIwLh9O4lg8SOuzBOa40hZJxYOWpldVGdYdZrwUR02SfqPiI8
-         LYwqEGw67seDOqgmdq+rotfYR1ZBMMklQb5k1o+0=
+        b=UNPWStETgrcR/E25nSh3n52DhzKVQiNsDzEwYXEgnZC0VKlDWVhh0xjPL2NFVI2ku
+         JU+wfxRJKfhPhqOiuBaYpfL3uiY/SfSDZdSURK7X+0Rg10m2CCuJswcUc66ziv6bNv
+         e7ZOejkkCl9a0EStUaLwqHyVmJa1PlxhljUXdhDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.ibm.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 10/17] powerpc/powernv: delay rng platform device creation until later in boot
+        stable@vger.kernel.org, Lukas Fink <lukas.fink1@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 139/230] drm/amdgpu: Fix rejecting Tahiti GPUs
 Date:   Mon, 11 Jul 2022 11:06:35 +0200
-Message-Id: <20220711090536.567996594@linuxfoundation.org>
+Message-Id: <20220711090608.007049812@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Lukas Fink <lukas.fink1@gmail.com>
 
-commit 887502826549caa7e4215fd9e628f48f14c0825a upstream.
+[ Upstream commit 3993a799fc971bc9b918bd969aa55864447b5dde ]
+[ Upstream commit 5f0754ab2751d1935818459e8e71a8fe26f6403c ]
 
-The platform device for the rng must be created much later in boot.
-Otherwise it tries to connect to a parent that doesn't yet exist,
-resulting in this splat:
+eb4fd29afd4a ("drm/amdgpu: bind to any 0x1002 PCI diplay class device") added
+generic bindings to amdgpu so that that it binds to all display class devices
+with VID 0x1002 and then rejects those in amdgpu_pci_probe.
 
-  [    0.000478] kobject: '(null)' ((____ptrval____)): is not initialized, yet kobject_get() is being called.
-  [    0.002925] [c000000002a0fb30] [c00000000073b0bc] kobject_get+0x8c/0x100 (unreliable)
-  [    0.003071] [c000000002a0fba0] [c00000000087e464] device_add+0xf4/0xb00
-  [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] of_device_add+0x64/0x80
-  [    0.003321] [c000000002a0fcb0] [c000000000a800d0] of_platform_device_create_pdata+0xd0/0x1b0
-  [    0.003476] [c000000002a0fd00] [c00000000201fa44] pnv_get_random_long_early+0x240/0x2e4
-  [    0.003623] [c000000002a0fe20] [c000000002060c38] random_init+0xc0/0x214
+Unfortunately it reuses a driver_data value of 0 to detect those new bindings,
+which is already used to denote CHIP_TAHITI ASICs.
 
-This patch fixes the issue by doing the platform device creation inside
-of machine_subsys_initcall.
+The driver_data value given to those new bindings was changed in
+dd0761fd24ea1 ("drm/amdgpu: set CHIP_IP_DISCOVERY as the asic type by default")
+to CHIP_IP_DISCOVERY (=36), but it seems that the check in amdgpu_pci_probe
+was forgotten to be changed. Therefore, it still rejects Tahiti GPUs.
 
-Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1860
+Fixes: eb4fd29afd4a ("drm/amdgpu: bind to any 0x1002 PCI diplay class device")
 Cc: stable@vger.kernel.org
-Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-[mpe: Change "of node" to "platform device" in change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220630121654.1939181-1-Jason@zx2c4.com
+Signed-off-by: Lukas Fink <lukas.fink1@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/powernv/rng.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -176,12 +176,8 @@ static int __init pnv_get_random_long_ea
- 		    NULL) != pnv_get_random_long_early)
- 		return 0;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -2009,7 +2009,7 @@ static int amdgpu_pci_probe(struct pci_d
+ 			return -ENODEV;
+ 	}
  
--	for_each_compatible_node(dn, NULL, "ibm,power-rng") {
--		if (rng_create(dn))
--			continue;
--		/* Create devices for hwrng driver */
--		of_platform_device_create(dn, NULL, NULL);
--	}
-+	for_each_compatible_node(dn, NULL, "ibm,power-rng")
-+		rng_create(dn);
- 
- 	if (!ppc_md.get_random_seed)
- 		return 0;
-@@ -205,10 +201,18 @@ void __init pnv_rng_init(void)
- 
- static int __init pnv_rng_late_init(void)
- {
-+	struct device_node *dn;
- 	unsigned long v;
-+
- 	/* In case it wasn't called during init for some other reason. */
- 	if (ppc_md.get_random_seed == pnv_get_random_long_early)
- 		pnv_get_random_long_early(&v);
-+
-+	if (ppc_md.get_random_seed == powernv_get_random_long) {
-+		for_each_compatible_node(dn, NULL, "ibm,power-rng")
-+			of_platform_device_create(dn, NULL, NULL);
-+	}
-+
- 	return 0;
- }
- machine_subsys_initcall(powernv, pnv_rng_late_init);
+-	if (flags == 0) {
++	if (flags == CHIP_IP_DISCOVERY) {
+ 		DRM_INFO("Unsupported asic.  Remove me when IP discovery init is in place.\n");
+ 		return -ENODEV;
+ 	}
 
 
