@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB60856FB90
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3DF56FDCB
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229921AbiGKJcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41364 "EHLO
+        id S234320AbiGKKAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:00:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232682AbiGKJbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:37 -0400
+        with ESMTP id S234514AbiGKJ7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA2C74DF0;
-        Mon, 11 Jul 2022 02:17:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FE5B7D49;
+        Mon, 11 Jul 2022 02:28:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D7F5B80D2C;
-        Mon, 11 Jul 2022 09:17:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A83C341CB;
-        Mon, 11 Jul 2022 09:17:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A029B80D2C;
+        Mon, 11 Jul 2022 09:28:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C3C3C34115;
+        Mon, 11 Jul 2022 09:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531032;
-        bh=mlI1Uud6q9h62IR3vOayBWgTsVubl46hJHtd1vn7oWI=;
+        s=korg; t=1657531679;
+        bh=qXisc+E/ALompKboJG36VZK8MAarwbjXLP9t9pP4C+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAIL7HEO1c83jT0NM+3MBtSUp7GrRZCLIAH9X88sh8ggn4cbkj7JyfQmz71b8JE22
-         HZ27jKGjQFM5fpsKjJtgPQSE2mBD3qQ2TgJZQ79XxhlD/gFwvbByZYGnxRtthVRaOb
-         98EK3oOkybzphEefeWWwvQutQfwP5kYWWTkdhS9E=
+        b=wWqQemC2DusARXLkvp2AiTqJCfuX0TMfIES6+V1ImDaEfIj4yZtaichRJ/UdnfNye
+         vtTUwtLV8tYt3ydanwvtcDZajltl6rDd4DBlht8yyU9JSBKGVXEyxljuTuz2VZmjh1
+         Jz31rjFBW26LPONmXd5OdkcZblR7KC5GYTmI+b1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 071/112] ARM: at91: pm: use proper compatibles for sam9x60s rtc and rtt
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>, Tom Rix <trix@redhat.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 175/230] btrfs: fix use of uninitialized variable at rm device ioctl
 Date:   Mon, 11 Jul 2022 11:07:11 +0200
-Message-Id: <20220711090551.588383999@linuxfoundation.org>
+Message-Id: <20220711090609.025325347@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 641522665dbb25ce117c78746df1aad8b58c80e5 ]
+commit 37b4599547e324589e011c20f74b021d6d25cb7f upstream.
 
-Use proper compatible strings for SAM9X60's RTC and RTT IPs. These are
-necessary for configuring wakeup sources for ULP1 PM mode.
+Clang static analysis reports this problem
+ioctl.c:3333:8: warning: 3rd function call argument is an
+  uninitialized value
+    ret = exclop_start_or_cancel_reloc(fs_info,
 
-Fixes: eaedc0d379da ("ARM: at91: pm: add ULP1 support for SAM9X60")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220523092421.317345-3-claudiu.beznea@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+cancel is only set in one branch of an if-check and is always used.  So
+initialize to false.
+
+Fixes: 1a15eb724aae ("btrfs: use btrfs_get_dev_args_from_path in dev removal ioctls")
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-at91/pm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index 0da13a7afa31..464b7dea5bbe 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -157,12 +157,12 @@ static const struct of_device_id sama5d2_ws_ids[] = {
- };
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3291,7 +3291,7 @@ static long btrfs_ioctl_rm_dev(struct fi
+ 	struct block_device *bdev = NULL;
+ 	fmode_t mode;
+ 	int ret;
+-	bool cancel;
++	bool cancel = false;
  
- static const struct of_device_id sam9x60_ws_ids[] = {
--	{ .compatible = "atmel,at91sam9x5-rtc",		.data = &ws_info[1] },
-+	{ .compatible = "microchip,sam9x60-rtc",	.data = &ws_info[1] },
- 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
- 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
- 	{ .compatible = "atmel,at91sam9g45-ehci",	.data = &ws_info[2] },
- 	{ .compatible = "usb-ehci",			.data = &ws_info[2] },
--	{ .compatible = "atmel,at91sam9260-rtt",	.data = &ws_info[4] },
-+	{ .compatible = "microchip,sam9x60-rtt",	.data = &ws_info[4] },
- 	{ .compatible = "cdns,sam9x60-macb",		.data = &ws_info[5] },
- 	{ /* sentinel */ }
- };
--- 
-2.35.1
-
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
 
 
