@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B77D956FA6E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9858F56FBFA
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbiGKJRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59622 "EHLO
+        id S232958AbiGKJhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231565AbiGKJRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:17:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68DF14507B;
-        Mon, 11 Jul 2022 02:11:17 -0700 (PDT)
+        with ESMTP id S232788AbiGKJhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:37:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501E24D4CD;
+        Mon, 11 Jul 2022 02:19:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C548B80E76;
-        Mon, 11 Jul 2022 09:11:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CD13C34115;
-        Mon, 11 Jul 2022 09:11:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 986BC6129D;
+        Mon, 11 Jul 2022 09:19:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E76C34115;
+        Mon, 11 Jul 2022 09:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530674;
-        bh=xLZOiuU/pXl1/j8USvLoYf6qp+A9l3h0Rl+n8ZdBK+g=;
+        s=korg; t=1657531153;
+        bh=Lx4hc0nUrNwQiiQOUQxsaBTqW6L6HwC4km2Y1mY4GHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5PG7QY8S5t0fvFcHTIXkBp6wT7oqZyKA6HqyM5A34r6spGN6K8VO02niR9SuJwns
-         Ag4z6nQ2C2TS5Ne0r/3WzAW6uj0Q8p+kB+BMgBKR0hSZ7XgadgjW2xIS8fifo33g64
-         l+cA7qFd7bQhOnvPYos5v5TaZ+2qZPuk5AEfflqg=
+        b=HNZd+WfIGP0VtfiHLQ0TtMIJKm5phVZPxyHWiNTWGjhCTyxuGHQ6gTE+VuKF9YvdE
+         PSQyqjUGk36NGxr3mv1yd42Ah02bMwURBbCft4LvWFZYtQXiiI7CZOMo4zSyMBLkqV
+         /aJujp1IOTH2xca2V5b0J9TezwAXd/LdZpko0Czw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 38/38] dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
+        stable@vger.kernel.org,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 080/112] ARM: dts: stm32: add missing usbh clock and fix clk order on stm32mp15
 Date:   Mon, 11 Jul 2022 11:07:20 +0200
-Message-Id: <20220711090539.846431997@linuxfoundation.org>
+Message-Id: <20220711090551.842963197@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
-References: <20220711090538.722676354@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-commit 615a4bfc426e11dba05c2cf343f9ac752fb381d2 upstream.
+[ Upstream commit 1d0c1aadf1fd9f3de95d1532b3651e8634546e71 ]
 
-of_find_device_by_node() takes reference, we should use put_device()
-to release it when not need anymore.
+The USBH composed of EHCI and OHCI controllers needs the PHY clock to be
+initialized first, before enabling (gating) them. The reverse is also
+required when going to suspend.
+So, add USBPHY clock as 1st entry in both controllers, so the USBPHY PLL
+gets enabled 1st upon controller init. Upon suspend/resume, this also makes
+the clock to be disabled/re-enabled in the correct order.
+This fixes some IRQ storm conditions seen when going to low-power, due to
+PHY PLL being disabled before all clocks are cleanly gated.
 
-Fixes: a074ae38f859 ("dmaengine: Add driver for TI DMA crossbar on DRA7x")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220605042723.17668-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 949a0c0dec85 ("ARM: dts: stm32: add USB Host (USBH) support to stm32mp157c")
+Fixes: db7be2cb87ae ("ARM: dts: stm32: use usbphyc ck_usbo_48m as USBH OHCI clock on stm32mp151")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/dma-crossbar.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/stm32mp151.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/ti/dma-crossbar.c
-+++ b/drivers/dma/ti/dma-crossbar.c
-@@ -247,6 +247,7 @@ static void *ti_dra7_xbar_route_allocate
- 	if (dma_spec->args[0] >= xbar->xbar_requests) {
- 		dev_err(&pdev->dev, "Invalid XBAR request number: %d\n",
- 			dma_spec->args[0]);
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-EINVAL);
- 	}
- 
-@@ -254,12 +255,14 @@ static void *ti_dra7_xbar_route_allocate
- 	dma_spec->np = of_parse_phandle(ofdma->of_node, "dma-masters", 0);
- 	if (!dma_spec->np) {
- 		dev_err(&pdev->dev, "Can't get DMA master\n");
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-EINVAL);
- 	}
- 
- 	map = kzalloc(sizeof(*map), GFP_KERNEL);
- 	if (!map) {
- 		of_node_put(dma_spec->np);
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
-@@ -271,6 +274,7 @@ static void *ti_dra7_xbar_route_allocate
- 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
- 		kfree(map);
- 		of_node_put(dma_spec->np);
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 	set_bit(map->xbar_out, xbar->dma_inuse);
+diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
+index f9aa9af31efd..9c2bbf115f4c 100644
+--- a/arch/arm/boot/dts/stm32mp151.dtsi
++++ b/arch/arm/boot/dts/stm32mp151.dtsi
+@@ -1474,7 +1474,7 @@
+ 		usbh_ohci: usb@5800c000 {
+ 			compatible = "generic-ohci";
+ 			reg = <0x5800c000 0x1000>;
+-			clocks = <&rcc USBH>, <&usbphyc>;
++			clocks = <&usbphyc>, <&rcc USBH>;
+ 			resets = <&rcc USBH_R>;
+ 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+ 			status = "disabled";
+@@ -1483,7 +1483,7 @@
+ 		usbh_ehci: usb@5800d000 {
+ 			compatible = "generic-ehci";
+ 			reg = <0x5800d000 0x1000>;
+-			clocks = <&rcc USBH>;
++			clocks = <&usbphyc>, <&rcc USBH>;
+ 			resets = <&rcc USBH_R>;
+ 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
+ 			companion = <&usbh_ohci>;
+-- 
+2.35.1
+
 
 
