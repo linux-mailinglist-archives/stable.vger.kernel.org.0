@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A387856FC83
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BDC56FC84
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229437AbiGKJpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
+        id S231598AbiGKJpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231600AbiGKJnq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:43:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE482B607;
-        Mon, 11 Jul 2022 02:21:45 -0700 (PDT)
+        with ESMTP id S233413AbiGKJnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:43:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019FAA23BE;
+        Mon, 11 Jul 2022 02:21:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1B12B80E84;
-        Mon, 11 Jul 2022 09:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AD8BC34115;
-        Mon, 11 Jul 2022 09:21:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4D00B80E7A;
+        Mon, 11 Jul 2022 09:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C822C34115;
+        Mon, 11 Jul 2022 09:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531302;
-        bh=G57iwikh67ZN2F5OTV1+Pbp4DNDewuULz6lsg3DI4ao=;
+        s=korg; t=1657531305;
+        bh=6OGDwIFv/5XaLp9/EoSSAjeNh5wIQiQh6P3Zams+wAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyfvyELlsOyrVljmZz4jIkuQNWoPxz1cgzkO6wGgO34c9ZVtE4g4e3Pz7mIF/U7Z/
-         2mTQfO2m+XpcTY31/lKQrJFFQ1jy2itnTXC3J0wOb17DaQ34Sjk2QwQ3Vy74VGvBI8
-         psuQHUGzA2yXL6R23HTOJRBnNlVsekeLGFsJ9O+k=
+        b=wIBu4DpOJSiDWI998am5HYpqYjlA4XDk0VMU4KjjDupcI8D4x4CFc+5ZDsKWQTnN5
+         AhnH7TI5JdTOWPYKU/ZChxMyxjXtrJJOYigFKCSb2gOW3oIPK+ko27PG2fpQXpc+sr
+         xzMdV/965qT7HWJjCt2bMwUH+EBan4i1tFXnBxy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 057/230] netfilter: nft_payload: support for inner header matching / mangling
-Date:   Mon, 11 Jul 2022 11:05:13 +0200
-Message-Id: <20220711090605.696713102@linuxfoundation.org>
+Subject: [PATCH 5.15 058/230] netfilter: nft_payload: dont allow th access for fragments
+Date:   Mon, 11 Jul 2022 11:05:14 +0200
+Message-Id: <20220711090605.724516881@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -53,170 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit c46b38dc8743535e686b911d253a844f0bd50ead ]
+[ Upstream commit a9e8503def0fd4ed89ade1f61c315f904581d439 ]
 
-Allow to match and mangle on inner headers / payload data after the
-transport header. There is a new field in the pktinfo structure that
-stores the inner header offset which is calculated only when requested.
-Only TCP and UDP supported at this stage.
+Loads relative to ->thoff naturally expect that this points to the
+transport header, but this is only true if pkt->fragoff == 0.
 
+This has little effect for rulesets with connection tracking/nat because
+these enable ip defra. For other rulesets this prevents false matches.
+
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h        |  2 +
- include/uapi/linux/netfilter/nf_tables.h |  2 +
- net/netfilter/nft_payload.c              | 56 +++++++++++++++++++++++-
- 3 files changed, 58 insertions(+), 2 deletions(-)
+ net/netfilter/nft_exthdr.c  | 2 +-
+ net/netfilter/nft_payload.c | 9 +++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index d005f87691da..bcfee89012a1 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -23,6 +23,7 @@ struct module;
+diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
+index dbe1f2e7dd9e..9e927ab4df15 100644
+--- a/net/netfilter/nft_exthdr.c
++++ b/net/netfilter/nft_exthdr.c
+@@ -167,7 +167,7 @@ nft_tcp_header_pointer(const struct nft_pktinfo *pkt,
+ {
+ 	struct tcphdr *tcph;
  
- enum {
- 	NFT_PKTINFO_L4PROTO	= (1 << 0),
-+	NFT_PKTINFO_INNER	= (1 << 1),
- };
+-	if (pkt->tprot != IPPROTO_TCP)
++	if (pkt->tprot != IPPROTO_TCP || pkt->fragoff)
+ 		return NULL;
  
- struct nft_pktinfo {
-@@ -32,6 +33,7 @@ struct nft_pktinfo {
- 	u8				tprot;
- 	u16				fragoff;
- 	unsigned int			thoff;
-+	unsigned int			inneroff;
- };
- 
- static inline struct sock *nft_sk(const struct nft_pktinfo *pkt)
-diff --git a/include/uapi/linux/netfilter/nf_tables.h b/include/uapi/linux/netfilter/nf_tables.h
-index e94d1fa554cb..07871c8a0601 100644
---- a/include/uapi/linux/netfilter/nf_tables.h
-+++ b/include/uapi/linux/netfilter/nf_tables.h
-@@ -753,11 +753,13 @@ enum nft_dynset_attributes {
-  * @NFT_PAYLOAD_LL_HEADER: link layer header
-  * @NFT_PAYLOAD_NETWORK_HEADER: network header
-  * @NFT_PAYLOAD_TRANSPORT_HEADER: transport header
-+ * @NFT_PAYLOAD_INNER_HEADER: inner header / payload
-  */
- enum nft_payload_bases {
- 	NFT_PAYLOAD_LL_HEADER,
- 	NFT_PAYLOAD_NETWORK_HEADER,
- 	NFT_PAYLOAD_TRANSPORT_HEADER,
-+	NFT_PAYLOAD_INNER_HEADER,
- };
- 
- /**
+ 	tcph = skb_header_pointer(pkt->skb, nft_thoff(pkt), sizeof(*tcph), buffer);
 diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index c3ccfff54a35..ee359a4a60f5 100644
+index ee359a4a60f5..b46e01365bd9 100644
 --- a/net/netfilter/nft_payload.c
 +++ b/net/netfilter/nft_payload.c
-@@ -22,6 +22,7 @@
- #include <linux/icmpv6.h>
- #include <linux/ip.h>
- #include <linux/ipv6.h>
-+#include <linux/ip.h>
- #include <net/sctp/checksum.h>
+@@ -84,7 +84,7 @@ static int __nft_payload_inner_offset(struct nft_pktinfo *pkt)
+ {
+ 	unsigned int thoff = nft_thoff(pkt);
  
- static bool nft_payload_rebuild_vlan_hdr(const struct sk_buff *skb, int mac_off,
-@@ -79,6 +80,45 @@ nft_payload_copy_vlan(u32 *d, const struct sk_buff *skb, u8 offset, u8 len)
- 	return skb_copy_bits(skb, offset + mac_off, dst_u8, len) == 0;
- }
+-	if (!(pkt->flags & NFT_PKTINFO_L4PROTO))
++	if (!(pkt->flags & NFT_PKTINFO_L4PROTO) || pkt->fragoff)
+ 		return -1;
  
-+static int __nft_payload_inner_offset(struct nft_pktinfo *pkt)
-+{
-+	unsigned int thoff = nft_thoff(pkt);
-+
-+	if (!(pkt->flags & NFT_PKTINFO_L4PROTO))
-+		return -1;
-+
-+	switch (pkt->tprot) {
-+	case IPPROTO_UDP:
-+		pkt->inneroff = thoff + sizeof(struct udphdr);
-+		break;
-+	case IPPROTO_TCP: {
-+		struct tcphdr *th, _tcph;
-+
-+		th = skb_header_pointer(pkt->skb, thoff, sizeof(_tcph), &_tcph);
-+		if (!th)
-+			return -1;
-+
-+		pkt->inneroff = thoff + __tcp_hdrlen(th);
-+		}
-+		break;
-+	default:
-+		return -1;
-+	}
-+
-+	pkt->flags |= NFT_PKTINFO_INNER;
-+
-+	return 0;
-+}
-+
-+static int nft_payload_inner_offset(const struct nft_pktinfo *pkt)
-+{
-+	if (!(pkt->flags & NFT_PKTINFO_INNER) &&
-+	    __nft_payload_inner_offset((struct nft_pktinfo *)pkt) < 0)
-+		return -1;
-+
-+	return pkt->inneroff;
-+}
-+
- void nft_payload_eval(const struct nft_expr *expr,
- 		      struct nft_regs *regs,
- 		      const struct nft_pktinfo *pkt)
-@@ -112,6 +152,11 @@ void nft_payload_eval(const struct nft_expr *expr,
- 			goto err;
- 		offset = nft_thoff(pkt);
+ 	switch (pkt->tprot) {
+@@ -148,7 +148,7 @@ void nft_payload_eval(const struct nft_expr *expr,
+ 		offset = skb_network_offset(skb);
  		break;
-+	case NFT_PAYLOAD_INNER_HEADER:
-+		offset = nft_payload_inner_offset(pkt);
-+		if (offset < 0)
-+			goto err;
-+		break;
- 	default:
- 		BUG();
- 	}
-@@ -617,6 +662,11 @@ static void nft_payload_set_eval(const struct nft_expr *expr,
- 			goto err;
- 		offset = nft_thoff(pkt);
- 		break;
-+	case NFT_PAYLOAD_INNER_HEADER:
-+		offset = nft_payload_inner_offset(pkt);
-+		if (offset < 0)
-+			goto err;
-+		break;
- 	default:
- 		BUG();
- 	}
-@@ -625,7 +675,8 @@ static void nft_payload_set_eval(const struct nft_expr *expr,
- 	offset += priv->offset;
- 
- 	if ((priv->csum_type == NFT_PAYLOAD_CSUM_INET || priv->csum_flags) &&
--	    (priv->base != NFT_PAYLOAD_TRANSPORT_HEADER ||
-+	    ((priv->base != NFT_PAYLOAD_TRANSPORT_HEADER &&
-+	      priv->base != NFT_PAYLOAD_INNER_HEADER) ||
- 	     skb->ip_summed != CHECKSUM_PARTIAL)) {
- 		fsum = skb_checksum(skb, offset, priv->len, 0);
- 		tsum = csum_partial(src, priv->len, 0);
-@@ -744,6 +795,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- 	case NFT_PAYLOAD_LL_HEADER:
- 	case NFT_PAYLOAD_NETWORK_HEADER:
  	case NFT_PAYLOAD_TRANSPORT_HEADER:
-+	case NFT_PAYLOAD_INNER_HEADER:
+-		if (!(pkt->flags & NFT_PKTINFO_L4PROTO))
++		if (!(pkt->flags & NFT_PKTINFO_L4PROTO) || pkt->fragoff)
+ 			goto err;
+ 		offset = nft_thoff(pkt);
  		break;
- 	default:
- 		return ERR_PTR(-EOPNOTSUPP);
-@@ -762,7 +814,7 @@ nft_payload_select_ops(const struct nft_ctx *ctx,
- 	len    = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
+@@ -658,7 +658,7 @@ static void nft_payload_set_eval(const struct nft_expr *expr,
+ 		offset = skb_network_offset(skb);
+ 		break;
+ 	case NFT_PAYLOAD_TRANSPORT_HEADER:
+-		if (!(pkt->flags & NFT_PKTINFO_L4PROTO))
++		if (!(pkt->flags & NFT_PKTINFO_L4PROTO) || pkt->fragoff)
+ 			goto err;
+ 		offset = nft_thoff(pkt);
+ 		break;
+@@ -697,7 +697,8 @@ static void nft_payload_set_eval(const struct nft_expr *expr,
+ 	if (priv->csum_type == NFT_PAYLOAD_CSUM_SCTP &&
+ 	    pkt->tprot == IPPROTO_SCTP &&
+ 	    skb->ip_summed != CHECKSUM_PARTIAL) {
+-		if (nft_payload_csum_sctp(skb, nft_thoff(pkt)))
++		if (pkt->fragoff == 0 &&
++		    nft_payload_csum_sctp(skb, nft_thoff(pkt)))
+ 			goto err;
+ 	}
  
- 	if (len <= 4 && is_power_of_2(len) && IS_ALIGNED(offset, len) &&
--	    base != NFT_PAYLOAD_LL_HEADER)
-+	    base != NFT_PAYLOAD_LL_HEADER && base != NFT_PAYLOAD_INNER_HEADER)
- 		return &nft_payload_fast_ops;
- 	else
- 		return &nft_payload_ops;
 -- 
 2.35.1
 
