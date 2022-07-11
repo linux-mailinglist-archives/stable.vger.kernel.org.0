@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 527DD56FD29
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D970456F9A0
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233788AbiGKJvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33440 "EHLO
+        id S230222AbiGKJG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:06:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbiGKJuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABE3248D4;
-        Mon, 11 Jul 2022 02:24:56 -0700 (PDT)
+        with ESMTP id S230272AbiGKJGz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:06:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C91E22531;
+        Mon, 11 Jul 2022 02:06:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49F87B80D2C;
-        Mon, 11 Jul 2022 09:24:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E95C34115;
-        Mon, 11 Jul 2022 09:24:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFBD06118B;
+        Mon, 11 Jul 2022 09:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFBC0C34115;
+        Mon, 11 Jul 2022 09:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531494;
-        bh=Z0FI6AxhInGWtJD1LczNEjiGeOd7WuiQcvBy+zjdl9s=;
+        s=korg; t=1657530412;
+        bh=++Ww8pPVHs+rvU8WtFnJVr6Tf7qYaVEmgDt46VFu64o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIQ5t1pGMBbpx/YLAiWMKTn+cag93ru9wVxZIPYBdcjoti/0n2G4NpYbulbsac1AX
-         hybHJJWzu6agpr/NcoAkSanb9X3LOrKxu6CZIiZBhgG4VeWeaqUiQK8jD4GVK72Ux2
-         UiPg+IyhYNtzteS68XXqvWaUmfSseRVHUZBrNhPI=
+        b=WYd+pf0++Q8oNYdgSp1hgMRWZrm1YX+pJfYBQdewgz4Kv9SesDhOaQCyQ8SSkHcn+
+         fF72LB+UE3EjK8t8Wwh/loiBhE3/f/24I4RDOYwljMm4/OiCMFPgXq8I71kjCd1Yc5
+         pvUYxBb2pRm9/nl5lwVKtKoDIHdt2ozEc2uUIcuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 124/230] btrfs: zoned: encapsulate inode locking for zoned relocation
-Date:   Mon, 11 Jul 2022 11:06:20 +0200
-Message-Id: <20220711090607.582974972@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Liang He <windhl@126.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.9 02/14] can: grcan: grcan_probe(): remove extra of_node_get()
+Date:   Mon, 11 Jul 2022 11:06:21 +0200
+Message-Id: <20220711090535.593925777@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+References: <20220711090535.517697227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 869f4cdc73f9378986755030c684c011f0b71517 ]
+commit 562fed945ea482833667f85496eeda766d511386 upstream.
 
-Encapsulate the inode lock needed for serializing the data relocation
-writes on a zoned filesystem into a helper.
+In grcan_probe(), of_find_node_by_path() has already increased the
+refcount. There is no need to call of_node_get() again, so remove it.
 
-This streamlines the code reading flow and hides special casing for
-zoned filesystems.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/all/20220619070257.4067022-1-windhl@126.com
+Fixes: 1e93ed26acf0 ("can: grcan: grcan_probe(): fix broken system id check for errata workaround needs")
+Cc: stable@vger.kernel.org # v5.18
+Cc: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |  8 ++------
- fs/btrfs/zoned.h     | 17 +++++++++++++++++
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ drivers/net/can/grcan.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 6dd375ed6e3d..059bd0753e27 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -5139,8 +5139,6 @@ int extent_writepages(struct address_space *mapping,
- 		      struct writeback_control *wbc)
- {
- 	struct inode *inode = mapping->host;
--	const bool data_reloc = btrfs_is_data_reloc_root(BTRFS_I(inode)->root);
--	const bool zoned = btrfs_is_zoned(BTRFS_I(inode)->root->fs_info);
- 	int ret = 0;
- 	struct extent_page_data epd = {
- 		.bio_ctrl = { 0 },
-@@ -5152,11 +5150,9 @@ int extent_writepages(struct address_space *mapping,
- 	 * Allow only a single thread to do the reloc work in zoned mode to
- 	 * protect the write pointer updates.
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -1669,7 +1669,6 @@ static int grcan_probe(struct platform_d
  	 */
--	if (data_reloc && zoned)
--		btrfs_inode_lock(inode, 0);
-+	btrfs_zoned_data_reloc_lock(BTRFS_I(inode));
- 	ret = extent_write_cache_pages(mapping, wbc, &epd);
--	if (data_reloc && zoned)
--		btrfs_inode_unlock(inode, 0);
-+	btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
- 	ASSERT(ret <= 0);
- 	if (ret < 0) {
- 		end_write_bio(&epd, ret);
-diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
-index 813aa3cddc11..d680c3ee918a 100644
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -8,6 +8,7 @@
- #include "volumes.h"
- #include "disk-io.h"
- #include "block-group.h"
-+#include "btrfs_inode.h"
- 
- /*
-  * Block groups with more than this value (percents) of unusable space will be
-@@ -324,4 +325,20 @@ static inline void btrfs_clear_treelog_bg(struct btrfs_block_group *bg)
- 	spin_unlock(&fs_info->treelog_bg_lock);
- }
- 
-+static inline void btrfs_zoned_data_reloc_lock(struct btrfs_inode *inode)
-+{
-+	struct btrfs_root *root = inode->root;
-+
-+	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
-+		btrfs_inode_lock(&inode->vfs_inode, 0);
-+}
-+
-+static inline void btrfs_zoned_data_reloc_unlock(struct btrfs_inode *inode)
-+{
-+	struct btrfs_root *root = inode->root;
-+
-+	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
-+		btrfs_inode_unlock(&inode->vfs_inode, 0);
-+}
-+
- #endif
--- 
-2.35.1
-
+ 	sysid_parent = of_find_node_by_path("/ambapp0");
+ 	if (sysid_parent) {
+-		of_node_get(sysid_parent);
+ 		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
+ 		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
+ 			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
 
 
