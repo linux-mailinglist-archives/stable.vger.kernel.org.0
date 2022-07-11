@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A99FD56F9FB
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB80856F9D1
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbiGKJLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46588 "EHLO
+        id S230041AbiGKJJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231265AbiGKJKq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:10:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D6A101D8;
-        Mon, 11 Jul 2022 02:08:45 -0700 (PDT)
+        with ESMTP id S230103AbiGKJIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:08:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB31C237D7;
+        Mon, 11 Jul 2022 02:07:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B906AB80E5E;
-        Mon, 11 Jul 2022 09:08:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18CE5C34115;
-        Mon, 11 Jul 2022 09:08:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 701CCB80E7A;
+        Mon, 11 Jul 2022 09:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A17C341C0;
+        Mon, 11 Jul 2022 09:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530522;
-        bh=D1fw9SBEdLLiGz2v/bCqCLfzabITJcsw3FvtzFYsETM=;
+        s=korg; t=1657530474;
+        bh=eAlf2ThEJ0oh3s9MfqamQLqIhi0NIAtmAN9WqohRE7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjHDHAbuiUjIYJs2XhkYxW9Neee7pry257w9eP35rKUQ4+VA6PsxlHG+sUmfF/sgw
-         /Qi7mFgsTalxV3EiV9hTNqTEuW2xNMOH+kZ6xsEc0vTsQMUV877+DQHfV8VgGqsycq
-         1c5YhKb4mAtrLhqYW5WFF5lL3UEJLsLIPMpi3NNE=
+        b=LitSIO2iQuiK8VsBtaD2VuAEkrxruJng/Op+1h9tOlEZ7zJel2LNKeOKwavPXJMOF
+         IM7XD3u+mtzsjM8dMgDeZpE+hxg+DL+LEWFWwdl8AdiV6KPRKEFCACQO4wv236jT0q
+         7HEhh6QJ0R5TJ5Cy+0+hiatIZysYlm7JrDG6TNvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 03/31] can: bcm: use call_rcu() instead of costly synchronize_rcu()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.14 17/17] dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
 Date:   Mon, 11 Jul 2022 11:06:42 +0200
-Message-Id: <20220711090537.946973884@linuxfoundation.org>
+Message-Id: <20220711090536.776114629@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
+References: <20220711090536.245939953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,97 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit f1b4e32aca0811aa011c76e5d6cf2fa19224b386 upstream.
+commit 615a4bfc426e11dba05c2cf343f9ac752fb381d2 upstream.
 
-In commit d5f9023fa61e ("can: bcm: delay release of struct bcm_op
-after synchronize_rcu()") Thadeu Lima de Souza Cascardo introduced two
-synchronize_rcu() calls in bcm_release() (only once at socket close)
-and in bcm_delete_rx_op() (called on removal of each single bcm_op).
+of_find_device_by_node() takes reference, we should use put_device()
+to release it when not need anymore.
 
-Unfortunately this slow removal of the bcm_op's affects user space
-applications like cansniffer where the modification of a filter
-removes 2048 bcm_op's which blocks the cansniffer application for
-40(!) seconds.
-
-In commit 181d4447905d ("can: gw: use call_rcu() instead of costly
-synchronize_rcu()") Eric Dumazet replaced the synchronize_rcu() calls
-with several call_rcu()'s to safely remove the data structures after
-the removal of CAN ID subscriptions with can_rx_unregister() calls.
-
-This patch adopts Erics approach for the can-bcm which should be
-applicable since the removal of tasklet_kill() in bcm_remove_op() and
-the introduction of the HRTIMER_MODE_SOFT timer handling in Linux 5.4.
-
-Fixes: d5f9023fa61e ("can: bcm: delay release of struct bcm_op after synchronize_rcu()") # >= 5.4
-Link: https://lore.kernel.org/all/20220520183239.19111-1-socketcan@hartkopp.net
-Cc: stable@vger.kernel.org
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: a074ae38f859 ("dmaengine: Add driver for TI DMA crossbar on DRA7x")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20220605042723.17668-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/bcm.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/dma/ti-dma-crossbar.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -99,6 +99,7 @@ static inline u64 get_u64(const struct c
+--- a/drivers/dma/ti-dma-crossbar.c
++++ b/drivers/dma/ti-dma-crossbar.c
+@@ -251,6 +251,7 @@ static void *ti_dra7_xbar_route_allocate
+ 	if (dma_spec->args[0] >= xbar->xbar_requests) {
+ 		dev_err(&pdev->dev, "Invalid XBAR request number: %d\n",
+ 			dma_spec->args[0]);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- struct bcm_op {
- 	struct list_head list;
-+	struct rcu_head rcu;
- 	int ifindex;
- 	canid_t can_id;
- 	u32 flags;
-@@ -717,10 +718,9 @@ static struct bcm_op *bcm_find_op(struct
- 	return NULL;
- }
+@@ -258,12 +259,14 @@ static void *ti_dra7_xbar_route_allocate
+ 	dma_spec->np = of_parse_phandle(ofdma->of_node, "dma-masters", 0);
+ 	if (!dma_spec->np) {
+ 		dev_err(&pdev->dev, "Can't get DMA master\n");
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
--static void bcm_remove_op(struct bcm_op *op)
-+static void bcm_free_op_rcu(struct rcu_head *rcu_head)
- {
--	hrtimer_cancel(&op->timer);
--	hrtimer_cancel(&op->thrtimer);
-+	struct bcm_op *op = container_of(rcu_head, struct bcm_op, rcu);
+ 	map = kzalloc(sizeof(*map), GFP_KERNEL);
+ 	if (!map) {
+ 		of_node_put(dma_spec->np);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
  
- 	if ((op->frames) && (op->frames != &op->sframe))
- 		kfree(op->frames);
-@@ -731,6 +731,14 @@ static void bcm_remove_op(struct bcm_op
- 	kfree(op);
- }
- 
-+static void bcm_remove_op(struct bcm_op *op)
-+{
-+	hrtimer_cancel(&op->timer);
-+	hrtimer_cancel(&op->thrtimer);
-+
-+	call_rcu(&op->rcu, bcm_free_op_rcu);
-+}
-+
- static void bcm_rx_unreg(struct net_device *dev, struct bcm_op *op)
- {
- 	if (op->rx_reg_dev == dev) {
-@@ -756,6 +764,9 @@ static int bcm_delete_rx_op(struct list_
- 		if ((op->can_id == mh->can_id) && (op->ifindex == ifindex) &&
- 		    (op->flags & CAN_FD_FRAME) == (mh->flags & CAN_FD_FRAME)) {
- 
-+			/* disable automatic timer on frame reception */
-+			op->flags |= RX_NO_AUTOTIMER;
-+
- 			/*
- 			 * Don't care if we're bound or not (due to netdev
- 			 * problems) can_rx_unregister() is always a save
-@@ -784,7 +795,6 @@ static int bcm_delete_rx_op(struct list_
- 						  bcm_rx_handler, op);
- 
- 			list_del(&op->list);
--			synchronize_rcu();
- 			bcm_remove_op(op);
- 			return 1; /* done */
- 		}
+@@ -275,6 +278,7 @@ static void *ti_dra7_xbar_route_allocate
+ 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
+ 		kfree(map);
+ 		of_node_put(dma_spec->np);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	set_bit(map->xbar_out, xbar->dma_inuse);
 
 
