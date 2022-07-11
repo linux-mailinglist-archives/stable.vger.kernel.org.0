@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0F4D56FB50
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E135A56F9F9
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232458AbiGKJ2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:28:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56716 "EHLO
+        id S231282AbiGKJL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:11:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232461AbiGKJ2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A22166AF1;
-        Mon, 11 Jul 2022 02:15:58 -0700 (PDT)
+        with ESMTP id S231284AbiGKJKt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:10:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCC411C22;
+        Mon, 11 Jul 2022 02:08:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C600FCE1260;
-        Mon, 11 Jul 2022 09:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D75CDC34115;
-        Mon, 11 Jul 2022 09:15:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 374F1B80E5E;
+        Mon, 11 Jul 2022 09:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88309C34115;
+        Mon, 11 Jul 2022 09:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530952;
-        bh=/sbOSX3Pnsxhpi+1YjZXiP7EM8K6cK3NsOE1FwYeRFI=;
+        s=korg; t=1657530527;
+        bh=pILSbY4XJmMlzVTApIp6ncXPXmKzjXMYUZqolYEqo2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MaxrDC+BrL36d47/jbDs+ajZ3SSgeCtpAxmOsv5D/XVui+7Yow35ffNB9wcrb2fYm
-         6ovIl5UIcleIAnBs703pFpZ8Dd6RiwFbHDoHvXzvbnfBag5nnTNRFpaon6nJVzl+mF
-         vdYQJS/zXee0m5uZP8Cy2vx+3SAJVK1FXBZ++yPY=
+        b=D2VvvNVleZyudN2K/6qYOwtp8D0SmBZmBo5B6l3BcO1a8a54XhnVhmeUNa77v9MM5
+         /aQeXJekOYwv61VN8Atp6VCwNwiwuZeGxaKzAQ4D2qnFc2wyX1YmAOROYU/Yjki5A9
+         zlRqSuQ2aWqPBNqQ7lfec/PsLn3xkU9zIn7YayGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 044/112] net: dsa: qca8k: reset cpu port on MTU change
+        stable@vger.kernel.org, Rhett Aultman <rhett.aultman@samsara.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 05/31] can: gs_usb: gs_usb_open/close(): fix memory leak
 Date:   Mon, 11 Jul 2022 11:06:44 +0200
-Message-Id: <20220711090550.823175937@linuxfoundation.org>
+Message-Id: <20220711090538.004891604@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
+References: <20220711090537.841305347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Rhett Aultman <rhett.aultman@samsara.com>
 
-commit 386228c694bf1e7a7688e44412cb33500b0ac585 upstream.
+commit 2bda24ef95c0311ab93bda00db40486acf30bd0a upstream.
 
-It was discovered that the Documentation lacks of a fundamental detail
-on how to correctly change the MAX_FRAME_SIZE of the switch.
+The gs_usb driver appears to suffer from a malady common to many USB
+CAN adapter drivers in that it performs usb_alloc_coherent() to
+allocate a number of USB request blocks (URBs) for RX, and then later
+relies on usb_kill_anchored_urbs() to free them, but this doesn't
+actually free them. As a result, this may be leaking DMA memory that's
+been used by the driver.
 
-In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
-switch panics and cease to send any packet. This cause the mgmt ethernet
-system to not receive any packet (the slow fallback still works) and
-makes the device not reachable. To recover from this a switch reset is
-required.
+This commit is an adaptation of the techniques found in the esd_usb2
+driver where a similar design pattern led to a memory leak. It
+explicitly frees the RX URBs and their DMA memory via a call to
+usb_free_coherent(). Since the RX URBs were allocated in the
+gs_can_open(), we remove them in gs_can_close() rather than in the
+disconnect function as was done in esd_usb2.
 
-To correctly handle this, turn off the cpu ports before changing the
-MAX_FRAME_SIZE and turn on again after the value is applied.
+For more information, see the 928150fad41b ("can: esd_usb2: fix memory
+leak").
 
-Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
+Link: https://lore.kernel.org/all/alpine.DEB.2.22.394.2206031547001.1630869@thelappy
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
 Cc: stable@vger.kernel.org
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Link: https://lore.kernel.org/r/20220621151122.10220-1-ansuelsmth@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Rhett Aultman <rhett.aultman@samsara.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/qca8k.c |   23 +++++++++++++++++++++--
+ drivers/net/can/usb/gs_usb.c |   23 +++++++++++++++++++++--
  1 file changed, 21 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/qca8k.c
-+++ b/drivers/net/dsa/qca8k.c
-@@ -2372,7 +2372,7 @@ static int
- qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
- {
- 	struct qca8k_priv *priv = ds->priv;
--	int i, mtu = 0;
-+	int ret, i, mtu = 0;
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -192,6 +192,8 @@ struct gs_can {
  
- 	priv->port_mtu[port] = new_mtu;
+ 	struct usb_anchor tx_submitted;
+ 	atomic_t active_tx_urbs;
++	void *rxbuf[GS_MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[GS_MAX_RX_URBS];
+ };
  
-@@ -2380,8 +2380,27 @@ qca8k_port_change_mtu(struct dsa_switch
- 		if (priv->port_mtu[i] > mtu)
- 			mtu = priv->port_mtu[i];
+ /* usb interface struct */
+@@ -600,6 +602,7 @@ static int gs_can_open(struct net_device
+ 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
+ 			struct urb *urb;
+ 			u8 *buf;
++			dma_addr_t buf_dma;
  
-+	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
-+	 * the switch panics.
-+	 * Turn off both cpu ports before applying the new value to prevent
-+	 * this.
-+	 */
-+	if (priv->port_sts[0].enabled)
-+		qca8k_port_set_status(priv, 0, 0);
-+
-+	if (priv->port_sts[6].enabled)
-+		qca8k_port_set_status(priv, 6, 0);
-+
- 	/* Include L2 header / FCS length */
--	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
-+	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
-+
-+	if (priv->port_sts[0].enabled)
-+		qca8k_port_set_status(priv, 0, 1);
-+
-+	if (priv->port_sts[6].enabled)
-+		qca8k_port_set_status(priv, 6, 1);
-+
-+	return ret;
- }
+ 			/* alloc rx urb */
+ 			urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -610,7 +613,7 @@ static int gs_can_open(struct net_device
+ 			buf = usb_alloc_coherent(dev->udev,
+ 						 sizeof(struct gs_host_frame),
+ 						 GFP_KERNEL,
+-						 &urb->transfer_dma);
++						 &buf_dma);
+ 			if (!buf) {
+ 				netdev_err(netdev,
+ 					   "No memory left for USB buffer\n");
+@@ -618,6 +621,8 @@ static int gs_can_open(struct net_device
+ 				return -ENOMEM;
+ 			}
  
- static int
++			urb->transfer_dma = buf_dma;
++
+ 			/* fill, anchor, and submit rx urb */
+ 			usb_fill_bulk_urb(urb,
+ 					  dev->udev,
+@@ -641,10 +646,17 @@ static int gs_can_open(struct net_device
+ 					   rc);
+ 
+ 				usb_unanchor_urb(urb);
++				usb_free_coherent(dev->udev,
++						  sizeof(struct gs_host_frame),
++						  buf,
++						  buf_dma);
+ 				usb_free_urb(urb);
+ 				break;
+ 			}
+ 
++			dev->rxbuf[i] = buf;
++			dev->rxbuf_dma[i] = buf_dma;
++
+ 			/* Drop reference,
+ 			 * USB core will take care of freeing it
+ 			 */
+@@ -709,13 +721,20 @@ static int gs_can_close(struct net_devic
+ 	int rc;
+ 	struct gs_can *dev = netdev_priv(netdev);
+ 	struct gs_usb *parent = dev->parent;
++	unsigned int i;
+ 
+ 	netif_stop_queue(netdev);
+ 
+ 	/* Stop polling */
+ 	parent->active_channels--;
+-	if (!parent->active_channels)
++	if (!parent->active_channels) {
+ 		usb_kill_anchored_urbs(&parent->rx_submitted);
++		for (i = 0; i < GS_MAX_RX_URBS; i++)
++			usb_free_coherent(dev->udev,
++					  sizeof(struct gs_host_frame),
++					  dev->rxbuf[i],
++					  dev->rxbuf_dma[i]);
++	}
+ 
+ 	/* Stop sending URBs */
+ 	usb_kill_anchored_urbs(&dev->tx_submitted);
 
 
