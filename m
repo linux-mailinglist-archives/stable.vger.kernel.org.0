@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 940B856FC9F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC30C56FCC1
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233479AbiGKJp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
+        id S233530AbiGKJr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:47:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233894AbiGKJpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:45:08 -0400
+        with ESMTP id S233604AbiGKJrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:47:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33A62A9E77;
-        Mon, 11 Jul 2022 02:22:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784CE67170;
+        Mon, 11 Jul 2022 02:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD868B80D2C;
-        Mon, 11 Jul 2022 09:22:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A82C34115;
-        Mon, 11 Jul 2022 09:22:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3D40B80E7E;
+        Mon, 11 Jul 2022 09:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F016C34115;
+        Mon, 11 Jul 2022 09:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531352;
-        bh=8De3sl8vo6g6gUNyQnO3fBSHDA2H/6A7rO9gphhjK10=;
+        s=korg; t=1657531382;
+        bh=0m0GkOvnLvHQiu/2/bOsz32D+no02E3Q3SY9D2E6upk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mg3QgpUqe8/SXn20R4lN4Z94mnVktvaK3nqWJMV+lG9bMHLv57XOhY4ODpgjK+kUf
-         nml83mq29aWjfeTjBD4/bHx8o56pbCpeGW9XtC1tX9VAtiKZSudF1txk9OoNJ/VlqX
-         QcmoFfr0enFVAZab8fv7ogcLUObqzZCkmoNMtCYo=
+        b=1pm+l9tgdBxWjvR9dghsnHS49H8NgHyi0x6j3l1p2okRfi3mTYqYo1+36QqXwK3YT
+         pip+PTafWSXSAv63iwsLSllfleWSziMUTm9p8lEbbFnIINMrc1AzwfVXHWY09gaK3W
+         1lSUzTVvwLygXnwlAXGCkL5/HH1CI7lFX2Ae/Zxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Anup Patel <anup@brainfault.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 047/230] riscv: defconfig: enable DRM_NOUVEAU
-Date:   Mon, 11 Jul 2022 11:05:03 +0200
-Message-Id: <20220711090605.417740083@linuxfoundation.org>
+Subject: [PATCH 5.15 048/230] RISC-V: defconfigs: Set CONFIG_FB=y, for FB console
+Date:   Mon, 11 Jul 2022 11:05:04 +0200
+Message-Id: <20220711090605.445561661@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,38 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-[ Upstream commit ffa7a9141bb70702744a312f904b190ca064bdd7 ]
+[ Upstream commit 3d12b634fe8206ea974c6061a3f3eea529ffbc48 ]
 
-Both RADEON and NOUVEAU graphics cards are supported on RISC-V. Enabling
-the one and not the other does not make sense.
+We have CONFIG_FRAMEBUFFER_CONSOLE=y in the defconfigs, but that depends
+on CONFIG_FB so it's not actually getting set.  I'm assuming most users
+on real systems want a framebuffer console, so this enables CONFIG_FB to
+allow that to take effect.
 
-As typically at most one of RADEON, NOUVEAU, or VIRTIO GPU support will be
-needed DRM drivers should be compiled as modules.
-
-Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: 33c57c0d3c67 ("RISC-V: Add a basic defconfig")
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/configs/defconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/riscv/configs/defconfig      | 1 +
+ arch/riscv/configs/rv32_defconfig | 1 +
+ 2 files changed, 2 insertions(+)
 
 diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
-index 4ebc80315f01..c252fd5706d2 100644
+index c252fd5706d2..f2a2f9c9ed49 100644
 --- a/arch/riscv/configs/defconfig
 +++ b/arch/riscv/configs/defconfig
-@@ -72,9 +72,10 @@ CONFIG_GPIOLIB=y
- CONFIG_GPIO_SIFIVE=y
- # CONFIG_PTP_1588_CLOCK is not set
- CONFIG_POWER_RESET=y
--CONFIG_DRM=y
--CONFIG_DRM_RADEON=y
--CONFIG_DRM_VIRTIO_GPU=y
-+CONFIG_DRM=m
-+CONFIG_DRM_RADEON=m
-+CONFIG_DRM_NOUVEAU=m
-+CONFIG_DRM_VIRTIO_GPU=m
+@@ -76,6 +76,7 @@ CONFIG_DRM=m
+ CONFIG_DRM_RADEON=m
+ CONFIG_DRM_NOUVEAU=m
+ CONFIG_DRM_VIRTIO_GPU=m
++CONFIG_FB=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_USB=y
+ CONFIG_USB_XHCI_HCD=y
+diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
+index 434ef5b64599..cdd113e7a291 100644
+--- a/arch/riscv/configs/rv32_defconfig
++++ b/arch/riscv/configs/rv32_defconfig
+@@ -71,6 +71,7 @@ CONFIG_POWER_RESET=y
+ CONFIG_DRM=y
+ CONFIG_DRM_RADEON=y
+ CONFIG_DRM_VIRTIO_GPU=y
++CONFIG_FB=y
  CONFIG_FRAMEBUFFER_CONSOLE=y
  CONFIG_USB=y
  CONFIG_USB_XHCI_HCD=y
