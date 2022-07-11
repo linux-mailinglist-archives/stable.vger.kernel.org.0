@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 712D456FBFF
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A8756FDBE
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233076AbiGKJhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:37:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
+        id S234151AbiGKJ75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbiGKJhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:37:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0451CB19;
-        Mon, 11 Jul 2022 02:19:21 -0700 (PDT)
+        with ESMTP id S234386AbiGKJ72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243F5643E2;
+        Mon, 11 Jul 2022 02:27:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8378B80833;
-        Mon, 11 Jul 2022 09:19:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2548DC34115;
-        Mon, 11 Jul 2022 09:19:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1C9F7CE1267;
+        Mon, 11 Jul 2022 09:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B50C34115;
+        Mon, 11 Jul 2022 09:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531158;
-        bh=bvGkvaKm/HFxpgZ8hSpuauZJCtQUmCt5n/fC96tnSJA=;
+        s=korg; t=1657531659;
+        bh=pvAUyeDuhA9Doy3U65eCiwgeQOavBWcDdXsmnMt2JGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmlgRU2TSl5Ny7w5i0Jo40piKmCFSa8xZjqVboYYS0yDy1hlE1H34Xwmkutd0nhAV
-         thEuHja524Yom/ABUZwe7my4zWUKGdY5auPtJKFbjH4ZTz6qzc0CU0gsTanJZlN01t
-         OOKGwTNRHl9tlAQiePEkG0T6DrTGBG24XY9sJDYw=
+        b=lN5uGUmdiKxegNotZ2X8eaJHxX6fPRvXF0IHN0h+6OUukshbqU+zRhRKy3bdnTVha
+         wL/zktvsE8fUe9aZC41KkfZBWYjiRoLdmudZV608nC4pquA2/YyMjzZHabDCa+HKa5
+         O9KCHJpXJgaJ3ATkn5NR6mgfJPMA6dvTukX1wfzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>, Peng Fan <peng.fan@nxp.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 082/112] selftests: forwarding: fix flood_unicast_test when h2 supports IFF_UNICAST_FLT
+Subject: [PATCH 5.15 186/230] arm64: dts: imx8mp-evk: correct the uart2 pinctl value
 Date:   Mon, 11 Jul 2022 11:07:22 +0200
-Message-Id: <20220711090551.899811206@linuxfoundation.org>
+Message-Id: <20220711090609.384953911@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit b8e629b05f5d23f9649c901bef09fab8b0c2e4b9 ]
+[ Upstream commit 2d4fb72b681205eed4553d8802632bd3270be3ba ]
 
-As mentioned in the blamed commit, flood_unicast_test() works by
-checking the match count on a tc filter placed on the receiving
-interface.
+According to the IOMUXC_SW_PAD_CTL_PAD_UART2_RXD/TXD register define in
+imx8mp RM, bit0 and bit3 are reserved, and the uart2 rx/tx pin should
+enable the pull up, so need to set bit8 to 1. The original pinctl value
+0x49 is incorrect and needs to be changed to 0x140, same as uart1 and
+uart3.
 
-But the second host interface (host2_if) has no interest in receiving a
-packet with MAC DA de:ad:be:ef:13:37, so its RX filter drops it even
-before the ingress tc filter gets to be executed. So we will incorrectly
-get the message "Packet was not flooded when should", when in fact, the
-packet was flooded as expected but dropped due to an unrelated reason,
-at some other layer on the receiving side.
-
-Force h2 to accept this packet by temporarily placing it in promiscuous
-mode. Alternatively we could either deliver to its MAC address or use
-tcpdump_start, but this has the fewest complications.
-
-This fixes the "flooding" test from bridge_vlan_aware.sh and
-bridge_vlan_unaware.sh, which calls flood_test from the lib.
-
-Fixes: 236dd50bf67a ("selftests: forwarding: Add a test for flooded traffic")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 9e847693c6f3 ("arm64: dts: freescale: Add i.MX8MP EVK board support")
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 664b9ecaf228..823e5cef062d 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1242,6 +1242,7 @@ flood_test_do()
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+index 3c4369d6468c..3f424a8937f1 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+@@ -383,8 +383,8 @@
  
- 	# Add an ACL on `host2_if` which will tell us whether the packet
- 	# was flooded to it or not.
-+	ip link set $host2_if promisc on
- 	tc qdisc add dev $host2_if ingress
- 	tc filter add dev $host2_if ingress protocol ip pref 1 handle 101 \
- 		flower dst_mac $mac action drop
-@@ -1259,6 +1260,7 @@ flood_test_do()
+ 	pinctrl_uart2: uart2grp {
+ 		fsl,pins = <
+-			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x49
+-			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x49
++			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x140
++			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x140
+ 		>;
+ 	};
  
- 	tc filter del dev $host2_if ingress protocol ip pref 1 handle 101 flower
- 	tc qdisc del dev $host2_if ingress
-+	ip link set $host2_if promisc off
- 
- 	return $err
- }
 -- 
 2.35.1
 
