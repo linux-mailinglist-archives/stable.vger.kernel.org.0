@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E036356F9BF
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F355656FD6A
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229702AbiGKJIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:08:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47042 "EHLO
+        id S233857AbiGKJzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231176AbiGKJHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:54 -0400
+        with ESMTP id S234243AbiGKJyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:54:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF00D24952;
-        Mon, 11 Jul 2022 02:07:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E499D33A0A;
+        Mon, 11 Jul 2022 02:26:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64601B80E7D;
-        Mon, 11 Jul 2022 09:07:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A57E2C34115;
-        Mon, 11 Jul 2022 09:07:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98F17B80D2C;
+        Mon, 11 Jul 2022 09:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59BFC34115;
+        Mon, 11 Jul 2022 09:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530449;
-        bh=VtGNo2A9OFnwe6G3BOiowxmO1MwkozVOw/vTKsK1Tig=;
+        s=korg; t=1657531560;
+        bh=Alp2MHh6Ac99EuP+tf9BV2sOZk7KseWriY8CNcxWR9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9HVi0s+Db0RT862Z6rROmaUKgszBJofuvS2CATI06woVMn6eppwYCSO8DGCS6vPc
-         kJ2WJmxHcMvpR65wRAXxDb4r0iTnHBJPuZRlGEilADvp8+h+p7++IScRtDwn6Y0XKk
-         6tDuxhqAlfQ3L5t2MCeJCweKY43h4a52WfVg5UyE=
+        b=xeXiaqnWGU7HRviybDx/K9KYNLSUEJ+BvS9wbRnqnqfjSZ5qlEKxziHTRRUGTl4dn
+         AadkNNtRZmFQlnuX9G874UVbw3E9jsPHDD+Vvk4wNiSazA0qbdL7lr6m3VpNIAjyLa
+         qerzacx39ohhVCoa9DnsAZZvLAMgQfOVdI63eG7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/14] pinctrl: sunxi: a83t: Fix NAND function name for some pins
+Subject: [PATCH 5.15 132/230] tty: n_gsm: fix sometimes uninitialized warning in gsm_dlci_modem_output()
 Date:   Mon, 11 Jul 2022 11:06:28 +0200
-Message-Id: <20220711090535.795538668@linuxfoundation.org>
+Message-Id: <20220711090607.809091125@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
-References: <20220711090535.517697227@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit aaefa29270d9551b604165a08406543efa9d16f5 ]
+[ Upstream commit 19317433057dc1f2ca9a975e4e6b547282c2a5ef ]
 
-The other NAND pins on Port C use the "nand0" function name.
-"nand0" also matches all of the other Allwinner SoCs.
+'size' may be used uninitialized in gsm_dlci_modem_output() if called with
+an adaption that is neither 1 nor 2. The function is currently only called
+by gsm_modem_upd_via_data() and only for adaption 2.
+Properly handle every invalid case by returning -EINVAL to silence the
+compiler warning and avoid future regressions.
 
-Fixes: 4730f33f0d82 ("pinctrl: sunxi: add allwinner A83T PIO controller support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220526024956.49500-1-samuel@sholland.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c19ffe00fed6 ("tty: n_gsm: fix invalid use of MSC in advanced option")
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220425104726.7986-1-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/tty/n_gsm.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-index 383977ea3a3c..0b5aba4bf338 100644
---- a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-@@ -158,26 +158,26 @@ static const struct sunxi_desc_pin sun8i_a83t_pins[] = {
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 14),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ6 */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ6 */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D6 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ7 */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ7 */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D7 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 16),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQS */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQS */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* RST */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 17),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand")),		/* CE2 */
-+		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE2 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 18),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand")),		/* CE3 */
-+		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE3 */
- 	/* Hole */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index c8ca00fad8e4..fd4a86111a6e 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -945,18 +945,21 @@ static int gsm_dlci_modem_output(struct gsm_mux *gsm, struct gsm_dlci *dlci,
+ {
+ 	u8 *dp = NULL;
+ 	struct gsm_msg *msg;
+-	int size;
++	int size = 0;
+ 
+ 	/* for modem bits without break data */
+-	if (dlci->adaption == 1) {
+-		size = 0;
+-	} else if (dlci->adaption == 2) {
+-		size = 1;
++	switch (dlci->adaption) {
++	case 1: /* Unstructured */
++		break;
++	case 2: /* Unstructured with modem bits. */
++		size++;
+ 		if (brk > 0)
+ 			size++;
+-	} else {
++		break;
++	default:
+ 		pr_err("%s: unsupported adaption %d\n", __func__,
+ 		       dlci->adaption);
++		return -EINVAL;
+ 	}
+ 
+ 	msg = gsm_data_alloc(gsm, dlci->addr, size, gsm->ftype);
 -- 
 2.35.1
 
