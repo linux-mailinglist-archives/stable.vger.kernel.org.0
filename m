@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B60E456FD5A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:54:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C2756FBA1
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbiGKJyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35772 "EHLO
+        id S232437AbiGKJda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234051AbiGKJyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:54:08 -0400
+        with ESMTP id S232289AbiGKJc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9ADAF743;
-        Mon, 11 Jul 2022 02:25:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9639B78DD7;
+        Mon, 11 Jul 2022 02:17:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EF3061366;
-        Mon, 11 Jul 2022 09:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB2BC34115;
-        Mon, 11 Jul 2022 09:25:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A18F6122D;
+        Mon, 11 Jul 2022 09:17:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1939DC34115;
+        Mon, 11 Jul 2022 09:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531546;
-        bh=y6KWV1l7vFa0AvPblk5Xk5IqSRITdwavbUj/jVWrbMo=;
+        s=korg; t=1657531058;
+        bh=DoAdjjA6vsIejV4loK50pbT1nheKnTBbr6OKl7P5HVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IttRf0t12GDfEPitC9FLR2iXKOngwGS0p8NIqZCDHnCdz2EVAKQfBCWqbXWQS9WHj
-         wmrdQWrJrzWbW3KOinKn6SwzDOMZEp/VWJlSZWo3d2woXLERIuvTpNycBpTeU2u2ij
-         m92XUT3S35y/XPXX9YkeDMUgw70ZTQMXquzkNFXw=
+        b=xI2r2tV2oaCCmHe8jjDMDLyEbyEtQaxqRhy2mMYSe2pefYuoQprR+rruR23qvVTm2
+         fTaRFsOMO9+b0YPNuje1LW+5s4WFWRZzQxrO506r3t2PTK2RO7VIv61lCqJSEl8VVj
+         mUxaxM5Sl8vFsfjjFv0sDhEKbiR1SOBtXxueEESs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        "jason-jh.lin" <jason-jh.lin@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 145/230] drm/mediatek: Remove the pointer of struct cmdq_client
+        stable@vger.kernel.org, Max Kellermann <mk@cm4all.com>,
+        David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.18 041/112] fscache: Fix invalidation/lookup race
 Date:   Mon, 11 Jul 2022 11:06:41 +0200
-Message-Id: <20220711090608.175503461@linuxfoundation.org>
+Message-Id: <20220711090550.739560152@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,131 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 563c9d4a5b117552150efbecbaf0877947e98a32 ]
+commit 85e4ea1049c70fb99de5c6057e835d151fb647da upstream.
 
-In mailbox rx_callback, it pass struct mbox_client to callback
-function, but it could not map back to mtk_drm_crtc instance
-because struct cmdq_client use a pointer to struct mbox_client:
+If an NFS file is opened for writing and closed, fscache_invalidate() will
+be asked to invalidate the file - however, if the cookie is in the
+LOOKING_UP state (or the CREATING state), then request to invalidate
+doesn't get recorded for fscache_cookie_state_machine() to do something
+with.
 
-struct cmdq_client {
-	struct mbox_client client;
-	struct mbox_chan *chan;
-};
+Fix this by making __fscache_invalidate() set a flag if it sees the cookie
+is in the LOOKING_UP state to indicate that we need to go to invalidation.
+Note that this requires a count on the n_accesses counter for the state
+machine, which that will release when it's done.
 
-struct mtk_drm_crtc {
-	/* client instance data */
-	struct cmdq_client *cmdq_client;
-};
+fscache_cookie_state_machine() then shifts to the INVALIDATING state if it
+sees the flag.
 
-so remove the pointer of struct cmdq_client and let mtk_drm_crtc
-instance define cmdq_client as:
+Without this, an nfs file can get corrupted if it gets modified locally and
+then read locally as the cache contents may not get updated.
 
-struct mtk_drm_crtc {
-	/* client instance data */
-	struct cmdq_client cmdq_client;
-};
-
-and in rx_callback function, use struct mbox_client to get
-struct mtk_drm_crtc.
-
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: jason-jh.lin <jason-jh.lin@mediatek.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d24af13e2e23 ("fscache: Implement cookie invalidation")
+Reported-by: Max Kellermann <mk@cm4all.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Max Kellermann <mk@cm4all.com>
+Link: https://lore.kernel.org/r/YlWWbpW5Foynjllo@rabbit.intern.cm-ag [1]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 37 +++++++++++++------------
- 1 file changed, 20 insertions(+), 17 deletions(-)
+ fs/fscache/cookie.c     |   15 ++++++++++++++-
+ include/linux/fscache.h |    1 +
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index 369d3e68c0b6..e23e3224ac67 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -52,7 +52,7 @@ struct mtk_drm_crtc {
- 	bool				pending_async_planes;
- 
- #if IS_REACHABLE(CONFIG_MTK_CMDQ)
--	struct cmdq_client		*cmdq_client;
-+	struct cmdq_client		cmdq_client;
- 	u32				cmdq_event;
- #endif
- 
-@@ -472,19 +472,19 @@ static void mtk_drm_crtc_update_config(struct mtk_drm_crtc *mtk_crtc,
- 		mtk_mutex_release(mtk_crtc->mutex);
- 	}
- #if IS_REACHABLE(CONFIG_MTK_CMDQ)
--	if (mtk_crtc->cmdq_client) {
--		mbox_flush(mtk_crtc->cmdq_client->chan, 2000);
--		cmdq_handle = cmdq_pkt_create(mtk_crtc->cmdq_client, PAGE_SIZE);
-+	if (mtk_crtc->cmdq_client.chan) {
-+		mbox_flush(mtk_crtc->cmdq_client.chan, 2000);
-+		cmdq_handle = cmdq_pkt_create(&mtk_crtc->cmdq_client, PAGE_SIZE);
- 		cmdq_pkt_clear_event(cmdq_handle, mtk_crtc->cmdq_event);
- 		cmdq_pkt_wfe(cmdq_handle, mtk_crtc->cmdq_event, false);
- 		mtk_crtc_ddp_config(crtc, cmdq_handle);
- 		cmdq_pkt_finalize(cmdq_handle);
--		dma_sync_single_for_device(mtk_crtc->cmdq_client->chan->mbox->dev,
-+		dma_sync_single_for_device(mtk_crtc->cmdq_client.chan->mbox->dev,
- 					   cmdq_handle->pa_base,
- 					   cmdq_handle->cmd_buf_size,
- 					   DMA_TO_DEVICE);
--		mbox_send_message(mtk_crtc->cmdq_client->chan, cmdq_handle);
--		mbox_client_txdone(mtk_crtc->cmdq_client->chan, 0);
-+		mbox_send_message(mtk_crtc->cmdq_client.chan, cmdq_handle);
-+		mbox_client_txdone(mtk_crtc->cmdq_client.chan, 0);
- 	}
- #endif
- 	mtk_crtc->config_updating = false;
-@@ -498,7 +498,7 @@ static void mtk_crtc_ddp_irq(void *data)
- 	struct mtk_drm_private *priv = crtc->dev->dev_private;
- 
- #if IS_REACHABLE(CONFIG_MTK_CMDQ)
--	if (!priv->data->shadow_register && !mtk_crtc->cmdq_client)
-+	if (!priv->data->shadow_register && !mtk_crtc->cmdq_client.chan)
- #else
- 	if (!priv->data->shadow_register)
- #endif
-@@ -838,17 +838,20 @@ int mtk_drm_crtc_create(struct drm_device *drm_dev,
- 	mutex_init(&mtk_crtc->hw_lock);
- 
- #if IS_REACHABLE(CONFIG_MTK_CMDQ)
--	mtk_crtc->cmdq_client =
--			cmdq_mbox_create(mtk_crtc->mmsys_dev,
--					 drm_crtc_index(&mtk_crtc->base));
--	if (IS_ERR(mtk_crtc->cmdq_client)) {
-+	mtk_crtc->cmdq_client.client.dev = mtk_crtc->mmsys_dev;
-+	mtk_crtc->cmdq_client.client.tx_block = false;
-+	mtk_crtc->cmdq_client.client.knows_txdone = true;
-+	mtk_crtc->cmdq_client.client.rx_callback = ddp_cmdq_cb;
-+	mtk_crtc->cmdq_client.chan =
-+			mbox_request_channel(&mtk_crtc->cmdq_client.client,
-+					     drm_crtc_index(&mtk_crtc->base));
-+	if (IS_ERR(mtk_crtc->cmdq_client.chan)) {
- 		dev_dbg(dev, "mtk_crtc %d failed to create mailbox client, writing register by CPU now\n",
- 			drm_crtc_index(&mtk_crtc->base));
--		mtk_crtc->cmdq_client = NULL;
-+		mtk_crtc->cmdq_client.chan = NULL;
+--- a/fs/fscache/cookie.c
++++ b/fs/fscache/cookie.c
+@@ -517,7 +517,14 @@ static void fscache_perform_lookup(struc
  	}
  
--	if (mtk_crtc->cmdq_client) {
--		mtk_crtc->cmdq_client->client.rx_callback = ddp_cmdq_cb;
-+	if (mtk_crtc->cmdq_client.chan) {
- 		ret = of_property_read_u32_index(priv->mutex_node,
- 						 "mediatek,gce-events",
- 						 drm_crtc_index(&mtk_crtc->base),
-@@ -856,8 +859,8 @@ int mtk_drm_crtc_create(struct drm_device *drm_dev,
- 		if (ret) {
- 			dev_dbg(dev, "mtk_crtc %d failed to get mediatek,gce-events property\n",
- 				drm_crtc_index(&mtk_crtc->base));
--			cmdq_mbox_destroy(mtk_crtc->cmdq_client);
--			mtk_crtc->cmdq_client = NULL;
-+			mbox_free_channel(mtk_crtc->cmdq_client.chan);
-+			mtk_crtc->cmdq_client.chan = NULL;
+ 	fscache_see_cookie(cookie, fscache_cookie_see_active);
+-	fscache_set_cookie_state(cookie, FSCACHE_COOKIE_STATE_ACTIVE);
++	spin_lock(&cookie->lock);
++	if (test_and_clear_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
++		__fscache_set_cookie_state(cookie,
++					   FSCACHE_COOKIE_STATE_INVALIDATING);
++	else
++		__fscache_set_cookie_state(cookie, FSCACHE_COOKIE_STATE_ACTIVE);
++	spin_unlock(&cookie->lock);
++	wake_up_cookie_state(cookie);
+ 	trace = fscache_access_lookup_cookie_end;
+ 
+ out:
+@@ -752,6 +759,9 @@ again_locked:
+ 			spin_lock(&cookie->lock);
  		}
- 	}
- #endif
--- 
-2.35.1
-
+ 
++		if (test_and_clear_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
++			fscache_end_cookie_access(cookie, fscache_access_invalidate_cookie_end);
++
+ 		switch (state) {
+ 		case FSCACHE_COOKIE_STATE_RELINQUISHING:
+ 			fscache_see_cookie(cookie, fscache_cookie_see_relinquish);
+@@ -1048,6 +1058,9 @@ void __fscache_invalidate(struct fscache
+ 		return;
+ 
+ 	case FSCACHE_COOKIE_STATE_LOOKING_UP:
++		__fscache_begin_cookie_access(cookie, fscache_access_invalidate_cookie);
++		set_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags);
++		fallthrough;
+ 	case FSCACHE_COOKIE_STATE_CREATING:
+ 		spin_unlock(&cookie->lock);
+ 		_leave(" [look %x]", cookie->inval_counter);
+--- a/include/linux/fscache.h
++++ b/include/linux/fscache.h
+@@ -129,6 +129,7 @@ struct fscache_cookie {
+ #define FSCACHE_COOKIE_DO_PREP_TO_WRITE	12		/* T if cookie needs write preparation */
+ #define FSCACHE_COOKIE_HAVE_DATA	13		/* T if this cookie has data stored */
+ #define FSCACHE_COOKIE_IS_HASHED	14		/* T if this cookie is hashed */
++#define FSCACHE_COOKIE_DO_INVALIDATE	15		/* T if cookie needs invalidation */
+ 
+ 	enum fscache_cookie_state	state;
+ 	u8				advice;		/* FSCACHE_ADV_* */
 
 
