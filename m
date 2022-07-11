@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F59156FC98
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 439F056FC95
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233401AbiGKJp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
+        id S233376AbiGKJp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233766AbiGKJo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BE3165579;
-        Mon, 11 Jul 2022 02:22:25 -0700 (PDT)
+        with ESMTP id S233794AbiGKJo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FF0A9E44;
+        Mon, 11 Jul 2022 02:22:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAD3E612F1;
-        Mon, 11 Jul 2022 09:22:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B49C34115;
-        Mon, 11 Jul 2022 09:22:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91613612F1;
+        Mon, 11 Jul 2022 09:22:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D057C34115;
+        Mon, 11 Jul 2022 09:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531344;
-        bh=AUh9IYr5aMUKXPDT6lbV8vkYuEZJ42X0dasAyZ14M6g=;
+        s=korg; t=1657531347;
+        bh=pTxtoLbMkPQmSeDvjO5YStqyjNXGzgQQA4ofL0zE1wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6HoQLGCOxD9EHCpZL4zdpQJnAX6KF5dFr+gCs/oWHXhWV4vaZU3EeriL/ZbO38mD
-         99o3zb215yJa2QIJamXT/WMnZJ0lx3j08eH7UIXIj2gg9QxyVxWdeRvnObbLbzapGb
-         7TOaT4ypVhOo/QyI0KH6jTtH2mu7yHrndGFNqyoo=
+        b=Y7zgrKe9KT+w9DERtLdY+B2NiNm+SOnY+WG6qcPFhxuVycRqlVtjUYgaF1w5yfa7s
+         oYD5MEkXc4tQIFFtowMckeZ12ZcvT63Eeqg31O7I2Iq9Hm38CLVrHEPAA4Np656qzY
+         mYX+bXK7hQkTTLaqWLqs6ZHSU74nG0dSkA3O+vsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>,
+        Johan Hovold <johan@kernel.org>,
+        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/230] media: omap3isp: Use struct_group() for memcpy() region
-Date:   Mon, 11 Jul 2022 11:05:27 +0200
-Message-Id: <20220711090606.090894937@linuxfoundation.org>
+Subject: [PATCH 5.15 072/230] media: davinci: vpif: fix use-after-free on driver unbind
+Date:   Mon, 11 Jul 2022 11:05:28 +0200
+Message-Id: <20220711090606.118956055@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -58,132 +57,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit d4568fc8525897e683983806f813be1ae9eedaed ]
+[ Upstream commit 43acb728bbc40169d2e2425e84a80068270974be ]
 
-In preparation for FORTIFY_SOURCE performing compile-time and run-time
-field bounds checking for memcpy(), memmove(), and memset(), avoid
-intentionally writing across neighboring fields. Wrap the target region
-in struct_group(). This additionally fixes a theoretical misalignment
-of the copy (since the size of "buf" changes between 64-bit and 32-bit,
-but this is likely never built for 64-bit).
+The driver allocates and registers two platform device structures during
+probe, but the devices were never deregistered on driver unbind.
 
-FWIW, I think this code is totally broken on 64-bit (which appears to
-not be a "real" build configuration): it would either always fail (with
-an uninitialized data->buf_size) or would cause corruption in userspace
-due to the copy_to_user() in the call path against an uninitialized
-data->buf value:
+This results in a use-after-free on driver unbind as the device
+structures were allocated using devres and would be freed by driver
+core when remove() returns.
 
-omap3isp_stat_request_statistics_time32(...)
-    struct omap3isp_stat_data data64;
-    ...
-    omap3isp_stat_request_statistics(stat, &data64);
+Fix this by adding the missing deregistration calls to the remove()
+callback and failing probe on registration errors.
 
-int omap3isp_stat_request_statistics(struct ispstat *stat,
-                                     struct omap3isp_stat_data *data)
-    ...
-    buf = isp_stat_buf_get(stat, data);
+Note that the platform device structures must be freed using a proper
+release callback to avoid leaking associated resources like device
+names.
 
-static struct ispstat_buffer *isp_stat_buf_get(struct ispstat *stat,
-                                               struct omap3isp_stat_data *data)
-...
-    if (buf->buf_size > data->buf_size) {
-            ...
-            return ERR_PTR(-EINVAL);
-    }
-    ...
-    rval = copy_to_user(data->buf,
-                        buf->virt_addr,
-                        buf->buf_size);
-
-Regardless, additionally initialize data64 to be zero-filled to avoid
-undefined behavior.
-
-Link: https://lore.kernel.org/lkml/20211215220505.GB21862@embeddedor
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Fixes: 378e3f81cb56 ("media: omap3isp: support 64-bit version of omap3isp_stat_data")
-Cc: stable@vger.kernel.org
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/omap3isp/ispstat.c |  5 +++--
- include/uapi/linux/omap3isp.h             | 21 +++++++++++++--------
- 2 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/media/platform/davinci/vpif.c | 97 ++++++++++++++++++++-------
+ 1 file changed, 71 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/media/platform/omap3isp/ispstat.c b/drivers/media/platform/omap3isp/ispstat.c
-index 5b9b57f4d9bf..68cf68dbcace 100644
---- a/drivers/media/platform/omap3isp/ispstat.c
-+++ b/drivers/media/platform/omap3isp/ispstat.c
-@@ -512,7 +512,7 @@ int omap3isp_stat_request_statistics(struct ispstat *stat,
- int omap3isp_stat_request_statistics_time32(struct ispstat *stat,
- 					struct omap3isp_stat_data_time32 *data)
+diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
+index 5658c7f148d7..8ffc01c606d0 100644
+--- a/drivers/media/platform/davinci/vpif.c
++++ b/drivers/media/platform/davinci/vpif.c
+@@ -41,6 +41,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAME);
+ #define VPIF_CH2_MAX_MODES	15
+ #define VPIF_CH3_MAX_MODES	2
+ 
++struct vpif_data {
++	struct platform_device *capture;
++	struct platform_device *display;
++};
++
+ DEFINE_SPINLOCK(vpif_lock);
+ EXPORT_SYMBOL_GPL(vpif_lock);
+ 
+@@ -423,11 +428,19 @@ int vpif_channel_getfid(u8 channel_id)
+ }
+ EXPORT_SYMBOL(vpif_channel_getfid);
+ 
++static void vpif_pdev_release(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++
++	kfree(pdev);
++}
++
+ static int vpif_probe(struct platform_device *pdev)
  {
--	struct omap3isp_stat_data data64;
-+	struct omap3isp_stat_data data64 = { };
+ 	static struct resource	*res, *res_irq;
+ 	struct platform_device *pdev_capture, *pdev_display;
+ 	struct device_node *endpoint = NULL;
++	struct vpif_data *data;
  	int ret;
  
- 	ret = omap3isp_stat_request_statistics(stat, &data64);
-@@ -521,7 +521,8 @@ int omap3isp_stat_request_statistics_time32(struct ispstat *stat,
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -435,6 +448,12 @@ static int vpif_probe(struct platform_device *pdev)
+ 	if (IS_ERR(vpif_base))
+ 		return PTR_ERR(vpif_base);
  
- 	data->ts.tv_sec = data64.ts.tv_sec;
- 	data->ts.tv_usec = data64.ts.tv_usec;
--	memcpy(&data->buf, &data64.buf, sizeof(*data) - sizeof(data->ts));
-+	data->buf = (uintptr_t)data64.buf;
-+	memcpy(&data->frame, &data64.frame, sizeof(data->frame));
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, data);
++
+ 	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_get(&pdev->dev);
  
+@@ -462,49 +481,75 @@ static int vpif_probe(struct platform_device *pdev)
+ 		goto err_put_rpm;
+ 	}
+ 
+-	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
+-				    GFP_KERNEL);
+-	if (pdev_capture) {
+-		pdev_capture->name = "vpif_capture";
+-		pdev_capture->id = -1;
+-		pdev_capture->resource = res_irq;
+-		pdev_capture->num_resources = 1;
+-		pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
+-		pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+-		pdev_capture->dev.parent = &pdev->dev;
+-		platform_device_register(pdev_capture);
+-	} else {
+-		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_capture.\n");
++	pdev_capture = kzalloc(sizeof(*pdev_capture), GFP_KERNEL);
++	if (!pdev_capture) {
++		ret = -ENOMEM;
++		goto err_put_rpm;
+ 	}
+ 
+-	pdev_display = devm_kzalloc(&pdev->dev, sizeof(*pdev_display),
+-				    GFP_KERNEL);
+-	if (pdev_display) {
+-		pdev_display->name = "vpif_display";
+-		pdev_display->id = -1;
+-		pdev_display->resource = res_irq;
+-		pdev_display->num_resources = 1;
+-		pdev_display->dev.dma_mask = pdev->dev.dma_mask;
+-		pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+-		pdev_display->dev.parent = &pdev->dev;
+-		platform_device_register(pdev_display);
+-	} else {
+-		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_display.\n");
++	pdev_capture->name = "vpif_capture";
++	pdev_capture->id = -1;
++	pdev_capture->resource = res_irq;
++	pdev_capture->num_resources = 1;
++	pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
++	pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
++	pdev_capture->dev.parent = &pdev->dev;
++	pdev_capture->dev.release = vpif_pdev_release;
++
++	ret = platform_device_register(pdev_capture);
++	if (ret)
++		goto err_put_pdev_capture;
++
++	pdev_display = kzalloc(sizeof(*pdev_display), GFP_KERNEL);
++	if (!pdev_display) {
++		ret = -ENOMEM;
++		goto err_put_pdev_capture;
+ 	}
+ 
++	pdev_display->name = "vpif_display";
++	pdev_display->id = -1;
++	pdev_display->resource = res_irq;
++	pdev_display->num_resources = 1;
++	pdev_display->dev.dma_mask = pdev->dev.dma_mask;
++	pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
++	pdev_display->dev.parent = &pdev->dev;
++	pdev_display->dev.release = vpif_pdev_release;
++
++	ret = platform_device_register(pdev_display);
++	if (ret)
++		goto err_put_pdev_display;
++
++	data->capture = pdev_capture;
++	data->display = pdev_display;
++
+ 	return 0;
+ 
++err_put_pdev_display:
++	platform_device_put(pdev_display);
++err_put_pdev_capture:
++	platform_device_put(pdev_capture);
+ err_put_rpm:
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
++	kfree(data);
+ 
+ 	return ret;
+ }
+ 
+ static int vpif_remove(struct platform_device *pdev)
+ {
++	struct vpif_data *data = platform_get_drvdata(pdev);
++
++	if (data->capture)
++		platform_device_unregister(data->capture);
++	if (data->display)
++		platform_device_unregister(data->display);
++
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
++
++	kfree(data);
++
  	return 0;
  }
-diff --git a/include/uapi/linux/omap3isp.h b/include/uapi/linux/omap3isp.h
-index 87b55755f4ff..d9db7ad43890 100644
---- a/include/uapi/linux/omap3isp.h
-+++ b/include/uapi/linux/omap3isp.h
-@@ -162,6 +162,7 @@ struct omap3isp_h3a_aewb_config {
-  * struct omap3isp_stat_data - Statistic data sent to or received from user
-  * @ts: Timestamp of returned framestats.
-  * @buf: Pointer to pass to user.
-+ * @buf_size: Size of buffer.
-  * @frame_number: Frame number of requested stats.
-  * @cur_frame: Current frame number being processed.
-  * @config_counter: Number of the configuration associated with the data.
-@@ -176,10 +177,12 @@ struct omap3isp_stat_data {
- 	struct timeval ts;
- #endif
- 	void __user *buf;
--	__u32 buf_size;
--	__u16 frame_number;
--	__u16 cur_frame;
--	__u16 config_counter;
-+	__struct_group(/* no tag */, frame, /* no attrs */,
-+		__u32 buf_size;
-+		__u16 frame_number;
-+		__u16 cur_frame;
-+		__u16 config_counter;
-+	);
- };
- 
- #ifdef __KERNEL__
-@@ -189,10 +192,12 @@ struct omap3isp_stat_data_time32 {
- 		__s32	tv_usec;
- 	} ts;
- 	__u32 buf;
--	__u32 buf_size;
--	__u16 frame_number;
--	__u16 cur_frame;
--	__u16 config_counter;
-+	__struct_group(/* no tag */, frame, /* no attrs */,
-+		__u32 buf_size;
-+		__u16 frame_number;
-+		__u16 cur_frame;
-+		__u16 config_counter;
-+	);
- };
- #endif
  
 -- 
 2.35.1
