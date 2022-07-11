@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C9056FC91
+	by mail.lfdr.de (Postfix) with ESMTP id 5981A56FC92
 	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbiGKJp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
+        id S233373AbiGKJp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233745AbiGKJox (ORCPT
+        with ESMTP id S233751AbiGKJox (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F0865564;
-        Mon, 11 Jul 2022 02:22:21 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21766556D;
+        Mon, 11 Jul 2022 02:22:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA7D8B80E6D;
-        Mon, 11 Jul 2022 09:22:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 316A5C341C8;
-        Mon, 11 Jul 2022 09:22:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25A22612FE;
+        Mon, 11 Jul 2022 09:22:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D070C34115;
+        Mon, 11 Jul 2022 09:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531338;
-        bh=a0WyAbxVFMqNHfDvGyHJPsBeIcAafRbFW85cd1hCW0M=;
+        s=korg; t=1657531341;
+        bh=Rq9vb6WikgfKYlDfhi0TMEnx25Zy4QErCJtOFjm+XEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rR9/V+S2IzVkbGMM2Ys/TzswOID8pYw1WCE4PYOwGAxrybAQr1tSgcd/MWRplxbfh
-         xeIVqwKzzaPccwobDaIfgUHAk1kUUl1tKbL3kF4Cc0EdXFvrr+bQuoxoaNX490ynPY
-         vT8401qfHt+jfxE/1u8+2nQzXqF1gdB5QciNLFW4=
+        b=1fnesUghuM2UqkpoJHjlB0mX2Zac/sKoe7RouXEG+fCmhCzz7CSUJHkcAwOK82XjW
+         p3NBT7l/AlMciQAT6/31KV687LQ/8anOrIZAykaTVCrjCqbJjhCnSAMwqsRkEsF1V5
+         yiw1EvZ+mpzn6RudJOwjSucK4uVkq650sMctVM4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Ming Lei <ming.lei@redhat.com>, Yu Kuai <yukuai3@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 069/230] block: fix rq-qos breakage from skipping rq_qos_done_bio()
-Date:   Mon, 11 Jul 2022 11:05:25 +0200
-Message-Id: <20220711090606.034512477@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Packard <keithp@keithp.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.15 070/230] stddef: Introduce struct_group() helper macro
+Date:   Mon, 11 Jul 2022 11:05:26 +0200
+Message-Id: <20220711090606.063060909@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,179 +58,259 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit aa1b46dcdc7baaf5fec0be25782ef24b26aa209e ]
+[ Upstream commit 50d7bd38c3aafc4749e05e8d7fcb616979143602 ]
 
-a647a524a467 ("block: don't call rq_qos_ops->done_bio if the bio isn't
-tracked") made bio_endio() skip rq_qos_done_bio() if BIO_TRACKED is not set.
-While this fixed a potential oops, it also broke blk-iocost by skipping the
-done_bio callback for merged bios.
+Kernel code has a regular need to describe groups of members within a
+structure usually when they need to be copied or initialized separately
+from the rest of the surrounding structure. The generally accepted design
+pattern in C is to use a named sub-struct:
 
-Before, whether a bio goes through rq_qos_throttle() or rq_qos_merge(),
-rq_qos_done_bio() would be called on the bio on completion with BIO_TRACKED
-distinguishing the former from the latter. rq_qos_done_bio() is not called
-for bios which wenth through rq_qos_merge(). This royally confuses
-blk-iocost as the merged bios never finish and are considered perpetually
-in-flight.
+	struct foo {
+		int one;
+		struct {
+			int two;
+			int three, four;
+		} thing;
+		int five;
+	};
 
-One reliably reproducible failure mode is an intermediate cgroup geting
-stuck active preventing its children from being activated due to the
-leaf-only rule, leading to loss of control. The following is from
-resctl-bench protection scenario which emulates isolating a web server like
-workload from a memory bomb run on an iocost configuration which should
-yield a reasonable level of protection.
+This would allow for traditional references and sizing:
 
-  # cat /sys/block/nvme2n1/device/model
-  Samsung SSD 970 PRO 512GB
-  # cat /sys/fs/cgroup/io.cost.model
-  259:0 ctrl=user model=linear rbps=834913556 rseqiops=93622 rrandiops=102913 wbps=618985353 wseqiops=72325 wrandiops=71025
-  # cat /sys/fs/cgroup/io.cost.qos
-  259:0 enable=1 ctrl=user rpct=95.00 rlat=18776 wpct=95.00 wlat=8897 min=60.00 max=100.00
-  # resctl-bench -m 29.6G -r out.json run protection::scenario=mem-hog,loops=1
-  ...
-  Memory Hog Summary
-  ==================
+	memcpy(&dst.thing, &src.thing, sizeof(dst.thing));
 
-  IO Latency: R p50=242u:336u/2.5m p90=794u:1.4m/7.5m p99=2.7m:8.0m/62.5m max=8.0m:36.4m/350m
-              W p50=221u:323u/1.5m p90=709u:1.2m/5.5m p99=1.5m:2.5m/9.5m max=6.9m:35.9m/350m
+However, doing this would mean that referencing struct members enclosed
+by such named structs would always require including the sub-struct name
+in identifiers:
 
-  Isolation and Request Latency Impact Distributions:
+	do_something(dst.thing.three);
 
-                min   p01   p05   p10   p25   p50   p75   p90   p95   p99   max  mean stdev
-  isol%       15.90 15.90 15.90 40.05 57.24 59.07 60.01 74.63 74.63 90.35 90.35 58.12 15.82
-  lat-imp%        0     0     0     0     0  4.55 14.68 15.54 233.5 548.1 548.1 53.88 143.6
+This has tended to be quite inflexible, especially when such groupings
+need to be added to established code which causes huge naming churn.
+Three workarounds exist in the kernel for this problem, and each have
+other negative properties.
 
-  Result: isol=58.12:15.82% lat_imp=53.88%:143.6 work_csv=100.0% missing=3.96%
+To avoid the naming churn, there is a design pattern of adding macro
+aliases for the named struct:
 
-The isolation result of 58.12% is close to what this device would show
-without any IO control.
+	#define f_three thing.three
 
-Fix it by introducing a new flag BIO_QOS_MERGED to mark merged bios and
-calling rq_qos_done_bio() on them too. For consistency and clarity, rename
-BIO_TRACKED to BIO_QOS_THROTTLED. The flag checks are moved into
-rq_qos_done_bio() so that it's next to the code paths that set the flags.
+This ends up polluting the global namespace, and makes it difficult to
+search for identifiers.
 
-With the patch applied, the above same benchmark shows:
+Another common work-around in kernel code avoids the pollution by avoiding
+the named struct entirely, instead identifying the group's boundaries using
+either a pair of empty anonymous structs of a pair of zero-element arrays:
 
-  # resctl-bench -m 29.6G -r out.json run protection::scenario=mem-hog,loops=1
-  ...
-  Memory Hog Summary
-  ==================
+	struct foo {
+		int one;
+		struct { } start;
+		int two;
+		int three, four;
+		struct { } finish;
+		int five;
+	};
 
-  IO Latency: R p50=123u:84.4u/985u p90=322u:256u/2.5m p99=1.6m:1.4m/9.5m max=11.1m:36.0m/350m
-              W p50=429u:274u/995u p90=1.7m:1.3m/4.5m p99=3.4m:2.7m/11.5m max=7.9m:5.9m/26.5m
+	struct foo {
+		int one;
+		int start[0];
+		int two;
+		int three, four;
+		int finish[0];
+		int five;
+	};
 
-  Isolation and Request Latency Impact Distributions:
+This allows code to avoid needing to use a sub-struct named for member
+references within the surrounding structure, but loses the benefits of
+being able to actually use such a struct, making it rather fragile. Using
+these requires open-coded calculation of sizes and offsets. The efforts
+made to avoid common mistakes include lots of comments, or adding various
+BUILD_BUG_ON()s. Such code is left with no way for the compiler to reason
+about the boundaries (e.g. the "start" object looks like it's 0 bytes
+in length), making bounds checking depend on open-coded calculations:
 
-                min   p01   p05   p10   p25   p50   p75   p90   p95   p99   max  mean stdev
-  isol%       84.91 84.91 89.51 90.73 92.31 94.49 96.36 98.04 98.71 100.0 100.0 94.42  2.81
-  lat-imp%        0     0     0     0     0  2.81  5.73 11.11 13.92 17.53 22.61  4.10  4.68
+	if (length > offsetof(struct foo, finish) -
+		     offsetof(struct foo, start))
+		return -EINVAL;
+	memcpy(&dst.start, &src.start, offsetof(struct foo, finish) -
+				       offsetof(struct foo, start));
 
-  Result: isol=94.42:2.81% lat_imp=4.10%:4.68 work_csv=58.34% missing=0%
+However, the vast majority of places in the kernel that operate on
+groups of members do so without any identification of the grouping,
+relying either on comments or implicit knowledge of the struct contents,
+which is even harder for the compiler to reason about, and results in
+even more fragile manual sizing, usually depending on member locations
+outside of the region (e.g. to copy "two" and "three", use the start of
+"four" to find the size):
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Fixes: a647a524a467 ("block: don't call rq_qos_ops->done_bio if the bio isn't tracked")
-Cc: stable@vger.kernel.org # v5.15+
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/Yi7rdrzQEHjJLGKB@slm.duckdns.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+	BUILD_BUG_ON((offsetof(struct foo, four) <
+		      offsetof(struct foo, two)) ||
+		     (offsetof(struct foo, four) <
+		      offsetof(struct foo, three));
+	if (length > offsetof(struct foo, four) -
+		     offsetof(struct foo, two))
+		return -EINVAL;
+	memcpy(&dst.two, &src.two, length);
+
+In order to have a regular programmatic way to describe a struct
+region that can be used for references and sizing, can be examined for
+bounds checking, avoids forcing the use of intermediate identifiers,
+and avoids polluting the global namespace, introduce the struct_group()
+macro. This macro wraps the member declarations to create an anonymous
+union of an anonymous struct (no intermediate name) and a named struct
+(for references and sizing):
+
+	struct foo {
+		int one;
+		struct_group(thing,
+			int two;
+			int three, four;
+		);
+		int five;
+	};
+
+	if (length > sizeof(src.thing))
+		return -EINVAL;
+	memcpy(&dst.thing, &src.thing, length);
+	do_something(dst.three);
+
+There are some rare cases where the resulting struct_group() needs
+attributes added, so struct_group_attr() is also introduced to allow
+for specifying struct attributes (e.g. __align(x) or __packed).
+Additionally, there are places where such declarations would like to
+have the struct be tagged, so struct_group_tagged() is added.
+
+Given there is a need for a handful of UAPI uses too, the underlying
+__struct_group() macro has been defined in UAPI so it can be used there
+too.
+
+To avoid confusing scripts/kernel-doc, hide the macro from its struct
+parsing.
+
+Co-developed-by: Keith Packard <keithp@keithp.com>
+Signed-off-by: Keith Packard <keithp@keithp.com>
+Acked-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/lkml/20210728023217.GC35706@embeddedor
+Enhanced-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Link: https://lore.kernel.org/lkml/41183a98-bdb9-4ad6-7eab-5a7292a6df84@rasmusvillemoes.dk
+Enhanced-by: Dan Williams <dan.j.williams@intel.com>
+Link: https://lore.kernel.org/lkml/1d9a2e6df2a9a35b2cdd50a9a68cac5991e7e5f0.camel@intel.com
+Enhanced-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://lore.kernel.org/lkml/YQKa76A6XuFqgM03@phenom.ffwll.local
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c               |  3 +--
- block/blk-iolatency.c     |  2 +-
- block/blk-rq-qos.h        | 20 +++++++++++---------
- include/linux/blk_types.h |  3 ++-
- 4 files changed, 15 insertions(+), 13 deletions(-)
+ include/linux/stddef.h      | 48 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/stddef.h | 21 ++++++++++++++++
+ scripts/kernel-doc          |  7 ++++++
+ 3 files changed, 76 insertions(+)
 
-diff --git a/block/bio.c b/block/bio.c
-index 365bb6362669..b8a8bfba714f 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1470,8 +1470,7 @@ void bio_endio(struct bio *bio)
- 	if (!bio_integrity_endio(bio))
- 		return;
+diff --git a/include/linux/stddef.h b/include/linux/stddef.h
+index 998a4ba28eba..938216f8ab7e 100644
+--- a/include/linux/stddef.h
++++ b/include/linux/stddef.h
+@@ -36,4 +36,52 @@ enum {
+ #define offsetofend(TYPE, MEMBER) \
+ 	(offsetof(TYPE, MEMBER)	+ sizeof_field(TYPE, MEMBER))
  
--	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACKED))
--		rq_qos_done_bio(bdev_get_queue(bio->bi_bdev), bio);
-+	rq_qos_done_bio(bio);
- 
- 	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
- 		trace_block_bio_complete(bdev_get_queue(bio->bi_bdev), bio);
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index ce3847499d85..d85f30a85ee7 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -601,7 +601,7 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 	int inflight = 0;
- 
- 	blkg = bio->bi_blkg;
--	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
-+	if (!blkg || !bio_flagged(bio, BIO_QOS_THROTTLED))
- 		return;
- 
- 	iolat = blkg_to_lat(bio->bi_blkg);
-diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 3cfbc8668cba..68267007da1c 100644
---- a/block/blk-rq-qos.h
-+++ b/block/blk-rq-qos.h
-@@ -177,20 +177,20 @@ static inline void rq_qos_requeue(struct request_queue *q, struct request *rq)
- 		__rq_qos_requeue(q->rq_qos, rq);
- }
- 
--static inline void rq_qos_done_bio(struct request_queue *q, struct bio *bio)
-+static inline void rq_qos_done_bio(struct bio *bio)
- {
--	if (q->rq_qos)
--		__rq_qos_done_bio(q->rq_qos, bio);
-+	if (bio->bi_bdev && (bio_flagged(bio, BIO_QOS_THROTTLED) ||
-+			     bio_flagged(bio, BIO_QOS_MERGED))) {
-+		struct request_queue *q = bdev_get_queue(bio->bi_bdev);
-+		if (q->rq_qos)
-+			__rq_qos_done_bio(q->rq_qos, bio);
++/**
++ * struct_group() - Wrap a set of declarations in a mirrored struct
++ *
++ * @NAME: The identifier name of the mirrored sub-struct
++ * @MEMBERS: The member declarations for the mirrored structs
++ *
++ * Used to create an anonymous union of two structs with identical
++ * layout and size: one anonymous and one named. The former can be
++ * used normally without sub-struct naming, and the latter can be
++ * used to reason about the start, end, and size of the group of
++ * struct members.
++ */
++#define struct_group(NAME, MEMBERS...)	\
++	__struct_group(/* no tag */, NAME, /* no attrs */, MEMBERS)
++
++/**
++ * struct_group_attr() - Create a struct_group() with trailing attributes
++ *
++ * @NAME: The identifier name of the mirrored sub-struct
++ * @ATTRS: Any struct attributes to apply
++ * @MEMBERS: The member declarations for the mirrored structs
++ *
++ * Used to create an anonymous union of two structs with identical
++ * layout and size: one anonymous and one named. The former can be
++ * used normally without sub-struct naming, and the latter can be
++ * used to reason about the start, end, and size of the group of
++ * struct members. Includes structure attributes argument.
++ */
++#define struct_group_attr(NAME, ATTRS, MEMBERS...) \
++	__struct_group(/* no tag */, NAME, ATTRS, MEMBERS)
++
++/**
++ * struct_group_tagged() - Create a struct_group with a reusable tag
++ *
++ * @TAG: The tag name for the named sub-struct
++ * @NAME: The identifier name of the mirrored sub-struct
++ * @MEMBERS: The member declarations for the mirrored structs
++ *
++ * Used to create an anonymous union of two structs with identical
++ * layout and size: one anonymous and one named. The former can be
++ * used normally without sub-struct naming, and the latter can be
++ * used to reason about the start, end, and size of the group of
++ * struct members. Includes struct tag argument for the named copy,
++ * so the specified layout can be reused later.
++ */
++#define struct_group_tagged(TAG, NAME, MEMBERS...) \
++	__struct_group(TAG, NAME, /* no attrs */, MEMBERS)
++
+ #endif
+diff --git a/include/uapi/linux/stddef.h b/include/uapi/linux/stddef.h
+index ee8220f8dcf5..610204f7c275 100644
+--- a/include/uapi/linux/stddef.h
++++ b/include/uapi/linux/stddef.h
+@@ -4,3 +4,24 @@
+ #ifndef __always_inline
+ #define __always_inline inline
+ #endif
++
++/**
++ * __struct_group() - Create a mirrored named and anonyomous struct
++ *
++ * @TAG: The tag name for the named sub-struct (usually empty)
++ * @NAME: The identifier name of the mirrored sub-struct
++ * @ATTRS: Any struct attributes (usually empty)
++ * @MEMBERS: The member declarations for the mirrored structs
++ *
++ * Used to create an anonymous union of two structs with identical layout
++ * and size: one anonymous and one named. The former's members can be used
++ * normally without sub-struct naming, and the latter can be used to
++ * reason about the start, end, and size of the group of struct members.
++ * The named struct can also be explicitly tagged for layer reuse, as well
++ * as both having struct attributes appended.
++ */
++#define __struct_group(TAG, NAME, ATTRS, MEMBERS...) \
++	union { \
++		struct { MEMBERS } ATTRS; \
++		struct TAG { MEMBERS } ATTRS NAME; \
 +	}
- }
+diff --git a/scripts/kernel-doc b/scripts/kernel-doc
+index cfcb60737957..38aa799a776c 100755
+--- a/scripts/kernel-doc
++++ b/scripts/kernel-doc
+@@ -1245,6 +1245,13 @@ sub dump_struct($$) {
+ 	$members =~ s/\s*CRYPTO_MINALIGN_ATTR/ /gos;
+ 	$members =~ s/\s*____cacheline_aligned_in_smp/ /gos;
+ 	$members =~ s/\s*____cacheline_aligned/ /gos;
++	# unwrap struct_group():
++	# - first eat non-declaration parameters and rewrite for final match
++	# - then remove macro, outer parens, and trailing semicolon
++	$members =~ s/\bstruct_group\s*\(([^,]*,)/STRUCT_GROUP(/gos;
++	$members =~ s/\bstruct_group_(attr|tagged)\s*\(([^,]*,){2}/STRUCT_GROUP(/gos;
++	$members =~ s/\b__struct_group\s*\(([^,]*,){3}/STRUCT_GROUP(/gos;
++	$members =~ s/\bSTRUCT_GROUP(\(((?:(?>[^)(]+)|(?1))*)\))[^;]*;/$2/gos;
  
- static inline void rq_qos_throttle(struct request_queue *q, struct bio *bio)
- {
--	/*
--	 * BIO_TRACKED lets controllers know that a bio went through the
--	 * normal rq_qos path.
--	 */
- 	if (q->rq_qos) {
--		bio_set_flag(bio, BIO_TRACKED);
-+		bio_set_flag(bio, BIO_QOS_THROTTLED);
- 		__rq_qos_throttle(q->rq_qos, bio);
- 	}
- }
-@@ -205,8 +205,10 @@ static inline void rq_qos_track(struct request_queue *q, struct request *rq,
- static inline void rq_qos_merge(struct request_queue *q, struct request *rq,
- 				struct bio *bio)
- {
--	if (q->rq_qos)
-+	if (q->rq_qos) {
-+		bio_set_flag(bio, BIO_QOS_MERGED);
- 		__rq_qos_merge(q->rq_qos, rq, bio);
-+	}
- }
- 
- static inline void rq_qos_queue_depth_changed(struct request_queue *q)
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index 17c92c0f15b2..36ce3d0fb9f3 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -294,7 +294,8 @@ enum {
- 	BIO_TRACE_COMPLETION,	/* bio_endio() should trace the final completion
- 				 * of this bio. */
- 	BIO_CGROUP_ACCT,	/* has been accounted to a cgroup */
--	BIO_TRACKED,		/* set if bio goes through the rq_qos path */
-+	BIO_QOS_THROTTLED,	/* bio went through rq_qos throttle path */
-+	BIO_QOS_MERGED,		/* but went through rq_qos merge path */
- 	BIO_REMAPPED,
- 	BIO_ZONE_WRITE_LOCKED,	/* Owns a zoned device zone write lock */
- 	BIO_PERCPU_CACHE,	/* can participate in per-cpu alloc cache */
+ 	my $args = qr{([^,)]+)};
+ 	# replace DECLARE_BITMAP
 -- 
 2.35.1
 
