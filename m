@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA87556FBA3
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0947256F9DD
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232465AbiGKJdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
+        id S229869AbiGKJKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:10:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232743AbiGKJdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:33:00 -0400
+        with ESMTP id S230162AbiGKJJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86BF778DC1;
-        Mon, 11 Jul 2022 02:17:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B967228705;
+        Mon, 11 Jul 2022 02:08:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C55FE61227;
-        Mon, 11 Jul 2022 09:17:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D169AC34115;
-        Mon, 11 Jul 2022 09:17:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA36611A5;
+        Mon, 11 Jul 2022 09:08:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E7EC34115;
+        Mon, 11 Jul 2022 09:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531061;
-        bh=YYUyytMC0pUftyIXjxoK3jnBzW0leo2WLvAhxuXrFMw=;
+        s=korg; t=1657530490;
+        bh=lYtXQwvRK4CFn7nBebGXd73gog73aQFaLKjhL0F+3Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npD0GjuXEakmizbNC47q/fXRmf2R4axDAY6wJ267dh5pN8RXl6msi/Z5x4ikruypm
-         LO1WZBmSo7SH8y6vZtrxqpvkEfE6yPrYloh0Kojn/u8kyAWXody+1SZY+AdlAjLbyP
-         ZijuMZFNXu8oTigwiRzXsglxdzdS1xqazHkYbiRE=
+        b=q3fb1bwBCp9VGNkx/oOEns4Pg/BeKaEw//8SVWBTjtLyqUwz2ngxmSjFpDMkQr+4K
+         dJAjSOEMzRPzGFiZk5Q2j+mvS9XwQaw5VtOseRwsb0ciLTsBq3E3Qt/mzN1sNwS9s1
+         +vCeZgIX7pLvKLJ25/DdP/NJj1jbk/mf/mdZcN0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.18 032/112] cxl: Fix cleanup of port devices on failure to probe driver.
+        stable@vger.kernel.org, "Zhang, Bernice" <bernice.zhang@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Yian Chen <yian.chen@intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Zhang@vger.kernel.org
+Subject: [PATCH 4.14 07/17] iommu/vt-d: Fix PCI bus rescan device hot add
 Date:   Mon, 11 Jul 2022 11:06:32 +0200
-Message-Id: <20220711090550.479566633@linuxfoundation.org>
+Message-Id: <20220711090536.477219460@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
+References: <20220711090536.245939953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Yian Chen <yian.chen@intel.com>
 
-commit db9a3a35d31ea337331f0e6e07e04bcd52642894 upstream.
+commit 316f92a705a4c2bf4712135180d56f3cca09243a upstream.
 
-The device is created, and then there is a check if a driver succesfully
-bound to it. In event of failing the bind (e.g. failure in cxl_port_probe())
-the device is left registered. When a bus rescan later occurs, fresh
-devices are created leading to a multiple device representing the same
-underlying hardware. Bad things may follow and at very least we have far too many
-devices.
+Notifier calling chain uses priority to determine the execution
+order of the notifiers or listeners registered to the chain.
+PCI bus device hot add utilizes the notification mechanism.
 
-Fix by ensuring autoremove is registered if the device create succeeds,
-but doesn't depend on sucessful binding to a driver.
+The current code sets low priority (INT_MIN) to Intel
+dmar_pci_bus_notifier and postpones DMAR decoding after adding
+new device into IOMMU. The result is that struct device pointer
+cannot be found in DRHD search for the new device's DMAR/IOMMU.
+Subsequently, the device is put under the "catch-all" IOMMU
+instead of the correct one. This could cause system hang when
+device TLB invalidation is sent to the wrong IOMMU. Invalidation
+timeout error and hard lockup have been observed and data
+inconsistency/crush may occur as well.
 
-Bug was observed as side effect of incorrect ownership in
-[PATCH v9 6/9] cxl/port: Read CDAT table
-but will result from any failure to in cxl_port_probe().
+This patch fixes the issue by setting a positive priority(1) for
+dmar_pci_bus_notifier while the priority of IOMMU bus notifier
+uses the default value(0), therefore DMAR decoding will be in
+advance of DRHD search for a new device to find the correct IOMMU.
 
-Fixes: 8dd2bc0f8e02 ("cxl/mem: Add the cxl_mem driver")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Link: https://lore.kernel.org/r/20220609134519.11668-1-Jonathan.Cameron@huawei.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Following is a 2-step example that triggers the bug by simulating
+PCI device hot add behavior in Intel Sapphire Rapids server.
+
+echo 1 > /sys/bus/pci/devices/0000:6a:01.0/remove
+echo 1 > /sys/bus/pci/rescan
+
+Fixes: 59ce0515cdaf ("iommu/vt-d: Update DRHD/RMRR/ATSR device scope")
+Cc: stable@vger.kernel.org # v3.15+
+Reported-by: Zhang, Bernice <bernice.zhang@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Yian Chen <yian.chen@intel.com>
+Link: https://lore.kernel.org/r/20220521002115.1624069-1-yian.chen@intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/mem.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/iommu/dmar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/cxl/mem.c
-+++ b/drivers/cxl/mem.c
-@@ -46,6 +46,7 @@ static int create_endpoint(struct cxl_me
- {
- 	struct cxl_dev_state *cxlds = cxlmd->cxlds;
- 	struct cxl_port *endpoint;
-+	int rc;
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -374,7 +374,7 @@ static int dmar_pci_bus_notifier(struct
  
- 	endpoint = devm_cxl_add_port(&parent_port->dev, &cxlmd->dev,
- 				     cxlds->component_reg_phys, parent_port);
-@@ -54,13 +55,17 @@ static int create_endpoint(struct cxl_me
+ static struct notifier_block dmar_pci_bus_nb = {
+ 	.notifier_call = dmar_pci_bus_notifier,
+-	.priority = INT_MIN,
++	.priority = 1,
+ };
  
- 	dev_dbg(&cxlmd->dev, "add: %s\n", dev_name(&endpoint->dev));
- 
-+	rc = cxl_endpoint_autoremove(cxlmd, endpoint);
-+	if (rc)
-+		return rc;
-+
- 	if (!endpoint->dev.driver) {
- 		dev_err(&cxlmd->dev, "%s failed probe\n",
- 			dev_name(&endpoint->dev));
- 		return -ENXIO;
- 	}
- 
--	return cxl_endpoint_autoremove(cxlmd, endpoint);
-+	return 0;
- }
- 
- /**
+ static struct dmar_drhd_unit *
 
 
