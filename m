@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B8356F9CC
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDBB856FBA0
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbiGKJJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:09:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47402 "EHLO
+        id S232328AbiGKJd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:33:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229638AbiGKJIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:08:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5952022B26;
-        Mon, 11 Jul 2022 02:07:51 -0700 (PDT)
+        with ESMTP id S232548AbiGKJcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1F1978DC7;
+        Mon, 11 Jul 2022 02:17:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2BA6B80E7B;
-        Mon, 11 Jul 2022 09:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12064C34115;
-        Mon, 11 Jul 2022 09:07:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52440612AF;
+        Mon, 11 Jul 2022 09:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F14C34115;
+        Mon, 11 Jul 2022 09:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530468;
-        bh=8tFdo+OIIS3mTEzo0rS2Tz8lJWzmLaRAn8Rg1nhuTjE=;
+        s=korg; t=1657531055;
+        bh=7glkkp0LLer/1vOu19Ra/fd2zYttlhPNl2QaoAA/NUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MFfU6I7TkLRps5DBMJBzDrL2zd/YSZCbzmNN9XkxOV5ZaafPfYHssmzjgL3EN3C8
-         noWM7VG+Nna9j0LDrDqnnFgwWyBXWdNg40ZEJfegtiaM5qF/vcuHpmrnrQqeJgCQiw
-         S20xk5CgdCzG6asEGbLeQfm+ngezBkQVQ2ju2ez8=
+        b=JQYINLdC49PaaQWu24jYBLLNQn1xZh5sWqPAJ1qcnvGqInoq+P1wIc2M/6RhVl+qr
+         h0zuxGVzCmohiY3NEYHDIQS2xaeEnj4EFEWaGhpwitHjOro/ggE6fiGkXIrpIACgKw
+         AULyfDN9jnkMzihEphu9kfTZJdwIMxAmyQUdgIlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.14 15/17] dmaengine: at_xdma: handle errors of at_xdmac_alloc_desc() correctly
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.18 040/112] video: of_display_timing.h: include errno.h
 Date:   Mon, 11 Jul 2022 11:06:40 +0200
-Message-Id: <20220711090536.717217005@linuxfoundation.org>
+Message-Id: <20220711090550.711265777@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-commit 3770d92bd5237d686e49da7b2fb86f53ee6ed259 upstream.
+commit 3663a2fb325b8782524f3edb0ae32d6faa615109 upstream.
 
-It seems that it is valid to have less than the requested number of
-descriptors. But what is not valid and leads to subsequent errors is to
-have zero descriptors. In that case, abort the probing.
+If CONFIG_OF is not enabled, default of_get_display_timing() returns an
+errno, so include the header.
 
-Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20220526135111.1470926-1-michael@walle.cc
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 422b67e0b31a ("videomode: provide dummy inline functions for !CONFIG_OF")
+Suggested-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/at_xdmac.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/video/of_display_timing.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/dma/at_xdmac.c
-+++ b/drivers/dma/at_xdmac.c
-@@ -1804,6 +1804,11 @@ static int at_xdmac_alloc_chan_resources
- 	for (i = 0; i < init_nr_desc_per_channel; i++) {
- 		desc = at_xdmac_alloc_desc(chan, GFP_ATOMIC);
- 		if (!desc) {
-+			if (i == 0) {
-+				dev_warn(chan2dev(chan),
-+					 "can't allocate any descriptors\n");
-+				return -EIO;
-+			}
- 			dev_warn(chan2dev(chan),
- 				"only %d descriptors have been allocated\n", i);
- 			break;
+--- a/include/video/of_display_timing.h
++++ b/include/video/of_display_timing.h
+@@ -8,6 +8,8 @@
+ #ifndef __LINUX_OF_DISPLAY_TIMING_H
+ #define __LINUX_OF_DISPLAY_TIMING_H
+ 
++#include <linux/errno.h>
++
+ struct device_node;
+ struct display_timing;
+ struct display_timings;
 
 
