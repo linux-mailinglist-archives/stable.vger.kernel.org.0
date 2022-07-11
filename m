@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E11EE56F9B0
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:07:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C9656FB08
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbiGKJHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
+        id S232072AbiGKJZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:25:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230081AbiGKJHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6219023168;
-        Mon, 11 Jul 2022 02:07:13 -0700 (PDT)
+        with ESMTP id S232355AbiGKJYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B6F1248F7;
+        Mon, 11 Jul 2022 02:14:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69E5A6118B;
-        Mon, 11 Jul 2022 09:07:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52DC9C34115;
-        Mon, 11 Jul 2022 09:07:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42A6BB80956;
+        Mon, 11 Jul 2022 09:14:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A62C34115;
+        Mon, 11 Jul 2022 09:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530431;
-        bh=AHkzYgJb5Kdc7JjggcpQUjFZ/Bd+h25yDl+GMxzxB6c=;
-        h=From:To:Cc:Subject:Date:From;
-        b=UBLhybM5ijWDCpE2ZVNx5Td5Co2JIZgOkAPcOezsAdQs2d4qSzxkrvOmpjE7vYPuN
-         5si3IQkHEXni2K0xdOigFokFMDYF1ekZh+7AwLNg84eXaLhvp3xKpiwcZ3kmVcF53n
-         +sRk1pOywYwvSv5ISVTak0JOPBRl0vVGLpoJQu8w=
+        s=korg; t=1657530884;
+        bh=lIq5QL1O+Kc+TdTym8+QkepgY8j0DpxAsVZjsV1n+AI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Pq8O3yR3g8KYbWIVBqlqK6bODKqRrpTjBNGM0oei3+cVXUMoPrPhVs6n6KfShC/Ij
+         0nGpgngf6fDnjw5kUfJZMLYAoc75mNcESpUTnOxbgT7/Oyd0RKqoEYcsd87Ei/xiDK
+         Jp90cm3vrqXLElfEojk7vHUZuyt+n2xc5LYLL98k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/14] 4.9.323-rc1 review
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 019/112] net: rose: fix UAF bug caused by rose_t0timer_expiry
 Date:   Mon, 11 Jul 2022 11:06:19 +0200
-Message-Id: <20220711090535.517697227@linuxfoundation.org>
+Message-Id: <20220711090550.104404747@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-MIME-Version: 1.0
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.323-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.323-rc1
-X-KernelTest-Deadline: 2022-07-13T09:05+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,91 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.323 release.
-There are 14 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
-Anything received after that time might be too late.
+commit 148ca04518070910739dfc4eeda765057856403d upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.323-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+There are UAF bugs caused by rose_t0timer_expiry(). The
+root cause is that del_timer() could not stop the timer
+handler that is running and there is no synchronization.
+One of the race conditions is shown below:
 
-thanks,
+    (thread 1)             |        (thread 2)
+                           | rose_device_event
+                           |   rose_rt_device_down
+                           |     rose_remove_neigh
+rose_t0timer_expiry        |       rose_stop_t0timer(rose_neigh)
+  ...                      |         del_timer(&neigh->t0timer)
+                           |         kfree(rose_neigh) //[1]FREE
+  neigh->dce_mode //[2]USE |
 
-greg k-h
+The rose_neigh is deallocated in position [1] and use in
+position [2].
 
--------------
-Pseudo-Shortlog of commits:
+The crash trace triggered by POC is like below:
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.323-rc1
+BUG: KASAN: use-after-free in expire_timers+0x144/0x320
+Write of size 8 at addr ffff888009b19658 by task swapper/0/0
+...
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0xbf/0xee
+ print_address_description+0x7b/0x440
+ print_report+0x101/0x230
+ ? expire_timers+0x144/0x320
+ kasan_report+0xed/0x120
+ ? expire_timers+0x144/0x320
+ expire_timers+0x144/0x320
+ __run_timers+0x3ff/0x4d0
+ run_timer_softirq+0x41/0x80
+ __do_softirq+0x233/0x544
+ ...
 
-Miaoqian Lin <linmq006@gmail.com>
-    dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
+This patch changes rose_stop_ftimer() and rose_stop_t0timer()
+in rose_remove_neigh() to del_timer_sync() in order that the
+timer handler could be finished before the resources such as
+rose_neigh and so on are deallocated. As a result, the UAF
+bugs could be mitigated.
 
-Miaoqian Lin <linmq006@gmail.com>
-    dmaengine: ti: Fix refcount leak in ti_dra7_xbar_route_allocate
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220705125610.77971-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/rose/rose_route.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Michael Walle <michael@walle.cc>
-    dmaengine: at_xdma: handle errors of at_xdmac_alloc_desc() correctly
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    ida: don't use BUG_ON() for debugging
-
-Satish Nagireddy <satish.nagireddy@getcruise.com>
-    i2c: cadence: Unregister the clk notifier in error path
-
-Samuel Holland <samuel@sholland.org>
-    pinctrl: sunxi: a83t: Fix NAND function name for some pins
-
-Eric Sandeen <sandeen@redhat.com>
-    xfs: remove incorrect ASSERT in xfs_rename
-
-Hsin-Yi Wang <hsinyi@chromium.org>
-    video: of_display_timing.h: include errno.h
-
-Yian Chen <yian.chen@intel.com>
-    iommu/vt-d: Fix PCI bus rescan device hot add
-
-Duoming Zhou <duoming@zju.edu.cn>
-    net: rose: fix UAF bug caused by rose_t0timer_expiry
-
-Oliver Neukum <oneukum@suse.com>
-    usbnet: fix memory leak in error case
-
-Rhett Aultman <rhett.aultman@samsara.com>
-    can: gs_usb: gs_usb_open/close(): fix memory leak
-
-Liang He <windhl@126.com>
-    can: grcan: grcan_probe(): remove extra of_node_get()
-
-Jann Horn <jannh@google.com>
-    mm/slub: add missing TID updates on slab deactivation
-
-
--------------
-
-Diffstat:
-
- Makefile                                   |  4 ++--
- drivers/dma/at_xdmac.c                     |  5 +++++
- drivers/dma/ti-dma-crossbar.c              |  5 +++++
- drivers/i2c/busses/i2c-cadence.c           |  1 +
- drivers/iommu/dmar.c                       |  2 +-
- drivers/net/can/grcan.c                    |  1 -
- drivers/net/can/usb/gs_usb.c               | 23 +++++++++++++++++++++--
- drivers/net/usb/usbnet.c                   | 17 ++++++++++++-----
- drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
- fs/xfs/xfs_inode.c                         |  1 -
- include/video/of_display_timing.h          |  2 ++
- lib/idr.c                                  |  4 +++-
- mm/slub.c                                  |  5 +++++
- net/rose/rose_route.c                      |  4 ++--
- 14 files changed, 64 insertions(+), 20 deletions(-)
+--- a/net/rose/rose_route.c
++++ b/net/rose/rose_route.c
+@@ -227,8 +227,8 @@ static void rose_remove_neigh(struct ros
+ {
+ 	struct rose_neigh *s;
+ 
+-	rose_stop_ftimer(rose_neigh);
+-	rose_stop_t0timer(rose_neigh);
++	del_timer_sync(&rose_neigh->ftimer);
++	del_timer_sync(&rose_neigh->t0timer);
+ 
+ 	skb_queue_purge(&rose_neigh->queue);
+ 
 
 
