@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E1556FA7F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:18:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE9756FB8D
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231294AbiGKJSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:18:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
+        id S232683AbiGKJcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231712AbiGKJSB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3C511C2C;
-        Mon, 11 Jul 2022 02:11:39 -0700 (PDT)
+        with ESMTP id S232677AbiGKJbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143F574DDD;
+        Mon, 11 Jul 2022 02:17:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 774DFB80D2C;
-        Mon, 11 Jul 2022 09:11:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE929C34115;
-        Mon, 11 Jul 2022 09:11:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83C2DB80DB7;
+        Mon, 11 Jul 2022 09:17:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DD6C34115;
+        Mon, 11 Jul 2022 09:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530696;
-        bh=ZG3Rwy9JP7agOxmwR8S1bH1vQXy48ESdKQsRF6M9y7c=;
+        s=korg; t=1657531030;
+        bh=IScW0LFMmcTStFPx2URycrFLwFhfPk+cUhNi93H2wMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vqeyddb/008She3tovImfeaz7cjO8Cp0fH6UbsDJnGmKhEmdBiPeIeHCjU1gEN212
-         4fa7NjQa4WZEynegkXHbdQWG0NPBKP9M+ZEceNMh0a7crofylRseWwIy094hDWYuuC
-         sZfo4htBXrCYXkCV6SbnzXH0TeE+8VhFyi40HXNc=
+        b=bnFeZpc7kD3FfA717v8R3QJC0V3yvUhfJeoHN01iHLPWOgQ0uFmBRKDsetsznL0DV
+         TkDFEbl3X3G0TiL7LmPM611AIZBMSqa/569AkzGUfs4yhEIS+FquXNUkvaH9aDYtXU
+         lzN9V+vrZT6gl33MNeblRbncyvac3RXan/gSyT1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Michal Simek <michal.simek@amd.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/38] i2c: cadence: Unregister the clk notifier in error path
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 070/112] ARM: at91: pm: use proper compatible for sama5d2s rtc
 Date:   Mon, 11 Jul 2022 11:07:10 +0200
-Message-Id: <20220711090539.558704008@linuxfoundation.org>
+Message-Id: <20220711090551.560301623@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
-References: <20220711090538.722676354@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Satish Nagireddy <satish.nagireddy@getcruise.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 3501f0c663063513ad604fb1b3f06af637d3396d ]
+[ Upstream commit ddc980da8043779119acaca106c6d9b445c9b65b ]
 
-This patch ensures that the clock notifier is unregistered
-when driver probe is returning error.
+Use proper compatible strings for SAMA5D2's RTC IPs. This is necessary
+for configuring wakeup sources for ULP1 PM mode.
 
-Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
-Signed-off-by: Satish Nagireddy <satish.nagireddy@getcruise.com>
-Tested-by: Lars-Peter Clausen <lars@metafoo.de>
-Reviewed-by: Michal Simek <michal.simek@amd.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: d7484f5c6b3b ("ARM: at91: pm: configure wakeup sources for ULP1 mode")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220523092421.317345-2-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-at91/pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 8a3a0991bc1c..3a1bdc75275f 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -985,6 +985,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 0fd609e26615..0da13a7afa31 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -146,7 +146,7 @@ static const struct wakeup_source_info ws_info[] = {
  
- err_clk_dis:
-+	clk_notifier_unregister(id->clk, &id->clk_rate_change_nb);
- 	clk_disable_unprepare(id->clk);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
+ static const struct of_device_id sama5d2_ws_ids[] = {
+ 	{ .compatible = "atmel,sama5d2-gem",		.data = &ws_info[0] },
+-	{ .compatible = "atmel,at91rm9200-rtc",		.data = &ws_info[1] },
++	{ .compatible = "atmel,sama5d2-rtc",		.data = &ws_info[1] },
+ 	{ .compatible = "atmel,sama5d3-udc",		.data = &ws_info[2] },
+ 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
 -- 
 2.35.1
 
