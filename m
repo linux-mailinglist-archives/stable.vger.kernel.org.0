@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1140E56FD1A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE5756FD34
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233749AbiGKJu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:50:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36008 "EHLO
+        id S233843AbiGKJwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:52:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233193AbiGKJuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DAE313A7;
-        Mon, 11 Jul 2022 02:24:34 -0700 (PDT)
+        with ESMTP id S233860AbiGKJu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8925D3192F;
+        Mon, 11 Jul 2022 02:25:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5E8DB80D2C;
-        Mon, 11 Jul 2022 09:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32138C341C0;
-        Mon, 11 Jul 2022 09:24:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EC000CE1264;
+        Mon, 11 Jul 2022 09:25:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E98C34115;
+        Mon, 11 Jul 2022 09:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531471;
-        bh=xZz0qpVyBij1ECB9UEqppt9fb3xkzJWlXqnbQzD241E=;
+        s=korg; t=1657531502;
+        bh=OkeWu99N5SrmLfN4AN0wIMMRc1pHUKJug/+bJwKRD4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlrz2eXoukHe8KHEapEYFtFIey496FM8RJFKkH1IzRz60rhGHN25rJ4QmzlCx7BOR
-         aIK4Ry8ZEnNfeALjorOBFKx60k2yxiCmvFfXax6PjKgSCr9r7jEWds67W5JQNcNuHQ
-         0mcGfb4zkmKsViIgEdv/gRiJhV+HJ3hw8YX/ayI4=
+        b=2kLZwdlk6XQ5JbJruAOiQBofLpHPvhwbdBxeLhuvRqHF54EaEZ60q6xHjH9oBbc1B
+         i+OEP0Rq9mfDdhkTXRL0vgJILIAFlmaRVGVCy4ZwUg4M6gjQh27faJ2LgxLcH1VgTY
+         fIg5t7qjOQu3vUl6S9XcftcHZlSIcCYTr/9VkhVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 090/230] drbd: Fix double free problem in drbd_create_device
-Date:   Mon, 11 Jul 2022 11:05:46 +0200
-Message-Id: <20220711090606.625323058@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 091/230] drbd: fix an invalid memory access caused by incorrect use of list iterator
+Date:   Mon, 11 Jul 2022 11:05:47 +0200
+Message-Id: <20220711090606.654369927@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,36 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 27548088ac628109f70eb0b1eb521d035844dba8 ]
+[ Upstream commit ae4d37b5df749926891583d42a6801b5da11e3c1 ]
 
-In drbd_create_device(), the 'out_no_io_page' lable has called
-blk_cleanup_disk() when return failed.
+The bug is here:
+	idr_remove(&connection->peer_devices, vnr);
 
-So remove the 'out_cleanup_disk' lable to avoid double free the
-disk pointer.
+If the previous for_each_connection() don't exit early (no goto hit
+inside the loop), the iterator 'connection' after the loop will be a
+bogus pointer to an invalid structure object containing the HEAD
+(&resource->connections). As a result, the use of 'connection' above
+will lead to a invalid memory access (including a possible invalid free
+as idr_remove could call free_layer).
 
-Fixes: e92ab4eda516 ("drbd: add error handling support for add_disk()")
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/1636013229-26309-1-git-send-email-wubo40@huawei.com
+The original intention should have been to remove all peer_devices,
+but the following lines have already done the work. So just remove
+this line and the unneeded label, to fix this bug.
+
+Cc: stable@vger.kernel.org
+Fixes: c06ece6ba6f1b ("drbd: Turn connection->volumes into connection->peer_devices")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Reviewed-by: Lars Ellenberg <lars.ellenberg@linbit.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/block/drbd/drbd_main.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index ae6a136d278e..b91d2a9dc238 100644
+index b91d2a9dc238..d59af26d7703 100644
 --- a/drivers/block/drbd/drbd_main.c
 +++ b/drivers/block/drbd/drbd_main.c
-@@ -2800,7 +2800,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+@@ -2795,12 +2795,12 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+ 
+ 	if (init_submitter(device)) {
+ 		err = ERR_NOMEM;
+-		goto out_idr_remove_vol;
++		goto out_idr_remove_from_resource;
+ 	}
  
  	err = add_disk(disk);
  	if (err)
--		goto out_cleanup_disk;
-+		goto out_idr_remove_vol;
+-		goto out_idr_remove_vol;
++		goto out_idr_remove_from_resource;
  
  	/* inherit the connection state */
  	device->state.conn = first_connection(resource)->cstate;
@@ -91,11 +108,11 @@ index ae6a136d278e..b91d2a9dc238 100644
  	drbd_debugfs_device_add(device);
  	return NO_ERROR;
  
--out_cleanup_disk:
--	blk_cleanup_disk(disk);
- out_idr_remove_vol:
- 	idr_remove(&connection->peer_devices, vnr);
+-out_idr_remove_vol:
+-	idr_remove(&connection->peer_devices, vnr);
  out_idr_remove_from_resource:
+ 	for_each_connection(connection, resource) {
+ 		peer_device = idr_remove(&connection->peer_devices, vnr);
 -- 
 2.35.1
 
