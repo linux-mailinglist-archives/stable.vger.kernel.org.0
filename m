@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4DB56D630
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D530456D63E
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbiGKHMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 03:12:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55744 "EHLO
+        id S230154AbiGKHMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 03:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230094AbiGKHLO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:11:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10AC01CB12
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:09:11 -0700 (PDT)
+        with ESMTP id S230118AbiGKHLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:11:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 855251CB29
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:09:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99D876126D
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB0FBC3411C;
-        Mon, 11 Jul 2022 07:09:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 100636123F
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:09:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1812DC341C0;
+        Mon, 11 Jul 2022 07:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657523350;
-        bh=A3agcvIVQHqemcUUCP0fohBjCsVm4oBkwnypOFzuMQM=;
+        s=korg; t=1657523358;
+        bh=l0kAvLLz0JX9ec4uo0O7oJOmtIp07Fwz6BAgXYbNQT8=;
         h=Subject:To:Cc:From:Date:From;
-        b=2jHU4RnexBn1fr37j20zqXlzchbtdgRwQTu/QzG2Ht2xxY2c7a8u9/NicJObc03DY
-         dCz94X7BgmdWO0CsqqUAPhtyCrpu2oIC/vUKhcXatpVNh6UoZIkBOl/mkzilEZ+HgE
-         WeLRu/ybNtvnwngCvzMjeXNp9S72eYhyqe5EMC1k=
-Subject: FAILED: patch "[PATCH] pinctrl: stm32: fix optional IRQ support to gpios" failed to apply to 5.15-stable tree
+        b=KbCv8XcTA8QMb4gKRMNhjSQ3AjUapd3abUYF8cOccPkeLsh8HlBV3GXl0hLmprWEM
+         18Jd2Y7N8HUk7BS2xvdbiq+tClrNh0wjihc+e15EJRWCBM5vUJ1/3RLRIBMqkkDTmS
+         kl6Tx2sxbQFE1d9ERthRRpEsCQvlEAogtdUtibOI=
+Subject: FAILED: patch "[PATCH] pinctrl: stm32: fix optional IRQ support to gpios" failed to apply to 4.14-stable tree
 To:     fabien.dessenne@foss.st.com, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jul 2022 09:08:59 +0200
-Message-ID: <165752333943122@kroah.com>
+Date:   Mon, 11 Jul 2022 09:09:00 +0200
+Message-ID: <165752334019261@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
