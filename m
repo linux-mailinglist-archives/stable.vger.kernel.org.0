@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDB456FDD9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE99756FBB4
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbiGKKBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57696 "EHLO
+        id S231450AbiGKJet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:34:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234574AbiGKJ7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E95B7D61;
-        Mon, 11 Jul 2022 02:28:07 -0700 (PDT)
+        with ESMTP id S232902AbiGKJdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:33:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5BE7AC0B;
+        Mon, 11 Jul 2022 02:18:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B67C1B80DB7;
-        Mon, 11 Jul 2022 09:28:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07876C34115;
-        Mon, 11 Jul 2022 09:28:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26DE2B80E74;
+        Mon, 11 Jul 2022 09:18:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90EE8C34115;
+        Mon, 11 Jul 2022 09:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531684;
-        bh=bbeGwcWQa70BYWRXUbdD0HP8EK6OulIySJ6Ht6nUEmQ=;
+        s=korg; t=1657531080;
+        bh=XpgknY7GZkaapSMyf+HiPgrIBtIyDVXS7/RWFf/2jKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=169gmadEDs0YR/2gzG5NZJGSdL0eo9zdwUzwn8+1UNHbGIB6DZrAgYAJXzNZRsNO/
-         sI0vrpjWO4hJ3BJ4bhuFmbUH5u3qMar1uQJQK3uzvm60a//KHcxX7vFq4pDChhZnbe
-         YDAmkZjvwgtzmRaP2KggTX5QbVcFewLD7QdYDVHI=
+        b=lGvbGKaxMAGNSCVJiKHJAsXwRM3LhjOvHNw0H1s5iCDufrmfMJvB4tE/Qiofg51xO
+         bfRI1m9Z2OK52aQGMLQl0AZYsbqmWtpFE3TF2VxGOAxgL+KeNwNX2pder2zycy+313
+         NlAo0sz+8d3mSepSXhC3vAWbqTrNJDZlH0YzANZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 194/230] arm64: dts: imx8mp-phyboard-pollux-rdk: correct i2c2 & mmc settings
+Subject: [PATCH 5.18 090/112] mptcp: Avoid acquiring PM lock for subflow priority changes
 Date:   Mon, 11 Jul 2022 11:07:30 +0200
-Message-Id: <20220711090609.607923246@linuxfoundation.org>
+Message-Id: <20220711090552.125703382@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Mat Martineau <mathew.j.martineau@linux.intel.com>
 
-[ Upstream commit 242d8ee9111171a6e68249aaff62643c513be6ec ]
+[ Upstream commit c21b50d5912b68c4414c60ef5b30416c103f9fd8 ]
 
-BIT3 and BIT0 are reserved bits, should not touch.
+The in-kernel path manager code for changing subflow flags acquired both
+the msk socket lock and the PM lock when possibly changing the "backup"
+and "fullmesh" flags. mptcp_pm_nl_mp_prio_send_ack() does not access
+anything protected by the PM lock, and it must release and reacquire
+the PM lock.
 
-Fixes: 88f7f6bcca37 ("arm64: dts: freescale: Add support for phyBOARD-Pollux-i.MX8MP")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+By pushing the PM lock to where it is needed in mptcp_pm_nl_fullmesh(),
+the lock is only acquired when the fullmesh flag is changed and the
+backup flag code no longer has to release and reacquire the PM lock. The
+change in locking context requires the MIB update to be modified - move
+that to a better location instead.
+
+This change also makes it possible to call
+mptcp_pm_nl_mp_prio_send_ack() for the userspace PM commands without
+manipulating the in-kernel PM lock.
+
+Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/freescale/imx8mp-phyboard-pollux-rdk.dts | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/mptcp/options.c    | 3 +++
+ net/mptcp/pm_netlink.c | 8 ++------
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts b/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
-index cefd3d36f93f..6aa720bafe28 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
-@@ -136,21 +136,21 @@
+diff --git a/net/mptcp/options.c b/net/mptcp/options.c
+index b548cec86c9d..48e34b81fa1c 100644
+--- a/net/mptcp/options.c
++++ b/net/mptcp/options.c
+@@ -1538,6 +1538,9 @@ void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
+ 		*ptr++ = mptcp_option(MPTCPOPT_MP_PRIO,
+ 				      TCPOLEN_MPTCP_PRIO,
+ 				      opts->backup, TCPOPT_NOP);
++
++		MPTCP_INC_STATS(sock_net((const struct sock *)tp),
++				MPTCP_MIB_MPPRIOTX);
+ 	}
  
- 	pinctrl_i2c2: i2c2grp {
- 		fsl,pins = <
--			MX8MP_IOMUXC_I2C2_SCL__I2C2_SCL		0x400001c3
--			MX8MP_IOMUXC_I2C2_SDA__I2C2_SDA		0x400001c3
-+			MX8MP_IOMUXC_I2C2_SCL__I2C2_SCL		0x400001c2
-+			MX8MP_IOMUXC_I2C2_SDA__I2C2_SDA		0x400001c2
- 		>;
- 	};
+ mp_capable_done:
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index e3dcc5501579..88077ea02ed3 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -720,7 +720,6 @@ static int mptcp_pm_nl_mp_prio_send_ack(struct mptcp_sock *msk,
  
- 	pinctrl_i2c2_gpio: i2c2gpiogrp {
- 		fsl,pins = <
--			MX8MP_IOMUXC_I2C2_SCL__GPIO5_IO16	0x1e3
--			MX8MP_IOMUXC_I2C2_SDA__GPIO5_IO17	0x1e3
-+			MX8MP_IOMUXC_I2C2_SCL__GPIO5_IO16	0x1e2
-+			MX8MP_IOMUXC_I2C2_SDA__GPIO5_IO17	0x1e2
- 		>;
- 	};
+ 	mptcp_for_each_subflow(msk, subflow) {
+ 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+-		struct sock *sk = (struct sock *)msk;
+ 		struct mptcp_addr_info local;
  
- 	pinctrl_reg_usdhc2_vmmc: regusdhc2vmmcgrp {
- 		fsl,pins = <
--			MX8MP_IOMUXC_SD2_RESET_B__GPIO2_IO19	0x41
-+			MX8MP_IOMUXC_SD2_RESET_B__GPIO2_IO19	0x40
- 		>;
- 	};
+ 		local_address((struct sock_common *)ssk, &local);
+@@ -732,12 +731,9 @@ static int mptcp_pm_nl_mp_prio_send_ack(struct mptcp_sock *msk,
+ 		subflow->backup = bkup;
+ 		subflow->send_mp_prio = 1;
+ 		subflow->request_bkup = bkup;
+-		__MPTCP_INC_STATS(sock_net(sk), MPTCP_MIB_MPPRIOTX);
  
-@@ -175,7 +175,7 @@
- 			MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d0
- 			MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d0
- 			MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d0
--			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc1
-+			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc0
- 		>;
- 	};
+-		spin_unlock_bh(&msk->pm.lock);
+ 		pr_debug("send ack for mp_prio");
+ 		mptcp_subflow_send_ack(ssk);
+-		spin_lock_bh(&msk->pm.lock);
  
-@@ -187,7 +187,7 @@
- 			MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d4
- 			MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d4
- 			MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d4
--			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc1
-+			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc0
- 		>;
- 	};
+ 		return 0;
+ 	}
+@@ -1769,8 +1765,10 @@ static void mptcp_pm_nl_fullmesh(struct mptcp_sock *msk,
  
-@@ -199,7 +199,7 @@
- 			MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d6
- 			MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d6
- 			MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d6
--			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc1
-+			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc0
- 		>;
- 	};
- };
+ 	list.ids[list.nr++] = addr->id;
+ 
++	spin_lock_bh(&msk->pm.lock);
+ 	mptcp_pm_nl_rm_subflow_received(msk, &list);
+ 	mptcp_pm_create_subflow_or_signal_addr(msk);
++	spin_unlock_bh(&msk->pm.lock);
+ }
+ 
+ static int mptcp_nl_set_flags(struct net *net,
+@@ -1788,12 +1786,10 @@ static int mptcp_nl_set_flags(struct net *net,
+ 			goto next;
+ 
+ 		lock_sock(sk);
+-		spin_lock_bh(&msk->pm.lock);
+ 		if (changed & MPTCP_PM_ADDR_FLAG_BACKUP)
+ 			ret = mptcp_pm_nl_mp_prio_send_ack(msk, addr, bkup);
+ 		if (changed & MPTCP_PM_ADDR_FLAG_FULLMESH)
+ 			mptcp_pm_nl_fullmesh(msk, addr);
+-		spin_unlock_bh(&msk->pm.lock);
+ 		release_sock(sk);
+ 
+ next:
 -- 
 2.35.1
 
