@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D7D56FB72
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4700856FA85
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbiGKJaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:30:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41452 "EHLO
+        id S231740AbiGKJS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:18:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232195AbiGKJ3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:29:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB7C70E65;
-        Mon, 11 Jul 2022 02:16:41 -0700 (PDT)
+        with ESMTP id S231697AbiGKJS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3086C4D174;
+        Mon, 11 Jul 2022 02:11:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7317DB80E84;
-        Mon, 11 Jul 2022 09:16:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1099C34115;
-        Mon, 11 Jul 2022 09:16:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F21261148;
+        Mon, 11 Jul 2022 09:11:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB678C34115;
+        Mon, 11 Jul 2022 09:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530997;
-        bh=Z2/2u6TLOVitQk2RLbfwQpjOCKKEC9SNKDWAizoSSRc=;
+        s=korg; t=1657530707;
+        bh=c6lHgrC8ABeMaDjsp0Y9eCQSxBZwkmKPXV7L9DCxXbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYRPts+2koqX74idH1nvIy9vvpmItEfs4zZeHTiT6nMVfVn7hFdO8OfT8WtGFEHwr
-         XrQn1H90jBLbs/4cCuY0ii+qaZxftaxrkszF6ThKL4YF2Brkh+2AR/CMLkQC79OhfI
-         AsImtNA/N2ATctkS6UbEGBApvuAI8xxkhYAR2C88=
+        b=tSy1nORp1B7iYc4b45yti9e1Uu7vulcpcg8YJqJ0WxFWCHL+J38RAO5hAELKTIRxq
+         Hvyw5cgH+UITHlKgBowDN9M2VrROaV/w3KqYkv4rxKM80NpqKFcMdvVcvuNoMLWXET
+         TtHUdR7ulRbJ0yrb+Sa+w1tsxfol6rP9oV+zu+7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 059/112] arm64: dts: imx8mp-evk: correct gpio-led pad settings
+        stable@vger.kernel.org,
+        Hugues ANGUELKOV <hanguelkov@randorisec.fr>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 11/55] netfilter: nf_tables: stricter validation of element data
 Date:   Mon, 11 Jul 2022 11:06:59 +0200
-Message-Id: <20220711090551.247481297@linuxfoundation.org>
+Message-Id: <20220711090542.094432740@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit b838582ab8d5fb11b2c0275056a9f34e1d94fece ]
+commit 7e6bc1f6cabcd30aba0b11219d8e01b952eacbb6 upstream.
 
-0x19 is not a valid setting. According to RM bit layout,
-BIT3 and BIT0 are reserved.
-  8  7   6   5   4   3  2 1  0
- PE HYS PUE ODE FSEL X  DSE  X
+Make sure element data type and length do not mismatch the one specified
+by the set declaration.
 
-Correct setting with PE PUE set, DSE set to 0.
-
-Fixes: 50d336b12f34 ("arm64: dts: imx8mp-evk: Add GPIO LED support")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7d7402642eaf ("netfilter: nf_tables: variable sized set element keys / data")
+Reported-by: Hugues ANGUELKOV <hanguelkov@randorisec.fr>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-index 4ba31fc5d0a5..4ff75c4cbddc 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-@@ -461,7 +461,7 @@
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4886,13 +4886,20 @@ static int nft_setelem_parse_data(struct
+ 				  struct nft_data *data,
+ 				  struct nlattr *attr)
+ {
++	u32 dtype;
+ 	int err;
  
- 	pinctrl_gpio_led: gpioledgrp {
- 		fsl,pins = <
--			MX8MP_IOMUXC_NAND_READY_B__GPIO3_IO16	0x19
-+			MX8MP_IOMUXC_NAND_READY_B__GPIO3_IO16	0x140
- 		>;
- 	};
+ 	err = nft_data_init(ctx, data, NFT_DATA_VALUE_MAXLEN, desc, attr);
+ 	if (err < 0)
+ 		return err;
  
--- 
-2.35.1
-
+-	if (desc->type != NFT_DATA_VERDICT && desc->len != set->dlen) {
++	if (set->dtype == NFT_DATA_VERDICT)
++		dtype = NFT_DATA_VERDICT;
++	else
++		dtype = NFT_DATA_VALUE;
++
++	if (dtype != desc->type ||
++	    set->dlen != desc->len) {
+ 		nft_data_release(data, desc->type);
+ 		return -EINVAL;
+ 	}
 
 
