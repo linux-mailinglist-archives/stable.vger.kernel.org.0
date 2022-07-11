@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0A556FDAA
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBBDF56FB92
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbiGKJ7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:59:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45592 "EHLO
+        id S232632AbiGKJcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234194AbiGKJ63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E8360536;
-        Mon, 11 Jul 2022 02:27:24 -0700 (PDT)
+        with ESMTP id S232528AbiGKJbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6AF741997;
+        Mon, 11 Jul 2022 02:17:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2370A61370;
-        Mon, 11 Jul 2022 09:27:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B06C34115;
-        Mon, 11 Jul 2022 09:27:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4865B61211;
+        Mon, 11 Jul 2022 09:17:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5023EC34115;
+        Mon, 11 Jul 2022 09:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531642;
-        bh=QV3wDxkxr74z3UkBITYTHGpxhZq8sdSdwFhGqaxO/UQ=;
+        s=korg; t=1657531035;
+        bh=ODv6FVyFqJypdHeESRIAoKeDqcRVtLTyAlBMhN7uHHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNPWStETgrcR/E25nSh3n52DhzKVQiNsDzEwYXEgnZC0VKlDWVhh0xjPL2NFVI2ku
-         JU+wfxRJKfhPhqOiuBaYpfL3uiY/SfSDZdSURK7X+0Rg10m2CCuJswcUc66ziv6bNv
-         e7ZOejkkCl9a0EStUaLwqHyVmJa1PlxhljUXdhDg=
+        b=ZpmQyCLe7rl12N7Qen/3pOrxYqsh9rhW2J1Mi/wfFPSUIUuqpJ4fowMAeFyioZWI1
+         2D2v8DOYuxVtWDUB0SSxY2nF6OxXCnZoo1rjOshQ6h8hYfvS4DPjeaHHq18HVjNC8o
+         a8Iz2od29SKdOQ8++0925gfHqm43IzVOL5RJN+oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Fink <lukas.fink1@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 139/230] drm/amdgpu: Fix rejecting Tahiti GPUs
-Date:   Mon, 11 Jul 2022 11:06:35 +0200
-Message-Id: <20220711090608.007049812@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.18 036/112] fbcon: Prevent that screen size is smaller than font size
+Date:   Mon, 11 Jul 2022 11:06:36 +0200
+Message-Id: <20220711090550.595447764@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Fink <lukas.fink1@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 3993a799fc971bc9b918bd969aa55864447b5dde ]
-[ Upstream commit 5f0754ab2751d1935818459e8e71a8fe26f6403c ]
+commit e64242caef18b4a5840b0e7a9bff37abd4f4f933 upstream.
 
-eb4fd29afd4a ("drm/amdgpu: bind to any 0x1002 PCI diplay class device") added
-generic bindings to amdgpu so that that it binds to all display class devices
-with VID 0x1002 and then rejects those in amdgpu_pci_probe.
+We need to prevent that users configure a screen size which is smaller than the
+currently selected font size. Otherwise rendering chars on the screen will
+access memory outside the graphics memory region.
 
-Unfortunately it reuses a driver_data value of 0 to detect those new bindings,
-which is already used to denote CHIP_TAHITI ASICs.
+This patch adds a new function fbcon_modechange_possible() which
+implements this check and which later may be extended with other checks
+if necessary.  The new function is called from the FBIOPUT_VSCREENINFO
+ioctl handler in fbmem.c, which will return -EINVAL if userspace asked
+for a too small screen size.
 
-The driver_data value given to those new bindings was changed in
-dd0761fd24ea1 ("drm/amdgpu: set CHIP_IP_DISCOVERY as the asic type by default")
-to CHIP_IP_DISCOVERY (=36), but it seems that the check in amdgpu_pci_probe
-was forgotten to be changed. Therefore, it still rejects Tahiti GPUs.
-
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1860
-Fixes: eb4fd29afd4a ("drm/amdgpu: bind to any 0x1002 PCI diplay class device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Lukas Fink <lukas.fink1@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: stable@vger.kernel.org # v5.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/core/fbcon.c |   28 ++++++++++++++++++++++++++++
+ drivers/video/fbdev/core/fbmem.c |    4 +++-
+ include/linux/fbcon.h            |    4 ++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -2009,7 +2009,7 @@ static int amdgpu_pci_probe(struct pci_d
- 			return -ENODEV;
- 	}
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2747,6 +2747,34 @@ void fbcon_update_vcs(struct fb_info *in
+ }
+ EXPORT_SYMBOL(fbcon_update_vcs);
  
--	if (flags == 0) {
-+	if (flags == CHIP_IP_DISCOVERY) {
- 		DRM_INFO("Unsupported asic.  Remove me when IP discovery init is in place.\n");
- 		return -ENODEV;
- 	}
++/* let fbcon check if it supports a new screen resolution */
++int fbcon_modechange_possible(struct fb_info *info, struct fb_var_screeninfo *var)
++{
++	struct fbcon_ops *ops = info->fbcon_par;
++	struct vc_data *vc;
++	unsigned int i;
++
++	WARN_CONSOLE_UNLOCKED();
++
++	if (!ops)
++		return 0;
++
++	/* prevent setting a screen size which is smaller than font size */
++	for (i = first_fb_vc; i <= last_fb_vc; i++) {
++		vc = vc_cons[i].d;
++		if (!vc || vc->vc_mode != KD_TEXT ||
++			   registered_fb[con2fb_map[i]] != info)
++			continue;
++
++		if (vc->vc_font.width  > FBCON_SWAP(var->rotate, var->xres, var->yres) ||
++		    vc->vc_font.height > FBCON_SWAP(var->rotate, var->yres, var->xres))
++			return -EINVAL;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(fbcon_modechange_possible);
++
+ int fbcon_mode_deleted(struct fb_info *info,
+ 		       struct fb_videomode *mode)
+ {
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1116,7 +1116,9 @@ static long do_fb_ioctl(struct fb_info *
+ 			return -EFAULT;
+ 		console_lock();
+ 		lock_fb_info(info);
+-		ret = fb_set_var(info, &var);
++		ret = fbcon_modechange_possible(info, &var);
++		if (!ret)
++			ret = fb_set_var(info, &var);
+ 		if (!ret)
+ 			fbcon_update_vcs(info, var.activate & FB_ACTIVATE_ALL);
+ 		unlock_fb_info(info);
+--- a/include/linux/fbcon.h
++++ b/include/linux/fbcon.h
+@@ -15,6 +15,8 @@ void fbcon_new_modelist(struct fb_info *
+ void fbcon_get_requirement(struct fb_info *info,
+ 			   struct fb_blit_caps *caps);
+ void fbcon_fb_blanked(struct fb_info *info, int blank);
++int  fbcon_modechange_possible(struct fb_info *info,
++			       struct fb_var_screeninfo *var);
+ void fbcon_update_vcs(struct fb_info *info, bool all);
+ void fbcon_remap_all(struct fb_info *info);
+ int fbcon_set_con2fb_map_ioctl(void __user *argp);
+@@ -33,6 +35,8 @@ static inline void fbcon_new_modelist(st
+ static inline void fbcon_get_requirement(struct fb_info *info,
+ 					 struct fb_blit_caps *caps) {}
+ static inline void fbcon_fb_blanked(struct fb_info *info, int blank) {}
++static inline int  fbcon_modechange_possible(struct fb_info *info,
++				struct fb_var_screeninfo *var) { return 0; }
+ static inline void fbcon_update_vcs(struct fb_info *info, bool all) {}
+ static inline void fbcon_remap_all(struct fb_info *info) {}
+ static inline int fbcon_set_con2fb_map_ioctl(void __user *argp) { return 0; }
 
 
