@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB5756F9E2
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F46756FDB9
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbiGKJK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47032 "EHLO
+        id S231825AbiGKJ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231249AbiGKJJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4B99248FF;
-        Mon, 11 Jul 2022 02:08:18 -0700 (PDT)
+        with ESMTP id S231986AbiGKJ7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A882BB62A2;
+        Mon, 11 Jul 2022 02:27:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14FA1B80E49;
-        Mon, 11 Jul 2022 09:08:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D986C34115;
-        Mon, 11 Jul 2022 09:08:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 62F63CE126A;
+        Mon, 11 Jul 2022 09:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75798C34115;
+        Mon, 11 Jul 2022 09:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530495;
-        bh=3Rmk8qZWpW2yMzZ5SsMzHiMd/7zR1ly06CyIaurBVtM=;
+        s=korg; t=1657531639;
+        bh=m/KGAc9SXJsoFefchDyBa6ZxTDVjstgXbewAd/5Yeqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vcjOS2bRZXj6sKhmckvfvkR/31413NxKrQ3OhOXoHTDUEqbRi1pX5My600YILWOq4
-         eDU+35/i2Iy8mXIzvpYQDXtJRfkGuwbSPP3lHYxq2gz7aNrnUVvF+0+jWe3wKsR+Tz
-         VmIEuN2LDHxlcyfTdVRWaVSHOlwVOmj5D5Fd/kB8=
+        b=1gkL5FJescV9DPqarMa0vQTQu4x/CC0fkcNntjh7xxqsXfuUuJilCm1+ssBJZHHPT
+         Ua86/5j4V2JrNkfmkkkGNa0pdLm+URX4xjulv8eLwUQ6r4rjcMTTVbvHfDJaP05JnQ
+         x43vS01rzgK/eDTqtZv+frw32P7djUKcSgY7ns9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 09/17] video: of_display_timing.h: include errno.h
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 138/230] drm/amdgpu: bind to any 0x1002 PCI diplay class device
 Date:   Mon, 11 Jul 2022 11:06:34 +0200
-Message-Id: <20220711090536.537267956@linuxfoundation.org>
+Message-Id: <20220711090607.978575207@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 3663a2fb325b8782524f3edb0ae32d6faa615109 upstream.
+[ Upstream commit eb4fd29afd4aa1c98d882800ceeee7d1f5262803 ]
 
-If CONFIG_OF is not enabled, default of_get_display_timing() returns an
-errno, so include the header.
+Bind to all 0x1002 GPU devices.
 
-Fixes: 422b67e0b31a ("videomode: provide dummy inline functions for !CONFIG_OF")
-Suggested-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For now we explicitly return -ENODEV for generic bindings.
+Remove this check once IP discovery based checking is in place.
+
+v2: rebase (Alex)
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/video/of_display_timing.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/include/video/of_display_timing.h
-+++ b/include/video/of_display_timing.h
-@@ -9,6 +9,8 @@
- #ifndef __LINUX_OF_DISPLAY_TIMING_H
- #define __LINUX_OF_DISPLAY_TIMING_H
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index f65b4b233ffb..c294081022bd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1952,6 +1952,16 @@ static const struct pci_device_id pciidlist[] = {
+ 	{0x1002, 0x7424, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+ 	{0x1002, 0x743F, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
  
-+#include <linux/errno.h>
++	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
++	  .class = PCI_CLASS_DISPLAY_VGA << 8,
++	  .class_mask = 0xffffff,
++	  .driver_data = 0 },
 +
- struct device_node;
- struct display_timing;
- struct display_timings;
++	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
++	  .class = PCI_CLASS_DISPLAY_OTHER << 8,
++	  .class_mask = 0xffffff,
++	  .driver_data = 0 },
++
+ 	{0, 0, 0}
+ };
+ 
+@@ -1999,6 +2009,11 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 			return -ENODEV;
+ 	}
+ 
++	if (flags == 0) {
++		DRM_INFO("Unsupported asic.  Remove me when IP discovery init is in place.\n");
++		return -ENODEV;
++	}
++
+ 	if (amdgpu_virtual_display ||
+ 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
+ 		supports_atomic = true;
+-- 
+2.35.1
+
 
 
