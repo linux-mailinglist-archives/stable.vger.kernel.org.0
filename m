@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C92956FD84
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A061056FA24
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234040AbiGKJ4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:56:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
+        id S231442AbiGKJNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234045AbiGKJ4Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:56:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6846B38CA;
-        Mon, 11 Jul 2022 02:26:42 -0700 (PDT)
+        with ESMTP id S231337AbiGKJNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:13:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B84E2F3BB;
+        Mon, 11 Jul 2022 02:09:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F31BB80E8B;
-        Mon, 11 Jul 2022 09:26:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C0F2C34115;
-        Mon, 11 Jul 2022 09:26:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76BF26115B;
+        Mon, 11 Jul 2022 09:09:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88EEAC34115;
+        Mon, 11 Jul 2022 09:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531598;
-        bh=/arBt1W/MCDb9c/f3TGb/Hvy8ldRKHztfHDnFIYTmpQ=;
+        s=korg; t=1657530577;
+        bh=NZfE0H/w5NIGJFcWdjQPXZinzAVGglJvOVXLLc32h1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjcVDC/JllWSPGxYf0TejLWT7qTCt1LS3YgCdNxxaFne4cKFaXVrLdZFEMGyRCjKZ
-         gdjDYiZV8cJsNw+OvDzQqOueoEzKFMXj7OEJLRYqQ2d9OAGhmY2tb2At9HhMrtRTvX
-         WeRh/Ds7ZG8ndsCxlZfBrATsUrVK66YPLBE8eX30=
+        b=RmFclwm1L86PTEKxh9ZMAo7mKodTjndzDpJHhgOJdUzuhFmdcs1J8zY3yBdByb6Bq
+         nYyvEY1xBqchXqb+lB0IDMp2Qhb1vkZh9yw0SB9xzSM3RksspQwDhKuehSjKCIXnPR
+         IH52g+BYMkPInmvgigzr3ygnLk9EFVl5axE3RFhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 5.15 162/230] fbcon: Prevent that screen size is smaller than font size
+        stable@vger.kernel.org, Nick Child <nnac123@linux.ibm.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        Rick Lindsley <ricklind@us.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 19/31] ibmvnic: Properly dispose of all skbs during a failover.
 Date:   Mon, 11 Jul 2022 11:06:58 +0200
-Message-Id: <20220711090608.656936314@linuxfoundation.org>
+Message-Id: <20220711090538.414969149@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
+References: <20220711090537.841305347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Rick Lindsley <ricklind@us.ibm.com>
 
-commit e64242caef18b4a5840b0e7a9bff37abd4f4f933 upstream.
+[ Upstream commit 1b18f09d31cfa7148df15a7d5c5e0e86f105f7d1 ]
 
-We need to prevent that users configure a screen size which is smaller than the
-currently selected font size. Otherwise rendering chars on the screen will
-access memory outside the graphics memory region.
+During a reset, there may have been transmits in flight that are no
+longer valid and cannot be fulfilled.  Resetting and clearing the
+queues is insufficient; each skb also needs to be explicitly freed
+so that upper levels are not left waiting for confirmation of a
+transmit that will never happen.  If this happens frequently enough,
+the apparent backlog will cause TCP to begin "congestion control"
+unnecessarily, culminating in permanently decreased throughput.
 
-This patch adds a new function fbcon_modechange_possible() which
-implements this check and which later may be extended with other checks
-if necessary.  The new function is called from the FBIOPUT_VSCREENINFO
-ioctl handler in fbmem.c, which will return -EINVAL if userspace asked
-for a too small screen size.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d7c0ef36bde03 ("ibmvnic: Free and re-allocate scrqs when tx/rx scrqs change")
+Tested-by: Nick Child <nnac123@linux.ibm.com>
+Reviewed-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Rick Lindsley <ricklind@us.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c |   28 ++++++++++++++++++++++++++++
- drivers/video/fbdev/core/fbmem.c |    4 +++-
- include/linux/fbcon.h            |    4 ++++
- 3 files changed, 35 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2747,6 +2747,34 @@ void fbcon_update_vcs(struct fb_info *in
- }
- EXPORT_SYMBOL(fbcon_update_vcs);
- 
-+/* let fbcon check if it supports a new screen resolution */
-+int fbcon_modechange_possible(struct fb_info *info, struct fb_var_screeninfo *var)
-+{
-+	struct fbcon_ops *ops = info->fbcon_par;
-+	struct vc_data *vc;
-+	unsigned int i;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index ae3eea4a4213..1463cf4321a8 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -4691,6 +4691,15 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter)
+ 			release_sub_crqs(adapter, 0);
+ 			rc = init_sub_crqs(adapter);
+ 		} else {
++			/* no need to reinitialize completely, but we do
++			 * need to clean up transmits that were in flight
++			 * when we processed the reset.  Failure to do so
++			 * will confound the upper layer, usually TCP, by
++			 * creating the illusion of transmits that are
++			 * awaiting completion.
++			 */
++			clean_tx_pools(adapter);
 +
-+	WARN_CONSOLE_UNLOCKED();
-+
-+	if (!ops)
-+		return 0;
-+
-+	/* prevent setting a screen size which is smaller than font size */
-+	for (i = first_fb_vc; i <= last_fb_vc; i++) {
-+		vc = vc_cons[i].d;
-+		if (!vc || vc->vc_mode != KD_TEXT ||
-+			   registered_fb[con2fb_map[i]] != info)
-+			continue;
-+
-+		if (vc->vc_font.width  > FBCON_SWAP(var->rotate, var->xres, var->yres) ||
-+		    vc->vc_font.height > FBCON_SWAP(var->rotate, var->yres, var->xres))
-+			return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(fbcon_modechange_possible);
-+
- int fbcon_mode_deleted(struct fb_info *info,
- 		       struct fb_videomode *mode)
- {
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1120,7 +1120,9 @@ static long do_fb_ioctl(struct fb_info *
- 			return -EFAULT;
- 		console_lock();
- 		lock_fb_info(info);
--		ret = fb_set_var(info, &var);
-+		ret = fbcon_modechange_possible(info, &var);
-+		if (!ret)
-+			ret = fb_set_var(info, &var);
- 		if (!ret)
- 			fbcon_update_vcs(info, var.activate & FB_ACTIVATE_ALL);
- 		unlock_fb_info(info);
---- a/include/linux/fbcon.h
-+++ b/include/linux/fbcon.h
-@@ -15,6 +15,8 @@ void fbcon_new_modelist(struct fb_info *
- void fbcon_get_requirement(struct fb_info *info,
- 			   struct fb_blit_caps *caps);
- void fbcon_fb_blanked(struct fb_info *info, int blank);
-+int  fbcon_modechange_possible(struct fb_info *info,
-+			       struct fb_var_screeninfo *var);
- void fbcon_update_vcs(struct fb_info *info, bool all);
- void fbcon_remap_all(struct fb_info *info);
- int fbcon_set_con2fb_map_ioctl(void __user *argp);
-@@ -33,6 +35,8 @@ static inline void fbcon_new_modelist(st
- static inline void fbcon_get_requirement(struct fb_info *info,
- 					 struct fb_blit_caps *caps) {}
- static inline void fbcon_fb_blanked(struct fb_info *info, int blank) {}
-+static inline int  fbcon_modechange_possible(struct fb_info *info,
-+				struct fb_var_screeninfo *var) { return 0; }
- static inline void fbcon_update_vcs(struct fb_info *info, bool all) {}
- static inline void fbcon_remap_all(struct fb_info *info) {}
- static inline int fbcon_set_con2fb_map_ioctl(void __user *argp) { return 0; }
+ 			rc = reset_sub_crq_queues(adapter);
+ 		}
+ 	} else {
+-- 
+2.35.1
+
 
 
