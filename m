@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0043556FAAE
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE5856FA63
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbiGKJVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:21:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43186 "EHLO
+        id S231555AbiGKJRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:17:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231898AbiGKJUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C44545C0;
-        Mon, 11 Jul 2022 02:12:32 -0700 (PDT)
+        with ESMTP id S230497AbiGKJQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:16:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE50B402D3;
+        Mon, 11 Jul 2022 02:11:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFD17611F0;
-        Mon, 11 Jul 2022 09:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E03C34115;
-        Mon, 11 Jul 2022 09:12:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B565B611E4;
+        Mon, 11 Jul 2022 09:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C19C341C8;
+        Mon, 11 Jul 2022 09:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530751;
-        bh=pv8T9gUxJhcDfY1EK6DBaogYnmWJsFaGPg8dgKdd82o=;
+        s=korg; t=1657530661;
+        bh=NbA28TAuTrYYXJwoVDSHTqYmT/Qw5wS2/4IKKLTHgKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+ySHDxf7DT5lVRbevyXUiBCt+VKkF/UIR6Em26Cgn+626BqWbeUx+663BxT3AUz9
-         hTcmSjrPE2NX4t88MNo3Ggp+mapUyFSU+jG1CBkrre+68wNZyisSoWdtJSb/Gjvaw1
-         2TfXQWpaF/9ATncZm6GIYk5lYd6WGtZk/3uVMfag=
+        b=tM0QHUO9JcwG5tph6jByehwLFBPWc+0sn/9sw760NelnSEwjC7jtpYlCEZDSCdznD
+         64skqtpIb7al/AZoD2t87T9YUeyhetol1v40OrLdm3idbZDfsDCFBATSR+2MJIwZ6i
+         DqelGZnXx9Tfe0r4BwMwY9QhZrjud+qfn5d+BH84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/55] arm64: dts: qcom: msm8994: Fix CPU6/7 reg values
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Rob Herring <robh@kernel.org>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 33/38] dt-bindings: dma: allwinner,sun50i-a64-dma: Fix min/max typo
 Date:   Mon, 11 Jul 2022 11:07:15 +0200
-Message-Id: <20220711090542.565896031@linuxfoundation.org>
+Message-Id: <20220711090539.702563238@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 47bf59c4755930f616dd90c8c6a85f40a6d347ea ]
+commit 607a48c78e6b427b0b684d24e61c19e846ad65d6 upstream.
 
-CPU6 and CPU7 were mistakengly pointing to CPU5 reg. Fix it.
+The conditional block for variants with a second clock should have set
+minItems, not maxItems, which was already 2. Since clock-names requires
+two items, this typo should not have caused any problems.
 
-Fixes: 02d8091bbca0 ("arm64: dts: qcom: msm8994: Add a proper CPU map")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220501184016.64138-1-konrad.dybcio@somainline.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: edd14218bd66 ("dt-bindings: dmaengine: Convert Allwinner A31 and A64 DMA to a schema")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220702031903.21703-1-samuel@sholland.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/msm8994.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
-index 297408b947ff..aeb5762566e9 100644
---- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
-@@ -92,7 +92,7 @@
- 		CPU6: cpu@102 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a57";
--			reg = <0x0 0x101>;
-+			reg = <0x0 0x102>;
- 			enable-method = "psci";
- 			next-level-cache = <&L2_1>;
- 		};
-@@ -100,7 +100,7 @@
- 		CPU7: cpu@103 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a57";
--			reg = <0x0 0x101>;
-+			reg = <0x0 0x103>;
- 			enable-method = "psci";
- 			next-level-cache = <&L2_1>;
- 		};
--- 
-2.35.1
-
+--- a/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
++++ b/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
+@@ -58,7 +58,7 @@ if:
+ then:
+   properties:
+     clocks:
+-      maxItems: 2
++      minItems: 2
+ 
+   required:
+     - clock-names
 
 
