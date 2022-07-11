@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E4556FAC9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C1656FC03
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbiGKJVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42902 "EHLO
+        id S232841AbiGKJhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231866AbiGKJVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:21:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4807957205;
-        Mon, 11 Jul 2022 02:12:57 -0700 (PDT)
+        with ESMTP id S233006AbiGKJhF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:37:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2EB51261D;
+        Mon, 11 Jul 2022 02:19:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C257E6111F;
-        Mon, 11 Jul 2022 09:12:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4B74C341C8;
-        Mon, 11 Jul 2022 09:12:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 597636111F;
+        Mon, 11 Jul 2022 09:19:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A43CC385A9;
+        Mon, 11 Jul 2022 09:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530776;
-        bh=746gWq6hUeI15+eXiH/h4H5jA1QjJ9DrC7C7ZPtgN7U=;
+        s=korg; t=1657531163;
+        bh=bEHtYdEwJZX67YLc4RQfA/Z+TOjaYsEkyRE3U77hJK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWWgl7jI7E9ZFZd1QCyiOdfX1FE/yGWpEp0qrxHv2nUJpMGU5wlPkC0vWFIA2Nnvk
-         8o0IUzZJGPAZNDwh36evwxPdyyG15EJeAxMnMWjc87ap0+vbah8ysUn8Mae17d60Z+
-         nnvoKZY4F07OxtywLe1rBv85B4W3xKq1119W8cms=
+        b=VkWdPQC81cY3vi420Sm3rBRVG+es1Oa0YfVEyPwKY3YcFqb6WPL1FS0HDt0krFSth
+         Golt/OTt/Pwx8ASnXhE4cPr173Y/qcTdJhj6JyNPZMBmJb8YsFimfzD76QRcLkpSDM
+         3/BLl6ndP6XlGyrNa/vGRNa7VziMa+SyJcpNhxks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/55] ARM: at91: pm: use proper compatibles for sam9x60s rtc and rtt
-Date:   Mon, 11 Jul 2022 11:07:23 +0200
-Message-Id: <20220711090542.796201126@linuxfoundation.org>
+Subject: [PATCH 5.18 084/112] selftests: forwarding: fix error message in learning_test
+Date:   Mon, 11 Jul 2022 11:07:24 +0200
+Message-Id: <20220711090551.955625692@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 641522665dbb25ce117c78746df1aad8b58c80e5 ]
+[ Upstream commit 83844aacab2015da1dba1df0cc61fc4b4c4e8076 ]
 
-Use proper compatible strings for SAM9X60's RTC and RTT IPs. These are
-necessary for configuring wakeup sources for ULP1 PM mode.
+When packets are not received, they aren't received on $host1_if, so the
+message talking about the second host not receiving them is incorrect.
+Fix it.
 
-Fixes: eaedc0d379da ("ARM: at91: pm: add ULP1 support for SAM9X60")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220523092421.317345-3-claudiu.beznea@microchip.com
+Fixes: d4deb01467ec ("selftests: forwarding: Add a test for FDB learning")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-at91/pm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/forwarding/lib.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index 6a68ff0466e0..f2ce2d094925 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -115,12 +115,12 @@ static const struct of_device_id sama5d2_ws_ids[] = {
- };
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index 412e52e89071..063da0d53462 100644
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -1187,7 +1187,7 @@ learning_test()
+ 	tc -j -s filter show dev $host1_if ingress \
+ 		| jq -e ".[] | select(.options.handle == 101) \
+ 		| select(.options.actions[0].stats.packets == 1)" &> /dev/null
+-	check_fail $? "Packet reached second host when should not"
++	check_fail $? "Packet reached first host when should not"
  
- static const struct of_device_id sam9x60_ws_ids[] = {
--	{ .compatible = "atmel,at91sam9x5-rtc",		.data = &ws_info[1] },
-+	{ .compatible = "microchip,sam9x60-rtc",	.data = &ws_info[1] },
- 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
- 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
- 	{ .compatible = "atmel,at91sam9g45-ehci",	.data = &ws_info[2] },
- 	{ .compatible = "usb-ehci",			.data = &ws_info[2] },
--	{ .compatible = "atmel,at91sam9260-rtt",	.data = &ws_info[4] },
-+	{ .compatible = "microchip,sam9x60-rtt",	.data = &ws_info[4] },
- 	{ .compatible = "cdns,sam9x60-macb",		.data = &ws_info[5] },
- 	{ /* sentinel */ }
- };
+ 	$MZ $host1_if -c 1 -p 64 -a $mac -t ip -q
+ 	sleep 1
 -- 
 2.35.1
 
