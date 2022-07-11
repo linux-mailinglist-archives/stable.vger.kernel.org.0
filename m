@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDEE56F9C7
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6459E56FD59
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231163AbiGKJIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:08:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46992 "EHLO
+        id S231288AbiGKJyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:54:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbiGKJIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:08:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD51222B1D;
-        Mon, 11 Jul 2022 02:07:43 -0700 (PDT)
+        with ESMTP id S234029AbiGKJx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:53:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A54AEF49;
+        Mon, 11 Jul 2022 02:25:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3777C6118F;
-        Mon, 11 Jul 2022 09:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D3DC34115;
-        Mon, 11 Jul 2022 09:07:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74AF0B80E8C;
+        Mon, 11 Jul 2022 09:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D73FDC34115;
+        Mon, 11 Jul 2022 09:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530462;
-        bh=aFXRT0ma0toellNu+x8gD8/rkeB50zhZA+nMSArnUY0=;
+        s=korg; t=1657531538;
+        bh=NFoeWV8XCLFB34kMOAY52aZI2Cc0cS6OCzNu6IoLMZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tXpajff7PIKRp4sedCcHp0bDwb99bAi8hLL3O3VBBNq3RQEd4wYgbfL14JifbPqWF
-         8RvyXmZLbvx56zxlpUGTebDSztIekcpbjwihI99AoUB0OO7Cn0sFPfwpJykoCLl9+6
-         VfW3YjAmNkhzrEFBxUB0A/caL3KWieP3el227hBU=
+        b=hFP1Unq6OGm7o8v0qe8wLC52X02pH9H+hR8cSip4eM4KYEF0zGaYh2vv4GauTWlJc
+         4bF9FGMspkdVtfOqzYNT6XraJ8LoBvkBRdfoqK505S7E+A8lJ7OCx5Kh9g96mqQOL9
+         dwoQCF1UE3ZPonfzXcmHA46shDwwCjA5c7YxfjqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Michal Simek <michal.simek@amd.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/17] i2c: cadence: Unregister the clk notifier in error path
+        stable@vger.kernel.org, Richard Gong <richard.gong@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 142/230] drm/amdgpu: vi: disable ASPM on Intel Alder Lake based systems
 Date:   Mon, 11 Jul 2022 11:06:38 +0200
-Message-Id: <20220711090536.658096693@linuxfoundation.org>
+Message-Id: <20220711090608.091098872@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,32 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Satish Nagireddy <satish.nagireddy@getcruise.com>
+From: Richard Gong <richard.gong@amd.com>
 
-[ Upstream commit 3501f0c663063513ad604fb1b3f06af637d3396d ]
+[ Upstream commit aa482ddca85a3485be0e7b83a0789dc4d987670b ]
 
-This patch ensures that the clock notifier is unregistered
-when driver probe is returning error.
+Active State Power Management (ASPM) feature is enabled since kernel 5.14.
+There are some AMD Volcanic Islands (VI) GFX cards, such as the WX3200 and
+RX640, that do not work with ASPM-enabled Intel Alder Lake based systems.
+Using these GFX cards as video/display output, Intel Alder Lake based
+systems will freeze after suspend/resume.
 
-Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
-Signed-off-by: Satish Nagireddy <satish.nagireddy@getcruise.com>
-Tested-by: Lars-Peter Clausen <lars@metafoo.de>
-Reviewed-by: Michal Simek <michal.simek@amd.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+The issue was originally reported on one system (Dell Precision 3660 with
+BIOS version 0.14.81), but was later confirmed to affect at least 4
+pre-production Alder Lake based systems.
+
+Add an extra check to disable ASPM on Intel Alder Lake based systems with
+the problematic AMD Volcanic Islands GFX cards.
+
+Fixes: 0064b0ce85bb ("drm/amd/pm: enable ASPM by default")
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1885
+Signed-off-by: Richard Gong <richard.gong@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/vi.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -990,6 +990,7 @@ static int cdns_i2c_probe(struct platfor
- 	return 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/vi.c b/drivers/gpu/drm/amd/amdgpu/vi.c
+index 039b90cdc3bc..45f0188c4273 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vi.c
++++ b/drivers/gpu/drm/amd/amdgpu/vi.c
+@@ -81,6 +81,10 @@
+ #include "mxgpu_vi.h"
+ #include "amdgpu_dm.h"
  
- err_clk_dis:
-+	clk_notifier_unregister(id->clk, &id->clk_rate_change_nb);
- 	clk_disable_unprepare(id->clk);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
++#if IS_ENABLED(CONFIG_X86)
++#include <asm/intel-family.h>
++#endif
++
+ #define ixPCIE_LC_L1_PM_SUBSTATE	0x100100C6
+ #define PCIE_LC_L1_PM_SUBSTATE__LC_L1_SUBSTATES_OVERRIDE_EN_MASK	0x00000001L
+ #define PCIE_LC_L1_PM_SUBSTATE__LC_PCI_PM_L1_2_OVERRIDE_MASK	0x00000002L
+@@ -1134,13 +1138,24 @@ static void vi_enable_aspm(struct amdgpu_device *adev)
+ 		WREG32_PCIE(ixPCIE_LC_CNTL, data);
+ }
+ 
++static bool aspm_support_quirk_check(void)
++{
++#if IS_ENABLED(CONFIG_X86)
++	struct cpuinfo_x86 *c = &cpu_data(0);
++
++	return !(c->x86 == 6 && c->x86_model == INTEL_FAM6_ALDERLAKE);
++#else
++	return true;
++#endif
++}
++
+ static void vi_program_aspm(struct amdgpu_device *adev)
+ {
+ 	u32 data, data1, orig;
+ 	bool bL1SS = false;
+ 	bool bClkReqSupport = true;
+ 
+-	if (!amdgpu_device_should_use_aspm(adev))
++	if (!amdgpu_device_should_use_aspm(adev) || !aspm_support_quirk_check())
+ 		return;
+ 
+ 	if (adev->flags & AMD_IS_APU ||
+-- 
+2.35.1
+
 
 
