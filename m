@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C771556FB5E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A14056FD6F
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231269AbiGKJ3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:29:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
+        id S233996AbiGKJzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:55:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232311AbiGKJ2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933E966BAE;
-        Mon, 11 Jul 2022 02:16:02 -0700 (PDT)
+        with ESMTP id S233725AbiGKJyr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:54:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7387337F98;
+        Mon, 11 Jul 2022 02:26:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 740DFB80E76;
-        Mon, 11 Jul 2022 09:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C6A7C341C0;
-        Mon, 11 Jul 2022 09:15:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6944461366;
+        Mon, 11 Jul 2022 09:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7646EC34115;
+        Mon, 11 Jul 2022 09:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530958;
-        bh=JnbQUXFmoCPU/Ryxi5nJ3JILasfWjNYUzM7FYb5s3Dg=;
+        s=korg; t=1657531565;
+        bh=CN63vJ3BRAvBG+MdV3XQIgUNjYaxqwnfOtQObgAkbis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3cOSiqDotguFJ+lWWhl4b06ja+7eu0UwX9S8vf6NVwv55460T15eW+hNxlkUwYAA
-         r3RXGM7BEDhT5SWu/r5rJvsUtqEV52Tw1kH1B7kSOSOHojbNUr3NvEZjqL+T6eiOo+
-         bya79tCnnGwLygYlzwzQDe1P1BlEp6Du/wsHjEls=
+        b=zFgZPSVxnX6OoyJQIlDlkLR6FAbGDUKGRQOLbTQSdx4IYdOtdGa8O3lxKLbVXbdDG
+         iWimSKBKUJWUEIdv1Kg2WnRq/i5n3FzxnNKA0/qdRV7eSe38QZDlDdzeiv9dRqlcoZ
+         En4v7fhkdCoBYV7bQSjCusG3h4o8Yg7YVjMQe78M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 046/112] pinctrl: sunxi: a83t: Fix NAND function name for some pins
-Date:   Mon, 11 Jul 2022 11:06:46 +0200
-Message-Id: <20220711090550.879919936@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 151/230] io_uring: avoid io-wq -EAGAIN looping for !IOPOLL
+Date:   Mon, 11 Jul 2022 11:06:47 +0200
+Message-Id: <20220711090608.343538274@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit aaefa29270d9551b604165a08406543efa9d16f5 ]
+[ Upstream commit e0deb6a025ae8c850dc8685be39fb27b06c88736 ]
 
-The other NAND pins on Port C use the "nand0" function name.
-"nand0" also matches all of the other Allwinner SoCs.
+If an opcode handler semi-reliably returns -EAGAIN, io_wq_submit_work()
+might continue busily hammer the same handler over and over again, which
+is not ideal. The -EAGAIN handling in question was put there only for
+IOPOLL, so restrict it to IOPOLL mode only where there is no other
+recourse than to retry as we cannot wait.
 
-Fixes: 4730f33f0d82 ("pinctrl: sunxi: add allwinner A83T PIO controller support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220526024956.49500-1-samuel@sholland.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: def596e9557c9 ("io_uring: support for IO polling")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/f168b4f24181942f3614dd8ff648221736f572e6.1652433740.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-index 4ada80317a3b..b5c1a8f363f3 100644
---- a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
-@@ -158,26 +158,26 @@ static const struct sunxi_desc_pin sun8i_a83t_pins[] = {
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 14),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ6 */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ6 */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D6 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ7 */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ7 */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D7 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 16),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand"),		/* DQS */
-+		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQS */
- 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* RST */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 17),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand")),		/* CE2 */
-+		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE2 */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 18),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
--		  SUNXI_FUNCTION(0x2, "nand")),		/* CE3 */
-+		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE3 */
- 	/* Hole */
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 0c5dcda0b622..9bff14c5e2b2 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6866,7 +6866,7 @@ static void io_wq_submit_work(struct io_wq_work *work)
+ 			 * forcing a sync submission from here, since we can't
+ 			 * wait for request slots on the block side.
+ 			 */
+-			if (ret != -EAGAIN)
++			if (ret != -EAGAIN || !(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 				break;
+ 			cond_resched();
+ 		} while (1);
 -- 
 2.35.1
 
