@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B144B56FAE3
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4847F56FAE6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbiGKJXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42770 "EHLO
+        id S232101AbiGKJXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:23:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231808AbiGKJWy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D687D22BE9;
-        Mon, 11 Jul 2022 02:13:33 -0700 (PDT)
+        with ESMTP id S231904AbiGKJW5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C261E0;
+        Mon, 11 Jul 2022 02:13:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE590610A5;
-        Mon, 11 Jul 2022 09:13:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF023C34115;
-        Mon, 11 Jul 2022 09:13:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D912B80CEF;
+        Mon, 11 Jul 2022 09:13:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F43C34115;
+        Mon, 11 Jul 2022 09:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530812;
-        bh=FM/xnDTajo5tg/nDWYB6juALM7uDbh8bArFdijDwNc4=;
+        s=korg; t=1657530815;
+        bh=6P8CXs3MGbhhmsH5Oe+Hzg9axBWkQxRbYazFIsEe6KE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcAIlJWao9dFiq0zwamoERhckZwDlmzzaC6yPXbZda+WyNqfIfspRTQ0Cwt8CKjQC
-         aRm245JZ5BdrkwLP3OVDZmQF4VIBb7PTmzG2jVWvB20Xb2wR6ukmfz3YixkWW+Xfgp
-         oZF6zl9tAzOJsvP7Q3zeR5Kwh4euu1kgk+oMn490=
+        b=EsEm9EgiM7OecTUMv2owli2ovtet6Anv02vhFPefs7/gmGRNmBpscrp3tBZJmzedC
+         3LJ9BFnGboVndEoqbomcTJ1NK7sc/jDDinm90BFpn1y/5bqnY+7RXUP9MCOUDEXj5R
+         Xr9I5n3pcFM2EZqxBeuwQG+2p8pN60XNzM5HETL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         stable <stable@kernel.org>
-Subject: [PATCH 5.10 47/55] misc: rtsx_usb: fix use of dma mapped buffer for usb bulk transfer
-Date:   Mon, 11 Jul 2022 11:07:35 +0200
-Message-Id: <20220711090543.143177596@linuxfoundation.org>
+Subject: [PATCH 5.10 48/55] misc: rtsx_usb: use separate command and response buffers
+Date:   Mon, 11 Jul 2022 11:07:36 +0200
+Message-Id: <20220711090543.172166945@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
 References: <20220711090541.764895984@linuxfoundation.org>
@@ -55,82 +55,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit eb7f8e28420372787933eec079735c35034bda7d upstream.
+commit 3776c78559853fd151be7c41e369fd076fb679d5 upstream.
 
-rtsx_usb driver allocates coherent dma buffer for urb transfers.
-This buffer is passed to usb_bulk_msg() and usb core tries to
-map already mapped buffer running into a dma mapping error.
+rtsx_usb uses same buffer for command and response. There could
+be a potential conflict using the same buffer for both especially
+if retries and timeouts are involved.
 
-xhci_hcd 0000:01:00.0: rejecting DMA map of vmalloc memory
-WARNING: CPU: 1 PID: 279 at include/linux/dma-mapping.h:326 usb_ hcd_map_urb_for_dma+0x7d6/0x820
-
-...
-
-xhci_map_urb_for_dma+0x291/0x4e0
-usb_hcd_submit_urb+0x199/0x12b0
-...
-usb_submit_urb+0x3b8/0x9e0
-usb_start_wait_urb+0xe3/0x2d0
-usb_bulk_msg+0x115/0x240
-rtsx_usb_transfer_data+0x185/0x1a8 [rtsx_usb]
-rtsx_usb_send_cmd+0xbb/0x123 [rtsx_usb]
-rtsx_usb_write_register+0x12c/0x143 [rtsx_usb]
-rtsx_usb_probe+0x226/0x4b2 [rtsx_usb]
-
-Fix it to use kmalloc() to get DMA-able memory region instead.
+Use separate command and response buffers to avoid conflicts.
 
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/667d627d502e1ba9ff4f9b94966df3299d2d3c0d.1656642167.git.skhan@linuxfoundation.org
+Link: https://lore.kernel.org/r/07e3721804ff07aaab9ef5b39a5691d0718b9ade.1656642167.git.skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c |   13 +++++++------
+ drivers/misc/cardreader/rtsx_usb.c |   26 +++++++++++++++++---------
  include/linux/rtsx_usb.h           |    1 -
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
 --- a/drivers/misc/cardreader/rtsx_usb.c
 +++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -631,8 +631,7 @@ static int rtsx_usb_probe(struct usb_int
+@@ -631,15 +631,18 @@ static int rtsx_usb_probe(struct usb_int
  
  	ucr->pusb_dev = usb_dev;
  
--	ucr->iobuf = usb_alloc_coherent(ucr->pusb_dev, IOBUF_SIZE,
--			GFP_KERNEL, &ucr->iobuf_dma);
-+	ucr->iobuf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
- 	if (!ucr->iobuf)
+-	ucr->iobuf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
+-	if (!ucr->iobuf)
++	ucr->cmd_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
++	if (!ucr->cmd_buf)
  		return -ENOMEM;
  
-@@ -668,8 +667,9 @@ static int rtsx_usb_probe(struct usb_int
++	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
++	if (!ucr->rsp_buf)
++		goto out_free_cmd_buf;
++
+ 	usb_set_intfdata(intf, ucr);
+ 
+ 	ucr->vendor_id = id->idVendor;
+ 	ucr->product_id = id->idProduct;
+-	ucr->cmd_buf = ucr->rsp_buf = ucr->iobuf;
+ 
+ 	mutex_init(&ucr->dev_mutex);
+ 
+@@ -667,9 +670,11 @@ static int rtsx_usb_probe(struct usb_int
  
  out_init_fail:
  	usb_set_intfdata(ucr->pusb_intf, NULL);
--	usb_free_coherent(ucr->pusb_dev, IOBUF_SIZE, ucr->iobuf,
--			ucr->iobuf_dma);
-+	kfree(ucr->iobuf);
-+	ucr->iobuf = NULL;
-+	ucr->cmd_buf = ucr->rsp_buf = NULL;
+-	kfree(ucr->iobuf);
+-	ucr->iobuf = NULL;
+-	ucr->cmd_buf = ucr->rsp_buf = NULL;
++	kfree(ucr->rsp_buf);
++	ucr->rsp_buf = NULL;
++out_free_cmd_buf:
++	kfree(ucr->cmd_buf);
++	ucr->cmd_buf = NULL;
  	return ret;
  }
  
-@@ -682,8 +682,9 @@ static void rtsx_usb_disconnect(struct u
+@@ -682,9 +687,12 @@ static void rtsx_usb_disconnect(struct u
  	mfd_remove_devices(&intf->dev);
  
  	usb_set_intfdata(ucr->pusb_intf, NULL);
--	usb_free_coherent(ucr->pusb_dev, IOBUF_SIZE, ucr->iobuf,
--			ucr->iobuf_dma);
-+	kfree(ucr->iobuf);
-+	ucr->iobuf = NULL;
-+	ucr->cmd_buf = ucr->rsp_buf = NULL;
+-	kfree(ucr->iobuf);
+-	ucr->iobuf = NULL;
+-	ucr->cmd_buf = ucr->rsp_buf = NULL;
++
++	kfree(ucr->cmd_buf);
++	ucr->cmd_buf = NULL;
++
++	kfree(ucr->rsp_buf);
++	ucr->rsp_buf = NULL;
  }
  
  #ifdef CONFIG_PM
 --- a/include/linux/rtsx_usb.h
 +++ b/include/linux/rtsx_usb.h
-@@ -55,7 +55,6 @@ struct rtsx_ucr {
+@@ -54,7 +54,6 @@ struct rtsx_ucr {
+ 	struct usb_device	*pusb_dev;
  	struct usb_interface	*pusb_intf;
  	struct usb_sg_request	current_sg;
- 	unsigned char		*iobuf;
--	dma_addr_t		iobuf_dma;
+-	unsigned char		*iobuf;
  
  	struct timer_list	sg_timer;
  	struct mutex		dev_mutex;
