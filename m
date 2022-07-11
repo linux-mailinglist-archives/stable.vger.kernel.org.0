@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67AD56FC20
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0A156FC3C
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232565AbiGKJjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37630 "EHLO
+        id S232454AbiGKJlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:41:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233215AbiGKJjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:39:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A66BA501AF;
-        Mon, 11 Jul 2022 02:20:08 -0700 (PDT)
+        with ESMTP id S233223AbiGKJjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:39:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9FF688CD2;
+        Mon, 11 Jul 2022 02:20:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C60FB80E6D;
-        Mon, 11 Jul 2022 09:20:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AABDC34115;
-        Mon, 11 Jul 2022 09:20:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 387B8612A0;
+        Mon, 11 Jul 2022 09:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FB11C34115;
+        Mon, 11 Jul 2022 09:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531205;
-        bh=mh8G2iS5VNUGeerfvoPdRHC6B3Jn8BQ3uuNu5i2Z+gw=;
+        s=korg; t=1657531208;
+        bh=mR8+1VFRbjgbOw/MaGg2JRPPf/N1EJ5dgQKd0JnY/YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SOyIT7yyLaFIveWAveD6ax1QRcXJ/samm3BAvKCMoG3oEGVT8c1TN5dnC4mqOZiyV
-         SIefgZJa7xXGLfDAPhTWfQvESMgDWBmELcgjkhkUhs17oZn6L4PDX66aMGEPT4j65w
-         whmBiFbOSr5c5JOJddE6H4vHzhgpIX51U1mWGvRY=
+        b=g6NhriXm2wr2xR78IqRMXo10Flyva3fV63jcgtWql6u6KAjwhAzZhb5HcQc1K0DRr
+         gnA6EzMxtMQn+f1yiUYQ/U14hgLAfnhNkMJpUHojaxdI8KudSuhsupDgEP2Fce1smg
+         EerS3R15lzY1J5zxDoybfgk5YBrC3ZUJqpe0i7mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/230] btrfs: add additional parameters to btrfs_init_tree_ref/btrfs_init_data_ref
-Date:   Mon, 11 Jul 2022 11:04:37 +0200
-Message-Id: <20220711090604.675057261@linuxfoundation.org>
+Subject: [PATCH 5.15 022/230] btrfs: fix invalid delayed ref after subvolume creation failure
+Date:   Mon, 11 Jul 2022 11:04:38 +0200
+Message-Id: <20220711090604.703041478@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,268 +55,307 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit f42c5da6c12e990d8ec415199600b4d593c63bf5 ]
+[ Upstream commit 7a1636089acfee7562fe79aff7d1b4c57869896d ]
 
-In order to make 'real_root' used only in ref-verify it's required to
-have the necessary context to perform the same checks that this member
-is used for. So add 'mod_root' which will contain the root on behalf of
-which a delayed ref was created and a 'skip_group' parameter which
-will contain callsite-specific override of skip_qgroup.
+When creating a subvolume, at ioctl.c:create_subvol(), if we fail to
+insert the new root's root item into the root tree, we are freeing the
+metadata extent we reserved for the new root to prevent a metadata
+extent leak, as we don't abort the transaction at that point (since
+there is nothing at that point that is irreversible).
 
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+However we allocated the metadata extent for the new root which we are
+creating for the new subvolume, so its delayed reference refers to the
+ID of this new root. But when we free the metadata extent we pass the
+root of the subvolume where the new subvolume is located to
+btrfs_free_tree_block() - this is incorrect because this will generate
+a delayed reference that refers to the ID of the parent subvolume's root,
+and not to ID of the new root.
+
+This results in a failure when running delayed references that leads to
+a transaction abort and a trace like the following:
+
+[3868.738042] RIP: 0010:__btrfs_free_extent+0x709/0x950 [btrfs]
+[3868.739857] Code: 68 0f 85 e6 fb ff (...)
+[3868.742963] RSP: 0018:ffffb0e9045cf910 EFLAGS: 00010246
+[3868.743908] RAX: 00000000fffffffe RBX: 00000000fffffffe RCX: 0000000000000002
+[3868.745312] RDX: 00000000fffffffe RSI: 0000000000000002 RDI: ffff90b0cd793b88
+[3868.746643] RBP: 000000000e5d8000 R08: 0000000000000000 R09: ffff90b0cd793b88
+[3868.747979] R10: 0000000000000002 R11: 00014ded97944d68 R12: 0000000000000000
+[3868.749373] R13: ffff90b09afe4a28 R14: 0000000000000000 R15: ffff90b0cd793b88
+[3868.750725] FS:  00007f281c4a8b80(0000) GS:ffff90b3ada00000(0000) knlGS:0000000000000000
+[3868.752275] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[3868.753515] CR2: 00007f281c6a5000 CR3: 0000000108a42006 CR4: 0000000000370ee0
+[3868.754869] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[3868.756228] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[3868.757803] Call Trace:
+[3868.758281]  <TASK>
+[3868.758655]  ? btrfs_merge_delayed_refs+0x178/0x1c0 [btrfs]
+[3868.759827]  __btrfs_run_delayed_refs+0x2b1/0x1250 [btrfs]
+[3868.761047]  btrfs_run_delayed_refs+0x86/0x210 [btrfs]
+[3868.762069]  ? lock_acquired+0x19f/0x420
+[3868.762829]  btrfs_commit_transaction+0x69/0xb20 [btrfs]
+[3868.763860]  ? _raw_spin_unlock+0x29/0x40
+[3868.764614]  ? btrfs_block_rsv_release+0x1c2/0x1e0 [btrfs]
+[3868.765870]  create_subvol+0x1d8/0x9a0 [btrfs]
+[3868.766766]  btrfs_mksubvol+0x447/0x4c0 [btrfs]
+[3868.767669]  ? preempt_count_add+0x49/0xa0
+[3868.768444]  __btrfs_ioctl_snap_create+0x123/0x190 [btrfs]
+[3868.769639]  ? _copy_from_user+0x66/0xa0
+[3868.770391]  btrfs_ioctl_snap_create_v2+0xbb/0x140 [btrfs]
+[3868.771495]  btrfs_ioctl+0xd1e/0x35c0 [btrfs]
+[3868.772364]  ? __slab_free+0x10a/0x360
+[3868.773198]  ? rcu_read_lock_sched_held+0x12/0x60
+[3868.774121]  ? lock_release+0x223/0x4a0
+[3868.774863]  ? lock_acquired+0x19f/0x420
+[3868.775634]  ? rcu_read_lock_sched_held+0x12/0x60
+[3868.776530]  ? trace_hardirqs_on+0x1b/0xe0
+[3868.777373]  ? _raw_spin_unlock_irqrestore+0x3e/0x60
+[3868.778280]  ? kmem_cache_free+0x321/0x3c0
+[3868.779011]  ? __x64_sys_ioctl+0x83/0xb0
+[3868.779718]  __x64_sys_ioctl+0x83/0xb0
+[3868.780387]  do_syscall_64+0x3b/0xc0
+[3868.781059]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[3868.781953] RIP: 0033:0x7f281c59e957
+[3868.782585] Code: 3c 1c 48 f7 d8 4c (...)
+[3868.785867] RSP: 002b:00007ffe1f83e2b8 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+[3868.787198] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f281c59e957
+[3868.788450] RDX: 00007ffe1f83e2c0 RSI: 0000000050009418 RDI: 0000000000000003
+[3868.789748] RBP: 00007ffe1f83f300 R08: 0000000000000000 R09: 00007ffe1f83fe36
+[3868.791214] R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000003
+[3868.792468] R13: 0000000000000003 R14: 00007ffe1f83e2c0 R15: 00000000000003cc
+[3868.793765]  </TASK>
+[3868.794037] irq event stamp: 0
+[3868.794548] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+[3868.795670] hardirqs last disabled at (0): [<ffffffff98294214>] copy_process+0x934/0x2040
+[3868.797086] softirqs last  enabled at (0): [<ffffffff98294214>] copy_process+0x934/0x2040
+[3868.798309] softirqs last disabled at (0): [<0000000000000000>] 0x0
+[3868.799284] ---[ end trace be24c7002fe27747 ]---
+[3868.799928] BTRFS info (device dm-0): leaf 241188864 gen 1268 total ptrs 214 free space 469 owner 2
+[3868.801133] BTRFS info (device dm-0): refs 2 lock_owner 225627 current 225627
+[3868.802056]  item 0 key (237436928 169 0) itemoff 16250 itemsize 33
+[3868.802863]          extent refs 1 gen 1265 flags 2
+[3868.803447]          ref#0: tree block backref root 1610
+(...)
+[3869.064354]  item 114 key (241008640 169 0) itemoff 12488 itemsize 33
+[3869.065421]          extent refs 1 gen 1268 flags 2
+[3869.066115]          ref#0: tree block backref root 1689
+(...)
+[3869.403834] BTRFS error (device dm-0): unable to find ref byte nr 241008640 parent 0 root 1622  owner 0 offset 0
+[3869.405641] BTRFS: error (device dm-0) in __btrfs_free_extent:3076: errno=-2 No such entry
+[3869.407138] BTRFS: error (device dm-0) in btrfs_run_delayed_refs:2159: errno=-2 No such entry
+
+Fix this by passing the new subvolume's root ID to btrfs_free_tree_block().
+This requires changing the root argument of btrfs_free_tree_block() from
+struct btrfs_root * to a u64, since at this point during the subvolume
+creation we have not yet created the struct btrfs_root for the new
+subvolume, and btrfs_free_tree_block() only needs a root ID and nothing
+else from a struct btrfs_root.
+
+This was triggered by test case generic/475 from fstests.
+
+Fixes: 67addf29004c5b ("btrfs: fix metadata extent leak after failure to create subvolume")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/delayed-ref.h |  5 +++--
- fs/btrfs/extent-tree.c | 17 +++++++++++------
- fs/btrfs/file.c        | 13 ++++++++-----
- fs/btrfs/inode.c       |  3 ++-
- fs/btrfs/relocation.c  | 21 ++++++++++++++-------
- fs/btrfs/tree-log.c    |  2 +-
- 6 files changed, 39 insertions(+), 22 deletions(-)
+ fs/btrfs/ctree.c           | 17 +++++++++--------
+ fs/btrfs/ctree.h           |  7 ++++++-
+ fs/btrfs/extent-tree.c     | 13 +++++++------
+ fs/btrfs/free-space-tree.c |  4 ++--
+ fs/btrfs/ioctl.c           |  9 +++++----
+ fs/btrfs/qgroup.c          |  3 ++-
+ 6 files changed, 31 insertions(+), 22 deletions(-)
 
-diff --git a/fs/btrfs/delayed-ref.h b/fs/btrfs/delayed-ref.h
-index e22fba272e4f..31266ba1d430 100644
---- a/fs/btrfs/delayed-ref.h
-+++ b/fs/btrfs/delayed-ref.h
-@@ -271,7 +271,7 @@ static inline void btrfs_init_generic_ref(struct btrfs_ref *generic_ref,
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index 899f85445925..341ce90d24b1 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -462,8 +462,8 @@ static noinline int __btrfs_cow_block(struct btrfs_trans_handle *trans,
+ 		BUG_ON(ret < 0);
+ 		rcu_assign_pointer(root->node, cow);
+ 
+-		btrfs_free_tree_block(trans, root, buf, parent_start,
+-				      last_ref);
++		btrfs_free_tree_block(trans, btrfs_root_id(root), buf,
++				      parent_start, last_ref);
+ 		free_extent_buffer(buf);
+ 		add_root_to_dirty_list(root);
+ 	} else {
+@@ -484,8 +484,8 @@ static noinline int __btrfs_cow_block(struct btrfs_trans_handle *trans,
+ 				return ret;
+ 			}
+ 		}
+-		btrfs_free_tree_block(trans, root, buf, parent_start,
+-				      last_ref);
++		btrfs_free_tree_block(trans, btrfs_root_id(root), buf,
++				      parent_start, last_ref);
+ 	}
+ 	if (unlock_orig)
+ 		btrfs_tree_unlock(buf);
+@@ -926,7 +926,7 @@ static noinline int balance_level(struct btrfs_trans_handle *trans,
+ 		free_extent_buffer(mid);
+ 
+ 		root_sub_used(root, mid->len);
+-		btrfs_free_tree_block(trans, root, mid, 0, 1);
++		btrfs_free_tree_block(trans, btrfs_root_id(root), mid, 0, 1);
+ 		/* once for the root ptr */
+ 		free_extent_buffer_stale(mid);
+ 		return 0;
+@@ -985,7 +985,8 @@ static noinline int balance_level(struct btrfs_trans_handle *trans,
+ 			btrfs_tree_unlock(right);
+ 			del_ptr(root, path, level + 1, pslot + 1);
+ 			root_sub_used(root, right->len);
+-			btrfs_free_tree_block(trans, root, right, 0, 1);
++			btrfs_free_tree_block(trans, btrfs_root_id(root), right,
++					      0, 1);
+ 			free_extent_buffer_stale(right);
+ 			right = NULL;
+ 		} else {
+@@ -1030,7 +1031,7 @@ static noinline int balance_level(struct btrfs_trans_handle *trans,
+ 		btrfs_tree_unlock(mid);
+ 		del_ptr(root, path, level + 1, pslot);
+ 		root_sub_used(root, mid->len);
+-		btrfs_free_tree_block(trans, root, mid, 0, 1);
++		btrfs_free_tree_block(trans, btrfs_root_id(root), mid, 0, 1);
+ 		free_extent_buffer_stale(mid);
+ 		mid = NULL;
+ 	} else {
+@@ -4059,7 +4060,7 @@ static noinline void btrfs_del_leaf(struct btrfs_trans_handle *trans,
+ 	root_sub_used(root, leaf->len);
+ 
+ 	atomic_inc(&leaf->refs);
+-	btrfs_free_tree_block(trans, root, leaf, 0, 1);
++	btrfs_free_tree_block(trans, btrfs_root_id(root), leaf, 0, 1);
+ 	free_extent_buffer_stale(leaf);
+ }
+ /*
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 21c44846b002..cc72d8981c47 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -2256,6 +2256,11 @@ static inline bool btrfs_root_dead(const struct btrfs_root *root)
+ 	return (root->root_item.flags & cpu_to_le64(BTRFS_ROOT_SUBVOL_DEAD)) != 0;
  }
  
- static inline void btrfs_init_tree_ref(struct btrfs_ref *generic_ref,
--				int level, u64 root)
-+				int level, u64 root, u64 mod_root, bool skip_qgroup)
- {
- 	/* If @real_root not set, use @root as fallback */
- 	if (!generic_ref->real_root)
-@@ -282,7 +282,8 @@ static inline void btrfs_init_tree_ref(struct btrfs_ref *generic_ref,
- }
- 
- static inline void btrfs_init_data_ref(struct btrfs_ref *generic_ref,
--				u64 ref_root, u64 ino, u64 offset)
-+				u64 ref_root, u64 ino, u64 offset, u64 mod_root,
-+				bool skip_qgroup)
- {
- 	/* If @real_root not set, use @root as fallback */
- 	if (!generic_ref->real_root)
++static inline u64 btrfs_root_id(const struct btrfs_root *root)
++{
++	return root->root_key.objectid;
++}
++
+ /* struct btrfs_root_backup */
+ BTRFS_SETGET_STACK_FUNCS(backup_tree_root, struct btrfs_root_backup,
+ 		   tree_root, 64);
+@@ -2718,7 +2723,7 @@ struct extent_buffer *btrfs_alloc_tree_block(struct btrfs_trans_handle *trans,
+ 					     u64 empty_size,
+ 					     enum btrfs_lock_nesting nest);
+ void btrfs_free_tree_block(struct btrfs_trans_handle *trans,
+-			   struct btrfs_root *root,
++			   u64 root_id,
+ 			   struct extent_buffer *buf,
+ 			   u64 parent, int last_ref);
+ int btrfs_alloc_reserved_file_extent(struct btrfs_trans_handle *trans,
 diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index 514adc83577f..e01b9344fb9c 100644
+index e01b9344fb9c..f11616f61dd6 100644
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -2440,7 +2440,8 @@ static int __btrfs_mod_ref(struct btrfs_trans_handle *trans,
- 					       num_bytes, parent);
- 			generic_ref.real_root = root->root_key.objectid;
- 			btrfs_init_data_ref(&generic_ref, ref_root, key.objectid,
--					    key.offset);
-+					    key.offset, root->root_key.objectid,
-+					    for_reloc);
- 			generic_ref.skip_qgroup = for_reloc;
- 			if (inc)
- 				ret = btrfs_inc_extent_ref(trans, &generic_ref);
-@@ -2454,7 +2455,8 @@ static int __btrfs_mod_ref(struct btrfs_trans_handle *trans,
- 			btrfs_init_generic_ref(&generic_ref, action, bytenr,
- 					       num_bytes, parent);
- 			generic_ref.real_root = root->root_key.objectid;
--			btrfs_init_tree_ref(&generic_ref, level - 1, ref_root);
-+			btrfs_init_tree_ref(&generic_ref, level - 1, ref_root,
-+					    root->root_key.objectid, for_reloc);
- 			generic_ref.skip_qgroup = for_reloc;
- 			if (inc)
- 				ret = btrfs_inc_extent_ref(trans, &generic_ref);
-@@ -3289,7 +3291,7 @@ void btrfs_free_tree_block(struct btrfs_trans_handle *trans,
+@@ -3280,20 +3280,20 @@ static noinline int check_ref_cleanup(struct btrfs_trans_handle *trans,
+ }
+ 
+ void btrfs_free_tree_block(struct btrfs_trans_handle *trans,
+-			   struct btrfs_root *root,
++			   u64 root_id,
+ 			   struct extent_buffer *buf,
+ 			   u64 parent, int last_ref)
+ {
+-	struct btrfs_fs_info *fs_info = root->fs_info;
++	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_ref generic_ref = { 0 };
+ 	int ret;
+ 
  	btrfs_init_generic_ref(&generic_ref, BTRFS_DROP_DELAYED_REF,
  			       buf->start, buf->len, parent);
  	btrfs_init_tree_ref(&generic_ref, btrfs_header_level(buf),
--			    root->root_key.objectid);
-+			    root->root_key.objectid, 0, false);
+-			    root->root_key.objectid, 0, false);
++			    root_id, 0, false);
  
- 	if (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID) {
+-	if (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID) {
++	if (root_id != BTRFS_TREE_LOG_OBJECTID) {
  		btrfs_ref_tree_mod(fs_info, &generic_ref);
-@@ -4705,7 +4707,8 @@ int btrfs_alloc_reserved_file_extent(struct btrfs_trans_handle *trans,
+ 		ret = btrfs_add_delayed_tree_ref(trans, &generic_ref, NULL);
+ 		BUG_ON(ret); /* -ENOMEM */
+@@ -3303,7 +3303,7 @@ void btrfs_free_tree_block(struct btrfs_trans_handle *trans,
+ 		struct btrfs_block_group *cache;
+ 		bool must_pin = false;
  
- 	btrfs_init_generic_ref(&generic_ref, BTRFS_ADD_DELAYED_EXTENT,
- 			       ins->objectid, ins->offset, 0);
--	btrfs_init_data_ref(&generic_ref, root->root_key.objectid, owner, offset);
-+	btrfs_init_data_ref(&generic_ref, root->root_key.objectid, owner,
-+			    offset, 0, false);
- 	btrfs_ref_tree_mod(root->fs_info, &generic_ref);
- 
- 	return btrfs_add_delayed_data_ref(trans, &generic_ref, ram_bytes);
-@@ -4898,7 +4901,8 @@ struct extent_buffer *btrfs_alloc_tree_block(struct btrfs_trans_handle *trans,
- 		btrfs_init_generic_ref(&generic_ref, BTRFS_ADD_DELAYED_EXTENT,
- 				       ins.objectid, ins.offset, parent);
- 		generic_ref.real_root = root->root_key.objectid;
--		btrfs_init_tree_ref(&generic_ref, level, root_objectid);
-+		btrfs_init_tree_ref(&generic_ref, level, root_objectid,
-+				    root->root_key.objectid, false);
- 		btrfs_ref_tree_mod(fs_info, &generic_ref);
- 		ret = btrfs_add_delayed_tree_ref(trans, &generic_ref, extent_op);
- 		if (ret)
-@@ -5315,7 +5319,8 @@ static noinline int do_walk_down(struct btrfs_trans_handle *trans,
- 
- 		btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, bytenr,
- 				       fs_info->nodesize, parent);
--		btrfs_init_tree_ref(&ref, level - 1, root->root_key.objectid);
-+		btrfs_init_tree_ref(&ref, level - 1, root->root_key.objectid,
-+				    0, false);
- 		ret = btrfs_free_extent(trans, &ref);
- 		if (ret)
- 			goto out_unlock;
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index a06c8366a8f4..1c597cd6c024 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -869,7 +869,8 @@ int btrfs_drop_extents(struct btrfs_trans_handle *trans,
- 				btrfs_init_data_ref(&ref,
- 						root->root_key.objectid,
- 						new_key.objectid,
--						args->start - extent_offset);
-+						args->start - extent_offset,
-+						0, false);
- 				ret = btrfs_inc_extent_ref(trans, &ref);
- 				BUG_ON(ret); /* -ENOMEM */
- 			}
-@@ -955,7 +956,8 @@ int btrfs_drop_extents(struct btrfs_trans_handle *trans,
- 				btrfs_init_data_ref(&ref,
- 						root->root_key.objectid,
- 						key.objectid,
--						key.offset - extent_offset);
-+						key.offset - extent_offset, 0,
-+						false);
- 				ret = btrfs_free_extent(trans, &ref);
- 				BUG_ON(ret); /* -ENOMEM */
- 				args->bytes_found += extent_end - key.offset;
-@@ -1232,7 +1234,7 @@ int btrfs_mark_extent_written(struct btrfs_trans_handle *trans,
- 		btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF, bytenr,
- 				       num_bytes, 0);
- 		btrfs_init_data_ref(&ref, root->root_key.objectid, ino,
--				    orig_offset);
-+				    orig_offset, 0, false);
- 		ret = btrfs_inc_extent_ref(trans, &ref);
- 		if (ret) {
- 			btrfs_abort_transaction(trans, ret);
-@@ -1257,7 +1259,8 @@ int btrfs_mark_extent_written(struct btrfs_trans_handle *trans,
- 	other_end = 0;
- 	btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, bytenr,
- 			       num_bytes, 0);
--	btrfs_init_data_ref(&ref, root->root_key.objectid, ino, orig_offset);
-+	btrfs_init_data_ref(&ref, root->root_key.objectid, ino, orig_offset,
-+			    0, false);
- 	if (extent_mergeable(leaf, path->slots[0] + 1,
- 			     ino, bytenr, orig_offset,
- 			     &other_start, &other_end)) {
-@@ -2715,7 +2718,7 @@ static int btrfs_insert_replace_extent(struct btrfs_trans_handle *trans,
- 				       extent_info->disk_len, 0);
- 		ref_offset = extent_info->file_offset - extent_info->data_offset;
- 		btrfs_init_data_ref(&ref, root->root_key.objectid,
--				    btrfs_ino(inode), ref_offset);
-+				    btrfs_ino(inode), ref_offset, 0, false);
- 		ret = btrfs_inc_extent_ref(trans, &ref);
+-		if (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID) {
++		if (root_id != BTRFS_TREE_LOG_OBJECTID) {
+ 			ret = check_ref_cleanup(trans, buf->start);
+ 			if (!ret) {
+ 				btrfs_redirty_list_add(trans->transaction, buf);
+@@ -5441,7 +5441,8 @@ static noinline int walk_up_proc(struct btrfs_trans_handle *trans,
+ 			goto owner_mismatch;
  	}
  
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 044d584c3467..d644dcaf3004 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4919,7 +4919,8 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
- 					extent_start, extent_num_bytes, 0);
- 			ref.real_root = root->root_key.objectid;
- 			btrfs_init_data_ref(&ref, btrfs_header_owner(leaf),
--					ino, extent_offset);
-+					ino, extent_offset,
-+					root->root_key.objectid, false);
- 			ret = btrfs_free_extent(trans, &ref);
- 			if (ret) {
- 				btrfs_abort_transaction(trans, ret);
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index a6661f2ad2c0..0300770c0a89 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1147,7 +1147,8 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
- 				       num_bytes, parent);
- 		ref.real_root = root->root_key.objectid;
- 		btrfs_init_data_ref(&ref, btrfs_header_owner(leaf),
--				    key.objectid, key.offset);
-+				    key.objectid, key.offset,
-+				    root->root_key.objectid, false);
- 		ret = btrfs_inc_extent_ref(trans, &ref);
- 		if (ret) {
- 			btrfs_abort_transaction(trans, ret);
-@@ -1158,7 +1159,8 @@ int replace_file_extents(struct btrfs_trans_handle *trans,
- 				       num_bytes, parent);
- 		ref.real_root = root->root_key.objectid;
- 		btrfs_init_data_ref(&ref, btrfs_header_owner(leaf),
--				    key.objectid, key.offset);
-+				    key.objectid, key.offset,
-+				    root->root_key.objectid, false);
- 		ret = btrfs_free_extent(trans, &ref);
- 		if (ret) {
- 			btrfs_abort_transaction(trans, ret);
-@@ -1368,7 +1370,8 @@ int replace_path(struct btrfs_trans_handle *trans, struct reloc_control *rc,
- 		btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF, old_bytenr,
- 				       blocksize, path->nodes[level]->start);
- 		ref.skip_qgroup = true;
--		btrfs_init_tree_ref(&ref, level - 1, src->root_key.objectid);
-+		btrfs_init_tree_ref(&ref, level - 1, src->root_key.objectid,
-+				    0, true);
- 		ret = btrfs_inc_extent_ref(trans, &ref);
- 		if (ret) {
- 			btrfs_abort_transaction(trans, ret);
-@@ -1377,7 +1380,8 @@ int replace_path(struct btrfs_trans_handle *trans, struct reloc_control *rc,
- 		btrfs_init_generic_ref(&ref, BTRFS_ADD_DELAYED_REF, new_bytenr,
- 				       blocksize, 0);
- 		ref.skip_qgroup = true;
--		btrfs_init_tree_ref(&ref, level - 1, dest->root_key.objectid);
-+		btrfs_init_tree_ref(&ref, level - 1, dest->root_key.objectid, 0,
-+				    true);
- 		ret = btrfs_inc_extent_ref(trans, &ref);
- 		if (ret) {
- 			btrfs_abort_transaction(trans, ret);
-@@ -1386,7 +1390,8 @@ int replace_path(struct btrfs_trans_handle *trans, struct reloc_control *rc,
+-	btrfs_free_tree_block(trans, root, eb, parent, wc->refs[level] == 1);
++	btrfs_free_tree_block(trans, btrfs_root_id(root), eb, parent,
++			      wc->refs[level] == 1);
+ out:
+ 	wc->refs[level] = 0;
+ 	wc->flags[level] = 0;
+diff --git a/fs/btrfs/free-space-tree.c b/fs/btrfs/free-space-tree.c
+index a33bca94d133..3abec44c6255 100644
+--- a/fs/btrfs/free-space-tree.c
++++ b/fs/btrfs/free-space-tree.c
+@@ -1256,8 +1256,8 @@ int btrfs_clear_free_space_tree(struct btrfs_fs_info *fs_info)
+ 	btrfs_tree_lock(free_space_root->node);
+ 	btrfs_clean_tree_block(free_space_root->node);
+ 	btrfs_tree_unlock(free_space_root->node);
+-	btrfs_free_tree_block(trans, free_space_root, free_space_root->node,
+-			      0, 1);
++	btrfs_free_tree_block(trans, btrfs_root_id(free_space_root),
++			      free_space_root->node, 0, 1);
  
- 		btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, new_bytenr,
- 				       blocksize, path->nodes[level]->start);
--		btrfs_init_tree_ref(&ref, level - 1, src->root_key.objectid);
-+		btrfs_init_tree_ref(&ref, level - 1, src->root_key.objectid,
-+				    0, true);
- 		ref.skip_qgroup = true;
- 		ret = btrfs_free_extent(trans, &ref);
- 		if (ret) {
-@@ -1396,7 +1401,8 @@ int replace_path(struct btrfs_trans_handle *trans, struct reloc_control *rc,
+ 	btrfs_put_root(free_space_root);
  
- 		btrfs_init_generic_ref(&ref, BTRFS_DROP_DELAYED_REF, old_bytenr,
- 				       blocksize, 0);
--		btrfs_init_tree_ref(&ref, level - 1, dest->root_key.objectid);
-+		btrfs_init_tree_ref(&ref, level - 1, dest->root_key.objectid,
-+				    0, true);
- 		ref.skip_qgroup = true;
- 		ret = btrfs_free_extent(trans, &ref);
- 		if (ret) {
-@@ -2475,7 +2481,8 @@ static int do_relocation(struct btrfs_trans_handle *trans,
- 					       upper->eb->start);
- 			ref.real_root = root->root_key.objectid;
- 			btrfs_init_tree_ref(&ref, node->level,
--					    btrfs_header_owner(upper->eb));
-+					    btrfs_header_owner(upper->eb),
-+					    root->root_key.objectid, false);
- 			ret = btrfs_inc_extent_ref(trans, &ref);
- 			if (!ret)
- 				ret = btrfs_drop_subtree(trans, root, eb,
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 1221d8483d63..bed6811476b0 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -761,7 +761,7 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
- 						ins.objectid, ins.offset, 0);
- 				btrfs_init_data_ref(&ref,
- 						root->root_key.objectid,
--						key->objectid, offset);
-+						key->objectid, offset, 0, false);
- 				ret = btrfs_inc_extent_ref(trans, &ref);
- 				if (ret)
- 					goto out;
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index bf53af8694f8..7272d9d3fa78 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -615,11 +615,12 @@ static noinline int create_subvol(struct user_namespace *mnt_userns,
+ 		 * Since we don't abort the transaction in this case, free the
+ 		 * tree block so that we don't leak space and leave the
+ 		 * filesystem in an inconsistent state (an extent item in the
+-		 * extent tree without backreferences). Also no need to have
+-		 * the tree block locked since it is not in any tree at this
+-		 * point, so no other task can find it and use it.
++		 * extent tree with a backreference for a root that does not
++		 * exists). Also no need to have the tree block locked since it
++		 * is not in any tree at this point, so no other task can find
++		 * it and use it.
+ 		 */
+-		btrfs_free_tree_block(trans, root, leaf, 0, 1);
++		btrfs_free_tree_block(trans, objectid, leaf, 0, 1);
+ 		free_extent_buffer(leaf);
+ 		goto fail;
+ 	}
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index 2c803108ea94..4ca809fa80ea 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1259,7 +1259,8 @@ int btrfs_quota_disable(struct btrfs_fs_info *fs_info)
+ 	btrfs_tree_lock(quota_root->node);
+ 	btrfs_clean_tree_block(quota_root->node);
+ 	btrfs_tree_unlock(quota_root->node);
+-	btrfs_free_tree_block(trans, quota_root, quota_root->node, 0, 1);
++	btrfs_free_tree_block(trans, btrfs_root_id(quota_root),
++			      quota_root->node, 0, 1);
+ 
+ 	btrfs_put_root(quota_root);
+ 
 -- 
 2.35.1
 
