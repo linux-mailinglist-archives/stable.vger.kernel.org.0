@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EB856FBC1
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C52DD56FAD6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:22:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbiGKJez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
+        id S231810AbiGKJWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232887AbiGKJdX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:33:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EB0246D88;
-        Mon, 11 Jul 2022 02:18:01 -0700 (PDT)
+        with ESMTP id S231410AbiGKJWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D472958857;
+        Mon, 11 Jul 2022 02:13:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B827B80DB7;
-        Mon, 11 Jul 2022 09:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D5EC34115;
-        Mon, 11 Jul 2022 09:17:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F04D4B80956;
+        Mon, 11 Jul 2022 09:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55FF8C34115;
+        Mon, 11 Jul 2022 09:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531078;
-        bh=3C2xL54NrtXzg4JDawT+H0GFUdMSUjJmyWE0vulAu6k=;
+        s=korg; t=1657530792;
+        bh=YrRwYmcXX/z0GPkMaX6PigJqriWJlEvvzwSbzp2X574=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvphS3EUIAE3yQDDBIbnfHxGRSSr/shh21GRVaZ+IkDtn1tbPNpzq+lOMC6FwyeoJ
-         IURnUGltS68ospz50SIRIEGWudoSFWjrGJqSg80YckYSeAE+86FnEKD2uOwcd+/ttb
-         07/PvrvRXpPj961I4IaR9JumJ8Sln7OOHh9fR1Z0=
+        b=CyxYqph4CPcT9oOFw5K49EJ1CuMcOqnTTyrA9O8COz70AsJosZwOBPZYReH1mMgih
+         kWDOOrEiHLKkHGII5QvZi3UXpiOnFw1gdCcYwKPhJnkpzTfiz5hH05T//ivyii8GmQ
+         rRucPrlvO8Ol9ZprP4fpU8IejFIRhzepP4Fzlpe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 089/112] net/mlx5e: Fix matchall police parameters validation
+Subject: [PATCH 5.10 41/55] selftests: forwarding: fix flood_unicast_test when h2 supports IFF_UNICAST_FLT
 Date:   Mon, 11 Jul 2022 11:07:29 +0200
-Message-Id: <20220711090552.097643334@linuxfoundation.org>
+Message-Id: <20220711090542.969293073@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 4d1e07d83ccc87f210e5b852b0a5ea812a2f191c ]
+[ Upstream commit b8e629b05f5d23f9649c901bef09fab8b0c2e4b9 ]
 
-Referenced commit prepared the code for upcoming extension that allows mlx5
-to offload police action attached to flower classifier. However, with
-regard to existing matchall classifier offload validation should be
-reversed as FLOW_ACTION_CONTINUE is the only supported notexceed police
-action type. Fix the problem by allowing FLOW_ACTION_CONTINUE for police
-action and extend scan_tc_matchall_fdb_actions() to only allow such actions
-with matchall classifier.
+As mentioned in the blamed commit, flood_unicast_test() works by
+checking the match count on a tc filter placed on the receiving
+interface.
 
-Fixes: d97b4b105ce7 ("flow_offload: reject offload for all drivers with invalid police parameters")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Acked-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+But the second host interface (host2_if) has no interest in receiving a
+packet with MAC DA de:ad:be:ef:13:37, so its RX filter drops it even
+before the ingress tc filter gets to be executed. So we will incorrectly
+get the message "Packet was not flooded when should", when in fact, the
+packet was flooded as expected but dropped due to an unrelated reason,
+at some other layer on the receiving side.
+
+Force h2 to accept this packet by temporarily placing it in promiscuous
+mode. Alternatively we could either deliver to its MAC address or use
+tcpdump_start, but this has the fewest complications.
+
+This fixes the "flooding" test from bridge_vlan_aware.sh and
+bridge_vlan_unaware.sh, which calls flood_test from the lib.
+
+Fixes: 236dd50bf67a ("selftests: forwarding: Add a test for flooded traffic")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ tools/testing/selftests/net/forwarding/lib.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index ec2dfecd7f0f..c01651047448 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -4503,13 +4503,6 @@ static int mlx5e_policer_validate(const struct flow_action *action,
- 		return -EOPNOTSUPP;
- 	}
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index be6fa808d219..094a1104e49d 100644
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -1129,6 +1129,7 @@ flood_test_do()
  
--	if (act->police.notexceed.act_id != FLOW_ACTION_PIPE &&
--	    act->police.notexceed.act_id != FLOW_ACTION_ACCEPT) {
--		NL_SET_ERR_MSG_MOD(extack,
--				   "Offload not supported when conform action is not pipe or ok");
--		return -EOPNOTSUPP;
--	}
--
- 	if (act->police.notexceed.act_id == FLOW_ACTION_ACCEPT &&
- 	    !flow_action_is_last_entry(action, act)) {
- 		NL_SET_ERR_MSG_MOD(extack,
-@@ -4560,6 +4553,12 @@ static int scan_tc_matchall_fdb_actions(struct mlx5e_priv *priv,
- 	flow_action_for_each(i, act, flow_action) {
- 		switch (act->id) {
- 		case FLOW_ACTION_POLICE:
-+			if (act->police.notexceed.act_id != FLOW_ACTION_CONTINUE) {
-+				NL_SET_ERR_MSG_MOD(extack,
-+						   "Offload not supported when conform action is not continue");
-+				return -EOPNOTSUPP;
-+			}
-+
- 			err = mlx5e_policer_validate(flow_action, act, extack);
- 			if (err)
- 				return err;
+ 	# Add an ACL on `host2_if` which will tell us whether the packet
+ 	# was flooded to it or not.
++	ip link set $host2_if promisc on
+ 	tc qdisc add dev $host2_if ingress
+ 	tc filter add dev $host2_if ingress protocol ip pref 1 handle 101 \
+ 		flower dst_mac $mac action drop
+@@ -1146,6 +1147,7 @@ flood_test_do()
+ 
+ 	tc filter del dev $host2_if ingress protocol ip pref 1 handle 101 flower
+ 	tc qdisc del dev $host2_if ingress
++	ip link set $host2_if promisc off
+ 
+ 	return $err
+ }
 -- 
 2.35.1
 
