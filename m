@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB41556FBD7
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:35:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F9F56FB02
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232893AbiGKJfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52764 "EHLO
+        id S232029AbiGKJZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:25:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233133AbiGKJeo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:34:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A8965A5;
-        Mon, 11 Jul 2022 02:18:38 -0700 (PDT)
+        with ESMTP id S231913AbiGKJXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:23:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 366575C9CE;
+        Mon, 11 Jul 2022 02:13:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF67B61227;
-        Mon, 11 Jul 2022 09:18:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95F46C34115;
-        Mon, 11 Jul 2022 09:18:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 839F7B80D2C;
+        Mon, 11 Jul 2022 09:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68C2C34115;
+        Mon, 11 Jul 2022 09:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531117;
-        bh=lh7AYL4Z8YvuRd3eo1vbbmlhCCo0hOo/6FSah1I1Stk=;
+        s=korg; t=1657530837;
+        bh=VEDEAuGYpp7Jizzi0f+s+J5j7QxYR9ToluTbgD9NrJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XnXAKEEcCxLV5Pxm9RMvtB92AMjidQ215doMoEsWLwR9qGvdgXtv2r0yHyREpPhWy
-         BX5vSEPgIvFdjD4bifU/fmIj9W2HwkTr4TeVPfWZWm1OZcs+9xeXxPfVfq5N9ePIDk
-         JslGHFmBArHfUEkRUkH64vEiNNdCC13FJkwXvvTc=
+        b=2resyBbw/OlUMOerXn65pVwMikk/Ti9GnUpjFMWBrLxmihmYIGIUXee8/ZT3fw/cX
+         j8oL+FeV9ExSYkQw0p5s1cE26mK6HUZNFuN/qQklYaL2uqQuTcqMpzj9PCgaJYDQK5
+         vHIz8RR1m72dZqBybkoAe9Doj36LdokxQdLfLkZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        stable <stable@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.18 102/112] misc: rtsx_usb: set return value in rsp_buf alloc err path
-Date:   Mon, 11 Jul 2022 11:07:42 +0200
-Message-Id: <20220711090552.465851390@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 55/55] dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
+Date:   Mon, 11 Jul 2022 11:07:43 +0200
+Message-Id: <20220711090543.372118490@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2cd37c2e72449a7add6da1183d20a6247d6db111 upstream.
+commit 615a4bfc426e11dba05c2cf343f9ac752fb381d2 upstream.
 
-Set return value in rsp_buf alloc error path before going to
-error handling.
+of_find_device_by_node() takes reference, we should use put_device()
+to release it when not need anymore.
 
-drivers/misc/cardreader/rtsx_usb.c:639:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (!ucr->rsp_buf)
-               ^~~~~~~~~~~~~
-   drivers/misc/cardreader/rtsx_usb.c:678:9: note: uninitialized use occurs here
-           return ret;
-                  ^~~
-   drivers/misc/cardreader/rtsx_usb.c:639:2: note: remove the 'if' if its condition is always false
-           if (!ucr->rsp_buf)
-           ^~~~~~~~~~~~~~~~~~
-   drivers/misc/cardreader/rtsx_usb.c:622:9: note: initialize the variable 'ret' to silence this warning
-           int ret;
-                  ^
-                   = 0
-
-Fixes: 3776c7855985 ("misc: rtsx_usb: use separate command and response buffers")
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220701165352.15687-1-skhan@linuxfoundation.org
+Fixes: a074ae38f859 ("dmaengine: Add driver for TI DMA crossbar on DRA7x")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20220605042723.17668-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/dma/ti/dma-crossbar.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/misc/cardreader/rtsx_usb.c
-+++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -636,8 +636,10 @@ static int rtsx_usb_probe(struct usb_int
- 		return -ENOMEM;
+--- a/drivers/dma/ti/dma-crossbar.c
++++ b/drivers/dma/ti/dma-crossbar.c
+@@ -245,6 +245,7 @@ static void *ti_dra7_xbar_route_allocate
+ 	if (dma_spec->args[0] >= xbar->xbar_requests) {
+ 		dev_err(&pdev->dev, "Invalid XBAR request number: %d\n",
+ 			dma_spec->args[0]);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- 	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
--	if (!ucr->rsp_buf)
-+	if (!ucr->rsp_buf) {
-+		ret = -ENOMEM;
- 		goto out_free_cmd_buf;
-+	}
+@@ -252,12 +253,14 @@ static void *ti_dra7_xbar_route_allocate
+ 	dma_spec->np = of_parse_phandle(ofdma->of_node, "dma-masters", 0);
+ 	if (!dma_spec->np) {
+ 		dev_err(&pdev->dev, "Can't get DMA master\n");
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- 	usb_set_intfdata(intf, ucr);
+ 	map = kzalloc(sizeof(*map), GFP_KERNEL);
+ 	if (!map) {
+ 		of_node_put(dma_spec->np);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
  
+@@ -269,6 +272,7 @@ static void *ti_dra7_xbar_route_allocate
+ 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
+ 		kfree(map);
+ 		of_node_put(dma_spec->np);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	set_bit(map->xbar_out, xbar->dma_inuse);
 
 
