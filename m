@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C2656F9DA
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 445F756FDA4
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:58:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229910AbiGKJJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46410 "EHLO
+        id S234159AbiGKJ6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:58:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231137AbiGKJJW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465FD22BF8;
-        Mon, 11 Jul 2022 02:08:08 -0700 (PDT)
+        with ESMTP id S234160AbiGKJ6I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D858AB4BD9;
+        Mon, 11 Jul 2022 02:27:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4635F611A5;
-        Mon, 11 Jul 2022 09:08:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 558A8C34115;
-        Mon, 11 Jul 2022 09:08:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 03BD6CE126E;
+        Mon, 11 Jul 2022 09:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CA3C34115;
+        Mon, 11 Jul 2022 09:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530487;
-        bh=87vGQEQfDaYwPc75I7+wx1o+VbDJU1V1K/ZgNF3NO80=;
+        s=korg; t=1657531631;
+        bh=G3XdD4ZflwNdqfaY4yjkjFso/enpN8n0LYdk3KU1qK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6Z+1T0C8JI+y3FktPhMVdg6nYFGuilJn+3hua4Ez+u8CxEvK5+qU6xGDm5sgImto
-         pMI6yknRuqbWx/TvdiOw6mUNznnNaZS6UWwIdsGXQglV12s9mQ0cnKttKIJN45kdfx
-         bdoIcOJm0rj0HB19ci2lzartX+i3hwFzY3yqL2u0=
+        b=OQb3oxKDlGk3BXmyKcfFkk406Dqvl202qd6JJSNFMKndRGIlv3nlMClJhAash5i16
+         b3L8YbTrVL2DaBINa6syD0pY3YL2JJ6JG0sUgHhG8GkkNLSd2o8CxkcxSM4O2eDDf1
+         HKhnW6eOup39kHwvtsh8xJpS2BCnHsTpRn8NyRi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 06/17] net: rose: fix UAF bug caused by rose_t0timer_expiry
+        stable@vger.kernel.org, Alan Modra <amodra@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 135/230] powerpc/vdso: Fix incorrect CFI in gettimeofday.S
 Date:   Mon, 11 Jul 2022 11:06:31 +0200
-Message-Id: <20220711090536.447480515@linuxfoundation.org>
+Message-Id: <20220711090607.893284695@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +55,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 148ca04518070910739dfc4eeda765057856403d upstream.
+[ Upstream commit 6d65028eb67dbb7627651adfc460d64196d38bd8 ]
 
-There are UAF bugs caused by rose_t0timer_expiry(). The
-root cause is that del_timer() could not stop the timer
-handler that is running and there is no synchronization.
-One of the race conditions is shown below:
+As reported by Alan, the CFI (Call Frame Information) in the VDSO time
+routines is incorrect since commit ce7d8056e38b ("powerpc/vdso: Prepare
+for switching VDSO to generic C implementation.").
 
-    (thread 1)             |        (thread 2)
-                           | rose_device_event
-                           |   rose_rt_device_down
-                           |     rose_remove_neigh
-rose_t0timer_expiry        |       rose_stop_t0timer(rose_neigh)
-  ...                      |         del_timer(&neigh->t0timer)
-                           |         kfree(rose_neigh) //[1]FREE
-  neigh->dce_mode //[2]USE |
+DWARF has a concept called the CFA (Canonical Frame Address), which on
+powerpc is calculated as an offset from the stack pointer (r1). That
+means when the stack pointer is changed there must be a corresponding
+CFI directive to update the calculation of the CFA.
 
-The rose_neigh is deallocated in position [1] and use in
-position [2].
+The current code is missing those directives for the changes to r1,
+which prevents gdb from being able to generate a backtrace from inside
+VDSO functions, eg:
 
-The crash trace triggered by POC is like below:
+  Breakpoint 1, 0x00007ffff7f804dc in __kernel_clock_gettime ()
+  (gdb) bt
+  #0  0x00007ffff7f804dc in __kernel_clock_gettime ()
+  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
+  #2  0x00007fffffffd960 in ?? ()
+  #3  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
+  Backtrace stopped: frame did not save the PC
 
-BUG: KASAN: use-after-free in expire_timers+0x144/0x320
-Write of size 8 at addr ffff888009b19658 by task swapper/0/0
-...
-Call Trace:
- <IRQ>
- dump_stack_lvl+0xbf/0xee
- print_address_description+0x7b/0x440
- print_report+0x101/0x230
- ? expire_timers+0x144/0x320
- kasan_report+0xed/0x120
- ? expire_timers+0x144/0x320
- expire_timers+0x144/0x320
- __run_timers+0x3ff/0x4d0
- run_timer_softirq+0x41/0x80
- __do_softirq+0x233/0x544
- ...
+Alan helpfully describes some rules for correctly maintaining the CFI information:
 
-This patch changes rose_stop_ftimer() and rose_stop_t0timer()
-in rose_remove_neigh() to del_timer_sync() in order that the
-timer handler could be finished before the resources such as
-rose_neigh and so on are deallocated. As a result, the UAF
-bugs could be mitigated.
+  1) Every adjustment to the current frame address reg (ie. r1) must be
+     described, and exactly at the instruction where r1 changes. Why?
+     Because stack unwinding might want to access previous frames.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220705125610.77971-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  2) If a function changes LR or any non-volatile register, the save
+     location for those regs must be given. The CFI can be at any
+     instruction after the saves up to the point that the reg is
+     changed.
+     (Exception: LR save should be described before a bl. not after)
+
+  3) If asychronous unwind info is needed then restores of LR and
+     non-volatile regs must also be described. The CFI can be at any
+     instruction after the reg is restored up to the point where the
+     save location is (potentially) trashed.
+
+Fix the inability to backtrace by adding CFI directives describing the
+changes to r1, ie. satisfying rule 1.
+
+Also change the information for LR to point to the copy saved on the
+stack, not the value in r0 that will be overwritten by the function
+call.
+
+Finally, add CFI directives describing the save/restore of r2.
+
+With the fix gdb can correctly back trace and navigate up and down the stack:
+
+  Breakpoint 1, 0x00007ffff7f804dc in __kernel_clock_gettime ()
+  (gdb) bt
+  #0  0x00007ffff7f804dc in __kernel_clock_gettime ()
+  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
+  #2  0x0000000100015b60 in gettime ()
+  #3  0x000000010000c8bc in print_long_format ()
+  #4  0x000000010000d180 in print_current_files ()
+  #5  0x00000001000054ac in main ()
+  (gdb) up
+  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
+  (gdb)
+  #2  0x0000000100015b60 in gettime ()
+  (gdb)
+  #3  0x000000010000c8bc in print_long_format ()
+  (gdb)
+  #4  0x000000010000d180 in print_current_files ()
+  (gdb)
+  #5  0x00000001000054ac in main ()
+  (gdb)
+  Initial frame selected; you cannot go up.
+  (gdb) down
+  #4  0x000000010000d180 in print_current_files ()
+  (gdb)
+  #3  0x000000010000c8bc in print_long_format ()
+  (gdb)
+  #2  0x0000000100015b60 in gettime ()
+  (gdb)
+  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
+  (gdb)
+  #0  0x00007ffff7f804dc in __kernel_clock_gettime ()
+  (gdb)
+
+Fixes: ce7d8056e38b ("powerpc/vdso: Prepare for switching VDSO to generic C implementation.")
+Cc: stable@vger.kernel.org # v5.11+
+Reported-by: Alan Modra <amodra@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+Link: https://lore.kernel.org/r/20220502125010.1319370-1-mpe@ellerman.id.au
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rose/rose_route.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/vdso32/gettimeofday.S | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/rose/rose_route.c
-+++ b/net/rose/rose_route.c
-@@ -230,8 +230,8 @@ static void rose_remove_neigh(struct ros
- {
- 	struct rose_neigh *s;
- 
--	rose_stop_ftimer(rose_neigh);
--	rose_stop_t0timer(rose_neigh);
-+	del_timer_sync(&rose_neigh->ftimer);
-+	del_timer_sync(&rose_neigh->t0timer);
- 
- 	skb_queue_purge(&rose_neigh->queue);
- 
+diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
+index dd2099128b8f..42d40f895c1f 100644
+--- a/arch/powerpc/kernel/vdso32/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
+@@ -22,12 +22,15 @@
+ .macro cvdso_call funct call_time=0
+   .cfi_startproc
+ 	PPC_STLU	r1, -PPC_MIN_STKFRM(r1)
++  .cfi_adjust_cfa_offset PPC_MIN_STKFRM
+ 	mflr		r0
+-  .cfi_register lr, r0
+ 	PPC_STLU	r1, -PPC_MIN_STKFRM(r1)
++  .cfi_adjust_cfa_offset PPC_MIN_STKFRM
+ 	PPC_STL		r0, PPC_MIN_STKFRM + PPC_LR_STKOFF(r1)
++  .cfi_rel_offset lr, PPC_MIN_STKFRM + PPC_LR_STKOFF
+ #ifdef __powerpc64__
+ 	PPC_STL		r2, PPC_MIN_STKFRM + STK_GOT(r1)
++  .cfi_rel_offset r2, PPC_MIN_STKFRM + STK_GOT
+ #endif
+ 	get_datapage	r5
+ 	.ifeq	\call_time
+@@ -39,13 +42,15 @@
+ 	PPC_LL		r0, PPC_MIN_STKFRM + PPC_LR_STKOFF(r1)
+ #ifdef __powerpc64__
+ 	PPC_LL		r2, PPC_MIN_STKFRM + STK_GOT(r1)
++  .cfi_restore r2
+ #endif
+ 	.ifeq	\call_time
+ 	cmpwi		r3, 0
+ 	.endif
+ 	mtlr		r0
+-  .cfi_restore lr
+ 	addi		r1, r1, 2 * PPC_MIN_STKFRM
++  .cfi_restore lr
++  .cfi_def_cfa_offset 0
+ 	crclr		so
+ 	.ifeq	\call_time
+ 	beqlr+
+-- 
+2.35.1
+
 
 
