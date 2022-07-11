@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA1C56FE21
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF0956FE23
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234439AbiGKKEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:04:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
+        id S234456AbiGKKEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234485AbiGKKDg (ORCPT
+        with ESMTP id S234524AbiGKKDg (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128CF48EB0;
-        Mon, 11 Jul 2022 02:29:40 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B650748EB7;
+        Mon, 11 Jul 2022 02:29:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AAF361366;
-        Mon, 11 Jul 2022 09:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB014C34115;
-        Mon, 11 Jul 2022 09:29:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5355F6141D;
+        Mon, 11 Jul 2022 09:29:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C607C34115;
+        Mon, 11 Jul 2022 09:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531779;
-        bh=4P9xq6q8hGoQvb8Sigl3/Po/KZymH+V3vIWWDe8U1Uc=;
+        s=korg; t=1657531781;
+        bh=RfUoO/kK49NxXAgZqG2VhQS9b0PB98R1OjGwGJyKmy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sp8LOhS7MXPRFIee/jhapWJ/JWVTzjy5/XOBtIkKeROUoxMLFG70rSnf4B3Q69pdp
-         4Ojvo1cUt3L36jzrbQoK3B+DeLtAbNyX0H+d2cOiwtL9zGJCeZBWW9ts82Uj6+W1ts
-         qZ+FvEPrQ91QDW2oVuPT/F8c+Jb733gJoiTfnwBE=
+        b=2Du0LzbZ4k/N5rbFGyLMfgQgDiubnTOBYh450011xeUtAHvrUHzGrt51VUOiGtgmq
+         U5h+2tObRQ8/H9RFvFD+zVWxjeWFV5cX0dDg3XEicrRi8U3DMLKsAek3MsFgl2ZbuB
+         xYySAoJ2YSLEeK1Sm3e9w8SI975JZL7TK5HUjZHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Zhu <tony.zhu@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 229/230] dmaengine: idxd: force wq context cleanup on device disable path
-Date:   Mon, 11 Jul 2022 11:08:05 +0200
-Message-Id: <20220711090610.597250131@linuxfoundation.org>
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 230/230] selftests/net: fix section name when using xdp_dummy.o
+Date:   Mon, 11 Jul 2022 11:08:06 +0200
+Message-Id: <20220711090610.625380037@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,47 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 44c4237cf3436bda2b185ff728123651ad133f69 upstream.
+commit d28b25a62a47a8c8aa19bd543863aab6717e68c9 upstream.
 
-Testing shown that when a wq mode is setup to be dedicated and then torn
-down and reconfigured to shared, the wq configured end up being dedicated
-anyays. The root cause is when idxd_device_wqs_clear_state() gets called
-during idxd_driver removal, idxd_wq_disable_cleanup() does not get called
-vs when the wq driver is removed first. The check of wq state being
-"enabled" causes the cleanup to be bypassed. However, idxd_driver->remove()
-releases all wq drivers. So the wqs goes to "disabled" state and will never
-be "enabled". By that point, the driver has no idea if the wq was
-previously configured or clean. So force call idxd_wq_disable_cleanup() on
-all wqs always to make sure everything gets cleaned up.
+Since commit 8fffa0e3451a ("selftests/bpf: Normalize XDP section names in
+selftests") the xdp_dummy.o's section name has changed to xdp. But some
+tests are still using "section xdp_dummy", which make the tests failed.
+Fix them by updating to the new section name.
 
-Reported-by: Tony Zhu <tony.zhu@intel.com>
-Tested-by: Tony Zhu <tony.zhu@intel.com>
-Fixes: 0dcfe41e9a4c ("dmanegine: idxd: cleanup all device related bits after disabling device")
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Co-developed-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Link: https://lore.kernel.org/r/20220628230056.2527816-1-fenghua.yu@intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 8fffa0e3451a ("selftests/bpf: Normalize XDP section names in selftests")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20220630062228.3453016-1-liuhangbin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/idxd/device.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ tools/testing/selftests/net/udpgro.sh       |    2 +-
+ tools/testing/selftests/net/udpgro_bench.sh |    2 +-
+ tools/testing/selftests/net/udpgro_fwd.sh   |    2 +-
+ tools/testing/selftests/net/veth.sh         |    6 +++---
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -720,10 +720,7 @@ static void idxd_device_wqs_clear_state(
- 	for (i = 0; i < idxd->max_wqs; i++) {
- 		struct idxd_wq *wq = idxd->wqs[i];
- 
--		if (wq->state == IDXD_WQ_ENABLED) {
--			idxd_wq_disable_cleanup(wq);
--			wq->state = IDXD_WQ_DISABLED;
--		}
-+		idxd_wq_disable_cleanup(wq);
- 		idxd_wq_device_reset_cleanup(wq);
- 	}
+--- a/tools/testing/selftests/net/udpgro.sh
++++ b/tools/testing/selftests/net/udpgro.sh
+@@ -34,7 +34,7 @@ cfg_veth() {
+ 	ip -netns "${PEER_NS}" addr add dev veth1 192.168.1.1/24
+ 	ip -netns "${PEER_NS}" addr add dev veth1 2001:db8::1/64 nodad
+ 	ip -netns "${PEER_NS}" link set dev veth1 up
+-	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp_dummy
++	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp
  }
+ 
+ run_one() {
+--- a/tools/testing/selftests/net/udpgro_bench.sh
++++ b/tools/testing/selftests/net/udpgro_bench.sh
+@@ -34,7 +34,7 @@ run_one() {
+ 	ip -netns "${PEER_NS}" addr add dev veth1 2001:db8::1/64 nodad
+ 	ip -netns "${PEER_NS}" link set dev veth1 up
+ 
+-	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp_dummy
++	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp
+ 	ip netns exec "${PEER_NS}" ./udpgso_bench_rx ${rx_args} -r &
+ 	ip netns exec "${PEER_NS}" ./udpgso_bench_rx -t ${rx_args} -r &
+ 
+--- a/tools/testing/selftests/net/udpgro_fwd.sh
++++ b/tools/testing/selftests/net/udpgro_fwd.sh
+@@ -46,7 +46,7 @@ create_ns() {
+ 		ip -n $BASE$ns addr add dev veth$ns $BM_NET_V4$ns/24
+ 		ip -n $BASE$ns addr add dev veth$ns $BM_NET_V6$ns/64 nodad
+ 	done
+-	ip -n $NS_DST link set veth$DST xdp object ../bpf/xdp_dummy.o section xdp_dummy 2>/dev/null
++	ip -n $NS_DST link set veth$DST xdp object ../bpf/xdp_dummy.o section xdp 2>/dev/null
+ }
+ 
+ create_vxlan_endpoint() {
+--- a/tools/testing/selftests/net/veth.sh
++++ b/tools/testing/selftests/net/veth.sh
+@@ -289,14 +289,14 @@ if [ $CPUS -gt 1 ]; then
+ 	ip netns exec $NS_SRC ethtool -L veth$SRC rx 1 tx 2 2>/dev/null
+ 	printf "%-60s" "bad setting: XDP with RX nr less than TX"
+ 	ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o \
+-		section xdp_dummy 2>/dev/null &&\
++		section xdp 2>/dev/null &&\
+ 		echo "fail - set operation successful ?!?" || echo " ok "
+ 
+ 	# the following tests will run with multiple channels active
+ 	ip netns exec $NS_SRC ethtool -L veth$SRC rx 2
+ 	ip netns exec $NS_DST ethtool -L veth$DST rx 2
+ 	ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o \
+-		section xdp_dummy 2>/dev/null
++		section xdp 2>/dev/null
+ 	printf "%-60s" "bad setting: reducing RX nr below peer TX with XDP set"
+ 	ip netns exec $NS_DST ethtool -L veth$DST rx 1 2>/dev/null &&\
+ 		echo "fail - set operation successful ?!?" || echo " ok "
+@@ -311,7 +311,7 @@ if [ $CPUS -gt 2 ]; then
+ 	chk_channels "setting invalid channels nr" $DST 2 2
+ fi
+ 
+-ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o section xdp_dummy 2>/dev/null
++ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o section xdp 2>/dev/null
+ chk_gro_flag "with xdp attached - gro flag" $DST on
+ chk_gro_flag "        - peer gro flag" $SRC off
+ chk_tso_flag "        - tso flag" $SRC off
 
 
