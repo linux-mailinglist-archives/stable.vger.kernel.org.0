@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BD556FB4B
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:28:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5D356FDAE
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbiGKJ2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:28:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55054 "EHLO
+        id S234270AbiGKJ7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:59:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232417AbiGKJ1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:27:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DEB064E3C;
-        Mon, 11 Jul 2022 02:15:45 -0700 (PDT)
+        with ESMTP id S234228AbiGKJ6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0815BB5D29;
+        Mon, 11 Jul 2022 02:27:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96E9F6127D;
-        Mon, 11 Jul 2022 09:15:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A399AC34115;
-        Mon, 11 Jul 2022 09:15:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A17E161383;
+        Mon, 11 Jul 2022 09:27:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE1BC34115;
+        Mon, 11 Jul 2022 09:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530944;
-        bh=o1OFCP3bO86cv1e3AyPnCsMYZPBo9rwY9+UU0tu8cX0=;
+        s=korg; t=1657531637;
+        bh=yukl6GV3BRbGGtmdnfo95ezX+H3GVr/qNTWjY1Phkmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tT/zscwPP4ho7JtnlrUGl8+9m/ZJjhjg/9QSgd/17gGMcqFm1kWJwECAqplQKpAdA
-         Me2873d0117g2ZfMUR7kL/dc9DDYOZe1ebrJIL6OtX4HaC0ftaau2+i5qoZg9nnWnY
-         r4z8YHxw2K6sEBFKK1/L4tA7V76CGpkWo2psOGzE=
+        b=CczWVxuyhWIh4CL3FxPASBHzJclnkjJUr48pLliffnahP1cz++FSQLAuhz8WQO9/n
+         +IO6MNS1roQ02vx7e1fj0YN5YSHcJlrUvhOl4obRYKa+rsDKfvulAlYIHR0Z/PMcOy
+         dsZ1Oh7IOaZyFgKpXkBRQ4PI8RwhEcRCXIojaLGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guiling Deng <greens9@163.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.18 033/112] fbdev: fbmem: Fix logo center image dx issue
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 137/230] tty: n_gsm: fix invalid gsmtty_write_room() result
 Date:   Mon, 11 Jul 2022 11:06:33 +0200
-Message-Id: <20220711090550.508197556@linuxfoundation.org>
+Message-Id: <20220711090607.950458131@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guiling Deng <greens9@163.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 955f04766d4e6eb94bf3baa539e096808c74ebfb upstream.
+[ Upstream commit 9361ebfbb79fd1bc8594a487c01ad52cdaa391ea ]
 
-Image.dx gets wrong value because of missing '()'.
+gsmtty_write() does not prevent the user to use the full fifo size of 4096
+bytes as allocated in gsm_dlci_alloc(). However, gsmtty_write_room() tries
+to limit the return value by 'TX_SIZE' and returns a negative value if the
+fifo has more than 'TX_SIZE' bytes stored. This is obviously wrong as
+'TX_SIZE' is defined as 512.
+Define 'TX_SIZE' to the fifo size and use it accordingly for allocation to
+keep the current behavior. Return the correct remaining size of the fifo in
+gsmtty_write_room() via kfifo_avail().
 
-If xres == logo->width and n == 1, image.dx = -16.
-
-Signed-off-by: Guiling Deng <greens9@163.com>
-Fixes: 3d8b1933eb1c ("fbdev: fbmem: add config option to center the bootup logo")
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220504081733.3494-3-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -510,7 +510,7 @@ static int fb_show_logo_line(struct fb_i
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index fd4a86111a6e..4a430f6ca170 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -137,6 +137,7 @@ struct gsm_dlci {
+ 	int retries;
+ 	/* Uplink tty if active */
+ 	struct tty_port port;	/* The tty bound to this DLCI if there is one */
++#define TX_SIZE		4096    /* Must be power of 2. */
+ 	struct kfifo fifo;	/* Queue fifo for the DLCI */
+ 	int adaption;		/* Adaption layer in use */
+ 	int prev_adaption;
+@@ -1758,7 +1759,7 @@ static struct gsm_dlci *gsm_dlci_alloc(struct gsm_mux *gsm, int addr)
+ 		return NULL;
+ 	spin_lock_init(&dlci->lock);
+ 	mutex_init(&dlci->mutex);
+-	if (kfifo_alloc(&dlci->fifo, 4096, GFP_KERNEL) < 0) {
++	if (kfifo_alloc(&dlci->fifo, TX_SIZE, GFP_KERNEL) < 0) {
+ 		kfree(dlci);
+ 		return NULL;
+ 	}
+@@ -3035,8 +3036,6 @@ static struct tty_ldisc_ops tty_ldisc_packet = {
+  *	Virtual tty side
+  */
  
- 		while (n && (n * (logo->width + 8) - 8 > xres))
- 			--n;
--		image.dx = (xres - n * (logo->width + 8) - 8) / 2;
-+		image.dx = (xres - (n * (logo->width + 8) - 8)) / 2;
- 		image.dy = y ?: (yres - logo->height) / 2;
- 	} else {
- 		image.dx = 0;
+-#define TX_SIZE		512
+-
+ /**
+  *	gsm_modem_upd_via_data	-	send modem bits via convergence layer
+  *	@dlci: channel
+@@ -3274,7 +3273,7 @@ static unsigned int gsmtty_write_room(struct tty_struct *tty)
+ 	struct gsm_dlci *dlci = tty->driver_data;
+ 	if (dlci->state == DLCI_CLOSED)
+ 		return 0;
+-	return TX_SIZE - kfifo_len(&dlci->fifo);
++	return kfifo_avail(&dlci->fifo);
+ }
+ 
+ static unsigned int gsmtty_chars_in_buffer(struct tty_struct *tty)
+-- 
+2.35.1
+
 
 
