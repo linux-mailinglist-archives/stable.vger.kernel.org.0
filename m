@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8F356FE2D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C99756FE1F
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234519AbiGKKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
+        id S234268AbiGKKEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:04:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiGKKEY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:04:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0954487F79;
-        Mon, 11 Jul 2022 02:30:08 -0700 (PDT)
+        with ESMTP id S234519AbiGKKDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:32 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 057773F308;
+        Mon, 11 Jul 2022 02:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C604B80E90;
-        Mon, 11 Jul 2022 09:30:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A210EC341C0;
-        Mon, 11 Jul 2022 09:30:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5CA3BCE126A;
+        Mon, 11 Jul 2022 09:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6899EC341C0;
+        Mon, 11 Jul 2022 09:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531806;
-        bh=6P8CXs3MGbhhmsH5Oe+Hzg9axBWkQxRbYazFIsEe6KE=;
+        s=korg; t=1657531770;
+        bh=lh7AYL4Z8YvuRd3eo1vbbmlhCCo0hOo/6FSah1I1Stk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3XTbgQlgNzf7lQVX7iE5b9n1qqgojN6w0twAbwdzDBlgu/rKf2wazhm1zifY4jAa
-         sblxIXBeJp71HBJst9+yxJe4wIbPB8kUtZlEEtOOLDBY0gOTNMe2++JKLtPq0iKMPE
-         2Td5GUoA0dy661lxVd2Gq/FHjgt4rwSzdRV6IUTg=
+        b=eG+wWQmEMXi7PiLczA2aU9Nw5GRY5jYUrNpki+0www8Md2EnKh7PHGiLPcjZmeHG7
+         +lf4cr7gWZ40AULs5UpCEs9wRQFCRHPFBefAQSyY39htHASiDws4rsZhp1mOPnN7kf
+         7+AAUnlpdVypDEJFz6g9Rpq7khiy6tJtptkV6Etk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.15 217/230] misc: rtsx_usb: use separate command and response buffers
-Date:   Mon, 11 Jul 2022 11:07:53 +0200
-Message-Id: <20220711090610.256939326@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable <stable@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.15 218/230] misc: rtsx_usb: set return value in rsp_buf alloc err path
+Date:   Mon, 11 Jul 2022 11:07:54 +0200
+Message-Id: <20220711090610.285193241@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,87 +56,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 3776c78559853fd151be7c41e369fd076fb679d5 upstream.
+commit 2cd37c2e72449a7add6da1183d20a6247d6db111 upstream.
 
-rtsx_usb uses same buffer for command and response. There could
-be a potential conflict using the same buffer for both especially
-if retries and timeouts are involved.
+Set return value in rsp_buf alloc error path before going to
+error handling.
 
-Use separate command and response buffers to avoid conflicts.
+drivers/misc/cardreader/rtsx_usb.c:639:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
+           if (!ucr->rsp_buf)
+               ^~~~~~~~~~~~~
+   drivers/misc/cardreader/rtsx_usb.c:678:9: note: uninitialized use occurs here
+           return ret;
+                  ^~~
+   drivers/misc/cardreader/rtsx_usb.c:639:2: note: remove the 'if' if its condition is always false
+           if (!ucr->rsp_buf)
+           ^~~~~~~~~~~~~~~~~~
+   drivers/misc/cardreader/rtsx_usb.c:622:9: note: initialize the variable 'ret' to silence this warning
+           int ret;
+                  ^
+                   = 0
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 3776c7855985 ("misc: rtsx_usb: use separate command and response buffers")
+Reported-by: kernel test robot <lkp@intel.com>
 Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/07e3721804ff07aaab9ef5b39a5691d0718b9ade.1656642167.git.skhan@linuxfoundation.org
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220701165352.15687-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c |   26 +++++++++++++++++---------
- include/linux/rtsx_usb.h           |    1 -
- 2 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/misc/cardreader/rtsx_usb.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 --- a/drivers/misc/cardreader/rtsx_usb.c
 +++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -631,15 +631,18 @@ static int rtsx_usb_probe(struct usb_int
- 
- 	ucr->pusb_dev = usb_dev;
- 
--	ucr->iobuf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
--	if (!ucr->iobuf)
-+	ucr->cmd_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
-+	if (!ucr->cmd_buf)
+@@ -636,8 +636,10 @@ static int rtsx_usb_probe(struct usb_int
  		return -ENOMEM;
  
-+	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
-+	if (!ucr->rsp_buf)
-+		goto out_free_cmd_buf;
-+
+ 	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
+-	if (!ucr->rsp_buf)
++	if (!ucr->rsp_buf) {
++		ret = -ENOMEM;
+ 		goto out_free_cmd_buf;
++	}
+ 
  	usb_set_intfdata(intf, ucr);
  
- 	ucr->vendor_id = id->idVendor;
- 	ucr->product_id = id->idProduct;
--	ucr->cmd_buf = ucr->rsp_buf = ucr->iobuf;
- 
- 	mutex_init(&ucr->dev_mutex);
- 
-@@ -667,9 +670,11 @@ static int rtsx_usb_probe(struct usb_int
- 
- out_init_fail:
- 	usb_set_intfdata(ucr->pusb_intf, NULL);
--	kfree(ucr->iobuf);
--	ucr->iobuf = NULL;
--	ucr->cmd_buf = ucr->rsp_buf = NULL;
-+	kfree(ucr->rsp_buf);
-+	ucr->rsp_buf = NULL;
-+out_free_cmd_buf:
-+	kfree(ucr->cmd_buf);
-+	ucr->cmd_buf = NULL;
- 	return ret;
- }
- 
-@@ -682,9 +687,12 @@ static void rtsx_usb_disconnect(struct u
- 	mfd_remove_devices(&intf->dev);
- 
- 	usb_set_intfdata(ucr->pusb_intf, NULL);
--	kfree(ucr->iobuf);
--	ucr->iobuf = NULL;
--	ucr->cmd_buf = ucr->rsp_buf = NULL;
-+
-+	kfree(ucr->cmd_buf);
-+	ucr->cmd_buf = NULL;
-+
-+	kfree(ucr->rsp_buf);
-+	ucr->rsp_buf = NULL;
- }
- 
- #ifdef CONFIG_PM
---- a/include/linux/rtsx_usb.h
-+++ b/include/linux/rtsx_usb.h
-@@ -54,7 +54,6 @@ struct rtsx_ucr {
- 	struct usb_device	*pusb_dev;
- 	struct usb_interface	*pusb_intf;
- 	struct usb_sg_request	current_sg;
--	unsigned char		*iobuf;
- 
- 	struct timer_list	sg_timer;
- 	struct mutex		dev_mutex;
 
 
