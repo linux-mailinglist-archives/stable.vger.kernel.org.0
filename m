@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B859C56FB5C
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5159356FA47
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:15:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232186AbiGKJ3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41434 "EHLO
+        id S231458AbiGKJPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232336AbiGKJ2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08AAA67CB3;
-        Mon, 11 Jul 2022 02:16:10 -0700 (PDT)
+        with ESMTP id S229899AbiGKJOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:14:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0DFA2A411;
+        Mon, 11 Jul 2022 02:10:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 275D061226;
-        Mon, 11 Jul 2022 09:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E632C34115;
-        Mon, 11 Jul 2022 09:16:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4144FB80D2C;
+        Mon, 11 Jul 2022 09:10:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 962D2C34115;
+        Mon, 11 Jul 2022 09:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530969;
-        bh=aGhW0L5S5/qszPA/VigzEF4H7aLqd5d9aPEeEJjbKXo=;
+        s=korg; t=1657530639;
+        bh=/Vlpw6/HGAgbn6PtVQ9mDsztGe7XJM2vq+5z3tLfz7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y6f9bSWUJi9DghfpybpyOVNz4vmG98u0/9OYBF4J7mAUCsvyrN5a8S5cd8Pe22Wci
-         k+cEwTskXPyno3JFv45lkCspGDTD7MqgeEcrSHqFj5zJbIxw4y8vLRjcc7VQx8qT0v
-         CpdV+QePMEbPeqSWTtT9NZ3FneeySoRjOi9ol0xI=
+        b=mUKip51wENfkEWj3mIRb+JZy82WGSbrRlCmbOWs34cEIV8g0bTPWm0IOlNZ5HCjBS
+         eUIz8uUllM0ZBFLYi57yqc4qW3LLOY27ZVG7wdv6jQzx76nifADlgqnFYPawJCrirn
+         o5pCODusOSynnJGtwB3Ag6NTepMM0hk+syZu5/ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 050/112] ASoC: codecs: rt700/rt711/rt711-sdca: resume bus/codec in .set_jack_detect
+        stable@vger.kernel.org, "Zhang, Bernice" <bernice.zhang@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Yian Chen <yian.chen@intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Zhang@vger.kernel.org
+Subject: [PATCH 5.4 08/38] iommu/vt-d: Fix PCI bus rescan device hot add
 Date:   Mon, 11 Jul 2022 11:06:50 +0200
-Message-Id: <20220711090550.991819916@linuxfoundation.org>
+Message-Id: <20220711090538.973522031@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,201 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Yian Chen <yian.chen@intel.com>
 
-[ Upstream commit 40737057b48f1b4db67b0d766b95c87ba8fc5e03 ]
+commit 316f92a705a4c2bf4712135180d56f3cca09243a upstream.
 
-The .set_jack_detect() codec component callback is invoked during card
-registration, which happens when the machine driver is probed.
+Notifier calling chain uses priority to determine the execution
+order of the notifiers or listeners registered to the chain.
+PCI bus device hot add utilizes the notification mechanism.
 
-The issue is that this callback can race with the bus suspend/resume,
-and IO timeouts can happen. This can be reproduced very easily if the
-machine driver is 'blacklisted' and manually probed after the bus
-suspends. The bus and codec need to be re-initialized using pm_runtime
-helpers.
+The current code sets low priority (INT_MIN) to Intel
+dmar_pci_bus_notifier and postpones DMAR decoding after adding
+new device into IOMMU. The result is that struct device pointer
+cannot be found in DRHD search for the new device's DMAR/IOMMU.
+Subsequently, the device is put under the "catch-all" IOMMU
+instead of the correct one. This could cause system hang when
+device TLB invalidation is sent to the wrong IOMMU. Invalidation
+timeout error and hard lockup have been observed and data
+inconsistency/crush may occur as well.
 
-Previous contributions tried to make sure accesses to the bus during
-the .set_jack_detect() component callback only happen when the bus is
-active. This was done by changing the regcache status on a component
-remove. This is however a layering violation, the regcache status
-should only be modified on device probe, suspend and resume. The
-component probe/remove should not modify how the device regcache is
-handled. This solution also didn't handle all the possible race
-conditions, and the RT700 headset codec was not handled.
+This patch fixes the issue by setting a positive priority(1) for
+dmar_pci_bus_notifier while the priority of IOMMU bus notifier
+uses the default value(0), therefore DMAR decoding will be in
+advance of DRHD search for a new device to find the correct IOMMU.
 
-This patch tries to resume the codec device before handling the jack
-initializations. In case the codec has not yet been initialized,
-pm_runtime may not be enabled yet, so we don't squelch the -EACCES
-error code and only stop the jack information. When the codec reports
-as attached, the jack initialization will proceed as usual.
+Following is a 2-step example that triggers the bug by simulating
+PCI device hot add behavior in Intel Sapphire Rapids server.
 
-BugLink: https://github.com/thesofproject/linux/issues/3643
-Fixes: 7ad4d237e7c4a ('ASoC: rt711-sdca: Add RT711 SDCA vendor-specific driver')
-Fixes: 899b12542b089 ('ASoC: rt711: add snd_soc_component remove callback')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220606203752.144159-8-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+echo 1 > /sys/bus/pci/devices/0000:6a:01.0/remove
+echo 1 > /sys/bus/pci/rescan
+
+Fixes: 59ce0515cdaf ("iommu/vt-d: Update DRHD/RMRR/ATSR device scope")
+Cc: stable@vger.kernel.org # v3.15+
+Reported-by: Zhang, Bernice <bernice.zhang@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Yian Chen <yian.chen@intel.com>
+Link: https://lore.kernel.org/r/20220521002115.1624069-1-yian.chen@intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt700.c      | 16 +++++++++++++---
- sound/soc/codecs/rt711-sdca.c | 26 ++++++++++++++------------
- sound/soc/codecs/rt711.c      | 24 +++++++++++++-----------
- 3 files changed, 40 insertions(+), 26 deletions(-)
+ drivers/iommu/dmar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt700.c b/sound/soc/codecs/rt700.c
-index e61a8257bf64..360d61a36c35 100644
---- a/sound/soc/codecs/rt700.c
-+++ b/sound/soc/codecs/rt700.c
-@@ -315,17 +315,27 @@ static int rt700_set_jack_detect(struct snd_soc_component *component,
- 	struct snd_soc_jack *hs_jack, void *data)
- {
- 	struct rt700_priv *rt700 = snd_soc_component_get_drvdata(component);
-+	int ret;
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -363,7 +363,7 @@ static int dmar_pci_bus_notifier(struct
  
- 	rt700->hs_jack = hs_jack;
- 
--	if (!rt700->hw_init) {
--		dev_dbg(&rt700->slave->dev,
--			"%s hw_init not ready yet\n", __func__);
-+	ret = pm_runtime_resume_and_get(component->dev);
-+	if (ret < 0) {
-+		if (ret != -EACCES) {
-+			dev_err(component->dev, "%s: failed to resume %d\n", __func__, ret);
-+			return ret;
-+		}
-+
-+		/* pm_runtime not enabled yet */
-+		dev_dbg(component->dev,	"%s: skipping jack init for now\n", __func__);
- 		return 0;
- 	}
- 
- 	rt700_jack_init(rt700);
- 
-+	pm_runtime_mark_last_busy(component->dev);
-+	pm_runtime_put_autosuspend(component->dev);
-+
- 	return 0;
- }
- 
-diff --git a/sound/soc/codecs/rt711-sdca.c b/sound/soc/codecs/rt711-sdca.c
-index 57629c18db38..9d59e653b941 100644
---- a/sound/soc/codecs/rt711-sdca.c
-+++ b/sound/soc/codecs/rt711-sdca.c
-@@ -487,16 +487,27 @@ static int rt711_sdca_set_jack_detect(struct snd_soc_component *component,
- 	struct snd_soc_jack *hs_jack, void *data)
- {
- 	struct rt711_sdca_priv *rt711 = snd_soc_component_get_drvdata(component);
-+	int ret;
- 
- 	rt711->hs_jack = hs_jack;
- 
--	if (!rt711->hw_init) {
--		dev_dbg(&rt711->slave->dev,
--			"%s hw_init not ready yet\n", __func__);
-+	ret = pm_runtime_resume_and_get(component->dev);
-+	if (ret < 0) {
-+		if (ret != -EACCES) {
-+			dev_err(component->dev, "%s: failed to resume %d\n", __func__, ret);
-+			return ret;
-+		}
-+
-+		/* pm_runtime not enabled yet */
-+		dev_dbg(component->dev,	"%s: skipping jack init for now\n", __func__);
- 		return 0;
- 	}
- 
- 	rt711_sdca_jack_init(rt711);
-+
-+	pm_runtime_mark_last_busy(component->dev);
-+	pm_runtime_put_autosuspend(component->dev);
-+
- 	return 0;
- }
- 
-@@ -1190,14 +1201,6 @@ static int rt711_sdca_probe(struct snd_soc_component *component)
- 	return 0;
- }
- 
--static void rt711_sdca_remove(struct snd_soc_component *component)
--{
--	struct rt711_sdca_priv *rt711 = snd_soc_component_get_drvdata(component);
--
--	regcache_cache_only(rt711->regmap, true);
--	regcache_cache_only(rt711->mbq_regmap, true);
--}
--
- static const struct snd_soc_component_driver soc_sdca_dev_rt711 = {
- 	.probe = rt711_sdca_probe,
- 	.controls = rt711_sdca_snd_controls,
-@@ -1207,7 +1210,6 @@ static const struct snd_soc_component_driver soc_sdca_dev_rt711 = {
- 	.dapm_routes = rt711_sdca_audio_map,
- 	.num_dapm_routes = ARRAY_SIZE(rt711_sdca_audio_map),
- 	.set_jack = rt711_sdca_set_jack_detect,
--	.remove = rt711_sdca_remove,
- 	.endianness = 1,
+ static struct notifier_block dmar_pci_bus_nb = {
+ 	.notifier_call = dmar_pci_bus_notifier,
+-	.priority = INT_MIN,
++	.priority = 1,
  };
  
-diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
-index 9838fb4d5b9c..9958067e80f1 100644
---- a/sound/soc/codecs/rt711.c
-+++ b/sound/soc/codecs/rt711.c
-@@ -457,17 +457,27 @@ static int rt711_set_jack_detect(struct snd_soc_component *component,
- 	struct snd_soc_jack *hs_jack, void *data)
- {
- 	struct rt711_priv *rt711 = snd_soc_component_get_drvdata(component);
-+	int ret;
- 
- 	rt711->hs_jack = hs_jack;
- 
--	if (!rt711->hw_init) {
--		dev_dbg(&rt711->slave->dev,
--			"%s hw_init not ready yet\n", __func__);
-+	ret = pm_runtime_resume_and_get(component->dev);
-+	if (ret < 0) {
-+		if (ret != -EACCES) {
-+			dev_err(component->dev, "%s: failed to resume %d\n", __func__, ret);
-+			return ret;
-+		}
-+
-+		/* pm_runtime not enabled yet */
-+		dev_dbg(component->dev,	"%s: skipping jack init for now\n", __func__);
- 		return 0;
- 	}
- 
- 	rt711_jack_init(rt711);
- 
-+	pm_runtime_mark_last_busy(component->dev);
-+	pm_runtime_put_autosuspend(component->dev);
-+
- 	return 0;
- }
- 
-@@ -932,13 +942,6 @@ static int rt711_probe(struct snd_soc_component *component)
- 	return 0;
- }
- 
--static void rt711_remove(struct snd_soc_component *component)
--{
--	struct rt711_priv *rt711 = snd_soc_component_get_drvdata(component);
--
--	regcache_cache_only(rt711->regmap, true);
--}
--
- static const struct snd_soc_component_driver soc_codec_dev_rt711 = {
- 	.probe = rt711_probe,
- 	.set_bias_level = rt711_set_bias_level,
-@@ -949,7 +952,6 @@ static const struct snd_soc_component_driver soc_codec_dev_rt711 = {
- 	.dapm_routes = rt711_audio_map,
- 	.num_dapm_routes = ARRAY_SIZE(rt711_audio_map),
- 	.set_jack = rt711_set_jack_detect,
--	.remove = rt711_remove,
- 	.endianness = 1,
- };
- 
--- 
-2.35.1
-
+ static struct dmar_drhd_unit *
 
 
