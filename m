@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F39A56FDED
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A57C856FDF1
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234196AbiGKKC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:02:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57958 "EHLO
+        id S234301AbiGKKCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234226AbiGKKBy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:01:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26DBF2AF;
-        Mon, 11 Jul 2022 02:28:33 -0700 (PDT)
+        with ESMTP id S234336AbiGKKCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042C12BDB;
+        Mon, 11 Jul 2022 02:28:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24F356136E;
-        Mon, 11 Jul 2022 09:28:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0F5C34115;
-        Mon, 11 Jul 2022 09:28:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FDEBB80E6D;
+        Mon, 11 Jul 2022 09:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E050AC34115;
+        Mon, 11 Jul 2022 09:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531712;
-        bh=uHtkAaK8JZ0OMEbRWgllIsKnn+tOA3YooURssre3hfo=;
+        s=korg; t=1657531715;
+        bh=vWqdF/QbE599LGS+3jp14cUHjUuyTGGqsN3uKJFlhX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oks0lPyIG79MGinnRJSmGDZOIuokU3lKgNjt7wvQM37xdXzZggU95P+JVEGC5hVeS
-         o/PDrzBM9N8kScbfrljF+rwMuNPVTa1xmSqlrA2J5fYBCXmBkQji3pXtSChL7dE1Y3
-         6T5GBTp2GqG37H2W46OefmlQPxLzahKEI8EZ0A9g=
+        b=BISEjTt7U6nHgeyNI7YOqNU9uatGFXTU+YMNVFgSwgQf+4mPzqZCK9KcGWqbqobGg
+         +m+m9fbW29EOQmv7BDijLdI1Q2mer7ls/SpCHckMfz1g/wji7/MRgc5GQIfGNnBW66
+         dL79/4BdW4f4uQGVz+2QJKGxM8HPyw/WbmQyfeaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Malov <ivan.malov@oktetlabs.ru>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 203/230] xsk: Clear page contiguity bit when unmapping pool
-Date:   Mon, 11 Jul 2022 11:07:39 +0200
-Message-Id: <20220711090609.863252807@linuxfoundation.org>
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        Terry Bowman <terry.bowman@amd.com>,
+        Terry Bowman <Terry.Bowman@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 204/230] i2c: piix4: Fix a memory leak in the EFCH MMIO support
+Date:   Mon, 11 Jul 2022 11:07:40 +0200
+Message-Id: <20220711090609.891213114@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,39 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Malov <ivan.malov@oktetlabs.ru>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit 512d1999b8e94a5d43fba3afc73e774849674742 ]
+[ Upstream commit 8ad59b397f86a4d8014966fdc0552095a0c4fb2b ]
 
-When a XSK pool gets mapped, xp_check_dma_contiguity() adds bit 0x1
-to pages' DMA addresses that go in ascending order and at 4K stride.
+The recently added support for EFCH MMIO regions introduced a memory
+leak in that code path. The leak is caused by the fact that
+release_resource() merely removes the resource from the tree but does
+not free its memory. We need to call release_mem_region() instead,
+which does free the memory. As a nice side effect, this brings back
+some symmetry between the legacy and MMIO paths.
 
-The problem is that the bit does not get cleared before doing unmap.
-As a result, a lot of warnings from iommu_dma_unmap_page() are seen
-in dmesg, which indicates that lookups by iommu_iova_to_phys() fail.
-
-Fixes: 2b43470add8c ("xsk: Introduce AF_XDP buffer allocation API")
-Signed-off-by: Ivan Malov <ivan.malov@oktetlabs.ru>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20220628091848.534803-1-ivan.malov@oktetlabs.ru
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Reviewed-by: Terry Bowman <terry.bowman@amd.com>
+Tested-by: Terry Bowman <Terry.Bowman@amd.com>
+Fixes: 7c148722d074 ("i2c: piix4: Add EFCH MMIO support to region request and release")
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk_buff_pool.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-piix4.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
-index fc7fbfc1e586..ccedbbd27692 100644
---- a/net/xdp/xsk_buff_pool.c
-+++ b/net/xdp/xsk_buff_pool.c
-@@ -326,6 +326,7 @@ static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
- 	for (i = 0; i < dma_map->dma_pages_cnt; i++) {
- 		dma = &dma_map->dma_pages[i];
- 		if (*dma) {
-+			*dma &= ~XSK_NEXT_PG_CONTIG_MASK;
- 			dma_unmap_page_attrs(dma_map->dev, *dma, PAGE_SIZE,
- 					     DMA_BIDIRECTIONAL, attrs);
- 			*dma = 0;
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index ac8e7d60672a..39cb1b7bb865 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -161,7 +161,6 @@ static const char *piix4_aux_port_name_sb800 = " port 1";
+ 
+ struct sb800_mmio_cfg {
+ 	void __iomem *addr;
+-	struct resource *res;
+ 	bool use_mmio;
+ };
+ 
+@@ -179,13 +178,11 @@ static int piix4_sb800_region_request(struct device *dev,
+ 				      struct sb800_mmio_cfg *mmio_cfg)
+ {
+ 	if (mmio_cfg->use_mmio) {
+-		struct resource *res;
+ 		void __iomem *addr;
+ 
+-		res = request_mem_region_muxed(SB800_PIIX4_FCH_PM_ADDR,
+-					       SB800_PIIX4_FCH_PM_SIZE,
+-					       "sb800_piix4_smb");
+-		if (!res) {
++		if (!request_mem_region_muxed(SB800_PIIX4_FCH_PM_ADDR,
++					      SB800_PIIX4_FCH_PM_SIZE,
++					      "sb800_piix4_smb")) {
+ 			dev_err(dev,
+ 				"SMBus base address memory region 0x%x already in use.\n",
+ 				SB800_PIIX4_FCH_PM_ADDR);
+@@ -195,12 +192,12 @@ static int piix4_sb800_region_request(struct device *dev,
+ 		addr = ioremap(SB800_PIIX4_FCH_PM_ADDR,
+ 			       SB800_PIIX4_FCH_PM_SIZE);
+ 		if (!addr) {
+-			release_resource(res);
++			release_mem_region(SB800_PIIX4_FCH_PM_ADDR,
++					   SB800_PIIX4_FCH_PM_SIZE);
+ 			dev_err(dev, "SMBus base address mapping failed.\n");
+ 			return -ENOMEM;
+ 		}
+ 
+-		mmio_cfg->res = res;
+ 		mmio_cfg->addr = addr;
+ 
+ 		return 0;
+@@ -222,7 +219,8 @@ static void piix4_sb800_region_release(struct device *dev,
+ {
+ 	if (mmio_cfg->use_mmio) {
+ 		iounmap(mmio_cfg->addr);
+-		release_resource(mmio_cfg->res);
++		release_mem_region(SB800_PIIX4_FCH_PM_ADDR,
++				   SB800_PIIX4_FCH_PM_SIZE);
+ 		return;
+ 	}
+ 
 -- 
 2.35.1
 
