@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D1256FAAA
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A2956FB9A
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231518AbiGKJUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:20:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45870 "EHLO
+        id S232144AbiGKJct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231879AbiGKJUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 769FE53D02;
-        Mon, 11 Jul 2022 02:12:29 -0700 (PDT)
+        with ESMTP id S232640AbiGKJcN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D013C4330F;
+        Mon, 11 Jul 2022 02:17:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EBE36111F;
-        Mon, 11 Jul 2022 09:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77BB1C34115;
-        Mon, 11 Jul 2022 09:12:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB32D61243;
+        Mon, 11 Jul 2022 09:17:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3689C341C0;
+        Mon, 11 Jul 2022 09:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530745;
-        bh=8xduzV9XPwv+MRJJNBuvjbGKAF/YIl6fxiUCeWx2Z4Q=;
+        s=korg; t=1657531044;
+        bh=sHcfpShKWSDRKQYb8GObnyX1seYyzwG9Pz2xF486Y9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VwsucE8dsAEX23+J9Trjn/+G+ynXAReAt07NfPdMGivqF3SJLo2/0BsazdLEntg2D
-         PfBZPoF5aHJQG82NGxeDu3AYerF/f/0O31rJwXf1zrF52APmOkcnIuUV+d2TRC9Bib
-         O6+7YufUIPHRVZS75JwnHYTu/osHk3DKbgb9xv+Y=
+        b=q3OXiC661ocFEmfXf4AXNmQUHiaaq5j5N+YfRtYZWsF0qYphlBZidyApwbkLMXtRW
+         23fZCl26JefuXfsoBGCZwfn6nFUlTEFO69T8pvu/F3VKBth3yUp8mY6xdTSh1PL4oy
+         pkTClaSO116nQJH/oezYuUaYSLEzwhU2KEc4v54U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/55] ARM: meson: Fix refcount leak in meson_smp_prepare_cpus
-Date:   Mon, 11 Jul 2022 11:07:13 +0200
-Message-Id: <20220711090542.507811982@linuxfoundation.org>
+Subject: [PATCH 5.18 074/112] ARM: dts: at91: sama5d2_icp: fix eeprom compatibles
+Date:   Mon, 11 Jul 2022 11:07:14 +0200
+Message-Id: <20220711090551.672969978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 34d2cd3fccced12b958b8848e3eff0ee4296764c ]
+[ Upstream commit 416ce193d73a734ded6d09fe141017b38af1c567 ]
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+The eeprom memories on the board are microchip 24aa025e48, which are 2 Kbits
+and are compatible with at24c02 not at24c32.
 
-Fixes: d850f3e5d296 ("ARM: meson: Add SMP bringup code for Meson8 and Meson8b")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220512021611.47921-1-linmq006@gmail.com
+Fixes: 68a95ef72cefe ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220607090455.80433-2-eugen.hristev@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-meson/platsmp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/at91-sama5d2_icp.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-meson/platsmp.c b/arch/arm/mach-meson/platsmp.c
-index 4b8ad728bb42..32ac60b89fdc 100644
---- a/arch/arm/mach-meson/platsmp.c
-+++ b/arch/arm/mach-meson/platsmp.c
-@@ -71,6 +71,7 @@ static void __init meson_smp_prepare_cpus(const char *scu_compatible,
- 	}
+diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+index 806eb1d911d7..164201a8fbf2 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+@@ -329,21 +329,21 @@
+ 	status = "okay";
  
- 	sram_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!sram_base) {
- 		pr_err("Couldn't map SRAM registers\n");
- 		return;
-@@ -91,6 +92,7 @@ static void __init meson_smp_prepare_cpus(const char *scu_compatible,
- 	}
+ 	eeprom@50 {
+-		compatible = "atmel,24c32";
++		compatible = "atmel,24c02";
+ 		reg = <0x50>;
+ 		pagesize = <16>;
+ 		status = "okay";
+ 	};
  
- 	scu_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!scu_base) {
- 		pr_err("Couldn't map SCU registers\n");
- 		return;
+ 	eeprom@52 {
+-		compatible = "atmel,24c32";
++		compatible = "atmel,24c02";
+ 		reg = <0x52>;
+ 		pagesize = <16>;
+ 		status = "disabled";
+ 	};
+ 
+ 	eeprom@53 {
+-		compatible = "atmel,24c32";
++		compatible = "atmel,24c02";
+ 		reg = <0x53>;
+ 		pagesize = <16>;
+ 		status = "disabled";
 -- 
 2.35.1
 
