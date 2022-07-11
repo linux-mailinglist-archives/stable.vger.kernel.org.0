@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 765C356FDE8
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0744456FDE7
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbiGKKCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:02:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60160 "EHLO
+        id S234321AbiGKKCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:02:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234366AbiGKKB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:01:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94EEB8E93;
-        Mon, 11 Jul 2022 02:28:26 -0700 (PDT)
+        with ESMTP id S234369AbiGKKB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:01:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24168B8E9E;
+        Mon, 11 Jul 2022 02:28:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70161B80E87;
-        Mon, 11 Jul 2022 09:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39FBC34115;
-        Mon, 11 Jul 2022 09:28:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CA886136E;
+        Mon, 11 Jul 2022 09:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 936F8C34115;
+        Mon, 11 Jul 2022 09:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531704;
-        bh=D0dFsVUx046MH+rBA7BhQb8BfgSRDc1hnJB8uhlMA2I=;
+        s=korg; t=1657531707;
+        bh=J9gjBr0TQqFK/KpB6aju9Ih/fw36Qss8gW2FcaEI0Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXMPf3yxFRi5PDyisCfHj+nFWajPHs86ymgiXzTARdriAYEMngfUhzd2OiTMcolko
-         j9AHdMEXI8Xl4MaUxbPFaIIHR0gZuiassMoggaLTldbYyBZCRSD9ScgCQgw+A6vxYV
-         V/OXNPNNQk7qwDtPQhvKZrleF2ZtRNfVqeiqTjMs=
+        b=kAtBgykUXR6gPR9lIBZ35/3un8woDyvMRyS7qk9tOUxGDm9IypagT12tirj9cDBbv
+         saFv53xaX5ZwelyNnmOawlWv4ijYJ07gvcwqvi9TWthWExJgKLqwDtRGv3d6hedIjF
+         0DFTqmWOXKMnKyH6graij2ajzZXsr8nKNyj/fgtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
+        stable@vger.kernel.org, Mihai Sain <mihai.sain@microchip.com>,
         Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 201/230] ARM: dts: at91: sama5d2_icp: fix eeprom compatibles
-Date:   Mon, 11 Jul 2022 11:07:37 +0200
-Message-Id: <20220711090609.807367021@linuxfoundation.org>
+Subject: [PATCH 5.15 202/230] ARM: at91: fix soc detection for SAM9X60 SiPs
+Date:   Mon, 11 Jul 2022 11:07:38 +0200
+Message-Id: <20220711090609.835572698@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,52 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Mihai Sain <mihai.sain@microchip.com>
 
-[ Upstream commit 416ce193d73a734ded6d09fe141017b38af1c567 ]
+[ Upstream commit 35074df65a8d8c5328a83e2eea948f7bbc8e6e08 ]
 
-The eeprom memories on the board are microchip 24aa025e48, which are 2 Kbits
-and are compatible with at24c02 not at24c32.
+Fix SoC detection for SAM9X60 SiPs:
+SAM9X60D5M
+SAM9X60D1G
+SAM9X60D6K
 
-Fixes: 68a95ef72cefe ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Fixes: af3a10513cd6 ("drivers: soc: atmel: add per soc id and version match masks")
+Signed-off-by: Mihai Sain <mihai.sain@microchip.com>
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220607090455.80433-2-eugen.hristev@microchip.com
+Link: https://lore.kernel.org/r/20220616081344.1978664-1-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d2_icp.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/atmel/soc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index e06b58724ca8..fd1a288f686b 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -323,21 +323,21 @@
- 	status = "okay";
- 
- 	eeprom@50 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x50>;
- 		pagesize = <16>;
- 		status = "okay";
- 	};
- 
- 	eeprom@52 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x52>;
- 		pagesize = <16>;
- 		status = "disabled";
- 	};
- 
- 	eeprom@53 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x53>;
- 		pagesize = <16>;
- 		status = "disabled";
+diff --git a/drivers/soc/atmel/soc.c b/drivers/soc/atmel/soc.c
+index a490ad7e090f..9e3d37011447 100644
+--- a/drivers/soc/atmel/soc.c
++++ b/drivers/soc/atmel/soc.c
+@@ -91,14 +91,14 @@ static const struct at91_soc socs[] __initconst = {
+ 	AT91_SOC(SAM9X60_CIDR_MATCH, AT91_CIDR_MATCH_MASK,
+ 		 AT91_CIDR_VERSION_MASK, SAM9X60_EXID_MATCH,
+ 		 "sam9x60", "sam9x60"),
+-	AT91_SOC(SAM9X60_CIDR_MATCH, SAM9X60_D5M_EXID_MATCH,
+-		 AT91_CIDR_VERSION_MASK, SAM9X60_EXID_MATCH,
++	AT91_SOC(SAM9X60_CIDR_MATCH, AT91_CIDR_MATCH_MASK,
++		 AT91_CIDR_VERSION_MASK, SAM9X60_D5M_EXID_MATCH,
+ 		 "sam9x60 64MiB DDR2 SiP", "sam9x60"),
+-	AT91_SOC(SAM9X60_CIDR_MATCH, SAM9X60_D1G_EXID_MATCH,
+-		 AT91_CIDR_VERSION_MASK, SAM9X60_EXID_MATCH,
++	AT91_SOC(SAM9X60_CIDR_MATCH, AT91_CIDR_MATCH_MASK,
++		 AT91_CIDR_VERSION_MASK, SAM9X60_D1G_EXID_MATCH,
+ 		 "sam9x60 128MiB DDR2 SiP", "sam9x60"),
+-	AT91_SOC(SAM9X60_CIDR_MATCH, SAM9X60_D6K_EXID_MATCH,
+-		 AT91_CIDR_VERSION_MASK, SAM9X60_EXID_MATCH,
++	AT91_SOC(SAM9X60_CIDR_MATCH, AT91_CIDR_MATCH_MASK,
++		 AT91_CIDR_VERSION_MASK, SAM9X60_D6K_EXID_MATCH,
+ 		 "sam9x60 8MiB SDRAM SiP", "sam9x60"),
+ #endif
+ #ifdef CONFIG_SOC_SAMA5
 -- 
 2.35.1
 
