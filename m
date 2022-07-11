@@ -2,73 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD8056FEC8
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0FF156FEE3
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230193AbiGKKXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:23:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41360 "EHLO
+        id S229617AbiGKKaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:30:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbiGKKXS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:23:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8BACAF2C;
-        Mon, 11 Jul 2022 02:37:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55E50B80E9B;
-        Mon, 11 Jul 2022 09:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7C4C34115;
-        Mon, 11 Jul 2022 09:37:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657532257;
-        bh=bcLD/qxsUGv+AF1rTNdpKdzVizCDffffHzxuyCpZio4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2qf86FdYQl0eJl6YZA6POKfpuzIr8AZzwyHXZPN5qCylgtNW/KMDmytEszIvoQoaK
-         19pJELOavgTCURd9gaJk09ISsDUMY1h3n06IPUrbaxfaWtnSxgXHEsPqjHDhEQmiOG
-         BM/MS7yqUUJPEQIVJnJQQsa8sR+X+r9FA8T+db6E=
-Date:   Mon, 11 Jul 2022 11:37:34 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.15 138/230] drm/amdgpu: bind to any 0x1002 PCI diplay
- class device
-Message-ID: <YsvvXmH9DpMMIIiK@kroah.com>
-References: <20220711090604.055883544@linuxfoundation.org>
- <20220711090607.978575207@linuxfoundation.org>
- <8c73c2b5-f70e-f343-7ca4-e1db420d5419@amd.com>
+        with ESMTP id S229729AbiGKK3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:29:54 -0400
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56AD8AEC6
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 02:40:39 -0700 (PDT)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-10be0d7476aso6106514fac.2
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 02:40:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=B/ps/HaihXN/x4cigP+9hMtke5ajI2cfpnLJOMnelEs=;
+        b=PSfTf7kZ+5iISLUgu8KX60LWPKl1/Y6JulCl9yGaXG5Szvowyv1S7zkx2qhm+Zo29y
+         QDm++GeGwnzoTXK1lPdFusoi1TocXkJse1r4fzeD+wSNhw4BUPs45Pv4ub9HzYgyiDwh
+         8IoTdGQqCny0kyuVX2J93Ml0oDaN1RT33H8X9gM+4Lq32IrYjVD0h0INXzs7eNvDP//i
+         y/AqMDNpT7kZEd2k5NccmN7t5YqZFwM4vjhRyMH+jFHCDQ6l6JP7LAAKXQUOUWV47c36
+         HVzx9AXte+iLgmh5Cue/FDktwym4CToZAdOHptYpN8TGGhjDvJDLRieGi0ei1BK1TEzo
+         XgYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=B/ps/HaihXN/x4cigP+9hMtke5ajI2cfpnLJOMnelEs=;
+        b=R9cyW61ebbcsbiLmq/28i+WmDECJP/f9vor0wJI6G/x31AWsaiYm0p7JYbZbd2AD8J
+         dVi2cAmWTKA65hgYqLzK93Pv0OzcPjM79S8W5cyGkshS0aWlfxmzFMvfRhh/5er+4Goi
+         4Onr274/XpeMhT9xhLpJABnnHmXR1yHbXPiZRlZqfJWlXdJ6504FpY87oapO3qx6u/mC
+         DySsqOZPuNUffX98q6IJ7zid+KbHvzJqXusXj5Tl6+6wb3OrvO6jUraCYTQyc2V2ZVhl
+         zZ3SEdU+g463+OKfXvRACHX4QMVvHRauCn0/e9ZzAA202oI1KLA6QURiHInRsEaWMuZw
+         n0CA==
+X-Gm-Message-State: AJIora9rKL4q6F1XUrkIDtHVjAwUbGlOpZ1t6ZU15KyPoxZS1fpqHRa5
+        J0hPpfClWCyM58g2dZS0AIew5oTlR/GRtZIpkQk=
+X-Google-Smtp-Source: AGRyM1vSNwqxlXGqiiOTmUgOYMXmowmU/PGQ8V+yzHHJvYdH3GWcPUZZkL9b3OPK6o1HpH6OyVsoVpQnXx3Yl8zYkL0=
+X-Received: by 2002:a05:6870:581d:b0:101:dc4f:51 with SMTP id
+ r29-20020a056870581d00b00101dc4f0051mr6967760oap.247.1657532438819; Mon, 11
+ Jul 2022 02:40:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8c73c2b5-f70e-f343-7ca4-e1db420d5419@amd.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <CABGpxzf309-UjngfN_Cas4uGneUdpsyZf=fz1FhvtGazk7=D+g@mail.gmail.com>
+ <CABGpxzcD95tTHsG0mfsD8qsgFOsdXnpESG3YwsgDNBMoybE5kQ@mail.gmail.com>
+In-Reply-To: <CABGpxzcD95tTHsG0mfsD8qsgFOsdXnpESG3YwsgDNBMoybE5kQ@mail.gmail.com>
+From:   myleswatson161@gmail.com
+Date:   Mon, 11 Jul 2022 09:40:27 +0000
+Message-ID: <CABGpxzf+cza42Z+RVe+3vNQbG-Kv9iT+LpEozrWtffWpiEtT0Q@mail.gmail.com>
+Subject: ??????
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-0.5 required=5.0 tests=BAYES_05,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 11, 2022 at 11:29:53AM +0200, Christian König wrote:
-> Hi Greg & Alex
-> 
-> why is that patch picked up for stable? Or are we backporting IP based
-> discovery?
+Pozdravljeni, dober dan,
 
-New device ids are usually added to stable trees as they are "trivial".
+Opravi=C4=8Dujem se za poseg v va=C5=A1o zasebnost. Zelo mi je =C5=BEal, da=
+ sem vas
+kontaktiral na tak na=C4=8Din. Moje ime je Myles Watson, =C5=BEe sem vas
+kontaktiral brez odgovora glede va=C5=A1ega dru=C5=BEinskega sklada za
+dedi=C5=A1=C4=8Dino. Za ve=C4=8D informacij me kontaktirajte.
 
-> If yes, is that wise? IIRC we had quite a number of typos etc.. in the
-> initial patches.
+S spo=C5=A1tovanjem.
+G. Myles Watson
+................................................................
 
-If this commit is incorrect, we will be glad to drop it, or add any
-needed add-on commits.  Which do you want to see happen here?
+Hello good day,
 
-thanks,
+I apologize for invading your privacy. I am so sorry that I contacted
+you in this way. My name is Myles Watson, I have contacted you before
+with no response regarding your family inheritance fund. Please
+contact me for more information.
 
-greg k-h
+Regards.
+
+Mr.Myles Watson
