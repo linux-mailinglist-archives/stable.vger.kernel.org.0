@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C1E056FA0E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A0C56FAC2
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbiGKJMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:12:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46408 "EHLO
+        id S231929AbiGKJVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231328AbiGKJLj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:11:39 -0400
+        with ESMTP id S231803AbiGKJVE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:21:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8348237CF;
-        Mon, 11 Jul 2022 02:09:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51E922B05;
+        Mon, 11 Jul 2022 02:12:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CCCC61148;
-        Mon, 11 Jul 2022 09:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89AEFC34115;
-        Mon, 11 Jul 2022 09:09:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F0A9611F0;
+        Mon, 11 Jul 2022 09:12:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58187C34115;
+        Mon, 11 Jul 2022 09:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530549;
-        bh=3yFvYkvFhSA5opWMSNYj1tkEXOgzdE7ISodinZieUPY=;
+        s=korg; t=1657530770;
+        bh=crs/nf5VegItrTKaUF4eYcu4JKgieF9hoTiW/qwrm0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEGYLpyN9Cq5XFrS2EznHJ8lM7qLX5NPaYZXWKzTSjcHLqbEwyoIxF/qdcvBCe8VJ
-         dogWzL6F4murkZde5hhlFITRozUEbs85V8WeAiKDPWqI93jibPhB6XNhUr7oPZvX9k
-         xYDHkfmDDWiP6Iz3NICTqGkB5BTorKcsqUwhSSFo=
+        b=ts4JzfL2wM2/jE9NehJs9tB5i0XR9oYvxIcY7PRugMmGNZnPXEo1D4BODykbtrKq2
+         Ibf6EAVelSGdOkHsJVVirv1OfejL0UdbxPJedoomezorI9nNeOQ1KpPKv6qepeNSkH
+         mEhmA9yfW3sz6FILnZEF/e9S0k7mQduG00Q5OkM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.19 25/31] misc: rtsx_usb: use separate command and response buffers
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.10 16/55] fbcon: Prevent that screen size is smaller than font size
 Date:   Mon, 11 Jul 2022 11:07:04 +0200
-Message-Id: <20220711090538.589749386@linuxfoundation.org>
+Message-Id: <20220711090542.244840203@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 3776c78559853fd151be7c41e369fd076fb679d5 upstream.
+commit e64242caef18b4a5840b0e7a9bff37abd4f4f933 upstream.
 
-rtsx_usb uses same buffer for command and response. There could
-be a potential conflict using the same buffer for both especially
-if retries and timeouts are involved.
+We need to prevent that users configure a screen size which is smaller than the
+currently selected font size. Otherwise rendering chars on the screen will
+access memory outside the graphics memory region.
 
-Use separate command and response buffers to avoid conflicts.
+This patch adds a new function fbcon_modechange_possible() which
+implements this check and which later may be extended with other checks
+if necessary.  The new function is called from the FBIOPUT_VSCREENINFO
+ioctl handler in fbmem.c, which will return -EINVAL if userspace asked
+for a too small screen size.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/07e3721804ff07aaab9ef5b39a5691d0718b9ade.1656642167.git.skhan@linuxfoundation.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: stable@vger.kernel.org # v5.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c |   26 +++++++++++++++++---------
- include/linux/rtsx_usb.h           |    1 -
- 2 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |   28 ++++++++++++++++++++++++++++
+ drivers/video/fbdev/core/fbmem.c |    4 +++-
+ include/linux/fbcon.h            |    4 ++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/cardreader/rtsx_usb.c
-+++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -642,15 +642,18 @@ static int rtsx_usb_probe(struct usb_int
- 
- 	ucr->pusb_dev = usb_dev;
- 
--	ucr->iobuf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
--	if (!ucr->iobuf)
-+	ucr->cmd_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
-+	if (!ucr->cmd_buf)
- 		return -ENOMEM;
- 
-+	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
-+	if (!ucr->rsp_buf)
-+		goto out_free_cmd_buf;
-+
- 	usb_set_intfdata(intf, ucr);
- 
- 	ucr->vendor_id = id->idVendor;
- 	ucr->product_id = id->idProduct;
--	ucr->cmd_buf = ucr->rsp_buf = ucr->iobuf;
- 
- 	mutex_init(&ucr->dev_mutex);
- 
-@@ -678,9 +681,11 @@ static int rtsx_usb_probe(struct usb_int
- 
- out_init_fail:
- 	usb_set_intfdata(ucr->pusb_intf, NULL);
--	kfree(ucr->iobuf);
--	ucr->iobuf = NULL;
--	ucr->cmd_buf = ucr->rsp_buf = NULL;
-+	kfree(ucr->rsp_buf);
-+	ucr->rsp_buf = NULL;
-+out_free_cmd_buf:
-+	kfree(ucr->cmd_buf);
-+	ucr->cmd_buf = NULL;
- 	return ret;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2776,6 +2776,34 @@ void fbcon_update_vcs(struct fb_info *in
  }
+ EXPORT_SYMBOL(fbcon_update_vcs);
  
-@@ -693,9 +698,12 @@ static void rtsx_usb_disconnect(struct u
- 	mfd_remove_devices(&intf->dev);
- 
- 	usb_set_intfdata(ucr->pusb_intf, NULL);
--	kfree(ucr->iobuf);
--	ucr->iobuf = NULL;
--	ucr->cmd_buf = ucr->rsp_buf = NULL;
++/* let fbcon check if it supports a new screen resolution */
++int fbcon_modechange_possible(struct fb_info *info, struct fb_var_screeninfo *var)
++{
++	struct fbcon_ops *ops = info->fbcon_par;
++	struct vc_data *vc;
++	unsigned int i;
 +
-+	kfree(ucr->cmd_buf);
-+	ucr->cmd_buf = NULL;
++	WARN_CONSOLE_UNLOCKED();
 +
-+	kfree(ucr->rsp_buf);
-+	ucr->rsp_buf = NULL;
- }
- 
- #ifdef CONFIG_PM
---- a/include/linux/rtsx_usb.h
-+++ b/include/linux/rtsx_usb.h
-@@ -65,7 +65,6 @@ struct rtsx_ucr {
- 	struct usb_device	*pusb_dev;
- 	struct usb_interface	*pusb_intf;
- 	struct usb_sg_request	current_sg;
--	unsigned char		*iobuf;
- 
- 	struct timer_list	sg_timer;
- 	struct mutex		dev_mutex;
++	if (!ops)
++		return 0;
++
++	/* prevent setting a screen size which is smaller than font size */
++	for (i = first_fb_vc; i <= last_fb_vc; i++) {
++		vc = vc_cons[i].d;
++		if (!vc || vc->vc_mode != KD_TEXT ||
++			   registered_fb[con2fb_map[i]] != info)
++			continue;
++
++		if (vc->vc_font.width  > FBCON_SWAP(var->rotate, var->xres, var->yres) ||
++		    vc->vc_font.height > FBCON_SWAP(var->rotate, var->yres, var->xres))
++			return -EINVAL;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(fbcon_modechange_possible);
++
+ int fbcon_mode_deleted(struct fb_info *info,
+ 		       struct fb_videomode *mode)
+ {
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1119,7 +1119,9 @@ static long do_fb_ioctl(struct fb_info *
+ 			return -EFAULT;
+ 		console_lock();
+ 		lock_fb_info(info);
+-		ret = fb_set_var(info, &var);
++		ret = fbcon_modechange_possible(info, &var);
++		if (!ret)
++			ret = fb_set_var(info, &var);
+ 		if (!ret)
+ 			fbcon_update_vcs(info, var.activate & FB_ACTIVATE_ALL);
+ 		unlock_fb_info(info);
+--- a/include/linux/fbcon.h
++++ b/include/linux/fbcon.h
+@@ -15,6 +15,8 @@ void fbcon_new_modelist(struct fb_info *
+ void fbcon_get_requirement(struct fb_info *info,
+ 			   struct fb_blit_caps *caps);
+ void fbcon_fb_blanked(struct fb_info *info, int blank);
++int  fbcon_modechange_possible(struct fb_info *info,
++			       struct fb_var_screeninfo *var);
+ void fbcon_update_vcs(struct fb_info *info, bool all);
+ void fbcon_remap_all(struct fb_info *info);
+ int fbcon_set_con2fb_map_ioctl(void __user *argp);
+@@ -33,6 +35,8 @@ static inline void fbcon_new_modelist(st
+ static inline void fbcon_get_requirement(struct fb_info *info,
+ 					 struct fb_blit_caps *caps) {}
+ static inline void fbcon_fb_blanked(struct fb_info *info, int blank) {}
++static inline int  fbcon_modechange_possible(struct fb_info *info,
++				struct fb_var_screeninfo *var) { return 0; }
+ static inline void fbcon_update_vcs(struct fb_info *info, bool all) {}
+ static inline void fbcon_remap_all(struct fb_info *info) {}
+ static inline int fbcon_set_con2fb_map_ioctl(void __user *argp) { return 0; }
 
 
