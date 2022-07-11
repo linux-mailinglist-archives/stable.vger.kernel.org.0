@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5736456FB52
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6500E56FD68
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232421AbiGKJ25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57258 "EHLO
+        id S234073AbiGKJzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:55:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232297AbiGKJ2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C0366B83;
-        Mon, 11 Jul 2022 02:15:59 -0700 (PDT)
+        with ESMTP id S234225AbiGKJy3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:54:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818F9B0269;
+        Mon, 11 Jul 2022 02:26:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55521B80E6D;
-        Mon, 11 Jul 2022 09:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF179C34115;
-        Mon, 11 Jul 2022 09:15:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7A42B80E84;
+        Mon, 11 Jul 2022 09:25:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 179C8C34115;
+        Mon, 11 Jul 2022 09:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530955;
-        bh=8xduzV9XPwv+MRJJNBuvjbGKAF/YIl6fxiUCeWx2Z4Q=;
+        s=korg; t=1657531557;
+        bh=cklb2sVuuc/uXDDNwPufVaIA5HGokBkhDzSFJjd6AJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FeNbjR8toCySRRLL6K6rn7EuTzIWbwEh7Dh8Hv0tz/BToehms2EJAPdFLxNy0fpHy
-         l5br1bn5kfsUzZvYO6k2V2/aUUzJguhGJDOLuAChxudbh5IT97ArOYsvZ+k9V4CpxA
-         EQRCLT/LqBb+dVytw+qjWQoC5aYGly0e0f4QHfbg=
+        b=FyZ4Ixu2yoKE8c3LtIKYLA7YglwAOgc/QS8ywGJy8J/dPQaYWVaSb9kJE716qT9J5
+         ALK19IxynYZPnf4WyxeWukLlQue8olCpTGf6KBHgKejQh7P9BKWduoHkvZX6tgLbv1
+         NEQTIc2C7vHRqk2GGYKRKx5h/VNjdP5inSLab5iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 045/112] ARM: meson: Fix refcount leak in meson_smp_prepare_cpus
+Subject: [PATCH 5.15 149/230] Bluetooth: protect le accept and resolv lists with hdev->lock
 Date:   Mon, 11 Jul 2022 11:06:45 +0200
-Message-Id: <20220711090550.851832759@linuxfoundation.org>
+Message-Id: <20220711090608.287671349@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 34d2cd3fccced12b958b8848e3eff0ee4296764c ]
+[ Upstream commit 5e2b6064cbc5fd582396768c5f9583f65085e368 ]
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+Concurrent operations from events on le_{accept,resolv}_list are
+currently unprotected by hdev->lock.
+Most existing code do already protect the lists with that lock.
+This can be observed in hci_debugfs and hci_sync.
+Add the protection for these events too.
 
-Fixes: d850f3e5d296 ("ARM: meson: Add SMP bringup code for Meson8 and Meson8b")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220512021611.47921-1-linmq006@gmail.com
+Fixes: b950aa88638c ("Bluetooth: Add definitions and track LE resolve list modification")
+Fixes: 0f36b589e4ee ("Bluetooth: Track LE white list modification via HCI commands")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-meson/platsmp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/hci_event.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/arm/mach-meson/platsmp.c b/arch/arm/mach-meson/platsmp.c
-index 4b8ad728bb42..32ac60b89fdc 100644
---- a/arch/arm/mach-meson/platsmp.c
-+++ b/arch/arm/mach-meson/platsmp.c
-@@ -71,6 +71,7 @@ static void __init meson_smp_prepare_cpus(const char *scu_compatible,
- 	}
- 
- 	sram_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!sram_base) {
- 		pr_err("Couldn't map SRAM registers\n");
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 5ac3aca6deeb..2337e9275863 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -1559,7 +1559,9 @@ static void hci_cc_le_clear_accept_list(struct hci_dev *hdev,
+ 	if (status)
  		return;
-@@ -91,6 +92,7 @@ static void __init meson_smp_prepare_cpus(const char *scu_compatible,
- 	}
  
- 	scu_base = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!scu_base) {
- 		pr_err("Couldn't map SCU registers\n");
++	hci_dev_lock(hdev);
+ 	hci_bdaddr_list_clear(&hdev->le_accept_list);
++	hci_dev_unlock(hdev);
+ }
+ 
+ static void hci_cc_le_add_to_accept_list(struct hci_dev *hdev,
+@@ -1577,8 +1579,10 @@ static void hci_cc_le_add_to_accept_list(struct hci_dev *hdev,
+ 	if (!sent)
  		return;
+ 
++	hci_dev_lock(hdev);
+ 	hci_bdaddr_list_add(&hdev->le_accept_list, &sent->bdaddr,
+ 			    sent->bdaddr_type);
++	hci_dev_unlock(hdev);
+ }
+ 
+ static void hci_cc_le_del_from_accept_list(struct hci_dev *hdev,
+@@ -1596,8 +1600,10 @@ static void hci_cc_le_del_from_accept_list(struct hci_dev *hdev,
+ 	if (!sent)
+ 		return;
+ 
++	hci_dev_lock(hdev);
+ 	hci_bdaddr_list_del(&hdev->le_accept_list, &sent->bdaddr,
+ 			    sent->bdaddr_type);
++	hci_dev_unlock(hdev);
+ }
+ 
+ static void hci_cc_le_read_supported_states(struct hci_dev *hdev,
+@@ -1661,9 +1667,11 @@ static void hci_cc_le_add_to_resolv_list(struct hci_dev *hdev,
+ 	if (!sent)
+ 		return;
+ 
++	hci_dev_lock(hdev);
+ 	hci_bdaddr_list_add_with_irk(&hdev->le_resolv_list, &sent->bdaddr,
+ 				sent->bdaddr_type, sent->peer_irk,
+ 				sent->local_irk);
++	hci_dev_unlock(hdev);
+ }
+ 
+ static void hci_cc_le_del_from_resolv_list(struct hci_dev *hdev,
+@@ -1681,8 +1689,10 @@ static void hci_cc_le_del_from_resolv_list(struct hci_dev *hdev,
+ 	if (!sent)
+ 		return;
+ 
++	hci_dev_lock(hdev);
+ 	hci_bdaddr_list_del_with_irk(&hdev->le_resolv_list, &sent->bdaddr,
+ 			    sent->bdaddr_type);
++	hci_dev_unlock(hdev);
+ }
+ 
+ static void hci_cc_le_clear_resolv_list(struct hci_dev *hdev,
+@@ -1695,7 +1705,9 @@ static void hci_cc_le_clear_resolv_list(struct hci_dev *hdev,
+ 	if (status)
+ 		return;
+ 
++	hci_dev_lock(hdev);
+ 	hci_bdaddr_list_clear(&hdev->le_resolv_list);
++	hci_dev_unlock(hdev);
+ }
+ 
+ static void hci_cc_le_read_resolv_list_size(struct hci_dev *hdev,
 -- 
 2.35.1
 
