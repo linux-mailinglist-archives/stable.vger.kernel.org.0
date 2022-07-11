@@ -2,185 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8772B570E3C
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 01:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0548570EF1
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 02:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231506AbiGKXZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 19:25:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45690 "EHLO
+        id S230395AbiGLAds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 20:33:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230105AbiGKXZD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 19:25:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF947B34E;
-        Mon, 11 Jul 2022 16:25:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB7ABB81628;
-        Mon, 11 Jul 2022 23:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF81C341C8;
-        Mon, 11 Jul 2022 23:24:58 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="CttgkQrL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1657581898;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=s3ZWXFpSLw1Egru9zwBfQoIZtWCngWwCiA7KZG1VwQ0=;
-        b=CttgkQrLrSDSjhJmz8NDXtiAxccC4t7n/WfbBVSBI2XIWHOLa//9hItdww4pzUvxGfTyEU
-        qCyTWcp7lRrraQv30LtjMc6WRyx6PIseNn11DlDJ4xr/HasAN5d2XYnYskDkZhxjammEUi
-        roKECX+DbC0UQckAFqWkk/yENNqiwa8=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 03227f56 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 11 Jul 2022 23:24:57 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linuxppc-dev@lists.ozlabs.org, mpe@ellerman.id.au,
-        sachinp@linux.ibm.com, linux-kernel@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
-Subject: [PATCH v5 2/2] powerpc/kvm: don't crash on missing rng, and use darn
-Date:   Tue, 12 Jul 2022 01:24:48 +0200
-Message-Id: <20220711232448.136765-3-Jason@zx2c4.com>
-In-Reply-To: <20220711232448.136765-1-Jason@zx2c4.com>
-References: <20220711232448.136765-1-Jason@zx2c4.com>
+        with ESMTP id S229690AbiGLAdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 20:33:47 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5C271261A
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 17:33:44 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id g4so6198588pgc.1
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 17:33:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ti0C5xab/5kDqDKYjHrnv6fD7vOYV0VSIifA6sunqqM=;
+        b=XORqPXdxn8L1WpRMLVZeoGz+I3la1Lzf/Ogve9kYHbmy+kM/Pr8ry1/D7p5jN/BrQN
+         oYGgElFHZjnGR6neB7LhDwVbxCbNSacPtkNWbJzacIdhVxanV4cCpqZW8NGRtDpuCc5M
+         fIDDKVJdOtsmskgmTMoxnJsQDuOz86qIcUaANSciwpk+Bs1f3yCZkWuFGbYlIeDNiXtW
+         kCupp0WUX2MC0I2KDchdSS3S5BEOhxfO3YbzVr6PuRoqNypwsQ2av44cK4EnpoTkVmHI
+         S95UTC/j8QFjUw8vt9DE11hf5vafBcZx6JpSEXVYg8adgtIkocg1UNsL3rUY1xK9eb9H
+         CzIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ti0C5xab/5kDqDKYjHrnv6fD7vOYV0VSIifA6sunqqM=;
+        b=ZaENd66Pg2ADHWtmsauGLQYpeTyEQud/ax5U4oCItXZa+RXKuHe9kn/ITUlPe1U/fr
+         Ru9dw6LtDVtfeYaNCDfEBkIj+XxdBLScVhGrZ9oFvHhrYRbZsFKrKzHt6GcEq/vch0zY
+         wyZOpwPqs3ZHcuIMJPjyGzPyvwuCbbkYQy+zdZpaAtzgH0dIcoTIAjQ85X8ryiSA0HCH
+         iCZ80qmdsV9mty7mO4vk8ROp/k+csCMoCSbJZoJcCNkPDOeQ5N8LZrpyASs8jLelvv5x
+         I8E81vlxNhqfQ0OmzAXIDHj62ruQkcH3KcRMOpptO6JuzRvjpwIG8t5QJAYhLzZlfEJe
+         8IWg==
+X-Gm-Message-State: AJIora/Th/tF/G1oOoxBsCc1hfX87zSunxlE+/IXuJHpI4o1oLOdpthe
+        8dMikUOd/wFe1BS1VZWvvuM=
+X-Google-Smtp-Source: AGRyM1u8mq01hXRym4iEcmpnDSmqpJXy216tb9zXA+hUsAi2nNnAklahyKOPDSahKlwEDJGgKhy+/w==
+X-Received: by 2002:a05:6a00:889:b0:510:91e6:6463 with SMTP id q9-20020a056a00088900b0051091e66463mr20757829pfj.58.1657586023850;
+        Mon, 11 Jul 2022 17:33:43 -0700 (PDT)
+Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id p2-20020a170902e74200b0016be596c8afsm5383138plf.282.2022.07.11.17.33.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Jul 2022 17:33:43 -0700 (PDT)
+From:   Nadav Amit <nadav.amit@gmail.com>
+X-Google-Original-From: Nadav Amit
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
+        James Houghton <jthoughton@google.com>,
+        Peter Xu <peterx@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>, Jan Kara <jack@suse.cz>,
+        Andrea Arcangeli <aarcange@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] userfaultfd: provide properly masked address for huge-pages
+Date:   Mon, 11 Jul 2022 09:59:06 -0700
+Message-Id: <20220711165906.2682-1-namit@vmware.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-0.5 required=5.0 tests=BAYES_00,DATE_IN_PAST_06_12,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On POWER8 systems that don't have ibm,power-rng available, a guest that
-ignores the KVM_CAP_PPC_HWRNG flag and calls H_RANDOM anyway will
-dereference a NULL pointer. And on machines with darn instead of
-ibm,power-rng, H_RANDOM won't work at all.
+From: Nadav Amit <namit@vmware.com>
 
-This patch kills two birds with one stone, by routing H_RANDOM calls to
-ppc_md.get_random_seed, and doing the real mode check inside of it.
+Commit 824ddc601adc ("userfaultfd: provide unmasked address on
+page-fault") was introduced to fix an old bug, in which the offset in
+the address of a page-fault was masked. Concerns were raised - although
+were never backed by actual code - that some userspace code might break
+because the bug has been around for quite a while. To address these
+concerns a new flag was introduced, and only when this flag is set by
+the user, userfaultfd provides the exact address of the page-fault.
 
-Cc: stable@vger.kernel.org # v4.1+
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+The commit however had a bug, and if the flag is unset, the offset was
+always masked based on a base-page granularity. Yet, for huge-pages, the
+behavior prior to the commit was that the address is masked to the
+huge-page granulrity.
+
+While there are no reports on real breakage, fix this issue. If the flag
+is unset, use the address with the masking that was done before.
+
+Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
+Reported-by: James Houghton <jthoughton@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Nadav Amit <namit@vmware.com>
 ---
- arch/powerpc/include/asm/archrandom.h |  5 ----
- arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
- arch/powerpc/platforms/powernv/rng.c  | 34 +++++++--------------------
- 3 files changed, 12 insertions(+), 34 deletions(-)
+ fs/userfaultfd.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index 11d4815841ab..3af27bb84a3d 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- #endif /* CONFIG_ARCH_RANDOM */
- 
- #ifdef CONFIG_PPC_POWERNV
--int pnv_hwrng_present(void);
- int pnv_get_random_long(unsigned long *v);
--int pnv_get_random_real_mode(unsigned long *v);
--#else
--static inline int pnv_hwrng_present(void) { return 0; }
--static inline int pnv_get_random_real_mode(unsigned long *v) { return 0; }
- #endif
- 
- #endif /* _ASM_POWERPC_ARCHRANDOM_H */
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 799d40c2ab4f..3abaef5f9ac2 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -19,7 +19,7 @@
- #include <asm/interrupt.h>
- #include <asm/kvm_ppc.h>
- #include <asm/kvm_book3s.h>
--#include <asm/archrandom.h>
-+#include <asm/machdep.h>
- #include <asm/xics.h>
- #include <asm/xive.h>
- #include <asm/dbell.h>
-@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
- 
- int kvmppc_hwrng_present(void)
- {
--	return pnv_hwrng_present();
-+	return ppc_md.get_random_seed != NULL;
- }
- EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
- 
- long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
- {
--	if (pnv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
-+	if (ppc_md.get_random_seed &&
-+	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
- 		return H_SUCCESS;
- 
- 	return H_HARDWARE;
-diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-index b5cd82eab9b3..196aa70fe043 100644
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -29,15 +29,6 @@ struct pnv_rng {
- 
- static DEFINE_PER_CPU(struct pnv_rng *, pnv_rng);
- 
--int pnv_hwrng_present(void)
--{
--	struct pnv_rng *rng;
--
--	rng = get_cpu_var(pnv_rng);
--	put_cpu_var(rng);
--	return rng != NULL;
--}
--
- static unsigned long rng_whiten(struct pnv_rng *rng, unsigned long val)
- {
- 	unsigned long parity;
-@@ -58,17 +49,6 @@ static unsigned long rng_whiten(struct pnv_rng *rng, unsigned long val)
- 	return val;
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index e943370107d0..de86f5b2859f 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_msg *msg)
  }
  
--int pnv_get_random_real_mode(unsigned long *v)
--{
--	struct pnv_rng *rng;
--
--	rng = raw_cpu_read(pnv_rng);
--
--	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
--
--	return 1;
--}
--
- static int pnv_get_random_darn(unsigned long *v)
+ static inline struct uffd_msg userfault_msg(unsigned long address,
++					    unsigned long real_address,
+ 					    unsigned int flags,
+ 					    unsigned long reason,
+ 					    unsigned int features)
  {
- 	unsigned long val;
-@@ -105,12 +85,14 @@ int pnv_get_random_long(unsigned long *v)
- {
- 	struct pnv_rng *rng;
+ 	struct uffd_msg msg;
++
+ 	msg_init(&msg);
+ 	msg.event = UFFD_EVENT_PAGEFAULT;
  
--	rng = get_cpu_var(pnv_rng);
--
--	*v = rng_whiten(rng, in_be64(rng->regs));
--
--	put_cpu_var(rng);
--
-+	if (mfmsr() & MSR_DR) {
-+		rng = get_cpu_var(pnv_rng);
-+		*v = rng_whiten(rng, in_be64(rng->regs));
-+		put_cpu_var(rng);
-+	} else {
-+		rng = raw_cpu_read(pnv_rng);
-+		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
-+	}
- 	return 1;
- }
- EXPORT_SYMBOL_GPL(pnv_get_random_long);
+-	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
+-		address &= PAGE_MASK;
+-	msg.arg.pagefault.address = address;
++	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
++				    real_address : address;
++
+ 	/*
+ 	 * These flags indicate why the userfault occurred:
+ 	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
+@@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
+ 
+ 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
+ 	uwq.wq.private = current;
+-	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
+-			ctx->features);
++	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
++				reason, ctx->features);
+ 	uwq.ctx = ctx;
+ 	uwq.waken = false;
+ 
 -- 
-2.35.1
+2.25.1
 
