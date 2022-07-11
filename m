@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC63056FBF9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1B456FA6A
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbiGKJhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50892 "EHLO
+        id S231484AbiGKJR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232956AbiGKJg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:36:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E576B1263D;
-        Mon, 11 Jul 2022 02:19:12 -0700 (PDT)
+        with ESMTP id S231518AbiGKJRG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:17:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686D343E77;
+        Mon, 11 Jul 2022 02:11:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93F47B80833;
-        Mon, 11 Jul 2022 09:19:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F225BC34115;
-        Mon, 11 Jul 2022 09:19:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98EB46111F;
+        Mon, 11 Jul 2022 09:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F620C34115;
+        Mon, 11 Jul 2022 09:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531150;
-        bh=SbQjTmkrJEcRV6QDAy0fMtAN5mBYr4UruzKauaQHEWQ=;
+        s=korg; t=1657530672;
+        bh=us7sw7URxp75xenIgNQ7lFfzcoPjklJXCLOWqPPJNQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnWobTUqrpUNoh4yIc7ZOAH1Csn45+4icUWx7/pwYtD9ozeufpTWafkPfdBz9n0FD
-         0QhYJ3YMKAs7l7gGWPUuomtIvpUn0RsDLEtwOZdtNcHgVGZi6VX45DHvROjELsQfFH
-         axJFG08r/krb4NEnre+BoNRNuoZ3Jl6t/9rl05Ho=
+        b=yNBkdIBO2AzO77DtsuSaowzBVY89AIuUwXPIsN6AHVsQO/7bC1ToRn/NoIjdpsVUX
+         7k0Z3cnLupApkQHa7DObcmXZ7lhJobwQVYnNc8OURV76Qba0E5zg33oUEYsyE8GiNb
+         2ljWYlBdM8YMTfwYtxLCL0OL+dV+haQdFQMJpI0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Norbert Zulinski <norbertx.zulinski@intel.com>,
-        Jan Sokolowski <jan.sokolowski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 079/112] i40e: Fix VFs MAC Address change on VM
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 37/38] dmaengine: ti: Fix refcount leak in ti_dra7_xbar_route_allocate
 Date:   Mon, 11 Jul 2022 11:07:19 +0200
-Message-Id: <20220711090551.814223026@linuxfoundation.org>
+Message-Id: <20220711090539.818277812@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Zulinski <norbertx.zulinski@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit fed0d9f13266a22ce1fc9a97521ef9cdc6271a23 ]
+commit c132fe78ad7b4ce8b5d49a501a15c29d08eeb23a upstream.
 
-Clear VF MAC from parent PF and remove VF filter from VSI when both
-conditions are true:
--VIRTCHNL_VF_OFFLOAD_USO is not used
--VM MAC was not set from PF level
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not needed anymore.
 
-It affects older version of IAVF and it allow them to change MAC
-Address on VM, newer IAVF won't change their behaviour.
+Add missing of_node_put() in to fix this.
 
-Previously it wasn't possible to change VF's MAC Address on VM
-because there is flag on IAVF driver that won't allow to
-change MAC Address if this address is given from PF driver.
-
-Fixes: 155f0ac2c96b ("iavf: allow permanent MAC address to change")
-Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ec9bfa1e1a79 ("dmaengine: ti-dma-crossbar: dra7: Use bitops instead of idr")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220605042723.17668-2-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma/ti/dma-crossbar.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 033ea71763e3..86b0f21287dc 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2147,6 +2147,10 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
- 		/* VFs only use TC 0 */
- 		vfres->vsi_res[0].qset_handle
- 					  = le16_to_cpu(vsi->info.qs_handle[0]);
-+		if (!(vf->driver_caps & VIRTCHNL_VF_OFFLOAD_USO) && !vf->pf_set_mac) {
-+			i40e_del_mac_filter(vsi, vf->default_lan_addr.addr);
-+			eth_zero_addr(vf->default_lan_addr.addr);
-+		}
- 		ether_addr_copy(vfres->vsi_res[0].default_mac_addr,
- 				vf->default_lan_addr.addr);
+--- a/drivers/dma/ti/dma-crossbar.c
++++ b/drivers/dma/ti/dma-crossbar.c
+@@ -270,6 +270,7 @@ static void *ti_dra7_xbar_route_allocate
+ 		mutex_unlock(&xbar->mutex);
+ 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
+ 		kfree(map);
++		of_node_put(dma_spec->np);
+ 		return ERR_PTR(-ENOMEM);
  	}
--- 
-2.35.1
-
+ 	set_bit(map->xbar_out, xbar->dma_inuse);
 
 
