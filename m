@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488CB56FCFA
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:49:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF89A56FCF6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233526AbiGKJtk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:49:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
+        id S233529AbiGKJtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:49:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233771AbiGKJtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:49:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45D3174353;
-        Mon, 11 Jul 2022 02:23:53 -0700 (PDT)
+        with ESMTP id S233791AbiGKJtP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:49:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFFC7AB23;
+        Mon, 11 Jul 2022 02:23:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37568612B7;
-        Mon, 11 Jul 2022 09:23:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF84C34115;
-        Mon, 11 Jul 2022 09:23:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 129FD6134C;
+        Mon, 11 Jul 2022 09:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11106C34115;
+        Mon, 11 Jul 2022 09:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531432;
-        bh=zigCpVn/B3vzOaksBD336+TQT3rmGIw/ZQWAKwCVs9c=;
+        s=korg; t=1657531435;
+        bh=3I3gg384dMTs0wQ0ZdufSMp00jh+Tq4Oo6AjInUC+LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZH2WKAKy1p27LcfOOTP4EiPA7UwaLAgpCPywtQdyT5OhYSmJN6UX9e/4UZcFaf9+S
-         JKjqHxXUiJeDDdGNIWxJqjpAfMtAoLakjbT3vPfbQN2EQ+nC/OXE3LcloAOoo/3NDf
-         Pqpy+/lmCZuqvDhHHvsFJXV1R35Kdskbcr1IghsU=
+        b=vMnf0XQbh2ccrstp3v/SOgVnSvcgCtfjqcQh3PcTcx4cROfOC9IwseNA4n+LzctAz
+         I8vLdWhxrSfsrnP6jiuNLQYOgqO4OPWaQoWLggLfwKganiNi3pOjU5Xg0Y4RIiXHmq
+         Ywzl7B7yMljvRybram6pMWYHRa927HVQiZwb+PO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        stable@vger.kernel.org, Marco Patalano <mpatalan@redhat.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/230] KVM: s390x: fix SCK locking
-Date:   Mon, 11 Jul 2022 11:06:00 +0200
-Message-Id: <20220711090607.019176476@linuxfoundation.org>
+Subject: [PATCH 5.15 105/230] scsi: qla2xxx: Fix loss of NVMe namespaces after driver reload test
+Date:   Mon, 11 Jul 2022 11:06:01 +0200
+Message-Id: <20220711090607.046745625@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,133 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit c0573ba5c5a2244dc02060b1f374d4593c1d20b7 ]
+[ Upstream commit db212f2eb3fb7f546366777e93c8f54614d39269 ]
 
-When handling the SCK instruction, the kvm lock is taken, even though
-the vcpu lock is already being held. The normal locking order is kvm
-lock first and then vcpu lock. This is can (and in some circumstances
-does) lead to deadlocks.
+Driver registration of localport can race when it happens at the remote
+port discovery time. Fix this by calling the registration under a mutex.
 
-The function kvm_s390_set_tod_clock is called both by the SCK handler
-and by some IOCTLs to set the clock. The IOCTLs will not hold the vcpu
-lock, so they can safely take the kvm lock. The SCK handler holds the
-vcpu lock, but will also somehow need to acquire the kvm lock without
-relinquishing the vcpu lock.
-
-The solution is to factor out the code to set the clock, and provide
-two wrappers. One is called like the original function and does the
-locking, the other is called kvm_s390_try_set_tod_clock and uses
-trylock to try to acquire the kvm lock. This new wrapper is then used
-in the SCK handler. If locking fails, -EAGAIN is returned, which is
-eventually propagated to userspace, thus also freeing the vcpu lock and
-allowing for forward progress.
-
-This is not the most efficient or elegant way to solve this issue, but
-the SCK instruction is deprecated and its performance is not critical.
-
-The goal of this patch is just to provide a simple but correct way to
-fix the bug.
-
-Fixes: 6a3f95a6b04c ("KVM: s390: Intercept SCK instruction")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220301143340.111129-1-imbrenda@linux.ibm.com
+Link: https://lore.kernel.org/r/20220310092604.22950-4-njavali@marvell.com
+Fixes: e84067d74301 ("scsi: qla2xxx: Add FC-NVMe F/W initialization and transport registration")
 Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Tested-by: Marco Patalano <mpatalan@redhat.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 19 ++++++++++++++++---
- arch/s390/kvm/kvm-s390.h |  4 ++--
- arch/s390/kvm/priv.c     | 15 ++++++++++++++-
- 3 files changed, 32 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_nvme.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 402597f9d050..b456aa196c04 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3913,14 +3913,12 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	return 0;
- }
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index 42b29f4fd937..1bf3ab10846a 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -775,7 +775,6 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
+ 	ha = vha->hw;
+ 	tmpl = &qla_nvme_fc_transport;
  
--void kvm_s390_set_tod_clock(struct kvm *kvm,
--			    const struct kvm_s390_vm_tod_clock *gtod)
-+static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
- {
- 	struct kvm_vcpu *vcpu;
- 	union tod_clock clk;
- 	int i;
+-	WARN_ON(vha->nvme_local_port);
  
--	mutex_lock(&kvm->lock);
- 	preempt_disable();
+ 	qla_nvme_fc_transport.max_hw_queues =
+ 	    min((uint8_t)(qla_nvme_fc_transport.max_hw_queues),
+@@ -786,13 +785,25 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
+ 	pinfo.port_role = FC_PORT_ROLE_NVME_INITIATOR;
+ 	pinfo.port_id = vha->d_id.b24;
  
- 	store_tod_clock_ext(&clk);
-@@ -3941,7 +3939,22 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
- 
- 	kvm_s390_vcpu_unblock_all(kvm);
- 	preempt_enable();
-+}
-+
-+void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
-+{
-+	mutex_lock(&kvm->lock);
-+	__kvm_s390_set_tod_clock(kvm, gtod);
-+	mutex_unlock(&kvm->lock);
-+}
-+
-+int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
-+{
-+	if (!mutex_trylock(&kvm->lock))
-+		return 0;
-+	__kvm_s390_set_tod_clock(kvm, gtod);
- 	mutex_unlock(&kvm->lock);
-+	return 1;
- }
- 
- /**
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 1539dd981104..f8803bf0ff17 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -326,8 +326,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
--void kvm_s390_set_tod_clock(struct kvm *kvm,
--			    const struct kvm_s390_vm_tod_clock *gtod);
-+void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
-+int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
- long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 417154b314a6..6a765fe22eaf 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -102,7 +102,20 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 
- 	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
--	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
+-	ql_log(ql_log_info, vha, 0xffff,
+-	    "register_localport: host-traddr=nn-0x%llx:pn-0x%llx on portID:%x\n",
+-	    pinfo.node_name, pinfo.port_name, pinfo.port_id);
+-	qla_nvme_fc_transport.dma_boundary = vha->host->dma_boundary;
+-
+-	ret = nvme_fc_register_localport(&pinfo, tmpl,
+-	    get_device(&ha->pdev->dev), &vha->nvme_local_port);
++	mutex_lock(&ha->vport_lock);
 +	/*
-+	 * To set the TOD clock the kvm lock must be taken, but the vcpu lock
-+	 * is already held in handle_set_clock. The usual lock order is the
-+	 * opposite.  As SCK is deprecated and should not be used in several
-+	 * cases, for example when the multiple epoch facility or TOD clock
-+	 * steering facility is installed (see Principles of Operation),  a
-+	 * slow path can be used.  If the lock can not be taken via try_lock,
-+	 * the instruction will be retried via -EAGAIN at a later point in
-+	 * time.
++	 * Check again for nvme_local_port to see if any other thread raced
++	 * with this one and finished registration.
 +	 */
-+	if (!kvm_s390_try_set_tod_clock(vcpu->kvm, &gtod)) {
-+		kvm_s390_retry_instr(vcpu);
-+		return -EAGAIN;
++	if (!vha->nvme_local_port) {
++		ql_log(ql_log_info, vha, 0xffff,
++		    "register_localport: host-traddr=nn-0x%llx:pn-0x%llx on portID:%x\n",
++		    pinfo.node_name, pinfo.port_name, pinfo.port_id);
++		qla_nvme_fc_transport.dma_boundary = vha->host->dma_boundary;
++
++		ret = nvme_fc_register_localport(&pinfo, tmpl,
++						 get_device(&ha->pdev->dev),
++						 &vha->nvme_local_port);
++		mutex_unlock(&ha->vport_lock);
++	} else {
++		mutex_unlock(&ha->vport_lock);
++		return 0;
 +	}
- 
- 	kvm_s390_set_psw_cc(vcpu, 0);
- 	return 0;
+ 	if (ret) {
+ 		ql_log(ql_log_warn, vha, 0xffff,
+ 		    "register_localport failed: ret=%x\n", ret);
 -- 
 2.35.1
 
