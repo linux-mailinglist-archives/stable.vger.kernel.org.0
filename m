@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F49F56FD5D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B7F56FB9E
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233648AbiGKJye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:54:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39012 "EHLO
+        id S231840AbiGKJd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:33:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233943AbiGKJx5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:53:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4294AEF53;
-        Mon, 11 Jul 2022 02:25:42 -0700 (PDT)
+        with ESMTP id S232268AbiGKJcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FDA978216;
+        Mon, 11 Jul 2022 02:17:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9487D6136F;
-        Mon, 11 Jul 2022 09:25:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F6C1C36AED;
-        Mon, 11 Jul 2022 09:25:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3E5861227;
+        Mon, 11 Jul 2022 09:17:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5AB1C34115;
+        Mon, 11 Jul 2022 09:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531541;
-        bh=nY92Q6t9HQ1EGT2GXplwzbOzFAiJHfULIB3VSs63zjY=;
+        s=korg; t=1657531053;
+        bh=SKoJobLuXWL5FRX92QKZJyelch0U0Zzj/8c/a3u1sTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wgko3kNsBIzDMdOsWkE0CyVbcojpPg6XqkMicw5x20s1dVk9X0lk0HXhILEHYJY2P
-         p4DL36uH8ZvW2d5XAd1TYIM52MpvHXd/gJxf5c6j6sXdA9XhRqEiKzdyK8jq1ZFWPH
-         KdxOZ3lbO7su0vO1T4OmlONJXfGTKagbqcTxjK1Q=
+        b=XT3B5120QJweKUh2APK5Kw4i1qYi5ETHd85UOdUFIYW6mOCHhi/UFyzxdKfmcKBu2
+         RkWhLhNhKFlRvKf5xHL4f3CaJd906T/26tzxjqKaX7n1TE5i587pJH7U2dKnWZpns7
+         Irw+Lrn3HGM0JEbE0ZG+VUBHv2NiDabfrwCeV2DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 143/230] drm/i915: Fix a race between vma / object destruction and unbinding
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.18 039/112] memregion: Fix memregion_free() fallback definition
 Date:   Mon, 11 Jul 2022 11:06:39 +0200
-Message-Id: <20220711090608.119577076@linuxfoundation.org>
+Message-Id: <20220711090550.682502815@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit bc1922e5d349db4be14c55513102c024c2ae8a50 ]
+commit f50974eee5c4a5de1e4f1a3d873099f170df25f8 upstream.
 
-The vma destruction code was using an unlocked advisory check for
-drm_mm_node_allocated() to avoid racing with eviction code unbinding
-the vma.
+In the CONFIG_MEMREGION=n case, memregion_free() is meant to be a static
+inline. 0day reports:
 
-This is very fragile and prohibits the dereference of non-refcounted
-pointers of dying vmas after a call to __i915_vma_unbind(). It also
-prohibits the dereference of vma->obj of refcounted pointers of
-dying vmas after a call to __i915_vma_unbind(), since even if a
-refcount is held on the vma, that won't guarantee that its backing
-object doesn't get destroyed.
+    In file included from drivers/cxl/core/port.c:4:
+    include/linux/memregion.h:19:6: warning: no previous prototype for
+    function 'memregion_free' [-Wmissing-prototypes]
 
-So introduce an unbind under the vm mutex at object destroy time,
-removing all weak references of the vma and its object from the
-object vma list and from the vm bound list.
+Mark memregion_free() static.
 
-Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220127115622.302970-1-thomas.hellstrom@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 33dd70752cd7 ("lib: Uplevel the pmem "region" ida to a global allocator")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Alison Schofield <alison.schofield@intel.com>
+Link: https://lore.kernel.org/r/165601455171.4042645.3350844271068713515.stgit@dwillia2-xfh
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_object.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/memregion.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.c b/drivers/gpu/drm/i915/gem/i915_gem_object.c
-index 6fb9afb65034..5f48d5ea5c15 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
-@@ -224,6 +224,12 @@ void __i915_gem_free_object(struct drm_i915_gem_object *obj)
- 			GEM_BUG_ON(vma->obj != obj);
- 			spin_unlock(&obj->vma.lock);
- 
-+			/* Verify that the vma is unbound under the vm mutex. */
-+			mutex_lock(&vma->vm->mutex);
-+			atomic_and(~I915_VMA_PIN_MASK, &vma->flags);
-+			__i915_vma_unbind(vma);
-+			mutex_unlock(&vma->vm->mutex);
-+
- 			__i915_vma_put(vma);
- 
- 			spin_lock(&obj->vma.lock);
--- 
-2.35.1
-
+--- a/include/linux/memregion.h
++++ b/include/linux/memregion.h
+@@ -16,7 +16,7 @@ static inline int memregion_alloc(gfp_t
+ {
+ 	return -ENOMEM;
+ }
+-void memregion_free(int id)
++static inline void memregion_free(int id)
+ {
+ }
+ #endif
 
 
