@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8C656D322
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 04:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 667F756D325
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 04:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229615AbiGKC61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Jul 2022 22:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51502 "EHLO
+        id S229637AbiGKC7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Jul 2022 22:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbiGKC61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Jul 2022 22:58:27 -0400
+        with ESMTP id S229463AbiGKC7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Jul 2022 22:59:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14EED183B2;
-        Sun, 10 Jul 2022 19:58:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 351341134;
+        Sun, 10 Jul 2022 19:59:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A41CE610A5;
-        Mon, 11 Jul 2022 02:58:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B52FEC3411E;
-        Mon, 11 Jul 2022 02:58:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5372610E7;
+        Mon, 11 Jul 2022 02:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01B4C3411E;
+        Mon, 11 Jul 2022 02:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657508305;
-        bh=mmzu+3RIbbjsvsQseQSuOMNS9081b8ihQtLBFtiaV1g=;
+        s=k20201202; t=1657508370;
+        bh=IzH5LW9SfJuIzkKecrju8ZriX6rvi9ne+jAVO+HAdRg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TzZ6hq/CRotSlIG+f0arkyNzb7WiXnBJzvAMHuWRRWmOGNXfQlY7pwpiHfKeuf5Z8
-         Teu6DUIpqLMMNseMOQE06CmlLm2U8FLkLV7eZcW7k3bsy7cWQJ8Unfp98rwFTJGZEk
-         vqtgUC4WuakddfS83+qbHBpvuN04Y0sag2UzK6WLkzxYZEjtmarOwbCwfOpuiFDCbU
-         P7yrgahApOBw0pIU1Ts59pns2O+YXyeqLremrQNz4za5Omuz/X0HhoSDeHEy+q81Rn
-         ASk+hOP9LkCncwlJWhXN2zGzzs+GYa8xOuoP+UJYttruqYneXXTSOePYZ9ydSuC4dm
-         1BUtvysP2ylKA==
-Date:   Mon, 11 Jul 2022 05:58:20 +0300
+        b=QfYAVUU76Dmfz1CEMa1gEFRYnV8Vg/3shiPxp/2Zf4yw15BpELzFgCynIWOie75tf
+         JYpj4Oj3376apRXRVXNiBUahi82sep9JCQkPHbP/CvfOfCEjhA9UE4OiZItEY4UOE2
+         PQ1NkelcbzULlLMVlTNfU3560qloclwqgTAn49UM8v9CND58vMgfxz0W2poGOfjoLP
+         U0kppS1KuIyw5ZCG7xRAy1trkWToaKnlPZRqGXU2KIlCH2g6MWOAo6StyM9moEfH3U
+         mLYZvDEepRt6ExwCDSjEHGH1u+NO+Pq6cwgJd/25OL/OxbEN/METibwgbXnRFew6Um
+         AktsV6dIrTJ2A==
+Date:   Mon, 11 Jul 2022 05:59:25 +0300
 From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Jason Andryuk <jandryuk@gmail.com>
+To:     Huacai Chen <chenhuacai@loongson.cn>
 Cc:     Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Chen Jun <chenjun102@huawei.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        stable@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tpm_tis: Hold locality open during probe
-Message-ID: <YsuRzGBss/lMG2+W@kernel.org>
-References: <20220706164043.417780-1-jandryuk@gmail.com>
+        linux-integrity@vger.kernel.org,
+        Xuefeng Li <lixuefeng@loongson.cn>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>, stable@vger.kernel.org,
+        WANG Xuerui <git@xen0n.name>
+Subject: Re: [PATCH V2] tpm: eventlog: Fix section mismatch for
+ DEBUG_SECTION_MISMATCH
+Message-ID: <YsuSDe+Pn0QRN8di@kernel.org>
+References: <20220711011738.3219487-1-chenhuacai@loongson.cn>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220706164043.417780-1-jandryuk@gmail.com>
+In-Reply-To: <20220711011738.3219487-1-chenhuacai@loongson.cn>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -56,109 +58,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 06, 2022 at 12:40:43PM -0400, Jason Andryuk wrote:
-> WEC TPMs (in 1.2 mode) and NTC (in 2.0 mode) have been observer to
-> frequently, but intermittently, fail probe with:
-> tpm_tis: probe of 00:09 failed with error -1
+On Mon, Jul 11, 2022 at 09:17:38AM +0800, Huacai Chen wrote:
+> If DEBUG_SECTION_MISMATCH enabled, __calc_tpm2_event_size() will not be
+> inlined, this cause section mismatch like this:
 > 
-> Added debugging output showed that the request_locality in
-> tpm_tis_core_init succeeds, but then the tpm_chip_start fails when its
-> call to tpm_request_locality -> request_locality fails.
+> WARNING: modpost: vmlinux.o(.text.unlikely+0xe30c): Section mismatch in reference from the variable L0 to the function .init.text:early_ioremap()
+> The function L0() references
+> the function __init early_memremap().
+> This is often because L0 lacks a __init
+> annotation or the annotation of early_ioremap is wrong.
 > 
-> The access register in check_locality would show:
-> 0x80 TPM_ACCESS_VALID
-> 0x82 TPM_ACCESS_VALID | TPM_ACCESS_REQUEST_USE
-> 0x80 TPM_ACCESS_VALID
-> continuing until it times out. TPM_ACCESS_ACTIVE_LOCALITY (0x20) doesn't
-> get set which would end the wait.
+> Fix it by using __always_inline instead of inline for the called-once
+> function __calc_tpm2_event_size().
 > 
-> My best guess is something racy was going on between release_locality's
-> write and request_locality's write.  There is no wait in
-> release_locality to ensure that the locality is released, so the
-> subsequent request_locality could confuse the TPM?
-> 
-> tpm_chip_start grabs locality 0, and updates chip->locality.  Call that
-> before the TPM_INT_ENABLE write, and drop the explicit request/release
-> calls.  tpm_chip_stop performs the release.  With this, we switch to
-> using chip->locality instead of priv->locality.  The probe failure is
-> not seen after this.
-> 
-> commit 0ef333f5ba7f ("tpm: add request_locality before write
-> TPM_INT_ENABLE") added a request_locality/release_locality pair around
-> tpm_tis_write32 TPM_INT_ENABLE, but there is a read of
-> TPM_INT_ENABLE for the intmask which should also have the locality
-> grabbed.  tpm_chip_start is moved before that to have the locality open
-> during the read.
-> 
-> Fixes: 0ef333f5ba7f ("tpm: add request_locality before write TPM_INT_ENABLE")
-> CC: stable@vger.kernel.org
-> Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+> Fixes: 44038bc514a2 ("tpm: Abstract crypto agile event size calculations")
+> Cc: stable@vger.kernel.org
+> Reported-by: WANG Xuerui <git@xen0n.name>
+> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
 > ---
-> The probe failure was seen on 5.4, 5.15 and 5.17.
+> V2: Add Fixes tag and cc stable@vger.kernel.org
 > 
-> commit e42acf104d6e ("tpm_tis: Clean up locality release") removed the
-> release wait.  I haven't tried, but re-introducing that would probably
-> fix this issue.  It's hard to know apriori when a synchronous wait is
-> needed, and they don't seem to be needed typically.  Re-introducing the
-> wait would re-introduce a wait in all cases.
+>  include/linux/tpm_eventlog.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Surrounding the read of TPM_INT_ENABLE with grabbing the locality may
-> not be necessary?  It looks like the code only grabs a locality for
-> writing, but that asymmetry is surprising to me.
-> 
-> tpm_chip and tpm_tis_data track the locality separately.  Should the
-> tpm_tis_data one be removed so they don't get out of sync?
-> ---
->  drivers/char/tpm/tpm_tis_core.c | 20 ++++++++------------
->  1 file changed, 8 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-> index dc56b976d816..529c241800c0 100644
-> --- a/drivers/char/tpm/tpm_tis_core.c
-> +++ b/drivers/char/tpm/tpm_tis_core.c
-> @@ -986,8 +986,13 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
->  		goto out_err;
->  	}
+> diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
+> index 739ba9a03ec1..20c0ff54b7a0 100644
+> --- a/include/linux/tpm_eventlog.h
+> +++ b/include/linux/tpm_eventlog.h
+> @@ -157,7 +157,7 @@ struct tcg_algorithm_info {
+>   * Return: size of the event on success, 0 on failure
+>   */
 >  
-> +	/* Grabs locality 0. */
-> +	rc = tpm_chip_start(chip);
-> +	if (rc)
-> +		goto out_err;
-> +
->  	/* Take control of the TPM's interrupt hardware and shut it off */
-> -	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
-> +	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(chip->locality), &intmask);
->  	if (rc < 0)
->  		goto out_err;
->  
-> @@ -995,19 +1000,10 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
->  		   TPM_INTF_DATA_AVAIL_INT | TPM_INTF_STS_VALID_INT;
->  	intmask &= ~TPM_GLOBAL_INT_ENABLE;
->  
-> -	rc = request_locality(chip, 0);
-> -	if (rc < 0) {
-> -		rc = -ENODEV;
-> -		goto out_err;
-> -	}
-> -
-> -	tpm_tis_write32(priv, TPM_INT_ENABLE(priv->locality), intmask);
-> -	release_locality(chip, 0);
-> +	tpm_tis_write32(priv, TPM_INT_ENABLE(chip->locality), intmask);
->  
-> -	rc = tpm_chip_start(chip);
-> -	if (rc)
-> -		goto out_err;
->  	rc = tpm2_probe(chip);
-> +	/* Releases locality 0. */
->  	tpm_chip_stop(chip);
->  	if (rc)
->  		goto out_err;
+> -static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+> +static __always_inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+>  					 struct tcg_pcr_event *event_header,
+>  					 bool do_mapping)
+>  {
 > -- 
-> 2.36.1
+> 2.31.1
 > 
 
-Can you test against
 
-https://lore.kernel.org/linux-integrity/20220629232653.1306735-1-LinoSanfilippo@gmx.de/T/#t
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 
 BR, Jarkko
