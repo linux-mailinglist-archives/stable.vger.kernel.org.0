@@ -2,115 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2805D56FB87
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 031EB56FA13
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232469AbiGKJbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:31:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
+        id S231340AbiGKJMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232238AbiGKJbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:22 -0400
+        with ESMTP id S231236AbiGKJLx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:11:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1D23ED70;
-        Mon, 11 Jul 2022 02:17:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F188D252B6;
+        Mon, 11 Jul 2022 02:09:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F12D661257;
-        Mon, 11 Jul 2022 09:16:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07883C341C0;
-        Mon, 11 Jul 2022 09:16:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E5196118F;
+        Mon, 11 Jul 2022 09:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21033C36AE2;
+        Mon, 11 Jul 2022 09:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531019;
-        bh=Ydhnk3Ka6/gypkyrryB/mwM0eu6Jyl/rqSPH0WbVd+8=;
+        s=korg; t=1657530555;
+        bh=p7Eab160yQGOQfojhbMWmzyaYKJ94lupJbD+g6sDDAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2ki8QpHCiq7zgfHkk77qya8yIlKB2JRmPydE6WG5yjFmsboAfrx2Wq5gH29DrbAO
-         PIdjdWjJZ+2A7g0JFVMOIBkxt5Cvxr5QiNdJJ9WgAPHTXmbhoRalHTvtHti/xiGD4d
-         JLx7riLEFcP0k0hz4qM6t1iMZkJyIN0iXG0bDV48=
+        b=ycWu1bgbpy4zfg6XvKumelQJpljnG6bcFLlYp9E67NNhpjpuAJ2eoLPjLLhGQXrJS
+         lNXTISpYjA7KtRu1roMAKVdJxNj5w6t8zhR5qat/7PThTGsCivWD056MzIJ2SENRqg
+         by0VDxR8B60dL4AZS0G+5x+bQkzmvenXs2KcAB/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 066/112] arm64: dts: imx8mp-phyboard-pollux-rdk: correct eqos pad settings
+        stable@vger.kernel.org, Itay Iellin <ieitayie@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 27/31] ida: dont use BUG_ON() for debugging
 Date:   Mon, 11 Jul 2022 11:07:06 +0200
-Message-Id: <20220711090551.447345801@linuxfoundation.org>
+Message-Id: <20220711090538.648147293@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
+References: <20220711090537.841305347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UPPERCASE_50_75
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit bae4de618efe1c41d34aa2e6cef8b08e46256667 ]
+commit fc82bbf4dede758007763867d0282353c06d1121 upstream.
 
-BIT3 and BIT0 are reserved bits, should not touch.
+This is another old BUG_ON() that just shouldn't exist (see also commit
+a382f8fee42c: "signal handling: don't use BUG_ON() for debugging").
 
-Fixes: 6f96852619d5 ("arm64: dts: freescale: Add support EQOS MAC on phyBOARD-Pollux-i.MX8MP")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In fact, as Matthew Wilcox points out, this condition shouldn't really
+even result in a warning, since a negative id allocation result is just
+a normal allocation failure:
+
+  "I wonder if we should even warn here -- sure, the caller is trying to
+   free something that wasn't allocated, but we don't warn for
+   kfree(NULL)"
+
+and goes on to point out how that current error check is only causing
+people to unnecessarily do their own index range checking before freeing
+it.
+
+This was noted by Itay Iellin, because the bluetooth HCI socket cookie
+code does *not* do that range checking, and ends up just freeing the
+error case too, triggering the BUG_ON().
+
+The HCI code requires CAP_NET_RAW, and seems to just result in an ugly
+splat, but there really is no reason to BUG_ON() here, and we have
+generally striven for allocation models where it's always ok to just do
+
+    free(alloc());
+
+even if the allocation were to fail for some random reason (usually
+obviously that "random" reason being some resource limit).
+
+Fixes: 88eca0207cf1 ("ida: simplified functions for id allocation")
+Reported-by: Itay Iellin <ieitayie@gmail.com>
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../freescale/imx8mp-phyboard-pollux-rdk.dts  | 28 +++++++++----------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ lib/idr.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts b/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
-index e34076954897..cefd3d36f93f 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
-@@ -116,20 +116,20 @@
- &iomuxc {
- 	pinctrl_eqos: eqosgrp {
- 		fsl,pins = <
--			MX8MP_IOMUXC_ENET_MDC__ENET_QOS_MDC			0x3
--			MX8MP_IOMUXC_ENET_MDIO__ENET_QOS_MDIO			0x3
--			MX8MP_IOMUXC_ENET_RD0__ENET_QOS_RGMII_RD0		0x91
--			MX8MP_IOMUXC_ENET_RD1__ENET_QOS_RGMII_RD1		0x91
--			MX8MP_IOMUXC_ENET_RD2__ENET_QOS_RGMII_RD2		0x91
--			MX8MP_IOMUXC_ENET_RD3__ENET_QOS_RGMII_RD3		0x91
--			MX8MP_IOMUXC_ENET_RXC__CCM_ENET_QOS_CLOCK_GENERATE_RX_CLK	0x91
--			MX8MP_IOMUXC_ENET_RX_CTL__ENET_QOS_RGMII_RX_CTL		0x91
--			MX8MP_IOMUXC_ENET_TD0__ENET_QOS_RGMII_TD0		0x1f
--			MX8MP_IOMUXC_ENET_TD1__ENET_QOS_RGMII_TD1		0x1f
--			MX8MP_IOMUXC_ENET_TD2__ENET_QOS_RGMII_TD2		0x1f
--			MX8MP_IOMUXC_ENET_TD3__ENET_QOS_RGMII_TD3		0x1f
--			MX8MP_IOMUXC_ENET_TX_CTL__ENET_QOS_RGMII_TX_CTL		0x1f
--			MX8MP_IOMUXC_ENET_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x1f
-+			MX8MP_IOMUXC_ENET_MDC__ENET_QOS_MDC			0x2
-+			MX8MP_IOMUXC_ENET_MDIO__ENET_QOS_MDIO			0x2
-+			MX8MP_IOMUXC_ENET_RD0__ENET_QOS_RGMII_RD0		0x90
-+			MX8MP_IOMUXC_ENET_RD1__ENET_QOS_RGMII_RD1		0x90
-+			MX8MP_IOMUXC_ENET_RD2__ENET_QOS_RGMII_RD2		0x90
-+			MX8MP_IOMUXC_ENET_RD3__ENET_QOS_RGMII_RD3		0x90
-+			MX8MP_IOMUXC_ENET_RXC__CCM_ENET_QOS_CLOCK_GENERATE_RX_CLK	0x90
-+			MX8MP_IOMUXC_ENET_RX_CTL__ENET_QOS_RGMII_RX_CTL		0x90
-+			MX8MP_IOMUXC_ENET_TD0__ENET_QOS_RGMII_TD0		0x16
-+			MX8MP_IOMUXC_ENET_TD1__ENET_QOS_RGMII_TD1		0x16
-+			MX8MP_IOMUXC_ENET_TD2__ENET_QOS_RGMII_TD2		0x16
-+			MX8MP_IOMUXC_ENET_TD3__ENET_QOS_RGMII_TD3		0x16
-+			MX8MP_IOMUXC_ENET_TX_CTL__ENET_QOS_RGMII_TX_CTL		0x16
-+			MX8MP_IOMUXC_ENET_TXC__CCM_ENET_QOS_CLOCK_GENERATE_TX_CLK	0x16
- 			MX8MP_IOMUXC_SAI1_MCLK__GPIO4_IO20			0x10
- 		>;
- 	};
--- 
-2.35.1
-
+--- a/lib/idr.c
++++ b/lib/idr.c
+@@ -573,7 +573,9 @@ void ida_free(struct ida *ida, unsigned
+ {
+ 	unsigned long flags;
+ 
+-	BUG_ON((int)id < 0);
++	if ((int)id < 0)
++		return;
++
+ 	xa_lock_irqsave(&ida->ida_rt, flags);
+ 	ida_remove(ida, id);
+ 	xa_unlock_irqrestore(&ida->ida_rt, flags);
 
 
