@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E965656FA41
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9CE56FA83
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:18:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231441AbiGKJPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:15:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59684 "EHLO
+        id S231767AbiGKJSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:18:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231535AbiGKJOS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:14:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CAAA326DE;
-        Mon, 11 Jul 2022 02:10:15 -0700 (PDT)
+        with ESMTP id S231740AbiGKJSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F454C62E;
+        Mon, 11 Jul 2022 02:11:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63605611E6;
-        Mon, 11 Jul 2022 09:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F942C341C0;
-        Mon, 11 Jul 2022 09:10:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEF326115B;
+        Mon, 11 Jul 2022 09:11:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC57FC34115;
+        Mon, 11 Jul 2022 09:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530613;
-        bh=q+VC+eXLIBOBoE//vkAaN9EDl5KlbVjXPIorHjYKILY=;
+        s=korg; t=1657530704;
+        bh=i7dAol9ZDOUeNm+rfcVvLNLqnTH8aWKLgfXt6KaI0Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2f/RP9BdF4HkLKb7yDe19fehciehW9tfynax15JNCXtm/DJU/VrjqfR9/vsNif+92
-         1yFCn1F6NhctajmgpQW6No3HyqYLlvujnsX1EIjFDWRBsAsw9XWhWzjUZS67qUlvB9
-         Yv9P/3LKLdHrIPDhvlkoGdWnu8OG2gBzssb/+b2s=
+        b=Il/vJWrMwFp2TYnujb1yukVlIQAoUKeD0RsM6Q5OIDDkoP6tx/6BVy+H2qshYxPfu
+         9Zo5j2e+tumVZxI/35FaXHN28EmaSUle2VWzkp7+/b1pngbLEa1SPWh1yuMLKvbEaG
+         Y3z9tBWgDEd46+OGEojUqtTGp96jMCZ00so3/8yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org,
-        "stable@vger.kernel.org, linux-can@vger.kernel.org, Marc Kleine-Budde" 
-        <mkl@pengutronix.de>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>
-Subject: [PATCH 5.4 16/38] can: kvaser_usb: kvaser_usb_leaf: fix CAN clock frequency regression
+        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 10/55] netfilter: nft_set_pipapo: release elements in clone from abort path
 Date:   Mon, 11 Jul 2022 11:06:58 +0200
-Message-Id: <20220711090539.209352845@linuxfoundation.org>
+Message-Id: <20220711090542.066014417@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
-References: <20220711090538.722676354@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,146 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit e6c80e601053ffdac5709f11ff3ec1e19ed05f7b upstream.
+commit 9827a0e6e23bf43003cd3d5b7fb11baf59a35e1e upstream.
 
-The firmware of M32C based Leaf devices expects bittiming parameters
-calculated for 16MHz clock. Since we use the actual clock frequency of
-the device, the device may end up with wrong bittiming parameters,
-depending on user requested parameters.
+New elements that reside in the clone are not released in case that the
+transaction is aborted.
 
-This regression affects M32C based Leaf devices with non-16MHz clock.
+[16302.231754] ------------[ cut here ]------------
+[16302.231756] WARNING: CPU: 0 PID: 100509 at net/netfilter/nf_tables_api.c:1864 nf_tables_chain_destroy+0x26/0x127 [nf_tables]
+[...]
+[16302.231882] CPU: 0 PID: 100509 Comm: nft Tainted: G        W         5.19.0-rc3+ #155
+[...]
+[16302.231887] RIP: 0010:nf_tables_chain_destroy+0x26/0x127 [nf_tables]
+[16302.231899] Code: f3 fe ff ff 41 55 41 54 55 53 48 8b 6f 10 48 89 fb 48 c7 c7 82 96 d9 a0 8b 55 50 48 8b 75 58 e8 de f5 92 e0 83 7d 50 00 74 09 <0f> 0b 5b 5d 41 5c 41 5d c3 4c 8b 65 00 48 8b 7d 08 49 39 fc 74 05
+[...]
+[16302.231917] Call Trace:
+[16302.231919]  <TASK>
+[16302.231921]  __nf_tables_abort.cold+0x23/0x28 [nf_tables]
+[16302.231934]  nf_tables_abort+0x30/0x50 [nf_tables]
+[16302.231946]  nfnetlink_rcv_batch+0x41a/0x840 [nfnetlink]
+[16302.231952]  ? __nla_validate_parse+0x48/0x190
+[16302.231959]  nfnetlink_rcv+0x110/0x129 [nfnetlink]
+[16302.231963]  netlink_unicast+0x211/0x340
+[16302.231969]  netlink_sendmsg+0x21e/0x460
 
-Fixes: 68daa476f499 ("can: kvaser_usb: get CAN clock frequency from device")
-Link: https://lore.kernel.org/all/20220603083820.800246-3-extja@kvaser.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Add nft_set_pipapo_match_destroy() helper function to release the
+elements in the lookup tables.
+
+Stefano Brivio says: "We additionally look for elements pointers in the
+cloned matching data if priv->dirty is set, because that means that
+cloned data might point to additional elements we did not commit to the
+working copy yet (such as the abort path case, but perhaps not limited
+to it)."
+
+Fixes: 3c4287f62044 ("nf_tables: Add set type for arbitrary concatenation of ranges")
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb.h      |    1 
- drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c |   29 +++++++++++++++--------
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |   25 ++++++++++++-------
- 3 files changed, 36 insertions(+), 19 deletions(-)
+ net/netfilter/nft_set_pipapo.c |   48 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 33 insertions(+), 15 deletions(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
-@@ -38,6 +38,7 @@
- /* Kvaser USB device quirks */
- #define KVASER_USB_QUIRK_HAS_SILENT_MODE	BIT(0)
- #define KVASER_USB_QUIRK_HAS_TXRX_ERRORS	BIT(1)
-+#define KVASER_USB_QUIRK_IGNORE_CLK_FREQ	BIT(2)
- 
- /* Device capabilities */
- #define KVASER_USB_CAP_BERR_CAP			0x01
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
-@@ -92,26 +92,33 @@ static const struct kvaser_usb_driver_in
- };
- 
- static const struct kvaser_usb_driver_info kvaser_usb_driver_info_leaf = {
--	.quirks = 0,
-+	.quirks = KVASER_USB_QUIRK_IGNORE_CLK_FREQ,
- 	.family = KVASER_LEAF,
- 	.ops = &kvaser_usb_leaf_dev_ops,
- };
- 
- static const struct kvaser_usb_driver_info kvaser_usb_driver_info_leaf_err = {
--	.quirks = KVASER_USB_QUIRK_HAS_TXRX_ERRORS,
-+	.quirks = KVASER_USB_QUIRK_HAS_TXRX_ERRORS |
-+		  KVASER_USB_QUIRK_IGNORE_CLK_FREQ,
- 	.family = KVASER_LEAF,
- 	.ops = &kvaser_usb_leaf_dev_ops,
- };
- 
- static const struct kvaser_usb_driver_info kvaser_usb_driver_info_leaf_err_listen = {
- 	.quirks = KVASER_USB_QUIRK_HAS_TXRX_ERRORS |
--		  KVASER_USB_QUIRK_HAS_SILENT_MODE,
-+		  KVASER_USB_QUIRK_HAS_SILENT_MODE |
-+		  KVASER_USB_QUIRK_IGNORE_CLK_FREQ,
- 	.family = KVASER_LEAF,
- 	.ops = &kvaser_usb_leaf_dev_ops,
- };
- 
-+static const struct kvaser_usb_driver_info kvaser_usb_driver_info_leafimx = {
-+	.quirks = 0,
-+	.ops = &kvaser_usb_leaf_dev_ops,
-+};
-+
- static const struct usb_device_id kvaser_usb_table[] = {
--	/* Leaf USB product IDs */
-+	/* Leaf M32C USB product IDs */
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_LEAF_DEVEL_PRODUCT_ID),
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_LEAF_LITE_PRODUCT_ID),
-@@ -152,16 +159,18 @@ static const struct usb_device_id kvaser
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf_err },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_CAN_R_PRODUCT_ID),
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf_err },
-+
-+	/* Leaf i.MX28 USB product IDs */
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_LEAF_LITE_V2_PRODUCT_ID),
--		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf },
-+		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leafimx },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_MINI_PCIE_HS_PRODUCT_ID),
--		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf },
-+		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leafimx },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_LEAF_LIGHT_HS_V2_OEM_PRODUCT_ID),
--		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf },
-+		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leafimx },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_USBCAN_LIGHT_2HS_PRODUCT_ID),
--		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf },
-+		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leafimx },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_MINI_PCIE_2HS_PRODUCT_ID),
--		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leaf },
-+		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_leafimx },
- 
- 	/* USBCANII USB product IDs */
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_USBCAN2_PRODUCT_ID),
-@@ -190,7 +199,7 @@ static const struct usb_device_id kvaser
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_hydra },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_MEMO_PRO_2HS_V2_PRODUCT_ID),
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_hydra },
--	{ USB_DEVICE(KVASER_VENDOR_ID, USB_HYBRID_2CANLIN_PRODUCT_ID),
-+	{ USB_DEVICE(KVASER_VENDOR_ID, USB_HYBRID_CANLIN_PRODUCT_ID),
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_hydra },
- 	{ USB_DEVICE(KVASER_VENDOR_ID, USB_ATI_USBCAN_PRO_2HS_V2_PRODUCT_ID),
- 		.driver_info = (kernel_ulong_t)&kvaser_usb_driver_info_hydra },
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -525,16 +525,23 @@ static void kvaser_usb_leaf_get_software
- 	dev->fw_version = le32_to_cpu(softinfo->fw_version);
- 	dev->max_tx_urbs = le16_to_cpu(softinfo->max_outstanding_tx);
- 
--	switch (sw_options & KVASER_USB_LEAF_SWOPTION_FREQ_MASK) {
--	case KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK:
-+	if (dev->driver_info->quirks & KVASER_USB_QUIRK_IGNORE_CLK_FREQ) {
-+		/* Firmware expects bittiming parameters calculated for 16MHz
-+		 * clock, regardless of the actual clock
-+		 */
- 		dev->cfg = &kvaser_usb_leaf_dev_cfg_16mhz;
--		break;
--	case KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK:
--		dev->cfg = &kvaser_usb_leaf_dev_cfg_24mhz;
--		break;
--	case KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK:
--		dev->cfg = &kvaser_usb_leaf_dev_cfg_32mhz;
--		break;
-+	} else {
-+		switch (sw_options & KVASER_USB_LEAF_SWOPTION_FREQ_MASK) {
-+		case KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK:
-+			dev->cfg = &kvaser_usb_leaf_dev_cfg_16mhz;
-+			break;
-+		case KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK:
-+			dev->cfg = &kvaser_usb_leaf_dev_cfg_24mhz;
-+			break;
-+		case KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK:
-+			dev->cfg = &kvaser_usb_leaf_dev_cfg_32mhz;
-+			break;
-+		}
- 	}
+--- a/net/netfilter/nft_set_pipapo.c
++++ b/net/netfilter/nft_set_pipapo.c
+@@ -2121,6 +2121,32 @@ out_scratch:
  }
  
+ /**
++ * nft_set_pipapo_match_destroy() - Destroy elements from key mapping array
++ * @set:	nftables API set representation
++ * @m:		matching data pointing to key mapping array
++ */
++static void nft_set_pipapo_match_destroy(const struct nft_set *set,
++					 struct nft_pipapo_match *m)
++{
++	struct nft_pipapo_field *f;
++	int i, r;
++
++	for (i = 0, f = m->f; i < m->field_count - 1; i++, f++)
++		;
++
++	for (r = 0; r < f->rules; r++) {
++		struct nft_pipapo_elem *e;
++
++		if (r < f->rules - 1 && f->mt[r + 1].e == f->mt[r].e)
++			continue;
++
++		e = f->mt[r].e;
++
++		nft_set_elem_destroy(set, e, true);
++	}
++}
++
++/**
+  * nft_pipapo_destroy() - Free private data for set and all committed elements
+  * @set:	nftables API set representation
+  */
+@@ -2128,26 +2154,13 @@ static void nft_pipapo_destroy(const str
+ {
+ 	struct nft_pipapo *priv = nft_set_priv(set);
+ 	struct nft_pipapo_match *m;
+-	struct nft_pipapo_field *f;
+-	int i, r, cpu;
++	int cpu;
+ 
+ 	m = rcu_dereference_protected(priv->match, true);
+ 	if (m) {
+ 		rcu_barrier();
+ 
+-		for (i = 0, f = m->f; i < m->field_count - 1; i++, f++)
+-			;
+-
+-		for (r = 0; r < f->rules; r++) {
+-			struct nft_pipapo_elem *e;
+-
+-			if (r < f->rules - 1 && f->mt[r + 1].e == f->mt[r].e)
+-				continue;
+-
+-			e = f->mt[r].e;
+-
+-			nft_set_elem_destroy(set, e, true);
+-		}
++		nft_set_pipapo_match_destroy(set, m);
+ 
+ #ifdef NFT_PIPAPO_ALIGN
+ 		free_percpu(m->scratch_aligned);
+@@ -2161,6 +2174,11 @@ static void nft_pipapo_destroy(const str
+ 	}
+ 
+ 	if (priv->clone) {
++		m = priv->clone;
++
++		if (priv->dirty)
++			nft_set_pipapo_match_destroy(set, m);
++
+ #ifdef NFT_PIPAPO_ALIGN
+ 		free_percpu(priv->clone->scratch_aligned);
+ #endif
 
 
