@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F3F56FAAF
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C2F56FAB0
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbiGKJVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43398 "EHLO
+        id S231935AbiGKJVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231899AbiGKJUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:41 -0400
+        with ESMTP id S231820AbiGKJUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E91E545C5;
-        Mon, 11 Jul 2022 02:12:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE59E545CC;
+        Mon, 11 Jul 2022 02:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BED10611EA;
-        Mon, 11 Jul 2022 09:12:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C80C4C341C0;
-        Mon, 11 Jul 2022 09:12:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79E4A61211;
+        Mon, 11 Jul 2022 09:12:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 880AEC34115;
+        Mon, 11 Jul 2022 09:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530754;
-        bh=Yw6CvDlaFnh/HUoADg5MBXYUAT5+p+xm/ldRU9fTv6c=;
+        s=korg; t=1657530756;
+        bh=PNtt8IrrhHwFI2vCNiPGwIL0Po0CGM0ckqTOPfuMi8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfFzf+08JQPY7FlOTw67wuP6tK7FUqUc8EwKgmM2ULzXwXwQ4o6VaoP+UjSxE5soV
-         kgGkK/WeAGP0ZeRYyCIfOGW3XD0JEQkPKDtRGq/Se9y/OIiOMsC611RmCna0kBhc6x
-         2jvJNw84ai9IXqYeL9+Tfn1RIpGcApL0aVXJ+RgE=
+        b=Lzh+KyQA9lFTf45u2ml7cPggtd/EYL7x+BRXV5yP8c78MjwT5SWsNg/cBD+kJSxMC
+         HKc9baOoeM/m7ZIpEARytPZ/wDyNdOiTcgOanRIP/nl42wy4cwciu0IZgUuNfJXnE3
+         UHuHx+IHKmq4QQXlmXsLE1IxLyw1Qh8Il9FLBUh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>, Peng Fan <peng.fan@nxp.com>,
         Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/55] arm64: dts: imx8mp-evk: correct mmc pad settings
-Date:   Mon, 11 Jul 2022 11:07:16 +0200
-Message-Id: <20220711090542.595260718@linuxfoundation.org>
+Subject: [PATCH 5.10 29/55] arm64: dts: imx8mp-evk: correct the uart2 pinctl value
+Date:   Mon, 11 Jul 2022 11:07:17 +0200
+Message-Id: <20220711090542.623335975@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
 References: <20220711090541.764895984@linuxfoundation.org>
@@ -55,62 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 01785f1f156511c4f285786b4192245d4f476bf1 ]
+[ Upstream commit 2d4fb72b681205eed4553d8802632bd3270be3ba ]
 
-According to RM bit layout, BIT3 and BIT0 are reserved.
-  8  7   6   5   4   3  2 1  0
- PE HYS PUE ODE FSEL X  DSE  X
-
-Not set reserved bit.
+According to the IOMUXC_SW_PAD_CTL_PAD_UART2_RXD/TXD register define in
+imx8mp RM, bit0 and bit3 are reserved, and the uart2 rx/tx pin should
+enable the pull up, so need to set bit8 to 1. The original pinctl value
+0x49 is incorrect and needs to be changed to 0x140, same as uart1 and
+uart3.
 
 Fixes: 9e847693c6f3 ("arm64: dts: freescale: Add i.MX8MP EVK board support")
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
 Signed-off-by: Peng Fan <peng.fan@nxp.com>
 Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-index c13b4a02d12f..64f0455e14f8 100644
+index 64f0455e14f8..5011adb5ff1f 100644
 --- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
 +++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-@@ -161,7 +161,7 @@
+@@ -167,8 +167,8 @@
  
- 	pinctrl_reg_usdhc2_vmmc: regusdhc2vmmcgrp {
+ 	pinctrl_uart2: uart2grp {
  		fsl,pins = <
--			MX8MP_IOMUXC_SD2_RESET_B__GPIO2_IO19	0x41
-+			MX8MP_IOMUXC_SD2_RESET_B__GPIO2_IO19	0x40
- 		>;
- 	};
- 
-@@ -180,7 +180,7 @@
- 			MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d0
- 			MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d0
- 			MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d0
--			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc1
-+			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT	0xc0
- 		>;
- 	};
- 
-@@ -192,7 +192,7 @@
- 			MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d4
- 			MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d4
- 			MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d4
--			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT 0xc1
-+			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT 0xc0
- 		>;
- 	};
- 
-@@ -204,7 +204,7 @@
- 			MX8MP_IOMUXC_SD2_DATA1__USDHC2_DATA1	0x1d6
- 			MX8MP_IOMUXC_SD2_DATA2__USDHC2_DATA2	0x1d6
- 			MX8MP_IOMUXC_SD2_DATA3__USDHC2_DATA3	0x1d6
--			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT 0xc1
-+			MX8MP_IOMUXC_GPIO1_IO04__USDHC2_VSELECT 0xc0
+-			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x49
+-			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x49
++			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x140
++			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x140
  		>;
  	};
  
