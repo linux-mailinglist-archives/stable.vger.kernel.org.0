@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F8656FB57
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:29:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7473756FA8B
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231445AbiGKJ3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40282 "EHLO
+        id S230459AbiGKJTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:19:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232464AbiGKJ26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7028C3D5AA;
-        Mon, 11 Jul 2022 02:16:14 -0700 (PDT)
+        with ESMTP id S231770AbiGKJSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBD31209C;
+        Mon, 11 Jul 2022 02:12:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAC0761243;
-        Mon, 11 Jul 2022 09:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C53C34115;
-        Mon, 11 Jul 2022 09:16:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4BE9DB80E76;
+        Mon, 11 Jul 2022 09:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B40A3C341CD;
+        Mon, 11 Jul 2022 09:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530972;
-        bh=FBu7KY5YYbZo+WK5Ypy6wwAPJNUeHar+h74qFtStpgk=;
+        s=korg; t=1657530718;
+        bh=02Gr89cUsMTj9nZTGgI/higKfc2ahKfCiNE3RXAa/4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k09N59zIOh/VOnEj+MXk9uD2iFhLIJa6KduHngKSo8RTwpAXcuWuoOGxE4H5VJ/81
-         b00pd1CN52IVOtNdnyJra7NPs54R05/yAgdNiKhYHESdXGgp1U5n7xRiu8nYwoeUVe
-         jjvpOcmHcK1ykqR/MDOeOmjYUZvZ+d/9wt7bKCeg=
+        b=Vp32p/5c7v+RwFoL8JnxatomfESlU6/QHuUSWkGty4hXf2pm0aET0dmK+tCG9q/iL
+         uws2fLNIUDC54d0PMcqAGxwsNKV//g5Xy9rQp8TD+GWR4mDnnbev4idpxjNF/QlO+f
+         QWH1vOPHq+X7Q0jTG41ieh8H8QD2e2/WJm+u5dTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 051/112] ASoC: SOF: ipc3-topology: Move and correct size checks in sof_ipc3_control_load_bytes()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 03/55] can: bcm: use call_rcu() instead of costly synchronize_rcu()
 Date:   Mon, 11 Jul 2022 11:06:51 +0200
-Message-Id: <20220711090551.020035523@linuxfoundation.org>
+Message-Id: <20220711090541.865548757@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,73 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit c2d1aec3f5da2475aa13a487d329823b7d27d499 ]
+commit f1b4e32aca0811aa011c76e5d6cf2fa19224b386 upstream.
 
-Move the size checks prior to allocating memory as these checks do not need
-the data to be allocated and in case of an error we would not need to free
-the allocation.
+In commit d5f9023fa61e ("can: bcm: delay release of struct bcm_op
+after synchronize_rcu()") Thadeu Lima de Souza Cascardo introduced two
+synchronize_rcu() calls in bcm_release() (only once at socket close)
+and in bcm_delete_rx_op() (called on removal of each single bcm_op).
 
-The max size must not be less than the size of
-struct sof_ipc_ctrl_data + struct sof_abi_hdr as the ABI header needs to
-be present under all circumstances.
-The check was incorrectly used or between the two size checks.
+Unfortunately this slow removal of the bcm_op's affects user space
+applications like cansniffer where the modification of a filter
+removes 2048 bcm_op's which blocks the cansniffer application for
+40(!) seconds.
 
-Fixes: b5cee8feb1d4 ("ASoC: SOF: topology: Make control parsing IPC agnostic")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220610084735.19397-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In commit 181d4447905d ("can: gw: use call_rcu() instead of costly
+synchronize_rcu()") Eric Dumazet replaced the synchronize_rcu() calls
+with several call_rcu()'s to safely remove the data structures after
+the removal of CAN ID subscriptions with can_rx_unregister() calls.
+
+This patch adopts Erics approach for the can-bcm which should be
+applicable since the removal of tasklet_kill() in bcm_remove_op() and
+the introduction of the HRTIMER_MODE_SOFT timer handling in Linux 5.4.
+
+Fixes: d5f9023fa61e ("can: bcm: delay release of struct bcm_op after synchronize_rcu()") # >= 5.4
+Link: https://lore.kernel.org/all/20220520183239.19111-1-socketcan@hartkopp.net
+Cc: stable@vger.kernel.org
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/ipc3-topology.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ net/can/bcm.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
-index cdff48c4195f..80fb82ece38d 100644
---- a/sound/soc/sof/ipc3-topology.c
-+++ b/sound/soc/sof/ipc3-topology.c
-@@ -1578,24 +1578,23 @@ static int sof_ipc3_control_load_bytes(struct snd_sof_dev *sdev, struct snd_sof_
- 	struct sof_ipc_ctrl_data *cdata;
- 	int ret;
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -100,6 +100,7 @@ static inline u64 get_u64(const struct c
  
--	scontrol->ipc_control_data = kzalloc(scontrol->max_size, GFP_KERNEL);
--	if (!scontrol->ipc_control_data)
--		return -ENOMEM;
--
--	if (scontrol->max_size < sizeof(*cdata) ||
--	    scontrol->max_size < sizeof(struct sof_abi_hdr)) {
--		ret = -EINVAL;
--		goto err;
-+	if (scontrol->max_size < (sizeof(*cdata) + sizeof(struct sof_abi_hdr))) {
-+		dev_err(sdev->dev, "%s: insufficient size for a bytes control: %zu.\n",
-+			__func__, scontrol->max_size);
-+		return -EINVAL;
- 	}
+ struct bcm_op {
+ 	struct list_head list;
++	struct rcu_head rcu;
+ 	int ifindex;
+ 	canid_t can_id;
+ 	u32 flags;
+@@ -718,10 +719,9 @@ static struct bcm_op *bcm_find_op(struct
+ 	return NULL;
+ }
  
--	/* init the get/put bytes data */
- 	if (scontrol->priv_size > scontrol->max_size - sizeof(*cdata)) {
--		dev_err(sdev->dev, "err: bytes data size %zu exceeds max %zu.\n",
-+		dev_err(sdev->dev,
-+			"%s: bytes data size %zu exceeds max %zu.\n", __func__,
- 			scontrol->priv_size, scontrol->max_size - sizeof(*cdata));
--		ret = -EINVAL;
--		goto err;
-+		return -EINVAL;
- 	}
+-static void bcm_remove_op(struct bcm_op *op)
++static void bcm_free_op_rcu(struct rcu_head *rcu_head)
+ {
+-	hrtimer_cancel(&op->timer);
+-	hrtimer_cancel(&op->thrtimer);
++	struct bcm_op *op = container_of(rcu_head, struct bcm_op, rcu);
  
-+	scontrol->ipc_control_data = kzalloc(scontrol->max_size, GFP_KERNEL);
-+	if (!scontrol->ipc_control_data)
-+		return -ENOMEM;
+ 	if ((op->frames) && (op->frames != &op->sframe))
+ 		kfree(op->frames);
+@@ -732,6 +732,14 @@ static void bcm_remove_op(struct bcm_op
+ 	kfree(op);
+ }
+ 
++static void bcm_remove_op(struct bcm_op *op)
++{
++	hrtimer_cancel(&op->timer);
++	hrtimer_cancel(&op->thrtimer);
 +
- 	scontrol->size = sizeof(struct sof_ipc_ctrl_data) + scontrol->priv_size;
++	call_rcu(&op->rcu, bcm_free_op_rcu);
++}
++
+ static void bcm_rx_unreg(struct net_device *dev, struct bcm_op *op)
+ {
+ 	if (op->rx_reg_dev == dev) {
+@@ -757,6 +765,9 @@ static int bcm_delete_rx_op(struct list_
+ 		if ((op->can_id == mh->can_id) && (op->ifindex == ifindex) &&
+ 		    (op->flags & CAN_FD_FRAME) == (mh->flags & CAN_FD_FRAME)) {
  
- 	cdata = scontrol->ipc_control_data;
--- 
-2.35.1
-
++			/* disable automatic timer on frame reception */
++			op->flags |= RX_NO_AUTOTIMER;
++
+ 			/*
+ 			 * Don't care if we're bound or not (due to netdev
+ 			 * problems) can_rx_unregister() is always a save
+@@ -785,7 +796,6 @@ static int bcm_delete_rx_op(struct list_
+ 						  bcm_rx_handler, op);
+ 
+ 			list_del(&op->list);
+-			synchronize_rcu();
+ 			bcm_remove_op(op);
+ 			return 1; /* done */
+ 		}
 
 
