@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C84756FD0B
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B97656FB3D
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233755AbiGKJuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32796 "EHLO
+        id S232427AbiGKJ1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:27:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233853AbiGKJtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:49:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4088223BC3;
-        Mon, 11 Jul 2022 02:24:09 -0700 (PDT)
+        with ESMTP id S232285AbiGKJ0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:26:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DBC6053D;
+        Mon, 11 Jul 2022 02:15:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBBE8B80E8B;
-        Mon, 11 Jul 2022 09:24:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E44C34115;
-        Mon, 11 Jul 2022 09:24:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20C31B80E74;
+        Mon, 11 Jul 2022 09:15:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 636BDC341CB;
+        Mon, 11 Jul 2022 09:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531446;
-        bh=cHPd56qosha3JEpRvPuMYx+vO1CJT2wmAfE0skjLUpM=;
+        s=korg; t=1657530924;
+        bh=4WZcDCsFE9fpCFpZDFTLUsccbZ30dyi6tyVEhn+pBDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jf0MF/yOdV/4ElmbLPSCkLINZd/wXuJuucFSzJfqoAp2Jl4ws0XRHw/k3XRlPtYZD
-         DEMWVAXe2qqhlttSmtvv8AVLzvYm33o1A3nQjko/rYxZlF4tnzNZomMwhjh+jmn46/
-         cRlFDZ1LWxgXcBr23XIYR8VkEDxd1TggMbE2pLtM=
+        b=krFgbsDpY/UniGQpiEkABPmpalTYOkb0xXMkmVHlcV8CP9MZv0P43h08zoQ9dLYXR
+         JeNgzvAJkCMXlarzjtjl8cxmIPeVaVw/yRiQZ8B2ATGVxBZFn9GVd9GHLIVphUc4jG
+         wJdtgv3QYNH9hNJEEHeIWvbzYRJ7qpLmeb2ZEsr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Neuling <mikey@neuling.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/230] powerpc/tm: Fix more userspace r13 corruption
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Jan Engelhardt <jengelh@inai.de>
+Subject: [PATCH 5.18 004/112] ALSA: cs46xx: Fix missing snd_card_free() call at probe error
 Date:   Mon, 11 Jul 2022 11:06:04 +0200
-Message-Id: <20220711090607.131735800@linuxfoundation.org>
+Message-Id: <20220711090549.674639067@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,119 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9d71165d3934e607070c4e48458c0cf161b1baea ]
+commit c5e58c4545a69677d078b4c813b5d10d3481be9c upstream.
 
-Commit cf13435b730a ("powerpc/tm: Fix userspace r13 corruption") fixes a
-problem in treclaim where a SLB miss can occur on the
-thread_struct->ckpt_regs while SCRATCH0 is live with the saved user r13
-value, clobbering it with the kernel r13 and ultimately resulting in
-kernel r13 being stored in ckpt_regs.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-There is an equivalent problem in trechkpt where the user r13 value is
-loaded into r13 from chkpt_regs to be recheckpointed, but a SLB miss
-could occur on ckpt_regs accesses after that, which will result in r13
-being clobbered with a kernel value and that will get recheckpointed and
-then restored to user registers.
+This patch fixes it by calling snd_card_free() manually on the error
+from the probe callback.
 
-The same memory page is accessed right before this critical window where
-a SLB miss could cause corruption, so hitting the bug requires the SLB
-entry be removed within a small window of instructions, which is
-possible if a SLB related MCE hits there. PAPR also permits the
-hypervisor to discard this SLB entry (because slb_shadow->persistent is
-only set to SLB_NUM_BOLTED) although it's not known whether any
-implementations would do this (KVM does not). So this is an extremely
-unlikely bug, only found by inspection.
-
-Fix this by also storing user r13 in a temporary location on the kernel
-stack and don't change the r13 register from kernel r13 until the RI=0
-critical section that does not fault.
-
-The SCRATCH0 change is not strictly part of the fix, it's only used in
-the RI=0 section so it does not have the same problem as the previous
-SCRATCH0 bug.
-
-Fixes: 98ae22e15b43 ("powerpc: Add helper functions for transactional memory context switching")
-Cc: stable@vger.kernel.org # v3.9+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220311024733.48926-1-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5bff69b3645d ("ALSA: cs46xx: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Reported-and-tested-by: Jan Engelhardt <jengelh@inai.de>
+Link: https://lore.kernel.org/r/p2p1s96o-746-74p4-s95-61qo1p7782pn@vanv.qr
+Link: https://lore.kernel.org/r/20220705152336.350-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/tm.S | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ sound/pci/cs46xx/cs46xx.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/kernel/tm.S b/arch/powerpc/kernel/tm.S
-index 3beecc32940b..5a0f023a26e9 100644
---- a/arch/powerpc/kernel/tm.S
-+++ b/arch/powerpc/kernel/tm.S
-@@ -443,7 +443,8 @@ restore_gprs:
+--- a/sound/pci/cs46xx/cs46xx.c
++++ b/sound/pci/cs46xx/cs46xx.c
+@@ -74,36 +74,36 @@ static int snd_card_cs46xx_probe(struct
+ 	err = snd_cs46xx_create(card, pci,
+ 				external_amp[dev], thinkpad[dev]);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ 	card->private_data = chip;
+ 	chip->accept_valid = mmap_valid[dev];
+ 	err = snd_cs46xx_pcm(chip, 0);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ #ifdef CONFIG_SND_CS46XX_NEW_DSP
+ 	err = snd_cs46xx_pcm_rear(chip, 1);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ 	err = snd_cs46xx_pcm_iec958(chip, 2);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ #endif
+ 	err = snd_cs46xx_mixer(chip, 2);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ #ifdef CONFIG_SND_CS46XX_NEW_DSP
+ 	if (chip->nr_ac97_codecs ==2) {
+ 		err = snd_cs46xx_pcm_center_lfe(chip, 3);
+ 		if (err < 0)
+-			return err;
++			goto error;
+ 	}
+ #endif
+ 	err = snd_cs46xx_midi(chip, 0);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ 	err = snd_cs46xx_start_dsp(chip);
+ 	if (err < 0)
+-		return err;
++		goto error;
  
- 	REST_GPR(0, r7)				/* GPR0 */
- 	REST_GPRS(2, 4, r7)			/* GPR2-4 */
--	REST_GPRS(8, 31, r7)			/* GPR8-31 */
-+	REST_GPRS(8, 12, r7)			/* GPR8-12 */
-+	REST_GPRS(14, 31, r7)			/* GPR14-31 */
+ 	snd_cs46xx_gameport(chip);
  
- 	/* Load up PPR and DSCR here so we don't run with user values for long */
- 	mtspr	SPRN_DSCR, r5
-@@ -479,18 +480,24 @@ restore_gprs:
- 	REST_GPR(6, r7)
+@@ -117,11 +117,15 @@ static int snd_card_cs46xx_probe(struct
  
- 	/*
--	 * Store r1 and r5 on the stack so that we can access them after we
--	 * clear MSR RI.
-+	 * Store user r1 and r5 and r13 on the stack (in the unused save
-+	 * areas / compiler reserved areas), so that we can access them after
-+	 * we clear MSR RI.
- 	 */
+ 	err = snd_card_register(card);
+ 	if (err < 0)
+-		return err;
++		goto error;
  
- 	REST_GPR(5, r7)
- 	std	r5, -8(r1)
--	ld	r5, GPR1(r7)
-+	ld	r5, GPR13(r7)
- 	std	r5, -16(r1)
-+	ld	r5, GPR1(r7)
-+	std	r5, -24(r1)
- 
- 	REST_GPR(7, r7)
- 
--	/* Clear MSR RI since we are about to use SCRATCH0. EE is already off */
-+	/* Stash the stack pointer away for use after recheckpoint */
-+	std	r1, PACAR1(r13)
+ 	pci_set_drvdata(pci, card);
+ 	dev++;
+ 	return 0;
 +
-+	/* Clear MSR RI since we are about to clobber r13. EE is already off */
- 	li	r5, 0
- 	mtmsrd	r5, 1
++ error:
++	snd_card_free(card);
++	return err;
+ }
  
-@@ -501,9 +508,9 @@ restore_gprs:
- 	 * until we turn MSR RI back on.
- 	 */
- 
--	SET_SCRATCH0(r1)
- 	ld	r5, -8(r1)
--	ld	r1, -16(r1)
-+	ld	r13, -16(r1)
-+	ld	r1, -24(r1)
- 
- 	/* Commit register state as checkpointed state: */
- 	TRECHKPT
-@@ -519,9 +526,9 @@ restore_gprs:
- 	 */
- 
- 	GET_PACA(r13)
--	GET_SCRATCH0(r1)
-+	ld	r1, PACAR1(r13)
- 
--	/* R1 is restored, so we are recoverable again.  EE is still off */
-+	/* R13, R1 is restored, so we are recoverable again.  EE is still off */
- 	li	r4, MSR_RI
- 	mtmsrd	r4, 1
- 
--- 
-2.35.1
-
+ static struct pci_driver cs46xx_driver = {
 
 
