@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F355656FD6A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44A9D56FB26
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233857AbiGKJzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:55:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
+        id S232273AbiGKJ0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234243AbiGKJyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:54:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E499D33A0A;
-        Mon, 11 Jul 2022 02:26:03 -0700 (PDT)
+        with ESMTP id S232487AbiGKJYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507153336F;
+        Mon, 11 Jul 2022 02:15:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98F17B80D2C;
-        Mon, 11 Jul 2022 09:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59BFC34115;
-        Mon, 11 Jul 2022 09:25:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F58DB80833;
+        Mon, 11 Jul 2022 09:15:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09DE8C34115;
+        Mon, 11 Jul 2022 09:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531560;
-        bh=Alp2MHh6Ac99EuP+tf9BV2sOZk7KseWriY8CNcxWR9I=;
+        s=korg; t=1657530911;
+        bh=Y2vZqC06i8AzUbZvUFSXTCsRIMDbkbovhT/11q7TMbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeXiaqnWGU7HRviybDx/K9KYNLSUEJ+BvS9wbRnqnqfjSZ5qlEKxziHTRRUGTl4dn
-         AadkNNtRZmFQlnuX9G874UVbw3E9jsPHDD+Vvk4wNiSazA0qbdL7lr6m3VpNIAjyLa
-         qerzacx39ohhVCoa9DnsAZZvLAMgQfOVdI63eG7Y=
+        b=jJlyVSlsBAveI+tePYbG46gPTcN9/TFGz+Gfe0QukvX0Uu6XSARPZuNFMwGdPbM3Q
+         NKyei7gE9uQKXdVx4Bye4DQv7M5TBUYtLBFE8sjyIlhnasA1y0edOwaHrZgJUj7Pgb
+         nXT3tE1cNVyqaQSHjdRyJ6VZuxKbz3LW1F9Xpcvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 132/230] tty: n_gsm: fix sometimes uninitialized warning in gsm_dlci_modem_output()
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.18 028/112] MAINTAINERS: Remove iommu@lists.linux-foundation.org
 Date:   Mon, 11 Jul 2022 11:06:28 +0200
-Message-Id: <20220711090607.809091125@linuxfoundation.org>
+Message-Id: <20220711090550.365306950@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +52,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 19317433057dc1f2ca9a975e4e6b547282c2a5ef ]
+commit c51b8f85c4157eb91c2f4ab34b0c52fea642e77c upstream.
 
-'size' may be used uninitialized in gsm_dlci_modem_output() if called with
-an adaption that is neither 1 nor 2. The function is currently only called
-by gsm_modem_upd_via_data() and only for adaption 2.
-Properly handle every invalid case by returning -EINVAL to silence the
-compiler warning and avoid future regressions.
+The IOMMU mailing list has moved to iommu@lists.linux.dev
+and the old list should bounce by now. Remove it from the
+MAINTAINERS file.
 
-Fixes: c19ffe00fed6 ("tty: n_gsm: fix invalid use of MSC in advanced option")
 Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220425104726.7986-1-daniel.starke@siemens.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20220706103331.10215-1-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ MAINTAINERS |   11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index c8ca00fad8e4..fd4a86111a6e 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -945,18 +945,21 @@ static int gsm_dlci_modem_output(struct gsm_mux *gsm, struct gsm_dlci *dlci,
- {
- 	u8 *dp = NULL;
- 	struct gsm_msg *msg;
--	int size;
-+	int size = 0;
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -426,7 +426,6 @@ F:	drivers/acpi/*thermal*
+ ACPI VIOT DRIVER
+ M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
+ L:	linux-acpi@vger.kernel.org
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Maintained
+ F:	drivers/acpi/viot.c
+@@ -960,7 +959,6 @@ F:	drivers/video/fbdev/geode/
+ AMD IOMMU (AMD-VI)
+ M:	Joerg Roedel <joro@8bytes.org>
+ R:	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
+@@ -5899,7 +5897,6 @@ DMA MAPPING HELPERS
+ M:	Christoph Hellwig <hch@lst.de>
+ M:	Marek Szyprowski <m.szyprowski@samsung.com>
+ R:	Robin Murphy <robin.murphy@arm.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Supported
+ W:	http://git.infradead.org/users/hch/dma-mapping.git
+@@ -5912,7 +5909,6 @@ F:	kernel/dma/
  
- 	/* for modem bits without break data */
--	if (dlci->adaption == 1) {
--		size = 0;
--	} else if (dlci->adaption == 2) {
--		size = 1;
-+	switch (dlci->adaption) {
-+	case 1: /* Unstructured */
-+		break;
-+	case 2: /* Unstructured with modem bits. */
-+		size++;
- 		if (brk > 0)
- 			size++;
--	} else {
-+		break;
-+	default:
- 		pr_err("%s: unsupported adaption %d\n", __func__,
- 		       dlci->adaption);
-+		return -EINVAL;
- 	}
+ DMA MAPPING BENCHMARK
+ M:	Xiang Chen <chenxiang66@hisilicon.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ F:	kernel/dma/map_benchmark.c
+ F:	tools/testing/selftests/dma/
+@@ -7479,7 +7475,6 @@ F:	drivers/gpu/drm/exynos/exynos_dp*
  
- 	msg = gsm_data_alloc(gsm, dlci->addr, size, gsm->ftype);
--- 
-2.35.1
-
+ EXYNOS SYSMMU (IOMMU) driver
+ M:	Marek Szyprowski <m.szyprowski@samsung.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Maintained
+ F:	drivers/iommu/exynos-iommu.c
+@@ -9879,7 +9874,6 @@ F:	drivers/hid/intel-ish-hid/
+ INTEL IOMMU (VT-d)
+ M:	David Woodhouse <dwmw2@infradead.org>
+ M:	Lu Baolu <baolu.lu@linux.intel.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Supported
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
+@@ -10258,7 +10252,6 @@ F:	include/linux/iomap.h
+ IOMMU DRIVERS
+ M:	Joerg Roedel <joro@8bytes.org>
+ M:	Will Deacon <will@kernel.org>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git
+@@ -12375,7 +12368,6 @@ F:	drivers/i2c/busses/i2c-mt65xx.c
+ 
+ MEDIATEK IOMMU DRIVER
+ M:	Yong Wu <yong.wu@mediatek.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
+ S:	Supported
+@@ -16361,7 +16353,6 @@ F:	drivers/i2c/busses/i2c-qcom-cci.c
+ 
+ QUALCOMM IOMMU
+ M:	Rob Clark <robdclark@gmail.com>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ L:	linux-arm-msm@vger.kernel.org
+ S:	Maintained
+@@ -18947,7 +18938,6 @@ F:	arch/x86/boot/video*
+ 
+ SWIOTLB SUBSYSTEM
+ M:	Christoph Hellwig <hch@infradead.org>
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Supported
+ W:	http://git.infradead.org/users/hch/dma-mapping.git
+@@ -21618,7 +21608,6 @@ XEN SWIOTLB SUBSYSTEM
+ M:	Juergen Gross <jgross@suse.com>
+ M:	Stefano Stabellini <sstabellini@kernel.org>
+ L:	xen-devel@lists.xenproject.org (moderated for non-subscribers)
+-L:	iommu@lists.linux-foundation.org
+ L:	iommu@lists.linux.dev
+ S:	Supported
+ F:	arch/x86/xen/*swiotlb*
 
 
