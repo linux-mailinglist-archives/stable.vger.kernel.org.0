@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A061056FA24
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC52A56FB70
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231442AbiGKJNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:13:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59376 "EHLO
+        id S232630AbiGKJam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231337AbiGKJNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:13:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B84E2F3BB;
-        Mon, 11 Jul 2022 02:09:39 -0700 (PDT)
+        with ESMTP id S232845AbiGKJ3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:29:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2652709AE;
+        Mon, 11 Jul 2022 02:16:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76BF26115B;
-        Mon, 11 Jul 2022 09:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88EEAC34115;
-        Mon, 11 Jul 2022 09:09:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0892761226;
+        Mon, 11 Jul 2022 09:16:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1615AC34115;
+        Mon, 11 Jul 2022 09:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530577;
-        bh=NZfE0H/w5NIGJFcWdjQPXZinzAVGglJvOVXLLc32h1I=;
+        s=korg; t=1657530994;
+        bh=QjqgyLl0/S8E7GIf56Ex+JLVKwqnCTDYX7/NdJD+5yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmFclwm1L86PTEKxh9ZMAo7mKodTjndzDpJHhgOJdUzuhFmdcs1J8zY3yBdByb6Bq
-         nYyvEY1xBqchXqb+lB0IDMp2Qhb1vkZh9yw0SB9xzSM3RksspQwDhKuehSjKCIXnPR
-         IH52g+BYMkPInmvgigzr3ygnLk9EFVl5axE3RFhw=
+        b=NUZuuIg/nGYZISMVaBmzESg0b27klzZflcUs99P7kLUbdXcA4f2QKlF1pQONZzrGg
+         ZJu/2kMGSEOzoyBYCN3fPQJ+w++HfMHDIavSNzb4WujHZS/LqwqYbqLaYd1VnpyRiE
+         BFiRT+vMo4QDcS73oxlNcrLHMfqGP91elxjARbO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Child <nnac123@linux.ibm.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        Rick Lindsley <ricklind@us.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>, Peng Fan <peng.fan@nxp.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/31] ibmvnic: Properly dispose of all skbs during a failover.
+Subject: [PATCH 5.18 058/112] arm64: dts: imx8mp-evk: correct the uart2 pinctl value
 Date:   Mon, 11 Jul 2022 11:06:58 +0200
-Message-Id: <20220711090538.414969149@linuxfoundation.org>
+Message-Id: <20220711090551.219419939@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Lindsley <ricklind@us.ibm.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 1b18f09d31cfa7148df15a7d5c5e0e86f105f7d1 ]
+[ Upstream commit 2d4fb72b681205eed4553d8802632bd3270be3ba ]
 
-During a reset, there may have been transmits in flight that are no
-longer valid and cannot be fulfilled.  Resetting and clearing the
-queues is insufficient; each skb also needs to be explicitly freed
-so that upper levels are not left waiting for confirmation of a
-transmit that will never happen.  If this happens frequently enough,
-the apparent backlog will cause TCP to begin "congestion control"
-unnecessarily, culminating in permanently decreased throughput.
+According to the IOMUXC_SW_PAD_CTL_PAD_UART2_RXD/TXD register define in
+imx8mp RM, bit0 and bit3 are reserved, and the uart2 rx/tx pin should
+enable the pull up, so need to set bit8 to 1. The original pinctl value
+0x49 is incorrect and needs to be changed to 0x140, same as uart1 and
+uart3.
 
-Fixes: d7c0ef36bde03 ("ibmvnic: Free and re-allocate scrqs when tx/rx scrqs change")
-Tested-by: Nick Child <nnac123@linux.ibm.com>
-Reviewed-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Rick Lindsley <ricklind@us.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9e847693c6f3 ("arm64: dts: freescale: Add i.MX8MP EVK board support")
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index ae3eea4a4213..1463cf4321a8 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4691,6 +4691,15 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter)
- 			release_sub_crqs(adapter, 0);
- 			rc = init_sub_crqs(adapter);
- 		} else {
-+			/* no need to reinitialize completely, but we do
-+			 * need to clean up transmits that were in flight
-+			 * when we processed the reset.  Failure to do so
-+			 * will confound the upper layer, usually TCP, by
-+			 * creating the illusion of transmits that are
-+			 * awaiting completion.
-+			 */
-+			clean_tx_pools(adapter);
-+
- 			rc = reset_sub_crq_queues(adapter);
- 		}
- 	} else {
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+index f31cf778890d..4ba31fc5d0a5 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+@@ -506,8 +506,8 @@
+ 
+ 	pinctrl_uart2: uart2grp {
+ 		fsl,pins = <
+-			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x49
+-			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x49
++			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x140
++			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x140
+ 		>;
+ 	};
+ 
 -- 
 2.35.1
 
