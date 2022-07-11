@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F1F56FB12
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED0156FD1C
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232094AbiGKJZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47268 "EHLO
+        id S233588AbiGKJvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232326AbiGKJY2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3690E28701;
-        Mon, 11 Jul 2022 02:14:30 -0700 (PDT)
+        with ESMTP id S233629AbiGKJuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81EB8313A8;
+        Mon, 11 Jul 2022 02:24:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6208B80CEF;
-        Mon, 11 Jul 2022 09:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39C5BC34115;
-        Mon, 11 Jul 2022 09:14:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1450A61363;
+        Mon, 11 Jul 2022 09:24:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1870BC34115;
+        Mon, 11 Jul 2022 09:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530867;
-        bh=md5Iwx5idA89husX/GHelj2HKMmJ5QIfXFbbhQRgCII=;
+        s=korg; t=1657531474;
+        bh=T+y81cV5cT0q5eTK5Na8tcQR7hBNFKwry7g91mXTPIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4z3PlloF/0/XYClrygbl8Yw8WsuzNjrngy23x0qG5HOg16WVjagPc3JkP59JJG/4
-         xzfXHZFvUp/H7BtVvT8WOhi9LOE9vPzCO16VT4GPqRLuXdyZYRWrAuFpcHYMtv9AI/
-         xtjypcEWdPw2wqKWdPXHzXYK/+hL4bU52jV7aqrs=
+        b=dXqo6La95fcm2p+nxLgBf4SPgxq+GizeP4v1GTSwNbt++90mxv9rkjkWhqE5VKrqA
+         UzPGcv6C8CTbeH7uAeASwxcEGfUd96mFRMrdEuzCrLYibMMOGmse3dDh/B0lzkuEVl
+         QhovAVMp99/JSATf5fmvostrVwhabMLVoClusF8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavel Modilaynen <pavel.modilaynen@volvocars.com>,
-        Thomas Kopp <thomas.kopp@microchip.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.18 013/112] can: mcp251xfd: mcp251xfd_regmap_crc_read(): improve workaround handling for mcp2517fd
+        stable@vger.kernel.org, stable@kernel.org,
+        Oliver Upton <oupton@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 117/230] KVM: Dont create VM debugfs files outside of the VM directory
 Date:   Mon, 11 Jul 2022 11:06:13 +0200
-Message-Id: <20220711090549.934935044@linuxfoundation.org>
+Message-Id: <20220711090607.384854767@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Kopp <thomas.kopp@microchip.com>
+From: Oliver Upton <oupton@google.com>
 
-commit 406cc9cdb3e8d644b15e8028948f091b82abdbca upstream.
+[ Upstream commit a44a4cc1c969afec97dbb2aedaf6f38eaa6253bb ]
 
-The mcp251xfd compatible chips have an erratum ([1], [2]), where the
-received CRC doesn't match the calculated CRC. In commit
-c7eb923c3caf ("can: mcp251xfd: mcp251xfd_regmap_crc_read(): work
-around broken CRC on TBC register") the following workaround was
-implementierend.
+Unfortunately, there is no guarantee that KVM was able to instantiate a
+debugfs directory for a particular VM. To that end, KVM shouldn't even
+attempt to create new debugfs files in this case. If the specified
+parent dentry is NULL, debugfs_create_file() will instantiate files at
+the root of debugfs.
 
-- If a CRC read error on the TBC register is detected and the first
-  byte is 0x00 or 0x80, the most significant bit of the first byte is
-  flipped and the CRC is calculated again.
-- If the CRC now matches, the _original_ data is passed to the reader.
-  For now we assume transferred data was OK.
+For arm64, it is possible to create the vgic-state file outside of a
+VM directory, the file is not cleaned up when a VM is destroyed.
+Nonetheless, the corresponding struct kvm is freed when the VM is
+destroyed.
 
-Measurements on the mcp2517fd show that the workaround is applicable
-not only of the lowest byte is 0x00 or 0x80, but also if 3 least
-significant bits are set.
+Nip the problem in the bud for all possible errant debugfs file
+creations by initializing kvm->debugfs_dentry to -ENOENT. In so doing,
+debugfs_create_file() will fail instead of creating the file in the root
+directory.
 
-Update check on 1st data byte and workaround description accordingly.
-
-[1] mcp2517fd: DS80000792C: "Incorrect CRC for certain READ_CRC commands"
-[2] mcp2518fd: DS80000789C: "Incorrect CRC for certain READ_CRC commands"
-
-Link: https://lore.kernel.org/all/DM4PR11MB53901D49578FE265B239E55AFB7C9@DM4PR11MB5390.namprd11.prod.outlook.com
-Fixes: c7eb923c3caf ("can: mcp251xfd: mcp251xfd_regmap_crc_read(): work around broken CRC on TBC register")
-Cc: stable@vger.kernel.org
-Reported-by: Pavel Modilaynen <pavel.modilaynen@volvocars.com>
-Signed-off-by: Thomas Kopp <thomas.kopp@microchip.com>
-[mkl: split into 2 patches, update patch description and documentation]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@kernel.org
+Fixes: 929f45e32499 ("kvm: no need to check return value of debugfs_create functions")
+Signed-off-by: Oliver Upton <oupton@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220406235615.1447180-2-oupton@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ virt/kvm/kvm_main.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c
-@@ -334,10 +334,12 @@ mcp251xfd_regmap_crc_read(void *context,
- 		 * register. It increments once per SYS clock tick,
- 		 * which is 20 or 40 MHz.
- 		 *
--		 * Observation shows that if the lowest byte (which is
--		 * transferred first on the SPI bus) of that register
--		 * is 0x00 or 0x80 the calculated CRC doesn't always
--		 * match the transferred one.
-+		 * Observation on the mcp2518fd shows that if the
-+		 * lowest byte (which is transferred first on the SPI
-+		 * bus) of that register is 0x00 or 0x80 the
-+		 * calculated CRC doesn't always match the transferred
-+		 * one. On the mcp2517fd this problem is not limited
-+		 * to the first byte being 0x00 or 0x80.
- 		 *
- 		 * If the highest bit in the lowest byte is flipped
- 		 * the transferred CRC matches the calculated one. We
-@@ -346,7 +348,8 @@ mcp251xfd_regmap_crc_read(void *context,
- 		 * correct.
- 		 */
- 		if (reg == MCP251XFD_REG_TBC &&
--		    (buf_rx->data[0] == 0x0 || buf_rx->data[0] == 0x80)) {
-+		    ((buf_rx->data[0] & 0xf8) == 0x0 ||
-+		     (buf_rx->data[0] & 0xf8) == 0x80)) {
- 			/* Flip highest bit in lowest byte of le32 */
- 			buf_rx->data[0] ^= 0x80;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 99c591569815..9134ae252d7c 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -911,7 +911,7 @@ static void kvm_destroy_vm_debugfs(struct kvm *kvm)
+ 	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
+ 				      kvm_vcpu_stats_header.num_desc;
  
+-	if (!kvm->debugfs_dentry)
++	if (IS_ERR(kvm->debugfs_dentry))
+ 		return;
+ 
+ 	debugfs_remove_recursive(kvm->debugfs_dentry);
+@@ -934,6 +934,12 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+ 	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
+ 				      kvm_vcpu_stats_header.num_desc;
+ 
++	/*
++	 * Force subsequent debugfs file creations to fail if the VM directory
++	 * is not created.
++	 */
++	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
++
+ 	if (!debugfs_initialized())
+ 		return 0;
+ 
+@@ -5373,7 +5379,7 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ 	}
+ 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
+ 
+-	if (kvm->debugfs_dentry) {
++	if (!IS_ERR(kvm->debugfs_dentry)) {
+ 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
+ 
+ 		if (p) {
+-- 
+2.35.1
+
 
 
