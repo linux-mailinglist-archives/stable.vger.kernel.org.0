@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 649D856FC8E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73A1856FC8F
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233278AbiGKJpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
+        id S233381AbiGKJp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233467AbiGKJoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68580A4CB5;
-        Mon, 11 Jul 2022 02:21:56 -0700 (PDT)
+        with ESMTP id S233502AbiGKJoQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C890AA7D65;
+        Mon, 11 Jul 2022 02:21:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E27BFB80E6D;
-        Mon, 11 Jul 2022 09:21:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58ADBC34115;
-        Mon, 11 Jul 2022 09:21:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1320ACE1261;
+        Mon, 11 Jul 2022 09:21:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06F31C34115;
+        Mon, 11 Jul 2022 09:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531313;
-        bh=aHY4s6ThFh4WFR8QECkXyGEc/WgAC0zJmGhEJyrM++M=;
+        s=korg; t=1657531316;
+        bh=Qp/4vTTjsjQl1T0Fo2W+iWdD6MYDxyl9nKH1aVGXKmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvIl3+JXjmSfhiOnAqwimouaA75M/Jh7bU59y4fwQchgsA0FRV6ocypOq1tCKAjEW
-         gvD2c+PliGxfV/ZCbjQ9rgtpiAeIuNbx/REGSszZr+ur/STunPmO6qNMOb6+GZnw5J
-         B3KDwKUAs6BgUBuOofFv1UymaM0/obZ48d1lWsmI=
+        b=oQFprLtRYm8Gpll4M4eBN6lvDxkZMiihbCAQf4tB4MHgr9KOB0o43aMHNcgNEVf/v
+         TjjD609WyVJm2lffWZ+f6yXkHGfwixTZ5O39OqQhTU1pANJZPelG+fADCysZFuYGYZ
+         8Ya1SNF+joIBd3QNYc1LxaybI+YhLa7Qy75jN4YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/230] s390/setup: preserve memory at OLDMEM_BASE and OLDMEM_SIZE
-Date:   Mon, 11 Jul 2022 11:05:17 +0200
-Message-Id: <20220711090605.807742798@linuxfoundation.org>
+Subject: [PATCH 5.15 062/230] ibmvnic: init init_done_rc earlier
+Date:   Mon, 11 Jul 2022 11:05:18 +0200
+Message-Id: <20220711090605.836475160@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,38 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-[ Upstream commit 6b4b54c7ca347bcb4aa7a3cc01aa16e84ac7fbe4 ]
+[ Upstream commit ae16bf15374d8b055e040ac6f3f1147ab1c9bb7d ]
 
-We need to preserve the values at OLDMEM_BASE and OLDMEM_SIZE which are
-used by zgetdump in case when kdump crashes. In that case zgetdump will
-attempt to read OLDMEM_BASE and OLDMEM_SIZE in order to find out where
-the memory range [0 - OLDMEM_SIZE] belonging to the production kernel is.
+We currently initialize the ->init_done completion/return code fields
+before issuing a CRQ_INIT command. But if we get a transport event soon
+after registering the CRQ the taskslet may already have recorded the
+completion and error code. If we initialize here, we might overwrite/
+lose that and end up issuing the CRQ_INIT only to timeout later.
 
-Fixes: f1a546947431 ("s390/setup: don't reserve memory that occupied decompressor's head")
-Cc: stable@vger.kernel.org # 5.15+
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+If that timeout happens during probe, we will leave the adapter in the
+DOWN state rather than retrying to register/init the CRQ.
+
+Initialize the completion before registering the CRQ so we don't lose
+the notification.
+
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 2ebde341d057..36c1f31dfd66 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -798,6 +798,8 @@ static void __init check_initrd(void)
- static void __init reserve_kernel(void)
- {
- 	memblock_reserve(0, STARTUP_NORMAL_OFFSET);
-+	memblock_reserve(OLDMEM_BASE, sizeof(unsigned long));
-+	memblock_reserve(OLDMEM_SIZE, sizeof(unsigned long));
- 	memblock_reserve(__amode31_base, __eamode31 - __samode31);
- 	memblock_reserve(__pa(sclp_early_sccb), EXT_SCCB_READ_SCP);
- 	memblock_reserve(__pa(_stext), _end - _stext);
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index b262aa84b6a2..70267bd73429 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2063,6 +2063,19 @@ static const char *reset_reason_to_string(enum ibmvnic_reset_reason reason)
+ 	return "UNKNOWN";
+ }
+ 
++/*
++ * Initialize the init_done completion and return code values. We
++ * can get a transport event just after registering the CRQ and the
++ * tasklet will use this to communicate the transport event. To ensure
++ * we don't miss the notification/error, initialize these _before_
++ * regisering the CRQ.
++ */
++static inline void reinit_init_done(struct ibmvnic_adapter *adapter)
++{
++	reinit_completion(&adapter->init_done);
++	adapter->init_done_rc = 0;
++}
++
+ /*
+  * do_reset returns zero if we are able to keep processing reset events, or
+  * non-zero if we hit a fatal error and must halt.
+@@ -2169,6 +2182,8 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		 */
+ 		adapter->state = VNIC_PROBED;
+ 
++		reinit_init_done(adapter);
++
+ 		if (adapter->reset_reason == VNIC_RESET_CHANGE_PARAM) {
+ 			rc = init_crq_queue(adapter);
+ 		} else if (adapter->reset_reason == VNIC_RESET_MOBILITY) {
+@@ -2314,7 +2329,8 @@ static int do_hard_reset(struct ibmvnic_adapter *adapter,
+ 	 */
+ 	adapter->state = VNIC_PROBED;
+ 
+-	reinit_completion(&adapter->init_done);
++	reinit_init_done(adapter);
++
+ 	rc = init_crq_queue(adapter);
+ 	if (rc) {
+ 		netdev_err(adapter->netdev,
+@@ -5485,10 +5501,6 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter, bool reset)
+ 
+ 	adapter->from_passive_init = false;
+ 
+-	if (reset)
+-		reinit_completion(&adapter->init_done);
+-
+-	adapter->init_done_rc = 0;
+ 	rc = ibmvnic_send_crq_init(adapter);
+ 	if (rc) {
+ 		dev_err(dev, "Send crq init failed with error %d\n", rc);
+@@ -5502,12 +5514,14 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter, bool reset)
+ 
+ 	if (adapter->init_done_rc) {
+ 		release_crq_queue(adapter);
++		dev_err(dev, "CRQ-init failed, %d\n", adapter->init_done_rc);
+ 		return adapter->init_done_rc;
+ 	}
+ 
+ 	if (adapter->from_passive_init) {
+ 		adapter->state = VNIC_OPEN;
+ 		adapter->from_passive_init = false;
++		dev_err(dev, "CRQ-init failed, passive-init\n");
+ 		return -1;
+ 	}
+ 
+@@ -5596,6 +5610,8 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
+ 
+ 	init_success = false;
+ 	do {
++		reinit_init_done(adapter);
++
+ 		rc = init_crq_queue(adapter);
+ 		if (rc) {
+ 			dev_err(&dev->dev, "Couldn't initialize crq. rc=%d\n",
 -- 
 2.35.1
 
