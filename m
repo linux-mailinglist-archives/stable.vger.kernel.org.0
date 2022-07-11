@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B32C56F9A2
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE72B56FD32
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbiGKJG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:06:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45912 "EHLO
+        id S233832AbiGKJwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbiGKJG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:06:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1286C220F5;
-        Mon, 11 Jul 2022 02:06:56 -0700 (PDT)
+        with ESMTP id S233843AbiGKJup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCAB29830;
+        Mon, 11 Jul 2022 02:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E57B6115B;
-        Mon, 11 Jul 2022 09:06:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A74EFC34115;
-        Mon, 11 Jul 2022 09:06:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9EE38B80E7A;
+        Mon, 11 Jul 2022 09:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F1DAC34115;
+        Mon, 11 Jul 2022 09:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530415;
-        bh=w/r9T7KTZFZxh+QFvGAZJ4PpK5bboTkIC5b0hwiZBHo=;
+        s=korg; t=1657531499;
+        bh=jLg70Q9nZHijQ04V8fPVGvO1b75QYGWIzu9gmbZ9Xr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=goqlL/GeG1emI0h/p1T01qQzSo2DgUpywBFS4pbcIOzr93BYczzARPugMKMWIA/kI
-         1ENWtpl30vfS+jp/To/RJ4tnS4Id3ys95KCVVMsHAVGBkgY2mE+EWbcjkpKjGLMAnl
-         7b8wOdoWRuxklLx5fcLx339YPHYQhwRESGCuEiKI=
+        b=OGg2gj4XzgitG/GO3LyXj39N1tFw364Ok67w5cnx+p4enDl45qvTIafk41NITHF8f
+         3ody7LDM1/vXk3XYW86x61aIRRp6ZoqhMvv3lSwSvLaivMOGIV9Wdb06a/MgeauAS1
+         6tpWhfXs+XcD/b90+UUsvul32ConanwhcRcycNDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rhett Aultman <rhett.aultman@samsara.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 03/14] can: gs_usb: gs_usb_open/close(): fix memory leak
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Oliver Upton <oupton@google.com>,
+        syzbot+df6fbbd2ee39f21289ef@syzkaller.appspotmail.com,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 126/230] KVM: Initialize debugfs_dentry when a VM is created to avoid NULL deref
 Date:   Mon, 11 Jul 2022 11:06:22 +0200
-Message-Id: <20220711090535.623905339@linuxfoundation.org>
+Message-Id: <20220711090607.639773751@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
-References: <20220711090535.517697227@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +57,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rhett Aultman <rhett.aultman@samsara.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 2bda24ef95c0311ab93bda00db40486acf30bd0a upstream.
+[ Upstream commit 5c697c367a66307a5d943c3449421aff2aa3ca4a ]
 
-The gs_usb driver appears to suffer from a malady common to many USB
-CAN adapter drivers in that it performs usb_alloc_coherent() to
-allocate a number of USB request blocks (URBs) for RX, and then later
-relies on usb_kill_anchored_urbs() to free them, but this doesn't
-actually free them. As a result, this may be leaking DMA memory that's
-been used by the driver.
+Initialize debugfs_entry to its semi-magical -ENOENT value when the VM
+is created.  KVM's teardown when VM creation fails is kludgy and calls
+kvm_uevent_notify_change() and kvm_destroy_vm_debugfs() even if KVM never
+attempted kvm_create_vm_debugfs().  Because debugfs_entry is zero
+initialized, the IS_ERR() checks pass and KVM derefs a NULL pointer.
 
-This commit is an adaptation of the techniques found in the esd_usb2
-driver where a similar design pattern led to a memory leak. It
-explicitly frees the RX URBs and their DMA memory via a call to
-usb_free_coherent(). Since the RX URBs were allocated in the
-gs_can_open(), we remove them in gs_can_close() rather than in the
-disconnect function as was done in esd_usb2.
+  BUG: kernel NULL pointer dereference, address: 0000000000000018
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 1068b1067 P4D 1068b1067 PUD 1068b0067 PMD 0
+  Oops: 0000 [#1] SMP
+  CPU: 0 PID: 871 Comm: repro Not tainted 5.18.0-rc1+ #825
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:__dentry_path+0x7b/0x130
+  Call Trace:
+   <TASK>
+   dentry_path_raw+0x42/0x70
+   kvm_uevent_notify_change.part.0+0x10c/0x200 [kvm]
+   kvm_put_kvm+0x63/0x2b0 [kvm]
+   kvm_dev_ioctl+0x43a/0x920 [kvm]
+   __x64_sys_ioctl+0x83/0xb0
+   do_syscall_64+0x31/0x50
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+   </TASK>
+  Modules linked in: kvm_intel kvm irqbypass
 
-For more information, see the 928150fad41b ("can: esd_usb2: fix memory
-leak").
-
-Link: https://lore.kernel.org/all/alpine.DEB.2.22.394.2206031547001.1630869@thelappy
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Fixes: a44a4cc1c969 ("KVM: Don't create VM debugfs files outside of the VM directory")
 Cc: stable@vger.kernel.org
-Signed-off-by: Rhett Aultman <rhett.aultman@samsara.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Oliver Upton <oupton@google.com>
+Reported-by: syzbot+df6fbbd2ee39f21289ef@syzkaller.appspotmail.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Message-Id: <20220415004622.2207751-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ virt/kvm/kvm_main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -192,6 +192,8 @@ struct gs_can {
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 9134ae252d7c..9eac68ae291e 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -934,12 +934,6 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+ 	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
+ 				      kvm_vcpu_stats_header.num_desc;
  
- 	struct usb_anchor tx_submitted;
- 	atomic_t active_tx_urbs;
-+	void *rxbuf[GS_MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[GS_MAX_RX_URBS];
- };
+-	/*
+-	 * Force subsequent debugfs file creations to fail if the VM directory
+-	 * is not created.
+-	 */
+-	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
+-
+ 	if (!debugfs_initialized())
+ 		return 0;
  
- /* usb interface struct */
-@@ -601,6 +603,7 @@ static int gs_can_open(struct net_device
- 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
- 			struct urb *urb;
- 			u8 *buf;
-+			dma_addr_t buf_dma;
+@@ -1055,6 +1049,12 @@ static struct kvm *kvm_create_vm(unsigned long type)
  
- 			/* alloc rx urb */
- 			urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -611,7 +614,7 @@ static int gs_can_open(struct net_device
- 			buf = usb_alloc_coherent(dev->udev,
- 						 sizeof(struct gs_host_frame),
- 						 GFP_KERNEL,
--						 &urb->transfer_dma);
-+						 &buf_dma);
- 			if (!buf) {
- 				netdev_err(netdev,
- 					   "No memory left for USB buffer\n");
-@@ -619,6 +622,8 @@ static int gs_can_open(struct net_device
- 				return -ENOMEM;
- 			}
+ 	BUILD_BUG_ON(KVM_MEM_SLOTS_NUM > SHRT_MAX);
  
-+			urb->transfer_dma = buf_dma;
++	/*
++	 * Force subsequent debugfs file creations to fail if the VM directory
++	 * is not created (by kvm_create_vm_debugfs()).
++	 */
++	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
 +
- 			/* fill, anchor, and submit rx urb */
- 			usb_fill_bulk_urb(urb,
- 					  dev->udev,
-@@ -642,10 +647,17 @@ static int gs_can_open(struct net_device
- 					   rc);
- 
- 				usb_unanchor_urb(urb);
-+				usb_free_coherent(dev->udev,
-+						  sizeof(struct gs_host_frame),
-+						  buf,
-+						  buf_dma);
- 				usb_free_urb(urb);
- 				break;
- 			}
- 
-+			dev->rxbuf[i] = buf;
-+			dev->rxbuf_dma[i] = buf_dma;
-+
- 			/* Drop reference,
- 			 * USB core will take care of freeing it
- 			 */
-@@ -710,13 +722,20 @@ static int gs_can_close(struct net_devic
- 	int rc;
- 	struct gs_can *dev = netdev_priv(netdev);
- 	struct gs_usb *parent = dev->parent;
-+	unsigned int i;
- 
- 	netif_stop_queue(netdev);
- 
- 	/* Stop polling */
- 	parent->active_channels--;
--	if (!parent->active_channels)
-+	if (!parent->active_channels) {
- 		usb_kill_anchored_urbs(&parent->rx_submitted);
-+		for (i = 0; i < GS_MAX_RX_URBS; i++)
-+			usb_free_coherent(dev->udev,
-+					  sizeof(struct gs_host_frame),
-+					  dev->rxbuf[i],
-+					  dev->rxbuf_dma[i]);
-+	}
- 
- 	/* Stop sending URBs */
- 	usb_kill_anchored_urbs(&dev->tx_submitted);
+ 	if (init_srcu_struct(&kvm->srcu))
+ 		goto out_err_no_srcu;
+ 	if (init_srcu_struct(&kvm->irq_srcu))
+-- 
+2.35.1
+
 
 
