@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F271D56FA03
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B035E56FB76
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbiGKJL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46580 "EHLO
+        id S232152AbiGKJbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:31:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbiGKJLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:11:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8605A1262D;
-        Mon, 11 Jul 2022 02:09:00 -0700 (PDT)
+        with ESMTP id S231431AbiGKJ2o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11ABC67597;
+        Mon, 11 Jul 2022 02:16:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 714F46115B;
-        Mon, 11 Jul 2022 09:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C4E3C34115;
-        Mon, 11 Jul 2022 09:08:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2956FB80DB7;
+        Mon, 11 Jul 2022 09:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DFF4C34115;
+        Mon, 11 Jul 2022 09:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530538;
-        bh=Zh7XzfrXu2lZA8USWPkjYJ5nKN75L6QE/SiI/vL2YmA=;
+        s=korg; t=1657530963;
+        bh=ZF+WrzFbhV5KX1eMz2BAXCroj3WkNOc6oPxo40Y+VAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAAapBeGvmD+ouNatAgsEn959FpOyDmILh2xTQfqUttIQCecWnav2e5yV7THbEqVO
-         6hrmvRTi5esg+39209beFFvUTasfGdEvgYRdNBtF61PbsrqFEa/48CyNs2EdJoiSqL
-         7cvpLXsHnGytEWcP8XLP9vHsM9xFCLziQXWkxqus=
+        b=sIS3VmYr7gUUNAwu8jDugOEVZzI8KuzQ6Qush6t78GnzDMYUUlyxgbJz+ddbeAcfH
+         gMTiJwtJ4hi8TVE2EKERxwofuzI303Aboh0hAvtA6G0oxUby3Hzj5GqhomQjKm0/Pm
+         uOgOm8DWX3r/a7TfSr5WkbKcg3Xtq1tphW6dZBiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4.19 09/31] fbcon: Disallow setting font bigger than screen size
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 048/112] ASoC: rt711: Add endianness flag in snd_soc_component_driver
 Date:   Mon, 11 Jul 2022 11:06:48 +0200
-Message-Id: <20220711090538.122095708@linuxfoundation.org>
+Message-Id: <20220711090550.935510604@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 65a01e601dbba8b7a51a2677811f70f783766682 upstream.
+[ Upstream commit 33f06beac3ade10834a82ad4105dcd91d4b00d61 ]
 
-Prevent that users set a font size which is bigger than the physical screen.
-It's unlikely this may happen (because screens are usually much larger than the
-fonts and each font char is limited to 32x32 pixels), but it may happen on
-smaller screens/LCD displays.
+The endianness flag is used on the CODEC side to specify an
+ambivalence to endian, typically because it is lost over the hardware
+link. This device receives audio over a SoundWire DAI and as such
+should have endianness applied.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: stable@vger.kernel.org # v4.14+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220504170905.332415-31-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/codecs/rt711.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2468,6 +2468,11 @@ static int fbcon_set_font(struct vc_data
- 	if (charcount != 256 && charcount != 512)
- 		return -EINVAL;
+diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
+index ea25fd58d43a..9838fb4d5b9c 100644
+--- a/sound/soc/codecs/rt711.c
++++ b/sound/soc/codecs/rt711.c
+@@ -950,6 +950,7 @@ static const struct snd_soc_component_driver soc_codec_dev_rt711 = {
+ 	.num_dapm_routes = ARRAY_SIZE(rt711_audio_map),
+ 	.set_jack = rt711_set_jack_detect,
+ 	.remove = rt711_remove,
++	.endianness = 1,
+ };
  
-+	/* font bigger than screen resolution ? */
-+	if (w > FBCON_SWAP(info->var.rotate, info->var.xres, info->var.yres) ||
-+	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
-+		return -EINVAL;
-+
- 	/* Make sure drawing engine can handle the font */
- 	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
- 	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
+ static int rt711_set_sdw_stream(struct snd_soc_dai *dai, void *sdw_stream,
+-- 
+2.35.1
+
 
 
