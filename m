@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE17556FB00
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E149E56FB0F
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231904AbiGKJZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:25:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56502 "EHLO
+        id S232097AbiGKJZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232334AbiGKJYa (ORCPT
+        with ESMTP id S232332AbiGKJYa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3B7240B8;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B9E286F7;
         Mon, 11 Jul 2022 02:14:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1969CCE1259;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92F6A6115B;
+        Mon, 11 Jul 2022 09:14:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B407C34115;
         Mon, 11 Jul 2022 09:14:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A78C34115;
-        Mon, 11 Jul 2022 09:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530870;
-        bh=TRtp90YBaVG03YygRHmLfEk23dEDAC+1e/I54l6MBK0=;
+        s=korg; t=1657530873;
+        bh=sp7b6ESRpulFFd9mvznL9RA2PFRIIr/6Tdch+jz+hkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAKViFAe3ccsJ0IfM7Aqkor+bOR0L63uoStpXfNM2vao5MsB473nk0daYxLr0LwWl
-         yKK41+SvQtxlxcI0mSM9RmjFdUnhUoRu3VXZRpIFTWZzPtT1suZStsmbVCHNbYo9q6
-         zzgYgmVWFBkAR4mnCjxuTaFknb6Nfx4ELiW8Gka0=
+        b=AVSpHnx+kKupwjnSL2bXMEwHF8ANgOnOiUobf8OhUrKrs9GXlK3mF76Z0oYQHsHxO
+         Iuy5eFx1kX8Y9KCbCFkV3gV40lEOmhtrR+pwKnMAsr7k/T5Cw307kJL5aL6YmS2V34
+         pH107yctn4tIDrKOxDHJcqxOAzKkwUzIBzXRrwEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Kopp <thomas.kopp@microchip.com>,
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.18 014/112] can: mcp251xfd: mcp251xfd_regmap_crc_read(): update workaround broken CRC on TBC register
-Date:   Mon, 11 Jul 2022 11:06:14 +0200
-Message-Id: <20220711090549.963890864@linuxfoundation.org>
+Subject: [PATCH 5.18 015/112] can: mcp251xfd: mcp251xfd_stop(): add missing hrtimer_cancel()
+Date:   Mon, 11 Jul 2022 11:06:15 +0200
+Message-Id: <20220711090549.991364775@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
 References: <20220711090549.543317027@linuxfoundation.org>
@@ -53,68 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Kopp <thomas.kopp@microchip.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit e3d4ee7d5f7f5256dfe89219afcc7a2d553b731f upstream.
+commit d5a972f561a003e302e4267340c57e8fbd096fa4 upstream.
 
-The mcp251xfd compatible chips have an erratum ([1], [2]), where the
-received CRC doesn't match the calculated CRC. In commit
-c7eb923c3caf ("can: mcp251xfd: mcp251xfd_regmap_crc_read(): work
-around broken CRC on TBC register") the following workaround was
-implementierend.
+In commit 169d00a25658 ("can: mcp251xfd: add TX IRQ coalescing
+support") software based TX coalescing was added to the driver. The
+key idea is to keep the TX complete IRQ disabled for some time after
+processing it and re-enable later by a hrtimer. When bringing the
+interface down, this timer has to be stopped.
 
-- If a CRC read error on the TBC register is detected and the first
-  byte is 0x00 or 0x80, the most significant bit of the first byte is
-  flipped and the CRC is calculated again.
-- If the CRC now matches, the _original_ data is passed to the reader.
-  For now we assume transferred data was OK.
+Add the missing hrtimer_cancel() of the tx_irq_time hrtimer to
+mcp251xfd_stop().
 
-New investigations and simulations indicate that the CRC send by the
-device is calculated on correct data, and the data is incorrectly
-received by the SPI host controller.
-
-Use flipped instead of original data and update workaround description
-in mcp251xfd_regmap_crc_read().
-
-[1] mcp2517fd: DS80000792C: "Incorrect CRC for certain READ_CRC commands"
-[2] mcp2518fd: DS80000789C: "Incorrect CRC for certain READ_CRC commands"
-
-Link: https://lore.kernel.org/all/DM4PR11MB53901D49578FE265B239E55AFB7C9@DM4PR11MB5390.namprd11.prod.outlook.com
-Fixes: c7eb923c3caf ("can: mcp251xfd: mcp251xfd_regmap_crc_read(): work around broken CRC on TBC register")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Kopp <thomas.kopp@microchip.com>
-[mkl: split into 2 patches, update patch description and documentation]
+Link: https://lore.kernel.org/all/20220620143942.891811-1-mkl@pengutronix.de
+Fixes: 169d00a25658 ("can: mcp251xfd: add TX IRQ coalescing support")
+Cc: stable@vger.kernel.org # v5.18
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c
-@@ -343,9 +343,8 @@ mcp251xfd_regmap_crc_read(void *context,
- 		 *
- 		 * If the highest bit in the lowest byte is flipped
- 		 * the transferred CRC matches the calculated one. We
--		 * assume for now the CRC calculation in the chip
--		 * works on wrong data and the transferred data is
--		 * correct.
-+		 * assume for now the CRC operates on the correct
-+		 * data.
- 		 */
- 		if (reg == MCP251XFD_REG_TBC &&
- 		    ((buf_rx->data[0] & 0xf8) == 0x0 ||
-@@ -359,10 +358,8 @@ mcp251xfd_regmap_crc_read(void *context,
- 								  val_len);
- 			if (!err) {
- 				/* If CRC is now correct, assume
--				 * transferred data was OK, flip bit
--				 * back to original value.
-+				 * flipped data is OK.
- 				 */
--				buf_rx->data[0] ^= 0x80;
- 				goto out;
- 			}
- 		}
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
+@@ -1641,6 +1641,7 @@ static int mcp251xfd_stop(struct net_dev
+ 	netif_stop_queue(ndev);
+ 	set_bit(MCP251XFD_FLAGS_DOWN, priv->flags);
+ 	hrtimer_cancel(&priv->rx_irq_timer);
++	hrtimer_cancel(&priv->tx_irq_timer);
+ 	mcp251xfd_chip_interrupts_disable(priv);
+ 	free_irq(ndev->irq, priv);
+ 	can_rx_offload_disable(&priv->offload);
 
 
