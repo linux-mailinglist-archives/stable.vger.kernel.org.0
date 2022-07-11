@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA0256FB54
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 200B056FA9C
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbiGKJ3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40874 "EHLO
+        id S231817AbiGKJUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:20:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232682AbiGKJ31 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:29:27 -0400
+        with ESMTP id S231909AbiGKJTP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:19:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E136D56B;
-        Mon, 11 Jul 2022 02:16:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3614E852;
+        Mon, 11 Jul 2022 02:12:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9419F61243;
-        Mon, 11 Jul 2022 09:16:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2061C34115;
-        Mon, 11 Jul 2022 09:16:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D76611E4;
+        Mon, 11 Jul 2022 09:12:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91BEC34115;
+        Mon, 11 Jul 2022 09:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530986;
-        bh=QpAJqreb6gSFTrZdxgUfc7154j1uRiyvfmEosIasGDs=;
+        s=korg; t=1657530729;
+        bh=A8UtCcjwUYVFtYvgEA8CrQVCS5OqYaomFIh1ONkVOM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwB1bGutfVJab+Q0WGygxmi+bHbLCcWs42AAv9aLxbY/Oo+Q+rtqIHXD6uu0mxhWq
-         2qBNf2jmhiluwSdCFeV4PzzPL3MmsiOw1z9G3Ri6JeNpiZHcBiFlV3CKahqIL5LlDr
-         wJS/CzmVAzL5GhRqGxEQ2wQPVfjfmSiZNHyjQNw0=
+        b=YrJiDhjIJR+MyzvMGAYvcguxA8GOcOO7akbCgMDbesZ+SJx/+VuVeXteDB+xn6ZoJ
+         Iw1ceVB8hVWsBoKY2P9pv7o5od0KORkVORFakdJEfEvMgXFD6Gl0pZkWP18iffvaHG
+         4tneLDIgCZFacRfs+x3jgT2WLgutAfjvAQvdexPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 055/112] arm64: dts: qcom: sdm845: use dispcc AHB clock for mdss node
+        stable@vger.kernel.org, Kuee K1r0a <liulin063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.10 07/55] bpf: Fix insufficient bounds propagation from adjust_scalar_min_max_vals
 Date:   Mon, 11 Jul 2022 11:06:55 +0200
-Message-Id: <20220711090551.133270013@linuxfoundation.org>
+Message-Id: <20220711090541.979916069@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 3ba500dee327e0261e728edec8a4f2f563d2760c ]
+commit 3844d153a41adea718202c10ae91dc96b37453b5 upstream.
 
-It was noticed that on sdm845 after an MDSS suspend/resume cycle the
-driver can not read HW_REV registers properly (they will return 0
-instead). Chaning the "iface" clock from <&gcc GCC_DISP_AHB_CLK> to
-<&dispcc DISP_CC_MDSS_AHB_CLK> fixes the issue.
+Kuee reported a corner case where the tnum becomes constant after the call
+to __reg_bound_offset(), but the register's bounds are not, that is, its
+min bounds are still not equal to the register's max bounds.
 
-Fixes: 08c2a076d18f ("arm64: dts: qcom: sdm845: Add dpu to sdm845 dts file")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220531124735.1165582-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This in turn allows to leak pointers through turning a pointer register as
+is into an unknown scalar via adjust_ptr_min_max_vals().
+
+Before:
+
+  func#0 @0
+  0: R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
+  0: (b7) r0 = 1                        ; R0_w=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0))
+  1: (b7) r3 = 0                        ; R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0))
+  2: (87) r3 = -r3                      ; R3_w=scalar()
+  3: (87) r3 = -r3                      ; R3_w=scalar()
+  4: (47) r3 |= 32767                   ; R3_w=scalar(smin=-9223372036854743041,umin=32767,var_off=(0x7fff; 0xffffffffffff8000),s32_min=-2147450881)
+  5: (75) if r3 s>= 0x0 goto pc+1       ; R3_w=scalar(umin=9223372036854808575,var_off=(0x8000000000007fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
+  6: (95) exit
+
+  from 5 to 7: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
+  7: (d5) if r3 s<= 0x8000 goto pc+1    ; R3=scalar(umin=32769,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
+  8: (95) exit
+
+  from 7 to 9: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=32768,var_off=(0x7fff; 0x8000)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
+  9: (07) r3 += -32767                  ; R3_w=scalar(imm=0,umax=1,var_off=(0x0; 0x0))  <--- [*]
+  10: (95) exit
+
+What can be seen here is that R3=scalar(umin=32767,umax=32768,var_off=(0x7fff;
+0x8000)) after the operation R3 += -32767 results in a 'malformed' constant, that
+is, R3_w=scalar(imm=0,umax=1,var_off=(0x0; 0x0)). Intersecting with var_off has
+not been done at that point via __update_reg_bounds(), which would have improved
+the umax to be equal to umin.
+
+Refactor the tnum <> min/max bounds information flow into a reg_bounds_sync()
+helper and use it consistently everywhere. After the fix, bounds have been
+corrected to R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0)) and thus the register
+is regarded as a 'proper' constant scalar of 0.
+
+After:
+
+  func#0 @0
+  0: R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
+  0: (b7) r0 = 1                        ; R0_w=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0))
+  1: (b7) r3 = 0                        ; R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0))
+  2: (87) r3 = -r3                      ; R3_w=scalar()
+  3: (87) r3 = -r3                      ; R3_w=scalar()
+  4: (47) r3 |= 32767                   ; R3_w=scalar(smin=-9223372036854743041,umin=32767,var_off=(0x7fff; 0xffffffffffff8000),s32_min=-2147450881)
+  5: (75) if r3 s>= 0x0 goto pc+1       ; R3_w=scalar(umin=9223372036854808575,var_off=(0x8000000000007fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
+  6: (95) exit
+
+  from 5 to 7: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
+  7: (d5) if r3 s<= 0x8000 goto pc+1    ; R3=scalar(umin=32769,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
+  8: (95) exit
+
+  from 7 to 9: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=32768,var_off=(0x7fff; 0x8000)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
+  9: (07) r3 += -32767                  ; R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0))  <--- [*]
+  10: (95) exit
+
+Fixes: b03c9f9fdc37 ("bpf/verifier: track signed and unsigned min/max values")
+Reported-by: Kuee K1r0a <liulin063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20220701124727.11153-2-daniel@iogearbox.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/verifier.c |   72 +++++++++++++++-----------------------------------
+ 1 file changed, 23 insertions(+), 49 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-index b31bf62e8680..ad21cf465c98 100644
---- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-@@ -4238,7 +4238,7 @@
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1249,6 +1249,21 @@ static void __reg_bound_offset(struct bp
+ 	reg->var_off = tnum_or(tnum_clear_subreg(var64_off), var32_off);
+ }
  
- 			power-domains = <&dispcc MDSS_GDSC>;
++static void reg_bounds_sync(struct bpf_reg_state *reg)
++{
++	/* We might have learned new bounds from the var_off. */
++	__update_reg_bounds(reg);
++	/* We might have learned something about the sign bit. */
++	__reg_deduce_bounds(reg);
++	/* We might have learned some bits from the bounds. */
++	__reg_bound_offset(reg);
++	/* Intersecting with the old var_off might have improved our bounds
++	 * slightly, e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
++	 * then new var_off is (0; 0x7f...fc) which improves our umax.
++	 */
++	__update_reg_bounds(reg);
++}
++
+ static bool __reg32_bound_s64(s32 a)
+ {
+ 	return a >= 0 && a <= S32_MAX;
+@@ -1290,16 +1305,8 @@ static void __reg_combine_32_into_64(str
+ 		 * so they do not impact tnum bounds calculation.
+ 		 */
+ 		__mark_reg64_unbounded(reg);
+-		__update_reg_bounds(reg);
+ 	}
+-
+-	/* Intersecting with the old var_off might have improved our bounds
+-	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+-	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+-	 */
+-	__reg_deduce_bounds(reg);
+-	__reg_bound_offset(reg);
+-	__update_reg_bounds(reg);
++	reg_bounds_sync(reg);
+ }
  
--			clocks = <&gcc GCC_DISP_AHB_CLK>,
-+			clocks = <&dispcc DISP_CC_MDSS_AHB_CLK>,
- 				 <&dispcc DISP_CC_MDSS_MDP_CLK>;
- 			clock-names = "iface", "core";
+ static bool __reg64_bound_s32(s64 a)
+@@ -1315,7 +1322,6 @@ static bool __reg64_bound_u32(u64 a)
+ static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
+ {
+ 	__mark_reg32_unbounded(reg);
+-
+ 	if (__reg64_bound_s32(reg->smin_value) && __reg64_bound_s32(reg->smax_value)) {
+ 		reg->s32_min_value = (s32)reg->smin_value;
+ 		reg->s32_max_value = (s32)reg->smax_value;
+@@ -1324,14 +1330,7 @@ static void __reg_combine_64_into_32(str
+ 		reg->u32_min_value = (u32)reg->umin_value;
+ 		reg->u32_max_value = (u32)reg->umax_value;
+ 	}
+-
+-	/* Intersecting with the old var_off might have improved our bounds
+-	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+-	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+-	 */
+-	__reg_deduce_bounds(reg);
+-	__reg_bound_offset(reg);
+-	__update_reg_bounds(reg);
++	reg_bounds_sync(reg);
+ }
  
--- 
-2.35.1
-
+ /* Mark a register as having a completely unknown (scalar) value. */
+@@ -5230,9 +5229,7 @@ static void do_refine_retval_range(struc
+ 	ret_reg->s32_max_value = meta->msize_max_value;
+ 	ret_reg->smin_value = -MAX_ERRNO;
+ 	ret_reg->s32_min_value = -MAX_ERRNO;
+-	__reg_deduce_bounds(ret_reg);
+-	__reg_bound_offset(ret_reg);
+-	__update_reg_bounds(ret_reg);
++	reg_bounds_sync(ret_reg);
+ }
+ 
+ static int
+@@ -6197,11 +6194,7 @@ reject:
+ 
+ 	if (!check_reg_sane_offset(env, dst_reg, ptr_reg->type))
+ 		return -EINVAL;
+-
+-	__update_reg_bounds(dst_reg);
+-	__reg_deduce_bounds(dst_reg);
+-	__reg_bound_offset(dst_reg);
+-
++	reg_bounds_sync(dst_reg);
+ 	if (sanitize_check_bounds(env, insn, dst_reg) < 0)
+ 		return -EACCES;
+ 	if (sanitize_needed(opcode)) {
+@@ -6939,10 +6932,7 @@ static int adjust_scalar_min_max_vals(st
+ 	/* ALU32 ops are zero extended into 64bit register */
+ 	if (alu32)
+ 		zext_32_to_64(dst_reg);
+-
+-	__update_reg_bounds(dst_reg);
+-	__reg_deduce_bounds(dst_reg);
+-	__reg_bound_offset(dst_reg);
++	reg_bounds_sync(dst_reg);
+ 	return 0;
+ }
+ 
+@@ -7131,10 +7121,7 @@ static int check_alu_op(struct bpf_verif
+ 							 insn->dst_reg);
+ 				}
+ 				zext_32_to_64(dst_reg);
+-
+-				__update_reg_bounds(dst_reg);
+-				__reg_deduce_bounds(dst_reg);
+-				__reg_bound_offset(dst_reg);
++				reg_bounds_sync(dst_reg);
+ 			}
+ 		} else {
+ 			/* case: R = imm
+@@ -7693,21 +7680,8 @@ static void __reg_combine_min_max(struct
+ 							dst_reg->smax_value);
+ 	src_reg->var_off = dst_reg->var_off = tnum_intersect(src_reg->var_off,
+ 							     dst_reg->var_off);
+-	/* We might have learned new bounds from the var_off. */
+-	__update_reg_bounds(src_reg);
+-	__update_reg_bounds(dst_reg);
+-	/* We might have learned something about the sign bit. */
+-	__reg_deduce_bounds(src_reg);
+-	__reg_deduce_bounds(dst_reg);
+-	/* We might have learned some bits from the bounds. */
+-	__reg_bound_offset(src_reg);
+-	__reg_bound_offset(dst_reg);
+-	/* Intersecting with the old var_off might have improved our bounds
+-	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+-	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+-	 */
+-	__update_reg_bounds(src_reg);
+-	__update_reg_bounds(dst_reg);
++	reg_bounds_sync(src_reg);
++	reg_bounds_sync(dst_reg);
+ }
+ 
+ static void reg_combine_min_max(struct bpf_reg_state *true_src,
 
 
