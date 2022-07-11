@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BF3856FB07
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD73E56FCF8
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232062AbiGKJZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57418 "EHLO
+        id S233573AbiGKJtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:49:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbiGKJYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E86B222BF8;
-        Mon, 11 Jul 2022 02:14:17 -0700 (PDT)
+        with ESMTP id S233795AbiGKJtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:49:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B99FACEC5;
+        Mon, 11 Jul 2022 02:23:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 162A761140;
-        Mon, 11 Jul 2022 09:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20870C34115;
-        Mon, 11 Jul 2022 09:14:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E63F261356;
+        Mon, 11 Jul 2022 09:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC88CC34115;
+        Mon, 11 Jul 2022 09:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530856;
-        bh=uGlEy0o9eAIMJ4xj6ANHll0AzmvXaid4kNNsamvBGuA=;
+        s=korg; t=1657531438;
+        bh=tOrTmnkvypOInQwBGOplI6UmHax23uF7QhIN1+eDHZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3KQpf0o26h5LxgTWSuOy3Wl/fEsvM7tBGOBCEniyqmrEOf6CPF0HqlFQqBaYaBcA
-         6JwjFpCNNQT//SZbgFtwQDOefzZ9zdCiS138ojFKM3o6GoUbvJ6Ax6M7o0KsGOjILN
-         SDT0IgzOteA5zWMcOqt85TWRv5JnomILLD35Bw3w=
+        b=GkrkpNa3Wm9rpwDRuqOHZRfUgVAI00rvMT2ZTzmVhewUDTQAK/5+VhOAaj+mksWnU
+         q70nvGMnO0sWeT9t6frL5VPh2p7PgHfO66QSvaRxFD6tPFBVDyO923rPnjHiPA1wy1
+         /N3YyFyzhhS+hujb37vTvoX8qV3tf1lfN/zCkeQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.18 001/112] io_uring: fix provided buffer import
-Date:   Mon, 11 Jul 2022 11:06:01 +0200
-Message-Id: <20220711090549.589060946@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 106/230] powerpc/32: Dont use lmw/stmw for saving/restoring non volatile regs
+Date:   Mon, 11 Jul 2022 11:06:02 +0200
+Message-Id: <20220711090607.074732684@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,64 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@fb.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 09007af2b627f0f195c6c53c4829b285cc3990ec upstream.
+[ Upstream commit a85c728cb5e12216c19ae5878980c2cbbbf8616d ]
 
-io_import_iovec uses the s pointer, but this was changed immediately
-after the iovec was re-imported and so it was imported into the wrong
-place.
+Instructions lmw/stmw are interesting for functions that are rarely
+used and not in the cache, because only one instruction is to be
+copied into the instruction cache instead of 19. However those
+instruction are less performant than 19x raw lwz/stw as they require
+synchronisation plus one additional cycle.
 
-Change the ordering.
+SAVE_NVGPRS / REST_NVGPRS are used in only a few places which are
+mostly in interrupts entries/exits and in task switch so they are
+likely already in the cache.
 
-Fixes: 2be2eb02e2f5 ("io_uring: ensure reads re-import for selected buffers")
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Link: https://lore.kernel.org/r/20220630132006.2825668-1-dylany@fb.com
-[axboe: ensure we don't half-import as well]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Using standard lwz improves null_syscall selftest by:
+- 10 cycles on mpc832x.
+- 2 cycles on mpc8xx.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/316c543b8906712c108985c8463eec09c8db577b.1629732542.git.christophe.leroy@csgroup.eu
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/ppc_asm.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3495,6 +3495,13 @@ static ssize_t io_iov_buffer_select(stru
- 	return __io_iov_buffer_select(req, iov, issue_flags);
- }
+diff --git a/arch/powerpc/include/asm/ppc_asm.h b/arch/powerpc/include/asm/ppc_asm.h
+index 1c538a9a11e0..7be24048b8d1 100644
+--- a/arch/powerpc/include/asm/ppc_asm.h
++++ b/arch/powerpc/include/asm/ppc_asm.h
+@@ -28,8 +28,8 @@
+ #else
+ #define SAVE_GPR(n, base)	stw	n,GPR0+4*(n)(base)
+ #define REST_GPR(n, base)	lwz	n,GPR0+4*(n)(base)
+-#define SAVE_NVGPRS(base)	stmw	13, GPR0+4*13(base)
+-#define REST_NVGPRS(base)	lmw	13, GPR0+4*13(base)
++#define SAVE_NVGPRS(base)	SAVE_GPR(13, base); SAVE_8GPRS(14, base); SAVE_10GPRS(22, base)
++#define REST_NVGPRS(base)	REST_GPR(13, base); REST_8GPRS(14, base); REST_10GPRS(22, base)
+ #endif
  
-+static inline bool io_do_buffer_select(struct io_kiocb *req)
-+{
-+	if (!(req->flags & REQ_F_BUFFER_SELECT))
-+		return false;
-+	return !(req->flags & REQ_F_BUFFER_SELECTED);
-+}
-+
- static struct iovec *__io_import_iovec(int rw, struct io_kiocb *req,
- 				       struct io_rw_state *s,
- 				       unsigned int issue_flags)
-@@ -3854,18 +3861,19 @@ static int io_read(struct io_kiocb *req,
- 		if (unlikely(ret < 0))
- 			return ret;
- 	} else {
-+		rw = req->async_data;
-+		s = &rw->s;
-+
- 		/*
- 		 * Safe and required to re-import if we're using provided
- 		 * buffers, as we dropped the selected one before retry.
- 		 */
--		if (req->flags & REQ_F_BUFFER_SELECT) {
-+		if (io_do_buffer_select(req)) {
- 			ret = io_import_iovec(READ, req, &iovec, s, issue_flags);
- 			if (unlikely(ret < 0))
- 				return ret;
- 		}
- 
--		rw = req->async_data;
--		s = &rw->s;
- 		/*
- 		 * We come here from an earlier attempt, restore our state to
- 		 * match in case it doesn't. It's cheap enough that we don't
+ #define SAVE_2GPRS(n, base)	SAVE_GPR(n, base); SAVE_GPR(n+1, base)
+-- 
+2.35.1
+
 
 
