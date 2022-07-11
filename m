@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7251E56FACE
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50BF556FACF
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231805AbiGKJWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43778 "EHLO
+        id S231938AbiGKJWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:22:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231927AbiGKJVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:21:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F8E2A97B;
-        Mon, 11 Jul 2022 02:13:05 -0700 (PDT)
+        with ESMTP id S231825AbiGKJVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:21:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595772C125;
+        Mon, 11 Jul 2022 02:13:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 583EECE1179;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A40B2B80C69;
+        Mon, 11 Jul 2022 09:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5C64C34115;
         Mon, 11 Jul 2022 09:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3781BC341C8;
-        Mon, 11 Jul 2022 09:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530781;
-        bh=QsAgcrn3JaM1/cl3jwrUuw5oVetSOCyWU9vP3p1d5M4=;
+        s=korg; t=1657530784;
+        bh=KckelC0+UIj+BdSGFzqzK+FDGwK+j/pgQZwXovIVAyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCaeFaDjQZpITrZMRXNAXyvDYof+HkSewvuWy2un0ClHdWUWQXgEg7KHWyoDBqdTt
-         l1FSIV6TgcBey2bJ8VP/N2HJKnT/XX1LPwA6OEeferE642AMnWm/bFw/Eery9c6Ukn
-         mqxK3djw6svkX1Z+PX+Ep2g6iuQyMHfRzI9T1mrY=
+        b=H5bS2MLqTKENjmaxljb/RGi5jvfFygOTRprO/mAXWwOKmb83nhAhq3KZcw/ac6jJp
+         XADE7f7Ji/gPCu6KdFahCHMpHb1o0xwx/54o2ScyJeFybEETO9heYmkFCgSkI6WgU9
+         BeuIVrIdnoK364DfmZpzq6/vTykqma1KJ9OrvhNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        stable@vger.kernel.org, Ivan Malov <ivan.malov@oktetlabs.ru>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/55] ARM: dts: at91: sama5d2_icp: fix eeprom compatibles
-Date:   Mon, 11 Jul 2022 11:07:25 +0200
-Message-Id: <20220711090542.853593520@linuxfoundation.org>
+Subject: [PATCH 5.10 38/55] xsk: Clear page contiguity bit when unmapping pool
+Date:   Mon, 11 Jul 2022 11:07:26 +0200
+Message-Id: <20220711090542.881801977@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
 References: <20220711090541.764895984@linuxfoundation.org>
@@ -55,52 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Ivan Malov <ivan.malov@oktetlabs.ru>
 
-[ Upstream commit 416ce193d73a734ded6d09fe141017b38af1c567 ]
+[ Upstream commit 512d1999b8e94a5d43fba3afc73e774849674742 ]
 
-The eeprom memories on the board are microchip 24aa025e48, which are 2 Kbits
-and are compatible with at24c02 not at24c32.
+When a XSK pool gets mapped, xp_check_dma_contiguity() adds bit 0x1
+to pages' DMA addresses that go in ascending order and at 4K stride.
 
-Fixes: 68a95ef72cefe ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220607090455.80433-2-eugen.hristev@microchip.com
+The problem is that the bit does not get cleared before doing unmap.
+As a result, a lot of warnings from iommu_dma_unmap_page() are seen
+in dmesg, which indicates that lookups by iommu_iova_to_phys() fail.
+
+Fixes: 2b43470add8c ("xsk: Introduce AF_XDP buffer allocation API")
+Signed-off-by: Ivan Malov <ivan.malov@oktetlabs.ru>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Link: https://lore.kernel.org/bpf/20220628091848.534803-1-ivan.malov@oktetlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d2_icp.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/xdp/xsk_buff_pool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index 308d472bd104..634411d13b4a 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -317,21 +317,21 @@
- 	status = "okay";
- 
- 	eeprom@50 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x50>;
- 		pagesize = <16>;
- 		status = "okay";
- 	};
- 
- 	eeprom@52 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x52>;
- 		pagesize = <16>;
- 		status = "disabled";
- 	};
- 
- 	eeprom@53 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x53>;
- 		pagesize = <16>;
- 		status = "disabled";
+diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+index 2ef6f926610e..e63a285a9856 100644
+--- a/net/xdp/xsk_buff_pool.c
++++ b/net/xdp/xsk_buff_pool.c
+@@ -318,6 +318,7 @@ static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
+ 	for (i = 0; i < dma_map->dma_pages_cnt; i++) {
+ 		dma = &dma_map->dma_pages[i];
+ 		if (*dma) {
++			*dma &= ~XSK_NEXT_PG_CONTIG_MASK;
+ 			dma_unmap_page_attrs(dma_map->dev, *dma, PAGE_SIZE,
+ 					     DMA_BIDIRECTIONAL, attrs);
+ 			*dma = 0;
 -- 
 2.35.1
 
