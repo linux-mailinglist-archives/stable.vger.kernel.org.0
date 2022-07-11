@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5461E56FD2F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8DE56FAF6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233948AbiGKJvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33442 "EHLO
+        id S231386AbiGKJY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:24:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233809AbiGKJui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C50248FF;
-        Mon, 11 Jul 2022 02:24:57 -0700 (PDT)
+        with ESMTP id S232372AbiGKJYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0C22983B;
+        Mon, 11 Jul 2022 02:14:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E6B66112E;
-        Mon, 11 Jul 2022 09:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 633D7C341C0;
-        Mon, 11 Jul 2022 09:24:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF1316122D;
+        Mon, 11 Jul 2022 09:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC11BC34115;
+        Mon, 11 Jul 2022 09:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531496;
-        bh=yZtrHS6oc+q1zJ4xFjTvui4hoYjxxt2NUH81KemFZrI=;
+        s=korg; t=1657530892;
+        bh=IGjaSXXz+F58VMvnjySoD6f9kLwkf6beF4+9SB1lVBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYT2OHsaeYfS9NUWDXqu8O/qxAN7rXGPM7/ujrxr+waDRqnpkUrosrtoJVvuhocn+
-         7W38AwrD/95Bb0R/aMj7KakiOzyV+3VdZjJ6W8pYB3NYg6ouG1ZokZRQ7wHZ1eXT++
-         Pe4DmHSFRpBdTKfJrvSk59tmh/faQbBjSImgwyQk=
+        b=yDQsW1Pc8vmFR1DGEA1dpHfNFFIYGvPwZxXVKpjRGlT6oYA+bm/RD/BC8LTL85HnE
+         5+2FS8bzVlJmc9+dcYZ0P69ZT+5IzZJ2h9mS2amqvXrp9jZj1i/+CUVc6QoQkdkN/f
+         iMlc4I365Z5XkdYm7W+nUhtOsulyR0oR+/GM3DFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/230] btrfs: zoned: use dedicated lock for data relocation
+        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.18 021/112] netfilter: nft_set_pipapo: release elements in clone from abort path
 Date:   Mon, 11 Jul 2022 11:06:21 +0200
-Message-Id: <20220711090607.610632602@linuxfoundation.org>
+Message-Id: <20220711090550.161213436@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,107 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 5f0addf7b89085f8e0a2593faa419d6111612b9b ]
+commit 9827a0e6e23bf43003cd3d5b7fb11baf59a35e1e upstream.
 
-Currently, we use btrfs_inode_{lock,unlock}() to grant an exclusive
-writeback of the relocation data inode in
-btrfs_zoned_data_reloc_{lock,unlock}(). However, that can cause a deadlock
-in the following path.
+New elements that reside in the clone are not released in case that the
+transaction is aborted.
 
-Thread A takes btrfs_inode_lock() and waits for metadata reservation by
-e.g, waiting for writeback:
+[16302.231754] ------------[ cut here ]------------
+[16302.231756] WARNING: CPU: 0 PID: 100509 at net/netfilter/nf_tables_api.c:1864 nf_tables_chain_destroy+0x26/0x127 [nf_tables]
+[...]
+[16302.231882] CPU: 0 PID: 100509 Comm: nft Tainted: G        W         5.19.0-rc3+ #155
+[...]
+[16302.231887] RIP: 0010:nf_tables_chain_destroy+0x26/0x127 [nf_tables]
+[16302.231899] Code: f3 fe ff ff 41 55 41 54 55 53 48 8b 6f 10 48 89 fb 48 c7 c7 82 96 d9 a0 8b 55 50 48 8b 75 58 e8 de f5 92 e0 83 7d 50 00 74 09 <0f> 0b 5b 5d 41 5c 41 5d c3 4c 8b 65 00 48 8b 7d 08 49 39 fc 74 05
+[...]
+[16302.231917] Call Trace:
+[16302.231919]  <TASK>
+[16302.231921]  __nf_tables_abort.cold+0x23/0x28 [nf_tables]
+[16302.231934]  nf_tables_abort+0x30/0x50 [nf_tables]
+[16302.231946]  nfnetlink_rcv_batch+0x41a/0x840 [nfnetlink]
+[16302.231952]  ? __nla_validate_parse+0x48/0x190
+[16302.231959]  nfnetlink_rcv+0x110/0x129 [nfnetlink]
+[16302.231963]  netlink_unicast+0x211/0x340
+[16302.231969]  netlink_sendmsg+0x21e/0x460
 
-prealloc_file_extent_cluster()
-  - btrfs_inode_lock(&inode->vfs_inode, 0);
-  - btrfs_prealloc_file_range()
-  ...
-    - btrfs_replace_file_extents()
-      - btrfs_start_transaction
-      ...
-        - btrfs_reserve_metadata_bytes()
+Add nft_set_pipapo_match_destroy() helper function to release the
+elements in the lookup tables.
 
-Thread B (e.g, doing a writeback work) needs to wait for the inode lock to
-continue writeback process:
+Stefano Brivio says: "We additionally look for elements pointers in the
+cloned matching data if priv->dirty is set, because that means that
+cloned data might point to additional elements we did not commit to the
+working copy yet (such as the abort path case, but perhaps not limited
+to it)."
 
-do_writepages
-  - btrfs_writepages
-    - extent_writpages
-      - btrfs_zoned_data_reloc_lock(BTRFS_I(inode));
-        - btrfs_inode_lock()
-
-The deadlock is caused by relying on the vfs_inode's lock. By using it, we
-introduced unnecessary exclusion of writeback and
-btrfs_prealloc_file_range(). Also, the lock at this point is useless as we
-don't have any dirty pages in the inode yet.
-
-Introduce fs_info->zoned_data_reloc_io_lock and use it for the exclusive
-writeback.
-
-Fixes: 35156d852762 ("btrfs: zoned: only allow one process to add pages to a relocation inode")
-CC: stable@vger.kernel.org # 5.16.x: 869f4cdc73f9: btrfs: zoned: encapsulate inode locking for zoned relocation
-CC: stable@vger.kernel.org # 5.16.x
-CC: stable@vger.kernel.org # 5.17
-Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3c4287f62044 ("nf_tables: Add set type for arbitrary concatenation of ranges")
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.h   | 1 +
- fs/btrfs/disk-io.c | 1 +
- fs/btrfs/zoned.h   | 4 ++--
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ net/netfilter/nft_set_pipapo.c |   48 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 33 insertions(+), 15 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index cc72d8981c47..d1838de0b39c 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -1027,6 +1027,7 @@ struct btrfs_fs_info {
- 	 */
- 	spinlock_t relocation_bg_lock;
- 	u64 data_reloc_bg;
-+	struct mutex zoned_data_reloc_io_lock;
- 
- #ifdef CONFIG_BTRFS_FS_REF_VERIFY
- 	spinlock_t ref_verify_lock;
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 233d894f6feb..909d19656316 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -2914,6 +2914,7 @@ void btrfs_init_fs_info(struct btrfs_fs_info *fs_info)
- 	mutex_init(&fs_info->reloc_mutex);
- 	mutex_init(&fs_info->delalloc_root_mutex);
- 	mutex_init(&fs_info->zoned_meta_io_lock);
-+	mutex_init(&fs_info->zoned_data_reloc_io_lock);
- 	seqlock_init(&fs_info->profiles_lock);
- 
- 	INIT_LIST_HEAD(&fs_info->dirty_cowonly_roots);
-diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
-index d680c3ee918a..3a826f7c2040 100644
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -330,7 +330,7 @@ static inline void btrfs_zoned_data_reloc_lock(struct btrfs_inode *inode)
- 	struct btrfs_root *root = inode->root;
- 
- 	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
--		btrfs_inode_lock(&inode->vfs_inode, 0);
-+		mutex_lock(&root->fs_info->zoned_data_reloc_io_lock);
+--- a/net/netfilter/nft_set_pipapo.c
++++ b/net/netfilter/nft_set_pipapo.c
+@@ -2125,6 +2125,32 @@ out_scratch:
  }
  
- static inline void btrfs_zoned_data_reloc_unlock(struct btrfs_inode *inode)
-@@ -338,7 +338,7 @@ static inline void btrfs_zoned_data_reloc_unlock(struct btrfs_inode *inode)
- 	struct btrfs_root *root = inode->root;
+ /**
++ * nft_set_pipapo_match_destroy() - Destroy elements from key mapping array
++ * @set:	nftables API set representation
++ * @m:		matching data pointing to key mapping array
++ */
++static void nft_set_pipapo_match_destroy(const struct nft_set *set,
++					 struct nft_pipapo_match *m)
++{
++	struct nft_pipapo_field *f;
++	int i, r;
++
++	for (i = 0, f = m->f; i < m->field_count - 1; i++, f++)
++		;
++
++	for (r = 0; r < f->rules; r++) {
++		struct nft_pipapo_elem *e;
++
++		if (r < f->rules - 1 && f->mt[r + 1].e == f->mt[r].e)
++			continue;
++
++		e = f->mt[r].e;
++
++		nft_set_elem_destroy(set, e, true);
++	}
++}
++
++/**
+  * nft_pipapo_destroy() - Free private data for set and all committed elements
+  * @set:	nftables API set representation
+  */
+@@ -2132,26 +2158,13 @@ static void nft_pipapo_destroy(const str
+ {
+ 	struct nft_pipapo *priv = nft_set_priv(set);
+ 	struct nft_pipapo_match *m;
+-	struct nft_pipapo_field *f;
+-	int i, r, cpu;
++	int cpu;
  
- 	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
--		btrfs_inode_unlock(&inode->vfs_inode, 0);
-+		mutex_unlock(&root->fs_info->zoned_data_reloc_io_lock);
- }
+ 	m = rcu_dereference_protected(priv->match, true);
+ 	if (m) {
+ 		rcu_barrier();
  
+-		for (i = 0, f = m->f; i < m->field_count - 1; i++, f++)
+-			;
+-
+-		for (r = 0; r < f->rules; r++) {
+-			struct nft_pipapo_elem *e;
+-
+-			if (r < f->rules - 1 && f->mt[r + 1].e == f->mt[r].e)
+-				continue;
+-
+-			e = f->mt[r].e;
+-
+-			nft_set_elem_destroy(set, e, true);
+-		}
++		nft_set_pipapo_match_destroy(set, m);
+ 
+ #ifdef NFT_PIPAPO_ALIGN
+ 		free_percpu(m->scratch_aligned);
+@@ -2165,6 +2178,11 @@ static void nft_pipapo_destroy(const str
+ 	}
+ 
+ 	if (priv->clone) {
++		m = priv->clone;
++
++		if (priv->dirty)
++			nft_set_pipapo_match_destroy(set, m);
++
+ #ifdef NFT_PIPAPO_ALIGN
+ 		free_percpu(priv->clone->scratch_aligned);
  #endif
--- 
-2.35.1
-
 
 
