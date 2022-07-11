@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9CE56FA83
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C92956FD84
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231767AbiGKJSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:18:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43406 "EHLO
+        id S234040AbiGKJ4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231740AbiGKJSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F454C62E;
-        Mon, 11 Jul 2022 02:11:45 -0700 (PDT)
+        with ESMTP id S234045AbiGKJ4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:56:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6846B38CA;
+        Mon, 11 Jul 2022 02:26:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEF326115B;
-        Mon, 11 Jul 2022 09:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC57FC34115;
-        Mon, 11 Jul 2022 09:11:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F31BB80E8B;
+        Mon, 11 Jul 2022 09:26:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C0F2C34115;
+        Mon, 11 Jul 2022 09:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530704;
-        bh=i7dAol9ZDOUeNm+rfcVvLNLqnTH8aWKLgfXt6KaI0Z0=;
+        s=korg; t=1657531598;
+        bh=/arBt1W/MCDb9c/f3TGb/Hvy8ldRKHztfHDnFIYTmpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Il/vJWrMwFp2TYnujb1yukVlIQAoUKeD0RsM6Q5OIDDkoP6tx/6BVy+H2qshYxPfu
-         9Zo5j2e+tumVZxI/35FaXHN28EmaSUle2VWzkp7+/b1pngbLEa1SPWh1yuMLKvbEaG
-         Y3z9tBWgDEd46+OGEojUqtTGp96jMCZ00so3/8yI=
+        b=tjcVDC/JllWSPGxYf0TejLWT7qTCt1LS3YgCdNxxaFne4cKFaXVrLdZFEMGyRCjKZ
+         gdjDYiZV8cJsNw+OvDzQqOueoEzKFMXj7OEJLRYqQ2d9OAGhmY2tb2At9HhMrtRTvX
+         WeRh/Ds7ZG8ndsCxlZfBrATsUrVK66YPLBE8eX30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 10/55] netfilter: nft_set_pipapo: release elements in clone from abort path
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.15 162/230] fbcon: Prevent that screen size is smaller than font size
 Date:   Mon, 11 Jul 2022 11:06:58 +0200
-Message-Id: <20220711090542.066014417@linuxfoundation.org>
+Message-Id: <20220711090608.656936314@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,123 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 9827a0e6e23bf43003cd3d5b7fb11baf59a35e1e upstream.
+commit e64242caef18b4a5840b0e7a9bff37abd4f4f933 upstream.
 
-New elements that reside in the clone are not released in case that the
-transaction is aborted.
+We need to prevent that users configure a screen size which is smaller than the
+currently selected font size. Otherwise rendering chars on the screen will
+access memory outside the graphics memory region.
 
-[16302.231754] ------------[ cut here ]------------
-[16302.231756] WARNING: CPU: 0 PID: 100509 at net/netfilter/nf_tables_api.c:1864 nf_tables_chain_destroy+0x26/0x127 [nf_tables]
-[...]
-[16302.231882] CPU: 0 PID: 100509 Comm: nft Tainted: G        W         5.19.0-rc3+ #155
-[...]
-[16302.231887] RIP: 0010:nf_tables_chain_destroy+0x26/0x127 [nf_tables]
-[16302.231899] Code: f3 fe ff ff 41 55 41 54 55 53 48 8b 6f 10 48 89 fb 48 c7 c7 82 96 d9 a0 8b 55 50 48 8b 75 58 e8 de f5 92 e0 83 7d 50 00 74 09 <0f> 0b 5b 5d 41 5c 41 5d c3 4c 8b 65 00 48 8b 7d 08 49 39 fc 74 05
-[...]
-[16302.231917] Call Trace:
-[16302.231919]  <TASK>
-[16302.231921]  __nf_tables_abort.cold+0x23/0x28 [nf_tables]
-[16302.231934]  nf_tables_abort+0x30/0x50 [nf_tables]
-[16302.231946]  nfnetlink_rcv_batch+0x41a/0x840 [nfnetlink]
-[16302.231952]  ? __nla_validate_parse+0x48/0x190
-[16302.231959]  nfnetlink_rcv+0x110/0x129 [nfnetlink]
-[16302.231963]  netlink_unicast+0x211/0x340
-[16302.231969]  netlink_sendmsg+0x21e/0x460
+This patch adds a new function fbcon_modechange_possible() which
+implements this check and which later may be extended with other checks
+if necessary.  The new function is called from the FBIOPUT_VSCREENINFO
+ioctl handler in fbmem.c, which will return -EINVAL if userspace asked
+for a too small screen size.
 
-Add nft_set_pipapo_match_destroy() helper function to release the
-elements in the lookup tables.
-
-Stefano Brivio says: "We additionally look for elements pointers in the
-cloned matching data if priv->dirty is set, because that means that
-cloned data might point to additional elements we did not commit to the
-working copy yet (such as the abort path case, but perhaps not limited
-to it)."
-
-Fixes: 3c4287f62044 ("nf_tables: Add set type for arbitrary concatenation of ranges")
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: stable@vger.kernel.org # v5.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_set_pipapo.c |   48 ++++++++++++++++++++++++++++-------------
- 1 file changed, 33 insertions(+), 15 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |   28 ++++++++++++++++++++++++++++
+ drivers/video/fbdev/core/fbmem.c |    4 +++-
+ include/linux/fbcon.h            |    4 ++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nft_set_pipapo.c
-+++ b/net/netfilter/nft_set_pipapo.c
-@@ -2121,6 +2121,32 @@ out_scratch:
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2747,6 +2747,34 @@ void fbcon_update_vcs(struct fb_info *in
  }
+ EXPORT_SYMBOL(fbcon_update_vcs);
  
- /**
-+ * nft_set_pipapo_match_destroy() - Destroy elements from key mapping array
-+ * @set:	nftables API set representation
-+ * @m:		matching data pointing to key mapping array
-+ */
-+static void nft_set_pipapo_match_destroy(const struct nft_set *set,
-+					 struct nft_pipapo_match *m)
++/* let fbcon check if it supports a new screen resolution */
++int fbcon_modechange_possible(struct fb_info *info, struct fb_var_screeninfo *var)
 +{
-+	struct nft_pipapo_field *f;
-+	int i, r;
++	struct fbcon_ops *ops = info->fbcon_par;
++	struct vc_data *vc;
++	unsigned int i;
 +
-+	for (i = 0, f = m->f; i < m->field_count - 1; i++, f++)
-+		;
++	WARN_CONSOLE_UNLOCKED();
 +
-+	for (r = 0; r < f->rules; r++) {
-+		struct nft_pipapo_elem *e;
++	if (!ops)
++		return 0;
 +
-+		if (r < f->rules - 1 && f->mt[r + 1].e == f->mt[r].e)
++	/* prevent setting a screen size which is smaller than font size */
++	for (i = first_fb_vc; i <= last_fb_vc; i++) {
++		vc = vc_cons[i].d;
++		if (!vc || vc->vc_mode != KD_TEXT ||
++			   registered_fb[con2fb_map[i]] != info)
 +			continue;
 +
-+		e = f->mt[r].e;
-+
-+		nft_set_elem_destroy(set, e, true);
++		if (vc->vc_font.width  > FBCON_SWAP(var->rotate, var->xres, var->yres) ||
++		    vc->vc_font.height > FBCON_SWAP(var->rotate, var->yres, var->xres))
++			return -EINVAL;
 +	}
++
++	return 0;
 +}
++EXPORT_SYMBOL_GPL(fbcon_modechange_possible);
 +
-+/**
-  * nft_pipapo_destroy() - Free private data for set and all committed elements
-  * @set:	nftables API set representation
-  */
-@@ -2128,26 +2154,13 @@ static void nft_pipapo_destroy(const str
+ int fbcon_mode_deleted(struct fb_info *info,
+ 		       struct fb_videomode *mode)
  {
- 	struct nft_pipapo *priv = nft_set_priv(set);
- 	struct nft_pipapo_match *m;
--	struct nft_pipapo_field *f;
--	int i, r, cpu;
-+	int cpu;
- 
- 	m = rcu_dereference_protected(priv->match, true);
- 	if (m) {
- 		rcu_barrier();
- 
--		for (i = 0, f = m->f; i < m->field_count - 1; i++, f++)
--			;
--
--		for (r = 0; r < f->rules; r++) {
--			struct nft_pipapo_elem *e;
--
--			if (r < f->rules - 1 && f->mt[r + 1].e == f->mt[r].e)
--				continue;
--
--			e = f->mt[r].e;
--
--			nft_set_elem_destroy(set, e, true);
--		}
-+		nft_set_pipapo_match_destroy(set, m);
- 
- #ifdef NFT_PIPAPO_ALIGN
- 		free_percpu(m->scratch_aligned);
-@@ -2161,6 +2174,11 @@ static void nft_pipapo_destroy(const str
- 	}
- 
- 	if (priv->clone) {
-+		m = priv->clone;
-+
-+		if (priv->dirty)
-+			nft_set_pipapo_match_destroy(set, m);
-+
- #ifdef NFT_PIPAPO_ALIGN
- 		free_percpu(priv->clone->scratch_aligned);
- #endif
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1120,7 +1120,9 @@ static long do_fb_ioctl(struct fb_info *
+ 			return -EFAULT;
+ 		console_lock();
+ 		lock_fb_info(info);
+-		ret = fb_set_var(info, &var);
++		ret = fbcon_modechange_possible(info, &var);
++		if (!ret)
++			ret = fb_set_var(info, &var);
+ 		if (!ret)
+ 			fbcon_update_vcs(info, var.activate & FB_ACTIVATE_ALL);
+ 		unlock_fb_info(info);
+--- a/include/linux/fbcon.h
++++ b/include/linux/fbcon.h
+@@ -15,6 +15,8 @@ void fbcon_new_modelist(struct fb_info *
+ void fbcon_get_requirement(struct fb_info *info,
+ 			   struct fb_blit_caps *caps);
+ void fbcon_fb_blanked(struct fb_info *info, int blank);
++int  fbcon_modechange_possible(struct fb_info *info,
++			       struct fb_var_screeninfo *var);
+ void fbcon_update_vcs(struct fb_info *info, bool all);
+ void fbcon_remap_all(struct fb_info *info);
+ int fbcon_set_con2fb_map_ioctl(void __user *argp);
+@@ -33,6 +35,8 @@ static inline void fbcon_new_modelist(st
+ static inline void fbcon_get_requirement(struct fb_info *info,
+ 					 struct fb_blit_caps *caps) {}
+ static inline void fbcon_fb_blanked(struct fb_info *info, int blank) {}
++static inline int  fbcon_modechange_possible(struct fb_info *info,
++				struct fb_var_screeninfo *var) { return 0; }
+ static inline void fbcon_update_vcs(struct fb_info *info, bool all) {}
+ static inline void fbcon_remap_all(struct fb_info *info) {}
+ static inline int fbcon_set_con2fb_map_ioctl(void __user *argp) { return 0; }
 
 
