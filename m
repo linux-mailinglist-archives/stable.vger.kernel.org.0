@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC80056F9FF
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B50B156FD6B
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbiGKJLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:11:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46474 "EHLO
+        id S234079AbiGKJzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229734AbiGKJK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:10:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E2F12085;
-        Mon, 11 Jul 2022 02:08:53 -0700 (PDT)
+        with ESMTP id S233499AbiGKJye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:54:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1D137F80;
+        Mon, 11 Jul 2022 02:26:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF2C1B80E7A;
-        Mon, 11 Jul 2022 09:08:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F1FC385A5;
-        Mon, 11 Jul 2022 09:08:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D0FE61372;
+        Mon, 11 Jul 2022 09:26:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABFC6C34115;
+        Mon, 11 Jul 2022 09:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530530;
-        bh=UKtbb4rZJM+4sNUVdd6zlgxNI2gMdsCn+8W7XqzhJNw=;
+        s=korg; t=1657531563;
+        bh=FhHAONEXImklSYVmbBubQLpn3WHQX79deib2O31UJn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QT2n6Fathylapp9MhM1lLPfzrjkKqliYjoWEu8qtOhiZYg9p3hJQ2q3AeJwzZ0Ctq
-         /XAdohEo19/JSG66xeRK+dElBALHB7VedbN1ed7TtXWqq4iAXD8DekOFLHNqjbSctZ
-         Ob5RfSKGcnv9qZIHoOOANRfIFuphRCwKtS4HLotw=
+        b=NjiOPkPg04hIsCh0rzajmLo8z8/ehrHIRkCE7lYCVxYXv5neNntPbafmqZ+T+CcxV
+         a7y45xS1NcrzCZUmIJb56phrh0A8N7AWCv1mWQQoOc9kKI2UNIHeiiN4sVv6lgX/zx
+         jEK48rqYAzsSQJk578WctVC9T+ukvpmmBaDyRADM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 06/31] usbnet: fix memory leak in error case
-Date:   Mon, 11 Jul 2022 11:06:45 +0200
-Message-Id: <20220711090538.033666837@linuxfoundation.org>
+        stable@vger.kernel.org, Yake Yang <yake.yang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 150/230] Bluetooth: btmtksdio: fix use-after-free at btmtksdio_recv_event
+Date:   Mon, 11 Jul 2022 11:06:46 +0200
+Message-Id: <20220711090608.316052083@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-commit b55a21b764c1e182014630fa5486d717484ac58f upstream.
+[ Upstream commit 0fab6361c4ba17d1b43a991bef4238a3c1754d35 ]
 
-usbnet_write_cmd_async() mixed up which buffers
-need to be freed in which error case.
+We should not access skb buffer data anymore after hci_recv_frame was
+called.
 
-v2: add Fixes tag
-v3: fix uninitialized buf pointer
+[   39.634809] BUG: KASAN: use-after-free in btmtksdio_recv_event+0x1b0
+[   39.634855] Read of size 1 at addr ffffff80cf28a60d by task kworker
+[   39.634962] Call trace:
+[   39.634974]  dump_backtrace+0x0/0x3b8
+[   39.634999]  show_stack+0x20/0x2c
+[   39.635016]  dump_stack_lvl+0x60/0x78
+[   39.635040]  print_address_description+0x70/0x2f0
+[   39.635062]  kasan_report+0x154/0x194
+[   39.635079]  __asan_report_load1_noabort+0x44/0x50
+[   39.635099]  btmtksdio_recv_event+0x1b0/0x1c4
+[   39.635129]  btmtksdio_txrx_work+0x6cc/0xac4
+[   39.635157]  process_one_work+0x560/0xc5c
+[   39.635177]  worker_thread+0x7ec/0xcc0
+[   39.635195]  kthread+0x2d0/0x3d0
+[   39.635215]  ret_from_fork+0x10/0x20
+[   39.635247] Allocated by task 0:
+[   39.635260] (stack is not available)
+[   39.635281] Freed by task 2392:
+[   39.635295]  kasan_save_stack+0x38/0x68
+[   39.635319]  kasan_set_track+0x28/0x3c
+[   39.635338]  kasan_set_free_info+0x28/0x4c
+[   39.635357]  ____kasan_slab_free+0x104/0x150
+[   39.635374]  __kasan_slab_free+0x18/0x28
+[   39.635391]  slab_free_freelist_hook+0x114/0x248
+[   39.635410]  kfree+0xf8/0x2b4
+[   39.635427]  skb_free_head+0x58/0x98
+[   39.635447]  skb_release_data+0x2f4/0x410
+[   39.635464]  skb_release_all+0x50/0x60
+[   39.635481]  kfree_skb+0xc8/0x25c
+[   39.635498]  hci_event_packet+0x894/0xca4 [bluetooth]
+[   39.635721]  hci_rx_work+0x1c8/0x68c [bluetooth]
+[   39.635925]  process_one_work+0x560/0xc5c
+[   39.635951]  worker_thread+0x7ec/0xcc0
+[   39.635970]  kthread+0x2d0/0x3d0
+[   39.635990]  ret_from_fork+0x10/0x20
+[   39.636021] The buggy address belongs to the object at ffffff80cf28a600
+                which belongs to the cache kmalloc-512 of size 512
+[   39.636039] The buggy address is located 13 bytes inside of
+                512-byte region [ffffff80cf28a600, ffffff80cf28a800)
 
-Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220705125351.17309-1-oneukum@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9aebfd4a2200 ("Bluetooth: mediatek: add support for MediaTek MT7663S and MT7668S SDIO devices")
+Co-developed-by: Yake Yang <yake.yang@mediatek.com>
+Signed-off-by: Yake Yang <yake.yang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/bluetooth/btmtksdio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -2131,7 +2131,7 @@ static void usbnet_async_cmd_cb(struct u
- int usbnet_write_cmd_async(struct usbnet *dev, u8 cmd, u8 reqtype,
- 			   u16 value, u16 index, const void *data, u16 size)
+diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
+index ff1f5dfbb6db..d66e4df171d2 100644
+--- a/drivers/bluetooth/btmtksdio.c
++++ b/drivers/bluetooth/btmtksdio.c
+@@ -331,6 +331,7 @@ static int btmtksdio_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
  {
--	struct usb_ctrlrequest *req = NULL;
-+	struct usb_ctrlrequest *req;
- 	struct urb *urb;
- 	int err = -ENOMEM;
- 	void *buf = NULL;
-@@ -2149,7 +2149,7 @@ int usbnet_write_cmd_async(struct usbnet
- 		if (!buf) {
- 			netdev_err(dev->net, "Error allocating buffer"
- 				   " in %s!\n", __func__);
--			goto fail_free;
-+			goto fail_free_urb;
- 		}
- 	}
+ 	struct btmtksdio_dev *bdev = hci_get_drvdata(hdev);
+ 	struct hci_event_hdr *hdr = (void *)skb->data;
++	u8 evt = hdr->evt;
+ 	int err;
  
-@@ -2173,14 +2173,21 @@ int usbnet_write_cmd_async(struct usbnet
- 	if (err < 0) {
- 		netdev_err(dev->net, "Error submitting the control"
- 			   " message: status=%d\n", err);
--		goto fail_free;
-+		goto fail_free_all;
- 	}
- 	return 0;
+ 	/* Fix up the vendor event id with 0xff for vendor specific instead
+@@ -355,7 +356,7 @@ static int btmtksdio_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
+ 	if (err < 0)
+ 		goto err_free_skb;
  
-+fail_free_all:
-+	kfree(req);
- fail_free_buf:
- 	kfree(buf);
--fail_free:
--	kfree(req);
-+	/*
-+	 * avoid a double free
-+	 * needed because the flag can be set only
-+	 * after filling the URB
-+	 */
-+	urb->transfer_flags = 0;
-+fail_free_urb:
- 	usb_free_urb(urb);
- fail:
- 	return err;
+-	if (hdr->evt == HCI_EV_VENDOR) {
++	if (evt == HCI_EV_VENDOR) {
+ 		if (test_and_clear_bit(BTMTKSDIO_TX_WAIT_VND_EVT,
+ 				       &bdev->tx_state)) {
+ 			/* Barrier to sync with other CPUs */
+-- 
+2.35.1
+
 
 
