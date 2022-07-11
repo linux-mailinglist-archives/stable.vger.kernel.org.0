@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CE4656FDA0
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A9C56FB88
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234041AbiGKJ60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48088 "EHLO
+        id S232136AbiGKJcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:32:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234180AbiGKJ6B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B01433C8DF;
-        Mon, 11 Jul 2022 02:27:10 -0700 (PDT)
+        with ESMTP id S232611AbiGKJb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D1FF41980;
+        Mon, 11 Jul 2022 02:17:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC306135F;
-        Mon, 11 Jul 2022 09:27:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDE0C341C8;
-        Mon, 11 Jul 2022 09:27:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C65BB80E76;
+        Mon, 11 Jul 2022 09:17:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91284C34115;
+        Mon, 11 Jul 2022 09:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531628;
-        bh=cQt35amAe1aytsNuFRRAiFO5nBqm46vCBpFexZL0QAE=;
+        s=korg; t=1657531024;
+        bh=GNaanrgBvVvXf/zQk3uqVcuxRzwmpZVg9nibxRF44sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kaq5PNiGVEk40YqDPlbWJvhTKFh9sNOm8yPyTPTxsPspjKRTjywjvg1ypXkcLPhHi
-         BpAOYiPcBVdviIXilDlOsyBke68yqasCeHazX9uiUZu8YOqCDORhWeqRuooaQXQoKe
-         SbashjVr8HxXlZrU8cw9iG4kRcSi3MRBOGghq3OQ=
+        b=O1ADv51xjlD9PV2UnLul48GI40E9k5WPEyph7msTZMGchWs0mjXGIF6CPnCQ221s4
+         4twOx0UXLPJbr9mIfq9yjXkw95AzKjYL7r1x/UE2UBWkLAuQ/K3JwMnIpz2nvIEu22
+         dRjL/QZlQBVAMR6BM7MCnnA5OIjYW+4uyGtobPTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>
-Subject: [PATCH 5.15 172/230] Revert "serial: sc16is7xx: Clear RS485 bits in the shutdown"
+        stable@vger.kernel.org, Andrei Lalaev <andrey.lalaev@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 068/112] pinctrl: sunxi: sunxi_pconf_set: use correct offset
 Date:   Mon, 11 Jul 2022 11:07:08 +0200
-Message-Id: <20220711090608.941499183@linuxfoundation.org>
+Message-Id: <20220711090551.504332178@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
 
-commit 41c606879f89623dd5269eaffea640b915e9e17c upstream.
+[ Upstream commit cd4c1e65a32afd003b08ad4aafe1e4d3e4e8e61b ]
 
-This reverts commit 927728a34f11b5a27f4610bdb7068317d6fdc72a.
+Some Allwinner SoCs have 2 pinctrls (PIO and R_PIO).
+Previous implementation used absolute pin numbering and it was incorrect
+for R_PIO pinctrl.
+It's necessary to take into account the base pin number.
 
-Once the uart_port->rs485->flag is set to SER_RS485_ENABLED, the port
-should always work in RS485 mode. If users want the port to leave
-RS485 mode, they need to call ioctl() to clear SER_RS485_ENABLED.
-
-So here we shouldn't clear the RS485 bits in the shutdown().
-
-Fixes: 927728a34f11 ("serial: sc16is7xx: Clear RS485 bits in the shutdown")
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20220418094339.678144-1-hui.wang@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90be64e27621 ("pinctrl: sunxi: implement pin_config_set")
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20220525190423.410609-1-andrey.lalaev@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sc16is7xx.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1055,12 +1055,10 @@ static void sc16is7xx_shutdown(struct ua
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sunxi.c b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+index d9327d7d56ee..dd928402af99 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+@@ -544,6 +544,8 @@ static int sunxi_pconf_set(struct pinctrl_dev *pctldev, unsigned pin,
+ 	struct sunxi_pinctrl *pctl = pinctrl_dev_get_drvdata(pctldev);
+ 	int i;
  
- 	/* Disable all interrupts */
- 	sc16is7xx_port_write(port, SC16IS7XX_IER_REG, 0);
--	/* Disable TX/RX, clear auto RS485 and RTS invert */
-+	/* Disable TX/RX */
- 	sc16is7xx_port_update(port, SC16IS7XX_EFCR_REG,
- 			      SC16IS7XX_EFCR_RXDISABLE_BIT |
--			      SC16IS7XX_EFCR_TXDISABLE_BIT |
--			      SC16IS7XX_EFCR_AUTO_RS485_BIT |
--			      SC16IS7XX_EFCR_RTS_INVERT_BIT,
-+			      SC16IS7XX_EFCR_TXDISABLE_BIT,
- 			      SC16IS7XX_EFCR_RXDISABLE_BIT |
- 			      SC16IS7XX_EFCR_TXDISABLE_BIT);
- 
++	pin -= pctl->desc->pin_base;
++
+ 	for (i = 0; i < num_configs; i++) {
+ 		enum pin_config_param param;
+ 		unsigned long flags;
+-- 
+2.35.1
+
 
 
