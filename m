@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F46756FDB9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E1FA56FB77
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbiGKJ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46400 "EHLO
+        id S229845AbiGKJbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:31:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231986AbiGKJ7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A882BB62A2;
-        Mon, 11 Jul 2022 02:27:38 -0700 (PDT)
+        with ESMTP id S232638AbiGKJan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:30:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F63972EC5;
+        Mon, 11 Jul 2022 02:16:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 62F63CE126A;
-        Mon, 11 Jul 2022 09:27:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75798C34115;
-        Mon, 11 Jul 2022 09:27:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABC4AB80833;
+        Mon, 11 Jul 2022 09:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0462DC34115;
+        Mon, 11 Jul 2022 09:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531639;
-        bh=m/KGAc9SXJsoFefchDyBa6ZxTDVjstgXbewAd/5Yeqc=;
+        s=korg; t=1657531005;
+        bh=S9mbCzU3aDaS30PbSuhcVdHDJcVEx5OvHyDJ8pSdBd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gkL5FJescV9DPqarMa0vQTQu4x/CC0fkcNntjh7xxqsXfuUuJilCm1+ssBJZHHPT
-         Ua86/5j4V2JrNkfmkkkGNa0pdLm+URX4xjulv8eLwUQ6r4rjcMTTVbvHfDJaP05JnQ
-         x43vS01rzgK/eDTqtZv+frw32P7djUKcSgY7ns9M=
+        b=mrlZ43oiuVekCcvXSQfabDatNg3NNH4Dsx62mbkt/R5chPm7eYGIgvZOYi3vnz9r0
+         vi05qwZKND26Rx/VsByklS6x/r+8u4+ipsQ3ZgTdbtqbs6ti6AhZbimf54IzitQtkJ
+         YhmAuVHmAy6VIcAbDhUxmxi/bUMzumdy8ibkEKtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 138/230] drm/amdgpu: bind to any 0x1002 PCI diplay class device
-Date:   Mon, 11 Jul 2022 11:06:34 +0200
-Message-Id: <20220711090607.978575207@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.18 035/112] fbcon: Disallow setting font bigger than screen size
+Date:   Mon, 11 Jul 2022 11:06:35 +0200
+Message-Id: <20220711090550.566480384@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit eb4fd29afd4aa1c98d882800ceeee7d1f5262803 ]
+commit 65a01e601dbba8b7a51a2677811f70f783766682 upstream.
 
-Bind to all 0x1002 GPU devices.
+Prevent that users set a font size which is bigger than the physical screen.
+It's unlikely this may happen (because screens are usually much larger than the
+fonts and each font char is limited to 32x32 pixels), but it may happen on
+smaller screens/LCD displays.
 
-For now we explicitly return -ENODEV for generic bindings.
-Remove this check once IP discovery based checking is in place.
-
-v2: rebase (Alex)
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/video/fbdev/core/fbcon.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index f65b4b233ffb..c294081022bd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1952,6 +1952,16 @@ static const struct pci_device_id pciidlist[] = {
- 	{0x1002, 0x7424, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
- 	{0x1002, 0x743F, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_BEIGE_GOBY},
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2480,6 +2480,11 @@ static int fbcon_set_font(struct vc_data
+ 	if (charcount != 256 && charcount != 512)
+ 		return -EINVAL;
  
-+	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
-+	  .class = PCI_CLASS_DISPLAY_VGA << 8,
-+	  .class_mask = 0xffffff,
-+	  .driver_data = 0 },
++	/* font bigger than screen resolution ? */
++	if (w > FBCON_SWAP(info->var.rotate, info->var.xres, info->var.yres) ||
++	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
++		return -EINVAL;
 +
-+	{ PCI_DEVICE(0x1002, PCI_ANY_ID),
-+	  .class = PCI_CLASS_DISPLAY_OTHER << 8,
-+	  .class_mask = 0xffffff,
-+	  .driver_data = 0 },
-+
- 	{0, 0, 0}
- };
- 
-@@ -1999,6 +2009,11 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
- 			return -ENODEV;
- 	}
- 
-+	if (flags == 0) {
-+		DRM_INFO("Unsupported asic.  Remove me when IP discovery init is in place.\n");
-+		return -ENODEV;
-+	}
-+
- 	if (amdgpu_virtual_display ||
- 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
- 		supports_atomic = true;
--- 
-2.35.1
-
+ 	/* Make sure drawing engine can handle the font */
+ 	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
+ 	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
 
 
