@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF82656FD28
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11EE56F9B0
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233911AbiGKJvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33438 "EHLO
+        id S231215AbiGKJHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:07:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233806AbiGKJuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C61F23BDE;
-        Mon, 11 Jul 2022 02:24:55 -0700 (PDT)
+        with ESMTP id S230081AbiGKJHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6219023168;
+        Mon, 11 Jul 2022 02:07:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DC23ECE1257;
-        Mon, 11 Jul 2022 09:24:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7BF7C34115;
-        Mon, 11 Jul 2022 09:24:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69E5A6118B;
+        Mon, 11 Jul 2022 09:07:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52DC9C34115;
+        Mon, 11 Jul 2022 09:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531491;
-        bh=Ogtk9ds9PUoZv1yHNlKP+Gp/qGJsLeUWAZAHVWnzl1I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSeXE8Mbi03DbJG58PrIk3rl6YxsVxa1JTXvzTCrpR3Vw7VpCInx416xpw0FM+Dn1
-         LJA0yFf/NC+bnqJld3XN8i++G4nA7jmMOLrdq3nPDWi+9i4+sHdZ2i0Ng1MIGa8Vge
-         ZteJFMHKy8fg2IqK4nJagkKuvtdt1u5fEyzM/DM4=
+        s=korg; t=1657530431;
+        bh=AHkzYgJb5Kdc7JjggcpQUjFZ/Bd+h25yDl+GMxzxB6c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UBLhybM5ijWDCpE2ZVNx5Td5Co2JIZgOkAPcOezsAdQs2d4qSzxkrvOmpjE7vYPuN
+         5si3IQkHEXni2K0xdOigFokFMDYF1ekZh+7AwLNg84eXaLhvp3xKpiwcZ3kmVcF53n
+         +sRk1pOywYwvSv5ISVTak0JOPBRl0vVGLpoJQu8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 123/230] tty: n_gsm: fix missing update of modem controls after DLCI open
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.9 00/14] 4.9.323-rc1 review
 Date:   Mon, 11 Jul 2022 11:06:19 +0200
-Message-Id: <20220711090607.554714477@linuxfoundation.org>
+Message-Id: <20220711090535.517697227@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.323-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.323-rc1
+X-KernelTest-Deadline: 2022-07-13T09:05+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,48 +61,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+This is the start of the stable review cycle for the 4.9.323 release.
+There are 14 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 48473802506d2d6151f59e0e764932b33b53cb3b ]
+Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
+Anything received after that time might be too late.
 
-Currently the peer is not informed about the initial state of the modem
-control lines after a new DLCI has been opened.
-Fix this by sending the initial modem control line states after DLCI open.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.323-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220420101346.3315-1-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/tty/n_gsm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+thanks,
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index d3d5308daf35..c52d5e0d5c6f 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -371,6 +371,7 @@ static const u8 gsm_fcs8[256] = {
- #define GOOD_FCS	0xCF
- 
- static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len);
-+static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk);
- 
- /**
-  *	gsm_fcs_add	-	update FCS
-@@ -1489,6 +1490,9 @@ static void gsm_dlci_open(struct gsm_dlci *dlci)
- 	dlci->state = DLCI_OPEN;
- 	if (debug & 8)
- 		pr_debug("DLCI %d goes open.\n", dlci->addr);
-+	/* Send current modem state */
-+	if (dlci->addr)
-+		gsmtty_modem_update(dlci, 0);
- 	wake_up(&dlci->gsm->event);
- }
- 
--- 
-2.35.1
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.323-rc1
+
+Miaoqian Lin <linmq006@gmail.com>
+    dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
+
+Miaoqian Lin <linmq006@gmail.com>
+    dmaengine: ti: Fix refcount leak in ti_dra7_xbar_route_allocate
+
+Michael Walle <michael@walle.cc>
+    dmaengine: at_xdma: handle errors of at_xdmac_alloc_desc() correctly
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    ida: don't use BUG_ON() for debugging
+
+Satish Nagireddy <satish.nagireddy@getcruise.com>
+    i2c: cadence: Unregister the clk notifier in error path
+
+Samuel Holland <samuel@sholland.org>
+    pinctrl: sunxi: a83t: Fix NAND function name for some pins
+
+Eric Sandeen <sandeen@redhat.com>
+    xfs: remove incorrect ASSERT in xfs_rename
+
+Hsin-Yi Wang <hsinyi@chromium.org>
+    video: of_display_timing.h: include errno.h
+
+Yian Chen <yian.chen@intel.com>
+    iommu/vt-d: Fix PCI bus rescan device hot add
+
+Duoming Zhou <duoming@zju.edu.cn>
+    net: rose: fix UAF bug caused by rose_t0timer_expiry
+
+Oliver Neukum <oneukum@suse.com>
+    usbnet: fix memory leak in error case
+
+Rhett Aultman <rhett.aultman@samsara.com>
+    can: gs_usb: gs_usb_open/close(): fix memory leak
+
+Liang He <windhl@126.com>
+    can: grcan: grcan_probe(): remove extra of_node_get()
+
+Jann Horn <jannh@google.com>
+    mm/slub: add missing TID updates on slab deactivation
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                   |  4 ++--
+ drivers/dma/at_xdmac.c                     |  5 +++++
+ drivers/dma/ti-dma-crossbar.c              |  5 +++++
+ drivers/i2c/busses/i2c-cadence.c           |  1 +
+ drivers/iommu/dmar.c                       |  2 +-
+ drivers/net/can/grcan.c                    |  1 -
+ drivers/net/can/usb/gs_usb.c               | 23 +++++++++++++++++++++--
+ drivers/net/usb/usbnet.c                   | 17 ++++++++++++-----
+ drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
+ fs/xfs/xfs_inode.c                         |  1 -
+ include/video/of_display_timing.h          |  2 ++
+ lib/idr.c                                  |  4 +++-
+ mm/slub.c                                  |  5 +++++
+ net/rose/rose_route.c                      |  4 ++--
+ 14 files changed, 64 insertions(+), 20 deletions(-)
 
 
