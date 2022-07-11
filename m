@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A84B356FC9E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 314D556FCAB
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233453AbiGKJpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50102 "EHLO
+        id S233533AbiGKJqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233867AbiGKJpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:45:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBB1FA9E6C;
-        Mon, 11 Jul 2022 02:22:32 -0700 (PDT)
+        with ESMTP id S233903AbiGKJpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:45:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D193599C6;
+        Mon, 11 Jul 2022 02:22:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7D70B80E7F;
-        Mon, 11 Jul 2022 09:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DD2C34115;
-        Mon, 11 Jul 2022 09:22:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1334612B7;
+        Mon, 11 Jul 2022 09:22:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE153C34115;
+        Mon, 11 Jul 2022 09:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531349;
-        bh=0gd7H/PDn7gfPt/8kA00oAnxY4DvAvEYKewAvbpW1YY=;
+        s=korg; t=1657531355;
+        bh=ibPMo5ETyDCzk+1MyI+Rq7SjNwIpy1QqCC3YTqmPCyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZETOW1JJ0uC+hc+2IriwVYeB09jHCZKoPPhJSZeVrQKL04c2RNoHimIObTEfzZrF
-         maarvdc/yzOhPfaY1cRorPZQ9tmt6BaT9TPmtHP8r3xAj3oD1tK/lto5ZT0YIBU4OQ
-         7KMWZ+S9g1APlSbjFUdafcOmOIT5ehLe7CUoCg3k=
+        b=A6TsF78SRTRePvCtn0nteNW/SmwmfCK1flXwwcCOwMRpZoUcOAdwfePY+a5kciGGi
+         nnAxvrcBdiH34rjE3X21fftE/LJfZrEPSI2z19yeIvipizJOqjD+NOSEZTYSS5aKWY
+         xafLFz0ebtTBRjvx8TpSsdbunqBJ/YEqc3P+CwAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/230] mt76: mt76_connac: fix MCU_CE_CMD_SET_ROC definition error
-Date:   Mon, 11 Jul 2022 11:05:29 +0200
-Message-Id: <20220711090606.147920434@linuxfoundation.org>
+Subject: [PATCH 5.15 074/230] mt76: mt7921: do not always disable fw runtime-pm
+Date:   Mon, 11 Jul 2022 11:05:30 +0200
+Message-Id: <20220711090606.175784253@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -53,34 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit bf9727a27442a50c75b7d99a5088330c578b2a42 ]
+[ Upstream commit b44eeb8cbdf2b88f2844f11e4f263b0abed5b5b0 ]
 
-Fixed an MCU_CE_CMD_SET_ROC definition error that occurred from a previous
-refactor work.
+After commit 'd430dffbe9dd ("mt76: mt7921: fix a possible race
+enabling/disabling runtime-pm")', runtime-pm is always disabled in the
+fw even if the user requests to enable it toggling debugfs node since
+mt7921_pm_interface_iter routine will use pm->enable to configure the fw.
+Fix the issue moving enable variable configuration before running
+mt7921_pm_interface_iter routine.
 
-Fixes: d0e274af2f2e4 ("mt76: mt76_connac: create mcu library")
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Fixes: d430dffbe9dd ("mt76: mt7921: fix a possible race enabling/disabling runtime-pm")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-index 77d4435e4581..72a70a7046fb 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-@@ -556,7 +556,7 @@ enum {
- 	MCU_CMD_SET_BSS_CONNECTED = MCU_CE_PREFIX | 0x16,
- 	MCU_CMD_SET_BSS_ABORT = MCU_CE_PREFIX | 0x17,
- 	MCU_CMD_CANCEL_HW_SCAN = MCU_CE_PREFIX | 0x1b,
--	MCU_CMD_SET_ROC = MCU_CE_PREFIX | 0x1d,
-+	MCU_CMD_SET_ROC = MCU_CE_PREFIX | 0x1c,
- 	MCU_CMD_SET_P2P_OPPPS = MCU_CE_PREFIX | 0x33,
- 	MCU_CMD_SET_RATE_TX_POWER = MCU_CE_PREFIX | 0x5d,
- 	MCU_CMD_SCHED_SCAN_ENABLE = MCU_CE_PREFIX | 0x61,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
+index b9f25599227d..cfcf7964c688 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
+@@ -291,13 +291,12 @@ mt7921_pm_set(void *data, u64 val)
+ 	pm->enable = false;
+ 	mt76_connac_pm_wake(&dev->mphy, pm);
+ 
++	pm->enable = val;
+ 	ieee80211_iterate_active_interfaces(mt76_hw(dev),
+ 					    IEEE80211_IFACE_ITER_RESUME_ALL,
+ 					    mt7921_pm_interface_iter, dev);
+ 
+ 	mt76_connac_mcu_set_deep_sleep(&dev->mt76, pm->ds_enable);
+-
+-	pm->enable = val;
+ 	mt76_connac_power_save_sched(&dev->mphy, pm);
+ out:
+ 	mutex_unlock(&dev->mt76.mutex);
 -- 
 2.35.1
 
