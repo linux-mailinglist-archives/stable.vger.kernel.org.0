@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1587F56FE1D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F39A56FDED
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbiGKKEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:04:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
+        id S234196AbiGKKC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:02:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234511AbiGKKDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC10C48E8C;
-        Mon, 11 Jul 2022 02:29:27 -0700 (PDT)
+        with ESMTP id S234226AbiGKKBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:01:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26DBF2AF;
+        Mon, 11 Jul 2022 02:28:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 786DDB80E6D;
-        Mon, 11 Jul 2022 09:29:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92FAC34115;
-        Mon, 11 Jul 2022 09:29:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24F356136E;
+        Mon, 11 Jul 2022 09:28:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0F5C34115;
+        Mon, 11 Jul 2022 09:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531765;
-        bh=s1ijYzDz9YDw93VsXIoGWIkfJnpWGJMooOl/cYJ8gQ8=;
+        s=korg; t=1657531712;
+        bh=uHtkAaK8JZ0OMEbRWgllIsKnn+tOA3YooURssre3hfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAnH1cQHTbEdMEfC8SrxWZSkgE/DOXJ4edKEMqprom7VX2s2bv34OTHg9Koc5O0df
-         zClOdlZ9pVo7rp39Sx8JOsY4RpMvVka7sUkC9ts0GAqOfiMnIr2a7AZXro4tZc1IR2
-         UGlH/m+5rJMXzExjDTq01QvmhDV83G8VRgNZ5J/k=
+        b=oks0lPyIG79MGinnRJSmGDZOIuokU3lKgNjt7wvQM37xdXzZggU95P+JVEGC5hVeS
+         o/PDrzBM9N8kScbfrljF+rwMuNPVTa1xmSqlrA2J5fYBCXmBkQji3pXtSChL7dE1Y3
+         6T5GBTp2GqG37H2W46OefmlQPxLzahKEI8EZ0A9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Ivan Malov <ivan.malov@oktetlabs.ru>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 182/230] arm64: dts: qcom: msm8994: Fix CPU6/7 reg values
-Date:   Mon, 11 Jul 2022 11:07:18 +0200
-Message-Id: <20220711090609.274114574@linuxfoundation.org>
+Subject: [PATCH 5.15 203/230] xsk: Clear page contiguity bit when unmapping pool
+Date:   Mon, 11 Jul 2022 11:07:39 +0200
+Message-Id: <20220711090609.863252807@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,43 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Ivan Malov <ivan.malov@oktetlabs.ru>
 
-[ Upstream commit 47bf59c4755930f616dd90c8c6a85f40a6d347ea ]
+[ Upstream commit 512d1999b8e94a5d43fba3afc73e774849674742 ]
 
-CPU6 and CPU7 were mistakengly pointing to CPU5 reg. Fix it.
+When a XSK pool gets mapped, xp_check_dma_contiguity() adds bit 0x1
+to pages' DMA addresses that go in ascending order and at 4K stride.
 
-Fixes: 02d8091bbca0 ("arm64: dts: qcom: msm8994: Add a proper CPU map")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220501184016.64138-1-konrad.dybcio@somainline.org
+The problem is that the bit does not get cleared before doing unmap.
+As a result, a lot of warnings from iommu_dma_unmap_page() are seen
+in dmesg, which indicates that lookups by iommu_iova_to_phys() fail.
+
+Fixes: 2b43470add8c ("xsk: Introduce AF_XDP buffer allocation API")
+Signed-off-by: Ivan Malov <ivan.malov@oktetlabs.ru>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Link: https://lore.kernel.org/bpf/20220628091848.534803-1-ivan.malov@oktetlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8994.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xdp/xsk_buff_pool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
-index 3c27671c8b5c..a8dc8163ee82 100644
---- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
-@@ -93,7 +93,7 @@
- 		CPU6: cpu@102 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a57";
--			reg = <0x0 0x101>;
-+			reg = <0x0 0x102>;
- 			enable-method = "psci";
- 			next-level-cache = <&L2_1>;
- 		};
-@@ -101,7 +101,7 @@
- 		CPU7: cpu@103 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a57";
--			reg = <0x0 0x101>;
-+			reg = <0x0 0x103>;
- 			enable-method = "psci";
- 			next-level-cache = <&L2_1>;
- 		};
+diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+index fc7fbfc1e586..ccedbbd27692 100644
+--- a/net/xdp/xsk_buff_pool.c
++++ b/net/xdp/xsk_buff_pool.c
+@@ -326,6 +326,7 @@ static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
+ 	for (i = 0; i < dma_map->dma_pages_cnt; i++) {
+ 		dma = &dma_map->dma_pages[i];
+ 		if (*dma) {
++			*dma &= ~XSK_NEXT_PG_CONTIG_MASK;
+ 			dma_unmap_page_attrs(dma_map->dev, *dma, PAGE_SIZE,
+ 					     DMA_BIDIRECTIONAL, attrs);
+ 			*dma = 0;
 -- 
 2.35.1
 
