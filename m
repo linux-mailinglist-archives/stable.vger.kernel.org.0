@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC30C56FCC1
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BDC56FCC8
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233530AbiGKJr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:47:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50030 "EHLO
+        id S233586AbiGKJsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233604AbiGKJrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:47:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784CE67170;
-        Mon, 11 Jul 2022 02:23:05 -0700 (PDT)
+        with ESMTP id S233625AbiGKJrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:47:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6C7AB7D2;
+        Mon, 11 Jul 2022 02:23:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3D40B80E7E;
-        Mon, 11 Jul 2022 09:23:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F016C34115;
-        Mon, 11 Jul 2022 09:23:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CD4F6134C;
+        Mon, 11 Jul 2022 09:23:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46D2AC34115;
+        Mon, 11 Jul 2022 09:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531382;
-        bh=0m0GkOvnLvHQiu/2/bOsz32D+no02E3Q3SY9D2E6upk=;
+        s=korg; t=1657531393;
+        bh=WPtd9kgKbniwNf3BMQri7+fVEcYbfkFdC15EP5tNh+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pm+l9tgdBxWjvR9dghsnHS49H8NgHyi0x6j3l1p2okRfi3mTYqYo1+36QqXwK3YT
-         pip+PTafWSXSAv63iwsLSllfleWSziMUTm9p8lEbbFnIINMrc1AzwfVXHWY09gaK3W
-         1lSUzTVvwLygXnwlAXGCkL5/HH1CI7lFX2Ae/Zxc=
+        b=XZWx9vhc/a5lpeYmXK14FzqM+dU4PaF/uzL/cW3o4ciQPl9KU5wa4EZRGIYKVqPf+
+         V9sw0E1R9FDPBMXppvlgkSpJV6HkI9CYaC8f0hSyfledhIIxYwxDWHUSHdmsCDebHa
+         1QvxqjkR5WnUvu0eNKoOCuzhigwRV0G3/dmXcP5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anup Patel <anup@brainfault.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/230] RISC-V: defconfigs: Set CONFIG_FB=y, for FB console
-Date:   Mon, 11 Jul 2022 11:05:04 +0200
-Message-Id: <20220711090605.445561661@linuxfoundation.org>
+Subject: [PATCH 5.15 049/230] net/mlx5e: Check action fwd/drop flag exists also for nic flows
+Date:   Mon, 11 Jul 2022 11:05:05 +0200
+Message-Id: <20220711090605.473699898@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,48 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 3d12b634fe8206ea974c6061a3f3eea529ffbc48 ]
+[ Upstream commit 6b50cf45b6a0e99f3cab848a72ecca8da56b7460 ]
 
-We have CONFIG_FRAMEBUFFER_CONSOLE=y in the defconfigs, but that depends
-on CONFIG_FB so it's not actually getting set.  I'm assuming most users
-on real systems want a framebuffer console, so this enables CONFIG_FB to
-allow that to take effect.
+The driver should add offloaded rules with either a fwd or drop action.
+The check existed in parsing fdb flows but not when parsing nic flows.
+Move the test into actions_match_supported() which is called for
+checking nic flows and fdb flows.
 
-Fixes: 33c57c0d3c67 ("RISC-V: Add a basic defconfig")
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/configs/defconfig      | 1 +
- arch/riscv/configs/rv32_defconfig | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
-index c252fd5706d2..f2a2f9c9ed49 100644
---- a/arch/riscv/configs/defconfig
-+++ b/arch/riscv/configs/defconfig
-@@ -76,6 +76,7 @@ CONFIG_DRM=m
- CONFIG_DRM_RADEON=m
- CONFIG_DRM_NOUVEAU=m
- CONFIG_DRM_VIRTIO_GPU=m
-+CONFIG_FB=y
- CONFIG_FRAMEBUFFER_CONSOLE=y
- CONFIG_USB=y
- CONFIG_USB_XHCI_HCD=y
-diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
-index 434ef5b64599..cdd113e7a291 100644
---- a/arch/riscv/configs/rv32_defconfig
-+++ b/arch/riscv/configs/rv32_defconfig
-@@ -71,6 +71,7 @@ CONFIG_POWER_RESET=y
- CONFIG_DRM=y
- CONFIG_DRM_RADEON=y
- CONFIG_DRM_VIRTIO_GPU=y
-+CONFIG_FB=y
- CONFIG_FRAMEBUFFER_CONSOLE=y
- CONFIG_USB=y
- CONFIG_USB_XHCI_HCD=y
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 3aa8d0b83d10..fe52db591121 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -3305,6 +3305,12 @@ static bool actions_match_supported(struct mlx5e_priv *priv,
+ 	ct_flow = flow_flag_test(flow, CT) && !ct_clear;
+ 	actions = flow->attr->action;
+ 
++	if (!(actions &
++	      (MLX5_FLOW_CONTEXT_ACTION_FWD_DEST | MLX5_FLOW_CONTEXT_ACTION_DROP))) {
++		NL_SET_ERR_MSG_MOD(extack, "Rule must have at least one forward/drop action");
++		return false;
++	}
++
+ 	if (mlx5e_is_eswitch_flow(flow)) {
+ 		if (flow->attr->esw_attr->split_count && ct_flow &&
+ 		    !MLX5_CAP_GEN(flow->attr->esw_attr->in_mdev, reg_c_preserve)) {
+@@ -4207,13 +4213,6 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
+ 		attr->action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+ 	}
+ 
+-	if (!(attr->action &
+-	      (MLX5_FLOW_CONTEXT_ACTION_FWD_DEST | MLX5_FLOW_CONTEXT_ACTION_DROP))) {
+-		NL_SET_ERR_MSG_MOD(extack,
+-				   "Rule must have at least one forward/drop action");
+-		return -EOPNOTSUPP;
+-	}
+-
+ 	if (esw_attr->split_count > 0 && !mlx5_esw_has_fwd_fdb(priv->mdev)) {
+ 		NL_SET_ERR_MSG_MOD(extack,
+ 				   "current firmware doesn't support split rule for port mirroring");
 -- 
 2.35.1
 
