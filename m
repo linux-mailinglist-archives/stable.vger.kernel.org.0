@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E1056FADC
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 720EC56FA75
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbiGKJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:23:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43250 "EHLO
+        id S231439AbiGKJSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:18:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229944AbiGKJWf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:35 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760355B040;
-        Mon, 11 Jul 2022 02:13:24 -0700 (PDT)
+        with ESMTP id S231368AbiGKJRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:17:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD26B11C1D;
+        Mon, 11 Jul 2022 02:11:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 958E9CE1179;
-        Mon, 11 Jul 2022 09:13:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80471C34115;
-        Mon, 11 Jul 2022 09:13:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EED03B80E5E;
+        Mon, 11 Jul 2022 09:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 674D6C34115;
+        Mon, 11 Jul 2022 09:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530800;
-        bh=DP0RzHgVvpINV93axfH8mlgmW+pA1ynqJkwFKH0gK/o=;
+        s=korg; t=1657530682;
+        bh=a02+H42wUkYe63LHq1WCrt5fbzTp+faWnDZ6CDRlvPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6iq4NSmCoJkiClFR5thEWV0Hl101cL6+lFdDLwAB4+OwQKuh42NfeKTNl1HbK62I
-         h/p7NsU79JfNTDiZ9tXxZqXV7w8VcT4ahA7zkACJtC3oSyWK3c1TaZRs1DSGZLBR8T
-         0Fu0/072Z7WygUL5/bOGuAuWIZ6bzXkSx7lNuXxM=
+        b=KGftgElpSPwl/TcFRVVKzd1KwEPlxSJqDUjsESFQ1tR1xtIw14Vy14h6X7DW2ETNG
+         pR+akRisyXVcacRB4/nNcCj6ACC1w679UDEvVgP1jGmvO6m7iEMm19wV96THrJqS4p
+         5zVI8qQl7mh26+S3NCPktVCkWcJrHs/c/djON+K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 17/55] PM: runtime: Redefine pm_runtime_release_supplier()
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 23/38] ARM: at91: pm: use proper compatibles for sam9x60s rtc and rtt
 Date:   Mon, 11 Jul 2022 11:07:05 +0200
-Message-Id: <20220711090542.273313047@linuxfoundation.org>
+Message-Id: <20220711090539.414777069@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,111 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 07358194badf73e267289b40b761f5dc56928eab upstream.
+[ Upstream commit 641522665dbb25ce117c78746df1aad8b58c80e5 ]
 
-Instead of passing an extra bool argument to pm_runtime_release_supplier(),
-make its callers take care of triggering a runtime-suspend of the
-supplier device as needed.
+Use proper compatible strings for SAM9X60's RTC and RTT IPs. These are
+necessary for configuring wakeup sources for ULP1 PM mode.
 
-No expected functional impact.
-
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eaedc0d379da ("ARM: at91: pm: add ULP1 support for SAM9X60")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220523092421.317345-3-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c          |    3 ++-
- drivers/base/power/runtime.c |   20 +++++++++-----------
- include/linux/pm_runtime.h   |    5 ++---
- 3 files changed, 13 insertions(+), 15 deletions(-)
+ arch/arm/mach-at91/pm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -348,7 +348,8 @@ static void device_link_release_fn(struc
- 	/* Ensure that all references to the link object have been dropped. */
- 	device_link_synchronize_removal();
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 3e24e104e687..5d75ab82d5a6 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -114,12 +114,12 @@ static const struct of_device_id sama5d2_ws_ids[] = {
+ };
  
--	pm_runtime_release_supplier(link, true);
-+	pm_runtime_release_supplier(link);
-+	pm_request_idle(link->supplier);
- 
- 	put_device(link->consumer);
- 	put_device(link->supplier);
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -308,13 +308,10 @@ static int rpm_get_suppliers(struct devi
- /**
-  * pm_runtime_release_supplier - Drop references to device link's supplier.
-  * @link: Target device link.
-- * @check_idle: Whether or not to check if the supplier device is idle.
-  *
-- * Drop all runtime PM references associated with @link to its supplier device
-- * and if @check_idle is set, check if that device is idle (and so it can be
-- * suspended).
-+ * Drop all runtime PM references associated with @link to its supplier device.
-  */
--void pm_runtime_release_supplier(struct device_link *link, bool check_idle)
-+void pm_runtime_release_supplier(struct device_link *link)
- {
- 	struct device *supplier = link->supplier;
- 
-@@ -327,9 +324,6 @@ void pm_runtime_release_supplier(struct
- 	while (refcount_dec_not_one(&link->rpm_active) &&
- 	       atomic_read(&supplier->power.usage_count) > 0)
- 		pm_runtime_put_noidle(supplier);
--
--	if (check_idle)
--		pm_request_idle(supplier);
- }
- 
- static void __rpm_put_suppliers(struct device *dev, bool try_to_suspend)
-@@ -337,8 +331,11 @@ static void __rpm_put_suppliers(struct d
- 	struct device_link *link;
- 
- 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node,
--				device_links_read_lock_held())
--		pm_runtime_release_supplier(link, try_to_suspend);
-+				device_links_read_lock_held()) {
-+		pm_runtime_release_supplier(link);
-+		if (try_to_suspend)
-+			pm_request_idle(link->supplier);
-+	}
- }
- 
- static void rpm_put_suppliers(struct device *dev)
-@@ -1776,7 +1773,8 @@ void pm_runtime_drop_link(struct device_
- 		return;
- 
- 	pm_runtime_drop_link_count(link->consumer);
--	pm_runtime_release_supplier(link, true);
-+	pm_runtime_release_supplier(link);
-+	pm_request_idle(link->supplier);
- }
- 
- static bool pm_runtime_need_not_resume(struct device *dev)
---- a/include/linux/pm_runtime.h
-+++ b/include/linux/pm_runtime.h
-@@ -58,7 +58,7 @@ extern void pm_runtime_get_suppliers(str
- extern void pm_runtime_put_suppliers(struct device *dev);
- extern void pm_runtime_new_link(struct device *dev);
- extern void pm_runtime_drop_link(struct device_link *link);
--extern void pm_runtime_release_supplier(struct device_link *link, bool check_idle);
-+extern void pm_runtime_release_supplier(struct device_link *link);
- 
- /**
-  * pm_runtime_get_if_in_use - Conditionally bump up runtime PM usage counter.
-@@ -280,8 +280,7 @@ static inline void pm_runtime_get_suppli
- static inline void pm_runtime_put_suppliers(struct device *dev) {}
- static inline void pm_runtime_new_link(struct device *dev) {}
- static inline void pm_runtime_drop_link(struct device_link *link) {}
--static inline void pm_runtime_release_supplier(struct device_link *link,
--					       bool check_idle) {}
-+static inline void pm_runtime_release_supplier(struct device_link *link) {}
- 
- #endif /* !CONFIG_PM */
- 
+ static const struct of_device_id sam9x60_ws_ids[] = {
+-	{ .compatible = "atmel,at91sam9x5-rtc",		.data = &ws_info[1] },
++	{ .compatible = "microchip,sam9x60-rtc",	.data = &ws_info[1] },
+ 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
+ 	{ .compatible = "atmel,at91sam9g45-ehci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ehci",			.data = &ws_info[2] },
+-	{ .compatible = "atmel,at91sam9260-rtt",	.data = &ws_info[4] },
++	{ .compatible = "microchip,sam9x60-rtt",	.data = &ws_info[4] },
+ 	{ .compatible = "cdns,sam9x60-macb",		.data = &ws_info[5] },
+ 	{ /* sentinel */ }
+ };
+-- 
+2.35.1
+
 
 
