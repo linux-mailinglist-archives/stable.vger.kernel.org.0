@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA29756FD80
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E388D56FA98
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234152AbiGKJ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:56:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46408 "EHLO
+        id S231646AbiGKJTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:19:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230163AbiGKJzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:55:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BE8B23CC;
-        Mon, 11 Jul 2022 02:26:28 -0700 (PDT)
+        with ESMTP id S231878AbiGKJTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:19:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1F84E87D;
+        Mon, 11 Jul 2022 02:12:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FA4B6136F;
-        Mon, 11 Jul 2022 09:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D31FC34115;
-        Mon, 11 Jul 2022 09:26:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15463611F0;
+        Mon, 11 Jul 2022 09:12:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21AF2C34115;
+        Mon, 11 Jul 2022 09:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531584;
-        bh=ruQ50WIOI0+7m3siYikWENO+ppOpQi5iT7iajfkpbn4=;
+        s=korg; t=1657530726;
+        bh=zmAKCFuifIgrl8xnK7nnzm4KnOms+s9J9t89VFFdE/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ws6RvgQuBlknIRaCWIdfqIiXAIfSqyKtDo3mM4d+m2FVMWiZKIJu9K1jHvq3sVTAX
-         9PC3ZmrtxVmUINeYB/8t4GOlPluocbFS5ZrIkm+6EZKnOIqixPOBxrX/Ozc9x54oY7
-         zJe+89yT07t8MUHTQYE1DuFTHxh+DwnJ3Mn8mN8M=
+        b=TXGjBDabfSuNUihUJaGrVGvedaUuK55BvIC8BALUcxgqWz8AKigfyDHSkXsLg6a52
+         Mrt0f0t4IdMTfPVZyYDGy0f2FMewvXuIneIAVZveaarwcHyM92zbZ8GxUd6mmOGKna
+         +3oh8V4wzbv0CE/qyRpF+xr/2K29yLzcuBX02eVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Zhang, Bernice" <bernice.zhang@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Yian Chen <yian.chen@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Zhang@vger.kernel.org
-Subject: [PATCH 5.15 158/230] iommu/vt-d: Fix PCI bus rescan device hot add
+        stable@vger.kernel.org, Kuee K1r0a <liulin063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.10 06/55] bpf: Fix incorrect verifier simulation around jmp32s jeq/jne
 Date:   Mon, 11 Jul 2022 11:06:54 +0200
-Message-Id: <20220711090608.542361994@linuxfoundation.org>
+Message-Id: <20220711090541.951730942@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +55,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yian Chen <yian.chen@intel.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 316f92a705a4c2bf4712135180d56f3cca09243a upstream.
+commit a12ca6277eca6aeeccf66e840c23a2b520e24c8f upstream.
 
-Notifier calling chain uses priority to determine the execution
-order of the notifiers or listeners registered to the chain.
-PCI bus device hot add utilizes the notification mechanism.
+Kuee reported a quirk in the jmp32's jeq/jne simulation, namely that the
+register value does not match expectations for the fall-through path. For
+example:
 
-The current code sets low priority (INT_MIN) to Intel
-dmar_pci_bus_notifier and postpones DMAR decoding after adding
-new device into IOMMU. The result is that struct device pointer
-cannot be found in DRHD search for the new device's DMAR/IOMMU.
-Subsequently, the device is put under the "catch-all" IOMMU
-instead of the correct one. This could cause system hang when
-device TLB invalidation is sent to the wrong IOMMU. Invalidation
-timeout error and hard lockup have been observed and data
-inconsistency/crush may occur as well.
+Before fix:
 
-This patch fixes the issue by setting a positive priority(1) for
-dmar_pci_bus_notifier while the priority of IOMMU bus notifier
-uses the default value(0), therefore DMAR decoding will be in
-advance of DRHD search for a new device to find the correct IOMMU.
+  0: R1=ctx(off=0,imm=0) R10=fp0
+  0: (b7) r2 = 0                        ; R2_w=P0
+  1: (b7) r6 = 563                      ; R6_w=P563
+  2: (87) r2 = -r2                      ; R2_w=Pscalar()
+  3: (87) r2 = -r2                      ; R2_w=Pscalar()
+  4: (4c) w2 |= w6                      ; R2_w=Pscalar(umin=563,umax=4294967295,var_off=(0x233; 0xfffffdcc),s32_min=-2147483085) R6_w=P563
+  5: (56) if w2 != 0x8 goto pc+1        ; R2_w=P571  <--- [*]
+  6: (95) exit
+  R0 !read_ok
 
-Following is a 2-step example that triggers the bug by simulating
-PCI device hot add behavior in Intel Sapphire Rapids server.
+After fix:
 
-echo 1 > /sys/bus/pci/devices/0000:6a:01.0/remove
-echo 1 > /sys/bus/pci/rescan
+  0: R1=ctx(off=0,imm=0) R10=fp0
+  0: (b7) r2 = 0                        ; R2_w=P0
+  1: (b7) r6 = 563                      ; R6_w=P563
+  2: (87) r2 = -r2                      ; R2_w=Pscalar()
+  3: (87) r2 = -r2                      ; R2_w=Pscalar()
+  4: (4c) w2 |= w6                      ; R2_w=Pscalar(umin=563,umax=4294967295,var_off=(0x233; 0xfffffdcc),s32_min=-2147483085) R6_w=P563
+  5: (56) if w2 != 0x8 goto pc+1        ; R2_w=P8  <--- [*]
+  6: (95) exit
+  R0 !read_ok
 
-Fixes: 59ce0515cdaf ("iommu/vt-d: Update DRHD/RMRR/ATSR device scope")
-Cc: stable@vger.kernel.org # v3.15+
-Reported-by: Zhang, Bernice <bernice.zhang@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Yian Chen <yian.chen@intel.com>
-Link: https://lore.kernel.org/r/20220521002115.1624069-1-yian.chen@intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+As can be seen on line 5 for the branch fall-through path in R2 [*] is that
+given condition w2 != 0x8 is false, verifier should conclude that r2 = 8 as
+upper 32 bit are known to be zero. However, verifier incorrectly concludes
+that r2 = 571 which is far off.
+
+The problem is it only marks false{true}_reg as known in the switch for JE/NE
+case, but at the end of the function, it uses {false,true}_{64,32}off to
+update {false,true}_reg->var_off and they still hold the prior value of
+{false,true}_reg->var_off before it got marked as known. The subsequent
+__reg_combine_32_into_64() then propagates this old var_off and derives new
+bounds. The information between min/max bounds on {false,true}_reg from
+setting the register to known const combined with the {false,true}_reg->var_off
+based on the old information then derives wrong register data.
+
+Fix it by detangling the BPF_JEQ/BPF_JNE cases and updating relevant
+{false,true}_{64,32}off tnums along with the register marking to known
+constant.
+
+Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
+Reported-by: Kuee K1r0a <liulin063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20220701124727.11153-1-daniel@iogearbox.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/dmar.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/verifier.c |   41 ++++++++++++++++++++++++-----------------
+ 1 file changed, 24 insertions(+), 17 deletions(-)
 
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -385,7 +385,7 @@ static int dmar_pci_bus_notifier(struct
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -7512,26 +7512,33 @@ static void reg_set_min_max(struct bpf_r
+ 		return;
  
- static struct notifier_block dmar_pci_bus_nb = {
- 	.notifier_call = dmar_pci_bus_notifier,
--	.priority = INT_MIN,
-+	.priority = 1,
- };
- 
- static struct dmar_drhd_unit *
+ 	switch (opcode) {
++	/* JEQ/JNE comparison doesn't change the register equivalence.
++	 *
++	 * r1 = r2;
++	 * if (r1 == 42) goto label;
++	 * ...
++	 * label: // here both r1 and r2 are known to be 42.
++	 *
++	 * Hence when marking register as known preserve it's ID.
++	 */
+ 	case BPF_JEQ:
++		if (is_jmp32) {
++			__mark_reg32_known(true_reg, val32);
++			true_32off = tnum_subreg(true_reg->var_off);
++		} else {
++			___mark_reg_known(true_reg, val);
++			true_64off = true_reg->var_off;
++		}
++		break;
+ 	case BPF_JNE:
+-	{
+-		struct bpf_reg_state *reg =
+-			opcode == BPF_JEQ ? true_reg : false_reg;
+-
+-		/* JEQ/JNE comparison doesn't change the register equivalence.
+-		 * r1 = r2;
+-		 * if (r1 == 42) goto label;
+-		 * ...
+-		 * label: // here both r1 and r2 are known to be 42.
+-		 *
+-		 * Hence when marking register as known preserve it's ID.
+-		 */
+-		if (is_jmp32)
+-			__mark_reg32_known(reg, val32);
+-		else
+-			___mark_reg_known(reg, val);
++		if (is_jmp32) {
++			__mark_reg32_known(false_reg, val32);
++			false_32off = tnum_subreg(false_reg->var_off);
++		} else {
++			___mark_reg_known(false_reg, val);
++			false_64off = false_reg->var_off;
++		}
+ 		break;
+-	}
+ 	case BPF_JSET:
+ 		if (is_jmp32) {
+ 			false_32off = tnum_and(false_32off, tnum_const(~val32));
 
 
