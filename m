@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6A156FB04
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF82656FD28
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232045AbiGKJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:25:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56718 "EHLO
+        id S233911AbiGKJvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232353AbiGKJYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3709248D4;
-        Mon, 11 Jul 2022 02:14:43 -0700 (PDT)
+        with ESMTP id S233806AbiGKJuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C61F23BDE;
+        Mon, 11 Jul 2022 02:24:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DF79B80953;
-        Mon, 11 Jul 2022 09:14:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9236C34115;
-        Mon, 11 Jul 2022 09:14:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DC23ECE1257;
+        Mon, 11 Jul 2022 09:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7BF7C34115;
+        Mon, 11 Jul 2022 09:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530881;
-        bh=D3SaVN4OtJ9jFkZCISlCl7bmwvDmH9WGXXwg2da6PjI=;
+        s=korg; t=1657531491;
+        bh=Ogtk9ds9PUoZv1yHNlKP+Gp/qGJsLeUWAZAHVWnzl1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jbwaJiitwZZhfOb9g3jaes++UDNJaAQ9MX9TgufcOK/5dAhSA6RBqWKIUUyfbOTbP
-         SJ0/+Hj+cfz6o1uLR4Wy05EtOpQDtbaBQoSyTQg/yXJZUa2LahayYANnfMT7UFnAAU
-         nEKbZ6yJOF8j1vfsJ4QR3d+KRitWfNtHeEQWkYWM=
+        b=GSeXE8Mbi03DbJG58PrIk3rl6YxsVxa1JTXvzTCrpR3Vw7VpCInx416xpw0FM+Dn1
+         LJA0yFf/NC+bnqJld3XN8i++G4nA7jmMOLrdq3nPDWi+9i4+sHdZ2i0Ng1MIGa8Vge
+         ZteJFMHKy8fg2IqK4nJagkKuvtdt1u5fEyzM/DM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 018/112] usbnet: fix memory leak in error case
-Date:   Mon, 11 Jul 2022 11:06:18 +0200
-Message-Id: <20220711090550.076579599@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 123/230] tty: n_gsm: fix missing update of modem controls after DLCI open
+Date:   Mon, 11 Jul 2022 11:06:19 +0200
+Message-Id: <20220711090607.554714477@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit b55a21b764c1e182014630fa5486d717484ac58f upstream.
+[ Upstream commit 48473802506d2d6151f59e0e764932b33b53cb3b ]
 
-usbnet_write_cmd_async() mixed up which buffers
-need to be freed in which error case.
+Currently the peer is not informed about the initial state of the modem
+control lines after a new DLCI has been opened.
+Fix this by sending the initial modem control line states after DLCI open.
 
-v2: add Fixes tag
-v3: fix uninitialized buf pointer
-
-Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220705125351.17309-1-oneukum@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220420101346.3315-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/tty/n_gsm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -2137,7 +2137,7 @@ static void usbnet_async_cmd_cb(struct u
- int usbnet_write_cmd_async(struct usbnet *dev, u8 cmd, u8 reqtype,
- 			   u16 value, u16 index, const void *data, u16 size)
- {
--	struct usb_ctrlrequest *req = NULL;
-+	struct usb_ctrlrequest *req;
- 	struct urb *urb;
- 	int err = -ENOMEM;
- 	void *buf = NULL;
-@@ -2155,7 +2155,7 @@ int usbnet_write_cmd_async(struct usbnet
- 		if (!buf) {
- 			netdev_err(dev->net, "Error allocating buffer"
- 				   " in %s!\n", __func__);
--			goto fail_free;
-+			goto fail_free_urb;
- 		}
- 	}
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index d3d5308daf35..c52d5e0d5c6f 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -371,6 +371,7 @@ static const u8 gsm_fcs8[256] = {
+ #define GOOD_FCS	0xCF
  
-@@ -2179,14 +2179,21 @@ int usbnet_write_cmd_async(struct usbnet
- 	if (err < 0) {
- 		netdev_err(dev->net, "Error submitting the control"
- 			   " message: status=%d\n", err);
--		goto fail_free;
-+		goto fail_free_all;
- 	}
- 	return 0;
+ static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len);
++static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk);
  
-+fail_free_all:
-+	kfree(req);
- fail_free_buf:
- 	kfree(buf);
--fail_free:
--	kfree(req);
-+	/*
-+	 * avoid a double free
-+	 * needed because the flag can be set only
-+	 * after filling the URB
-+	 */
-+	urb->transfer_flags = 0;
-+fail_free_urb:
- 	usb_free_urb(urb);
- fail:
- 	return err;
+ /**
+  *	gsm_fcs_add	-	update FCS
+@@ -1489,6 +1490,9 @@ static void gsm_dlci_open(struct gsm_dlci *dlci)
+ 	dlci->state = DLCI_OPEN;
+ 	if (debug & 8)
+ 		pr_debug("DLCI %d goes open.\n", dlci->addr);
++	/* Send current modem state */
++	if (dlci->addr)
++		gsmtty_modem_update(dlci, 0);
+ 	wake_up(&dlci->gsm->event);
+ }
+ 
+-- 
+2.35.1
+
 
 
