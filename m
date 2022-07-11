@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC6956FADA
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABD2856FDDA
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231986AbiGKJWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:22:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
+        id S234294AbiGKKBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:01:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232020AbiGKJWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99045A477;
-        Mon, 11 Jul 2022 02:13:19 -0700 (PDT)
+        with ESMTP id S234312AbiGKKAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:00:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58125B7D7D;
+        Mon, 11 Jul 2022 02:28:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A785761148;
-        Mon, 11 Jul 2022 09:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF16C34115;
-        Mon, 11 Jul 2022 09:13:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93FACCE1268;
+        Mon, 11 Jul 2022 09:28:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B010CC34115;
+        Mon, 11 Jul 2022 09:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530798;
-        bh=roqKuPTyH8/KVR+BQ3zMlSXJknpqALmtGKOY5rOEX24=;
+        s=korg; t=1657531687;
+        bh=csgxy4ICyoSPVF+d/lXJiIiPKT9K0NdUJw6mNZnSrfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yL4IfTsH7iSK21aLEPftqb7jwyuEUzVt8LHA+XguNh43syIO+BWqAn+zSAX8MtivT
-         ykaW2GBBD1YNzcnIdYcssbWmnMVPvX7SnPeyS8v1725oTF61XZ8AWfjCFKjqN+2KWY
-         UnmwEjRI3+0Gl+xUNQgyZ4gET+w97QqTTTs625U4=
+        b=Fm/63oiVykF8aNE/G7mhRnpAa0q641V1+ZednRSEq2Hd9eGakPFVCA70jimn07BmK
+         lfp/udmRsryySUQLREfUTEzk0tNlvFQ5FZKQe3Kb6mKdnzOHdKX4SfrwnmRXlQfrJ9
+         XCzfgmvYVTvxZd91cCvX86L4LWBd/g+YV3krhZ70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Andrei Lalaev <andrey.lalaev@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/55] selftests: forwarding: fix error message in learning_test
+Subject: [PATCH 5.15 195/230] pinctrl: sunxi: sunxi_pconf_set: use correct offset
 Date:   Mon, 11 Jul 2022 11:07:31 +0200
-Message-Id: <20220711090543.027086095@linuxfoundation.org>
+Message-Id: <20220711090609.639568498@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Andrei Lalaev <andrey.lalaev@gmail.com>
 
-[ Upstream commit 83844aacab2015da1dba1df0cc61fc4b4c4e8076 ]
+[ Upstream commit cd4c1e65a32afd003b08ad4aafe1e4d3e4e8e61b ]
 
-When packets are not received, they aren't received on $host1_if, so the
-message talking about the second host not receiving them is incorrect.
-Fix it.
+Some Allwinner SoCs have 2 pinctrls (PIO and R_PIO).
+Previous implementation used absolute pin numbering and it was incorrect
+for R_PIO pinctrl.
+It's necessary to take into account the base pin number.
 
-Fixes: d4deb01467ec ("selftests: forwarding: Add a test for FDB learning")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 90be64e27621 ("pinctrl: sunxi: implement pin_config_set")
+Signed-off-by: Andrei Lalaev <andrey.lalaev@gmail.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20220525190423.410609-1-andrey.lalaev@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index fbda7603f3b3..54020d05a62b 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1074,7 +1074,7 @@ learning_test()
- 	tc -j -s filter show dev $host1_if ingress \
- 		| jq -e ".[] | select(.options.handle == 101) \
- 		| select(.options.actions[0].stats.packets == 1)" &> /dev/null
--	check_fail $? "Packet reached second host when should not"
-+	check_fail $? "Packet reached first host when should not"
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sunxi.c b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+index ce3f9ea41511..1431ab21aca6 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+@@ -544,6 +544,8 @@ static int sunxi_pconf_set(struct pinctrl_dev *pctldev, unsigned pin,
+ 	struct sunxi_pinctrl *pctl = pinctrl_dev_get_drvdata(pctldev);
+ 	int i;
  
- 	$MZ $host1_if -c 1 -p 64 -a $mac -t ip -q
- 	sleep 1
++	pin -= pctl->desc->pin_base;
++
+ 	for (i = 0; i < num_configs; i++) {
+ 		enum pin_config_param param;
+ 		unsigned long flags;
 -- 
 2.35.1
 
