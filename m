@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8EF656FDF6
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2A5D56FDF7
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234275AbiGKKCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33222 "EHLO
+        id S234474AbiGKKCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234454AbiGKKCY (ORCPT
+        with ESMTP id S234455AbiGKKCY (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680529593;
-        Mon, 11 Jul 2022 02:28:43 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC973B7D7;
+        Mon, 11 Jul 2022 02:28:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F20AAB80E6D;
-        Mon, 11 Jul 2022 09:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E045C34115;
-        Mon, 11 Jul 2022 09:28:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05ABF612E8;
+        Mon, 11 Jul 2022 09:28:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14485C34115;
+        Mon, 11 Jul 2022 09:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531720;
-        bh=USo+M3DHAhHc2pbi1o05Z2x2BwKbfW9LYqYjyf340dg=;
+        s=korg; t=1657531723;
+        bh=hd3BvXFtrDlYs7GBArIMajBN6rCnoaaFqeDLoOJf8pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yqs249eQu6FiIRg0Yhok7F8tSTNPRVNf8Gy/PnVKnQrFRgEJ9sHiuA+cyVghsLmp4
-         awc7Uj7sB5JQTZUQobzB4QMWKhmmUxGKUouVVw0vERRJxG6aBWpRWU9myh6Q3WgOC6
-         gHl6i6n6yc4pHBqhKKeyoXf/C0CL9uqOzyGctWtQ=
+        b=c45vFQ16/U6zNSG0VAzN/tfQX+gexhb05fPQKEtqGm9kPfFoaU/tdwtXWzxWNF54L
+         csJqRPT+xt19lnNt+4nezszcOHjIcxuPgM45cfeZgmeT+X2qxL3bwQnczfrCNqb01A
+         dY2xJ5l+G1Zxu9TVfTfVIx6InCU0uKE4Wz25hqO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Norbert Zulinski <norbertx.zulinski@intel.com>,
-        Jan Sokolowski <jan.sokolowski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 206/230] i40e: Fix VFs MAC Address change on VM
-Date:   Mon, 11 Jul 2022 11:07:42 +0200
-Message-Id: <20220711090609.948014233@linuxfoundation.org>
+Subject: [PATCH 5.15 207/230] ARM: dts: stm32: use usbphyc ck_usbo_48m as USBH OHCI clock on stm32mp151
+Date:   Mon, 11 Jul 2022 11:07:43 +0200
+Message-Id: <20220711090609.975961001@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -57,47 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Zulinski <norbertx.zulinski@intel.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit fed0d9f13266a22ce1fc9a97521ef9cdc6271a23 ]
+[ Upstream commit db7be2cb87ae65e2d033a9f61f7fb94bce505177 ]
 
-Clear VF MAC from parent PF and remove VF filter from VSI when both
-conditions are true:
--VIRTCHNL_VF_OFFLOAD_USO is not used
--VM MAC was not set from PF level
+Referring to the note under USBH reset and clocks chapter of RM0436,
+"In order to access USBH_OHCI registers it is necessary to activate the USB
+clocks by enabling the PLL controlled by USBPHYC" (ck_usbo_48m).
 
-It affects older version of IAVF and it allow them to change MAC
-Address on VM, newer IAVF won't change their behaviour.
+The point is, when USBPHYC PLL is not enabled, OHCI register access
+freezes the resume from STANDBY. It is the case when dual USBH is enabled,
+instead of OTG + single USBH.
+When OTG is probed, as ck_usbo_48m is USBO clock parent, then USBPHYC PLL
+is enabled and OHCI register access is OK.
 
-Previously it wasn't possible to change VF's MAC Address on VM
-because there is flag on IAVF driver that won't allow to
-change MAC Address if this address is given from PF driver.
+This patch adds ck_usbo_48m (provided by USBPHYC PLL) as clock of USBH
+OHCI, thus USBPHYC PLL will be enabled and OHCI register access will be OK.
 
-Fixes: 155f0ac2c96b ("iavf: allow permanent MAC address to change")
-Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
-Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/stm32mp151.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 6c1e668f4ebf..d78ac5e7f658 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2147,6 +2147,10 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
- 		/* VFs only use TC 0 */
- 		vfres->vsi_res[0].qset_handle
- 					  = le16_to_cpu(vsi->info.qs_handle[0]);
-+		if (!(vf->driver_caps & VIRTCHNL_VF_OFFLOAD_USO) && !vf->pf_set_mac) {
-+			i40e_del_mac_filter(vsi, vf->default_lan_addr.addr);
-+			eth_zero_addr(vf->default_lan_addr.addr);
-+		}
- 		ether_addr_copy(vfres->vsi_res[0].default_mac_addr,
- 				vf->default_lan_addr.addr);
- 	}
+diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
+index 6992a4b0ba79..f693a7d24247 100644
+--- a/arch/arm/boot/dts/stm32mp151.dtsi
++++ b/arch/arm/boot/dts/stm32mp151.dtsi
+@@ -1452,7 +1452,7 @@
+ 		usbh_ohci: usb@5800c000 {
+ 			compatible = "generic-ohci";
+ 			reg = <0x5800c000 0x1000>;
+-			clocks = <&rcc USBH>;
++			clocks = <&rcc USBH>, <&usbphyc>;
+ 			resets = <&rcc USBH_R>;
+ 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+ 			status = "disabled";
 -- 
 2.35.1
 
