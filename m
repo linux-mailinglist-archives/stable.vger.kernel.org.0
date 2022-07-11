@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C8956FE02
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA8D56FE01
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234475AbiGKKDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:03:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33326 "EHLO
+        id S234411AbiGKKDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:03:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiGKKCy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301165C9C8;
-        Mon, 11 Jul 2022 02:28:57 -0700 (PDT)
+        with ESMTP id S234468AbiGKKCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D9D64E39;
+        Mon, 11 Jul 2022 02:28:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE39BB80E88;
-        Mon, 11 Jul 2022 09:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10884C34115;
-        Mon, 11 Jul 2022 09:28:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB58561366;
+        Mon, 11 Jul 2022 09:28:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6896C34115;
+        Mon, 11 Jul 2022 09:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531734;
-        bh=Tusqk7Lmxx7rh/jamATplaHs7GoHvwB/yxhV6tXDDpA=;
+        s=korg; t=1657531737;
+        bh=nRZ2ev52J18zqlSet3uQyM6CKCgYTI5uU0dUwqorEtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSb9rBYYZCja/7xNC38W/ZDsFFm/858YLJePFOL26atYUIwuKo+BOknD8n8UtN0Dd
-         IMsJP0AJfdBWyOXuQLYAJgRIgLAhuuYovE4q6e18LGDXkBkBhFe96LVlDRI/yZcmEE
-         FZr4ov1r4Qwy2yLNr2/S0HEKKAvNQn94yHKpPi9M=
+        b=uzZ+09J67zVOrwS9GMYgY1ou+obXJ2FP78aYBoyhGZhRV/XYHOtqTKcRM2hpV+ezI
+         5Z8fbLVbomEFCFCAqITEuZVqOOz6cp7g08KVJg9N/7UX3knIWBAfkf/h94gJdebby1
+         QcmgORfiL8ffia+F6I5xw/PwaPxEloQxbjaynlfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ido Schimmel <idosch@nvidia.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 211/230] selftests: forwarding: fix learning_test when h1 supports IFF_UNICAST_FLT
-Date:   Mon, 11 Jul 2022 11:07:47 +0200
-Message-Id: <20220711090610.089221940@linuxfoundation.org>
+Subject: [PATCH 5.15 212/230] selftests: forwarding: fix error message in learning_test
+Date:   Mon, 11 Jul 2022 11:07:48 +0200
+Message-Id: <20220711090610.116942090@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -57,45 +57,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 1a635d3e1c80626237fdae47a5545b6655d8d81c ]
+[ Upstream commit 83844aacab2015da1dba1df0cc61fc4b4c4e8076 ]
 
-The first host interface has by default no interest in receiving packets
-MAC DA de:ad:be:ef:13:37, so it might drop them before they hit the tc
-filter and this might confuse the selftest.
-
-Enable promiscuous mode such that the filter properly counts received
-packets.
+When packets are not received, they aren't received on $host1_if, so the
+message talking about the second host not receiving them is incorrect.
+Fix it.
 
 Fixes: d4deb01467ec ("selftests: forwarding: Add a test for FDB learning")
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/net/forwarding/lib.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 8a9c55fe841a..0db6ea8d7e05 100644
+index 0db6ea8d7e05..c9507df9c05b 100644
 --- a/tools/testing/selftests/net/forwarding/lib.sh
 +++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1149,6 +1149,7 @@ learning_test()
- 	# FDB entry was installed.
- 	bridge link set dev $br_port1 flood off
+@@ -1160,7 +1160,7 @@ learning_test()
+ 	tc -j -s filter show dev $host1_if ingress \
+ 		| jq -e ".[] | select(.options.handle == 101) \
+ 		| select(.options.actions[0].stats.packets == 1)" &> /dev/null
+-	check_fail $? "Packet reached second host when should not"
++	check_fail $? "Packet reached first host when should not"
  
-+	ip link set $host1_if promisc on
- 	tc qdisc add dev $host1_if ingress
- 	tc filter add dev $host1_if ingress protocol ip pref 1 handle 101 \
- 		flower dst_mac $mac action drop
-@@ -1198,6 +1199,7 @@ learning_test()
- 
- 	tc filter del dev $host1_if ingress protocol ip pref 1 handle 101 flower
- 	tc qdisc del dev $host1_if ingress
-+	ip link set $host1_if promisc off
- 
- 	bridge link set dev $br_port1 flood on
- 
+ 	$MZ $host1_if -c 1 -p 64 -a $mac -t ip -q
+ 	sleep 1
 -- 
 2.35.1
 
