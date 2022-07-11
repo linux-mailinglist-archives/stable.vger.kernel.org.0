@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5A2956FB9A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14F5256FAAB
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232144AbiGKJct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:32:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40874 "EHLO
+        id S231918AbiGKJUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:20:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232640AbiGKJcN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:13 -0400
+        with ESMTP id S231410AbiGKJUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D013C4330F;
-        Mon, 11 Jul 2022 02:17:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7FF51A37;
+        Mon, 11 Jul 2022 02:12:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB32D61243;
-        Mon, 11 Jul 2022 09:17:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3689C341C0;
-        Mon, 11 Jul 2022 09:17:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21ED461148;
+        Mon, 11 Jul 2022 09:12:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F2BC34115;
+        Mon, 11 Jul 2022 09:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531044;
-        bh=sHcfpShKWSDRKQYb8GObnyX1seYyzwG9Pz2xF486Y9M=;
+        s=korg; t=1657530748;
+        bh=JnbQUXFmoCPU/Ryxi5nJ3JILasfWjNYUzM7FYb5s3Dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3OXiC661ocFEmfXf4AXNmQUHiaaq5j5N+YfRtYZWsF0qYphlBZidyApwbkLMXtRW
-         23fZCl26JefuXfsoBGCZwfn6nFUlTEFO69T8pvu/F3VKBth3yUp8mY6xdTSh1PL4oy
-         pkTClaSO116nQJH/oezYuUaYSLEzwhU2KEc4v54U=
+        b=y9ZBqAkNkHn3qZPHtAeTw6LNJGJ7LVghiL1/34ziFvGq2rLy3Jud6rUjZStX+fJO9
+         3mK8MOheL+aP7ichuIA6WPkwlvCl/pVwvAGo48+8Q7+SkLvl/Sn873kqNVic+2pCDO
+         f1HjFPRsM9vFUJ3UucWKV6ZRq+KFyGbNdn6hfT2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 074/112] ARM: dts: at91: sama5d2_icp: fix eeprom compatibles
+Subject: [PATCH 5.10 26/55] pinctrl: sunxi: a83t: Fix NAND function name for some pins
 Date:   Mon, 11 Jul 2022 11:07:14 +0200
-Message-Id: <20220711090551.672969978@linuxfoundation.org>
+Message-Id: <20220711090542.536268245@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 416ce193d73a734ded6d09fe141017b38af1c567 ]
+[ Upstream commit aaefa29270d9551b604165a08406543efa9d16f5 ]
 
-The eeprom memories on the board are microchip 24aa025e48, which are 2 Kbits
-and are compatible with at24c02 not at24c32.
+The other NAND pins on Port C use the "nand0" function name.
+"nand0" also matches all of the other Allwinner SoCs.
 
-Fixes: 68a95ef72cefe ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220607090455.80433-2-eugen.hristev@microchip.com
+Fixes: 4730f33f0d82 ("pinctrl: sunxi: add allwinner A83T PIO controller support")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220526024956.49500-1-samuel@sholland.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d2_icp.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index 806eb1d911d7..164201a8fbf2 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -329,21 +329,21 @@
- 	status = "okay";
- 
- 	eeprom@50 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x50>;
- 		pagesize = <16>;
- 		status = "okay";
- 	};
- 
- 	eeprom@52 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x52>;
- 		pagesize = <16>;
- 		status = "disabled";
- 	};
- 
- 	eeprom@53 {
--		compatible = "atmel,24c32";
-+		compatible = "atmel,24c02";
- 		reg = <0x53>;
- 		pagesize = <16>;
- 		status = "disabled";
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
+index 4ada80317a3b..b5c1a8f363f3 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c
+@@ -158,26 +158,26 @@ static const struct sunxi_desc_pin sun8i_a83t_pins[] = {
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 14),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ6 */
++		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ6 */
+ 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D6 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 15),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand"),		/* DQ7 */
++		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQ7 */
+ 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* D7 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 16),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand"),		/* DQS */
++		  SUNXI_FUNCTION(0x2, "nand0"),		/* DQS */
+ 		  SUNXI_FUNCTION(0x3, "mmc2")),		/* RST */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 17),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand")),		/* CE2 */
++		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE2 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 18),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x2, "nand")),		/* CE3 */
++		  SUNXI_FUNCTION(0x2, "nand0")),	/* CE3 */
+ 	/* Hole */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 -- 
 2.35.1
 
