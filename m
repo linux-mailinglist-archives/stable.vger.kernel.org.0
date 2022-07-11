@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB57456FE32
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52FF656FE26
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234460AbiGKKFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:05:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
+        id S234482AbiGKKEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:04:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233909AbiGKKDh (ORCPT
+        with ESMTP id S230141AbiGKKDh (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7074D66AFC;
-        Mon, 11 Jul 2022 02:29:45 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C060D691E9;
+        Mon, 11 Jul 2022 02:29:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 020A161411;
-        Mon, 11 Jul 2022 09:29:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11603C34115;
-        Mon, 11 Jul 2022 09:29:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D4F8B80D2C;
+        Mon, 11 Jul 2022 09:29:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5602C34115;
+        Mon, 11 Jul 2022 09:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531784;
-        bh=t9YP5Tngn5X3VBS+MR/tAb2ZKRQvST36CAK14z8o50Q=;
+        s=korg; t=1657531787;
+        bh=BzvaL6bz8Q8ZGA95+tzigYDNQurz4yyyNUfD7glyKlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MIh8IgOWwcyRU+BLwu/3VvBkcDQonJd2yfZdSgD80leERKtdz1C/UOxA8w7FTba8
-         RwazltTILfzPPLP8enyuFwJLKTDp5oL1yinQOy6vkNeLJHR85530EiMGJGD9Gi1HZw
-         yeKFM0ZVOb/mExWN3CSFCt/e4j0Esa85AN907+rA=
+        b=pOBw93q3ObykYJWu1JfV+PWd0fq0a9EakPHDsnP8T6rnL0hsA2IUQhTEcH1nX5Rkr
+         7g0yVChunkKCTdPhRGNR6ttj7oboOX2tZs6yHNS+RzWd8/y1JdI1VywAN9t0voMLEx
+         aCCCXt1ZruWjtbFOwBGgAkeOaIwp1B1ITDpTxEoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 219/230] Revert "mm/memory-failure.c: fix race with changing page compound again"
-Date:   Mon, 11 Jul 2022 11:07:55 +0200
-Message-Id: <20220711090610.314638268@linuxfoundation.org>
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        "kernelci.org bot" <bot@kernelci.org>
+Subject: [PATCH 5.15 220/230] Revert "serial: 8250_mtk: Make sure to select the right FEATURE_SEL"
+Date:   Mon, 11 Jul 2022 11:07:56 +0200
+Message-Id: <20220711090610.343165021@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -57,77 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-commit 2ba2b008a8bf5fd268a43d03ba79e0ad464d6836 upstream.
+commit f0136f65285bcfb7e8f90d1013723076a35acd51 upstream.
 
-Reverts commit 888af2701db7 ("mm/memory-failure.c: fix race with changing
-page compound again") because now we fetch the page refcount under
-hugetlb_lock in try_memory_failure_hugetlb() so that the race check is no
-longer necessary.
+It was found that some MediaTek SoCs are incompatible with this
+change. Also, this register was mistakenly understood as it was
+related to the 16550A register layout selection but, at least
+on some IPs, if not all, it's related to something else unknown.
 
-Link: https://lkml.kernel.org/r/20220408135323.1559401-4-naoya.horiguchi@linux.dev
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Suggested-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+This reverts commit 6f81fdded0d024c7d4084d434764f30bca1cd6b1.
+
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Fixes: 6f81fdded0d0 ("serial: 8250_mtk: Make sure to select the right FEATURE_SEL")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Link: https://lore.kernel.org/r/20220510122620.150342-1-angelogioacchino.delregno@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mm.h      |    1 -
- include/ras/ras_event.h |    1 -
- mm/memory-failure.c     |   11 -----------
- 3 files changed, 13 deletions(-)
+ drivers/tty/serial/8250/8250_mtk.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3175,7 +3175,6 @@ enum mf_action_page_type {
- 	MF_MSG_BUDDY_2ND,
- 	MF_MSG_DAX,
- 	MF_MSG_UNSPLIT_THP,
--	MF_MSG_DIFFERENT_PAGE_SIZE,
- 	MF_MSG_UNKNOWN,
- };
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -57,9 +57,6 @@
+ #define MTK_UART_XON1		40	/* I/O: Xon character 1 */
+ #define MTK_UART_XOFF1		42	/* I/O: Xoff character 1 */
  
---- a/include/ras/ras_event.h
-+++ b/include/ras/ras_event.h
-@@ -376,7 +376,6 @@ TRACE_EVENT(aer_event,
- 	EM ( MF_MSG_BUDDY_2ND, "free buddy page (2nd try)" )		\
- 	EM ( MF_MSG_DAX, "dax page" )					\
- 	EM ( MF_MSG_UNSPLIT_THP, "unsplit thp" )			\
--	EM ( MF_MSG_DIFFERENT_PAGE_SIZE, "different page size" )	\
- 	EMe ( MF_MSG_UNKNOWN, "unknown page" )
- 
- /*
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -741,7 +741,6 @@ static const char * const action_page_ty
- 	[MF_MSG_BUDDY_2ND]		= "free buddy page (2nd try)",
- 	[MF_MSG_DAX]			= "dax page",
- 	[MF_MSG_UNSPLIT_THP]		= "unsplit thp",
--	[MF_MSG_DIFFERENT_PAGE_SIZE]	= "different page size",
- 	[MF_MSG_UNKNOWN]		= "unknown page",
- };
- 
-@@ -1526,16 +1525,6 @@ retry:
- 		return res == MF_RECOVERED ? 0 : -EBUSY;
- 	}
- 
--	/*
--	 * The page could have changed compound pages due to race window.
--	 * If this happens just bail out.
--	 */
--	if (!PageHuge(p) || compound_head(p) != head) {
--		action_result(pfn, MF_MSG_DIFFERENT_PAGE_SIZE, MF_IGNORED);
--		res = -EBUSY;
--		goto out;
--	}
+-#define MTK_UART_FEATURE_SEL	39	/* Feature Selection register */
+-#define MTK_UART_FEAT_NEWRMAP	BIT(0)	/* Use new register map */
 -
- 	page_flags = head->flags;
+ #ifdef CONFIG_SERIAL_8250_DMA
+ enum dma_rx_status {
+ 	DMA_RX_START = 0,
+@@ -575,10 +572,6 @@ static int mtk8250_probe(struct platform
+ 		uart.dma = data->dma;
+ #endif
  
- 	/*
+-	/* Set AP UART new register map */
+-	writel(MTK_UART_FEAT_NEWRMAP, uart.port.membase +
+-	       (MTK_UART_FEATURE_SEL << uart.port.regshift));
+-
+ 	/* Disable Rate Fix function */
+ 	writel(0x0, uart.port.membase +
+ 			(MTK_UART_RATE_FIX << uart.port.regshift));
 
 
