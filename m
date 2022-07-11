@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AA8D56FE01
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77AD156FE05
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234411AbiGKKDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57734 "EHLO
+        id S234527AbiGKKDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:03:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234468AbiGKKCr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D9D64E39;
-        Mon, 11 Jul 2022 02:28:58 -0700 (PDT)
+        with ESMTP id S234486AbiGKKC7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B884165D79;
+        Mon, 11 Jul 2022 02:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB58561366;
-        Mon, 11 Jul 2022 09:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6896C34115;
-        Mon, 11 Jul 2022 09:28:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07A8CB80D2C;
+        Mon, 11 Jul 2022 09:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A5EC34115;
+        Mon, 11 Jul 2022 09:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531737;
-        bh=nRZ2ev52J18zqlSet3uQyM6CKCgYTI5uU0dUwqorEtE=;
+        s=korg; t=1657531742;
+        bh=6IuiY1HugTIx1SU5L9n82AdNrldTGSqKut4Yoswi2KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzZ+09J67zVOrwS9GMYgY1ou+obXJ2FP78aYBoyhGZhRV/XYHOtqTKcRM2hpV+ezI
-         5Z8fbLVbomEFCFCAqITEuZVqOOz6cp7g08KVJg9N/7UX3knIWBAfkf/h94gJdebby1
-         QcmgORfiL8ffia+F6I5xw/PwaPxEloQxbjaynlfA=
+        b=GH4ZEyVfO+XDDPxLduuP0fwLE//sEosvDzda0GlXrv5GGQl2a+hdlsUpqO/30adBy
+         RB/4SntwdQBFutZqkIIpWzG7zcOvftP8rdgWpJEogVyiGNoKYk0OfiSW3iKlncr59V
+         r/4UiuHaquJennfMXXygIcSdoTE0t1fzbm7/ZSdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 212/230] selftests: forwarding: fix error message in learning_test
-Date:   Mon, 11 Jul 2022 11:07:48 +0200
-Message-Id: <20220711090610.116942090@linuxfoundation.org>
+Subject: [PATCH 5.15 213/230] r8169: fix accessing unset transport header
+Date:   Mon, 11 Jul 2022 11:07:49 +0200
+Message-Id: <20220711090610.144898907@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,36 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 83844aacab2015da1dba1df0cc61fc4b4c4e8076 ]
+[ Upstream commit faa4e04e5e140a6d02260289a8fba8fd8d7a3003 ]
 
-When packets are not received, they aren't received on $host1_if, so the
-message talking about the second host not receiving them is incorrect.
-Fix it.
+66e4c8d95008 ("net: warn if transport header was not set") added
+a check that triggers a warning in r8169, see [0].
 
-Fixes: d4deb01467ec ("selftests: forwarding: Add a test for FDB learning")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+The commit referenced in the Fixes tag refers to the change from
+which the patch applies cleanly, there's nothing wrong with this
+commit. It seems the actual issue (not bug, because the warning
+is harmless here) was introduced with bdfa4ed68187
+("r8169: use Giant Send").
+
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=216157
+
+Fixes: 8d520b4de3ed ("r8169: work around RTL8125 UDP hw bug")
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Tested-by: Erhard F. <erhard_f@mailbox.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/1b2c2b29-3dc0-f7b6-5694-97ec526d51a0@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 0db6ea8d7e05..c9507df9c05b 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1160,7 +1160,7 @@ learning_test()
- 	tc -j -s filter show dev $host1_if ingress \
- 		| jq -e ".[] | select(.options.handle == 101) \
- 		| select(.options.actions[0].stats.packets == 1)" &> /dev/null
--	check_fail $? "Packet reached second host when should not"
-+	check_fail $? "Packet reached first host when should not"
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 2918947dd57c..2af4c76bcf02 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -4177,7 +4177,6 @@ static void rtl8169_tso_csum_v1(struct sk_buff *skb, u32 *opts)
+ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+ 				struct sk_buff *skb, u32 *opts)
+ {
+-	u32 transport_offset = (u32)skb_transport_offset(skb);
+ 	struct skb_shared_info *shinfo = skb_shinfo(skb);
+ 	u32 mss = shinfo->gso_size;
  
- 	$MZ $host1_if -c 1 -p 64 -a $mac -t ip -q
- 	sleep 1
+@@ -4194,7 +4193,7 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+ 			WARN_ON_ONCE(1);
+ 		}
+ 
+-		opts[0] |= transport_offset << GTTCPHO_SHIFT;
++		opts[0] |= skb_transport_offset(skb) << GTTCPHO_SHIFT;
+ 		opts[1] |= mss << TD1_MSS_SHIFT;
+ 	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
+ 		u8 ip_protocol;
+@@ -4222,7 +4221,7 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+ 		else
+ 			WARN_ON_ONCE(1);
+ 
+-		opts[1] |= transport_offset << TCPHO_SHIFT;
++		opts[1] |= skb_transport_offset(skb) << TCPHO_SHIFT;
+ 	} else {
+ 		unsigned int padto = rtl_quirk_packet_padto(tp, skb);
+ 
+@@ -4389,14 +4388,13 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
+ 						struct net_device *dev,
+ 						netdev_features_t features)
+ {
+-	int transport_offset = skb_transport_offset(skb);
+ 	struct rtl8169_private *tp = netdev_priv(dev);
+ 
+ 	if (skb_is_gso(skb)) {
+ 		if (tp->mac_version == RTL_GIGA_MAC_VER_34)
+ 			features = rtl8168evl_fix_tso(skb, features);
+ 
+-		if (transport_offset > GTTCPHO_MAX &&
++		if (skb_transport_offset(skb) > GTTCPHO_MAX &&
+ 		    rtl_chip_supports_csum_v2(tp))
+ 			features &= ~NETIF_F_ALL_TSO;
+ 	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
+@@ -4407,7 +4405,7 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
+ 		if (rtl_quirk_packet_padto(tp, skb))
+ 			features &= ~NETIF_F_CSUM_MASK;
+ 
+-		if (transport_offset > TCPHO_MAX &&
++		if (skb_transport_offset(skb) > TCPHO_MAX &&
+ 		    rtl_chip_supports_csum_v2(tp))
+ 			features &= ~NETIF_F_CSUM_MASK;
+ 	}
 -- 
 2.35.1
 
