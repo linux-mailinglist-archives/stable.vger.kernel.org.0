@@ -2,186 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 075D056D67E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B246456D7CC
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 10:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229463AbiGKHPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 03:15:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34204 "EHLO
+        id S229745AbiGKIZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 04:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230027AbiGKHP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:15:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37AB38A5
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:13:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CFDFB80DCB
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:13:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD9CC34115;
-        Mon, 11 Jul 2022 07:13:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657523617;
-        bh=UC93DZFBNpVx59uspu/QgditNAVc/Cu1PQ56Mc4EJak=;
-        h=Subject:To:Cc:From:Date:From;
-        b=SyTGvHc36y1XqIYve4M03Vv6T2HVXiktc2WmidPQowF1ZIjjUXpRt4MDh60fPirxH
-         a2WNGE+eGgoefdlE6pPxP+znXpY3t4cqHxQMesdbRZjMZ7VE9jOOHFwHVoAUH3txfs
-         0Kf96G5i28VrpwTcHOgO4PNQ8IwHP9ObsRWsWKCQ=
-Subject: FAILED: patch "[PATCH] dmaengine: qcom: bam_dma: fix runtime PM underflow" failed to apply to 4.19-stable tree
-To:     caleb.connolly@linaro.org, stephan@gerhold.net, vkoul@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jul 2022 09:13:24 +0200
-Message-ID: <165752360413061@kroah.com>
+        with ESMTP id S229737AbiGKIZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 04:25:48 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87091A82A
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 01:25:47 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id c13so3831988pla.6
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 01:25:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nfKZelDEKWOxb6s9bGx6/ZVERD4nGU2QPmmidfnMsJQ=;
+        b=XqvTpumkyG0CTvrWFdn3OaCSSJaMLs+KB8p0njggRNVyzT0FZPjx3waJfgbH/p3wox
+         mi1XuywC2DPytUxwhJuPIaXBZwIgaQmRpZmKoGxcTNdlspO520/tdFA5YGl89oBdwWD0
+         MRmVoJsbtF4xP4QCwcXGNJbXXTRnH2AvUZzxU2ilBCgGnVJqmgp1nGE9SdeJ+/rM+diF
+         RXmVQOkUuxirHecifTa6Fip1LpGjjZFQmVNIleFP3FwmfRYG1F3PPmbSdRCmuGB0SOlp
+         iFsidm2uWYYJx+NqShwkXYPy0rZdCfWbC+eBBHtX6rWDH8g7uEvNYLwpBwx2XySQLTUs
+         CHXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nfKZelDEKWOxb6s9bGx6/ZVERD4nGU2QPmmidfnMsJQ=;
+        b=ldjPdyj6Hf7cUGJK6e1xWn8ZXqdJB3C5hZUtvv0ndBAs6iWFz1DTT8rfS5rH6JatV5
+         C8R4gHOBG0yLdasgt8+tIFOLkknOC76zS4/h5tnj7dI2qQsVO1aCISqlWMvkemFJDGPy
+         yv822QUjNaY6pfRcswYpvMJp5X237RuFbGv1CnK45APjbn2BJAEVIdodpYqAQK0h0oZT
+         0AhagIQ/KMDtuf0a5nWIqM8EiqvizphkLSo2fTkg3wQe4meYCzHAWGh63SZPNBdgbD9Y
+         WGJPaEexe85UKmQFg+XeQ6i7JawI1NAx8B9wqSA6KSp3/gKcbukcm6tNYzXw7AmGFWz9
+         CIdQ==
+X-Gm-Message-State: AJIora+ly9HjbjCTd9oFVwjOWUOPXDXtEmsDfQr2x5j2aKPTlz/rps7k
+        JXLxpxDQ1Qx3eFJ63JLckZfGX3XLpnA=
+X-Google-Smtp-Source: AGRyM1vkmrl0DiOen6WER2ofd8c3XmY9D6OXUbmwPPhlwqbfQQXqjEfX1uDS+tGGFig005vxTwJnmw==
+X-Received: by 2002:a17:90a:1782:b0:1ef:cc5c:411a with SMTP id q2-20020a17090a178200b001efcc5c411amr16894358pja.147.1657527947072;
+        Mon, 11 Jul 2022 01:25:47 -0700 (PDT)
+Received: from Laptop-X1.redhat.com ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id z24-20020aa79498000000b0052542cbff9dsm4288087pfk.99.2022.07.11.01.25.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Jul 2022 01:25:46 -0700 (PDT)
+From:   Hangbin Liu <liuhangbin@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, andrii@kernel.org, kuba@kernel.org,
+        Hangbin Liu <liuhangbin@gmail.com>
+Subject: [PATCH 5.15-stable] selftests/net: fix section name when using xdp_dummy.o
+Date:   Mon, 11 Jul 2022 16:25:38 +0800
+Message-Id: <20220711082538.38608-1-liuhangbin@gmail.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit d28b25a62a47a8c8aa19bd543863aab6717e68c9 upstream.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Conflicts: there is no udpgro_frglist.sh as we haven't backport
+edae34a3ed92 ("selftests net: add UDP GRO fraglist + bpf self-tests")
+to 5.15-stable tree.
 
-thanks,
+Since commit 8fffa0e3451a ("selftests/bpf: Normalize XDP section names in
+selftests") the xdp_dummy.o's section name has changed to xdp. But some
+tests are still using "section xdp_dummy", which make the tests failed.
+Fix them by updating to the new section name.
 
-greg k-h
+Fixes: 8fffa0e3451a ("selftests/bpf: Normalize XDP section names in selftests")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20220630062228.3453016-1-liuhangbin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+ tools/testing/selftests/net/udpgro.sh       | 2 +-
+ tools/testing/selftests/net/udpgro_bench.sh | 2 +-
+ tools/testing/selftests/net/udpgro_fwd.sh   | 2 +-
+ tools/testing/selftests/net/veth.sh         | 6 +++---
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
------------------- original commit in Linus's tree ------------------
-
-From 0ac9c3dd0d6fe293cd5044cfad10bec27d171e4e Mon Sep 17 00:00:00 2001
-From: Caleb Connolly <caleb.connolly@linaro.org>
-Date: Wed, 29 Jun 2022 15:06:00 +0100
-Subject: [PATCH] dmaengine: qcom: bam_dma: fix runtime PM underflow
-
-Commit dbad41e7bb5f ("dmaengine: qcom: bam_dma: check if the runtime pm enabled")
-caused unbalanced pm_runtime_get/put() calls when the bam is
-controlled remotely. This commit reverts it and just enables pm_runtime
-in all cases, the clk_* functions already just nop when the clock is NULL.
-
-Also clean up a bit by removing unnecessary bamclk null checks.
-
-Suggested-by: Stephan Gerhold <stephan@gerhold.net>
-Fixes: dbad41e7bb5f ("dmaengine: qcom: bam_dma: check if the runtime pm enabled")
-Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
-Link: https://lore.kernel.org/r/20220629140559.118537-1-caleb.connolly@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-
-diff --git a/drivers/dma/qcom/bam_dma.c b/drivers/dma/qcom/bam_dma.c
-index 87f6ca1541cf..2ff787df513e 100644
---- a/drivers/dma/qcom/bam_dma.c
-+++ b/drivers/dma/qcom/bam_dma.c
-@@ -558,14 +558,6 @@ static int bam_alloc_chan(struct dma_chan *chan)
- 	return 0;
+diff --git a/tools/testing/selftests/net/udpgro.sh b/tools/testing/selftests/net/udpgro.sh
+index f8a19f548ae9..ebbd0b282432 100755
+--- a/tools/testing/selftests/net/udpgro.sh
++++ b/tools/testing/selftests/net/udpgro.sh
+@@ -34,7 +34,7 @@ cfg_veth() {
+ 	ip -netns "${PEER_NS}" addr add dev veth1 192.168.1.1/24
+ 	ip -netns "${PEER_NS}" addr add dev veth1 2001:db8::1/64 nodad
+ 	ip -netns "${PEER_NS}" link set dev veth1 up
+-	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp_dummy
++	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp
  }
  
--static int bam_pm_runtime_get_sync(struct device *dev)
--{
--	if (pm_runtime_enabled(dev))
--		return pm_runtime_get_sync(dev);
--
--	return 0;
--}
--
- /**
-  * bam_free_chan - Frees dma resources associated with specific channel
-  * @chan: specified channel
-@@ -581,7 +573,7 @@ static void bam_free_chan(struct dma_chan *chan)
- 	unsigned long flags;
- 	int ret;
+ run_one() {
+diff --git a/tools/testing/selftests/net/udpgro_bench.sh b/tools/testing/selftests/net/udpgro_bench.sh
+index 820bc50f6b68..fad2d1a71cac 100755
+--- a/tools/testing/selftests/net/udpgro_bench.sh
++++ b/tools/testing/selftests/net/udpgro_bench.sh
+@@ -34,7 +34,7 @@ run_one() {
+ 	ip -netns "${PEER_NS}" addr add dev veth1 2001:db8::1/64 nodad
+ 	ip -netns "${PEER_NS}" link set dev veth1 up
  
--	ret = bam_pm_runtime_get_sync(bdev->dev);
-+	ret = pm_runtime_get_sync(bdev->dev);
- 	if (ret < 0)
- 		return;
+-	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp_dummy
++	ip -n "${PEER_NS}" link set veth1 xdp object ../bpf/xdp_dummy.o section xdp
+ 	ip netns exec "${PEER_NS}" ./udpgso_bench_rx ${rx_args} -r &
+ 	ip netns exec "${PEER_NS}" ./udpgso_bench_rx -t ${rx_args} -r &
  
-@@ -784,7 +776,7 @@ static int bam_pause(struct dma_chan *chan)
- 	unsigned long flag;
- 	int ret;
- 
--	ret = bam_pm_runtime_get_sync(bdev->dev);
-+	ret = pm_runtime_get_sync(bdev->dev);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -810,7 +802,7 @@ static int bam_resume(struct dma_chan *chan)
- 	unsigned long flag;
- 	int ret;
- 
--	ret = bam_pm_runtime_get_sync(bdev->dev);
-+	ret = pm_runtime_get_sync(bdev->dev);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -919,7 +911,7 @@ static irqreturn_t bam_dma_irq(int irq, void *data)
- 	if (srcs & P_IRQ)
- 		tasklet_schedule(&bdev->task);
- 
--	ret = bam_pm_runtime_get_sync(bdev->dev);
-+	ret = pm_runtime_get_sync(bdev->dev);
- 	if (ret < 0)
- 		return IRQ_NONE;
- 
-@@ -1037,7 +1029,7 @@ static void bam_start_dma(struct bam_chan *bchan)
- 	if (!vd)
- 		return;
- 
--	ret = bam_pm_runtime_get_sync(bdev->dev);
-+	ret = pm_runtime_get_sync(bdev->dev);
- 	if (ret < 0)
- 		return;
- 
-@@ -1374,11 +1366,6 @@ static int bam_dma_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_unregister_dma;
- 
--	if (!bdev->bamclk) {
--		pm_runtime_disable(&pdev->dev);
--		return 0;
--	}
--
- 	pm_runtime_irq_safe(&pdev->dev);
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, BAM_DMA_AUTOSUSPEND_DELAY);
- 	pm_runtime_use_autosuspend(&pdev->dev);
-@@ -1462,10 +1449,8 @@ static int __maybe_unused bam_dma_suspend(struct device *dev)
- {
- 	struct bam_device *bdev = dev_get_drvdata(dev);
- 
--	if (bdev->bamclk) {
--		pm_runtime_force_suspend(dev);
--		clk_unprepare(bdev->bamclk);
--	}
-+	pm_runtime_force_suspend(dev);
-+	clk_unprepare(bdev->bamclk);
- 
- 	return 0;
+diff --git a/tools/testing/selftests/net/udpgro_fwd.sh b/tools/testing/selftests/net/udpgro_fwd.sh
+index 6f05e06f6761..1bcd82e1f662 100755
+--- a/tools/testing/selftests/net/udpgro_fwd.sh
++++ b/tools/testing/selftests/net/udpgro_fwd.sh
+@@ -46,7 +46,7 @@ create_ns() {
+ 		ip -n $BASE$ns addr add dev veth$ns $BM_NET_V4$ns/24
+ 		ip -n $BASE$ns addr add dev veth$ns $BM_NET_V6$ns/64 nodad
+ 	done
+-	ip -n $NS_DST link set veth$DST xdp object ../bpf/xdp_dummy.o section xdp_dummy 2>/dev/null
++	ip -n $NS_DST link set veth$DST xdp object ../bpf/xdp_dummy.o section xdp 2>/dev/null
  }
-@@ -1475,13 +1460,11 @@ static int __maybe_unused bam_dma_resume(struct device *dev)
- 	struct bam_device *bdev = dev_get_drvdata(dev);
- 	int ret;
  
--	if (bdev->bamclk) {
--		ret = clk_prepare(bdev->bamclk);
--		if (ret)
--			return ret;
-+	ret = clk_prepare(bdev->bamclk);
-+	if (ret)
-+		return ret;
+ create_vxlan_endpoint() {
+diff --git a/tools/testing/selftests/net/veth.sh b/tools/testing/selftests/net/veth.sh
+index 19eac3e44c06..430895d1a2b6 100755
+--- a/tools/testing/selftests/net/veth.sh
++++ b/tools/testing/selftests/net/veth.sh
+@@ -289,14 +289,14 @@ if [ $CPUS -gt 1 ]; then
+ 	ip netns exec $NS_SRC ethtool -L veth$SRC rx 1 tx 2 2>/dev/null
+ 	printf "%-60s" "bad setting: XDP with RX nr less than TX"
+ 	ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o \
+-		section xdp_dummy 2>/dev/null &&\
++		section xdp 2>/dev/null &&\
+ 		echo "fail - set operation successful ?!?" || echo " ok "
  
--		pm_runtime_force_resume(dev);
--	}
-+	pm_runtime_force_resume(dev);
+ 	# the following tests will run with multiple channels active
+ 	ip netns exec $NS_SRC ethtool -L veth$SRC rx 2
+ 	ip netns exec $NS_DST ethtool -L veth$DST rx 2
+ 	ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o \
+-		section xdp_dummy 2>/dev/null
++		section xdp 2>/dev/null
+ 	printf "%-60s" "bad setting: reducing RX nr below peer TX with XDP set"
+ 	ip netns exec $NS_DST ethtool -L veth$DST rx 1 2>/dev/null &&\
+ 		echo "fail - set operation successful ?!?" || echo " ok "
+@@ -311,7 +311,7 @@ if [ $CPUS -gt 2 ]; then
+ 	chk_channels "setting invalid channels nr" $DST 2 2
+ fi
  
- 	return 0;
- }
+-ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o section xdp_dummy 2>/dev/null
++ip -n $NS_DST link set dev veth$DST xdp object ../bpf/xdp_dummy.o section xdp 2>/dev/null
+ chk_gro_flag "with xdp attached - gro flag" $DST on
+ chk_gro_flag "        - peer gro flag" $SRC off
+ chk_tso_flag "        - tso flag" $SRC off
+-- 
+2.35.1
 
