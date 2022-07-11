@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 455F956FD24
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD6A156FB04
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233802AbiGKJvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33432 "EHLO
+        id S232045AbiGKJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:25:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233803AbiGKJuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665E723150;
-        Mon, 11 Jul 2022 02:24:49 -0700 (PDT)
+        with ESMTP id S232353AbiGKJYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3709248D4;
+        Mon, 11 Jul 2022 02:14:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01C2961363;
-        Mon, 11 Jul 2022 09:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12865C34115;
-        Mon, 11 Jul 2022 09:24:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DF79B80953;
+        Mon, 11 Jul 2022 09:14:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9236C34115;
+        Mon, 11 Jul 2022 09:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531488;
-        bh=sU8MHd1BAT9pPPmpxJARHgNTc6LMa/2QtgH3sVlDSB8=;
+        s=korg; t=1657530881;
+        bh=D3SaVN4OtJ9jFkZCISlCl7bmwvDmH9WGXXwg2da6PjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJqGIbYlHnyo2Dn3Us2xjj2cjycwcaCndA+8VpJbngON6fGdT9lLtv8m4Ui8Esd0W
-         BM8tGTG2u6OqIZY1DRojTqupiBDws75g1u6IbcZrZ3dzyeGFeNxd6IjPHD5MNLS7ma
-         NIV8rQ0YnjnLcovf6w6EV9hZ0iHEqTQb3p6Nj+zM=
+        b=jbwaJiitwZZhfOb9g3jaes++UDNJaAQ9MX9TgufcOK/5dAhSA6RBqWKIUUyfbOTbP
+         SJ0/+Hj+cfz6o1uLR4Wy05EtOpQDtbaBQoSyTQg/yXJZUa2LahayYANnfMT7UFnAAU
+         nEKbZ6yJOF8j1vfsJ4QR3d+KRitWfNtHeEQWkYWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Avogadro <mavoga@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 122/230] ALSA: usb-audio: add mapping for MSI MAG X570S Torpedo MAX.
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 018/112] usbnet: fix memory leak in error case
 Date:   Mon, 11 Jul 2022 11:06:18 +0200
-Message-Id: <20220711090607.526500681@linuxfoundation.org>
+Message-Id: <20220711090550.076579599@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Avogadro <mavoga@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 4ddef9c4d70aae0c9029bdec7c3f7f1c1c51ff8c ]
+commit b55a21b764c1e182014630fa5486d717484ac58f upstream.
 
-The USB audio device 0db0:a073 based on the Realtek ALC4080 chipset
-exposes all playback volume controls as "PCM". This makes
-distinguishing the individual functions hard.
-The mapping already adopted for device 0db0:419c based on the same
-chipset fixes the issue, apply it for this device too.
+usbnet_write_cmd_async() mixed up which buffers
+need to be freed in which error case.
 
-Signed-off-by: Maurizio Avogadro <mavoga@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Yl1ykPaGgsFf3SnW@ryzen
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+v2: add Fixes tag
+v3: fix uninitialized buf pointer
+
+Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220705125351.17309-1-oneukum@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_maps.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/usbnet.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index 64fdca76b40e..997425ef0a29 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -586,6 +586,10 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 		.id = USB_ID(0x0db0, 0x419c),
- 		.map = msi_mpg_x570s_carbon_max_wifi_alc4080_map,
- 	},
-+	{	/* MSI MAG X570S Torpedo Max */
-+		.id = USB_ID(0x0db0, 0xa073),
-+		.map = msi_mpg_x570s_carbon_max_wifi_alc4080_map,
-+	},
- 	{	/* MSI TRX40 */
- 		.id = USB_ID(0x0db0, 0x543d),
- 		.map = trx40_mobo_map,
--- 
-2.35.1
-
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -2137,7 +2137,7 @@ static void usbnet_async_cmd_cb(struct u
+ int usbnet_write_cmd_async(struct usbnet *dev, u8 cmd, u8 reqtype,
+ 			   u16 value, u16 index, const void *data, u16 size)
+ {
+-	struct usb_ctrlrequest *req = NULL;
++	struct usb_ctrlrequest *req;
+ 	struct urb *urb;
+ 	int err = -ENOMEM;
+ 	void *buf = NULL;
+@@ -2155,7 +2155,7 @@ int usbnet_write_cmd_async(struct usbnet
+ 		if (!buf) {
+ 			netdev_err(dev->net, "Error allocating buffer"
+ 				   " in %s!\n", __func__);
+-			goto fail_free;
++			goto fail_free_urb;
+ 		}
+ 	}
+ 
+@@ -2179,14 +2179,21 @@ int usbnet_write_cmd_async(struct usbnet
+ 	if (err < 0) {
+ 		netdev_err(dev->net, "Error submitting the control"
+ 			   " message: status=%d\n", err);
+-		goto fail_free;
++		goto fail_free_all;
+ 	}
+ 	return 0;
+ 
++fail_free_all:
++	kfree(req);
+ fail_free_buf:
+ 	kfree(buf);
+-fail_free:
+-	kfree(req);
++	/*
++	 * avoid a double free
++	 * needed because the flag can be set only
++	 * after filling the URB
++	 */
++	urb->transfer_flags = 0;
++fail_free_urb:
+ 	usb_free_urb(urb);
+ fail:
+ 	return err;
 
 
