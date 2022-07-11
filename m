@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 200B056FA9C
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C820756FD83
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231817AbiGKJUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43408 "EHLO
+        id S234129AbiGKJ4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231909AbiGKJTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:19:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3614E852;
-        Mon, 11 Jul 2022 02:12:10 -0700 (PDT)
+        with ESMTP id S234034AbiGKJ4N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:56:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F997B31D9;
+        Mon, 11 Jul 2022 02:26:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D76611E4;
-        Mon, 11 Jul 2022 09:12:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91BEC34115;
-        Mon, 11 Jul 2022 09:12:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E140612E8;
+        Mon, 11 Jul 2022 09:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29020C34115;
+        Mon, 11 Jul 2022 09:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530729;
-        bh=A8UtCcjwUYVFtYvgEA8CrQVCS5OqYaomFIh1ONkVOM8=;
+        s=korg; t=1657531587;
+        bh=FEfMHg6hOiOU9NuBqymi/4Nkwi5QgLNr/8rryIS5iF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrJiDhjIJR+MyzvMGAYvcguxA8GOcOO7akbCgMDbesZ+SJx/+VuVeXteDB+xn6ZoJ
-         Iw1ceVB8hVWsBoKY2P9pv7o5od0KORkVORFakdJEfEvMgXFD6Gl0pZkWP18iffvaHG
-         4tneLDIgCZFacRfs+x3jgT2WLgutAfjvAQvdexPg=
+        b=UdZo5tNev8AoZKuPpoxcwH9G1yj34OkDVn07hFuAnYoAcuvzJ4nH3i9ZVj64jzIGT
+         /KVpXZ32sYG2Ndjyw9wP8RE6UUlibo0AnzpCYzFapDGeJbpIpZqGhEruwg16wPbV06
+         HM4dXMZuegBlS0hvGoFKRG6TCmsk3BLDIWH7dyGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuee K1r0a <liulin063@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.10 07/55] bpf: Fix insufficient bounds propagation from adjust_scalar_min_max_vals
+        stable@vger.kernel.org, Guiling Deng <greens9@163.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 159/230] fbdev: fbmem: Fix logo center image dx issue
 Date:   Mon, 11 Jul 2022 11:06:55 +0200
-Message-Id: <20220711090541.979916069@linuxfoundation.org>
+Message-Id: <20220711090608.570810128@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,216 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Guiling Deng <greens9@163.com>
 
-commit 3844d153a41adea718202c10ae91dc96b37453b5 upstream.
+commit 955f04766d4e6eb94bf3baa539e096808c74ebfb upstream.
 
-Kuee reported a corner case where the tnum becomes constant after the call
-to __reg_bound_offset(), but the register's bounds are not, that is, its
-min bounds are still not equal to the register's max bounds.
+Image.dx gets wrong value because of missing '()'.
 
-This in turn allows to leak pointers through turning a pointer register as
-is into an unknown scalar via adjust_ptr_min_max_vals().
+If xres == logo->width and n == 1, image.dx = -16.
 
-Before:
-
-  func#0 @0
-  0: R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
-  0: (b7) r0 = 1                        ; R0_w=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0))
-  1: (b7) r3 = 0                        ; R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0))
-  2: (87) r3 = -r3                      ; R3_w=scalar()
-  3: (87) r3 = -r3                      ; R3_w=scalar()
-  4: (47) r3 |= 32767                   ; R3_w=scalar(smin=-9223372036854743041,umin=32767,var_off=(0x7fff; 0xffffffffffff8000),s32_min=-2147450881)
-  5: (75) if r3 s>= 0x0 goto pc+1       ; R3_w=scalar(umin=9223372036854808575,var_off=(0x8000000000007fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
-  6: (95) exit
-
-  from 5 to 7: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
-  7: (d5) if r3 s<= 0x8000 goto pc+1    ; R3=scalar(umin=32769,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
-  8: (95) exit
-
-  from 7 to 9: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=32768,var_off=(0x7fff; 0x8000)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
-  9: (07) r3 += -32767                  ; R3_w=scalar(imm=0,umax=1,var_off=(0x0; 0x0))  <--- [*]
-  10: (95) exit
-
-What can be seen here is that R3=scalar(umin=32767,umax=32768,var_off=(0x7fff;
-0x8000)) after the operation R3 += -32767 results in a 'malformed' constant, that
-is, R3_w=scalar(imm=0,umax=1,var_off=(0x0; 0x0)). Intersecting with var_off has
-not been done at that point via __update_reg_bounds(), which would have improved
-the umax to be equal to umin.
-
-Refactor the tnum <> min/max bounds information flow into a reg_bounds_sync()
-helper and use it consistently everywhere. After the fix, bounds have been
-corrected to R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0)) and thus the register
-is regarded as a 'proper' constant scalar of 0.
-
-After:
-
-  func#0 @0
-  0: R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
-  0: (b7) r0 = 1                        ; R0_w=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0))
-  1: (b7) r3 = 0                        ; R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0))
-  2: (87) r3 = -r3                      ; R3_w=scalar()
-  3: (87) r3 = -r3                      ; R3_w=scalar()
-  4: (47) r3 |= 32767                   ; R3_w=scalar(smin=-9223372036854743041,umin=32767,var_off=(0x7fff; 0xffffffffffff8000),s32_min=-2147450881)
-  5: (75) if r3 s>= 0x0 goto pc+1       ; R3_w=scalar(umin=9223372036854808575,var_off=(0x8000000000007fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
-  6: (95) exit
-
-  from 5 to 7: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
-  7: (d5) if r3 s<= 0x8000 goto pc+1    ; R3=scalar(umin=32769,umax=9223372036854775807,var_off=(0x7fff; 0x7fffffffffff8000),s32_min=-2147450881,u32_min=32767)
-  8: (95) exit
-
-  from 7 to 9: R0=scalar(imm=1,umin=1,umax=1,var_off=(0x1; 0x0)) R1=ctx(off=0,imm=0,umax=0,var_off=(0x0; 0x0)) R3=scalar(umin=32767,umax=32768,var_off=(0x7fff; 0x8000)) R10=fp(off=0,imm=0,umax=0,var_off=(0x0; 0x0))
-  9: (07) r3 += -32767                  ; R3_w=scalar(imm=0,umax=0,var_off=(0x0; 0x0))  <--- [*]
-  10: (95) exit
-
-Fixes: b03c9f9fdc37 ("bpf/verifier: track signed and unsigned min/max values")
-Reported-by: Kuee K1r0a <liulin063@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220701124727.11153-2-daniel@iogearbox.net
+Signed-off-by: Guiling Deng <greens9@163.com>
+Fixes: 3d8b1933eb1c ("fbdev: fbmem: add config option to center the bootup logo")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   72 +++++++++++++++-----------------------------------
- 1 file changed, 23 insertions(+), 49 deletions(-)
+ drivers/video/fbdev/core/fbmem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1249,6 +1249,21 @@ static void __reg_bound_offset(struct bp
- 	reg->var_off = tnum_or(tnum_clear_subreg(var64_off), var32_off);
- }
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -514,7 +514,7 @@ static int fb_show_logo_line(struct fb_i
  
-+static void reg_bounds_sync(struct bpf_reg_state *reg)
-+{
-+	/* We might have learned new bounds from the var_off. */
-+	__update_reg_bounds(reg);
-+	/* We might have learned something about the sign bit. */
-+	__reg_deduce_bounds(reg);
-+	/* We might have learned some bits from the bounds. */
-+	__reg_bound_offset(reg);
-+	/* Intersecting with the old var_off might have improved our bounds
-+	 * slightly, e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
-+	 * then new var_off is (0; 0x7f...fc) which improves our umax.
-+	 */
-+	__update_reg_bounds(reg);
-+}
-+
- static bool __reg32_bound_s64(s32 a)
- {
- 	return a >= 0 && a <= S32_MAX;
-@@ -1290,16 +1305,8 @@ static void __reg_combine_32_into_64(str
- 		 * so they do not impact tnum bounds calculation.
- 		 */
- 		__mark_reg64_unbounded(reg);
--		__update_reg_bounds(reg);
- 	}
--
--	/* Intersecting with the old var_off might have improved our bounds
--	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
--	 * then new var_off is (0; 0x7f...fc) which improves our umax.
--	 */
--	__reg_deduce_bounds(reg);
--	__reg_bound_offset(reg);
--	__update_reg_bounds(reg);
-+	reg_bounds_sync(reg);
- }
- 
- static bool __reg64_bound_s32(s64 a)
-@@ -1315,7 +1322,6 @@ static bool __reg64_bound_u32(u64 a)
- static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
- {
- 	__mark_reg32_unbounded(reg);
--
- 	if (__reg64_bound_s32(reg->smin_value) && __reg64_bound_s32(reg->smax_value)) {
- 		reg->s32_min_value = (s32)reg->smin_value;
- 		reg->s32_max_value = (s32)reg->smax_value;
-@@ -1324,14 +1330,7 @@ static void __reg_combine_64_into_32(str
- 		reg->u32_min_value = (u32)reg->umin_value;
- 		reg->u32_max_value = (u32)reg->umax_value;
- 	}
--
--	/* Intersecting with the old var_off might have improved our bounds
--	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
--	 * then new var_off is (0; 0x7f...fc) which improves our umax.
--	 */
--	__reg_deduce_bounds(reg);
--	__reg_bound_offset(reg);
--	__update_reg_bounds(reg);
-+	reg_bounds_sync(reg);
- }
- 
- /* Mark a register as having a completely unknown (scalar) value. */
-@@ -5230,9 +5229,7 @@ static void do_refine_retval_range(struc
- 	ret_reg->s32_max_value = meta->msize_max_value;
- 	ret_reg->smin_value = -MAX_ERRNO;
- 	ret_reg->s32_min_value = -MAX_ERRNO;
--	__reg_deduce_bounds(ret_reg);
--	__reg_bound_offset(ret_reg);
--	__update_reg_bounds(ret_reg);
-+	reg_bounds_sync(ret_reg);
- }
- 
- static int
-@@ -6197,11 +6194,7 @@ reject:
- 
- 	if (!check_reg_sane_offset(env, dst_reg, ptr_reg->type))
- 		return -EINVAL;
--
--	__update_reg_bounds(dst_reg);
--	__reg_deduce_bounds(dst_reg);
--	__reg_bound_offset(dst_reg);
--
-+	reg_bounds_sync(dst_reg);
- 	if (sanitize_check_bounds(env, insn, dst_reg) < 0)
- 		return -EACCES;
- 	if (sanitize_needed(opcode)) {
-@@ -6939,10 +6932,7 @@ static int adjust_scalar_min_max_vals(st
- 	/* ALU32 ops are zero extended into 64bit register */
- 	if (alu32)
- 		zext_32_to_64(dst_reg);
--
--	__update_reg_bounds(dst_reg);
--	__reg_deduce_bounds(dst_reg);
--	__reg_bound_offset(dst_reg);
-+	reg_bounds_sync(dst_reg);
- 	return 0;
- }
- 
-@@ -7131,10 +7121,7 @@ static int check_alu_op(struct bpf_verif
- 							 insn->dst_reg);
- 				}
- 				zext_32_to_64(dst_reg);
--
--				__update_reg_bounds(dst_reg);
--				__reg_deduce_bounds(dst_reg);
--				__reg_bound_offset(dst_reg);
-+				reg_bounds_sync(dst_reg);
- 			}
- 		} else {
- 			/* case: R = imm
-@@ -7693,21 +7680,8 @@ static void __reg_combine_min_max(struct
- 							dst_reg->smax_value);
- 	src_reg->var_off = dst_reg->var_off = tnum_intersect(src_reg->var_off,
- 							     dst_reg->var_off);
--	/* We might have learned new bounds from the var_off. */
--	__update_reg_bounds(src_reg);
--	__update_reg_bounds(dst_reg);
--	/* We might have learned something about the sign bit. */
--	__reg_deduce_bounds(src_reg);
--	__reg_deduce_bounds(dst_reg);
--	/* We might have learned some bits from the bounds. */
--	__reg_bound_offset(src_reg);
--	__reg_bound_offset(dst_reg);
--	/* Intersecting with the old var_off might have improved our bounds
--	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
--	 * then new var_off is (0; 0x7f...fc) which improves our umax.
--	 */
--	__update_reg_bounds(src_reg);
--	__update_reg_bounds(dst_reg);
-+	reg_bounds_sync(src_reg);
-+	reg_bounds_sync(dst_reg);
- }
- 
- static void reg_combine_min_max(struct bpf_reg_state *true_src,
+ 		while (n && (n * (logo->width + 8) - 8 > xres))
+ 			--n;
+-		image.dx = (xres - n * (logo->width + 8) - 8) / 2;
++		image.dx = (xres - (n * (logo->width + 8) - 8)) / 2;
+ 		image.dy = y ?: (yres - logo->height) / 2;
+ 	} else {
+ 		image.dx = 0;
 
 
