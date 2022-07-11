@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72CE556F9D5
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2067056F9D7
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231186AbiGKJJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:09:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47284 "EHLO
+        id S230055AbiGKJJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:09:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231245AbiGKJJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:13 -0400
+        with ESMTP id S230053AbiGKJJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628D227CE0;
-        Mon, 11 Jul 2022 02:08:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0412427FCC;
+        Mon, 11 Jul 2022 02:08:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7000B80D2C;
-        Mon, 11 Jul 2022 09:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4119DC34115;
-        Mon, 11 Jul 2022 09:07:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3522B80E5E;
+        Mon, 11 Jul 2022 09:08:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0705C34115;
+        Mon, 11 Jul 2022 09:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530479;
-        bh=++Ww8pPVHs+rvU8WtFnJVr6Tf7qYaVEmgDt46VFu64o=;
+        s=korg; t=1657530482;
+        bh=pILSbY4XJmMlzVTApIp6ncXPXmKzjXMYUZqolYEqo2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqRGHU+avjwJpYYjptgUELkf/VLDhQWcO+sDNmYADLLoZzhKDrmdzhSb8Vdwp37SW
-         gOcSTy8ndhapjzdriNDZLyTLIWPUr1C5Gyq5vIwqiTZP7Qm3lJlenUyIcrUqtyEXC9
-         BRa4V10IFOum2dhAPyjn9FVk2ND8lsa9NO2s/5S4=
+        b=tfIfRfiF/whRsFkem9o3KunOR1qIPajmjIEB+DtghkDRMMYVFymGPdOYHRkiQgd3g
+         t5ddbQmtkeWLNo5Z8bj4axIBKtRgAaPVIr7VTwubOqVV3Fpy0O4IMKIhK26Oi26Gsl
+         C04AC4KW5LsS4STf48oVUm41ldugrDE3j8RWe1H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Liang He <windhl@126.com>,
+        stable@vger.kernel.org, Rhett Aultman <rhett.aultman@samsara.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.14 03/17] can: grcan: grcan_probe(): remove extra of_node_get()
-Date:   Mon, 11 Jul 2022 11:06:28 +0200
-Message-Id: <20220711090536.356437373@linuxfoundation.org>
+Subject: [PATCH 4.14 04/17] can: gs_usb: gs_usb_open/close(): fix memory leak
+Date:   Mon, 11 Jul 2022 11:06:29 +0200
+Message-Id: <20220711090536.387211041@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
 References: <20220711090536.245939953@linuxfoundation.org>
@@ -54,33 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Rhett Aultman <rhett.aultman@samsara.com>
 
-commit 562fed945ea482833667f85496eeda766d511386 upstream.
+commit 2bda24ef95c0311ab93bda00db40486acf30bd0a upstream.
 
-In grcan_probe(), of_find_node_by_path() has already increased the
-refcount. There is no need to call of_node_get() again, so remove it.
+The gs_usb driver appears to suffer from a malady common to many USB
+CAN adapter drivers in that it performs usb_alloc_coherent() to
+allocate a number of USB request blocks (URBs) for RX, and then later
+relies on usb_kill_anchored_urbs() to free them, but this doesn't
+actually free them. As a result, this may be leaking DMA memory that's
+been used by the driver.
 
-Link: https://lore.kernel.org/all/20220619070257.4067022-1-windhl@126.com
-Fixes: 1e93ed26acf0 ("can: grcan: grcan_probe(): fix broken system id check for errata workaround needs")
-Cc: stable@vger.kernel.org # v5.18
-Cc: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Liang He <windhl@126.com>
+This commit is an adaptation of the techniques found in the esd_usb2
+driver where a similar design pattern led to a memory leak. It
+explicitly frees the RX URBs and their DMA memory via a call to
+usb_free_coherent(). Since the RX URBs were allocated in the
+gs_can_open(), we remove them in gs_can_close() rather than in the
+disconnect function as was done in esd_usb2.
+
+For more information, see the 928150fad41b ("can: esd_usb2: fix memory
+leak").
+
+Link: https://lore.kernel.org/all/alpine.DEB.2.22.394.2206031547001.1630869@thelappy
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rhett Aultman <rhett.aultman@samsara.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/can/usb/gs_usb.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -1669,7 +1669,6 @@ static int grcan_probe(struct platform_d
- 	 */
- 	sysid_parent = of_find_node_by_path("/ambapp0");
- 	if (sysid_parent) {
--		of_node_get(sysid_parent);
- 		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
- 		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
- 			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -192,6 +192,8 @@ struct gs_can {
+ 
+ 	struct usb_anchor tx_submitted;
+ 	atomic_t active_tx_urbs;
++	void *rxbuf[GS_MAX_RX_URBS];
++	dma_addr_t rxbuf_dma[GS_MAX_RX_URBS];
+ };
+ 
+ /* usb interface struct */
+@@ -600,6 +602,7 @@ static int gs_can_open(struct net_device
+ 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
+ 			struct urb *urb;
+ 			u8 *buf;
++			dma_addr_t buf_dma;
+ 
+ 			/* alloc rx urb */
+ 			urb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -610,7 +613,7 @@ static int gs_can_open(struct net_device
+ 			buf = usb_alloc_coherent(dev->udev,
+ 						 sizeof(struct gs_host_frame),
+ 						 GFP_KERNEL,
+-						 &urb->transfer_dma);
++						 &buf_dma);
+ 			if (!buf) {
+ 				netdev_err(netdev,
+ 					   "No memory left for USB buffer\n");
+@@ -618,6 +621,8 @@ static int gs_can_open(struct net_device
+ 				return -ENOMEM;
+ 			}
+ 
++			urb->transfer_dma = buf_dma;
++
+ 			/* fill, anchor, and submit rx urb */
+ 			usb_fill_bulk_urb(urb,
+ 					  dev->udev,
+@@ -641,10 +646,17 @@ static int gs_can_open(struct net_device
+ 					   rc);
+ 
+ 				usb_unanchor_urb(urb);
++				usb_free_coherent(dev->udev,
++						  sizeof(struct gs_host_frame),
++						  buf,
++						  buf_dma);
+ 				usb_free_urb(urb);
+ 				break;
+ 			}
+ 
++			dev->rxbuf[i] = buf;
++			dev->rxbuf_dma[i] = buf_dma;
++
+ 			/* Drop reference,
+ 			 * USB core will take care of freeing it
+ 			 */
+@@ -709,13 +721,20 @@ static int gs_can_close(struct net_devic
+ 	int rc;
+ 	struct gs_can *dev = netdev_priv(netdev);
+ 	struct gs_usb *parent = dev->parent;
++	unsigned int i;
+ 
+ 	netif_stop_queue(netdev);
+ 
+ 	/* Stop polling */
+ 	parent->active_channels--;
+-	if (!parent->active_channels)
++	if (!parent->active_channels) {
+ 		usb_kill_anchored_urbs(&parent->rx_submitted);
++		for (i = 0; i < GS_MAX_RX_URBS; i++)
++			usb_free_coherent(dev->udev,
++					  sizeof(struct gs_host_frame),
++					  dev->rxbuf[i],
++					  dev->rxbuf_dma[i]);
++	}
+ 
+ 	/* Stop sending URBs */
+ 	usb_kill_anchored_urbs(&dev->tx_submitted);
 
 
