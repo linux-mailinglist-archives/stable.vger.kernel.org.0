@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4DA56FB68
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F014D56FA22
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232477AbiGKJaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:30:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41508 "EHLO
+        id S231398AbiGKJNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232738AbiGKJ3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:29:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3810D6E8B5;
-        Mon, 11 Jul 2022 02:16:32 -0700 (PDT)
+        with ESMTP id S231414AbiGKJNE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:13:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38232E9D8;
+        Mon, 11 Jul 2022 02:09:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8400ACE1256;
-        Mon, 11 Jul 2022 09:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6393CC34115;
-        Mon, 11 Jul 2022 09:16:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66239B80E5E;
+        Mon, 11 Jul 2022 09:09:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D61C34115;
+        Mon, 11 Jul 2022 09:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530988;
-        bh=wpauSRjKkxczRqOFAKR0G9QBSNrt+x6DlEL/bNnxU/o=;
+        s=korg; t=1657530575;
+        bh=xq8HCtW37IJxYLJS4TXRzEzTYs1HB5K7at8Nguj+mgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQQKOSzCDrMdXK0lAbJhz/hoLh/isJjqWIwDOm3dbCPBot5U07LXgP+lEU6jeScwX
-         4ccNqv2e4QPmPVSUthXQ4kLoSsQ5MMA1OGyZrNeYyRWuCK0RAZsd9xCXjizHg9bMs0
-         wzOAzR1U+HVFJ8RTavENFjYg2/hRkJbLF66qa05o=
+        b=kWOEoEaStpFIq9rj9Otfcp6P4NWsnmxuZIJrWazxS9+IOMnKoncecNkibQ4andFuF
+         Aws1iww4jRKbAXYS/HY67J1RBNLf6oHcOvLLQeBY38ZMIyu8nyWPMapK/EzT9IAHmE
+         5rtq2J2Hi7m/w5X3EZjBihE4K4DHGjm1v2EFIwLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 056/112] ARM: mxs_defconfig: Enable the framebuffer
-Date:   Mon, 11 Jul 2022 11:06:56 +0200
-Message-Id: <20220711090551.161652167@linuxfoundation.org>
+Subject: [PATCH 4.19 18/31] ARM: at91: pm: use proper compatible for sama5d2s rtc
+Date:   Mon, 11 Jul 2022 11:06:57 +0200
+Message-Id: <20220711090538.386364976@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
+References: <20220711090537.841305347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit b10ef5f2ddb3a5a22ac0936c8d91a50ac5e55e77 ]
+[ Upstream commit ddc980da8043779119acaca106c6d9b445c9b65b ]
 
-Currently, when booting Linux on a imx28-evk board there is
-no display activity.
+Use proper compatible strings for SAMA5D2's RTC IPs. This is necessary
+for configuring wakeup sources for ULP1 PM mode.
 
-Enable CONFIG_FB which is nowadays required for CONFIG_DRM_PANEL_LVDS,
-CONFIG_DRM_PANEL_SIMPLE, CONFIG_DRM_PANEL_SEIKO_43WVF1G,
-CONFIG_FB_MODE_HELPERS, CONFIG_BACKLIGHT_PWM, CONFIG_BACKLIGHT_GPIO,
-CONFIG_FRAMEBUFFER_CONSOLE, CONFIG_LOGO, CONFIG_FONTS, CONFIG_FONT_8x8
-and CONFIG_FONT_8x16.
-
-Based on commit c54467482ffd ("ARM: imx_v6_v7_defconfig: enable fb").
-
-Fixes: f611b1e7624c ("drm: Avoid circular dependencies for CONFIG_FB")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: d7484f5c6b3b ("ARM: at91: pm: configure wakeup sources for ULP1 mode")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220523092421.317345-2-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/mxs_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-at91/pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/configs/mxs_defconfig b/arch/arm/configs/mxs_defconfig
-index ca32446b187f..f53086ddc48b 100644
---- a/arch/arm/configs/mxs_defconfig
-+++ b/arch/arm/configs/mxs_defconfig
-@@ -93,6 +93,7 @@ CONFIG_REGULATOR_FIXED_VOLTAGE=y
- CONFIG_DRM=y
- CONFIG_DRM_PANEL_SEIKO_43WVF1G=y
- CONFIG_DRM_MXSFB=y
-+CONFIG_FB=y
- CONFIG_FB_MODE_HELPERS=y
- CONFIG_LCD_CLASS_DEVICE=y
- CONFIG_BACKLIGHT_CLASS_DEVICE=y
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 21bfe9b6e16a..3ba0c6c560d8 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -95,7 +95,7 @@ static const struct wakeup_source_info ws_info[] = {
+ 
+ static const struct of_device_id sama5d2_ws_ids[] = {
+ 	{ .compatible = "atmel,sama5d2-gem",		.data = &ws_info[0] },
+-	{ .compatible = "atmel,at91rm9200-rtc",		.data = &ws_info[1] },
++	{ .compatible = "atmel,sama5d2-rtc",		.data = &ws_info[1] },
+ 	{ .compatible = "atmel,sama5d3-udc",		.data = &ws_info[2] },
+ 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
 -- 
 2.35.1
 
