@@ -2,73 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 043FC570A37
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 20:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3461570AD5
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 21:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbiGKS6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 14:58:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42220 "EHLO
+        id S229943AbiGKThu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 15:37:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231499AbiGKS6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 14:58:39 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66115F74;
-        Mon, 11 Jul 2022 11:58:37 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id s27so5474223pga.13;
-        Mon, 11 Jul 2022 11:58:37 -0700 (PDT)
+        with ESMTP id S229685AbiGKTht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 15:37:49 -0400
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EC04D4E8;
+        Mon, 11 Jul 2022 12:37:48 -0700 (PDT)
+Received: by mail-lf1-x134.google.com with SMTP id o7so10367205lfq.9;
+        Mon, 11 Jul 2022 12:37:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=pXX16zqMZ21Xtym4SCeJoGfTd6FvLAtGuHb0Wc+2xVA=;
-        b=fXSVFS76kQzdYPhlEkz2WR8jl9DRkR6qf/KO+SiMyHvhKDQ7FH1dw5pcJRCsGnw42M
-         SgOvIX1R8gaX218xibtzBGu4D6mbx+zCQ9ubus7FN0sAFJwC9RBTO8uv2SQbbgwKy4vU
-         vdbJ4UGoHo1YrNyLIJBdJ92/mQkAeuOEtWkhVyBJFNph62a2S7JU77/qCYbpo095Mh+h
-         KvBbUS1F5iWKBhiOWwdCmkF2snuYAh8jN59m71fUmZiZLz5mDObVnM3rh9ZhHxOogVtA
-         g9PlIdDbghhSssAt4IJyjtlL5yZMyA4ng4rWQy8Vz/p/JCo9XUFmocC6AnA4BA21m10Y
-         6XOQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=A4JHArgc2s+5GOoOO0PJp9b8nXcn+f7ATVJu+wNYsfs=;
+        b=NfanDx12r4uhByK5iiL46uu291qZuQ5alGkeu5IpNfs8e/gi4JYrK8qwf1dRqZsLke
+         YSyess7cxeV4ScILCMLP3WlCOa2HEmGoKfAecI8q0qfEKnG63/KWd8dfcNxltD6DuOwW
+         spFsYDxap2S4f59Kn+3+mBctYh9oG+lqgm6NVzCu5jZ2eEX6kvOPDiAQQMqDKjGZqlrs
+         A9xZV18QAQvF4dqUzoLg4K5GYyi9lJSiHFAULvUfRQeFt0l/93jBvO85N5pNH6wEKh2H
+         ktL40jfzeZjLQANyTChfh6W87/WoFnWvvKtq9m4N+kCUQGsuZrx2cxdj7tGFQZQNijx9
+         dU+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=pXX16zqMZ21Xtym4SCeJoGfTd6FvLAtGuHb0Wc+2xVA=;
-        b=PzWHv1SdXgCbOuPu4F2LNuH6XgEdmqjYsFL24aMsAKptIcFkfzBpHF1+2WqdmeFlcP
-         hqvm+cruFh0X4tAwXGfCQR4JR2GUemyqycIqIX52GAaT8yAIZAq6jdKEpSrKA2qKaTa8
-         Uj9yaf7r2DbAap4BnoCYORLsgkAqOOAHf4gaBhl9buI4DpKgVEBipdmyV5zSro+0xOwx
-         yz5Sabm0/tJDiPfrdDsy46BA/Wq0ZlJhZZ6sf6XKDFvgAopHIYED/4pItRbEY0LnS+hI
-         8Yo/CFfvKtgSABBBJHLNQKOAAI54+tP5YAQwhsI5RrhE2ivf+8WOIK788vhArcP0x/Sk
-         AnKg==
-X-Gm-Message-State: AJIora8Ma8xr+R0eWwqp4WNtvsBJCUAYMuajcRlUDPGKveCxhIv91dE9
-        2fpEwm3Gv41Sqr2YPXtdQ/IYSggivJc=
-X-Google-Smtp-Source: AGRyM1vVAWYdcExpXi1U9BZQmsySr0inBXLH+XNCJcF2zpBepQ2/FY7pF/tHIQyC/CV16/XMr/TxnQ==
-X-Received: by 2002:a63:eb03:0:b0:412:b1d6:94ca with SMTP id t3-20020a63eb03000000b00412b1d694camr17095871pgh.468.1657565916971;
-        Mon, 11 Jul 2022 11:58:36 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id m12-20020a63710c000000b0040d287f1378sm4547570pgc.7.2022.07.11.11.58.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Jul 2022 11:58:36 -0700 (PDT)
-Message-ID: <98186d7f-42e6-2f85-29eb-a0a37b639e58@gmail.com>
-Date:   Mon, 11 Jul 2022 11:58:33 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=A4JHArgc2s+5GOoOO0PJp9b8nXcn+f7ATVJu+wNYsfs=;
+        b=oEeWcxaF3YxqfQ61F6vD6o+mnlR0zCa/nRlSTtwM2Ib89amyoPhoDNk73S3KP76l52
+         g/LUy8DM6J+EDyQtgH/BzGil+0JNtokq00Mt3ofpe+1NU1o5hBSOCHJNakMyCRK7zqLV
+         /+p02NhQvf7z+xnYwzlQe5RHl7K475O8RoXeGtnC29O1RCrKxTODAm4zm40CYzTXBz9u
+         dRF6ImnJHR89MLjR8D4JQIl8fc0vkvS+QLoUScsJLrQhzuHe39/OtSBCzRRlRasM6af3
+         s0Jj9To+eUD/mMBgRaNIvcUdSCt3s/2kJv69+QXSv+CDgmaKN7JPKf1PW4iG3mnr09Q3
+         EoGg==
+X-Gm-Message-State: AJIora8CpicU5B1lr6AXV9eFQCXnhLDXvQVP2cKy3EyLwaYHlfg9BXhU
+        XmzbRvRPaQ5nb5B4Vwn1IAYJBnlffhE8qNHo3rY+/SIW
+X-Google-Smtp-Source: AGRyM1sMwO67XvFDpUPQu55Ww7kgydNlRu3c4ksRjw2L2Rwm5rYXBIR26iJ5nby2ARhw7odTnRvHGp114MVUeMBQRFw=
+X-Received: by 2002:a05:6512:1312:b0:47f:7bd3:1427 with SMTP id
+ x18-20020a056512131200b0047f7bd31427mr11963717lfu.128.1657568266717; Mon, 11
+ Jul 2022 12:37:46 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 5.18 000/112] 5.18.11-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220711090549.543317027@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20220706164043.417780-1-jandryuk@gmail.com> <YsuRzGBss/lMG2+W@kernel.org>
+In-Reply-To: <YsuRzGBss/lMG2+W@kernel.org>
+From:   Jason Andryuk <jandryuk@gmail.com>
+Date:   Mon, 11 Jul 2022 15:37:34 -0400
+Message-ID: <CAKf6xpvY0Tj4HGpbshWonnpJLf_08+9pARONt2uHi-m92aqJmQ@mail.gmail.com>
+Subject: Re: [PATCH] tpm_tis: Hold locality open during probe
+To:     Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Chen Jun <chenjun102@huawei.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        stable@vger.kernel.org, linux-integrity@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -77,27 +68,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/11/22 02:06, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.11 release.
-> There are 112 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.11-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Sun, Jul 10, 2022 at 10:58 PM Jarkko Sakkinen <jarkko@kernel.org> wrote:
+>
+> On Wed, Jul 06, 2022 at 12:40:43PM -0400, Jason Andryuk wrote:
+> > WEC TPMs (in 1.2 mode) and NTC (in 2.0 mode) have been observer to
+> > frequently, but intermittently, fail probe with:
+> > tpm_tis: probe of 00:09 failed with error -1
+> >
+> > Added debugging output showed that the request_locality in
+> > tpm_tis_core_init succeeds, but then the tpm_chip_start fails when its
+> > call to tpm_request_locality -> request_locality fails.
+> >
+> > The access register in check_locality would show:
+> > 0x80 TPM_ACCESS_VALID
+> > 0x82 TPM_ACCESS_VALID | TPM_ACCESS_REQUEST_USE
+> > 0x80 TPM_ACCESS_VALID
+> > continuing until it times out. TPM_ACCESS_ACTIVE_LOCALITY (0x20) doesn't
+> > get set which would end the wait.
+> >
+> > My best guess is something racy was going on between release_locality's
+> > write and request_locality's write.  There is no wait in
+> > release_locality to ensure that the locality is released, so the
+> > subsequent request_locality could confuse the TPM?
+> >
+> > tpm_chip_start grabs locality 0, and updates chip->locality.  Call that
+> > before the TPM_INT_ENABLE write, and drop the explicit request/release
+> > calls.  tpm_chip_stop performs the release.  With this, we switch to
+> > using chip->locality instead of priv->locality.  The probe failure is
+> > not seen after this.
+> >
+> > commit 0ef333f5ba7f ("tpm: add request_locality before write
+> > TPM_INT_ENABLE") added a request_locality/release_locality pair around
+> > tpm_tis_write32 TPM_INT_ENABLE, but there is a read of
+> > TPM_INT_ENABLE for the intmask which should also have the locality
+> > grabbed.  tpm_chip_start is moved before that to have the locality open
+> > during the read.
+> >
+> > Fixes: 0ef333f5ba7f ("tpm: add request_locality before write TPM_INT_ENABLE")
+> > CC: stable@vger.kernel.org
+> > Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+> > ---
+> > The probe failure was seen on 5.4, 5.15 and 5.17.
+> >
+> > commit e42acf104d6e ("tpm_tis: Clean up locality release") removed the
+> > release wait.  I haven't tried, but re-introducing that would probably
+> > fix this issue.  It's hard to know apriori when a synchronous wait is
+> > needed, and they don't seem to be needed typically.  Re-introducing the
+> > wait would re-introduce a wait in all cases.
+> >
+> > Surrounding the read of TPM_INT_ENABLE with grabbing the locality may
+> > not be necessary?  It looks like the code only grabs a locality for
+> > writing, but that asymmetry is surprising to me.
+> >
+> > tpm_chip and tpm_tis_data track the locality separately.  Should the
+> > tpm_tis_data one be removed so they don't get out of sync?
+> > ---
+> >  drivers/char/tpm/tpm_tis_core.c | 20 ++++++++------------
+> >  1 file changed, 8 insertions(+), 12 deletions(-)
+> >
+> > diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+> > index dc56b976d816..529c241800c0 100644
+> > --- a/drivers/char/tpm/tpm_tis_core.c
+> > +++ b/drivers/char/tpm/tpm_tis_core.c
+> > @@ -986,8 +986,13 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+> >               goto out_err;
+> >       }
+> >
+> > +     /* Grabs locality 0. */
+> > +     rc = tpm_chip_start(chip);
+> > +     if (rc)
+> > +             goto out_err;
+> > +
+> >       /* Take control of the TPM's interrupt hardware and shut it off */
+> > -     rc = tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
+> > +     rc = tpm_tis_read32(priv, TPM_INT_ENABLE(chip->locality), &intmask);
+> >       if (rc < 0)
+> >               goto out_err;
+> >
+> > @@ -995,19 +1000,10 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+> >                  TPM_INTF_DATA_AVAIL_INT | TPM_INTF_STS_VALID_INT;
+> >       intmask &= ~TPM_GLOBAL_INT_ENABLE;
+> >
+> > -     rc = request_locality(chip, 0);
+> > -     if (rc < 0) {
+> > -             rc = -ENODEV;
+> > -             goto out_err;
+> > -     }
+> > -
+> > -     tpm_tis_write32(priv, TPM_INT_ENABLE(priv->locality), intmask);
+> > -     release_locality(chip, 0);
+> > +     tpm_tis_write32(priv, TPM_INT_ENABLE(chip->locality), intmask);
+> >
+> > -     rc = tpm_chip_start(chip);
+> > -     if (rc)
+> > -             goto out_err;
+> >       rc = tpm2_probe(chip);
+> > +     /* Releases locality 0. */
+> >       tpm_chip_stop(chip);
+> >       if (rc)
+> >               goto out_err;
+> > --
+> > 2.36.1
+> >
+>
+> Can you test against
+>
+> https://lore.kernel.org/linux-integrity/20220629232653.1306735-1-LinoSanfilippo@gmx.de/T/#t
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+I applied on top of 5.15.53, and the probe on boot still fails.
+Manually probing works intermittently.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Regards,
+Jason
