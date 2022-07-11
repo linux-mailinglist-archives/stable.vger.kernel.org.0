@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A8756FDBE
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD7856FAC6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234151AbiGKJ75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49280 "EHLO
+        id S231944AbiGKJVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:21:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234386AbiGKJ72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243F5643E2;
-        Mon, 11 Jul 2022 02:27:47 -0700 (PDT)
+        with ESMTP id S231779AbiGKJVH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:21:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9162B272;
+        Mon, 11 Jul 2022 02:12:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1C9F7CE1267;
-        Mon, 11 Jul 2022 09:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B50C34115;
-        Mon, 11 Jul 2022 09:27:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25A9B61188;
+        Mon, 11 Jul 2022 09:12:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA33C34115;
+        Mon, 11 Jul 2022 09:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531659;
-        bh=pvAUyeDuhA9Doy3U65eCiwgeQOavBWcDdXsmnMt2JGU=;
+        s=korg; t=1657530773;
+        bh=5q/ing+ZFjHHIXvmreVU/uaobiUDzeN2y1kR0B3z56w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lN5uGUmdiKxegNotZ2X8eaJHxX6fPRvXF0IHN0h+6OUukshbqU+zRhRKy3bdnTVha
-         wL/zktvsE8fUe9aZC41KkfZBWYjiRoLdmudZV608nC4pquA2/YyMjzZHabDCa+HKa5
-         O9KCHJpXJgaJ3ATkn5NR6mgfJPMA6dvTukX1wfzM=
+        b=CKMjjVFYLECO0FOKddIFWSecOEnvpB8xIJ0I1nQyvJ+3yVMrSzlV8ED2CfpUEK7pG
+         JURSyjs3u2TF2jXYeVKZnVYdcx/zmpbKun1onqDLWRCsdZ2wSdicW2JVYRRdrcd/71
+         olHnV/cubWPuZs3q66NDhsc+5geqHgUdjX1EM7ZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Sherry Sun <sherry.sun@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/230] arm64: dts: imx8mp-evk: correct the uart2 pinctl value
+Subject: [PATCH 5.10 34/55] ARM: at91: pm: use proper compatible for sama5d2s rtc
 Date:   Mon, 11 Jul 2022 11:07:22 +0200
-Message-Id: <20220711090609.384953911@linuxfoundation.org>
+Message-Id: <20220711090542.767387434@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 2d4fb72b681205eed4553d8802632bd3270be3ba ]
+[ Upstream commit ddc980da8043779119acaca106c6d9b445c9b65b ]
 
-According to the IOMUXC_SW_PAD_CTL_PAD_UART2_RXD/TXD register define in
-imx8mp RM, bit0 and bit3 are reserved, and the uart2 rx/tx pin should
-enable the pull up, so need to set bit8 to 1. The original pinctl value
-0x49 is incorrect and needs to be changed to 0x140, same as uart1 and
-uart3.
+Use proper compatible strings for SAMA5D2's RTC IPs. This is necessary
+for configuring wakeup sources for ULP1 PM mode.
 
-Fixes: 9e847693c6f3 ("arm64: dts: freescale: Add i.MX8MP EVK board support")
-Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: d7484f5c6b3b ("ARM: at91: pm: configure wakeup sources for ULP1 mode")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220523092421.317345-2-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-at91/pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-index 3c4369d6468c..3f424a8937f1 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
-@@ -383,8 +383,8 @@
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 3f015cb6ec2b..6a68ff0466e0 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -104,7 +104,7 @@ static const struct wakeup_source_info ws_info[] = {
  
- 	pinctrl_uart2: uart2grp {
- 		fsl,pins = <
--			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x49
--			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x49
-+			MX8MP_IOMUXC_UART2_RXD__UART2_DCE_RX	0x140
-+			MX8MP_IOMUXC_UART2_TXD__UART2_DCE_TX	0x140
- 		>;
- 	};
- 
+ static const struct of_device_id sama5d2_ws_ids[] = {
+ 	{ .compatible = "atmel,sama5d2-gem",		.data = &ws_info[0] },
+-	{ .compatible = "atmel,at91rm9200-rtc",		.data = &ws_info[1] },
++	{ .compatible = "atmel,sama5d2-rtc",		.data = &ws_info[1] },
+ 	{ .compatible = "atmel,sama5d3-udc",		.data = &ws_info[2] },
+ 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
 -- 
 2.35.1
 
