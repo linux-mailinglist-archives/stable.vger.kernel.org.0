@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9DF256FD38
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6022656FD3A
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233886AbiGKJw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33140 "EHLO
+        id S233951AbiGKJwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233889AbiGKJvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:51:17 -0400
+        with ESMTP id S233270AbiGKJwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:52:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B605D0E4;
-        Mon, 11 Jul 2022 02:25:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF32ACEE5;
+        Mon, 11 Jul 2022 02:25:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FCFC61137;
-        Mon, 11 Jul 2022 09:25:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39DD1C34115;
-        Mon, 11 Jul 2022 09:25:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F04706124E;
+        Mon, 11 Jul 2022 09:25:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9261C34115;
+        Mon, 11 Jul 2022 09:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531507;
-        bh=Hrn73FUsc2y0i6Zvxmud28An4gKYs2EWMshHcsib3q8=;
+        s=korg; t=1657531510;
+        bh=9K04RVcc5+Of6dPmUZUF7MfhV/bdoktf5T5hjkB0ntw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQ8dCdjeZEzhmWBWn/gYY9Bk9o3GukbzEe0apHGeOwUUV2NTDg0Z9bFfm+byUMslE
-         1GXgeKSd0ECVetJIy1om5KTWICh1xmGAhb62TacuIzzxLYzqItnpdO8N7N9To4E2Rm
-         mdX0tNIOIGD0DY64w+5FNdW2Rdc+nzyfORXsPhIA=
+        b=eXC9+49lgVNTgEhlxEohSlTfn5cog2wd29rOWzRTLSYtks6fzG3xWY98eg5xbQ9/J
+         E//BuVMT5nsJpvW7jJALjtX+i1CRJza+R9FJgXFqpFsaCuuWmcxNf83jeydohP4RU7
+         H+8dSmjwEam0cLaLUyYAp9ffsuz1LI85Jr9xt8oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, luofei <luofei@unicloud.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
         Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
         Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Yang Shi <shy828301@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 128/230] mm/hwpoison: avoid the impact of hwpoison_filter() return value on mce handler
-Date:   Mon, 11 Jul 2022 11:06:24 +0200
-Message-Id: <20220711090607.696575480@linuxfoundation.org>
+Subject: [PATCH 5.15 129/230] mm/memory-failure.c: fix race with changing page compound again
+Date:   Mon, 11 Jul 2022 11:06:25 +0200
+Message-Id: <20220711090607.725243061@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -62,142 +60,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: luofei <luofei@unicloud.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit d1fe111fb62a1cf0446a2919f5effbb33ad0702c ]
+[ Upstream commit 888af2701db79b9b27c7e37f9ede528a5ca53b76 ]
 
-When the hwpoison page meets the filter conditions, it should not be
-regarded as successful memory_failure() processing for mce handler, but
-should return a distinct value, otherwise mce handler regards the error
-page has been identified and isolated, which may lead to calling
-set_mce_nospec() to change page attribute, etc.
+Patch series "A few fixup patches for memory failure", v2.
 
-Here memory_failure() return -EOPNOTSUPP to indicate that the error
-event is filtered, mce handler should not take any action for this
-situation and hwpoison injector should treat as correct.
+This series contains a few patches to fix the race with changing page
+compound page, make non-LRU movable pages unhandlable and so on.  More
+details can be found in the respective changelogs.
 
-Link: https://lkml.kernel.org/r/20220223082135.2769649-1-luofei@unicloud.com
-Signed-off-by: luofei <luofei@unicloud.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+There is a race window where we got the compound_head, the hugetlb page
+could be freed to buddy, or even changed to another compound page just
+before we try to get hwpoison page.  Think about the below race window:
+
+  CPU 1					  CPU 2
+  memory_failure_hugetlb
+  struct page *head = compound_head(p);
+					  hugetlb page might be freed to
+					  buddy, or even changed to another
+					  compound page.
+
+  get_hwpoison_page -- page is not what we want now...
+
+If this race happens, just bail out.  Also MF_MSG_DIFFERENT_PAGE_SIZE is
+introduced to record this event.
+
+[akpm@linux-foundation.org: s@/**@/*@, per Naoya Horiguchi]
+
+Link: https://lkml.kernel.org/r/20220312074613.4798-1-linmiaohe@huawei.com
+Link: https://lkml.kernel.org/r/20220312074613.4798-2-linmiaohe@huawei.com
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
 Cc: Tony Luck <tony.luck@intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Yang Shi <shy828301@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/core.c | 8 +++++---
- drivers/base/memory.c          | 2 ++
- mm/hwpoison-inject.c           | 3 ++-
- mm/madvise.c                   | 2 ++
- mm/memory-failure.c            | 9 +++++++--
- 5 files changed, 18 insertions(+), 6 deletions(-)
+ include/linux/mm.h      |  1 +
+ include/ras/ras_event.h |  1 +
+ mm/memory-failure.c     | 12 ++++++++++++
+ 3 files changed, 14 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index e23e74e2f928..848cfb013f58 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1297,10 +1297,12 @@ static void kill_me_maybe(struct callback_head *cb)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 85205adcdd0d..7a80a08eec84 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -3167,6 +3167,7 @@ enum mf_action_page_type {
+ 	MF_MSG_BUDDY_2ND,
+ 	MF_MSG_DAX,
+ 	MF_MSG_UNSPLIT_THP,
++	MF_MSG_DIFFERENT_PAGE_SIZE,
+ 	MF_MSG_UNKNOWN,
+ };
  
- 	/*
- 	 * -EHWPOISON from memory_failure() means that it already sent SIGBUS
--	 * to the current process with the proper error info, so no need to
--	 * send SIGBUS here again.
-+	 * to the current process with the proper error info,
-+	 * -EOPNOTSUPP means hwpoison_filter() filtered the error event,
-+	 *
-+	 * In both cases, no further processing is required.
- 	 */
--	if (ret == -EHWPOISON)
-+	if (ret == -EHWPOISON || ret == -EOPNOTSUPP)
- 		return;
+diff --git a/include/ras/ras_event.h b/include/ras/ras_event.h
+index 0bdbc0d17d2f..cac13ff1d6eb 100644
+--- a/include/ras/ras_event.h
++++ b/include/ras/ras_event.h
+@@ -376,6 +376,7 @@ TRACE_EVENT(aer_event,
+ 	EM ( MF_MSG_BUDDY_2ND, "free buddy page (2nd try)" )		\
+ 	EM ( MF_MSG_DAX, "dax page" )					\
+ 	EM ( MF_MSG_UNSPLIT_THP, "unsplit thp" )			\
++	EM ( MF_MSG_DIFFERENT_PAGE_SIZE, "different page size" )	\
+ 	EMe ( MF_MSG_UNKNOWN, "unknown page" )
  
- 	if (p->mce_vaddr != (void __user *)-1l) {
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index c0d501a3a714..c778d1df7455 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -555,6 +555,8 @@ static ssize_t hard_offline_page_store(struct device *dev,
- 		return -EINVAL;
- 	pfn >>= PAGE_SHIFT;
- 	ret = memory_failure(pfn, 0);
-+	if (ret == -EOPNOTSUPP)
-+		ret = 0;
- 	return ret ? ret : count;
- }
- 
-diff --git a/mm/hwpoison-inject.c b/mm/hwpoison-inject.c
-index aff4d27ec235..a1d6fc3c78b9 100644
---- a/mm/hwpoison-inject.c
-+++ b/mm/hwpoison-inject.c
-@@ -48,7 +48,8 @@ static int hwpoison_inject(void *data, u64 val)
- 
- inject:
- 	pr_info("Injecting memory failure at pfn %#lx\n", pfn);
--	return memory_failure(pfn, 0);
-+	err = memory_failure(pfn, 0);
-+	return (err == -EOPNOTSUPP) ? 0 : err;
- }
- 
- static int hwpoison_unpoison(void *data, u64 val)
-diff --git a/mm/madvise.c b/mm/madvise.c
-index 8e5ca01a6cc0..882767d58c27 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -968,6 +968,8 @@ static int madvise_inject_error(int behavior,
- 			pr_info("Injecting memory failure for pfn %#lx at process virtual address %#lx\n",
- 				 pfn, start);
- 			ret = memory_failure(pfn, MF_COUNT_INCREASED);
-+			if (ret == -EOPNOTSUPP)
-+				ret = 0;
- 		}
- 
- 		if (ret)
+ /*
 diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index e6425d959fa9..5664bafd5e77 100644
+index 5664bafd5e77..a4d70c21c146 100644
 --- a/mm/memory-failure.c
 +++ b/mm/memory-failure.c
-@@ -1444,7 +1444,7 @@ static int memory_failure_hugetlb(unsigned long pfn, int flags)
- 				if (TestClearPageHWPoison(head))
- 					num_poisoned_pages_dec();
- 				unlock_page(head);
--				return 0;
-+				return -EOPNOTSUPP;
- 			}
- 			unlock_page(head);
- 			res = MF_FAILED;
-@@ -1525,7 +1525,7 @@ static int memory_failure_dev_pagemap(unsigned long pfn, int flags,
- 		goto out;
+@@ -741,6 +741,7 @@ static const char * const action_page_types[] = {
+ 	[MF_MSG_BUDDY_2ND]		= "free buddy page (2nd try)",
+ 	[MF_MSG_DAX]			= "dax page",
+ 	[MF_MSG_UNSPLIT_THP]		= "unsplit thp",
++	[MF_MSG_DIFFERENT_PAGE_SIZE]	= "different page size",
+ 	[MF_MSG_UNKNOWN]		= "unknown page",
+ };
  
- 	if (hwpoison_filter(page)) {
--		rc = 0;
-+		rc = -EOPNOTSUPP;
- 		goto unlock;
+@@ -1461,6 +1462,17 @@ static int memory_failure_hugetlb(unsigned long pfn, int flags)
  	}
  
-@@ -1594,6 +1594,10 @@ static DEFINE_MUTEX(mf_mutex);
-  *
-  * Must run in process context (e.g. a work queue) with interrupts
-  * enabled and no spinlocks hold.
-+ *
-+ * Return: 0 for successfully handled the memory error,
-+ *         -EOPNOTSUPP for memory_filter() filtered the error event,
-+ *         < 0(except -EOPNOTSUPP) on failure.
-  */
- int memory_failure(unsigned long pfn, int flags)
- {
-@@ -1742,6 +1746,7 @@ int memory_failure(unsigned long pfn, int flags)
- 			num_poisoned_pages_dec();
- 		unlock_page(p);
- 		put_page(p);
-+		res = -EOPNOTSUPP;
- 		goto unlock_mutex;
- 	}
+ 	lock_page(head);
++
++	/*
++	 * The page could have changed compound pages due to race window.
++	 * If this happens just bail out.
++	 */
++	if (!PageHuge(p) || compound_head(p) != head) {
++		action_result(pfn, MF_MSG_DIFFERENT_PAGE_SIZE, MF_IGNORED);
++		res = -EBUSY;
++		goto out;
++	}
++
+ 	page_flags = head->flags;
  
+ 	/*
 -- 
 2.35.1
 
