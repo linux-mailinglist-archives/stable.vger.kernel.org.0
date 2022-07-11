@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C2756FBA1
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC0356F9F6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232437AbiGKJda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:33:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39250 "EHLO
+        id S229756AbiGKJLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232289AbiGKJc4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:56 -0400
+        with ESMTP id S230127AbiGKJKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:10:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9639B78DD7;
-        Mon, 11 Jul 2022 02:17:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7827B4B4;
+        Mon, 11 Jul 2022 02:08:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A18F6122D;
-        Mon, 11 Jul 2022 09:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1939DC34115;
-        Mon, 11 Jul 2022 09:17:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57D0E611DF;
+        Mon, 11 Jul 2022 09:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68A48C34115;
+        Mon, 11 Jul 2022 09:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531058;
-        bh=DoAdjjA6vsIejV4loK50pbT1nheKnTBbr6OKl7P5HVM=;
+        s=korg; t=1657530519;
+        bh=AOZzCYGpTcjFuNIF7fPsACXJ58sxB04TYtQtbnyTpWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xI2r2tV2oaCCmHe8jjDMDLyEbyEtQaxqRhy2mMYSe2pefYuoQprR+rruR23qvVTm2
-         fTaRFsOMO9+b0YPNuje1LW+5s4WFWRZzQxrO506r3t2PTK2RO7VIv61lCqJSEl8VVj
-         mUxaxM5Sl8vFsfjjFv0sDhEKbiR1SOBtXxueEESs=
+        b=GJT5mkXTyH55+AncgeUdnRbdz3WhPmnNIbOzCpLljJcaU2WgKQ6tNHISLhIhuAhZ1
+         rNjsF7Tx0I3KvgxMq0O1y0HLTOHdhukBQ5LkYkTpxwfUyWZ8A8feE8hpjpS8AnYvtH
+         JPTbBs9IkH0CvOnmFGRVGkPXAUg71aPhUTQbZ14Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Kellermann <mk@cm4all.com>,
-        David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.18 041/112] fscache: Fix invalidation/lookup race
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 4.19 02/31] mm/slub: add missing TID updates on slab deactivation
 Date:   Mon, 11 Jul 2022 11:06:41 +0200
-Message-Id: <20220711090550.739560152@linuxfoundation.org>
+Message-Id: <20220711090537.917739384@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
+References: <20220711090537.841305347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +57,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Jann Horn <jannh@google.com>
 
-commit 85e4ea1049c70fb99de5c6057e835d151fb647da upstream.
+commit eeaa345e128515135ccb864c04482180c08e3259 upstream.
 
-If an NFS file is opened for writing and closed, fscache_invalidate() will
-be asked to invalidate the file - however, if the cookie is in the
-LOOKING_UP state (or the CREATING state), then request to invalidate
-doesn't get recorded for fscache_cookie_state_machine() to do something
-with.
+The fastpath in slab_alloc_node() assumes that c->slab is stable as long as
+the TID stays the same. However, two places in __slab_alloc() currently
+don't update the TID when deactivating the CPU slab.
 
-Fix this by making __fscache_invalidate() set a flag if it sees the cookie
-is in the LOOKING_UP state to indicate that we need to go to invalidation.
-Note that this requires a count on the n_accesses counter for the state
-machine, which that will release when it's done.
+If multiple operations race the right way, this could lead to an object
+getting lost; or, in an even more unlikely situation, it could even lead to
+an object being freed onto the wrong slab's freelist, messing up the
+`inuse` counter and eventually causing a page to be freed to the page
+allocator while it still contains slab objects.
 
-fscache_cookie_state_machine() then shifts to the INVALIDATING state if it
-sees the flag.
+(I haven't actually tested these cases though, this is just based on
+looking at the code. Writing testcases for this stuff seems like it'd be
+a pain...)
 
-Without this, an nfs file can get corrupted if it gets modified locally and
-then read locally as the cache contents may not get updated.
+The race leading to state inconsistency is (all operations on the same CPU
+and kmem_cache):
 
-Fixes: d24af13e2e23 ("fscache: Implement cookie invalidation")
-Reported-by: Max Kellermann <mk@cm4all.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-by: Max Kellermann <mk@cm4all.com>
-Link: https://lore.kernel.org/r/YlWWbpW5Foynjllo@rabbit.intern.cm-ag [1]
+ - task A: begin do_slab_free():
+    - read TID
+    - read pcpu freelist (==NULL)
+    - check `slab == c->slab` (true)
+ - [PREEMPT A->B]
+ - task B: begin slab_alloc_node():
+    - fastpath fails (`c->freelist` is NULL)
+    - enter __slab_alloc()
+    - slub_get_cpu_ptr() (disables preemption)
+    - enter ___slab_alloc()
+    - take local_lock_irqsave()
+    - read c->freelist as NULL
+    - get_freelist() returns NULL
+    - write `c->slab = NULL`
+    - drop local_unlock_irqrestore()
+    - goto new_slab
+    - slub_percpu_partial() is NULL
+    - get_partial() returns NULL
+    - slub_put_cpu_ptr() (enables preemption)
+ - [PREEMPT B->A]
+ - task A: finish do_slab_free():
+    - this_cpu_cmpxchg_double() succeeds()
+    - [CORRUPT STATE: c->slab==NULL, c->freelist!=NULL]
+
+>From there, the object on c->freelist will get lost if task B is allowed to
+continue from here: It will proceed to the retry_load_slab label,
+set c->slab, then jump to load_freelist, which clobbers c->freelist.
+
+But if we instead continue as follows, we get worse corruption:
+
+ - task A: run __slab_free() on object from other struct slab:
+    - CPU_PARTIAL_FREE case (slab was on no list, is now on pcpu partial)
+ - task A: run slab_alloc_node() with NUMA node constraint:
+    - fastpath fails (c->slab is NULL)
+    - call __slab_alloc()
+    - slub_get_cpu_ptr() (disables preemption)
+    - enter ___slab_alloc()
+    - c->slab is NULL: goto new_slab
+    - slub_percpu_partial() is non-NULL
+    - set c->slab to slub_percpu_partial(c)
+    - [CORRUPT STATE: c->slab points to slab-1, c->freelist has objects
+      from slab-2]
+    - goto redo
+    - node_match() fails
+    - goto deactivate_slab
+    - existing c->freelist is passed into deactivate_slab()
+    - inuse count of slab-1 is decremented to account for object from
+      slab-2
+
+At this point, the inuse count of slab-1 is 1 lower than it should be.
+This means that if we free all allocated objects in slab-1 except for one,
+SLUB will think that slab-1 is completely unused, and may free its page,
+leading to use-after-free.
+
+Fixes: c17dda40a6a4e ("slub: Separate out kmem_cache_cpu processing from deactivate_slab")
+Fixes: 03e404af26dc2 ("slub: fast release on full slab")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: Christoph Lameter <cl@linux.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Link: https://lore.kernel.org/r/20220608182205.2945720-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fscache/cookie.c     |   15 ++++++++++++++-
- include/linux/fscache.h |    1 +
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ mm/slub.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/fscache/cookie.c
-+++ b/fs/fscache/cookie.c
-@@ -517,7 +517,14 @@ static void fscache_perform_lookup(struc
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -2162,6 +2162,7 @@ redo:
+ 
+ 	c->page = NULL;
+ 	c->freelist = NULL;
++	c->tid = next_tid(c->tid);
+ }
+ 
+ /*
+@@ -2295,8 +2296,6 @@ static inline void flush_slab(struct kme
+ {
+ 	stat(s, CPUSLAB_FLUSH);
+ 	deactivate_slab(s, c->page, c->freelist, c);
+-
+-	c->tid = next_tid(c->tid);
+ }
+ 
+ /*
+@@ -2583,6 +2582,7 @@ redo:
+ 
+ 	if (!freelist) {
+ 		c->page = NULL;
++		c->tid = next_tid(c->tid);
+ 		stat(s, DEACTIVATE_BYPASS);
+ 		goto new_slab;
  	}
- 
- 	fscache_see_cookie(cookie, fscache_cookie_see_active);
--	fscache_set_cookie_state(cookie, FSCACHE_COOKIE_STATE_ACTIVE);
-+	spin_lock(&cookie->lock);
-+	if (test_and_clear_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
-+		__fscache_set_cookie_state(cookie,
-+					   FSCACHE_COOKIE_STATE_INVALIDATING);
-+	else
-+		__fscache_set_cookie_state(cookie, FSCACHE_COOKIE_STATE_ACTIVE);
-+	spin_unlock(&cookie->lock);
-+	wake_up_cookie_state(cookie);
- 	trace = fscache_access_lookup_cookie_end;
- 
- out:
-@@ -752,6 +759,9 @@ again_locked:
- 			spin_lock(&cookie->lock);
- 		}
- 
-+		if (test_and_clear_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags))
-+			fscache_end_cookie_access(cookie, fscache_access_invalidate_cookie_end);
-+
- 		switch (state) {
- 		case FSCACHE_COOKIE_STATE_RELINQUISHING:
- 			fscache_see_cookie(cookie, fscache_cookie_see_relinquish);
-@@ -1048,6 +1058,9 @@ void __fscache_invalidate(struct fscache
- 		return;
- 
- 	case FSCACHE_COOKIE_STATE_LOOKING_UP:
-+		__fscache_begin_cookie_access(cookie, fscache_access_invalidate_cookie);
-+		set_bit(FSCACHE_COOKIE_DO_INVALIDATE, &cookie->flags);
-+		fallthrough;
- 	case FSCACHE_COOKIE_STATE_CREATING:
- 		spin_unlock(&cookie->lock);
- 		_leave(" [look %x]", cookie->inval_counter);
---- a/include/linux/fscache.h
-+++ b/include/linux/fscache.h
-@@ -129,6 +129,7 @@ struct fscache_cookie {
- #define FSCACHE_COOKIE_DO_PREP_TO_WRITE	12		/* T if cookie needs write preparation */
- #define FSCACHE_COOKIE_HAVE_DATA	13		/* T if this cookie has data stored */
- #define FSCACHE_COOKIE_IS_HASHED	14		/* T if this cookie is hashed */
-+#define FSCACHE_COOKIE_DO_INVALIDATE	15		/* T if cookie needs invalidation */
- 
- 	enum fscache_cookie_state	state;
- 	u8				advice;		/* FSCACHE_ADV_* */
 
 
