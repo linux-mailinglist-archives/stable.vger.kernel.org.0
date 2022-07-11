@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A4056FE24
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA1C56FE21
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234465AbiGKKEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:04:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57984 "EHLO
+        id S234439AbiGKKEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:04:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234483AbiGKKDg (ORCPT
+        with ESMTP id S234485AbiGKKDg (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9616948EA6;
-        Mon, 11 Jul 2022 02:29:37 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128CF48EB0;
+        Mon, 11 Jul 2022 02:29:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4CD7612E8;
-        Mon, 11 Jul 2022 09:29:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 021A0C34115;
-        Mon, 11 Jul 2022 09:29:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AAF361366;
+        Mon, 11 Jul 2022 09:29:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB014C34115;
+        Mon, 11 Jul 2022 09:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531776;
-        bh=VEDEAuGYpp7Jizzi0f+s+J5j7QxYR9ToluTbgD9NrJM=;
+        s=korg; t=1657531779;
+        bh=4P9xq6q8hGoQvb8Sigl3/Po/KZymH+V3vIWWDe8U1Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q46REEw08bYod3pgcXBoUqlE//Lu17Z9fRUrHZI/FqErZXaw77nlMbbL8FWeCKGe8
-         9KhKwDijXs/gYctlrUTW3Y5he843wLSEXBk/3/G5P3MgMRV4OrX4AWmqngZiESStZh
-         lIqsTFCMPoYrYJHMIRw5zhsh0aZ4DE6riGaUj+sc=
+        b=sp8LOhS7MXPRFIee/jhapWJ/JWVTzjy5/XOBtIkKeROUoxMLFG70rSnf4B3Q69pdp
+         4Ojvo1cUt3L36jzrbQoK3B+DeLtAbNyX0H+d2cOiwtL9zGJCeZBWW9ts82Uj6+W1ts
+         qZ+FvEPrQ91QDW2oVuPT/F8c+Jb733gJoiTfnwBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        stable@vger.kernel.org, Tony Zhu <tony.zhu@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 228/230] dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
-Date:   Mon, 11 Jul 2022 11:08:04 +0200
-Message-Id: <20220711090610.569137684@linuxfoundation.org>
+Subject: [PATCH 5.15 229/230] dmaengine: idxd: force wq context cleanup on device disable path
+Date:   Mon, 11 Jul 2022 11:08:05 +0200
+Message-Id: <20220711090610.597250131@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,55 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-commit 615a4bfc426e11dba05c2cf343f9ac752fb381d2 upstream.
+commit 44c4237cf3436bda2b185ff728123651ad133f69 upstream.
 
-of_find_device_by_node() takes reference, we should use put_device()
-to release it when not need anymore.
+Testing shown that when a wq mode is setup to be dedicated and then torn
+down and reconfigured to shared, the wq configured end up being dedicated
+anyays. The root cause is when idxd_device_wqs_clear_state() gets called
+during idxd_driver removal, idxd_wq_disable_cleanup() does not get called
+vs when the wq driver is removed first. The check of wq state being
+"enabled" causes the cleanup to be bypassed. However, idxd_driver->remove()
+releases all wq drivers. So the wqs goes to "disabled" state and will never
+be "enabled". By that point, the driver has no idea if the wq was
+previously configured or clean. So force call idxd_wq_disable_cleanup() on
+all wqs always to make sure everything gets cleaned up.
 
-Fixes: a074ae38f859 ("dmaengine: Add driver for TI DMA crossbar on DRA7x")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220605042723.17668-1-linmq006@gmail.com
+Reported-by: Tony Zhu <tony.zhu@intel.com>
+Tested-by: Tony Zhu <tony.zhu@intel.com>
+Fixes: 0dcfe41e9a4c ("dmanegine: idxd: cleanup all device related bits after disabling device")
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Co-developed-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Link: https://lore.kernel.org/r/20220628230056.2527816-1-fenghua.yu@intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/ti/dma-crossbar.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma/idxd/device.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/dma/ti/dma-crossbar.c
-+++ b/drivers/dma/ti/dma-crossbar.c
-@@ -245,6 +245,7 @@ static void *ti_dra7_xbar_route_allocate
- 	if (dma_spec->args[0] >= xbar->xbar_requests) {
- 		dev_err(&pdev->dev, "Invalid XBAR request number: %d\n",
- 			dma_spec->args[0]);
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-EINVAL);
- 	}
+--- a/drivers/dma/idxd/device.c
++++ b/drivers/dma/idxd/device.c
+@@ -720,10 +720,7 @@ static void idxd_device_wqs_clear_state(
+ 	for (i = 0; i < idxd->max_wqs; i++) {
+ 		struct idxd_wq *wq = idxd->wqs[i];
  
-@@ -252,12 +253,14 @@ static void *ti_dra7_xbar_route_allocate
- 	dma_spec->np = of_parse_phandle(ofdma->of_node, "dma-masters", 0);
- 	if (!dma_spec->np) {
- 		dev_err(&pdev->dev, "Can't get DMA master\n");
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-EINVAL);
+-		if (wq->state == IDXD_WQ_ENABLED) {
+-			idxd_wq_disable_cleanup(wq);
+-			wq->state = IDXD_WQ_DISABLED;
+-		}
++		idxd_wq_disable_cleanup(wq);
+ 		idxd_wq_device_reset_cleanup(wq);
  	}
- 
- 	map = kzalloc(sizeof(*map), GFP_KERNEL);
- 	if (!map) {
- 		of_node_put(dma_spec->np);
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
-@@ -269,6 +272,7 @@ static void *ti_dra7_xbar_route_allocate
- 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
- 		kfree(map);
- 		of_node_put(dma_spec->np);
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 	set_bit(map->xbar_out, xbar->dma_inuse);
+ }
 
 
