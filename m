@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5751456FA00
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 484B156FA42
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:15:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbiGKJLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47054 "EHLO
+        id S231443AbiGKJPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231293AbiGKJK7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:10:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AF3E12099;
-        Mon, 11 Jul 2022 02:08:55 -0700 (PDT)
+        with ESMTP id S231688AbiGKJOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:14:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB03371A6;
+        Mon, 11 Jul 2022 02:10:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EDF6B80E7F;
-        Mon, 11 Jul 2022 09:08:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A3DDC34115;
-        Mon, 11 Jul 2022 09:08:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFC96B80E7F;
+        Mon, 11 Jul 2022 09:10:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A8FC34115;
+        Mon, 11 Jul 2022 09:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530533;
-        bh=87vGQEQfDaYwPc75I7+wx1o+VbDJU1V1K/ZgNF3NO80=;
+        s=korg; t=1657530627;
+        bh=E/oaZfTiVY9vR0i6g6ujF38FIpD1f/3WJ1lvgnpdDpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fc2Ct6P7bowZWrJ1ZH8JkA6I7MrhOzz+r5TfZRf3NAOsVXQ5A1i4QXcJQh+F78Dn+
-         wwUGpMwngpYnxHCUarXQnCNB9zRBxGwntRNWeeahxF3wdZaC2PKpKNaKOk/l8hOv18
-         xUAPWlPyjmYzvzNshYS2cO0FdgvXKMpSHf3F0YJ4=
+        b=YvpQv9Hp8eZ7Fj8vppEK/D/8LKjNh3I9J5uLMhEWRwN3maFbp5d1k++/4KW6sp24o
+         RPl0peMnKSJg9b5OAndYs1IbcgLQNDgdyOi91xsZw/LlNvRvgZ29pBJicy5nskJOiG
+         Kx88BxjuafOeaB8ZMbLlNZ938KMlDO6YOr8DcmiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 07/31] net: rose: fix UAF bug caused by rose_t0timer_expiry
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Liang He <windhl@126.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 04/38] can: grcan: grcan_probe(): remove extra of_node_get()
 Date:   Mon, 11 Jul 2022 11:06:46 +0200
-Message-Id: <20220711090538.063243242@linuxfoundation.org>
+Message-Id: <20220711090538.856305298@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Liang He <windhl@126.com>
 
-commit 148ca04518070910739dfc4eeda765057856403d upstream.
+commit 562fed945ea482833667f85496eeda766d511386 upstream.
 
-There are UAF bugs caused by rose_t0timer_expiry(). The
-root cause is that del_timer() could not stop the timer
-handler that is running and there is no synchronization.
-One of the race conditions is shown below:
+In grcan_probe(), of_find_node_by_path() has already increased the
+refcount. There is no need to call of_node_get() again, so remove it.
 
-    (thread 1)             |        (thread 2)
-                           | rose_device_event
-                           |   rose_rt_device_down
-                           |     rose_remove_neigh
-rose_t0timer_expiry        |       rose_stop_t0timer(rose_neigh)
-  ...                      |         del_timer(&neigh->t0timer)
-                           |         kfree(rose_neigh) //[1]FREE
-  neigh->dce_mode //[2]USE |
-
-The rose_neigh is deallocated in position [1] and use in
-position [2].
-
-The crash trace triggered by POC is like below:
-
-BUG: KASAN: use-after-free in expire_timers+0x144/0x320
-Write of size 8 at addr ffff888009b19658 by task swapper/0/0
-...
-Call Trace:
- <IRQ>
- dump_stack_lvl+0xbf/0xee
- print_address_description+0x7b/0x440
- print_report+0x101/0x230
- ? expire_timers+0x144/0x320
- kasan_report+0xed/0x120
- ? expire_timers+0x144/0x320
- expire_timers+0x144/0x320
- __run_timers+0x3ff/0x4d0
- run_timer_softirq+0x41/0x80
- __do_softirq+0x233/0x544
- ...
-
-This patch changes rose_stop_ftimer() and rose_stop_t0timer()
-in rose_remove_neigh() to del_timer_sync() in order that the
-timer handler could be finished before the resources such as
-rose_neigh and so on are deallocated. As a result, the UAF
-bugs could be mitigated.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220705125610.77971-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/all/20220619070257.4067022-1-windhl@126.com
+Fixes: 1e93ed26acf0 ("can: grcan: grcan_probe(): fix broken system id check for errata workaround needs")
+Cc: stable@vger.kernel.org # v5.18
+Cc: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rose/rose_route.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/grcan.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/rose/rose_route.c
-+++ b/net/rose/rose_route.c
-@@ -230,8 +230,8 @@ static void rose_remove_neigh(struct ros
- {
- 	struct rose_neigh *s;
- 
--	rose_stop_ftimer(rose_neigh);
--	rose_stop_t0timer(rose_neigh);
-+	del_timer_sync(&rose_neigh->ftimer);
-+	del_timer_sync(&rose_neigh->t0timer);
- 
- 	skb_queue_purge(&rose_neigh->queue);
- 
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -1660,7 +1660,6 @@ static int grcan_probe(struct platform_d
+ 	 */
+ 	sysid_parent = of_find_node_by_path("/ambapp0");
+ 	if (sysid_parent) {
+-		of_node_get(sysid_parent);
+ 		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
+ 		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
+ 			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
 
 
