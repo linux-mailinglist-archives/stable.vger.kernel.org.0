@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 445F756FDA4
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA87556FBA3
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234159AbiGKJ6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:58:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49062 "EHLO
+        id S232465AbiGKJdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:33:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234160AbiGKJ6I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D858AB4BD9;
-        Mon, 11 Jul 2022 02:27:15 -0700 (PDT)
+        with ESMTP id S232743AbiGKJdA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:33:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86BF778DC1;
+        Mon, 11 Jul 2022 02:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 03BD6CE126E;
-        Mon, 11 Jul 2022 09:27:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CA3C34115;
-        Mon, 11 Jul 2022 09:27:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C55FE61227;
+        Mon, 11 Jul 2022 09:17:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D169AC34115;
+        Mon, 11 Jul 2022 09:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531631;
-        bh=G3XdD4ZflwNdqfaY4yjkjFso/enpN8n0LYdk3KU1qK4=;
+        s=korg; t=1657531061;
+        bh=YYUyytMC0pUftyIXjxoK3jnBzW0leo2WLvAhxuXrFMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQb3oxKDlGk3BXmyKcfFkk406Dqvl202qd6JJSNFMKndRGIlv3nlMClJhAash5i16
-         b3L8YbTrVL2DaBINa6syD0pY3YL2JJ6JG0sUgHhG8GkkNLSd2o8CxkcxSM4O2eDDf1
-         HKhnW6eOup39kHwvtsh8xJpS2BCnHsTpRn8NyRi8=
+        b=npD0GjuXEakmizbNC47q/fXRmf2R4axDAY6wJ267dh5pN8RXl6msi/Z5x4ikruypm
+         LO1WZBmSo7SH8y6vZtrxqpvkEfE6yPrYloh0Kojn/u8kyAWXody+1SZY+AdlAjLbyP
+         ZijuMZFNXu8oTigwiRzXsglxdzdS1xqazHkYbiRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Modra <amodra@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 135/230] powerpc/vdso: Fix incorrect CFI in gettimeofday.S
-Date:   Mon, 11 Jul 2022 11:06:31 +0200
-Message-Id: <20220711090607.893284695@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.18 032/112] cxl: Fix cleanup of port devices on failure to probe driver.
+Date:   Mon, 11 Jul 2022 11:06:32 +0200
+Message-Id: <20220711090550.479566633@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,142 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 6d65028eb67dbb7627651adfc460d64196d38bd8 ]
+commit db9a3a35d31ea337331f0e6e07e04bcd52642894 upstream.
 
-As reported by Alan, the CFI (Call Frame Information) in the VDSO time
-routines is incorrect since commit ce7d8056e38b ("powerpc/vdso: Prepare
-for switching VDSO to generic C implementation.").
+The device is created, and then there is a check if a driver succesfully
+bound to it. In event of failing the bind (e.g. failure in cxl_port_probe())
+the device is left registered. When a bus rescan later occurs, fresh
+devices are created leading to a multiple device representing the same
+underlying hardware. Bad things may follow and at very least we have far too many
+devices.
 
-DWARF has a concept called the CFA (Canonical Frame Address), which on
-powerpc is calculated as an offset from the stack pointer (r1). That
-means when the stack pointer is changed there must be a corresponding
-CFI directive to update the calculation of the CFA.
+Fix by ensuring autoremove is registered if the device create succeeds,
+but doesn't depend on sucessful binding to a driver.
 
-The current code is missing those directives for the changes to r1,
-which prevents gdb from being able to generate a backtrace from inside
-VDSO functions, eg:
+Bug was observed as side effect of incorrect ownership in
+[PATCH v9 6/9] cxl/port: Read CDAT table
+but will result from any failure to in cxl_port_probe().
 
-  Breakpoint 1, 0x00007ffff7f804dc in __kernel_clock_gettime ()
-  (gdb) bt
-  #0  0x00007ffff7f804dc in __kernel_clock_gettime ()
-  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
-  #2  0x00007fffffffd960 in ?? ()
-  #3  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
-  Backtrace stopped: frame did not save the PC
-
-Alan helpfully describes some rules for correctly maintaining the CFI information:
-
-  1) Every adjustment to the current frame address reg (ie. r1) must be
-     described, and exactly at the instruction where r1 changes. Why?
-     Because stack unwinding might want to access previous frames.
-
-  2) If a function changes LR or any non-volatile register, the save
-     location for those regs must be given. The CFI can be at any
-     instruction after the saves up to the point that the reg is
-     changed.
-     (Exception: LR save should be described before a bl. not after)
-
-  3) If asychronous unwind info is needed then restores of LR and
-     non-volatile regs must also be described. The CFI can be at any
-     instruction after the reg is restored up to the point where the
-     save location is (potentially) trashed.
-
-Fix the inability to backtrace by adding CFI directives describing the
-changes to r1, ie. satisfying rule 1.
-
-Also change the information for LR to point to the copy saved on the
-stack, not the value in r0 that will be overwritten by the function
-call.
-
-Finally, add CFI directives describing the save/restore of r2.
-
-With the fix gdb can correctly back trace and navigate up and down the stack:
-
-  Breakpoint 1, 0x00007ffff7f804dc in __kernel_clock_gettime ()
-  (gdb) bt
-  #0  0x00007ffff7f804dc in __kernel_clock_gettime ()
-  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
-  #2  0x0000000100015b60 in gettime ()
-  #3  0x000000010000c8bc in print_long_format ()
-  #4  0x000000010000d180 in print_current_files ()
-  #5  0x00000001000054ac in main ()
-  (gdb) up
-  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
-  (gdb)
-  #2  0x0000000100015b60 in gettime ()
-  (gdb)
-  #3  0x000000010000c8bc in print_long_format ()
-  (gdb)
-  #4  0x000000010000d180 in print_current_files ()
-  (gdb)
-  #5  0x00000001000054ac in main ()
-  (gdb)
-  Initial frame selected; you cannot go up.
-  (gdb) down
-  #4  0x000000010000d180 in print_current_files ()
-  (gdb)
-  #3  0x000000010000c8bc in print_long_format ()
-  (gdb)
-  #2  0x0000000100015b60 in gettime ()
-  (gdb)
-  #1  0x00007ffff7d8872c in clock_gettime@@GLIBC_2.17 () from /lib64/libc.so.6
-  (gdb)
-  #0  0x00007ffff7f804dc in __kernel_clock_gettime ()
-  (gdb)
-
-Fixes: ce7d8056e38b ("powerpc/vdso: Prepare for switching VDSO to generic C implementation.")
-Cc: stable@vger.kernel.org # v5.11+
-Reported-by: Alan Modra <amodra@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Link: https://lore.kernel.org/r/20220502125010.1319370-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8dd2bc0f8e02 ("cxl/mem: Add the cxl_mem driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Link: https://lore.kernel.org/r/20220609134519.11668-1-Jonathan.Cameron@huawei.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/vdso32/gettimeofday.S | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/cxl/mem.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
-index dd2099128b8f..42d40f895c1f 100644
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -22,12 +22,15 @@
- .macro cvdso_call funct call_time=0
-   .cfi_startproc
- 	PPC_STLU	r1, -PPC_MIN_STKFRM(r1)
-+  .cfi_adjust_cfa_offset PPC_MIN_STKFRM
- 	mflr		r0
--  .cfi_register lr, r0
- 	PPC_STLU	r1, -PPC_MIN_STKFRM(r1)
-+  .cfi_adjust_cfa_offset PPC_MIN_STKFRM
- 	PPC_STL		r0, PPC_MIN_STKFRM + PPC_LR_STKOFF(r1)
-+  .cfi_rel_offset lr, PPC_MIN_STKFRM + PPC_LR_STKOFF
- #ifdef __powerpc64__
- 	PPC_STL		r2, PPC_MIN_STKFRM + STK_GOT(r1)
-+  .cfi_rel_offset r2, PPC_MIN_STKFRM + STK_GOT
- #endif
- 	get_datapage	r5
- 	.ifeq	\call_time
-@@ -39,13 +42,15 @@
- 	PPC_LL		r0, PPC_MIN_STKFRM + PPC_LR_STKOFF(r1)
- #ifdef __powerpc64__
- 	PPC_LL		r2, PPC_MIN_STKFRM + STK_GOT(r1)
-+  .cfi_restore r2
- #endif
- 	.ifeq	\call_time
- 	cmpwi		r3, 0
- 	.endif
- 	mtlr		r0
--  .cfi_restore lr
- 	addi		r1, r1, 2 * PPC_MIN_STKFRM
-+  .cfi_restore lr
-+  .cfi_def_cfa_offset 0
- 	crclr		so
- 	.ifeq	\call_time
- 	beqlr+
--- 
-2.35.1
-
+--- a/drivers/cxl/mem.c
++++ b/drivers/cxl/mem.c
+@@ -46,6 +46,7 @@ static int create_endpoint(struct cxl_me
+ {
+ 	struct cxl_dev_state *cxlds = cxlmd->cxlds;
+ 	struct cxl_port *endpoint;
++	int rc;
+ 
+ 	endpoint = devm_cxl_add_port(&parent_port->dev, &cxlmd->dev,
+ 				     cxlds->component_reg_phys, parent_port);
+@@ -54,13 +55,17 @@ static int create_endpoint(struct cxl_me
+ 
+ 	dev_dbg(&cxlmd->dev, "add: %s\n", dev_name(&endpoint->dev));
+ 
++	rc = cxl_endpoint_autoremove(cxlmd, endpoint);
++	if (rc)
++		return rc;
++
+ 	if (!endpoint->dev.driver) {
+ 		dev_err(&cxlmd->dev, "%s failed probe\n",
+ 			dev_name(&endpoint->dev));
+ 		return -ENXIO;
+ 	}
+ 
+-	return cxl_endpoint_autoremove(cxlmd, endpoint);
++	return 0;
+ }
+ 
+ /**
 
 
