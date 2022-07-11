@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE72B56FD32
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33DC56FD36
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233832AbiGKJwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56990 "EHLO
+        id S233753AbiGKJwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233843AbiGKJup (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCAB29830;
-        Mon, 11 Jul 2022 02:25:02 -0700 (PDT)
+        with ESMTP id S233865AbiGKJu6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8D631DE1;
+        Mon, 11 Jul 2022 02:25:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EE38B80E7A;
-        Mon, 11 Jul 2022 09:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F1DAC34115;
-        Mon, 11 Jul 2022 09:24:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A726112E;
+        Mon, 11 Jul 2022 09:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B370C34115;
+        Mon, 11 Jul 2022 09:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531499;
-        bh=jLg70Q9nZHijQ04V8fPVGvO1b75QYGWIzu9gmbZ9Xr0=;
+        s=korg; t=1657531505;
+        bh=GIfK8Byv40Doke3jciY44/Uks9FgkwxfoZqJmMCfspU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGg2gj4XzgitG/GO3LyXj39N1tFw364Ok67w5cnx+p4enDl45qvTIafk41NITHF8f
-         3ody7LDM1/vXk3XYW86x61aIRRp6ZoqhMvv3lSwSvLaivMOGIV9Wdb06a/MgeauAS1
-         6tpWhfXs+XcD/b90+UUsvul32ConanwhcRcycNDQ=
+        b=cI2eFNrPH3CA4sUoiUMUW61Q+zvoj7YK4UCO3XbZ+gXo6egVOQfaIfgjucDoiJ6hk
+         +z1UJ+cF9ZtvKDhKRRhcpXj6q8vmF35/vbJu5miAHJ2Snn3XXQC/+eeC4Bloqe8sEu
+         WxQhDf309dO7q854jXxDYgDzCDO6wWiGpoSX9e8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oupton@google.com>,
-        syzbot+df6fbbd2ee39f21289ef@syzkaller.appspotmail.com,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Yang Shi <shy828301@gmail.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ding Hui <dinghui@sangfor.com.cn>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Peter Xu <peterx@redhat.com>, Tony Luck <tony.luck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 126/230] KVM: Initialize debugfs_dentry when a VM is created to avoid NULL deref
-Date:   Mon, 11 Jul 2022 11:06:22 +0200
-Message-Id: <20220711090607.639773751@linuxfoundation.org>
+Subject: [PATCH 5.15 127/230] mm/hwpoison: mf_mutex for soft offline and unpoison
+Date:   Mon, 11 Jul 2022 11:06:23 +0200
+Message-Id: <20220711090607.668206816@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -57,80 +63,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-[ Upstream commit 5c697c367a66307a5d943c3449421aff2aa3ca4a ]
+[ Upstream commit 91d005479e06392617bacc114509d611b705eaac ]
 
-Initialize debugfs_entry to its semi-magical -ENOENT value when the VM
-is created.  KVM's teardown when VM creation fails is kludgy and calls
-kvm_uevent_notify_change() and kvm_destroy_vm_debugfs() even if KVM never
-attempted kvm_create_vm_debugfs().  Because debugfs_entry is zero
-initialized, the IS_ERR() checks pass and KVM derefs a NULL pointer.
+Patch series "mm/hwpoison: fix unpoison_memory()", v4.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000018
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 1068b1067 P4D 1068b1067 PUD 1068b0067 PMD 0
-  Oops: 0000 [#1] SMP
-  CPU: 0 PID: 871 Comm: repro Not tainted 5.18.0-rc1+ #825
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:__dentry_path+0x7b/0x130
-  Call Trace:
-   <TASK>
-   dentry_path_raw+0x42/0x70
-   kvm_uevent_notify_change.part.0+0x10c/0x200 [kvm]
-   kvm_put_kvm+0x63/0x2b0 [kvm]
-   kvm_dev_ioctl+0x43a/0x920 [kvm]
-   __x64_sys_ioctl+0x83/0xb0
-   do_syscall_64+0x31/0x50
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
-  Modules linked in: kvm_intel kvm irqbypass
+The main purpose of this series is to sync unpoison code to recent
+changes around how hwpoison code takes page refcount.  Unpoison should
+work or simply fail (without crash) if impossible.
 
-Fixes: a44a4cc1c969 ("KVM: Don't create VM debugfs files outside of the VM directory")
-Cc: stable@vger.kernel.org
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Oliver Upton <oupton@google.com>
-Reported-by: syzbot+df6fbbd2ee39f21289ef@syzkaller.appspotmail.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Oliver Upton <oupton@google.com>
-Message-Id: <20220415004622.2207751-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+The recent works of keeping hwpoison pages in shmem pagecache introduce
+a new state of hwpoisoned pages, but unpoison for such pages is not
+supported yet with this series.
+
+It seems that soft-offline and unpoison can be used as general purpose
+page offline/online mechanism (not in the context of memory error).  I
+think that we need some additional works to realize it because currently
+soft-offline and unpoison are assumed not to happen so frequently (print
+out too many messages for aggressive usecases).  But anyway this could
+be another interesting next topic.
+
+v1: https://lore.kernel.org/linux-mm/20210614021212.223326-1-nao.horiguchi@gmail.com/
+v2: https://lore.kernel.org/linux-mm/20211025230503.2650970-1-naoya.horiguchi@linux.dev/
+v3: https://lore.kernel.org/linux-mm/20211105055058.3152564-1-naoya.horiguchi@linux.dev/
+
+This patch (of 3):
+
+Originally mf_mutex is introduced to serialize multiple MCE events, but
+it is not that useful to allow unpoison to run in parallel with
+memory_failure() and soft offline.  So apply mf_mutex to soft offline
+and unpoison.  The memory failure handler and soft offline handler get
+simpler with this.
+
+Link: https://lkml.kernel.org/r/20211115084006.3728254-1-naoya.horiguchi@linux.dev
+Link: https://lkml.kernel.org/r/20211115084006.3728254-2-naoya.horiguchi@linux.dev
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Ding Hui <dinghui@sangfor.com.cn>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ mm/memory-failure.c | 62 +++++++++++++--------------------------------
+ 1 file changed, 18 insertions(+), 44 deletions(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 9134ae252d7c..9eac68ae291e 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -934,12 +934,6 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
- 	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
- 				      kvm_vcpu_stats_header.num_desc;
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index c3ceb7436933..e6425d959fa9 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1463,14 +1463,6 @@ static int memory_failure_hugetlb(unsigned long pfn, int flags)
+ 	lock_page(head);
+ 	page_flags = head->flags;
+ 
+-	if (!PageHWPoison(head)) {
+-		pr_err("Memory failure: %#lx: just unpoisoned\n", pfn);
+-		num_poisoned_pages_dec();
+-		unlock_page(head);
+-		put_page(head);
+-		return 0;
+-	}
+-
+ 	/*
+ 	 * TODO: hwpoison for pud-sized hugetlb doesn't work right now, so
+ 	 * simply disable it. In order to make it work properly, we need
+@@ -1584,6 +1576,8 @@ static int memory_failure_dev_pagemap(unsigned long pfn, int flags,
+ 	return rc;
+ }
+ 
++static DEFINE_MUTEX(mf_mutex);
++
+ /**
+  * memory_failure - Handle memory failure of a page.
+  * @pfn: Page Number of the corrupted page
+@@ -1610,7 +1604,6 @@ int memory_failure(unsigned long pfn, int flags)
+ 	int res = 0;
+ 	unsigned long page_flags;
+ 	bool retry = true;
+-	static DEFINE_MUTEX(mf_mutex);
+ 
+ 	if (!sysctl_memory_failure_recovery)
+ 		panic("Memory failure on page %lx", pfn);
+@@ -1744,16 +1737,6 @@ int memory_failure(unsigned long pfn, int flags)
+ 	 */
+ 	page_flags = p->flags;
  
 -	/*
--	 * Force subsequent debugfs file creations to fail if the VM directory
--	 * is not created.
+-	 * unpoison always clear PG_hwpoison inside page lock
 -	 */
--	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
--
- 	if (!debugfs_initialized())
- 		return 0;
+-	if (!PageHWPoison(p)) {
+-		pr_err("Memory failure: %#lx: just unpoisoned\n", pfn);
+-		num_poisoned_pages_dec();
+-		unlock_page(p);
+-		put_page(p);
+-		goto unlock_mutex;
+-	}
+ 	if (hwpoison_filter(p)) {
+ 		if (TestClearPageHWPoison(p))
+ 			num_poisoned_pages_dec();
+@@ -1934,6 +1917,7 @@ int unpoison_memory(unsigned long pfn)
+ 	struct page *page;
+ 	struct page *p;
+ 	int freeit = 0;
++	int ret = 0;
+ 	unsigned long flags = 0;
+ 	static DEFINE_RATELIMIT_STATE(unpoison_rs, DEFAULT_RATELIMIT_INTERVAL,
+ 					DEFAULT_RATELIMIT_BURST);
+@@ -1944,39 +1928,30 @@ int unpoison_memory(unsigned long pfn)
+ 	p = pfn_to_page(pfn);
+ 	page = compound_head(p);
  
-@@ -1055,6 +1049,12 @@ static struct kvm *kvm_create_vm(unsigned long type)
- 
- 	BUILD_BUG_ON(KVM_MEM_SLOTS_NUM > SHRT_MAX);
- 
-+	/*
-+	 * Force subsequent debugfs file creations to fail if the VM directory
-+	 * is not created (by kvm_create_vm_debugfs()).
-+	 */
-+	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
++	mutex_lock(&mf_mutex);
 +
- 	if (init_srcu_struct(&kvm->srcu))
- 		goto out_err_no_srcu;
- 	if (init_srcu_struct(&kvm->irq_srcu))
+ 	if (!PageHWPoison(p)) {
+ 		unpoison_pr_info("Unpoison: Page was already unpoisoned %#lx\n",
+ 				 pfn, &unpoison_rs);
+-		return 0;
++		goto unlock_mutex;
+ 	}
+ 
+ 	if (page_count(page) > 1) {
+ 		unpoison_pr_info("Unpoison: Someone grabs the hwpoison page %#lx\n",
+ 				 pfn, &unpoison_rs);
+-		return 0;
++		goto unlock_mutex;
+ 	}
+ 
+ 	if (page_mapped(page)) {
+ 		unpoison_pr_info("Unpoison: Someone maps the hwpoison page %#lx\n",
+ 				 pfn, &unpoison_rs);
+-		return 0;
++		goto unlock_mutex;
+ 	}
+ 
+ 	if (page_mapping(page)) {
+ 		unpoison_pr_info("Unpoison: the hwpoison page has non-NULL mapping %#lx\n",
+ 				 pfn, &unpoison_rs);
+-		return 0;
+-	}
+-
+-	/*
+-	 * unpoison_memory() can encounter thp only when the thp is being
+-	 * worked by memory_failure() and the page lock is not held yet.
+-	 * In such case, we yield to memory_failure() and make unpoison fail.
+-	 */
+-	if (!PageHuge(page) && PageTransHuge(page)) {
+-		unpoison_pr_info("Unpoison: Memory failure is now running on %#lx\n",
+-				 pfn, &unpoison_rs);
+-		return 0;
++		goto unlock_mutex;
+ 	}
+ 
+ 	if (!get_hwpoison_page(p, flags)) {
+@@ -1984,29 +1959,23 @@ int unpoison_memory(unsigned long pfn)
+ 			num_poisoned_pages_dec();
+ 		unpoison_pr_info("Unpoison: Software-unpoisoned free page %#lx\n",
+ 				 pfn, &unpoison_rs);
+-		return 0;
++		goto unlock_mutex;
+ 	}
+ 
+-	lock_page(page);
+-	/*
+-	 * This test is racy because PG_hwpoison is set outside of page lock.
+-	 * That's acceptable because that won't trigger kernel panic. Instead,
+-	 * the PG_hwpoison page will be caught and isolated on the entrance to
+-	 * the free buddy page pool.
+-	 */
+ 	if (TestClearPageHWPoison(page)) {
+ 		unpoison_pr_info("Unpoison: Software-unpoisoned page %#lx\n",
+ 				 pfn, &unpoison_rs);
+ 		num_poisoned_pages_dec();
+ 		freeit = 1;
+ 	}
+-	unlock_page(page);
+ 
+ 	put_page(page);
+ 	if (freeit && !(pfn == my_zero_pfn(0) && page_count(p) == 1))
+ 		put_page(page);
+ 
+-	return 0;
++unlock_mutex:
++	mutex_unlock(&mf_mutex);
++	return ret;
+ }
+ EXPORT_SYMBOL(unpoison_memory);
+ 
+@@ -2187,9 +2156,12 @@ int soft_offline_page(unsigned long pfn, int flags)
+ 		return -EIO;
+ 	}
+ 
++	mutex_lock(&mf_mutex);
++
+ 	if (PageHWPoison(page)) {
+ 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
+ 		put_ref_page(ref_page);
++		mutex_unlock(&mf_mutex);
+ 		return 0;
+ 	}
+ 
+@@ -2208,5 +2180,7 @@ int soft_offline_page(unsigned long pfn, int flags)
+ 		}
+ 	}
+ 
++	mutex_unlock(&mf_mutex);
++
+ 	return ret;
+ }
 -- 
 2.35.1
 
