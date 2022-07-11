@@ -2,64 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 767C25708FC
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 19:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC8A570994
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 19:55:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231518AbiGKRjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 13:39:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41980 "EHLO
+        id S231697AbiGKRz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 13:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231530AbiGKRjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 13:39:46 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B82C6B258
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 10:39:45 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id oy13so5172509ejb.1
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 10:39:45 -0700 (PDT)
+        with ESMTP id S229563AbiGKRz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 13:55:26 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9537A535;
+        Mon, 11 Jul 2022 10:55:25 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id bf13so5331496pgb.11;
+        Mon, 11 Jul 2022 10:55:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=QbNkUB3NzvVhPi0S7gR2mDTXIn3a0+mT5FVjS17tpYM=;
-        b=cci/HmO67hkCe1aQerLGkZvutwCpmz2jr/zobqmZv++apYU0U6z5MkEp4cjONeq/5y
-         /xAtoZWzS96LJyvj9DQ9Qs9FWCwCkvmBeN0QtkoZpiUCVQcqrgNNIlI01bwLG0pHJxx2
-         aZESWp97X9+6GdfJHJX+MswfoadOWxFdfAxC21N+Z5rjZjZbKnK1V//8PD0QhKB7aIze
-         gOAlvjRbPPt+Zl9HtqapBs6XrxcxBhn99//s2IrLldJdrwgFVVKgykcyA+nH9CJDDGSL
-         MNG2sU2LTXYLw45+V+W3jlnDLj1ihwWv12lwNhPozYBuDaH0zKsXka5oyoGu5faV/OEg
-         8y8w==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=yh0QK7GRgvylwDLA2ulRuXMWICfx2WUE0Ey0ukvvCpA=;
+        b=ezw6o+CRb7VXzc2vc950Oc4is1AgcsoEGmyzXfBeItYav/8aipf1hZpy088e8v/KNd
+         HsT6eCatv/bgnoIBMOepHFlaTezb5+Sv2ZTsJ5S4UvBkTezE6GW2WvJFCGLp8mmo91Xc
+         yau36mWNEb0bVKfr6v51VzY/u4AA0+GXpLVbyZnROjPYr9odxD46FsL0AazLOKrhOaxt
+         9OD2CplUmuIySq3WiEPpWIcFfycJ57y4Y97Vx4IE4H0Zd6mkEVkn1c+if80yFmsU0w/d
+         UZ5b6rEl4kBnsBE40LkaW+7Nlg+W8ktW1B6qYuJi2AJBKHF0C0+H+kHZHl+ilVmDIXid
+         n+3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=QbNkUB3NzvVhPi0S7gR2mDTXIn3a0+mT5FVjS17tpYM=;
-        b=gJIFfwzbUJjeNZiXjhtPPmbxA3LL1Y1G2bWM0sMG3CdjCCMbX5Xy9KivY9BBbYvry2
-         hWkApLXgyGWTcgI2t0QJNBF9/A7EOSTRtI4Dx8Nt9swTHTLk+jLtpWinaHNE5ft0jJEA
-         YI0D4PQTRNgY3IrAz5lZ/A+U5HfiCQT9QlDBUGanbKz0hvFK4eGhpsQfIvaoXmWNRSx3
-         FpFEPYZND/j5Omz8W7iqgLy65SQE973IQASNgyLcc6eEc+EzlneE01Kp46h8H1im9Wu4
-         tfYYIkx6SGPPqRb+F9dFdMY5GGUqOxjU07UOaPF24TvC7UdyUyQNezsbzqyZsJ5f+kcQ
-         q/4Q==
-X-Gm-Message-State: AJIora9pZv0a19NdVEcapw9rduqMBSxeSF2RXUteDj+5A45RBFeP/pfc
-        bQOh0jlGMMT4YuDdg5A0+HU=
-X-Google-Smtp-Source: AGRyM1s4hO2Swgzw0fZ9nSMxPCGQ3AdrDmS9cvtEGO40YWt6tCytlnI1vvMlL4zVCk71aTC+cVzEfw==
-X-Received: by 2002:a17:907:a07c:b0:72a:b390:ee8a with SMTP id ia28-20020a170907a07c00b0072ab390ee8amr19212665ejc.96.1657561183659;
-        Mon, 11 Jul 2022 10:39:43 -0700 (PDT)
-Received: from groovy.localdomain (dynamic-2a01-0c22-d05f-bf00-3e61-137e-625f-8d33.c22.pool.telefonica.de. [2a01:c22:d05f:bf00:3e61:137e:625f:8d33])
-        by smtp.gmail.com with ESMTPSA id g9-20020a50ec09000000b0043a735add09sm4630553edr.21.2022.07.11.10.39.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Jul 2022 10:39:43 -0700 (PDT)
-From:   Mario Kleiner <mario.kleiner.de@gmail.com>
-To:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     mario.kleiner.de@gmail.com, stable@vger.kernel.org,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>
-Subject: [PATCH] drm/amd/display: Only use depth 36 bpp linebuffers on DCN display engines.
-Date:   Mon, 11 Jul 2022 19:39:28 +0200
-Message-Id: <20220711173928.3858-1-mario.kleiner.de@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        bh=yh0QK7GRgvylwDLA2ulRuXMWICfx2WUE0Ey0ukvvCpA=;
+        b=gfi+CeKqCGNPM3JdH4hDdu5PpvbD/DGOFegXkEc092O9P3pnFjiIM9AKF0cqoDtnIU
+         zEjCBxONQ/H1AheJBtb8o390Vd7d7tSAreEJbFohDr5QKFq3jPtB8gwNOOAgTkGjGo93
+         lebvjjfOYGZWn5VQ55NSrUl58JzZQ9pZeyetbY859w51y34bRz10nTVDpUdpDr1zlZ8i
+         zGOQnAOSn0j8ItmrF55xRpV5WSM1wA70azK3SLRDD9Euu3xA+v1xXUi7SReKcRjb10Z9
+         g+cjePaLS+xoPcxxllxkMj9hDn462KqAdx0VcZvRwDwnngqL5R6TztIR8l/9xjjkaB7F
+         mU9g==
+X-Gm-Message-State: AJIora9UL0S9MOk2SDTMEmb/x6Wx+9GoCoCL/c1BMgt65BNkbgKbpNo3
+        boKy0mADn1Y2ooJrcYogPh8=
+X-Google-Smtp-Source: AGRyM1sG6upU91wJduYtGIn8QiTWd+0TUehznyUUqX4hqimg/C0XRzN3lKmuOOYqDKtEoBw0REdZzg==
+X-Received: by 2002:a63:454a:0:b0:411:bbff:b079 with SMTP id u10-20020a63454a000000b00411bbffb079mr16476157pgk.507.1657562125332;
+        Mon, 11 Jul 2022 10:55:25 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id f5-20020aa79d85000000b0052514384f02sm3608203pfq.54.2022.07.11.10.55.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Jul 2022 10:55:24 -0700 (PDT)
+Message-ID: <1c0496f1-7069-22ac-4eac-b8826177d8b5@gmail.com>
+Date:   Mon, 11 Jul 2022 10:55:22 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 4.9 00/14] 4.9.323-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220711090535.517697227@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -68,59 +77,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Various DCE versions had trouble with 36 bpp lb depth, requiring fixes,
-last time in commit 353ca0fa5630 ("drm/amd/display: Fix 10bit 4K display
-on CIK GPUs") for DCE-8. So far >= DCE-11.2 was considered ok, but now I
-found out that on DCE-11.2 it causes dithering when there shouldn't be
-any, so identity pixel passthrough with identity gamma LUTs doesn't work
-when it should. This breaks various important neuroscience applications,
-as reported to me by scientific users of Polaris cards under Ubuntu 22.04
-with Linux 5.15, and confirmed by testing it myself on DCE-11.2.
+On 7/11/22 02:06, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.323 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.323-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Lets only use depth 36 for DCN engines, where my testing showed that it
-is both necessary for high color precision output, e.g., RGBA16 fb's,
-and not harmful, as far as more than one year in real-world use showed.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-DCE engines seem to work fine for high precision output at 30 bpp, so
-this ("famous last words") depth 30 should hopefully fix all known problems
-without introducing new ones.
-
-Successfully retested on DCE-11.2 Polaris and DCN-1.0 Raven Ridge on
-top of Linux 5.19.0-rc2 + drm-next.
-
-Fixes: 353ca0fa5630 ("drm/amd/display: Fix 10bit 4K display on CIK GPUs")
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Tested-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Cc: stable@vger.kernel.org # 5.14.0
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
----
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 6774dd8bb53e..3fe3fbac1e63 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1117,12 +1117,13 @@ bool resource_build_scaling_params(struct pipe_ctx *pipe_ctx)
- 	 * on certain displays, such as the Sharp 4k. 36bpp is needed
- 	 * to support SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616 and
- 	 * SURFACE_PIXEL_FORMAT_GRPH_ABGR16161616 with actual > 10 bpc
--	 * precision on at least DCN display engines. However, at least
--	 * Carrizo with DCE_VERSION_11_0 does not like 36 bpp lb depth,
--	 * so use only 30 bpp on DCE_VERSION_11_0. Testing with DCE 11.2 and 8.3
--	 * did not show such problems, so this seems to be the exception.
-+	 * precision on DCN display engines, but apparently not for DCE, as
-+	 * far as testing on DCE-11.2 and DCE-8 showed. Various DCE parts have
-+	 * problems: Carrizo with DCE_VERSION_11_0 does not like 36 bpp lb depth,
-+	 * neither do DCE-8 at 4k resolution, or DCE-11.2 (broken identify pixel
-+	 * passthrough). Therefore only use 36 bpp on DCN where it is actually needed.
- 	 */
--	if (plane_state->ctx->dce_version > DCE_VERSION_11_0)
-+	if (plane_state->ctx->dce_version > DCE_VERSION_MAX)
- 		pipe_ctx->plane_res.scl_data.lb_params.depth = LB_PIXEL_DEPTH_36BPP;
- 	else
- 		pipe_ctx->plane_res.scl_data.lb_params.depth = LB_PIXEL_DEPTH_30BPP;
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.34.1
-
+Florian
