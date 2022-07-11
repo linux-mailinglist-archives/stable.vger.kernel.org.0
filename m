@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C82356FCBB
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9916E56FCBD
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbiGKJrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50100 "EHLO
+        id S233627AbiGKJri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233585AbiGKJq5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:46:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6C85B78C;
-        Mon, 11 Jul 2022 02:22:57 -0700 (PDT)
+        with ESMTP id S233466AbiGKJrH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:47:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4E55C350;
+        Mon, 11 Jul 2022 02:22:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E77FB80D2C;
-        Mon, 11 Jul 2022 09:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACFAC34115;
-        Mon, 11 Jul 2022 09:22:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CDDFB80E6D;
+        Mon, 11 Jul 2022 09:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3DD5C341C0;
+        Mon, 11 Jul 2022 09:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531374;
-        bh=1TdSlce/DgVKTiZFs1xju2C/eht7mNg9T9nlCWRVF2E=;
+        s=korg; t=1657531377;
+        bh=vKDipy7cGgRrRs2S/HoIY0V0cYNgIWXkWEb8VzIflQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tscylTCJeHN199kxL4zLEiZ9ZnfoVfd2U0q8zHFpKAjAOzMxEvszO4EmQxxEVEZCL
-         4TSBKvXsvzXyNzZSzS6I8Y48sU45Kqog/6c8Jw4INyt9SoayfRqKZJuQNtBWQ4Ui9u
-         lchFF2siYuFcUFe1G3vLNkYZH/o2tXfDiCfQXng8=
+        b=TUGCKluYr0Mo6ON//6LWm2ogJmmShmePi91QXjrToI6OinHz3XmYr7S48oc4ovT0a
+         7Dr846TVH13FjA021OUh2DlY8MczIgDAjB3D+ZJbBhv17GGDqoc5dssEIJnrXxwOJs
+         DPDBYlQJYno1BuSS6KqRxQ/ZrbYRjUixTczj4gfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        stable@vger.kernel.org, Marco Patalano <mpatalan@redhat.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
+        Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/230] scsi: qla2xxx: edif: Replace list_for_each_safe with list_for_each_entry_safe
-Date:   Mon, 11 Jul 2022 11:05:37 +0200
-Message-Id: <20220711090606.373547731@linuxfoundation.org>
+Subject: [PATCH 5.15 082/230] scsi: qla2xxx: Fix crash during module load unload test
+Date:   Mon, 11 Jul 2022 11:05:38 +0200
+Message-Id: <20220711090606.401106281@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -57,142 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 8062b742d3bd336ca10ab5a1db1629d33700f9c6 ]
+[ Upstream commit 0972252450f90db56dd5415a20e2aec21a08d036 ]
 
-This patch is per review comment by Hannes Reinecke from previous
-submission to replace list_for_each_safe with list_for_each_entry_safe.
+During purex packet handling the driver was incorrectly freeing a
+pre-allocated structure. Fix this by skipping that entry.
 
-Link: https://lore.kernel.org/r/20211026115412.27691-8-njavali@marvell.com
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+System crashed with the following stack during a module unload test.
+
+Call Trace:
+	sbitmap_init_node+0x7f/0x1e0
+	sbitmap_queue_init_node+0x24/0x150
+	blk_mq_init_bitmaps+0x3d/0xa0
+	blk_mq_init_tags+0x68/0x90
+	blk_mq_alloc_map_and_rqs+0x44/0x120
+	blk_mq_alloc_set_map_and_rqs+0x63/0x150
+	blk_mq_alloc_tag_set+0x11b/0x230
+	scsi_add_host_with_dma.cold+0x3f/0x245
+	qla2x00_probe_one+0xd5a/0x1b80 [qla2xxx]
+
+Call Trace with slub_debug and debug kernel:
+	kasan_report_invalid_free+0x50/0x80
+	__kasan_slab_free+0x137/0x150
+	slab_free_freelist_hook+0xc6/0x190
+	kfree+0xe8/0x2e0
+	qla2x00_free_device+0x3bb/0x5d0 [qla2xxx]
+	qla2x00_remove_one+0x668/0xcf0 [qla2xxx]
+
+Link: https://lore.kernel.org/r/20220310092604.22950-6-njavali@marvell.com
+Fixes: 62e9dd177732 ("scsi: qla2xxx: Change in PUREX to handle FPIN ELS requests")
+Cc: stable@vger.kernel.org
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Tested-by: Marco Patalano <mpatalan@redhat.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_edif.c | 39 ++++++++-------------------------
- drivers/scsi/qla2xxx/qla_edif.h |  1 -
- drivers/scsi/qla2xxx/qla_os.c   |  8 +++----
- 3 files changed, 13 insertions(+), 35 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
-index a00fe88c6021..e40b9cc38214 100644
---- a/drivers/scsi/qla2xxx/qla_edif.c
-+++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -1684,41 +1684,25 @@ static struct enode *
- qla_enode_find(scsi_qla_host_t *vha, uint32_t ntype, uint32_t p1, uint32_t p2)
- {
- 	struct enode		*node_rtn = NULL;
--	struct enode		*list_node = NULL;
-+	struct enode		*list_node, *q;
- 	unsigned long		flags;
--	struct list_head	*pos, *q;
- 	uint32_t		sid;
--	uint32_t		rw_flag;
- 	struct purexevent	*purex;
- 
- 	/* secure the list from moving under us */
- 	spin_lock_irqsave(&vha->pur_cinfo.pur_lock, flags);
- 
--	list_for_each_safe(pos, q, &vha->pur_cinfo.head) {
--		list_node = list_entry(pos, struct enode, list);
-+	list_for_each_entry_safe(list_node, q, &vha->pur_cinfo.head, list) {
- 
- 		/* node type determines what p1 and p2 are */
- 		purex = &list_node->u.purexinfo;
- 		sid = p1;
--		rw_flag = p2;
- 
- 		if (purex->pur_info.pur_sid.b24 == sid) {
--			if (purex->pur_info.pur_pend == 1 &&
--			    rw_flag == PUR_GET) {
--				/*
--				 * if the receive is in progress
--				 * and its a read/get then can't
--				 * transfer yet
--				 */
--				ql_dbg(ql_dbg_edif, vha, 0x9106,
--				    "%s purex xfer in progress for sid=%x\n",
--				    __func__, sid);
--			} else {
--				/* found it and its complete */
--				node_rtn = list_node;
--				list_del(pos);
--				break;
--			}
-+			/* found it and its complete */
-+			node_rtn = list_node;
-+			list_del(&list_node->list);
-+			break;
- 		}
- 	}
- 
-@@ -2428,7 +2412,6 @@ void qla24xx_auth_els(scsi_qla_host_t *vha, void **pkt, struct rsp_que **rsp)
- 
- 	purex = &ptr->u.purexinfo;
- 	purex->pur_info.pur_sid = a.did;
--	purex->pur_info.pur_pend = 0;
- 	purex->pur_info.pur_bytes_rcvd = totlen;
- 	purex->pur_info.pur_rx_xchg_address = le32_to_cpu(p->rx_xchg_addr);
- 	purex->pur_info.pur_nphdl = le16_to_cpu(p->nport_handle);
-@@ -3180,18 +3163,14 @@ static uint16_t qla_edif_sadb_get_sa_index(fc_port_t *fcport,
- /* release any sadb entries -- only done at teardown */
- void qla_edif_sadb_release(struct qla_hw_data *ha)
- {
--	struct list_head *pos;
--	struct list_head *tmp;
--	struct edif_sa_index_entry *entry;
-+	struct edif_sa_index_entry *entry, *tmp;
- 
--	list_for_each_safe(pos, tmp, &ha->sadb_rx_index_list) {
--		entry = list_entry(pos, struct edif_sa_index_entry, next);
-+	list_for_each_entry_safe(entry, tmp, &ha->sadb_rx_index_list, next) {
- 		list_del(&entry->next);
- 		kfree(entry);
- 	}
- 
--	list_for_each_safe(pos, tmp, &ha->sadb_tx_index_list) {
--		entry = list_entry(pos, struct edif_sa_index_entry, next);
-+	list_for_each_entry_safe(entry, tmp, &ha->sadb_tx_index_list, next) {
- 		list_del(&entry->next);
- 		kfree(entry);
- 	}
-diff --git a/drivers/scsi/qla2xxx/qla_edif.h b/drivers/scsi/qla2xxx/qla_edif.h
-index 45cf87e33778..32800bfb32a3 100644
---- a/drivers/scsi/qla2xxx/qla_edif.h
-+++ b/drivers/scsi/qla2xxx/qla_edif.h
-@@ -101,7 +101,6 @@ struct dinfo {
- };
- 
- struct pur_ninfo {
--	unsigned int	pur_pend:1;
- 	port_id_t       pur_sid;
- 	port_id_t	pur_did;
- 	uint8_t		vp_idx;
 diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 12958aea893f..c7ab8a8be24c 100644
+index c7ab8a8be24c..e683b1c01c9f 100644
 --- a/drivers/scsi/qla2xxx/qla_os.c
 +++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3886,13 +3886,13 @@ qla2x00_remove_one(struct pci_dev *pdev)
- static inline void
- qla24xx_free_purex_list(struct purex_list *list)
- {
--	struct list_head *item, *next;
-+	struct purex_item *item, *next;
- 	ulong flags;
- 
+@@ -3892,6 +3892,8 @@ qla24xx_free_purex_list(struct purex_list *list)
  	spin_lock_irqsave(&list->lock, flags);
--	list_for_each_safe(item, next, &list->head) {
--		list_del(item);
--		kfree(list_entry(item, struct purex_item, list));
-+	list_for_each_entry_safe(item, next, &list->head, list) {
-+		list_del(&item->list);
-+		kfree(item);
+ 	list_for_each_entry_safe(item, next, &list->head, list) {
+ 		list_del(&item->list);
++		if (item == &item->vha->default_item)
++			continue;
+ 		kfree(item);
  	}
  	spin_unlock_irqrestore(&list->lock, flags);
- }
 -- 
 2.35.1
 
