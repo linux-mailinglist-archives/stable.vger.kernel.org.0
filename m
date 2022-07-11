@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE7356FA48
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F8656FB57
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231462AbiGKJPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58546 "EHLO
+        id S231445AbiGKJ3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:29:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231397AbiGKJOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:14:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830DF3CBEE;
-        Mon, 11 Jul 2022 02:10:42 -0700 (PDT)
+        with ESMTP id S232464AbiGKJ26 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:28:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7028C3D5AA;
+        Mon, 11 Jul 2022 02:16:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C8B7611F1;
-        Mon, 11 Jul 2022 09:10:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D735C341CE;
-        Mon, 11 Jul 2022 09:10:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAC0761243;
+        Mon, 11 Jul 2022 09:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C53C34115;
+        Mon, 11 Jul 2022 09:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530641;
-        bh=AiqScboVoKrl9NbfUrwOqZcc0KyBFSunSKXP2EyflOA=;
+        s=korg; t=1657530972;
+        bh=FBu7KY5YYbZo+WK5Ypy6wwAPJNUeHar+h74qFtStpgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUVCBgqlo4XR0v4SXgM4Rw35J95q8PVXGVTZzrIYsPHj5mJTBK09saY8HHres9/wS
-         EgqTYIPIuqS2cqAHhttJczO+fOS93rM6Phadu27uNG2RpxdUr9Cq2lJBNOSL6G1AoG
-         9MFLH+voZ9pFQQFjVRdnNWqrXm8nFzeWPI7PtrQg=
+        b=k09N59zIOh/VOnEj+MXk9uD2iFhLIJa6KduHngKSo8RTwpAXcuWuoOGxE4H5VJ/81
+         b00pd1CN52IVOtNdnyJra7NPs54R05/yAgdNiKhYHESdXGgp1U5n7xRiu8nYwoeUVe
+         jjvpOcmHcK1ykqR/MDOeOmjYUZvZ+d/9wt7bKCeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guiling Deng <greens9@163.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 09/38] fbdev: fbmem: Fix logo center image dx issue
+        stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 051/112] ASoC: SOF: ipc3-topology: Move and correct size checks in sof_ipc3_control_load_bytes()
 Date:   Mon, 11 Jul 2022 11:06:51 +0200
-Message-Id: <20220711090539.003201795@linuxfoundation.org>
+Message-Id: <20220711090551.020035523@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
-References: <20220711090538.722676354@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +58,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guiling Deng <greens9@163.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-commit 955f04766d4e6eb94bf3baa539e096808c74ebfb upstream.
+[ Upstream commit c2d1aec3f5da2475aa13a487d329823b7d27d499 ]
 
-Image.dx gets wrong value because of missing '()'.
+Move the size checks prior to allocating memory as these checks do not need
+the data to be allocated and in case of an error we would not need to free
+the allocation.
 
-If xres == logo->width and n == 1, image.dx = -16.
+The max size must not be less than the size of
+struct sof_ipc_ctrl_data + struct sof_abi_hdr as the ABI header needs to
+be present under all circumstances.
+The check was incorrectly used or between the two size checks.
 
-Signed-off-by: Guiling Deng <greens9@163.com>
-Fixes: 3d8b1933eb1c ("fbdev: fbmem: add config option to center the bootup logo")
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b5cee8feb1d4 ("ASoC: SOF: topology: Make control parsing IPC agnostic")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220610084735.19397-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sof/ipc3-topology.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -512,7 +512,7 @@ static int fb_show_logo_line(struct fb_i
+diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
+index cdff48c4195f..80fb82ece38d 100644
+--- a/sound/soc/sof/ipc3-topology.c
++++ b/sound/soc/sof/ipc3-topology.c
+@@ -1578,24 +1578,23 @@ static int sof_ipc3_control_load_bytes(struct snd_sof_dev *sdev, struct snd_sof_
+ 	struct sof_ipc_ctrl_data *cdata;
+ 	int ret;
  
- 		while (n && (n * (logo->width + 8) - 8 > xres))
- 			--n;
--		image.dx = (xres - n * (logo->width + 8) - 8) / 2;
-+		image.dx = (xres - (n * (logo->width + 8) - 8)) / 2;
- 		image.dy = y ?: (yres - logo->height) / 2;
- 	} else {
- 		image.dx = 0;
+-	scontrol->ipc_control_data = kzalloc(scontrol->max_size, GFP_KERNEL);
+-	if (!scontrol->ipc_control_data)
+-		return -ENOMEM;
+-
+-	if (scontrol->max_size < sizeof(*cdata) ||
+-	    scontrol->max_size < sizeof(struct sof_abi_hdr)) {
+-		ret = -EINVAL;
+-		goto err;
++	if (scontrol->max_size < (sizeof(*cdata) + sizeof(struct sof_abi_hdr))) {
++		dev_err(sdev->dev, "%s: insufficient size for a bytes control: %zu.\n",
++			__func__, scontrol->max_size);
++		return -EINVAL;
+ 	}
+ 
+-	/* init the get/put bytes data */
+ 	if (scontrol->priv_size > scontrol->max_size - sizeof(*cdata)) {
+-		dev_err(sdev->dev, "err: bytes data size %zu exceeds max %zu.\n",
++		dev_err(sdev->dev,
++			"%s: bytes data size %zu exceeds max %zu.\n", __func__,
+ 			scontrol->priv_size, scontrol->max_size - sizeof(*cdata));
+-		ret = -EINVAL;
+-		goto err;
++		return -EINVAL;
+ 	}
+ 
++	scontrol->ipc_control_data = kzalloc(scontrol->max_size, GFP_KERNEL);
++	if (!scontrol->ipc_control_data)
++		return -ENOMEM;
++
+ 	scontrol->size = sizeof(struct sof_ipc_ctrl_data) + scontrol->priv_size;
+ 
+ 	cdata = scontrol->ipc_control_data;
+-- 
+2.35.1
+
 
 
