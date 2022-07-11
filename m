@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62D4056FDAC
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A05B56F9BD
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234162AbiGKJ7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:59:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49064 "EHLO
+        id S229836AbiGKJIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:08:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234223AbiGKJ6g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E8DB5D15;
-        Mon, 11 Jul 2022 02:27:29 -0700 (PDT)
+        with ESMTP id S231216AbiGKJHk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:07:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9267522BD2;
+        Mon, 11 Jul 2022 02:07:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D376A61366;
-        Mon, 11 Jul 2022 09:27:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC9CDC34115;
-        Mon, 11 Jul 2022 09:27:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88C956118B;
+        Mon, 11 Jul 2022 09:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9051EC341D1;
+        Mon, 11 Jul 2022 09:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531634;
-        bh=72C4Cq7hWJ3xQ8q5umw7jp4XTDXmIZeMx894K7C2sR4=;
+        s=korg; t=1657530446;
+        bh=eAlf2ThEJ0oh3s9MfqamQLqIhi0NIAtmAN9WqohRE7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAon/scjWfPjDlstymWMlbqgoQ+EipU9/rtfFRkOjkW/DWESSNqq+e2N03xIOD5vU
-         8p5gJUMFL0mC8jzxxEeJPAhAhVUtxRO1Pu6moZKIsdlbagcxBuuEZWG+XM35RM6I0K
-         ncyh5XXKPh6PyDtCv4Xavwgx+ntBpQpavbTYpbSo=
+        b=vkJmxqYPT8OURuzDPSXUnQCO/04vqwH58wQH1uzOyHzzB2S3vxR9pScY8fBBCLJig
+         WwIhCeG93d5RwdvE+T9EEhjAeOflF5uFdGnYZU3Cf1nJ0fdv/OhP5y2f+lTT+FNuWn
+         37fmVB7ienKJlf1CuiKlzJaIxKCYkh17JnuqPs6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 136/230] serial: 8250_mtk: Make sure to select the right FEATURE_SEL
-Date:   Mon, 11 Jul 2022 11:06:32 +0200
-Message-Id: <20220711090607.922087626@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.9 14/14] dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
+Date:   Mon, 11 Jul 2022 11:06:33 +0200
+Message-Id: <20220711090535.943227980@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+References: <20220711090535.517697227@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 6f81fdded0d024c7d4084d434764f30bca1cd6b1 ]
+commit 615a4bfc426e11dba05c2cf343f9ac752fb381d2 upstream.
 
-Set the FEATURE_SEL at probe time to make sure that BIT(0) is enabled:
-this guarantees that when the port is configured as AP UART, the
-right register layout is interpreted by the UART IP.
+of_find_device_by_node() takes reference, we should use put_device()
+to release it when not need anymore.
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220427132328.228297-3-angelogioacchino.delregno@collabora.com
+Fixes: a074ae38f859 ("dmaengine: Add driver for TI DMA crossbar on DRA7x")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20220605042723.17668-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/dma/ti-dma-crossbar.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index de48a58460f4..de57f47635cd 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -57,6 +57,9 @@
- #define MTK_UART_XON1		40	/* I/O: Xon character 1 */
- #define MTK_UART_XOFF1		42	/* I/O: Xoff character 1 */
+--- a/drivers/dma/ti-dma-crossbar.c
++++ b/drivers/dma/ti-dma-crossbar.c
+@@ -251,6 +251,7 @@ static void *ti_dra7_xbar_route_allocate
+ 	if (dma_spec->args[0] >= xbar->xbar_requests) {
+ 		dev_err(&pdev->dev, "Invalid XBAR request number: %d\n",
+ 			dma_spec->args[0]);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
-+#define MTK_UART_FEATURE_SEL	39	/* Feature Selection register */
-+#define MTK_UART_FEAT_NEWRMAP	BIT(0)	/* Use new register map */
-+
- #ifdef CONFIG_SERIAL_8250_DMA
- enum dma_rx_status {
- 	DMA_RX_START = 0,
-@@ -572,6 +575,10 @@ static int mtk8250_probe(struct platform_device *pdev)
- 		uart.dma = data->dma;
- #endif
+@@ -258,12 +259,14 @@ static void *ti_dra7_xbar_route_allocate
+ 	dma_spec->np = of_parse_phandle(ofdma->of_node, "dma-masters", 0);
+ 	if (!dma_spec->np) {
+ 		dev_err(&pdev->dev, "Can't get DMA master\n");
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
-+	/* Set AP UART new register map */
-+	writel(MTK_UART_FEAT_NEWRMAP, uart.port.membase +
-+	       (MTK_UART_FEATURE_SEL << uart.port.regshift));
-+
- 	/* Disable Rate Fix function */
- 	writel(0x0, uart.port.membase +
- 			(MTK_UART_RATE_FIX << uart.port.regshift));
--- 
-2.35.1
-
+ 	map = kzalloc(sizeof(*map), GFP_KERNEL);
+ 	if (!map) {
+ 		of_node_put(dma_spec->np);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+@@ -275,6 +278,7 @@ static void *ti_dra7_xbar_route_allocate
+ 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
+ 		kfree(map);
+ 		of_node_put(dma_spec->np);
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	set_bit(map->xbar_out, xbar->dma_inuse);
 
 
