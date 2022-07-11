@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6181656FDA1
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:58:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00EE256FA79
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234070AbiGKJ6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:58:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48986 "EHLO
+        id S230483AbiGKJSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:18:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234226AbiGKJ6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8BB3C8D1;
-        Mon, 11 Jul 2022 02:27:08 -0700 (PDT)
+        with ESMTP id S230365AbiGKJRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:17:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B30C4AD43;
+        Mon, 11 Jul 2022 02:11:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A0A861363;
-        Mon, 11 Jul 2022 09:27:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9FCC34115;
-        Mon, 11 Jul 2022 09:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D6DEB80E7E;
+        Mon, 11 Jul 2022 09:11:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C18C341C0;
+        Mon, 11 Jul 2022 09:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531626;
-        bh=sdJokJh/mT6NTEEZR+84538Xzs9PvYlTM6kDBhenlis=;
+        s=korg; t=1657530688;
+        bh=pbH4+/eifaogvlXXGDGFmEoG1UUw+Kn1yNbwrEJfSsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTWcjakxlatJtJ7KXYTSGOakj5TiV44VinyNGzYArj2mwEsz5KR2x2HEW08IDRJBv
-         iYXqX0yjwKb/yPRqICKVtwwWRvL1EDrE/7ifMeJ0Y9LH0vCNU+oyldAuxuCOFgR2AP
-         qKHWKzrjA56rAZc84YRfD/x6HM5gogAgvSy/9pgU=
+        b=GgwD5iRrItoivj7ZaEG3P+B9S9zM5DeMLGKO1pZhVqQW2nzRW2uvHQDyvQQOrSFJ7
+         QSzZhwCgr05QdH1bQg32qF7qVlDpzh6fUQQ84feW9nRHpSB0Roobp2o9295ccBa182
+         v0t+XzV5Rg5u/kRoMYTDUjkcI+B2iEmiMtw12wBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Ayushman Dutta <ayudutta@amazon.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>
-Subject: [PATCH 5.15 171/230] xfs: remove incorrect ASSERT in xfs_rename
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 25/38] selftests: forwarding: fix flood_unicast_test when h2 supports IFF_UNICAST_FLT
 Date:   Mon, 11 Jul 2022 11:07:07 +0200
-Message-Id: <20220711090608.911844588@linuxfoundation.org>
+Message-Id: <20220711090539.472540621@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit e445976537ad139162980bee015b7364e5b64fff upstream.
+[ Upstream commit b8e629b05f5d23f9649c901bef09fab8b0c2e4b9 ]
 
-This ASSERT in xfs_rename is a) incorrect, because
-(RENAME_WHITEOUT|RENAME_NOREPLACE) is a valid combination, and
-b) unnecessary, because actual invalid flag combinations are already
-handled at the vfs level in do_renameat2() before we get called.
-So, remove it.
+As mentioned in the blamed commit, flood_unicast_test() works by
+checking the match count on a tc filter placed on the receiving
+interface.
 
-Reported-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Fixes: 7dcf5c3e4527 ("xfs: add RENAME_WHITEOUT support")
-Reported-by: Ayushman Dutta <ayudutta@amazon.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But the second host interface (host2_if) has no interest in receiving a
+packet with MAC DA de:ad:be:ef:13:37, so its RX filter drops it even
+before the ingress tc filter gets to be executed. So we will incorrectly
+get the message "Packet was not flooded when should", when in fact, the
+packet was flooded as expected but dropped due to an unrelated reason,
+at some other layer on the receiving side.
+
+Force h2 to accept this packet by temporarily placing it in promiscuous
+mode. Alternatively we could either deliver to its MAC address or use
+tcpdump_start, but this has the fewest complications.
+
+This fixes the "flooding" test from bridge_vlan_aware.sh and
+bridge_vlan_unaware.sh, which calls flood_test from the lib.
+
+Fixes: 236dd50bf67a ("selftests: forwarding: Add a test for flooded traffic")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_inode.c |    1 -
- 1 file changed, 1 deletion(-)
+ tools/testing/selftests/net/forwarding/lib.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -3128,7 +3128,6 @@ xfs_rename(
- 	 * appropriately.
- 	 */
- 	if (flags & RENAME_WHITEOUT) {
--		ASSERT(!(flags & (RENAME_NOREPLACE | RENAME_EXCHANGE)));
- 		error = xfs_rename_alloc_whiteout(mnt_userns, target_dp, &wip);
- 		if (error)
- 			return error;
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index 85c587a03c8a..be977cd4bfe3 100644
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -960,6 +960,7 @@ flood_test_do()
+ 
+ 	# Add an ACL on `host2_if` which will tell us whether the packet
+ 	# was flooded to it or not.
++	ip link set $host2_if promisc on
+ 	tc qdisc add dev $host2_if ingress
+ 	tc filter add dev $host2_if ingress protocol ip pref 1 handle 101 \
+ 		flower dst_mac $mac action drop
+@@ -977,6 +978,7 @@ flood_test_do()
+ 
+ 	tc filter del dev $host2_if ingress protocol ip pref 1 handle 101 flower
+ 	tc qdisc del dev $host2_if ingress
++	ip link set $host2_if promisc off
+ 
+ 	return $err
+ }
+-- 
+2.35.1
+
 
 
