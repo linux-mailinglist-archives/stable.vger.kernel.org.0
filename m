@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0866756FCFC
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A732656FCF5
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233105AbiGKJti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53870 "EHLO
+        id S233446AbiGKJtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233466AbiGKJs5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:48:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25362BC37;
-        Mon, 11 Jul 2022 02:23:45 -0700 (PDT)
+        with ESMTP id S233626AbiGKJs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:48:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA3B13F10;
+        Mon, 11 Jul 2022 02:23:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF6C8612FE;
-        Mon, 11 Jul 2022 09:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74F9C34115;
-        Mon, 11 Jul 2022 09:23:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41DE4B80E87;
+        Mon, 11 Jul 2022 09:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1FC2C34115;
+        Mon, 11 Jul 2022 09:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531424;
-        bh=hSlfljaxN0870y3L7U2AvEFp1w8AZEKDtfWQyHcJPd0=;
+        s=korg; t=1657531427;
+        bh=KGhYVJ8pp4XsDqQk/KlU1Vc0YUpVtWV2RCuc9vjGtOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkCkUJxjQYHxFrSfVGtMiWowapSxEBUED7e6wdrbMLmijhWWdBQlzYTCmgMGKUK5H
-         67oho4Qq5fAxLe+eGGX0jSQGDN92nL/RqUV1rTNaUu91N1b0mdObF0bzJaw0ZSpxBX
-         3zLxIrfqYZLpIhzQgWd9qt5pNHCGJcepQ8YFOtwQ=
+        b=p8kbMUem4l4zX96jnz6m8cXYPUJIpNq06579ZPRG/iPOJNQhNTuY6PJ3ejEhHQZLA
+         5bUwxwl97tH04PyPm4d2aqXA1grcKXlRKTaesj9STxcEuBOYSE+MufWEnZ5yeTfPaj
+         RY7ybW0GNGZXFdc4/OjbA4A4pBeneTK0YvEaavQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 101/230] mm: vmalloc: introduce array allocation functions
-Date:   Mon, 11 Jul 2022 11:05:57 +0200
-Message-Id: <20220711090606.934875485@linuxfoundation.org>
+Subject: [PATCH 5.15 102/230] KVM: use __vcalloc for very large allocations
+Date:   Mon, 11 Jul 2022 11:05:58 +0200
+Message-Id: <20220711090606.962822924@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -56,98 +56,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit a8749a35c39903120ec421ef2525acc8e0daa55c ]
+[ Upstream commit 37b2a6510a48ca361ced679f92682b7b7d7d0330 ]
 
-Linux has dozens of occurrences of vmalloc(array_size()) and
-vzalloc(array_size()).  Allow to simplify the code by providing
-vmalloc_array and vcalloc, as well as the underscored variants that let
-the caller specify the GFP flags.
+Allocations whose size is related to the memslot size can be arbitrarily
+large.  Do not use kvzalloc/kvcalloc, as those are limited to "not crazy"
+sizes that fit in 32 bits.
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: stable@vger.kernel.org
+Fixes: 7661809d493b ("mm: don't allow oversized kvmalloc() calls")
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/vmalloc.h |  5 +++++
- mm/util.c               | 50 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+ arch/powerpc/kvm/book3s_hv_uvmem.c | 2 +-
+ arch/x86/kvm/mmu/page_track.c      | 4 ++--
+ arch/x86/kvm/x86.c                 | 4 ++--
+ virt/kvm/kvm_main.c                | 4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 4fe9e885bbfa..5535be1012a2 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -159,6 +159,11 @@ void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
- 		int node, const void *caller);
- void *vmalloc_no_huge(unsigned long size);
+diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+index 3fbe710ff839..3d4ee75b0fb7 100644
+--- a/arch/powerpc/kvm/book3s_hv_uvmem.c
++++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+@@ -251,7 +251,7 @@ int kvmppc_uvmem_slot_init(struct kvm *kvm, const struct kvm_memory_slot *slot)
+ 	p = kzalloc(sizeof(*p), GFP_KERNEL);
+ 	if (!p)
+ 		return -ENOMEM;
+-	p->pfns = vzalloc(array_size(slot->npages, sizeof(*p->pfns)));
++	p->pfns = vcalloc(slot->npages, sizeof(*p->pfns));
+ 	if (!p->pfns) {
+ 		kfree(p);
+ 		return -ENOMEM;
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index 21427e84a82e..630ae70bb6bd 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -36,8 +36,8 @@ int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
  
-+extern void *__vmalloc_array(size_t n, size_t size, gfp_t flags) __alloc_size(1, 2);
-+extern void *vmalloc_array(size_t n, size_t size) __alloc_size(1, 2);
-+extern void *__vcalloc(size_t n, size_t size, gfp_t flags) __alloc_size(1, 2);
-+extern void *vcalloc(size_t n, size_t size) __alloc_size(1, 2);
-+
- extern void vfree(const void *addr);
- extern void vfree_atomic(const void *addr);
+ 	for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
+ 		slot->arch.gfn_track[i] =
+-			kvcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
+-				 GFP_KERNEL_ACCOUNT);
++			__vcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
++				  GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.gfn_track[i])
+ 			goto track_free;
+ 	}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 39aaa21e28f7..8974884ef2ad 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11552,7 +11552,7 @@ static int memslot_rmap_alloc(struct kvm_memory_slot *slot,
+ 		if (slot->arch.rmap[i])
+ 			continue;
  
-diff --git a/mm/util.c b/mm/util.c
-index 3073de05c2bd..ea04979f131e 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -698,6 +698,56 @@ static inline void *__page_rmapping(struct page *page)
- 	return (void *)mapping;
- }
+-		slot->arch.rmap[i] = kvcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
++		slot->arch.rmap[i] = __vcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.rmap[i]) {
+ 			memslot_rmap_free(slot);
+ 			return -ENOMEM;
+@@ -11633,7 +11633,7 @@ static int kvm_alloc_memslot_metadata(struct kvm *kvm,
  
-+/**
-+ * __vmalloc_array - allocate memory for a virtually contiguous array.
-+ * @n: number of elements.
-+ * @size: element size.
-+ * @flags: the type of memory to allocate (see kmalloc).
-+ */
-+void *__vmalloc_array(size_t n, size_t size, gfp_t flags)
-+{
-+	size_t bytes;
-+
-+	if (unlikely(check_mul_overflow(n, size, &bytes)))
-+		return NULL;
-+	return __vmalloc(bytes, flags);
-+}
-+EXPORT_SYMBOL(__vmalloc_array);
-+
-+/**
-+ * vmalloc_array - allocate memory for a virtually contiguous array.
-+ * @n: number of elements.
-+ * @size: element size.
-+ */
-+void *vmalloc_array(size_t n, size_t size)
-+{
-+	return __vmalloc_array(n, size, GFP_KERNEL);
-+}
-+EXPORT_SYMBOL(vmalloc_array);
-+
-+/**
-+ * __vcalloc - allocate and zero memory for a virtually contiguous array.
-+ * @n: number of elements.
-+ * @size: element size.
-+ * @flags: the type of memory to allocate (see kmalloc).
-+ */
-+void *__vcalloc(size_t n, size_t size, gfp_t flags)
-+{
-+	return __vmalloc_array(n, size, flags | __GFP_ZERO);
-+}
-+EXPORT_SYMBOL(__vcalloc);
-+
-+/**
-+ * vcalloc - allocate and zero memory for a virtually contiguous array.
-+ * @n: number of elements.
-+ * @size: element size.
-+ */
-+void *vcalloc(size_t n, size_t size)
-+{
-+	return __vmalloc_array(n, size, GFP_KERNEL | __GFP_ZERO);
-+}
-+EXPORT_SYMBOL(vcalloc);
-+
- /* Neutral page->mapping pointer to address_space or anon_vma or other */
- void *page_rmapping(struct page *page)
+ 		lpages = __kvm_mmu_slot_lpages(slot, npages, level);
+ 
+-		linfo = kvcalloc(lpages, sizeof(*linfo), GFP_KERNEL_ACCOUNT);
++		linfo = __vcalloc(lpages, sizeof(*linfo), GFP_KERNEL_ACCOUNT);
+ 		if (!linfo)
+ 			goto out_free;
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index fefdf3a6dae3..99c591569815 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1255,9 +1255,9 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
+  */
+ static int kvm_alloc_dirty_bitmap(struct kvm_memory_slot *memslot)
  {
+-	unsigned long dirty_bytes = 2 * kvm_dirty_bitmap_bytes(memslot);
++	unsigned long dirty_bytes = kvm_dirty_bitmap_bytes(memslot);
+ 
+-	memslot->dirty_bitmap = kvzalloc(dirty_bytes, GFP_KERNEL_ACCOUNT);
++	memslot->dirty_bitmap = __vcalloc(2, dirty_bytes, GFP_KERNEL_ACCOUNT);
+ 	if (!memslot->dirty_bitmap)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
