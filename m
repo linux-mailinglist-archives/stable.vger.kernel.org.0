@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E09C56FCC0
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B643056FCC3
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233633AbiGKJrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49964 "EHLO
+        id S233137AbiGKJr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:47:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233599AbiGKJrI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:47:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8235B040;
-        Mon, 11 Jul 2022 02:23:01 -0700 (PDT)
+        with ESMTP id S233617AbiGKJrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:47:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35CC65C955;
+        Mon, 11 Jul 2022 02:23:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76D3C612FE;
-        Mon, 11 Jul 2022 09:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D97C34115;
-        Mon, 11 Jul 2022 09:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B04ADB80E6D;
+        Mon, 11 Jul 2022 09:23:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE56C34115;
+        Mon, 11 Jul 2022 09:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531379;
-        bh=qA3BFqcQaxF/A7x7eR1efEtNeDX0omYnIc7NJ9zzW8Q=;
+        s=korg; t=1657531385;
+        bh=3cja/hQNCOn4PAFMjDouotW5Db/OIZC/dXKK3WM6m0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f77AsYbBAgys2v7v4dKZmzAEH28Dc7G8cIGPiex/2XzbT6j8TXVVIYF9xJRVAcTB9
-         1bfCNXTuPA6EWGSh0k0AZoTwVi2GXrwvQnrzdQmO9i1IWNLRV5Ybh8yQ088Yk+U8zU
-         QyTIH9bPiKC8F3WerjYIdH5dEixmmEPzP5HJvDuc=
+        b=2Tfmm++Cn493USQc/yHmaPTzwLwLxI35ewBJ2B3zhj44htUMC5ktAEMJGYvyFoGiI
+         +WF/gqOw6uaNP6dHqKhK3hvg3T5ZwQpt0UTkJ1gPHh0lQxCt/WKRLpKIKr1LDQkUJ4
+         lgX5O5L7I1Rl4zLA+cYjPpflR0Jejh2kr9e9aih0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/230] gfs2: Fix gfs2_file_buffered_write endless loop workaround
-Date:   Mon, 11 Jul 2022 11:05:39 +0200
-Message-Id: <20220711090606.428962510@linuxfoundation.org>
+Subject: [PATCH 5.15 084/230] vdpa/mlx5: Avoid processing works if workqueue was destroyed
+Date:   Mon, 11 Jul 2022 11:05:40 +0200
+Message-Id: <20220711090606.456720798@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -53,32 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit 46f3e0421ccb5474b5c006b0089b9dfd42534bb6 ]
+[ Upstream commit ad6dc1daaf29f97f23cc810d60ee01c0e83f4c6b ]
 
-Since commit 554c577cee95b, gfs2_file_buffered_write() can accidentally
-return a truncated iov_iter, which might confuse callers.  Fix that.
+If mlx5_vdpa gets unloaded while a VM is running, the workqueue will be
+destroyed. However, vhost might still have reference to the kick
+function and might attempt to push new works. This could lead to null
+pointer dereference.
 
-Fixes: 554c577cee95b ("gfs2: Prevent endless loops in gfs2_file_buffered_write")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+To fix this, set mvdev->wq to NULL just before destroying and verify
+that the workqueue is not NULL in mlx5_vdpa_kick_vq before attempting to
+push a new work.
+
+Fixes: 5262912ef3cf ("vdpa/mlx5: Add support for control VQ and MAC setting")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20220321141303.9586-1-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 60390f9dc31f..e93185d804e0 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -1086,6 +1086,7 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
- 	gfs2_holder_uninit(gh);
- 	if (statfs_gh)
- 		kfree(statfs_gh);
-+	from->count = orig_count - read;
- 	return read ? read : ret;
- }
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 174895372e7f..467a349dc26c 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1641,7 +1641,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
+ 		return;
  
+ 	if (unlikely(is_ctrl_vq_idx(mvdev, idx))) {
+-		if (!mvdev->cvq.ready)
++		if (!mvdev->wq || !mvdev->cvq.ready)
+ 			return;
+ 
+ 		queue_work(mvdev->wq, &ndev->cvq_ent.work);
+@@ -2626,9 +2626,12 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+ 	struct mlx5_vdpa_mgmtdev *mgtdev = container_of(v_mdev, struct mlx5_vdpa_mgmtdev, mgtdev);
+ 	struct mlx5_vdpa_dev *mvdev = to_mvdev(dev);
+ 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
++	struct workqueue_struct *wq;
+ 
+ 	mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+-	destroy_workqueue(mvdev->wq);
++	wq = mvdev->wq;
++	mvdev->wq = NULL;
++	destroy_workqueue(wq);
+ 	_vdpa_unregister_device(dev);
+ 	mgtdev->ndev = NULL;
+ }
 -- 
 2.35.1
 
