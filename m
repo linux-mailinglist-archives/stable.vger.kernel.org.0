@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E69E56FAE0
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5B256FAE2
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231627AbiGKJXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:23:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54346 "EHLO
+        id S232012AbiGKJXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231959AbiGKJWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CBE5C356;
-        Mon, 11 Jul 2022 02:13:28 -0700 (PDT)
+        with ESMTP id S232049AbiGKJWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D163B7;
+        Mon, 11 Jul 2022 02:13:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84A7E61188;
-        Mon, 11 Jul 2022 09:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EE7C34115;
-        Mon, 11 Jul 2022 09:13:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3378C611EA;
+        Mon, 11 Jul 2022 09:13:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3C3C34115;
+        Mon, 11 Jul 2022 09:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530806;
-        bh=ddvnf/kpXr5ctM8ugEd/957e7Vj5A8FhBl6VTjMoKys=;
+        s=korg; t=1657530809;
+        bh=/X8HIFkIXkB/h+rysixHOqKKK1nMD3uksrra9K+8Ugs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8z0QxZjlmOFDuMPD+tIQ9PqjRk55LKd99aEK2GwY9uxDDXCAJk8bBqk77mR3na6g
-         92jV3dy6l9X3V7hAOoiypR9Adl4y771EEeblo1+89UqxNMhCRKANYZFAxl3bN5nwB4
-         5oC5tMCu+NkEOuSCJynO8ET4vihtnqU28kd94YTU=
+        b=oVdq6+vEzmvnBe0tyTHsfWW7OG7J1340VodCeTjVfhcZHanXTcmnHizOrjaeNhWlk
+         L3CYQvPwj/tRzPUBoZF9y35e2Hg4RvfDbJTLVCZ2yyc4dFYGCvR8Y+EvjXYh5lMpsw
+         Z8Ix8JiIsR9h6wF3GOXf9WPl7aCShOIrASpIq2pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Michal Simek <michal.simek@amd.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/55] i2c: cadence: Unregister the clk notifier in error path
-Date:   Mon, 11 Jul 2022 11:07:33 +0200
-Message-Id: <20220711090543.084972317@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 46/55] dmaengine: imx-sdma: Allow imx8m for imx7 FW revs
+Date:   Mon, 11 Jul 2022 11:07:34 +0200
+Message-Id: <20220711090543.113748498@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
 References: <20220711090541.764895984@linuxfoundation.org>
@@ -56,37 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Satish Nagireddy <satish.nagireddy@getcruise.com>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 3501f0c663063513ad604fb1b3f06af637d3396d ]
+commit a7cd3cf0b2e5aaacfe5e02c472bd28e98e640be7 upstream.
 
-This patch ensures that the clock notifier is unregistered
-when driver probe is returning error.
+The revision of the imx-sdma IP that is in the i.MX8M series is the
+same is that as that in the i.MX7 series but the imx7d MODULE_FIRMWARE
+directive is wrapped in a condiditional which means it's not defined
+when built for aarch64 SOC_IMX8M platforms and hence you get the
+following errors when the driver loads on imx8m devices:
 
-Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
-Signed-off-by: Satish Nagireddy <satish.nagireddy@getcruise.com>
-Tested-by: Lars-Peter Clausen <lars@metafoo.de>
-Reviewed-by: Michal Simek <michal.simek@amd.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+imx-sdma 302c0000.dma-controller: Direct firmware load for imx/sdma/sdma-imx7d.bin failed with error -2
+imx-sdma 302c0000.dma-controller: external firmware not found, using ROM firmware
+
+Add the SOC_IMX8M into the check so the firmware can load on i.MX8.
+
+Fixes: 1474d48bd639 ("arm64: dts: imx8mq: Add SDMA nodes")
+Fixes: 941acd566b18 ("dmaengine: imx-sdma: Only check ratio on parts that support 1:1")
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+Cc: stable@vger.kernel.org   # v5.2+
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20220606161034.3544803-1-pbrobinson@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/imx-sdma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 50e3ddba52ba..01564bd96c62 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -1289,6 +1289,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_clk_dis:
-+	clk_notifier_unregister(id->clk, &id->clk_rate_change_nb);
- 	clk_disable_unprepare(id->clk);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
--- 
-2.35.1
-
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -2212,7 +2212,7 @@ MODULE_DESCRIPTION("i.MX SDMA driver");
+ #if IS_ENABLED(CONFIG_SOC_IMX6Q)
+ MODULE_FIRMWARE("imx/sdma/sdma-imx6q.bin");
+ #endif
+-#if IS_ENABLED(CONFIG_SOC_IMX7D)
++#if IS_ENABLED(CONFIG_SOC_IMX7D) || IS_ENABLED(CONFIG_SOC_IMX8M)
+ MODULE_FIRMWARE("imx/sdma/sdma-imx7d.bin");
+ #endif
+ MODULE_LICENSE("GPL");
 
 
