@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F7456FC58
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2490556FC67
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231223AbiGKJmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37448 "EHLO
+        id S233357AbiGKJnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiGKJmY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:42:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B23550A0;
-        Mon, 11 Jul 2022 02:21:19 -0700 (PDT)
+        with ESMTP id S229832AbiGKJmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:42:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24FE19CE2C;
+        Mon, 11 Jul 2022 02:21:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E39EB61227;
-        Mon, 11 Jul 2022 09:21:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDEB8C34115;
-        Mon, 11 Jul 2022 09:21:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4928B80E76;
+        Mon, 11 Jul 2022 09:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D5FC34115;
+        Mon, 11 Jul 2022 09:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531275;
-        bh=4WZcDCsFE9fpCFpZDFTLUsccbZ30dyi6tyVEhn+pBDQ=;
+        s=korg; t=1657531278;
+        bh=02Gr89cUsMTj9nZTGgI/higKfc2ahKfCiNE3RXAa/4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nINfFq1ktqICL9BqTPcnjgd/qXfN4JkLJ7Nta1cub76XW85ARzg92yV9npvI1Im8/
-         h9uVoaN/JYkT4gR472oUEHDZ8KbSGjvRzMvy9CjJ9zOYe3BahRGh26SP7ZBHl5mrMi
-         rBGd8v84XniKPQKj7zt2S+x1J1MHWw9zwA/N3Aoc=
+        b=kMAwY66lAJtVWXVGI4FqiqmoLPXw+Uo+5XATgHafBlX9uwU/NDc9bDjbbbND7IqLC
+         yNywmVasucG9i3esyukiTXnDbNWG2YuX4e1NzZcI/tZSGrn+tzVFmnia4bFHMOCISH
+         S4hdlU88gUeG60NE+N4hpQZK9uhb7HUXO3GJTP2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Jan Engelhardt <jengelh@inai.de>
-Subject: [PATCH 5.15 006/230] ALSA: cs46xx: Fix missing snd_card_free() call at probe error
-Date:   Mon, 11 Jul 2022 11:04:22 +0200
-Message-Id: <20220711090604.248954336@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 007/230] can: bcm: use call_rcu() instead of costly synchronize_rcu()
+Date:   Mon, 11 Jul 2022 11:04:23 +0200
+Message-Id: <20220711090604.276988582@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -53,93 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit c5e58c4545a69677d078b4c813b5d10d3481be9c upstream.
+commit f1b4e32aca0811aa011c76e5d6cf2fa19224b386 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+In commit d5f9023fa61e ("can: bcm: delay release of struct bcm_op
+after synchronize_rcu()") Thadeu Lima de Souza Cascardo introduced two
+synchronize_rcu() calls in bcm_release() (only once at socket close)
+and in bcm_delete_rx_op() (called on removal of each single bcm_op).
 
-This patch fixes it by calling snd_card_free() manually on the error
-from the probe callback.
+Unfortunately this slow removal of the bcm_op's affects user space
+applications like cansniffer where the modification of a filter
+removes 2048 bcm_op's which blocks the cansniffer application for
+40(!) seconds.
 
-Fixes: 5bff69b3645d ("ALSA: cs46xx: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Reported-and-tested-by: Jan Engelhardt <jengelh@inai.de>
-Link: https://lore.kernel.org/r/p2p1s96o-746-74p4-s95-61qo1p7782pn@vanv.qr
-Link: https://lore.kernel.org/r/20220705152336.350-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In commit 181d4447905d ("can: gw: use call_rcu() instead of costly
+synchronize_rcu()") Eric Dumazet replaced the synchronize_rcu() calls
+with several call_rcu()'s to safely remove the data structures after
+the removal of CAN ID subscriptions with can_rx_unregister() calls.
+
+This patch adopts Erics approach for the can-bcm which should be
+applicable since the removal of tasklet_kill() in bcm_remove_op() and
+the introduction of the HRTIMER_MODE_SOFT timer handling in Linux 5.4.
+
+Fixes: d5f9023fa61e ("can: bcm: delay release of struct bcm_op after synchronize_rcu()") # >= 5.4
+Link: https://lore.kernel.org/all/20220520183239.19111-1-socketcan@hartkopp.net
+Cc: stable@vger.kernel.org
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/cs46xx/cs46xx.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ net/can/bcm.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/sound/pci/cs46xx/cs46xx.c
-+++ b/sound/pci/cs46xx/cs46xx.c
-@@ -74,36 +74,36 @@ static int snd_card_cs46xx_probe(struct
- 	err = snd_cs46xx_create(card, pci,
- 				external_amp[dev], thinkpad[dev]);
- 	if (err < 0)
--		return err;
-+		goto error;
- 	card->private_data = chip;
- 	chip->accept_valid = mmap_valid[dev];
- 	err = snd_cs46xx_pcm(chip, 0);
- 	if (err < 0)
--		return err;
-+		goto error;
- #ifdef CONFIG_SND_CS46XX_NEW_DSP
- 	err = snd_cs46xx_pcm_rear(chip, 1);
- 	if (err < 0)
--		return err;
-+		goto error;
- 	err = snd_cs46xx_pcm_iec958(chip, 2);
- 	if (err < 0)
--		return err;
-+		goto error;
- #endif
- 	err = snd_cs46xx_mixer(chip, 2);
- 	if (err < 0)
--		return err;
-+		goto error;
- #ifdef CONFIG_SND_CS46XX_NEW_DSP
- 	if (chip->nr_ac97_codecs ==2) {
- 		err = snd_cs46xx_pcm_center_lfe(chip, 3);
- 		if (err < 0)
--			return err;
-+			goto error;
- 	}
- #endif
- 	err = snd_cs46xx_midi(chip, 0);
- 	if (err < 0)
--		return err;
-+		goto error;
- 	err = snd_cs46xx_start_dsp(chip);
- 	if (err < 0)
--		return err;
-+		goto error;
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -100,6 +100,7 @@ static inline u64 get_u64(const struct c
  
- 	snd_cs46xx_gameport(chip);
- 
-@@ -117,11 +117,15 @@ static int snd_card_cs46xx_probe(struct
- 
- 	err = snd_card_register(card);
- 	if (err < 0)
--		return err;
-+		goto error;
- 
- 	pci_set_drvdata(pci, card);
- 	dev++;
- 	return 0;
-+
-+ error:
-+	snd_card_free(card);
-+	return err;
+ struct bcm_op {
+ 	struct list_head list;
++	struct rcu_head rcu;
+ 	int ifindex;
+ 	canid_t can_id;
+ 	u32 flags;
+@@ -718,10 +719,9 @@ static struct bcm_op *bcm_find_op(struct
+ 	return NULL;
  }
  
- static struct pci_driver cs46xx_driver = {
+-static void bcm_remove_op(struct bcm_op *op)
++static void bcm_free_op_rcu(struct rcu_head *rcu_head)
+ {
+-	hrtimer_cancel(&op->timer);
+-	hrtimer_cancel(&op->thrtimer);
++	struct bcm_op *op = container_of(rcu_head, struct bcm_op, rcu);
+ 
+ 	if ((op->frames) && (op->frames != &op->sframe))
+ 		kfree(op->frames);
+@@ -732,6 +732,14 @@ static void bcm_remove_op(struct bcm_op
+ 	kfree(op);
+ }
+ 
++static void bcm_remove_op(struct bcm_op *op)
++{
++	hrtimer_cancel(&op->timer);
++	hrtimer_cancel(&op->thrtimer);
++
++	call_rcu(&op->rcu, bcm_free_op_rcu);
++}
++
+ static void bcm_rx_unreg(struct net_device *dev, struct bcm_op *op)
+ {
+ 	if (op->rx_reg_dev == dev) {
+@@ -757,6 +765,9 @@ static int bcm_delete_rx_op(struct list_
+ 		if ((op->can_id == mh->can_id) && (op->ifindex == ifindex) &&
+ 		    (op->flags & CAN_FD_FRAME) == (mh->flags & CAN_FD_FRAME)) {
+ 
++			/* disable automatic timer on frame reception */
++			op->flags |= RX_NO_AUTOTIMER;
++
+ 			/*
+ 			 * Don't care if we're bound or not (due to netdev
+ 			 * problems) can_rx_unregister() is always a save
+@@ -785,7 +796,6 @@ static int bcm_delete_rx_op(struct list_
+ 						  bcm_rx_handler, op);
+ 
+ 			list_del(&op->list);
+-			synchronize_rcu();
+ 			bcm_remove_op(op);
+ 			return 1; /* done */
+ 		}
 
 
