@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E396656FCB9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C82356FCBB
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233562AbiGKJrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:47:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49508 "EHLO
+        id S233431AbiGKJrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:47:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233561AbiGKJqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:46:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEEE7AA839;
-        Mon, 11 Jul 2022 02:22:52 -0700 (PDT)
+        with ESMTP id S233585AbiGKJq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:46:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6C85B78C;
+        Mon, 11 Jul 2022 02:22:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3246861363;
-        Mon, 11 Jul 2022 09:22:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44279C341CE;
-        Mon, 11 Jul 2022 09:22:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E77FB80D2C;
+        Mon, 11 Jul 2022 09:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACFAC34115;
+        Mon, 11 Jul 2022 09:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531371;
-        bh=472lZAJbgmvRdN1CwPSC6F/zqCZdJ5jdrQ+tHuhEiMA=;
+        s=korg; t=1657531374;
+        bh=1TdSlce/DgVKTiZFs1xju2C/eht7mNg9T9nlCWRVF2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzLYhUYapY6/408rqQ6FsTwwg9ebSUwJdPtfFuatoS1/oHe1X8X1kIBTSnucN0ZXH
-         qxWSJCGsLkeza5sOoKoPovFVRRi46Hg/fG7deCV5Pni9gR9B5CNakaeBTU9NQPIUOo
-         tEnu4N2zhaBaYcWtFA7gckqqV0zurpT6xOZhP/w0=
+        b=tscylTCJeHN199kxL4zLEiZ9ZnfoVfd2U0q8zHFpKAjAOzMxEvszO4EmQxxEVEZCL
+         4TSBKvXsvzXyNzZSzS6I8Y48sU45Kqog/6c8Jw4INyt9SoayfRqKZJuQNtBWQ4Ui9u
+         lchFF2siYuFcUFe1G3vLNkYZH/o2tXfDiCfQXng8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/230] scsi: qla2xxx: Fix laggy FC remote port session recovery
-Date:   Mon, 11 Jul 2022 11:05:36 +0200
-Message-Id: <20220711090606.345572573@linuxfoundation.org>
+Subject: [PATCH 5.15 081/230] scsi: qla2xxx: edif: Replace list_for_each_safe with list_for_each_entry_safe
+Date:   Mon, 11 Jul 2022 11:05:37 +0200
+Message-Id: <20220711090606.373547731@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -59,94 +59,139 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 713b415726f100f6644971e75ebfe1edbef1a390 ]
+[ Upstream commit 8062b742d3bd336ca10ab5a1db1629d33700f9c6 ]
 
-For session recovery, driver relies on the dpc thread to initiate certain
-operations. The dpc thread runs exclusively without the Mailbox interface
-being occupied. A recent code change for heartbeat check via mailbox cmd 0
-is preventing the dpc thread from carrying out its operation. This patch
-allows the higher priority error recovery to run first before running the
-lower priority heartbeat check.
+This patch is per review comment by Hannes Reinecke from previous
+submission to replace list_for_each_safe with list_for_each_entry_safe.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-9-njavali@marvell.com
-Fixes: d94d8158e184 ("scsi: qla2xxx: Add heartbeat check")
-Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211026115412.27691-8-njavali@marvell.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h |  1 +
- drivers/scsi/qla2xxx/qla_os.c  | 20 +++++++++++++++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_edif.c | 39 ++++++++-------------------------
+ drivers/scsi/qla2xxx/qla_edif.h |  1 -
+ drivers/scsi/qla2xxx/qla_os.c   |  8 +++----
+ 3 files changed, 13 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
-index 0589ab8e6467..303ad60d1d49 100644
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -4621,6 +4621,7 @@ struct qla_hw_data {
- 	struct workqueue_struct *wq;
- 	struct work_struct heartbeat_work;
- 	struct qlfc_fw fw_buf;
-+	unsigned long last_heartbeat_run_jiffies;
+diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
+index a00fe88c6021..e40b9cc38214 100644
+--- a/drivers/scsi/qla2xxx/qla_edif.c
++++ b/drivers/scsi/qla2xxx/qla_edif.c
+@@ -1684,41 +1684,25 @@ static struct enode *
+ qla_enode_find(scsi_qla_host_t *vha, uint32_t ntype, uint32_t p1, uint32_t p2)
+ {
+ 	struct enode		*node_rtn = NULL;
+-	struct enode		*list_node = NULL;
++	struct enode		*list_node, *q;
+ 	unsigned long		flags;
+-	struct list_head	*pos, *q;
+ 	uint32_t		sid;
+-	uint32_t		rw_flag;
+ 	struct purexevent	*purex;
  
- 	/* FCP_CMND priority support */
- 	struct qla_fcp_prio_cfg *fcp_prio_cfg;
+ 	/* secure the list from moving under us */
+ 	spin_lock_irqsave(&vha->pur_cinfo.pur_lock, flags);
+ 
+-	list_for_each_safe(pos, q, &vha->pur_cinfo.head) {
+-		list_node = list_entry(pos, struct enode, list);
++	list_for_each_entry_safe(list_node, q, &vha->pur_cinfo.head, list) {
+ 
+ 		/* node type determines what p1 and p2 are */
+ 		purex = &list_node->u.purexinfo;
+ 		sid = p1;
+-		rw_flag = p2;
+ 
+ 		if (purex->pur_info.pur_sid.b24 == sid) {
+-			if (purex->pur_info.pur_pend == 1 &&
+-			    rw_flag == PUR_GET) {
+-				/*
+-				 * if the receive is in progress
+-				 * and its a read/get then can't
+-				 * transfer yet
+-				 */
+-				ql_dbg(ql_dbg_edif, vha, 0x9106,
+-				    "%s purex xfer in progress for sid=%x\n",
+-				    __func__, sid);
+-			} else {
+-				/* found it and its complete */
+-				node_rtn = list_node;
+-				list_del(pos);
+-				break;
+-			}
++			/* found it and its complete */
++			node_rtn = list_node;
++			list_del(&list_node->list);
++			break;
+ 		}
+ 	}
+ 
+@@ -2428,7 +2412,6 @@ void qla24xx_auth_els(scsi_qla_host_t *vha, void **pkt, struct rsp_que **rsp)
+ 
+ 	purex = &ptr->u.purexinfo;
+ 	purex->pur_info.pur_sid = a.did;
+-	purex->pur_info.pur_pend = 0;
+ 	purex->pur_info.pur_bytes_rcvd = totlen;
+ 	purex->pur_info.pur_rx_xchg_address = le32_to_cpu(p->rx_xchg_addr);
+ 	purex->pur_info.pur_nphdl = le16_to_cpu(p->nport_handle);
+@@ -3180,18 +3163,14 @@ static uint16_t qla_edif_sadb_get_sa_index(fc_port_t *fcport,
+ /* release any sadb entries -- only done at teardown */
+ void qla_edif_sadb_release(struct qla_hw_data *ha)
+ {
+-	struct list_head *pos;
+-	struct list_head *tmp;
+-	struct edif_sa_index_entry *entry;
++	struct edif_sa_index_entry *entry, *tmp;
+ 
+-	list_for_each_safe(pos, tmp, &ha->sadb_rx_index_list) {
+-		entry = list_entry(pos, struct edif_sa_index_entry, next);
++	list_for_each_entry_safe(entry, tmp, &ha->sadb_rx_index_list, next) {
+ 		list_del(&entry->next);
+ 		kfree(entry);
+ 	}
+ 
+-	list_for_each_safe(pos, tmp, &ha->sadb_tx_index_list) {
+-		entry = list_entry(pos, struct edif_sa_index_entry, next);
++	list_for_each_entry_safe(entry, tmp, &ha->sadb_tx_index_list, next) {
+ 		list_del(&entry->next);
+ 		kfree(entry);
+ 	}
+diff --git a/drivers/scsi/qla2xxx/qla_edif.h b/drivers/scsi/qla2xxx/qla_edif.h
+index 45cf87e33778..32800bfb32a3 100644
+--- a/drivers/scsi/qla2xxx/qla_edif.h
++++ b/drivers/scsi/qla2xxx/qla_edif.h
+@@ -101,7 +101,6 @@ struct dinfo {
+ };
+ 
+ struct pur_ninfo {
+-	unsigned int	pur_pend:1;
+ 	port_id_t       pur_sid;
+ 	port_id_t	pur_did;
+ 	uint8_t		vp_idx;
 diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index b224326bacee..12958aea893f 100644
+index 12958aea893f..c7ab8a8be24c 100644
 --- a/drivers/scsi/qla2xxx/qla_os.c
 +++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -7205,7 +7205,7 @@ static bool qla_do_heartbeat(struct scsi_qla_host *vha)
- 	return do_heartbeat;
- }
- 
--static void qla_heart_beat(struct scsi_qla_host *vha)
-+static void qla_heart_beat(struct scsi_qla_host *vha, u16 dpc_started)
+@@ -3886,13 +3886,13 @@ qla2x00_remove_one(struct pci_dev *pdev)
+ static inline void
+ qla24xx_free_purex_list(struct purex_list *list)
  {
- 	struct qla_hw_data *ha = vha->hw;
+-	struct list_head *item, *next;
++	struct purex_item *item, *next;
+ 	ulong flags;
  
-@@ -7215,8 +7215,19 @@ static void qla_heart_beat(struct scsi_qla_host *vha)
- 	if (vha->hw->flags.eeh_busy || qla2x00_chip_is_down(vha))
- 		return;
- 
--	if (qla_do_heartbeat(vha))
-+	/*
-+	 * dpc thread cannot run if heartbeat is running at the same time.
-+	 * We also do not want to starve heartbeat task. Therefore, do
-+	 * heartbeat task at least once every 5 seconds.
-+	 */
-+	if (dpc_started &&
-+	    time_before(jiffies, ha->last_heartbeat_run_jiffies + 5 * HZ))
-+		return;
-+
-+	if (qla_do_heartbeat(vha)) {
-+		ha->last_heartbeat_run_jiffies = jiffies;
- 		queue_work(ha->wq, &ha->heartbeat_work);
-+	}
- }
- 
- /**************************************************************************
-@@ -7407,6 +7418,8 @@ qla2x00_timer(struct timer_list *t)
- 		start_dpc++;
+ 	spin_lock_irqsave(&list->lock, flags);
+-	list_for_each_safe(item, next, &list->head) {
+-		list_del(item);
+-		kfree(list_entry(item, struct purex_item, list));
++	list_for_each_entry_safe(item, next, &list->head, list) {
++		list_del(&item->list);
++		kfree(item);
  	}
- 
-+	/* borrowing w to signify dpc will run */
-+	w = 0;
- 	/* Schedule the DPC routine if needed */
- 	if ((test_bit(ISP_ABORT_NEEDED, &vha->dpc_flags) ||
- 	    test_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags) ||
-@@ -7439,9 +7452,10 @@ qla2x00_timer(struct timer_list *t)
- 		    test_bit(RELOGIN_NEEDED, &vha->dpc_flags),
- 		    test_bit(PROCESS_PUREX_IOCB, &vha->dpc_flags));
- 		qla2xxx_wake_dpc(vha);
-+		w = 1;
- 	}
- 
--	qla_heart_beat(vha);
-+	qla_heart_beat(vha, w);
- 
- 	qla2x00_restart_timer(vha, WATCH_INTERVAL);
+ 	spin_unlock_irqrestore(&list->lock, flags);
  }
 -- 
 2.35.1
