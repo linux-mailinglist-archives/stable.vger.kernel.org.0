@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E0A456F9C5
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B90A356FD55
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbiGKJIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
+        id S234230AbiGKJy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbiGKJII (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:08:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51222253D;
-        Mon, 11 Jul 2022 02:07:39 -0700 (PDT)
+        with ESMTP id S233276AbiGKJx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:53:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C9C4AE554;
+        Mon, 11 Jul 2022 02:25:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E624B80D2C;
-        Mon, 11 Jul 2022 09:07:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4FD9C34115;
-        Mon, 11 Jul 2022 09:07:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FA46135F;
+        Mon, 11 Jul 2022 09:25:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68446C341C8;
+        Mon, 11 Jul 2022 09:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530457;
-        bh=I+1qzEEFcQrKrVfMqDFwcSCOAGZs8oqZHD9xM5Q2sDE=;
+        s=korg; t=1657531532;
+        bh=QlBAKrIYnrUzq35r1sV7UTU7z78mc0/i7wzKFGjNtb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ftk4c6WRe5KhF1a4Nip9iHTWz0rFOL6Zauc2KAs4Ye97mt35eteTP+k5KPzjvk5tE
-         Seve13WIRwYt9wGxLttzruDXTMbsYQhi9xs29vGrWhF33fkVOd4PRlwh1xQ9Xa1XK4
-         D71zX4DwvJI6ovFZTS1SB6fgRDFtV0hZfl4nCDsg=
+        b=fEnyzci8d3U3hQWfTmj5Po21FYUIVSEA/FdO6ZoSeXz7o/X7mNGd5nV7i0hVfqQFK
+         qG97vFLZxoMbc29FeuYo9jUiY9GGiIgakSlD7gNQZ8a7cXrkEJb+GKxsX9BC2AgV0n
+         /iuziwxrLlfg+o7w0Y4OTHVt1+IiZ7vI1BditnPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>
-Subject: [PATCH 4.14 11/17] xfs: remove incorrect ASSERT in xfs_rename
+        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 140/230] drm/amdgpu: drop flags check for CHIP_IP_DISCOVERY
 Date:   Mon, 11 Jul 2022 11:06:36 +0200
-Message-Id: <20220711090536.598200765@linuxfoundation.org>
+Message-Id: <20220711090608.035066118@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit e445976537ad139162980bee015b7364e5b64fff upstream.
+[ Upstream commit d82ce3cd30aa28db3e94ffc36ebf0af2ff12801d ]
 
-This ASSERT in xfs_rename is a) incorrect, because
-(RENAME_WHITEOUT|RENAME_NOREPLACE) is a valid combination, and
-b) unnecessary, because actual invalid flag combinations are already
-handled at the vfs level in do_renameat2() before we get called.
-So, remove it.
+Support for IP based discovery is in place now so this
+check is no longer required.
 
-Reported-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Fixes: 7dcf5c3e4527 ("xfs: add RENAME_WHITEOUT support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_inode.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -2964,7 +2964,6 @@ xfs_rename(
- 	 * appropriately.
- 	 */
- 	if (flags & RENAME_WHITEOUT) {
--		ASSERT(!(flags & (RENAME_NOREPLACE | RENAME_EXCHANGE)));
- 		error = xfs_rename_alloc_whiteout(target_dp, &wip);
- 		if (error)
- 			return error;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index cb0b5972e7fd..a0dd4b41ba4a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -2009,11 +2009,6 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 			return -ENODEV;
+ 	}
+ 
+-	if (flags == CHIP_IP_DISCOVERY) {
+-		DRM_INFO("Unsupported asic.  Remove me when IP discovery init is in place.\n");
+-		return -ENODEV;
+-	}
+-
+ 	if (amdgpu_virtual_display ||
+ 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
+ 		supports_atomic = true;
+-- 
+2.35.1
+
 
 
