@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C99756FE1F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB57456FE32
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234268AbiGKKEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:04:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
+        id S234460AbiGKKFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:05:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234519AbiGKKDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 057773F308;
-        Mon, 11 Jul 2022 02:29:34 -0700 (PDT)
+        with ESMTP id S233909AbiGKKDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7074D66AFC;
+        Mon, 11 Jul 2022 02:29:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5CA3BCE126A;
-        Mon, 11 Jul 2022 09:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6899EC341C0;
-        Mon, 11 Jul 2022 09:29:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 020A161411;
+        Mon, 11 Jul 2022 09:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11603C34115;
+        Mon, 11 Jul 2022 09:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531770;
-        bh=lh7AYL4Z8YvuRd3eo1vbbmlhCCo0hOo/6FSah1I1Stk=;
+        s=korg; t=1657531784;
+        bh=t9YP5Tngn5X3VBS+MR/tAb2ZKRQvST36CAK14z8o50Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eG+wWQmEMXi7PiLczA2aU9Nw5GRY5jYUrNpki+0www8Md2EnKh7PHGiLPcjZmeHG7
-         +lf4cr7gWZ40AULs5UpCEs9wRQFCRHPFBefAQSyY39htHASiDws4rsZhp1mOPnN7kf
-         7+AAUnlpdVypDEJFz6g9Rpq7khiy6tJtptkV6Etk=
+        b=0MIh8IgOWwcyRU+BLwu/3VvBkcDQonJd2yfZdSgD80leERKtdz1C/UOxA8w7FTba8
+         RwazltTILfzPPLP8enyuFwJLKTDp5oL1yinQOy6vkNeLJHR85530EiMGJGD9Gi1HZw
+         yeKFM0ZVOb/mExWN3CSFCt/e4j0Esa85AN907+rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        stable <stable@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.15 218/230] misc: rtsx_usb: set return value in rsp_buf alloc err path
-Date:   Mon, 11 Jul 2022 11:07:54 +0200
-Message-Id: <20220711090610.285193241@linuxfoundation.org>
+        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 219/230] Revert "mm/memory-failure.c: fix race with changing page compound again"
+Date:   Mon, 11 Jul 2022 11:07:55 +0200
+Message-Id: <20220711090610.314638268@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,50 +57,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-commit 2cd37c2e72449a7add6da1183d20a6247d6db111 upstream.
+commit 2ba2b008a8bf5fd268a43d03ba79e0ad464d6836 upstream.
 
-Set return value in rsp_buf alloc error path before going to
-error handling.
+Reverts commit 888af2701db7 ("mm/memory-failure.c: fix race with changing
+page compound again") because now we fetch the page refcount under
+hugetlb_lock in try_memory_failure_hugetlb() so that the race check is no
+longer necessary.
 
-drivers/misc/cardreader/rtsx_usb.c:639:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (!ucr->rsp_buf)
-               ^~~~~~~~~~~~~
-   drivers/misc/cardreader/rtsx_usb.c:678:9: note: uninitialized use occurs here
-           return ret;
-                  ^~~
-   drivers/misc/cardreader/rtsx_usb.c:639:2: note: remove the 'if' if its condition is always false
-           if (!ucr->rsp_buf)
-           ^~~~~~~~~~~~~~~~~~
-   drivers/misc/cardreader/rtsx_usb.c:622:9: note: initialize the variable 'ret' to silence this warning
-           int ret;
-                  ^
-                   = 0
-
-Fixes: 3776c7855985 ("misc: rtsx_usb: use separate command and response buffers")
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220701165352.15687-1-skhan@linuxfoundation.org
+Link: https://lkml.kernel.org/r/20220408135323.1559401-4-naoya.horiguchi@linux.dev
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Suggested-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/mm.h      |    1 -
+ include/ras/ras_event.h |    1 -
+ mm/memory-failure.c     |   11 -----------
+ 3 files changed, 13 deletions(-)
 
---- a/drivers/misc/cardreader/rtsx_usb.c
-+++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -636,8 +636,10 @@ static int rtsx_usb_probe(struct usb_int
- 		return -ENOMEM;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -3175,7 +3175,6 @@ enum mf_action_page_type {
+ 	MF_MSG_BUDDY_2ND,
+ 	MF_MSG_DAX,
+ 	MF_MSG_UNSPLIT_THP,
+-	MF_MSG_DIFFERENT_PAGE_SIZE,
+ 	MF_MSG_UNKNOWN,
+ };
  
- 	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
--	if (!ucr->rsp_buf)
-+	if (!ucr->rsp_buf) {
-+		ret = -ENOMEM;
- 		goto out_free_cmd_buf;
-+	}
+--- a/include/ras/ras_event.h
++++ b/include/ras/ras_event.h
+@@ -376,7 +376,6 @@ TRACE_EVENT(aer_event,
+ 	EM ( MF_MSG_BUDDY_2ND, "free buddy page (2nd try)" )		\
+ 	EM ( MF_MSG_DAX, "dax page" )					\
+ 	EM ( MF_MSG_UNSPLIT_THP, "unsplit thp" )			\
+-	EM ( MF_MSG_DIFFERENT_PAGE_SIZE, "different page size" )	\
+ 	EMe ( MF_MSG_UNKNOWN, "unknown page" )
  
- 	usb_set_intfdata(intf, ucr);
+ /*
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -741,7 +741,6 @@ static const char * const action_page_ty
+ 	[MF_MSG_BUDDY_2ND]		= "free buddy page (2nd try)",
+ 	[MF_MSG_DAX]			= "dax page",
+ 	[MF_MSG_UNSPLIT_THP]		= "unsplit thp",
+-	[MF_MSG_DIFFERENT_PAGE_SIZE]	= "different page size",
+ 	[MF_MSG_UNKNOWN]		= "unknown page",
+ };
  
+@@ -1526,16 +1525,6 @@ retry:
+ 		return res == MF_RECOVERED ? 0 : -EBUSY;
+ 	}
+ 
+-	/*
+-	 * The page could have changed compound pages due to race window.
+-	 * If this happens just bail out.
+-	 */
+-	if (!PageHuge(p) || compound_head(p) != head) {
+-		action_result(pfn, MF_MSG_DIFFERENT_PAGE_SIZE, MF_IGNORED);
+-		res = -EBUSY;
+-		goto out;
+-	}
+-
+ 	page_flags = head->flags;
+ 
+ 	/*
 
 
