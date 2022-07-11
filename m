@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B97656FB3D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0092856FD0D
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232427AbiGKJ1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:27:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56708 "EHLO
+        id S233769AbiGKJuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:50:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232285AbiGKJ0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:26:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DBC6053D;
-        Mon, 11 Jul 2022 02:15:27 -0700 (PDT)
+        with ESMTP id S233858AbiGKJtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:49:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F43124940;
+        Mon, 11 Jul 2022 02:24:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20C31B80E74;
-        Mon, 11 Jul 2022 09:15:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 636BDC341CB;
-        Mon, 11 Jul 2022 09:15:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17CA06124E;
+        Mon, 11 Jul 2022 09:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23856C341C8;
+        Mon, 11 Jul 2022 09:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530924;
-        bh=4WZcDCsFE9fpCFpZDFTLUsccbZ30dyi6tyVEhn+pBDQ=;
+        s=korg; t=1657531449;
+        bh=lRISEmsP/F7+HXwJ+1ZXXTgip6J9+k9Li3ei1iTB2z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krFgbsDpY/UniGQpiEkABPmpalTYOkb0xXMkmVHlcV8CP9MZv0P43h08zoQ9dLYXR
-         JeNgzvAJkCMXlarzjtjl8cxmIPeVaVw/yRiQZ8B2ATGVxBZFn9GVd9GHLIVphUc4jG
-         wJdtgv3QYNH9hNJEEHeIWvbzYRJ7qpLmeb2ZEsr4=
+        b=UZdOgsDN1Lft8HUd6fSo/jg/eVZnl8T/dWG9Bu+1TGLIPJrxMhJsBkKrAF6tI1t/0
+         p/Wxh19+lB6mQkGgUJmPqrlejZPTXcCutjlcnWkvwnBK5/d0A2h19v6iCbhofrzeM/
+         SaIL2rmrjS4J+/6sKLkmq6lXKKeBTMJue2yruKl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Jan Engelhardt <jengelh@inai.de>
-Subject: [PATCH 5.18 004/112] ALSA: cs46xx: Fix missing snd_card_free() call at probe error
-Date:   Mon, 11 Jul 2022 11:06:04 +0200
-Message-Id: <20220711090549.674639067@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 109/230] serial: sc16is7xx: Clear RS485 bits in the shutdown
+Date:   Mon, 11 Jul 2022 11:06:05 +0200
+Message-Id: <20220711090607.160112615@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit c5e58c4545a69677d078b4c813b5d10d3481be9c upstream.
+[ Upstream commit 927728a34f11b5a27f4610bdb7068317d6fdc72a ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+We tested RS485 function on an EVB which has SC16IS752, after
+finishing the test, we started the RS232 function test, but found the
+RTS is still working in the RS485 mode.
 
-This patch fixes it by calling snd_card_free() manually on the error
-from the probe callback.
+That is because both startup and shutdown call port_update() to set
+the EFCR_REG, this will not clear the RS485 bits once the bits are set
+in the reconf_rs485(). To fix it, clear the RS485 bits in shutdown.
 
-Fixes: 5bff69b3645d ("ALSA: cs46xx: Allocate resources with device-managed APIs")
 Cc: <stable@vger.kernel.org>
-Reported-and-tested-by: Jan Engelhardt <jengelh@inai.de>
-Link: https://lore.kernel.org/r/p2p1s96o-746-74p4-s95-61qo1p7782pn@vanv.qr
-Link: https://lore.kernel.org/r/20220705152336.350-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20220308110042.108451-1-hui.wang@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/cs46xx/cs46xx.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/tty/serial/sc16is7xx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/pci/cs46xx/cs46xx.c
-+++ b/sound/pci/cs46xx/cs46xx.c
-@@ -74,36 +74,36 @@ static int snd_card_cs46xx_probe(struct
- 	err = snd_cs46xx_create(card, pci,
- 				external_amp[dev], thinkpad[dev]);
- 	if (err < 0)
--		return err;
-+		goto error;
- 	card->private_data = chip;
- 	chip->accept_valid = mmap_valid[dev];
- 	err = snd_cs46xx_pcm(chip, 0);
- 	if (err < 0)
--		return err;
-+		goto error;
- #ifdef CONFIG_SND_CS46XX_NEW_DSP
- 	err = snd_cs46xx_pcm_rear(chip, 1);
- 	if (err < 0)
--		return err;
-+		goto error;
- 	err = snd_cs46xx_pcm_iec958(chip, 2);
- 	if (err < 0)
--		return err;
-+		goto error;
- #endif
- 	err = snd_cs46xx_mixer(chip, 2);
- 	if (err < 0)
--		return err;
-+		goto error;
- #ifdef CONFIG_SND_CS46XX_NEW_DSP
- 	if (chip->nr_ac97_codecs ==2) {
- 		err = snd_cs46xx_pcm_center_lfe(chip, 3);
- 		if (err < 0)
--			return err;
-+			goto error;
- 	}
- #endif
- 	err = snd_cs46xx_midi(chip, 0);
- 	if (err < 0)
--		return err;
-+		goto error;
- 	err = snd_cs46xx_start_dsp(chip);
- 	if (err < 0)
--		return err;
-+		goto error;
+diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
+index 0ab788058fa2..e98aa7b97cc5 100644
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1055,10 +1055,12 @@ static void sc16is7xx_shutdown(struct uart_port *port)
  
- 	snd_cs46xx_gameport(chip);
+ 	/* Disable all interrupts */
+ 	sc16is7xx_port_write(port, SC16IS7XX_IER_REG, 0);
+-	/* Disable TX/RX */
++	/* Disable TX/RX, clear auto RS485 and RTS invert */
+ 	sc16is7xx_port_update(port, SC16IS7XX_EFCR_REG,
+ 			      SC16IS7XX_EFCR_RXDISABLE_BIT |
+-			      SC16IS7XX_EFCR_TXDISABLE_BIT,
++			      SC16IS7XX_EFCR_TXDISABLE_BIT |
++			      SC16IS7XX_EFCR_AUTO_RS485_BIT |
++			      SC16IS7XX_EFCR_RTS_INVERT_BIT,
+ 			      SC16IS7XX_EFCR_RXDISABLE_BIT |
+ 			      SC16IS7XX_EFCR_TXDISABLE_BIT);
  
-@@ -117,11 +117,15 @@ static int snd_card_cs46xx_probe(struct
- 
- 	err = snd_card_register(card);
- 	if (err < 0)
--		return err;
-+		goto error;
- 
- 	pci_set_drvdata(pci, card);
- 	dev++;
- 	return 0;
-+
-+ error:
-+	snd_card_free(card);
-+	return err;
- }
- 
- static struct pci_driver cs46xx_driver = {
+-- 
+2.35.1
+
 
 
