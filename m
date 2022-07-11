@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BEC356FD20
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F070956FD23
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233716AbiGKJvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33388 "EHLO
+        id S233795AbiGKJvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233791AbiGKJuf (ORCPT
+        with ESMTP id S233793AbiGKJuf (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9584323BF8;
-        Mon, 11 Jul 2022 02:24:42 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE63423BFD;
+        Mon, 11 Jul 2022 02:24:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58619B80E7A;
-        Mon, 11 Jul 2022 09:24:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5DECC34115;
-        Mon, 11 Jul 2022 09:24:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B23F6112E;
+        Mon, 11 Jul 2022 09:24:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7661FC34115;
+        Mon, 11 Jul 2022 09:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531480;
-        bh=U0whqmfMtKkmTNWHFkRmR4u61sCo8ezj3001BZTs4fY=;
+        s=korg; t=1657531482;
+        bh=OztkhgOXTnGq6TpN1feISMFPe9y925sbiii4GoroiN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhdnLMmPkGIRd93HCPSlKIWPnUiqVg54w5NH1smcHz+5Oa6oRnYJ5NA+gCwG7qYWe
-         vgg7SlWjpCZwKqkM8CFofTYsXRspAUt9qVn1gX0LUIP/b3nJPPRV7Fcpb6imvkbxsy
-         pRiLOan2xRki0UPAdt6vE3tkHw/mZI7PiZ1HQAIc=
+        b=bruuMauYrlI7CP4o5Sz25QlCBjCFbUjsTcGhBhyVTl6Be+2PltVFVy1zO5LxUEQ9u
+         IUen1phosbVbxsczuSG3ulKD+H9lgCAhUm8HOgE27R39XXE/+FPX992CdPeC41AvfO
+         Jwez6+xAglluReppj821EEC61LufqAj24kKfW7WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>,
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 119/230] tty: n_gsm: Save dlci address open status when config requester
-Date:   Mon, 11 Jul 2022 11:06:15 +0200
-Message-Id: <20220711090607.441445257@linuxfoundation.org>
+Subject: [PATCH 5.15 120/230] tty: n_gsm: fix frame reception handling
+Date:   Mon, 11 Jul 2022 11:06:16 +0200
+Message-Id: <20220711090607.469409675@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -53,132 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 0b91b5332368f2fb0c3e5cfebc6aff9e167acd8b ]
+[ Upstream commit 7a0e4b1733b635026a87c023f6d703faf0095e39 ]
 
-When n_gsm config "initiator=0",as requester ,receive SABM frame,n_gsm
-register gsmtty dev,and save dlci open address status,if receive DLC0
-DISC or CLD frame,it can unregister the gsmtty dev by saving dlci address.
+The frame checksum (FCS) is currently handled in gsm_queue() after
+reception of a frame. However, this breaks layering. A workaround with
+'received_fcs' was implemented so far.
+Furthermore, frames are handled as such even if no end flag was received.
+Move FCS calculation from gsm_queue() to gsm0_receive() and gsm1_receive().
+Also delay gsm_queue() call there until a full frame was received to fix
+both points.
 
-Signed-off-by: Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>
-Link: https://lore.kernel.org/r/1629461872-26965-8-git-send-email-zhenguo6858@gmail.com
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-6-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 57 +++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 53 insertions(+), 4 deletions(-)
+ drivers/tty/n_gsm.c | 53 +++++++++++++++++++++++++--------------------
+ 1 file changed, 30 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 91ce8e6e889a..3038e5631be5 100644
+index 3038e5631be5..d3d5308daf35 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -274,6 +274,10 @@ static DEFINE_SPINLOCK(gsm_mux_lock);
+@@ -221,7 +221,6 @@ struct gsm_mux {
+ 	int encoding;
+ 	u8 control;
+ 	u8 fcs;
+-	u8 received_fcs;
+ 	u8 *txframe;			/* TX framing buffer */
  
- static struct tty_driver *gsm_tty_driver;
- 
-+/* Save dlci open address */
-+static int addr_open[256] = { 0 };
-+/* Save dlci open count */
-+static int addr_cnt;
- /*
-  *	This section of the driver logic implements the GSM encodings
-  *	both the basic and the 'advanced'. Reliable transport is not
-@@ -1191,6 +1195,7 @@ static void gsm_control_rls(struct gsm_mux *gsm, const u8 *data, int clen)
- }
- 
- static void gsm_dlci_begin_close(struct gsm_dlci *dlci);
-+static void gsm_dlci_close(struct gsm_dlci *dlci);
- 
- /**
-  *	gsm_control_message	-	DLCI 0 control processing
-@@ -1209,15 +1214,28 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
- {
- 	u8 buf[1];
- 	unsigned long flags;
-+	struct gsm_dlci *dlci;
-+	int i;
-+	int address;
- 
- 	switch (command) {
- 	case CMD_CLD: {
--		struct gsm_dlci *dlci = gsm->dlci[0];
-+		if (addr_cnt > 0) {
-+			for (i = 0; i < addr_cnt; i++) {
-+				address = addr_open[i];
-+				dlci = gsm->dlci[address];
-+				gsm_dlci_close(dlci);
-+				addr_open[i] = 0;
-+			}
-+		}
- 		/* Modem wishes to close down */
-+		dlci = gsm->dlci[0];
- 		if (dlci) {
- 			dlci->dead = true;
- 			gsm->dead = true;
--			gsm_dlci_begin_close(dlci);
-+			gsm_dlci_close(dlci);
-+			addr_cnt = 0;
-+			gsm_response(gsm, 0, UA|PF);
- 		}
- 		}
- 		break;
-@@ -1780,6 +1798,7 @@ static void gsm_queue(struct gsm_mux *gsm)
- 	struct gsm_dlci *dlci;
+ 	/* Method for the receiver side */
+@@ -1799,18 +1798,7 @@ static void gsm_queue(struct gsm_mux *gsm)
  	u8 cr;
  	int address;
-+	int i, j, k, address_tmp;
- 	/* We have to sneak a look at the packet body to do the FCS.
- 	   A somewhat layering violation in the spec */
+ 	int i, j, k, address_tmp;
+-	/* We have to sneak a look at the packet body to do the FCS.
+-	   A somewhat layering violation in the spec */
  
-@@ -1822,6 +1841,11 @@ static void gsm_queue(struct gsm_mux *gsm)
- 		else {
- 			gsm_response(gsm, address, UA|PF);
- 			gsm_dlci_open(dlci);
-+			/* Save dlci open address */
-+			if (address) {
-+				addr_open[addr_cnt] = address;
-+				addr_cnt++;
-+			}
- 		}
+-	if ((gsm->control & ~PF) == UI)
+-		gsm->fcs = gsm_fcs_add_block(gsm->fcs, gsm->buf, gsm->len);
+-	if (gsm->encoding == 0) {
+-		/* WARNING: gsm->received_fcs is used for
+-		gsm->encoding = 0 only.
+-		In this case it contain the last piece of data
+-		required to generate final CRC */
+-		gsm->fcs = gsm_fcs_add(gsm->fcs, gsm->received_fcs);
+-	}
+ 	if (gsm->fcs != GOOD_FCS) {
+ 		gsm->bad_fcs++;
+ 		if (debug & 4)
+@@ -1997,19 +1985,25 @@ static void gsm0_receive(struct gsm_mux *gsm, unsigned char c)
  		break;
- 	case DISC|PF:
-@@ -1832,8 +1856,33 @@ static void gsm_queue(struct gsm_mux *gsm)
- 			return;
- 		}
- 		/* Real close complete */
--		gsm_response(gsm, address, UA|PF);
--		gsm_dlci_close(dlci);
-+		if (!address) {
-+			if (addr_cnt > 0) {
-+				for (i = 0; i < addr_cnt; i++) {
-+					address = addr_open[i];
-+					dlci = gsm->dlci[address];
-+					gsm_dlci_close(dlci);
-+					addr_open[i] = 0;
-+				}
+ 	case GSM_DATA:		/* Data */
+ 		gsm->buf[gsm->count++] = c;
+-		if (gsm->count == gsm->len)
++		if (gsm->count == gsm->len) {
++			/* Calculate final FCS for UI frames over all data */
++			if ((gsm->control & ~PF) != UIH) {
++				gsm->fcs = gsm_fcs_add_block(gsm->fcs, gsm->buf,
++							     gsm->count);
 +			}
-+			dlci = gsm->dlci[0];
-+			gsm_dlci_close(dlci);
-+			addr_cnt = 0;
-+			gsm_response(gsm, 0, UA|PF);
-+		} else {
-+			gsm_response(gsm, address, UA|PF);
-+			gsm_dlci_close(dlci);
-+			/* clear dlci address */
-+			for (j = 0; j < addr_cnt; j++) {
-+				address_tmp = addr_open[j];
-+				if (address_tmp == address) {
-+					for (k = j; k < addr_cnt; k++)
-+						addr_open[k] = addr_open[k+1];
-+				addr_cnt--;
-+				break;
-+				}
-+			}
+ 			gsm->state = GSM_FCS;
 +		}
  		break;
- 	case UA|PF:
- 		if (cr == 0 || dlci == NULL)
+ 	case GSM_FCS:		/* FCS follows the packet */
+-		gsm->received_fcs = c;
+-		gsm_queue(gsm);
++		gsm->fcs = gsm_fcs_add(gsm->fcs, c);
+ 		gsm->state = GSM_SSOF;
+ 		break;
+ 	case GSM_SSOF:
+-		if (c == GSM0_SOF) {
+-			gsm->state = GSM_SEARCH;
+-			break;
+-		}
++		gsm->state = GSM_SEARCH;
++		if (c == GSM0_SOF)
++			gsm_queue(gsm);
++		else
++			gsm->bad_size++;
+ 		break;
+ 	default:
+ 		pr_debug("%s: unhandled state: %d\n", __func__, gsm->state);
+@@ -2038,11 +2032,24 @@ static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
+ 		return;
+ 	}
+ 	if (c == GSM1_SOF) {
+-		/* EOF is only valid in frame if we have got to the data state
+-		   and received at least one byte (the FCS) */
+-		if (gsm->state == GSM_DATA && gsm->count) {
+-			/* Extract the FCS */
++		/* EOF is only valid in frame if we have got to the data state */
++		if (gsm->state == GSM_DATA) {
++			if (gsm->count < 1) {
++				/* Missing FSC */
++				gsm->malformed++;
++				gsm->state = GSM_START;
++				return;
++			}
++			/* Remove the FCS from data */
+ 			gsm->count--;
++			if ((gsm->control & ~PF) != UIH) {
++				/* Calculate final FCS for UI frames over all
++				 * data but FCS
++				 */
++				gsm->fcs = gsm_fcs_add_block(gsm->fcs, gsm->buf,
++							     gsm->count);
++			}
++			/* Add the FCS itself to test against GOOD_FCS */
+ 			gsm->fcs = gsm_fcs_add(gsm->fcs, gsm->buf[gsm->count]);
+ 			gsm->len = gsm->count;
+ 			gsm_queue(gsm);
 -- 
 2.35.1
 
