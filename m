@@ -2,94 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DADD657056D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 16:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EC9F57058C
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 16:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbiGKOWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 10:22:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43914 "EHLO
+        id S229688AbiGKO1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 10:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbiGKOVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 10:21:51 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B508C67169;
-        Mon, 11 Jul 2022 07:21:49 -0700 (PDT)
+        with ESMTP id S229478AbiGKO1r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 10:27:47 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238F83E777;
+        Mon, 11 Jul 2022 07:27:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657549309; x=1689085309;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=A/xwrdAxYXsA63RbLzyW7L2rIbPha0EngocXXdoox2M=;
-  b=C+Z0UlAu+ySencYq6s1jm5PNfEu7hgjIc4OQkdfKQFWf6G5quDMskYTQ
-   OEJQlWrSQLOhmn8MhG+5RsWPVrf21THsVu8jD9FFcS40D7dBWWTYe3WW4
-   SgFcUEoP1UlwqA8w+At/nxVyBy93m2njP3pChSoliobgKwJUERy1EjRsg
-   ANVjaC62JOgr5rtEJ5uyq+++wz1x6Xybmu/shc9nsrnXkMqTxjOA0y1Cr
-   deCzpLpoe1A5U2dtaLVamR7XU3ziozkRix7Mv/YE1F7UjVN5FcYOL/MWT
-   XyC7T4Fl/tar2lxL2goJrYYP6dRSwLMqGU4YoorB5g8PxDVQ5ISbhOgrP
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10404"; a="348652380"
+  t=1657549667; x=1689085667;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=N/5+FOmUbjUHJKfvtD9I2r0cQTVjN/Gvm2Dt7WX01LM=;
+  b=L2fOLDwSIael7qTpTOJD7hEcZuRqUaCwhKBq+3kkdAGF43tz8o+66eBu
+   TYWqS4UhicDsXpTdQ6eNkxOot4lowsHOIpn1BghFl563Rbv7zafdnOK+v
+   bB9xYCeu22HEL1b+1bAkNGjOA+bWHj97ConZLAfnh41YhUtVag7nLmC2r
+   iAOL7GWif4BYMDCpPUhNRW+GojlTOM1x0OtlGPCf68/99mpuUZPSo73tt
+   c+9CPRORAQeDHd+oDm8iv4T4P7JlKVHdzmUF6T4AiGJkSrLCeQdsHtK4X
+   RwzpW+JZ0rviFbGnEOe2LEgeEYrTPYp89RgFrNz9HI0m2NR+XXcJH5Rto
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10404"; a="267713289"
 X-IronPort-AV: E=Sophos;i="5.92,263,1650956400"; 
-   d="scan'208";a="348652380"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2022 07:21:49 -0700
+   d="scan'208";a="267713289"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2022 07:27:46 -0700
 X-IronPort-AV: E=Sophos;i="5.92,263,1650956400"; 
-   d="scan'208";a="662564681"
-Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314) ([10.237.222.76])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2022 07:21:46 -0700
-Date:   Mon, 11 Jul 2022 15:21:39 +0100
-From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
-        qat-linux@intel.com, stable@vger.kernel.org,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Wojciech Ziemba <wojciech.ziemba@intel.com>,
-        Lucas Segarra Fernandez <lucas.segarra.fernandez@intel.com>
-Subject: Re: [PATCH v3 1/3] crypto: qat - use pre-allocated buffers in
- datapath
-Message-ID: <Yswx1myaFwJR22FQ@silpixa00400314>
-References: <20220410194707.9746-1-giovanni.cabiddu@intel.com>
- <20220410194707.9746-2-giovanni.cabiddu@intel.com>
- <YlRnVBYl1eJ+zvM5@gmail.com>
+   d="scan'208";a="721614482"
+Received: from tzanussi-mobl4.amr.corp.intel.com (HELO [10.209.163.145]) ([10.209.163.145])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2022 07:27:45 -0700
+Message-ID: <7b562ff6-3f44-053b-d8e6-3c40be145446@linux.intel.com>
+Date:   Mon, 11 Jul 2022 09:27:44 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YlRnVBYl1eJ+zvM5@gmail.com>
-Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 -
- Collinstown Industrial Park, Leixlip, County Kildare - Ireland
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2] tracing/histograms: Fix memory leak problem
+To:     Zheng Yejian <zhengyejian1@huawei.com>, rostedt@goodmis.org
+Cc:     linux-kernel@vger.kernel.org, mingo@redhat.com,
+        stable@vger.kernel.org, trix@redhat.com, zhangjinhao2@huawei.com
+References: <20220708210335.79a38356@gandalf.local.home>
+ <20220711014731.69520-1-zhengyejian1@huawei.com>
+From:   "Zanussi, Tom" <tom.zanussi@linux.intel.com>
+In-Reply-To: <20220711014731.69520-1-zhengyejian1@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 11, 2022 at 05:37:24PM +0000, Eric Biggers wrote:
-> On Sun, Apr 10, 2022 at 08:47:05PM +0100, Giovanni Cabiddu wrote:
-> > If requests exceed 4 entries buffers, memory is allocated dynamically.
-> > 
-> > In addition, remove the CRYPTO_ALG_ALLOCATES_MEMORY flag from both aead
-> > and skcipher alg structures.
-> > 
+Hi Yejian,
+
+On 7/10/2022 8:47 PM, Zheng Yejian wrote:
+> This reverts commit 46bbe5c671e06f070428b9be142cc4ee5cedebac.
 > 
-> There is nothing that says that algorithms can ignore
-> !CRYPTO_ALG_ALLOCATES_MEMORY if there are too many scatterlist entries.  See the
-> comment above the definition of CRYPTO_ALG_ALLOCATES_MEMORY.
+> As commit 46bbe5c671e0 ("tracing: fix double free") said, the
+> "double free" problem reported by clang static analyzer is:
+>   > In parse_var_defs() if there is a problem allocating
+>   > var_defs.expr, the earlier var_defs.name is freed.
+>   > This free is duplicated by free_var_defs() which frees
+>   > the rest of the list.
 > 
-> If you need to introduce this constraint, then you will need to audit the users
-> of !CRYPTO_ALG_ALLOCATES_MEMORY to verify that none of them are issuing requests
-> that violate this constraint, then add this to the documentation comment for
-> CRYPTO_ALG_ALLOCATES_MEMORY.
-Belatedly...
+> However, if there is a problem allocating N-th var_defs.expr:
+>   + in parse_var_defs(), the freed 'earlier var_defs.name' is
+>     actually the N-th var_defs.name;
+>   + then in free_var_defs(), the names from 0th to (N-1)-th are freed;
+> 
+>                         IF ALLOCATING PROBLEM HAPPENED HERE!!! -+
+>                                                                  \
+>                                                                   |
+>           0th           1th                 (N-1)-th      N-th    V
+>           +-------------+-------------+-----+-------------+-----------
+> var_defs: | name | expr | name | expr | ... | name | expr | name | ///
+>           +-------------+-------------+-----+-------------+-----------
+> 
+> These two frees don't act on same name, so there was no "double free"
+> problem before. Conversely, after that commit, we get a "memory leak"
+> problem because the above "N-th var_defs.name" is not freed.
 
-Adding to this thread my colleague Lucas who did an audit of the users
-of !CRYPTO_ALG_ALLOCATES_MEMORY to understand if we can add a constraint
-to the definition of CRYPTO_ALG_ALLOCATES_MEMORY.
+Good catch, thanks for fixing it.
 
-Regards,
+So I'm wondering if this means that that the original unnecessary bugfix
+was based on a bug in the clang static analyzer or if that would just be
+considered a false positive...
 
--- 
-Giovanni
+Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
+
+Tom  
+
+> 
+> If enable CONFIG_DEBUG_KMEMLEAK and inject a fault at where the N-th
+> var_defs.expr allocated, then execute on shell like:
+>   $ echo 'hist:key=call_site:val=$v1,$v2:v1=bytes_req,v2=bytes_alloc' > \
+> /sys/kernel/debug/tracing/events/kmem/kmalloc/trigger
+> 
+> Then kmemleak reports:
+>   unreferenced object 0xffff8fb100ef3518 (size 8):
+>     comm "bash", pid 196, jiffies 4295681690 (age 28.538s)
+>     hex dump (first 8 bytes):
+>       76 31 00 00 b1 8f ff ff                          v1......
+>     backtrace:
+>       [<0000000038fe4895>] kstrdup+0x2d/0x60
+>       [<00000000c99c049a>] event_hist_trigger_parse+0x206f/0x20e0
+>       [<00000000ae70d2cc>] trigger_process_regex+0xc0/0x110
+>       [<0000000066737a4c>] event_trigger_write+0x75/0xd0
+>       [<000000007341e40c>] vfs_write+0xbb/0x2a0
+>       [<0000000087fde4c2>] ksys_write+0x59/0xd0
+>       [<00000000581e9cdf>] do_syscall_64+0x3a/0x80
+>       [<00000000cf3b065c>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 46bbe5c671e0 ("tracing: fix double free")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+> ---
+>  kernel/trace/trace_events_hist.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> Changes since v1:
+> - Assign 'NULL' after 'kfree' for safety as suggested by Steven
+> - Rename commit title and add Suggested-by tag
+> 
+> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+> index 48e82e141d54..e87a46794079 100644
+> --- a/kernel/trace/trace_events_hist.c
+> +++ b/kernel/trace/trace_events_hist.c
+> @@ -4430,6 +4430,8 @@ static int parse_var_defs(struct hist_trigger_data *hist_data)
+>  
+>  			s = kstrdup(field_str, GFP_KERNEL);
+>  			if (!s) {
+> +				kfree(hist_data->attrs->var_defs.name[n_vars]);
+> +				hist_data->attrs->var_defs.name[n_vars] = NULL;
+>  				ret = -ENOMEM;
+>  				goto free;
+>  			}
