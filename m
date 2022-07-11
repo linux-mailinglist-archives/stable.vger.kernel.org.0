@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D4B56FC33
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5108456FC34
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbiGKJku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37826 "EHLO
+        id S231564AbiGKJkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233160AbiGKJkA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:40:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCAE58C17C;
-        Mon, 11 Jul 2022 02:20:31 -0700 (PDT)
+        with ESMTP id S233188AbiGKJkB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:40:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACDC8C745;
+        Mon, 11 Jul 2022 02:20:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 13E61CE125D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDFBD612A0;
+        Mon, 11 Jul 2022 09:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9D7BC341C0;
         Mon, 11 Jul 2022 09:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C733DC341C0;
-        Mon, 11 Jul 2022 09:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531228;
-        bh=qHgKYxqgAm81b0hOmcGoke/IsgPA+fooL4yEG/AmAo4=;
+        s=korg; t=1657531231;
+        bh=rmjGp32/KxPHpWOyXXiHSYLoisg8Hd5yKhINRxYoBKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwRbaVD8bw9bdAAP3YqGIcuE4GtYrwFS0eHdaOkq8kGxVNqdAOCVTsYXOgJU360FP
-         02FbxXa4hYHOVZo18ZSb7KVd27lvJWBBg5xoylkrK4EJaPl8nmQA6XABw6X+K9IXdz
-         yWoxirsQQEOldWYqaQW6Tc2/UmKR7j2xTTqHYa5g=
+        b=zpU9FIqYcnAyJFC1gQKNE70Zj6T9N4QtRdLyxgSHT4QlV+8JR/xp7m29LGzAOzShr
+         TwOiTwwXOT6o7a2AX1di/UlwJhiCnjqPe9LrVKAJn0ir7UhEzwBqb1MqCn9aJgxRsZ
+         O+hIrG7H99cSJakZjOFGrWCr5GL/YEjWqmgKFGnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 029/230] dma-buf/poll: Get a file reference for outstanding fence callbacks
-Date:   Mon, 11 Jul 2022 11:04:45 +0200
-Message-Id: <20220711090604.904789107@linuxfoundation.org>
+Subject: [PATCH 5.15 030/230] btrfs: fix deadlock between chunk allocation and chunk btree modifications
+Date:   Mon, 11 Jul 2022 11:04:46 +0200
+Message-Id: <20220711090604.932846353@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,88 +56,454 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michel Dänzer <mdaenzer@redhat.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit ff2d23843f7fb4f13055be5a4a9a20ddd04e6e9c ]
+[ Upstream commit 2bb2e00ed9787e52580bb651264b8d6a2b7a9dd2 ]
 
-This makes sure we don't hit the
+When a task is doing some modification to the chunk btree and it is not in
+the context of a chunk allocation or a chunk removal, it can deadlock with
+another task that is currently allocating a new data or metadata chunk.
 
-	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
+These contexts are the following:
 
-in dma_buf_release, which could be triggered by user space closing the
-dma-buf file description while there are outstanding fence callbacks
-from dma_buf_poll.
+* When relocating a system chunk, when we need to COW the extent buffers
+  that belong to the chunk btree;
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210723075857.4065-1-michel@daenzer.net
-Signed-off-by: Christian König <christian.koenig@amd.com>
+* When adding a new device (ioctl), where we need to add a new device item
+  to the chunk btree;
+
+* When removing a device (ioctl), where we need to remove a device item
+  from the chunk btree;
+
+* When resizing a device (ioctl), where we need to update a device item in
+  the chunk btree and may need to relocate a system chunk that lies beyond
+  the new device size when shrinking a device.
+
+The problem happens due to a sequence of steps like the following:
+
+1) Task A starts a data or metadata chunk allocation and it locks the
+   chunk mutex;
+
+2) Task B is relocating a system chunk, and when it needs to COW an extent
+   buffer of the chunk btree, it has locked both that extent buffer as
+   well as its parent extent buffer;
+
+3) Since there is not enough available system space, either because none
+   of the existing system block groups have enough free space or because
+   the only one with enough free space is in RO mode due to the relocation,
+   task B triggers a new system chunk allocation. It blocks when trying to
+   acquire the chunk mutex, currently held by task A;
+
+4) Task A enters btrfs_chunk_alloc_add_chunk_item(), in order to insert
+   the new chunk item into the chunk btree and update the existing device
+   items there. But in order to do that, it has to lock the extent buffer
+   that task B locked at step 2, or its parent extent buffer, but task B
+   is waiting on the chunk mutex, which is currently locked by task A,
+   therefore resulting in a deadlock.
+
+One example report when the deadlock happens with system chunk relocation:
+
+  INFO: task kworker/u9:5:546 blocked for more than 143 seconds.
+        Not tainted 5.15.0-rc3+ #1
+  "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  task:kworker/u9:5    state:D stack:25936 pid:  546 ppid:     2 flags:0x00004000
+  Workqueue: events_unbound btrfs_async_reclaim_metadata_space
+  Call Trace:
+   context_switch kernel/sched/core.c:4940 [inline]
+   __schedule+0xcd9/0x2530 kernel/sched/core.c:6287
+   schedule+0xd3/0x270 kernel/sched/core.c:6366
+   rwsem_down_read_slowpath+0x4ee/0x9d0 kernel/locking/rwsem.c:993
+   __down_read_common kernel/locking/rwsem.c:1214 [inline]
+   __down_read kernel/locking/rwsem.c:1223 [inline]
+   down_read_nested+0xe6/0x440 kernel/locking/rwsem.c:1590
+   __btrfs_tree_read_lock+0x31/0x350 fs/btrfs/locking.c:47
+   btrfs_tree_read_lock fs/btrfs/locking.c:54 [inline]
+   btrfs_read_lock_root_node+0x8a/0x320 fs/btrfs/locking.c:191
+   btrfs_search_slot_get_root fs/btrfs/ctree.c:1623 [inline]
+   btrfs_search_slot+0x13b4/0x2140 fs/btrfs/ctree.c:1728
+   btrfs_update_device+0x11f/0x500 fs/btrfs/volumes.c:2794
+   btrfs_chunk_alloc_add_chunk_item+0x34d/0xea0 fs/btrfs/volumes.c:5504
+   do_chunk_alloc fs/btrfs/block-group.c:3408 [inline]
+   btrfs_chunk_alloc+0x84d/0xf50 fs/btrfs/block-group.c:3653
+   flush_space+0x54e/0xd80 fs/btrfs/space-info.c:670
+   btrfs_async_reclaim_metadata_space+0x396/0xa90 fs/btrfs/space-info.c:953
+   process_one_work+0x9df/0x16d0 kernel/workqueue.c:2297
+   worker_thread+0x90/0xed0 kernel/workqueue.c:2444
+   kthread+0x3e5/0x4d0 kernel/kthread.c:319
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+  INFO: task syz-executor:9107 blocked for more than 143 seconds.
+        Not tainted 5.15.0-rc3+ #1
+  "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  task:syz-executor    state:D stack:23200 pid: 9107 ppid:  7792 flags:0x00004004
+  Call Trace:
+   context_switch kernel/sched/core.c:4940 [inline]
+   __schedule+0xcd9/0x2530 kernel/sched/core.c:6287
+   schedule+0xd3/0x270 kernel/sched/core.c:6366
+   schedule_preempt_disabled+0xf/0x20 kernel/sched/core.c:6425
+   __mutex_lock_common kernel/locking/mutex.c:669 [inline]
+   __mutex_lock+0xc96/0x1680 kernel/locking/mutex.c:729
+   btrfs_chunk_alloc+0x31a/0xf50 fs/btrfs/block-group.c:3631
+   find_free_extent_update_loop fs/btrfs/extent-tree.c:3986 [inline]
+   find_free_extent+0x25cb/0x3a30 fs/btrfs/extent-tree.c:4335
+   btrfs_reserve_extent+0x1f1/0x500 fs/btrfs/extent-tree.c:4415
+   btrfs_alloc_tree_block+0x203/0x1120 fs/btrfs/extent-tree.c:4813
+   __btrfs_cow_block+0x412/0x1620 fs/btrfs/ctree.c:415
+   btrfs_cow_block+0x2f6/0x8c0 fs/btrfs/ctree.c:570
+   btrfs_search_slot+0x1094/0x2140 fs/btrfs/ctree.c:1768
+   relocate_tree_block fs/btrfs/relocation.c:2694 [inline]
+   relocate_tree_blocks+0xf73/0x1770 fs/btrfs/relocation.c:2757
+   relocate_block_group+0x47e/0xc70 fs/btrfs/relocation.c:3673
+   btrfs_relocate_block_group+0x48a/0xc60 fs/btrfs/relocation.c:4070
+   btrfs_relocate_chunk+0x96/0x280 fs/btrfs/volumes.c:3181
+   __btrfs_balance fs/btrfs/volumes.c:3911 [inline]
+   btrfs_balance+0x1f03/0x3cd0 fs/btrfs/volumes.c:4301
+   btrfs_ioctl_balance+0x61e/0x800 fs/btrfs/ioctl.c:4137
+   btrfs_ioctl+0x39ea/0x7b70 fs/btrfs/ioctl.c:4949
+   vfs_ioctl fs/ioctl.c:51 [inline]
+   __do_sys_ioctl fs/ioctl.c:874 [inline]
+   __se_sys_ioctl fs/ioctl.c:860 [inline]
+   __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+So fix this by making sure that whenever we try to modify the chunk btree
+and we are neither in a chunk allocation context nor in a chunk remove
+context, we reserve system space before modifying the chunk btree.
+
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CACkBjsax51i4mu6C0C3vJqQN3NR_iVuucoeG3U1HXjrgzn5FFQ@mail.gmail.com/
+Fixes: 79bd37120b1495 ("btrfs: rework chunk allocation to avoid exhaustion of the system chunk array")
+CC: stable@vger.kernel.org # 5.14+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-buf.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ fs/btrfs/block-group.c | 146 +++++++++++++++++++++++++----------------
+ fs/btrfs/block-group.h |   2 +
+ fs/btrfs/relocation.c  |   4 ++
+ fs/btrfs/volumes.c     |  15 ++++-
+ 4 files changed, 111 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index f9217e300eea..968c3df2810e 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -67,12 +67,9 @@ static void dma_buf_release(struct dentry *dentry)
- 	BUG_ON(dmabuf->vmapping_counter);
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index aadc1203ad88..c6c5a22ff6e8 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -3406,25 +3406,6 @@ static int do_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags)
+ 		goto out;
+ 	}
  
- 	/*
--	 * Any fences that a dma-buf poll can wait on should be signaled
--	 * before releasing dma-buf. This is the responsibility of each
--	 * driver that uses the reservation objects.
+-	/*
+-	 * If this is a system chunk allocation then stop right here and do not
+-	 * add the chunk item to the chunk btree. This is to prevent a deadlock
+-	 * because this system chunk allocation can be triggered while COWing
+-	 * some extent buffer of the chunk btree and while holding a lock on a
+-	 * parent extent buffer, in which case attempting to insert the chunk
+-	 * item (or update the device item) would result in a deadlock on that
+-	 * parent extent buffer. In this case defer the chunk btree updates to
+-	 * the second phase of chunk allocation and keep our reservation until
+-	 * the second phase completes.
 -	 *
--	 * If you hit this BUG() it means someone dropped their ref to the
--	 * dma-buf while still having pending operation to the buffer.
-+	 * If you hit this BUG() it could mean:
-+	 * * There's a file reference imbalance in dma_buf_poll / dma_buf_poll_cb or somewhere else
-+	 * * dmabuf->cb_in/out.active are non-0 despite no pending fence callback
+-	 * This is a rare case and can only be triggered by the very few cases
+-	 * we have where we need to touch the chunk btree outside chunk allocation
+-	 * and chunk removal. These cases are basically adding a device, removing
+-	 * a device or resizing a device.
+-	 */
+-	if (flags & BTRFS_BLOCK_GROUP_SYSTEM)
+-		return 0;
+-
+ 	ret = btrfs_chunk_alloc_add_chunk_item(trans, bg);
+ 	/*
+ 	 * Normally we are not expected to fail with -ENOSPC here, since we have
+@@ -3557,14 +3538,14 @@ static int do_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags)
+  * This has happened before and commit eafa4fd0ad0607 ("btrfs: fix exhaustion of
+  * the system chunk array due to concurrent allocations") provides more details.
+  *
+- * For allocation of system chunks, we defer the updates and insertions into the
+- * chunk btree to phase 2. This is to prevent deadlocks on extent buffers because
+- * if the chunk allocation is triggered while COWing an extent buffer of the
+- * chunk btree, we are holding a lock on the parent of that extent buffer and
+- * doing the chunk btree updates and insertions can require locking that parent.
+- * This is for the very few and rare cases where we update the chunk btree that
+- * are not chunk allocation or chunk removal: adding a device, removing a device
+- * or resizing a device.
++ * Allocation of system chunks does not happen through this function. A task that
++ * needs to update the chunk btree (the only btree that uses system chunks), must
++ * preallocate chunk space by calling either check_system_chunk() or
++ * btrfs_reserve_chunk_metadata() - the former is used when allocating a data or
++ * metadata chunk or when removing a chunk, while the later is used before doing
++ * a modification to the chunk btree - use cases for the later are adding,
++ * removing and resizing a device as well as relocation of a system chunk.
++ * See the comment below for more details.
+  *
+  * The reservation of system space, done through check_system_chunk(), as well
+  * as all the updates and insertions into the chunk btree must be done while
+@@ -3601,11 +3582,27 @@ int btrfs_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags,
+ 	if (trans->allocating_chunk)
+ 		return -ENOSPC;
+ 	/*
+-	 * If we are removing a chunk, don't re-enter or we would deadlock.
+-	 * System space reservation and system chunk allocation is done by the
+-	 * chunk remove operation (btrfs_remove_chunk()).
++	 * Allocation of system chunks can not happen through this path, as we
++	 * could end up in a deadlock if we are allocating a data or metadata
++	 * chunk and there is another task modifying the chunk btree.
++	 *
++	 * This is because while we are holding the chunk mutex, we will attempt
++	 * to add the new chunk item to the chunk btree or update an existing
++	 * device item in the chunk btree, while the other task that is modifying
++	 * the chunk btree is attempting to COW an extent buffer while holding a
++	 * lock on it and on its parent - if the COW operation triggers a system
++	 * chunk allocation, then we can deadlock because we are holding the
++	 * chunk mutex and we may need to access that extent buffer or its parent
++	 * in order to add the chunk item or update a device item.
++	 *
++	 * Tasks that want to modify the chunk tree should reserve system space
++	 * before updating the chunk btree, by calling either
++	 * btrfs_reserve_chunk_metadata() or check_system_chunk().
++	 * It's possible that after a task reserves the space, it still ends up
++	 * here - this happens in the cases described above at do_chunk_alloc().
++	 * The task will have to either retry or fail.
  	 */
- 	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
+-	if (trans->removing_chunk)
++	if (flags & BTRFS_BLOCK_GROUP_SYSTEM)
+ 		return -ENOSPC;
  
-@@ -200,6 +197,7 @@ static loff_t dma_buf_llseek(struct file *file, loff_t offset, int whence)
- static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
- {
- 	struct dma_buf_poll_cb_t *dcb = (struct dma_buf_poll_cb_t *)cb;
-+	struct dma_buf *dmabuf = container_of(dcb->poll, struct dma_buf, poll);
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&dcb->poll->lock, flags);
-@@ -207,6 +205,8 @@ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
- 	dcb->active = 0;
- 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
- 	dma_fence_put(fence);
-+	/* Paired with get_file in dma_buf_poll */
-+	fput(dmabuf->file);
+ 	space_info = btrfs_find_space_info(fs_info, flags);
+@@ -3704,17 +3701,14 @@ static u64 get_profile_num_devs(struct btrfs_fs_info *fs_info, u64 type)
+ 	return num_dev;
  }
  
- static bool dma_buf_poll_shared(struct dma_resv *resv,
-@@ -282,8 +282,12 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- 		spin_unlock_irq(&dmabuf->poll.lock);
+-/*
+- * Reserve space in the system space for allocating or removing a chunk
+- */
+-void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
++static void reserve_chunk_space(struct btrfs_trans_handle *trans,
++				u64 bytes,
++				u64 type)
+ {
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_space_info *info;
+ 	u64 left;
+-	u64 thresh;
+ 	int ret = 0;
+-	u64 num_devs;
  
- 		if (events & EPOLLOUT) {
-+			/* Paired with fput in dma_buf_poll_cb */
-+			get_file(dmabuf->file);
-+
- 			if (!dma_buf_poll_shared(resv, dcb) &&
- 			    !dma_buf_poll_excl(resv, dcb))
-+
- 				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
- 			else
-@@ -303,6 +307,9 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- 		spin_unlock_irq(&dmabuf->poll.lock);
+ 	/*
+ 	 * Needed because we can end up allocating a system chunk and for an
+@@ -3727,19 +3721,13 @@ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ 	left = info->total_bytes - btrfs_space_info_used(info, true);
+ 	spin_unlock(&info->lock);
  
- 		if (events & EPOLLIN) {
-+			/* Paired with fput in dma_buf_poll_cb */
-+			get_file(dmabuf->file);
+-	num_devs = get_profile_num_devs(fs_info, type);
+-
+-	/* num_devs device items to update and 1 chunk item to add or remove */
+-	thresh = btrfs_calc_metadata_size(fs_info, num_devs) +
+-		btrfs_calc_insert_metadata_size(fs_info, 1);
+-
+-	if (left < thresh && btrfs_test_opt(fs_info, ENOSPC_DEBUG)) {
++	if (left < bytes && btrfs_test_opt(fs_info, ENOSPC_DEBUG)) {
+ 		btrfs_info(fs_info, "left=%llu, need=%llu, flags=%llu",
+-			   left, thresh, type);
++			   left, bytes, type);
+ 		btrfs_dump_space_info(fs_info, info, 0, 0);
+ 	}
+ 
+-	if (left < thresh) {
++	if (left < bytes) {
+ 		u64 flags = btrfs_system_alloc_profile(fs_info);
+ 		struct btrfs_block_group *bg;
+ 
+@@ -3748,21 +3736,20 @@ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ 		 * needing it, as we might not need to COW all nodes/leafs from
+ 		 * the paths we visit in the chunk tree (they were already COWed
+ 		 * or created in the current transaction for example).
+-		 *
+-		 * Also, if our caller is allocating a system chunk, do not
+-		 * attempt to insert the chunk item in the chunk btree, as we
+-		 * could deadlock on an extent buffer since our caller may be
+-		 * COWing an extent buffer from the chunk btree.
+ 		 */
+ 		bg = btrfs_create_chunk(trans, flags);
+ 		if (IS_ERR(bg)) {
+ 			ret = PTR_ERR(bg);
+-		} else if (!(type & BTRFS_BLOCK_GROUP_SYSTEM)) {
++		} else {
+ 			/*
+ 			 * If we fail to add the chunk item here, we end up
+ 			 * trying again at phase 2 of chunk allocation, at
+ 			 * btrfs_create_pending_block_groups(). So ignore
+-			 * any error here.
++			 * any error here. An ENOSPC here could happen, due to
++			 * the cases described at do_chunk_alloc() - the system
++			 * block group we just created was just turned into RO
++			 * mode by a scrub for example, or a running discard
++			 * temporarily removed its free space entries, etc.
+ 			 */
+ 			btrfs_chunk_alloc_add_chunk_item(trans, bg);
+ 		}
+@@ -3771,12 +3758,61 @@ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ 	if (!ret) {
+ 		ret = btrfs_block_rsv_add(fs_info->chunk_root,
+ 					  &fs_info->chunk_block_rsv,
+-					  thresh, BTRFS_RESERVE_NO_FLUSH);
++					  bytes, BTRFS_RESERVE_NO_FLUSH);
+ 		if (!ret)
+-			trans->chunk_bytes_reserved += thresh;
++			trans->chunk_bytes_reserved += bytes;
+ 	}
+ }
+ 
++/*
++ * Reserve space in the system space for allocating or removing a chunk.
++ * The caller must be holding fs_info->chunk_mutex.
++ */
++void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
++{
++	struct btrfs_fs_info *fs_info = trans->fs_info;
++	const u64 num_devs = get_profile_num_devs(fs_info, type);
++	u64 bytes;
 +
- 			if (!dma_buf_poll_excl(resv, dcb))
- 				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
++	/* num_devs device items to update and 1 chunk item to add or remove. */
++	bytes = btrfs_calc_metadata_size(fs_info, num_devs) +
++		btrfs_calc_insert_metadata_size(fs_info, 1);
++
++	reserve_chunk_space(trans, bytes, type);
++}
++
++/*
++ * Reserve space in the system space, if needed, for doing a modification to the
++ * chunk btree.
++ *
++ * @trans:		A transaction handle.
++ * @is_item_insertion:	Indicate if the modification is for inserting a new item
++ *			in the chunk btree or if it's for the deletion or update
++ *			of an existing item.
++ *
++ * This is used in a context where we need to update the chunk btree outside
++ * block group allocation and removal, to avoid a deadlock with a concurrent
++ * task that is allocating a metadata or data block group and therefore needs to
++ * update the chunk btree while holding the chunk mutex. After the update to the
++ * chunk btree is done, btrfs_trans_release_chunk_metadata() should be called.
++ *
++ */
++void btrfs_reserve_chunk_metadata(struct btrfs_trans_handle *trans,
++				  bool is_item_insertion)
++{
++	struct btrfs_fs_info *fs_info = trans->fs_info;
++	u64 bytes;
++
++	if (is_item_insertion)
++		bytes = btrfs_calc_insert_metadata_size(fs_info, 1);
++	else
++		bytes = btrfs_calc_metadata_size(fs_info, 1);
++
++	mutex_lock(&fs_info->chunk_mutex);
++	reserve_chunk_space(trans, bytes, BTRFS_BLOCK_GROUP_SYSTEM);
++	mutex_unlock(&fs_info->chunk_mutex);
++}
++
+ void btrfs_put_block_group_cache(struct btrfs_fs_info *info)
+ {
+ 	struct btrfs_block_group *block_group;
+diff --git a/fs/btrfs/block-group.h b/fs/btrfs/block-group.h
+index c72a71efcb18..37e55ebde735 100644
+--- a/fs/btrfs/block-group.h
++++ b/fs/btrfs/block-group.h
+@@ -289,6 +289,8 @@ int btrfs_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags,
+ 		      enum btrfs_chunk_alloc_enum force);
+ int btrfs_force_chunk_alloc(struct btrfs_trans_handle *trans, u64 type);
+ void check_system_chunk(struct btrfs_trans_handle *trans, const u64 type);
++void btrfs_reserve_chunk_metadata(struct btrfs_trans_handle *trans,
++				  bool is_item_insertion);
+ u64 btrfs_get_alloc_profile(struct btrfs_fs_info *fs_info, u64 orig_flags);
+ void btrfs_put_block_group_cache(struct btrfs_fs_info *info);
+ int btrfs_free_block_groups(struct btrfs_fs_info *info);
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 0300770c0a89..429a198f8937 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -2698,8 +2698,12 @@ static int relocate_tree_block(struct btrfs_trans_handle *trans,
+ 			list_add_tail(&node->list, &rc->backref_cache.changed);
+ 		} else {
+ 			path->lowest_level = node->level;
++			if (root == root->fs_info->chunk_root)
++				btrfs_reserve_chunk_metadata(trans, false);
+ 			ret = btrfs_search_slot(trans, root, key, path, 0, 1);
+ 			btrfs_release_path(path);
++			if (root == root->fs_info->chunk_root)
++				btrfs_trans_release_chunk_metadata(trans);
+ 			if (ret > 0)
+ 				ret = 0;
+ 		}
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index b75ce79a2540..fa68efd7e610 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1879,8 +1879,10 @@ static int btrfs_add_dev_item(struct btrfs_trans_handle *trans,
+ 	key.type = BTRFS_DEV_ITEM_KEY;
+ 	key.offset = device->devid;
+ 
++	btrfs_reserve_chunk_metadata(trans, true);
+ 	ret = btrfs_insert_empty_item(trans, trans->fs_info->chunk_root, path,
+ 				      &key, sizeof(*dev_item));
++	btrfs_trans_release_chunk_metadata(trans);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1957,7 +1959,9 @@ static int btrfs_rm_dev_item(struct btrfs_device *device)
+ 	key.type = BTRFS_DEV_ITEM_KEY;
+ 	key.offset = device->devid;
+ 
++	btrfs_reserve_chunk_metadata(trans, false);
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
++	btrfs_trans_release_chunk_metadata(trans);
+ 	if (ret) {
+ 		if (ret > 0)
+ 			ret = -ENOENT;
+@@ -2513,7 +2517,9 @@ static int btrfs_finish_sprout(struct btrfs_trans_handle *trans)
+ 	key.type = BTRFS_DEV_ITEM_KEY;
+ 
+ 	while (1) {
++		btrfs_reserve_chunk_metadata(trans, false);
+ 		ret = btrfs_search_slot(trans, root, &key, path, 0, 1);
++		btrfs_trans_release_chunk_metadata(trans);
+ 		if (ret < 0)
+ 			goto error;
+ 
+@@ -2861,6 +2867,7 @@ int btrfs_grow_device(struct btrfs_trans_handle *trans,
+ 	struct btrfs_super_block *super_copy = fs_info->super_copy;
+ 	u64 old_total;
+ 	u64 diff;
++	int ret;
+ 
+ 	if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
+ 		return -EACCES;
+@@ -2889,7 +2896,11 @@ int btrfs_grow_device(struct btrfs_trans_handle *trans,
+ 			      &trans->transaction->dev_update_list);
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
+-	return btrfs_update_device(trans, device);
++	btrfs_reserve_chunk_metadata(trans, false);
++	ret = btrfs_update_device(trans, device);
++	btrfs_trans_release_chunk_metadata(trans);
++
++	return ret;
+ }
+ 
+ static int btrfs_free_chunk(struct btrfs_trans_handle *trans, u64 chunk_offset)
+@@ -4926,8 +4937,10 @@ int btrfs_shrink_device(struct btrfs_device *device, u64 new_size)
+ 			round_down(old_total - diff, fs_info->sectorsize));
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
++	btrfs_reserve_chunk_metadata(trans, false);
+ 	/* Now btrfs_update_device() will change the on-disk size. */
+ 	ret = btrfs_update_device(trans, device);
++	btrfs_trans_release_chunk_metadata(trans);
+ 	if (ret < 0) {
+ 		btrfs_abort_transaction(trans, ret);
+ 		btrfs_end_transaction(trans);
 -- 
 2.35.1
 
