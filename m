@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94E1D56FAA8
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55ED856FB93
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231858AbiGKJUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42756 "EHLO
+        id S232662AbiGKJcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231862AbiGKJUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:13 -0400
+        with ESMTP id S231424AbiGKJb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:31:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FD2352FC8;
-        Mon, 11 Jul 2022 02:12:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ECE34199E;
+        Mon, 11 Jul 2022 02:17:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45E32B80E76;
-        Mon, 11 Jul 2022 09:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8C26C341C0;
-        Mon, 11 Jul 2022 09:12:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF08CB80E76;
+        Mon, 11 Jul 2022 09:17:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 022F0C34115;
+        Mon, 11 Jul 2022 09:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530743;
-        bh=WupakI2RpoIXjYqEa31FSAGvYP6KTiAF4owg9wrvApk=;
+        s=korg; t=1657531038;
+        bh=8UAVguRCvTybjVhHmN58+ti9OdpcIkLeDFPb9kOGhRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIkytrQI95nrHjYU8aZTUfzGHapftrTvOkBCdwzp5w9YFdwWY4eSPO8vAEDkeh1bc
-         dzCu2oEHJ/mRRU1wPb5nmqkITklyrZVUmLdPjzz3mnaLIqV7n1Lx7VDxf6XMeQAAUt
-         9Z2BRFQXur8fsHvIgwlk4hLYTrNF78hcQ98i+Anw=
+        b=a9L/M1t3KwOeHvcVjeOcTS2raWA/unQnWr8sA8Wc28lmzzyDnoY9pD3/ml0o9bLvp
+         G1ngjWM+5Sj8EKGHaTbiHOWOmZLWvO5qLxqTyMpavQ8xTpWw6sPDSYoNeqqy7+mUSt
+         e8mmILAxBBVy5E3urprM9sWI1tsfLd18oo5i1UGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>
-Subject: [PATCH 5.10 24/55] xfs: remove incorrect ASSERT in xfs_rename
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 072/112] ARM: at91: pm: use proper compatibles for sama7g5s rtc and rtt
 Date:   Mon, 11 Jul 2022 11:07:12 +0200
-Message-Id: <20220711090542.478899270@linuxfoundation.org>
+Message-Id: <20220711090551.616611516@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit e445976537ad139162980bee015b7364e5b64fff upstream.
+[ Upstream commit 1c40169b35ad58906814d53a517ac92db3d20d5f ]
 
-This ASSERT in xfs_rename is a) incorrect, because
-(RENAME_WHITEOUT|RENAME_NOREPLACE) is a valid combination, and
-b) unnecessary, because actual invalid flag combinations are already
-handled at the vfs level in do_renameat2() before we get called.
-So, remove it.
+Use proper compatible strings for SAMA7G5's RTC and RTT IPs. These are
+necessary for configuring wakeup sources for ULP1 PM mode.
 
-Reported-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Fixes: 7dcf5c3e4527 ("xfs: add RENAME_WHITEOUT support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6501330f9f5e ("ARM: at91: pm: add pm support for SAMA7G5")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220523092421.317345-4-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_inode.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/mach-at91/pm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -3170,7 +3170,6 @@ xfs_rename(
- 	 * appropriately.
- 	 */
- 	if (flags & RENAME_WHITEOUT) {
--		ASSERT(!(flags & (RENAME_NOREPLACE | RENAME_EXCHANGE)));
- 		error = xfs_rename_alloc_whiteout(target_dp, &wip);
- 		if (error)
- 			return error;
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 464b7dea5bbe..32f224f723a5 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -168,13 +168,13 @@ static const struct of_device_id sam9x60_ws_ids[] = {
+ };
+ 
+ static const struct of_device_id sama7g5_ws_ids[] = {
+-	{ .compatible = "atmel,at91sam9x5-rtc",		.data = &ws_info[1] },
++	{ .compatible = "microchip,sama7g5-rtc",	.data = &ws_info[1] },
+ 	{ .compatible = "microchip,sama7g5-ohci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
+ 	{ .compatible = "atmel,at91sam9g45-ehci",	.data = &ws_info[2] },
+ 	{ .compatible = "usb-ehci",			.data = &ws_info[2] },
+ 	{ .compatible = "microchip,sama7g5-sdhci",	.data = &ws_info[3] },
+-	{ .compatible = "atmel,at91sam9260-rtt",	.data = &ws_info[4] },
++	{ .compatible = "microchip,sama7g5-rtt",	.data = &ws_info[4] },
+ 	{ /* sentinel */ }
+ };
+ 
+-- 
+2.35.1
+
 
 
