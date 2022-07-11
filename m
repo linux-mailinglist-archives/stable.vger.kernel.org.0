@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E5056FAE7
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 765C356FDE8
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231877AbiGKJXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S230094AbiGKKCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:02:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232001AbiGKJW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF863F34;
-        Mon, 11 Jul 2022 02:13:38 -0700 (PDT)
+        with ESMTP id S234366AbiGKKB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:01:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94EEB8E93;
+        Mon, 11 Jul 2022 02:28:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 357E0610A5;
-        Mon, 11 Jul 2022 09:13:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47ECCC34115;
-        Mon, 11 Jul 2022 09:13:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70161B80E87;
+        Mon, 11 Jul 2022 09:28:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39FBC34115;
+        Mon, 11 Jul 2022 09:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530817;
-        bh=lh7AYL4Z8YvuRd3eo1vbbmlhCCo0hOo/6FSah1I1Stk=;
+        s=korg; t=1657531704;
+        bh=D0dFsVUx046MH+rBA7BhQb8BfgSRDc1hnJB8uhlMA2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qo66wcQZwr1+ewOUr4ARbbfBGH3ihBv0TlT56VyncBe9xt/TYp2XfQsCnA10GTUOr
-         itAMJ2wZeHX1ydEHl11i2NZQguMAS+IPDEwP5E8xyPvx3I97sqSWo5rj64TtCquhMl
-         QAaD/LY4FnFpMkzbMJb9w7BBj83xVNc7Rc5dJceQ=
+        b=gXMPf3yxFRi5PDyisCfHj+nFWajPHs86ymgiXzTARdriAYEMngfUhzd2OiTMcolko
+         j9AHdMEXI8Xl4MaUxbPFaIIHR0gZuiassMoggaLTldbYyBZCRSD9ScgCQgw+A6vxYV
+         V/OXNPNNQk7qwDtPQhvKZrleF2ZtRNfVqeiqTjMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        stable <stable@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.10 49/55] misc: rtsx_usb: set return value in rsp_buf alloc err path
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 201/230] ARM: dts: at91: sama5d2_icp: fix eeprom compatibles
 Date:   Mon, 11 Jul 2022 11:07:37 +0200
-Message-Id: <20220711090543.200546951@linuxfoundation.org>
+Message-Id: <20220711090609.807367021@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit 2cd37c2e72449a7add6da1183d20a6247d6db111 upstream.
+[ Upstream commit 416ce193d73a734ded6d09fe141017b38af1c567 ]
 
-Set return value in rsp_buf alloc error path before going to
-error handling.
+The eeprom memories on the board are microchip 24aa025e48, which are 2 Kbits
+and are compatible with at24c02 not at24c32.
 
-drivers/misc/cardreader/rtsx_usb.c:639:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (!ucr->rsp_buf)
-               ^~~~~~~~~~~~~
-   drivers/misc/cardreader/rtsx_usb.c:678:9: note: uninitialized use occurs here
-           return ret;
-                  ^~~
-   drivers/misc/cardreader/rtsx_usb.c:639:2: note: remove the 'if' if its condition is always false
-           if (!ucr->rsp_buf)
-           ^~~~~~~~~~~~~~~~~~
-   drivers/misc/cardreader/rtsx_usb.c:622:9: note: initialize the variable 'ret' to silence this warning
-           int ret;
-                  ^
-                   = 0
-
-Fixes: 3776c7855985 ("misc: rtsx_usb: use separate command and response buffers")
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220701165352.15687-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 68a95ef72cefe ("ARM: dts: at91: sama5d2-icp: add SAMA5D2-ICP")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220607090455.80433-2-eugen.hristev@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/rtsx_usb.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/at91-sama5d2_icp.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/misc/cardreader/rtsx_usb.c
-+++ b/drivers/misc/cardreader/rtsx_usb.c
-@@ -636,8 +636,10 @@ static int rtsx_usb_probe(struct usb_int
- 		return -ENOMEM;
+diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+index e06b58724ca8..fd1a288f686b 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
+@@ -323,21 +323,21 @@
+ 	status = "okay";
  
- 	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
--	if (!ucr->rsp_buf)
-+	if (!ucr->rsp_buf) {
-+		ret = -ENOMEM;
- 		goto out_free_cmd_buf;
-+	}
+ 	eeprom@50 {
+-		compatible = "atmel,24c32";
++		compatible = "atmel,24c02";
+ 		reg = <0x50>;
+ 		pagesize = <16>;
+ 		status = "okay";
+ 	};
  
- 	usb_set_intfdata(intf, ucr);
+ 	eeprom@52 {
+-		compatible = "atmel,24c32";
++		compatible = "atmel,24c02";
+ 		reg = <0x52>;
+ 		pagesize = <16>;
+ 		status = "disabled";
+ 	};
  
+ 	eeprom@53 {
+-		compatible = "atmel,24c32";
++		compatible = "atmel,24c02";
+ 		reg = <0x53>;
+ 		pagesize = <16>;
+ 		status = "disabled";
+-- 
+2.35.1
+
 
 
