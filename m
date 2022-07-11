@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD1B456FA6A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F15F556FAB5
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231484AbiGKJR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58878 "EHLO
+        id S231950AbiGKJVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:21:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231518AbiGKJRG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:17:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686D343E77;
-        Mon, 11 Jul 2022 02:11:13 -0700 (PDT)
+        with ESMTP id S231876AbiGKJUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:20:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA983550B8;
+        Mon, 11 Jul 2022 02:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98EB46111F;
-        Mon, 11 Jul 2022 09:11:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F620C34115;
-        Mon, 11 Jul 2022 09:11:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E684061148;
+        Mon, 11 Jul 2022 09:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05387C341CB;
+        Mon, 11 Jul 2022 09:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530672;
-        bh=us7sw7URxp75xenIgNQ7lFfzcoPjklJXCLOWqPPJNQA=;
+        s=korg; t=1657530762;
+        bh=+vTkH3RZDBI92uQCYAYfCPRyOw85ue/9OySuXaIhlos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNBkdIBO2AzO77DtsuSaowzBVY89AIuUwXPIsN6AHVsQO/7bC1ToRn/NoIjdpsVUX
-         7k0Z3cnLupApkQHa7DObcmXZ7lhJobwQVYnNc8OURV76Qba0E5zg33oUEYsyE8GiNb
-         2ljWYlBdM8YMTfwYtxLCL0OL+dV+haQdFQMJpI0o=
+        b=ju5sM/yH1rPtHOxn382t8rivyUlauYbUvhbwgEYm1d1kW0Fx7nhSjwFMd3InuplDq
+         dNOxGUg4cliHdjIFQ7iSrNwHiPbjfUwsmD8Q/IbcHn1NQNy0r2dr0Vh0lwR014g3rA
+         uFJ9h1Kf593R8ivPzh4y10rVlzOFGUsexP7pZKok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 37/38] dmaengine: ti: Fix refcount leak in ti_dra7_xbar_route_allocate
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 31/55] arm64: dts: imx8mp-evk: correct I2C3 pad settings
 Date:   Mon, 11 Jul 2022 11:07:19 +0200
-Message-Id: <20220711090539.818277812@linuxfoundation.org>
+Message-Id: <20220711090542.681601764@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
-References: <20220711090538.722676354@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit c132fe78ad7b4ce8b5d49a501a15c29d08eeb23a upstream.
+[ Upstream commit 0836de513ebaae5f03014641eac996290d67493d ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not needed anymore.
+According to RM bit layout, BIT3 and BIT0 are reserved.
+ 8  7   6   5   4   3  2 1  0
+PE HYS PUE ODE FSEL X  DSE  X
 
-Add missing of_node_put() in to fix this.
+Although function is not broken, we should not set reserved bit.
 
-Fixes: ec9bfa1e1a79 ("dmaengine: ti-dma-crossbar: dra7: Use bitops instead of idr")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220605042723.17668-2-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5e4a67ff7f69 ("arm64: dts: imx8mp-evk: Add i2c3 support")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/dma-crossbar.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mp-evk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/ti/dma-crossbar.c
-+++ b/drivers/dma/ti/dma-crossbar.c
-@@ -270,6 +270,7 @@ static void *ti_dra7_xbar_route_allocate
- 		mutex_unlock(&xbar->mutex);
- 		dev_err(&pdev->dev, "Run out of free DMA requests\n");
- 		kfree(map);
-+		of_node_put(dma_spec->np);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 	set_bit(map->xbar_out, xbar->dma_inuse);
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+index c0663a6c8376..c016f5b7d24a 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-evk.dts
+@@ -154,8 +154,8 @@
+ 
+ 	pinctrl_i2c3: i2c3grp {
+ 		fsl,pins = <
+-			MX8MP_IOMUXC_I2C3_SCL__I2C3_SCL		0x400001c3
+-			MX8MP_IOMUXC_I2C3_SDA__I2C3_SDA		0x400001c3
++			MX8MP_IOMUXC_I2C3_SCL__I2C3_SCL		0x400001c2
++			MX8MP_IOMUXC_I2C3_SDA__I2C3_SDA		0x400001c2
+ 		>;
+ 	};
+ 
+-- 
+2.35.1
+
 
 
