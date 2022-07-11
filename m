@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A6456F9E0
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 948B556FB62
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiGKJKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47282 "EHLO
+        id S232373AbiGKJ3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:29:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbiGKJJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:41 -0400
+        with ESMTP id S232587AbiGKJ3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:29:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42AB428E29;
-        Mon, 11 Jul 2022 02:08:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18FD6A9ED;
+        Mon, 11 Jul 2022 02:16:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B245F61183;
-        Mon, 11 Jul 2022 09:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDEDAC34115;
-        Mon, 11 Jul 2022 09:08:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B52696122D;
+        Mon, 11 Jul 2022 09:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA9B4C34115;
+        Mon, 11 Jul 2022 09:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530493;
-        bh=ScC+AZ/Dw/P+jFHGC5l3wAydwM8lOs+uKFo0U/CGB5E=;
+        s=korg; t=1657530975;
+        bh=qyyOTkvn1nf1BGX42SoGU7wvsA00jHIfSQboi+dvWiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WN2uLwkBdX4jsuVCCbXsKB1FdN9Y5W7HVx6VQE0HwSovx6BZvOpzTdA3vLe2iq36M
-         PP2QztMvcNuUBRPisvZIf8YKSwMkj6QQhHmIF6p2cJZ+nUAP5WoHz3JQdNRqEZrv9W
-         S7/MtWwa9ob24bEGbap7bjhlNDCWiV3dfHHyWkBQ=
+        b=Vx2tLZTJVL7Od09Ixm/XX57v7PgnsNS3A8dO/OmEjgud4YQo8NIBslI5pAX13yAwG
+         zAvJ7MMcXHCAQjWdMlnpe/gS2GmsUlF4bF/lRKmpxrbwk5PqBeh+mSyFDdF8uD7+yF
+         FnzN4qQxP06l4hjETXabVyK9bcRw0LU4sTrGuvOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4.14 08/17] fbcon: Disallow setting font bigger than screen size
-Date:   Mon, 11 Jul 2022 11:06:33 +0200
-Message-Id: <20220711090536.507712550@linuxfoundation.org>
+Subject: [PATCH 5.18 034/112] fbmem: Check virtual screen sizes in fb_set_var()
+Date:   Mon, 11 Jul 2022 11:06:34 +0200
+Message-Id: <20220711090550.537845731@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
-References: <20220711090536.245939953@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-commit 65a01e601dbba8b7a51a2677811f70f783766682 upstream.
+commit 6c11df58fd1ac0aefcb3b227f72769272b939e56 upstream.
 
-Prevent that users set a font size which is bigger than the physical screen.
-It's unlikely this may happen (because screens are usually much larger than the
-fonts and each font char is limited to 32x32 pixels), but it may happen on
-smaller screens/LCD displays.
+Verify that the fbdev or drm driver correctly adjusted the virtual
+screen sizes. On failure report the failing driver and reject the screen
+size change.
 
 Signed-off-by: Helge Deller <deller@gmx.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: stable@vger.kernel.org # v4.14+
+Cc: stable@vger.kernel.org # v5.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/video/fbdev/core/fbmem.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2445,6 +2445,11 @@ static int fbcon_set_font(struct vc_data
- 	if (charcount != 256 && charcount != 512)
- 		return -EINVAL;
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1016,6 +1016,16 @@ fb_set_var(struct fb_info *info, struct
+ 	if (ret)
+ 		return ret;
  
-+	/* font bigger than screen resolution ? */
-+	if (w > FBCON_SWAP(info->var.rotate, info->var.xres, info->var.yres) ||
-+	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
++	/* verify that virtual resolution >= physical resolution */
++	if (var->xres_virtual < var->xres ||
++	    var->yres_virtual < var->yres) {
++		pr_warn("WARNING: fbcon: Driver '%s' missed to adjust virtual screen size (%ux%u vs. %ux%u)\n",
++			info->fix.id,
++			var->xres_virtual, var->yres_virtual,
++			var->xres, var->yres);
 +		return -EINVAL;
++	}
 +
- 	/* Make sure drawing engine can handle the font */
- 	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
- 	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
+ 	if ((var->activate & FB_ACTIVATE_MASK) != FB_ACTIVATE_NOW)
+ 		return 0;
+ 
 
 
