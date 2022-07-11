@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B23C56FBA8
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2A2856FDC8
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231991AbiGKJdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:33:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41454 "EHLO
+        id S234263AbiGKKAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:00:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232792AbiGKJdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:33:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FDA7AB14;
-        Mon, 11 Jul 2022 02:17:56 -0700 (PDT)
+        with ESMTP id S234488AbiGKJ7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:59:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F0174E37;
+        Mon, 11 Jul 2022 02:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 281DB612B8;
-        Mon, 11 Jul 2022 09:17:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8BDC36AE7;
-        Mon, 11 Jul 2022 09:17:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4AF26136E;
+        Mon, 11 Jul 2022 09:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91A1C34115;
+        Mon, 11 Jul 2022 09:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531075;
-        bh=WewbxobdXy3VRk5+aYIVvs3YD7Yl6NReJmWuY9HmJdw=;
+        s=korg; t=1657531676;
+        bh=eChDofblrc/z9HyIYPzqly3n06khJx7Bm7VoQk/EUFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1R6MsxSBbw/cOsTCQhdHVgNM796dT6yzN/wZHAzGIyrmPEjUqQSEh0VlBoh3HL9o7
-         EqzQoUN+tREajs49jdKJOLfzzlIgHu7WZRcg4Gd8tc7H39r0BKVZQ3wvxAZHvrLhT/
-         hUXOj9s90beQWOGLemkXRfn42zMAgS0a8cYTscs4=
+        b=jJpJwCYu8Wu/gnTj6vMXBmTqeT0oOYOGuPwSlAWoVax/N3lcwPFAkz/rqKKmJuom+
+         vlAybCSZcHqgcTD1MeEPgv5Qbi+KwlTgwYfi/+64a7vAyMxUQ7pb2mcFr93IM/udv2
+         +GJXHpiqufwYtjs798lB+LyaLFRElZkoq5U+3ZNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Perry Yuan <perry.yuan@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 088/112] ACPI: CPPC: Dont require _OSC if X86_FEATURE_CPPC is supported
+Subject: [PATCH 5.15 192/230] arm64: dts: imx8mp-phyboard-pollux-rdk: correct uart pad settings
 Date:   Mon, 11 Jul 2022 11:07:28 +0200
-Message-Id: <20220711090552.069300240@linuxfoundation.org>
+Message-Id: <20220711090609.552212460@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 8b356e536e69f3a4d6778ae9f0858a1beadabb1f ]
+[ Upstream commit e266c155bd88e95f9b86379d6b0add6ac6e5452e ]
 
-commit 72f2ecb7ece7 ("ACPI: bus: Set CPPC _OSC bits for all and
-when CPPC_LIB is supported") added support for claiming to
-support CPPC in _OSC on non-Intel platforms.
+BIT3 and BIT0 are reserved bits, should not touch.
 
-This unfortunately caused a regression on a vartiety of AMD
-platforms in the field because a number of AMD platforms don't set
-the `_OSC` bit 5 or 6 to indicate CPPC or CPPC v2 support.
-
-As these AMD platforms already claim CPPC support via a dedicated
-MSR from `X86_FEATURE_CPPC`, use this enable this feature rather
-than requiring the `_OSC` on platforms with a dedicated MSR.
-
-If there is additional breakage on the shared memory designs also
-missing this _OSC, additional follow up changes may be needed.
-
-Fixes: 72f2ecb7ece7 ("Set CPPC _OSC bits for all and when CPPC_LIB is supported")
-Reported-by: Perry Yuan <perry.yuan@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 846f752866bd ("arm64: dts: imx8mp-phyboard-pollux-rdk: Change debug UART")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/acpi/cppc.c | 10 ++++++++++
- drivers/acpi/cppc_acpi.c    | 16 +++++++++++++++-
- include/acpi/cppc_acpi.h    |  1 +
- 3 files changed, 26 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/acpi/cppc.c b/arch/x86/kernel/acpi/cppc.c
-index df1644d9b3b6..3677df836e91 100644
---- a/arch/x86/kernel/acpi/cppc.c
-+++ b/arch/x86/kernel/acpi/cppc.c
-@@ -11,6 +11,16 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts b/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
+index 984a6b9ded8d..e34076954897 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mp-phyboard-pollux-rdk.dts
+@@ -156,8 +156,8 @@
  
- /* Refer to drivers/acpi/cppc_acpi.c for the description of functions */
+ 	pinctrl_uart1: uart1grp {
+ 		fsl,pins = <
+-			MX8MP_IOMUXC_UART1_RXD__UART1_DCE_RX	0x49
+-			MX8MP_IOMUXC_UART1_TXD__UART1_DCE_TX	0x49
++			MX8MP_IOMUXC_UART1_RXD__UART1_DCE_RX	0x40
++			MX8MP_IOMUXC_UART1_TXD__UART1_DCE_TX	0x40
+ 		>;
+ 	};
  
-+bool cpc_supported_by_cpu(void)
-+{
-+	switch (boot_cpu_data.x86_vendor) {
-+	case X86_VENDOR_AMD:
-+	case X86_VENDOR_HYGON:
-+		return boot_cpu_has(X86_FEATURE_CPPC);
-+	}
-+	return false;
-+}
-+
- bool cpc_ffh_supported(void)
- {
- 	return true;
-diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-index 6aff8019047b..57ca7aa0e169 100644
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -559,6 +559,19 @@ bool __weak cpc_ffh_supported(void)
- 	return false;
- }
- 
-+/**
-+ * cpc_supported_by_cpu() - check if CPPC is supported by CPU
-+ *
-+ * Check if the architectural support for CPPC is present even
-+ * if the _OSC hasn't prescribed it
-+ *
-+ * Return: true for supported, false for not supported
-+ */
-+bool __weak cpc_supported_by_cpu(void)
-+{
-+	return false;
-+}
-+
- /**
-  * pcc_data_alloc() - Allocate the pcc_data memory for pcc subspace
-  *
-@@ -668,7 +681,8 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
- 
- 	if (!osc_sb_cppc2_support_acked) {
- 		pr_debug("CPPC v2 _OSC not acked\n");
--		return -ENODEV;
-+		if (!cpc_supported_by_cpu())
-+			return -ENODEV;
- 	}
- 
- 	/* Parse the ACPI _CPC table for this CPU. */
-diff --git a/include/acpi/cppc_acpi.h b/include/acpi/cppc_acpi.h
-index 92b7ea8d8f5e..181907349b49 100644
---- a/include/acpi/cppc_acpi.h
-+++ b/include/acpi/cppc_acpi.h
-@@ -144,6 +144,7 @@ extern bool acpi_cpc_valid(void);
- extern int acpi_get_psd_map(unsigned int cpu, struct cppc_cpudata *cpu_data);
- extern unsigned int cppc_get_transition_latency(int cpu);
- extern bool cpc_ffh_supported(void);
-+extern bool cpc_supported_by_cpu(void);
- extern int cpc_read_ffh(int cpunum, struct cpc_reg *reg, u64 *val);
- extern int cpc_write_ffh(int cpunum, struct cpc_reg *reg, u64 val);
- #else /* !CONFIG_ACPI_CPPC_LIB */
 -- 
 2.35.1
 
