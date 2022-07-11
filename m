@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 342BE56F99F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 748A256FB0E
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229953AbiGKJGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45840 "EHLO
+        id S232010AbiGKJZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:25:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbiGKJGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:06:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E662A22B04;
-        Mon, 11 Jul 2022 02:06:51 -0700 (PDT)
+        with ESMTP id S232366AbiGKJYf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A6529822;
+        Mon, 11 Jul 2022 02:14:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A7C6B80E79;
-        Mon, 11 Jul 2022 09:06:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01CB1C341C0;
-        Mon, 11 Jul 2022 09:06:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAA54B80D2C;
+        Mon, 11 Jul 2022 09:14:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BBABC36AEB;
+        Mon, 11 Jul 2022 09:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530409;
-        bh=q2Q+I9n0V02sBi/QwXHzZEGvewpBRryFzoh+Tb46EPA=;
+        s=korg; t=1657530889;
+        bh=404RDpCX/R8w6TAuufcmeta5kQhm/fqKDMIEIfueZ68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZ8Qdmo6x3F14x/fosgqdZhlXiNgMdtljGOF0XihpTkaSKI9ae7cqPiP7CZNS0x/a
-         B2AtNA8B59VLqW/Bo3nQZjB1QJokwoIlmtahannXkLZx00Qx0i/UCgIDOI6m2ZCUcC
-         4MDIjXqrIZgbxvHB48m+j7W2a/nb2XtuKKW2z10Q=
+        b=RRFRelNDBAUV1HJrUqnLdB6C63PCqbUa2C6gIqK1eTETL/wiQXwYxbqUoMIv1JdAo
+         VV3sADs1ETEyFi06tu2DxDRr6kZwjkWLF+CThe6fr8rK/Z7OOi2kzs3nV53+5vrWQF
+         ZyYIK9NKhcldrPQOBmfN6jDdlkuall6d9+1w/LRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 4.9 01/14] mm/slub: add missing TID updates on slab deactivation
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 020/112] net: lan966x: hardcode the number of external ports
 Date:   Mon, 11 Jul 2022 11:06:20 +0200
-Message-Id: <20220711090535.564053922@linuxfoundation.org>
+Message-Id: <20220711090550.133256899@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
-References: <20220711090535.517697227@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,137 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Michael Walle <michael@walle.cc>
 
-commit eeaa345e128515135ccb864c04482180c08e3259 upstream.
+commit e6fa930f73a15238f3cb0c204e2f786c919b815c upstream.
 
-The fastpath in slab_alloc_node() assumes that c->slab is stable as long as
-the TID stays the same. However, two places in __slab_alloc() currently
-don't update the TID when deactivating the CPU slab.
+Instead of counting the child nodes in the device tree, hardcode the
+number of ports in the driver itself.  The counting won't work at all
+if an ethernet port is marked as disabled, e.g. because it is not
+connected on the board at all.
 
-If multiple operations race the right way, this could lead to an object
-getting lost; or, in an even more unlikely situation, it could even lead to
-an object being freed onto the wrong slab's freelist, messing up the
-`inuse` counter and eventually causing a page to be freed to the page
-allocator while it still contains slab objects.
+It turns out that the LAN9662 and LAN9668 use the same switching IP
+with the same synthesis parameters. The only difference is that the
+output ports are not connected. Thus, we can just hardcode the
+number of physical ports to 8.
 
-(I haven't actually tested these cases though, this is just based on
-looking at the code. Writing testcases for this stuff seems like it'd be
-a pain...)
-
-The race leading to state inconsistency is (all operations on the same CPU
-and kmem_cache):
-
- - task A: begin do_slab_free():
-    - read TID
-    - read pcpu freelist (==NULL)
-    - check `slab == c->slab` (true)
- - [PREEMPT A->B]
- - task B: begin slab_alloc_node():
-    - fastpath fails (`c->freelist` is NULL)
-    - enter __slab_alloc()
-    - slub_get_cpu_ptr() (disables preemption)
-    - enter ___slab_alloc()
-    - take local_lock_irqsave()
-    - read c->freelist as NULL
-    - get_freelist() returns NULL
-    - write `c->slab = NULL`
-    - drop local_unlock_irqrestore()
-    - goto new_slab
-    - slub_percpu_partial() is NULL
-    - get_partial() returns NULL
-    - slub_put_cpu_ptr() (enables preemption)
- - [PREEMPT B->A]
- - task A: finish do_slab_free():
-    - this_cpu_cmpxchg_double() succeeds()
-    - [CORRUPT STATE: c->slab==NULL, c->freelist!=NULL]
-
->From there, the object on c->freelist will get lost if task B is allowed to
-continue from here: It will proceed to the retry_load_slab label,
-set c->slab, then jump to load_freelist, which clobbers c->freelist.
-
-But if we instead continue as follows, we get worse corruption:
-
- - task A: run __slab_free() on object from other struct slab:
-    - CPU_PARTIAL_FREE case (slab was on no list, is now on pcpu partial)
- - task A: run slab_alloc_node() with NUMA node constraint:
-    - fastpath fails (c->slab is NULL)
-    - call __slab_alloc()
-    - slub_get_cpu_ptr() (disables preemption)
-    - enter ___slab_alloc()
-    - c->slab is NULL: goto new_slab
-    - slub_percpu_partial() is non-NULL
-    - set c->slab to slub_percpu_partial(c)
-    - [CORRUPT STATE: c->slab points to slab-1, c->freelist has objects
-      from slab-2]
-    - goto redo
-    - node_match() fails
-    - goto deactivate_slab
-    - existing c->freelist is passed into deactivate_slab()
-    - inuse count of slab-1 is decremented to account for object from
-      slab-2
-
-At this point, the inuse count of slab-1 is 1 lower than it should be.
-This means that if we free all allocated objects in slab-1 except for one,
-SLUB will think that slab-1 is completely unused, and may free its page,
-leading to use-after-free.
-
-Fixes: c17dda40a6a4e ("slub: Separate out kmem_cache_cpu processing from deactivate_slab")
-Fixes: 03e404af26dc2 ("slub: fast release on full slab")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Link: https://lore.kernel.org/r/20220608182205.2945720-1-jannh@google.com
+Fixes: db8bcaad5393 ("net: lan966x: add the basic lan966x driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Link: https://lore.kernel.org/r/20220704153654.1167886-1-michael@walle.cc
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/microchip/lan966x/lan966x_main.c |    8 ++------
+ drivers/net/ethernet/microchip/lan966x/lan966x_main.h |    1 +
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -2556,6 +2556,7 @@ redo:
- 			deactivate_slab(s, page, c->freelist);
- 			c->page = NULL;
- 			c->freelist = NULL;
-+			c->tid = next_tid(c->tid);
- 			goto new_slab;
- 		}
- 	}
-@@ -2569,6 +2570,7 @@ redo:
- 		deactivate_slab(s, page, c->freelist);
- 		c->page = NULL;
- 		c->freelist = NULL;
-+		c->tid = next_tid(c->tid);
- 		goto new_slab;
- 	}
+--- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
++++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
+@@ -979,7 +979,7 @@ static int lan966x_probe(struct platform
+ 	struct fwnode_handle *ports, *portnp;
+ 	struct lan966x *lan966x;
+ 	u8 mac_addr[ETH_ALEN];
+-	int err, i;
++	int err;
  
-@@ -2581,6 +2583,7 @@ redo:
+ 	lan966x = devm_kzalloc(&pdev->dev, sizeof(*lan966x), GFP_KERNEL);
+ 	if (!lan966x)
+@@ -1010,11 +1010,7 @@ static int lan966x_probe(struct platform
+ 	if (err)
+ 		return dev_err_probe(&pdev->dev, err, "Reset failed");
  
- 	if (!freelist) {
- 		c->page = NULL;
-+		c->tid = next_tid(c->tid);
- 		stat(s, DEACTIVATE_BYPASS);
- 		goto new_slab;
- 	}
-@@ -2605,6 +2608,7 @@ new_slab:
- 		c->partial = page->next;
- 		stat(s, CPU_PARTIAL_ALLOC);
- 		c->freelist = NULL;
-+		c->tid = next_tid(c->tid);
- 		goto redo;
- 	}
+-	i = 0;
+-	fwnode_for_each_available_child_node(ports, portnp)
+-		++i;
+-
+-	lan966x->num_phys_ports = i;
++	lan966x->num_phys_ports = NUM_PHYS_PORTS;
+ 	lan966x->ports = devm_kcalloc(&pdev->dev, lan966x->num_phys_ports,
+ 				      sizeof(struct lan966x_port *),
+ 				      GFP_KERNEL);
+--- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.h
++++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.h
+@@ -31,6 +31,7 @@
+ /* Reserved amount for (SRC, PRIO) at index 8*SRC + PRIO */
+ #define QSYS_Q_RSRV			95
  
-@@ -2627,6 +2631,7 @@ new_slab:
- 	deactivate_slab(s, page, get_freepointer(s, freelist));
- 	c->page = NULL;
- 	c->freelist = NULL;
-+	c->tid = next_tid(c->tid);
- 	return freelist;
- }
++#define NUM_PHYS_PORTS			8
+ #define CPU_PORT			8
  
+ /* Reserved PGIDs */
 
 
