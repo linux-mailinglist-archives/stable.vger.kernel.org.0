@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B756056FD9C
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B1356FAA6
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233724AbiGKJ6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:58:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
+        id S229756AbiGKJUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:20:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234179AbiGKJ50 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:57:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5467FB4BF8;
-        Mon, 11 Jul 2022 02:27:03 -0700 (PDT)
+        with ESMTP id S231775AbiGKJT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:19:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238F65289F;
+        Mon, 11 Jul 2022 02:12:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98159B80E93;
-        Mon, 11 Jul 2022 09:26:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1D78C341C0;
-        Mon, 11 Jul 2022 09:26:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 858F9B80E74;
+        Mon, 11 Jul 2022 09:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D95B6C341C8;
+        Mon, 11 Jul 2022 09:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531612;
-        bh=YqtQP35jXWYBrQLN/cToll7pQXBag6WgH9ZCEqVLZqI=;
+        s=korg; t=1657530740;
+        bh=1WpNcQatJQc6PSvUzs3sgGqL5gT35PtIG8Bf2czkrG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDcPASoI4017RjWKxApzpGY3hszY4O4+P8FioF3BeXNI0FhfYbUkMxXDI3ZUACiHM
-         UwUegjZly1P9Hat7yhFFu/AzrfxWez9JLC+hwpTWSYedgRCf+oI8RDIOCPWVH6vMN2
-         l097QVscXcCwDwN3s/SVfoxtBSoDsf8ZcuzE/+Ig=
+        b=bPd6noo7IUZe6pc38Cna9huZS3X0It4jprwd7pKBq6n3M8+6gvj0WAGEFPUGXZl/b
+         blWshFxmPm4edD/lfNDFNNjk6noiKcBAnVbUqc6o7cJuHx21I51NNLGoTxwKNu4HFZ
+         V5BnhaUXYgLBGCOIvxYsFXcVRKxrAxZlF+6y2q/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 167/230] net: dsa: qca8k: reset cpu port on MTU change
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.10 15/55] fbcon: Disallow setting font bigger than screen size
 Date:   Mon, 11 Jul 2022 11:07:03 +0200
-Message-Id: <20220711090608.797548765@linuxfoundation.org>
+Message-Id: <20220711090542.213789518@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 386228c694bf1e7a7688e44412cb33500b0ac585 upstream.
+commit 65a01e601dbba8b7a51a2677811f70f783766682 upstream.
 
-It was discovered that the Documentation lacks of a fundamental detail
-on how to correctly change the MAX_FRAME_SIZE of the switch.
+Prevent that users set a font size which is bigger than the physical screen.
+It's unlikely this may happen (because screens are usually much larger than the
+fonts and each font char is limited to 32x32 pixels), but it may happen on
+smaller screens/LCD displays.
 
-In fact if the MAX_FRAME_SIZE is changed while the cpu port is on, the
-switch panics and cease to send any packet. This cause the mgmt ethernet
-system to not receive any packet (the slow fallback still works) and
-makes the device not reachable. To recover from this a switch reset is
-required.
-
-To correctly handle this, turn off the cpu ports before changing the
-MAX_FRAME_SIZE and turn on again after the value is applied.
-
-Fixes: f58d2598cf70 ("net: dsa: qca8k: implement the port MTU callbacks")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Link: https://lore.kernel.org/r/20220621151122.10220-1-ansuelsmth@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/qca8k.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/dsa/qca8k.c
-+++ b/drivers/net/dsa/qca8k.c
-@@ -1599,7 +1599,7 @@ static int
- qca8k_port_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
- {
- 	struct qca8k_priv *priv = ds->priv;
--	int i, mtu = 0;
-+	int ret, i, mtu = 0;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2510,6 +2510,11 @@ static int fbcon_set_font(struct vc_data
+ 	if (charcount != 256 && charcount != 512)
+ 		return -EINVAL;
  
- 	priv->port_mtu[port] = new_mtu;
- 
-@@ -1607,8 +1607,27 @@ qca8k_port_change_mtu(struct dsa_switch
- 		if (priv->port_mtu[i] > mtu)
- 			mtu = priv->port_mtu[i];
- 
-+	/* To change the MAX_FRAME_SIZE the cpu ports must be off or
-+	 * the switch panics.
-+	 * Turn off both cpu ports before applying the new value to prevent
-+	 * this.
-+	 */
-+	if (priv->port_sts[0].enabled)
-+		qca8k_port_set_status(priv, 0, 0);
++	/* font bigger than screen resolution ? */
++	if (w > FBCON_SWAP(info->var.rotate, info->var.xres, info->var.yres) ||
++	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
++		return -EINVAL;
 +
-+	if (priv->port_sts[6].enabled)
-+		qca8k_port_set_status(priv, 6, 0);
-+
- 	/* Include L2 header / FCS length */
--	return qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
-+	ret = qca8k_write(priv, QCA8K_MAX_FRAME_SIZE, mtu + ETH_HLEN + ETH_FCS_LEN);
-+
-+	if (priv->port_sts[0].enabled)
-+		qca8k_port_set_status(priv, 0, 1);
-+
-+	if (priv->port_sts[6].enabled)
-+		qca8k_port_set_status(priv, 6, 1);
-+
-+	return ret;
- }
- 
- static int
+ 	/* Make sure drawing engine can handle the font */
+ 	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
+ 	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
 
 
