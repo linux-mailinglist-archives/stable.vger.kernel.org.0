@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C634B56FD82
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A28E56FA36
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233853AbiGKJ4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:56:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49064 "EHLO
+        id S231128AbiGKJPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:15:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234133AbiGKJ4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:56:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5BEB31C8;
-        Mon, 11 Jul 2022 02:26:35 -0700 (PDT)
+        with ESMTP id S231504AbiGKJOP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:14:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE80326E0;
+        Mon, 11 Jul 2022 02:10:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0B2D61383;
-        Mon, 11 Jul 2022 09:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4618C34115;
-        Mon, 11 Jul 2022 09:26:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AAE69CE1178;
+        Mon, 11 Jul 2022 09:10:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82DCC34115;
+        Mon, 11 Jul 2022 09:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531593;
-        bh=kIuWGbz5DEODWD0dV/0NoRWJI6rMTuCyhXGaKzuwQ3I=;
+        s=korg; t=1657530608;
+        bh=K6jNGp2dUuNiWhAggovJ4j01QWBZArB13C35cE1qd8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ze9IgzQHF7HmQIp5pZzA7TPZd40t08pIsQPzUPoHMwUUiXLd/lCo+StSD8E5iKXwj
-         TfSfePebUQ4SfIduEqF8ziPZqNzGBzfhYM0dkZfAitLfhhMLUlIEhquHUU1JTQHNS1
-         kDRSAUmGjPl33I2bM/AZyZ0GIbveHdUwG/52BoL8=
+        b=Lxj8b5UlxBgIaTxTDGYvYZd5gwW1REwOfKxxlrN4cED3u8rTfoLBx8NSYno3Vbf/2
+         F92ewx1stECF1xputwu8kusYrKt885kSE1D7T7yLsebARjmL6+XEm98/EwRQorHoSO
+         y/AGxlPGQseE2glU7Mm8FMuqfX0NEcrpN5lJyhJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 5.15 160/230] fbmem: Check virtual screen sizes in fb_set_var()
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.ibm.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 14/38] powerpc/powernv: delay rng platform device creation until later in boot
 Date:   Mon, 11 Jul 2022 11:06:56 +0200
-Message-Id: <20220711090608.599372121@linuxfoundation.org>
+Message-Id: <20220711090539.150343511@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 6c11df58fd1ac0aefcb3b227f72769272b939e56 upstream.
+commit 887502826549caa7e4215fd9e628f48f14c0825a upstream.
 
-Verify that the fbdev or drm driver correctly adjusted the virtual
-screen sizes. On failure report the failing driver and reject the screen
-size change.
+The platform device for the rng must be created much later in boot.
+Otherwise it tries to connect to a parent that doesn't yet exist,
+resulting in this splat:
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: stable@vger.kernel.org # v5.4+
+  [    0.000478] kobject: '(null)' ((____ptrval____)): is not initialized, yet kobject_get() is being called.
+  [    0.002925] [c000000002a0fb30] [c00000000073b0bc] kobject_get+0x8c/0x100 (unreliable)
+  [    0.003071] [c000000002a0fba0] [c00000000087e464] device_add+0xf4/0xb00
+  [    0.003194] [c000000002a0fc80] [c000000000a7f6e4] of_device_add+0x64/0x80
+  [    0.003321] [c000000002a0fcb0] [c000000000a800d0] of_platform_device_create_pdata+0xd0/0x1b0
+  [    0.003476] [c000000002a0fd00] [c00000000201fa44] pnv_get_random_long_early+0x240/0x2e4
+  [    0.003623] [c000000002a0fe20] [c000000002060c38] random_init+0xc0/0x214
+
+This patch fixes the issue by doing the platform device creation inside
+of machine_subsys_initcall.
+
+Fixes: f3eac426657d ("powerpc/powernv: wire up rng during setup_arch")
+Cc: stable@vger.kernel.org
+Reported-by: Sachin Sant <sachinp@linux.ibm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+[mpe: Change "of node" to "platform device" in change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220630121654.1939181-1-Jason@zx2c4.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/powerpc/platforms/powernv/rng.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1020,6 +1020,16 @@ fb_set_var(struct fb_info *info, struct
- 	if (ret)
- 		return ret;
- 
-+	/* verify that virtual resolution >= physical resolution */
-+	if (var->xres_virtual < var->xres ||
-+	    var->yres_virtual < var->yres) {
-+		pr_warn("WARNING: fbcon: Driver '%s' missed to adjust virtual screen size (%ux%u vs. %ux%u)\n",
-+			info->fix.id,
-+			var->xres_virtual, var->yres_virtual,
-+			var->xres, var->yres);
-+		return -EINVAL;
-+	}
-+
- 	if ((var->activate & FB_ACTIVATE_MASK) != FB_ACTIVATE_NOW)
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -176,12 +176,8 @@ static int __init pnv_get_random_long_ea
+ 		    NULL) != pnv_get_random_long_early)
  		return 0;
  
+-	for_each_compatible_node(dn, NULL, "ibm,power-rng") {
+-		if (rng_create(dn))
+-			continue;
+-		/* Create devices for hwrng driver */
+-		of_platform_device_create(dn, NULL, NULL);
+-	}
++	for_each_compatible_node(dn, NULL, "ibm,power-rng")
++		rng_create(dn);
+ 
+ 	if (!ppc_md.get_random_seed)
+ 		return 0;
+@@ -205,10 +201,18 @@ void __init pnv_rng_init(void)
+ 
+ static int __init pnv_rng_late_init(void)
+ {
++	struct device_node *dn;
+ 	unsigned long v;
++
+ 	/* In case it wasn't called during init for some other reason. */
+ 	if (ppc_md.get_random_seed == pnv_get_random_long_early)
+ 		pnv_get_random_long_early(&v);
++
++	if (ppc_md.get_random_seed == powernv_get_random_long) {
++		for_each_compatible_node(dn, NULL, "ibm,power-rng")
++			of_platform_device_create(dn, NULL, NULL);
++	}
++
+ 	return 0;
+ }
+ machine_subsys_initcall(powernv, pnv_rng_late_init);
 
 
