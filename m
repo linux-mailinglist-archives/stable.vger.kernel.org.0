@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF6656D525
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE83F56D631
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229463AbiGKHGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 03:06:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54942 "EHLO
+        id S230033AbiGKHMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 03:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229641AbiGKHGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:06:03 -0400
+        with ESMTP id S229943AbiGKHLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:11:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B211A38D
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:06:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D53AD1CB23
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:09:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 424D16124D
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:06:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 478FAC34115;
-        Mon, 11 Jul 2022 07:06:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 748C16126B
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:09:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8606BC341C0;
+        Mon, 11 Jul 2022 07:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657523161;
-        bh=65j2S4u64bryEo82RcCIcaE2vTvDEWLbbONBchqWFq4=;
+        s=korg; t=1657523352;
+        bh=xIKuTJsK+MKV9bqIhoy4/BAESXAjon5cYBkjLj2G1Nc=;
         h=Subject:To:Cc:From:Date:From;
-        b=mUfNuMIQQV8789NmS4oYC9W3jCTSSZrJRt5J9xb8mPu4HAf78TXthOCT5jUdG58Kx
-         EVFHxiHRCsODVG0onmJFZHzar5fE6MXCkAhBNGK8U32cp26L5391rX2H5i0p8Oem0F
-         Zk7NCDTezRRbzFCJ7FL4tZljyTOjyHxDAP3k4pKk=
-Subject: FAILED: patch "[PATCH] ASoC: SOF: Intel: disable IMR boot when resuming from ACPI S4" failed to apply to 5.18-stable tree
-To:     pierre-louis.bossart@linux.intel.com, broonie@kernel.org,
-        peter.ujfalusi@linux.intel.com, ranjani.sridharan@linux.intel.com
+        b=XiooE8yUZO7CTXrtYPNy253TKypQU8pw4Zo/qNDZB8bynbMSNFaVl8QQQaN2nVvde
+         gYhYmf4dYRTN3xPsF9fj9sj/Tlw2xEDJX9IcxBmxs9hdNfK594/LqVTuisJt3uPcjO
+         LzfrzmupkTQwgzaTb1tdcRHkZWQD8ZmWuIircKlU=
+Subject: FAILED: patch "[PATCH] pinctrl: stm32: fix optional IRQ support to gpios" failed to apply to 5.10-stable tree
+To:     fabien.dessenne@foss.st.com, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jul 2022 09:05:59 +0200
-Message-ID: <16575231593075@kroah.com>
+Date:   Mon, 11 Jul 2022 09:08:59 +0200
+Message-ID: <165752333923834@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.18-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,41 +59,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 391153522d186f19a008d824bb3a05950351ce6c Mon Sep 17 00:00:00 2001
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Date: Thu, 16 Jun 2022 15:18:18 -0500
-Subject: [PATCH] ASoC: SOF: Intel: disable IMR boot when resuming from ACPI S4
- and S5 states
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From a1d4ef1adf8bbd302067534ead671a94759687ed Mon Sep 17 00:00:00 2001
+From: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Date: Mon, 27 Jun 2022 16:23:50 +0200
+Subject: [PATCH] pinctrl: stm32: fix optional IRQ support to gpios
 
-The IMR was assumed to be preserved when suspending to S4 and S5
-states, but community reports invalidate that assumption, the hardware
-seems to be powered off and the IMR memory content cleared.
+To act as an interrupt controller, a gpio bank relies on the
+"interrupt-parent" of the pin controller.
+When this optional "interrupt-parent" misses, do not create any IRQ domain.
 
-Make sure regular boot with firmware download is used for S4 and S5.
+This fixes a "NULL pointer in stm32_gpio_domain_alloc()" kernel crash when
+the interrupt-parent = <exti> property is not declared in the Device Tree.
 
-BugLink: https://github.com/thesofproject/sof/issues/5892
-Fixes: 5fb5f51185126 ("ASoC: SOF: Intel: hda-loader: add IMR restore support")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220616201818.130802-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 0eb9f683336d ("pinctrl: Add IRQ support to STM32 gpios")
+Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20220627142350.742973-1-fabien.dessenne@foss.st.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
-index d3ec5996a9a3..145d483bd129 100644
---- a/sound/soc/sof/intel/hda-loader.c
-+++ b/sound/soc/sof/intel/hda-loader.c
-@@ -389,7 +389,8 @@ int hda_dsp_cl_boot_firmware(struct snd_sof_dev *sdev)
- 	struct snd_dma_buffer dmab;
- 	int ret, ret1, i;
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index 57a33fb0f2d7..14bcca73238a 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -1338,16 +1338,18 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl, struct fwnode
+ 	bank->secure_control = pctl->match_data->secure_control;
+ 	spin_lock_init(&bank->lock);
  
--	if (hda->imrboot_supported && !sdev->first_boot) {
-+	if (sdev->system_suspend_target < SOF_SUSPEND_S4 &&
-+	    hda->imrboot_supported && !sdev->first_boot) {
- 		dev_dbg(sdev->dev, "IMR restore supported, booting from IMR directly\n");
- 		hda->boot_iteration = 0;
- 		ret = hda_dsp_boot_imr(sdev);
+-	/* create irq hierarchical domain */
+-	bank->fwnode = fwnode;
++	if (pctl->domain) {
++		/* create irq hierarchical domain */
++		bank->fwnode = fwnode;
+ 
+-	bank->domain = irq_domain_create_hierarchy(pctl->domain, 0,
+-					STM32_GPIO_IRQ_LINE, bank->fwnode,
+-					&stm32_gpio_domain_ops, bank);
++		bank->domain = irq_domain_create_hierarchy(pctl->domain, 0, STM32_GPIO_IRQ_LINE,
++							   bank->fwnode, &stm32_gpio_domain_ops,
++							   bank);
+ 
+-	if (!bank->domain) {
+-		err = -ENODEV;
+-		goto err_clk;
++		if (!bank->domain) {
++			err = -ENODEV;
++			goto err_clk;
++		}
+ 	}
+ 
+ 	err = gpiochip_add_data(&bank->gpio_chip, bank);
+@@ -1510,6 +1512,8 @@ int stm32_pctl_probe(struct platform_device *pdev)
+ 	pctl->domain = stm32_pctrl_get_irq_domain(pdev);
+ 	if (IS_ERR(pctl->domain))
+ 		return PTR_ERR(pctl->domain);
++	if (!pctl->domain)
++		dev_warn(dev, "pinctrl without interrupt support\n");
+ 
+ 	/* hwspinlock is optional */
+ 	hwlock_id = of_hwspin_lock_get_id(pdev->dev.of_node, 0);
 
