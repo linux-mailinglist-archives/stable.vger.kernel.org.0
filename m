@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 748A256FB0E
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527DD56FD29
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232010AbiGKJZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:25:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
+        id S233788AbiGKJvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:51:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232366AbiGKJYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:35 -0400
+        with ESMTP id S233807AbiGKJuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A6529822;
-        Mon, 11 Jul 2022 02:14:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABE3248D4;
+        Mon, 11 Jul 2022 02:24:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAA54B80D2C;
-        Mon, 11 Jul 2022 09:14:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BBABC36AEB;
-        Mon, 11 Jul 2022 09:14:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49F87B80D2C;
+        Mon, 11 Jul 2022 09:24:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E95C34115;
+        Mon, 11 Jul 2022 09:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530889;
-        bh=404RDpCX/R8w6TAuufcmeta5kQhm/fqKDMIEIfueZ68=;
+        s=korg; t=1657531494;
+        bh=Z0FI6AxhInGWtJD1LczNEjiGeOd7WuiQcvBy+zjdl9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRFRelNDBAUV1HJrUqnLdB6C63PCqbUa2C6gIqK1eTETL/wiQXwYxbqUoMIv1JdAo
-         VV3sADs1ETEyFi06tu2DxDRr6kZwjkWLF+CThe6fr8rK/Z7OOi2kzs3nV53+5vrWQF
-         ZyYIK9NKhcldrPQOBmfN6jDdlkuall6d9+1w/LRI=
+        b=nIQ5t1pGMBbpx/YLAiWMKTn+cag93ru9wVxZIPYBdcjoti/0n2G4NpYbulbsac1AX
+         hybHJJWzu6agpr/NcoAkSanb9X3LOrKxu6CZIiZBhgG4VeWeaqUiQK8jD4GVK72Ux2
+         UiPg+IyhYNtzteS68XXqvWaUmfSseRVHUZBrNhPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 020/112] net: lan966x: hardcode the number of external ports
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 124/230] btrfs: zoned: encapsulate inode locking for zoned relocation
 Date:   Mon, 11 Jul 2022 11:06:20 +0200
-Message-Id: <20220711090550.133256899@linuxfoundation.org>
+Message-Id: <20220711090607.582974972@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit e6fa930f73a15238f3cb0c204e2f786c919b815c upstream.
+[ Upstream commit 869f4cdc73f9378986755030c684c011f0b71517 ]
 
-Instead of counting the child nodes in the device tree, hardcode the
-number of ports in the driver itself.  The counting won't work at all
-if an ethernet port is marked as disabled, e.g. because it is not
-connected on the board at all.
+Encapsulate the inode lock needed for serializing the data relocation
+writes on a zoned filesystem into a helper.
 
-It turns out that the LAN9662 and LAN9668 use the same switching IP
-with the same synthesis parameters. The only difference is that the
-output ports are not connected. Thus, we can just hardcode the
-number of physical ports to 8.
+This streamlines the code reading flow and hides special casing for
+zoned filesystems.
 
-Fixes: db8bcaad5393 ("net: lan966x: add the basic lan966x driver")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20220704153654.1167886-1-michael@walle.cc
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_main.c |    8 ++------
- drivers/net/ethernet/microchip/lan966x/lan966x_main.h |    1 +
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ fs/btrfs/extent_io.c |  8 ++------
+ fs/btrfs/zoned.h     | 17 +++++++++++++++++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-@@ -979,7 +979,7 @@ static int lan966x_probe(struct platform
- 	struct fwnode_handle *ports, *portnp;
- 	struct lan966x *lan966x;
- 	u8 mac_addr[ETH_ALEN];
--	int err, i;
-+	int err;
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 6dd375ed6e3d..059bd0753e27 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -5139,8 +5139,6 @@ int extent_writepages(struct address_space *mapping,
+ 		      struct writeback_control *wbc)
+ {
+ 	struct inode *inode = mapping->host;
+-	const bool data_reloc = btrfs_is_data_reloc_root(BTRFS_I(inode)->root);
+-	const bool zoned = btrfs_is_zoned(BTRFS_I(inode)->root->fs_info);
+ 	int ret = 0;
+ 	struct extent_page_data epd = {
+ 		.bio_ctrl = { 0 },
+@@ -5152,11 +5150,9 @@ int extent_writepages(struct address_space *mapping,
+ 	 * Allow only a single thread to do the reloc work in zoned mode to
+ 	 * protect the write pointer updates.
+ 	 */
+-	if (data_reloc && zoned)
+-		btrfs_inode_lock(inode, 0);
++	btrfs_zoned_data_reloc_lock(BTRFS_I(inode));
+ 	ret = extent_write_cache_pages(mapping, wbc, &epd);
+-	if (data_reloc && zoned)
+-		btrfs_inode_unlock(inode, 0);
++	btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
+ 	ASSERT(ret <= 0);
+ 	if (ret < 0) {
+ 		end_write_bio(&epd, ret);
+diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
+index 813aa3cddc11..d680c3ee918a 100644
+--- a/fs/btrfs/zoned.h
++++ b/fs/btrfs/zoned.h
+@@ -8,6 +8,7 @@
+ #include "volumes.h"
+ #include "disk-io.h"
+ #include "block-group.h"
++#include "btrfs_inode.h"
  
- 	lan966x = devm_kzalloc(&pdev->dev, sizeof(*lan966x), GFP_KERNEL);
- 	if (!lan966x)
-@@ -1010,11 +1010,7 @@ static int lan966x_probe(struct platform
- 	if (err)
- 		return dev_err_probe(&pdev->dev, err, "Reset failed");
+ /*
+  * Block groups with more than this value (percents) of unusable space will be
+@@ -324,4 +325,20 @@ static inline void btrfs_clear_treelog_bg(struct btrfs_block_group *bg)
+ 	spin_unlock(&fs_info->treelog_bg_lock);
+ }
  
--	i = 0;
--	fwnode_for_each_available_child_node(ports, portnp)
--		++i;
--
--	lan966x->num_phys_ports = i;
-+	lan966x->num_phys_ports = NUM_PHYS_PORTS;
- 	lan966x->ports = devm_kcalloc(&pdev->dev, lan966x->num_phys_ports,
- 				      sizeof(struct lan966x_port *),
- 				      GFP_KERNEL);
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.h
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.h
-@@ -31,6 +31,7 @@
- /* Reserved amount for (SRC, PRIO) at index 8*SRC + PRIO */
- #define QSYS_Q_RSRV			95
- 
-+#define NUM_PHYS_PORTS			8
- #define CPU_PORT			8
- 
- /* Reserved PGIDs */
++static inline void btrfs_zoned_data_reloc_lock(struct btrfs_inode *inode)
++{
++	struct btrfs_root *root = inode->root;
++
++	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
++		btrfs_inode_lock(&inode->vfs_inode, 0);
++}
++
++static inline void btrfs_zoned_data_reloc_unlock(struct btrfs_inode *inode)
++{
++	struct btrfs_root *root = inode->root;
++
++	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
++		btrfs_inode_unlock(&inode->vfs_inode, 0);
++}
++
+ #endif
+-- 
+2.35.1
+
 
 
