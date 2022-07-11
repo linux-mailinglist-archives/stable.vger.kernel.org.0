@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9531D56FC6D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4D256FC0C
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233383AbiGKJnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:43:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37540 "EHLO
+        id S233045AbiGKJiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:38:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233355AbiGKJm5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:42:57 -0400
+        with ESMTP id S233053AbiGKJhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:37:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E429F056;
-        Mon, 11 Jul 2022 02:21:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7B684EC6;
+        Mon, 11 Jul 2022 02:19:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2052B80E84;
-        Mon, 11 Jul 2022 09:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C712C34115;
-        Mon, 11 Jul 2022 09:21:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22756B80D2C;
+        Mon, 11 Jul 2022 09:19:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800D5C34115;
+        Mon, 11 Jul 2022 09:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531286;
-        bh=zlXhqlDzlQoxSL9b0traCeLjbAl5CQLc1Sb6lajihCE=;
+        s=korg; t=1657531174;
+        bh=vGd7W8KucNbrocptpdXwvh+HYLNgqBTB7aJLg508Tmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQ4FzwbkLWhND+h1+BIVwQZTRF5NOYikk0xZPZj2e1kB4R6Eb3+agypKsRY4IliXt
-         H9IYF2e1Nj2VdqmJCs0IUliaYA9gzRuW32Ra+lFaVWuzI+H54qm03e49NRbZF05o2V
-         1vVkysLA7Ih/QNBo/Jc/6+Wqjc1TLPk8ujGY1kV0=
+        b=MDXgk5g/1vYu3yR90FCd5EFMJsqs+VrvzP+TA+a3oU7xtGfM1s+QOtuLA2RUXVy8b
+         U8yAhfqIkPtmVYv2RzRcAVb3ldWvMQUHEYubv78+xw18JYISjKV5JLRhnNWTAo3UTA
+         urG6StD4ZuOj4O3abqPW2O+mXjYigXhWSXxiyZH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Torin Cooper-Bennun <torin@maxiluxsystems.com>,
         Chandrasekar Ramakrishnan <rcsekar@samsung.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 010/230] can: m_can: m_can_chip_config(): actually enable internal timestamping
-Date:   Mon, 11 Jul 2022 11:04:26 +0200
-Message-Id: <20220711090604.362187336@linuxfoundation.org>
+Subject: [PATCH 5.15 011/230] can: m_can: m_can_{read_fifo,echo_tx_event}(): shift timestamp to full 32 bits
+Date:   Mon, 11 Jul 2022 11:04:27 +0200
+Message-Id: <20220711090604.390790359@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -57,40 +57,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 5b12933de4e76ec164031c18ce8e0904abf530d7 upstream.
+commit 4c3333693f07313f5f0145a922f14a7d3c0f4f21 upstream.
 
-In commit df06fd678260 ("can: m_can: m_can_chip_config(): enable and
-configure internal timestamps") the timestamping in the m_can core
-should be enabled. In peripheral mode, the RX'ed CAN frames, TX
-compete frames and error events are sorted by the timestamp.
+In commit 1be37d3b0414 ("can: m_can: fix periph RX path: use
+rx-offload to ensure skbs are sent from softirq context") the RX path
+for peripheral devices was switched to RX-offload.
 
-The above mentioned commit however forgot to enable the timestamping.
-Add the missing bits to enable the timestamp counter to the write of
-the Timestamp Counter Configuration register.
+Received CAN frames are pushed to RX-offload together with a
+timestamp. RX-offload is designed to handle overflows of the timestamp
+correctly, if 32 bit timestamps are provided.
 
-Link: https://lore.kernel.org/all/20220612212708.4081756-1-mkl@pengutronix.de
-Fixes: df06fd678260 ("can: m_can: m_can_chip_config(): enable and configure internal timestamps")
+The timestamps of m_can core are only 16 bits wide. So this patch
+shifts them to full 32 bit before passing them to RX-offload.
+
+Link: https://lore.kernel.org/all/20220612211410.4081390-1-mkl@pengutronix.de
+Fixes: 1be37d3b0414 ("can: m_can: fix periph RX path: use rx-offload to ensure skbs are sent from softirq context")
 Cc: <stable@vger.kernel.org> # 5.13
 Cc: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 Reviewed-by: Chandrasekar Ramakrishnan <rcsekar@samsung.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/m_can.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/can/m_can/m_can.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
-@@ -1367,7 +1367,9 @@ static void m_can_chip_config(struct net
- 	/* enable internal timestamp generation, with a prescalar of 16. The
- 	 * prescalar is applied to the nominal bit timing
- 	 */
--	m_can_write(cdev, M_CAN_TSCC, FIELD_PREP(TSCC_TCP_MASK, 0xf));
-+	m_can_write(cdev, M_CAN_TSCC,
-+		    FIELD_PREP(TSCC_TCP_MASK, 0xf) |
-+		    FIELD_PREP(TSCC_TSS_MASK, TSCC_TSS_INTERNAL));
+@@ -532,7 +532,7 @@ static int m_can_read_fifo(struct net_de
+ 	stats->rx_packets++;
+ 	stats->rx_bytes += cf->len;
  
- 	m_can_config_endisable(cdev, false);
+-	timestamp = FIELD_GET(RX_BUF_RXTS_MASK, fifo_header.dlc);
++	timestamp = FIELD_GET(RX_BUF_RXTS_MASK, fifo_header.dlc) << 16;
  
+ 	m_can_receive_skb(cdev, skb, timestamp);
+ 
+@@ -1043,7 +1043,7 @@ static int m_can_echo_tx_event(struct ne
+ 		}
+ 
+ 		msg_mark = FIELD_GET(TX_EVENT_MM_MASK, txe);
+-		timestamp = FIELD_GET(TX_EVENT_TXTS_MASK, txe);
++		timestamp = FIELD_GET(TX_EVENT_TXTS_MASK, txe) << 16;
+ 
+ 		/* ack txe element */
+ 		m_can_write(cdev, M_CAN_TXEFA, FIELD_PREP(TXEFA_EFAI_MASK,
 
 
