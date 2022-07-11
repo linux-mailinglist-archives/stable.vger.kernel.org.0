@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2490556FC67
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430F056FC69
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233357AbiGKJnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:43:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
+        id S233319AbiGKJnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229832AbiGKJmn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:42:43 -0400
+        with ESMTP id S233285AbiGKJmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:42:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24FE19CE2C;
-        Mon, 11 Jul 2022 02:21:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F5625590;
+        Mon, 11 Jul 2022 02:21:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4928B80E76;
-        Mon, 11 Jul 2022 09:21:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D5FC34115;
-        Mon, 11 Jul 2022 09:21:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F73BB80E7A;
+        Mon, 11 Jul 2022 09:21:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EFFDC34115;
+        Mon, 11 Jul 2022 09:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531278;
-        bh=02Gr89cUsMTj9nZTGgI/higKfc2ahKfCiNE3RXAa/4Q=;
+        s=korg; t=1657531281;
+        bh=ruEx4MVS5M1wTW8qnmp6vimm1tVCSCBwM9ARVgswI6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMAwY66lAJtVWXVGI4FqiqmoLPXw+Uo+5XATgHafBlX9uwU/NDc9bDjbbbND7IqLC
-         yNywmVasucG9i3esyukiTXnDbNWG2YuX4e1NzZcI/tZSGrn+tzVFmnia4bFHMOCISH
-         S4hdlU88gUeG60NE+N4hpQZK9uhb7HUXO3GJTP2U=
+        b=ihQ/lMVDJfMCuGzzPgQJAOL1Ow/ynkg5JLW7bkiwRza/bnyRijz37632DSPIaK4JL
+         hkOMYbjg7d6lwIVOAdcuGDuCNsXofRjTFlUG1iYhp9AW5iNGEeePrNmzvHdAPFQ9K5
+         jNOIWCJ9/xK3sf/bsLF9omeSDmOpYGtz+8qtFDQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Liang He <windhl@126.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 007/230] can: bcm: use call_rcu() instead of costly synchronize_rcu()
-Date:   Mon, 11 Jul 2022 11:04:23 +0200
-Message-Id: <20220711090604.276988582@linuxfoundation.org>
+Subject: [PATCH 5.15 008/230] can: grcan: grcan_probe(): remove extra of_node_get()
+Date:   Mon, 11 Jul 2022 11:04:24 +0200
+Message-Id: <20220711090604.304318285@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -56,97 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Liang He <windhl@126.com>
 
-commit f1b4e32aca0811aa011c76e5d6cf2fa19224b386 upstream.
+commit 562fed945ea482833667f85496eeda766d511386 upstream.
 
-In commit d5f9023fa61e ("can: bcm: delay release of struct bcm_op
-after synchronize_rcu()") Thadeu Lima de Souza Cascardo introduced two
-synchronize_rcu() calls in bcm_release() (only once at socket close)
-and in bcm_delete_rx_op() (called on removal of each single bcm_op).
+In grcan_probe(), of_find_node_by_path() has already increased the
+refcount. There is no need to call of_node_get() again, so remove it.
 
-Unfortunately this slow removal of the bcm_op's affects user space
-applications like cansniffer where the modification of a filter
-removes 2048 bcm_op's which blocks the cansniffer application for
-40(!) seconds.
-
-In commit 181d4447905d ("can: gw: use call_rcu() instead of costly
-synchronize_rcu()") Eric Dumazet replaced the synchronize_rcu() calls
-with several call_rcu()'s to safely remove the data structures after
-the removal of CAN ID subscriptions with can_rx_unregister() calls.
-
-This patch adopts Erics approach for the can-bcm which should be
-applicable since the removal of tasklet_kill() in bcm_remove_op() and
-the introduction of the HRTIMER_MODE_SOFT timer handling in Linux 5.4.
-
-Fixes: d5f9023fa61e ("can: bcm: delay release of struct bcm_op after synchronize_rcu()") # >= 5.4
-Link: https://lore.kernel.org/all/20220520183239.19111-1-socketcan@hartkopp.net
-Cc: stable@vger.kernel.org
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Link: https://lore.kernel.org/all/20220619070257.4067022-1-windhl@126.com
+Fixes: 1e93ed26acf0 ("can: grcan: grcan_probe(): fix broken system id check for errata workaround needs")
+Cc: stable@vger.kernel.org # v5.18
+Cc: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/bcm.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/net/can/grcan.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -100,6 +100,7 @@ static inline u64 get_u64(const struct c
- 
- struct bcm_op {
- 	struct list_head list;
-+	struct rcu_head rcu;
- 	int ifindex;
- 	canid_t can_id;
- 	u32 flags;
-@@ -718,10 +719,9 @@ static struct bcm_op *bcm_find_op(struct
- 	return NULL;
- }
- 
--static void bcm_remove_op(struct bcm_op *op)
-+static void bcm_free_op_rcu(struct rcu_head *rcu_head)
- {
--	hrtimer_cancel(&op->timer);
--	hrtimer_cancel(&op->thrtimer);
-+	struct bcm_op *op = container_of(rcu_head, struct bcm_op, rcu);
- 
- 	if ((op->frames) && (op->frames != &op->sframe))
- 		kfree(op->frames);
-@@ -732,6 +732,14 @@ static void bcm_remove_op(struct bcm_op
- 	kfree(op);
- }
- 
-+static void bcm_remove_op(struct bcm_op *op)
-+{
-+	hrtimer_cancel(&op->timer);
-+	hrtimer_cancel(&op->thrtimer);
-+
-+	call_rcu(&op->rcu, bcm_free_op_rcu);
-+}
-+
- static void bcm_rx_unreg(struct net_device *dev, struct bcm_op *op)
- {
- 	if (op->rx_reg_dev == dev) {
-@@ -757,6 +765,9 @@ static int bcm_delete_rx_op(struct list_
- 		if ((op->can_id == mh->can_id) && (op->ifindex == ifindex) &&
- 		    (op->flags & CAN_FD_FRAME) == (mh->flags & CAN_FD_FRAME)) {
- 
-+			/* disable automatic timer on frame reception */
-+			op->flags |= RX_NO_AUTOTIMER;
-+
- 			/*
- 			 * Don't care if we're bound or not (due to netdev
- 			 * problems) can_rx_unregister() is always a save
-@@ -785,7 +796,6 @@ static int bcm_delete_rx_op(struct list_
- 						  bcm_rx_handler, op);
- 
- 			list_del(&op->list);
--			synchronize_rcu();
- 			bcm_remove_op(op);
- 			return 1; /* done */
- 		}
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -1659,7 +1659,6 @@ static int grcan_probe(struct platform_d
+ 	 */
+ 	sysid_parent = of_find_node_by_path("/ambapp0");
+ 	if (sysid_parent) {
+-		of_node_get(sysid_parent);
+ 		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
+ 		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
+ 			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
 
 
