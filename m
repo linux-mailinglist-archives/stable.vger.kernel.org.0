@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A8856FD1F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE17556FB00
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230403AbiGKJvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36154 "EHLO
+        id S231904AbiGKJZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:25:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233788AbiGKJuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB73823BEF;
-        Mon, 11 Jul 2022 02:24:39 -0700 (PDT)
+        with ESMTP id S232334AbiGKJYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3B7240B8;
+        Mon, 11 Jul 2022 02:14:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FF45B80E7E;
-        Mon, 11 Jul 2022 09:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4040C34115;
-        Mon, 11 Jul 2022 09:24:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1969CCE1259;
+        Mon, 11 Jul 2022 09:14:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A78C34115;
+        Mon, 11 Jul 2022 09:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531477;
-        bh=RWogilwkxJcP15SAbJz7VzfvXOwDkcVEDfMpxC6e0J4=;
+        s=korg; t=1657530870;
+        bh=TRtp90YBaVG03YygRHmLfEk23dEDAC+1e/I54l6MBK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oatoPEn5pqNo8sFlsAOQ7sprBjGuW9Zss7KvK1YypjNj4jXOQ7gpB1IlltdGyOly
-         rS1yq4ZoFEj+DE4yJrtuM2E+Uss3KnvRc+nA3Kq9B0OZ1FmQwWUNpFO5hi3k4Y7Cfh
-         us3ZZMYfue+HHmyxx8rH+8xEYsdaSnEp0eGx3DjE=
+        b=xAKViFAe3ccsJ0IfM7Aqkor+bOR0L63uoStpXfNM2vao5MsB473nk0daYxLr0LwWl
+         yKK41+SvQtxlxcI0mSM9RmjFdUnhUoRu3VXZRpIFTWZzPtT1suZStsmbVCHNbYo9q6
+         zzgYgmVWFBkAR4mnCjxuTaFknb6Nfx4ELiW8Gka0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/230] tty: n_gsm: Modify CR,PF bit when config requester
+        stable@vger.kernel.org, Thomas Kopp <thomas.kopp@microchip.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.18 014/112] can: mcp251xfd: mcp251xfd_regmap_crc_read(): update workaround broken CRC on TBC register
 Date:   Mon, 11 Jul 2022 11:06:14 +0200
-Message-Id: <20220711090607.412980854@linuxfoundation.org>
+Message-Id: <20220711090549.963890864@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>
+From: Thomas Kopp <thomas.kopp@microchip.com>
 
-[ Upstream commit cc0f42122a7e7a5ede9c5f2a41199128b8449eda ]
+commit e3d4ee7d5f7f5256dfe89219afcc7a2d553b731f upstream.
 
-When n_gsm config "initiator=0",as requester,gsmld receives dlci SABM/DISC
-control command frame,but send UA frame is error.
+The mcp251xfd compatible chips have an erratum ([1], [2]), where the
+received CRC doesn't match the calculated CRC. In commit
+c7eb923c3caf ("can: mcp251xfd: mcp251xfd_regmap_crc_read(): work
+around broken CRC on TBC register") the following workaround was
+implementierend.
 
-Example:
-Gsmld receive dlc0 SABM frame "f9 03 3f 01 1c f9",now it sends UA
-frame "f9 01 63 01 a3 f9",CR and PF bit are 0,but it should be set
-1 from requster to initiator.
+- If a CRC read error on the TBC register is detected and the first
+  byte is 0x00 or 0x80, the most significant bit of the first byte is
+  flipped and the CRC is calculated again.
+- If the CRC now matches, the _original_ data is passed to the reader.
+  For now we assume transferred data was OK.
 
-Kernel test log as follows:
+New investigations and simulations indicate that the CRC send by the
+device is calculated on correct data, and the data is incorrectly
+received by the SPI host controller.
 
-Before modify
+Use flipped instead of original data and update workaround description
+in mcp251xfd_regmap_crc_read().
 
-[  271.732031] c1 gsmld_receive: 00000000: f9 03 3f 01 1c f9
-[  271.741719] c1 <-- 0) C: SABM(P)
-[  271.749483] c1 gsmld_output: 00000000: f9 01 63 01 a3 f9
-[  271.758337] c1 --> 0) R: UA(F)
+[1] mcp2517fd: DS80000792C: "Incorrect CRC for certain READ_CRC commands"
+[2] mcp2518fd: DS80000789C: "Incorrect CRC for certain READ_CRC commands"
 
-After modify
-
-[  261.233188] c0 gsmld_receive: 00000000: f9 03 3f 01 1c f9
-[  261.242767] c0 <-- 0) C: SABM(P)
-[  261.250497] c0 gsmld_output: 00000000: f9 03 73 01 d7 f9
-[  261.259759] c0 --> 0) C: UA(P)
-
-Signed-off-by: Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>
-Link: https://lore.kernel.org/r/1629461872-26965-3-git-send-email-zhenguo6858@gmail.com
+Link: https://lore.kernel.org/all/DM4PR11MB53901D49578FE265B239E55AFB7C9@DM4PR11MB5390.namprd11.prod.outlook.com
+Fixes: c7eb923c3caf ("can: mcp251xfd: mcp251xfd_regmap_crc_read(): work around broken CRC on TBC register")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Kopp <thomas.kopp@microchip.com>
+[mkl: split into 2 patches, update patch description and documentation]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 6734ef22c304..91ce8e6e889a 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -625,7 +625,7 @@ static void gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
- 
- static inline void gsm_response(struct gsm_mux *gsm, int addr, int control)
- {
--	gsm_send(gsm, addr, 0, control);
-+	gsm_send(gsm, addr, 1, control);
- }
- 
- /**
-@@ -1818,9 +1818,9 @@ static void gsm_queue(struct gsm_mux *gsm)
- 		if (dlci == NULL)
- 			return;
- 		if (dlci->dead)
--			gsm_response(gsm, address, DM);
-+			gsm_response(gsm, address, DM|PF);
- 		else {
--			gsm_response(gsm, address, UA);
-+			gsm_response(gsm, address, UA|PF);
- 			gsm_dlci_open(dlci);
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-regmap.c
+@@ -343,9 +343,8 @@ mcp251xfd_regmap_crc_read(void *context,
+ 		 *
+ 		 * If the highest bit in the lowest byte is flipped
+ 		 * the transferred CRC matches the calculated one. We
+-		 * assume for now the CRC calculation in the chip
+-		 * works on wrong data and the transferred data is
+-		 * correct.
++		 * assume for now the CRC operates on the correct
++		 * data.
+ 		 */
+ 		if (reg == MCP251XFD_REG_TBC &&
+ 		    ((buf_rx->data[0] & 0xf8) == 0x0 ||
+@@ -359,10 +358,8 @@ mcp251xfd_regmap_crc_read(void *context,
+ 								  val_len);
+ 			if (!err) {
+ 				/* If CRC is now correct, assume
+-				 * transferred data was OK, flip bit
+-				 * back to original value.
++				 * flipped data is OK.
+ 				 */
+-				buf_rx->data[0] ^= 0x80;
+ 				goto out;
+ 			}
  		}
- 		break;
-@@ -1828,11 +1828,11 @@ static void gsm_queue(struct gsm_mux *gsm)
- 		if (cr == 0)
- 			goto invalid;
- 		if (dlci == NULL || dlci->state == DLCI_CLOSED) {
--			gsm_response(gsm, address, DM);
-+			gsm_response(gsm, address, DM|PF);
- 			return;
- 		}
- 		/* Real close complete */
--		gsm_response(gsm, address, UA);
-+		gsm_response(gsm, address, UA|PF);
- 		gsm_dlci_close(dlci);
- 		break;
- 	case UA|PF:
--- 
-2.35.1
-
 
 
