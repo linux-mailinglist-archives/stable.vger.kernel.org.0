@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5D356FDAE
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A6456F9E0
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbiGKJ7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
+        id S229501AbiGKJKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234228AbiGKJ6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:58:39 -0400
+        with ESMTP id S231154AbiGKJJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0815BB5D29;
-        Mon, 11 Jul 2022 02:27:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42AB428E29;
+        Mon, 11 Jul 2022 02:08:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A17E161383;
-        Mon, 11 Jul 2022 09:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE1BC34115;
-        Mon, 11 Jul 2022 09:27:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B245F61183;
+        Mon, 11 Jul 2022 09:08:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDEDAC34115;
+        Mon, 11 Jul 2022 09:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531637;
-        bh=yukl6GV3BRbGGtmdnfo95ezX+H3GVr/qNTWjY1Phkmk=;
+        s=korg; t=1657530493;
+        bh=ScC+AZ/Dw/P+jFHGC5l3wAydwM8lOs+uKFo0U/CGB5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CczWVxuyhWIh4CL3FxPASBHzJclnkjJUr48pLliffnahP1cz++FSQLAuhz8WQO9/n
-         +IO6MNS1roQ02vx7e1fj0YN5YSHcJlrUvhOl4obRYKa+rsDKfvulAlYIHR0Z/PMcOy
-         dsZ1Oh7IOaZyFgKpXkBRQ4PI8RwhEcRCXIojaLGg=
+        b=WN2uLwkBdX4jsuVCCbXsKB1FdN9Y5W7HVx6VQE0HwSovx6BZvOpzTdA3vLe2iq36M
+         PP2QztMvcNuUBRPisvZIf8YKSwMkj6QQhHmIF6p2cJZ+nUAP5WoHz3JQdNRqEZrv9W
+         S7/MtWwa9ob24bEGbap7bjhlNDCWiV3dfHHyWkBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 137/230] tty: n_gsm: fix invalid gsmtty_write_room() result
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 4.14 08/17] fbcon: Disallow setting font bigger than screen size
 Date:   Mon, 11 Jul 2022 11:06:33 +0200
-Message-Id: <20220711090607.950458131@linuxfoundation.org>
+Message-Id: <20220711090536.507712550@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090536.245939953@linuxfoundation.org>
+References: <20220711090536.245939953@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 9361ebfbb79fd1bc8594a487c01ad52cdaa391ea ]
+commit 65a01e601dbba8b7a51a2677811f70f783766682 upstream.
 
-gsmtty_write() does not prevent the user to use the full fifo size of 4096
-bytes as allocated in gsm_dlci_alloc(). However, gsmtty_write_room() tries
-to limit the return value by 'TX_SIZE' and returns a negative value if the
-fifo has more than 'TX_SIZE' bytes stored. This is obviously wrong as
-'TX_SIZE' is defined as 512.
-Define 'TX_SIZE' to the fifo size and use it accordingly for allocation to
-keep the current behavior. Return the correct remaining size of the fifo in
-gsmtty_write_room() via kfifo_avail().
+Prevent that users set a font size which is bigger than the physical screen.
+It's unlikely this may happen (because screens are usually much larger than the
+fonts and each font char is limited to 32x32 pixels), but it may happen on
+smaller screens/LCD displays.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220504081733.3494-3-daniel.starke@siemens.com
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index fd4a86111a6e..4a430f6ca170 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -137,6 +137,7 @@ struct gsm_dlci {
- 	int retries;
- 	/* Uplink tty if active */
- 	struct tty_port port;	/* The tty bound to this DLCI if there is one */
-+#define TX_SIZE		4096    /* Must be power of 2. */
- 	struct kfifo fifo;	/* Queue fifo for the DLCI */
- 	int adaption;		/* Adaption layer in use */
- 	int prev_adaption;
-@@ -1758,7 +1759,7 @@ static struct gsm_dlci *gsm_dlci_alloc(struct gsm_mux *gsm, int addr)
- 		return NULL;
- 	spin_lock_init(&dlci->lock);
- 	mutex_init(&dlci->mutex);
--	if (kfifo_alloc(&dlci->fifo, 4096, GFP_KERNEL) < 0) {
-+	if (kfifo_alloc(&dlci->fifo, TX_SIZE, GFP_KERNEL) < 0) {
- 		kfree(dlci);
- 		return NULL;
- 	}
-@@ -3035,8 +3036,6 @@ static struct tty_ldisc_ops tty_ldisc_packet = {
-  *	Virtual tty side
-  */
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2445,6 +2445,11 @@ static int fbcon_set_font(struct vc_data
+ 	if (charcount != 256 && charcount != 512)
+ 		return -EINVAL;
  
--#define TX_SIZE		512
--
- /**
-  *	gsm_modem_upd_via_data	-	send modem bits via convergence layer
-  *	@dlci: channel
-@@ -3274,7 +3273,7 @@ static unsigned int gsmtty_write_room(struct tty_struct *tty)
- 	struct gsm_dlci *dlci = tty->driver_data;
- 	if (dlci->state == DLCI_CLOSED)
- 		return 0;
--	return TX_SIZE - kfifo_len(&dlci->fifo);
-+	return kfifo_avail(&dlci->fifo);
- }
- 
- static unsigned int gsmtty_chars_in_buffer(struct tty_struct *tty)
--- 
-2.35.1
-
++	/* font bigger than screen resolution ? */
++	if (w > FBCON_SWAP(info->var.rotate, info->var.xres, info->var.yres) ||
++	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
++		return -EINVAL;
++
+ 	/* Make sure drawing engine can handle the font */
+ 	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
+ 	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
 
 
