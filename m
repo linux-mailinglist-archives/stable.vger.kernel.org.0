@@ -2,48 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1A756FB17
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D2C56F9E3
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:10:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231263AbiGKJZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:25:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57416 "EHLO
+        id S229591AbiGKJK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:10:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232408AbiGKJYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:24:39 -0400
+        with ESMTP id S231256AbiGKJJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:09:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798AA2A427;
-        Mon, 11 Jul 2022 02:15:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62E924957;
+        Mon, 11 Jul 2022 02:08:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D532F6123B;
-        Mon, 11 Jul 2022 09:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8FFEC341C0;
-        Mon, 11 Jul 2022 09:15:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FDBE611BB;
+        Mon, 11 Jul 2022 09:08:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05216C34115;
+        Mon, 11 Jul 2022 09:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530903;
-        bh=Thsqa8+oXxSlU5z5RVlpc5ANmuoUcNe2Gohr70520l0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izkg/dP0IREvJoxSbtbPLGhy3rgx9JI0VU11q4eTPwd684LYCfOwtH8BvND2ZCIXW
-         gZU/Zh97egZvz7LAFjqtkBi0QpTtQrfgO5XgmF6smUJXAWAe1K+lmh2MWzV1AOOsiN
-         Ja8zqFl+wAT5USu0fiaGhg9rjMCo3lacbIllgKiY=
+        s=korg; t=1657530498;
+        bh=D0avMhJxW3+auuJHpdx5C75y1GDvMuofmJOViNo+6VE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CsHAWALfiQX6bRVTshUmqiV3+bgoqn7kEKhGmyadOmEL3swTYVEKt4sC6f9OuNJUu
+         bZRn62PkXV1dyjau9jg6uQfdLYGhM2pjMQRuUEJH/Zrl/ohekJB5UTMg4GAc5G5lsX
+         M9O8y0Vhkg61OI5tlNvQfmiaGqr8Bw2RIPA/sjbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.18 025/112] can: mcp251xfd: mcp251xfd_register_get_dev_id(): fix endianness conversion
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.14 00/17] 4.14.288-rc1 review
 Date:   Mon, 11 Jul 2022 11:06:25 +0200
-Message-Id: <20220711090550.274324178@linuxfoundation.org>
+Message-Id: <20220711090536.245939953@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-References: <20220711090549.543317027@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.288-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.288-rc1
+X-KernelTest-Deadline: 2022-07-13T09:05+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -55,51 +61,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+This is the start of the stable review cycle for the 4.14.288 release.
+There are 17 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 1c0e78a287e3493e22bde8553d02f3b89177eaf7 upstream.
+Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
+Anything received after that time might be too late.
 
-In mcp251xfd_register_get_dev_id() the device ID register is read with
-handcrafted SPI transfers. As all registers, this register is in
-little endian. Further it is not naturally aligned in struct
-mcp251xfd_map_buf_nocrc::data. However after the transfer the register
-content is converted from big endian to CPU endianness not taking care
-of being unaligned.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.288-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Fix the conversion by converting from little endian to CPU endianness
-taking the unaligned source into account.
+thanks,
 
-Side note: So far the register content is 0x0 on all mcp251xfd
-compatible chips, and is only used for an informative printk.
+greg k-h
 
-Link: https://lore.kernel.org/all/20220627092859.809042-1-mkl@pengutronix.de
-Fixes: 55e5b97f003e ("can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN")
-Reviewed-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-@@ -12,6 +12,7 @@
- // Copyright (c) 2019 Martin Sperl <kernel@martin.sperl.org>
- //
- 
-+#include <asm/unaligned.h>
- #include <linux/bitfield.h>
- #include <linux/clk.h>
- #include <linux/device.h>
-@@ -1778,7 +1779,7 @@ mcp251xfd_register_get_dev_id(const stru
- 	if (err)
- 		goto out_kfree_buf_tx;
- 
--	*dev_id = be32_to_cpup((__be32 *)buf_rx->data);
-+	*dev_id = get_unaligned_le32(buf_rx->data);
- 	*effective_speed_hz_slow = xfer[0].effective_speed_hz;
- 	*effective_speed_hz_fast = xfer[1].effective_speed_hz;
- 
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.288-rc1
+
+Miaoqian Lin <linmq006@gmail.com>
+    dmaengine: ti: Add missing put_device in ti_dra7_xbar_route_allocate
+
+Miaoqian Lin <linmq006@gmail.com>
+    dmaengine: ti: Fix refcount leak in ti_dra7_xbar_route_allocate
+
+Michael Walle <michael@walle.cc>
+    dmaengine: at_xdma: handle errors of at_xdmac_alloc_desc() correctly
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    ida: don't use BUG_ON() for debugging
+
+Satish Nagireddy <satish.nagireddy@getcruise.com>
+    i2c: cadence: Unregister the clk notifier in error path
+
+Samuel Holland <samuel@sholland.org>
+    pinctrl: sunxi: a83t: Fix NAND function name for some pins
+
+Eric Sandeen <sandeen@redhat.com>
+    xfs: remove incorrect ASSERT in xfs_rename
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    powerpc/powernv: delay rng platform device creation until later in boot
+
+Hsin-Yi Wang <hsinyi@chromium.org>
+    video: of_display_timing.h: include errno.h
+
+Helge Deller <deller@gmx.de>
+    fbcon: Disallow setting font bigger than screen size
+
+Yian Chen <yian.chen@intel.com>
+    iommu/vt-d: Fix PCI bus rescan device hot add
+
+Duoming Zhou <duoming@zju.edu.cn>
+    net: rose: fix UAF bug caused by rose_t0timer_expiry
+
+Oliver Neukum <oneukum@suse.com>
+    usbnet: fix memory leak in error case
+
+Rhett Aultman <rhett.aultman@samsara.com>
+    can: gs_usb: gs_usb_open/close(): fix memory leak
+
+Liang He <windhl@126.com>
+    can: grcan: grcan_probe(): remove extra of_node_get()
+
+Jann Horn <jannh@google.com>
+    mm/slub: add missing TID updates on slab deactivation
+
+Sabrina Dubroca <sd@queasysnail.net>
+    esp: limit skb_page_frag_refill use to a single page
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                   |  4 ++--
+ arch/powerpc/platforms/powernv/rng.c       | 16 ++++++++++------
+ drivers/dma/at_xdmac.c                     |  5 +++++
+ drivers/dma/ti-dma-crossbar.c              |  5 +++++
+ drivers/i2c/busses/i2c-cadence.c           |  1 +
+ drivers/iommu/dmar.c                       |  2 +-
+ drivers/net/can/grcan.c                    |  1 -
+ drivers/net/can/usb/gs_usb.c               | 23 +++++++++++++++++++++--
+ drivers/net/usb/usbnet.c                   | 17 ++++++++++++-----
+ drivers/pinctrl/sunxi/pinctrl-sun8i-a83t.c | 10 +++++-----
+ drivers/video/fbdev/core/fbcon.c           |  5 +++++
+ fs/xfs/xfs_inode.c                         |  1 -
+ include/net/esp.h                          |  2 --
+ include/video/of_display_timing.h          |  2 ++
+ lib/idr.c                                  |  4 +++-
+ mm/slub.c                                  |  4 ++--
+ net/ipv4/esp4.c                            |  5 ++---
+ net/ipv6/esp6.c                            |  5 ++---
+ net/rose/rose_route.c                      |  4 ++--
+ 19 files changed, 80 insertions(+), 36 deletions(-)
 
 
