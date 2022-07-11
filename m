@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B0656FC35
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90AE56FC52
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233192AbiGKJkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:40:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36644 "EHLO
+        id S233328AbiGKJme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:42:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233232AbiGKJkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:40:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01DBB8C760;
-        Mon, 11 Jul 2022 02:20:35 -0700 (PDT)
+        with ESMTP id S233283AbiGKJmN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:42:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DFD13F89;
+        Mon, 11 Jul 2022 02:21:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82436612A3;
-        Mon, 11 Jul 2022 09:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9546EC34115;
-        Mon, 11 Jul 2022 09:20:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B2B7B80E7A;
+        Mon, 11 Jul 2022 09:21:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55D9C34115;
+        Mon, 11 Jul 2022 09:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531233;
-        bh=gn6z5xNUSkjtagaL4BSFt6iLReVorGh4Ro3OTLFfa/w=;
+        s=korg; t=1657531264;
+        bh=IaRUgGfHA+RRFpBTMZHWM764kBfEr2w8k+wgK7DdwJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz40VyOH3AceSZsG6Zne3a21efxkwhnuIBai4TM7KqtK8lrMM3m0sdk2NfBblZU2K
-         7HXSdadfu9T6jv6ImpJtBRbYWWYvq9MN8umhTbHk10t2na9c4DQmS/Vy/rSBzZ32Hb
-         80bZKl1/MlzsFYO+Cf8nPzzYv4Gijq3tmVOCkgZ4=
+        b=jXa+HQ/tOvfHf/8xYkNCxrYInzSLD4szqLRKxjgRvJxATFSpGL7WolHc8HtGypvUO
+         zi2B/El4qZNunYaSJ0bCwyHPA/X2ikPteeAA+VRjk2yeRSU8e2mlKk1aiBy/i4vYTT
+         2zy+I0tD/qGB4QR05qT27hKHoovMn1uFaCP7HIbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 004/230] ALSA: usb-audio: Workarounds for Behringer UMC 204/404 HD
-Date:   Mon, 11 Jul 2022 11:04:20 +0200
-Message-Id: <20220711090604.193001581@linuxfoundation.org>
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 005/230] ALSA: hda/realtek: Add quirk for Clevo L140PU
+Date:   Mon, 11 Jul 2022 11:04:21 +0200
+Message-Id: <20220711090604.220884239@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -52,42 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit ae8b1631561a3634cc09d0c62bbdd938eade05ec upstream.
+commit 11bea26929a1a3a9dd1a287b60c2f471701bf706 upstream.
 
-Both Behringer UMC 202 HD and 404 HD need explicit quirks to enable
-the implicit feedback mode and start the playback stream primarily.
-The former seems fixing the stuttering and the latter is required for
-a playback-only case.
+Fixes headset detection on Clevo L140PU.
 
-Note that the "clock source 41 is not valid" error message still
-appears even after this fix, but it should be only once at probe.
-The reason of the error is still unknown, but this seems to be mostly
-harmless as it's a one-off error and the driver retires the clock
-setup and it succeeds afterwards.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215934
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220624101132.14528-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220624144109.3957-1-tcrawford@system76.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1842,6 +1842,10 @@ static const struct usb_audio_quirk_flag
- 		   QUIRK_FLAG_SHARE_MEDIA_DEVICE | QUIRK_FLAG_ALIGN_TRANSFER),
- 	DEVICE_FLG(0x1395, 0x740a, /* Sennheiser DECT */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x1397, 0x0508, /* Behringer UMC204HD */
-+		   QUIRK_FLAG_PLAYBACK_FIRST | QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x1397, 0x0509, /* Behringer UMC404HD */
-+		   QUIRK_FLAG_PLAYBACK_FIRST | QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x13e5, 0x0001, /* Serato Phono */
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x154e, 0x1002, /* Denon DCD-1500RE */
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9001,6 +9001,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x70f4, "Clevo NH77EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x70f6, "Clevo NH77DPQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x7716, "Clevo NS50PU", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x7718, "Clevo L140PU", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8228, "Clevo NR40BU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8520, "Clevo NH50D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8521, "Clevo NH77D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
 
 
