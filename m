@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CED0156FD1C
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A8856FD1F
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233588AbiGKJvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:51:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
+        id S230403AbiGKJvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:51:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233629AbiGKJuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81EB8313A8;
-        Mon, 11 Jul 2022 02:24:35 -0700 (PDT)
+        with ESMTP id S233788AbiGKJuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:50:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB73823BEF;
+        Mon, 11 Jul 2022 02:24:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1450A61363;
-        Mon, 11 Jul 2022 09:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1870BC34115;
-        Mon, 11 Jul 2022 09:24:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FF45B80E7E;
+        Mon, 11 Jul 2022 09:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4040C34115;
+        Mon, 11 Jul 2022 09:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531474;
-        bh=T+y81cV5cT0q5eTK5Na8tcQR7hBNFKwry7g91mXTPIc=;
+        s=korg; t=1657531477;
+        bh=RWogilwkxJcP15SAbJz7VzfvXOwDkcVEDfMpxC6e0J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXqo6La95fcm2p+nxLgBf4SPgxq+GizeP4v1GTSwNbt++90mxv9rkjkWhqE5VKrqA
-         UzPGcv6C8CTbeH7uAeASwxcEGfUd96mFRMrdEuzCrLYibMMOGmse3dDh/B0lzkuEVl
-         QhovAVMp99/JSATf5fmvostrVwhabMLVoClusF8g=
+        b=0oatoPEn5pqNo8sFlsAOQ7sprBjGuW9Zss7KvK1YypjNj4jXOQ7gpB1IlltdGyOly
+         rS1yq4ZoFEj+DE4yJrtuM2E+Uss3KnvRc+nA3Kq9B0OZ1FmQwWUNpFO5hi3k4Y7Cfh
+         us3ZZMYfue+HHmyxx8rH+8xEYsdaSnEp0eGx3DjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Oliver Upton <oupton@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/230] KVM: Dont create VM debugfs files outside of the VM directory
-Date:   Mon, 11 Jul 2022 11:06:13 +0200
-Message-Id: <20220711090607.384854767@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 118/230] tty: n_gsm: Modify CR,PF bit when config requester
+Date:   Mon, 11 Jul 2022 11:06:14 +0200
+Message-Id: <20220711090607.412980854@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -54,71 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>
 
-[ Upstream commit a44a4cc1c969afec97dbb2aedaf6f38eaa6253bb ]
+[ Upstream commit cc0f42122a7e7a5ede9c5f2a41199128b8449eda ]
 
-Unfortunately, there is no guarantee that KVM was able to instantiate a
-debugfs directory for a particular VM. To that end, KVM shouldn't even
-attempt to create new debugfs files in this case. If the specified
-parent dentry is NULL, debugfs_create_file() will instantiate files at
-the root of debugfs.
+When n_gsm config "initiator=0",as requester,gsmld receives dlci SABM/DISC
+control command frame,but send UA frame is error.
 
-For arm64, it is possible to create the vgic-state file outside of a
-VM directory, the file is not cleaned up when a VM is destroyed.
-Nonetheless, the corresponding struct kvm is freed when the VM is
-destroyed.
+Example:
+Gsmld receive dlc0 SABM frame "f9 03 3f 01 1c f9",now it sends UA
+frame "f9 01 63 01 a3 f9",CR and PF bit are 0,but it should be set
+1 from requster to initiator.
 
-Nip the problem in the bud for all possible errant debugfs file
-creations by initializing kvm->debugfs_dentry to -ENOENT. In so doing,
-debugfs_create_file() will fail instead of creating the file in the root
-directory.
+Kernel test log as follows:
 
-Cc: stable@kernel.org
-Fixes: 929f45e32499 ("kvm: no need to check return value of debugfs_create functions")
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220406235615.1447180-2-oupton@google.com
+Before modify
+
+[  271.732031] c1 gsmld_receive: 00000000: f9 03 3f 01 1c f9
+[  271.741719] c1 <-- 0) C: SABM(P)
+[  271.749483] c1 gsmld_output: 00000000: f9 01 63 01 a3 f9
+[  271.758337] c1 --> 0) R: UA(F)
+
+After modify
+
+[  261.233188] c0 gsmld_receive: 00000000: f9 03 3f 01 1c f9
+[  261.242767] c0 <-- 0) C: SABM(P)
+[  261.250497] c0 gsmld_output: 00000000: f9 03 73 01 d7 f9
+[  261.259759] c0 --> 0) C: UA(P)
+
+Signed-off-by: Zhenguo Zhao <Zhenguo.Zhao1@unisoc.com>
+Link: https://lore.kernel.org/r/1629461872-26965-3-git-send-email-zhenguo6858@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 99c591569815..9134ae252d7c 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -911,7 +911,7 @@ static void kvm_destroy_vm_debugfs(struct kvm *kvm)
- 	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
- 				      kvm_vcpu_stats_header.num_desc;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 6734ef22c304..91ce8e6e889a 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -625,7 +625,7 @@ static void gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
  
--	if (!kvm->debugfs_dentry)
-+	if (IS_ERR(kvm->debugfs_dentry))
- 		return;
+ static inline void gsm_response(struct gsm_mux *gsm, int addr, int control)
+ {
+-	gsm_send(gsm, addr, 0, control);
++	gsm_send(gsm, addr, 1, control);
+ }
  
- 	debugfs_remove_recursive(kvm->debugfs_dentry);
-@@ -934,6 +934,12 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
- 	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
- 				      kvm_vcpu_stats_header.num_desc;
- 
-+	/*
-+	 * Force subsequent debugfs file creations to fail if the VM directory
-+	 * is not created.
-+	 */
-+	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
-+
- 	if (!debugfs_initialized())
- 		return 0;
- 
-@@ -5373,7 +5379,7 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
- 	}
- 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
- 
--	if (kvm->debugfs_dentry) {
-+	if (!IS_ERR(kvm->debugfs_dentry)) {
- 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
- 
- 		if (p) {
+ /**
+@@ -1818,9 +1818,9 @@ static void gsm_queue(struct gsm_mux *gsm)
+ 		if (dlci == NULL)
+ 			return;
+ 		if (dlci->dead)
+-			gsm_response(gsm, address, DM);
++			gsm_response(gsm, address, DM|PF);
+ 		else {
+-			gsm_response(gsm, address, UA);
++			gsm_response(gsm, address, UA|PF);
+ 			gsm_dlci_open(dlci);
+ 		}
+ 		break;
+@@ -1828,11 +1828,11 @@ static void gsm_queue(struct gsm_mux *gsm)
+ 		if (cr == 0)
+ 			goto invalid;
+ 		if (dlci == NULL || dlci->state == DLCI_CLOSED) {
+-			gsm_response(gsm, address, DM);
++			gsm_response(gsm, address, DM|PF);
+ 			return;
+ 		}
+ 		/* Real close complete */
+-		gsm_response(gsm, address, UA);
++		gsm_response(gsm, address, UA|PF);
+ 		gsm_dlci_close(dlci);
+ 		break;
+ 	case UA|PF:
 -- 
 2.35.1
 
