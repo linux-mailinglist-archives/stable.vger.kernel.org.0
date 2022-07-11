@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8334756FA2B
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 446B556FA8D
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231445AbiGKJOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:14:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58878 "EHLO
+        id S231965AbiGKJTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230459AbiGKJNe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:13:34 -0400
+        with ESMTP id S231759AbiGKJSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF7A27B06;
-        Mon, 11 Jul 2022 02:09:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BDE4D4D7;
+        Mon, 11 Jul 2022 02:11:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0B69B80D2C;
-        Mon, 11 Jul 2022 09:09:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4F0EC341C0;
-        Mon, 11 Jul 2022 09:09:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 969E3B80E79;
+        Mon, 11 Jul 2022 09:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5807C34115;
+        Mon, 11 Jul 2022 09:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530586;
-        bh=ntXr2dtPBrWMgWr8XaLwxtAjgCIpelYIcWAUCYePGFU=;
+        s=korg; t=1657530712;
+        bh=LTvfCJiPIP5D7fDUsggvikSCbkMOiuS1IHVDXNZ+uSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUNsNcpSjjskkbOloDgtDHo4khH057nCNjWSwg9Yk8F5txnalx1Q3XB1m6h8ZRBdj
-         BO1eLvNua6zqNAVhLGbxKjL6+Jm8+UF7YNWNuO18Fs0By4i2DZ2gctEC8ZhNMMivPw
-         zMSj93WwqHBO8k+XT+Za0/NR2fkfS7FwoZ2zxUQg=
+        b=KyExAqNUZBw6W+k/sbqZJgsQ7BIBhl8hcz4phyrKqLKN2Zb1Db18nHZlWD/z156LD
+         HEOL2NUY1/uXWmELmU0oCxA6JleK+mQZA2vcVXOaOhEDu6RkaMM05yHiUWZ92pn9BG
+         yITg0pLLDYhTpk7wojf+zdjNYYytdFDAzqFliF5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/31] selftests: forwarding: fix error message in learning_test
+        stable@vger.kernel.org, Guiling Deng <greens9@163.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 13/55] fbdev: fbmem: Fix logo center image dx issue
 Date:   Mon, 11 Jul 2022 11:07:01 +0200
-Message-Id: <20220711090538.502323508@linuxfoundation.org>
+Message-Id: <20220711090542.153048858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Guiling Deng <greens9@163.com>
 
-[ Upstream commit 83844aacab2015da1dba1df0cc61fc4b4c4e8076 ]
+commit 955f04766d4e6eb94bf3baa539e096808c74ebfb upstream.
 
-When packets are not received, they aren't received on $host1_if, so the
-message talking about the second host not receiving them is incorrect.
-Fix it.
+Image.dx gets wrong value because of missing '()'.
 
-Fixes: d4deb01467ec ("selftests: forwarding: Add a test for FDB learning")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If xres == logo->width and n == 1, image.dx = -16.
+
+Signed-off-by: Guiling Deng <greens9@163.com>
+Fixes: 3d8b1933eb1c ("fbdev: fbmem: add config option to center the bootup logo")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 +-
+ drivers/video/fbdev/core/fbmem.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 054f776c3843..ee03552b4116 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -830,7 +830,7 @@ learning_test()
- 	tc -j -s filter show dev $host1_if ingress \
- 		| jq -e ".[] | select(.options.handle == 101) \
- 		| select(.options.actions[0].stats.packets == 1)" &> /dev/null
--	check_fail $? "Packet reached second host when should not"
-+	check_fail $? "Packet reached first host when should not"
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -513,7 +513,7 @@ static int fb_show_logo_line(struct fb_i
  
- 	$MZ $host1_if -c 1 -p 64 -a $mac -t ip -q
- 	sleep 1
--- 
-2.35.1
-
+ 		while (n && (n * (logo->width + 8) - 8 > xres))
+ 			--n;
+-		image.dx = (xres - n * (logo->width + 8) - 8) / 2;
++		image.dx = (xres - (n * (logo->width + 8) - 8)) / 2;
+ 		image.dy = y ?: (yres - logo->height) / 2;
+ 	} else {
+ 		image.dx = 0;
 
 
