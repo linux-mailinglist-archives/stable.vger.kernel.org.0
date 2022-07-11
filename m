@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B84AE56FADE
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:23:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB96D56FBB1
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230123AbiGKJXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43366 "EHLO
+        id S231735AbiGKJet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:34:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231329AbiGKJWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:22:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A622D5C947;
-        Mon, 11 Jul 2022 02:13:26 -0700 (PDT)
+        with ESMTP id S232618AbiGKJdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:33:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EECF64A805;
+        Mon, 11 Jul 2022 02:18:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 506FFB80E6D;
-        Mon, 11 Jul 2022 09:13:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D68CC341C8;
-        Mon, 11 Jul 2022 09:13:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F019861211;
+        Mon, 11 Jul 2022 09:18:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD7B2C34115;
+        Mon, 11 Jul 2022 09:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530804;
-        bh=MkMMmFyE+w40RGilaI/tHc97HQDwz3sazmOxR7HmrMk=;
+        s=korg; t=1657531089;
+        bh=TpOOyILXwNDLE/XBw7fTsT1Ty6fmSAT2o3InDr9Alx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikscnsB2YKUmHKlGZRluA4RJVSuJTbpCQn9MLfzIXR30s+5fZ9iRBszINpUMi9JmZ
-         nI9/neoYG18TMslm1GZYAP6oezIqfsmDlT5/ELCT4oF1izvwhZMpu2L99Tlmp+FWlM
-         zcnXHD24/EJFXSuxH/IYUZYBt2JWUScs9KtBHSMM=
+        b=oqtGRged3iFM5kZJ1FohNj81mpO7rMjg4T8PLZCBNKayhiUiFWyeFIIpAQ2HfhwtE
+         XBDZN5oPhJu0ccjKrtCL671HDV6025N96tm7BgSrFl+z87XkKLaRwJKyBZz2GhfndE
+         9CMpXIdCT7kikXyGVxRB2Qgnxb/z0xERx8gjFmus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Heiner Kallweit <hkallweit1@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 44/55] r8169: fix accessing unset transport header
-Date:   Mon, 11 Jul 2022 11:07:32 +0200
-Message-Id: <20220711090543.056783640@linuxfoundation.org>
+Subject: [PATCH 5.18 093/112] r8169: fix accessing unset transport header
+Date:   Mon, 11 Jul 2022 11:07:33 +0200
+Message-Id: <20220711090552.210907375@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -82,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 5eac3f494d9e..c025dadcce28 100644
+index 33f5c5698ccb..642e435c7031 100644
 --- a/drivers/net/ethernet/realtek/r8169_main.c
 +++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4183,7 +4183,6 @@ static void rtl8169_tso_csum_v1(struct sk_buff *skb, u32 *opts)
+@@ -4190,7 +4190,6 @@ static void rtl8169_tso_csum_v1(struct sk_buff *skb, u32 *opts)
  static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
  				struct sk_buff *skb, u32 *opts)
  {
@@ -93,7 +93,7 @@ index 5eac3f494d9e..c025dadcce28 100644
  	struct skb_shared_info *shinfo = skb_shinfo(skb);
  	u32 mss = shinfo->gso_size;
  
-@@ -4200,7 +4199,7 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+@@ -4207,7 +4206,7 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
  			WARN_ON_ONCE(1);
  		}
  
@@ -102,7 +102,7 @@ index 5eac3f494d9e..c025dadcce28 100644
  		opts[1] |= mss << TD1_MSS_SHIFT;
  	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
  		u8 ip_protocol;
-@@ -4228,7 +4227,7 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+@@ -4235,7 +4234,7 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
  		else
  			WARN_ON_ONCE(1);
  
@@ -111,7 +111,7 @@ index 5eac3f494d9e..c025dadcce28 100644
  	} else {
  		unsigned int padto = rtl_quirk_packet_padto(tp, skb);
  
-@@ -4401,14 +4400,13 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
+@@ -4402,14 +4401,13 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
  						struct net_device *dev,
  						netdev_features_t features)
  {
@@ -127,7 +127,7 @@ index 5eac3f494d9e..c025dadcce28 100644
  		    rtl_chip_supports_csum_v2(tp))
  			features &= ~NETIF_F_ALL_TSO;
  	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
-@@ -4419,7 +4417,7 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
+@@ -4420,7 +4418,7 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
  		if (rtl_quirk_packet_padto(tp, skb))
  			features &= ~NETIF_F_CSUM_MASK;
  
