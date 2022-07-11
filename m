@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6069956FC4A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB18456FC4D
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233141AbiGKJl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
+        id S229890AbiGKJmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233143AbiGKJl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:41:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 832AF90DB3;
-        Mon, 11 Jul 2022 02:20:57 -0700 (PDT)
+        with ESMTP id S233343AbiGKJls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:41:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 936E997A29;
+        Mon, 11 Jul 2022 02:21:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AABD612E8;
-        Mon, 11 Jul 2022 09:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC76FC34115;
-        Mon, 11 Jul 2022 09:20:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 79F57CE1256;
+        Mon, 11 Jul 2022 09:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65A72C34115;
+        Mon, 11 Jul 2022 09:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531256;
-        bh=veREzOZlBf95QLXM5VTk9WLdU/1eFzIUtrtNp0cu6sM=;
+        s=korg; t=1657531258;
+        bh=6wpvfPx7HWP4AWB4A4y3rp0pXm8akVz7duV++56Giq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umh5QyddX7m1rvIQXZUvcMa392QykRcbZexjh6tPuYE2Pu5j71yvyy8745s6NrDDS
-         MI4ELhwoF1P9tLFeSu36DiMpbaNRflUkGsTkIBrvU0tTqhINiZKgtPaI1YdKzEmEhH
-         a/qfKRY3bIwi5B5Tx0Wwuhkt8PoOkBw3fpyI7JtE=
+        b=AEE1L3foD8tR2ox2gg+h1kneYCBqSzjRNDgK7jtqEXbzeXSAekae6xY5wcoCfssos
+         kxEehL8NDC+5EjHMyMAa2hncCQv8ofSQSLuWmc7UOBQkn68Kz1f0ff31vmk7qYzzH9
+         bc48TE2tmokEXhAiiIpHihj+a4zLdDj3tO4+1ai0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Seevalamuthu Mariappan <quic_seevalam@quicinc.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/230] ath11k: add hw_param for wakeup_mhi
-Date:   Mon, 11 Jul 2022 11:04:54 +0200
-Message-Id: <20220711090605.164478217@linuxfoundation.org>
+Subject: [PATCH 5.15 039/230] qed: Improve the stack space of filter_config()
+Date:   Mon, 11 Jul 2022 11:04:55 +0200
+Message-Id: <20220711090605.192560383@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,148 +56,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seevalamuthu Mariappan <quic_seevalam@quicinc.com>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit 081e2d6476e30399433b509684d5da4d1844e430 ]
+[ Upstream commit f55e36d5ab76c3097ff36ecea60b91c6b0d80fc8 ]
 
-Wakeup mhi is needed before pci_read/write only for QCA6390 and WCN6855. Since
-wakeup & release mhi is enabled for all hardwares, below mhi assert is seen in
-QCN9074 when doing 'rmmod ath11k_pci':
+As it was reported and discussed in: https://lore.kernel.org/lkml/CAHk-=whF9F89vsfH8E9TGc0tZA-yhzi2Di8wOtquNB5vRkFX5w@mail.gmail.com/
+This patch improves the stack space of qede_config_rx_mode() by
+splitting filter_config() to 3 functions and removing the
+union qed_filter_type_params.
 
-	Kernel panic - not syncing: dev_wake != 0
-	CPU: 2 PID: 13535 Comm: procd Not tainted 4.4.60 #1
-	Hardware name: Generic DT based system
-	[<80316dac>] (unwind_backtrace) from [<80313700>] (show_stack+0x10/0x14)
-	[<80313700>] (show_stack) from [<805135dc>] (dump_stack+0x7c/0x9c)
-	[<805135dc>] (dump_stack) from [<8032136c>] (panic+0x84/0x1f8)
-	[<8032136c>] (panic) from [<80549b24>] (mhi_pm_disable_transition+0x3b8/0x5b8)
-	[<80549b24>] (mhi_pm_disable_transition) from [<80549ddc>] (mhi_power_down+0xb8/0x100)
-	[<80549ddc>] (mhi_power_down) from [<7f5242b0>] (ath11k_mhi_op_status_cb+0x284/0x3ac [ath11k_pci])
-	[E][__mhi_device_get_sync] Did not enter M0 state, cur_state:RESET pm_state:SHUTDOWN Process
-	[E][__mhi_device_get_sync] Did not enter M0 state, cur_state:RESET pm_state:SHUTDOWN Process
-	[E][__mhi_device_get_sync] Did not enter M0 state, cur_state:RESET pm_state:SHUTDOWN Process
-	[<7f5242b0>] (ath11k_mhi_op_status_cb [ath11k_pci]) from [<7f524878>] (ath11k_mhi_stop+0x10/0x20 [ath11k_pci])
-	[<7f524878>] (ath11k_mhi_stop [ath11k_pci]) from [<7f525b94>] (ath11k_pci_power_down+0x54/0x90 [ath11k_pci])
-	[<7f525b94>] (ath11k_pci_power_down [ath11k_pci]) from [<8056b2a8>] (pci_device_shutdown+0x30/0x44)
-	[<8056b2a8>] (pci_device_shutdown) from [<805cfa0c>] (device_shutdown+0x124/0x174)
-	[<805cfa0c>] (device_shutdown) from [<8033aaa4>] (kernel_restart+0xc/0x50)
-	[<8033aaa4>] (kernel_restart) from [<8033ada8>] (SyS_reboot+0x178/0x1ec)
-	[<8033ada8>] (SyS_reboot) from [<80301b80>] (ret_fast_syscall+0x0/0x34)
-
-Hence, disable wakeup/release mhi using hw_param for other hardwares.
-
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01060-QCAHKSWPL_SILICONZ-1
-
-Fixes: a05bd8513335 ("ath11k: read and write registers below unwindowed address")
-Signed-off-by: Seevalamuthu Mariappan <quic_seevalam@quicinc.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1636702019-26142-1-git-send-email-quic_seevalam@quicinc.com
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/core.c |  5 +++++
- drivers/net/wireless/ath/ath11k/hw.h   |  1 +
- drivers/net/wireless/ath/ath11k/pci.c  | 12 ++++++++----
- 3 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_l2.c      | 23 ++-------
+ .../net/ethernet/qlogic/qede/qede_filter.c    | 47 ++++++++-----------
+ include/linux/qed/qed_eth_if.h                | 21 ++++-----
+ 3 files changed, 30 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
-index 7dcf6b13f794..48b4151e13a3 100644
---- a/drivers/net/wireless/ath/ath11k/core.c
-+++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -71,6 +71,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.supports_suspend = false,
- 		.hal_desc_sz = sizeof(struct hal_rx_desc_ipq8074),
- 		.fix_l1ss = true,
-+		.wakeup_mhi = false,
- 	},
- 	{
- 		.hw_rev = ATH11K_HW_IPQ6018_HW10,
-@@ -112,6 +113,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.supports_suspend = false,
- 		.hal_desc_sz = sizeof(struct hal_rx_desc_ipq8074),
- 		.fix_l1ss = true,
-+		.wakeup_mhi = false,
- 	},
- 	{
- 		.name = "qca6390 hw2.0",
-@@ -152,6 +154,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.supports_suspend = true,
- 		.hal_desc_sz = sizeof(struct hal_rx_desc_ipq8074),
- 		.fix_l1ss = true,
-+		.wakeup_mhi = true,
- 	},
- 	{
- 		.name = "qcn9074 hw1.0",
-@@ -190,6 +193,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.supports_suspend = false,
- 		.hal_desc_sz = sizeof(struct hal_rx_desc_qcn9074),
- 		.fix_l1ss = true,
-+		.wakeup_mhi = false,
- 	},
- 	{
- 		.name = "wcn6855 hw2.0",
-@@ -230,6 +234,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.supports_suspend = true,
- 		.hal_desc_sz = sizeof(struct hal_rx_desc_wcn6855),
- 		.fix_l1ss = false,
-+		.wakeup_mhi = true,
- 	},
- };
- 
-diff --git a/drivers/net/wireless/ath/ath11k/hw.h b/drivers/net/wireless/ath/ath11k/hw.h
-index 62f5978b3005..4fe051625edf 100644
---- a/drivers/net/wireless/ath/ath11k/hw.h
-+++ b/drivers/net/wireless/ath/ath11k/hw.h
-@@ -163,6 +163,7 @@ struct ath11k_hw_params {
- 	bool supports_suspend;
- 	u32 hal_desc_sz;
- 	bool fix_l1ss;
-+	bool wakeup_mhi;
- };
- 
- struct ath11k_hw_ops {
-diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
-index 353a2d669fcd..7d0be9388f89 100644
---- a/drivers/net/wireless/ath/ath11k/pci.c
-+++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -182,7 +182,8 @@ void ath11k_pci_write32(struct ath11k_base *ab, u32 offset, u32 value)
- 	/* for offset beyond BAR + 4K - 32, may
- 	 * need to wakeup MHI to access.
- 	 */
--	if (test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
-+	if (ab->hw_params.wakeup_mhi &&
-+	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
- 	    offset >= ACCESS_ALWAYS_OFF)
- 		mhi_device_get_sync(ab_pci->mhi_ctrl->mhi_dev);
- 
-@@ -206,7 +207,8 @@ void ath11k_pci_write32(struct ath11k_base *ab, u32 offset, u32 value)
- 		}
- 	}
- 
--	if (test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
-+	if (ab->hw_params.wakeup_mhi &&
-+	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
- 	    offset >= ACCESS_ALWAYS_OFF)
- 		mhi_device_put(ab_pci->mhi_ctrl->mhi_dev);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_l2.c b/drivers/net/ethernet/qlogic/qed/qed_l2.c
+index dfaf10edfabf..ba8c7a31cce1 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_l2.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_l2.c
+@@ -2763,25 +2763,6 @@ static int qed_configure_filter_mcast(struct qed_dev *cdev,
+ 	return qed_filter_mcast_cmd(cdev, &mcast, QED_SPQ_MODE_CB, NULL);
  }
-@@ -219,7 +221,8 @@ u32 ath11k_pci_read32(struct ath11k_base *ab, u32 offset)
- 	/* for offset beyond BAR + 4K - 32, may
- 	 * need to wakeup MHI to access.
- 	 */
--	if (test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
-+	if (ab->hw_params.wakeup_mhi &&
-+	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
- 	    offset >= ACCESS_ALWAYS_OFF)
- 		mhi_device_get_sync(ab_pci->mhi_ctrl->mhi_dev);
  
-@@ -243,7 +246,8 @@ u32 ath11k_pci_read32(struct ath11k_base *ab, u32 offset)
- 		}
+-static int qed_configure_filter(struct qed_dev *cdev,
+-				struct qed_filter_params *params)
+-{
+-	enum qed_filter_rx_mode_type accept_flags;
+-
+-	switch (params->type) {
+-	case QED_FILTER_TYPE_UCAST:
+-		return qed_configure_filter_ucast(cdev, &params->filter.ucast);
+-	case QED_FILTER_TYPE_MCAST:
+-		return qed_configure_filter_mcast(cdev, &params->filter.mcast);
+-	case QED_FILTER_TYPE_RX_MODE:
+-		accept_flags = params->filter.accept_flags;
+-		return qed_configure_filter_rx_mode(cdev, accept_flags);
+-	default:
+-		DP_NOTICE(cdev, "Unknown filter type %d\n", (int)params->type);
+-		return -EINVAL;
+-	}
+-}
+-
+ static int qed_configure_arfs_searcher(struct qed_dev *cdev,
+ 				       enum qed_filter_config_mode mode)
+ {
+@@ -2904,7 +2885,9 @@ static const struct qed_eth_ops qed_eth_ops_pass = {
+ 	.q_rx_stop = &qed_stop_rxq,
+ 	.q_tx_start = &qed_start_txq,
+ 	.q_tx_stop = &qed_stop_txq,
+-	.filter_config = &qed_configure_filter,
++	.filter_config_rx_mode = &qed_configure_filter_rx_mode,
++	.filter_config_ucast = &qed_configure_filter_ucast,
++	.filter_config_mcast = &qed_configure_filter_mcast,
+ 	.fastpath_stop = &qed_fastpath_stop,
+ 	.eth_cqe_completion = &qed_fp_cqe_completion,
+ 	.get_vport_stats = &qed_get_vport_stats,
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_filter.c b/drivers/net/ethernet/qlogic/qede/qede_filter.c
+index a2e4dfb5cb44..f99b085b56a5 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_filter.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_filter.c
+@@ -619,30 +619,28 @@ static int qede_set_ucast_rx_mac(struct qede_dev *edev,
+ 				 enum qed_filter_xcast_params_type opcode,
+ 				 unsigned char mac[ETH_ALEN])
+ {
+-	struct qed_filter_params filter_cmd;
++	struct qed_filter_ucast_params ucast;
+ 
+-	memset(&filter_cmd, 0, sizeof(filter_cmd));
+-	filter_cmd.type = QED_FILTER_TYPE_UCAST;
+-	filter_cmd.filter.ucast.type = opcode;
+-	filter_cmd.filter.ucast.mac_valid = 1;
+-	ether_addr_copy(filter_cmd.filter.ucast.mac, mac);
++	memset(&ucast, 0, sizeof(ucast));
++	ucast.type = opcode;
++	ucast.mac_valid = 1;
++	ether_addr_copy(ucast.mac, mac);
+ 
+-	return edev->ops->filter_config(edev->cdev, &filter_cmd);
++	return edev->ops->filter_config_ucast(edev->cdev, &ucast);
+ }
+ 
+ static int qede_set_ucast_rx_vlan(struct qede_dev *edev,
+ 				  enum qed_filter_xcast_params_type opcode,
+ 				  u16 vid)
+ {
+-	struct qed_filter_params filter_cmd;
++	struct qed_filter_ucast_params ucast;
+ 
+-	memset(&filter_cmd, 0, sizeof(filter_cmd));
+-	filter_cmd.type = QED_FILTER_TYPE_UCAST;
+-	filter_cmd.filter.ucast.type = opcode;
+-	filter_cmd.filter.ucast.vlan_valid = 1;
+-	filter_cmd.filter.ucast.vlan = vid;
++	memset(&ucast, 0, sizeof(ucast));
++	ucast.type = opcode;
++	ucast.vlan_valid = 1;
++	ucast.vlan = vid;
+ 
+-	return edev->ops->filter_config(edev->cdev, &filter_cmd);
++	return edev->ops->filter_config_ucast(edev->cdev, &ucast);
+ }
+ 
+ static int qede_config_accept_any_vlan(struct qede_dev *edev, bool action)
+@@ -1057,18 +1055,17 @@ static int qede_set_mcast_rx_mac(struct qede_dev *edev,
+ 				 enum qed_filter_xcast_params_type opcode,
+ 				 unsigned char *mac, int num_macs)
+ {
+-	struct qed_filter_params filter_cmd;
++	struct qed_filter_mcast_params mcast;
+ 	int i;
+ 
+-	memset(&filter_cmd, 0, sizeof(filter_cmd));
+-	filter_cmd.type = QED_FILTER_TYPE_MCAST;
+-	filter_cmd.filter.mcast.type = opcode;
+-	filter_cmd.filter.mcast.num = num_macs;
++	memset(&mcast, 0, sizeof(mcast));
++	mcast.type = opcode;
++	mcast.num = num_macs;
+ 
+ 	for (i = 0; i < num_macs; i++, mac += ETH_ALEN)
+-		ether_addr_copy(filter_cmd.filter.mcast.mac[i], mac);
++		ether_addr_copy(mcast.mac[i], mac);
+ 
+-	return edev->ops->filter_config(edev->cdev, &filter_cmd);
++	return edev->ops->filter_config_mcast(edev->cdev, &mcast);
+ }
+ 
+ int qede_set_mac_addr(struct net_device *ndev, void *p)
+@@ -1194,7 +1191,6 @@ void qede_config_rx_mode(struct net_device *ndev)
+ {
+ 	enum qed_filter_rx_mode_type accept_flags;
+ 	struct qede_dev *edev = netdev_priv(ndev);
+-	struct qed_filter_params rx_mode;
+ 	unsigned char *uc_macs, *temp;
+ 	struct netdev_hw_addr *ha;
+ 	int rc, uc_count;
+@@ -1220,10 +1216,6 @@ void qede_config_rx_mode(struct net_device *ndev)
+ 
+ 	netif_addr_unlock_bh(ndev);
+ 
+-	/* Configure the struct for the Rx mode */
+-	memset(&rx_mode, 0, sizeof(struct qed_filter_params));
+-	rx_mode.type = QED_FILTER_TYPE_RX_MODE;
+-
+ 	/* Remove all previous unicast secondary macs and multicast macs
+ 	 * (configure / leave the primary mac)
+ 	 */
+@@ -1271,8 +1263,7 @@ void qede_config_rx_mode(struct net_device *ndev)
+ 		qede_config_accept_any_vlan(edev, false);
  	}
  
--	if (test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
-+	if (ab->hw_params.wakeup_mhi &&
-+	    test_bit(ATH11K_PCI_FLAG_INIT_DONE, &ab_pci->flags) &&
- 	    offset >= ACCESS_ALWAYS_OFF)
- 		mhi_device_put(ab_pci->mhi_ctrl->mhi_dev);
+-	rx_mode.filter.accept_flags = accept_flags;
+-	edev->ops->filter_config(edev->cdev, &rx_mode);
++	edev->ops->filter_config_rx_mode(edev->cdev, accept_flags);
+ out:
+ 	kfree(uc_macs);
+ }
+diff --git a/include/linux/qed/qed_eth_if.h b/include/linux/qed/qed_eth_if.h
+index 812a4d751163..4df0bf0a0864 100644
+--- a/include/linux/qed/qed_eth_if.h
++++ b/include/linux/qed/qed_eth_if.h
+@@ -145,12 +145,6 @@ struct qed_filter_mcast_params {
+ 	unsigned char mac[64][ETH_ALEN];
+ };
+ 
+-union qed_filter_type_params {
+-	enum qed_filter_rx_mode_type accept_flags;
+-	struct qed_filter_ucast_params ucast;
+-	struct qed_filter_mcast_params mcast;
+-};
+-
+ enum qed_filter_type {
+ 	QED_FILTER_TYPE_UCAST,
+ 	QED_FILTER_TYPE_MCAST,
+@@ -158,11 +152,6 @@ enum qed_filter_type {
+ 	QED_MAX_FILTER_TYPES,
+ };
+ 
+-struct qed_filter_params {
+-	enum qed_filter_type type;
+-	union qed_filter_type_params filter;
+-};
+-
+ struct qed_tunn_params {
+ 	u16 vxlan_port;
+ 	u8 update_vxlan_port;
+@@ -314,8 +303,14 @@ struct qed_eth_ops {
+ 
+ 	int (*q_tx_stop)(struct qed_dev *cdev, u8 rss_id, void *handle);
+ 
+-	int (*filter_config)(struct qed_dev *cdev,
+-			     struct qed_filter_params *params);
++	int (*filter_config_rx_mode)(struct qed_dev *cdev,
++				     enum qed_filter_rx_mode_type type);
++
++	int (*filter_config_ucast)(struct qed_dev *cdev,
++				   struct qed_filter_ucast_params *params);
++
++	int (*filter_config_mcast)(struct qed_dev *cdev,
++				   struct qed_filter_mcast_params *params);
+ 
+ 	int (*fastpath_stop)(struct qed_dev *cdev);
  
 -- 
 2.35.1
