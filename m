@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F014D56FA22
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D9156FAA2
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbiGKJNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:13:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
+        id S231684AbiGKJUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:20:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231414AbiGKJNE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:13:04 -0400
+        with ESMTP id S231425AbiGKJTY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:19:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38232E9D8;
-        Mon, 11 Jul 2022 02:09:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB39051437;
+        Mon, 11 Jul 2022 02:12:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66239B80E5E;
-        Mon, 11 Jul 2022 09:09:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D61C34115;
-        Mon, 11 Jul 2022 09:09:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F266FB80E79;
+        Mon, 11 Jul 2022 09:12:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60642C34115;
+        Mon, 11 Jul 2022 09:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530575;
-        bh=xq8HCtW37IJxYLJS4TXRzEzTYs1HB5K7at8Nguj+mgY=;
+        s=korg; t=1657530734;
+        bh=lIq5QL1O+Kc+TdTym8+QkepgY8j0DpxAsVZjsV1n+AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWOEoEaStpFIq9rj9Otfcp6P4NWsnmxuZIJrWazxS9+IOMnKoncecNkibQ4andFuF
-         Aws1iww4jRKbAXYS/HY67J1RBNLf6oHcOvLLQeBY38ZMIyu8nyWPMapK/EzT9IAHmE
-         5rtq2J2Hi7m/w5X3EZjBihE4K4DHGjm1v2EFIwLY=
+        b=OVycGpccJj5CHmFr3RkV8UraM70RDCALQmCa0ToTy/gwbOvM6x81Slurp85K1w7FD
+         vardzfStKgRupJfyW+nDrVPQIG7gWW0tmtUiEHW4zByW4XLYdK35J4N8wMdsiuGsu/
+         3gDpuNfK0B4w9/DlFHUcPqr40dZA/NuRnPuHpbes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/31] ARM: at91: pm: use proper compatible for sama5d2s rtc
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 09/55] net: rose: fix UAF bug caused by rose_t0timer_expiry
 Date:   Mon, 11 Jul 2022 11:06:57 +0200
-Message-Id: <20220711090538.386364976@linuxfoundation.org>
+Message-Id: <20220711090542.037058836@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
+References: <20220711090541.764895984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit ddc980da8043779119acaca106c6d9b445c9b65b ]
+commit 148ca04518070910739dfc4eeda765057856403d upstream.
 
-Use proper compatible strings for SAMA5D2's RTC IPs. This is necessary
-for configuring wakeup sources for ULP1 PM mode.
+There are UAF bugs caused by rose_t0timer_expiry(). The
+root cause is that del_timer() could not stop the timer
+handler that is running and there is no synchronization.
+One of the race conditions is shown below:
 
-Fixes: d7484f5c6b3b ("ARM: at91: pm: configure wakeup sources for ULP1 mode")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220523092421.317345-2-claudiu.beznea@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    (thread 1)             |        (thread 2)
+                           | rose_device_event
+                           |   rose_rt_device_down
+                           |     rose_remove_neigh
+rose_t0timer_expiry        |       rose_stop_t0timer(rose_neigh)
+  ...                      |         del_timer(&neigh->t0timer)
+                           |         kfree(rose_neigh) //[1]FREE
+  neigh->dce_mode //[2]USE |
+
+The rose_neigh is deallocated in position [1] and use in
+position [2].
+
+The crash trace triggered by POC is like below:
+
+BUG: KASAN: use-after-free in expire_timers+0x144/0x320
+Write of size 8 at addr ffff888009b19658 by task swapper/0/0
+...
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0xbf/0xee
+ print_address_description+0x7b/0x440
+ print_report+0x101/0x230
+ ? expire_timers+0x144/0x320
+ kasan_report+0xed/0x120
+ ? expire_timers+0x144/0x320
+ expire_timers+0x144/0x320
+ __run_timers+0x3ff/0x4d0
+ run_timer_softirq+0x41/0x80
+ __do_softirq+0x233/0x544
+ ...
+
+This patch changes rose_stop_ftimer() and rose_stop_t0timer()
+in rose_remove_neigh() to del_timer_sync() in order that the
+timer handler could be finished before the resources such as
+rose_neigh and so on are deallocated. As a result, the UAF
+bugs could be mitigated.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220705125610.77971-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-at91/pm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rose/rose_route.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index 21bfe9b6e16a..3ba0c6c560d8 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -95,7 +95,7 @@ static const struct wakeup_source_info ws_info[] = {
+--- a/net/rose/rose_route.c
++++ b/net/rose/rose_route.c
+@@ -227,8 +227,8 @@ static void rose_remove_neigh(struct ros
+ {
+ 	struct rose_neigh *s;
  
- static const struct of_device_id sama5d2_ws_ids[] = {
- 	{ .compatible = "atmel,sama5d2-gem",		.data = &ws_info[0] },
--	{ .compatible = "atmel,at91rm9200-rtc",		.data = &ws_info[1] },
-+	{ .compatible = "atmel,sama5d2-rtc",		.data = &ws_info[1] },
- 	{ .compatible = "atmel,sama5d3-udc",		.data = &ws_info[2] },
- 	{ .compatible = "atmel,at91rm9200-ohci",	.data = &ws_info[2] },
- 	{ .compatible = "usb-ohci",			.data = &ws_info[2] },
--- 
-2.35.1
-
+-	rose_stop_ftimer(rose_neigh);
+-	rose_stop_t0timer(rose_neigh);
++	del_timer_sync(&rose_neigh->ftimer);
++	del_timer_sync(&rose_neigh->t0timer);
+ 
+ 	skb_queue_purge(&rose_neigh->queue);
+ 
 
 
