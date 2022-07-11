@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 111DE56FD4A
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEA4E56FCF2
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:49:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbiGKJxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
+        id S233701AbiGKJtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:49:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233857AbiGKJxH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:53:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA8AADD5D;
-        Mon, 11 Jul 2022 02:25:28 -0700 (PDT)
+        with ESMTP id S233694AbiGKJsh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:48:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70283EAD;
+        Mon, 11 Jul 2022 02:23:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E3126112E;
-        Mon, 11 Jul 2022 09:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 777FDC341C8;
-        Mon, 11 Jul 2022 09:25:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86964B80CEF;
+        Mon, 11 Jul 2022 09:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8051C34115;
+        Mon, 11 Jul 2022 09:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531526;
-        bh=8XFo7GCgPNsNnNLp9Xa7cTmBxczINSncb4/aW5uUbyE=;
+        s=korg; t=1657531410;
+        bh=DviDe3YdOiK48VV2ouMZ/mwRhFKQstraiLFaIzZug6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCjY4qpgFVrFTqevA1703Br37zKx1iS+0JVYtHNjo084NGnRJcAcFZjcyC5Bq3Jbi
-         oT09tOtBypjEf6bLuVXvuJS0g79lvSf53jnPsDRaA5kwpq6pa69te48UG5y7nA3V5m
-         jA/CQKbabAOeNiXYJuqWGsaq+MFQhExLNZLx7AN8=
+        b=rKio/0v65gs/cZQyZOVHGIwowt2KPVGWajRpdajdIwBEkpPKFeTbPqe/FRSnK8ypb
+         iyQyjbG7HspjmzRoiMISqUXIRHjm3ClmhKNSsjXswFBNlIZ3h/di9EkB0VHb8zsifW
+         NQq8fWrcne1d7aIVJp+aXyfcVhYg5OodlROUgztk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Luca=20B=C3=A9la=20Palkovics?= 
+        <luca.bela.palkovics@gmail.com>,
+        Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/230] btrfs: use btrfs_get_dev_args_from_path in dev removal ioctls
-Date:   Mon, 11 Jul 2022 11:05:43 +0200
-Message-Id: <20220711090606.540516311@linuxfoundation.org>
+Subject: [PATCH 5.15 088/230] btrfs: remove device item and update super block in the same transaction
+Date:   Mon, 11 Jul 2022 11:05:44 +0200
+Message-Id: <20220711090606.568460790@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,329 +57,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 1a15eb724aaef8656f8cc01d9355797cfe7c618e ]
+[ Upstream commit bbac58698a55cc0a6f0c0d69a6dcd3f9f3134c11 ]
 
-For device removal and replace we call btrfs_find_device_by_devspec,
-which if we give it a device path and nothing else will call
-btrfs_get_dev_args_from_path, which opens the block device and reads the
-super block and then looks up our device based on that.
+[BUG]
+There is a report that a btrfs has a bad super block num devices.
 
-However at this point we're holding the sb write "lock", so reading the
-block device pulls in the dependency of ->open_mutex, which produces the
-following lockdep splat
+This makes btrfs to reject the fs completely.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc2+ #405 Not tainted
-------------------------------------------------------
-losetup/11576 is trying to acquire lock:
-ffff9bbe8cded938 ((wq_completion)loop0){+.+.}-{0:0}, at: flush_workqueue+0x67/0x5e0
+  BTRFS error (device sdd3): super_num_devices 3 mismatch with num_devices 2 found here
+  BTRFS error (device sdd3): failed to read chunk tree: -22
+  BTRFS error (device sdd3): open_ctree failed
 
-but task is already holding lock:
-ffff9bbe88e4fc68 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x660 [loop]
+[CAUSE]
+During btrfs device removal, chunk tree and super block num devs are
+updated in two different transactions:
 
-which lock already depends on the new lock.
+  btrfs_rm_device()
+  |- btrfs_rm_dev_item(device)
+  |  |- trans = btrfs_start_transaction()
+  |  |  Now we got transaction X
+  |  |
+  |  |- btrfs_del_item()
+  |  |  Now device item is removed from chunk tree
+  |  |
+  |  |- btrfs_commit_transaction()
+  |     Transaction X got committed, super num devs untouched,
+  |     but device item removed from chunk tree.
+  |     (AKA, super num devs is already incorrect)
+  |
+  |- cur_devices->num_devices--;
+  |- cur_devices->total_devices--;
+  |- btrfs_set_super_num_devices()
+     All those operations are not in transaction X, thus it will
+     only be written back to disk in next transaction.
 
-the existing dependency chain (in reverse order) is:
+So after the transaction X in btrfs_rm_dev_item() committed, but before
+transaction X+1 (which can be minutes away), a power loss happen, then
+we got the super num mismatch.
 
--> #4 (&lo->lo_mutex){+.+.}-{3:3}:
-       __mutex_lock+0x7d/0x750
-       lo_open+0x28/0x60 [loop]
-       blkdev_get_whole+0x25/0xf0
-       blkdev_get_by_dev.part.0+0x168/0x3c0
-       blkdev_open+0xd2/0xe0
-       do_dentry_open+0x161/0x390
-       path_openat+0x3cc/0xa20
-       do_filp_open+0x96/0x120
-       do_sys_openat2+0x7b/0x130
-       __x64_sys_openat+0x46/0x70
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+[FIX]
+Instead of starting and committing a transaction inside
+btrfs_rm_dev_item(), start a transaction in side btrfs_rm_device() and
+pass it to btrfs_rm_dev_item().
 
--> #3 (&disk->open_mutex){+.+.}-{3:3}:
-       __mutex_lock+0x7d/0x750
-       blkdev_get_by_dev.part.0+0x56/0x3c0
-       blkdev_get_by_path+0x98/0xa0
-       btrfs_get_bdev_and_sb+0x1b/0xb0
-       btrfs_find_device_by_devspec+0x12b/0x1c0
-       btrfs_rm_device+0x127/0x610
-       btrfs_ioctl+0x2a31/0x2e70
-       __x64_sys_ioctl+0x80/0xb0
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+And only commit the transaction after everything is done.
 
--> #2 (sb_writers#12){.+.+}-{0:0}:
-       lo_write_bvec+0xc2/0x240 [loop]
-       loop_process_work+0x238/0xd00 [loop]
-       process_one_work+0x26b/0x560
-       worker_thread+0x55/0x3c0
-       kthread+0x140/0x160
-       ret_from_fork+0x1f/0x30
-
--> #1 ((work_completion)(&lo->rootcg_work)){+.+.}-{0:0}:
-       process_one_work+0x245/0x560
-       worker_thread+0x55/0x3c0
-       kthread+0x140/0x160
-       ret_from_fork+0x1f/0x30
-
--> #0 ((wq_completion)loop0){+.+.}-{0:0}:
-       __lock_acquire+0x10ea/0x1d90
-       lock_acquire+0xb5/0x2b0
-       flush_workqueue+0x91/0x5e0
-       drain_workqueue+0xa0/0x110
-       destroy_workqueue+0x36/0x250
-       __loop_clr_fd+0x9a/0x660 [loop]
-       block_ioctl+0x3f/0x50
-       __x64_sys_ioctl+0x80/0xb0
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-other info that might help us debug this:
-
-Chain exists of:
-  (wq_completion)loop0 --> &disk->open_mutex --> &lo->lo_mutex
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&lo->lo_mutex);
-                               lock(&disk->open_mutex);
-                               lock(&lo->lo_mutex);
-  lock((wq_completion)loop0);
-
- *** DEADLOCK ***
-
-1 lock held by losetup/11576:
- #0: ffff9bbe88e4fc68 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x660 [loop]
-
-stack backtrace:
-CPU: 0 PID: 11576 Comm: losetup Not tainted 5.14.0-rc2+ #405
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-Call Trace:
- dump_stack_lvl+0x57/0x72
- check_noncircular+0xcf/0xf0
- ? stack_trace_save+0x3b/0x50
- __lock_acquire+0x10ea/0x1d90
- lock_acquire+0xb5/0x2b0
- ? flush_workqueue+0x67/0x5e0
- ? lockdep_init_map_type+0x47/0x220
- flush_workqueue+0x91/0x5e0
- ? flush_workqueue+0x67/0x5e0
- ? verify_cpu+0xf0/0x100
- drain_workqueue+0xa0/0x110
- destroy_workqueue+0x36/0x250
- __loop_clr_fd+0x9a/0x660 [loop]
- ? blkdev_ioctl+0x8d/0x2a0
- block_ioctl+0x3f/0x50
- __x64_sys_ioctl+0x80/0xb0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f31b02404cb
-
-Instead what we want to do is populate our device lookup args before we
-grab any locks, and then pass these args into btrfs_rm_device().  From
-there we can find the device and do the appropriate removal.
-
-Suggested-by: Anand Jain <anand.jain@oracle.com>
+Reported-by: Luca Béla Palkovics <luca.bela.palkovics@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CA+8xDSpvdm_U0QLBAnrH=zqDq_cWCOH5TiV46CKmp3igr44okQ@mail.gmail.com/
+CC: stable@vger.kernel.org # 4.14+
 Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c   | 67 +++++++++++++++++++++++++++-------------------
- fs/btrfs/volumes.c | 15 +++++------
- fs/btrfs/volumes.h |  2 +-
- 3 files changed, 48 insertions(+), 36 deletions(-)
+ fs/btrfs/volumes.c | 65 ++++++++++++++++++++--------------------------
+ 1 file changed, 28 insertions(+), 37 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 4951a2ab88dd..4317720a29e8 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3218,6 +3218,7 @@ static long btrfs_ioctl_add_dev(struct btrfs_fs_info *fs_info, void __user *arg)
- 
- static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
- {
-+	BTRFS_DEV_LOOKUP_ARGS(args);
- 	struct inode *inode = file_inode(file);
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_ioctl_vol_args_v2 *vol_args;
-@@ -3229,35 +3230,39 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
--	ret = mnt_want_write_file(file);
--	if (ret)
--		return ret;
--
- 	vol_args = memdup_user(arg, sizeof(*vol_args));
- 	if (IS_ERR(vol_args)) {
- 		ret = PTR_ERR(vol_args);
--		goto err_drop;
-+		goto out;
- 	}
- 
- 	if (vol_args->flags & ~BTRFS_DEVICE_REMOVE_ARGS_MASK) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
- 	}
-+
- 	vol_args->name[BTRFS_SUBVOL_NAME_MAX] = '\0';
--	if (!(vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID) &&
--	    strcmp("cancel", vol_args->name) == 0)
-+	if (vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID) {
-+		args.devid = vol_args->devid;
-+	} else if (!strcmp("cancel", vol_args->name)) {
- 		cancel = true;
-+	} else {
-+		ret = btrfs_get_dev_args_from_path(fs_info, &args, vol_args->name);
-+		if (ret)
-+			goto out;
-+	}
-+
-+	ret = mnt_want_write_file(file);
-+	if (ret)
-+		goto out;
- 
- 	ret = exclop_start_or_cancel_reloc(fs_info, BTRFS_EXCLOP_DEV_REMOVE,
- 					   cancel);
- 	if (ret)
--		goto out;
--	/* Exclusive operation is now claimed */
-+		goto err_drop;
- 
--	if (vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID)
--		ret = btrfs_rm_device(fs_info, NULL, vol_args->devid, &bdev, &mode);
--	else
--		ret = btrfs_rm_device(fs_info, vol_args->name, 0, &bdev, &mode);
-+	/* Exclusive operation is now claimed */
-+	ret = btrfs_rm_device(fs_info, &args, &bdev, &mode);
- 
- 	btrfs_exclop_finish(fs_info);
- 
-@@ -3269,17 +3274,19 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
- 			btrfs_info(fs_info, "device deleted: %s",
- 					vol_args->name);
- 	}
--out:
--	kfree(vol_args);
- err_drop:
- 	mnt_drop_write_file(file);
- 	if (bdev)
- 		blkdev_put(bdev, mode);
-+out:
-+	btrfs_put_dev_args_from_path(&args);
-+	kfree(vol_args);
- 	return ret;
- }
- 
- static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
- {
-+	BTRFS_DEV_LOOKUP_ARGS(args);
- 	struct inode *inode = file_inode(file);
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_ioctl_vol_args *vol_args;
-@@ -3291,32 +3298,38 @@ static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
--	ret = mnt_want_write_file(file);
--	if (ret)
--		return ret;
--
- 	vol_args = memdup_user(arg, sizeof(*vol_args));
--	if (IS_ERR(vol_args)) {
--		ret = PTR_ERR(vol_args);
--		goto out_drop_write;
--	}
-+	if (IS_ERR(vol_args))
-+		return PTR_ERR(vol_args);
-+
- 	vol_args->name[BTRFS_PATH_NAME_MAX] = '\0';
--	cancel = (strcmp("cancel", vol_args->name) == 0);
-+	if (!strcmp("cancel", vol_args->name)) {
-+		cancel = true;
-+	} else {
-+		ret = btrfs_get_dev_args_from_path(fs_info, &args, vol_args->name);
-+		if (ret)
-+			goto out;
-+	}
-+
-+	ret = mnt_want_write_file(file);
-+	if (ret)
-+		goto out;
- 
- 	ret = exclop_start_or_cancel_reloc(fs_info, BTRFS_EXCLOP_DEV_REMOVE,
- 					   cancel);
- 	if (ret == 0) {
--		ret = btrfs_rm_device(fs_info, vol_args->name, 0, &bdev, &mode);
-+		ret = btrfs_rm_device(fs_info, &args, &bdev, &mode);
- 		if (!ret)
- 			btrfs_info(fs_info, "disk deleted %s", vol_args->name);
- 		btrfs_exclop_finish(fs_info);
- 	}
- 
--	kfree(vol_args);
--out_drop_write:
- 	mnt_drop_write_file(file);
- 	if (bdev)
- 		blkdev_put(bdev, mode);
-+out:
-+	btrfs_put_dev_args_from_path(&args);
-+	kfree(vol_args);
- 	return ret;
- }
- 
 diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 8d09e6d442b2..3bd68f1b79e6 100644
+index 3bd68f1b79e6..cec54c6e1cdd 100644
 --- a/fs/btrfs/volumes.c
 +++ b/fs/btrfs/volumes.c
-@@ -2120,8 +2120,9 @@ void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
- 	update_dev_time(device_path);
+@@ -1942,23 +1942,18 @@ static void update_dev_time(const char *device_path)
+ 	path_put(&path);
  }
  
--int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
--		    u64 devid, struct block_device **bdev, fmode_t *mode)
-+int btrfs_rm_device(struct btrfs_fs_info *fs_info,
-+		    struct btrfs_dev_lookup_args *args,
-+		    struct block_device **bdev, fmode_t *mode)
+-static int btrfs_rm_dev_item(struct btrfs_device *device)
++static int btrfs_rm_dev_item(struct btrfs_trans_handle *trans,
++			     struct btrfs_device *device)
  {
- 	struct btrfs_device *device;
- 	struct btrfs_fs_devices *cur_devices;
-@@ -2140,14 +2141,12 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
- 	if (ret)
- 		goto out;
+ 	struct btrfs_root *root = device->fs_info->chunk_root;
+ 	int ret;
+ 	struct btrfs_path *path;
+ 	struct btrfs_key key;
+-	struct btrfs_trans_handle *trans;
  
--	device = btrfs_find_device_by_devspec(fs_info, devid, device_path);
--
--	if (IS_ERR(device)) {
--		if (PTR_ERR(device) == -ENOENT &&
--		    device_path && strcmp(device_path, "missing") == 0)
-+	device = btrfs_find_device(fs_info->fs_devices, args);
-+	if (!device) {
-+		if (args->missing)
- 			ret = BTRFS_ERROR_DEV_MISSING_NOT_FOUND;
- 		else
--			ret = PTR_ERR(device);
-+			ret = -ENOENT;
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	trans = btrfs_start_transaction(root, 0);
+-	if (IS_ERR(trans)) {
+-		btrfs_free_path(path);
+-		return PTR_ERR(trans);
+-	}
+ 	key.objectid = BTRFS_DEV_ITEMS_OBJECTID;
+ 	key.type = BTRFS_DEV_ITEM_KEY;
+ 	key.offset = device->devid;
+@@ -1969,21 +1964,12 @@ static int btrfs_rm_dev_item(struct btrfs_device *device)
+ 	if (ret) {
+ 		if (ret > 0)
+ 			ret = -ENOENT;
+-		btrfs_abort_transaction(trans, ret);
+-		btrfs_end_transaction(trans);
  		goto out;
  	}
  
-diff --git a/fs/btrfs/volumes.h b/fs/btrfs/volumes.h
-index d1df03f77e29..30288b728bbb 100644
---- a/fs/btrfs/volumes.h
-+++ b/fs/btrfs/volumes.h
-@@ -496,7 +496,7 @@ struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
- void btrfs_put_dev_args_from_path(struct btrfs_dev_lookup_args *args);
- void btrfs_free_device(struct btrfs_device *device);
- int btrfs_rm_device(struct btrfs_fs_info *fs_info,
--		    const char *device_path, u64 devid,
-+		    struct btrfs_dev_lookup_args *args,
- 		    struct block_device **bdev, fmode_t *mode);
- void __exit btrfs_cleanup_fs_uuids(void);
- int btrfs_num_copies(struct btrfs_fs_info *fs_info, u64 logical, u64 len);
+ 	ret = btrfs_del_item(trans, root, path);
+-	if (ret) {
+-		btrfs_abort_transaction(trans, ret);
+-		btrfs_end_transaction(trans);
+-	}
+-
+ out:
+ 	btrfs_free_path(path);
+-	if (!ret)
+-		ret = btrfs_commit_transaction(trans);
+ 	return ret;
+ }
+ 
+@@ -2124,6 +2110,7 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info,
+ 		    struct btrfs_dev_lookup_args *args,
+ 		    struct block_device **bdev, fmode_t *mode)
+ {
++	struct btrfs_trans_handle *trans;
+ 	struct btrfs_device *device;
+ 	struct btrfs_fs_devices *cur_devices;
+ 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+@@ -2139,7 +2126,7 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info,
+ 
+ 	ret = btrfs_check_raid_min_devices(fs_info, num_devices - 1);
+ 	if (ret)
+-		goto out;
++		return ret;
+ 
+ 	device = btrfs_find_device(fs_info->fs_devices, args);
+ 	if (!device) {
+@@ -2147,27 +2134,22 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info,
+ 			ret = BTRFS_ERROR_DEV_MISSING_NOT_FOUND;
+ 		else
+ 			ret = -ENOENT;
+-		goto out;
++		return ret;
+ 	}
+ 
+ 	if (btrfs_pinned_by_swapfile(fs_info, device)) {
+ 		btrfs_warn_in_rcu(fs_info,
+ 		  "cannot remove device %s (devid %llu) due to active swapfile",
+ 				  rcu_str_deref(device->name), device->devid);
+-		ret = -ETXTBSY;
+-		goto out;
++		return -ETXTBSY;
+ 	}
+ 
+-	if (test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state)) {
+-		ret = BTRFS_ERROR_DEV_TGT_REPLACE;
+-		goto out;
+-	}
++	if (test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state))
++		return BTRFS_ERROR_DEV_TGT_REPLACE;
+ 
+ 	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state) &&
+-	    fs_info->fs_devices->rw_devices == 1) {
+-		ret = BTRFS_ERROR_DEV_ONLY_WRITABLE;
+-		goto out;
+-	}
++	    fs_info->fs_devices->rw_devices == 1)
++		return BTRFS_ERROR_DEV_ONLY_WRITABLE;
+ 
+ 	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state)) {
+ 		mutex_lock(&fs_info->chunk_mutex);
+@@ -2182,14 +2164,22 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info,
+ 	if (ret)
+ 		goto error_undo;
+ 
+-	/*
+-	 * TODO: the superblock still includes this device in its num_devices
+-	 * counter although write_all_supers() is not locked out. This
+-	 * could give a filesystem state which requires a degraded mount.
+-	 */
+-	ret = btrfs_rm_dev_item(device);
+-	if (ret)
++	trans = btrfs_start_transaction(fs_info->chunk_root, 0);
++	if (IS_ERR(trans)) {
++		ret = PTR_ERR(trans);
+ 		goto error_undo;
++	}
++
++	ret = btrfs_rm_dev_item(trans, device);
++	if (ret) {
++		/* Any error in dev item removal is critical */
++		btrfs_crit(fs_info,
++			   "failed to remove device item for devid %llu: %d",
++			   device->devid, ret);
++		btrfs_abort_transaction(trans, ret);
++		btrfs_end_transaction(trans);
++		return ret;
++	}
+ 
+ 	clear_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state);
+ 	btrfs_scrub_cancel_dev(device);
+@@ -2264,7 +2254,8 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info,
+ 		free_fs_devices(cur_devices);
+ 	}
+ 
+-out:
++	ret = btrfs_commit_transaction(trans);
++
+ 	return ret;
+ 
+ error_undo:
+@@ -2276,7 +2267,7 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info,
+ 		device->fs_devices->rw_devices++;
+ 		mutex_unlock(&fs_info->chunk_mutex);
+ 	}
+-	goto out;
++	return ret;
+ }
+ 
+ void btrfs_rm_dev_replace_remove_srcdev(struct btrfs_device *srcdev)
 -- 
 2.35.1
 
