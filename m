@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5697756FDF9
+	by mail.lfdr.de (Postfix) with ESMTP id C458056FDFA
 	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:03:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234487AbiGKKC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 06:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
+        id S234420AbiGKKDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 06:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230141AbiGKKC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:27 -0400
+        with ESMTP id S234416AbiGKKCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:02:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE2E260F;
-        Mon, 11 Jul 2022 02:28:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01DC91B794;
+        Mon, 11 Jul 2022 02:28:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C78FD612E8;
-        Mon, 11 Jul 2022 09:28:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D49D0C34115;
-        Mon, 11 Jul 2022 09:28:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95F2461366;
+        Mon, 11 Jul 2022 09:28:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3F2C34115;
+        Mon, 11 Jul 2022 09:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531726;
-        bh=W330BuO/QgEK9onhs732Q0+O+61gx2NMWC+q5/3nn3g=;
+        s=korg; t=1657531729;
+        bh=PADmlo9O/8tn5m9t7EE44DUsKNUB7YYvd7Vr1vib+qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxDXCl7YQuiwepOb7EgmnWmNvUmTWjhKsFcCDHM9Cuvil+tjZcbDhBEaeqVR2DTfK
-         2d0+XbMs2YPacoqXsUCKJoIbHJ+lCpY97/Da8K7BX6Neh35suJ82neftrvm4SwMrb/
-         Kj5osqQLeDPQYAH4t5fwcIBjAAsHFA4p7vc0Q3nI=
+        b=sdMeJQA6W0Vncvf5M4PTmQuI5Sz87TIzNdJQj1ZK/Dxquzuo+/wJneeM6BpE0t7LD
+         WK0ThgbCStnoqX7ASF/Z0ZiOfY66SPXbPUIxQRxSx8nHSZAi2jZvmAINBVIVwbekWy
+         B/BgND91xCHU4tHAo2unmekls1VJTYdeQkApxKwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Nick Child <nnac123@linux.ibm.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        Rick Lindsley <ricklind@us.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 208/230] ARM: dts: stm32: add missing usbh clock and fix clk order on stm32mp15
-Date:   Mon, 11 Jul 2022 11:07:44 +0200
-Message-Id: <20220711090610.004779852@linuxfoundation.org>
+Subject: [PATCH 5.15 209/230] ibmvnic: Properly dispose of all skbs during a failover.
+Date:   Mon, 11 Jul 2022 11:07:45 +0200
+Message-Id: <20220711090610.032788549@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,50 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Rick Lindsley <ricklind@us.ibm.com>
 
-[ Upstream commit 1d0c1aadf1fd9f3de95d1532b3651e8634546e71 ]
+[ Upstream commit 1b18f09d31cfa7148df15a7d5c5e0e86f105f7d1 ]
 
-The USBH composed of EHCI and OHCI controllers needs the PHY clock to be
-initialized first, before enabling (gating) them. The reverse is also
-required when going to suspend.
-So, add USBPHY clock as 1st entry in both controllers, so the USBPHY PLL
-gets enabled 1st upon controller init. Upon suspend/resume, this also makes
-the clock to be disabled/re-enabled in the correct order.
-This fixes some IRQ storm conditions seen when going to low-power, due to
-PHY PLL being disabled before all clocks are cleanly gated.
+During a reset, there may have been transmits in flight that are no
+longer valid and cannot be fulfilled.  Resetting and clearing the
+queues is insufficient; each skb also needs to be explicitly freed
+so that upper levels are not left waiting for confirmation of a
+transmit that will never happen.  If this happens frequently enough,
+the apparent backlog will cause TCP to begin "congestion control"
+unnecessarily, culminating in permanently decreased throughput.
 
-Fixes: 949a0c0dec85 ("ARM: dts: stm32: add USB Host (USBH) support to stm32mp157c")
-Fixes: db7be2cb87ae ("ARM: dts: stm32: use usbphyc ck_usbo_48m as USBH OHCI clock on stm32mp151")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Fixes: d7c0ef36bde03 ("ibmvnic: Free and re-allocate scrqs when tx/rx scrqs change")
+Tested-by: Nick Child <nnac123@linux.ibm.com>
+Reviewed-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Rick Lindsley <ricklind@us.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp151.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
-index f693a7d24247..a9b65b3bfda5 100644
---- a/arch/arm/boot/dts/stm32mp151.dtsi
-+++ b/arch/arm/boot/dts/stm32mp151.dtsi
-@@ -1452,7 +1452,7 @@
- 		usbh_ohci: usb@5800c000 {
- 			compatible = "generic-ohci";
- 			reg = <0x5800c000 0x1000>;
--			clocks = <&rcc USBH>, <&usbphyc>;
-+			clocks = <&usbphyc>, <&rcc USBH>;
- 			resets = <&rcc USBH_R>;
- 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
- 			status = "disabled";
-@@ -1461,7 +1461,7 @@
- 		usbh_ehci: usb@5800d000 {
- 			compatible = "generic-ehci";
- 			reg = <0x5800d000 0x1000>;
--			clocks = <&rcc USBH>;
-+			clocks = <&usbphyc>, <&rcc USBH>;
- 			resets = <&rcc USBH_R>;
- 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
- 			companion = <&usbh_ohci>;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 28344c3dfea1..4a070724a8fb 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -5585,6 +5585,15 @@ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter, bool reset)
+ 			release_sub_crqs(adapter, 0);
+ 			rc = init_sub_crqs(adapter);
+ 		} else {
++			/* no need to reinitialize completely, but we do
++			 * need to clean up transmits that were in flight
++			 * when we processed the reset.  Failure to do so
++			 * will confound the upper layer, usually TCP, by
++			 * creating the illusion of transmits that are
++			 * awaiting completion.
++			 */
++			clean_tx_pools(adapter);
++
+ 			rc = reset_sub_crq_queues(adapter);
+ 		}
+ 	} else {
 -- 
 2.35.1
 
