@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A43756FA8F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0708656FD8A
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231697AbiGKJTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:19:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42880 "EHLO
+        id S234128AbiGKJ5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:57:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231449AbiGKJSf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:18:35 -0400
+        with ESMTP id S234037AbiGKJ4s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:56:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC0D4D4C9;
-        Mon, 11 Jul 2022 02:11:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D049B38F6;
+        Mon, 11 Jul 2022 02:26:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5D65B80D2C;
-        Mon, 11 Jul 2022 09:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B88AC34115;
-        Mon, 11 Jul 2022 09:11:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91BDBB80D2C;
+        Mon, 11 Jul 2022 09:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3976C341C0;
+        Mon, 11 Jul 2022 09:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530709;
-        bh=ruQ50WIOI0+7m3siYikWENO+ppOpQi5iT7iajfkpbn4=;
+        s=korg; t=1657531604;
+        bh=SKoJobLuXWL5FRX92QKZJyelch0U0Zzj/8c/a3u1sTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhV/g3LDc/DHF6exZ9Fp29SevXhFRpr5W8rRyAEvYcPqOTPi01rOL6e9SzbGTAX68
-         AwaVamlIDYyE9zdzIKDAhRQ+rqt4oL2C2b5hx88jmGGfpZMzGz8SjoN/PIFz7bbPZx
-         Zl42qiR7Fq/L0t4D0///z/bx1rCqp83BTfkOULXE=
+        b=Kvfk5uaphfn/OXlr9MtbulzvnW3yZO8mRHHyIG4UziL8UIBGcTe4HXEZGTBqd25rm
+         JBvVg0IBjTy7p8Hna/kiqI4kSHK62kKVELsg25kHgDI+JHDrdFPAl+5TCrCgMowEWU
+         sQW5S2lXCi1C5wlMA2exPiTulGJgSjVsHYAAophY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Zhang, Bernice" <bernice.zhang@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Yian Chen <yian.chen@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Zhang@vger.kernel.org
-Subject: [PATCH 5.10 12/55] iommu/vt-d: Fix PCI bus rescan device hot add
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.15 164/230] memregion: Fix memregion_free() fallback definition
 Date:   Mon, 11 Jul 2022 11:07:00 +0200
-Message-Id: <20220711090542.122959295@linuxfoundation.org>
+Message-Id: <20220711090608.714649746@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
+References: <20220711090604.055883544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yian Chen <yian.chen@intel.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 316f92a705a4c2bf4712135180d56f3cca09243a upstream.
+commit f50974eee5c4a5de1e4f1a3d873099f170df25f8 upstream.
 
-Notifier calling chain uses priority to determine the execution
-order of the notifiers or listeners registered to the chain.
-PCI bus device hot add utilizes the notification mechanism.
+In the CONFIG_MEMREGION=n case, memregion_free() is meant to be a static
+inline. 0day reports:
 
-The current code sets low priority (INT_MIN) to Intel
-dmar_pci_bus_notifier and postpones DMAR decoding after adding
-new device into IOMMU. The result is that struct device pointer
-cannot be found in DRHD search for the new device's DMAR/IOMMU.
-Subsequently, the device is put under the "catch-all" IOMMU
-instead of the correct one. This could cause system hang when
-device TLB invalidation is sent to the wrong IOMMU. Invalidation
-timeout error and hard lockup have been observed and data
-inconsistency/crush may occur as well.
+    In file included from drivers/cxl/core/port.c:4:
+    include/linux/memregion.h:19:6: warning: no previous prototype for
+    function 'memregion_free' [-Wmissing-prototypes]
 
-This patch fixes the issue by setting a positive priority(1) for
-dmar_pci_bus_notifier while the priority of IOMMU bus notifier
-uses the default value(0), therefore DMAR decoding will be in
-advance of DRHD search for a new device to find the correct IOMMU.
+Mark memregion_free() static.
 
-Following is a 2-step example that triggers the bug by simulating
-PCI device hot add behavior in Intel Sapphire Rapids server.
-
-echo 1 > /sys/bus/pci/devices/0000:6a:01.0/remove
-echo 1 > /sys/bus/pci/rescan
-
-Fixes: 59ce0515cdaf ("iommu/vt-d: Update DRHD/RMRR/ATSR device scope")
-Cc: stable@vger.kernel.org # v3.15+
-Reported-by: Zhang, Bernice <bernice.zhang@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Yian Chen <yian.chen@intel.com>
-Link: https://lore.kernel.org/r/20220521002115.1624069-1-yian.chen@intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 33dd70752cd7 ("lib: Uplevel the pmem "region" ida to a global allocator")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Alison Schofield <alison.schofield@intel.com>
+Link: https://lore.kernel.org/r/165601455171.4042645.3350844271068713515.stgit@dwillia2-xfh
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/dmar.c |    2 +-
+ include/linux/memregion.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -385,7 +385,7 @@ static int dmar_pci_bus_notifier(struct
- 
- static struct notifier_block dmar_pci_bus_nb = {
- 	.notifier_call = dmar_pci_bus_notifier,
--	.priority = INT_MIN,
-+	.priority = 1,
- };
- 
- static struct dmar_drhd_unit *
+--- a/include/linux/memregion.h
++++ b/include/linux/memregion.h
+@@ -16,7 +16,7 @@ static inline int memregion_alloc(gfp_t
+ {
+ 	return -ENOMEM;
+ }
+-void memregion_free(int id)
++static inline void memregion_free(int id)
+ {
+ }
+ #endif
 
 
