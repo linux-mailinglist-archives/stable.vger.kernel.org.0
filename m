@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DED56FC93
+	by mail.lfdr.de (Postfix) with ESMTP id EDB2656FC94
 	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbiGKJpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50030 "EHLO
+        id S231600AbiGKJpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:45:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbiGKJok (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EF0D3E77A;
-        Mon, 11 Jul 2022 02:22:07 -0700 (PDT)
+        with ESMTP id S233675AbiGKJoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:44:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6895A79E5;
+        Mon, 11 Jul 2022 02:22:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0EF8B80E76;
-        Mon, 11 Jul 2022 09:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD18C34115;
-        Mon, 11 Jul 2022 09:22:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D50FD612B7;
+        Mon, 11 Jul 2022 09:22:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBC69C341C0;
+        Mon, 11 Jul 2022 09:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531324;
-        bh=74WhtXZKqSp2DqO0Sv6x8JdAsyTQOWekwa4KA0f0Xr4=;
+        s=korg; t=1657531327;
+        bh=wzKm2vevtd6ICYsl21LmVAkfMbeqROkn+UFyIa7wBMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6X9irx8k+qUgTsTeqD4ZJbqd1MuVYaTToLLS1lyf0sYztsAwsVxeHql1HLgzJ+/X
-         Qmq/SsBtoDwuUu6XDUCZIa90RDGkSKVCsLccE77b5qmRIPuyGfipKzYuMPiFyk+NZO
-         KfUKoMUfC6GAsa8eFSljSST2Yc9F+l+biAONPZwc=
+        b=MA/UVr91pSg3trMZTOLihXqGNMTMq8epe8qh6Ms9tBqs8e8om0PwdIwLhkZfsVCwa
+         N7VgqABmYSOX6X9f67nqwJiOGQ01rYW7QkQ58RXRjF/yKf2K6LPQfa9bGjSXQj8YwK
+         VfWfsOvqCOs0l6pcs7tFKeiPaTdZozOPTgVv4RAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/230] ibmvnic: Allow queueing resets during probe
-Date:   Mon, 11 Jul 2022 11:05:20 +0200
-Message-Id: <20220711090605.892421664@linuxfoundation.org>
+        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Israel Rukshin <israelr@nvidia.com>,
+        Feng Li <lifeng1519@gmail.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.15 065/230] virtio-blk: avoid preallocating big SGL for data
+Date:   Mon, 11 Jul 2022 11:05:21 +0200
+Message-Id: <20220711090605.921067778@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -55,271 +58,295 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit fd98693cb0721317f27341951593712c580c36a1 ]
+[ Upstream commit 02746e26c39ee473b975e0f68d1295abc92672ed ]
 
-We currently don't allow queuing resets when adapter is in VNIC_PROBING
-state - instead we throw away the reset and return EBUSY. The reasoning
-is probably that during ibmvnic_probe() the ibmvnic_adapter itself is
-being initialized so performing a reset during this time can lead us to
-accessing fields in the ibmvnic_adapter that are not fully initialized.
-A review of the code shows that all the adapter state neede to process a
-reset is initialized before registering the CRQ so that should no longer
-be a concern.
+No need to pre-allocate a big buffer for the IO SGL anymore. If a device
+has lots of deep queues, preallocation for the sg list can consume
+substantial amounts of memory. For HW virtio-blk device, nr_hw_queues
+can be 64 or 128 and each queue's depth might be 128. This means the
+resulting preallocation for the data SGLs is big.
 
-Further the expectation is that if we do get a reset (transport event)
-during probe, the do..while() loop in ibmvnic_probe() will handle this
-by reinitializing the CRQ.
+Switch to runtime allocation for SGL for lists longer than 2 entries.
+This is the approach used by NVMe drivers so it should be reasonable for
+virtio block as well. Runtime SGL allocation has always been the case
+for the legacy I/O path so this is nothing new.
 
-While that is true to some extent, it is possible that the reset might
-occur _after_ the CRQ is registered and CRQ_INIT message was exchanged
-but _before_ the adapter state is set to VNIC_PROBED. As mentioned above,
-such a reset will be thrown away. While the client assumes that the
-adapter is functional, the vnic server will wait for the client to reinit
-the adapter. This disconnect between the two leaves the adapter down
-needing manual intervention.
+The preallocated small SGL depends on SG_CHAIN so if the ARCH doesn't
+support SG_CHAIN, use only runtime allocation for the SGL.
 
-Because ibmvnic_probe() has other work to do after initializing the CRQ
-(such as registering the netdev at a minimum) and because the reset event
-can occur at any instant after the CRQ is initialized, there will always
-be a window between initializing the CRQ and considering the adapter
-ready for resets (ie state == PROBED).
+Re-organize the setup of the IO request to fit the new sg chain
+mechanism.
 
-So rather than discarding resets during this window, allow queueing them
-- but only process them after the adapter is fully initialized.
+No performance degradation was seen (fio libaio engine with 16 jobs and
+128 iodepth):
 
-To do this, introduce a new completion state ->probe_done and have the
-reset worker thread wait on this before processing resets.
+IO size      IOPs Rand Read (before/after)         IOPs Rand Write (before/after)
+--------     ---------------------------------    ----------------------------------
+512B          318K/316K                                    329K/325K
 
-This change brings up two new situations in or just after ibmvnic_probe().
-First after one or more resets were queued, we encounter an error and
-decide to retry the initialization.  At that point the queued resets are
-no longer relevant since we could be talking to a new vnic server. So we
-must purge/flush the queued resets before restarting the initialization.
-As a side note, since we are still in the probing stage and we have not
-registered the netdev, it will not be CHANGE_PARAM reset.
+4KB           323K/321K                                    353K/349K
 
-Second this change opens up a potential race between the worker thread
-in __ibmvnic_reset(), the tasklet and the ibmvnic_open() due to the
-following sequence of events:
+16KB          199K/208K                                    250K/275K
 
-	1. Register CRQ
-	2. Get transport event before CRQ_INIT completes.
-	3. Tasklet schedules reset:
-		a) add rwi to list
-		b) schedule_work() to start worker thread which runs
-		   and waits for ->probe_done.
-	4. ibmvnic_probe() decides to retry, purges rwi_list
-	5. Re-register crq and this time rest of probe succeeds - register
-	   netdev and complete(->probe_done).
-	6. Worker thread resumes in __ibmvnic_reset() from 3b.
-	7. Worker thread sets ->resetting bit
-	8. ibmvnic_open() comes in, notices ->resetting bit, sets state
-	   to IBMVNIC_OPEN and returns early expecting worker thread to
-	   finish the open.
-	9. Worker thread finds rwi_list empty and returns without
-	   opening the interface.
+128KB         36K/36.1K                                    39.2K/41.7K
 
-If this happens, the ->ndo_open() call is effectively lost and the
-interface remains down. To address this, ensure that ->rwi_list is
-not empty before setting the ->resetting  bit. See also comments in
-__ibmvnic_reset().
-
-Fixes: 6a2fb0e99f9c ("ibmvnic: driver initialization for kdump/kexec")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+Link: https://lore.kernel.org/r/20210901131434.31158-1-mgurtovoy@nvidia.com
+Reviewed-by: Feng Li <lifeng1519@gmail.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Tested-by: Stefan Hajnoczi <stefanha@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de> # kconfig fixups
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 107 ++++++++++++++++++++++++++---
- drivers/net/ethernet/ibm/ibmvnic.h |   1 +
- 2 files changed, 98 insertions(+), 10 deletions(-)
+ drivers/block/Kconfig      |   1 +
+ drivers/block/virtio_blk.c | 156 ++++++++++++++++++++++++-------------
+ 2 files changed, 101 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 9f4f40564d74..28344c3dfea1 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2471,23 +2471,82 @@ static int do_passive_init(struct ibmvnic_adapter *adapter)
- static void __ibmvnic_reset(struct work_struct *work)
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index f93cb989241c..28ed157b1203 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -410,6 +410,7 @@ config XEN_BLKDEV_BACKEND
+ config VIRTIO_BLK
+ 	tristate "Virtio block driver"
+ 	depends on VIRTIO
++	select SG_POOL
+ 	help
+ 	  This is the virtual block driver for virtio.  It can be used with
+           QEMU based VMMs (like KVM or Xen).  Say Y or M.
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c05138a28475..ccc5770d7654 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -24,6 +24,12 @@
+ /* The maximum number of sg elements that fit into a virtqueue */
+ #define VIRTIO_BLK_MAX_SG_ELEMS 32768
+ 
++#ifdef CONFIG_ARCH_NO_SG_CHAIN
++#define VIRTIO_BLK_INLINE_SG_CNT	0
++#else
++#define VIRTIO_BLK_INLINE_SG_CNT	2
++#endif
++
+ static int major;
+ static DEFINE_IDA(vd_index_ida);
+ 
+@@ -77,6 +83,7 @@ struct virtio_blk {
+ struct virtblk_req {
+ 	struct virtio_blk_outhdr out_hdr;
+ 	u8 status;
++	struct sg_table sg_table;
+ 	struct scatterlist sg[];
+ };
+ 
+@@ -162,12 +169,92 @@ static int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
+ 	return 0;
+ }
+ 
+-static inline void virtblk_request_done(struct request *req)
++static void virtblk_unmap_data(struct request *req, struct virtblk_req *vbr)
  {
- 	struct ibmvnic_adapter *adapter;
--	bool saved_state = false;
-+	unsigned int timeout = 5000;
- 	struct ibmvnic_rwi *tmprwi;
-+	bool saved_state = false;
- 	struct ibmvnic_rwi *rwi;
- 	unsigned long flags;
--	u32 reset_state;
-+	struct device *dev;
-+	bool need_reset;
- 	int num_fails = 0;
-+	u32 reset_state;
- 	int rc = 0;
- 
- 	adapter = container_of(work, struct ibmvnic_adapter, ibmvnic_reset);
-+		dev = &adapter->vdev->dev;
- 
--	if (test_and_set_bit_lock(0, &adapter->resetting)) {
-+	/* Wait for ibmvnic_probe() to complete. If probe is taking too long
-+	 * or if another reset is in progress, defer work for now. If probe
-+	 * eventually fails it will flush and terminate our work.
-+	 *
-+	 * Three possibilities here:
-+	 * 1. Adpater being removed  - just return
-+	 * 2. Timed out on probe or another reset in progress - delay the work
-+	 * 3. Completed probe - perform any resets in queue
-+	 */
-+	if (adapter->state == VNIC_PROBING &&
-+	    !wait_for_completion_timeout(&adapter->probe_done, timeout)) {
-+		dev_err(dev, "Reset thread timed out on probe");
- 		queue_delayed_work(system_long_wq,
- 				   &adapter->ibmvnic_delayed_reset,
- 				   IBMVNIC_RESET_DELAY);
- 		return;
- 	}
- 
-+	/* adapter is done with probe (i.e state is never VNIC_PROBING now) */
-+	if (adapter->state == VNIC_REMOVING)
-+		return;
+-	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
++	if (blk_rq_nr_phys_segments(req))
++		sg_free_table_chained(&vbr->sg_table,
++				      VIRTIO_BLK_INLINE_SG_CNT);
++}
 +
-+	/* ->rwi_list is stable now (no one else is removing entries) */
++static int virtblk_map_data(struct blk_mq_hw_ctx *hctx, struct request *req,
++		struct virtblk_req *vbr)
++{
++	int err;
 +
-+	/* ibmvnic_probe() may have purged the reset queue after we were
-+	 * scheduled to process a reset so there maybe no resets to process.
-+	 * Before setting the ->resetting bit though, we have to make sure
-+	 * that there is infact a reset to process. Otherwise we may race
-+	 * with ibmvnic_open() and end up leaving the vnic down:
-+	 *
-+	 *	__ibmvnic_reset()	    ibmvnic_open()
-+	 *	-----------------	    --------------
-+	 *
-+	 *  set ->resetting bit
-+	 *  				find ->resetting bit is set
-+	 *  				set ->state to IBMVNIC_OPEN (i.e
-+	 *  				assume reset will open device)
-+	 *  				return
-+	 *  find reset queue empty
-+	 *  return
-+	 *
-+	 *  	Neither performed vnic login/open and vnic stays down
-+	 *
-+	 * If we hold the lock and conditionally set the bit, either we
-+	 * or ibmvnic_open() will complete the open.
-+	 */
-+	need_reset = false;
-+	spin_lock(&adapter->rwi_lock);
-+	if (!list_empty(&adapter->rwi_list)) {
-+		if (test_and_set_bit_lock(0, &adapter->resetting)) {
-+			queue_delayed_work(system_long_wq,
-+					   &adapter->ibmvnic_delayed_reset,
-+					   IBMVNIC_RESET_DELAY);
-+		} else {
-+			need_reset = true;
-+		}
++	if (!blk_rq_nr_phys_segments(req))
++		return 0;
++
++	vbr->sg_table.sgl = vbr->sg;
++	err = sg_alloc_table_chained(&vbr->sg_table,
++				     blk_rq_nr_phys_segments(req),
++				     vbr->sg_table.sgl,
++				     VIRTIO_BLK_INLINE_SG_CNT);
++	if (unlikely(err))
++		return -ENOMEM;
+ 
++	return blk_rq_map_sg(hctx->queue, req, vbr->sg_table.sgl);
++}
++
++static void virtblk_cleanup_cmd(struct request *req)
++{
+ 	if (req->rq_flags & RQF_SPECIAL_PAYLOAD)
+ 		kfree(bvec_virt(&req->special_vec));
++}
++
++static int virtblk_setup_cmd(struct virtio_device *vdev, struct request *req,
++		struct virtblk_req *vbr)
++{
++	bool unmap = false;
++	u32 type;
++
++	vbr->out_hdr.sector = 0;
++
++	switch (req_op(req)) {
++	case REQ_OP_READ:
++		type = VIRTIO_BLK_T_IN;
++		vbr->out_hdr.sector = cpu_to_virtio64(vdev,
++						      blk_rq_pos(req));
++		break;
++	case REQ_OP_WRITE:
++		type = VIRTIO_BLK_T_OUT;
++		vbr->out_hdr.sector = cpu_to_virtio64(vdev,
++						      blk_rq_pos(req));
++		break;
++	case REQ_OP_FLUSH:
++		type = VIRTIO_BLK_T_FLUSH;
++		break;
++	case REQ_OP_DISCARD:
++		type = VIRTIO_BLK_T_DISCARD;
++		break;
++	case REQ_OP_WRITE_ZEROES:
++		type = VIRTIO_BLK_T_WRITE_ZEROES;
++		unmap = !(req->cmd_flags & REQ_NOUNMAP);
++		break;
++	case REQ_OP_DRV_IN:
++		type = VIRTIO_BLK_T_GET_ID;
++		break;
++	default:
++		WARN_ON_ONCE(1);
++		return BLK_STS_IOERR;
 +	}
-+	spin_unlock(&adapter->rwi_lock);
 +
-+	if (!need_reset)
-+		return;
++	vbr->out_hdr.type = cpu_to_virtio32(vdev, type);
++	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
 +
- 	rwi = get_next_rwi(adapter);
- 	while (rwi) {
- 		spin_lock_irqsave(&adapter->state_lock, flags);
-@@ -2639,13 +2698,6 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
- 		goto err;
- 	}
++	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
++		if (virtblk_setup_discard_write_zeroes(req, unmap))
++			return BLK_STS_RESOURCE;
++	}
++
++	return 0;
++}
++
++static inline void virtblk_request_done(struct request *req)
++{
++	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
++
++	virtblk_unmap_data(req, vbr);
++	virtblk_cleanup_cmd(req);
+ 	blk_mq_end_request(req, virtblk_result(vbr));
+ }
  
--	if (adapter->state == VNIC_PROBING) {
--		netdev_warn(netdev, "Adapter reset during probe\n");
--		adapter->init_done_rc = -EAGAIN;
--		ret = EAGAIN;
--		goto err;
+@@ -225,57 +312,23 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int qid = hctx->queue_num;
+ 	int err;
+ 	bool notify = false;
+-	bool unmap = false;
+-	u32 type;
+ 
+ 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+ 
+-	switch (req_op(req)) {
+-	case REQ_OP_READ:
+-	case REQ_OP_WRITE:
+-		type = 0;
+-		break;
+-	case REQ_OP_FLUSH:
+-		type = VIRTIO_BLK_T_FLUSH;
+-		break;
+-	case REQ_OP_DISCARD:
+-		type = VIRTIO_BLK_T_DISCARD;
+-		break;
+-	case REQ_OP_WRITE_ZEROES:
+-		type = VIRTIO_BLK_T_WRITE_ZEROES;
+-		unmap = !(req->cmd_flags & REQ_NOUNMAP);
+-		break;
+-	case REQ_OP_DRV_IN:
+-		type = VIRTIO_BLK_T_GET_ID;
+-		break;
+-	default:
+-		WARN_ON_ONCE(1);
+-		return BLK_STS_IOERR;
 -	}
 -
- 	list_for_each_entry(tmp, &adapter->rwi_list, list) {
- 		if (tmp->reset_reason == reason) {
- 			netdev_dbg(netdev, "Skipping matching reset, reason=%s\n",
-@@ -5561,6 +5613,7 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
- 	struct ibmvnic_adapter *adapter;
- 	struct net_device *netdev;
- 	unsigned char *mac_addr_p;
-+	unsigned long flags;
- 	bool init_success;
- 	int rc;
+-	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, type);
+-	vbr->out_hdr.sector = type ?
+-		0 : cpu_to_virtio64(vblk->vdev, blk_rq_pos(req));
+-	vbr->out_hdr.ioprio = cpu_to_virtio32(vblk->vdev, req_get_ioprio(req));
++	err = virtblk_setup_cmd(vblk->vdev, req, vbr);
++	if (unlikely(err))
++		return err;
  
-@@ -5602,6 +5655,7 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
- 	spin_lock_init(&adapter->rwi_lock);
- 	spin_lock_init(&adapter->state_lock);
- 	mutex_init(&adapter->fw_lock);
-+	init_completion(&adapter->probe_done);
- 	init_completion(&adapter->init_done);
- 	init_completion(&adapter->fw_done);
- 	init_completion(&adapter->reset_done);
-@@ -5617,6 +5671,26 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
- 		 */
- 		adapter->failover_pending = false;
+ 	blk_mq_start_request(req);
  
-+		/* If we had already initialized CRQ, we may have one or
-+		 * more resets queued already. Discard those and release
-+		 * the CRQ before initializing the CRQ again.
-+		 */
-+		release_crq_queue(adapter);
-+
-+		/* Since we are still in PROBING state, __ibmvnic_reset()
-+		 * will not access the ->rwi_list and since we released CRQ,
-+		 * we won't get _new_ transport events. But there maybe an
-+		 * ongoing ibmvnic_reset() call. So serialize access to
-+		 * rwi_list. If we win the race, ibvmnic_reset() could add
-+		 * a reset after we purged but thats ok - we just may end
-+		 * up with an extra reset (i.e similar to having two or more
-+		 * resets in the queue at once).
-+		 * CHECK.
-+		 */
-+		spin_lock_irqsave(&adapter->rwi_lock, flags);
-+		flush_reset_queue(adapter);
-+		spin_unlock_irqrestore(&adapter->rwi_lock, flags);
-+
- 		rc = init_crq_queue(adapter);
- 		if (rc) {
- 			dev_err(&dev->dev, "Couldn't initialize crq. rc=%d\n",
-@@ -5668,6 +5742,8 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
+-	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
+-		err = virtblk_setup_discard_write_zeroes(req, unmap);
+-		if (err)
+-			return BLK_STS_RESOURCE;
+-	}
+-
+-	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+-	if (num) {
+-		if (rq_data_dir(req) == WRITE)
+-			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
+-		else
+-			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_IN);
++	num = virtblk_map_data(hctx, req, vbr);
++	if (unlikely(num < 0)) {
++		virtblk_cleanup_cmd(req);
++		return BLK_STS_RESOURCE;
  	}
- 	dev_info(&dev->dev, "ibmvnic registered\n");
  
-+	complete(&adapter->probe_done);
-+
- 	return 0;
+ 	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+-	err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
++	err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg_table.sgl, num);
+ 	if (err) {
+ 		virtqueue_kick(vblk->vqs[qid].vq);
+ 		/* Don't stop the queue if -ENOMEM: we may have failed to
+@@ -284,6 +337,8 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		if (err == -ENOSPC)
+ 			blk_mq_stop_hw_queue(hctx);
+ 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
++		virtblk_unmap_data(req, vbr);
++		virtblk_cleanup_cmd(req);
+ 		switch (err) {
+ 		case -ENOSPC:
+ 			return BLK_STS_DEV_RESOURCE;
+@@ -660,16 +715,6 @@ static const struct attribute_group *virtblk_attr_groups[] = {
+ 	NULL,
+ };
  
- ibmvnic_register_fail:
-@@ -5682,6 +5758,17 @@ static int ibmvnic_probe(struct vio_dev *dev, const struct vio_device_id *id)
- ibmvnic_init_fail:
- 	release_sub_crqs(adapter, 1);
- 	release_crq_queue(adapter);
-+
-+	/* cleanup worker thread after releasing CRQ so we don't get
-+	 * transport events (i.e new work items for the worker thread).
-+	 */
-+	adapter->state = VNIC_REMOVING;
-+	complete(&adapter->probe_done);
-+	flush_work(&adapter->ibmvnic_reset);
-+	flush_delayed_work(&adapter->ibmvnic_delayed_reset);
-+
-+	flush_reset_queue(adapter);
-+
- 	mutex_destroy(&adapter->fw_lock);
- 	free_netdev(netdev);
+-static int virtblk_init_request(struct blk_mq_tag_set *set, struct request *rq,
+-		unsigned int hctx_idx, unsigned int numa_node)
+-{
+-	struct virtio_blk *vblk = set->driver_data;
+-	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
+-
+-	sg_init_table(vbr->sg, vblk->sg_elems);
+-	return 0;
+-}
+-
+ static int virtblk_map_queues(struct blk_mq_tag_set *set)
+ {
+ 	struct virtio_blk *vblk = set->driver_data;
+@@ -682,7 +727,6 @@ static const struct blk_mq_ops virtio_mq_ops = {
+ 	.queue_rq	= virtio_queue_rq,
+ 	.commit_rqs	= virtio_commit_rqs,
+ 	.complete	= virtblk_request_done,
+-	.init_request	= virtblk_init_request,
+ 	.map_queues	= virtblk_map_queues,
+ };
  
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.h b/drivers/net/ethernet/ibm/ibmvnic.h
-index 1a9ed9202654..b01c439965ff 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.h
-+++ b/drivers/net/ethernet/ibm/ibmvnic.h
-@@ -927,6 +927,7 @@ struct ibmvnic_adapter {
- 
- 	struct ibmvnic_tx_pool *tx_pool;
- 	struct ibmvnic_tx_pool *tso_pool;
-+	struct completion probe_done;
- 	struct completion init_done;
- 	int init_done_rc;
+@@ -762,7 +806,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+ 	vblk->tag_set.cmd_size =
+ 		sizeof(struct virtblk_req) +
+-		sizeof(struct scatterlist) * sg_elems;
++		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
+ 	vblk->tag_set.driver_data = vblk;
+ 	vblk->tag_set.nr_hw_queues = vblk->num_vqs;
  
 -- 
 2.35.1
