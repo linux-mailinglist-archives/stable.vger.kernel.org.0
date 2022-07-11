@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E83356FD57
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9FFB56FBCC
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229862AbiGKJyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
+        id S232890AbiGKJdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:33:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233848AbiGKJx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:53:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E22D32ECF;
-        Mon, 11 Jul 2022 02:25:36 -0700 (PDT)
+        with ESMTP id S231447AbiGKJcn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:32:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BB17822A;
+        Mon, 11 Jul 2022 02:17:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A63F6112E;
-        Mon, 11 Jul 2022 09:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27106C34115;
-        Mon, 11 Jul 2022 09:25:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 774B1B80E74;
+        Mon, 11 Jul 2022 09:17:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4747C341CE;
+        Mon, 11 Jul 2022 09:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531535;
-        bh=XjUZrUHL7LcdbDE6IVjFy/5ilO4yxwYXYvobmuNbkv0=;
+        s=korg; t=1657531050;
+        bh=YVnFkwa8Y6Ua+2s8C/87eVG7a1hYAbDX9XzAqUxF8pU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqQqdBSyF+77WS1C6PunlTI4A5YlPyiI3ymCYcFikWSrvoPIov4rmoyRDyG7kDSI/
-         L66H4xHUlXRbpDbBPC/Xq2MEnM6940zK1pEmCqCxxqBuxmLO02v24y8NPmSH/Cd/VY
-         /0xsa+4uNhoWPbAQsi3EWpS4Z9GTk27dbj7TPwhw=
+        b=KKpre+DunpdAOKlOFGvQ+Mm3GmoyY+9EwTJYDXmd3jvUduZQtB7GYLuAYsQet8jN7
+         3aluaxs5hDFKcdJZXzDTSxXMR1n9afjjyZpKSy5GAFydcatjFEhXo4dBGlo29+/s3L
+         7QMiqQy8M65zT0zYuYKfV9WGKL4lZ7N8ZT0LC46Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 141/230] drm/amd: Refactor `amdgpu_aspm` to be evaluated per device
-Date:   Mon, 11 Jul 2022 11:06:37 +0200
-Message-Id: <20220711090608.062900976@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Wang <peter.wang@mediatek.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.18 038/112] PM: runtime: Fix supplier device management during consumer probe
+Date:   Mon, 11 Jul 2022 11:06:38 +0200
+Message-Id: <20220711090550.653474614@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
-References: <20220711090604.055883544@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,164 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 0ab5d711ec74d9e60673900974806b7688857947 ]
+commit 887371066039011144b4a94af97d9328df6869a2 upstream.
 
-Evaluating `pcie_aspm_enabled` as part of driver probe has the implication
-that if one PCIe bridge with an AMD GPU connected doesn't support ASPM
-then none of them do.  This is an invalid assumption as the PCIe core will
-configure ASPM for individual PCIe bridges.
+Because pm_runtime_get_suppliers() bumps up the rpm_active counter
+of each device link to a supplier of the given device in addition
+to bumping up the supplier's PM-runtime usage counter, a runtime
+suspend of the consumer device may case the latter to go down to 0
+when pm_runtime_put_suppliers() is running on a remote CPU.  If that
+happens after pm_runtime_put_suppliers() has released power.lock for
+the consumer device, and a runtime resume of that device takes place
+immediately after it, before pm_runtime_put() is called for the
+supplier, that pm_runtime_put() call may cause the supplier to be
+suspended even though the consumer is active.
 
-Create a new helper function that can be called by individual dGPUs to
-react to the `amdgpu_aspm` module parameter without having negative results
-for other dGPUs on the PCIe bus.
+To prevent that from happening, modify pm_runtime_get_suppliers() to
+call pm_runtime_get_sync() for the given device's suppliers without
+touching the rpm_active counters of the involved device links
+Accordingly, modify pm_runtime_put_suppliers() to call pm_runtime_put()
+for the given device's suppliers without looking at the rpm_active
+counters of the device links at hand.  [This is analogous to what
+happened before commit 4c06c4e6cf63 ("driver core: Fix possible
+supplier PM-usage counter imbalance").]
 
-Suggested-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since pm_runtime_get_suppliers() sets supplier_preactivated for each
+device link where the supplier's PM-runtime usage counter has been
+incremented and pm_runtime_put_suppliers() calls pm_runtime_put() for
+the suppliers whose device links have supplier_preactivated set, the
+PM-runtime usage counter is balanced for each supplier and this is
+independent of the runtime suspend and resume of the consumer device.
+
+However, in case a device link with DL_FLAG_PM_RUNTIME set is dropped
+during the consumer device probe, so pm_runtime_get_suppliers() bumps
+up the supplier's PM-runtime usage counter, but it cannot be dropped by
+pm_runtime_put_suppliers(), make device_link_release_fn() take care of
+that.
+
+Fixes: 4c06c4e6cf63 ("driver core: Fix possible supplier PM-usage counter imbalance")
+Reported-by: Peter Wang <peter.wang@mediatek.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Peter Wang <peter.wang@mediatek.com>
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h           |  1 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c    | 25 +++++++++++++++++++
- drivers/gpu/drm/amd/amdgpu/cik.c              |  2 +-
- drivers/gpu/drm/amd/amdgpu/nv.c               |  2 +-
- drivers/gpu/drm/amd/amdgpu/si.c               |  2 +-
- drivers/gpu/drm/amd/amdgpu/soc15.c            |  2 +-
- drivers/gpu/drm/amd/amdgpu/vi.c               |  2 +-
- .../amd/pm/swsmu/smu11/sienna_cichlid_ppt.c   |  2 +-
- 8 files changed, 32 insertions(+), 6 deletions(-)
+ drivers/base/core.c          |   10 ++++++++++
+ drivers/base/power/runtime.c |   14 +-------------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-index 2eebefd26fa8..5f95d03fd46a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -1285,6 +1285,7 @@ int amdgpu_device_gpu_recover(struct amdgpu_device *adev,
- void amdgpu_device_pci_config_reset(struct amdgpu_device *adev);
- int amdgpu_device_pci_reset(struct amdgpu_device *adev);
- bool amdgpu_device_need_post(struct amdgpu_device *adev);
-+bool amdgpu_device_should_use_aspm(struct amdgpu_device *adev);
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -486,6 +486,16 @@ static void device_link_release_fn(struc
+ 	device_link_synchronize_removal();
  
- void amdgpu_cs_report_moved_bytes(struct amdgpu_device *adev, u64 num_bytes,
- 				  u64 num_vis_bytes);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index a926b5ebbfdf..d1af709cc7dc 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -1309,6 +1309,31 @@ bool amdgpu_device_need_post(struct amdgpu_device *adev)
- 	return true;
- }
- 
-+/**
-+ * amdgpu_device_should_use_aspm - check if the device should program ASPM
-+ *
-+ * @adev: amdgpu_device pointer
-+ *
-+ * Confirm whether the module parameter and pcie bridge agree that ASPM should
-+ * be set for this device.
-+ *
-+ * Returns true if it should be used or false if not.
-+ */
-+bool amdgpu_device_should_use_aspm(struct amdgpu_device *adev)
-+{
-+	switch (amdgpu_aspm) {
-+	case -1:
-+		break;
-+	case 0:
-+		return false;
-+	case 1:
-+		return true;
-+	default:
-+		return false;
-+	}
-+	return pcie_aspm_enabled(adev->pdev);
-+}
+ 	pm_runtime_release_supplier(link);
++	/*
++	 * If supplier_preactivated is set, the link has been dropped between
++	 * the pm_runtime_get_suppliers() and pm_runtime_put_suppliers() calls
++	 * in __driver_probe_device().  In that case, drop the supplier's
++	 * PM-runtime usage counter to remove the reference taken by
++	 * pm_runtime_get_suppliers().
++	 */
++	if (link->supplier_preactivated)
++		pm_runtime_put_noidle(link->supplier);
 +
- /* if we get transitioned to only one device, take VGA back */
- /**
-  * amdgpu_device_vga_set_decode - enable/disable vga decode
-diff --git a/drivers/gpu/drm/amd/amdgpu/cik.c b/drivers/gpu/drm/amd/amdgpu/cik.c
-index f10ce740a29c..de6d10390ab2 100644
---- a/drivers/gpu/drm/amd/amdgpu/cik.c
-+++ b/drivers/gpu/drm/amd/amdgpu/cik.c
-@@ -1719,7 +1719,7 @@ static void cik_program_aspm(struct amdgpu_device *adev)
- 	bool disable_l0s = false, disable_l1 = false, disable_plloff_in_l1 = false;
- 	bool disable_clkreq = false;
+ 	pm_request_idle(link->supplier);
  
--	if (amdgpu_aspm == 0)
-+	if (!amdgpu_device_should_use_aspm(adev))
- 		return;
+ 	put_device(link->consumer);
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -1737,7 +1737,6 @@ void pm_runtime_get_suppliers(struct dev
+ 		if (link->flags & DL_FLAG_PM_RUNTIME) {
+ 			link->supplier_preactivated = true;
+ 			pm_runtime_get_sync(link->supplier);
+-			refcount_inc(&link->rpm_active);
+ 		}
  
- 	if (pci_is_root_bus(adev->pdev->bus))
-diff --git a/drivers/gpu/drm/amd/amdgpu/nv.c b/drivers/gpu/drm/amd/amdgpu/nv.c
-index 9cbed9a8f1c0..6e277236b44f 100644
---- a/drivers/gpu/drm/amd/amdgpu/nv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nv.c
-@@ -584,7 +584,7 @@ static void nv_pcie_gen3_enable(struct amdgpu_device *adev)
+ 	device_links_read_unlock(idx);
+@@ -1757,19 +1756,8 @@ void pm_runtime_put_suppliers(struct dev
+ 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node,
+ 				device_links_read_lock_held())
+ 		if (link->supplier_preactivated) {
+-			bool put;
+-
+ 			link->supplier_preactivated = false;
+-
+-			spin_lock_irq(&dev->power.lock);
+-
+-			put = pm_runtime_status_suspended(dev) &&
+-			      refcount_dec_not_one(&link->rpm_active);
+-
+-			spin_unlock_irq(&dev->power.lock);
+-
+-			if (put)
+-				pm_runtime_put(link->supplier);
++			pm_runtime_put(link->supplier);
+ 		}
  
- static void nv_program_aspm(struct amdgpu_device *adev)
- {
--	if (!amdgpu_aspm)
-+	if (!amdgpu_device_should_use_aspm(adev))
- 		return;
- 
- 	if (!(adev->flags & AMD_IS_APU) &&
-diff --git a/drivers/gpu/drm/amd/amdgpu/si.c b/drivers/gpu/drm/amd/amdgpu/si.c
-index e6d2f74a7976..7f99e130acd0 100644
---- a/drivers/gpu/drm/amd/amdgpu/si.c
-+++ b/drivers/gpu/drm/amd/amdgpu/si.c
-@@ -2453,7 +2453,7 @@ static void si_program_aspm(struct amdgpu_device *adev)
- 	bool disable_l0s = false, disable_l1 = false, disable_plloff_in_l1 = false;
- 	bool disable_clkreq = false;
- 
--	if (amdgpu_aspm == 0)
-+	if (!amdgpu_device_should_use_aspm(adev))
- 		return;
- 
- 	if (adev->flags & AMD_IS_APU)
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index 6439d5c3d8d8..bdb47ae96ce6 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -689,7 +689,7 @@ static void soc15_pcie_gen3_enable(struct amdgpu_device *adev)
- 
- static void soc15_program_aspm(struct amdgpu_device *adev)
- {
--	if (!amdgpu_aspm)
-+	if (!amdgpu_device_should_use_aspm(adev))
- 		return;
- 
- 	if (!(adev->flags & AMD_IS_APU) &&
-diff --git a/drivers/gpu/drm/amd/amdgpu/vi.c b/drivers/gpu/drm/amd/amdgpu/vi.c
-index 6645ebbd2696..039b90cdc3bc 100644
---- a/drivers/gpu/drm/amd/amdgpu/vi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vi.c
-@@ -1140,7 +1140,7 @@ static void vi_program_aspm(struct amdgpu_device *adev)
- 	bool bL1SS = false;
- 	bool bClkReqSupport = true;
- 
--	if (!amdgpu_aspm)
-+	if (!amdgpu_device_should_use_aspm(adev))
- 		return;
- 
- 	if (adev->flags & AMD_IS_APU ||
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-index 574a9d7f7a5e..918d5c7c2328 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -338,7 +338,7 @@ sienna_cichlid_get_allowed_feature_mask(struct smu_context *smu,
- 	if (smu->dc_controlled_by_gpio)
-        *(uint64_t *)feature_mask |= FEATURE_MASK(FEATURE_ACDC_BIT);
- 
--	if (amdgpu_aspm)
-+	if (amdgpu_device_should_use_aspm(adev))
- 		*(uint64_t *)feature_mask |= FEATURE_MASK(FEATURE_DS_LCLK_BIT);
- 
- 	return 0;
--- 
-2.35.1
-
+ 	device_links_read_unlock(idx);
 
 
