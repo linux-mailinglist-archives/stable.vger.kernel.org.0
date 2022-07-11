@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54CBE56D63B
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:12:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7A256D640
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbiGKHMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 03:12:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        id S229952AbiGKHMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 03:12:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbiGKHLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:11:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6661A80C
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:09:18 -0700 (PDT)
+        with ESMTP id S230028AbiGKHLs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:11:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03FE1CB2C
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:09:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6BC3B80DB8
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:09:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35428C3411C;
-        Mon, 11 Jul 2022 07:09:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F68FB80DB8
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E81D9C34115;
+        Mon, 11 Jul 2022 07:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657523355;
-        bh=P6iwoHxD7eQHH4SHx4BI/Z31NlZYzblp2aWAJM7nmkU=;
+        s=korg; t=1657523361;
+        bh=VcHS3JF4VdzBvrh+Pq6NvFMK6wiXuU5AE63k7Hk4BxE=;
         h=Subject:To:Cc:From:Date:From;
-        b=Krxgbt8ZuvL6jKg0GVPPeiQ+nSSljTHsZMwTSRL77EkEOdUNHXTulOPKsOlYBFXtP
-         8MjLu1v+LIUjGZNUJpiZEmntHReTnR3v1z43M7k4+wRIjAJ4RhUamkbrTcw9sXcl72
-         eo5ruHL7IxVA6ewgaqBjuT+E3EIRud64pvy6S88o=
-Subject: FAILED: patch "[PATCH] pinctrl: stm32: fix optional IRQ support to gpios" failed to apply to 4.19-stable tree
+        b=pipKO0hAdMB6MIHhfohjWIhX1DnagEW8Ay//Gqh0Sbq6lnRYDd5Xk1OqJLurg/SqL
+         PaT9SR+LWqbI7s3+2UwyJ1OYrMekELrP9nqFNgbUEx1pY0T0+wmlyqJw2qChD7cFT1
+         1qq1oek44iD8RcjLj8ppWhtOJV+x9vKlut8coxxA=
+Subject: FAILED: patch "[PATCH] pinctrl: stm32: fix optional IRQ support to gpios" failed to apply to 5.4-stable tree
 To:     fabien.dessenne@foss.st.com, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 11 Jul 2022 09:09:00 +0200
-Message-ID: <165752334017821@kroah.com>
+Message-ID: <165752334022916@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
