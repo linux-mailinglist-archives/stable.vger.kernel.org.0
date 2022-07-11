@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8877756FA9F
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:20:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4DA56FB68
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbiGKJUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:20:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42614 "EHLO
+        id S232477AbiGKJaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:30:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231934AbiGKJTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:19:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C3C4F664;
-        Mon, 11 Jul 2022 02:12:14 -0700 (PDT)
+        with ESMTP id S232738AbiGKJ3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:29:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3810D6E8B5;
+        Mon, 11 Jul 2022 02:16:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33A6BB80E85;
-        Mon, 11 Jul 2022 09:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BF48C34115;
-        Mon, 11 Jul 2022 09:12:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8400ACE1256;
+        Mon, 11 Jul 2022 09:16:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6393CC34115;
+        Mon, 11 Jul 2022 09:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530732;
-        bh=dxqk0C/2vci2QZtOusG6l6QeXXWhdvJ1Cydl7u2uT6k=;
+        s=korg; t=1657530988;
+        bh=wpauSRjKkxczRqOFAKR0G9QBSNrt+x6DlEL/bNnxU/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ew+5YwGYEBxuNC4L4Hth0sVwDRA/DbDKi25cozH/RKm6SFcy5Wr6FyRSlus/X5dPI
-         Ii0SAfUfCdQL42Esxt5KFcPmfykaCcRNNs6aY2h+1M8/vf2bvZIAwZ6pmW0/YJZAmU
-         GUKIrF/ZncMEW6WCVTP3VMBaqBRFcD2OJl6GBe+s=
+        b=BQQKOSzCDrMdXK0lAbJhz/hoLh/isJjqWIwDOm3dbCPBot5U07LXgP+lEU6jeScwX
+         4ccNqv2e4QPmPVSUthXQ4kLoSsQ5MMA1OGyZrNeYyRWuCK0RAZsd9xCXjizHg9bMs0
+         wzOAzR1U+HVFJ8RTavENFjYg2/hRkJbLF66qa05o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 08/55] usbnet: fix memory leak in error case
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 056/112] ARM: mxs_defconfig: Enable the framebuffer
 Date:   Mon, 11 Jul 2022 11:06:56 +0200
-Message-Id: <20220711090542.008524853@linuxfoundation.org>
+Message-Id: <20220711090551.161652167@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090541.764895984@linuxfoundation.org>
-References: <20220711090541.764895984@linuxfoundation.org>
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Fabio Estevam <festevam@denx.de>
 
-commit b55a21b764c1e182014630fa5486d717484ac58f upstream.
+[ Upstream commit b10ef5f2ddb3a5a22ac0936c8d91a50ac5e55e77 ]
 
-usbnet_write_cmd_async() mixed up which buffers
-need to be freed in which error case.
+Currently, when booting Linux on a imx28-evk board there is
+no display activity.
 
-v2: add Fixes tag
-v3: fix uninitialized buf pointer
+Enable CONFIG_FB which is nowadays required for CONFIG_DRM_PANEL_LVDS,
+CONFIG_DRM_PANEL_SIMPLE, CONFIG_DRM_PANEL_SEIKO_43WVF1G,
+CONFIG_FB_MODE_HELPERS, CONFIG_BACKLIGHT_PWM, CONFIG_BACKLIGHT_GPIO,
+CONFIG_FRAMEBUFFER_CONSOLE, CONFIG_LOGO, CONFIG_FONTS, CONFIG_FONT_8x8
+and CONFIG_FONT_8x16.
 
-Fixes: 877bd862f32b8 ("usbnet: introduce usbnet 3 command helpers")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220705125351.17309-1-oneukum@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Based on commit c54467482ffd ("ARM: imx_v6_v7_defconfig: enable fb").
+
+Fixes: f611b1e7624c ("drm: Avoid circular dependencies for CONFIG_FB")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/arm/configs/mxs_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -2102,7 +2102,7 @@ static void usbnet_async_cmd_cb(struct u
- int usbnet_write_cmd_async(struct usbnet *dev, u8 cmd, u8 reqtype,
- 			   u16 value, u16 index, const void *data, u16 size)
- {
--	struct usb_ctrlrequest *req = NULL;
-+	struct usb_ctrlrequest *req;
- 	struct urb *urb;
- 	int err = -ENOMEM;
- 	void *buf = NULL;
-@@ -2120,7 +2120,7 @@ int usbnet_write_cmd_async(struct usbnet
- 		if (!buf) {
- 			netdev_err(dev->net, "Error allocating buffer"
- 				   " in %s!\n", __func__);
--			goto fail_free;
-+			goto fail_free_urb;
- 		}
- 	}
- 
-@@ -2144,14 +2144,21 @@ int usbnet_write_cmd_async(struct usbnet
- 	if (err < 0) {
- 		netdev_err(dev->net, "Error submitting the control"
- 			   " message: status=%d\n", err);
--		goto fail_free;
-+		goto fail_free_all;
- 	}
- 	return 0;
- 
-+fail_free_all:
-+	kfree(req);
- fail_free_buf:
- 	kfree(buf);
--fail_free:
--	kfree(req);
-+	/*
-+	 * avoid a double free
-+	 * needed because the flag can be set only
-+	 * after filling the URB
-+	 */
-+	urb->transfer_flags = 0;
-+fail_free_urb:
- 	usb_free_urb(urb);
- fail:
- 	return err;
+diff --git a/arch/arm/configs/mxs_defconfig b/arch/arm/configs/mxs_defconfig
+index ca32446b187f..f53086ddc48b 100644
+--- a/arch/arm/configs/mxs_defconfig
++++ b/arch/arm/configs/mxs_defconfig
+@@ -93,6 +93,7 @@ CONFIG_REGULATOR_FIXED_VOLTAGE=y
+ CONFIG_DRM=y
+ CONFIG_DRM_PANEL_SEIKO_43WVF1G=y
+ CONFIG_DRM_MXSFB=y
++CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_LCD_CLASS_DEVICE=y
+ CONFIG_BACKLIGHT_CLASS_DEVICE=y
+-- 
+2.35.1
+
 
 
