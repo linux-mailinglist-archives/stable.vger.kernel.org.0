@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8CE956D67D
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:15:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E1256D67C
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 09:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbiGKHPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 03:15:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34142 "EHLO
+        id S230059AbiGKHPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 03:15:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbiGKHPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:15:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA54E4F
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:13:35 -0700 (PDT)
+        with ESMTP id S229967AbiGKHPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 03:15:22 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599CC1D30A
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 00:13:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE344612AB
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED4AC34115;
-        Mon, 11 Jul 2022 07:13:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C281CCE10CC
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 07:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C03C34115;
+        Mon, 11 Jul 2022 07:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657523614;
-        bh=4SIsiLsjIusLlkWEAZ/5UzwMDHtPsUB+3iCdlITBHyQ=;
+        s=korg; t=1657523606;
+        bh=ZqSxmADYbUMTkMslRZ/hU7vnQlFbnjlLjObdCNwmreI=;
         h=Subject:To:Cc:From:Date:From;
-        b=Tx1t3vp21MoX0+iGYfpYq2pTXqVvUlFIrIKZIW365n0JONT3aww4HnOZtYlDI1+JU
-         mx2l4BOaJrIBY4AT1vvk7d91NsLKQqQgJo942scoff6fkYa+W/aHtODEPP6HIT9A8Y
-         46/C6bUOhhdimMfrH4Vqxs4nwCEI/xVV0UQeS8jQ=
-Subject: FAILED: patch "[PATCH] dmaengine: qcom: bam_dma: fix runtime PM underflow" failed to apply to 5.4-stable tree
+        b=jRLpEeXU9Gz9yw5hbmRLTqUXpLLu8UsD+me7hQQ54zYCMmkxrk7Y+6q0bDUh68G3j
+         eiHVkVDbfssGlSNAhU2Eoh2TUu36pBh20lI3D1IsuekBZ3y8+7+gaPxEESzMVDup+D
+         hY+DTP3LuySVVSKpxF5OCzF7OFTtMbv9rDVzjo18=
+Subject: FAILED: patch "[PATCH] dmaengine: qcom: bam_dma: fix runtime PM underflow" failed to apply to 5.10-stable tree
 To:     caleb.connolly@linaro.org, stephan@gerhold.net, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 11 Jul 2022 09:13:23 +0200
-Message-ID: <165752360312129@kroah.com>
+Message-ID: <165752360355231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
