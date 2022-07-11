@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E135A56F9F9
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:11:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F6256FA39
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 11:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231282AbiGKJL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 05:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
+        id S231396AbiGKJPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 05:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231284AbiGKJKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:10:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCC411C22;
-        Mon, 11 Jul 2022 02:08:50 -0700 (PDT)
+        with ESMTP id S231661AbiGKJOd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 05:14:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5D729CBB;
+        Mon, 11 Jul 2022 02:10:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 374F1B80E5E;
-        Mon, 11 Jul 2022 09:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88309C34115;
-        Mon, 11 Jul 2022 09:08:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE059B80D2C;
+        Mon, 11 Jul 2022 09:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528F4C34115;
+        Mon, 11 Jul 2022 09:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657530527;
-        bh=pILSbY4XJmMlzVTApIp6ncXPXmKzjXMYUZqolYEqo2U=;
+        s=korg; t=1657530624;
+        bh=SuR4s/jIkmb3L9Rd7RydHeU0F19C3tQ8whTRanpApLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2VvvNVleZyudN2K/6qYOwtp8D0SmBZmBo5B6l3BcO1a8a54XhnVhmeUNa77v9MM5
-         /aQeXJekOYwv61VN8Atp6VCwNwiwuZeGxaKzAQ4D2qnFc2wyX1YmAOROYU/Yjki5A9
-         zlRqSuQ2aWqPBNqQ7lfec/PsLn3xkU9zIn7YayGk=
+        b=f1kqlJTwKBg6gVqNgI0V4MUzXYfE9bBsmBpFvI5Z3PIE89lbhHOE8+kNHrv4hjRf/
+         hDmTjrw/qi3GdplQZcImV8ur00d9wCRv+h2pBBHFP6ZTNxXc7Zlowz9jGEilgQ3jrj
+         4jiJlsun1+iIvGYhZkk80JRQZrHMq314FrYAwMLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rhett Aultman <rhett.aultman@samsara.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 05/31] can: gs_usb: gs_usb_open/close(): fix memory leak
-Date:   Mon, 11 Jul 2022 11:06:44 +0200
-Message-Id: <20220711090538.004891604@linuxfoundation.org>
+Subject: [PATCH 5.4 03/38] can: bcm: use call_rcu() instead of costly synchronize_rcu()
+Date:   Mon, 11 Jul 2022 11:06:45 +0200
+Message-Id: <20220711090538.827305118@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-References: <20220711090537.841305347@linuxfoundation.org>
+In-Reply-To: <20220711090538.722676354@linuxfoundation.org>
+References: <20220711090538.722676354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rhett Aultman <rhett.aultman@samsara.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 2bda24ef95c0311ab93bda00db40486acf30bd0a upstream.
+commit f1b4e32aca0811aa011c76e5d6cf2fa19224b386 upstream.
 
-The gs_usb driver appears to suffer from a malady common to many USB
-CAN adapter drivers in that it performs usb_alloc_coherent() to
-allocate a number of USB request blocks (URBs) for RX, and then later
-relies on usb_kill_anchored_urbs() to free them, but this doesn't
-actually free them. As a result, this may be leaking DMA memory that's
-been used by the driver.
+In commit d5f9023fa61e ("can: bcm: delay release of struct bcm_op
+after synchronize_rcu()") Thadeu Lima de Souza Cascardo introduced two
+synchronize_rcu() calls in bcm_release() (only once at socket close)
+and in bcm_delete_rx_op() (called on removal of each single bcm_op).
 
-This commit is an adaptation of the techniques found in the esd_usb2
-driver where a similar design pattern led to a memory leak. It
-explicitly frees the RX URBs and their DMA memory via a call to
-usb_free_coherent(). Since the RX URBs were allocated in the
-gs_can_open(), we remove them in gs_can_close() rather than in the
-disconnect function as was done in esd_usb2.
+Unfortunately this slow removal of the bcm_op's affects user space
+applications like cansniffer where the modification of a filter
+removes 2048 bcm_op's which blocks the cansniffer application for
+40(!) seconds.
 
-For more information, see the 928150fad41b ("can: esd_usb2: fix memory
-leak").
+In commit 181d4447905d ("can: gw: use call_rcu() instead of costly
+synchronize_rcu()") Eric Dumazet replaced the synchronize_rcu() calls
+with several call_rcu()'s to safely remove the data structures after
+the removal of CAN ID subscriptions with can_rx_unregister() calls.
 
-Link: https://lore.kernel.org/all/alpine.DEB.2.22.394.2206031547001.1630869@thelappy
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+This patch adopts Erics approach for the can-bcm which should be
+applicable since the removal of tasklet_kill() in bcm_remove_op() and
+the introduction of the HRTIMER_MODE_SOFT timer handling in Linux 5.4.
+
+Fixes: d5f9023fa61e ("can: bcm: delay release of struct bcm_op after synchronize_rcu()") # >= 5.4
+Link: https://lore.kernel.org/all/20220520183239.19111-1-socketcan@hartkopp.net
 Cc: stable@vger.kernel.org
-Signed-off-by: Rhett Aultman <rhett.aultman@samsara.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/gs_usb.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ net/can/bcm.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -192,6 +192,8 @@ struct gs_can {
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -102,6 +102,7 @@ static inline u64 get_u64(const struct c
  
- 	struct usb_anchor tx_submitted;
- 	atomic_t active_tx_urbs;
-+	void *rxbuf[GS_MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[GS_MAX_RX_URBS];
- };
+ struct bcm_op {
+ 	struct list_head list;
++	struct rcu_head rcu;
+ 	int ifindex;
+ 	canid_t can_id;
+ 	u32 flags;
+@@ -720,10 +721,9 @@ static struct bcm_op *bcm_find_op(struct
+ 	return NULL;
+ }
  
- /* usb interface struct */
-@@ -600,6 +602,7 @@ static int gs_can_open(struct net_device
- 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
- 			struct urb *urb;
- 			u8 *buf;
-+			dma_addr_t buf_dma;
+-static void bcm_remove_op(struct bcm_op *op)
++static void bcm_free_op_rcu(struct rcu_head *rcu_head)
+ {
+-	hrtimer_cancel(&op->timer);
+-	hrtimer_cancel(&op->thrtimer);
++	struct bcm_op *op = container_of(rcu_head, struct bcm_op, rcu);
  
- 			/* alloc rx urb */
- 			urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -610,7 +613,7 @@ static int gs_can_open(struct net_device
- 			buf = usb_alloc_coherent(dev->udev,
- 						 sizeof(struct gs_host_frame),
- 						 GFP_KERNEL,
--						 &urb->transfer_dma);
-+						 &buf_dma);
- 			if (!buf) {
- 				netdev_err(netdev,
- 					   "No memory left for USB buffer\n");
-@@ -618,6 +621,8 @@ static int gs_can_open(struct net_device
- 				return -ENOMEM;
- 			}
+ 	if ((op->frames) && (op->frames != &op->sframe))
+ 		kfree(op->frames);
+@@ -734,6 +734,14 @@ static void bcm_remove_op(struct bcm_op
+ 	kfree(op);
+ }
  
-+			urb->transfer_dma = buf_dma;
++static void bcm_remove_op(struct bcm_op *op)
++{
++	hrtimer_cancel(&op->timer);
++	hrtimer_cancel(&op->thrtimer);
 +
- 			/* fill, anchor, and submit rx urb */
- 			usb_fill_bulk_urb(urb,
- 					  dev->udev,
-@@ -641,10 +646,17 @@ static int gs_can_open(struct net_device
- 					   rc);
- 
- 				usb_unanchor_urb(urb);
-+				usb_free_coherent(dev->udev,
-+						  sizeof(struct gs_host_frame),
-+						  buf,
-+						  buf_dma);
- 				usb_free_urb(urb);
- 				break;
- 			}
- 
-+			dev->rxbuf[i] = buf;
-+			dev->rxbuf_dma[i] = buf_dma;
++	call_rcu(&op->rcu, bcm_free_op_rcu);
++}
 +
- 			/* Drop reference,
- 			 * USB core will take care of freeing it
- 			 */
-@@ -709,13 +721,20 @@ static int gs_can_close(struct net_devic
- 	int rc;
- 	struct gs_can *dev = netdev_priv(netdev);
- 	struct gs_usb *parent = dev->parent;
-+	unsigned int i;
+ static void bcm_rx_unreg(struct net_device *dev, struct bcm_op *op)
+ {
+ 	if (op->rx_reg_dev == dev) {
+@@ -759,6 +767,9 @@ static int bcm_delete_rx_op(struct list_
+ 		if ((op->can_id == mh->can_id) && (op->ifindex == ifindex) &&
+ 		    (op->flags & CAN_FD_FRAME) == (mh->flags & CAN_FD_FRAME)) {
  
- 	netif_stop_queue(netdev);
++			/* disable automatic timer on frame reception */
++			op->flags |= RX_NO_AUTOTIMER;
++
+ 			/*
+ 			 * Don't care if we're bound or not (due to netdev
+ 			 * problems) can_rx_unregister() is always a save
+@@ -787,7 +798,6 @@ static int bcm_delete_rx_op(struct list_
+ 						  bcm_rx_handler, op);
  
- 	/* Stop polling */
- 	parent->active_channels--;
--	if (!parent->active_channels)
-+	if (!parent->active_channels) {
- 		usb_kill_anchored_urbs(&parent->rx_submitted);
-+		for (i = 0; i < GS_MAX_RX_URBS; i++)
-+			usb_free_coherent(dev->udev,
-+					  sizeof(struct gs_host_frame),
-+					  dev->rxbuf[i],
-+					  dev->rxbuf_dma[i]);
-+	}
- 
- 	/* Stop sending URBs */
- 	usb_kill_anchored_urbs(&dev->tx_submitted);
+ 			list_del(&op->list);
+-			synchronize_rcu();
+ 			bcm_remove_op(op);
+ 			return 1; /* done */
+ 		}
 
 
