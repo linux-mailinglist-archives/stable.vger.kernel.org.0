@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC12C56FE27
-	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F74956FE28
+	for <lists+stable@lfdr.de>; Mon, 11 Jul 2022 12:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234053AbiGKKE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234496AbiGKKE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Jul 2022 06:04:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59998 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234493AbiGKKDi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:38 -0400
+        with ESMTP id S234289AbiGKKDq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 06:03:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB82691D2;
-        Mon, 11 Jul 2022 02:29:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745DD6BC09;
+        Mon, 11 Jul 2022 02:29:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CB28B80E8C;
-        Mon, 11 Jul 2022 09:29:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5C2C341C8;
-        Mon, 11 Jul 2022 09:29:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAF5DB80D2C;
+        Mon, 11 Jul 2022 09:29:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A2D2C341CB;
+        Mon, 11 Jul 2022 09:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657531789;
-        bh=Rt/Sio1pJh64bojAYm8X1d6JRxSAP0jT01fXLbbdLhs=;
+        s=korg; t=1657531792;
+        bh=T7xOkgvjtE3PbkwxKocejNJRefdrZpo1wFeudSfDjeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSq56OeMPbWV4fvPVm1l7ugcbDLNG1x4O2Y2hMMsRZRv1UHg1iPQ6mPq6CP793TUD
-         Qr+0cqwSsky17NQ8oiTm54APMmvTsLr4zxKXMcONtvVM8i+D3uiuXi5SjkB1PB5Mkh
-         QVBQ/a9k6h+Sn1awlb7IHMxx4cuHmas8RkTlpwkc=
+        b=jQ6EmFb0RsdPW86K+p6fal3F8omq/vA48AAIjEjpLd8+zNHCRmwdJImvKkNreN7Ex
+         FI0MKbXndWp5Nyo1OmgBmHMdnLVNWHA1xhiRmnrWeXQbfBVdX6jdvWzk+4Y/zHJ0mL
+         kOOMbzv3aMOgl+ZTuq3wHiEZTB0eT/kRKqe6oOYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Rob Herring <robh@kernel.org>, Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 221/230] dt-bindings: dma: allwinner,sun50i-a64-dma: Fix min/max typo
-Date:   Mon, 11 Jul 2022 11:07:57 +0200
-Message-Id: <20220711090610.371563095@linuxfoundation.org>
+        stable@vger.kernel.org, Itay Iellin <ieitayie@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 222/230] ida: dont use BUG_ON() for debugging
+Date:   Mon, 11 Jul 2022 11:07:58 +0200
+Message-Id: <20220711090610.399846271@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220711090604.055883544@linuxfoundation.org>
 References: <20220711090604.055883544@linuxfoundation.org>
@@ -53,34 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 607a48c78e6b427b0b684d24e61c19e846ad65d6 upstream.
+commit fc82bbf4dede758007763867d0282353c06d1121 upstream.
 
-The conditional block for variants with a second clock should have set
-minItems, not maxItems, which was already 2. Since clock-names requires
-two items, this typo should not have caused any problems.
+This is another old BUG_ON() that just shouldn't exist (see also commit
+a382f8fee42c: "signal handling: don't use BUG_ON() for debugging").
 
-Fixes: edd14218bd66 ("dt-bindings: dmaengine: Convert Allwinner A31 and A64 DMA to a schema")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220702031903.21703-1-samuel@sholland.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+In fact, as Matthew Wilcox points out, this condition shouldn't really
+even result in a warning, since a negative id allocation result is just
+a normal allocation failure:
+
+  "I wonder if we should even warn here -- sure, the caller is trying to
+   free something that wasn't allocated, but we don't warn for
+   kfree(NULL)"
+
+and goes on to point out how that current error check is only causing
+people to unnecessarily do their own index range checking before freeing
+it.
+
+This was noted by Itay Iellin, because the bluetooth HCI socket cookie
+code does *not* do that range checking, and ends up just freeing the
+error case too, triggering the BUG_ON().
+
+The HCI code requires CAP_NET_RAW, and seems to just result in an ugly
+splat, but there really is no reason to BUG_ON() here, and we have
+generally striven for allocation models where it's always ok to just do
+
+    free(alloc());
+
+even if the allocation were to fail for some random reason (usually
+obviously that "random" reason being some resource limit).
+
+Fixes: 88eca0207cf1 ("ida: simplified functions for id allocation")
+Reported-by: Itay Iellin <ieitayie@gmail.com>
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/idr.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
-+++ b/Documentation/devicetree/bindings/dma/allwinner,sun50i-a64-dma.yaml
-@@ -64,7 +64,7 @@ if:
- then:
-   properties:
-     clocks:
--      maxItems: 2
-+      minItems: 2
+--- a/lib/idr.c
++++ b/lib/idr.c
+@@ -491,7 +491,8 @@ void ida_free(struct ida *ida, unsigned
+ 	struct ida_bitmap *bitmap;
+ 	unsigned long flags;
  
-   required:
-     - clock-names
+-	BUG_ON((int)id < 0);
++	if ((int)id < 0)
++		return;
+ 
+ 	xas_lock_irqsave(&xas, flags);
+ 	bitmap = xas_load(&xas);
 
 
