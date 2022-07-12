@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4544557241E
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A43357248E
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234913AbiGLS4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57444 "EHLO
+        id S235395AbiGLTFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:05:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234521AbiGLS4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:56:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD94EB03B;
-        Tue, 12 Jul 2022 11:46:43 -0700 (PDT)
+        with ESMTP id S235351AbiGLTEH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:04:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B051F6808;
+        Tue, 12 Jul 2022 11:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E748560A5A;
-        Tue, 12 Jul 2022 18:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D70F4C3411C;
-        Tue, 12 Jul 2022 18:46:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67B23B81BBF;
+        Tue, 12 Jul 2022 18:50:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F7F9C3411C;
+        Tue, 12 Jul 2022 18:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651602;
-        bh=MwuU+xseDp9KXWFIrzDY8KulQryfkv/g26Hg1/eETvA=;
+        s=korg; t=1657651806;
+        bh=afUNIL8EugqzhYqa1lgD+Lbf2agMvsyXkNXYavc+OXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzctrIWzScPD9gGHbJWX0AlVLH+GYPGBRDQbsf22kJoobP1T7XYpLWKpm/lThR9fT
-         D1t3aLs5hDkLeEUMQuPOc2hp4K1n55pXpafonV1cT6CY/Q4hz5KONGcMY0O6FEvNTX
-         DYA1gSkLJ27jFT0+12t4CRlRQmceERt5ryjHMp5w=
+        b=KV4MUnnzan6d7Zb92u7436aq+xKecWswgmFSMZmjSmzFa8vQgcoUmkdRJbFo80a7f
+         QD1A+ZX4E4d5fVSzoxHb9/unhuE0ZAIiZHPm3+CMq3zzO8jcsNBPpdcouR2dPla+he
+         Oj6Qyfc1NAlDpJidUygiRweF4yib83zUmLwx7zf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
         Borislav Petkov <bp@suse.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 127/130] x86/bugs: Do not enable IBPB-on-entry when IBPB is not supported
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 63/78] x86/speculation: Remove x86_spec_ctrl_mask
 Date:   Tue, 12 Jul 2022 20:39:33 +0200
-Message-Id: <20220712183252.325226631@linuxfoundation.org>
+Message-Id: <20220712183241.432822932@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 2259da159fbe5dba8ac00b560cf00b6a6537fa18 upstream.
+commit acac5e98ef8d638a411cfa2ee676c87e1973f126 upstream.
 
-There are some VM configurations which have Skylake model but do not
-support IBPB. In those cases, when using retbleed=ibpb, userspace is going
-to be killed and kernel is going to panic.
+This mask has been made redundant by kvm_spec_ctrl_test_value().  And it
+doesn't even work when MSR interception is disabled, as the guest can
+just write to SPEC_CTRL directly.
 
-If the CPU does not support IBPB, warn and proceed with the auto option. Also,
-do not fallback to IBPB on AMD/Hygon systems if it is not supported.
-
-Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   31 +------------------------------
+ 1 file changed, 1 insertion(+), 30 deletions(-)
 
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -821,7 +821,10 @@ static void __init retbleed_select_mitig
- 		break;
+@@ -86,12 +86,6 @@ u64 spec_ctrl_current(void)
+ EXPORT_SYMBOL_GPL(spec_ctrl_current);
  
- 	case RETBLEED_CMD_IBPB:
--		if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
-+		if (!boot_cpu_has(X86_FEATURE_IBPB)) {
-+			pr_err("WARNING: CPU does not support IBPB.\n");
-+			goto do_cmd_auto;
-+		} else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
- 			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
- 		} else {
- 			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
-@@ -836,7 +839,7 @@ do_cmd_auto:
- 		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
- 			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
- 				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
--			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY))
-+			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY) && boot_cpu_has(X86_FEATURE_IBPB))
- 				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
- 		}
+ /*
+- * The vendor and possibly platform specific bits which can be modified in
+- * x86_spec_ctrl_base.
+- */
+-static u64 __ro_after_init x86_spec_ctrl_mask = SPEC_CTRL_IBRS;
+-
+-/*
+  * AMD specific MSR info for Speculative Store Bypass control.
+  * x86_amd_ls_cfg_ssbd_mask is initialized in identify_boot_cpu().
+  */
+@@ -146,10 +140,6 @@ void __init check_bugs(void)
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+ 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
  
+-	/* Allow STIBP in MSR_SPEC_CTRL if supported */
+-	if (boot_cpu_has(X86_FEATURE_STIBP))
+-		x86_spec_ctrl_mask |= SPEC_CTRL_STIBP;
+-
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
+ 	spectre_v2_select_mitigation();
+@@ -208,19 +198,10 @@ void __init check_bugs(void)
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ {
+-	u64 msrval, guestval, hostval = spec_ctrl_current();
++	u64 msrval, guestval = guest_spec_ctrl, hostval = spec_ctrl_current();
+ 	struct thread_info *ti = current_thread_info();
+ 
+-	/* Is MSR_SPEC_CTRL implemented ? */
+ 	if (static_cpu_has(X86_FEATURE_MSR_SPEC_CTRL)) {
+-		/*
+-		 * Restrict guest_spec_ctrl to supported values. Clear the
+-		 * modifiable bits in the host base value and or the
+-		 * modifiable bits from the guest value.
+-		 */
+-		guestval = hostval & ~x86_spec_ctrl_mask;
+-		guestval |= guest_spec_ctrl & x86_spec_ctrl_mask;
+-
+ 		if (hostval != guestval) {
+ 			msrval = setguest ? guestval : hostval;
+ 			wrmsrl(MSR_IA32_SPEC_CTRL, msrval);
+@@ -1659,16 +1640,6 @@ static enum ssb_mitigation __init __ssb_
+ 	}
+ 
+ 	/*
+-	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
+-	 * bit in the mask to allow guests to use the mitigation even in the
+-	 * case where the host does not enable it.
+-	 */
+-	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
+-		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+-	}
+-
+-	/*
+ 	 * We have three CPU feature flags that are in play here:
+ 	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
+ 	 *  - X86_FEATURE_SSBD - CPU is able to turn off speculative store bypass
 
 
