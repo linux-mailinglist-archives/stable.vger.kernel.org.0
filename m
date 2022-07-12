@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E773E572555
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 976245723FC
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235775AbiGLTMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:12:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
+        id S234643AbiGLSyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235782AbiGLTLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:11:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B951020A4;
-        Tue, 12 Jul 2022 11:52:57 -0700 (PDT)
+        with ESMTP id S234769AbiGLSxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:53:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708CEE7AE6;
+        Tue, 12 Jul 2022 11:45:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 165C0B81BAC;
-        Tue, 12 Jul 2022 18:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74852C3411C;
-        Tue, 12 Jul 2022 18:52:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08699B81BBC;
+        Tue, 12 Jul 2022 18:45:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FB9C3411C;
+        Tue, 12 Jul 2022 18:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651974;
-        bh=oOwh0j2Lr3ZK4v2rqc+n17AgvlBeOUOH0qMNLZF0MmA=;
+        s=korg; t=1657651524;
+        bh=2pGZJtOLIxxXgJY9pcGVlt7LN9hTnd6QKofUs3FJ3cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVtD4RFGedVQxEsVHUdxxOwCA16E6EEHycGXDaVY0Po3qXpYiVbBOIFWRp7My3sV9
-         sjIquPuSskEZ/5zO/VJaBIO9AS26+9hB3QDBs0h6PtkjiHU+6CrbsdAe3BNfJ84LOS
-         E+VuttqGB4LuOcjmhQXDOmsoHp6S7IderkP1fBz8=
+        b=w3rt22HfnbMrRAxnpNbPceqn5ABPUlw7DCbwZFXFrCN4zpOWbX/QsPlcnyveBZGyr
+         VrNOiP3O8PjaIiNDOhiNbZt5l5C4c9mkBxDVqfxNuWDvpFeUh/rNuUZzv3jQUtiIZX
+         hH7owyMDhErmHUUEGhsstN9IIVsnm5SB8GSfrJdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 11/61] x86: Undo return-thunk damage
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 102/130] x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS
 Date:   Tue, 12 Jul 2022 20:39:08 +0200
-Message-Id: <20220712183237.399773072@linuxfoundation.org>
+Message-Id: <20220712183251.175405459@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,194 +58,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 15e67227c49a57837108acfe1c80570e1bd9f962 upstream.
+commit 7c693f54c873691a4b7da05c7e0f74e67745d144 upstream.
 
-Introduce X86_FEATURE_RETHUNK for those afflicted with needing this.
+Extend spectre_v2= boot option with Kernel IBRS.
 
-  [ bp: Do only INT3 padding - simpler. ]
+  [jpoimboe: no STIBP with IBRS]
 
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: CONFIG_STACK_VALIDATION vs CONFIG_OBJTOOL]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/alternative.h       |    1 
- arch/x86/include/asm/cpufeatures.h       |    1 
- arch/x86/include/asm/disabled-features.h |    3 +
- arch/x86/kernel/alternative.c            |   60 +++++++++++++++++++++++++++++++
- arch/x86/kernel/module.c                 |    8 +++-
- arch/x86/kernel/vmlinux.lds.S            |    7 +++
- 6 files changed, 78 insertions(+), 2 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |    1 
+ arch/x86/include/asm/nospec-branch.h            |    1 
+ arch/x86/kernel/cpu/bugs.c                      |   66 ++++++++++++++++++------
+ 3 files changed, 54 insertions(+), 14 deletions(-)
 
---- a/arch/x86/include/asm/alternative.h
-+++ b/arch/x86/include/asm/alternative.h
-@@ -76,6 +76,7 @@ extern int alternatives_patched;
- extern void alternative_instructions(void);
- extern void apply_alternatives(struct alt_instr *start, struct alt_instr *end);
- extern void apply_retpolines(s32 *start, s32 *end);
-+extern void apply_returns(s32 *start, s32 *end);
- extern void apply_ibt_endbr(s32 *start, s32 *end);
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5026,6 +5026,7 @@
+ 			eibrs		  - enhanced IBRS
+ 			eibrs,retpoline   - enhanced IBRS + Retpolines
+ 			eibrs,lfence      - enhanced IBRS + LFENCE
++			ibrs		  - use IBRS to protect kernel
  
- struct module;
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -299,6 +299,7 @@
- /* FREE!				(11*32+11) */
- #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
- #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
-+#define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
+ 			Not specifying this option is equivalent to
+ 			spectre_v2=auto.
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -212,6 +212,7 @@ enum spectre_v2_mitigation {
+ 	SPECTRE_V2_EIBRS,
+ 	SPECTRE_V2_EIBRS_RETPOLINE,
+ 	SPECTRE_V2_EIBRS_LFENCE,
++	SPECTRE_V2_IBRS,
+ };
  
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -60,7 +60,8 @@
- # define DISABLE_RETPOLINE	0
- #else
- # define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
--				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
-+				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)) | \
-+				 (1 << (X86_FEATURE_RETHUNK & 31)))
- #endif
+ /* The indirect branch speculation control variants */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -928,6 +928,7 @@ enum spectre_v2_mitigation_cmd {
+ 	SPECTRE_V2_CMD_EIBRS,
+ 	SPECTRE_V2_CMD_EIBRS_RETPOLINE,
+ 	SPECTRE_V2_CMD_EIBRS_LFENCE,
++	SPECTRE_V2_CMD_IBRS,
+ };
  
- #ifdef CONFIG_INTEL_IOMMU_SVM
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -115,6 +115,7 @@ static void __init_or_module add_nops(vo
+ enum spectre_v2_user_cmd {
+@@ -1000,11 +1001,12 @@ spectre_v2_parse_user_cmdline(enum spect
+ 	return SPECTRE_V2_USER_CMD_AUTO;
  }
  
- extern s32 __retpoline_sites[], __retpoline_sites_end[];
-+extern s32 __return_sites[], __return_sites_end[];
- extern s32 __ibt_endbr_seal[], __ibt_endbr_seal_end[];
- extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
- extern s32 __smp_locks[], __smp_locks_end[];
-@@ -507,9 +508,67 @@ void __init_or_module noinline apply_ret
+-static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
+ {
+-	return (mode == SPECTRE_V2_EIBRS ||
+-		mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+-		mode == SPECTRE_V2_EIBRS_LFENCE);
++	return mode == SPECTRE_V2_IBRS ||
++	       mode == SPECTRE_V2_EIBRS ||
++	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
++	       mode == SPECTRE_V2_EIBRS_LFENCE;
+ }
+ 
+ static void __init
+@@ -1069,12 +1071,12 @@ spectre_v2_user_select_mitigation(enum s
  	}
- }
- 
-+/*
-+ * Rewrite the compiler generated return thunk tail-calls.
-+ *
-+ * For example, convert:
-+ *
-+ *   JMP __x86_return_thunk
-+ *
-+ * into:
-+ *
-+ *   RET
-+ */
-+static int patch_return(void *addr, struct insn *insn, u8 *bytes)
-+{
-+	int i = 0;
-+
-+	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
-+		return -1;
-+
-+	bytes[i++] = RET_INSN_OPCODE;
-+
-+	for (; i < insn->length;)
-+		bytes[i++] = INT3_INSN_OPCODE;
-+
-+	return i;
-+}
-+
-+void __init_or_module noinline apply_returns(s32 *start, s32 *end)
-+{
-+	s32 *s;
-+
-+	for (s = start; s < end; s++) {
-+		void *addr = (void *)s + *s;
-+		struct insn insn;
-+		int len, ret;
-+		u8 bytes[16];
-+		u8 op1;
-+
-+		ret = insn_decode_kernel(&insn, addr);
-+		if (WARN_ON_ONCE(ret < 0))
-+			continue;
-+
-+		op1 = insn.opcode.bytes[0];
-+		if (WARN_ON_ONCE(op1 != JMP32_INSN_OPCODE))
-+			continue;
-+
-+		DPRINTK("return thunk at: %pS (%px) len: %d to: %pS",
-+			addr, addr, insn.length,
-+			addr + insn.length + insn.immediate.value);
-+
-+		len = patch_return(addr, &insn, bytes);
-+		if (len == insn.length) {
-+			DUMP_BYTES(((u8*)addr),  len, "%px: orig: ", addr);
-+			DUMP_BYTES(((u8*)bytes), len, "%px: repl: ", addr);
-+			text_poke_early(addr, bytes, len);
-+		}
-+	}
-+}
- #else /* !RETPOLINES || !CONFIG_STACK_VALIDATION */
- 
- void __init_or_module noinline apply_retpolines(s32 *start, s32 *end) { }
-+void __init_or_module noinline apply_returns(s32 *start, s32 *end) { }
- 
- #endif /* CONFIG_RETPOLINE && CONFIG_STACK_VALIDATION */
- 
-@@ -860,6 +919,7 @@ void __init alternative_instructions(voi
- 	 * those can rewrite the retpoline thunks.
- 	 */
- 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
-+	apply_returns(__return_sites, __return_sites_end);
  
  	/*
- 	 * Then patch alternatives, such that those paravirt calls that are in
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -253,7 +253,7 @@ int module_finalize(const Elf_Ehdr *hdr,
- {
- 	const Elf_Shdr *s, *text = NULL, *alt = NULL, *locks = NULL,
- 		*para = NULL, *orc = NULL, *orc_ip = NULL,
--		*retpolines = NULL, *ibt_endbr = NULL;
-+		*retpolines = NULL, *returns = NULL, *ibt_endbr = NULL;
- 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
+-	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
+-	 * required.
++	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
++	 * STIBP is not required.
+ 	 */
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+ 	    !smt_possible ||
+-	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
++	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+ 		return;
  
- 	for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) {
-@@ -271,6 +271,8 @@ int module_finalize(const Elf_Ehdr *hdr,
- 			orc_ip = s;
- 		if (!strcmp(".retpoline_sites", secstrings + s->sh_name))
- 			retpolines = s;
-+		if (!strcmp(".return_sites", secstrings + s->sh_name))
-+			returns = s;
- 		if (!strcmp(".ibt_endbr_seal", secstrings + s->sh_name))
- 			ibt_endbr = s;
+ 	/*
+@@ -1106,6 +1108,7 @@ static const char * const spectre_v2_str
+ 	[SPECTRE_V2_EIBRS]			= "Mitigation: Enhanced IBRS",
+ 	[SPECTRE_V2_EIBRS_LFENCE]		= "Mitigation: Enhanced IBRS + LFENCE",
+ 	[SPECTRE_V2_EIBRS_RETPOLINE]		= "Mitigation: Enhanced IBRS + Retpolines",
++	[SPECTRE_V2_IBRS]			= "Mitigation: IBRS",
+ };
+ 
+ static const struct {
+@@ -1123,6 +1126,7 @@ static const struct {
+ 	{ "eibrs,lfence",	SPECTRE_V2_CMD_EIBRS_LFENCE,	  false },
+ 	{ "eibrs,retpoline",	SPECTRE_V2_CMD_EIBRS_RETPOLINE,	  false },
+ 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
++	{ "ibrs",		SPECTRE_V2_CMD_IBRS,              false },
+ };
+ 
+ static void __init spec_v2_print_cond(const char *reason, bool secure)
+@@ -1185,6 +1189,24 @@ static enum spectre_v2_mitigation_cmd __
+ 		return SPECTRE_V2_CMD_AUTO;
  	}
-@@ -287,6 +289,10 @@ int module_finalize(const Elf_Ehdr *hdr,
- 		void *rseg = (void *)retpolines->sh_addr;
- 		apply_retpolines(rseg, rseg + retpolines->sh_size);
- 	}
-+	if (returns) {
-+		void *rseg = (void *)returns->sh_addr;
-+		apply_returns(rseg, rseg + returns->sh_size);
+ 
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_data.x86_vendor != X86_VENDOR_INTEL) {
++		pr_err("%s selected but not Intel CPU. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
 +	}
- 	if (alt) {
- 		/* patch .altinstructions */
- 		void *aseg = (void *)alt->sh_addr;
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -283,6 +283,13 @@ SECTIONS
- 		*(.retpoline_sites)
- 		__retpoline_sites_end = .;
- 	}
 +
-+	. = ALIGN(8);
-+	.return_sites : AT(ADDR(.return_sites) - LOAD_OFFSET) {
-+		__return_sites = .;
-+		*(.return_sites)
-+		__return_sites_end = .;
++	if (cmd == SPECTRE_V2_CMD_IBRS && !boot_cpu_has(X86_FEATURE_IBRS)) {
++		pr_err("%s selected but CPU doesn't have IBRS. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
 +	}
- #endif
++
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_has(X86_FEATURE_XENPV)) {
++		pr_err("%s selected but running as XenPV guest. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
+@@ -1224,6 +1246,14 @@ static void __init spectre_v2_select_mit
+ 			break;
+ 		}
  
- #ifdef CONFIG_X86_KERNEL_IBT
++		if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
++		    retbleed_cmd != RETBLEED_CMD_OFF &&
++		    boot_cpu_has(X86_FEATURE_IBRS) &&
++		    boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
++			mode = SPECTRE_V2_IBRS;
++			break;
++		}
++
+ 		mode = spectre_v2_select_retpoline();
+ 		break;
+ 
+@@ -1240,6 +1270,10 @@ static void __init spectre_v2_select_mit
+ 		mode = spectre_v2_select_retpoline();
+ 		break;
+ 
++	case SPECTRE_V2_CMD_IBRS:
++		mode = SPECTRE_V2_IBRS;
++		break;
++
+ 	case SPECTRE_V2_CMD_EIBRS:
+ 		mode = SPECTRE_V2_EIBRS;
+ 		break;
+@@ -1256,7 +1290,7 @@ static void __init spectre_v2_select_mit
+ 	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+ 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+ 
+-	if (spectre_v2_in_eibrs_mode(mode)) {
++	if (spectre_v2_in_ibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+ 		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+@@ -1267,6 +1301,10 @@ static void __init spectre_v2_select_mit
+ 	case SPECTRE_V2_EIBRS:
+ 		break;
+ 
++	case SPECTRE_V2_IBRS:
++		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
++		break;
++
+ 	case SPECTRE_V2_LFENCE:
+ 	case SPECTRE_V2_EIBRS_LFENCE:
+ 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
+@@ -1293,17 +1331,17 @@ static void __init spectre_v2_select_mit
+ 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
+ 
+ 	/*
+-	 * Retpoline means the kernel is safe because it has no indirect
+-	 * branches. Enhanced IBRS protects firmware too, so, enable restricted
+-	 * speculation around firmware calls only when Enhanced IBRS isn't
+-	 * supported.
++	 * Retpoline protects the kernel, but doesn't protect firmware.  IBRS
++	 * and Enhanced IBRS protect firmware too, so enable IBRS around
++	 * firmware calls only when IBRS / Enhanced IBRS aren't otherwise
++	 * enabled.
+ 	 *
+ 	 * Use "mode" to check Enhanced IBRS instead of boot_cpu_has(), because
+ 	 * the user might select retpoline on the kernel command line and if
+ 	 * the CPU supports Enhanced IBRS, kernel might un-intentionally not
+ 	 * enable IBRS around firmware calls.
+ 	 */
+-	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_eibrs_mode(mode)) {
++	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_ibrs_mode(mode)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBRS_FW);
+ 		pr_info("Enabling Restricted Speculation for firmware calls\n");
+ 	}
+@@ -2012,7 +2050,7 @@ static ssize_t mmio_stale_data_show_stat
+ 
+ static char *stibp_state(void)
+ {
+-	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
++	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+ 		return "";
+ 
+ 	switch (spectre_v2_user_stibp) {
 
 
