@@ -2,134 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DAD572027
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 18:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 916FE57206D
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 18:11:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232850AbiGLQAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 12:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40524 "EHLO
+        id S233889AbiGLQLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 12:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbiGLQAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 12:00:43 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E579C54AD;
-        Tue, 12 Jul 2022 09:00:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657641642; x=1689177642;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=AnwCkEUuxJLCRx7GhtMQk+FLBhJzxZJHbxYHUOLgTl8=;
-  b=P27IVRQNKzmaG2d+TwGBLUdc3yLbidOE8HrVpX4Tex8v3nKDhDDZaLEC
-   y9Y37xDBmVIklq0VyedAFDvj3AIH2NAMezk5ZkREzjE7y2ItwRrO6zaWV
-   eBzbnsIG6tqAP//h2UplzKn8iKxNGVDO2K6B2okAClg+uM2JYBOLxrm2P
-   jsk1az1TxX0LgMpQ9rSPQRjZy79yWTGjxgSFTPpdVkNk1c1THX8qeaodj
-   RhZ7Q5uoNj9Zz1YIj/duwRKBKHYxCe/5IkNUzMj+1ALvEHyX+YtbBzulc
-   kgiM2Vavg1k8zJNqbxMnckeyXA8PcShfOPSyvyIG8m13RG7cNkQRWeGm/
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10406"; a="265386478"
-X-IronPort-AV: E=Sophos;i="5.92,266,1650956400"; 
-   d="scan'208";a="265386478"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2022 09:00:41 -0700
-X-IronPort-AV: E=Sophos;i="5.92,266,1650956400"; 
-   d="scan'208";a="841430869"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2022 09:00:38 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1oBIJP-001Bb2-1l;
-        Tue, 12 Jul 2022 19:00:35 +0300
-Date:   Tue, 12 Jul 2022 19:00:35 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc:     Yury Norov <yury.norov@gmail.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Suresh Siddha <suresh.b.siddha@intel.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        iommu@lists.linux.dev, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iommu/vt-d: avoid invalid memory access via
- node_online(NUMA_NO_NODE)
-Message-ID: <Ys2aoyVn7lc9VIUO@smile.fi.intel.com>
-References: <20220712153836.41599-1-alexandr.lobakin@intel.com>
+        with ESMTP id S233871AbiGLQLe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 12:11:34 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FF8BDBB2
+        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 09:11:33 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id ss3so9151229ejc.11
+        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 09:11:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=21nZyc3bYwF/2+gU25HHeO3ZzKasf2bJUi7S16b1eWU=;
+        b=pI3NbHHjeGT8cStUjzd57ZsN322xV+C9lha7C8b1wE3VuJJs/n+b0oyXQ7K8ezo7l3
+         XHaUVDbZP4V7OpXayTOBsSAyezSRgijjY5vbjgL2n7O4wTaSJxOhTkpQ0DyBbuxCUsO4
+         61TINg1OkvcpA+vrgA7tmlxbzRN0INNy8TVY8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=21nZyc3bYwF/2+gU25HHeO3ZzKasf2bJUi7S16b1eWU=;
+        b=KDCvAtqRaAm8FqAyNXNqUGHnx+mddcxL3+RbSQlgrnv9dEu5dGgVgDXPlTWHDR/YW0
+         8B1bB90r4NmCo91/QxR0u7kCrk4WFIC4Ae7JtjOjbmCVUYifZre2f8ySMdMEUTJbcBwu
+         ycqFEOwShmh3SDqhHeNmdYFgJ8CajrmwESFW1GTTw5S5BEWQZH1JdwaECo3zfpiZtOMW
+         RFPmIvxWsXJdWyq/cWIZcS4plhbaPbMzva/mXx6NX1baDiABifzlyWmHxgvqHUUg9mbW
+         16+G9CD+YW5JQ8gJbOQc0UZPSAaAFSmnjJqk5T0u/8hnEBRyCLsspZ19P3oTHdBN+nVq
+         1OkA==
+X-Gm-Message-State: AJIora9Chs//6REUnFMDGzdWjZ8b2mPlDFMUO7yYQPWrphmjg1ZLTbMG
+        1f7PmyAQtgV50nATvrSDREsDSQ==
+X-Google-Smtp-Source: AGRyM1ucFy54oRu/i+plCJT5SdHJrkvWY0f3+6DSn6RQToEjw/79AD1rdgrVryHUeqQjlsWOnkyOuA==
+X-Received: by 2002:a17:906:938a:b0:726:942a:54e8 with SMTP id l10-20020a170906938a00b00726942a54e8mr24075139ejx.225.1657642291745;
+        Tue, 12 Jul 2022 09:11:31 -0700 (PDT)
+Received: from dario-ThinkPad-T14s-Gen-2i.homenet.telecomitalia.it (host-80-116-90-174.retail.telecomitalia.it. [80.116.90.174])
+        by smtp.gmail.com with ESMTPSA id h4-20020a1709066d8400b00722ea7a7febsm3911498ejt.194.2022.07.12.09.11.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Jul 2022 09:11:31 -0700 (PDT)
+From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-amarula@amarulasolutions.com,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v5 1/2] dmaengine: mxs: use platform_driver_register
+Date:   Tue, 12 Jul 2022 18:09:07 +0200
+Message-Id: <20220712160909.2054141-1-dario.binacchi@amarulasolutions.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220712153836.41599-1-alexandr.lobakin@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 12, 2022 at 05:38:36PM +0200, Alexander Lobakin wrote:
-> KASAN reports:
-> 
-> [ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> [    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
-> [    4.683454][    T0]
-> [    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
-> [    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
-> [    4.703196][    T0] Call Trace:
-> [    4.706334][    T0]  <TASK>
-> [ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> 
-> after converting the type of the first argument (@nr, bit number)
-> of arch_test_bit() from `long` to `unsigned long`[0].
-> 
-> Under certain conditions (for example, when ACPI NUMA is disabled
-> via command line), pxm_to_node() can return %NUMA_NO_NODE (-1).
-> It is valid 'magic' number of NUMA node, but not valid bit number
-> to use in bitops.
-> node_online() eventually descends to test_bit() without checking
-> for the input, assuming it's on caller side (which might be good
-> for perf-critical tasks). There, -1 becomes %ULONG_MAX which leads
-> to an insane array index when calculating bit position in memory.
-> 
-> For now, add an explicit check for @node being not %NUMA_NO_NODE
-> before calling test_bit(). The actual logics didn't change here
-> at all.
+Driver registration fails on SOC imx8mn as its supplier, the clock
+control module, is probed later than subsys initcall level. This driver
+uses platform_driver_probe which is not compatible with deferred probing
+and won't be probed again later if probe function fails due to clock not
+being available at that time.
 
-Yes, and bitops performance is critical, so it's caller's responsibility to
-supply correct bit number.
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+This patch replaces the use of platform_driver_probe with
+platform_driver_register which will allow probing the driver later again
+when the clock control module will be available.
 
-> Fixes: ee34b32d8c29 ("dmar: support for parsing Remapping Hardware Static Affinity structure")
-> Cc: stable@vger.kernel.org # 2.6.33+
-> Reported-by: kernel test robot <oliver.sang@intel.com>
-> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-> ---
->  drivers/iommu/intel/dmar.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-> index 9699ca101c62..64b14ac4c7b0 100644
-> --- a/drivers/iommu/intel/dmar.c
-> +++ b/drivers/iommu/intel/dmar.c
-> @@ -494,7 +494,7 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_header *header, void *arg)
->  		if (drhd->reg_base_addr == rhsa->base_address) {
->  			int node = pxm_to_node(rhsa->proximity_domain);
->  
-> -			if (!node_online(node))
-> +			if (node != NUMA_NO_NODE && !node_online(node))
->  				node = NUMA_NO_NODE;
->  			drhd->iommu->node = node;
->  			return 0;
-> -- 
-> 2.36.1
-> 
+Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Cc: stable@vger.kernel.org
 
+---
+
+Changes in v5:
+- Update the commit message.
+- Create a new patch to remove the warning generated by this patch.
+
+Changes in v4:
+- Restore __init in front of mxs_dma_probe() definition.
+- Rename the mxs_dma_driver variable to mxs_dma_driver_probe.
+- Update the commit message.
+- Use builtin_platform_driver() instead of module_platform_driver().
+
+Changes in v3:
+- Restore __init in front of mxs_dma_init() definition.
+
+Changes in v2:
+- Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
+
+ drivers/dma/mxs-dma.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+index 994fc4d2aca4..18f8154b859b 100644
+--- a/drivers/dma/mxs-dma.c
++++ b/drivers/dma/mxs-dma.c
+@@ -839,10 +839,6 @@ static struct platform_driver mxs_dma_driver = {
+ 		.name	= "mxs-dma",
+ 		.of_match_table = mxs_dma_dt_ids,
+ 	},
++	.probe = mxs_dma_probe,
+ };
+-
+-static int __init mxs_dma_module_init(void)
+-{
+-	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+-}
+-subsys_initcall(mxs_dma_module_init);
++builtin_platform_driver(mxs_dma_driver);
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.32.0
 
