@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6442C57234E
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:47:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0283F572350
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234296AbiGLSq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:46:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33184 "EHLO
+        id S234379AbiGLSq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:46:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234184AbiGLSpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:45:41 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1836FDC184;
-        Tue, 12 Jul 2022 11:42:39 -0700 (PDT)
+        with ESMTP id S234358AbiGLSpp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:45:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27E2DC18C;
+        Tue, 12 Jul 2022 11:42:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 008D2CE1D8E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51E4661AC7;
+        Tue, 12 Jul 2022 18:42:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1774BC3411E;
         Tue, 12 Jul 2022 18:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A2DC3411C;
-        Tue, 12 Jul 2022 18:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651356;
-        bh=QLUaL63/ytWAUClgmAMMnqPtqDpfAEvNGe4wTT9p+hI=;
+        s=korg; t=1657651359;
+        bh=UJTwM9IbOrqoHdkWkc3PKEHG1lSMjA/Rmh5gdrCnikc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6jnVWlLKetyoDbIi2OX0GBSPPhwK+1nnFKhTe49gJEyLAeTAhK/u8FUb10Ppn6FA
-         H6WhjEefc1W4kn+Tc476AJIs9IpdCmjWcttYdxJlXAs6cdFcNuxlqRfk7k06LU3N4O
-         t45vf8MVPRenaNcfRCAbcVfPFhNhCN/e+E4dvVMI=
+        b=KshNpsiG4W2Q126gRCd5rMkpSfGddEO60p95GkS3sjLPSjM23OEfZ9gv8VuUZp+b6
+         4kyqjP6kRWSrEXOY9lYo4h4ukCspkvzQcNb0G+YH5aN6uAmIG/+MQsQVbFwRdemnhB
+         9cc7bgKsICouoEmCtGW5T/Dxb2syPbCQTWJE6kPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,9 +38,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexei Starovoitov <ast@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 052/130] x86/asm: Fixup odd GEN-for-each-reg.h usage
-Date:   Tue, 12 Jul 2022 20:38:18 +0200
-Message-Id: <20220712183248.839689209@linuxfoundation.org>
+Subject: [PATCH 5.10 053/130] x86/retpoline: Move the retpoline thunk declarations to nospec-branch.h
+Date:   Tue, 12 Jul 2022 20:38:19 +0200
+Message-Id: <20220712183248.889104719@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -60,51 +60,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit b6d3d9944bd7c9e8c06994ead3c9952f673f2a66 upstream.
+commit 6fda8a38865607db739be3e567a2387376222dbd upstream.
 
-Currently GEN-for-each-reg.h usage leaves GEN defined, relying on any
-subsequent usage to start with #undef, which is rude.
+Because it makes no sense to split the retpoline gunk over multiple
+headers.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Borislav Petkov <bp@suse.de>
 Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120310.041792350@infradead.org
+Link: https://lore.kernel.org/r/20211026120310.106290934@infradead.org
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/asm-prototypes.h |    2 +-
- arch/x86/lib/retpoline.S              |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/asm-prototypes.h |    8 --------
+ arch/x86/include/asm/nospec-branch.h  |    7 +++++++
+ arch/x86/net/bpf_jit_comp.c           |    1 -
+ 3 files changed, 7 insertions(+), 9 deletions(-)
 
 --- a/arch/x86/include/asm/asm-prototypes.h
 +++ b/arch/x86/include/asm/asm-prototypes.h
-@@ -19,9 +19,9 @@ extern void cmpxchg8b_emu(void);
+@@ -17,11 +17,3 @@
+ extern void cmpxchg8b_emu(void);
+ #endif
+ 
+-#ifdef CONFIG_RETPOLINE
+-
+-#define GEN(reg) \
+-	extern asmlinkage void __x86_indirect_thunk_ ## reg (void);
+-#include <asm/GEN-for-each-reg.h>
+-#undef GEN
+-
+-#endif /* CONFIG_RETPOLINE */
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -5,6 +5,7 @@
+ 
+ #include <linux/static_key.h>
+ #include <linux/objtool.h>
++#include <linux/linkage.h>
+ 
+ #include <asm/alternative.h>
+ #include <asm/cpufeatures.h>
+@@ -118,6 +119,12 @@
+ 	".popsection\n\t"
  
  #ifdef CONFIG_RETPOLINE
- 
--#undef GEN
- #define GEN(reg) \
- 	extern asmlinkage void __x86_indirect_thunk_ ## reg (void);
- #include <asm/GEN-for-each-reg.h>
-+#undef GEN
- 
- #endif /* CONFIG_RETPOLINE */
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -55,10 +55,10 @@ SYM_FUNC_END(__x86_indirect_thunk_\reg)
- #define __EXPORT_THUNK(sym)	_ASM_NOKPROBE(sym); EXPORT_SYMBOL(sym)
- #define EXPORT_THUNK(reg)	__EXPORT_THUNK(__x86_indirect_thunk_ ## reg)
- 
--#undef GEN
- #define GEN(reg) THUNK reg
- #include <asm/GEN-for-each-reg.h>
--
- #undef GEN
 +
- #define GEN(reg) EXPORT_THUNK(reg)
- #include <asm/GEN-for-each-reg.h>
++#define GEN(reg) \
++	extern asmlinkage void __x86_indirect_thunk_ ## reg (void);
++#include <asm/GEN-for-each-reg.h>
 +#undef GEN
++
+ #ifdef CONFIG_X86_64
+ 
+ /*
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -15,7 +15,6 @@
+ #include <asm/set_memory.h>
+ #include <asm/nospec-branch.h>
+ #include <asm/text-patching.h>
+-#include <asm/asm-prototypes.h>
+ 
+ static u8 *emit_code(u8 *ptr, u32 bytes, unsigned int len)
+ {
 
 
