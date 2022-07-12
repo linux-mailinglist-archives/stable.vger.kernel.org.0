@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0D65724FE
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B753E5723D9
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235674AbiGLTIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:08:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
+        id S234529AbiGLSxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:53:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235585AbiGLTH5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:07:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21070E52B4;
-        Tue, 12 Jul 2022 11:51:44 -0700 (PDT)
+        with ESMTP id S234554AbiGLSwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:52:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F26DAB83;
+        Tue, 12 Jul 2022 11:45:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66A5DB81BBE;
-        Tue, 12 Jul 2022 18:51:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEFC2C3411E;
-        Tue, 12 Jul 2022 18:51:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA82160ADD;
+        Tue, 12 Jul 2022 18:45:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C0EBC3411C;
+        Tue, 12 Jul 2022 18:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651895;
-        bh=cl1JzN7F0eth4JOetCv10eNt1GVlMIXPFGGABdD1LSM=;
+        s=korg; t=1657651514;
+        bh=3SxuAmCWCYNcIuuFMjjQd8FxJhJUQ1ERaFp9yFZaXFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcLwf5ZcJfGCxeCAnmTISKTFtlQaJTmiSjKPYSX9saCVYgiOGMR3Yp1DU78J24mtP
-         TRFCWLum5buX+U9w6/bO4v6opvKoiBRqlDU6H1512LsTtvYcdtGkrQmBzVzYkcZeDE
-         SqKeXTXt1MzJm9x86KAIAe37eN5mPQUIZZOhMkYg=
+        b=xP5MyZrnsbQun/EwNQrDM+sTSa+Jx9PbgsBF9diF+2Vf8YtQKtydpSFPQbEcqetuN
+         fAX8ADQCrTzkqXC2a3HxdB1LUAC2jpIh1ecbSH6wLBzHnwgT87m5/62ItnvU49l2b4
+         hZJ+aCHB+bHj0YcC9Fi2TdaEzEvh2jAz2SYB81NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,13 +35,14 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 07/61] x86/cpufeatures: Move RETPOLINE flags to word 11
-Date:   Tue, 12 Jul 2022 20:39:04 +0200
-Message-Id: <20220712183237.243340693@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 099/130] x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
+Date:   Tue, 12 Jul 2022 20:39:05 +0200
+Message-Id: <20220712183251.028476558@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,45 +59,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit a883d624aed463c84c22596006e5a96f5b44db31 upstream.
+commit caa0ff24d5d0e02abce5e65c3d2b7f20a6617be5 upstream.
 
-In order to extend the RETPOLINE features to 4, move them to word 11
-where there is still room. This mostly keeps DISABLE_RETPOLINE
-simple.
+Due to TIF_SSBD and TIF_SPEC_IB the actual IA32_SPEC_CTRL value can
+differ from x86_spec_ctrl_base. As such, keep a per-CPU value
+reflecting the current task's MSR content.
+
+  [jpoimboe: rename]
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    1 +
+ arch/x86/kernel/cpu/bugs.c           |   28 +++++++++++++++++++++++-----
+ arch/x86/kernel/process.c            |    2 +-
+ 3 files changed, 25 insertions(+), 6 deletions(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -203,8 +203,8 @@
- #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
- /* FREE!                                ( 7*32+10) */
- #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
--#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
--#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
-+/* FREE!				( 7*32+12) */
-+/* FREE!				( 7*32+13) */
- #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
- #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
- #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
-@@ -295,6 +295,10 @@
- #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
- #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
- #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
-+/* FREE!				(11*32+10) */
-+/* FREE!				(11*32+11) */
-+#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
-+#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -254,6 +254,7 @@ static inline void indirect_branch_predi
  
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++extern void write_spec_ctrl_current(u64 val);
+ 
+ /*
+  * With retpoline, we must use IBRS to restrict branch prediction
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -48,12 +48,30 @@ static void __init taa_select_mitigation
+ static void __init mmio_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
+ 
+-/* The base value of the SPEC_CTRL MSR that always has to be preserved. */
++/* The base value of the SPEC_CTRL MSR without task-specific bits set */
+ u64 x86_spec_ctrl_base;
+ EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
++
++/* The current value of the SPEC_CTRL MSR with task-specific bits set */
++DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
++EXPORT_SYMBOL_GPL(x86_spec_ctrl_current);
++
+ static DEFINE_MUTEX(spec_ctrl_mutex);
+ 
+ /*
++ * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
++ * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
++ */
++void write_spec_ctrl_current(u64 val)
++{
++	if (this_cpu_read(x86_spec_ctrl_current) == val)
++		return;
++
++	this_cpu_write(x86_spec_ctrl_current, val);
++	wrmsrl(MSR_IA32_SPEC_CTRL, val);
++}
++
++/*
+  * The vendor and possibly platform specific bits which can be modified in
+  * x86_spec_ctrl_base.
+  */
+@@ -1235,7 +1253,7 @@ static void __init spectre_v2_select_mit
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 	}
+ 
+ 	switch (mode) {
+@@ -1290,7 +1308,7 @@ static void __init spectre_v2_select_mit
+ 
+ static void update_stibp_msr(void * __unused)
+ {
+-	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++	write_spec_ctrl_current(x86_spec_ctrl_base);
+ }
+ 
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1533,7 +1551,7 @@ static enum ssb_mitigation __init __ssb_
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++			write_spec_ctrl_current(x86_spec_ctrl_base);
+ 		}
+ 	}
+ 
+@@ -1751,7 +1769,7 @@ int arch_prctl_spec_ctrl_get(struct task
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -556,7 +556,7 @@ static __always_inline void __speculatio
+ 	}
+ 
+ 	if (updmsr)
+-		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
++		write_spec_ctrl_current(msr);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 
 
