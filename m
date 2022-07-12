@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6029572507
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E2057249A
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235566AbiGLTKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:10:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37872 "EHLO
+        id S235457AbiGLTFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235287AbiGLTIV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:08:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B779FD512;
-        Tue, 12 Jul 2022 11:51:52 -0700 (PDT)
+        with ESMTP id S235638AbiGLTEs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:04:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2AEDE1A8;
+        Tue, 12 Jul 2022 11:50:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 795A1B81BB9;
-        Tue, 12 Jul 2022 18:51:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4482C3411C;
-        Tue, 12 Jul 2022 18:51:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6D0EB81BBD;
+        Tue, 12 Jul 2022 18:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 257A8C3411C;
+        Tue, 12 Jul 2022 18:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651904;
-        bh=CFdEholKIcIh8FP/B1CNlCU+W/FG+YpGdXpUqd9CToc=;
+        s=korg; t=1657651841;
+        bh=R/EPJn3x6F61ZOxxxOhGBMfTTnFt4vNuH1TXJ/oY05M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duX+PoA8Zy3ZVE9WjWHmV6CL5iEqnPHhqRp8nKYwFE/Y8GZ7vDieWBQ64uiHPovGY
-         NJN82tcvr7cZLlCHUh6AjkBxoW/lQdmv2TBoUmnERUGQ0RVyqSFoRHln6u+qmfZTFI
-         RuoDdW5fd40X8EpijfyaN3CqJva7LUARuTQu6F+E=
+        b=sFMboPndOwb7tciS96mnxAnreEjNGb/ekt54CxdvXUzS/M5Q1H16PBJJFyd1QaEu6
+         uDTQR3kxTHV9Y/bPzktEU72A0uLv9637Mc+XUXq6iUxEj01ACEN2VG45Oph0rDLi0g
+         KYgLvzR4ptxa6EEYg2RX+i3cgEC5ow/Q5Orj9mEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 18/61] x86/vsyscall_emu/64: Dont use RET in vsyscall emulation
+Subject: [PATCH 5.15 45/78] x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
 Date:   Tue, 12 Jul 2022 20:39:15 +0200
-Message-Id: <20220712183237.676882502@linuxfoundation.org>
+Message-Id: <20220712183240.674777614@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,9 +58,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 15583e514eb16744b80be85dea0774ece153177d upstream.
+commit caa0ff24d5d0e02abce5e65c3d2b7f20a6617be5 upstream.
 
-This is userspace code and doesn't play by the normal kernel rules.
+Due to TIF_SSBD and TIF_SPEC_IB the actual IA32_SPEC_CTRL value can
+differ from x86_spec_ctrl_base. As such, keep a per-CPU value
+reflecting the current task's MSR content.
+
+  [jpoimboe: rename]
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
@@ -69,34 +73,101 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/vsyscall/vsyscall_emu_64.S |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    1 +
+ arch/x86/kernel/cpu/bugs.c           |   28 +++++++++++++++++++++++-----
+ arch/x86/kernel/process.c            |    2 +-
+ 3 files changed, 25 insertions(+), 6 deletions(-)
 
---- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-+++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-@@ -19,17 +19,20 @@ __vsyscall_page:
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -254,6 +254,7 @@ static inline void indirect_branch_predi
  
- 	mov $__NR_gettimeofday, %rax
- 	syscall
--	RET
-+	ret
-+	int3
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++extern void write_spec_ctrl_current(u64 val);
  
- 	.balign 1024, 0xcc
- 	mov $__NR_time, %rax
- 	syscall
--	RET
-+	ret
-+	int3
+ /*
+  * With retpoline, we must use IBRS to restrict branch prediction
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -49,12 +49,30 @@ static void __init mmio_select_mitigatio
+ static void __init srbds_select_mitigation(void);
+ static void __init l1d_flush_select_mitigation(void);
  
- 	.balign 1024, 0xcc
- 	mov $__NR_getcpu, %rax
- 	syscall
--	RET
-+	ret
-+	int3
+-/* The base value of the SPEC_CTRL MSR that always has to be preserved. */
++/* The base value of the SPEC_CTRL MSR without task-specific bits set */
+ u64 x86_spec_ctrl_base;
+ EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
++
++/* The current value of the SPEC_CTRL MSR with task-specific bits set */
++DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
++EXPORT_SYMBOL_GPL(x86_spec_ctrl_current);
++
+ static DEFINE_MUTEX(spec_ctrl_mutex);
  
- 	.balign 4096, 0xcc
+ /*
++ * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
++ * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
++ */
++void write_spec_ctrl_current(u64 val)
++{
++	if (this_cpu_read(x86_spec_ctrl_current) == val)
++		return;
++
++	this_cpu_write(x86_spec_ctrl_current, val);
++	wrmsrl(MSR_IA32_SPEC_CTRL, val);
++}
++
++/*
+  * The vendor and possibly platform specific bits which can be modified in
+  * x86_spec_ctrl_base.
+  */
+@@ -1272,7 +1290,7 @@ static void __init spectre_v2_select_mit
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 	}
  
+ 	switch (mode) {
+@@ -1327,7 +1345,7 @@ static void __init spectre_v2_select_mit
+ 
+ static void update_stibp_msr(void * __unused)
+ {
+-	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++	write_spec_ctrl_current(x86_spec_ctrl_base);
+ }
+ 
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1570,7 +1588,7 @@ static enum ssb_mitigation __init __ssb_
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++			write_spec_ctrl_current(x86_spec_ctrl_base);
+ 		}
+ 	}
+ 
+@@ -1821,7 +1839,7 @@ int arch_prctl_spec_ctrl_get(struct task
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -584,7 +584,7 @@ static __always_inline void __speculatio
+ 	}
+ 
+ 	if (updmsr)
+-		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
++		write_spec_ctrl_current(msr);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 
 
