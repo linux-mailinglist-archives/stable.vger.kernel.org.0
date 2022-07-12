@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D17572407
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0087572491
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234513AbiGLSzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56170 "EHLO
+        id S235346AbiGLTCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:02:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234848AbiGLSy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:54:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A269EA14C;
-        Tue, 12 Jul 2022 11:46:11 -0700 (PDT)
+        with ESMTP id S235166AbiGLTCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:02:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3601C193FB;
+        Tue, 12 Jul 2022 11:49:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94B97B81B96;
-        Tue, 12 Jul 2022 18:46:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9FFEC3411C;
-        Tue, 12 Jul 2022 18:46:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8770B81BB9;
+        Tue, 12 Jul 2022 18:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502B6C3411E;
+        Tue, 12 Jul 2022 18:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651568;
-        bh=TxC15aCWJTESKfDiZYzcZB3KhHflPWx08diIkyKVH6A=;
+        s=korg; t=1657651772;
+        bh=u+BhN/gg3dg1PEa2+ENCjYpRMt1S2L7NIfbqX1tzYLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1x54Bmecmv47bACT1rc1vOK/1eaD2eN0gUxliK8kAtvSxkANzjZE/0wy0rKkMhO63
-         /JOlRUB/0I4YK5c3eAJ+MZ23qAnpAeqDDNeO6Rkxb8xhrEVABMa50iP/WzQh5ftITx
-         pCij7jOv4XdkHUapPIbmvoEJwEqDaRY970cVadCU=
+        b=ULGBRUvthY53Svc7xFwx8fyRKS8ThIupNg/j/A5gwvEtiVJ20H9X5zplxJXjk8bRJ
+         SP1cGxb9h4jCGdlY/7rKvEWfT+Ham/NJ/O5HE4stqDu3Z5cPpGoarpL/Fg4z+cVOT9
+         L6QAsjp5TY4SnFIsWE4A6LVGR17I7kOP5ghxAQaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 117/130] objtool: Re-add UNWIND_HINT_{SAVE_RESTORE}
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 53/78] x86/xen: Rename SYS* entry points
 Date:   Tue, 12 Jul 2022 20:39:23 +0200
-Message-Id: <20220712183251.857705511@linuxfoundation.org>
+Message-Id: <20220712183241.025598382@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,185 +56,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 8faea26e611189e933ea2281975ff4dc7c1106b6 upstream.
+commit b75b7f8ef1148be1b9321ffc2f6c19238904b438 upstream.
 
-Commit
+Native SYS{CALL,ENTER} entry points are called
+entry_SYS{CALL,ENTER}_{64,compat}, make sure the Xen versions are
+named consistently.
 
-  c536ed2fffd5 ("objtool: Remove SAVE/RESTORE hints")
-
-removed the save/restore unwind hints because they were no longer
-needed. Now they're going to be needed again so re-add them.
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/unwind_hints.h |   12 +++++++++-
- include/linux/objtool.h             |    6 +++--
- tools/include/linux/objtool.h       |    6 +++--
- tools/objtool/check.c               |   40 ++++++++++++++++++++++++++++++++++++
- tools/objtool/check.h               |    1 
- 5 files changed, 59 insertions(+), 6 deletions(-)
+ arch/x86/xen/setup.c   |    6 +++---
+ arch/x86/xen/xen-asm.S |   20 ++++++++++----------
+ arch/x86/xen/xen-ops.h |    6 +++---
+ 3 files changed, 16 insertions(+), 16 deletions(-)
 
---- a/arch/x86/include/asm/unwind_hints.h
-+++ b/arch/x86/include/asm/unwind_hints.h
-@@ -8,11 +8,11 @@
- #ifdef __ASSEMBLY__
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -922,7 +922,7 @@ void xen_enable_sysenter(void)
+ 	if (!boot_cpu_has(sysenter_feature))
+ 		return;
  
- .macro UNWIND_HINT_EMPTY
--	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_CALL end=1
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_CALL end=1
- .endm
+-	ret = register_callback(CALLBACKTYPE_sysenter, xen_sysenter_target);
++	ret = register_callback(CALLBACKTYPE_sysenter, xen_entry_SYSENTER_compat);
+ 	if(ret != 0)
+ 		setup_clear_cpu_cap(sysenter_feature);
+ }
+@@ -931,7 +931,7 @@ void xen_enable_syscall(void)
+ {
+ 	int ret;
  
- .macro UNWIND_HINT_ENTRY
--	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_ENTRY end=1
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_ENTRY end=1
- .endm
+-	ret = register_callback(CALLBACKTYPE_syscall, xen_syscall_target);
++	ret = register_callback(CALLBACKTYPE_syscall, xen_entry_SYSCALL_64);
+ 	if (ret != 0) {
+ 		printk(KERN_ERR "Failed to set syscall callback: %d\n", ret);
+ 		/* Pretty fatal; 64-bit userspace has no other
+@@ -940,7 +940,7 @@ void xen_enable_syscall(void)
  
- .macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 partial=0
-@@ -56,6 +56,14 @@
- 	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=8 type=UNWIND_HINT_TYPE_FUNC
- .endm
- 
-+.macro UNWIND_HINT_SAVE
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_SAVE
-+.endm
-+
-+.macro UNWIND_HINT_RESTORE
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_RESTORE
-+.endm
-+
- #endif /* __ASSEMBLY__ */
- 
- #endif /* _ASM_X86_UNWIND_HINTS_H */
---- a/include/linux/objtool.h
-+++ b/include/linux/objtool.h
-@@ -40,6 +40,8 @@ struct unwind_hint {
- #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
- #define UNWIND_HINT_TYPE_FUNC		3
- #define UNWIND_HINT_TYPE_ENTRY		4
-+#define UNWIND_HINT_TYPE_SAVE		5
-+#define UNWIND_HINT_TYPE_RESTORE	6
- 
- #ifdef CONFIG_STACK_VALIDATION
- 
-@@ -102,7 +104,7 @@ struct unwind_hint {
-  * the debuginfo as necessary.  It will also warn if it sees any
-  * inconsistencies.
+ 	if (boot_cpu_has(X86_FEATURE_SYSCALL32)) {
+ 		ret = register_callback(CALLBACKTYPE_syscall32,
+-					xen_syscall32_target);
++					xen_entry_SYSCALL_compat);
+ 		if (ret != 0)
+ 			setup_clear_cpu_cap(X86_FEATURE_SYSCALL32);
+ 	}
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -227,7 +227,7 @@ SYM_CODE_END(xenpv_restore_regs_and_retu
   */
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .Lunwind_hint_ip_\@:
- 	.pushsection .discard.unwind_hints
- 		/* struct unwind_hint */
-@@ -126,7 +128,7 @@ struct unwind_hint {
- #define STACK_FRAME_NON_STANDARD(func)
- #else
- #define ANNOTATE_INTRA_FUNCTION_CALL
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .endm
+ 
+ /* Normal 64-bit system call target */
+-SYM_CODE_START(xen_syscall_target)
++SYM_CODE_START(xen_entry_SYSCALL_64)
+ 	UNWIND_HINT_EMPTY
+ 	popq %rcx
+ 	popq %r11
+@@ -241,12 +241,12 @@ SYM_CODE_START(xen_syscall_target)
+ 	movq $__USER_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_64_after_hwframe
+-SYM_CODE_END(xen_syscall_target)
++SYM_CODE_END(xen_entry_SYSCALL_64)
+ 
+ #ifdef CONFIG_IA32_EMULATION
+ 
+ /* 32-bit compat syscall target */
+-SYM_CODE_START(xen_syscall32_target)
++SYM_CODE_START(xen_entry_SYSCALL_compat)
+ 	UNWIND_HINT_EMPTY
+ 	popq %rcx
+ 	popq %r11
+@@ -260,10 +260,10 @@ SYM_CODE_START(xen_syscall32_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_compat_after_hwframe
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ /* 32-bit compat sysenter target */
+-SYM_CODE_START(xen_sysenter_target)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
+ 	UNWIND_HINT_EMPTY
+ 	/*
+ 	 * NB: Xen is polite and clears TF from EFLAGS for us.  This means
+@@ -281,18 +281,18 @@ SYM_CODE_START(xen_sysenter_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSENTER_compat_after_hwframe
+-SYM_CODE_END(xen_sysenter_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
+ 
+ #else /* !CONFIG_IA32_EMULATION */
+ 
+-SYM_CODE_START(xen_syscall32_target)
+-SYM_CODE_START(xen_sysenter_target)
++SYM_CODE_START(xen_entry_SYSCALL_compat)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
+ 	UNWIND_HINT_EMPTY
+ 	lea 16(%rsp), %rsp	/* strip %rcx, %r11 */
+ 	mov $-ENOSYS, %rax
+ 	pushq $0
+ 	jmp hypercall_iret
+-SYM_CODE_END(xen_sysenter_target)
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ #endif	/* CONFIG_IA32_EMULATION */
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -10,10 +10,10 @@
+ /* These are code, but not functions.  Defined in entry.S */
+ extern const char xen_failsafe_callback[];
+ 
+-void xen_sysenter_target(void);
++void xen_entry_SYSENTER_compat(void);
+ #ifdef CONFIG_X86_64
+-void xen_syscall_target(void);
+-void xen_syscall32_target(void);
++void xen_entry_SYSCALL_64(void);
++void xen_entry_SYSCALL_compat(void);
  #endif
  
---- a/tools/include/linux/objtool.h
-+++ b/tools/include/linux/objtool.h
-@@ -40,6 +40,8 @@ struct unwind_hint {
- #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
- #define UNWIND_HINT_TYPE_FUNC		3
- #define UNWIND_HINT_TYPE_ENTRY		4
-+#define UNWIND_HINT_TYPE_SAVE		5
-+#define UNWIND_HINT_TYPE_RESTORE	6
- 
- #ifdef CONFIG_STACK_VALIDATION
- 
-@@ -102,7 +104,7 @@ struct unwind_hint {
-  * the debuginfo as necessary.  It will also warn if it sees any
-  * inconsistencies.
-  */
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .Lunwind_hint_ip_\@:
- 	.pushsection .discard.unwind_hints
- 		/* struct unwind_hint */
-@@ -126,7 +128,7 @@ struct unwind_hint {
- #define STACK_FRAME_NON_STANDARD(func)
- #else
- #define ANNOTATE_INTRA_FUNCTION_CALL
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .endm
- #endif
- 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1752,6 +1752,17 @@ static int read_unwind_hints(struct objt
- 
- 		insn->hint = true;
- 
-+		if (hint->type == UNWIND_HINT_TYPE_SAVE) {
-+			insn->hint = false;
-+			insn->save = true;
-+			continue;
-+		}
-+
-+		if (hint->type == UNWIND_HINT_TYPE_RESTORE) {
-+			insn->restore = true;
-+			continue;
-+		}
-+
- 		if (hint->type == UNWIND_HINT_TYPE_REGS_PARTIAL) {
- 			struct symbol *sym = find_symbol_by_offset(insn->sec, insn->offset);
- 
-@@ -2847,6 +2858,35 @@ static int validate_branch(struct objtoo
- 			state.instr += insn->instr;
- 
- 		if (insn->hint) {
-+			if (insn->restore) {
-+				struct instruction *save_insn, *i;
-+
-+				i = insn;
-+				save_insn = NULL;
-+
-+				sym_for_each_insn_continue_reverse(file, func, i) {
-+					if (i->save) {
-+						save_insn = i;
-+						break;
-+					}
-+				}
-+
-+				if (!save_insn) {
-+					WARN_FUNC("no corresponding CFI save for CFI restore",
-+						  sec, insn->offset);
-+					return 1;
-+				}
-+
-+				if (!save_insn->visited) {
-+					WARN_FUNC("objtool isn't smart enough to handle this CFI save/restore combo",
-+						  sec, insn->offset);
-+					return 1;
-+				}
-+
-+				insn->cfi = save_insn->cfi;
-+				nr_cfi_reused++;
-+			}
-+
- 			state.cfi = *insn->cfi;
- 		} else {
- 			/* XXX track if we actually changed state.cfi */
---- a/tools/objtool/check.h
-+++ b/tools/objtool/check.h
-@@ -47,6 +47,7 @@ struct instruction {
- 	unsigned long immediate;
- 	bool dead_end, ignore, ignore_alts;
- 	bool hint;
-+	bool save, restore;
- 	bool retpoline_safe;
- 	bool entry;
- 	s8 instr;
+ extern void *xen_initial_gdt;
 
 
