@@ -2,112 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D180D5713A0
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 09:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73EB7571402
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 10:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232518AbiGLH4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 03:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58108 "EHLO
+        id S232598AbiGLIJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 04:09:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231804AbiGLH4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 03:56:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686289D502;
-        Tue, 12 Jul 2022 00:56:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17CD5B81614;
-        Tue, 12 Jul 2022 07:56:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D570C341C0;
-        Tue, 12 Jul 2022 07:56:05 +0000 (UTC)
-From:   Huacai Chen <chenhuacai@loongson.cn>
-To:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc:     loongarch@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Huacai Chen <chenhuacai@gmail.com>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
-        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
-Subject: [PATCH 6/6] UM: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-Date:   Tue, 12 Jul 2022 15:52:55 +0800
-Message-Id: <20220712075255.1345991-6-chenhuacai@loongson.cn>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220712075255.1345991-1-chenhuacai@loongson.cn>
-References: <20220712075255.1345991-1-chenhuacai@loongson.cn>
+        with ESMTP id S232573AbiGLIJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 04:09:22 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8673E558E0;
+        Tue, 12 Jul 2022 01:09:17 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id f11so6032004pgj.7;
+        Tue, 12 Jul 2022 01:09:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mf64p6IVaP9Hci3QPNE+Bn67PkfAD3xjmW63tzAmGCQ=;
+        b=BPXMUa/9LvoaABZiKfxwgew6ncC6tYy8HoIjGTUbJ+MZUKJmacs+lKcuehLWsZ3Fi4
+         EXnlf/ao8fcTonT0pTgNZrmfOnxyJS/C7FJGsRDIo/bVyEP0rGBGrat4k/6/V7+dyHvT
+         rEYMsztmYeO7uDri7lh3dynDi2xQRVs4CQbfkMutrOlUgXKsy/Su6NBvRKM5vnhXJexJ
+         rYHKLiZD4XdG7jJ2UGDCeZHQ0SiOyLNrLgPcXJRzPAXjfnXIp4C0Ifgon9tqe1NCQeX5
+         aG2mTv1zbmJFRyE0dr+nbzMFoxjxPTzHIDjZ1K0q3Rpw9L0QpYR+z+gKyk5bCvHXaNPu
+         smtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=mf64p6IVaP9Hci3QPNE+Bn67PkfAD3xjmW63tzAmGCQ=;
+        b=m5Qn9Z3ibaav5qHgW6dHgm7UMxArSU3zFy5fAPr3foDDFJIzH8hl67c7dWPYXAsnKZ
+         ra3PJgpdR8tURDPDwuu+rfhC6znLArqVxL4DOhphV18r/sVnSX4BSw66gG3Fll3p37WG
+         OeBMLksHIrtk9Qtd2rG2ONH84NIcF7aSX9lWFRhv1wxhhXRDYfSzFXQLfaDAtxqyNkAs
+         fLf/ntfyZAHGZ+wr3PXwvxHnA1TzR1TqnP2wL7gTTL5m3XaylSBDCnj3KYHJyzo3vohw
+         9TZNrG/VYQThHYfZ0SdE2MHDNr/+rGUWADRryjtyjOzaQm/18qQoyjGseR8JAedkM94c
+         HAeg==
+X-Gm-Message-State: AJIora9b6uavGQWAEpIXyyUIMYamXjYHIIdIwL3QlmkdTTcd2pSuxsGh
+        r3baGsUT2c4oZGoixuvG+So=
+X-Google-Smtp-Source: AGRyM1sWcHqPHK0pmVykvXon8fJB8LDcUlnnVllisCl+oHyWzkXZ4nzas5Mwu73MdNC1QssldxIc/g==
+X-Received: by 2002:a63:481a:0:b0:411:7951:cbcd with SMTP id v26-20020a63481a000000b004117951cbcdmr19424157pga.66.1657613356965;
+        Tue, 12 Jul 2022 01:09:16 -0700 (PDT)
+Received: from sol (110-174-58-111.static.tpgi.com.au. [110.174.58.111])
+        by smtp.gmail.com with ESMTPSA id z16-20020aa79590000000b005289cade5b0sm6079093pfj.124.2022.07.12.01.09.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Jul 2022 01:09:16 -0700 (PDT)
+Date:   Tue, 12 Jul 2022 16:09:11 +0800
+From:   Kent Gibson <warthog618@gmail.com>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] gpio: sim: fix the chip_name configfs item
+Message-ID: <20220712080911.GA240577@sol>
+References: <20220712074055.10588-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220712074055.10588-1-brgl@bgdev.pl>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-cpu_max_bits_warn() generates a runtime warning similar as below while
-we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-instead of NR_CPUS to iterate CPUs.
+On Tue, Jul 12, 2022 at 09:40:55AM +0200, Bartosz Golaszewski wrote:
+> The chip_name configs attribute always displays the device name of the
+> first GPIO bank because the logic of the relevant function is simply
+> wrong.
+> 
+> Fix it by correctly comparing the bank's swnode against the GPIO
+> device's children.
+> 
+> Fixes: cb8c474e79be ("gpio: sim: new testing module")
+> Cc: stable@vger.kernel.org
+> Reported-by: Kent Gibson <warthog618@gmail.com>
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> ---
+> v1 -> v2:
+> - use device_match_fwnode for shorter code
+> 
 
-[    3.052463] ------------[ cut here ]------------
-[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-[    3.070072] Modules linked in: efivarfs autofs4
-[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-[    3.195868]         ...
-[    3.199917] Call Trace:
-[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+Works for me.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
----
- arch/um/kernel/um_arch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-and-tested-by: Kent Gibson <warthog618@gmail.com>
 
-diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-index a149a5e9a16a..03177c9907d5 100644
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -93,7 +93,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
- 
- static void *c_start(struct seq_file *m, loff_t *pos)
- {
--	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
-+	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
- }
- 
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
--- 
-2.31.1
-
+Cheers,
+Kent.
