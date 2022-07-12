@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A36572477
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D84855723BC
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235024AbiGLTAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:00:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47228 "EHLO
+        id S234484AbiGLSw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235232AbiGLS7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:59:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BA4F2723;
-        Tue, 12 Jul 2022 11:48:04 -0700 (PDT)
+        with ESMTP id S234159AbiGLSv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:51:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEB9E5DC4;
+        Tue, 12 Jul 2022 11:44:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFDE2B81BAB;
-        Tue, 12 Jul 2022 18:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D57C341C0;
-        Tue, 12 Jul 2022 18:48:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8C3060AC9;
+        Tue, 12 Jul 2022 18:44:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7FBCC3411C;
+        Tue, 12 Jul 2022 18:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651681;
-        bh=AMwao2cp+UL+oraGBM3Jg9TFI5yu1zF56vJztTh5j+w=;
+        s=korg; t=1657651476;
+        bh=uKk+3Op0t3ZhHfR38XvrZeuKdiesDxkqpIqWRpOsNHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4M6txvlboUf2+SX3hh4CPVlUccZ8X5O4GFCnBd/JrBhR3y7Rodil/D3YSdUP7HWu
-         NXGNlqIN+6l/5rMg6RQA+sZ5a2rBnmaEsTPRSYPm1fq71kX4xwjFDc29dZ54UDgCtR
-         hALcxibXGI3/54BMXgnX/tDRDmDpLA6VXVAUcx+E=
+        b=xiGwttL5/AUC73h7egQi8J1B014h+oHtcfEjzh1QkfPnA49tjrdebBpu6Ic/KRqmU
+         qpzHEEVuxsjzXCv8yX9fYRCaZGmlbThVPlYHd9N8TDTIRPuhMccilQNTM2BxQwoA8o
+         8hJg8ouPuMfxbhTL4C8aMCC8Os7a2KHnmu+ZQU1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 23/78] x86/realmode: build with -D__DISABLE_EXPORTS
-Date:   Tue, 12 Jul 2022 20:38:53 +0200
-Message-Id: <20220712183239.763624879@linuxfoundation.org>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 088/130] x86/ftrace: Use alternative RET encoding
+Date:   Tue, 12 Jul 2022 20:38:54 +0200
+Message-Id: <20220712183250.522737769@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,28 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-Commit 156ff4a544ae ("x86/ibt: Base IBT bits") added this option when
-building realmode in order to disable IBT there. This is also needed in
-order to disable return thunks.
+commit 1f001e9da6bbf482311e45e48f53c2bd2179e59c upstream.
 
+Use the return thunk in ftrace trampolines, if needed.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: still copy return from ftrace_stub]
+[cascardo: use memcpy(text_gen_insn) as there is no __text_gen_insn]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/ftrace.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -24,7 +24,7 @@ endif
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -308,7 +308,7 @@ union ftrace_op_code_union {
+ 	} __attribute__((packed));
+ };
  
- # How to compile the 16-bit code.  Note we always compile for -march=i386;
- # that way we can complain to the user if the CPU is insufficient.
--REALMODE_CFLAGS	:= -m16 -g -Os -DDISABLE_BRANCH_PROFILING \
-+REALMODE_CFLAGS	:= -m16 -g -Os -DDISABLE_BRANCH_PROFILING -D__DISABLE_EXPORTS \
- 		   -Wall -Wstrict-prototypes -march=i386 -mregparm=3 \
- 		   -fno-strict-aliasing -fomit-frame-pointer -fno-pic \
- 		   -mno-mmx -mno-sse $(call cc-option,-fcf-protection=none)
+-#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
++#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
+ 
+ static unsigned long
+ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+@@ -367,7 +367,10 @@ create_trampoline(struct ftrace_ops *ops
+ 
+ 	/* The trampoline ends with ret(q) */
+ 	retq = (unsigned long)ftrace_stub;
+-	ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
++	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
++		memcpy(ip, text_gen_insn(JMP32_INSN_OPCODE, ip, &__x86_return_thunk), JMP32_INSN_SIZE);
++	else
++		ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
+ 	if (WARN_ON(ret < 0))
+ 		goto fail;
+ 
 
 
