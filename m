@@ -2,128 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65205570F59
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 03:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7C757103E
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 04:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbiGLBTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 21:19:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
+        id S229952AbiGLCel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 22:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229974AbiGLBTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 21:19:06 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D3225C6F;
-        Mon, 11 Jul 2022 18:19:05 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id f11so5931839plr.4;
-        Mon, 11 Jul 2022 18:19:05 -0700 (PDT)
+        with ESMTP id S229839AbiGLCel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 22:34:41 -0400
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8390558DC
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 19:34:39 -0700 (PDT)
+Received: by mail-io1-xd2e.google.com with SMTP id z81so6712034iof.0
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 19:34:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=A7DGCMKP025OCWc2vwKYycd9+zuCu6iTHE/WYjdmoR0=;
-        b=QDN9p1DVvWko6ZclfSR+y1/Q7BhGw60VqOBeIpC9of62xCjMhjaHFbxcahiCV5qXl5
-         TzJ1M69XhHySI0SOZqJ79oY2rff6101O3MFzbQqtSHVmSlx4Zwo2KhHtN75FF582fVgu
-         XK2sAx17sfYqIuTkPuSZ6kdh8EDtg7GCCbXiijQIzw6MrTntfZfeyLNvINqX9I08t6mb
-         epYrhIE69styLQFwEgOfgBsjgN6S/Vp91z2lOUKdmoYY8AbbLLOK40VGrenu4mLaw9cI
-         GGSLcn9JROGqG3kRe60jd21FMQJO5OLqwEp6X9LQzmBf926QaNSE/EekXj4VVRhScAGW
-         58Ag==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ETPdg8nnx17yfHxQ+EGHdzx9tHj3Xodr9J9qfcB4T/U=;
+        b=iIQ6u/XCk1zaTw7h9ehx64fHPnLypAG32CIIBASDVwqFH1A7dmly0xhr+LZam3SrwI
+         wc0OWTN/ODDijcZoAmVRZ0VwnHuNwhGYPjRZGojgy/R3Hrmv/bmUkkZm6KocGLtup0wU
+         pEoqy4D9Yos/I+isT9Izae4J4bkc7sFl4gZD8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=A7DGCMKP025OCWc2vwKYycd9+zuCu6iTHE/WYjdmoR0=;
-        b=bDDM1XV2TPfvlJkZ8hndLDhizUp7Swx8rK3IVbsiskOrO3HJSA+bwpMYkLQIIQ76Ju
-         54+ylMobWmB7yfShsI6bp5SIeXhZ6Txl/CW+TEqfXilRRaYJ/QHPkeAsaM9mzOz9EeVD
-         LqhwHauK4w1wSaebUVBwgeegpSgsz6FiRt1+SkOrOWtm4nY716W8uqdFZT38dFWCOrOs
-         9az1ayuwoZDSjQVRw7HOcfLa8/nDHLEQ4ywjTwMbRfTK00K2+QXEMKN6sJOpjkM0QhY9
-         1vNK3WBcV0sHI/R7CBX3I28YAlkexfBrpJ0SehBm/+6Jd3pAF4KiV+c9MaUDxyQqO5Qm
-         35yg==
-X-Gm-Message-State: AJIora8P0UlAYl2EOo/jfMS6TSKjRXb5ccoMOeiR5sJXTZAp968mgXqh
-        IXHaUQYIsWeD1v4pSLZiv0o=
-X-Google-Smtp-Source: AGRyM1tiP1yGKYV4fMkLvM6TjcUuSTwSv8MJSREJBhU0m0HGFVamVfAyHU/2jCQuOBbvviIoQ8WDDg==
-X-Received: by 2002:a17:90a:982:b0:1ef:f525:9801 with SMTP id 2-20020a17090a098200b001eff5259801mr1317719pjo.191.1657588745538;
-        Mon, 11 Jul 2022 18:19:05 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g11-20020aa79f0b000000b0052aaff953aesm5400757pfr.115.2022.07.11.18.19.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Jul 2022 18:19:04 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 11 Jul 2022 18:19:04 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 000/229] 5.15.54-rc2 review
-Message-ID: <20220712011904.GG2305683@roeck-us.net>
-References: <20220711145306.494277196@linuxfoundation.org>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ETPdg8nnx17yfHxQ+EGHdzx9tHj3Xodr9J9qfcB4T/U=;
+        b=ps57o2+5rDTcQ2d0gzHm3oV3UI9veg1AlTSoFp3MGQJCeJrMwr37+n0egltLyA2qXj
+         0K/rz+1NANsgYQ0MrUyFwfgrl1zPsXjLwaeA2bPUac4j5X06K0f4iCHiXhRQ0sK/4LkN
+         ZrkuZA5vjE01bEt5ILNsFfYRwdTf8neWWbznkO5Trab0P5Pf5RqxKpQ5XSZgcGPm9zcg
+         5BlWRmxLP2zxqgupjLpLGnJZa+a6aFHKZaJeDPbZBf4oyycNC3SI7TywXyur1PuwXzyi
+         9F/dNs8c/hB4Qj3j3Rp6OBc40ins3osbR42uUq30cKTPEdaARaUZ6+0M73Ic8DQmaXif
+         4zVw==
+X-Gm-Message-State: AJIora/cWKEWVXRP/obAtQ/Bn8NXnAS2m2QDTmOzQrolrR2BIuO4bR3e
+        XThCw4WarOHqB6RblnXUzUTsGEGCYb56Hw==
+X-Google-Smtp-Source: AGRyM1vZ9dEyeFz1PF165DHhGGpXRjpSGwHFDiP02tjSD5Ttz9Nyu6wHw+qsAkVcI9jP1R5I6PubqA==
+X-Received: by 2002:a05:6638:2389:b0:33e:9a38:2280 with SMTP id q9-20020a056638238900b0033e9a382280mr11870913jat.106.1657593279206;
+        Mon, 11 Jul 2022 19:34:39 -0700 (PDT)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id m21-20020a02a155000000b00339e2f0a9bfsm3610164jah.13.2022.07.11.19.34.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Jul 2022 19:34:38 -0700 (PDT)
+Subject: Re: [PATCH 5.18 000/112] 5.18.11-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20220711090549.543317027@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <aba94233-96ac-6cbb-2b9a-bd396f6be533@linuxfoundation.org>
+Date:   Mon, 11 Jul 2022 20:34:37 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220711145306.494277196@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 11, 2022 at 04:54:12PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.54 release.
-> There are 229 patches in this series, all will be posted as a response
+On 7/11/22 3:06 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.11 release.
+> There are 112 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Wed, 13 Jul 2022 14:51:35 +0000.
+> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
 > Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.11-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-This report is for v5.15.53-230-gfba36d04986b.
+Compiled and booted on my test system. No dmesg regressions.
 
-Build results:
-	total: 159 pass: 153 fail: 6
-Failed builds:
-	powerpc:defconfig
-	powerpc:allmodconfig
-	powerpc:ppc64e_defconfig
-	powerpc:cell_defconfig
-	powerpc:skiroot_defconfig
-	powerpc:maple_defconfig
-Qemu test results:
-	total: 488 pass: 457 fail: 31
-Failed tests:
-	<all ppc64>
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-All failed builds/tests:
---------------
-Error log:
-arch/powerpc/kernel/vdso64/gettimeofday.S: Assembler messages:
-arch/powerpc/kernel/vdso64/gettimeofday.S:25: Error: unrecognized opcode: `cvdso_call'
-arch/powerpc/kernel/vdso64/gettimeofday.S:36: Error: unrecognized opcode: `cvdso_call'
-arch/powerpc/kernel/vdso64/gettimeofday.S:47: Error: unrecognized opcode: `cvdso_call'
-arch/powerpc/kernel/vdso64/gettimeofday.S:57: Error: unrecognized opcode: `cvdso_call_time'
-make[2]: *** [scripts/Makefile.build:390: arch/powerpc/kernel/vdso64/gettimeofday.o] Error 1
-
-and:
-
-Building powerpc:allmodconfig ... failed
-
-same as above, plus
-
-arch/powerpc/perf/callchain_64.c: In function 'is_sigreturn_64_address':
-arch/powerpc/include/asm/vdso.h:20:61: error: 'vdso64_offset_sigtramp_rt64' undeclared
-
-arch/powerpc/kernel/vdso.c: In function 'vdso_fixup_features':
-arch/powerpc/include/asm/vdso.h:20:61: error: 'vdso64_offset_ftr_fixup_start' undeclared
-arch/powerpc/include/asm/vdso.h:20:61: error: 'vdso64_offset_ftr_fixup_end' undeclared
-
-and various other similar errors.
-
-Guenter
+thanks,
+-- Shuah
