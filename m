@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5858A572398
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA1857245A
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234557AbiGLSty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44432 "EHLO
+        id S235048AbiGLTAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:00:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234641AbiGLStZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42DE5D1C87;
-        Tue, 12 Jul 2022 11:43:53 -0700 (PDT)
+        with ESMTP id S235327AbiGLS7d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:59:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05548F4223;
+        Tue, 12 Jul 2022 11:48:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5380261ADE;
-        Tue, 12 Jul 2022 18:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D990C3411C;
-        Tue, 12 Jul 2022 18:43:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F17E3B81BAB;
+        Tue, 12 Jul 2022 18:48:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65D20C341C8;
+        Tue, 12 Jul 2022 18:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651430;
-        bh=efQhmefNJjZgawAawcRoXoGa/B0C/xqSoQnQCU4vV4I=;
+        s=korg; t=1657651693;
+        bh=QmO7M50m10bTkfgb27hLURl8adAuWwBCd3Rqa0fMExs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcijLZnB943k3BZJ1ZYsFDsfeERwxTaHv5nogFe0qJMprqObPRroeybYXdvqqK+kf
-         dcGLHDDHgBavVdb/PT1CEEu2Mfdpe1QtJraLd7OXpHoB/oevLwM7FmIM+j3fZSjM9J
-         t8EZsDIYD6dcsdRg8/iIyUzuQn/rlFomQRLcvO/o=
+        b=dfYNreqQH9aJR9UqlSgPOgmMFFt3V735lU+WBOH0fzeLLqTgpc4LZt7NAy6Iat1nj
+         awNC/rizLXYuoBOqWGZJOeOXP6+OwoyKURyjfj6HHGOhx1wd98JSkl9u5iH7US29tF
+         RoUYRNDpmgt6LBGbRYVdnG5ay9xTc9QKqSNXzCXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Andi Kleen <andi@firstfloor.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 072/130] objtool: Fix code relocs vs weak symbols
-Date:   Tue, 12 Jul 2022 20:38:38 +0200
-Message-Id: <20220712183249.797373672@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 09/78] objtool: Introduce CFI hash
+Date:   Tue, 12 Jul 2022 20:38:39 +0200
+Message-Id: <20220712183239.227821072@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,356 +56,456 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 4abff6d48dbcea8200c7ea35ba70c242d128ebf3 upstream.
+commit 8b946cc38e063f0f7bb67789478c38f6d7d457c9 upstream.
 
-Occasionally objtool driven code patching (think .static_call_sites
-.retpoline_sites etc..) goes sideways and it tries to patch an
-instruction that doesn't match.
+Andi reported that objtool on vmlinux.o consumes more memory than his
+system has, leading to horrific performance.
 
-Much head-scatching and cursing later the problem is as outlined below
-and affects every section that objtool generates for us, very much
-including the ORC data. The below uses .static_call_sites because it's
-convenient for demonstration purposes, but as mentioned the ORC
-sections, .retpoline_sites and __mount_loc are all similarly affected.
+This is in part because we keep a struct instruction for every
+instruction in the file in-memory. Shrink struct instruction by
+removing the CFI state (which includes full register state) from it
+and demand allocating it.
 
-Consider:
+Given most instructions don't actually change CFI state, there's lots
+of repetition there, so add a hash table to find previous CFI
+instances.
 
-foo-weak.c:
+Reduces memory consumption (and runtime) for processing an
+x86_64-allyesconfig:
 
-  extern void __SCT__foo(void);
+  pre:  4:40.84 real,   143.99 user,    44.18 sys,      30624988 mem
+  post: 2:14.61 real,   108.58 user,    25.04 sys,      16396184 mem
 
-  __attribute__((weak)) void foo(void)
-  {
-	  return __SCT__foo();
-  }
-
-foo.c:
-
-  extern void __SCT__foo(void);
-  extern void my_foo(void);
-
-  void foo(void)
-  {
-	  my_foo();
-	  return __SCT__foo();
-  }
-
-These generate the obvious code
-(gcc -O2 -fcf-protection=none -fno-asynchronous-unwind-tables -c foo*.c):
-
-foo-weak.o:
-0000000000000000 <foo>:
-   0:   e9 00 00 00 00          jmpq   5 <foo+0x5>      1: R_X86_64_PLT32       __SCT__foo-0x4
-
-foo.o:
-0000000000000000 <foo>:
-   0:   48 83 ec 08             sub    $0x8,%rsp
-   4:   e8 00 00 00 00          callq  9 <foo+0x9>      5: R_X86_64_PLT32       my_foo-0x4
-   9:   48 83 c4 08             add    $0x8,%rsp
-   d:   e9 00 00 00 00          jmpq   12 <foo+0x12>    e: R_X86_64_PLT32       __SCT__foo-0x4
-
-Now, when we link these two files together, you get something like
-(ld -r -o foos.o foo-weak.o foo.o):
-
-foos.o:
-0000000000000000 <foo-0x10>:
-   0:   e9 00 00 00 00          jmpq   5 <foo-0xb>      1: R_X86_64_PLT32       __SCT__foo-0x4
-   5:   66 2e 0f 1f 84 00 00 00 00 00   nopw   %cs:0x0(%rax,%rax,1)
-   f:   90                      nop
-
-0000000000000010 <foo>:
-  10:   48 83 ec 08             sub    $0x8,%rsp
-  14:   e8 00 00 00 00          callq  19 <foo+0x9>     15: R_X86_64_PLT32      my_foo-0x4
-  19:   48 83 c4 08             add    $0x8,%rsp
-  1d:   e9 00 00 00 00          jmpq   22 <foo+0x12>    1e: R_X86_64_PLT32      __SCT__foo-0x4
-
-Noting that ld preserves the weak function text, but strips the symbol
-off of it (hence objdump doing that funny negative offset thing). This
-does lead to 'interesting' unused code issues with objtool when ran on
-linked objects, but that seems to be working (fingers crossed).
-
-So far so good.. Now lets consider the objtool static_call output
-section (readelf output, old binutils):
-
-foo-weak.o:
-
-Relocation section '.rela.static_call_sites' at offset 0x2c8 contains 1 entry:
-    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
-0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 .text + 0
-0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-
-foo.o:
-
-Relocation section '.rela.static_call_sites' at offset 0x310 contains 2 entries:
-    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
-0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 .text + d
-0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-
-foos.o:
-
-Relocation section '.rela.static_call_sites' at offset 0x430 contains 4 entries:
-    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
-0000000000000000  0000000100000002 R_X86_64_PC32          0000000000000000 .text + 0
-0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-0000000000000008  0000000100000002 R_X86_64_PC32          0000000000000000 .text + 1d
-000000000000000c  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-
-So we have two patch sites, one in the dead code of the weak foo and one
-in the real foo. All is well.
-
-*HOWEVER*, when the toolchain strips unused section symbols it
-generates things like this (using new enough binutils):
-
-foo-weak.o:
-
-Relocation section '.rela.static_call_sites' at offset 0x2c8 contains 1 entry:
-    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
-0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 foo + 0
-0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-
-foo.o:
-
-Relocation section '.rela.static_call_sites' at offset 0x310 contains 2 entries:
-    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
-0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 foo + d
-0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-
-foos.o:
-
-Relocation section '.rela.static_call_sites' at offset 0x430 contains 4 entries:
-    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
-0000000000000000  0000000100000002 R_X86_64_PC32          0000000000000000 foo + 0
-0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-0000000000000008  0000000100000002 R_X86_64_PC32          0000000000000000 foo + d
-000000000000000c  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
-
-And now we can see how that foos.o .static_call_sites goes side-ways, we
-now have _two_ patch sites in foo. One for the weak symbol at foo+0
-(which is no longer a static_call site!) and one at foo+d which is in
-fact the right location.
-
-This seems to happen when objtool cannot find a section symbol, in which
-case it falls back to any other symbol to key off of, however in this
-case that goes terribly wrong!
-
-As such, teach objtool to create a section symbol when there isn't
-one.
-
-Fixes: 44f6a7c0755d ("objtool: Fix seg fault with Clang non-section symbols")
+Suggested-by: Andi Kleen <andi@firstfloor.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lkml.kernel.org/r/20220419203807.655552918@infradead.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Link: https://lore.kernel.org/r/20210624095147.756759107@infradead.org
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/elf.c |  187 +++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 165 insertions(+), 22 deletions(-)
+ tools/objtool/arch/x86/decode.c       |   20 +---
+ tools/objtool/check.c                 |  154 ++++++++++++++++++++++++++++++----
+ tools/objtool/include/objtool/arch.h  |    2 
+ tools/objtool/include/objtool/cfi.h   |    2 
+ tools/objtool/include/objtool/check.h |    2 
+ tools/objtool/orc_gen.c               |   15 ++-
+ 6 files changed, 160 insertions(+), 35 deletions(-)
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -537,37 +537,180 @@ int elf_add_reloc(struct elf *elf, struc
- 	return 0;
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -684,34 +684,32 @@ const char *arch_ret_insn(int len)
+ 	return ret[len-1];
  }
  
--int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
--			  unsigned long offset, unsigned int type,
--			  struct section *insn_sec, unsigned long insn_off)
-+/*
-+ * Ensure that any reloc section containing references to @sym is marked
-+ * changed such that it will get re-generated in elf_rebuild_reloc_sections()
-+ * with the new symbol index.
-+ */
-+static void elf_dirty_reloc_sym(struct elf *elf, struct symbol *sym)
+-int arch_decode_hint_reg(struct instruction *insn, u8 sp_reg)
++int arch_decode_hint_reg(u8 sp_reg, int *base)
+ {
+-	struct cfi_reg *cfa = &insn->cfi.cfa;
+-
+ 	switch (sp_reg) {
+ 	case ORC_REG_UNDEFINED:
+-		cfa->base = CFI_UNDEFINED;
++		*base = CFI_UNDEFINED;
+ 		break;
+ 	case ORC_REG_SP:
+-		cfa->base = CFI_SP;
++		*base = CFI_SP;
+ 		break;
+ 	case ORC_REG_BP:
+-		cfa->base = CFI_BP;
++		*base = CFI_BP;
+ 		break;
+ 	case ORC_REG_SP_INDIRECT:
+-		cfa->base = CFI_SP_INDIRECT;
++		*base = CFI_SP_INDIRECT;
+ 		break;
+ 	case ORC_REG_R10:
+-		cfa->base = CFI_R10;
++		*base = CFI_R10;
+ 		break;
+ 	case ORC_REG_R13:
+-		cfa->base = CFI_R13;
++		*base = CFI_R13;
+ 		break;
+ 	case ORC_REG_DI:
+-		cfa->base = CFI_DI;
++		*base = CFI_DI;
+ 		break;
+ 	case ORC_REG_DX:
+-		cfa->base = CFI_DX;
++		*base = CFI_DX;
+ 		break;
+ 	default:
+ 		return -1;
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -6,6 +6,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <inttypes.h>
++#include <sys/mman.h>
+ 
+ #include <arch/elf.h>
+ #include <objtool/builtin.h>
+@@ -27,7 +28,11 @@ struct alternative {
+ 	bool skip_orig;
+ };
+ 
+-struct cfi_init_state initial_func_cfi;
++static unsigned long nr_cfi, nr_cfi_reused, nr_cfi_cache;
++
++static struct cfi_init_state initial_func_cfi;
++static struct cfi_state init_cfi;
++static struct cfi_state func_cfi;
+ 
+ struct instruction *find_insn(struct objtool_file *file,
+ 			      struct section *sec, unsigned long offset)
+@@ -267,6 +272,78 @@ static void init_insn_state(struct insn_
+ 		state->noinstr = sec->noinstr;
+ }
+ 
++static struct cfi_state *cfi_alloc(void)
 +{
-+	struct section *sec;
-+
-+	list_for_each_entry(sec, &elf->sections, list) {
-+		struct reloc *reloc;
-+
-+		if (sec->changed)
-+			continue;
-+
-+		list_for_each_entry(reloc, &sec->reloc_list, list) {
-+			if (reloc->sym == sym) {
-+				sec->changed = true;
-+				break;
-+			}
-+		}
++	struct cfi_state *cfi = calloc(sizeof(struct cfi_state), 1);
++	if (!cfi) {
++		WARN("calloc failed");
++		exit(1);
 +	}
++	nr_cfi++;
++	return cfi;
 +}
 +
-+/*
-+ * Move the first global symbol, as per sh_info, into a new, higher symbol
-+ * index. This fees up the shndx for a new local symbol.
-+ */
-+static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
-+				  struct section *symtab_shndx)
++static int cfi_bits;
++static struct hlist_head *cfi_hash;
++
++static inline bool cficmp(struct cfi_state *cfi1, struct cfi_state *cfi2)
++{
++	return memcmp((void *)cfi1 + sizeof(cfi1->hash),
++		      (void *)cfi2 + sizeof(cfi2->hash),
++		      sizeof(struct cfi_state) - sizeof(struct hlist_node));
++}
++
++static inline u32 cfi_key(struct cfi_state *cfi)
++{
++	return jhash((void *)cfi + sizeof(cfi->hash),
++		     sizeof(*cfi) - sizeof(cfi->hash), 0);
++}
++
++static struct cfi_state *cfi_hash_find_or_add(struct cfi_state *cfi)
++{
++	struct hlist_head *head = &cfi_hash[hash_min(cfi_key(cfi), cfi_bits)];
++	struct cfi_state *obj;
++
++	hlist_for_each_entry(obj, head, hash) {
++		if (!cficmp(cfi, obj)) {
++			nr_cfi_cache++;
++			return obj;
++		}
++	}
++
++	obj = cfi_alloc();
++	*obj = *cfi;
++	hlist_add_head(&obj->hash, head);
++
++	return obj;
++}
++
++static void cfi_hash_add(struct cfi_state *cfi)
++{
++	struct hlist_head *head = &cfi_hash[hash_min(cfi_key(cfi), cfi_bits)];
++
++	hlist_add_head(&cfi->hash, head);
++}
++
++static void *cfi_hash_alloc(unsigned long size)
++{
++	cfi_bits = max(10, ilog2(size));
++	cfi_hash = mmap(NULL, sizeof(struct hlist_head) << cfi_bits,
++			PROT_READ|PROT_WRITE,
++			MAP_PRIVATE|MAP_ANON, -1, 0);
++	if (cfi_hash == (void *)-1L) {
++		WARN("mmap fail cfi_hash");
++		cfi_hash = NULL;
++	}  else if (stats) {
++		printf("cfi_bits: %d\n", cfi_bits);
++	}
++
++	return cfi_hash;
++}
++
++static unsigned long nr_insns;
++static unsigned long nr_insns_visited;
++
+ /*
+  * Call the arch-specific instruction decoder for all the instructions and add
+  * them to the global instruction list.
+@@ -277,7 +354,6 @@ static int decode_instructions(struct ob
+ 	struct symbol *func;
+ 	unsigned long offset;
+ 	struct instruction *insn;
+-	unsigned long nr_insns = 0;
+ 	int ret;
+ 
+ 	for_each_sec(file, sec) {
+@@ -303,7 +379,6 @@ static int decode_instructions(struct ob
+ 			memset(insn, 0, sizeof(*insn));
+ 			INIT_LIST_HEAD(&insn->alts);
+ 			INIT_LIST_HEAD(&insn->stack_ops);
+-			init_cfi_state(&insn->cfi);
+ 
+ 			insn->sec = sec;
+ 			insn->offset = offset;
+@@ -1239,7 +1314,6 @@ static int handle_group_alt(struct objto
+ 		memset(nop, 0, sizeof(*nop));
+ 		INIT_LIST_HEAD(&nop->alts);
+ 		INIT_LIST_HEAD(&nop->stack_ops);
+-		init_cfi_state(&nop->cfi);
+ 
+ 		nop->sec = special_alt->new_sec;
+ 		nop->offset = special_alt->new_off + special_alt->new_len;
+@@ -1648,10 +1722,11 @@ static void set_func_state(struct cfi_st
+ 
+ static int read_unwind_hints(struct objtool_file *file)
  {
-+	Elf_Data *data, *shndx_data = NULL;
-+	Elf32_Word first_non_local;
- 	struct symbol *sym;
--	int addend;
-+	Elf_Scn *s;
++	struct cfi_state cfi = init_cfi;
+ 	struct section *sec, *relocsec;
+-	struct reloc *reloc;
+ 	struct unwind_hint *hint;
+ 	struct instruction *insn;
++	struct reloc *reloc;
+ 	int i;
  
--	if (insn_sec->sym) {
--		sym = insn_sec->sym;
--		addend = insn_off;
-+	first_non_local = symtab->sh.sh_info;
+ 	sec = find_section_by_name(file->elf, ".discard.unwind_hints");
+@@ -1689,19 +1764,24 @@ static int read_unwind_hints(struct objt
+ 		insn->hint = true;
  
--	} else {
--		/*
--		 * The Clang assembler strips section symbols, so we have to
--		 * reference the function symbol instead:
--		 */
--		sym = find_symbol_containing(insn_sec, insn_off);
--		if (!sym) {
--			/*
--			 * Hack alert.  This happens when we need to reference
--			 * the NOP pad insn immediately after the function.
--			 */
--			sym = find_symbol_containing(insn_sec, insn_off - 1);
-+	sym = find_symbol_by_index(elf, first_non_local);
-+	if (!sym) {
-+		WARN("no non-local symbols !?");
-+		return first_non_local;
-+	}
-+
-+	s = elf_getscn(elf->elf, symtab->idx);
-+	if (!s) {
-+		WARN_ELF("elf_getscn");
-+		return -1;
-+	}
-+
-+	data = elf_newdata(s);
-+	if (!data) {
-+		WARN_ELF("elf_newdata");
-+		return -1;
-+	}
-+
-+	data->d_buf = &sym->sym;
-+	data->d_size = sizeof(sym->sym);
-+	data->d_align = 1;
-+	data->d_type = ELF_T_SYM;
-+
-+	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
-+	elf_dirty_reloc_sym(elf, sym);
-+
-+	symtab->sh.sh_info += 1;
-+	symtab->sh.sh_size += data->d_size;
-+	symtab->changed = true;
-+
-+	if (symtab_shndx) {
-+		s = elf_getscn(elf->elf, symtab_shndx->idx);
-+		if (!s) {
-+			WARN_ELF("elf_getscn");
-+			return -1;
+ 		if (hint->type == UNWIND_HINT_TYPE_FUNC) {
+-			set_func_state(&insn->cfi);
++			insn->cfi = &func_cfi;
+ 			continue;
  		}
  
--		if (!sym) {
--			WARN("can't find symbol containing %s+0x%lx", insn_sec->name, insn_off);
-+		shndx_data = elf_newdata(s);
-+		if (!shndx_data) {
-+			WARN_ELF("elf_newshndx_data");
+-		if (arch_decode_hint_reg(insn, hint->sp_reg)) {
++		if (insn->cfi)
++			cfi = *(insn->cfi);
++
++		if (arch_decode_hint_reg(hint->sp_reg, &cfi.cfa.base)) {
+ 			WARN_FUNC("unsupported unwind_hint sp base reg %d",
+ 				  insn->sec, insn->offset, hint->sp_reg);
  			return -1;
  		}
  
--		addend = insn_off - sym->offset;
-+		shndx_data->d_buf = &sym->sec->idx;
-+		shndx_data->d_size = sizeof(Elf32_Word);
-+		shndx_data->d_align = 4;
-+		shndx_data->d_type = ELF_T_WORD;
+-		insn->cfi.cfa.offset = bswap_if_needed(hint->sp_offset);
+-		insn->cfi.type = hint->type;
+-		insn->cfi.end = hint->end;
++		cfi.cfa.offset = bswap_if_needed(hint->sp_offset);
++		cfi.type = hint->type;
++		cfi.end = hint->end;
 +
-+		symtab_shndx->sh.sh_size += 4;
-+		symtab_shndx->changed = true;
-+	}
-+
-+	return first_non_local;
-+}
-+
-+static struct symbol *
-+elf_create_section_symbol(struct elf *elf, struct section *sec)
-+{
-+	struct section *symtab, *symtab_shndx;
-+	Elf_Data *shndx_data = NULL;
-+	struct symbol *sym;
-+	Elf32_Word shndx;
-+
-+	symtab = find_section_by_name(elf, ".symtab");
-+	if (symtab) {
-+		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
-+		if (symtab_shndx)
-+			shndx_data = symtab_shndx->data;
-+	} else {
-+		WARN("no .symtab");
-+		return NULL;
-+	}
-+
-+	sym = malloc(sizeof(*sym));
-+	if (!sym) {
-+		perror("malloc");
-+		return NULL;
-+	}
-+	memset(sym, 0, sizeof(*sym));
-+
-+	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
-+	if (sym->idx < 0) {
-+		WARN("elf_move_global_symbol");
-+		return NULL;
-+	}
-+
-+	sym->name = sec->name;
-+	sym->sec = sec;
-+
-+	// st_name 0
-+	sym->sym.st_info = GELF_ST_INFO(STB_LOCAL, STT_SECTION);
-+	// st_other 0
-+	// st_value 0
-+	// st_size 0
-+	shndx = sec->idx;
-+	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
-+		sym->sym.st_shndx = shndx;
-+		if (!shndx_data)
-+			shndx = 0;
-+	} else {
-+		sym->sym.st_shndx = SHN_XINDEX;
-+		if (!shndx_data) {
-+			WARN("no .symtab_shndx");
-+			return NULL;
-+		}
-+	}
-+
-+	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
-+		WARN_ELF("gelf_update_symshndx");
-+		return NULL;
-+	}
-+
-+	elf_add_symbol(elf, sym);
-+
-+	return sym;
-+}
-+
-+int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
-+			  unsigned long offset, unsigned int type,
-+			  struct section *insn_sec, unsigned long insn_off)
-+{
-+	struct symbol *sym = insn_sec->sym;
-+	int addend = insn_off;
-+
-+	if (!sym) {
-+		/*
-+		 * Due to how weak functions work, we must use section based
-+		 * relocations. Symbol based relocations would result in the
-+		 * weak and non-weak function annotations being overlaid on the
-+		 * non-weak function after linking.
-+		 */
-+		sym = elf_create_section_symbol(elf, insn_sec);
-+		if (!sym)
-+			return -1;
-+
-+		insn_sec->sym = sym;
++		insn->cfi = cfi_hash_find_or_add(&cfi);
  	}
  
- 	return elf_add_reloc(elf, sec, offset, type, sym, addend);
+ 	return 0;
+@@ -2552,13 +2632,18 @@ static int propagate_alt_cfi(struct objt
+ 	if (!insn->alt_group)
+ 		return 0;
+ 
++	if (!insn->cfi) {
++		WARN("CFI missing");
++		return -1;
++	}
++
+ 	alt_cfi = insn->alt_group->cfi;
+ 	group_off = insn->offset - insn->alt_group->first_insn->offset;
+ 
+ 	if (!alt_cfi[group_off]) {
+-		alt_cfi[group_off] = &insn->cfi;
++		alt_cfi[group_off] = insn->cfi;
+ 	} else {
+-		if (memcmp(alt_cfi[group_off], &insn->cfi, sizeof(struct cfi_state))) {
++		if (cficmp(alt_cfi[group_off], insn->cfi)) {
+ 			WARN_FUNC("stack layout conflict in alternatives",
+ 				  insn->sec, insn->offset);
+ 			return -1;
+@@ -2609,9 +2694,14 @@ static int handle_insn_ops(struct instru
+ 
+ static bool insn_cfi_match(struct instruction *insn, struct cfi_state *cfi2)
+ {
+-	struct cfi_state *cfi1 = &insn->cfi;
++	struct cfi_state *cfi1 = insn->cfi;
+ 	int i;
+ 
++	if (!cfi1) {
++		WARN("CFI missing");
++		return false;
++	}
++
+ 	if (memcmp(&cfi1->cfa, &cfi2->cfa, sizeof(cfi1->cfa))) {
+ 
+ 		WARN_FUNC("stack state mismatch: cfa1=%d%+d cfa2=%d%+d",
+@@ -2796,7 +2886,7 @@ static int validate_branch(struct objtoo
+ 			   struct instruction *insn, struct insn_state state)
+ {
+ 	struct alternative *alt;
+-	struct instruction *next_insn;
++	struct instruction *next_insn, *prev_insn = NULL;
+ 	struct section *sec;
+ 	u8 visited;
+ 	int ret;
+@@ -2825,15 +2915,25 @@ static int validate_branch(struct objtoo
+ 
+ 			if (insn->visited & visited)
+ 				return 0;
++		} else {
++			nr_insns_visited++;
+ 		}
+ 
+ 		if (state.noinstr)
+ 			state.instr += insn->instr;
+ 
+-		if (insn->hint)
+-			state.cfi = insn->cfi;
+-		else
+-			insn->cfi = state.cfi;
++		if (insn->hint) {
++			state.cfi = *insn->cfi;
++		} else {
++			/* XXX track if we actually changed state.cfi */
++
++			if (prev_insn && !cficmp(prev_insn->cfi, &state.cfi)) {
++				insn->cfi = prev_insn->cfi;
++				nr_cfi_reused++;
++			} else {
++				insn->cfi = cfi_hash_find_or_add(&state.cfi);
++			}
++		}
+ 
+ 		insn->visited |= visited;
+ 
+@@ -2997,6 +3097,7 @@ static int validate_branch(struct objtoo
+ 			return 1;
+ 		}
+ 
++		prev_insn = insn;
+ 		insn = next_insn;
+ 	}
+ 
+@@ -3252,10 +3353,20 @@ int check(struct objtool_file *file)
+ 	int ret, warnings = 0;
+ 
+ 	arch_initial_func_cfi_state(&initial_func_cfi);
++	init_cfi_state(&init_cfi);
++	init_cfi_state(&func_cfi);
++	set_func_state(&func_cfi);
++
++	if (!cfi_hash_alloc(1UL << (file->elf->symbol_bits - 3)))
++		goto out;
++
++	cfi_hash_add(&init_cfi);
++	cfi_hash_add(&func_cfi);
+ 
+ 	ret = decode_sections(file);
+ 	if (ret < 0)
+ 		goto out;
++
+ 	warnings += ret;
+ 
+ 	if (list_empty(&file->insn_list))
+@@ -3313,6 +3424,13 @@ int check(struct objtool_file *file)
+ 		warnings += ret;
+ 	}
+ 
++	if (stats) {
++		printf("nr_insns_visited: %ld\n", nr_insns_visited);
++		printf("nr_cfi: %ld\n", nr_cfi);
++		printf("nr_cfi_reused: %ld\n", nr_cfi_reused);
++		printf("nr_cfi_cache: %ld\n", nr_cfi_cache);
++	}
++
+ out:
+ 	/*
+ 	 *  For now, don't fail the kernel build on fatal warnings.  These
+--- a/tools/objtool/include/objtool/arch.h
++++ b/tools/objtool/include/objtool/arch.h
+@@ -85,7 +85,7 @@ unsigned long arch_dest_reloc_offset(int
+ const char *arch_nop_insn(int len);
+ const char *arch_ret_insn(int len);
+ 
+-int arch_decode_hint_reg(struct instruction *insn, u8 sp_reg);
++int arch_decode_hint_reg(u8 sp_reg, int *base);
+ 
+ bool arch_is_retpoline(struct symbol *sym);
+ 
+--- a/tools/objtool/include/objtool/cfi.h
++++ b/tools/objtool/include/objtool/cfi.h
+@@ -7,6 +7,7 @@
+ #define _OBJTOOL_CFI_H
+ 
+ #include <arch/cfi_regs.h>
++#include <linux/list.h>
+ 
+ #define CFI_UNDEFINED		-1
+ #define CFI_CFA			-2
+@@ -24,6 +25,7 @@ struct cfi_init_state {
+ };
+ 
+ struct cfi_state {
++	struct hlist_node hash; /* must be first, cficmp() */
+ 	struct cfi_reg regs[CFI_NUM_REGS];
+ 	struct cfi_reg vals[CFI_NUM_REGS];
+ 	struct cfi_reg cfa;
+--- a/tools/objtool/include/objtool/check.h
++++ b/tools/objtool/include/objtool/check.h
+@@ -59,7 +59,7 @@ struct instruction {
+ 	struct list_head alts;
+ 	struct symbol *func;
+ 	struct list_head stack_ops;
+-	struct cfi_state cfi;
++	struct cfi_state *cfi;
+ };
+ 
+ static inline bool is_static_jump(struct instruction *insn)
+--- a/tools/objtool/orc_gen.c
++++ b/tools/objtool/orc_gen.c
+@@ -13,13 +13,19 @@
+ #include <objtool/warn.h>
+ #include <objtool/endianness.h>
+ 
+-static int init_orc_entry(struct orc_entry *orc, struct cfi_state *cfi)
++static int init_orc_entry(struct orc_entry *orc, struct cfi_state *cfi,
++			  struct instruction *insn)
+ {
+-	struct instruction *insn = container_of(cfi, struct instruction, cfi);
+ 	struct cfi_reg *bp = &cfi->regs[CFI_BP];
+ 
+ 	memset(orc, 0, sizeof(*orc));
+ 
++	if (!cfi) {
++		orc->end = 0;
++		orc->sp_reg = ORC_REG_UNDEFINED;
++		return 0;
++	}
++
+ 	orc->end = cfi->end;
+ 
+ 	if (cfi->cfa.base == CFI_UNDEFINED) {
+@@ -162,7 +168,7 @@ int orc_create(struct objtool_file *file
+ 			int i;
+ 
+ 			if (!alt_group) {
+-				if (init_orc_entry(&orc, &insn->cfi))
++				if (init_orc_entry(&orc, insn->cfi, insn))
+ 					return -1;
+ 				if (!memcmp(&prev_orc, &orc, sizeof(orc)))
+ 					continue;
+@@ -186,7 +192,8 @@ int orc_create(struct objtool_file *file
+ 				struct cfi_state *cfi = alt_group->cfi[i];
+ 				if (!cfi)
+ 					continue;
+-				if (init_orc_entry(&orc, cfi))
++				/* errors are reported on the original insn */
++				if (init_orc_entry(&orc, cfi, insn))
+ 					return -1;
+ 				if (!memcmp(&prev_orc, &orc, sizeof(orc)))
+ 					continue;
 
 
