@@ -2,163 +2,611 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21016572995
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 01:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9AFE5729A2
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 01:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbiGLXBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 19:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33242 "EHLO
+        id S229849AbiGLXEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 19:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232397AbiGLXBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 19:01:01 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 085AD64E2B
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 16:01:00 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id l124so8705763pfl.8
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 16:01:00 -0700 (PDT)
+        with ESMTP id S230242AbiGLXEl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 19:04:41 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98E9C5A2FE;
+        Tue, 12 Jul 2022 16:04:39 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id g16-20020a17090a7d1000b001ea9f820449so700760pjl.5;
+        Tue, 12 Jul 2022 16:04:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=G6TTYaBvb5I/MOk/6FzxfqXC8TwhnxFPhr55HnSLTD8=;
-        b=cVDCRmbqQg1AUTXg0HekDJ8mxlKA7QqcZwYtaRClJW8SySJnsfpZ85gav6QNsmm+XU
-         Ss5g3e69/kokyWISqFB+m4HmaJznDrQ8H3nFXqteSHDThPGxv7hEMZcsKReXVEBWsvKP
-         8lglAhhqmwtP5J1cf9sSB1vgBmHkspis13ntQXvIloHhHd9z3rduncqshwNmULXpDMoI
-         XhWjJCW+zWKffOTzJc1qbNc9k0zu2sBtC18vRtvTYumV5tFqTWmwoouODoYpW2ee5wds
-         Dz8itThLPp1hFzLIvXBLxhREFBLdqp+ctzJ9uNM6pJfJMKX7Kc3qD1qxnDv+8fNNFQzI
-         gAcQ==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=siKBiiTHyd/A5ajvQiNQsztNcyUwIZwOJcw8Xd99fF0=;
+        b=Amci3N8IzjsKEiEXgWX7IAqWK+0lq6wl03ybzOkoOhTfm3+iYxqRjVJwM4Q8m12I8s
+         iAOskiUwmfM6J72MCKqWtEpbgtqhPk+mBF48MLZyTpz8eYwDUwqCl6HacR1AfBxfYJVZ
+         0r7XnZ5VESsQumXHph7AP+R7HkVhJdZf3U0GzDfykLj88eB3slzjGVMYwMnOomSgAcIW
+         lj5ivc1zymVhOCTcOc5DptTMlqVWZqA5cux9Hi8+jyB8ZMHAMBmDOR1xjnI0feTnqM5r
+         tq3W81TIGkW+SQcVmgrrwP4o/9uoyLgwjlmVemBqkl8WTmWS4u/3uYDw9jn/7SrURmxW
+         NEJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=G6TTYaBvb5I/MOk/6FzxfqXC8TwhnxFPhr55HnSLTD8=;
-        b=1uK6HCVe+QFp58rKj7piQ88enMVucHOYL090+x4CAYIlvwuti+fRaQ/sQcdwUKl7LT
-         6pt34Xzkvqda9Y6r8H8pkY8dfPXO9GgmyLny55BIhO9Bz7ju/Dviw3DWSCIuOd6wN2NX
-         RD5J4j5c9IeM7sSrTCNHxuJnFQwCFtcQK+1Ki5MrzTESEaJyt5JfYTfSLl7vnCgUc/qA
-         yGV62+agMVrXMvYTEnSmmA1hxezTM+98+FFFVhr5s8v41TnP6kggPn7qTSbcIGXVb29N
-         i2DdeWp+dcs3/wVguXJq/J8uk4M7BrLVitI8itG9pYrDJL3C+9MfUy9lckOWpEVxLjvR
-         nh3Q==
-X-Gm-Message-State: AJIora/bL5Gmqw4l04d/d4hVfXn75bUqLaFAHke/49kTrbKcjFj0j3K3
-        o43aXXHq1BRw6XJS/6/IOwrCrZSdY2OYs3x1
-X-Google-Smtp-Source: AGRyM1u9zA6MB05JL8S7KNtiukRD+fwHzejrYbFUDJ6sw60njHFrucBKkbwrnxr/JtecMLOQviduQw==
-X-Received: by 2002:a05:6a00:815:b0:52a:dea8:269b with SMTP id m21-20020a056a00081500b0052adea8269bmr445616pfk.66.1657666859243;
-        Tue, 12 Jul 2022 16:00:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v68-20020a622f47000000b005254344bf48sm7362734pfv.5.2022.07.12.16.00.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Jul 2022 16:00:58 -0700 (PDT)
-Message-ID: <62cdfd2a.1c69fb81.483ef.b205@mx.google.com>
-Date:   Tue, 12 Jul 2022 16:00:58 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=siKBiiTHyd/A5ajvQiNQsztNcyUwIZwOJcw8Xd99fF0=;
+        b=RC0hlAejogF3BTXUvfemiWE4oWZwNmD1mAlqDZcJ5yXg9UGH8xBwELM+/mcg87vH6l
+         lGKLdVffvQj+wEzcjPfPgM/zOQQH1woXN1Z9z3BRn5BUipDlB6WkIvYlXw9Oq11YYZj/
+         vDj+4I0NEqmloiid9Sf2r39IH+CVEYvBG2GFjGzaRMxpOmzefsdMdXsnOvBGZQeJbXzS
+         DZnnstd1f/pG1iSmV82mcsiuoa1Ta635gI9iQr7q6BZ6Q9e4NLgQOy7bq3t9pRtw103W
+         7o1/3cJRbjMPiDK6ZzDOKZw6NkcgBBYz13CXq80VFRnau7bvdtez0tXAYEsbSxd/hCtc
+         3zTQ==
+X-Gm-Message-State: AJIora/kElZaVGu4cU7vIqZABx5jj5/18JWQa37LAxei+mdqNI4B4k2A
+        udxUDKhb5lFGjotgD9Inm4d73N867dY=
+X-Google-Smtp-Source: AGRyM1tlLmy8fXwZeOa78mkuPzMKz+6KFFSpDBJCm2zXgnsXJn3+2AzuLUxMwcx+dFvSBQ7wxbZlGw==
+X-Received: by 2002:a17:90a:bc8f:b0:1ef:845d:d34d with SMTP id x15-20020a17090abc8f00b001ef845dd34dmr558402pjr.118.1657667078874;
+        Tue, 12 Jul 2022 16:04:38 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id m28-20020a62a21c000000b00528669a770esm7542242pff.90.2022.07.12.16.04.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Jul 2022 16:04:38 -0700 (PDT)
+Message-ID: <4186eb81-abce-7138-6c8d-791785ad4ad5@gmail.com>
+Date:   Tue, 12 Jul 2022 16:04:29 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.323
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.9.y baseline: 59 runs, 2 regressions (v4.9.323)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 5.10 017/130] x86/insn: Add an insn_decode() API
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+References: <20220712183246.394947160@linuxfoundation.org>
+ <20220712183247.196840353@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220712183247.196840353@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y baseline: 59 runs, 2 regressions (v4.9.323)
+On 7/12/22 11:37, Greg Kroah-Hartman wrote:
+> From: Borislav Petkov <bp@suse.de>
+> 
+> commit 93281c4a96572a34504244969b938e035204778d upstream.
+> 
+> Users of the instruction decoder should use this to decode instruction
+> bytes. For that, have insn*() helpers return an int value to denote
+> success/failure. When there's an error fetching the next insn byte and
+> the insn falls short, return -ENODATA to denote that.
+> 
+> While at it, make insn_get_opcode() more stricter as to whether what has
+> seen so far is a valid insn and if not.
+> 
+> Copy linux/kconfig.h for the tools-version of the decoder so that it can
+> use IS_ENABLED().
+> 
+> Also, cast the INSN_MODE_KERN dummy define value to (enum insn_mode)
+> for tools use of the decoder because perf tool builds with -Werror and
+> errors out with -Werror=sign-compare otherwise.
+> 
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+> Link: https://lkml.kernel.org/r/20210304174237.31945-5-bp@alien8.de
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>   arch/x86/include/asm/insn.h       |   24 ++--
+>   arch/x86/lib/insn.c               |  216 +++++++++++++++++++++++++++++-------
+>   tools/arch/x86/include/asm/insn.h |   24 ++--
+>   tools/arch/x86/lib/insn.c         |  222 +++++++++++++++++++++++++++++---------
+>   tools/include/linux/kconfig.h     |   73 ++++++++++++
+>   5 files changed, 452 insertions(+), 107 deletions(-)
+>   create mode 100644 tools/include/linux/kconfig.h
+> 
+> --- a/arch/x86/include/asm/insn.h
+> +++ b/arch/x86/include/asm/insn.h
+> @@ -87,13 +87,23 @@ struct insn {
+>   #define X86_VEX_M_MAX	0x1f			/* VEX3.M Maximum value */
+>   
+>   extern void insn_init(struct insn *insn, const void *kaddr, int buf_len, int x86_64);
+> -extern void insn_get_prefixes(struct insn *insn);
+> -extern void insn_get_opcode(struct insn *insn);
+> -extern void insn_get_modrm(struct insn *insn);
+> -extern void insn_get_sib(struct insn *insn);
+> -extern void insn_get_displacement(struct insn *insn);
+> -extern void insn_get_immediate(struct insn *insn);
+> -extern void insn_get_length(struct insn *insn);
+> +extern int insn_get_prefixes(struct insn *insn);
+> +extern int insn_get_opcode(struct insn *insn);
+> +extern int insn_get_modrm(struct insn *insn);
+> +extern int insn_get_sib(struct insn *insn);
+> +extern int insn_get_displacement(struct insn *insn);
+> +extern int insn_get_immediate(struct insn *insn);
+> +extern int insn_get_length(struct insn *insn);
+> +
+> +enum insn_mode {
+> +	INSN_MODE_32,
+> +	INSN_MODE_64,
+> +	/* Mode is determined by the current kernel build. */
+> +	INSN_MODE_KERN,
+> +	INSN_NUM_MODES,
+> +};
+> +
+> +extern int insn_decode(struct insn *insn, const void *kaddr, int buf_len, enum insn_mode m);
+>   
+>   /* Attribute will be determined after getting ModRM (for opcode groups) */
+>   static inline void insn_get_attribute(struct insn *insn)
+> --- a/arch/x86/lib/insn.c
+> +++ b/arch/x86/lib/insn.c
+> @@ -13,6 +13,9 @@
+>   #include <asm/inat.h> /*__ignore_sync_check__ */
+>   #include <asm/insn.h> /* __ignore_sync_check__ */
+>   
+> +#include <linux/errno.h>
+> +#include <linux/kconfig.h>
+> +
+>   #include <asm/emulate_prefix.h> /* __ignore_sync_check__ */
+>   
+>   /* Verify next sizeof(t) bytes can be on the same instruction */
+> @@ -97,8 +100,12 @@ static void insn_get_emulate_prefix(stru
+>    * Populates the @insn->prefixes bitmap, and updates @insn->next_byte
+>    * to point to the (first) opcode.  No effect if @insn->prefixes.got
+>    * is already set.
+> + *
+> + * * Returns:
+> + * 0:  on success
+> + * < 0: on error
+>    */
+> -void insn_get_prefixes(struct insn *insn)
+> +int insn_get_prefixes(struct insn *insn)
+>   {
+>   	struct insn_field *prefixes = &insn->prefixes;
+>   	insn_attr_t attr;
+> @@ -106,7 +113,7 @@ void insn_get_prefixes(struct insn *insn
+>   	int i, nb;
+>   
+>   	if (prefixes->got)
+> -		return;
+> +		return 0;
+>   
+>   	insn_get_emulate_prefix(insn);
+>   
+> @@ -217,8 +224,10 @@ vex_end:
+>   
+>   	prefixes->got = 1;
+>   
+> +	return 0;
+> +
+>   err_out:
+> -	return;
+> +	return -ENODATA;
+>   }
+>   
+>   /**
+> @@ -230,16 +239,25 @@ err_out:
+>    * If necessary, first collects any preceding (prefix) bytes.
+>    * Sets @insn->opcode.value = opcode1.  No effect if @insn->opcode.got
+>    * is already 1.
+> + *
+> + * Returns:
+> + * 0:  on success
+> + * < 0: on error
+>    */
+> -void insn_get_opcode(struct insn *insn)
+> +int insn_get_opcode(struct insn *insn)
+>   {
+>   	struct insn_field *opcode = &insn->opcode;
+> +	int pfx_id, ret;
+>   	insn_byte_t op;
+> -	int pfx_id;
+> +
+>   	if (opcode->got)
+> -		return;
+> -	if (!insn->prefixes.got)
+> -		insn_get_prefixes(insn);
+> +		return 0;
+> +
+> +	if (!insn->prefixes.got) {
+> +		ret = insn_get_prefixes(insn);
+> +		if (ret)
+> +			return ret;
+> +	}
+>   
+>   	/* Get first opcode */
+>   	op = get_next(insn_byte_t, insn);
+> @@ -254,9 +272,13 @@ void insn_get_opcode(struct insn *insn)
+>   		insn->attr = inat_get_avx_attribute(op, m, p);
+>   		if ((inat_must_evex(insn->attr) && !insn_is_evex(insn)) ||
+>   		    (!inat_accept_vex(insn->attr) &&
+> -		     !inat_is_group(insn->attr)))
+> -			insn->attr = 0;	/* This instruction is bad */
+> -		goto end;	/* VEX has only 1 byte for opcode */
+> +		     !inat_is_group(insn->attr))) {
+> +			/* This instruction is bad */
+> +			insn->attr = 0;
+> +			return -EINVAL;
+> +		}
+> +		/* VEX has only 1 byte for opcode */
+> +		goto end;
+>   	}
+>   
+>   	insn->attr = inat_get_opcode_attribute(op);
+> @@ -267,13 +289,18 @@ void insn_get_opcode(struct insn *insn)
+>   		pfx_id = insn_last_prefix_id(insn);
+>   		insn->attr = inat_get_escape_attribute(op, pfx_id, insn->attr);
+>   	}
+> -	if (inat_must_vex(insn->attr))
+> -		insn->attr = 0;	/* This instruction is bad */
+> +
+> +	if (inat_must_vex(insn->attr)) {
+> +		/* This instruction is bad */
+> +		insn->attr = 0;
+> +		return -EINVAL;
+> +	}
+>   end:
+>   	opcode->got = 1;
+> +	return 0;
+>   
+>   err_out:
+> -	return;
+> +	return -ENODATA;
+>   }
+>   
+>   /**
+> @@ -283,15 +310,25 @@ err_out:
+>    * Populates @insn->modrm and updates @insn->next_byte to point past the
+>    * ModRM byte, if any.  If necessary, first collects the preceding bytes
+>    * (prefixes and opcode(s)).  No effect if @insn->modrm.got is already 1.
+> + *
+> + * Returns:
+> + * 0:  on success
+> + * < 0: on error
+>    */
+> -void insn_get_modrm(struct insn *insn)
+> +int insn_get_modrm(struct insn *insn)
+>   {
+>   	struct insn_field *modrm = &insn->modrm;
+>   	insn_byte_t pfx_id, mod;
+> +	int ret;
+> +
+>   	if (modrm->got)
+> -		return;
+> -	if (!insn->opcode.got)
+> -		insn_get_opcode(insn);
+> +		return 0;
+> +
+> +	if (!insn->opcode.got) {
+> +		ret = insn_get_opcode(insn);
+> +		if (ret)
+> +			return ret;
+> +	}
+>   
+>   	if (inat_has_modrm(insn->attr)) {
+>   		mod = get_next(insn_byte_t, insn);
+> @@ -301,17 +338,22 @@ void insn_get_modrm(struct insn *insn)
+>   			pfx_id = insn_last_prefix_id(insn);
+>   			insn->attr = inat_get_group_attribute(mod, pfx_id,
+>   							      insn->attr);
+> -			if (insn_is_avx(insn) && !inat_accept_vex(insn->attr))
+> -				insn->attr = 0;	/* This is bad */
+> +			if (insn_is_avx(insn) && !inat_accept_vex(insn->attr)) {
+> +				/* Bad insn */
+> +				insn->attr = 0;
+> +				return -EINVAL;
+> +			}
+>   		}
+>   	}
+>   
+>   	if (insn->x86_64 && inat_is_force64(insn->attr))
+>   		insn->opnd_bytes = 8;
+> +
+>   	modrm->got = 1;
+> +	return 0;
+>   
+>   err_out:
+> -	return;
+> +	return -ENODATA;
+>   }
+>   
+>   
+> @@ -325,11 +367,16 @@ err_out:
+>   int insn_rip_relative(struct insn *insn)
+>   {
+>   	struct insn_field *modrm = &insn->modrm;
+> +	int ret;
+>   
+>   	if (!insn->x86_64)
+>   		return 0;
+> -	if (!modrm->got)
+> -		insn_get_modrm(insn);
+> +
+> +	if (!modrm->got) {
+> +		ret = insn_get_modrm(insn);
+> +		if (ret)
+> +			return 0;
+> +	}
+>   	/*
+>   	 * For rip-relative instructions, the mod field (top 2 bits)
+>   	 * is zero and the r/m field (bottom 3 bits) is 0x5.
+> @@ -343,15 +390,25 @@ int insn_rip_relative(struct insn *insn)
+>    *
+>    * If necessary, first collects the instruction up to and including the
+>    * ModRM byte.
+> + *
+> + * Returns:
+> + * 0: if decoding succeeded
+> + * < 0: otherwise.
+>    */
+> -void insn_get_sib(struct insn *insn)
+> +int insn_get_sib(struct insn *insn)
+>   {
+>   	insn_byte_t modrm;
+> +	int ret;
+>   
+>   	if (insn->sib.got)
+> -		return;
+> -	if (!insn->modrm.got)
+> -		insn_get_modrm(insn);
+> +		return 0;
+> +
+> +	if (!insn->modrm.got) {
+> +		ret = insn_get_modrm(insn);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>   	if (insn->modrm.nbytes) {
+>   		modrm = (insn_byte_t)insn->modrm.value;
+>   		if (insn->addr_bytes != 2 &&
+> @@ -362,8 +419,10 @@ void insn_get_sib(struct insn *insn)
+>   	}
+>   	insn->sib.got = 1;
+>   
+> +	return 0;
+> +
+>   err_out:
+> -	return;
+> +	return -ENODATA;
+>   }
+>   
+>   
+> @@ -374,15 +433,25 @@ err_out:
+>    * If necessary, first collects the instruction up to and including the
+>    * SIB byte.
+>    * Displacement value is sign-expanded.
+> + *
+> + * * Returns:
+> + * 0: if decoding succeeded
+> + * < 0: otherwise.
+>    */
+> -void insn_get_displacement(struct insn *insn)
+> +int insn_get_displacement(struct insn *insn)
+>   {
+>   	insn_byte_t mod, rm, base;
+> +	int ret;
+>   
+>   	if (insn->displacement.got)
+> -		return;
+> -	if (!insn->sib.got)
+> -		insn_get_sib(insn);
+> +		return 0;
+> +
+> +	if (!insn->sib.got) {
+> +		ret = insn_get_sib(insn);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>   	if (insn->modrm.nbytes) {
+>   		/*
+>   		 * Interpreting the modrm byte:
+> @@ -425,9 +494,10 @@ void insn_get_displacement(struct insn *
+>   	}
+>   out:
+>   	insn->displacement.got = 1;
+> +	return 0;
+>   
+>   err_out:
+> -	return;
+> +	return -ENODATA;
+>   }
+>   
+>   /* Decode moffset16/32/64. Return 0 if failed */
+> @@ -538,20 +608,30 @@ err_out:
+>   }
+>   
+>   /**
+> - * insn_get_immediate() - Get the immediates of instruction
+> + * insn_get_immediate() - Get the immediate in an instruction
+>    * @insn:	&struct insn containing instruction
+>    *
+>    * If necessary, first collects the instruction up to and including the
+>    * displacement bytes.
+>    * Basically, most of immediates are sign-expanded. Unsigned-value can be
+> - * get by bit masking with ((1 << (nbytes * 8)) - 1)
+> + * computed by bit masking with ((1 << (nbytes * 8)) - 1)
+> + *
+> + * Returns:
+> + * 0:  on success
+> + * < 0: on error
+>    */
+> -void insn_get_immediate(struct insn *insn)
+> +int insn_get_immediate(struct insn *insn)
+>   {
+> +	int ret;
+> +
+>   	if (insn->immediate.got)
+> -		return;
+> -	if (!insn->displacement.got)
+> -		insn_get_displacement(insn);
+> +		return 0;
+> +
+> +	if (!insn->displacement.got) {
+> +		ret = insn_get_displacement(insn);
+> +		if (ret)
+> +			return ret;
+> +	}
+>   
+>   	if (inat_has_moffset(insn->attr)) {
+>   		if (!__get_moffset(insn))
+> @@ -604,9 +684,10 @@ void insn_get_immediate(struct insn *ins
+>   	}
+>   done:
+>   	insn->immediate.got = 1;
+> +	return 0;
+>   
+>   err_out:
+> -	return;
+> +	return -ENODATA;
+>   }
+>   
+>   /**
+> @@ -615,13 +696,58 @@ err_out:
+>    *
+>    * If necessary, first collects the instruction up to and including the
+>    * immediates bytes.
+> - */
+> -void insn_get_length(struct insn *insn)
+> + *
+> + * Returns:
+> + *  - 0 on success
+> + *  - < 0 on error
+> +*/
+> +int insn_get_length(struct insn *insn)
+>   {
+> +	int ret;
+> +
+>   	if (insn->length)
+> -		return;
+> -	if (!insn->immediate.got)
+> -		insn_get_immediate(insn);
+> +		return 0;
+> +
+> +	if (!insn->immediate.got) {
+> +		ret = insn_get_immediate(insn);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>   	insn->length = (unsigned char)((unsigned long)insn->next_byte
+>   				     - (unsigned long)insn->kaddr);
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * insn_decode() - Decode an x86 instruction
+> + * @insn:	&struct insn to be initialized
+> + * @kaddr:	address (in kernel memory) of instruction (or copy thereof)
+> + * @buf_len:	length of the insn buffer at @kaddr
+> + * @m:		insn mode, see enum insn_mode
+> + *
+> + * Returns:
+> + * 0: if decoding succeeded
+> + * < 0: otherwise.
+> + */
+> +int insn_decode(struct insn *insn, const void *kaddr, int buf_len, enum insn_mode m)
+> +{
+> +	int ret;
+> +
+> +/* #define INSN_MODE_KERN	-1 __ignore_sync_check__ mode is only valid in the kernel */
+> +
+> +	if (m == INSN_MODE_KERN)
+> +		insn_init(insn, kaddr, buf_len, IS_ENABLED(CONFIG_X86_64));
+> +	else
+> +		insn_init(insn, kaddr, buf_len, m == INSN_MODE_64);
+> +
+> +	ret = insn_get_length(insn);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (insn_complete(insn))
+> +		return 0;
+> +
+> +	return -EINVAL;
+>   }
+> --- a/tools/arch/x86/include/asm/insn.h
+> +++ b/tools/arch/x86/include/asm/insn.h
+> @@ -87,13 +87,23 @@ struct insn {
+>   #define X86_VEX_M_MAX	0x1f			/* VEX3.M Maximum value */
+>   
+>   extern void insn_init(struct insn *insn, const void *kaddr, int buf_len, int x86_64);
+> -extern void insn_get_prefixes(struct insn *insn);
+> -extern void insn_get_opcode(struct insn *insn);
+> -extern void insn_get_modrm(struct insn *insn);
+> -extern void insn_get_sib(struct insn *insn);
+> -extern void insn_get_displacement(struct insn *insn);
+> -extern void insn_get_immediate(struct insn *insn);
+> -extern void insn_get_length(struct insn *insn);
+> +extern int insn_get_prefixes(struct insn *insn);
+> +extern int insn_get_opcode(struct insn *insn);
+> +extern int insn_get_modrm(struct insn *insn);
+> +extern int insn_get_sib(struct insn *insn);
+> +extern int insn_get_displacement(struct insn *insn);
+> +extern int insn_get_immediate(struct insn *insn);
+> +extern int insn_get_length(struct insn *insn);
+> +
+> +enum insn_mode {
+> +	INSN_MODE_32,
+> +	INSN_MODE_64,
+> +	/* Mode is determined by the current kernel build. */
+> +	INSN_MODE_KERN,
+> +	INSN_NUM_MODES,
+> +};
+> +
+> +extern int insn_decode(struct insn *insn, const void *kaddr, int buf_len, enum insn_mode m);
+>   
+>   /* Attribute will be determined after getting ModRM (for opcode groups) */
+>   static inline void insn_get_attribute(struct insn *insn)
+> --- a/tools/arch/x86/lib/insn.c
+> +++ b/tools/arch/x86/lib/insn.c
+> @@ -10,10 +10,13 @@
+>   #else
+>   #include <string.h>
+>   #endif
+> -#include "../include/asm/inat.h" /* __ignore_sync_check__ */
+> -#include "../include/asm/insn.h" /* __ignore_sync_check__ */
+> +#include <asm/inat.h> /* __ignore_sync_check__ */
+> +#include <asm/insn.h> /* __ignore_sync_check__ */
 
-Regressions Summary
--------------------
+These includes breaks the build for me with:
 
-platform      | arch | lab          | compiler | defconfig          | regre=
-ssions
---------------+------+--------------+----------+--------------------+------=
-------
-at91sam9g20ek | arm  | lab-broonie  | gcc-10   | multi_v5_defconfig | 1    =
-      =
+   CC 
+/local/users/fainelli/buildroot/output/arm64/build/linux-custom/tools/perf/util/intel-pt-decoder/intel-pt-insn-decoder.o
+In file included from util/intel-pt-decoder/intel-pt-insn-decoder.c:15:
+util/intel-pt-decoder/../../../arch/x86/lib/insn.c:13:10: fatal error: 
+asm/inat.h: No such file or directory
+  #include <asm/inat.h> /* __ignore_sync_check__ */
+           ^~~~~~~~~~~~
+compilation terminated.
+make[7]: *** [util/intel-pt-decoder/Build:14: 
+/local/users/fainelli/buildroot/output/arm64/build/linux-custom/tools/perf/util/intel-pt-decoder/intel-pt-insn-decoder.o] 
+Error 1
+make[6]: *** 
+[/local/users/fainelli/buildroot/output/arm64/build/linux-custom/tools/build/Makefile.build:139: 
+intel-pt-decoder] Error 2
+make[5]: *** 
+[/local/users/fainelli/buildroot/output/arm64/build/linux-custom/tools/build/Makefile.build:139: 
+util] Error 2
+make[4]: *** [Makefile.perf:643: 
+/local/users/fainelli/buildroot/output/arm64/build/linux-custom/tools/perf/perf-in.o] 
+Error 2
+make[3]: *** [Makefile.perf:229: sub-make] Error 2
+make[2]: *** [Makefile:70: all] Error 2
+make[1]: *** [package/pkg-generic.mk:294: 
+/local/users/fainelli/buildroot/output/arm64/build/linux-tools/.stamp_built] 
+Error 2
+make: *** [Makefile:27: _all] Error 2
 
-jetson-tk1    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1    =
-      =
+It looks like you would also need to back port this:
 
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
-v4.9.323/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.9.y
-  Describe: v4.9.323
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      dadca36da71766becf9553b5f54fcfa5ba5fa4b0 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform      | arch | lab          | compiler | defconfig          | regre=
-ssions
---------------+------+--------------+----------+--------------------+------=
-------
-at91sam9g20ek | arm  | lab-broonie  | gcc-10   | multi_v5_defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cdca25d0e2eb22e0a39c0d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v5_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.323/ar=
-m/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.323/ar=
-m/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cdca25d0e2eb22e0a39=
-c0e
-        new failure (last pass: v4.9.319) =
-
- =
-
-
-
-platform      | arch | lab          | compiler | defconfig          | regre=
-ssions
---------------+------+--------------+----------+--------------------+------=
-------
-jetson-tk1    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cdcaa6f2bbcbb971a39be8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.323/ar=
-m/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.323/ar=
-m/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cdcaa6f2bbcbb971a39=
-be9
-        failing since 36 days (last pass: v4.9.314, first fail: v4.9.317) =
-
- =20
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0705ef64d1ff52b817e278ca6e28095585ff31e1
+-- 
+Florian
