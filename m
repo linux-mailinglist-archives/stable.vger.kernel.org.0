@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA5E5723A0
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864D0572383
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234078AbiGLStc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44432 "EHLO
+        id S234057AbiGLSte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234366AbiGLStC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB22A453;
-        Tue, 12 Jul 2022 11:43:40 -0700 (PDT)
+        with ESMTP id S234511AbiGLStG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956F014D00;
+        Tue, 12 Jul 2022 11:43:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A977B61B03;
-        Tue, 12 Jul 2022 18:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67FA0C3411C;
-        Tue, 12 Jul 2022 18:43:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90339B81BB9;
+        Tue, 12 Jul 2022 18:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF36C341C8;
+        Tue, 12 Jul 2022 18:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651404;
-        bh=eFvAyJVDibAY2Sr7A/p+MgTJbLpaK5JM6AIuZ6Yji2E=;
+        s=korg; t=1657651407;
+        bh=k9IrByeFv4ANj8rXmHXEEaxduV+WzzfaR+gGXS2EnL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1OZU75DHi8i5AMgpjB979SktKUpsz3+jt3pfXuA4a7hjiNYH2dfhuNeb0syB0PR1p
-         UjRmCslFGtMX1opL/q4v2DtrssdvgtnLmubCkvkj+M0t/nxhX4p0S376E8EhE6Htdh
-         lrjlCvmocJcrlqlOY2aEJQ2Q40CwpCRFfWNpA7w4=
+        b=TtVzi21yc/omcoCFGIQjPbWQOZBsrvd/8EBBsOJ39IVY+yp36W3tVA+nG2vMsvzSk
+         5yGyvZjQ3fLUysP5ZVulDKx4Hg9m0qP5esG0SBT98f9FTQBItwFwtfNvLmnxp6RCvi
+         lXx1C/s4HhC2KLt6/FChGCroP6SZ/Zfn8h5l/ZQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 065/130] objtool: Add straight-line-speculation validation
-Date:   Tue, 12 Jul 2022 20:38:31 +0200
-Message-Id: <20220712183249.463792571@linuxfoundation.org>
+Subject: [PATCH 5.10 066/130] x86: Add straight-line-speculation mitigation
+Date:   Tue, 12 Jul 2022 20:38:32 +0200
+Message-Id: <20220712183249.512243054@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -57,133 +57,198 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1cc1e4c8aab4213bd4e6353dec2620476a233d6d upstream.
+commit e463a09af2f0677b9485a7e8e4e70b396b2ffb6f upstream.
 
-Teach objtool to validate the straight-line-speculation constraints:
+Make use of an upcoming GCC feature to mitigate
+straight-line-speculation for x86:
 
- - speculation trap after indirect calls
- - speculation trap after RET
+  https://gcc.gnu.org/g:53a643f8568067d7700a9f2facc8ba39974973d3
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102952
+  https://bugs.llvm.org/show_bug.cgi?id=52323
 
-Notable: when an instruction is annotated RETPOLINE_SAFE, indicating
-  speculation isn't a problem, also don't care about sls for that
-  instruction.
+It's built tested on x86_64-allyesconfig using GCC-12 and GCC-11.
+
+Maintenance overhead of this should be fairly low due to objtool
+validation.
+
+Size overhead of all these additional int3 instructions comes to:
+
+     text	   data	    bss	    dec	    hex	filename
+  22267751	6933356	2011368	31212475	1dc43bb	defconfig-build/vmlinux
+  22804126	6933356	1470696	31208178	1dc32f2	defconfig-build/vmlinux.sls
+
+Or roughly 2.4% additional text.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211204134908.023037659@infradead.org
+Link: https://lore.kernel.org/r/20211204134908.140103474@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 5.10: adjust filenames, context]
+[bwh: Backported to 5.10:
+ - In scripts/Makefile.build, add the objtool option with an ifdef
+   block, same as for other options
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/arch.h            |    1 +
- tools/objtool/arch/x86/decode.c |   13 +++++++++----
- tools/objtool/builtin-check.c   |    4 +++-
- tools/objtool/builtin.h         |    3 ++-
- tools/objtool/check.c           |   14 ++++++++++++++
- 5 files changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/Kconfig                   |   12 ++++++++++++
+ arch/x86/Makefile                  |    6 +++++-
+ arch/x86/include/asm/linkage.h     |   10 ++++++++++
+ arch/x86/include/asm/static_call.h |    2 +-
+ arch/x86/kernel/ftrace.c           |    2 +-
+ arch/x86/kernel/static_call.c      |    5 +++--
+ arch/x86/lib/memmove_64.S          |    2 +-
+ arch/x86/lib/retpoline.S           |    2 +-
+ scripts/Makefile.build             |    3 +++
+ scripts/link-vmlinux.sh            |    3 +++
+ 10 files changed, 40 insertions(+), 7 deletions(-)
 
---- a/tools/objtool/arch.h
-+++ b/tools/objtool/arch.h
-@@ -26,6 +26,7 @@ enum insn_type {
- 	INSN_CLAC,
- 	INSN_STD,
- 	INSN_CLD,
-+	INSN_TRAP,
- 	INSN_OTHER,
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -462,6 +462,18 @@ config RETPOLINE
+ 	  branches. Requires a compiler with -mindirect-branch=thunk-extern
+ 	  support for full protection. The kernel may run slower.
+ 
++config CC_HAS_SLS
++	def_bool $(cc-option,-mharden-sls=all)
++
++config SLS
++	bool "Mitigate Straight-Line-Speculation"
++	depends on CC_HAS_SLS && X86_64
++	default n
++	help
++	  Compile the kernel with straight-line-speculation options to guard
++	  against straight line speculation. The kernel image might be slightly
++	  larger.
++
+ config X86_CPU_RESCTRL
+ 	bool "x86 CPU resource control support"
+ 	depends on X86 && (CPU_SUP_INTEL || CPU_SUP_AMD)
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -196,7 +196,11 @@ ifdef CONFIG_RETPOLINE
+   endif
+ endif
+ 
+-KBUILD_LDFLAGS := -m elf_$(UTS_MACHINE)
++ifdef CONFIG_SLS
++  KBUILD_CFLAGS += -mharden-sls=all
++endif
++
++KBUILD_LDFLAGS += -m elf_$(UTS_MACHINE)
+ 
+ ifdef CONFIG_X86_NEED_RELOCS
+ LDFLAGS_vmlinux := --emit-relocs --discard-none
+--- a/arch/x86/include/asm/linkage.h
++++ b/arch/x86/include/asm/linkage.h
+@@ -18,9 +18,19 @@
+ #define __ALIGN_STR	__stringify(__ALIGN)
+ #endif
+ 
++#ifdef CONFIG_SLS
++#define RET	ret; int3
++#else
++#define RET	ret
++#endif
++
+ #else /* __ASSEMBLY__ */
+ 
++#ifdef CONFIG_SLS
++#define ASM_RET	"ret; int3\n\t"
++#else
+ #define ASM_RET	"ret\n\t"
++#endif
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+--- a/arch/x86/include/asm/static_call.h
++++ b/arch/x86/include/asm/static_call.h
+@@ -35,7 +35,7 @@
+ 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, ".byte 0xe9; .long " #func " - (. + 4)")
+ 
+ #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
+-	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; nop; nop; nop; nop")
++	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; int3; nop; nop; nop")
+ 
+ 
+ #define ARCH_ADD_TRAMP_KEY(name)					\
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -308,7 +308,7 @@ union ftrace_op_code_union {
+ 	} __attribute__((packed));
  };
  
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -456,6 +456,11 @@ int arch_decode_instruction(const struct
+-#define RET_SIZE		1
++#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
  
+ static unsigned long
+ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+--- a/arch/x86/kernel/static_call.c
++++ b/arch/x86/kernel/static_call.c
+@@ -11,6 +11,8 @@ enum insn_type {
+ 	RET = 3,  /* tramp / site cond-tail-call */
+ };
+ 
++static const u8 retinsn[] = { RET_INSN_OPCODE, 0xcc, 0xcc, 0xcc, 0xcc };
++
+ static void __ref __static_call_transform(void *insn, enum insn_type type, void *func)
+ {
+ 	int size = CALL_INSN_SIZE;
+@@ -30,8 +32,7 @@ static void __ref __static_call_transfor
  		break;
  
-+	case 0xcc:
-+		/* int3 */
-+		*type = INSN_TRAP;
-+		break;
-+
- 	case 0xe3:
- 		/* jecxz/jrcxz */
- 		*type = INSN_JUMP_CONDITIONAL;
-@@ -592,10 +597,10 @@ const char *arch_ret_insn(int len)
- {
- 	static const char ret[5][5] = {
- 		{ BYTE_RET },
--		{ BYTE_RET, 0x90 },
--		{ BYTE_RET, 0x66, 0x90 },
--		{ BYTE_RET, 0x0f, 0x1f, 0x00 },
--		{ BYTE_RET, 0x0f, 0x1f, 0x40, 0x00 },
-+		{ BYTE_RET, 0xcc },
-+		{ BYTE_RET, 0xcc, 0x90 },
-+		{ BYTE_RET, 0xcc, 0x66, 0x90 },
-+		{ BYTE_RET, 0xcc, 0x0f, 0x1f, 0x00 },
- 	};
+ 	case RET:
+-		code = text_gen_insn(RET_INSN_OPCODE, insn, func);
+-		size = RET_INSN_SIZE;
++		code = &retinsn;
+ 		break;
+ 	}
  
- 	if (len < 1 || len > 5) {
---- a/tools/objtool/builtin-check.c
-+++ b/tools/objtool/builtin-check.c
-@@ -18,7 +18,8 @@
- #include "builtin.h"
- #include "objtool.h"
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -40,7 +40,7 @@ SYM_FUNC_START(__memmove)
+ 	/* FSRM implies ERMS => no length checks, do the copy directly */
+ .Lmemmove_begin_forward:
+ 	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
+-	ALTERNATIVE "", "movq %rdx, %rcx; rep movsb; RET", X86_FEATURE_ERMS
++	ALTERNATIVE "", __stringify(movq %rdx, %rcx; rep movsb; RET), X86_FEATURE_ERMS
  
--bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats, validate_dup, vmlinux;
-+bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
-+     validate_dup, vmlinux, sls;
+ 	/*
+ 	 * movsq instruction have many startup latency
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -34,7 +34,7 @@ SYM_INNER_LABEL(__x86_indirect_thunk_\re
  
- static const char * const check_usage[] = {
- 	"objtool check [<options>] file.o",
-@@ -35,6 +36,7 @@ const struct option check_options[] = {
- 	OPT_BOOLEAN('s', "stats", &stats, "print statistics"),
- 	OPT_BOOLEAN('d', "duplicate", &validate_dup, "duplicate validation for vmlinux.o"),
- 	OPT_BOOLEAN('l', "vmlinux", &vmlinux, "vmlinux.o validation"),
-+	OPT_BOOLEAN('S', "sls", &sls, "validate straight-line-speculation"),
- 	OPT_END(),
- };
+ 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+ 		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_LFENCE
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE
  
---- a/tools/objtool/builtin.h
-+++ b/tools/objtool/builtin.h
-@@ -8,7 +8,8 @@
- #include <subcmd/parse-options.h>
+ .endm
  
- extern const struct option check_options[];
--extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats, validate_dup, vmlinux;
-+extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
-+            validate_dup, vmlinux, sls;
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -230,6 +230,9 @@ endif
+ ifdef CONFIG_X86_SMAP
+   objtool_args += --uaccess
+ endif
++ifdef CONFIG_SLS
++  objtool_args += --sls
++endif
  
- extern int cmd_check(int argc, const char **argv);
- extern int cmd_orc(int argc, const char **argv);
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2775,6 +2775,12 @@ static int validate_branch(struct objtoo
- 		switch (insn->type) {
- 
- 		case INSN_RETURN:
-+			if (next_insn && next_insn->type == INSN_TRAP) {
-+				next_insn->ignore = true;
-+			} else if (sls && !insn->retpoline_safe) {
-+				WARN_FUNC("missing int3 after ret",
-+					  insn->sec, insn->offset);
-+			}
- 			return validate_return(func, insn, &state);
- 
- 		case INSN_CALL:
-@@ -2818,6 +2824,14 @@ static int validate_branch(struct objtoo
- 			break;
- 
- 		case INSN_JUMP_DYNAMIC:
-+			if (next_insn && next_insn->type == INSN_TRAP) {
-+				next_insn->ignore = true;
-+			} else if (sls && !insn->retpoline_safe) {
-+				WARN_FUNC("missing int3 after indirect jump",
-+					  insn->sec, insn->offset);
-+			}
-+
-+			/* fallthrough */
- 		case INSN_JUMP_DYNAMIC_CONDITIONAL:
- 			if (is_sibling_call(insn)) {
- 				ret = validate_sibling_call(insn, &state);
+ # 'OBJECT_FILES_NON_STANDARD := y': skip objtool checking for a directory
+ # 'OBJECT_FILES_NON_STANDARD_foo.o := 'y': skip objtool checking for a file
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -77,6 +77,9 @@ objtool_link()
+ 		if [ -n "${CONFIG_X86_SMAP}" ]; then
+ 			objtoolopt="${objtoolopt} --uaccess"
+ 		fi
++		if [ -n "${CONFIG_SLS}" ]; then
++			objtoolopt="${objtoolopt} --sls"
++		fi
+ 		info OBJTOOL ${1}
+ 		tools/objtool/objtool ${objtoolopt} ${1}
+ 	fi
 
 
