@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A115722E9
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C7F5722FE
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233738AbiGLSma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:42:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33110 "EHLO
+        id S233897AbiGLSmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:42:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234039AbiGLSl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:41:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AECD514E;
-        Tue, 12 Jul 2022 11:41:25 -0700 (PDT)
+        with ESMTP id S233825AbiGLSmG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:42:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914ABD7B93;
+        Tue, 12 Jul 2022 11:41:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C7A261ACE;
-        Tue, 12 Jul 2022 18:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38154C3411C;
-        Tue, 12 Jul 2022 18:41:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22932B81BAB;
+        Tue, 12 Jul 2022 18:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE72C3411E;
+        Tue, 12 Jul 2022 18:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651284;
-        bh=6MHWoP7j5DCxR+KQoeA5JjHbHKkbd3JWJTvdKzygbME=;
+        s=korg; t=1657651287;
+        bh=VvU/1RP84JrPAl0/5+ZpTqj7LWQ1cv8/7kvVC/IdFmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJVdeAK7Q6A0QZzat85XbvdB0v51TuQIuhUBm42L0pTMelHdSWoxiuoqxngbLAgst
-         clZ5yqAew5NuuMSKWHDSOXLdFENTrvo3Zo4+vujiS9TgEGimhF4ePzDrNS1eZl15UR
-         LDr5LMcBbgJvaMt4KuWfz/CPByBTI1bD7cb/YKwI=
+        b=woq1JB9Q6t/3oVfIgbNtDH6jGIN0ArYpaL2RMXx4N8eOnCUh7X9S5Va4oNoTmwPpv
+         4bOoVYKkjzZr5PzlL3msp+pi6sd8kMJrJQSngEu46wtJTQZuk4ASWUSrTj4UGfVVNx
+         Ca+Mkk+WKi+a+puKl2JzeZTh/2gRSKVdwxXcHXL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
         Miroslav Benes <mbenes@suse.cz>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 029/130] objtool: Extract elf_symbol_add()
-Date:   Tue, 12 Jul 2022 20:37:55 +0200
-Message-Id: <20220712183247.735138934@linuxfoundation.org>
+Subject: [PATCH 5.10 030/130] objtool: Add elf_create_undef_symbol()
+Date:   Tue, 12 Jul 2022 20:37:56 +0200
+Message-Id: <20220712183247.779099232@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -58,110 +58,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 9a7827b7789c630c1efdb121daa42c6e77dce97f upstream.
+commit 2f2f7e47f0525cbaad5dd9675fd9d8aa8da12046 upstream.
 
-Create a common helper to add symbols.
+Allow objtool to create undefined symbols; this allows creating
+relocations to symbols not currently in the symbol table.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Link: https://lkml.kernel.org/r/20210326151300.003468981@infradead.org
-[bwh: Backported to 5.10: rb_add() parameter order is different]
+Link: https://lkml.kernel.org/r/20210326151300.064743095@infradead.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/elf.c |   56 ++++++++++++++++++++++++++++------------------------
- 1 file changed, 31 insertions(+), 25 deletions(-)
+ tools/objtool/elf.c |   60 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ tools/objtool/elf.h |    1 
+ 2 files changed, 61 insertions(+)
 
 --- a/tools/objtool/elf.c
 +++ b/tools/objtool/elf.c
-@@ -341,12 +341,39 @@ static int read_sections(struct elf *elf
- 	return 0;
+@@ -766,6 +766,66 @@ static int elf_add_string(struct elf *el
+ 	return len;
  }
  
-+static void elf_add_symbol(struct elf *elf, struct symbol *sym)
++struct symbol *elf_create_undef_symbol(struct elf *elf, const char *name)
 +{
-+	struct list_head *entry;
-+	struct rb_node *pnode;
++	struct section *symtab;
++	struct symbol *sym;
++	Elf_Data *data;
++	Elf_Scn *s;
 +
-+	sym->type = GELF_ST_TYPE(sym->sym.st_info);
-+	sym->bind = GELF_ST_BIND(sym->sym.st_info);
++	sym = malloc(sizeof(*sym));
++	if (!sym) {
++		perror("malloc");
++		return NULL;
++	}
++	memset(sym, 0, sizeof(*sym));
 +
-+	sym->offset = sym->sym.st_value;
-+	sym->len = sym->sym.st_size;
++	sym->name = strdup(name);
 +
-+	rb_add(&sym->sec->symbol_tree, &sym->node, symbol_to_offset);
-+	pnode = rb_prev(&sym->node);
-+	if (pnode)
-+		entry = &rb_entry(pnode, struct symbol, node)->list;
-+	else
-+		entry = &sym->sec->symbol_list;
-+	list_add(&sym->list, entry);
-+	elf_hash_add(elf->symbol_hash, &sym->hash, sym->idx);
-+	elf_hash_add(elf->symbol_name_hash, &sym->name_hash, str_hash(sym->name));
++	sym->sym.st_name = elf_add_string(elf, NULL, sym->name);
++	if (sym->sym.st_name == -1)
++		return NULL;
 +
-+	/*
-+	 * Don't store empty STT_NOTYPE symbols in the rbtree.  They
-+	 * can exist within a function, confusing the sorting.
-+	 */
-+	if (!sym->len)
-+		rb_erase(&sym->node, &sym->sec->symbol_tree);
++	sym->sym.st_info = GELF_ST_INFO(STB_GLOBAL, STT_NOTYPE);
++	// st_other 0
++	// st_shndx 0
++	// st_value 0
++	// st_size 0
++
++	symtab = find_section_by_name(elf, ".symtab");
++	if (!symtab) {
++		WARN("can't find .symtab");
++		return NULL;
++	}
++
++	s = elf_getscn(elf->elf, symtab->idx);
++	if (!s) {
++		WARN_ELF("elf_getscn");
++		return NULL;
++	}
++
++	data = elf_newdata(s);
++	if (!data) {
++		WARN_ELF("elf_newdata");
++		return NULL;
++	}
++
++	data->d_buf = &sym->sym;
++	data->d_size = sizeof(sym->sym);
++	data->d_align = 1;
++
++	sym->idx = symtab->len / sizeof(sym->sym);
++
++	symtab->len += data->d_size;
++	symtab->changed = true;
++
++	sym->sec = find_section_by_index(elf, 0);
++
++	elf_add_symbol(elf, sym);
++
++	return sym;
 +}
 +
- static int read_symbols(struct elf *elf)
+ struct section *elf_create_section(struct elf *elf, const char *name,
+ 				   unsigned int sh_flags, size_t entsize, int nr)
  {
- 	struct section *symtab, *symtab_shndx, *sec;
- 	struct symbol *sym, *pfunc;
--	struct list_head *entry;
--	struct rb_node *pnode;
- 	int symbols_nr, i;
- 	char *coldstr;
- 	Elf_Data *shndx_data = NULL;
-@@ -391,9 +418,6 @@ static int read_symbols(struct elf *elf)
- 			goto err;
- 		}
+--- a/tools/objtool/elf.h
++++ b/tools/objtool/elf.h
+@@ -133,6 +133,7 @@ int elf_write_insn(struct elf *elf, stru
+ 		   unsigned long offset, unsigned int len,
+ 		   const char *insn);
+ int elf_write_reloc(struct elf *elf, struct reloc *reloc);
++struct symbol *elf_create_undef_symbol(struct elf *elf, const char *name);
+ int elf_write(struct elf *elf);
+ void elf_close(struct elf *elf);
  
--		sym->type = GELF_ST_TYPE(sym->sym.st_info);
--		sym->bind = GELF_ST_BIND(sym->sym.st_info);
--
- 		if ((sym->sym.st_shndx > SHN_UNDEF &&
- 		     sym->sym.st_shndx < SHN_LORESERVE) ||
- 		    (shndx_data && sym->sym.st_shndx == SHN_XINDEX)) {
-@@ -406,32 +430,14 @@ static int read_symbols(struct elf *elf)
- 				     sym->name);
- 				goto err;
- 			}
--			if (sym->type == STT_SECTION) {
-+			if (GELF_ST_TYPE(sym->sym.st_info) == STT_SECTION) {
- 				sym->name = sym->sec->name;
- 				sym->sec->sym = sym;
- 			}
- 		} else
- 			sym->sec = find_section_by_index(elf, 0);
- 
--		sym->offset = sym->sym.st_value;
--		sym->len = sym->sym.st_size;
--
--		rb_add(&sym->sec->symbol_tree, &sym->node, symbol_to_offset);
--		pnode = rb_prev(&sym->node);
--		if (pnode)
--			entry = &rb_entry(pnode, struct symbol, node)->list;
--		else
--			entry = &sym->sec->symbol_list;
--		list_add(&sym->list, entry);
--		elf_hash_add(elf->symbol_hash, &sym->hash, sym->idx);
--		elf_hash_add(elf->symbol_name_hash, &sym->name_hash, str_hash(sym->name));
--
--		/*
--		 * Don't store empty STT_NOTYPE symbols in the rbtree.  They
--		 * can exist within a function, confusing the sorting.
--		 */
--		if (!sym->len)
--			rb_erase(&sym->node, &sym->sec->symbol_tree);
-+		elf_add_symbol(elf, sym);
- 	}
- 
- 	if (stats)
 
 
