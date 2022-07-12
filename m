@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C96B5723C3
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 786A157246B
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234209AbiGLSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:50:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45770 "EHLO
+        id S235062AbiGLS6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234353AbiGLStf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88125D916C;
-        Tue, 12 Jul 2022 11:44:02 -0700 (PDT)
+        with ESMTP id S234550AbiGLS6F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:58:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3AC5DD236;
+        Tue, 12 Jul 2022 11:47:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AA7161B0A;
-        Tue, 12 Jul 2022 18:43:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F2FEC385A5;
-        Tue, 12 Jul 2022 18:43:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8756B81BAC;
+        Tue, 12 Jul 2022 18:47:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17FA3C3411C;
+        Tue, 12 Jul 2022 18:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651423;
-        bh=DYakpdbPRHY7KHTWH+Lrd6E6Ay+oTi6Mb+KyBy/h+A8=;
+        s=korg; t=1657651654;
+        bh=6/pAjNrYduXQcYk5rPNhzoaKv6P80lxhDM57Mcardm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9CLrZbo9flKRIE/uTrBuppHyNsVbydNZUdvEpXqkT7+yXpTnlK51wqStP0H6aOZo
-         kUN47xeZIdjgm5jvXBhv6V/wu0Nv2aZdQENgyGVW54cCznmObeppAy29MsiyeslAHg
-         c7KEZCOR395pFM0GtcC/TmtyV6uCWgtrrhFnFJ0M=
+        b=hPRVtdF80iwVzA6XC+oSKSS0HHjXDYNni0if3QLegYg6ZQPNNo6fyJ8u3pAZBrpf9
+         jx61JbI5+Lti/yRXlR88i3dNdqzYoWcvtydGO/6CoEvURyHRqGA9KFiuW4zQm3yzyD
+         QAOC9HrUWecknr/PcBPKjZ+OucOXfOnI/WZDnNgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 070/130] crypto: x86/poly1305 - Fixup SLS
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 06/78] objtool: Explicitly avoid self modifying code in .altinstr_replacement
 Date:   Tue, 12 Jul 2022 20:38:36 +0200
-Message-Id: <20220712183249.692414647@linuxfoundation.org>
+Message-Id: <20220712183239.097913627@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,208 +59,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7ed7aa4de9421229be6d331ed52d5cd09c99f409 upstream.
+commit dd003edeffa3cb87bc9862582004f405d77d7670 upstream.
 
-Due to being a perl generated asm file, it got missed by the mass
-convertion script.
+Assume ALTERNATIVE()s know what they're doing and do not change, or
+cause to change, instructions in .altinstr_replacement sections.
 
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_init_x86_64()+0x3a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_x86_64()+0xf2: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_emit_x86_64()+0x37: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: __poly1305_block()+0x6d: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: __poly1305_init_avx()+0x1e8: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx()+0x18a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx()+0xaf8: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_emit_avx()+0x99: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx2()+0x18a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx2()+0x776: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx512()+0x18a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx512()+0x796: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx512()+0x10bd: missing int3 after ret
-
-Fixes: f94909ceb1ed ("x86: Prepare asm files for straight-line-speculation")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120309.722511775@infradead.org
+[cascardo: context adjustment]
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/crypto/poly1305-x86_64-cryptogams.pl |   38 +++++++++++++-------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ tools/objtool/check.c |   43 ++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 11 deletions(-)
 
---- a/arch/x86/crypto/poly1305-x86_64-cryptogams.pl
-+++ b/arch/x86/crypto/poly1305-x86_64-cryptogams.pl
-@@ -297,7 +297,7 @@ ___
- $code.=<<___;
- 	mov	\$1,%eax
- .Lno_key:
--	ret
-+	RET
- ___
- &end_function("poly1305_init_x86_64");
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -840,18 +840,27 @@ static void remove_insn_ops(struct instr
+ 	}
+ }
  
-@@ -373,7 +373,7 @@ $code.=<<___;
- .cfi_adjust_cfa_offset	-48
- .Lno_data:
- .Lblocks_epilogue:
--	ret
-+	RET
- .cfi_endproc
- ___
- &end_function("poly1305_blocks_x86_64");
-@@ -399,7 +399,7 @@ $code.=<<___;
- 	mov	%rax,0($mac)	# write result
- 	mov	%rcx,8($mac)
- 
--	ret
-+	RET
- ___
- &end_function("poly1305_emit_x86_64");
- if ($avx) {
-@@ -429,7 +429,7 @@ ___
- 	&poly1305_iteration();
- $code.=<<___;
- 	pop $ctx
--	ret
-+	RET
- .size	__poly1305_block,.-__poly1305_block
- 
- .type	__poly1305_init_avx,\@abi-omnipotent
-@@ -594,7 +594,7 @@ __poly1305_init_avx:
- 
- 	lea	-48-64($ctx),$ctx	# size [de-]optimization
- 	pop %rbp
--	ret
-+	RET
- .size	__poly1305_init_avx,.-__poly1305_init_avx
- ___
- 
-@@ -747,7 +747,7 @@ $code.=<<___;
- .cfi_restore	%rbp
- .Lno_data_avx:
- .Lblocks_avx_epilogue:
--	ret
-+	RET
- .cfi_endproc
- 
- .align	32
-@@ -1452,7 +1452,7 @@ $code.=<<___	if (!$win64);
- ___
- $code.=<<___;
- 	vzeroupper
--	ret
-+	RET
- .cfi_endproc
- ___
- &end_function("poly1305_blocks_avx");
-@@ -1508,7 +1508,7 @@ $code.=<<___;
- 	mov	%rax,0($mac)	# write result
- 	mov	%rcx,8($mac)
- 
--	ret
-+	RET
- ___
- &end_function("poly1305_emit_avx");
- 
-@@ -1675,7 +1675,7 @@ $code.=<<___;
- .cfi_restore 	%rbp
- .Lno_data_avx2$suffix:
- .Lblocks_avx2_epilogue$suffix:
--	ret
-+	RET
- .cfi_endproc
- 
- .align	32
-@@ -2201,7 +2201,7 @@ $code.=<<___	if (!$win64);
- ___
- $code.=<<___;
- 	vzeroupper
--	ret
-+	RET
- .cfi_endproc
- ___
- if($avx > 2 && $avx512) {
-@@ -2792,7 +2792,7 @@ $code.=<<___	if (!$win64);
- .cfi_def_cfa_register	%rsp
- ___
- $code.=<<___;
--	ret
-+	RET
- .cfi_endproc
- ___
- 
-@@ -2893,7 +2893,7 @@ $code.=<<___	if ($flavour =~ /elf32/);
- ___
- $code.=<<___;
- 	mov	\$1,%eax
--	ret
-+	RET
- .size	poly1305_init_base2_44,.-poly1305_init_base2_44
- ___
+-static void add_call_dest(struct objtool_file *file, struct instruction *insn,
+-			  struct symbol *dest, bool sibling)
++static void annotate_call_site(struct objtool_file *file,
++			       struct instruction *insn, bool sibling)
  {
-@@ -3010,7 +3010,7 @@ poly1305_blocks_vpmadd52:
- 	jnz		.Lblocks_vpmadd52_4x
+ 	struct reloc *reloc = insn_reloc(file, insn);
++	struct symbol *sym = insn->call_dest;
  
- .Lno_data_vpmadd52:
--	ret
-+	RET
- .size	poly1305_blocks_vpmadd52,.-poly1305_blocks_vpmadd52
- ___
+-	insn->call_dest = dest;
+-	if (!dest)
++	if (!sym)
++		sym = reloc->sym;
++
++	/*
++	 * Alternative replacement code is just template code which is
++	 * sometimes copied to the original instruction. For now, don't
++	 * annotate it. (In the future we might consider annotating the
++	 * original instruction if/when it ever makes sense to do so.)
++	 */
++	if (!strcmp(insn->sec->name, ".altinstr_replacement"))
+ 		return;
+ 
+-	if (insn->call_dest->static_call_tramp) {
+-		list_add_tail(&insn->call_node,
+-			      &file->static_call_list);
++	if (sym->static_call_tramp) {
++		list_add_tail(&insn->call_node, &file->static_call_list);
++		return;
+ 	}
+ 
+ 	/*
+@@ -859,7 +868,7 @@ static void add_call_dest(struct objtool
+ 	 * so they need a little help, NOP out any KCOV calls from noinstr
+ 	 * text.
+ 	 */
+-	if (insn->sec->noinstr && insn->call_dest->kcov) {
++	if (insn->sec->noinstr && sym->kcov) {
+ 		if (reloc) {
+ 			reloc->type = R_NONE;
+ 			elf_write_reloc(file->elf, reloc);
+@@ -881,9 +890,11 @@ static void add_call_dest(struct objtool
+ 			 */
+ 			insn->retpoline_safe = true;
+ 		}
++
++		return;
+ 	}
+ 
+-	if (mcount && insn->call_dest->fentry) {
++	if (mcount && sym->fentry) {
+ 		if (sibling)
+ 			WARN_FUNC("Tail call to __fentry__ !?!?", insn->sec, insn->offset);
+ 
+@@ -898,9 +909,17 @@ static void add_call_dest(struct objtool
+ 
+ 		insn->type = INSN_NOP;
+ 
+-		list_add_tail(&insn->mcount_loc_node,
+-			      &file->mcount_loc_list);
++		list_add_tail(&insn->mcount_loc_node, &file->mcount_loc_list);
++		return;
+ 	}
++}
++
++static void add_call_dest(struct objtool_file *file, struct instruction *insn,
++			  struct symbol *dest, bool sibling)
++{
++	insn->call_dest = dest;
++	if (!dest)
++		return;
+ 
+ 	/*
+ 	 * Whatever stack impact regular CALLs have, should be undone
+@@ -910,6 +929,8 @@ static void add_call_dest(struct objtool
+ 	 * are converted to JUMP, see read_intra_function_calls().
+ 	 */
+ 	remove_insn_ops(insn);
++
++	annotate_call_site(file, insn, sibling);
  }
-@@ -3451,7 +3451,7 @@ poly1305_blocks_vpmadd52_4x:
- 	vzeroall
  
- .Lno_data_vpmadd52_4x:
--	ret
-+	RET
- .size	poly1305_blocks_vpmadd52_4x,.-poly1305_blocks_vpmadd52_4x
- ___
- }
-@@ -3824,7 +3824,7 @@ $code.=<<___;
- 	vzeroall
- 
- .Lno_data_vpmadd52_8x:
--	ret
-+	RET
- .size	poly1305_blocks_vpmadd52_8x,.-poly1305_blocks_vpmadd52_8x
- ___
- }
-@@ -3861,7 +3861,7 @@ poly1305_emit_base2_44:
- 	mov	%rax,0($mac)	# write result
- 	mov	%rcx,8($mac)
- 
--	ret
-+	RET
- .size	poly1305_emit_base2_44,.-poly1305_emit_base2_44
- ___
- }	}	}
-@@ -3916,7 +3916,7 @@ xor128_encrypt_n_pad:
- 
- .Ldone_enc:
- 	mov	$otp,%rax
--	ret
-+	RET
- .size	xor128_encrypt_n_pad,.-xor128_encrypt_n_pad
- 
- .globl	xor128_decrypt_n_pad
-@@ -3967,7 +3967,7 @@ xor128_decrypt_n_pad:
- 
- .Ldone_dec:
- 	mov	$otp,%rax
--	ret
-+	RET
- .size	xor128_decrypt_n_pad,.-xor128_decrypt_n_pad
- ___
- }
-@@ -4109,7 +4109,7 @@ avx_handler:
- 	pop	%rbx
- 	pop	%rdi
- 	pop	%rsi
--	ret
-+	RET
- .size	avx_handler,.-avx_handler
- 
- .section	.pdata
+ /*
 
 
