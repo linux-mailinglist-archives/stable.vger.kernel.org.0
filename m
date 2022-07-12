@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA0F572478
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0D65724FE
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235114AbiGLTBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:01:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
+        id S235674AbiGLTIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:08:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235111AbiGLTAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:00:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3680A6541;
-        Tue, 12 Jul 2022 11:48:38 -0700 (PDT)
+        with ESMTP id S235585AbiGLTH5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:07:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21070E52B4;
+        Tue, 12 Jul 2022 11:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 699DF6090C;
-        Tue, 12 Jul 2022 18:48:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B848C3411C;
-        Tue, 12 Jul 2022 18:48:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66A5DB81BBE;
+        Tue, 12 Jul 2022 18:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEFC2C3411E;
+        Tue, 12 Jul 2022 18:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651717;
-        bh=mF/NTo3jFPn5PYFhpdCOvlbKcfW1wEd+E7B0WinnZkY=;
+        s=korg; t=1657651895;
+        bh=cl1JzN7F0eth4JOetCv10eNt1GVlMIXPFGGABdD1LSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaVon9nsQfpeyytMGhE0yJN4mLNFa53hv6GcGCq9qYC2MXqwvhHPEDlBFCYQXiJpW
-         tcq8wFalmQiy6P/HHLDmYDQ1s4a4KFJFeSOwuOJPPv+/yzcFZtH6npmkWhiMu++IW3
-         yg1zVecGdmsb9u/IuOZyueM42laAfsBMBzk3MhAQ=
+        b=NcLwf5ZcJfGCxeCAnmTISKTFtlQaJTmiSjKPYSX9saCVYgiOGMR3Yp1DU78J24mtP
+         TRFCWLum5buX+U9w6/bO4v6opvKoiBRqlDU6H1512LsTtvYcdtGkrQmBzVzYkcZeDE
+         SqKeXTXt1MzJm9x86KAIAe37eN5mPQUIZZOhMkYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 34/78] x86/bpf: Use alternative RET encoding
+Subject: [PATCH 5.18 07/61] x86/cpufeatures: Move RETPOLINE flags to word 11
 Date:   Tue, 12 Jul 2022 20:39:04 +0200
-Message-Id: <20220712183240.191489224@linuxfoundation.org>
+Message-Id: <20220712183237.243340693@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,9 +58,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit d77cfe594ad50e0bf95d457e02ccd578791b2a15 upstream.
+commit a883d624aed463c84c22596006e5a96f5b44db31 upstream.
 
-Use the return thunk in eBPF generated code, if needed.
+In order to extend the RETPOLINE features to 4, move them to word 11
+where there is still room. This mostly keeps DISABLE_RETPOLINE
+simple.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
@@ -69,50 +71,32 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/net/bpf_jit_comp.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/cpufeatures.h |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -406,6 +406,21 @@ static void emit_indirect_jump(u8 **ppro
- 	*pprog = prog;
- }
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -203,8 +203,8 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
++/* FREE!				( 7*32+12) */
++/* FREE!				( 7*32+13) */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+@@ -295,6 +295,10 @@
+ #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
+ #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
+ #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
++/* FREE!				(11*32+10) */
++/* FREE!				(11*32+11) */
++#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
  
-+static void emit_return(u8 **pprog, u8 *ip)
-+{
-+	u8 *prog = *pprog;
-+
-+	if (cpu_feature_enabled(X86_FEATURE_RETHUNK)) {
-+		emit_jump(&prog, &__x86_return_thunk, ip);
-+	} else {
-+		EMIT1(0xC3);		/* ret */
-+		if (IS_ENABLED(CONFIG_SLS))
-+			EMIT1(0xCC);	/* int3 */
-+	}
-+
-+	*pprog = prog;
-+}
-+
- /*
-  * Generate the following code:
-  *
-@@ -1681,7 +1696,7 @@ emit_jmp:
- 			ctx->cleanup_addr = proglen;
- 			pop_callee_regs(&prog, callee_regs_used);
- 			EMIT1(0xC9);         /* leave */
--			EMIT1(0xC3);         /* ret */
-+			emit_return(&prog, image + addrs[i - 1] + (prog - temp));
- 			break;
- 
- 		default:
-@@ -2127,7 +2142,7 @@ int arch_prepare_bpf_trampoline(struct b
- 	if (flags & BPF_TRAMP_F_SKIP_FRAME)
- 		/* skip our return address and return to parent */
- 		EMIT4(0x48, 0x83, 0xC4, 8); /* add rsp, 8 */
--	EMIT1(0xC3); /* ret */
-+	emit_return(&prog, prog);
- 	/* Make sure the trampoline generation logic doesn't overflow */
- 	if (WARN_ON_ONCE(prog > (u8 *)image_end - BPF_INSN_SAFETY)) {
- 		ret = -EFAULT;
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
 
 
