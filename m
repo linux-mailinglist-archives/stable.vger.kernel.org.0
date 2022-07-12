@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 011E457247B
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F9D5723BB
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234414AbiGLTAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42262 "EHLO
+        id S234625AbiGLSwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235369AbiGLS7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:59:37 -0400
+        with ESMTP id S234368AbiGLSvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:51:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABB2F4239;
-        Tue, 12 Jul 2022 11:48:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DDD5E5872;
+        Tue, 12 Jul 2022 11:44:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6970260A5A;
-        Tue, 12 Jul 2022 18:48:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 581A4C3411C;
-        Tue, 12 Jul 2022 18:48:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE34760C8E;
+        Tue, 12 Jul 2022 18:44:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE70C3411C;
+        Tue, 12 Jul 2022 18:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651699;
-        bh=Lb9QWk96WPTUHtVIDQUUvFBZ7ad51b1dDmFNTdktXKQ=;
+        s=korg; t=1657651489;
+        bh=ufygdNxYvRwqap/gxVvpqhpvRh4OFs5NCTipEhRPTSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tm9+oXXdw20XKg5UIC5GyI1+mXJq9HKr7f1sIUkWqGmyOrJ4YxWQM6TBQaRjE+3iM
-         S8IRbXTa0BZu/fhkuITjznLDhAP339iiF7TLw49qR6n5ZfAfXSjllBCC6vmDelLBEw
-         HCGg1bmC0vXITFHmYpaW+qmjpDf3iZ42N+yqjFR0=
+        b=rStUrVlBc3ijqqF9VovYcCCkxlva4lemUKoiG2NqlvWIArQmd4JmKp1738HhPHdVJ
+         onNuFbBtB72+Iqe29kU1hTKwQtUYcUZ3Dq3kq9Pe8oiJhoQXhkW74poeIZLw5hHIu2
+         KzIoagKChIBF8U7qWyYCVKqrsCJ6kZbIAUkP1gKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 28/78] x86/retpoline: Use -mfunction-return
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 092/130] x86/sev: Avoid using __x86_return_thunk
 Date:   Tue, 12 Jul 2022 20:38:58 +0200
-Message-Id: <20220712183239.940184256@linuxfoundation.org>
+Message-Id: <20220712183250.703955200@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,78 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 0b53c374b9eff2255a386f1f1cfb9a928e52a5ae upstream.
+commit 0ee9073000e8791f8b134a8ded31bcc767f7f232 upstream.
 
-Utilize -mfunction-return=thunk-extern when available to have the
-compiler replace RET instructions with direct JMPs to the symbol
-__x86_return_thunk. This does not affect assembler (.S) sources, only C
-sources.
+Specifically, it's because __enc_copy() encrypts the kernel after
+being relocated outside the kernel in sme_encrypt_execute(), and the
+RET macro's jmp offset isn't amended prior to execution.
 
--mfunction-return=thunk-extern has been available since gcc 7.3 and
-clang 15.
-
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: RETPOLINE_CFLAGS is at Makefile]
-[cascardo: remove ANNOTATE_NOENDBR from __x86_return_thunk]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile                             |    2 ++
- arch/x86/include/asm/nospec-branch.h |    2 ++
- arch/x86/lib/retpoline.S             |   12 ++++++++++++
- 3 files changed, 16 insertions(+)
+ arch/x86/mm/mem_encrypt_boot.S |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -687,11 +687,13 @@ endif
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -65,7 +65,9 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	movq	%rbp, %rsp		/* Restore original stack pointer */
+ 	pop	%rbp
  
- ifdef CONFIG_CC_IS_GCC
- RETPOLINE_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-extern -mindirect-branch-register)
-+RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
- RETPOLINE_VDSO_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-inline -mindirect-branch-register)
- endif
- ifdef CONFIG_CC_IS_CLANG
- RETPOLINE_CFLAGS	:= -mretpoline-external-thunk
- RETPOLINE_VDSO_CFLAGS	:= -mretpoline
-+RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
- endif
- export RETPOLINE_CFLAGS
- export RETPOLINE_VDSO_CFLAGS
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -120,6 +120,8 @@
- 	_ASM_PTR " 999b\n\t"					\
- 	".popsection\n\t"
- 
-+extern void __x86_return_thunk(void);
-+
- #ifdef CONFIG_RETPOLINE
- 
- typedef u8 retpoline_thunk_t[RETPOLINE_THUNK_SIZE];
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -66,3 +66,15 @@ SYM_CODE_END(__x86_indirect_thunk_array)
- #define GEN(reg) EXPORT_THUNK(reg)
- #include <asm/GEN-for-each-reg.h>
- #undef GEN
-+
-+/*
-+ * This function name is magical and is used by -mfunction-return=thunk-extern
-+ * for the compiler to generate JMPs to it.
-+ */
-+SYM_CODE_START(__x86_return_thunk)
-+	UNWIND_HINT_EMPTY
+-	RET
++	/* Offset to __x86_return_thunk would be wrong here */
 +	ret
 +	int3
-+SYM_CODE_END(__x86_return_thunk)
-+
-+__EXPORT_THUNK(__x86_return_thunk)
+ SYM_FUNC_END(sme_encrypt_execute)
+ 
+ SYM_FUNC_START(__enc_copy)
+@@ -151,6 +153,8 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r12
+ 	pop	%r15
+ 
+-	RET
++	/* Offset to __x86_return_thunk would be wrong here */
++	ret
++	int3
+ .L__enc_copy_end:
+ SYM_FUNC_END(__enc_copy)
 
 
