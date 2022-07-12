@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DE95572451
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E34572547
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235107AbiGLTBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:01:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47384 "EHLO
+        id S235898AbiGLTMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:12:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235108AbiGLTAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:00:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E9AC64CD;
-        Tue, 12 Jul 2022 11:48:37 -0700 (PDT)
+        with ESMTP id S235859AbiGLTMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:12:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79BD8E680D;
+        Tue, 12 Jul 2022 11:53:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00810B81BAC;
-        Tue, 12 Jul 2022 18:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69DE9C3411C;
-        Tue, 12 Jul 2022 18:48:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06ABE61274;
+        Tue, 12 Jul 2022 18:53:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF12C3411C;
+        Tue, 12 Jul 2022 18:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651714;
-        bh=t9OjSjSmFBOXBMMrmj1viWCftNw3XoVmdHmp2Dv1q/s=;
+        s=korg; t=1657651990;
+        bh=Blu1wDuwQwj1vl2Ovptffjjz0/kzFxLq7KwHo/jSTCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGqZ4xLMsH2FKRZgL1tnXfaQH3uxSwDT16FqPuyRKQndqketamcOHEUJRqUsqQ4HX
-         OKBEh0Gi1YM0+ieQiQZhsdHk1np36wqgDjtHOuCOhCdDL4S7cEWOZWPKUj8ySTy8Ql
-         iwRNE9kNocsdkID58QVVgQX2Y4zUFpu3WlskIWi8=
+        b=Isg4KN78xrGIwbjoeH/Nqi7OSN2EgB/+u20yPVlhHebmSl2uyzhnTJpfi9PnMEGvz
+         MvguOJlP2exU1MXPQzaOBP17vBOCvgqKCoeNOz5fDF33IckBX7hrbWrBXCGF8V+cBW
+         bIqvG5eoMe5tA+YnqhHjmKIzIkSsWpCLNYWGhnVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 33/78] x86/ftrace: Use alternative RET encoding
+Subject: [PATCH 5.18 06/61] x86/kvm/vmx: Make noinstr clean
 Date:   Tue, 12 Jul 2022 20:39:03 +0200
-Message-Id: <20220712183240.143777404@linuxfoundation.org>
+Message-Id: <20220712183237.195528665@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,44 +57,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1f001e9da6bbf482311e45e48f53c2bd2179e59c upstream.
+commit 742ab6df974ae8384a2dd213db1a3a06cf6d8936 upstream.
 
-Use the return thunk in ftrace trampolines, if needed.
+The recent mmio_stale_data fixes broke the noinstr constraints:
+
+  vmlinux.o: warning: objtool: vmx_vcpu_enter_exit+0x15b: call to wrmsrl.constprop.0() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: vmx_vcpu_enter_exit+0x1bf: call to kvm_arch_has_assigned_device() leaves .noinstr.text section
+
+make it all happy again.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: still copy return from ftrace_stub]
-[cascardo: use memcpy(text_gen_insn) as there is no __text_gen_insn]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/ftrace.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/vmx.c   |    6 +++---
+ arch/x86/kvm/x86.c       |    4 ++--
+ include/linux/kvm_host.h |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -308,7 +308,7 @@ union ftrace_op_code_union {
- 	} __attribute__((packed));
- };
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -383,9 +383,9 @@ static __always_inline void vmx_disable_
+ 	if (!vmx->disable_fb_clear)
+ 		return;
  
--#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
-+#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
+-	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
++	msr = __rdmsr(MSR_IA32_MCU_OPT_CTRL);
+ 	msr |= FB_CLEAR_DIS;
+-	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
++	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
+ 	/* Cache the MSR value to avoid reading it later */
+ 	vmx->msr_ia32_mcu_opt_ctrl = msr;
+ }
+@@ -396,7 +396,7 @@ static __always_inline void vmx_enable_f
+ 		return;
  
- static unsigned long
- create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
-@@ -367,7 +367,10 @@ create_trampoline(struct ftrace_ops *ops
+ 	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
+-	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
++	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
+ }
  
- 	/* The trampoline ends with ret(q) */
- 	retq = (unsigned long)ftrace_stub;
--	ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
-+	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
-+		memcpy(ip, text_gen_insn(JMP32_INSN_OPCODE, ip, &__x86_return_thunk), JMP32_INSN_SIZE);
-+	else
-+		ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
- 	if (WARN_ON(ret < 0))
- 		goto fail;
+ static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -12531,9 +12531,9 @@ void kvm_arch_end_assignment(struct kvm
+ }
+ EXPORT_SYMBOL_GPL(kvm_arch_end_assignment);
  
+-bool kvm_arch_has_assigned_device(struct kvm *kvm)
++bool noinstr kvm_arch_has_assigned_device(struct kvm *kvm)
+ {
+-	return atomic_read(&kvm->arch.assigned_device_count);
++	return arch_atomic_read(&kvm->arch.assigned_device_count);
+ }
+ EXPORT_SYMBOL_GPL(kvm_arch_has_assigned_device);
+ 
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1511,7 +1511,7 @@ static inline void kvm_arch_end_assignme
+ {
+ }
+ 
+-static inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
++static __always_inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
+ {
+ 	return false;
+ }
 
 
