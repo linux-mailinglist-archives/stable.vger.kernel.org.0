@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C325723C0
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49903572456
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234568AbiGLSwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:52:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
+        id S235004AbiGLS76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:59:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234611AbiGLSvo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:51:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E026E5860;
-        Tue, 12 Jul 2022 11:44:49 -0700 (PDT)
+        with ESMTP id S235079AbiGLS67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:58:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D659EFF96;
+        Tue, 12 Jul 2022 11:47:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9CA13CE1D62;
-        Tue, 12 Jul 2022 18:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9452EC3411E;
-        Tue, 12 Jul 2022 18:44:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12F66B81BAB;
+        Tue, 12 Jul 2022 18:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 509F9C3411C;
+        Tue, 12 Jul 2022 18:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651463;
-        bh=GdgQnVw35ejBBdRQk4JC4U3Dhgfkk09O80TBVdJvkNY=;
+        s=korg; t=1657651672;
+        bh=wpBmRMd+SkGmzZJsNlYrzIGWj1oIwGeg0RtrD2E2B6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O98wtt6ZWVzXzQHja/RZQVyTXK/p1l3OUIX/sRbf3hvsIn9bAkvROChHLebFGfsvd
-         WO0HB5MbTeaixBC8O1idUTMTMyuLTmJ+StyuZXdqJikeg1IEsWO0MMtnguW+CG4f91
-         Il9RejOTbocJgBnqP3OwPQ1byfGnwxergiprpcuo=
+        b=xeWfDbwq0vvFSGyEJLtDiHz0hSaoT79evonsYpK7Ct1uAy+3q+v4sspS5ONqBUkLj
+         vrAweRp9mkFKhX9cBe9uxhYwdgH/6pl4DnIfSKNP6wSnuGKspRlUj0icBWYH3noBu0
+         5XLolAhSpTgk8diJ+A7W0I3skAUfaQ0G6tWoIEEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 084/130] x86: Undo return-thunk damage
+        Alexei Starovoitov <ast@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 20/78] bpf,x86: Respect X86_FEATURE_RETPOLINE*
 Date:   Tue, 12 Jul 2022 20:38:50 +0200
-Message-Id: <20220712183250.334793713@linuxfoundation.org>
+Message-Id: <20220712183239.658166015@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,193 +59,245 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 15e67227c49a57837108acfe1c80570e1bd9f962 upstream.
+commit 87c87ecd00c54ecd677798cb49ef27329e0fab41 upstream.
 
-Introduce X86_FEATURE_RETHUNK for those afflicted with needing this.
+Current BPF codegen doesn't respect X86_FEATURE_RETPOLINE* flags and
+unconditionally emits a thunk call, this is sub-optimal and doesn't
+match the regular, compiler generated, code.
 
-  [ bp: Do only INT3 padding - simpler. ]
+Update the i386 JIT to emit code equal to what the compiler emits for
+the regular kernel text (IOW. a plain THUNK call).
+
+Update the x86_64 JIT to emit code similar to the result of compiler
+and kernel rewrites as according to X86_FEATURE_RETPOLINE* flags.
+Inlining RETPOLINE_AMD (lfence; jmp *%reg) and !RETPOLINE (jmp *%reg),
+while doing a THUNK call for RETPOLINE.
+
+This removes the hard-coded retpoline thunks and shrinks the generated
+code. Leaving a single retpoline thunk definition in the kernel.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: CONFIG_STACK_VALIDATION vs CONFIG_OBJTOOL]
-[cascardo: no IBT support]
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120310.614772675@infradead.org
+[cascardo: RETPOLINE_AMD was renamed to RETPOLINE_LFENCE]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/alternative.h       |    1 
- arch/x86/include/asm/cpufeatures.h       |    1 
- arch/x86/include/asm/disabled-features.h |    3 +
- arch/x86/kernel/alternative.c            |   60 +++++++++++++++++++++++++++++++
- arch/x86/kernel/module.c                 |    8 +++-
- arch/x86/kernel/vmlinux.lds.S            |    7 +++
- 6 files changed, 78 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |   59 -----------------------------------
+ arch/x86/net/bpf_jit_comp.c          |   46 +++++++++++++--------------
+ arch/x86/net/bpf_jit_comp32.c        |   22 +++++++++++--
+ 3 files changed, 41 insertions(+), 86 deletions(-)
 
---- a/arch/x86/include/asm/alternative.h
-+++ b/arch/x86/include/asm/alternative.h
-@@ -76,6 +76,7 @@ extern int alternatives_patched;
- extern void alternative_instructions(void);
- extern void apply_alternatives(struct alt_instr *start, struct alt_instr *end);
- extern void apply_retpolines(s32 *start, s32 *end);
-+extern void apply_returns(s32 *start, s32 *end);
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -320,63 +320,4 @@ static inline void mds_idle_clear_cpu_bu
  
- struct module;
+ #endif /* __ASSEMBLY__ */
  
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -296,6 +296,7 @@
- /* FREE!				(11*32+11) */
- #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
- #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
-+#define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
- 
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -60,7 +60,8 @@
- # define DISABLE_RETPOLINE	0
- #else
- # define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
--				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
-+				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)) | \
-+				 (1 << (X86_FEATURE_RETHUNK & 31)))
- #endif
- 
- /* Force disable because it's broken beyond repair */
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -270,6 +270,7 @@ static void __init_or_module add_nops(vo
+-/*
+- * Below is used in the eBPF JIT compiler and emits the byte sequence
+- * for the following assembly:
+- *
+- * With retpolines configured:
+- *
+- *    callq do_rop
+- *  spec_trap:
+- *    pause
+- *    lfence
+- *    jmp spec_trap
+- *  do_rop:
+- *    mov %rcx,(%rsp) for x86_64
+- *    mov %edx,(%esp) for x86_32
+- *    retq
+- *
+- * Without retpolines configured:
+- *
+- *    jmp *%rcx for x86_64
+- *    jmp *%edx for x86_32
+- */
+-#ifdef CONFIG_RETPOLINE
+-# ifdef CONFIG_X86_64
+-#  define RETPOLINE_RCX_BPF_JIT_SIZE	17
+-#  define RETPOLINE_RCX_BPF_JIT()				\
+-do {								\
+-	EMIT1_off32(0xE8, 7);	 /* callq do_rop */		\
+-	/* spec_trap: */					\
+-	EMIT2(0xF3, 0x90);       /* pause */			\
+-	EMIT3(0x0F, 0xAE, 0xE8); /* lfence */			\
+-	EMIT2(0xEB, 0xF9);       /* jmp spec_trap */		\
+-	/* do_rop: */						\
+-	EMIT4(0x48, 0x89, 0x0C, 0x24); /* mov %rcx,(%rsp) */	\
+-	EMIT1(0xC3);             /* retq */			\
+-} while (0)
+-# else /* !CONFIG_X86_64 */
+-#  define RETPOLINE_EDX_BPF_JIT()				\
+-do {								\
+-	EMIT1_off32(0xE8, 7);	 /* call do_rop */		\
+-	/* spec_trap: */					\
+-	EMIT2(0xF3, 0x90);       /* pause */			\
+-	EMIT3(0x0F, 0xAE, 0xE8); /* lfence */			\
+-	EMIT2(0xEB, 0xF9);       /* jmp spec_trap */		\
+-	/* do_rop: */						\
+-	EMIT3(0x89, 0x14, 0x24); /* mov %edx,(%esp) */		\
+-	EMIT1(0xC3);             /* ret */			\
+-} while (0)
+-# endif
+-#else /* !CONFIG_RETPOLINE */
+-# ifdef CONFIG_X86_64
+-#  define RETPOLINE_RCX_BPF_JIT_SIZE	2
+-#  define RETPOLINE_RCX_BPF_JIT()				\
+-	EMIT2(0xFF, 0xE1);       /* jmp *%rcx */
+-# else /* !CONFIG_X86_64 */
+-#  define RETPOLINE_EDX_BPF_JIT()				\
+-	EMIT2(0xFF, 0xE2)        /* jmp *%edx */
+-# endif
+-#endif
+-
+ #endif /* _ASM_X86_NOSPEC_BRANCH_H_ */
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -387,6 +387,25 @@ int bpf_arch_text_poke(void *ip, enum bp
+ 	return __bpf_arch_text_poke(ip, t, old_addr, new_addr, true);
  }
  
- extern s32 __retpoline_sites[], __retpoline_sites_end[];
-+extern s32 __return_sites[], __return_sites_end[];
- extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
- extern s32 __smp_locks[], __smp_locks_end[];
- void text_poke_early(void *addr, const void *opcode, size_t len);
-@@ -661,9 +662,67 @@ void __init_or_module noinline apply_ret
- 	}
- }
- 
-+/*
-+ * Rewrite the compiler generated return thunk tail-calls.
-+ *
-+ * For example, convert:
-+ *
-+ *   JMP __x86_return_thunk
-+ *
-+ * into:
-+ *
-+ *   RET
-+ */
-+static int patch_return(void *addr, struct insn *insn, u8 *bytes)
++#define EMIT_LFENCE()	EMIT3(0x0F, 0xAE, 0xE8)
++
++static void emit_indirect_jump(u8 **pprog, int reg, u8 *ip)
 +{
-+	int i = 0;
++	u8 *prog = *pprog;
 +
-+	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
-+		return -1;
++#ifdef CONFIG_RETPOLINE
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
++		EMIT_LFENCE();
++		EMIT2(0xFF, 0xE0 + reg);
++	} else if (cpu_feature_enabled(X86_FEATURE_RETPOLINE)) {
++		emit_jump(&prog, &__x86_indirect_thunk_array[reg], ip);
++	} else
++#endif
++	EMIT2(0xFF, 0xE0 + reg);
 +
-+	bytes[i++] = RET_INSN_OPCODE;
-+
-+	for (; i < insn->length;)
-+		bytes[i++] = INT3_INSN_OPCODE;
-+
-+	return i;
++	*pprog = prog;
 +}
 +
-+void __init_or_module noinline apply_returns(s32 *start, s32 *end)
-+{
-+	s32 *s;
-+
-+	for (s = start; s < end; s++) {
-+		void *addr = (void *)s + *s;
-+		struct insn insn;
-+		int len, ret;
-+		u8 bytes[16];
-+		u8 op1;
-+
-+		ret = insn_decode_kernel(&insn, addr);
-+		if (WARN_ON_ONCE(ret < 0))
-+			continue;
-+
-+		op1 = insn.opcode.bytes[0];
-+		if (WARN_ON_ONCE(op1 != JMP32_INSN_OPCODE))
-+			continue;
-+
-+		DPRINTK("return thunk at: %pS (%px) len: %d to: %pS",
-+			addr, addr, insn.length,
-+			addr + insn.length + insn.immediate.value);
-+
-+		len = patch_return(addr, &insn, bytes);
-+		if (len == insn.length) {
-+			DUMP_BYTES(((u8*)addr),  len, "%px: orig: ", addr);
-+			DUMP_BYTES(((u8*)bytes), len, "%px: repl: ", addr);
-+			text_poke_early(addr, bytes, len);
-+		}
-+	}
-+}
- #else /* !RETPOLINES || !CONFIG_STACK_VALIDATION */
- 
- void __init_or_module noinline apply_retpolines(s32 *start, s32 *end) { }
-+void __init_or_module noinline apply_returns(s32 *start, s32 *end) { }
- 
- #endif /* CONFIG_RETPOLINE && CONFIG_STACK_VALIDATION */
- 
-@@ -956,6 +1015,7 @@ void __init alternative_instructions(voi
- 	 * those can rewrite the retpoline thunks.
+ /*
+  * Generate the following code:
+  *
+@@ -468,7 +487,7 @@ static void emit_bpf_tail_call_indirect(
+ 	 * rdi == ctx (1st arg)
+ 	 * rcx == prog->bpf_func + X86_TAIL_CALL_OFFSET
  	 */
- 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
-+	apply_returns(__return_sites, __return_sites_end);
+-	RETPOLINE_RCX_BPF_JIT();
++	emit_indirect_jump(&prog, 1 /* rcx */, ip + (prog - start));
  
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
+ 	/* out: */
+ 	ctx->tail_call_indirect_label = prog - start;
+@@ -1185,8 +1204,7 @@ static int do_jit(struct bpf_prog *bpf_p
+ 			/* speculation barrier */
+ 		case BPF_ST | BPF_NOSPEC:
+ 			if (boot_cpu_has(X86_FEATURE_XMM2))
+-				/* Emit 'lfence' */
+-				EMIT3(0x0F, 0xAE, 0xE8);
++				EMIT_LFENCE();
+ 			break;
  
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -252,7 +252,7 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 			/* ST: *(u8*)(dst_reg + off) = imm */
+@@ -2122,24 +2140,6 @@ cleanup:
+ 	return ret;
+ }
+ 
+-static int emit_fallback_jump(u8 **pprog)
+-{
+-	u8 *prog = *pprog;
+-	int err = 0;
+-
+-#ifdef CONFIG_RETPOLINE
+-	/* Note that this assumes the the compiler uses external
+-	 * thunks for indirect calls. Both clang and GCC use the same
+-	 * naming convention for external thunks.
+-	 */
+-	err = emit_jump(&prog, __x86_indirect_thunk_rdx, prog);
+-#else
+-	EMIT2(0xFF, 0xE2);	/* jmp rdx */
+-#endif
+-	*pprog = prog;
+-	return err;
+-}
+-
+ static int emit_bpf_dispatcher(u8 **pprog, int a, int b, s64 *progs)
  {
- 	const Elf_Shdr *s, *text = NULL, *alt = NULL, *locks = NULL,
- 		*para = NULL, *orc = NULL, *orc_ip = NULL,
--		*retpolines = NULL;
-+		*retpolines = NULL, *returns = NULL;
- 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
+ 	u8 *jg_reloc, *prog = *pprog;
+@@ -2161,9 +2161,7 @@ static int emit_bpf_dispatcher(u8 **ppro
+ 		if (err)
+ 			return err;
  
- 	for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) {
-@@ -270,12 +270,18 @@ int module_finalize(const Elf_Ehdr *hdr,
- 			orc_ip = s;
- 		if (!strcmp(".retpoline_sites", secstrings + s->sh_name))
- 			retpolines = s;
-+		if (!strcmp(".return_sites", secstrings + s->sh_name))
-+			returns = s;
- 	}
+-		err = emit_fallback_jump(&prog);	/* jmp thunk/indirect */
+-		if (err)
+-			return err;
++		emit_indirect_jump(&prog, 2 /* rdx */, prog);
  
- 	if (retpolines) {
- 		void *rseg = (void *)retpolines->sh_addr;
- 		apply_retpolines(rseg, rseg + retpolines->sh_size);
- 	}
-+	if (returns) {
-+		void *rseg = (void *)returns->sh_addr;
-+		apply_returns(rseg, rseg + returns->sh_size);
-+	}
- 	if (alt) {
- 		/* patch .altinstructions */
- 		void *aseg = (void *)alt->sh_addr;
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -284,6 +284,13 @@ SECTIONS
- 		*(.retpoline_sites)
- 		__retpoline_sites_end = .;
- 	}
+ 		*pprog = prog;
+ 		return 0;
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -15,6 +15,7 @@
+ #include <asm/cacheflush.h>
+ #include <asm/set_memory.h>
+ #include <asm/nospec-branch.h>
++#include <asm/asm-prototypes.h>
+ #include <linux/bpf.h>
+ 
+ /*
+@@ -1267,6 +1268,21 @@ static void emit_epilogue(u8 **pprog, u3
+ 	*pprog = prog;
+ }
+ 
++static int emit_jmp_edx(u8 **pprog, u8 *ip)
++{
++	u8 *prog = *pprog;
++	int cnt = 0;
 +
-+	. = ALIGN(8);
-+	.return_sites : AT(ADDR(.return_sites) - LOAD_OFFSET) {
-+		__return_sites = .;
-+		*(.return_sites)
-+		__return_sites_end = .;
-+	}
- #endif
++#ifdef CONFIG_RETPOLINE
++	EMIT1_off32(0xE9, (u8 *)__x86_indirect_thunk_edx - (ip + 5));
++#else
++	EMIT2(0xFF, 0xE2);
++#endif
++	*pprog = prog;
++
++	return cnt;
++}
++
+ /*
+  * Generate the following code:
+  * ... bpf_tail_call(void *ctx, struct bpf_array *array, u64 index) ...
+@@ -1280,7 +1296,7 @@ static void emit_epilogue(u8 **pprog, u3
+  *   goto *(prog->bpf_func + prologue_size);
+  * out:
+  */
+-static void emit_bpf_tail_call(u8 **pprog)
++static void emit_bpf_tail_call(u8 **pprog, u8 *ip)
+ {
+ 	u8 *prog = *pprog;
+ 	int cnt = 0;
+@@ -1362,7 +1378,7 @@ static void emit_bpf_tail_call(u8 **ppro
+ 	 * eax == ctx (1st arg)
+ 	 * edx == prog->bpf_func + prologue_size
+ 	 */
+-	RETPOLINE_EDX_BPF_JIT();
++	cnt += emit_jmp_edx(&prog, ip + cnt);
  
- 	/*
+ 	if (jmp_label1 == -1)
+ 		jmp_label1 = cnt;
+@@ -2122,7 +2138,7 @@ static int do_jit(struct bpf_prog *bpf_p
+ 			break;
+ 		}
+ 		case BPF_JMP | BPF_TAIL_CALL:
+-			emit_bpf_tail_call(&prog);
++			emit_bpf_tail_call(&prog, image + addrs[i - 1]);
+ 			break;
+ 
+ 		/* cond jump */
 
 
