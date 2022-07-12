@@ -2,176 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08189571520
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 10:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5A9571534
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 10:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232660AbiGLIxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 04:53:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53844 "EHLO
+        id S231980AbiGLI70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 04:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232599AbiGLIxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 04:53:48 -0400
-Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com [IPv6:2607:f8b0:4864:20::e35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEED462FE;
-        Tue, 12 Jul 2022 01:53:44 -0700 (PDT)
-Received: by mail-vs1-xe35.google.com with SMTP id d187so7171890vsd.10;
-        Tue, 12 Jul 2022 01:53:44 -0700 (PDT)
+        with ESMTP id S230407AbiGLI7Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 04:59:24 -0400
+Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1634E63A
+        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 01:59:23 -0700 (PDT)
+Received: by mail-io1-xd35.google.com with SMTP id e5so7237383iof.2
+        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 01:59:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kpinsuut8uy/po5okYJBMsfKic8kB6vMadZAvETnKBk=;
-        b=dwJv1Pib8Q7+nvpJSurnA2xBBEzBrTNW5L3cdY1SvxMosGk6cx1B0idKPFxZEIioGY
-         AqcX5e4NBdjPBEq7A/CCssiZgQL3MJhWHJvRl6jFVmov/5NnQu8w8hIWhurofLTxLKSF
-         7hdX1g2K84bWUxhnsweKaXjgI2dYVRWiD0zYcTwM+QfWBgCRp+OAjV0bKtVfpAz5BFIc
-         ubqtALxkDCKIOKalZTp1RfBFi+fF80JGD634VfPEY5Z6Xt/6aUrezn2nuycjL2MOvrQo
-         LvFLPxdQ4RyM9UuJGv9NYBzeB4PszmM/TLyxcL7UBHI1/X9WR94/3HDXConzrUZwztQV
-         R1rQ==
+         :cc:content-transfer-encoding;
+        bh=sG+7V/3ip991155uNUZ0zbm/oLWtU/YYZZD/N2zdjXA=;
+        b=ze+8iFhyzcgFTWnxCo0j8sP0zH+lMb9WsHV+cOcY6xb5DalKSUvhSLcgi7SWqb/3x6
+         elspNdg9ZPri7j30/sz/fikgZDzYsU0CGEdNaMJ+G9oORD0smaGrgJRynUCD7pki0xDX
+         3bn2HNCn85BpAk1WBEqBRcjgpH3TIcCOCShOEkAb7BBNlJV+tZUE3By1ybHFY7WWy0+P
+         vRpd6t8wCajizSnOcT66ajY6Sq/B7x7GNb0iVOfNURfHFjrwn6RNTTAsaTeHq4v+n07k
+         3XZQyxCGtAxbKhn7uoGKBruZmm6dxkr+74/pktXgv3WmhX1zhh1eDSqQ2e3JZR30Z38Q
+         q7vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kpinsuut8uy/po5okYJBMsfKic8kB6vMadZAvETnKBk=;
-        b=rjYK9yXX81DvID5ZmhNc1ZHvGbyxgcgYNdiVYa7uZlhWkUygRAihiaW74dcFkOVkP4
-         bEba8JFTangvrbph5gxle2tWNYDt5y5kz4+7eZKGMYjfMkbB2QEdrFpHCH+2SGa3J9Mw
-         bXEzPrgs+8pwQd2eIKcKBjY5sApBjD5uj6Qyqlcr6yE6PhkwKIPtuf/RHTj0O1RO4FzA
-         ms6FOU+aWb8F8bL4O9xkMsyOrAe8m8ELYTnsjELWrV4hyEni7cLB0JacewaynB9ceyF8
-         qJatuSyP2thXGzQN45NRaeKUcvGUbuK8/LdQtTdluxAVf+zZgqigvpDboNU5HckZdsF1
-         HpJg==
-X-Gm-Message-State: AJIora/HLL0bnQB9Ual/QgywyQ4lUppc+TRwJbs0eJdv73SZlRnENQhL
-        xqXCnbweVX7DoHn4PH9N56TwdWt2YRVJbIEe3yg=
-X-Google-Smtp-Source: AGRyM1vGuZr37QKxGZELIk3qMdL5HX6pFPV1LqHc7xDSaL+xY6Ja4/bjdrQ9Vps4TUIPmQDgFhEufFvyr1b+jLsacsM=
-X-Received: by 2002:a67:ec05:0:b0:357:7a48:cba8 with SMTP id
- d5-20020a67ec05000000b003577a48cba8mr637429vso.78.1657616024024; Tue, 12 Jul
- 2022 01:53:44 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=sG+7V/3ip991155uNUZ0zbm/oLWtU/YYZZD/N2zdjXA=;
+        b=PVb6JRAmt+FWzI3DfGiKzJelGxlKvwBcqTJugSux8KDlzL7U+4DsUx0/Pc2v1JCHMU
+         KQv7R/QRP8sihuXsfDU9k37ilKzF+FENppqQw+qFZaWqz8bvzDIqKCoUInbSd9+lCqXa
+         I5g7gYLUHr4SyXpsCBMItSjxp6+FkXXcUhGtRd3KcCjbb4T43N4pI38SvW3Vi7paB1IY
+         u1NAvhH1evuA4lhzM9qny1BzKYr7D7s6bqdLwwCtY7xuDo8q2aByPHglHUOE/HcQCF52
+         HjpTkQRtL1qZC+SDnzXv6xDDqUdW74DfBVBBYPSb/LrdjG7LTpSKzergYuc8zwhK0vDd
+         kIFA==
+X-Gm-Message-State: AJIora9VPZrooA74Uzz3ow55zOwpbaIsXn50O+3aCdVZLj+jj4XsMzVa
+        1jd28sQ4GBR6Rgkipg/9yDJPeVBppVp+dntZh/m0Rw==
+X-Google-Smtp-Source: AGRyM1tgVu8qDmag7XKjzKTHkBCkPk0K0mN15I+IaJE3sJ07kYsPOps0RH3De/uO7wRWYoXjfeORgikLcazxvVnkZqU=
+X-Received: by 2002:a05:6638:2a9:b0:33f:2d29:7546 with SMTP id
+ d9-20020a05663802a900b0033f2d297546mr12685969jaq.27.1657616361456; Tue, 12
+ Jul 2022 01:59:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220712075255.1345991-1-chenhuacai@loongson.cn>
- <20220712075255.1345991-3-chenhuacai@loongson.cn> <CAMuHMdUazqHLbc80vpZ+Msg9A3j5aPJ3fx+CdCG3kuWDSf8WSw@mail.gmail.com>
-In-Reply-To: <CAMuHMdUazqHLbc80vpZ+Msg9A3j5aPJ3fx+CdCG3kuWDSf8WSw@mail.gmail.com>
-From:   Huacai Chen <chenhuacai@gmail.com>
-Date:   Tue, 12 Jul 2022 16:53:32 +0800
-Message-ID: <CAAhV-H775jXMbcR9j=oLBuHo1PfFziZSUQWttJAEw20sUt+GAA@mail.gmail.com>
-Subject: Re: [PATCH 3/6] M68K: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Huacai Chen <chenhuacai@loongson.cn>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michal Simek <monstr@monstr.eu>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        loongarch@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
+References: <20220711090535.517697227@linuxfoundation.org>
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 12 Jul 2022 14:29:10 +0530
+Message-ID: <CA+G9fYuy5KTLHW2AG8tpiQH_8x6f=e3HG6XG40CuVwDMCq+Qgg@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/14] 4.9.323-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Geert,
+On Mon, 11 Jul 2022 at 14:37, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.323 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.323-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Tue, Jul 12, 2022 at 4:33 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->
-> Hi Huacai,
->
-> Thanks for your patch!
->
-> On Tue, Jul 12, 2022 at 9:53 AM Huacai Chen <chenhuacai@loongson.cn> wrote:
-> > When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
->
-> DEBUG_PER_CPU_MAPS depends on SMP, which is not supported on m68k,
-> and thus cannot be enabled.
-This patch is derived from MIPS and LoongArch, I search all
-architectures and change those that look the same as MIPS and
-LoongArch.
-And the warning message below is also a copy-paste from LoongArch, sorry.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Since M68K doesn't support SMP, then this patch seems to make no
-difference, but does it make sense to keep consistency across all
-architectures?
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Huacai
->
-> > cpu_max_bits_warn() generates a runtime warning similar as below while
-> > we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-> > instead of NR_CPUS to iterate CPUs.
-> >
-> > [    3.052463] ------------[ cut here ]------------
-> > [    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-> > [    3.070072] Modules linked in: efivarfs autofs4
->
-> efivarfs on m68k?
->
-> EFIVAR_FS depends on EFI depends on !CPU_BIG_ENDIAN
->
-> > [    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-> > [    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-> > [    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-> > [    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-> > [    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-> > [    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-> > [    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-> > [    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-> > [    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-> > [    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-> > [    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-> > [    3.195868]         ...
-> > [    3.199917] Call Trace:
-> > [    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-> > [    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-> > [    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-> > [    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-> > [    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-> > [    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-> > [    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-> > [    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-> > [    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-> > [    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-> > [    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-> > [    3.281824] ---[ end trace 8b484262b4b8c24c ]---
-> >
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
->
-> Does this need a Fixes tag, so we know when the problem was introduced?
->
-> > --- a/arch/m68k/kernel/setup_no.c
-> > +++ b/arch/m68k/kernel/setup_no.c
-> > @@ -201,7 +201,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
-> >
-> >  static void *c_start(struct seq_file *m, loff_t *pos)
-> >  {
-> > -       return *pos < NR_CPUS ? ((void *) 0x12345678) : NULL;
-> > +       return *pos < nr_cpu_ids ? ((void *) 0x12345678) : NULL;
-> >  }
->
-> include/linux/cpumask.h has:
->
->     #if NR_CPUS == 1
->     #define nr_cpu_ids              1U
->
-> so on m68k, both evaluate to the same value?
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
->
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+## Build
+* kernel: 4.9.323-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.9.y
+* git commit: 7df08530a33bb6dc5074e43d56c71476ca2b4455
+* git describe: v4.9.322-15-g7df08530a33b
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
+22-15-g7df08530a33b
+
+## Test Regressions (compared to v4.9.322)
+No test regressions found.
+
+## Metric Regressions (compared to v4.9.322)
+No metric regressions found.
+
+## Test Fixes (compared to v4.9.322)
+No test fixes found.
+
+## Metric Fixes (compared to v4.9.322)
+No metric fixes found.
+
+## Test result summary
+total: 88746, pass: 78270, fail: 325, skip: 9033, xfail: 1118
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 254 total, 249 passed, 5 failed
+* arm64: 50 total, 43 passed, 7 failed
+* i386: 26 total, 23 passed, 3 failed
+* mips: 33 total, 33 passed, 0 failed
+* parisc: 12 total, 0 passed, 12 failed
+* powerpc: 36 total, 16 passed, 20 failed
+* s390: 12 total, 9 passed, 3 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 45 total, 44 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
