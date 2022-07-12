@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0762C572344
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F38A5723AD
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234293AbiGLSok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:44:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60312 "EHLO
+        id S234612AbiGLSux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:50:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234175AbiGLSnP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:43:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAD0CDA0D3;
-        Tue, 12 Jul 2022 11:42:01 -0700 (PDT)
+        with ESMTP id S234615AbiGLSuZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:50:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E7F8E3C06;
+        Tue, 12 Jul 2022 11:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57A296186E;
-        Tue, 12 Jul 2022 18:42:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F6DC3411E;
-        Tue, 12 Jul 2022 18:41:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2600C6090C;
+        Tue, 12 Jul 2022 18:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15AF7C3411E;
+        Tue, 12 Jul 2022 18:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651320;
-        bh=b3T8UY6FZP2wcxf8N/fTReXZewBuYrszqPfDeP+Iw4Q=;
+        s=korg; t=1657651453;
+        bh=Cc2FMcbo41U7/t4HCIrRJ9iCyx8ihS/uOqE18E+9374=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IiyPVH2xY0BrJhSHdwNHITKj/pd+ycZ0YTewThCDUcSCmAgncIy4LQoJfBLOXBug
-         s0NvIa6i/fPLeOjXud8N+//IHSPREcNfzkGp7XyllzOkvJ7bwsOQ3cSOZHZEOBA5oH
-         Xvdcu9BcJkpd586KLtuPaZ0qYT2x320h60bBfr9s=
+        b=jPkssVVBhkuKndtOLTev+48BowUX8u2KS8pacTUPDUh/Xbj3UjPPe4Fhnf5/aZ6N7
+         6uH6jY+Zw1L4lXz0D0naj6O2HGAdZmTXdNYDlzw9YfVTi17idExIq60d/HfA8IhTJh
+         PiJ+Jrlwef8GQkuJcKKg0MmbHusJ2jU7H1IyF8Mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Ingo Molnar <mingo@kernel.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 039/130] objtool/x86: Ignore __x86_indirect_alt_* symbols
-Date:   Tue, 12 Jul 2022 20:38:05 +0200
-Message-Id: <20220712183248.204625458@linuxfoundation.org>
+Subject: [PATCH 5.10 040/130] objtool: Dont make .altinstructions writable
+Date:   Tue, 12 Jul 2022 20:38:06 +0200
+Message-Id: <20220712183248.256129632@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -55,45 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 31197d3a0f1caeb60fb01f6755e28347e4f44037 upstream.
+commit e31694e0a7a709293319475d8001e05e31f2178c upstream.
 
-Because the __x86_indirect_alt* symbols are just that, objtool will
-try and validate them as regular symbols, instead of the alternative
-replacements that they are.
+When objtool creates the .altinstructions section, it sets the SHF_WRITE
+flag to make the section writable -- unless the section had already been
+previously created by the kernel.  The mismatch between kernel-created
+and objtool-created section flags can cause failures with external
+tooling (kpatch-build).  And the section doesn't need to be writable
+anyway.
 
-This goes sideways for FRAME_POINTER=y builds; which generate a fair
-amount of warnings.
+Make the section flags consistent with the kernel's.
 
 Fixes: 9bc0bb50727c ("objtool/x86: Rewrite retpoline thunk calls")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: Joe Lawrence <joe.lawrence@redhat.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/YNCgxwLBiK9wclYJ@hirez.programming.kicks-ass.net
+Link: https://lore.kernel.org/r/6c284ae89717889ea136f9f0064d914cd8329d31.1624462939.git.jpoimboe@redhat.com
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/lib/retpoline.S |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/objtool/arch/x86/decode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -58,12 +58,16 @@ SYM_FUNC_START_NOALIGN(__x86_indirect_al
- 2:	.skip	5-(2b-1b), 0x90
- SYM_FUNC_END(__x86_indirect_alt_call_\reg)
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -611,7 +611,7 @@ static int elf_add_alternative(struct el
+ 	sec = find_section_by_name(elf, ".altinstructions");
+ 	if (!sec) {
+ 		sec = elf_create_section(elf, ".altinstructions",
+-					 SHF_WRITE, size, 0);
++					 SHF_ALLOC, size, 0);
  
-+STACK_FRAME_NON_STANDARD(__x86_indirect_alt_call_\reg)
-+
- SYM_FUNC_START_NOALIGN(__x86_indirect_alt_jmp_\reg)
- 	ANNOTATE_RETPOLINE_SAFE
- 1:	jmp	*%\reg
- 2:	.skip	5-(2b-1b), 0x90
- SYM_FUNC_END(__x86_indirect_alt_jmp_\reg)
- 
-+STACK_FRAME_NON_STANDARD(__x86_indirect_alt_jmp_\reg)
-+
- .endm
- 
- /*
+ 		if (!sec) {
+ 			WARN_ELF("elf_create_section");
 
 
