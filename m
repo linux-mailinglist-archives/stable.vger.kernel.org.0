@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6B615723E3
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AD29572468
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234778AbiGLSyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:54:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34132 "EHLO
+        id S234950AbiGLS74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:59:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234921AbiGLSyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:54:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA0CDE8DBA;
-        Tue, 12 Jul 2022 11:45:50 -0700 (PDT)
+        with ESMTP id S235093AbiGLS6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:58:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A711EEA92;
+        Tue, 12 Jul 2022 11:47:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97FB36090C;
-        Tue, 12 Jul 2022 18:45:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99905C3411E;
-        Tue, 12 Jul 2022 18:45:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2BB7B81BAC;
+        Tue, 12 Jul 2022 18:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D9ECC3411C;
+        Tue, 12 Jul 2022 18:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651550;
-        bh=xUZao+YZQ5hWJQmX+X+GqLQnsVGFxF9clzCVR/E8YC4=;
+        s=korg; t=1657651663;
+        bh=WBiwT2yc/NGkHe0muEFiSHX5dPep+wgeR6ZmXIblcp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bertNumDqCAOEzYYtm+UvTzemXsWjQuf8FoJGK/yo+uc3saDzo1BsViedfaItRaow
-         t0HuwaoTDOfR9SGjc1sUstFfOhLAwd4po+A/PiytKM38JvP9RLVCzQ/q5K8cV6mYV7
-         fs9VqDZj2W5aIFEQeRk+93ta+nVi8pUYw1t4riTk=
+        b=VeuPd/d36LSZOmhTQsFnMllwMtgSTsZjgRzVL9xyzu+d0/BfwTFVoTiNzsTcXWXBw
+         FGNUH6VHOA49NLSYZomZk0cLbXbwsYqhi6AAUfeQ/NXH6yyr9dgaeIM0ieF+7kplKP
+         TSB8mNR47vN7b16QMkWeTNLGLxgSt7YV+DaDTaK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 080/130] x86/retpoline: Cleanup some #ifdefery
-Date:   Tue, 12 Jul 2022 20:38:46 +0200
-Message-Id: <20220712183250.151806844@linuxfoundation.org>
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 17/78] x86/alternative: Try inline spectre_v2=retpoline,amd
+Date:   Tue, 12 Jul 2022 20:38:47 +0200
+Message-Id: <20220712183239.542957036@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,49 +59,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 369ae6ffc41a3c1137cab697635a84d0cc7cdcea upstream.
+commit bbe2df3f6b6da7848398d55b1311d58a16ec21e4 upstream.
 
-On it's own not much of a cleanup but it prepares for more/similar
-code.
+Try and replace retpoline thunk calls with:
+
+  LFENCE
+  CALL    *%\reg
+
+for spectre_v2=retpoline,amd.
+
+Specifically, the sequence above is 5 bytes for the low 8 registers,
+but 6 bytes for the high 8 registers. This means that unless the
+compilers prefix stuff the call with higher registers this replacement
+will fail.
+
+Luckily GCC strongly favours RAX for the indirect calls and most (95%+
+for defconfig-x86_64) will be converted. OTOH clang strongly favours
+R11 and almost nothing gets converted.
+
+Note: it will also generate a correct replacement for the Jcc.d32
+case, except unless the compilers start to prefix stuff that, it'll
+never fit. Specifically:
+
+  Jncc.d8 1f
+  LFENCE
+  JMP     *%\reg
+1:
+
+is 7-8 bytes long, where the original instruction in unpadded form is
+only 6 bytes.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: conflict fixup because of DISABLE_ENQCMD]
-[cascardo: no changes at nospec-branch.h and bpf_jit_comp.c]
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120310.359986601@infradead.org
+[cascardo: RETPOLINE_AMD was renamed to RETPOLINE_LFENCE]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/disabled-features.h |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/kernel/alternative.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -56,6 +56,13 @@
- # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
- #endif
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -389,6 +389,7 @@ static int emit_indirect(int op, int reg
+  *
+  *   CALL *%\reg
+  *
++ * It also tries to inline spectre_v2=retpoline,amd when size permits.
+  */
+ static int patch_retpoline(void *addr, struct insn *insn, u8 *bytes)
+ {
+@@ -405,7 +406,8 @@ static int patch_retpoline(void *addr, s
+ 	/* If anyone ever does: CALL/JMP *%rsp, we're in deep trouble. */
+ 	BUG_ON(reg == 4);
  
-+#ifdef CONFIG_RETPOLINE
-+# define DISABLE_RETPOLINE	0
-+#else
-+# define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
-+				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
-+#endif
+-	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE))
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE) &&
++	    !cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE))
+ 		return -1;
+ 
+ 	op = insn->opcode.bytes[0];
+@@ -418,8 +420,9 @@ static int patch_retpoline(void *addr, s
+ 	 * into:
+ 	 *
+ 	 *   Jncc.d8 1f
++	 *   [ LFENCE ]
+ 	 *   JMP *%\reg
+-	 *   NOP
++	 *   [ NOP ]
+ 	 * 1:
+ 	 */
+ 	/* Jcc.d32 second opcode byte is in the range: 0x80-0x8f */
+@@ -434,6 +437,15 @@ static int patch_retpoline(void *addr, s
+ 		op = JMP32_INSN_OPCODE;
+ 	}
+ 
++	/*
++	 * For RETPOLINE_AMD: prepend the indirect CALL/JMP with an LFENCE.
++	 */
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
++		bytes[i++] = 0x0f;
++		bytes[i++] = 0xae;
++		bytes[i++] = 0xe8; /* LFENCE */
++	}
 +
- /* Force disable because it's broken beyond repair */
- #define DISABLE_ENQCMD		(1 << (X86_FEATURE_ENQCMD & 31))
- 
-@@ -73,7 +80,7 @@
- #define DISABLED_MASK8	0
- #define DISABLED_MASK9	(DISABLE_SMAP)
- #define DISABLED_MASK10	0
--#define DISABLED_MASK11	0
-+#define DISABLED_MASK11	(DISABLE_RETPOLINE)
- #define DISABLED_MASK12	0
- #define DISABLED_MASK13	0
- #define DISABLED_MASK14	0
+ 	ret = emit_indirect(op, reg, bytes + i);
+ 	if (ret < 0)
+ 		return ret;
 
 
