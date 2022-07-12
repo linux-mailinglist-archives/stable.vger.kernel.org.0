@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE57957242E
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F34D757251F
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234514AbiGLS4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56362 "EHLO
+        id S235720AbiGLTKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:10:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234313AbiGLS4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:56:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFB0EB012;
-        Tue, 12 Jul 2022 11:46:41 -0700 (PDT)
+        with ESMTP id S235991AbiGLTKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:10:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B009E5DD5;
+        Tue, 12 Jul 2022 11:52:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E044B81BAB;
-        Tue, 12 Jul 2022 18:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7F68C3411C;
-        Tue, 12 Jul 2022 18:46:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE0E2B81B96;
+        Tue, 12 Jul 2022 18:52:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D1FC3411C;
+        Tue, 12 Jul 2022 18:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651599;
-        bh=o4/srVdodmfnh4pywnFMEK+V/2gNOqg0RGT2S3PRrWE=;
+        s=korg; t=1657651959;
+        bh=d/Tg3KQuQEUvLOGH2fyfA6zC/xIt83TIzA+O8zUlyjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjJHVxIYeCo2HNvtzcE5Tlt+IOpdlWF0Uo1+JNxC+o/XEohiYCrPapL2LDA+L1rD0
-         RSoCGwhE6ErMAHJ7RoAyyfWLY6utB7n4w7HPQ7oseBPM1USJQD/KlFP34+Toko9wOS
-         Ej8zVg1Vy0xeVTptHG+u20WD21e7flpuWzDyXH2E=
+        b=dSYVNsnPXI4UUjqH//aC2H9Rb+xdmBmI55natWCLUt7EpQtqJVjvB0w+uCyp+7Xxy
+         c40UT6SCE3wB3V1vxLTApizn898BgF03ZFz7K0MBdz8Bv055thzPnsjj3lFC9dEaut
+         Jlz4SkI4j7y88ctdNbfXnULySBOFUj/L8dCm71L0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 126/130] x86/bugs: Add Cannon lake to RETBleed affected CPU list
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.18 35/61] x86/xen: Rename SYS* entry points
 Date:   Tue, 12 Jul 2022 20:39:32 +0200
-Message-Id: <20220712183252.279724350@linuxfoundation.org>
+Message-Id: <20220712183238.379472213@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,30 +56,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit f54d45372c6ac9c993451de5e51312485f7d10bc upstream.
+commit b75b7f8ef1148be1b9321ffc2f6c19238904b438 upstream.
 
-Cannon lake is also affected by RETBleed, add it to the list.
+Native SYS{CALL,ENTER} entry points are called
+entry_SYS{CALL,ENTER}_{64,compat}, make sure the Xen versions are
+named consistently.
 
-Fixes: 6ad0ad2bf8a6 ("x86/bugs: Report Intel retbleed vulnerability")
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/common.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/xen/setup.c   |    6 +++---
+ arch/x86/xen/xen-asm.S |   20 ++++++++++----------
+ arch/x86/xen/xen-ops.h |    6 +++---
+ 3 files changed, 16 insertions(+), 16 deletions(-)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1129,6 +1129,7 @@ static const struct x86_cpu_id cpu_vuln_
- 	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
-+	VULNBL_INTEL_STEPPINGS(CANNONLAKE_L,	X86_STEPPING_ANY,		RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
- 	VULNBL_INTEL_STEPPINGS(ICELAKE_D,	X86_STEPPING_ANY,		MMIO),
- 	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPING_ANY,		MMIO),
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -918,7 +918,7 @@ void xen_enable_sysenter(void)
+ 	if (!boot_cpu_has(sysenter_feature))
+ 		return;
+ 
+-	ret = register_callback(CALLBACKTYPE_sysenter, xen_sysenter_target);
++	ret = register_callback(CALLBACKTYPE_sysenter, xen_entry_SYSENTER_compat);
+ 	if(ret != 0)
+ 		setup_clear_cpu_cap(sysenter_feature);
+ }
+@@ -927,7 +927,7 @@ void xen_enable_syscall(void)
+ {
+ 	int ret;
+ 
+-	ret = register_callback(CALLBACKTYPE_syscall, xen_syscall_target);
++	ret = register_callback(CALLBACKTYPE_syscall, xen_entry_SYSCALL_64);
+ 	if (ret != 0) {
+ 		printk(KERN_ERR "Failed to set syscall callback: %d\n", ret);
+ 		/* Pretty fatal; 64-bit userspace has no other
+@@ -936,7 +936,7 @@ void xen_enable_syscall(void)
+ 
+ 	if (boot_cpu_has(X86_FEATURE_SYSCALL32)) {
+ 		ret = register_callback(CALLBACKTYPE_syscall32,
+-					xen_syscall32_target);
++					xen_entry_SYSCALL_compat);
+ 		if (ret != 0)
+ 			setup_clear_cpu_cap(X86_FEATURE_SYSCALL32);
+ 	}
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -234,7 +234,7 @@ SYM_CODE_END(xenpv_restore_regs_and_retu
+  */
+ 
+ /* Normal 64-bit system call target */
+-SYM_CODE_START(xen_syscall_target)
++SYM_CODE_START(xen_entry_SYSCALL_64)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	popq %rcx
+@@ -249,12 +249,12 @@ SYM_CODE_START(xen_syscall_target)
+ 	movq $__USER_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_64_after_hwframe
+-SYM_CODE_END(xen_syscall_target)
++SYM_CODE_END(xen_entry_SYSCALL_64)
+ 
+ #ifdef CONFIG_IA32_EMULATION
+ 
+ /* 32-bit compat syscall target */
+-SYM_CODE_START(xen_syscall32_target)
++SYM_CODE_START(xen_entry_SYSCALL_compat)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	popq %rcx
+@@ -269,10 +269,10 @@ SYM_CODE_START(xen_syscall32_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_compat_after_hwframe
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ /* 32-bit compat sysenter target */
+-SYM_CODE_START(xen_sysenter_target)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	/*
+@@ -291,19 +291,19 @@ SYM_CODE_START(xen_sysenter_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSENTER_compat_after_hwframe
+-SYM_CODE_END(xen_sysenter_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
+ 
+ #else /* !CONFIG_IA32_EMULATION */
+ 
+-SYM_CODE_START(xen_syscall32_target)
+-SYM_CODE_START(xen_sysenter_target)
++SYM_CODE_START(xen_entry_SYSCALL_compat)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	lea 16(%rsp), %rsp	/* strip %rcx, %r11 */
+ 	mov $-ENOSYS, %rax
+ 	pushq $0
+ 	jmp hypercall_iret
+-SYM_CODE_END(xen_sysenter_target)
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ #endif	/* CONFIG_IA32_EMULATION */
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -10,10 +10,10 @@
+ /* These are code, but not functions.  Defined in entry.S */
+ extern const char xen_failsafe_callback[];
+ 
+-void xen_sysenter_target(void);
++void xen_entry_SYSENTER_compat(void);
+ #ifdef CONFIG_X86_64
+-void xen_syscall_target(void);
+-void xen_syscall32_target(void);
++void xen_entry_SYSCALL_64(void);
++void xen_entry_SYSCALL_compat(void);
+ #endif
+ 
+ extern void *xen_initial_gdt;
 
 
