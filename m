@@ -2,70 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9BB25711A8
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 07:03:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6F85711CA
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 07:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229850AbiGLFDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 01:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
+        id S230107AbiGLFWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 01:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbiGLFDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 01:03:30 -0400
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A988C74A
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 22:03:29 -0700 (PDT)
-Received: by mail-qt1-x82b.google.com with SMTP id y3so8630463qtv.5
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 22:03:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=aGzvn0q0q9YA/Na0FGp2nMGFn59dA2Gv9fwVzm4epHQ=;
-        b=Ok0nh9jZHc1v4qyiXvDScCMtsPyOk2EvYbni+5iDishXoZWABNQkwCA/8djmFTbkhx
-         ZQ0RFRI++KT+QGFqt/Peh9kAEBeafJCwlopoBPmj6LWgoKG049C4oVEWlqzXKnc/9kdA
-         t3Y0bhLUoe1e/CoaAYsnrJDfdYs3mY9Qop0HtgN0Vcv4Qf/2+Syugdk4Fs14CHtHS5gR
-         gMctjjgNih9GcZlyuwFl6vpJxfct2g6F19sNFYZ7S8RfgGv2cqFTIvhCfoK/Xfa9R9rd
-         uZFGx1tpur4FeCrk1gG+rdqtBDodQVn/L1CPb2tXTrhMZHZtHqzShjjVIlrw3+Bn2jcm
-         LoaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aGzvn0q0q9YA/Na0FGp2nMGFn59dA2Gv9fwVzm4epHQ=;
-        b=rlx2nWf7NJH//wdkfo0+881yIKCML/xareeXEpRALECieUQwjEURIdxusTmadIgm8U
-         MeknfNVtrUVZmGMNcnawmrveR5jgCOUQXNt2emj8wBwaQRhzWR/ub0eiSJnsPFNyzpHM
-         pd94XAuR9wOvS8XuN9pJDkYdd8EUhnnzRk9uL4Uv9qoA60C4HkdeyhYxFb4qFQY15UCD
-         BVasIRBIKYmslVMkMfDWhyHSdPkeYBb4jqzCBWiN8coveaUiFraDrxsKrKQ308WZj9w4
-         oyt+scssFRQX/ElyN0K3xXcHkgHqH4NX6FuGmlcX88htuSU9nUxOMgi1f5JN8BNrKvIe
-         pARA==
-X-Gm-Message-State: AJIora/SEK4nAWBNJHjZA4ORWXxmwyeYVFkMgP4ApFW09klzhfHpWMzb
-        OFTKYPBnCLxg5YlFWusPJ6GCOyUQtEdctK/PLvAT4qJW0I0=
-X-Google-Smtp-Source: AGRyM1sCz5R7CGXUdLnZlxwywO25jGgKyx/9QfqGjqgpkF2ojB/l4Yr6rpQ0XyLvYTaNvUO2aVoLQ+j2rPbuP9LU0Oo=
-X-Received: by 2002:ac8:5e0a:0:b0:31b:f15f:76b with SMTP id
- h10-20020ac85e0a000000b0031bf15f076bmr16554610qtx.502.1657602208394; Mon, 11
- Jul 2022 22:03:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220711090549.543317027@linuxfoundation.org>
-In-Reply-To: <20220711090549.543317027@linuxfoundation.org>
-From:   Fenil Jain <fkjainco@gmail.com>
-Date:   Tue, 12 Jul 2022 10:33:17 +0530
-Message-ID: <CAHokDBnTej5cQPMgUf-f2zD5PNM_Rd=2mUvMM3XVMHoJhKSTrw@mail.gmail.com>
+        with ESMTP id S229572AbiGLFWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 01:22:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BEF631202;
+        Mon, 11 Jul 2022 22:22:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E8DBB815FE;
+        Tue, 12 Jul 2022 05:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38CC1C3411E;
+        Tue, 12 Jul 2022 05:22:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657603329;
+        bh=Ww6j3/fF3QEpTsea7pwWzO3LkmRF5R0kzGRxKJYVJtI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=w/TAhh8VqpazmioA6fuBOJodMT5MJjAYGIP4b6fm8saRFfCQhVzWP1mOFQFkmRzIw
+         FfPC+3MpHHb71xK/NCxep6TJNHkQkajW8JngjoTuMwIWzxlajCugTbyssb+yYugANC
+         X/EmyLVDu0OQeI4hYMsNS5CLOtnktYybmH6vd6xI=
+Date:   Tue, 12 Jul 2022 07:22:04 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     sixpack13 <sixpack13@online.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH 5.18 000/112] 5.18.11-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <Ys0E/Fhe0eZ5UBWt@kroah.com>
+References: <0506af84-fedf-d431-3cd3-811c559d3776@online.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0506af84-fedf-d431-3cd3-811c559d3776@online.de>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Greg,
+On Mon, Jul 11, 2022 at 11:27:22PM +0200, sixpack13 wrote:
+> hallo Greg
+> 
+> 5.18.11-rc1
+> 
+> compiles, boots and runs here on x86_64
+> (Intel i5-11400, Fedora 36)
+> 
+> Thanks
+> 
+> Tested-by: sixpack13@online.de
+> 
 
-Ran tests and boot tested on my system, no regression found
-
-Tested-by: Fenil Jain <fkjainco@gmail.com>
+Thanks for testing, but for obvious reasons, I need a valid name for the
+kernel changelog if you want your Tested-by: to be added there :)
