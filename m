@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79CC5724EB
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62BA5572496
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235744AbiGLTLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39034 "EHLO
+        id S235316AbiGLTGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235607AbiGLTIz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:08:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61DBFD501;
-        Tue, 12 Jul 2022 11:52:00 -0700 (PDT)
+        with ESMTP id S235456AbiGLTFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:05:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38C6E192B;
+        Tue, 12 Jul 2022 11:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D1B361123;
-        Tue, 12 Jul 2022 18:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2017AC3411C;
-        Tue, 12 Jul 2022 18:51:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97C2FB81B95;
+        Tue, 12 Jul 2022 18:50:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A012C3411E;
+        Tue, 12 Jul 2022 18:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651919;
-        bh=Go2+ZhooGzCy/T7CFM6uT6VQ01lfGb5Vk8w2zUSyXHQ=;
+        s=korg; t=1657651856;
+        bh=o64EA64cUmF1Ay4fLmJzes9gerwCvGRLek4oR5qbdYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i37QXm/qVm8E9pFm9MR2fJL8Rpum1vkYyiPzq0dCTChShlT+0jSDUy3cjX0flbM8Y
-         G6rNaTtTyfgQ3dQePdUPiuwSFgD7qMl3E+DPhG57qfInbH3GgXLuVNbKOG+T4f/FPJ
-         tduf7TKPfQ+aKlIltNKcCTHcWESyjoqk+lIuDhtw=
+        b=VO/b3NBIisFPIFnOrQUh8drLMOCuXRNz3MAcL1zAWBWFoy8dzrCXBRz4xWDiRypaa
+         SVcujcjErpIF4Z1QOUSxomJe4kz+MWyxfhkjuNCHanG8rTYaUh34Cf/OotEiPD8iZw
+         Im0v6cocRw8AM0smUHnufy2Yg5uTLH5qBpaUSeak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 23/61] x86: Add magic AMD return-thunk
+Subject: [PATCH 5.15 50/78] x86/bugs: Report Intel retbleed vulnerability
 Date:   Tue, 12 Jul 2022 20:39:20 +0200
-Message-Id: <20220712183237.875616318@linuxfoundation.org>
+Message-Id: <20220712183240.917116196@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,353 +56,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit a149180fbcf336e97ce4eb2cdc13672727feb94d upstream.
+commit 6ad0ad2bf8a67e27d1f9d006a1dabb0e1c360cc3 upstream.
 
-Note: needs to be in a section distinct from Retpolines such that the
-Retpoline RET substitution cannot possibly use immediate jumps.
+Skylake suffers from RSB underflow speculation issues; report this
+vulnerability and it's mitigation (spectre_v2=ibrs).
 
-ORC unwinding for zen_untrain_ret() and __x86_return_thunk() is a
-little tricky but works due to the fact that zen_untrain_ret() doesn't
-have any stack ops and as such will emit a single ORC entry at the
-start (+0x3f).
+  [jpoimboe: cleanups, eibrs]
 
-Meanwhile, unwinding an IP, including the __x86_return_thunk() one
-(+0x40) will search for the largest ORC entry smaller or equal to the
-IP, these will find the one ORC entry (+0x3f) and all works.
-
-  [ Alexandre: SVM part. ]
-  [ bp: Build fix, massages. ]
-
-Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: conflicts at arch/x86/entry/entry_64_compat.S]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64.S                |    6 ++
- arch/x86/entry/entry_64_compat.S         |    4 +
- arch/x86/include/asm/cpufeatures.h       |    1 
- arch/x86/include/asm/disabled-features.h |    3 -
- arch/x86/include/asm/nospec-branch.h     |   17 ++++++++
- arch/x86/kernel/vmlinux.lds.S            |    2 
- arch/x86/kvm/svm/vmenter.S               |   18 ++++++++
- arch/x86/lib/retpoline.S                 |   64 +++++++++++++++++++++++++++++--
- tools/objtool/check.c                    |   21 ++++++++--
- 9 files changed, 127 insertions(+), 9 deletions(-)
+ arch/x86/include/asm/msr-index.h |    1 +
+ arch/x86/kernel/cpu/bugs.c       |   39 +++++++++++++++++++++++++++++++++------
+ arch/x86/kernel/cpu/common.c     |   24 ++++++++++++------------
+ 3 files changed, 46 insertions(+), 18 deletions(-)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -96,6 +96,7 @@ SYM_CODE_START(entry_SYSCALL_64)
- 
- SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)
- 	ANNOTATE_NOENDBR
-+	UNTRAIN_RET
- 
- 	/* Construct struct pt_regs on stack */
- 	pushq	$__USER_DS				/* pt_regs->ss */
-@@ -708,6 +709,7 @@ native_irq_return_ldt:
- 	pushq	%rdi				/* Stash user RDI */
- 	swapgs					/* to kernel GS */
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdi	/* to kernel CR3 */
-+	UNTRAIN_RET
- 
- 	movq	PER_CPU_VAR(espfix_waddr), %rdi
- 	movq	%rax, (0*8)(%rdi)		/* user RAX */
-@@ -903,6 +905,7 @@ SYM_CODE_START_LOCAL(paranoid_entry)
- 	 * be retrieved from a kernel internal table.
- 	 */
- 	SAVE_AND_SWITCH_TO_KERNEL_CR3 scratch_reg=%rax save_reg=%r14
-+	UNTRAIN_RET
- 
- 	/*
- 	 * Handling GSBASE depends on the availability of FSGSBASE.
-@@ -1013,6 +1016,7 @@ SYM_CODE_START_LOCAL(error_entry)
- 	FENCE_SWAPGS_USER_ENTRY
- 	/* We have user CR3.  Change to kernel CR3. */
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
-+	UNTRAIN_RET
- 
- 	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
- .Lerror_entry_from_usermode_after_swapgs:
-@@ -1065,6 +1069,7 @@ SYM_CODE_START_LOCAL(error_entry)
- 	SWAPGS
- 	FENCE_SWAPGS_USER_ENTRY
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
-+	UNTRAIN_RET
- 
- 	/*
- 	 * Pretend that the exception came from user mode: set up pt_regs
-@@ -1160,6 +1165,7 @@ SYM_CODE_START(asm_exc_nmi)
- 	movq	%rsp, %rdx
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
- 	UNWIND_HINT_IRET_REGS base=%rdx offset=8
-+	UNTRAIN_RET
- 	pushq	5*8(%rdx)	/* pt_regs->ss */
- 	pushq	4*8(%rdx)	/* pt_regs->rsp */
- 	pushq	3*8(%rdx)	/* pt_regs->flags */
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -14,6 +14,7 @@
- #include <asm/irqflags.h>
- #include <asm/asm.h>
- #include <asm/smap.h>
-+#include <asm/nospec-branch.h>
- #include <linux/linkage.h>
- #include <linux/err.h>
- 
-@@ -72,6 +73,7 @@ SYM_CODE_START(entry_SYSENTER_compat)
- 	pushq	$__USER32_CS		/* pt_regs->cs */
- 	pushq	$0			/* pt_regs->ip = 0 (placeholder) */
- SYM_INNER_LABEL(entry_SYSENTER_compat_after_hwframe, SYM_L_GLOBAL)
-+	UNTRAIN_RET
- 
- 	/*
- 	 * User tracing code (ptrace or signal handlers) might assume that
-@@ -215,6 +217,7 @@ SYM_CODE_START(entry_SYSCALL_compat)
- 
- SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
- 	ANNOTATE_NOENDBR
-+	UNTRAIN_RET
- 
- 	/* Construct struct pt_regs on stack */
- 	pushq	$__USER32_DS		/* pt_regs->ss */
-@@ -382,6 +385,7 @@ SYM_CODE_START(entry_INT80_compat)
- 	pushq	(%rdi)			/* pt_regs->di */
- .Lint80_keep_stack:
- 
-+	UNTRAIN_RET
- 	pushq	%rsi			/* pt_regs->si */
- 	xorl	%esi, %esi		/* nospec   si */
- 	pushq	%rdx			/* pt_regs->dx */
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -300,6 +300,7 @@
- #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
- #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
- #define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
-+#define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
- 
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -61,7 +61,8 @@
- #else
- # define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
- 				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)) | \
--				 (1 << (X86_FEATURE_RETHUNK & 31)))
-+				 (1 << (X86_FEATURE_RETHUNK & 31)) | \
-+				 (1 << (X86_FEATURE_UNRET & 31)))
- #endif
- 
- #ifdef CONFIG_INTEL_IOMMU_SVM
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -112,6 +112,22 @@
- #endif
- .endm
- 
-+/*
-+ * Mitigate RETBleed for AMD/Hygon Zen uarch. Requires KERNEL CR3 because the
-+ * return thunk isn't mapped into the userspace tables (then again, AMD
-+ * typically has NO_MELTDOWN).
-+ *
-+ * Doesn't clobber any registers but does require a stable stack.
-+ *
-+ * As such, this must be placed after every *SWITCH_TO_KERNEL_CR3 at a point
-+ * where we have a stack but before any RET instruction.
-+ */
-+.macro UNTRAIN_RET
-+#ifdef CONFIG_RETPOLINE
-+	ALTERNATIVE "", "call zen_untrain_ret", X86_FEATURE_UNRET
-+#endif
-+.endm
-+
- #else /* __ASSEMBLY__ */
- 
- #define ANNOTATE_RETPOLINE_SAFE					\
-@@ -124,6 +140,7 @@ typedef u8 retpoline_thunk_t[RETPOLINE_T
- extern retpoline_thunk_t __x86_indirect_thunk_array[];
- 
- extern void __x86_return_thunk(void);
-+extern void zen_untrain_ret(void);
- 
- #ifdef CONFIG_RETPOLINE
- 
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -141,7 +141,7 @@ SECTIONS
- 
- #ifdef CONFIG_RETPOLINE
- 		__indirect_thunk_start = .;
--		*(.text.__x86.indirect_thunk)
-+		*(.text.__x86.*)
- 		__indirect_thunk_end = .;
- #endif
- 	} :text =0xcccc
---- a/arch/x86/kvm/svm/vmenter.S
-+++ b/arch/x86/kvm/svm/vmenter.S
-@@ -111,6 +111,15 @@ SYM_FUNC_START(__svm_vcpu_run)
- #endif
- 
- 	/*
-+	 * Mitigate RETBleed for AMD/Hygon Zen uarch. RET should be
-+	 * untrained as soon as we exit the VM and are back to the
-+	 * kernel. This should be done before re-enabling interrupts
-+	 * because interrupt handlers won't sanitize 'ret' if the return is
-+	 * from the kernel.
-+	 */
-+	UNTRAIN_RET
-+
-+	/*
- 	 * Clear all general purpose registers except RSP and RAX to prevent
- 	 * speculative use of the guest's values, even those that are reloaded
- 	 * via the stack.  In theory, an L1 cache miss when restoring registers
-@@ -190,6 +199,15 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
- 	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
- #endif
- 
-+	/*
-+	 * Mitigate RETBleed for AMD/Hygon Zen uarch. RET should be
-+	 * untrained as soon as we exit the VM and are back to the
-+	 * kernel. This should be done before re-enabling interrupts
-+	 * because interrupt handlers won't sanitize RET if the return is
-+	 * from the kernel.
-+	 */
-+	UNTRAIN_RET
-+
- 	pop %_ASM_BX
- 
- #ifdef CONFIG_X86_64
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -72,11 +72,67 @@ SYM_CODE_END(__x86_indirect_thunk_array)
-  * This function name is magical and is used by -mfunction-return=thunk-extern
-  * for the compiler to generate JMPs to it.
-  */
--SYM_CODE_START(__x86_return_thunk)
--	UNWIND_HINT_EMPTY
--	ANNOTATE_NOENDBR
-+	.section .text.__x86.return_thunk
-+
-+/*
-+ * Safety details here pertain to the AMD Zen{1,2} microarchitecture:
-+ * 1) The RET at __x86_return_thunk must be on a 64 byte boundary, for
-+ *    alignment within the BTB.
-+ * 2) The instruction at zen_untrain_ret must contain, and not
-+ *    end with, the 0xc3 byte of the RET.
-+ * 3) STIBP must be enabled, or SMT disabled, to prevent the sibling thread
-+ *    from re-poisioning the BTB prediction.
-+ */
-+	.align 64
-+	.skip 63, 0xcc
-+SYM_FUNC_START_NOALIGN(zen_untrain_ret);
-+
-+	/*
-+	 * As executed from zen_untrain_ret, this is:
-+	 *
-+	 *   TEST $0xcc, %bl
-+	 *   LFENCE
-+	 *   JMP __x86_return_thunk
-+	 *
-+	 * Executing the TEST instruction has a side effect of evicting any BTB
-+	 * prediction (potentially attacker controlled) attached to the RET, as
-+	 * __x86_return_thunk + 1 isn't an instruction boundary at the moment.
-+	 */
-+	.byte	0xf6
-+
-+	/*
-+	 * As executed from __x86_return_thunk, this is a plain RET.
-+	 *
-+	 * As part of the TEST above, RET is the ModRM byte, and INT3 the imm8.
-+	 *
-+	 * We subsequently jump backwards and architecturally execute the RET.
-+	 * This creates a correct BTB prediction (type=ret), but in the
-+	 * meantime we suffer Straight Line Speculation (because the type was
-+	 * no branch) which is halted by the INT3.
-+	 *
-+	 * With SMT enabled and STIBP active, a sibling thread cannot poison
-+	 * RET's prediction to a type of its choice, but can evict the
-+	 * prediction due to competitive sharing. If the prediction is
-+	 * evicted, __x86_return_thunk will suffer Straight Line Speculation
-+	 * which will be contained safely by the INT3.
-+	 */
-+SYM_INNER_LABEL(__x86_return_thunk, SYM_L_GLOBAL)
- 	ret
- 	int3
- SYM_CODE_END(__x86_return_thunk)
- 
--__EXPORT_THUNK(__x86_return_thunk)
-+	/*
-+	 * Ensure the TEST decoding / BTB invalidation is complete.
-+	 */
-+	lfence
-+
-+	/*
-+	 * Jump back and execute the RET in the middle of the TEST instruction.
-+	 * INT3 is for SLS protection.
-+	 */
-+	jmp __x86_return_thunk
-+	int3
-+SYM_FUNC_END(zen_untrain_ret)
-+__EXPORT_THUNK(zen_untrain_ret)
-+
-+EXPORT_SYMBOL(__x86_return_thunk)
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1300,7 +1300,7 @@ static void add_retpoline_call(struct ob
- 	annotate_call_site(file, insn, false);
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -91,6 +91,7 @@
+ #define MSR_IA32_ARCH_CAPABILITIES	0x0000010a
+ #define ARCH_CAP_RDCL_NO		BIT(0)	/* Not susceptible to Meltdown */
+ #define ARCH_CAP_IBRS_ALL		BIT(1)	/* Enhanced IBRS support */
++#define ARCH_CAP_RSBA			BIT(2)	/* RET may use alternative branch predictors */
+ #define ARCH_CAP_SKIP_VMENTRY_L1DFLUSH	BIT(3)	/* Skip L1D flush on vmentry */
+ #define ARCH_CAP_SSB_NO			BIT(4)	/*
+ 						 * Not susceptible to Speculative Store Bypass
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -783,12 +783,17 @@ static int __init nospectre_v1_cmdline(c
  }
+ early_param("nospectre_v1", nospectre_v1_cmdline);
  
--static void add_return_call(struct objtool_file *file, struct instruction *insn)
-+static void add_return_call(struct objtool_file *file, struct instruction *insn, bool add)
++static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
++	SPECTRE_V2_NONE;
++
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "RETBleed: " fmt
+ 
+ enum retbleed_mitigation {
+ 	RETBLEED_MITIGATION_NONE,
+ 	RETBLEED_MITIGATION_UNRET,
++	RETBLEED_MITIGATION_IBRS,
++	RETBLEED_MITIGATION_EIBRS,
+ };
+ 
+ enum retbleed_mitigation_cmd {
+@@ -800,6 +805,8 @@ enum retbleed_mitigation_cmd {
+ const char * const retbleed_strings[] = {
+ 	[RETBLEED_MITIGATION_NONE]	= "Vulnerable",
+ 	[RETBLEED_MITIGATION_UNRET]	= "Mitigation: untrained return thunk",
++	[RETBLEED_MITIGATION_IBRS]	= "Mitigation: IBRS",
++	[RETBLEED_MITIGATION_EIBRS]	= "Mitigation: Enhanced IBRS",
+ };
+ 
+ static enum retbleed_mitigation retbleed_mitigation __ro_after_init =
+@@ -842,6 +849,7 @@ early_param("retbleed", retbleed_parse_c
+ 
+ #define RETBLEED_UNTRAIN_MSG "WARNING: BTB untrained return thunk mitigation is only effective on AMD/Hygon!\n"
+ #define RETBLEED_COMPILER_MSG "WARNING: kernel not compiled with RETPOLINE or -mfunction-return capable compiler!\n"
++#define RETBLEED_INTEL_MSG "WARNING: Spectre v2 mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible!\n"
+ 
+ static void __init retbleed_select_mitigation(void)
  {
- 	/*
- 	 * Return thunk tail calls are really just returns in disguise,
-@@ -1310,7 +1310,7 @@ static void add_return_call(struct objto
- 	insn->retpoline_safe = true;
+@@ -858,12 +866,15 @@ static void __init retbleed_select_mitig
  
- 	/* Skip the non-text sections, specially .discard ones */
--	if (insn->sec->text)
-+	if (add && insn->sec->text)
- 		list_add_tail(&insn->call_node, &file->return_thunk_list);
+ 	case RETBLEED_CMD_AUTO:
+ 	default:
+-		if (!boot_cpu_has_bug(X86_BUG_RETBLEED))
+-			break;
+-
+ 		if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
+ 		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
+ 			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++
++		/*
++		 * The Intel mitigation (IBRS) was already selected in
++		 * spectre_v2_select_mitigation().
++		 */
++
+ 		break;
+ 	}
+ 
+@@ -893,15 +904,31 @@ static void __init retbleed_select_mitig
+ 		break;
+ 	}
+ 
++	/*
++	 * Let IBRS trump all on Intel without affecting the effects of the
++	 * retbleed= cmdline option.
++	 */
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
++		switch (spectre_v2_enabled) {
++		case SPECTRE_V2_IBRS:
++			retbleed_mitigation = RETBLEED_MITIGATION_IBRS;
++			break;
++		case SPECTRE_V2_EIBRS:
++		case SPECTRE_V2_EIBRS_RETPOLINE:
++		case SPECTRE_V2_EIBRS_LFENCE:
++			retbleed_mitigation = RETBLEED_MITIGATION_EIBRS;
++			break;
++		default:
++			pr_err(RETBLEED_INTEL_MSG);
++		}
++	}
++
+ 	pr_info("%s\n", retbleed_strings[retbleed_mitigation]);
  }
  
-@@ -1367,7 +1367,7 @@ static int add_jump_destinations(struct
- 			add_retpoline_call(file, insn);
- 			continue;
- 		} else if (reloc->sym->return_thunk) {
--			add_return_call(file, insn);
-+			add_return_call(file, insn, true);
- 			continue;
- 		} else if (insn->func) {
- 			/*
-@@ -1387,6 +1387,21 @@ static int add_jump_destinations(struct
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "Spectre V2 : " fmt
  
- 		jump_dest = find_insn(file, dest_sec, dest_off);
- 		if (!jump_dest) {
-+			struct symbol *sym = find_symbol_by_offset(dest_sec, dest_off);
-+
-+			/*
-+			 * This is a special case for zen_untrain_ret().
-+			 * It jumps to __x86_return_thunk(), but objtool
-+			 * can't find the thunk's starting RET
-+			 * instruction, because the RET is also in the
-+			 * middle of another instruction.  Objtool only
-+			 * knows about the outer instruction.
-+			 */
-+			if (sym && sym->return_thunk) {
-+				add_return_call(file, insn, false);
-+				continue;
-+			}
-+
- 			WARN_FUNC("can't find jump dest instruction at %s+0x%lx",
- 				  insn->sec, insn->offset, dest_sec->name,
- 				  dest_off);
+-static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
+-	SPECTRE_V2_NONE;
+-
+ static enum spectre_v2_user_mitigation spectre_v2_user_stibp __ro_after_init =
+ 	SPECTRE_V2_USER_NONE;
+ static enum spectre_v2_user_mitigation spectre_v2_user_ibpb __ro_after_init =
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1127,24 +1127,24 @@ static const struct x86_cpu_id cpu_vuln_
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_G,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_X,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL,	X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE_X,	BIT(3) | BIT(4) | BIT(6) |
+-						BIT(7) | BIT(0xB),              MMIO),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
++						BIT(7) | BIT(0xB),              MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPINGS(0x9, 0xC),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPINGS(0x9, 0xC),	SRBDS | MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPINGS(0x0, 0x8),	SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPINGS(0x9, 0xD),	SRBDS | MMIO),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPINGS(0x9, 0xD),	SRBDS | MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPINGS(0x0, 0x8),	SRBDS),
+-	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPINGS(0x5, 0x5),	MMIO | MMIO_SBDS),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPINGS(0x5, 0x5),	MMIO | MMIO_SBDS | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(ICELAKE_D,	X86_STEPPINGS(0x1, 0x1),	MMIO),
+ 	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPINGS(0x4, 0x6),	MMIO),
+-	VULNBL_INTEL_STEPPINGS(COMETLAKE,	BIT(2) | BIT(3) | BIT(5),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x0, 0x0),	MMIO),
+-	VULNBL_INTEL_STEPPINGS(LAKEFIELD,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(ROCKETLAKE,	X86_STEPPINGS(0x1, 0x1),	MMIO),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE,	BIT(2) | BIT(3) | BIT(5),	MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x0, 0x0),	MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(LAKEFIELD,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(ROCKETLAKE,	X86_STEPPINGS(0x1, 0x1),	MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_D,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPINGS(0x0, 0x0),	MMIO | MMIO_SBDS),
+@@ -1254,7 +1254,7 @@ static void __init cpu_set_bug_bits(stru
+ 	    !arch_cap_mmio_immune(ia32_cap))
+ 		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
+ 
+-	if (cpu_matches(cpu_vuln_blacklist, RETBLEED))
++	if ((cpu_matches(cpu_vuln_blacklist, RETBLEED) || (ia32_cap & ARCH_CAP_RSBA)))
+ 		setup_force_cpu_bug(X86_BUG_RETBLEED);
+ 
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
 
 
