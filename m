@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4780F572480
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46705723E8
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbiGLTCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40748 "EHLO
+        id S234651AbiGLSy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235189AbiGLTBK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:01:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F00814002;
-        Tue, 12 Jul 2022 11:48:54 -0700 (PDT)
+        with ESMTP id S234745AbiGLSyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:54:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B01FD514E;
+        Tue, 12 Jul 2022 11:45:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF37D60765;
-        Tue, 12 Jul 2022 18:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CAE7C3411C;
-        Tue, 12 Jul 2022 18:48:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30C6860AC3;
+        Tue, 12 Jul 2022 18:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1DCC3411C;
+        Tue, 12 Jul 2022 18:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651733;
-        bh=ww9oCvPzMBHZ0rv0j/7CB9FkdTSKRzkwo7fl6q30hHo=;
+        s=korg; t=1657651530;
+        bh=aLjl1sz+9TKvEHYRGFyleZovb2+KqWCsBPr2RrNcDeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mo4cG5ZeLcWlb0loqYWx2Zx0blHaKQyRH743e2zQJiFfNlP2RuzLPCd8cHfjqS+T0
-         yVt7vkFVMRkGGnAZ0Sug4iTUOvXTqJ+aotOnbCDSNrlXMPuy7MXwq0xoe4Z/xcoTyo
-         77lKFvCwMD4SeVI+T3GbWTHdo3M/Bh0MGXI2cBzc=
+        b=LDU5hcgNvLDJY1dIRP6U/jZbWbI8LP8CpajyLOxXovtUJEZlh4ytuFOD3KlQWg/3y
+         1zB7ctLEI9xoBeveKoPxrydaQZeXyynA7NJvX3IzxtB+MYmFVYKMPEfrSmkeMl2BmX
+         dkKOoiewAXm/Hk6dRWj7jqLqLw9hNXRTHa40JpJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,13 +35,14 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 38/78] x86: Use return-thunk in asm code
-Date:   Tue, 12 Jul 2022 20:39:08 +0200
-Message-Id: <20220712183240.363977214@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 103/130] x86/bugs: Split spectre_v2_select_mitigation() and spectre_v2_user_select_mitigation()
+Date:   Tue, 12 Jul 2022 20:39:09 +0200
+Message-Id: <20220712183251.225898476@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,91 +59,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit aa3d480315ba6c3025a60958e1981072ea37c3df upstream.
+commit 166115c08a9b0b846b783088808a27d739be6e8d upstream.
 
-Use the return thunk in asm code. If the thunk isn't needed, it will
-get patched into a RET instruction during boot by apply_returns().
-
-Since alternatives can't handle relocations outside of the first
-instruction, putting a 'jmp __x86_return_thunk' in one is not valid,
-therefore carve out the memmove ERMS path into a separate label and jump
-to it.
+retbleed will depend on spectre_v2, while spectre_v2_user depends on
+retbleed. Break this cycle.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: no RANDSTRUCT_CFLAGS]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/vdso/Makefile   |    1 +
- arch/x86/include/asm/linkage.h |    8 ++++++++
- arch/x86/lib/memmove_64.S      |    7 ++++++-
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -92,6 +92,7 @@ endif
- endif
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -37,8 +37,9 @@
+ #include "cpu.h"
  
- $(vobjs): KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_LTO) $(GCC_PLUGINS_CFLAGS) $(RETPOLINE_CFLAGS),$(KBUILD_CFLAGS)) $(CFL)
-+$(vobjs): KBUILD_AFLAGS += -DBUILD_VDSO
+ static void __init spectre_v1_select_mitigation(void);
+-static void __init retbleed_select_mitigation(void);
+ static void __init spectre_v2_select_mitigation(void);
++static void __init retbleed_select_mitigation(void);
++static void __init spectre_v2_user_select_mitigation(void);
+ static void __init ssb_select_mitigation(void);
+ static void __init l1tf_select_mitigation(void);
+ static void __init mds_select_mitigation(void);
+@@ -137,13 +138,19 @@ void __init check_bugs(void)
  
- #
- # vDSO code runs in userspace and -pg doesn't help with profiling anyway.
---- a/arch/x86/include/asm/linkage.h
-+++ b/arch/x86/include/asm/linkage.h
-@@ -18,19 +18,27 @@
- #define __ALIGN_STR	__stringify(__ALIGN)
- #endif
- 
-+#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
-+#define RET	jmp __x86_return_thunk
-+#else /* CONFIG_RETPOLINE */
- #ifdef CONFIG_SLS
- #define RET	ret; int3
- #else
- #define RET	ret
- #endif
-+#endif /* CONFIG_RETPOLINE */
- 
- #else /* __ASSEMBLY__ */
- 
-+#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
-+#define ASM_RET	"jmp __x86_return_thunk\n\t"
-+#else /* CONFIG_RETPOLINE */
- #ifdef CONFIG_SLS
- #define ASM_RET	"ret; int3\n\t"
- #else
- #define ASM_RET	"ret\n\t"
- #endif
-+#endif /* CONFIG_RETPOLINE */
- 
- #endif /* __ASSEMBLY__ */
- 
---- a/arch/x86/lib/memmove_64.S
-+++ b/arch/x86/lib/memmove_64.S
-@@ -40,7 +40,7 @@ SYM_FUNC_START(__memmove)
- 	/* FSRM implies ERMS => no length checks, do the copy directly */
- .Lmemmove_begin_forward:
- 	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
--	ALTERNATIVE "", __stringify(movq %rdx, %rcx; rep movsb; RET), X86_FEATURE_ERMS
-+	ALTERNATIVE "", "jmp .Lmemmove_erms", X86_FEATURE_ERMS
- 
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
++	spectre_v2_select_mitigation();
++	/*
++	 * retbleed_select_mitigation() relies on the state set by
++	 * spectre_v2_select_mitigation(); specifically it wants to know about
++	 * spectre_v2=ibrs.
++	 */
+ 	retbleed_select_mitigation();
  	/*
- 	 * movsq instruction have many startup latency
-@@ -206,6 +206,11 @@ SYM_FUNC_START(__memmove)
- 	movb %r11b, (%rdi)
- 13:
- 	RET
+-	 * spectre_v2_select_mitigation() relies on the state set by
++	 * spectre_v2_user_select_mitigation() relies on the state set by
+ 	 * retbleed_select_mitigation(); specifically the STIBP selection is
+ 	 * forced for UNRET.
+ 	 */
+-	spectre_v2_select_mitigation();
++	spectre_v2_user_select_mitigation();
+ 	ssb_select_mitigation();
+ 	l1tf_select_mitigation();
+ 	md_clear_select_mitigation();
+@@ -969,13 +976,15 @@ static void __init spec_v2_user_print_co
+ 		pr_info("spectre_v2_user=%s forced on command line.\n", reason);
+ }
+ 
++static __ro_after_init enum spectre_v2_mitigation_cmd spectre_v2_cmd;
 +
-+.Lmemmove_erms:
-+	movq %rdx, %rcx
-+	rep movsb
-+	RET
- SYM_FUNC_END(__memmove)
- SYM_FUNC_END_ALIAS(memmove)
- EXPORT_SYMBOL(__memmove)
+ static enum spectre_v2_user_cmd __init
+-spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
++spectre_v2_parse_user_cmdline(void)
+ {
+ 	char arg[20];
+ 	int ret, i;
+ 
+-	switch (v2_cmd) {
++	switch (spectre_v2_cmd) {
+ 	case SPECTRE_V2_CMD_NONE:
+ 		return SPECTRE_V2_USER_CMD_NONE;
+ 	case SPECTRE_V2_CMD_FORCE:
+@@ -1010,7 +1019,7 @@ static inline bool spectre_v2_in_ibrs_mo
+ }
+ 
+ static void __init
+-spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
++spectre_v2_user_select_mitigation(void)
+ {
+ 	enum spectre_v2_user_mitigation mode = SPECTRE_V2_USER_NONE;
+ 	bool smt_possible = IS_ENABLED(CONFIG_SMP);
+@@ -1023,7 +1032,7 @@ spectre_v2_user_select_mitigation(enum s
+ 	    cpu_smt_control == CPU_SMT_NOT_SUPPORTED)
+ 		smt_possible = false;
+ 
+-	cmd = spectre_v2_parse_user_cmdline(v2_cmd);
++	cmd = spectre_v2_parse_user_cmdline();
+ 	switch (cmd) {
+ 	case SPECTRE_V2_USER_CMD_NONE:
+ 		goto set_mode;
+@@ -1347,7 +1356,7 @@ static void __init spectre_v2_select_mit
+ 	}
+ 
+ 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
+-	spectre_v2_user_select_mitigation(cmd);
++	spectre_v2_cmd = cmd;
+ }
+ 
+ static void update_stibp_msr(void * __unused)
 
 
