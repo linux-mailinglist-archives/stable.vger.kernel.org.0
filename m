@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB7757255B
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48529572415
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235699AbiGLTMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:12:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47902 "EHLO
+        id S234711AbiGLS6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:58:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235648AbiGLTMJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:12:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D46E6803;
-        Tue, 12 Jul 2022 11:53:09 -0700 (PDT)
+        with ESMTP id S234521AbiGLS52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC204EDB59;
+        Tue, 12 Jul 2022 11:47:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DB21B81B95;
-        Tue, 12 Jul 2022 18:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C392CC3411C;
-        Tue, 12 Jul 2022 18:53:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B2BAB81B95;
+        Tue, 12 Jul 2022 18:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC864C3411C;
+        Tue, 12 Jul 2022 18:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651987;
-        bh=83KBoNHTObUwYxuqr2Qy7ZLK4DdR4Ff7RsV0XylXjOE=;
+        s=korg; t=1657651636;
+        bh=s9BBdXTRzWO6rilbhoZPvTfn8C7dwgczJt4XxU408Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huDiub24/5Zd1t18zln0PZvmb5hirrwAGrVN2mnQQN4dSICvjXErzmt69RI+FqLCk
-         Q9Xl1bQvoYIoiSh4hUWtJ8xiQKT1psgESPUoL5eh5mvLoZomVnFV9ffgHARVof53FE
-         33pD2RJfIqVTWJWD/1qQozoqUfKRZwjU6wg8DFxU=
+        b=SQofIi0WZ+E0kOQOa8KZLB8odZsuAKH7nZyG3xSEW7i3rIxHxmC8pifIKP02Hmhza
+         1Mo+pUDyN1rOhPukTxsmWWehx5CpLKEt4puukqueLW159l+uoA5a6cvGRPKM3OEpKq
+         VrrCGCE7zhMgupAR68qjiInZETSzQwxWAxhOzsgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,13 +35,14 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 15/61] x86/ftrace: Use alternative RET encoding
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 106/130] objtool: Update Retpoline validation
 Date:   Tue, 12 Jul 2022 20:39:12 +0200
-Message-Id: <20220712183237.547120316@linuxfoundation.org>
+Message-Id: <20220712183251.362057353@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,42 +59,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1f001e9da6bbf482311e45e48f53c2bd2179e59c upstream.
+commit 9bb2ec608a209018080ca262f771e6a9ff203b6f upstream.
 
-Use the return thunk in ftrace trampolines, if needed.
+Update retpoline validation with the new CONFIG_RETPOLINE requirement of
+not having bare naked RET instructions.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: conflict fixup at arch/x86/xen/xen-head.S]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/ftrace.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    6 ++++++
+ arch/x86/mm/mem_encrypt_boot.S       |    2 ++
+ arch/x86/xen/xen-head.S              |    1 +
+ tools/objtool/check.c                |   19 +++++++++++++------
+ 4 files changed, 22 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -303,7 +303,7 @@ union ftrace_op_code_union {
- 	} __attribute__((packed));
- };
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -76,6 +76,12 @@
+ .endm
  
--#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
-+#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
+ /*
++ * (ab)use RETPOLINE_SAFE on RET to annotate away 'bare' RET instructions
++ * vs RETBleed validation.
++ */
++#define ANNOTATE_UNRET_SAFE ANNOTATE_RETPOLINE_SAFE
++
++/*
+  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
+  * indirect jmp/call which may be susceptible to the Spectre variant 2
+  * attack.
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -66,6 +66,7 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	pop	%rbp
  
- static unsigned long
- create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
-@@ -359,7 +359,10 @@ create_trampoline(struct ftrace_ops *ops
- 		goto fail;
+ 	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
+ 	ret
+ 	int3
+ SYM_FUNC_END(sme_encrypt_execute)
+@@ -154,6 +155,7 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r15
  
- 	ip = trampoline + size;
--	memcpy(ip, retq, RET_SIZE);
-+	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
-+		__text_gen_insn(ip, JMP32_INSN_OPCODE, ip, &__x86_return_thunk, JMP32_INSN_SIZE);
-+	else
-+		memcpy(ip, retq, sizeof(retq));
+ 	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
+ 	ret
+ 	int3
+ .L__enc_copy_end:
+--- a/arch/x86/xen/xen-head.S
++++ b/arch/x86/xen/xen-head.S
+@@ -70,6 +70,7 @@ SYM_CODE_START(hypercall_page)
+ 	.rept (PAGE_SIZE / 32)
+ 		UNWIND_HINT_FUNC
+ 		.skip 31, 0x90
++		ANNOTATE_UNRET_SAFE
+ 		RET
+ 	.endr
  
- 	/* No need to test direct calls on created trampolines */
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1799,8 +1799,9 @@ static int read_retpoline_hints(struct o
+ 		}
+ 
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC) {
+-			WARN_FUNC("retpoline_safe hint not an indirect jump/call",
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN) {
++			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret",
+ 				  insn->sec, insn->offset);
+ 			return -1;
+ 		}
+@@ -3051,7 +3052,8 @@ static int validate_retpoline(struct obj
+ 
+ 	for_each_insn(file, insn) {
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC)
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN)
+ 			continue;
+ 
+ 		if (insn->retpoline_safe)
+@@ -3066,9 +3068,14 @@ static int validate_retpoline(struct obj
+ 		if (!strcmp(insn->sec->name, ".init.text") && !module)
+ 			continue;
+ 
+-		WARN_FUNC("indirect %s found in RETPOLINE build",
+-			  insn->sec, insn->offset,
+-			  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		if (insn->type == INSN_RETURN) {
++			WARN_FUNC("'naked' return found in RETPOLINE build",
++				  insn->sec, insn->offset);
++		} else {
++			WARN_FUNC("indirect %s found in RETPOLINE build",
++				  insn->sec, insn->offset,
++				  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		}
+ 
+ 		warnings++;
+ 	}
 
 
