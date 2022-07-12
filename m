@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAA35723B9
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 011E457247B
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234714AbiGLSwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:52:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57568 "EHLO
+        id S234414AbiGLTAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:00:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234469AbiGLSwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:52:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58A6DA0DF;
-        Tue, 12 Jul 2022 11:44:59 -0700 (PDT)
+        with ESMTP id S235369AbiGLS7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:59:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABB2F4239;
+        Tue, 12 Jul 2022 11:48:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21DB0B81BAC;
-        Tue, 12 Jul 2022 18:44:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D8B6C3411C;
-        Tue, 12 Jul 2022 18:44:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6970260A5A;
+        Tue, 12 Jul 2022 18:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 581A4C3411C;
+        Tue, 12 Jul 2022 18:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651485;
-        bh=I1nVtJhBaBbQvFmmxP+Ixri0tvBlRaN4Uz+xRtIocyY=;
+        s=korg; t=1657651699;
+        bh=Lb9QWk96WPTUHtVIDQUUvFBZ7ad51b1dDmFNTdktXKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KB/IPB6LZkL8DOFAsf+fuHx2nU4nM74brFbpvM3IWCtkcDdnzZZV0sEsrigdkFyLR
-         r9SIjKOTs4TBUmU9Z8FgSG6VByuAQgqkMww/nk4qYhbVHV3pYN3+g4alvKn+9VayFT
-         y0Wq4LIkP5LdbcaqEK1vUm4dyH92Oy1tg+eTiRqQ=
+        b=tm9+oXXdw20XKg5UIC5GyI1+mXJq9HKr7f1sIUkWqGmyOrJ4YxWQM6TBQaRjE+3iM
+         S8IRbXTa0BZu/fhkuITjznLDhAP339iiF7TLw49qR6n5ZfAfXSjllBCC6vmDelLBEw
+         HCGg1bmC0vXITFHmYpaW+qmjpDf3iZ42N+yqjFR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 091/130] x86/vsyscall_emu/64: Dont use RET in vsyscall emulation
-Date:   Tue, 12 Jul 2022 20:38:57 +0200
-Message-Id: <20220712183250.656782090@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 28/78] x86/retpoline: Use -mfunction-return
+Date:   Tue, 12 Jul 2022 20:38:58 +0200
+Message-Id: <20220712183239.940184256@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,46 +59,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 15583e514eb16744b80be85dea0774ece153177d upstream.
+commit 0b53c374b9eff2255a386f1f1cfb9a928e52a5ae upstream.
 
-This is userspace code and doesn't play by the normal kernel rules.
+Utilize -mfunction-return=thunk-extern when available to have the
+compiler replace RET instructions with direct JMPs to the symbol
+__x86_return_thunk. This does not affect assembler (.S) sources, only C
+sources.
+
+-mfunction-return=thunk-extern has been available since gcc 7.3 and
+clang 15.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: RETPOLINE_CFLAGS is at Makefile]
+[cascardo: remove ANNOTATE_NOENDBR from __x86_return_thunk]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/vsyscall/vsyscall_emu_64.S |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ Makefile                             |    2 ++
+ arch/x86/include/asm/nospec-branch.h |    2 ++
+ arch/x86/lib/retpoline.S             |   12 ++++++++++++
+ 3 files changed, 16 insertions(+)
 
---- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-+++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-@@ -19,17 +19,20 @@ __vsyscall_page:
+--- a/Makefile
++++ b/Makefile
+@@ -687,11 +687,13 @@ endif
  
- 	mov $__NR_gettimeofday, %rax
- 	syscall
--	RET
+ ifdef CONFIG_CC_IS_GCC
+ RETPOLINE_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-extern -mindirect-branch-register)
++RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
+ RETPOLINE_VDSO_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-inline -mindirect-branch-register)
+ endif
+ ifdef CONFIG_CC_IS_CLANG
+ RETPOLINE_CFLAGS	:= -mretpoline-external-thunk
+ RETPOLINE_VDSO_CFLAGS	:= -mretpoline
++RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
+ endif
+ export RETPOLINE_CFLAGS
+ export RETPOLINE_VDSO_CFLAGS
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -120,6 +120,8 @@
+ 	_ASM_PTR " 999b\n\t"					\
+ 	".popsection\n\t"
+ 
++extern void __x86_return_thunk(void);
++
+ #ifdef CONFIG_RETPOLINE
+ 
+ typedef u8 retpoline_thunk_t[RETPOLINE_THUNK_SIZE];
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -66,3 +66,15 @@ SYM_CODE_END(__x86_indirect_thunk_array)
+ #define GEN(reg) EXPORT_THUNK(reg)
+ #include <asm/GEN-for-each-reg.h>
+ #undef GEN
++
++/*
++ * This function name is magical and is used by -mfunction-return=thunk-extern
++ * for the compiler to generate JMPs to it.
++ */
++SYM_CODE_START(__x86_return_thunk)
++	UNWIND_HINT_EMPTY
 +	ret
 +	int3
- 
- 	.balign 1024, 0xcc
- 	mov $__NR_time, %rax
- 	syscall
--	RET
-+	ret
-+	int3
- 
- 	.balign 1024, 0xcc
- 	mov $__NR_getcpu, %rax
- 	syscall
--	RET
-+	ret
-+	int3
- 
- 	.balign 4096, 0xcc
- 
++SYM_CODE_END(__x86_return_thunk)
++
++__EXPORT_THUNK(__x86_return_thunk)
 
 
