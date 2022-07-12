@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8A305722E4
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 361845722EB
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233996AbiGLSmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:42:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33214 "EHLO
+        id S234085AbiGLSmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233995AbiGLSlr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:41:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39332D7B86;
-        Tue, 12 Jul 2022 11:41:19 -0700 (PDT)
+        with ESMTP id S234000AbiGLSls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:41:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF22D7B95;
+        Tue, 12 Jul 2022 11:41:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96E9C61ACE;
-        Tue, 12 Jul 2022 18:41:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B46C3411C;
-        Tue, 12 Jul 2022 18:41:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03A6A61AD5;
+        Tue, 12 Jul 2022 18:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A33C341CF;
+        Tue, 12 Jul 2022 18:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651278;
-        bh=P8MOob0Am9dbWMK9nvqs5Mo/UzNxM2C3QOR3rxgRsAo=;
+        s=korg; t=1657651281;
+        bh=LpGgRFhrdCtmBrJ1+C5WSb3c5uJQUargm8UG6qofKak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8mqfG1G+CvwcIk1lcSkS/nWpH5gzO5UGkoJCMtefjTv1FRGwA9yC2PZ5BKUuYAYn
-         RUPWuambYAlxbF/Vex0CW5TG40hD2MCtSRka/aB7LbjcamgEUtFKd/4km5udOzJE0L
-         G0mRiITwqPdUpcOOJlymsQuN7B0TDCn+p6hYifNA=
+        b=n0jcuWwJ78nxOw2mR/jgHB0CKBptW4vF0rUHKk9sfBVyF2Vt/djdp72gcoaa7a5+t
+         ZuYDdLU/a5GZcYFIqpuqfd35CaLgL8Zwp3cs5OBRCUKYxTZcatm/a4y6sFkMfxKxKQ
+         0yR9mMEU6Z3P6yzwf0EgmhXY9o5H5YsDQ2RGCeVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
         Miroslav Benes <mbenes@suse.cz>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 027/130] objtool: Create reloc sections implicitly
-Date:   Tue, 12 Jul 2022 20:37:53 +0200
-Message-Id: <20220712183247.639584442@linuxfoundation.org>
+Subject: [PATCH 5.10 028/130] objtool: Extract elf_strtab_concat()
+Date:   Tue, 12 Jul 2022 20:37:54 +0200
+Message-Id: <20220712183247.691806027@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -58,88 +58,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit d0c5c4cc73da0b05b0d9e5f833f2d859e1b45f8e upstream.
+commit 417a4dc91e559f92404c2544f785b02ce75784c3 upstream.
 
-Have elf_add_reloc() create the relocation section implicitly.
+Create a common helper to append strings to a strtab.
 
-Suggested-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Link: https://lkml.kernel.org/r/20210326151259.880174448@infradead.org
-[bwh: Backported to 5.10: drop changes in create_mcount_loc_sections()]
+Link: https://lkml.kernel.org/r/20210326151259.941474004@infradead.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c   |    3 ---
- tools/objtool/elf.c     |    9 ++++++++-
- tools/objtool/elf.h     |    1 -
- tools/objtool/orc_gen.c |    2 --
- 4 files changed, 8 insertions(+), 7 deletions(-)
+ tools/objtool/elf.c |   60 ++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 38 insertions(+), 22 deletions(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -459,9 +459,6 @@ static int create_static_call_sections(s
- 	if (!sec)
- 		return -1;
- 
--	if (!elf_create_reloc_section(file->elf, sec, SHT_RELA))
--		return -1;
--
- 	idx = 0;
- 	list_for_each_entry(insn, &file->static_call_list, static_call_node) {
- 
 --- a/tools/objtool/elf.c
 +++ b/tools/objtool/elf.c
-@@ -498,11 +498,18 @@ err:
- 	return -1;
+@@ -724,13 +724,48 @@ err:
+ 	return NULL;
  }
  
-+static struct section *elf_create_reloc_section(struct elf *elf,
-+						struct section *base,
-+						int reltype);
++static int elf_add_string(struct elf *elf, struct section *strtab, char *str)
++{
++	Elf_Data *data;
++	Elf_Scn *s;
++	int len;
 +
- int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
- 		  unsigned int type, struct symbol *sym, int addend)
- {
- 	struct reloc *reloc;
- 
-+	if (!sec->reloc && !elf_create_reloc_section(elf, sec, SHT_RELA))
++	if (!strtab)
++		strtab = find_section_by_name(elf, ".strtab");
++	if (!strtab) {
++		WARN("can't find .strtab section");
 +		return -1;
++	}
 +
- 	reloc = malloc(sizeof(*reloc));
- 	if (!reloc) {
- 		perror("malloc");
-@@ -880,7 +887,7 @@ static struct section *elf_create_rela_r
- 	return sec;
- }
- 
--struct section *elf_create_reloc_section(struct elf *elf,
-+static struct section *elf_create_reloc_section(struct elf *elf,
- 					 struct section *base,
- 					 int reltype)
++	s = elf_getscn(elf->elf, strtab->idx);
++	if (!s) {
++		WARN_ELF("elf_getscn");
++		return -1;
++	}
++
++	data = elf_newdata(s);
++	if (!data) {
++		WARN_ELF("elf_newdata");
++		return -1;
++	}
++
++	data->d_buf = str;
++	data->d_size = strlen(str) + 1;
++	data->d_align = 1;
++
++	len = strtab->len;
++	strtab->len += data->d_size;
++	strtab->changed = true;
++
++	return len;
++}
++
+ struct section *elf_create_section(struct elf *elf, const char *name,
+ 				   unsigned int sh_flags, size_t entsize, int nr)
  {
---- a/tools/objtool/elf.h
-+++ b/tools/objtool/elf.h
-@@ -122,7 +122,6 @@ static inline u32 reloc_hash(struct relo
+ 	struct section *sec, *shstrtab;
+ 	size_t size = entsize * nr;
+ 	Elf_Scn *s;
+-	Elf_Data *data;
  
- struct elf *elf_open_read(const char *name, int flags);
- struct section *elf_create_section(struct elf *elf, const char *name, unsigned int sh_flags, size_t entsize, int nr);
--struct section *elf_create_reloc_section(struct elf *elf, struct section *base, int reltype);
+ 	sec = malloc(sizeof(*sec));
+ 	if (!sec) {
+@@ -787,7 +822,6 @@ struct section *elf_create_section(struc
+ 	sec->sh.sh_addralign = 1;
+ 	sec->sh.sh_flags = SHF_ALLOC | sh_flags;
  
- int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
- 		  unsigned int type, struct symbol *sym, int addend);
---- a/tools/objtool/orc_gen.c
-+++ b/tools/objtool/orc_gen.c
-@@ -222,8 +222,6 @@ int orc_create(struct objtool_file *file
- 	sec = elf_create_section(file->elf, ".orc_unwind_ip", 0, sizeof(int), nr);
- 	if (!sec)
- 		return -1;
--	if (!elf_create_reloc_section(file->elf, sec, SHT_RELA))
--		return -1;
+-
+ 	/* Add section name to .shstrtab (or .strtab for Clang) */
+ 	shstrtab = find_section_by_name(elf, ".shstrtab");
+ 	if (!shstrtab)
+@@ -796,27 +830,9 @@ struct section *elf_create_section(struc
+ 		WARN("can't find .shstrtab or .strtab section");
+ 		return NULL;
+ 	}
+-
+-	s = elf_getscn(elf->elf, shstrtab->idx);
+-	if (!s) {
+-		WARN_ELF("elf_getscn");
+-		return NULL;
+-	}
+-
+-	data = elf_newdata(s);
+-	if (!data) {
+-		WARN_ELF("elf_newdata");
++	sec->sh.sh_name = elf_add_string(elf, shstrtab, sec->name);
++	if (sec->sh.sh_name == -1)
+ 		return NULL;
+-	}
+-
+-	data->d_buf = sec->name;
+-	data->d_size = strlen(name) + 1;
+-	data->d_align = 1;
+-
+-	sec->sh.sh_name = shstrtab->len;
+-
+-	shstrtab->len += strlen(name) + 1;
+-	shstrtab->changed = true;
  
- 	/* Write ORC entries to sections: */
- 	list_for_each_entry(entry, &orc_list, list) {
+ 	list_add_tail(&sec->list, &elf->sections);
+ 	elf_hash_add(elf->section_hash, &sec->hash, sec->idx);
 
 
