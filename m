@@ -2,318 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5FA571AE3
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 15:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 721A1571B33
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 15:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229912AbiGLNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 09:13:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56562 "EHLO
+        id S230127AbiGLN1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 09:27:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229715AbiGLNN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 09:13:28 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D678B418B
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 06:13:23 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id 5so7208214plk.9
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 06:13:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=G/A1BbQfC+dLWxDlr3oB7+qwB19f8kXA6yWF8I9ZRJo=;
-        b=h6N4DCt4IWHoLnyRAFjF+ikfxZmDz8ZroqgIh+zTuryYI/9UZAG1fa1b/kYn+HPajq
-         p8WwFZwaMNVhSxhHKwp+5RvQhnZry/m7k+4xav4ELERP2TPBdHu1jwdxkR5P62XHWTaj
-         SSf0tBXNmWwoL/vQBJmUua94eVauIGFcn9qeZ+5rt2/ECwapy5e1sJ8K5vmTe/uzBtT3
-         Iaobe+7WIyGolY5sVaRA1H3mZUSQ0LzeJyCBv1G+iaaUAIwRMjkXj03gnK2nvCpAMoBj
-         c6P8UD0MCnpqI90IF1TcWhHr4jER2JS0f87s7c2Uq2CGsiq86/qAJEr3Y2AemRJOBagK
-         00Dg==
+        with ESMTP id S229760AbiGLN1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 09:27:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EECD0904DB
+        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 06:27:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1657632461;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=DC68EZcp8HbHnL+RJJnc8fD/j/Lhx9vJKALlsi90sNc=;
+        b=JN03ZOgGpmaBCqYAjrO1tBPM3ggTslg/tZ39iUJ/Q4QXPjZ6LrwMh5yb09Veez4pH8u+Jj
+        YVE+Ht9d8DyfZn0EUBuyJuiZ0NzyiZ5kd3d8Yj6ac6iwknzSOMNPb+DSdS2HP05Glb1fqN
+        ozbo1Fwu7ufijhZUmcgskyaH+Wbr6sw=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-183-Isb4rd2YP6ay0mD6vdk4pQ-1; Tue, 12 Jul 2022 09:27:40 -0400
+X-MC-Unique: Isb4rd2YP6ay0mD6vdk4pQ-1
+Received: by mail-qk1-f199.google.com with SMTP id o13-20020a05620a2a0d00b006b46c5414b0so7862767qkp.23
+        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 06:27:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=G/A1BbQfC+dLWxDlr3oB7+qwB19f8kXA6yWF8I9ZRJo=;
-        b=q47gtuTCdx04XBvMTC+6ZIY6mIHnpcuNFDAQmI/B4ft6itf8sKnGMX2IUfYwiH/DBh
-         WVh2ASN4i+NPLZ57YLNvtusG4qk65daq/X2i44/qHOJ8pmALhwehNH6kQTqRBRGwAZE/
-         Njb2SxUWGvXHvjARUgVY1Azk7Sil3225F+evA76OTfdXX8tpgDsuw8G1y8ugUHMgPLuh
-         10Eqsgv6oesEWEQbqVHw+4n4fBKXtdSNhUdrjw8RT04ceS24RvkfDcrM+UtDlR3xdD7I
-         mScncpecMXoqBpBhos74uD3pQYSBy1Ew8z6m/OhHKMc2cyeOVUDcqzxoxppx+wg3Dyhj
-         l+kA==
-X-Gm-Message-State: AJIora9NhYbD/7HZD25u3EMgOhRt5hjxUVdojrytVyV7llId4088pqtT
-        KycTUmrllmnJ6whfNVIvJfCuNu6LstwgW4y9
-X-Google-Smtp-Source: AGRyM1sGLQgcrNf10VtU4duwDxQFTE94UbY9XachM4zOJbWLK0MHHvyhM3KkPVWEPHWwmvad659PbA==
-X-Received: by 2002:a17:902:aa82:b0:16c:4bee:1f90 with SMTP id d2-20020a170902aa8200b0016c4bee1f90mr10220103plr.69.1657631602827;
-        Tue, 12 Jul 2022 06:13:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x5-20020a623105000000b005289ef6db79sm6752314pfx.32.2022.07.12.06.13.22
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=DC68EZcp8HbHnL+RJJnc8fD/j/Lhx9vJKALlsi90sNc=;
+        b=NG+0w6CPIGqyLM7C4MEbuqAEmwpdCBRNYJAkXIa7ED/AmmtVDaGmC/GYIcuaQE5hkS
+         +/JdQXHQaJsdBcJb0xPoR5poYda0QFSvM4Jy7xFbumGyp0e191MlWaCN8utqWjycOLXt
+         FNgbhZSSmjU3TbIapFxspA3PYoFDdDtOI2SgmZEE7+bMbpxBBG3KJCiSVyd7dIdjGYhJ
+         jXhZ9epXQ+gc1WxvzxDobm2Y9H71jujAmConvjep8U7EqTfT/Oj5yoi7ctiwZZDbQ8nS
+         aJvBM1dS59zOTor2KQAR8djcJ3/qYJb27pDvfosiE/asMgLVGy3SpPSzMJDR5uxAya6Q
+         CO8g==
+X-Gm-Message-State: AJIora9ok1+X4xstO+Yjl6PYp/9s+ZUlWM5Y52ZSRxDBWpdTCcNRgmfk
+        tLdUsQF7OwGPIj8UqxegwhM0wQE5MMgzQKi51fBNdcOiUJsSJ1vIpSU2ROas1hxSuFuq0vCbTCC
+        BhLaRKs8NsJkyvTnm
+X-Received: by 2002:a05:6214:c8a:b0:473:26f:59e0 with SMTP id r10-20020a0562140c8a00b00473026f59e0mr17562252qvr.63.1657632459749;
+        Tue, 12 Jul 2022 06:27:39 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vwHUvgExMAHhJ8Gd2okDEZPQ1R189/OcIsXzRgysYWzxhAs75REVpZWXe77Sgmk3CxU4XqpQ==
+X-Received: by 2002:a05:6214:c8a:b0:473:26f:59e0 with SMTP id r10-20020a0562140c8a00b00473026f59e0mr17562224qvr.63.1657632459456;
+        Tue, 12 Jul 2022 06:27:39 -0700 (PDT)
+Received: from xz-m1.local (bras-base-aurron9127w-grc-37-74-12-30-48.dsl.bell.ca. [74.12.30.48])
+        by smtp.gmail.com with ESMTPSA id s12-20020a05620a29cc00b006b28349678dsm10208701qkp.80.2022.07.12.06.27.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Jul 2022 06:13:22 -0700 (PDT)
-Message-ID: <62cd7372.1c69fb81.b200b.9b07@mx.google.com>
-Date:   Tue, 12 Jul 2022 06:13:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 12 Jul 2022 06:27:37 -0700 (PDT)
+Date:   Tue, 12 Jul 2022 09:27:36 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        Nadav Amit <namit@vmware.com>,
+        James Houghton <jthoughton@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>, Jan Kara <jack@suse.cz>,
+        Andrea Arcangeli <aarcange@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] userfaultfd: provide properly masked address for
+ huge-pages
+Message-ID: <Ys12yG6XKCCTI3LH@xz-m1.local>
+References: <20220711165906.2682-1-namit@vmware.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.53-229-g4db18200a074
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 177 runs,
- 6 regressions (v5.15.53-229-g4db18200a074)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220711165906.2682-1-namit@vmware.com>
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 177 runs, 6 regressions (v5.15.53-229-g4db18=
-200a074)
+On Mon, Jul 11, 2022 at 09:59:06AM -0700, Nadav Amit wrote:
+> From: Nadav Amit <namit@vmware.com>
+> 
+> Commit 824ddc601adc ("userfaultfd: provide unmasked address on
+> page-fault") was introduced to fix an old bug, in which the offset in
+> the address of a page-fault was masked. Concerns were raised - although
+> were never backed by actual code - that some userspace code might break
+> because the bug has been around for quite a while. To address these
+> concerns a new flag was introduced, and only when this flag is set by
+> the user, userfaultfd provides the exact address of the page-fault.
+> 
+> The commit however had a bug, and if the flag is unset, the offset was
+> always masked based on a base-page granularity. Yet, for huge-pages, the
+> behavior prior to the commit was that the address is masked to the
+> huge-page granulrity.
+> 
+> While there are no reports on real breakage, fix this issue. If the flag
+> is unset, use the address with the masking that was done before.
+> 
+> Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
+> Reported-by: James Houghton <jthoughton@google.com>
+> Cc: Peter Xu <peterx@redhat.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Mike Rapoport <rppt@linux.ibm.com>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Andrea Arcangeli <aarcange@redhat.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+
+Reviewed-by: Peter Xu <peterx@redhat.com>
+
+-- 
+Peter Xu
 
-Regressions Summary
--------------------
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-beagle-xm         | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig |=
- 1          =
-
-jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig  |=
- 1          =
-
-jetson-tk1        | arm  | lab-baylibre  | gcc-10   | tegra_defconfig     |=
- 1          =
-
-odroid-xu3        | arm  | lab-collabora | gcc-10   | exynos_defconfig    |=
- 1          =
-
-tegra124-nyan-big | arm  | lab-collabora | gcc-10   | multi_v7_defconfig  |=
- 1          =
-
-tegra124-nyan-big | arm  | lab-collabora | gcc-10   | tegra_defconfig     |=
- 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.53-229-g4db18200a074/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.53-229-g4db18200a074
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4db18200a074112c9ac281d94c2946645f91ea31 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-beagle-xm         | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cd403851bf30c683a39be0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cd403851bf30c683a39=
-be1
-        failing since 103 days (last pass: v5.15.31-2-g57d4301e22c2, first =
-fail: v5.15.31-3-g4ae45332eb9c) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-jetson-tk1        | arm  | lab-baylibre  | gcc-10   | multi_v7_defconfig  |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cd4d46c5d9fdcae2a39bf6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetso=
-n-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetso=
-n-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cd4d46c5d9fdcae2a39=
-bf7
-        failing since 31 days (last pass: v5.15.45-667-g99a55c4a9ecc0, firs=
-t fail: v5.15.45-798-g69fa874c62551) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-jetson-tk1        | arm  | lab-baylibre  | gcc-10   | tegra_defconfig     |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cd485b65b3f2947da39c02
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-t=
-k1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-t=
-k1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cd485b65b3f2947da39=
-c03
-        failing since 7 days (last pass: v5.15.51-43-gad3bd1f3e86e, first f=
-ail: v5.15.51-60-g300ca5992dde) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-odroid-xu3        | arm  | lab-collabora | gcc-10   | exynos_defconfig    |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cd4fbc94eecafc4ea39be9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/exynos_defconfig/gcc-10/lab-collabora/baseline-odroid=
--xu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/exynos_defconfig/gcc-10/lab-collabora/baseline-odroid=
--xu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cd4fbc94eecafc4ea39=
-bea
-        new failure (last pass: v5.15.53-19-g8d59fcccbb45) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-tegra124-nyan-big | arm  | lab-collabora | gcc-10   | multi_v7_defconfig  |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cd6090fdc94c0fe2a39c09
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegr=
-a124-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-tegr=
-a124-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cd6090fdc94c0fe2a39=
-c0a
-        failing since 34 days (last pass: v5.15.45-652-g938d073d082af, firs=
-t fail: v5.15.45-667-g6f48aa0f6b54d) =
-
- =
-
-
-
-platform          | arch | lab           | compiler | defconfig           |=
- regressions
-------------------+------+---------------+----------+---------------------+=
-------------
-tegra124-nyan-big | arm  | lab-collabora | gcc-10   | tegra_defconfig     |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cd5a7b3ec48d1e22a39bd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra12=
-4-nyan-big.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.53-=
-229-g4db18200a074/arm/tegra_defconfig/gcc-10/lab-collabora/baseline-tegra12=
-4-nyan-big.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cd5a7b3ec48d1e22a39=
-bd5
-        failing since 23 days (last pass: v5.15.45-915-gfe83bcae3c626, firs=
-t fail: v5.15.48-44-gaa2f7b1f36db5) =
-
- =20
