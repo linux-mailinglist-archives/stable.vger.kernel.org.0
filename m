@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC3657235C
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B95D57236D
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234172AbiGLSpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
+        id S234214AbiGLSrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:47:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234291AbiGLSpK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:45:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D68A9DB2C2;
-        Tue, 12 Jul 2022 11:42:28 -0700 (PDT)
+        with ESMTP id S234209AbiGLSrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:47:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFA1DD236;
+        Tue, 12 Jul 2022 11:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73EFDB81B96;
-        Tue, 12 Jul 2022 18:42:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF5DC3411C;
-        Tue, 12 Jul 2022 18:42:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 120F4B81BB9;
+        Tue, 12 Jul 2022 18:43:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E67C3411C;
+        Tue, 12 Jul 2022 18:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651346;
-        bh=XZe6mZDywRYuCTJTB4/Kt7NN12giWZC5dpHCMsUZakg=;
+        s=korg; t=1657651382;
+        bh=p69Pkhj7FSTSQGKzGUI/7ybWeLAgcbtPAlo52bDLKgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpsp3vEoFY6p3C7/Bx/o3sZVMacTkxc/99brFav3Kx62Z4eKfDPuqs249b6FAwHZa
-         vUzAL1sRII2Bm9OwY78mEDDIYTEZoaZoxXkH/x2NXNNf0eExjte1yXCIHAguJ146wO
-         LPeEvKSsEo6AWP0Rkyf1GOUVyjkOExD7gJqOv/jo=
+        b=sWI5SDZ0qTT9/exp53pXM+ZyAwTWn4OCrUazT04A0BxpMcbJNgfGafKhzr+TZ/vlb
+         DjCzRNoTuEaAa4KgZkOWlfp3EED5j5VQ9z7tsYTrKKbCuH19uEG4AtEUKVgb/XUEHU
+         FEXCVJspPFMUX+eIOS+0TZGhhVc5xmmYaG79rdO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Borislav Petkov <bp@alien8.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Nathan Chancellor <nathan@kernel.org>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 041/130] objtool: Teach get_alt_entry() about more relocation types
-Date:   Tue, 12 Jul 2022 20:38:07 +0200
-Message-Id: <20220712183248.303544818@linuxfoundation.org>
+Subject: [PATCH 5.10 042/130] objtool: print out the symbol type when complaining about it
+Date:   Tue, 12 Jul 2022 20:38:08 +0200
+Message-Id: <20220712183248.351269760@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -57,94 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 24ff652573754fe4c03213ebd26b17e86842feb3 upstream.
+commit 7fab1c12bde926c5a8c7d5984c551d0854d7e0b3 upstream.
 
-Occasionally objtool encounters symbol (as opposed to section)
-relocations in .altinstructions. Typically they are the alternatives
-written by elf_add_alternative() as encountered on a noinstr
-validation run on vmlinux after having already ran objtool on the
-individual .o files.
+The objtool warning that the kvm instruction emulation code triggered
+wasn't very useful:
 
-Basically this is the counterpart of commit 44f6a7c0755d ("objtool:
-Fix seg fault with Clang non-section symbols"), because when these new
-assemblers (binutils now also does this) strip the section symbols,
-elf_add_reloc_to_insn() is forced to emit symbol based relocations.
+    arch/x86/kvm/emulate.o: warning: objtool: __ex_table+0x4: don't know how to handle reloc symbol type: kvm_fastop_exception
 
-As such, teach get_alt_entry() about different relocation types.
+in that it helpfully tells you which symbol name it had trouble figuring
+out the relocation for, but it doesn't actually say what the unknown
+symbol type was that triggered it all.
 
-Fixes: 9bc0bb50727c ("objtool/x86: Rewrite retpoline thunk calls")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Reported-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/YVWUvknIEVNkPvnP@hirez.programming.kicks-ass.net
+In this case it was because of missing type information (type 0, aka
+STT_NOTYPE), but on the whole it really should just have printed that
+out as part of the message.
+
+Because if this warning triggers, that's very much the first thing you
+want to know - why did reloc2sec_off() return failure for that symbol?
+
+So rather than just saying you can't handle some type of symbol without
+saying what the type _was_, just print out the type number too.
+
+Fixes: 24ff65257375 ("objtool: Teach get_alt_entry() about more relocation types")
+Link: https://lore.kernel.org/lkml/CAHk-=wiZwq-0LknKhXN4M+T8jbxn_2i9mcKpO+OaBSSq_Eh7tg@mail.gmail.com/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/special.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ tools/objtool/special.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 --- a/tools/objtool/special.c
 +++ b/tools/objtool/special.c
-@@ -55,6 +55,24 @@ void __weak arch_handle_alternative(unsi
- {
- }
- 
-+static bool reloc2sec_off(struct reloc *reloc, struct section **sec, unsigned long *off)
-+{
-+	switch (reloc->sym->type) {
-+	case STT_FUNC:
-+		*sec = reloc->sym->sec;
-+		*off = reloc->sym->offset + reloc->addend;
-+		return true;
-+
-+	case STT_SECTION:
-+		*sec = reloc->sym->sec;
-+		*off = reloc->addend;
-+		return true;
-+
-+	default:
-+		return false;
-+	}
-+}
-+
- static int get_alt_entry(struct elf *elf, struct special_entry *entry,
- 			 struct section *sec, int idx,
- 			 struct special_alt *alt)
-@@ -87,15 +105,12 @@ static int get_alt_entry(struct elf *elf
- 		WARN_FUNC("can't find orig reloc", sec, offset + entry->orig);
+@@ -106,8 +106,10 @@ static int get_alt_entry(struct elf *elf
  		return -1;
  	}
--	if (orig_reloc->sym->type != STT_SECTION) {
--		WARN_FUNC("don't know how to handle non-section reloc symbol %s",
-+	if (!reloc2sec_off(orig_reloc, &alt->orig_sec, &alt->orig_off)) {
-+		WARN_FUNC("don't know how to handle reloc symbol type: %s",
- 			   sec, offset + entry->orig, orig_reloc->sym->name);
+ 	if (!reloc2sec_off(orig_reloc, &alt->orig_sec, &alt->orig_off)) {
+-		WARN_FUNC("don't know how to handle reloc symbol type: %s",
+-			   sec, offset + entry->orig, orig_reloc->sym->name);
++		WARN_FUNC("don't know how to handle reloc symbol type %d: %s",
++			   sec, offset + entry->orig,
++			   orig_reloc->sym->type,
++			   orig_reloc->sym->name);
  		return -1;
  	}
  
--	alt->orig_sec = orig_reloc->sym->sec;
--	alt->orig_off = orig_reloc->addend;
--
- 	if (!entry->group || alt->new_len) {
- 		new_reloc = find_reloc_by_dest(elf, sec, offset + entry->new);
- 		if (!new_reloc) {
-@@ -112,8 +127,11 @@ static int get_alt_entry(struct elf *elf
- 		if (arch_is_retpoline(new_reloc->sym))
+@@ -128,8 +130,10 @@ static int get_alt_entry(struct elf *elf
  			return 1;
  
--		alt->new_sec = new_reloc->sym->sec;
--		alt->new_off = (unsigned int)new_reloc->addend;
-+		if (!reloc2sec_off(new_reloc, &alt->new_sec, &alt->new_off)) {
-+			WARN_FUNC("don't know how to handle reloc symbol type: %s",
-+				  sec, offset + entry->new, new_reloc->sym->name);
-+			return -1;
-+		}
+ 		if (!reloc2sec_off(new_reloc, &alt->new_sec, &alt->new_off)) {
+-			WARN_FUNC("don't know how to handle reloc symbol type: %s",
+-				  sec, offset + entry->new, new_reloc->sym->name);
++			WARN_FUNC("don't know how to handle reloc symbol type %d: %s",
++				  sec, offset + entry->new,
++				  new_reloc->sym->type,
++				  new_reloc->sym->name);
+ 			return -1;
+ 		}
  
- 		/* _ASM_EXTABLE_EX hack */
- 		if (alt->new_off >= 0x7ffffff0)
 
 
