@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E79957249F
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F05EF57241D
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235353AbiGLTFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:05:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47312 "EHLO
+        id S234924AbiGLS5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:57:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234947AbiGLTEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:04:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E68F6817;
-        Tue, 12 Jul 2022 11:50:11 -0700 (PDT)
+        with ESMTP id S234748AbiGLS41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:56:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0FBFDC1AC;
+        Tue, 12 Jul 2022 11:46:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 763C16090C;
-        Tue, 12 Jul 2022 18:50:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796B6C3411C;
-        Tue, 12 Jul 2022 18:50:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDC8B60765;
+        Tue, 12 Jul 2022 18:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BDFC3411C;
+        Tue, 12 Jul 2022 18:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651808;
-        bh=GmoR2mgymS7PNBJn8KE2yJSFe1yUZVFHMA3o6gXpjbE=;
+        s=korg; t=1657651605;
+        bh=6ZJiZorj7WVCzB1nyaRhoBZ6f67OnAAunAmOUTsjtKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNM20K/r2jcY4WOJAOasrePhHLTNqKlTNrZiiKWoM4DPLVfLpLRUSuUOK8XVBQdfl
-         9s09XTqxJ8dYIVV15+UMu7sH68fBJSS5ezh0Efgik9skj1qMcdflNtl+pugDNWNNnL
-         TeH7XXVsmbLIRvcySj/iVpsqzYibQ5qxZY367M78=
+        b=GfyGhNJz8ojYyfCuvfHLshudpLk9OdTyrldGrh+NkOOUK2LJ8DtmLBKSG4SheOccH
+         9i8LCtMUpfWcvI041o6pJo8P+1a6QsMtBu4dN7PhR1jMDrom7nE8yFusH0kXRTDbCe
+         lZLFm0iNw7o1bAu227VQoHA6D+TY9Q3rpTsw3QI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Edward Tran <edward.tran@oracle.com>,
+        Awais Tanveer <awais.tanveer@oracle.com>,
+        Ankur Arora <ankur.a.arora@oracle.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
         Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 64/78] objtool: Re-add UNWIND_HINT_{SAVE_RESTORE}
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 128/130] x86/kexec: Disable RET on kexec
 Date:   Tue, 12 Jul 2022 20:39:34 +0200
-Message-Id: <20220712183241.470882743@linuxfoundation.org>
+Message-Id: <20220712183252.363784059@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,184 +58,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-commit 8faea26e611189e933ea2281975ff4dc7c1106b6 upstream.
+commit 697977d8415d61f3acbc4ee6d564c9dcf0309507 upstream.
 
-Commit
+All the invocations unroll to __x86_return_thunk and this file
+must be PIC independent.
 
-  c536ed2fffd5 ("objtool: Remove SAVE/RESTORE hints")
+This fixes kexec on 64-bit AMD boxes.
 
-removed the save/restore unwind hints because they were no longer
-needed. Now they're going to be needed again so re-add them.
+  [ bp: Fix 32-bit build. ]
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: Edward Tran <edward.tran@oracle.com>
+Reported-by: Awais Tanveer <awais.tanveer@oracle.com>
+Suggested-by: Ankur Arora <ankur.a.arora@oracle.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/unwind_hints.h   |   12 ++++++++--
- include/linux/objtool.h               |    6 +++--
- tools/include/linux/objtool.h         |    6 +++--
- tools/objtool/check.c                 |   40 ++++++++++++++++++++++++++++++++++
- tools/objtool/include/objtool/check.h |    1 
- 5 files changed, 59 insertions(+), 6 deletions(-)
+ arch/x86/kernel/relocate_kernel_32.S |   25 +++++++++++++++++++------
+ arch/x86/kernel/relocate_kernel_64.S |   23 +++++++++++++++++------
+ 2 files changed, 36 insertions(+), 12 deletions(-)
 
---- a/arch/x86/include/asm/unwind_hints.h
-+++ b/arch/x86/include/asm/unwind_hints.h
-@@ -8,11 +8,11 @@
- #ifdef __ASSEMBLY__
+--- a/arch/x86/kernel/relocate_kernel_32.S
++++ b/arch/x86/kernel/relocate_kernel_32.S
+@@ -7,10 +7,12 @@
+ #include <linux/linkage.h>
+ #include <asm/page_types.h>
+ #include <asm/kexec.h>
++#include <asm/nospec-branch.h>
+ #include <asm/processor-flags.h>
  
- .macro UNWIND_HINT_EMPTY
--	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_CALL end=1
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_CALL end=1
- .endm
- 
- .macro UNWIND_HINT_ENTRY
--	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_ENTRY end=1
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_ENTRY end=1
- .endm
- 
- .macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 partial=0
-@@ -56,6 +56,14 @@
- 	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=8 type=UNWIND_HINT_TYPE_FUNC
- .endm
- 
-+.macro UNWIND_HINT_SAVE
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_SAVE
-+.endm
-+
-+.macro UNWIND_HINT_RESTORE
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_RESTORE
-+.endm
-+
- #endif /* __ASSEMBLY__ */
- 
- #endif /* _ASM_X86_UNWIND_HINTS_H */
---- a/include/linux/objtool.h
-+++ b/include/linux/objtool.h
-@@ -40,6 +40,8 @@ struct unwind_hint {
- #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
- #define UNWIND_HINT_TYPE_FUNC		3
- #define UNWIND_HINT_TYPE_ENTRY		4
-+#define UNWIND_HINT_TYPE_SAVE		5
-+#define UNWIND_HINT_TYPE_RESTORE	6
- 
- #ifdef CONFIG_STACK_VALIDATION
- 
-@@ -102,7 +104,7 @@ struct unwind_hint {
-  * the debuginfo as necessary.  It will also warn if it sees any
-  * inconsistencies.
+ /*
+- * Must be relocatable PIC code callable as a C function
++ * Must be relocatable PIC code callable as a C function, in particular
++ * there must be a plain RET and not jump to return thunk.
   */
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .Lunwind_hint_ip_\@:
- 	.pushsection .discard.unwind_hints
- 		/* struct unwind_hint */
-@@ -132,7 +134,7 @@ struct unwind_hint {
- #define STACK_FRAME_NON_STANDARD(func)
- #else
- #define ANNOTATE_INTRA_FUNCTION_CALL
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .endm
- .macro STACK_FRAME_NON_STANDARD func:req
- .endm
---- a/tools/include/linux/objtool.h
-+++ b/tools/include/linux/objtool.h
-@@ -40,6 +40,8 @@ struct unwind_hint {
- #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
- #define UNWIND_HINT_TYPE_FUNC		3
- #define UNWIND_HINT_TYPE_ENTRY		4
-+#define UNWIND_HINT_TYPE_SAVE		5
-+#define UNWIND_HINT_TYPE_RESTORE	6
  
- #ifdef CONFIG_STACK_VALIDATION
+ #define PTR(x) (x << 2)
+@@ -91,7 +93,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
+ 	movl    %edi, %eax
+ 	addl    $(identity_mapped - relocate_kernel), %eax
+ 	pushl   %eax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(relocate_kernel)
  
-@@ -102,7 +104,7 @@ struct unwind_hint {
-  * the debuginfo as necessary.  It will also warn if it sees any
-  * inconsistencies.
+ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+@@ -159,12 +163,15 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
+ 	xorl    %edx, %edx
+ 	xorl    %esi, %esi
+ 	xorl    %ebp, %ebp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ 1:
+ 	popl	%edx
+ 	movl	CP_PA_SWAP_PAGE(%edi), %esp
+ 	addl	$PAGE_SIZE, %esp
+ 2:
++	ANNOTATE_RETPOLINE_SAFE
+ 	call	*%edx
+ 
+ 	/* get the re-entry point of the peer system */
+@@ -190,7 +197,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
+ 	movl	%edi, %eax
+ 	addl	$(virtual_mapped - relocate_kernel), %eax
+ 	pushl	%eax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(identity_mapped)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+@@ -208,7 +217,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_map
+ 	popl	%edi
+ 	popl	%esi
+ 	popl	%ebx
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(virtual_mapped)
+ 
+ 	/* Do the copies */
+@@ -271,7 +282,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+ 	popl	%edi
+ 	popl	%ebx
+ 	popl	%ebp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(swap_pages)
+ 
+ 	.globl kexec_control_code_size
+--- a/arch/x86/kernel/relocate_kernel_64.S
++++ b/arch/x86/kernel/relocate_kernel_64.S
+@@ -13,7 +13,8 @@
+ #include <asm/unwind_hints.h>
+ 
+ /*
+- * Must be relocatable PIC code callable as a C function
++ * Must be relocatable PIC code callable as a C function, in particular
++ * there must be a plain RET and not jump to return thunk.
   */
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .Lunwind_hint_ip_\@:
- 	.pushsection .discard.unwind_hints
- 		/* struct unwind_hint */
-@@ -132,7 +134,7 @@ struct unwind_hint {
- #define STACK_FRAME_NON_STANDARD(func)
- #else
- #define ANNOTATE_INTRA_FUNCTION_CALL
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .endm
- .macro STACK_FRAME_NON_STANDARD func:req
- .endm
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1847,6 +1847,17 @@ static int read_unwind_hints(struct objt
  
- 		insn->hint = true;
+ #define PTR(x) (x << 3)
+@@ -104,7 +105,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
+ 	/* jump to identity mapped page */
+ 	addq	$(identity_mapped - relocate_kernel), %r8
+ 	pushq	%r8
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(relocate_kernel)
  
-+		if (hint->type == UNWIND_HINT_TYPE_SAVE) {
-+			insn->hint = false;
-+			insn->save = true;
-+			continue;
-+		}
-+
-+		if (hint->type == UNWIND_HINT_TYPE_RESTORE) {
-+			insn->restore = true;
-+			continue;
-+		}
-+
- 		if (hint->type == UNWIND_HINT_TYPE_REGS_PARTIAL) {
- 			struct symbol *sym = find_symbol_by_offset(insn->sec, insn->offset);
+ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+@@ -191,7 +194,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
+ 	xorl	%r14d, %r14d
+ 	xorl	%r15d, %r15d
  
-@@ -3025,6 +3036,35 @@ static int validate_branch(struct objtoo
- 			state.instr += insn->instr;
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
  
- 		if (insn->hint) {
-+			if (insn->restore) {
-+				struct instruction *save_insn, *i;
-+
-+				i = insn;
-+				save_insn = NULL;
-+
-+				sym_for_each_insn_continue_reverse(file, func, i) {
-+					if (i->save) {
-+						save_insn = i;
-+						break;
-+					}
-+				}
-+
-+				if (!save_insn) {
-+					WARN_FUNC("no corresponding CFI save for CFI restore",
-+						  sec, insn->offset);
-+					return 1;
-+				}
-+
-+				if (!save_insn->visited) {
-+					WARN_FUNC("objtool isn't smart enough to handle this CFI save/restore combo",
-+						  sec, insn->offset);
-+					return 1;
-+				}
-+
-+				insn->cfi = save_insn->cfi;
-+				nr_cfi_reused++;
-+			}
-+
- 			state.cfi = *insn->cfi;
- 		} else {
- 			/* XXX track if we actually changed state.cfi */
---- a/tools/objtool/include/objtool/check.h
-+++ b/tools/objtool/include/objtool/check.h
-@@ -47,6 +47,7 @@ struct instruction {
- 	unsigned long immediate;
- 	bool dead_end, ignore, ignore_alts;
- 	bool hint;
-+	bool save, restore;
- 	bool retpoline_safe;
- 	bool entry;
- 	s8 instr;
+ 1:
+ 	popq	%rdx
+@@ -210,7 +215,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
+ 	call	swap_pages
+ 	movq	$virtual_mapped, %rax
+ 	pushq	%rax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(identity_mapped)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+@@ -231,7 +238,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_map
+ 	popq	%r12
+ 	popq	%rbp
+ 	popq	%rbx
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(virtual_mapped)
+ 
+ 	/* Do the copies */
+@@ -288,7 +297,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+ 	lea	PAGE_SIZE(%rax), %rsi
+ 	jmp	0b
+ 3:
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(swap_pages)
+ 
+ 	.globl kexec_control_code_size
 
 
