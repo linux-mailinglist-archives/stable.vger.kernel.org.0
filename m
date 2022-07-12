@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E0057243C
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383C457237F
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234998AbiGLS6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:58:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33662 "EHLO
+        id S234262AbiGLStd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:49:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235041AbiGLS5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 017A6DD219;
-        Tue, 12 Jul 2022 11:47:28 -0700 (PDT)
+        with ESMTP id S234179AbiGLStC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A864863B3;
+        Tue, 12 Jul 2022 11:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 583C8B81B96;
-        Tue, 12 Jul 2022 18:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C95C3411C;
-        Tue, 12 Jul 2022 18:47:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9F60B81BBE;
+        Tue, 12 Jul 2022 18:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BCA6C3411E;
+        Tue, 12 Jul 2022 18:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651645;
-        bh=YvCCv6eVb0NnonWUapO+9jBOvrlJBiS1ajCBCiUvIjQ=;
+        s=korg; t=1657651410;
+        bh=eyipu8EB/64Q0rbW76zZlxYKVV59IRLRSGQ+HpDrRTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQqhKm3+/hvEuBFSfvB/N8XmM4D54N4v9AsVqKqJBiyuyq9VK3ulRFUMWgk3Uwoy9
-         8jFqV127BSQ55Dw2TytU+yxGtgLo6Qh2ypUtfzpKDNtYETBRPsR+RxrsNhzMygf/X2
-         wTfXSUtsGoydZcULaqbPpc6Q9+xZwvsNGFh48CVY=
+        b=VUTPsinWYqtI4qgd6ehWlQaZANfpXBAXK3gVLXFSirEvrqSwoDaLPuRM3x++Gv8RA
+         6nkvJsAsCvN+P9wxF+f/hORj9CPJt3K4+DlCHbhgUgfr6GlSOF5x6bb9WcpIZV++Qu
+         EE5TD1JtTzkrr/UCAOFrH9A1flCMBWRbDEJaU3IA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <jiangshan.ljs@antgroup.com>,
-        Borislav Petkov <bp@suse.de>, Juergen Gross <jgross@suse.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 03/78] x86/entry: Move PUSH_AND_CLEAR_REGS out of error_entry()
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 067/130] tools arch: Update arch/x86/lib/mem{cpy,set}_64.S copies used in perf bench mem memcpy
 Date:   Tue, 12 Jul 2022 20:38:33 +0200
-Message-Id: <20220712183238.970721477@linuxfoundation.org>
+Message-Id: <20220712183249.558038729@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +56,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit ee774dac0da1543376a69fd90840af6aa86879b3 upstream.
+commit 35cb8c713a496e8c114eed5e2a5a30b359876df2 upstream.
 
-The macro idtentry() (through idtentry_body()) calls error_entry()
-unconditionally even on XENPV. But XENPV needs to only push and clear
-regs.
+To bring in the change made in this cset:
 
-PUSH_AND_CLEAR_REGS in error_entry() makes the stack not return to its
-original place when the function returns, which means it is not possible
-to convert it to a C function.
+  f94909ceb1ed4bfd ("x86: Prepare asm files for straight-line-speculation")
 
-Carve out PUSH_AND_CLEAR_REGS out of error_entry() and into a separate
-function and call it before error_entry() in order to avoid calling
-error_entry() on XENPV.
+It silences these perf tools build warnings, no change in the tools:
 
-It will also allow for error_entry() to be converted to C code that can
-use inlined sync_regs() and save a function call.
+  Warning: Kernel ABI header at 'tools/arch/x86/lib/memcpy_64.S' differs from latest version at 'arch/x86/lib/memcpy_64.S'
+  diff -u tools/arch/x86/lib/memcpy_64.S arch/x86/lib/memcpy_64.S
+  Warning: Kernel ABI header at 'tools/arch/x86/lib/memset_64.S' differs from latest version at 'arch/x86/lib/memset_64.S'
+  diff -u tools/arch/x86/lib/memset_64.S arch/x86/lib/memset_64.S
 
-  [ bp: Massage commit message. ]
+The code generated was checked before and after using 'objdump -d /tmp/build/perf/bench/mem-memcpy-x86-64-asm.o',
+no changes.
 
-Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220503032107.680190-4-jiangshanlai@gmail.com
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64.S |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ tools/arch/x86/lib/memcpy_64.S |   12 ++++++------
+ tools/arch/x86/lib/memset_64.S |    6 +++---
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -315,6 +315,14 @@ SYM_CODE_END(ret_from_fork)
- #endif
- .endm
- 
-+/* Save all registers in pt_regs */
-+SYM_CODE_START_LOCAL(push_and_clear_regs)
-+	UNWIND_HINT_FUNC
-+	PUSH_AND_CLEAR_REGS save_ret=1
-+	ENCODE_FRAME_POINTER 8
+--- a/tools/arch/x86/lib/memcpy_64.S
++++ b/tools/arch/x86/lib/memcpy_64.S
+@@ -39,7 +39,7 @@ SYM_FUNC_START_WEAK(memcpy)
+ 	rep movsq
+ 	movl %edx, %ecx
+ 	rep movsb
+-	ret
 +	RET
-+SYM_CODE_END(push_and_clear_regs)
-+
- /**
-  * idtentry_body - Macro to emit code calling the C function
-  * @cfunc:		C function to be called
-@@ -322,6 +330,9 @@ SYM_CODE_END(ret_from_fork)
-  */
- .macro idtentry_body cfunc has_error_code:req
+ SYM_FUNC_END(memcpy)
+ SYM_FUNC_END_ALIAS(__memcpy)
+ EXPORT_SYMBOL(memcpy)
+@@ -53,7 +53,7 @@ SYM_FUNC_START_LOCAL(memcpy_erms)
+ 	movq %rdi, %rax
+ 	movq %rdx, %rcx
+ 	rep movsb
+-	ret
++	RET
+ SYM_FUNC_END(memcpy_erms)
  
-+	call push_and_clear_regs
-+	UNWIND_HINT_REGS
-+
- 	call	error_entry
- 	movq	%rax, %rsp			/* switch to the task stack if from userspace */
- 	ENCODE_FRAME_POINTER
-@@ -965,13 +976,11 @@ SYM_CODE_START_LOCAL(paranoid_exit)
- SYM_CODE_END(paranoid_exit)
+ SYM_FUNC_START_LOCAL(memcpy_orig)
+@@ -137,7 +137,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
+ 	movq %r9,	1*8(%rdi)
+ 	movq %r10,	-2*8(%rdi, %rdx)
+ 	movq %r11,	-1*8(%rdi, %rdx)
+-	retq
++	RET
+ 	.p2align 4
+ .Lless_16bytes:
+ 	cmpl $8,	%edx
+@@ -149,7 +149,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
+ 	movq -1*8(%rsi, %rdx),	%r9
+ 	movq %r8,	0*8(%rdi)
+ 	movq %r9,	-1*8(%rdi, %rdx)
+-	retq
++	RET
+ 	.p2align 4
+ .Lless_8bytes:
+ 	cmpl $4,	%edx
+@@ -162,7 +162,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
+ 	movl -4(%rsi, %rdx), %r8d
+ 	movl %ecx, (%rdi)
+ 	movl %r8d, -4(%rdi, %rdx)
+-	retq
++	RET
+ 	.p2align 4
+ .Lless_3bytes:
+ 	subl $1, %edx
+@@ -180,7 +180,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
+ 	movb %cl, (%rdi)
  
- /*
-- * Save all registers in pt_regs, and switch GS if needed.
-+ * Switch GS and CR3 if needed.
-  */
- SYM_CODE_START_LOCAL(error_entry)
- 	UNWIND_HINT_FUNC
- 	cld
--	PUSH_AND_CLEAR_REGS save_ret=1
--	ENCODE_FRAME_POINTER 8
- 	testb	$3, CS+8(%rsp)
- 	jz	.Lerror_kernelspace
+ .Lend:
+-	retq
++	RET
+ SYM_FUNC_END(memcpy_orig)
  
+ .popsection
+--- a/tools/arch/x86/lib/memset_64.S
++++ b/tools/arch/x86/lib/memset_64.S
+@@ -40,7 +40,7 @@ SYM_FUNC_START(__memset)
+ 	movl %edx,%ecx
+ 	rep stosb
+ 	movq %r9,%rax
+-	ret
++	RET
+ SYM_FUNC_END(__memset)
+ SYM_FUNC_END_ALIAS(memset)
+ EXPORT_SYMBOL(memset)
+@@ -63,7 +63,7 @@ SYM_FUNC_START_LOCAL(memset_erms)
+ 	movq %rdx,%rcx
+ 	rep stosb
+ 	movq %r9,%rax
+-	ret
++	RET
+ SYM_FUNC_END(memset_erms)
+ 
+ SYM_FUNC_START_LOCAL(memset_orig)
+@@ -125,7 +125,7 @@ SYM_FUNC_START_LOCAL(memset_orig)
+ 
+ .Lende:
+ 	movq	%r10,%rax
+-	ret
++	RET
+ 
+ .Lbad_alignment:
+ 	cmpq $7,%rdx
 
 
