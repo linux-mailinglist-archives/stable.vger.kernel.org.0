@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 285695724A1
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F273572418
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229617AbiGLTGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:06:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59062 "EHLO
+        id S234900AbiGLS6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:58:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235463AbiGLTF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:05:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469E9E3C21;
-        Tue, 12 Jul 2022 11:50:58 -0700 (PDT)
+        with ESMTP id S234917AbiGLS5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DCA9DC8B2;
+        Tue, 12 Jul 2022 11:47:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E69F1B81BAC;
-        Tue, 12 Jul 2022 18:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F310C3411C;
-        Tue, 12 Jul 2022 18:50:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E54A6CE1D85;
+        Tue, 12 Jul 2022 18:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA6CFC3411E;
+        Tue, 12 Jul 2022 18:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651853;
-        bh=LkVA0xiAiMwnxQTu6pYRQJruQNd4vWhOLkXE1iKbhYc=;
+        s=korg; t=1657651627;
+        bh=wNMpLzoGPFxhjiSNYi0HVZ8hNKaw3idO+yUyf00eJdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3cecPwTMl/VhyNBPHiB4uOHrZ1wxFeOb03ij5Hn7jHC5BSA22FtrDXwcFwJGJjgD
-         XI/OcgFPzV5ziHgrNaOpz66FZ5zGm3mjifYPa4Ed0f/VG9EdAWhhY2c3mG0ghoyOLQ
-         LU9B5p+MvM+XsuM8cpwSZnFZXl1jAE47oIdCn0wg=
+        b=CV6fHvihicE8d4UEjX7edyv4o63oEGKrd2VU1XYTriEl3B6J4o6GdCBI8MeqsVlOf
+         o7N2yp4i2dssaTdHB+mE6/I0nMmPLtl7NXxXKZTwQp5L9Qu/HBUMS+Wj6Jz5DS2Fb1
+         bojqad9TByc5d7YKl+WPkX2134NrQ83HwDb7YfDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 49/78] x86/bugs: Split spectre_v2_select_mitigation() and spectre_v2_user_select_mitigation()
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 113/130] x86/speculation: Fix firmware entry SPEC_CTRL handling
 Date:   Tue, 12 Jul 2022 20:39:19 +0200
-Message-Id: <20220712183240.876699554@linuxfoundation.org>
+Message-Id: <20220712183251.679699228@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,102 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 166115c08a9b0b846b783088808a27d739be6e8d upstream.
+commit e6aa13622ea8283cc699cac5d018cc40a2ba2010 upstream.
 
-retbleed will depend on spectre_v2, while spectre_v2_user depends on
-retbleed. Break this cycle.
+The firmware entry code may accidentally clear STIBP or SSBD. Fix that.
 
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -37,8 +37,9 @@
- #include "cpu.h"
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -286,18 +286,16 @@ extern u64 spec_ctrl_current(void);
+  */
+ #define firmware_restrict_branch_speculation_start()			\
+ do {									\
+-	u64 val = x86_spec_ctrl_base | SPEC_CTRL_IBRS;			\
+-									\
+ 	preempt_disable();						\
+-	alternative_msr_write(MSR_IA32_SPEC_CTRL, val,			\
++	alternative_msr_write(MSR_IA32_SPEC_CTRL,			\
++			      spec_ctrl_current() | SPEC_CTRL_IBRS,	\
+ 			      X86_FEATURE_USE_IBRS_FW);			\
+ } while (0)
  
- static void __init spectre_v1_select_mitigation(void);
--static void __init retbleed_select_mitigation(void);
- static void __init spectre_v2_select_mitigation(void);
-+static void __init retbleed_select_mitigation(void);
-+static void __init spectre_v2_user_select_mitigation(void);
- static void __init ssb_select_mitigation(void);
- static void __init l1tf_select_mitigation(void);
- static void __init mds_select_mitigation(void);
-@@ -145,13 +146,19 @@ void __init check_bugs(void)
- 
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
-+	spectre_v2_select_mitigation();
-+	/*
-+	 * retbleed_select_mitigation() relies on the state set by
-+	 * spectre_v2_select_mitigation(); specifically it wants to know about
-+	 * spectre_v2=ibrs.
-+	 */
- 	retbleed_select_mitigation();
- 	/*
--	 * spectre_v2_select_mitigation() relies on the state set by
-+	 * spectre_v2_user_select_mitigation() relies on the state set by
- 	 * retbleed_select_mitigation(); specifically the STIBP selection is
- 	 * forced for UNRET.
- 	 */
--	spectre_v2_select_mitigation();
-+	spectre_v2_user_select_mitigation();
- 	ssb_select_mitigation();
- 	l1tf_select_mitigation();
- 	md_clear_select_mitigation();
-@@ -1006,13 +1013,15 @@ static void __init spec_v2_user_print_co
- 		pr_info("spectre_v2_user=%s forced on command line.\n", reason);
- }
- 
-+static __ro_after_init enum spectre_v2_mitigation_cmd spectre_v2_cmd;
-+
- static enum spectre_v2_user_cmd __init
--spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
-+spectre_v2_parse_user_cmdline(void)
- {
- 	char arg[20];
- 	int ret, i;
- 
--	switch (v2_cmd) {
-+	switch (spectre_v2_cmd) {
- 	case SPECTRE_V2_CMD_NONE:
- 		return SPECTRE_V2_USER_CMD_NONE;
- 	case SPECTRE_V2_CMD_FORCE:
-@@ -1047,7 +1056,7 @@ static inline bool spectre_v2_in_ibrs_mo
- }
- 
- static void __init
--spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
-+spectre_v2_user_select_mitigation(void)
- {
- 	enum spectre_v2_user_mitigation mode = SPECTRE_V2_USER_NONE;
- 	bool smt_possible = IS_ENABLED(CONFIG_SMP);
-@@ -1060,7 +1069,7 @@ spectre_v2_user_select_mitigation(enum s
- 	    cpu_smt_control == CPU_SMT_NOT_SUPPORTED)
- 		smt_possible = false;
- 
--	cmd = spectre_v2_parse_user_cmdline(v2_cmd);
-+	cmd = spectre_v2_parse_user_cmdline();
- 	switch (cmd) {
- 	case SPECTRE_V2_USER_CMD_NONE:
- 		goto set_mode;
-@@ -1384,7 +1393,7 @@ static void __init spectre_v2_select_mit
- 	}
- 
- 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
--	spectre_v2_user_select_mitigation(cmd);
-+	spectre_v2_cmd = cmd;
- }
- 
- static void update_stibp_msr(void * __unused)
+ #define firmware_restrict_branch_speculation_end()			\
+ do {									\
+-	u64 val = x86_spec_ctrl_base;					\
+-									\
+-	alternative_msr_write(MSR_IA32_SPEC_CTRL, val,			\
++	alternative_msr_write(MSR_IA32_SPEC_CTRL,			\
++			      spec_ctrl_current(),			\
+ 			      X86_FEATURE_USE_IBRS_FW);			\
+ 	preempt_enable();						\
+ } while (0)
 
 
