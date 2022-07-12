@@ -2,182 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5A9571534
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 10:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E2957153B
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 11:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231980AbiGLI70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 04:59:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
+        id S232273AbiGLJBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 05:01:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230407AbiGLI7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 04:59:24 -0400
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1634E63A
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 01:59:23 -0700 (PDT)
-Received: by mail-io1-xd35.google.com with SMTP id e5so7237383iof.2
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 01:59:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=sG+7V/3ip991155uNUZ0zbm/oLWtU/YYZZD/N2zdjXA=;
-        b=ze+8iFhyzcgFTWnxCo0j8sP0zH+lMb9WsHV+cOcY6xb5DalKSUvhSLcgi7SWqb/3x6
-         elspNdg9ZPri7j30/sz/fikgZDzYsU0CGEdNaMJ+G9oORD0smaGrgJRynUCD7pki0xDX
-         3bn2HNCn85BpAk1WBEqBRcjgpH3TIcCOCShOEkAb7BBNlJV+tZUE3By1ybHFY7WWy0+P
-         vRpd6t8wCajizSnOcT66ajY6Sq/B7x7GNb0iVOfNURfHFjrwn6RNTTAsaTeHq4v+n07k
-         3XZQyxCGtAxbKhn7uoGKBruZmm6dxkr+74/pktXgv3WmhX1zhh1eDSqQ2e3JZR30Z38Q
-         q7vQ==
+        with ESMTP id S230332AbiGLJBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 05:01:18 -0400
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FCFA528A2;
+        Tue, 12 Jul 2022 02:01:17 -0700 (PDT)
+Received: by mail-qk1-f179.google.com with SMTP id v6so5762537qkh.2;
+        Tue, 12 Jul 2022 02:01:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=sG+7V/3ip991155uNUZ0zbm/oLWtU/YYZZD/N2zdjXA=;
-        b=PVb6JRAmt+FWzI3DfGiKzJelGxlKvwBcqTJugSux8KDlzL7U+4DsUx0/Pc2v1JCHMU
-         KQv7R/QRP8sihuXsfDU9k37ilKzF+FENppqQw+qFZaWqz8bvzDIqKCoUInbSd9+lCqXa
-         I5g7gYLUHr4SyXpsCBMItSjxp6+FkXXcUhGtRd3KcCjbb4T43N4pI38SvW3Vi7paB1IY
-         u1NAvhH1evuA4lhzM9qny1BzKYr7D7s6bqdLwwCtY7xuDo8q2aByPHglHUOE/HcQCF52
-         HjpTkQRtL1qZC+SDnzXv6xDDqUdW74DfBVBBYPSb/LrdjG7LTpSKzergYuc8zwhK0vDd
-         kIFA==
-X-Gm-Message-State: AJIora9VPZrooA74Uzz3ow55zOwpbaIsXn50O+3aCdVZLj+jj4XsMzVa
-        1jd28sQ4GBR6Rgkipg/9yDJPeVBppVp+dntZh/m0Rw==
-X-Google-Smtp-Source: AGRyM1tgVu8qDmag7XKjzKTHkBCkPk0K0mN15I+IaJE3sJ07kYsPOps0RH3De/uO7wRWYoXjfeORgikLcazxvVnkZqU=
-X-Received: by 2002:a05:6638:2a9:b0:33f:2d29:7546 with SMTP id
- d9-20020a05663802a900b0033f2d297546mr12685969jaq.27.1657616361456; Tue, 12
- Jul 2022 01:59:21 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=t9ec7iguCfy6L3waGgPnWXclPbbw0CysomvMpi7xE8A=;
+        b=MpQRHXriqJl8CEJ5uxrUXpFUKUJzDR66yGyxLdjPlDFQ4XZz0bKQC2IzNiCX1UIKTB
+         c9sCW/8/w/IChUZ1BDK6T6uaURGOltcmNzoqy6owg16pSuyfl28s682Kb0GUkPV0d7Ov
+         1D/3X5QrAcf+vXxemv0Q5IyxMnvxOeybyde6k6CL/mFxVhDPmf5Q0EI9S9oY8/Z7dCzU
+         zMLJ+Y58tBErn/6Sb7ztsY2MVTF4o6glhuZtnjZiJX8w9krw49FdbUw7A40Ckw8hufP7
+         XYqBe0KhbOPkDvGQnmjdKX6qLhJGKtr4sZUIMYNISdZjah0EEE5ISxOqUsahAD+Me9gL
+         nTUg==
+X-Gm-Message-State: AJIora8JFJBQUAzfWvNiHCgqf2bgv/Nx+VAlurcbrTNmdMiIPKVy/B+r
+        7ZA/2FAh0hELKlrYTOeX0AynKT0B6WvIvQ==
+X-Google-Smtp-Source: AGRyM1tztFo824+aMEzqqd2NZUxNIBzPmbPVGe7lHojMK+TFBh2/X9vuwB6jC5Xh0NQfGEd0VpRIdA==
+X-Received: by 2002:a05:620a:2805:b0:67d:5c7e:c43a with SMTP id f5-20020a05620a280500b0067d5c7ec43amr14215040qkp.84.1657616476642;
+        Tue, 12 Jul 2022 02:01:16 -0700 (PDT)
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com. [209.85.219.178])
+        by smtp.gmail.com with ESMTPSA id r22-20020ac85e96000000b00317c3ce1f4esm6959917qtx.45.2022.07.12.02.01.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Jul 2022 02:01:16 -0700 (PDT)
+Received: by mail-yb1-f178.google.com with SMTP id n74so12859581yba.3;
+        Tue, 12 Jul 2022 02:01:15 -0700 (PDT)
+X-Received: by 2002:a05:6902:701:b0:66e:a06d:53d7 with SMTP id
+ k1-20020a056902070100b0066ea06d53d7mr20596635ybt.604.1657616474618; Tue, 12
+ Jul 2022 02:01:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220711090535.517697227@linuxfoundation.org>
-In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 12 Jul 2022 14:29:10 +0530
-Message-ID: <CA+G9fYuy5KTLHW2AG8tpiQH_8x6f=e3HG6XG40CuVwDMCq+Qgg@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/14] 4.9.323-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
+References: <20220712075255.1345991-1-chenhuacai@loongson.cn>
+ <20220712075255.1345991-3-chenhuacai@loongson.cn> <CAMuHMdUazqHLbc80vpZ+Msg9A3j5aPJ3fx+CdCG3kuWDSf8WSw@mail.gmail.com>
+ <CAAhV-H775jXMbcR9j=oLBuHo1PfFziZSUQWttJAEw20sUt+GAA@mail.gmail.com>
+In-Reply-To: <CAAhV-H775jXMbcR9j=oLBuHo1PfFziZSUQWttJAEw20sUt+GAA@mail.gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 12 Jul 2022 11:01:02 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUHbepd974u5iox3BcOyo_Q2ZgT-znruk+WCt+HMQ_Lgw@mail.gmail.com>
+Message-ID: <CAMuHMdUHbepd974u5iox3BcOyo_Q2ZgT-znruk+WCt+HMQ_Lgw@mail.gmail.com>
+Subject: Re: [PATCH 3/6] M68K: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+To:     Huacai Chen <chenhuacai@gmail.com>
+Cc:     Huacai Chen <chenhuacai@loongson.cn>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michal Simek <monstr@monstr.eu>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        loongarch@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 Jul 2022 at 14:37, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Hi Huacai,
+
+On Tue, Jul 12, 2022 at 10:53 AM Huacai Chen <chenhuacai@gmail.com> wrote:
+> On Tue, Jul 12, 2022 at 4:33 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > On Tue, Jul 12, 2022 at 9:53 AM Huacai Chen <chenhuacai@loongson.cn> wrote:
+> > > When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+> >
+> > DEBUG_PER_CPU_MAPS depends on SMP, which is not supported on m68k,
+> > and thus cannot be enabled.
+> This patch is derived from MIPS and LoongArch, I search all
+> architectures and change those that look the same as MIPS and
+> LoongArch.
+> And the warning message below is also a copy-paste from LoongArch, sorry.
 >
-> This is the start of the stable review cycle for the 4.9.323 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.323-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> Since M68K doesn't support SMP, then this patch seems to make no
+> difference, but does it make sense to keep consistency across all
+> architectures?
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Yes, having consistency is good.  But that should be mentioned in the
+patch description, instead of a scary warning CCed to stable ;-)
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+BTW, you probably want to update the other copy of c_start() in
+arch/m68k/kernel/setup_mm.c, too.
 
-## Build
-* kernel: 4.9.323-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.9.y
-* git commit: 7df08530a33bb6dc5074e43d56c71476ca2b4455
-* git describe: v4.9.322-15-g7df08530a33b
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
-22-15-g7df08530a33b
+Thanks!
 
-## Test Regressions (compared to v4.9.322)
-No test regressions found.
+Gr{oetje,eeting}s,
 
-## Metric Regressions (compared to v4.9.322)
-No metric regressions found.
-
-## Test Fixes (compared to v4.9.322)
-No test fixes found.
-
-## Metric Fixes (compared to v4.9.322)
-No metric fixes found.
-
-## Test result summary
-total: 88746, pass: 78270, fail: 325, skip: 9033, xfail: 1118
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 254 total, 249 passed, 5 failed
-* arm64: 50 total, 43 passed, 7 failed
-* i386: 26 total, 23 passed, 3 failed
-* mips: 33 total, 33 passed, 0 failed
-* parisc: 12 total, 0 passed, 12 failed
-* powerpc: 36 total, 16 passed, 20 failed
-* s390: 12 total, 9 passed, 3 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 45 total, 44 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
+                        Geert
 
 --
-Linaro LKFT
-https://lkft.linaro.org
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
