@@ -2,107 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F15E571D3E
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 16:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30585571D49
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 16:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232705AbiGLOsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 10:48:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41298 "EHLO
+        id S233252AbiGLOvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 10:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232343AbiGLOsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 10:48:18 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58E7854CAA;
-        Tue, 12 Jul 2022 07:48:15 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id l68so4858865wml.3;
-        Tue, 12 Jul 2022 07:48:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Vm+7AGOEki/r8xlnhEaObg/9l3AfrqHub75ioo5ESyE=;
-        b=oEcvp6McRDpUQ/F/yBNhZn+hq6/6bhg1IiaQQyEtO3q8lmWp/PBr64VWWVtvXjxib5
-         b7aFNjlTJPnChFJx1z3h9zMbhVS41bC2owbIZiUXgZpm9GTcCHQLpa8P3w3iwqdCB21T
-         XGmXTMObwERrL4yomafLUEjT7Jw16FGM9mlJhYrYImaiXER5+sVFxlkT39KF9dXaX2/s
-         TKz+da6GthbdTuKeZj+jv92Ab3FhELVO49L/Z03z/LAKedzaMdKEV5sAaASrZ+rDofd8
-         6qGigsAxYadMZA5lqgcagemQ+vtzpFhdiuLdENqJUjTqKfe7xZteaw/P45brRXgZ1THl
-         n0GA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Vm+7AGOEki/r8xlnhEaObg/9l3AfrqHub75ioo5ESyE=;
-        b=Lrr/UwFvEhhvzH9+bZbsITSWmyviEKLVDzFN2yKfOHQ42JrhXS4Rj0fUxFxP70oE7/
-         BQwgOPgYExEbFhPGzYhHxXUMeb1VeuBydktG16TNYMyUzg+MHiU6BqIaMgi+Xlrdw0wA
-         5i6m4zniwkjXkeuG0So3vSUnBfYkShrZYlt6ZnxhAtNv7yTqnVuEL2lAR8C8UzMi73GJ
-         7t+lX2af/YItJCchJnl/Xm9R/y+0iLu7bKiNi5ecgOSaHHrUW2ES6SfRq1a2t9mu5tnb
-         72Ri1GR09QCPFGBxFu3GlQYtXNIoBr3VdC+vN6ipjY81PDdDAjZnOU981iWEFifNxS06
-         gpag==
-X-Gm-Message-State: AJIora/D7CTdI1lOS14dJdJsRG6yddPdYdUaGc1fja8qETAbtXYM1hu7
-        cjCD383btNd8insbIaBkgBuDhzKy6mc=
-X-Google-Smtp-Source: AGRyM1sQ5wYQcP4xYxBOKFkwUJN1osGdFO1hAFQ5HAzMTHExM7IW4xOhunaA4EbfLQBKNwHUaJhhYw==
-X-Received: by 2002:a05:600c:a07:b0:39e:da6e:fc49 with SMTP id z7-20020a05600c0a0700b0039eda6efc49mr4065325wmp.143.1657637293856;
-        Tue, 12 Jul 2022 07:48:13 -0700 (PDT)
-Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
-        by smtp.gmail.com with ESMTPSA id h26-20020adfa4da000000b0021b966abc19sm8400452wrb.19.2022.07.12.07.48.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Jul 2022 07:48:13 -0700 (PDT)
-Date:   Tue, 12 Jul 2022 15:48:11 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/31] 4.19.252-rc1 review
-Message-ID: <Ys2Jq3NqLKK02Rdb@debian>
-References: <20220711090537.841305347@linuxfoundation.org>
+        with ESMTP id S232562AbiGLOvH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 10:51:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC991B1869;
+        Tue, 12 Jul 2022 07:51:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C327B819A6;
+        Tue, 12 Jul 2022 14:51:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DF2FC3411C;
+        Tue, 12 Jul 2022 14:51:03 +0000 (UTC)
+Date:   Tue, 12 Jul 2022 10:51:01 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Zheng Yejian <zhengyejian1@huawei.com>
+Cc:     <linux-kernel@vger.kernel.org>, <mingo@redhat.com>,
+        <stable@vger.kernel.org>, <tom.zanussi@linux.intel.com>,
+        <trix@redhat.com>, <zhangjinhao2@huawei.com>
+Subject: Re: [PATCH v2] tracing/histograms: Fix memory leak problem
+Message-ID: <20220712105101.49020368@gandalf.local.home>
+In-Reply-To: <20220712114844.158722-1-zhengyejian1@huawei.com>
+References: <20220711115211.4f613cbe@gandalf.local.home>
+        <20220712114844.158722-1-zhengyejian1@huawei.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220711090537.841305347@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Tue, 12 Jul 2022 19:48:44 +0800
+Zheng Yejian <zhengyejian1@huawei.com> wrote:
 
-On Mon, Jul 11, 2022 at 11:06:39AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.252 release.
-> There are 31 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
-> Anything received after that time might be too late.
+> Since I'm not very familiar with trace_events_hist.c, I roughly conclude that:
+>   1. warning 1/3/6 are plausible but false-positive;
+>   2. warning 2/4/5 seems positive although they don't cause practical problems because
+> elt_data->field_var_str[i] / ref_field->system / ref_field->name can be 'NULL'
+> on 'kfree'. Do we need to explicitly check 'NULL' there?
 
-Build test (gcc version 11.3.1 20220706):
-mips: 63 configs -> no  failure
-arm: 115 configs -> no failure
-arm64: 2 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+It's confusing code. Both Tom and I missed it as well.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/1489
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
+-- Steve
