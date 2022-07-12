@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C50A5572546
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 291E1572523
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235869AbiGLTM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:12:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
+        id S235351AbiGLTHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235816AbiGLTMY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:12:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856B21034C4;
-        Tue, 12 Jul 2022 11:53:17 -0700 (PDT)
+        with ESMTP id S235567AbiGLTGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:06:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5738FB8C5;
+        Tue, 12 Jul 2022 11:51:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 155D761257;
-        Tue, 12 Jul 2022 18:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 050A8C3411E;
-        Tue, 12 Jul 2022 18:53:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 946A0B81BBB;
+        Tue, 12 Jul 2022 18:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C92C3411C;
+        Tue, 12 Jul 2022 18:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651996;
-        bh=gxWo/jcboDjuU3NrMgER3GlDJpsiOG+ZPhsr76J6rZ4=;
+        s=korg; t=1657651862;
+        bh=zvjDX8b18xJxifx02nx4to4MscGcD0clud+Y979qlDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvIj6lOutWdYUuoYYsi/vnd6p9C8+qlfD/WVTpn48tkf9y2uc45gsmtWnzfReqFY8
-         giSv6Bd0Z0zEhQk5VJ94F24E+M1/M8aXZAVK0XoeGILfde++1BTglPdoKzD7lQuyn1
-         ELml1mulJ6Zn/jwgI8uIJpkPqTo4v8axOUS/fHlY=
+        b=Sh19DHK8ijWaYh3AjZeja1dJ3JgaaFJxgJagopATI2eBSV8xG2Ohx0HZQgcytQK0L
+         2rvADGUzNDT2fabfz0S/IMvRq3WBYED2SAAgrbseyHWYHbv3DVUiUWuMq60G60q+5E
+         1UWsMk6Q84CGQsGep62xK3J2Tyc9sPR7g29qpvdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 48/61] KVM: VMX: Convert launched argument to flags
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 75/78] x86/bugs: Do not enable IBPB-on-entry when IBPB is not supported
 Date:   Tue, 12 Jul 2022 20:39:45 +0200
-Message-Id: <20220712183238.860186370@linuxfoundation.org>
+Message-Id: <20220712183241.938458633@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,170 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit bb06650634d3552c0f8557e9d16aa1a408040e28 upstream.
+commit 2259da159fbe5dba8ac00b560cf00b6a6537fa18 upstream.
 
-Convert __vmx_vcpu_run()'s 'launched' argument to 'flags', in
-preparation for doing SPEC_CTRL handling immediately after vmexit, which
-will need another flag.
+There are some VM configurations which have Skylake model but do not
+support IBPB. In those cases, when using retbleed=ibpb, userspace is going
+to be killed and kernel is going to panic.
 
-This is much easier than adding a fourth argument, because this code
-supports both 32-bit and 64-bit, and the fourth argument on 32-bit would
-have to be pushed on the stack.
+If the CPU does not support IBPB, warn and proceed with the auto option. Also,
+do not fallback to IBPB on AMD/Hygon systems if it is not supported.
 
-Note that __vmx_vcpu_run_flags() is called outside of the noinstr
-critical section because it will soon start calling potentially
-traceable functions.
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c    |    2 +-
- arch/x86/kvm/vmx/run_flags.h |    7 +++++++
- arch/x86/kvm/vmx/vmenter.S   |    9 +++++----
- arch/x86/kvm/vmx/vmx.c       |   17 ++++++++++++++---
- arch/x86/kvm/vmx/vmx.h       |    5 ++++-
- 5 files changed, 31 insertions(+), 9 deletions(-)
- create mode 100644 arch/x86/kvm/vmx/run_flags.h
+ arch/x86/kernel/cpu/bugs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3091,7 +3091,7 @@ static int nested_vmx_check_vmentry_hw(s
- 	}
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -858,7 +858,10 @@ static void __init retbleed_select_mitig
+ 		break;
  
- 	vm_fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
--				 vmx->loaded_vmcs->launched);
-+				 __vmx_vcpu_run_flags(vmx));
- 
- 	if (vmx->msr_autoload.host.nr)
- 		vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, vmx->msr_autoload.host.nr);
---- /dev/null
-+++ b/arch/x86/kvm/vmx/run_flags.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __KVM_X86_VMX_RUN_FLAGS_H
-+#define __KVM_X86_VMX_RUN_FLAGS_H
-+
-+#define VMX_RUN_VMRESUME	(1 << 0)
-+
-+#endif /* __KVM_X86_VMX_RUN_FLAGS_H */
---- a/arch/x86/kvm/vmx/vmenter.S
-+++ b/arch/x86/kvm/vmx/vmenter.S
-@@ -5,6 +5,7 @@
- #include <asm/kvm_vcpu_regs.h>
- #include <asm/nospec-branch.h>
- #include <asm/segment.h>
-+#include "run_flags.h"
- 
- #define WORD_SIZE (BITS_PER_LONG / 8)
- 
-@@ -34,7 +35,7 @@
-  * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
-  * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
-  * @regs:	unsigned long * (to guest registers)
-- * @launched:	%true if the VMCS has been launched
-+ * @flags:	VMX_RUN_VMRESUME: use VMRESUME instead of VMLAUNCH
-  *
-  * Returns:
-  *	0 on VM-Exit, 1 on VM-Fail
-@@ -59,7 +60,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	 */
- 	push %_ASM_ARG2
- 
--	/* Copy @launched to BL, _ASM_ARG3 is volatile. */
-+	/* Copy @flags to BL, _ASM_ARG3 is volatile. */
- 	mov %_ASM_ARG3B, %bl
- 
- 	lea (%_ASM_SP), %_ASM_ARG2
-@@ -69,7 +70,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	mov (%_ASM_SP), %_ASM_AX
- 
- 	/* Check if vmlaunch or vmresume is needed */
--	testb %bl, %bl
-+	testb $VMX_RUN_VMRESUME, %bl
- 
- 	/* Load guest registers.  Don't clobber flags. */
- 	mov VCPU_RCX(%_ASM_AX), %_ASM_CX
-@@ -92,7 +93,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	mov VCPU_RAX(%_ASM_AX), %_ASM_AX
- 
- 	/* Check EFLAGS.ZF from 'testb' above */
--	je .Lvmlaunch
-+	jz .Lvmlaunch
- 
- 	/*
- 	 * After a successful VMRESUME/VMLAUNCH, control flow "magically"
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -839,6 +839,16 @@ static bool msr_write_intercepted(struct
- 					 MSR_IA32_SPEC_CTRL);
- }
- 
-+unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
-+{
-+	unsigned int flags = 0;
-+
-+	if (vmx->loaded_vmcs->launched)
-+		flags |= VMX_RUN_VMRESUME;
-+
-+	return flags;
-+}
-+
- static void clear_atomic_switch_msr_special(struct vcpu_vmx *vmx,
- 		unsigned long entry, unsigned long exit)
- {
-@@ -6827,7 +6837,8 @@ static fastpath_t vmx_exit_handlers_fast
- }
- 
- static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
--					struct vcpu_vmx *vmx)
-+					struct vcpu_vmx *vmx,
-+					unsigned long flags)
- {
- 	guest_state_enter_irqoff();
- 
-@@ -6846,7 +6857,7 @@ static noinstr void vmx_vcpu_enter_exit(
- 		native_write_cr2(vcpu->arch.cr2);
- 
- 	vmx->fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
--				   vmx->loaded_vmcs->launched);
-+				   flags);
- 
- 	vcpu->arch.cr2 = native_read_cr2();
- 
-@@ -6954,7 +6965,7 @@ static fastpath_t vmx_vcpu_run(struct kv
- 	x86_spec_ctrl_set_guest(vmx->spec_ctrl, 0);
- 
- 	/* The actual VMENTER/EXIT is in the .noinstr.text section. */
--	vmx_vcpu_enter_exit(vcpu, vmx);
-+	vmx_vcpu_enter_exit(vcpu, vmx, __vmx_vcpu_run_flags(vmx));
- 
- 	/*
- 	 * We do not use IBRS in the kernel. If this vCPU has used the
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -13,6 +13,7 @@
- #include "vmcs.h"
- #include "vmx_ops.h"
- #include "cpuid.h"
-+#include "run_flags.h"
- 
- #define MSR_TYPE_R	1
- #define MSR_TYPE_W	2
-@@ -404,7 +405,9 @@ void vmx_set_virtual_apic_mode(struct kv
- struct vmx_uret_msr *vmx_find_uret_msr(struct vcpu_vmx *vmx, u32 msr);
- void pt_update_intercept_for_msr(struct kvm_vcpu *vcpu);
- void vmx_update_host_rsp(struct vcpu_vmx *vmx, unsigned long host_rsp);
--bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs, bool launched);
-+unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx);
-+bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs,
-+		    unsigned int flags);
- int vmx_find_loadstore_msr_slot(struct vmx_msrs *m, u32 msr);
- void vmx_ept_load_pdptrs(struct kvm_vcpu *vcpu);
+ 	case RETBLEED_CMD_IBPB:
+-		if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
++		if (!boot_cpu_has(X86_FEATURE_IBPB)) {
++			pr_err("WARNING: CPU does not support IBPB.\n");
++			goto do_cmd_auto;
++		} else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
+ 			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
+ 		} else {
+ 			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
+@@ -873,7 +876,7 @@ do_cmd_auto:
+ 		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
+ 			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
+ 				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
+-			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY))
++			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY) && boot_cpu_has(X86_FEATURE_IBPB))
+ 				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
+ 		}
  
 
 
