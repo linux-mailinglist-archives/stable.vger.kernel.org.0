@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D910C572384
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC8F5723CD
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbiGLStd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:49:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45974 "EHLO
+        id S233714AbiGLSuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:50:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234501AbiGLStC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8903AD11C;
-        Tue, 12 Jul 2022 11:43:42 -0700 (PDT)
+        with ESMTP id S234399AbiGLSu0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:50:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF99E3C0A;
+        Tue, 12 Jul 2022 11:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AA246186E;
-        Tue, 12 Jul 2022 18:43:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 347D0C3411C;
-        Tue, 12 Jul 2022 18:43:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AF0D6186E;
+        Tue, 12 Jul 2022 18:43:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8272EC3411C;
+        Tue, 12 Jul 2022 18:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651420;
-        bh=Z0Ife+YnzVRgmcIv2ueknAX3OEj7I9mFJI5lNXufmyA=;
+        s=korg; t=1657651434;
+        bh=jvHwMZhTHBgi2667p9dTXzJhBqmd7pBBtH9FrE3/mks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XviXckrTLoRbGCFtb7Fjkxs5MsH64gBwvUqcwUr6iHekvFf/ahyEu5xEM4zhbbYV4
-         1ItOeTmFxmYAxr3RaKeQROhHQBGRqKQ30QDlRWgNcye+xMvEWqDsPDdXRQUs56chPQ
-         v22x5TAXft8wkSNRU3hK0jhiJpda7uMxksOdot5U=
+        b=s0im9JAtrGWsaxNC217gtOe199BoDwIP6utvJlfXbRD8SMRAsrunGMD53trt+QWIs
+         zQtcGjNIm8+2saFFlOS/XbWX+RoWJTr848w5J9Hi2Ciy0+qdE/viarUPGHaQU4BDgv
+         4BuMj1LYl2vnADNLdm6pj0eyJ7rTXxjUg0xGK02Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
+        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
         Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 043/130] objtool: Remove reloc symbol type checks in get_alt_entry()
-Date:   Tue, 12 Jul 2022 20:38:09 +0200
-Message-Id: <20220712183248.400691290@linuxfoundation.org>
+Subject: [PATCH 5.10 044/130] objtool: Make .altinstructions section entry size consistent
+Date:   Tue, 12 Jul 2022 20:38:10 +0200
+Message-Id: <20220712183248.440753569@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -57,91 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Joe Lawrence <joe.lawrence@redhat.com>
 
-commit 4d8b35968bbf9e42b6b202eedb510e2c82ad8b38 upstream.
+commit dc02368164bd0ec603e3f5b3dd8252744a667b8a upstream.
 
-Converting a special section's relocation reference to a symbol is
-straightforward.  No need for objtool to complain that it doesn't know
-how to handle it.  Just handle it.
+Commit e31694e0a7a7 ("objtool: Don't make .altinstructions writable")
+aligned objtool-created and kernel-created .altinstructions section
+flags, but there remains a minor discrepency in their use of a section
+entry size: objtool sets one while the kernel build does not.
 
-This fixes the following warning:
+While sh_entsize of sizeof(struct alt_instr) seems intuitive, this small
+deviation can cause failures with external tooling (kpatch-build).
 
-  arch/x86/kvm/emulate.o: warning: objtool: __ex_table+0x4: don't know how to handle reloc symbol type: kvm_fastop_exception
+Fix this by creating new .altinstructions sections with sh_entsize of 0
+and then later updating sec->sh_size as alternatives are added to the
+section.  An added benefit is avoiding the data descriptor and buffer
+created by elf_create_section(), but previously unused by
+elf_add_alternative().
 
-Fixes: 24ff65257375 ("objtool: Teach get_alt_entry() about more relocation types")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 9bc0bb50727c ("objtool/x86: Rewrite retpoline thunk calls")
+Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/feadbc3dfb3440d973580fad8d3db873cbfe1694.1633367242.git.jpoimboe@redhat.com
+Link: https://lore.kernel.org/r/20210822225037.54620-2-joe.lawrence@redhat.com
+Cc: Andy Lavr <andy.lavr@gmail.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: x86@kernel.org
-Cc: Miroslav Benes <mbenes@suse.cz>
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/special.c |   36 +++++++-----------------------------
- 1 file changed, 7 insertions(+), 29 deletions(-)
+ tools/objtool/arch/x86/decode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/objtool/special.c
-+++ b/tools/objtool/special.c
-@@ -55,22 +55,11 @@ void __weak arch_handle_alternative(unsi
- {
- }
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -611,7 +611,7 @@ static int elf_add_alternative(struct el
+ 	sec = find_section_by_name(elf, ".altinstructions");
+ 	if (!sec) {
+ 		sec = elf_create_section(elf, ".altinstructions",
+-					 SHF_ALLOC, size, 0);
++					 SHF_ALLOC, 0, 0);
  
--static bool reloc2sec_off(struct reloc *reloc, struct section **sec, unsigned long *off)
-+static void reloc_to_sec_off(struct reloc *reloc, struct section **sec,
-+			     unsigned long *off)
- {
--	switch (reloc->sym->type) {
--	case STT_FUNC:
--		*sec = reloc->sym->sec;
--		*off = reloc->sym->offset + reloc->addend;
--		return true;
--
--	case STT_SECTION:
--		*sec = reloc->sym->sec;
--		*off = reloc->addend;
--		return true;
--
--	default:
--		return false;
--	}
-+	*sec = reloc->sym->sec;
-+	*off = reloc->sym->offset + reloc->addend;
- }
- 
- static int get_alt_entry(struct elf *elf, struct special_entry *entry,
-@@ -105,13 +94,8 @@ static int get_alt_entry(struct elf *elf
- 		WARN_FUNC("can't find orig reloc", sec, offset + entry->orig);
- 		return -1;
- 	}
--	if (!reloc2sec_off(orig_reloc, &alt->orig_sec, &alt->orig_off)) {
--		WARN_FUNC("don't know how to handle reloc symbol type %d: %s",
--			   sec, offset + entry->orig,
--			   orig_reloc->sym->type,
--			   orig_reloc->sym->name);
--		return -1;
--	}
-+
-+	reloc_to_sec_off(orig_reloc, &alt->orig_sec, &alt->orig_off);
- 
- 	if (!entry->group || alt->new_len) {
- 		new_reloc = find_reloc_by_dest(elf, sec, offset + entry->new);
-@@ -129,13 +113,7 @@ static int get_alt_entry(struct elf *elf
- 		if (arch_is_retpoline(new_reloc->sym))
- 			return 1;
- 
--		if (!reloc2sec_off(new_reloc, &alt->new_sec, &alt->new_off)) {
--			WARN_FUNC("don't know how to handle reloc symbol type %d: %s",
--				  sec, offset + entry->new,
--				  new_reloc->sym->type,
--				  new_reloc->sym->name);
--			return -1;
--		}
-+		reloc_to_sec_off(new_reloc, &alt->new_sec, &alt->new_off);
- 
- 		/* _ASM_EXTABLE_EX hack */
- 		if (alt->new_off >= 0x7ffffff0)
+ 		if (!sec) {
+ 			WARN_ELF("elf_create_section");
 
 
