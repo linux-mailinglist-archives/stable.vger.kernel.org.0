@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D25F572559
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26040572571
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235638AbiGLTOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:14:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52288 "EHLO
+        id S235871AbiGLTOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:14:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235831AbiGLTNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:13:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB69C33343;
-        Tue, 12 Jul 2022 11:53:47 -0700 (PDT)
+        with ESMTP id S235807AbiGLTOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:14:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CCDC4D167;
+        Tue, 12 Jul 2022 11:53:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B333FB81B95;
-        Tue, 12 Jul 2022 18:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD5AC3411C;
-        Tue, 12 Jul 2022 18:53:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78EAB61123;
+        Tue, 12 Jul 2022 18:53:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D6AC341C0;
+        Tue, 12 Jul 2022 18:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657652024;
-        bh=Db31GERbbkoPzIxNMiIP982nUk5vWgFinkKHad116yg=;
+        s=korg; t=1657652030;
+        bh=zvjDX8b18xJxifx02nx4to4MscGcD0clud+Y979qlDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jC1SLTwi+yCn0zXaYEItOSlZ3z9OErjw47jI+3svfsVIsxwwAjYfbKntfpKbw758r
-         xBNWqFYybMedpo0owAh0T8FBPB+yOU1TzLu7EB7jcQwCL0JFk3QaHXsYe9HG1P2xp1
-         EM8ZgLEpl3FfSOX2oerBvnSvlApvDntZ+7C/1Gog=
+        b=T2eaa6BqnDWUi3GC3J1EjwQW8GLcp8b6AYzNl9S3myKDC4RJ/NLXjRukr8+CuH+i4
+         1pQZUpJweM1RJMfO8bnkzBfqh4CSaOAFSNGXhOVAbsuARJo6cx6wtVYnlLv0mkIJre
+         2LL8aiXu2lJvwQx3DowvcEJ7RQ7Lk3osjRJB0uqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 57/61] x86/entry: Move PUSH_AND_CLEAR_REGS() back into error_entry
-Date:   Tue, 12 Jul 2022 20:39:54 +0200
-Message-Id: <20220712183239.144401501@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.18 58/61] x86/bugs: Do not enable IBPB-on-entry when IBPB is not supported
+Date:   Tue, 12 Jul 2022 20:39:55 +0200
+Message-Id: <20220712183239.191222652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
 References: <20220712183236.931648980@linuxfoundation.org>
@@ -55,72 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 2c08b9b38f5b0f4a6c2d29be22b695e4ec4a556b upstream.
+commit 2259da159fbe5dba8ac00b560cf00b6a6537fa18 upstream.
 
-Commit
+There are some VM configurations which have Skylake model but do not
+support IBPB. In those cases, when using retbleed=ibpb, userspace is going
+to be killed and kernel is going to panic.
 
-  ee774dac0da1 ("x86/entry: Move PUSH_AND_CLEAR_REGS out of error_entry()")
+If the CPU does not support IBPB, warn and proceed with the auto option. Also,
+do not fallback to IBPB on AMD/Hygon systems if it is not supported.
 
-moved PUSH_AND_CLEAR_REGS out of error_entry, into its own function, in
-part to avoid calling error_entry() for XenPV.
-
-However, commit
-
-  7c81c0c9210c ("x86/entry: Avoid very early RET")
-
-had to change that because the 'ret' was too early and moved it into
-idtentry, bloating the text size, since idtentry is expanded for every
-exception vector.
-
-However, with the advent of xen_error_entry() in commit
-
-  d147553b64bad ("x86/xen: Add UNTRAIN_RET")
-
-it became possible to remove PUSH_AND_CLEAR_REGS from idtentry, back
-into *error_entry().
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: error_entry still does cld]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64.S |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -323,6 +323,8 @@ SYM_CODE_END(ret_from_fork)
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -858,7 +858,10 @@ static void __init retbleed_select_mitig
+ 		break;
  
- SYM_CODE_START_LOCAL(xen_error_entry)
- 	UNWIND_HINT_FUNC
-+	PUSH_AND_CLEAR_REGS save_ret=1
-+	ENCODE_FRAME_POINTER 8
- 	UNTRAIN_RET
- 	RET
- SYM_CODE_END(xen_error_entry)
-@@ -334,9 +336,6 @@ SYM_CODE_END(xen_error_entry)
-  */
- .macro idtentry_body cfunc has_error_code:req
- 
--	PUSH_AND_CLEAR_REGS
--	ENCODE_FRAME_POINTER
--
- 	/*
- 	 * Call error_entry() and switch to the task stack if from userspace.
- 	 *
-@@ -1035,6 +1034,10 @@ SYM_CODE_END(paranoid_exit)
- SYM_CODE_START_LOCAL(error_entry)
- 	UNWIND_HINT_FUNC
- 	cld
-+
-+	PUSH_AND_CLEAR_REGS save_ret=1
-+	ENCODE_FRAME_POINTER 8
-+
- 	testb	$3, CS+8(%rsp)
- 	jz	.Lerror_kernelspace
+ 	case RETBLEED_CMD_IBPB:
+-		if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
++		if (!boot_cpu_has(X86_FEATURE_IBPB)) {
++			pr_err("WARNING: CPU does not support IBPB.\n");
++			goto do_cmd_auto;
++		} else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
+ 			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
+ 		} else {
+ 			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
+@@ -873,7 +876,7 @@ do_cmd_auto:
+ 		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
+ 			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
+ 				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
+-			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY))
++			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY) && boot_cpu_has(X86_FEATURE_IBPB))
+ 				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
+ 		}
  
 
 
