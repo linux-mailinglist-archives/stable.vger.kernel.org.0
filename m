@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81232572333
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0762C572344
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234285AbiGLSoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33320 "EHLO
+        id S234293AbiGLSok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230368AbiGLSnI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:43:08 -0400
+        with ESMTP id S234175AbiGLSnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:43:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1956ED9160;
-        Tue, 12 Jul 2022 11:41:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAD0CDA0D3;
+        Tue, 12 Jul 2022 11:42:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A22BB61AC9;
-        Tue, 12 Jul 2022 18:41:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87DDC341CD;
-        Tue, 12 Jul 2022 18:41:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57A296186E;
+        Tue, 12 Jul 2022 18:42:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F6DC3411E;
+        Tue, 12 Jul 2022 18:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651317;
-        bh=AAi8L56AzRyySQ+Kplk53X8AoGVDe7CwzbFO9ViCi28=;
+        s=korg; t=1657651320;
+        bh=b3T8UY6FZP2wcxf8N/fTReXZewBuYrszqPfDeP+Iw4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FIvLElVUCwbmCkhjDNFUP4cMNciPZN+5GEVQCZUUdw+Yuvdo/wWkjcEU1IOlG3XbA
-         87IkzFkv+hhVe1Qr0B5+xDlni8hEk+Pi8jLt0f2G1UV7ra3XKkaTDJni/mvakgVy7R
-         Vihc5ikIL6pirTBKqL8IETGf/4I3BFD0TxYd0GR8=
+        b=2IiyPVH2xY0BrJhSHdwNHITKj/pd+ycZ0YTewThCDUcSCmAgncIy4LQoJfBLOXBug
+         s0NvIa6i/fPLeOjXud8N+//IHSPREcNfzkGp7XyllzOkvJ7bwsOQ3cSOZHZEOBA5oH
+         Xvdcu9BcJkpd586KLtuPaZ0qYT2x320h60bBfr9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
-        Nathan Chancellor <nathan@kernel.org>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 038/130] objtool: Only rewrite unconditional retpoline thunk calls
-Date:   Tue, 12 Jul 2022 20:38:04 +0200
-Message-Id: <20220712183248.155092519@linuxfoundation.org>
+Subject: [PATCH 5.10 039/130] objtool/x86: Ignore __x86_indirect_alt_* symbols
+Date:   Tue, 12 Jul 2022 20:38:05 +0200
+Message-Id: <20220712183248.204625458@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -57,41 +57,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 2d49b721dc18c113d5221f4cf5a6104eb66cb7f2 upstream.
+commit 31197d3a0f1caeb60fb01f6755e28347e4f44037 upstream.
 
-It turns out that the compilers generate conditional branches to the
-retpoline thunks like:
+Because the __x86_indirect_alt* symbols are just that, objtool will
+try and validate them as regular symbols, instead of the alternative
+replacements that they are.
 
-  5d5:   0f 85 00 00 00 00       jne    5db <cpuidle_reflect+0x22>
-	5d7: R_X86_64_PLT32     __x86_indirect_thunk_r11-0x4
-
-while the rewrite can only handle JMP/CALL to the thunks. The result
-is the alternative wrecking the code. Make sure to skip writing the
-alternatives for conditional branches.
+This goes sideways for FRAME_POINTER=y builds; which generate a fair
+amount of warnings.
 
 Fixes: 9bc0bb50727c ("objtool/x86: Rewrite retpoline thunk calls")
-Reported-by: Lukasz Majczak <lma@semihalf.com>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/YNCgxwLBiK9wclYJ@hirez.programming.kicks-ass.net
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/arch/x86/decode.c |    4 ++++
+ arch/x86/lib/retpoline.S |    4 ++++
  1 file changed, 4 insertions(+)
 
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -674,6 +674,10 @@ int arch_rewrite_retpolines(struct objto
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -58,12 +58,16 @@ SYM_FUNC_START_NOALIGN(__x86_indirect_al
+ 2:	.skip	5-(2b-1b), 0x90
+ SYM_FUNC_END(__x86_indirect_alt_call_\reg)
  
- 	list_for_each_entry(insn, &file->retpoline_call_list, call_node) {
- 
-+		if (insn->type != INSN_JUMP_DYNAMIC &&
-+		    insn->type != INSN_CALL_DYNAMIC)
-+			continue;
++STACK_FRAME_NON_STANDARD(__x86_indirect_alt_call_\reg)
 +
- 		if (!strcmp(insn->sec->name, ".text.__x86.indirect_thunk"))
- 			continue;
+ SYM_FUNC_START_NOALIGN(__x86_indirect_alt_jmp_\reg)
+ 	ANNOTATE_RETPOLINE_SAFE
+ 1:	jmp	*%\reg
+ 2:	.skip	5-(2b-1b), 0x90
+ SYM_FUNC_END(__x86_indirect_alt_jmp_\reg)
  
++STACK_FRAME_NON_STANDARD(__x86_indirect_alt_jmp_\reg)
++
+ .endm
+ 
+ /*
 
 
