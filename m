@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB70572499
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5A157243A
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235484AbiGLTFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:05:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59420 "EHLO
+        id S234994AbiGLS5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:57:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235657AbiGLTEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:04:50 -0400
+        with ESMTP id S234604AbiGLS5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A25FE2A2F;
-        Tue, 12 Jul 2022 11:50:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9248ED17B;
+        Tue, 12 Jul 2022 11:46:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C35CE60765;
-        Tue, 12 Jul 2022 18:50:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D60F8C3411C;
-        Tue, 12 Jul 2022 18:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D4960765;
+        Tue, 12 Jul 2022 18:46:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BCBC3411C;
+        Tue, 12 Jul 2022 18:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651844;
-        bh=JgYoJmUEvMCQp3wVGkXNOVscGyOdnsYBbM5Q/taqYHM=;
+        s=korg; t=1657651618;
+        bh=PR4qSsLfCebVv1MQRnxZGaYukimLYC4djFlgxVu5qwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iw+dvLfjwK+Z+3BmQzqKIbjbmV15lGm7j2T+v4j7pSI2E4fa6peIRcpob6I292S3/
-         m5IuoCiv485mauakwfsMOUF/Z9Eq0d0rhWFC1zB+otUkSmC/z14ff+DqN6zuEh2B61
-         sgthg2oeJ80NTb8xknALQiHwQ33b+hlgpIfMLGms=
+        b=wqh83pfy9NLUsvtOWbi6747V2IAho2NF0qsRQwvpNC9W86UTP8dHceBipxccxXt9t
+         5CgSmN/jbCb750c6Zp4xROL0qZl1FROpI0c+FAul638kuIDaAuvKln0hEJrfqNQ95l
+         1sDjSCzwIPJOEAxFyAJmRdF+a8RPuRuFuZRLZ9Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,13 +35,14 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 46/78] x86/entry: Add kernel IBRS implementation
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 110/130] objtool: Add entry UNRET validation
 Date:   Tue, 12 Jul 2022 20:39:16 +0200
-Message-Id: <20220712183240.715967716@linuxfoundation.org>
+Message-Id: <20220712183251.544884274@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,353 +57,533 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 2dbb887e875b1de3ca8f40ddf26bcfe55798c609 upstream.
+commit a09a6e2399ba0595c3042b3164f3ca68a3cff33e upstream.
 
-Implement Kernel IBRS - currently the only known option to mitigate RSB
-underflow speculation issues on Skylake hardware.
+Since entry asm is tricky, add a validation pass that ensures the
+retbleed mitigation has been done before the first actual RET
+instruction.
 
-Note: since IBRS_ENTER requires fuller context established than
-UNTRAIN_RET, it must be placed after it. However, since UNTRAIN_RET
-itself implies a RET, it must come after IBRS_ENTER. This means
-IBRS_ENTER needs to also move UNTRAIN_RET.
+Entry points are those that either have UNWIND_HINT_ENTRY, which acts
+as UNWIND_HINT_EMPTY but marks the instruction as an entry point, or
+those that have UWIND_HINT_IRET_REGS at +0.
 
-Note 2: KERNEL_IBRS is sub-optimal for XenPV.
+This is basically a variant of validate_branch() that is
+intra-function and it will simply follow all branches from marked
+entry points and ensures that all paths lead to ANNOTATE_UNRET_END.
+
+If a path hits RET or an indirection the path is a fail and will be
+reported.
+
+There are 3 ANNOTATE_UNRET_END instances:
+
+ - UNTRAIN_RET itself
+ - exception from-kernel; this path doesn't need UNTRAIN_RET
+ - all early exceptions; these also don't need UNTRAIN_RET
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: conflict at arch/x86/entry/entry_64_compat.S]
-[cascardo: conflict fixups, no ANNOTATE_NOENDBR]
+[cascardo: arch/x86/entry/entry_64.S no pt_regs return at .Lerror_entry_done_lfence]
+[cascardo: tools/objtool/builtin-check.c no link option validation]
+[cascardo: tools/objtool/check.c opts.ibt is ibt]
+[cascardo: tools/objtool/include/objtool/builtin.h leave unret option as bool, no struct opts]
+[cascardo: objtool is still called from scripts/link-vmlinux.sh]
+[cascardo: no IBT support]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+[bwh: Backported to 5.10:
+ - In scripts/link-vmlinux.sh, use "test -n" instead of is_enabled
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/calling.h           |   58 +++++++++++++++++++++++++++++++++++++
- arch/x86/entry/entry_64.S          |   44 ++++++++++++++++++++++++----
- arch/x86/entry/entry_64_compat.S   |   17 ++++++++--
- arch/x86/include/asm/cpufeatures.h |    2 -
- 4 files changed, 111 insertions(+), 10 deletions(-)
+ arch/x86/entry/entry_64.S            |    3 
+ arch/x86/entry/entry_64_compat.S     |    6 -
+ arch/x86/include/asm/nospec-branch.h |   12 ++
+ arch/x86/include/asm/unwind_hints.h  |    4 
+ arch/x86/kernel/head_64.S            |    5 +
+ arch/x86/xen/xen-asm.S               |   10 +-
+ include/linux/objtool.h              |    3 
+ scripts/link-vmlinux.sh              |    3 
+ tools/include/linux/objtool.h        |    3 
+ tools/objtool/builtin-check.c        |    3 
+ tools/objtool/builtin.h              |    2 
+ tools/objtool/check.c                |  172 ++++++++++++++++++++++++++++++++++-
+ tools/objtool/check.h                |    6 +
+ 13 files changed, 217 insertions(+), 15 deletions(-)
 
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -7,6 +7,8 @@
- #include <asm/asm-offsets.h>
- #include <asm/processor-flags.h>
- #include <asm/ptrace-abi.h>
-+#include <asm/msr.h>
-+#include <asm/nospec-branch.h>
- 
- /*
- 
-@@ -282,6 +284,62 @@ For 32-bit we have the following convent
- #endif
- 
- /*
-+ * IBRS kernel mitigation for Spectre_v2.
-+ *
-+ * Assumes full context is established (PUSH_REGS, CR3 and GS) and it clobbers
-+ * the regs it uses (AX, CX, DX). Must be called before the first RET
-+ * instruction (NOTE! UNTRAIN_RET includes a RET instruction)
-+ *
-+ * The optional argument is used to save/restore the current value,
-+ * which is used on the paranoid paths.
-+ *
-+ * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
-+ */
-+.macro IBRS_ENTER save_reg
-+	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
-+	movl	$MSR_IA32_SPEC_CTRL, %ecx
-+
-+.ifnb \save_reg
-+	rdmsr
-+	shl	$32, %rdx
-+	or	%rdx, %rax
-+	mov	%rax, \save_reg
-+	test	$SPEC_CTRL_IBRS, %eax
-+	jz	.Ldo_wrmsr_\@
-+	lfence
-+	jmp	.Lend_\@
-+.Ldo_wrmsr_\@:
-+.endif
-+
-+	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
-+	movl	%edx, %eax
-+	shr	$32, %rdx
-+	wrmsr
-+.Lend_\@:
-+.endm
-+
-+/*
-+ * Similar to IBRS_ENTER, requires KERNEL GS,CR3 and clobbers (AX, CX, DX)
-+ * regs. Must be called after the last RET.
-+ */
-+.macro IBRS_EXIT save_reg
-+	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
-+	movl	$MSR_IA32_SPEC_CTRL, %ecx
-+
-+.ifnb \save_reg
-+	mov	\save_reg, %rdx
-+.else
-+	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
-+	andl	$(~SPEC_CTRL_IBRS), %edx
-+.endif
-+
-+	movl	%edx, %eax
-+	shr	$32, %rdx
-+	wrmsr
-+.Lend_\@:
-+.endm
-+
-+/*
-  * Mitigate Spectre v1 for conditional swapgs code paths.
-  *
-  * FENCE_SWAPGS_USER_ENTRY is used in the user entry swapgs code path, to
 --- a/arch/x86/entry/entry_64.S
 +++ b/arch/x86/entry/entry_64.S
-@@ -94,7 +94,6 @@ SYM_CODE_START(entry_SYSCALL_64)
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
- 
- SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)
--	UNTRAIN_RET
- 
- 	/* Construct struct pt_regs on stack */
- 	pushq	$__USER_DS				/* pt_regs->ss */
-@@ -111,6 +110,11 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
- 	movq	%rsp, %rdi
- 	/* Sign extend the lower 32bit as syscall numbers are treated as int */
- 	movslq	%eax, %rsi
-+
-+	/* clobbers %rax, make sure it is after saving the syscall nr */
-+	IBRS_ENTER
-+	UNTRAIN_RET
-+
- 	call	do_syscall_64		/* returns with IRQs disabled */
- 
- 	/*
-@@ -190,6 +194,7 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
- 	 * perf profiles. Nothing jumps here.
- 	 */
- syscall_return_via_sysret:
-+	IBRS_EXIT
- 	POP_REGS pop_rdi=0
- 
- 	/*
-@@ -582,6 +587,7 @@ __irqentry_text_end:
- 
- SYM_CODE_START_LOCAL(common_interrupt_return)
- SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
-+	IBRS_EXIT
- #ifdef CONFIG_DEBUG_ENTRY
- 	/* Assert that pt_regs indicates user mode. */
- 	testb	$3, CS(%rsp)
-@@ -861,6 +867,9 @@ SYM_CODE_END(xen_failsafe_callback)
-  *              1 -> no SWAPGS on exit
-  *
-  *     Y        GSBASE value at entry, must be restored in paranoid_exit
-+ *
-+ * R14 - old CR3
-+ * R15 - old SPEC_CTRL
+@@ -93,7 +93,7 @@ SYM_CODE_END(native_usergs_sysret64)
   */
- SYM_CODE_START_LOCAL(paranoid_entry)
- 	UNWIND_HINT_FUNC
-@@ -884,7 +893,6 @@ SYM_CODE_START_LOCAL(paranoid_entry)
- 	 * be retrieved from a kernel internal table.
- 	 */
- 	SAVE_AND_SWITCH_TO_KERNEL_CR3 scratch_reg=%rax save_reg=%r14
--	UNTRAIN_RET
  
- 	/*
- 	 * Handling GSBASE depends on the availability of FSGSBASE.
-@@ -906,7 +914,7 @@ SYM_CODE_START_LOCAL(paranoid_entry)
- 	 * is needed here.
- 	 */
- 	SAVE_AND_SET_GSBASE scratch_reg=%rax save_reg=%rbx
--	RET
-+	jmp .Lparanoid_gsbase_done
+ SYM_CODE_START(entry_SYSCALL_64)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
  
- .Lparanoid_entry_checkgs:
- 	/* EBX = 1 -> kernel GSBASE active, no restore required */
-@@ -925,8 +933,16 @@ SYM_CODE_START_LOCAL(paranoid_entry)
- 	xorl	%ebx, %ebx
  	swapgs
- .Lparanoid_kernel_gsbase:
--
+ 	/* tss.sp2 is scratch space. */
+@@ -1094,6 +1094,7 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	 */
+ .Lerror_entry_done_lfence:
  	FENCE_SWAPGS_KERNEL_ENTRY
-+.Lparanoid_gsbase_done:
-+
-+	/*
-+	 * Once we have CR3 and %GS setup save and set SPEC_CTRL. Just like
-+	 * CR3 above, keep the old value in a callee saved register.
-+	 */
-+	IBRS_ENTER save_reg=%r15
-+	UNTRAIN_RET
-+
++	ANNOTATE_UNRET_END
  	RET
- SYM_CODE_END(paranoid_entry)
  
-@@ -948,9 +964,19 @@ SYM_CODE_END(paranoid_entry)
-  *              1 -> no SWAPGS on exit
-  *
-  *     Y        User space GSBASE, must be restored unconditionally
-+ *
-+ * R14 - old CR3
-+ * R15 - old SPEC_CTRL
-  */
- SYM_CODE_START_LOCAL(paranoid_exit)
- 	UNWIND_HINT_REGS
-+
-+	/*
-+	 * Must restore IBRS state before both CR3 and %GS since we need access
-+	 * to the per-CPU x86_spec_ctrl_shadow variable.
-+	 */
-+	IBRS_EXIT save_reg=%r15
-+
- 	/*
- 	 * The order of operations is important. RESTORE_CR3 requires
- 	 * kernel GSBASE.
-@@ -995,10 +1021,12 @@ SYM_CODE_START_LOCAL(error_entry)
- 	FENCE_SWAPGS_USER_ENTRY
- 	/* We have user CR3.  Change to kernel CR3. */
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
-+	IBRS_ENTER
- 	UNTRAIN_RET
- 
- 	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
- .Lerror_entry_from_usermode_after_swapgs:
-+
- 	/* Put us onto the real thread stack. */
- 	call	sync_regs
- 	RET
-@@ -1048,6 +1076,7 @@ SYM_CODE_START_LOCAL(error_entry)
- 	SWAPGS
- 	FENCE_SWAPGS_USER_ENTRY
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
-+	IBRS_ENTER
- 	UNTRAIN_RET
- 
- 	/*
-@@ -1143,7 +1172,6 @@ SYM_CODE_START(asm_exc_nmi)
- 	movq	%rsp, %rdx
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
- 	UNWIND_HINT_IRET_REGS base=%rdx offset=8
--	UNTRAIN_RET
- 	pushq	5*8(%rdx)	/* pt_regs->ss */
- 	pushq	4*8(%rdx)	/* pt_regs->rsp */
- 	pushq	3*8(%rdx)	/* pt_regs->flags */
-@@ -1154,6 +1182,9 @@ SYM_CODE_START(asm_exc_nmi)
- 	PUSH_AND_CLEAR_REGS rdx=(%rdx)
- 	ENCODE_FRAME_POINTER
- 
-+	IBRS_ENTER
-+	UNTRAIN_RET
-+
- 	/*
- 	 * At this point we no longer need to worry about stack damage
- 	 * due to nesting -- we're on the normal thread stack and we're
-@@ -1376,6 +1407,9 @@ end_repeat_nmi:
- 	movq	$-1, %rsi
- 	call	exc_nmi
- 
-+	/* Always restore stashed SPEC_CTRL value (see paranoid_entry) */
-+	IBRS_EXIT save_reg=%r15
-+
- 	/* Always restore stashed CR3 value (see paranoid_entry) */
- 	RESTORE_CR3 scratch_reg=%r15 save_reg=%r14
- 
+ .Lbstep_iret:
 --- a/arch/x86/entry/entry_64_compat.S
 +++ b/arch/x86/entry/entry_64_compat.S
-@@ -4,7 +4,6 @@
-  *
-  * Copyright 2000-2002 Andi Kleen, SuSE Labs.
+@@ -49,7 +49,7 @@
+  * 0(%ebp) arg6
   */
--#include "calling.h"
- #include <asm/asm-offsets.h>
- #include <asm/current.h>
- #include <asm/errno.h>
-@@ -18,6 +17,8 @@
- #include <linux/linkage.h>
- #include <linux/err.h>
+ SYM_CODE_START(entry_SYSENTER_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	/* Interrupts are off on entry. */
+ 	SWAPGS
  
-+#include "calling.h"
-+
- 	.section .entry.text, "ax"
+@@ -202,7 +202,7 @@ SYM_CODE_END(entry_SYSENTER_compat)
+  * 0(%esp) arg6
+  */
+ SYM_CODE_START(entry_SYSCALL_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	/* Interrupts are off on entry. */
+ 	swapgs
+ 
+@@ -349,7 +349,7 @@ SYM_CODE_END(entry_SYSCALL_compat)
+  * ebp  arg6
+  */
+ SYM_CODE_START(entry_INT80_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	/*
+ 	 * Interrupts are off on entry.
+ 	 */
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -82,6 +82,17 @@
+ #define ANNOTATE_UNRET_SAFE ANNOTATE_RETPOLINE_SAFE
  
  /*
-@@ -72,7 +73,6 @@ SYM_CODE_START(entry_SYSENTER_compat)
- 	pushq	$__USER32_CS		/* pt_regs->cs */
- 	pushq	$0			/* pt_regs->ip = 0 (placeholder) */
- SYM_INNER_LABEL(entry_SYSENTER_compat_after_hwframe, SYM_L_GLOBAL)
--	UNTRAIN_RET
++ * Abuse ANNOTATE_RETPOLINE_SAFE on a NOP to indicate UNRET_END, should
++ * eventually turn into it's own annotation.
++ */
++.macro ANNOTATE_UNRET_END
++#ifdef CONFIG_DEBUG_ENTRY
++	ANNOTATE_RETPOLINE_SAFE
++	nop
++#endif
++.endm
++
++/*
+  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
+  * indirect jmp/call which may be susceptible to the Spectre variant 2
+  * attack.
+@@ -131,6 +142,7 @@
+  */
+ .macro UNTRAIN_RET
+ #ifdef CONFIG_RETPOLINE
++	ANNOTATE_UNRET_END
+ 	ALTERNATIVE_2 "",						\
+ 	              "call zen_untrain_ret", X86_FEATURE_UNRET,	\
+ 		      "call entry_ibpb", X86_FEATURE_ENTRY_IBPB
+--- a/arch/x86/include/asm/unwind_hints.h
++++ b/arch/x86/include/asm/unwind_hints.h
+@@ -11,6 +11,10 @@
+ 	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_CALL end=1
+ .endm
  
++.macro UNWIND_HINT_ENTRY
++	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_ENTRY end=1
++.endm
++
+ .macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 partial=0
+ 	.if \base == %rsp
+ 		.if \indirect
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -321,6 +321,8 @@ SYM_CODE_END(start_cpu0)
+ SYM_CODE_START_NOALIGN(vc_boot_ghcb)
+ 	UNWIND_HINT_IRET_REGS offset=8
+ 
++	ANNOTATE_UNRET_END
++
+ 	/* Build pt_regs */
+ 	PUSH_AND_CLEAR_REGS
+ 
+@@ -378,6 +380,7 @@ SYM_CODE_START(early_idt_handler_array)
+ SYM_CODE_END(early_idt_handler_array)
+ 
+ SYM_CODE_START_LOCAL(early_idt_handler_common)
++	ANNOTATE_UNRET_END
  	/*
- 	 * User tracing code (ptrace or signal handlers) might assume that
-@@ -114,6 +114,9 @@ SYM_INNER_LABEL(entry_SYSENTER_compat_af
+ 	 * The stack is the hardware frame, an error code or zero, and the
+ 	 * vector number.
+@@ -424,6 +427,8 @@ SYM_CODE_END(early_idt_handler_common)
+ SYM_CODE_START_NOALIGN(vc_no_ghcb)
+ 	UNWIND_HINT_IRET_REGS offset=8
  
- 	cld
- 
-+	IBRS_ENTER
-+	UNTRAIN_RET
++	ANNOTATE_UNRET_END
 +
+ 	/* Build pt_regs */
+ 	PUSH_AND_CLEAR_REGS
+ 
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -148,7 +148,7 @@ SYM_FUNC_END(xen_read_cr2_direct);
+ 
+ .macro xen_pv_trap name
+ SYM_CODE_START(xen_\name)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	pop %rcx
+ 	pop %r11
+ 	jmp  \name
+@@ -277,7 +277,7 @@ SYM_CODE_END(xenpv_restore_regs_and_retu
+ 
+ /* Normal 64-bit system call target */
+ SYM_CODE_START(xen_entry_SYSCALL_64)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	popq %rcx
+ 	popq %r11
+ 
+@@ -296,7 +296,7 @@ SYM_CODE_END(xen_entry_SYSCALL_64)
+ 
+ /* 32-bit compat syscall target */
+ SYM_CODE_START(xen_entry_SYSCALL_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	popq %rcx
+ 	popq %r11
+ 
+@@ -313,7 +313,7 @@ SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ /* 32-bit compat sysenter target */
+ SYM_CODE_START(xen_entry_SYSENTER_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
  	/*
- 	 * SYSENTER doesn't filter flags, so we need to clear NT and AC
- 	 * ourselves.  To save a few cycles, we can check whether
-@@ -213,7 +216,6 @@ SYM_CODE_START(entry_SYSCALL_compat)
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+ 	 * NB: Xen is polite and clears TF from EFLAGS for us.  This means
+ 	 * that we don't need to guard against single step exceptions here.
+@@ -336,7 +336,7 @@ SYM_CODE_END(xen_entry_SYSENTER_compat)
  
- SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
--	UNTRAIN_RET
+ SYM_CODE_START(xen_entry_SYSCALL_compat)
+ SYM_CODE_START(xen_entry_SYSENTER_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	lea 16(%rsp), %rsp	/* strip %rcx, %r11 */
+ 	mov $-ENOSYS, %rax
+ 	pushq $0
+--- a/include/linux/objtool.h
++++ b/include/linux/objtool.h
+@@ -32,11 +32,14 @@ struct unwind_hint {
+  *
+  * UNWIND_HINT_FUNC: Generate the unwind metadata of a callable function.
+  * Useful for code which doesn't have an ELF function annotation.
++ *
++ * UNWIND_HINT_ENTRY: machine entry without stack, SYSCALL/SYSENTER etc.
+  */
+ #define UNWIND_HINT_TYPE_CALL		0
+ #define UNWIND_HINT_TYPE_REGS		1
+ #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
+ #define UNWIND_HINT_TYPE_FUNC		3
++#define UNWIND_HINT_TYPE_ENTRY		4
  
- 	/* Construct struct pt_regs on stack */
- 	pushq	$__USER32_DS		/* pt_regs->ss */
-@@ -255,6 +257,9 @@ SYM_INNER_LABEL(entry_SYSCALL_compat_aft
+ #ifdef CONFIG_STACK_VALIDATION
  
- 	UNWIND_HINT_REGS
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -65,6 +65,9 @@ objtool_link()
  
-+	IBRS_ENTER
-+	UNTRAIN_RET
+ 	if [ -n "${CONFIG_VMLINUX_VALIDATION}" ]; then
+ 		objtoolopt="check"
++		if [ -n "${CONFIG_RETPOLINE}" ]; then
++			objtoolopt="${objtoolopt} --unret"
++		fi
+ 		if [ -z "${CONFIG_FRAME_POINTER}" ]; then
+ 			objtoolopt="${objtoolopt} --no-fp"
+ 		fi
+--- a/tools/include/linux/objtool.h
++++ b/tools/include/linux/objtool.h
+@@ -32,11 +32,14 @@ struct unwind_hint {
+  *
+  * UNWIND_HINT_FUNC: Generate the unwind metadata of a callable function.
+  * Useful for code which doesn't have an ELF function annotation.
++ *
++ * UNWIND_HINT_ENTRY: machine entry without stack, SYSCALL/SYSENTER etc.
+  */
+ #define UNWIND_HINT_TYPE_CALL		0
+ #define UNWIND_HINT_TYPE_REGS		1
+ #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
+ #define UNWIND_HINT_TYPE_FUNC		3
++#define UNWIND_HINT_TYPE_ENTRY		4
+ 
+ #ifdef CONFIG_STACK_VALIDATION
+ 
+--- a/tools/objtool/builtin-check.c
++++ b/tools/objtool/builtin-check.c
+@@ -19,7 +19,7 @@
+ #include "objtool.h"
+ 
+ bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
+-     validate_dup, vmlinux, sls;
++     validate_dup, vmlinux, sls, unret;
+ 
+ static const char * const check_usage[] = {
+ 	"objtool check [<options>] file.o",
+@@ -30,6 +30,7 @@ const struct option check_options[] = {
+ 	OPT_BOOLEAN('f', "no-fp", &no_fp, "Skip frame pointer validation"),
+ 	OPT_BOOLEAN('u', "no-unreachable", &no_unreachable, "Skip 'unreachable instruction' warnings"),
+ 	OPT_BOOLEAN('r', "retpoline", &retpoline, "Validate retpoline assumptions"),
++	OPT_BOOLEAN(0,   "unret", &unret, "validate entry unret placement"),
+ 	OPT_BOOLEAN('m', "module", &module, "Indicates the object will be part of a kernel module"),
+ 	OPT_BOOLEAN('b', "backtrace", &backtrace, "unwind on error"),
+ 	OPT_BOOLEAN('a', "uaccess", &uaccess, "enable uaccess checking"),
+--- a/tools/objtool/builtin.h
++++ b/tools/objtool/builtin.h
+@@ -9,7 +9,7 @@
+ 
+ extern const struct option check_options[];
+ extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
+-            validate_dup, vmlinux, sls;
++            validate_dup, vmlinux, sls, unret;
+ 
+ extern int cmd_check(int argc, const char **argv);
+ extern int cmd_orc(int argc, const char **argv);
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1752,6 +1752,19 @@ static int read_unwind_hints(struct objt
+ 
+ 		insn->hint = true;
+ 
++		if (hint->type == UNWIND_HINT_TYPE_REGS_PARTIAL) {
++			struct symbol *sym = find_symbol_by_offset(insn->sec, insn->offset);
 +
- 	movq	%rsp, %rdi
- 	call	do_fast_syscall_32
- 	/* XEN PV guests always use IRET path */
-@@ -269,6 +274,8 @@ sysret32_from_system_call:
- 	 */
- 	STACKLEAK_ERASE
- 
-+	IBRS_EXIT
++			if (sym && sym->bind == STB_GLOBAL) {
++				insn->entry = 1;
++			}
++		}
 +
- 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
- 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
- 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
-@@ -380,7 +387,6 @@ SYM_CODE_START(entry_INT80_compat)
- 	pushq	(%rdi)			/* pt_regs->di */
- .Lint80_keep_stack:
- 
--	UNTRAIN_RET
- 	pushq	%rsi			/* pt_regs->si */
- 	xorl	%esi, %esi		/* nospec   si */
- 	pushq	%rdx			/* pt_regs->dx */
-@@ -413,6 +419,9 @@ SYM_CODE_START(entry_INT80_compat)
- 
- 	cld
- 
-+	IBRS_ENTER
-+	UNTRAIN_RET
++		if (hint->type == UNWIND_HINT_TYPE_ENTRY) {
++			hint->type = UNWIND_HINT_TYPE_CALL;
++			insn->entry = 1;
++		}
 +
- 	movq	%rsp, %rdi
- 	call	do_int80_syscall_32
- 	jmp	swapgs_restore_regs_and_return_to_usermode
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -203,7 +203,7 @@
- #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
- /* FREE!                                ( 7*32+10) */
- #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
--/* FREE!				( 7*32+12) */
-+#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
- /* FREE!				( 7*32+13) */
- #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
- #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ 		if (hint->type == UNWIND_HINT_TYPE_FUNC) {
+ 			insn->cfi = &func_cfi;
+ 			continue;
+@@ -1800,8 +1813,9 @@ static int read_retpoline_hints(struct o
+ 
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+ 		    insn->type != INSN_CALL_DYNAMIC &&
+-		    insn->type != INSN_RETURN) {
+-			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret",
++		    insn->type != INSN_RETURN &&
++		    insn->type != INSN_NOP) {
++			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret/nop",
+ 				  insn->sec, insn->offset);
+ 			return -1;
+ 		}
+@@ -2818,8 +2832,8 @@ static int validate_branch(struct objtoo
+ 			return 1;
+ 		}
+ 
+-		visited = 1 << state.uaccess;
+-		if (insn->visited) {
++		visited = VISITED_BRANCH << state.uaccess;
++		if (insn->visited & VISITED_BRANCH_MASK) {
+ 			if (!insn->hint && !insn_cfi_match(insn, &state.cfi))
+ 				return 1;
+ 
+@@ -3045,6 +3059,145 @@ static int validate_unwind_hints(struct
+ 	return warnings;
+ }
+ 
++/*
++ * Validate rethunk entry constraint: must untrain RET before the first RET.
++ *
++ * Follow every branch (intra-function) and ensure ANNOTATE_UNRET_END comes
++ * before an actual RET instruction.
++ */
++static int validate_entry(struct objtool_file *file, struct instruction *insn)
++{
++	struct instruction *next, *dest;
++	int ret, warnings = 0;
++
++	for (;;) {
++		next = next_insn_to_validate(file, insn);
++
++		if (insn->visited & VISITED_ENTRY)
++			return 0;
++
++		insn->visited |= VISITED_ENTRY;
++
++		if (!insn->ignore_alts && !list_empty(&insn->alts)) {
++			struct alternative *alt;
++			bool skip_orig = false;
++
++			list_for_each_entry(alt, &insn->alts, list) {
++				if (alt->skip_orig)
++					skip_orig = true;
++
++				ret = validate_entry(file, alt->insn);
++				if (ret) {
++				        if (backtrace)
++						BT_FUNC("(alt)", insn);
++					return ret;
++				}
++			}
++
++			if (skip_orig)
++				return 0;
++		}
++
++		switch (insn->type) {
++
++		case INSN_CALL_DYNAMIC:
++		case INSN_JUMP_DYNAMIC:
++		case INSN_JUMP_DYNAMIC_CONDITIONAL:
++			WARN_FUNC("early indirect call", insn->sec, insn->offset);
++			return 1;
++
++		case INSN_JUMP_UNCONDITIONAL:
++		case INSN_JUMP_CONDITIONAL:
++			if (!is_sibling_call(insn)) {
++				if (!insn->jump_dest) {
++					WARN_FUNC("unresolved jump target after linking?!?",
++						  insn->sec, insn->offset);
++					return -1;
++				}
++				ret = validate_entry(file, insn->jump_dest);
++				if (ret) {
++					if (backtrace) {
++						BT_FUNC("(branch%s)", insn,
++							insn->type == INSN_JUMP_CONDITIONAL ? "-cond" : "");
++					}
++					return ret;
++				}
++
++				if (insn->type == INSN_JUMP_UNCONDITIONAL)
++					return 0;
++
++				break;
++			}
++
++			/* fallthrough */
++		case INSN_CALL:
++			dest = find_insn(file, insn->call_dest->sec,
++					 insn->call_dest->offset);
++			if (!dest) {
++				WARN("Unresolved function after linking!?: %s",
++				     insn->call_dest->name);
++				return -1;
++			}
++
++			ret = validate_entry(file, dest);
++			if (ret) {
++				if (backtrace)
++					BT_FUNC("(call)", insn);
++				return ret;
++			}
++			/*
++			 * If a call returns without error, it must have seen UNTRAIN_RET.
++			 * Therefore any non-error return is a success.
++			 */
++			return 0;
++
++		case INSN_RETURN:
++			WARN_FUNC("RET before UNTRAIN", insn->sec, insn->offset);
++			return 1;
++
++		case INSN_NOP:
++			if (insn->retpoline_safe)
++				return 0;
++			break;
++
++		default:
++			break;
++		}
++
++		if (!next) {
++			WARN_FUNC("teh end!", insn->sec, insn->offset);
++			return -1;
++		}
++		insn = next;
++	}
++
++	return warnings;
++}
++
++/*
++ * Validate that all branches starting at 'insn->entry' encounter UNRET_END
++ * before RET.
++ */
++static int validate_unret(struct objtool_file *file)
++{
++	struct instruction *insn;
++	int ret, warnings = 0;
++
++	for_each_insn(file, insn) {
++		if (!insn->entry)
++			continue;
++
++		ret = validate_entry(file, insn);
++		if (ret < 0) {
++			WARN_FUNC("Failed UNRET validation", insn->sec, insn->offset);
++			return ret;
++		}
++		warnings += ret;
++	}
++
++	return warnings;
++}
++
+ static int validate_retpoline(struct objtool_file *file)
+ {
+ 	struct instruction *insn;
+@@ -3312,6 +3465,17 @@ int check(struct objtool_file *file)
+ 		goto out;
+ 	warnings += ret;
+ 
++	if (unret) {
++		/*
++		 * Must be after validate_branch() and friends, it plays
++		 * further games with insn->visited.
++		 */
++		ret = validate_unret(file);
++		if (ret < 0)
++			return ret;
++		warnings += ret;
++	}
++
+ 	if (!warnings) {
+ 		ret = validate_reachable_instructions(file);
+ 		if (ret < 0)
+--- a/tools/objtool/check.h
++++ b/tools/objtool/check.h
+@@ -48,6 +48,7 @@ struct instruction {
+ 	bool dead_end, ignore, ignore_alts;
+ 	bool hint;
+ 	bool retpoline_safe;
++	bool entry;
+ 	s8 instr;
+ 	u8 visited;
+ 	struct alt_group *alt_group;
+@@ -62,6 +63,11 @@ struct instruction {
+ 	struct cfi_state *cfi;
+ };
+ 
++#define VISITED_BRANCH		0x01
++#define VISITED_BRANCH_UACCESS	0x02
++#define VISITED_BRANCH_MASK	0x03
++#define VISITED_ENTRY		0x04
++
+ static inline bool is_static_jump(struct instruction *insn)
+ {
+ 	return insn->type == INSN_JUMP_CONDITIONAL ||
 
 
