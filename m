@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 344AF5722EF
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3CD5722EE
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234025AbiGLSlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
+        id S233796AbiGLSmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:42:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233738AbiGLSl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:41:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2690D31C2;
-        Tue, 12 Jul 2022 11:41:07 -0700 (PDT)
+        with ESMTP id S233964AbiGLSlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:41:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CC6D31FE;
+        Tue, 12 Jul 2022 11:41:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EF8DB81BAC;
-        Tue, 12 Jul 2022 18:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FCE6C3411C;
-        Tue, 12 Jul 2022 18:41:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E362B81BBD;
+        Tue, 12 Jul 2022 18:41:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB31C3411C;
+        Tue, 12 Jul 2022 18:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651264;
-        bh=U0FSku5Q4Vl2EtM25WEcra7RlQWFvp8fSemwdMB1/5M=;
+        s=korg; t=1657651268;
+        bh=fUn8IkFO0m8VZnxYLrY3/qaO1ly3x4v0tCiWNKY25ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMgCZfPBbrcLUTSkdwNI/7godl2RENgOITHhLa1Ep1Wqmy1qRKKUnBLogK/ovDD7m
-         7sMwjufTvVOSK+mjhRd/RE4ibA0iGBvmo+K3TD7cpvcUPmp4s2RUeOFk4u2O197qmf
-         uRp8kfHtnwP/NOqkAegnZeUTIzwNFX+GG9he2CTo=
+        b=rXZWD21UvQGMsvvNJPBRrtn3mXJPnIOVvC7Bh8kRR7xnWu9VEo2+pHA8jlskAfB4N
+         MA9U9DoTaEmEd/zhqJ7ezveOjDEVQb1pUitbngJ3Z9VSlcdBahxjWFNbzSTo8UkBa1
+         rtkMK6pgYMDNiO61a5p55QaoljsnPqRiL7qCgT38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
         Miroslav Benes <mbenes@suse.cz>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 024/130] objtool: Handle per arch retpoline naming
-Date:   Tue, 12 Jul 2022 20:37:50 +0200
-Message-Id: <20220712183247.500066581@linuxfoundation.org>
+Subject: [PATCH 5.10 025/130] objtool: Rework the elf_rebuild_reloc_section() logic
+Date:   Tue, 12 Jul 2022 20:37:51 +0200
+Message-Id: <20220712183247.546807785@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -58,75 +58,124 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 530b4ddd9dd92b263081f5c7786d39a8129c8b2d upstream.
+commit 3a647607b57ad8346e659ddd3b951ac292c83690 upstream.
 
-The __x86_indirect_ naming is obviously not generic. Shorten to allow
-matching some additional magic names later.
+Instead of manually calling elf_rebuild_reloc_section() on sections
+we've called elf_add_reloc() on, have elf_write() DTRT.
+
+This makes it easier to add random relocations in places without
+carefully tracking when we're done and need to flush what section.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Link: https://lkml.kernel.org/r/20210326151259.630296706@infradead.org
+Link: https://lkml.kernel.org/r/20210326151259.754213408@infradead.org
+[bwh: Backported to 5.10: drop changes in create_mcount_loc_sections()]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/arch.h            |    2 ++
- tools/objtool/arch/x86/decode.c |    5 +++++
- tools/objtool/check.c           |    9 +++++++--
- 3 files changed, 14 insertions(+), 2 deletions(-)
+ tools/objtool/check.c   |    3 ---
+ tools/objtool/elf.c     |   20 ++++++++++++++------
+ tools/objtool/elf.h     |    1 -
+ tools/objtool/orc_gen.c |    3 ---
+ 4 files changed, 14 insertions(+), 13 deletions(-)
 
---- a/tools/objtool/arch.h
-+++ b/tools/objtool/arch.h
-@@ -86,4 +86,6 @@ const char *arch_nop_insn(int len);
- 
- int arch_decode_hint_reg(struct instruction *insn, u8 sp_reg);
- 
-+bool arch_is_retpoline(struct symbol *sym);
-+
- #endif /* _ARCH_H */
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -620,3 +620,8 @@ int arch_decode_hint_reg(struct instruct
- 
- 	return 0;
- }
-+
-+bool arch_is_retpoline(struct symbol *sym)
-+{
-+	return !strncmp(sym->name, "__x86_indirect_", 15);
-+}
 --- a/tools/objtool/check.c
 +++ b/tools/objtool/check.c
-@@ -778,6 +778,11 @@ static int add_ignore_alternatives(struc
+@@ -542,9 +542,6 @@ static int create_static_call_sections(s
+ 		idx++;
+ 	}
+ 
+-	if (elf_rebuild_reloc_section(file->elf, reloc_sec))
+-		return -1;
+-
  	return 0;
  }
  
-+__weak bool arch_is_retpoline(struct symbol *sym)
-+{
-+	return false;
-+}
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -530,6 +530,8 @@ void elf_add_reloc(struct elf *elf, stru
+ 
+ 	list_add_tail(&reloc->list, &sec->reloc_list);
+ 	elf_hash_add(elf->reloc_hash, &reloc->hash, reloc_hash(reloc));
 +
- /*
-  * Find the destination instructions for all jumps.
-  */
-@@ -800,7 +805,7 @@ static int add_jump_destinations(struct
- 		} else if (reloc->sym->type == STT_SECTION) {
- 			dest_sec = reloc->sym->sec;
- 			dest_off = arch_dest_reloc_offset(reloc->addend);
--		} else if (!strncmp(reloc->sym->name, "__x86_indirect_thunk_", 21)) {
-+		} else if (arch_is_retpoline(reloc->sym)) {
- 			/*
- 			 * Retpoline jumps are really dynamic jumps in
- 			 * disguise, so convert them accordingly.
-@@ -954,7 +959,7 @@ static int add_call_destinations(struct
++	sec->changed = true;
+ }
+ 
+ static int read_rel_reloc(struct section *sec, int i, struct reloc *reloc, unsigned int *symndx)
+@@ -609,7 +611,9 @@ static int read_relocs(struct elf *elf)
  				return -1;
  			}
  
--		} else if (!strncmp(reloc->sym->name, "__x86_indirect_thunk_", 21)) {
-+		} else if (arch_is_retpoline(reloc->sym)) {
- 			/*
- 			 * Retpoline calls are really dynamic calls in
- 			 * disguise, so convert them accordingly.
+-			elf_add_reloc(elf, reloc);
++			list_add_tail(&reloc->list, &sec->reloc_list);
++			elf_hash_add(elf->reloc_hash, &reloc->hash, reloc_hash(reloc));
++
+ 			nr_reloc++;
+ 		}
+ 		max_reloc = max(max_reloc, nr_reloc);
+@@ -920,14 +924,11 @@ static int elf_rebuild_rela_reloc_sectio
+ 	return 0;
+ }
+ 
+-int elf_rebuild_reloc_section(struct elf *elf, struct section *sec)
++static int elf_rebuild_reloc_section(struct elf *elf, struct section *sec)
+ {
+ 	struct reloc *reloc;
+ 	int nr;
+ 
+-	sec->changed = true;
+-	elf->changed = true;
+-
+ 	nr = 0;
+ 	list_for_each_entry(reloc, &sec->reloc_list, list)
+ 		nr++;
+@@ -991,9 +992,15 @@ int elf_write(struct elf *elf)
+ 	struct section *sec;
+ 	Elf_Scn *s;
+ 
+-	/* Update section headers for changed sections: */
++	/* Update changed relocation sections and section headers: */
+ 	list_for_each_entry(sec, &elf->sections, list) {
+ 		if (sec->changed) {
++			if (sec->base &&
++			    elf_rebuild_reloc_section(elf, sec)) {
++				WARN("elf_rebuild_reloc_section");
++				return -1;
++			}
++
+ 			s = elf_getscn(elf->elf, sec->idx);
+ 			if (!s) {
+ 				WARN_ELF("elf_getscn");
+@@ -1005,6 +1012,7 @@ int elf_write(struct elf *elf)
+ 			}
+ 
+ 			sec->changed = false;
++			elf->changed = true;
+ 		}
+ 	}
+ 
+--- a/tools/objtool/elf.h
++++ b/tools/objtool/elf.h
+@@ -142,7 +142,6 @@ struct reloc *find_reloc_by_dest_range(c
+ struct symbol *find_func_containing(struct section *sec, unsigned long offset);
+ void insn_to_reloc_sym_addend(struct section *sec, unsigned long offset,
+ 			      struct reloc *reloc);
+-int elf_rebuild_reloc_section(struct elf *elf, struct section *sec);
+ 
+ #define for_each_sec(file, sec)						\
+ 	list_for_each_entry(sec, &file->elf->sections, list)
+--- a/tools/objtool/orc_gen.c
++++ b/tools/objtool/orc_gen.c
+@@ -251,8 +251,5 @@ int orc_create(struct objtool_file *file
+ 			return -1;
+ 	}
+ 
+-	if (elf_rebuild_reloc_section(file->elf, ip_rsec))
+-		return -1;
+-
+ 	return 0;
+ }
 
 
