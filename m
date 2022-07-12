@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 291E1572523
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A57572577
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbiGLTHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
+        id S234844AbiGLTNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235567AbiGLTGw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:06:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5738FB8C5;
-        Tue, 12 Jul 2022 11:51:22 -0700 (PDT)
+        with ESMTP id S235839AbiGLTMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:12:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8C7DA0EF;
+        Tue, 12 Jul 2022 11:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 946A0B81BBB;
-        Tue, 12 Jul 2022 18:51:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C92C3411C;
-        Tue, 12 Jul 2022 18:51:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 348FC61578;
+        Tue, 12 Jul 2022 18:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F09D0C36AE3;
+        Tue, 12 Jul 2022 18:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651862;
-        bh=zvjDX8b18xJxifx02nx4to4MscGcD0clud+Y979qlDs=;
+        s=korg; t=1657651999;
+        bh=RGsVxLQo7FRQ6kh7nv9XPXDwqfja5ijyL39y9Vo0320=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sh19DHK8ijWaYh3AjZeja1dJ3JgaaFJxgJagopATI2eBSV8xG2Ohx0HZQgcytQK0L
-         2rvADGUzNDT2fabfz0S/IMvRq3WBYED2SAAgrbseyHWYHbv3DVUiUWuMq60G60q+5E
-         1UWsMk6Q84CGQsGep62xK3J2Tyc9sPR7g29qpvdI=
+        b=nDle9Fs7SCvIFl9gUP5vx6qxnu7sx32UwIW3QWIupQjBr7tQIeLKkxcWFzDdXegMC
+         m621mXJm2th1N0IawC4YVpjQEBMKJLkwi2EReNgr0oRjLrZAaXDZJjOykZcyvT29Hr
+         sHSLzZjasNY6eUc+ZkCZ0R9XxN18ojThgsxy/gis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 75/78] x86/bugs: Do not enable IBPB-on-entry when IBPB is not supported
-Date:   Tue, 12 Jul 2022 20:39:45 +0200
-Message-Id: <20220712183241.938458633@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.18 49/61] KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS
+Date:   Tue, 12 Jul 2022 20:39:46 +0200
+Message-Id: <20220712183238.889117805@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,240 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 2259da159fbe5dba8ac00b560cf00b6a6537fa18 upstream.
+commit fc02735b14fff8c6678b521d324ade27b1a3d4cf upstream.
 
-There are some VM configurations which have Skylake model but do not
-support IBPB. In those cases, when using retbleed=ibpb, userspace is going
-to be killed and kernel is going to panic.
+On eIBRS systems, the returns in the vmexit return path from
+__vmx_vcpu_run() to vmx_vcpu_run() are exposed to RSB poisoning attacks.
 
-If the CPU does not support IBPB, warn and proceed with the auto option. Also,
-do not fallback to IBPB on AMD/Hygon systems if it is not supported.
+Fix that by moving the post-vmexit spec_ctrl handling to immediately
+after the vmexit.
 
-Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    1 
+ arch/x86/kernel/cpu/bugs.c           |    4 ++
+ arch/x86/kvm/vmx/run_flags.h         |    1 
+ arch/x86/kvm/vmx/vmenter.S           |   49 +++++++++++++++++++++++++++--------
+ arch/x86/kvm/vmx/vmx.c               |   48 ++++++++++++++++++++--------------
+ arch/x86/kvm/vmx/vmx.h               |    1 
+ 6 files changed, 73 insertions(+), 31 deletions(-)
 
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -274,6 +274,7 @@ static inline void indirect_branch_predi
+ 
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++extern u64 x86_spec_ctrl_current;
+ extern void write_spec_ctrl_current(u64 val, bool force);
+ extern u64 spec_ctrl_current(void);
+ 
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -858,7 +858,10 @@ static void __init retbleed_select_mitig
- 		break;
+@@ -195,6 +195,10 @@ void __init check_bugs(void)
+ #endif
+ }
  
- 	case RETBLEED_CMD_IBPB:
--		if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
-+		if (!boot_cpu_has(X86_FEATURE_IBPB)) {
-+			pr_err("WARNING: CPU does not support IBPB.\n");
-+			goto do_cmd_auto;
-+		} else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
- 			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
- 		} else {
- 			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
-@@ -873,7 +876,7 @@ do_cmd_auto:
- 		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
- 			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
- 				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
--			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY))
-+			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY) && boot_cpu_has(X86_FEATURE_IBPB))
- 				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
- 		}
++/*
++ * NOTE: For VMX, this function is not called in the vmexit path.
++ * It uses vmx_spec_ctrl_restore_host() instead.
++ */
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ {
+--- a/arch/x86/kvm/vmx/run_flags.h
++++ b/arch/x86/kvm/vmx/run_flags.h
+@@ -3,5 +3,6 @@
+ #define __KVM_X86_VMX_RUN_FLAGS_H
  
+ #define VMX_RUN_VMRESUME	(1 << 0)
++#define VMX_RUN_SAVE_SPEC_CTRL	(1 << 1)
+ 
+ #endif /* __KVM_X86_VMX_RUN_FLAGS_H */
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -33,9 +33,10 @@
+ 
+ /**
+  * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
+- * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
++ * @vmx:	struct vcpu_vmx *
+  * @regs:	unsigned long * (to guest registers)
+- * @flags:	VMX_RUN_VMRESUME: use VMRESUME instead of VMLAUNCH
++ * @flags:	VMX_RUN_VMRESUME:	use VMRESUME instead of VMLAUNCH
++ *		VMX_RUN_SAVE_SPEC_CTRL: save guest SPEC_CTRL into vmx->spec_ctrl
+  *
+  * Returns:
+  *	0 on VM-Exit, 1 on VM-Fail
+@@ -54,6 +55,12 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ #endif
+ 	push %_ASM_BX
+ 
++	/* Save @vmx for SPEC_CTRL handling */
++	push %_ASM_ARG1
++
++	/* Save @flags for SPEC_CTRL handling */
++	push %_ASM_ARG3
++
+ 	/*
+ 	 * Save @regs, _ASM_ARG2 may be modified by vmx_update_host_rsp() and
+ 	 * @regs is needed after VM-Exit to save the guest's register values.
+@@ -149,25 +156,23 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	mov %r15, VCPU_R15(%_ASM_AX)
+ #endif
+ 
+-	/* IMPORTANT: RSB must be stuffed before the first return. */
+-	FILL_RETURN_BUFFER %_ASM_BX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
+-
+-	/* Clear RAX to indicate VM-Exit (as opposed to VM-Fail). */
+-	xor %eax, %eax
++	/* Clear return value to indicate VM-Exit (as opposed to VM-Fail). */
++	xor %ebx, %ebx
+ 
+ .Lclear_regs:
+ 	/*
+-	 * Clear all general purpose registers except RSP and RAX to prevent
++	 * Clear all general purpose registers except RSP and RBX to prevent
+ 	 * speculative use of the guest's values, even those that are reloaded
+ 	 * via the stack.  In theory, an L1 cache miss when restoring registers
+ 	 * could lead to speculative execution with the guest's values.
+ 	 * Zeroing XORs are dirt cheap, i.e. the extra paranoia is essentially
+ 	 * free.  RSP and RAX are exempt as RSP is restored by hardware during
+-	 * VM-Exit and RAX is explicitly loaded with 0 or 1 to return VM-Fail.
++	 * VM-Exit and RBX is explicitly loaded with 0 or 1 to hold the return
++	 * value.
+ 	 */
++	xor %eax, %eax
+ 	xor %ecx, %ecx
+ 	xor %edx, %edx
+-	xor %ebx, %ebx
+ 	xor %ebp, %ebp
+ 	xor %esi, %esi
+ 	xor %edi, %edi
+@@ -185,6 +190,28 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	/* "POP" @regs. */
+ 	add $WORD_SIZE, %_ASM_SP
+ 
++	/*
++	 * IMPORTANT: RSB filling and SPEC_CTRL handling must be done before
++	 * the first unbalanced RET after vmexit!
++	 *
++	 * For retpoline, RSB filling is needed to prevent poisoned RSB entries
++	 * and (in some cases) RSB underflow.
++	 *
++	 * eIBRS has its own protection against poisoned RSB, so it doesn't
++	 * need the RSB filling sequence.  But it does need to be enabled
++	 * before the first unbalanced RET.
++         */
++
++	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
++
++	pop %_ASM_ARG2	/* @flags */
++	pop %_ASM_ARG1	/* @vmx */
++
++	call vmx_spec_ctrl_restore_host
++
++	/* Put return value in AX */
++	mov %_ASM_BX, %_ASM_AX
++
+ 	pop %_ASM_BX
+ #ifdef CONFIG_X86_64
+ 	pop %r12
+@@ -204,7 +231,7 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	ud2
+ .Lvmfail:
+ 	/* VM-Fail: set return value to 1 */
+-	mov $1, %eax
++	mov $1, %_ASM_BX
+ 	jmp .Lclear_regs
+ 
+ SYM_FUNC_END(__vmx_vcpu_run)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -846,6 +846,14 @@ unsigned int __vmx_vcpu_run_flags(struct
+ 	if (vmx->loaded_vmcs->launched)
+ 		flags |= VMX_RUN_VMRESUME;
+ 
++	/*
++	 * If writes to the SPEC_CTRL MSR aren't intercepted, the guest is free
++	 * to change it directly without causing a vmexit.  In that case read
++	 * it after vmexit and store it in vmx->spec_ctrl.
++	 */
++	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
++		flags |= VMX_RUN_SAVE_SPEC_CTRL;
++
+ 	return flags;
+ }
+ 
+@@ -6824,6 +6832,26 @@ void noinstr vmx_update_host_rsp(struct
+ 	}
+ }
+ 
++void noinstr vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx,
++					unsigned int flags)
++{
++	u64 hostval = this_cpu_read(x86_spec_ctrl_current);
++
++	if (!cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL))
++		return;
++
++	if (flags & VMX_RUN_SAVE_SPEC_CTRL)
++		vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
++
++	/*
++	 * If the guest/host SPEC_CTRL values differ, restore the host value.
++	 */
++	if (vmx->spec_ctrl != hostval)
++		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
++
++	barrier_nospec();
++}
++
+ static fastpath_t vmx_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+ {
+ 	switch (to_vmx(vcpu)->exit_reason.basic) {
+@@ -6967,26 +6995,6 @@ static fastpath_t vmx_vcpu_run(struct kv
+ 	/* The actual VMENTER/EXIT is in the .noinstr.text section. */
+ 	vmx_vcpu_enter_exit(vcpu, vmx, __vmx_vcpu_run_flags(vmx));
+ 
+-	/*
+-	 * We do not use IBRS in the kernel. If this vCPU has used the
+-	 * SPEC_CTRL MSR it may have left it on; save the value and
+-	 * turn it off. This is much more efficient than blindly adding
+-	 * it to the atomic save/restore list. Especially as the former
+-	 * (Saving guest MSRs on vmexit) doesn't even exist in KVM.
+-	 *
+-	 * For non-nested case:
+-	 * If the L01 MSR bitmap does not intercept the MSR, then we need to
+-	 * save it.
+-	 *
+-	 * For nested case:
+-	 * If the L02 MSR bitmap does not intercept the MSR, then we need to
+-	 * save it.
+-	 */
+-	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
+-		vmx->spec_ctrl = native_read_msr(MSR_IA32_SPEC_CTRL);
+-
+-	x86_spec_ctrl_restore_host(vmx->spec_ctrl, 0);
+-
+ 	/* All fields are clean at this point */
+ 	if (static_branch_unlikely(&enable_evmcs)) {
+ 		current_evmcs->hv_clean_fields |=
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -405,6 +405,7 @@ void vmx_set_virtual_apic_mode(struct kv
+ struct vmx_uret_msr *vmx_find_uret_msr(struct vcpu_vmx *vmx, u32 msr);
+ void pt_update_intercept_for_msr(struct kvm_vcpu *vcpu);
+ void vmx_update_host_rsp(struct vcpu_vmx *vmx, unsigned long host_rsp);
++void vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx, unsigned int flags);
+ unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx);
+ bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs,
+ 		    unsigned int flags);
 
 
