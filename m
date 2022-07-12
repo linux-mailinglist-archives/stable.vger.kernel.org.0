@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 296FC57239A
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6560057242D
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234330AbiGLStC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:49:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45896 "EHLO
+        id S233081AbiGLS6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiGLSru (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:47:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435E0DE9DE;
-        Tue, 12 Jul 2022 11:43:26 -0700 (PDT)
+        with ESMTP id S234957AbiGLS53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F782EDB5D;
+        Tue, 12 Jul 2022 11:47:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB4161AC9;
-        Tue, 12 Jul 2022 18:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BCA0C341C8;
-        Tue, 12 Jul 2022 18:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D1F60C91;
+        Tue, 12 Jul 2022 18:47:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC542C3411C;
+        Tue, 12 Jul 2022 18:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651400;
-        bh=jXkipwUJuN5Bshbw5oq+n7KCie4OGQQnZ71o0LvNP0o=;
+        s=korg; t=1657651639;
+        bh=vDND9sgTLLOXSi8cK5qGpOrlqS641b4ivwKRFScXYUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Xp/yOGCIk169K4vVsv7E3mKzQSeOFjAqiHER7euNiZrcQ2RO3SbEWHnactUWFAaf
-         lv4PWZrMG7hkaZq1QygsPTmT/Xr5eU9Sb1ZH6EGNH3cYhCCoCEGNlRRMhAYTIkAA9h
-         s5cSlHZZ5DoGOmzS0cEZwm2npgkN1z7vsCmuNq0c=
+        b=fiINGjppGYVMWOhlHw1H1htpwy8FWp8cDqHPaiYrVfJOFZ2fnKMqvpoUmYg0gbVei
+         HFotUbXzzUyw96dHLsO+J1jerYdoLr6dkLMqp9o/EGhYs8uww7LLAXdbgLH71nCd7e
+         ka+AISYRwwHejc1NkrMUc2vfZMvSS9dUQOr3IAfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 064/130] x86/alternative: Relax text_poke_bp() constraint
-Date:   Tue, 12 Jul 2022 20:38:30 +0200
-Message-Id: <20220712183249.417216813@linuxfoundation.org>
+        stable@vger.kernel.org, Lai Jiangshan <jiangshan.ljs@antgroup.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 01/78] x86/traps: Use pt_regs directly in fixup_bad_iret()
+Date:   Tue, 12 Jul 2022 20:38:31 +0200
+Message-Id: <20220712183238.898668354@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,172 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 
-commit 26c44b776dba4ac692a0bf5a3836feb8a63fea6b upstream.
+commit 0aca53c6b522f8d6e2681ca875acbbe105f5fdcf upstream.
 
-Currently, text_poke_bp() is very strict to only allow patching a
-single instruction; however with straight-line-speculation it will be
-required to patch: ret; int3, which is two instructions.
+Always stash the address error_entry() is going to return to, in %r12
+and get rid of the void *error_entry_ret; slot in struct bad_iret_stack
+which was supposed to account for it and pt_regs pushed on the stack.
 
-As such, relax the constraints a little to allow int3 padding for all
-instructions that do not imply the execution of the next instruction,
-ie: RET, JMP.d8 and JMP.d32.
+After this, both fixup_bad_iret() and sync_regs() can work on a struct
+pt_regs pointer directly.
 
-While there, rename the text_poke_loc::rel32 field to ::disp.
+  [ bp: Rewrite commit message, touch ups. ]
 
-Note: this fills up the text_poke_loc structure which is now a round
-  16 bytes big.
-
-  [ bp: Put comments ontop instead of on the side. ]
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211204134908.082342723@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Link: https://lore.kernel.org/r/20220503032107.680190-2-jiangshanlai@gmail.com
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |   49 +++++++++++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 15 deletions(-)
+ arch/x86/entry/entry_64.S    |    5 ++++-
+ arch/x86/include/asm/traps.h |    2 +-
+ arch/x86/kernel/traps.c      |   19 +++++++------------
+ 3 files changed, 12 insertions(+), 14 deletions(-)
 
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -1243,10 +1243,13 @@ void text_poke_sync(void)
- }
- 
- struct text_poke_loc {
--	s32 rel_addr; /* addr := _stext + rel_addr */
--	s32 rel32;
-+	/* addr := _stext + rel_addr */
-+	s32 rel_addr;
-+	s32 disp;
-+	u8 len;
- 	u8 opcode;
- 	const u8 text[POKE_MAX_OPCODE_SIZE];
-+	/* see text_poke_bp_batch() */
- 	u8 old;
- };
- 
-@@ -1261,7 +1264,8 @@ static struct bp_patching_desc *bp_desc;
- static __always_inline
- struct bp_patching_desc *try_get_desc(struct bp_patching_desc **descp)
- {
--	struct bp_patching_desc *desc = __READ_ONCE(*descp); /* rcu_dereference */
-+	/* rcu_dereference */
-+	struct bp_patching_desc *desc = __READ_ONCE(*descp);
- 
- 	if (!desc || !arch_atomic_inc_not_zero(&desc->refs))
- 		return NULL;
-@@ -1295,7 +1299,7 @@ noinstr int poke_int3_handler(struct pt_
- {
- 	struct bp_patching_desc *desc;
- 	struct text_poke_loc *tp;
--	int len, ret = 0;
-+	int ret = 0;
- 	void *ip;
- 
- 	if (user_mode(regs))
-@@ -1335,8 +1339,7 @@ noinstr int poke_int3_handler(struct pt_
- 			goto out_put;
- 	}
- 
--	len = text_opcode_size(tp->opcode);
--	ip += len;
-+	ip += tp->len;
- 
- 	switch (tp->opcode) {
- 	case INT3_INSN_OPCODE:
-@@ -1351,12 +1354,12 @@ noinstr int poke_int3_handler(struct pt_
- 		break;
- 
- 	case CALL_INSN_OPCODE:
--		int3_emulate_call(regs, (long)ip + tp->rel32);
-+		int3_emulate_call(regs, (long)ip + tp->disp);
- 		break;
- 
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
--		int3_emulate_jmp(regs, (long)ip + tp->rel32);
-+		int3_emulate_jmp(regs, (long)ip + tp->disp);
- 		break;
- 
- 	default:
-@@ -1431,7 +1434,7 @@ static void text_poke_bp_batch(struct te
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -1041,9 +1041,12 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	 * Pretend that the exception came from user mode: set up pt_regs
+ 	 * as if we faulted immediately after IRET.
  	 */
- 	for (do_sync = 0, i = 0; i < nr_entries; i++) {
- 		u8 old[POKE_MAX_OPCODE_SIZE] = { tp[i].old, };
--		int len = text_opcode_size(tp[i].opcode);
-+		int len = tp[i].len;
+-	mov	%rsp, %rdi
++	popq	%r12				/* save return addr in %12 */
++	movq	%rsp, %rdi			/* arg0 = pt_regs pointer */
+ 	call	fixup_bad_iret
+ 	mov	%rax, %rsp
++	ENCODE_FRAME_POINTER
++	pushq	%r12
+ 	jmp	.Lerror_entry_from_usermode_after_swapgs
+ SYM_CODE_END(error_entry)
  
- 		if (len - INT3_INSN_SIZE > 0) {
- 			memcpy(old + INT3_INSN_SIZE,
-@@ -1508,21 +1511,37 @@ static void text_poke_loc_init(struct te
- 			       const void *opcode, size_t len, const void *emulate)
- {
- 	struct insn insn;
--	int ret;
-+	int ret, i;
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -13,7 +13,7 @@
+ #ifdef CONFIG_X86_64
+ asmlinkage __visible notrace struct pt_regs *sync_regs(struct pt_regs *eregs);
+ asmlinkage __visible notrace
+-struct bad_iret_stack *fixup_bad_iret(struct bad_iret_stack *s);
++struct pt_regs *fixup_bad_iret(struct pt_regs *bad_regs);
+ void __init trap_init(void);
+ asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *eregs);
+ #endif
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -762,14 +762,10 @@ sync:
+ }
+ #endif
  
- 	memcpy((void *)tp->text, opcode, len);
- 	if (!emulate)
- 		emulate = opcode;
- 
- 	ret = insn_decode_kernel(&insn, emulate);
+-struct bad_iret_stack {
+-	void *error_entry_ret;
+-	struct pt_regs regs;
+-};
 -
- 	BUG_ON(ret < 0);
--	BUG_ON(len != insn.length);
- 
- 	tp->rel_addr = addr - (void *)_stext;
-+	tp->len = len;
- 	tp->opcode = insn.opcode.bytes[0];
- 
- 	switch (tp->opcode) {
-+	case RET_INSN_OPCODE:
-+	case JMP32_INSN_OPCODE:
-+	case JMP8_INSN_OPCODE:
-+		/*
-+		 * Control flow instructions without implied execution of the
-+		 * next instruction can be padded with INT3.
-+		 */
-+		for (i = insn.length; i < len; i++)
-+			BUG_ON(tp->text[i] != INT3_INSN_OPCODE);
-+		break;
+-asmlinkage __visible noinstr
+-struct bad_iret_stack *fixup_bad_iret(struct bad_iret_stack *s)
++asmlinkage __visible noinstr struct pt_regs *fixup_bad_iret(struct pt_regs *bad_regs)
+ {
++	struct pt_regs tmp, *new_stack;
 +
-+	default:
-+		BUG_ON(len != insn.length);
-+	};
-+
-+
-+	switch (tp->opcode) {
- 	case INT3_INSN_OPCODE:
- 	case RET_INSN_OPCODE:
- 		break;
-@@ -1530,7 +1549,7 @@ static void text_poke_loc_init(struct te
- 	case CALL_INSN_OPCODE:
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
--		tp->rel32 = insn.immediate.value;
-+		tp->disp = insn.immediate.value;
- 		break;
+ 	/*
+ 	 * This is called from entry_64.S early in handling a fault
+ 	 * caused by a bad iret to user mode.  To handle the fault
+@@ -778,19 +774,18 @@ struct bad_iret_stack *fixup_bad_iret(st
+ 	 * just below the IRET frame) and we want to pretend that the
+ 	 * exception came from the IRET target.
+ 	 */
+-	struct bad_iret_stack tmp, *new_stack =
+-		(struct bad_iret_stack *)__this_cpu_read(cpu_tss_rw.x86_tss.sp0) - 1;
++	new_stack = (struct pt_regs *)__this_cpu_read(cpu_tss_rw.x86_tss.sp0) - 1;
  
- 	default: /* assume NOP */
-@@ -1538,13 +1557,13 @@ static void text_poke_loc_init(struct te
- 		case 2: /* NOP2 -- emulate as JMP8+0 */
- 			BUG_ON(memcmp(emulate, ideal_nops[len], len));
- 			tp->opcode = JMP8_INSN_OPCODE;
--			tp->rel32 = 0;
-+			tp->disp = 0;
- 			break;
+ 	/* Copy the IRET target to the temporary storage. */
+-	__memcpy(&tmp.regs.ip, (void *)s->regs.sp, 5*8);
++	__memcpy(&tmp.ip, (void *)bad_regs->sp, 5*8);
  
- 		case 5: /* NOP5 -- emulate as JMP32+0 */
- 			BUG_ON(memcmp(emulate, ideal_nops[NOP_ATOMIC5], len));
- 			tp->opcode = JMP32_INSN_OPCODE;
--			tp->rel32 = 0;
-+			tp->disp = 0;
- 			break;
+ 	/* Copy the remainder of the stack from the current stack. */
+-	__memcpy(&tmp, s, offsetof(struct bad_iret_stack, regs.ip));
++	__memcpy(&tmp, bad_regs, offsetof(struct pt_regs, ip));
  
- 		default: /* unknown instruction */
+ 	/* Update the entry stack */
+ 	__memcpy(new_stack, &tmp, sizeof(tmp));
+ 
+-	BUG_ON(!user_mode(&new_stack->regs));
++	BUG_ON(!user_mode(new_stack));
+ 	return new_stack;
+ }
+ #endif
 
 
