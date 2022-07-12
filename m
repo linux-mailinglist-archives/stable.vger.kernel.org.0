@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A46705723E8
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7FC572552
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234651AbiGLSy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:54:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57578 "EHLO
+        id S235868AbiGLTMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:12:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234745AbiGLSyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:54:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B01FD514E;
-        Tue, 12 Jul 2022 11:45:41 -0700 (PDT)
+        with ESMTP id S235797AbiGLTLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:11:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159371020B1;
+        Tue, 12 Jul 2022 11:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30C6860AC3;
-        Tue, 12 Jul 2022 18:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1DCC3411C;
-        Tue, 12 Jul 2022 18:45:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E9DE61257;
+        Tue, 12 Jul 2022 18:52:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D593C341C0;
+        Tue, 12 Jul 2022 18:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651530;
-        bh=aLjl1sz+9TKvEHYRGFyleZovb2+KqWCsBPr2RrNcDeM=;
+        s=korg; t=1657651978;
+        bh=ElPnfsQ3frqXUSruRs//nCnaApLEIEGWuGRWi85JU9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDU5hcgNvLDJY1dIRP6U/jZbWbI8LP8CpajyLOxXovtUJEZlh4ytuFOD3KlQWg/3y
-         1zB7ctLEI9xoBeveKoPxrydaQZeXyynA7NJvX3IzxtB+MYmFVYKMPEfrSmkeMl2BmX
-         dkKOoiewAXm/Hk6dRWj7jqLqLw9hNXRTHa40JpJU=
+        b=H4sIWntftaLJ0l9Idu+N3q06aZvSvRltDeYg9fFywG71We4th3SxBi2vLApgv0iBJ
+         XGaGTHuhtnGkCxFfxirptGrGy8MTJBbdZ7ul8sgBjqhz7btRxFlaGch8SSkywBjl7E
+         smO5fC1cMwnbzMdOpAtg/0XgApevVks19HYKa/cU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,14 +35,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 103/130] x86/bugs: Split spectre_v2_select_mitigation() and spectre_v2_user_select_mitigation()
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.18 12/61] x86,objtool: Create .return_sites
 Date:   Tue, 12 Jul 2022 20:39:09 +0200
-Message-Id: <20220712183251.225898476@linuxfoundation.org>
+Message-Id: <20220712183237.438583634@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,101 +58,194 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 166115c08a9b0b846b783088808a27d739be6e8d upstream.
+commit d9e9d2300681d68a775c28de6aa6e5290ae17796 upstream.
 
-retbleed will depend on spectre_v2, while spectre_v2_user depends on
-retbleed. Break this cycle.
+Find all the return-thunk sites and record them in a .return_sites
+section such that the kernel can undo this.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ tools/objtool/arch/x86/decode.c         |    5 ++
+ tools/objtool/check.c                   |   74 ++++++++++++++++++++++++++++++++
+ tools/objtool/include/objtool/arch.h    |    1 
+ tools/objtool/include/objtool/elf.h     |    1 
+ tools/objtool/include/objtool/objtool.h |    1 
+ tools/objtool/objtool.c                 |    1 
+ 6 files changed, 83 insertions(+)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -37,8 +37,9 @@
- #include "cpu.h"
- 
- static void __init spectre_v1_select_mitigation(void);
--static void __init retbleed_select_mitigation(void);
- static void __init spectre_v2_select_mitigation(void);
-+static void __init retbleed_select_mitigation(void);
-+static void __init spectre_v2_user_select_mitigation(void);
- static void __init ssb_select_mitigation(void);
- static void __init l1tf_select_mitigation(void);
- static void __init mds_select_mitigation(void);
-@@ -137,13 +138,19 @@ void __init check_bugs(void)
- 
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
-+	spectre_v2_select_mitigation();
-+	/*
-+	 * retbleed_select_mitigation() relies on the state set by
-+	 * spectre_v2_select_mitigation(); specifically it wants to know about
-+	 * spectre_v2=ibrs.
-+	 */
- 	retbleed_select_mitigation();
- 	/*
--	 * spectre_v2_select_mitigation() relies on the state set by
-+	 * spectre_v2_user_select_mitigation() relies on the state set by
- 	 * retbleed_select_mitigation(); specifically the STIBP selection is
- 	 * forced for UNRET.
- 	 */
--	spectre_v2_select_mitigation();
-+	spectre_v2_user_select_mitigation();
- 	ssb_select_mitigation();
- 	l1tf_select_mitigation();
- 	md_clear_select_mitigation();
-@@ -969,13 +976,15 @@ static void __init spec_v2_user_print_co
- 		pr_info("spectre_v2_user=%s forced on command line.\n", reason);
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -787,3 +787,8 @@ bool arch_is_retpoline(struct symbol *sy
+ {
+ 	return !strncmp(sym->name, "__x86_indirect_", 15);
  }
- 
-+static __ro_after_init enum spectre_v2_mitigation_cmd spectre_v2_cmd;
 +
- static enum spectre_v2_user_cmd __init
--spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
-+spectre_v2_parse_user_cmdline(void)
- {
- 	char arg[20];
- 	int ret, i;
- 
--	switch (v2_cmd) {
-+	switch (spectre_v2_cmd) {
- 	case SPECTRE_V2_CMD_NONE:
- 		return SPECTRE_V2_USER_CMD_NONE;
- 	case SPECTRE_V2_CMD_FORCE:
-@@ -1010,7 +1019,7 @@ static inline bool spectre_v2_in_ibrs_mo
++bool arch_is_rethunk(struct symbol *sym)
++{
++	return !strcmp(sym->name, "__x86_return_thunk");
++}
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -747,6 +747,52 @@ static int create_retpoline_sites_sectio
+ 	return 0;
  }
  
- static void __init
--spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
-+spectre_v2_user_select_mitigation(void)
++static int create_return_sites_sections(struct objtool_file *file)
++{
++	struct instruction *insn;
++	struct section *sec;
++	int idx;
++
++	sec = find_section_by_name(file->elf, ".return_sites");
++	if (sec) {
++		WARN("file already has .return_sites, skipping");
++		return 0;
++	}
++
++	idx = 0;
++	list_for_each_entry(insn, &file->return_thunk_list, call_node)
++		idx++;
++
++	if (!idx)
++		return 0;
++
++	sec = elf_create_section(file->elf, ".return_sites", 0,
++				 sizeof(int), idx);
++	if (!sec) {
++		WARN("elf_create_section: .return_sites");
++		return -1;
++	}
++
++	idx = 0;
++	list_for_each_entry(insn, &file->return_thunk_list, call_node) {
++
++		int *site = (int *)sec->data->d_buf + idx;
++		*site = 0;
++
++		if (elf_add_reloc_to_insn(file->elf, sec,
++					  idx * sizeof(int),
++					  R_X86_64_PC32,
++					  insn->sec, insn->offset)) {
++			WARN("elf_add_reloc_to_insn: .return_sites");
++			return -1;
++		}
++
++		idx++;
++	}
++
++	return 0;
++}
++
+ static int create_ibt_endbr_seal_sections(struct objtool_file *file)
  {
- 	enum spectre_v2_user_mitigation mode = SPECTRE_V2_USER_NONE;
- 	bool smt_possible = IS_ENABLED(CONFIG_SMP);
-@@ -1023,7 +1032,7 @@ spectre_v2_user_select_mitigation(enum s
- 	    cpu_smt_control == CPU_SMT_NOT_SUPPORTED)
- 		smt_possible = false;
+ 	struct instruction *insn;
+@@ -1081,6 +1127,11 @@ __weak bool arch_is_retpoline(struct sym
+ 	return false;
+ }
  
--	cmd = spectre_v2_parse_user_cmdline(v2_cmd);
-+	cmd = spectre_v2_parse_user_cmdline();
- 	switch (cmd) {
- 	case SPECTRE_V2_USER_CMD_NONE:
- 		goto set_mode;
-@@ -1347,7 +1356,7 @@ static void __init spectre_v2_select_mit
++__weak bool arch_is_rethunk(struct symbol *sym)
++{
++	return false;
++}
++
+ #define NEGATIVE_RELOC	((void *)-1L)
+ 
+ static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *insn)
+@@ -1248,6 +1299,18 @@ static void add_retpoline_call(struct ob
+ 	annotate_call_site(file, insn, false);
+ }
+ 
++static void add_return_call(struct objtool_file *file, struct instruction *insn)
++{
++	/*
++	 * Return thunk tail calls are really just returns in disguise,
++	 * so convert them accordingly.
++	 */
++	insn->type = INSN_RETURN;
++	insn->retpoline_safe = true;
++
++	list_add_tail(&insn->call_node, &file->return_thunk_list);
++}
++
+ static bool same_function(struct instruction *insn1, struct instruction *insn2)
+ {
+ 	return insn1->func->pfunc == insn2->func->pfunc;
+@@ -1300,6 +1363,9 @@ static int add_jump_destinations(struct
+ 		} else if (reloc->sym->retpoline_thunk) {
+ 			add_retpoline_call(file, insn);
+ 			continue;
++		} else if (reloc->sym->return_thunk) {
++			add_return_call(file, insn);
++			continue;
+ 		} else if (insn->func) {
+ 			/*
+ 			 * External sibling call or internal sibling call with
+@@ -2182,6 +2248,9 @@ static int classify_symbols(struct objto
+ 			if (arch_is_retpoline(func))
+ 				func->retpoline_thunk = true;
+ 
++			if (arch_is_rethunk(func))
++				func->return_thunk = true;
++
+ 			if (!strcmp(func->name, "__fentry__"))
+ 				func->fentry = true;
+ 
+@@ -3935,6 +4004,11 @@ int check(struct objtool_file *file)
+ 		if (ret < 0)
+ 			goto out;
+ 		warnings += ret;
++
++		ret = create_return_sites_sections(file);
++		if (ret < 0)
++			goto out;
++		warnings += ret;
  	}
  
- 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
--	spectre_v2_user_select_mitigation(cmd);
-+	spectre_v2_cmd = cmd;
- }
+ 	if (mcount) {
+--- a/tools/objtool/include/objtool/arch.h
++++ b/tools/objtool/include/objtool/arch.h
+@@ -89,6 +89,7 @@ const char *arch_ret_insn(int len);
+ int arch_decode_hint_reg(u8 sp_reg, int *base);
  
- static void update_stibp_msr(void * __unused)
+ bool arch_is_retpoline(struct symbol *sym);
++bool arch_is_rethunk(struct symbol *sym);
+ 
+ int arch_rewrite_retpolines(struct objtool_file *file);
+ 
+--- a/tools/objtool/include/objtool/elf.h
++++ b/tools/objtool/include/objtool/elf.h
+@@ -57,6 +57,7 @@ struct symbol {
+ 	u8 uaccess_safe      : 1;
+ 	u8 static_call_tramp : 1;
+ 	u8 retpoline_thunk   : 1;
++	u8 return_thunk      : 1;
+ 	u8 fentry            : 1;
+ 	u8 profiling_func    : 1;
+ 	struct list_head pv_target;
+--- a/tools/objtool/include/objtool/objtool.h
++++ b/tools/objtool/include/objtool/objtool.h
+@@ -24,6 +24,7 @@ struct objtool_file {
+ 	struct list_head insn_list;
+ 	DECLARE_HASHTABLE(insn_hash, 20);
+ 	struct list_head retpoline_call_list;
++	struct list_head return_thunk_list;
+ 	struct list_head static_call_list;
+ 	struct list_head mcount_loc_list;
+ 	struct list_head endbr_list;
+--- a/tools/objtool/objtool.c
++++ b/tools/objtool/objtool.c
+@@ -126,6 +126,7 @@ struct objtool_file *objtool_open_read(c
+ 	INIT_LIST_HEAD(&file.insn_list);
+ 	hash_init(file.insn_hash);
+ 	INIT_LIST_HEAD(&file.retpoline_call_list);
++	INIT_LIST_HEAD(&file.return_thunk_list);
+ 	INIT_LIST_HEAD(&file.static_call_list);
+ 	INIT_LIST_HEAD(&file.mcount_loc_list);
+ 	INIT_LIST_HEAD(&file.endbr_list);
 
 
