@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64DE5724F4
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2CD657256D
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235464AbiGLTHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:07:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
+        id S235771AbiGLTNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:13:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232849AbiGLTHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:07:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219ECFB8C7;
-        Tue, 12 Jul 2022 11:51:22 -0700 (PDT)
+        with ESMTP id S235752AbiGLTMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:12:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A963A1034EF;
+        Tue, 12 Jul 2022 11:53:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD8F361123;
-        Tue, 12 Jul 2022 18:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C11ABC3411C;
-        Tue, 12 Jul 2022 18:51:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E74A5B81B96;
+        Tue, 12 Jul 2022 18:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5148DC3411C;
+        Tue, 12 Jul 2022 18:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651865;
-        bh=VArWxamW+2ApLNJG02H0yc5wACPQi4Sh5xFrVrccIa8=;
+        s=korg; t=1657652002;
+        bh=XYlx/CGlMFklOfXxJVZihlVrGPOesdPtbd4itWoo9GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAWzDs1cFa69ef5UCYIavrsL7OTvwqDwISXZ4hMKuOiB6Uul5xUiYAYrJc8jlNwNX
-         4oV9cZn3jXg/wHaMV3QgaXIkd/yHWTsidX3I4mqE00Moh5X9HIrcMuFrRzZuNFTpKJ
-         iuY+zrFflC/CEXK+TzRB94h3zm4+TGZ+c9nN2l00=
+        b=yg1Vr9C+iUnDPwRVI6F/VqMmZkisW4Hw9qs/OPZBcZMlvo9tixLEV+J9IRDyEbo2l
+         x9bI1/Gkd7gVC8qpsBXSEa9CS2koXjuxzFK8TC/eRKiI3YNXFh5Rojhm91Yk4mJaLA
+         d562Q9ybRgF00l/tl9UBdtfujHNOSg5bRlR6S5qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Tran <edward.tran@oracle.com>,
-        Awais Tanveer <awais.tanveer@oracle.com>,
-        Ankur Arora <ankur.a.arora@oracle.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 76/78] x86/kexec: Disable RET on kexec
-Date:   Tue, 12 Jul 2022 20:39:46 +0200
-Message-Id: <20220712183241.987841833@linuxfoundation.org>
+Subject: [PATCH 5.18 50/61] KVM: VMX: Fix IBRS handling after vmexit
+Date:   Tue, 12 Jul 2022 20:39:47 +0200
+Message-Id: <20220712183238.926122450@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,173 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 697977d8415d61f3acbc4ee6d564c9dcf0309507 upstream.
+commit bea7e31a5caccb6fe8ed989c065072354f0ecb52 upstream.
 
-All the invocations unroll to __x86_return_thunk and this file
-must be PIC independent.
+For legacy IBRS to work, the IBRS bit needs to be always re-written
+after vmexit, even if it's already on.
 
-This fixes kexec on 64-bit AMD boxes.
-
-  [ bp: Fix 32-bit build. ]
-
-Reported-by: Edward Tran <edward.tran@oracle.com>
-Reported-by: Awais Tanveer <awais.tanveer@oracle.com>
-Suggested-by: Ankur Arora <ankur.a.arora@oracle.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/relocate_kernel_32.S |   25 +++++++++++++++++++------
- arch/x86/kernel/relocate_kernel_64.S |   23 +++++++++++++++++------
- 2 files changed, 36 insertions(+), 12 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/relocate_kernel_32.S
-+++ b/arch/x86/kernel/relocate_kernel_32.S
-@@ -7,10 +7,12 @@
- #include <linux/linkage.h>
- #include <asm/page_types.h>
- #include <asm/kexec.h>
-+#include <asm/nospec-branch.h>
- #include <asm/processor-flags.h>
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6845,8 +6845,13 @@ void noinstr vmx_spec_ctrl_restore_host(
  
- /*
-- * Must be relocatable PIC code callable as a C function
-+ * Must be relocatable PIC code callable as a C function, in particular
-+ * there must be a plain RET and not jump to return thunk.
-  */
+ 	/*
+ 	 * If the guest/host SPEC_CTRL values differ, restore the host value.
++	 *
++	 * For legacy IBRS, the IBRS bit always needs to be written after
++	 * transitioning from a less privileged predictor mode, regardless of
++	 * whether the guest/host values differ.
+ 	 */
+-	if (vmx->spec_ctrl != hostval)
++	if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) ||
++	    vmx->spec_ctrl != hostval)
+ 		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
  
- #define PTR(x) (x << 2)
-@@ -91,7 +93,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
- 	movl    %edi, %eax
- 	addl    $(identity_mapped - relocate_kernel), %eax
- 	pushl   %eax
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(relocate_kernel)
- 
- SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
-@@ -159,12 +163,15 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
- 	xorl    %edx, %edx
- 	xorl    %esi, %esi
- 	xorl    %ebp, %ebp
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- 1:
- 	popl	%edx
- 	movl	CP_PA_SWAP_PAGE(%edi), %esp
- 	addl	$PAGE_SIZE, %esp
- 2:
-+	ANNOTATE_RETPOLINE_SAFE
- 	call	*%edx
- 
- 	/* get the re-entry point of the peer system */
-@@ -190,7 +197,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
- 	movl	%edi, %eax
- 	addl	$(virtual_mapped - relocate_kernel), %eax
- 	pushl	%eax
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(identity_mapped)
- 
- SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
-@@ -208,7 +217,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_map
- 	popl	%edi
- 	popl	%esi
- 	popl	%ebx
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(virtual_mapped)
- 
- 	/* Do the copies */
-@@ -271,7 +282,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
- 	popl	%edi
- 	popl	%ebx
- 	popl	%ebp
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(swap_pages)
- 
- 	.globl kexec_control_code_size
---- a/arch/x86/kernel/relocate_kernel_64.S
-+++ b/arch/x86/kernel/relocate_kernel_64.S
-@@ -13,7 +13,8 @@
- #include <asm/unwind_hints.h>
- 
- /*
-- * Must be relocatable PIC code callable as a C function
-+ * Must be relocatable PIC code callable as a C function, in particular
-+ * there must be a plain RET and not jump to return thunk.
-  */
- 
- #define PTR(x) (x << 3)
-@@ -104,7 +105,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
- 	/* jump to identity mapped page */
- 	addq	$(identity_mapped - relocate_kernel), %r8
- 	pushq	%r8
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(relocate_kernel)
- 
- SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
-@@ -191,7 +194,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
- 	xorl	%r14d, %r14d
- 	xorl	%r15d, %r15d
- 
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- 
- 1:
- 	popq	%rdx
-@@ -210,7 +215,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_ma
- 	call	swap_pages
- 	movq	$virtual_mapped, %rax
- 	pushq	%rax
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(identity_mapped)
- 
- SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
-@@ -231,7 +238,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_map
- 	popq	%r12
- 	popq	%rbp
- 	popq	%rbx
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(virtual_mapped)
- 
- 	/* Do the copies */
-@@ -288,7 +297,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
- 	lea	PAGE_SIZE(%rax), %rsi
- 	jmp	0b
- 3:
--	RET
-+	ANNOTATE_UNRET_SAFE
-+	ret
-+	int3
- SYM_CODE_END(swap_pages)
- 
- 	.globl kexec_control_code_size
+ 	barrier_nospec();
 
 
