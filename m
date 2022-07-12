@@ -2,174 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1DD571246
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 08:34:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0752057126C
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 08:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbiGLGeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 02:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
+        id S232053AbiGLGqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 02:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230010AbiGLGeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 02:34:14 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7038726560
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 23:34:13 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26C5hoC2009912;
-        Tue, 12 Jul 2022 06:34:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=pGvkkXFFduigXu7unC8JSxXg7ldqQAFnpk8mthY2i94=;
- b=R03GlkpDr51nWK08Gkbr01xbovcfhcyFDG1qhfeFRJ5Ykya27Q8ed/ixjXa2ZYBqCpYe
- io+65Vknn6vc+Nb+ZhuupHt3f4ZQA85BgxACtWiWml2tEwzMre3kMqrpTzbmOQBvjz75
- ZLPTNght4keydwJb6rQfpGbLnzAfdC9WOp4NVUZGG7ZeNo1qkLgjCshiGmfNnYKoW32B
- l4JcSYj2C8q9iQu8JhbjnsqRtV7oaH6YcdcCmBn+w1ODYZbX9ryOZOrzbzP7td89QRoH
- yV/WHHpg16LaUc5BSTuLTDpD9RhEm/j9HKXpLkkV+7IYjsgQofyX3KKEqkwHuvDlqRKF aw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h932gh2tb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 06:34:06 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26C64Ub0029872;
-        Tue, 12 Jul 2022 06:34:05 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h932gh2st-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 06:34:05 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26C6KJ1b002069;
-        Tue, 12 Jul 2022 06:34:04 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3h71a8u0wa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 06:34:03 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26C6Y1WZ16449970
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jul 2022 06:34:01 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A463AAE045;
-        Tue, 12 Jul 2022 06:34:01 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B0B00AE055;
-        Tue, 12 Jul 2022 06:34:00 +0000 (GMT)
-Received: from linux.ibm.com (unknown [9.145.144.141])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 12 Jul 2022 06:34:00 +0000 (GMT)
-Date:   Tue, 12 Jul 2022 09:33:58 +0300
-From:   Mike Rapoport <rppt@linux.ibm.com>
-To:     Nadav Amit <nadav.amit@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Nadav Amit <namit@vmware.com>,
-        James Houghton <jthoughton@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>, Jan Kara <jack@suse.cz>,
-        Andrea Arcangeli <aarcange@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] userfaultfd: provide properly masked address for
- huge-pages
-Message-ID: <Ys0V1gm/VNGgb5Ei@linux.ibm.com>
-References: <20220711165906.2682-1-namit@vmware.com>
+        with ESMTP id S229709AbiGLGqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 02:46:43 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB1D43DF1D
+        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 23:46:42 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 5C1FB21FFF;
+        Tue, 12 Jul 2022 06:46:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1657608399; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6llmww4ReNfnv3TctnPNAp5VowplEtyGScA5o5Kuix4=;
+        b=P+Wsb10ZnqXlETzoeOz1lndqv33SGyoRL0PLO6rDqia6XrHcTeTR28zPHOhwBvuGMDfPbG
+        EDTleFUHBM63v72/Zn505zLHaaD8GilWQV6dxHXmGW3t4NIin54NX4lZXdcAHwR34oiKgA
+        jJx5s7k2h78ocaZ7/6MrC8CRbuIE5XY=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2FF6813A94;
+        Tue, 12 Jul 2022 06:46:39 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id d/p8Cs8YzWIzAQAAMHmgww
+        (envelope-from <jgross@suse.com>); Tue, 12 Jul 2022 06:46:39 +0000
+Message-ID: <ed99b8a1-3cc2-e949-d57d-ea6511dc70bb@suse.com>
+Date:   Tue, 12 Jul 2022 08:46:38 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220711165906.2682-1-namit@vmware.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fAwP9Qnr1y0PLchh5SvtiKc2FGszaA6Q
-X-Proofpoint-ORIG-GUID: ISeBXPdzIfiIoJXZ8jTLMwh6AG7DFPFj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-12_03,2022-07-08_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 mlxscore=0 spamscore=0 impostorscore=0 phishscore=0
- bulkscore=0 clxscore=1011 adultscore=0 lowpriorityscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207120024
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v3] xen/gntdev: Ignore failure to unmap
+ INVALID_GRANT_HANDLE
+Content-Language: en-US
+To:     Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220710230522.1563-1-demi@invisiblethingslab.com>
+From:   Juergen Gross <jgross@suse.com>
+In-Reply-To: <20220710230522.1563-1-demi@invisiblethingslab.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------wifTR62gzPVUhQi2UogD5woE"
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 11, 2022 at 09:59:06AM -0700, Nadav Amit wrote:
-> From: Nadav Amit <namit@vmware.com>
-> 
-> Commit 824ddc601adc ("userfaultfd: provide unmasked address on
-> page-fault") was introduced to fix an old bug, in which the offset in
-> the address of a page-fault was masked. Concerns were raised - although
-> were never backed by actual code - that some userspace code might break
-> because the bug has been around for quite a while. To address these
-> concerns a new flag was introduced, and only when this flag is set by
-> the user, userfaultfd provides the exact address of the page-fault.
-> 
-> The commit however had a bug, and if the flag is unset, the offset was
-> always masked based on a base-page granularity. Yet, for huge-pages, the
-> behavior prior to the commit was that the address is masked to the
-> huge-page granulrity.
-> 
-> While there are no reports on real breakage, fix this issue. If the flag
-> is unset, use the address with the masking that was done before.
-> 
-> Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
-> Reported-by: James Houghton <jthoughton@google.com>
-> Cc: Peter Xu <peterx@redhat.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: Jan Kara <jack@suse.cz>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Nadav Amit <namit@vmware.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------wifTR62gzPVUhQi2UogD5woE
+Content-Type: multipart/mixed; boundary="------------kfkGZI8k0UwMZ3vwC43xvL7H";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Demi Marie Obenour <demi@invisiblethingslab.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Message-ID: <ed99b8a1-3cc2-e949-d57d-ea6511dc70bb@suse.com>
+Subject: Re: [PATCH v3] xen/gntdev: Ignore failure to unmap
+ INVALID_GRANT_HANDLE
+References: <20220710230522.1563-1-demi@invisiblethingslab.com>
+In-Reply-To: <20220710230522.1563-1-demi@invisiblethingslab.com>
 
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+--------------kfkGZI8k0UwMZ3vwC43xvL7H
+Content-Type: multipart/mixed; boundary="------------JEyKwfzYNs6fvV87d2Sbxhbx"
 
-> ---
->  fs/userfaultfd.c | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
-> 
-> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index e943370107d0..de86f5b2859f 100644
-> --- a/fs/userfaultfd.c
-> +++ b/fs/userfaultfd.c
-> @@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_msg *msg)
->  }
->  
->  static inline struct uffd_msg userfault_msg(unsigned long address,
-> +					    unsigned long real_address,
->  					    unsigned int flags,
->  					    unsigned long reason,
->  					    unsigned int features)
->  {
->  	struct uffd_msg msg;
-> +
->  	msg_init(&msg);
->  	msg.event = UFFD_EVENT_PAGEFAULT;
->  
-> -	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
-> -		address &= PAGE_MASK;
-> -	msg.arg.pagefault.address = address;
-> +	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
-> +				    real_address : address;
-> +
->  	/*
->  	 * These flags indicate why the userfault occurred:
->  	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
-> @@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
->  
->  	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
->  	uwq.wq.private = current;
-> -	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
-> -			ctx->features);
-> +	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
-> +				reason, ctx->features);
->  	uwq.ctx = ctx;
->  	uwq.waken = false;
->  
-> -- 
-> 2.25.1
-> 
+--------------JEyKwfzYNs6fvV87d2Sbxhbx
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
--- 
-Sincerely yours,
-Mike.
+T24gMTEuMDcuMjIgMDE6MDUsIERlbWkgTWFyaWUgT2Jlbm91ciB3cm90ZToNCj4gVGhlIGVy
+cm9yIHBhdGhzIG9mIGdudGRldl9tbWFwKCkgY2FuIGNhbGwgdW5tYXBfZ3JhbnRfcGFnZXMo
+KSBldmVuDQo+IHRob3VnaCBub3QgYWxsIG9mIHRoZSBwYWdlcyBoYXZlIGJlZW4gc3VjY2Vz
+c2Z1bGx5IG1hcHBlZC4gIFRoaXMgd2lsbA0KPiB0cmlnZ2VyIHRoZSBXQVJOX09OKClzIGlu
+IF9fdW5tYXBfZ3JhbnRfcGFnZXNfZG9uZSgpLiAgVGhlIG51bWJlciBvZg0KPiB3YXJuaW5n
+cyBjYW4gYmUgdmVyeSBsYXJnZTsgSSBoYXZlIG9ic2VydmVkIHRob3VzYW5kcyBvZiBsaW5l
+cyBvZg0KPiB3YXJuaW5ncyBpbiB0aGUgc3lzdGVtZCBqb3VybmFsLg0KPiANCj4gQXZvaWQg
+dGhpcyBwcm9ibGVtIGJ5IG9ubHkgd2FybmluZyBvbiB1bm1hcHBpbmcgZmFpbHVyZSBpZiB0
+aGUgaGFuZGxlDQo+IGJlaW5nIHVubWFwcGVkIGlzIG5vdCBJTlZBTElEX0dSQU5UX0hBTkRM
+RS4gIFRoZSBoYW5kbGUgZmllbGQgb2YgYW55DQo+IHBhZ2UgdGhhdCB3YXMgbm90IHN1Y2Nl
+c3NmdWxseSBtYXBwZWQgd2lsbCBiZSBJTlZBTElEX0dSQU5UX0hBTkRMRSwgc28NCj4gdGhp
+cyBjYXRjaGVzIGFsbCBjYXNlcyB3aGVyZSB1bm1hcHBpbmcgY2FuIGxlZ2l0aW1hdGVseSBm
+YWlsLg0KPiANCj4gU3VnZ2VzdGVkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5j
+b20+DQo+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IFNpZ25lZC1vZmYtYnk6IERl
+bWkgTWFyaWUgT2Jlbm91ciA8ZGVtaUBpbnZpc2libGV0aGluZ3NsYWIuY29tPg0KPiBGaXhl
+czogZGJlOTdjZmY3ZGQ5ICgieGVuL2dudGRldjogQXZvaWQgYmxvY2tpbmcgaW4gdW5tYXBf
+Z3JhbnRfcGFnZXMoKSIpDQoNClB1c2hlZCB0byB4ZW4vdGlwLmdpdCBmb3ItbGludXMtNS4x
+OWENCg0KDQpKdWVyZ2VuDQo=
+--------------JEyKwfzYNs6fvV87d2Sbxhbx
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjri
+oyspZKOBycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2
+kaV2KL9650I1SJvedYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i
+1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/B
+BLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xqG7/377qptDmrk42GlSK
+N4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR3Jvc3Mg
+PGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsE
+FgIDAQIeAQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4F
+UGNQH2lvWAUy+dnyThpwdtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3Tye
+vpB0CA3dbBQp0OW0fgCetToGIQrg0MbD1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u
++6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbvoPHZ8SlM4KWm8rG+lIkGurq
+qu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v5QL+qHI3EIP
+tyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVy
+Z2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJ
+CAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4
+RF7HoZhPVPogNVbC4YA6lW7DrWf0teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz7
+8X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC/nuAFVGy+67q2DH8As3KPu0344T
+BDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0LhITTd9jLzdDad1pQ
+SToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLmXBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkM
+nQfvUewRz80hSnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMB
+AgAjBQJTjHDXAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/
+Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJnFOXgMLdBQgBlVPO3/D9R8LtF9DBAFPN
+hlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1jnDkfJZr6jrbjgyoZHi
+w/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0N51N5Jf
+VRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwP
+OoE+lotufe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK
+/1xMI3/+8jbO0tsn1tqSEUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1
+c2UuZGU+wsB5BBMBAgAjBQJTjHDrAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+F4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3g3OZUEBmDHVVbqMtzwlmNC4
+k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5dM7wRqzgJpJ
+wK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu
+5D+jLRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzB
+TNh30FVKK1EvmV2xAKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37Io
+N1EblHI//x/e2AaIHpzK5h88NEawQsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6
+AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpWnHIs98ndPUDpnoxWQugJ6MpMncr
+0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZRwgnBC5mVM6JjQ5x
+Dk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNVbVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mm
+we0icXKLkpEdIXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0I
+v3OOImwTEe4co3c1mwARAQABwsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMv
+Q/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEwTbe8YFsw2V/Buv6Z4Mysln3nQK5ZadD
+534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1vJzQ1fOU8lYFpZXTXIH
+b+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8VGiwXvT
+yJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqc
+suylWsviuGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5B
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------JEyKwfzYNs6fvV87d2Sbxhbx--
+
+--------------kfkGZI8k0UwMZ3vwC43xvL7H--
+
+--------------wifTR62gzPVUhQi2UogD5woE
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmLNGM4FAwAAAAAACgkQsN6d1ii/Ey/9
+awgAjPkSH4ydXd8sKoSaXVtvu2fheMlVekQO0C1FDPNv6jWjcwDcRW1f3J6eVmn+rgjqKMpG6X9e
+UvlI0Oa2WXl/QVL8VXgALpvGN+EZeC3IHQwKcDoHFRyu+dff9wR7SkSNJ1U45sMGg1iXqfxIzFXw
+4nTQcU8CoRK5okI8pPHmzmYIQixrikHPFPIZanI7dtH8aIoGHegUMkB4CQ7T4/RDomaKhJ+HxRdB
+Ee0poL4AYWDT/Mqj/CnB/HUyPjhXxy6RDV21bcA0Z443z4qzZl2VCZmZ0DLJnsjhKadmF1N2vP91
+5VSwaHzlojO0bsnij0D0w9pxMc2lIZtNLu1W1UeL8Q==
+=4Fpt
+-----END PGP SIGNATURE-----
+
+--------------wifTR62gzPVUhQi2UogD5woE--
