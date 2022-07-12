@@ -2,145 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0548570EF1
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 02:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC05570F39
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 03:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbiGLAds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jul 2022 20:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
+        id S230373AbiGLBLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jul 2022 21:11:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229690AbiGLAdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 20:33:47 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5C271261A
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 17:33:44 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id g4so6198588pgc.1
-        for <stable@vger.kernel.org>; Mon, 11 Jul 2022 17:33:44 -0700 (PDT)
+        with ESMTP id S229876AbiGLBLJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jul 2022 21:11:09 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CE32C125;
+        Mon, 11 Jul 2022 18:11:08 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id c15so1082980pla.6;
+        Mon, 11 Jul 2022 18:11:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ti0C5xab/5kDqDKYjHrnv6fD7vOYV0VSIifA6sunqqM=;
-        b=XORqPXdxn8L1WpRMLVZeoGz+I3la1Lzf/Ogve9kYHbmy+kM/Pr8ry1/D7p5jN/BrQN
-         oYGgElFHZjnGR6neB7LhDwVbxCbNSacPtkNWbJzacIdhVxanV4cCpqZW8NGRtDpuCc5M
-         fIDDKVJdOtsmskgmTMoxnJsQDuOz86qIcUaANSciwpk+Bs1f3yCZkWuFGbYlIeDNiXtW
-         kCupp0WUX2MC0I2KDchdSS3S5BEOhxfO3YbzVr6PuRoqNypwsQ2av44cK4EnpoTkVmHI
-         S95UTC/j8QFjUw8vt9DE11hf5vafBcZx6JpSEXVYg8adgtIkocg1UNsL3rUY1xK9eb9H
-         CzIQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mK7hxLg5UKFL7t/H5O/qd6wHK0RsB8Iz9ru3iD5fvE4=;
+        b=Bg0D5+/2uRnojIw5BvCRjFnwUxcuoZWZkzVCrEL/Dt4/FkZlSOLs9/OOeM5xCf2bnx
+         KxKZK65i6gJGsRce5QabzLnjZTcAJ1S6aWxUPE0XpRQ3bJCTYx9sP/a24zOqaSUTDH7o
+         Dm2f7Wv2pFvbPRpNqtx8WwsX8fkPcjdZ02l8/wi5Qq0y30+3LRLWgl5IY5IM5fRZkC9t
+         oVdVJebgDvddVCf8xQ74jflIBgQxhG1BUSjgcC6LlAqaCgGWC38kps51+o/xU48LASJx
+         LLicCxX/cRin6PumIOSgt9dfHEOMXxR+LCm+x1zmKMBEYsN312whA2i3BODHtK/5WB+J
+         1GzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ti0C5xab/5kDqDKYjHrnv6fD7vOYV0VSIifA6sunqqM=;
-        b=ZaENd66Pg2ADHWtmsauGLQYpeTyEQud/ax5U4oCItXZa+RXKuHe9kn/ITUlPe1U/fr
-         Ru9dw6LtDVtfeYaNCDfEBkIj+XxdBLScVhGrZ9oFvHhrYRbZsFKrKzHt6GcEq/vch0zY
-         wyZOpwPqs3ZHcuIMJPjyGzPyvwuCbbkYQy+zdZpaAtzgH0dIcoTIAjQ85X8ryiSA0HCH
-         iCZ80qmdsV9mty7mO4vk8ROp/k+csCMoCSbJZoJcCNkPDOeQ5N8LZrpyASs8jLelvv5x
-         I8E81vlxNhqfQ0OmzAXIDHj62ruQkcH3KcRMOpptO6JuzRvjpwIG8t5QJAYhLzZlfEJe
-         8IWg==
-X-Gm-Message-State: AJIora/Th/tF/G1oOoxBsCc1hfX87zSunxlE+/IXuJHpI4o1oLOdpthe
-        8dMikUOd/wFe1BS1VZWvvuM=
-X-Google-Smtp-Source: AGRyM1u8mq01hXRym4iEcmpnDSmqpJXy216tb9zXA+hUsAi2nNnAklahyKOPDSahKlwEDJGgKhy+/w==
-X-Received: by 2002:a05:6a00:889:b0:510:91e6:6463 with SMTP id q9-20020a056a00088900b0051091e66463mr20757829pfj.58.1657586023850;
-        Mon, 11 Jul 2022 17:33:43 -0700 (PDT)
-Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id p2-20020a170902e74200b0016be596c8afsm5383138plf.282.2022.07.11.17.33.42
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=mK7hxLg5UKFL7t/H5O/qd6wHK0RsB8Iz9ru3iD5fvE4=;
+        b=VOZpiCNslj8YoRyITe/nvuqt1XZGvTB/sZmA4pCgUhKxjmz1qNYUtOljXZuCY4alZG
+         YBxQ1IbtA1f0McDKOUgwWeiFHYH5w0GlydA3u8amNxkyrn7WY+H8dC8av/288jpxuZZZ
+         U1SeO7jPCkEfeBn2hPHoSb3Rvz/V2ac1xK7DyDFgAyAsxNYQnaNSMiDaprkOhydRC9Ss
+         a0bMah1Ku6K6XcknkEe2vZ+WTn+73turOXKrnWtQZRuS5eLCuDndV5MHoDh0EX2mqP0K
+         rGxF6t3IOYeqNZZN5yHXBpTG12Zf4AUu3xJEmM+CdTr3dX2u1ANah/1xtiO3sNxpf//N
+         6iZw==
+X-Gm-Message-State: AJIora+VNxGj6qQwz/prHVHbDVhHrr6giKwc6QGMFkbqZ2XL8wqz9tCt
+        hwyfBYOspFRF1Lw1g58sxQU=
+X-Google-Smtp-Source: AGRyM1vEmrDt/ujVKHrsLs9FuZSlqND/wtzg/oBp8PE6LEZCt2azNgUkuJEQMf3ZY5F6f8qiUgO+qw==
+X-Received: by 2002:a17:902:e84e:b0:16c:773:9daf with SMTP id t14-20020a170902e84e00b0016c07739dafmr21486215plg.43.1657588267739;
+        Mon, 11 Jul 2022 18:11:07 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d5-20020a623605000000b0052ac725ea3esm3690924pfa.97.2022.07.11.18.11.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Jul 2022 17:33:43 -0700 (PDT)
-From:   Nadav Amit <nadav.amit@gmail.com>
-X-Google-Original-From: Nadav Amit
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
-        James Houghton <jthoughton@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>, Jan Kara <jack@suse.cz>,
-        Andrea Arcangeli <aarcange@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] userfaultfd: provide properly masked address for huge-pages
-Date:   Mon, 11 Jul 2022 09:59:06 -0700
-Message-Id: <20220711165906.2682-1-namit@vmware.com>
-X-Mailer: git-send-email 2.25.1
+        Mon, 11 Jul 2022 18:11:06 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 11 Jul 2022 18:11:05 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/14] 4.9.323-rc1 review
+Message-ID: <20220712011105.GA2305683@roeck-us.net>
+References: <20220711090535.517697227@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.5 required=5.0 tests=BAYES_00,DATE_IN_PAST_06_12,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220711090535.517697227@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+On Mon, Jul 11, 2022 at 11:06:19AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.323 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 13 Jul 2022 09:05:28 +0000.
+> Anything received after that time might be too late.
+> 
 
-Commit 824ddc601adc ("userfaultfd: provide unmasked address on
-page-fault") was introduced to fix an old bug, in which the offset in
-the address of a page-fault was masked. Concerns were raised - although
-were never backed by actual code - that some userspace code might break
-because the bug has been around for quite a while. To address these
-concerns a new flag was introduced, and only when this flag is set by
-the user, userfaultfd provides the exact address of the page-fault.
+Build results:
+	total: 164 pass: 164 fail: 0
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-The commit however had a bug, and if the flag is unset, the offset was
-always masked based on a base-page granularity. Yet, for huge-pages, the
-behavior prior to the commit was that the address is masked to the
-huge-page granulrity.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-While there are no reports on real breakage, fix this issue. If the flag
-is unset, use the address with the masking that was done before.
-
-Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
-Reported-by: James Houghton <jthoughton@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Nadav Amit <namit@vmware.com>
----
- fs/userfaultfd.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index e943370107d0..de86f5b2859f 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_msg *msg)
- }
- 
- static inline struct uffd_msg userfault_msg(unsigned long address,
-+					    unsigned long real_address,
- 					    unsigned int flags,
- 					    unsigned long reason,
- 					    unsigned int features)
- {
- 	struct uffd_msg msg;
-+
- 	msg_init(&msg);
- 	msg.event = UFFD_EVENT_PAGEFAULT;
- 
--	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
--		address &= PAGE_MASK;
--	msg.arg.pagefault.address = address;
-+	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
-+				    real_address : address;
-+
- 	/*
- 	 * These flags indicate why the userfault occurred:
- 	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
-@@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason)
- 
- 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
- 	uwq.wq.private = current;
--	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
--			ctx->features);
-+	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
-+				reason, ctx->features);
- 	uwq.ctx = ctx;
- 	uwq.waken = false;
- 
--- 
-2.25.1
-
+Guenter
