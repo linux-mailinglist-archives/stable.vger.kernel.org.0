@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 662B85724F9
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAA75724C4
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235656AbiGLTKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:10:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43022 "EHLO
+        id S235095AbiGLTDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:03:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235848AbiGLTJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:09:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A44FF5A1;
-        Tue, 12 Jul 2022 11:52:26 -0700 (PDT)
+        with ESMTP id S235342AbiGLTCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:02:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD79ED31CE;
+        Tue, 12 Jul 2022 11:49:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71E87B81B96;
-        Tue, 12 Jul 2022 18:52:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF86BC3411C;
-        Tue, 12 Jul 2022 18:52:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9FDE61257;
+        Tue, 12 Jul 2022 18:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB99C3411C;
+        Tue, 12 Jul 2022 18:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651944;
-        bh=UuWq9FZpbgAxtMkPfvB2tYv3OqJJFLEEzrdmc9dWz/w=;
+        s=korg; t=1657651788;
+        bh=FvMTOIgEJ/F9Sx4tLyEeltEoAwGGywAYye6RJJqo0P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hq2/BADuzR1sJTUK0PDm2V5iq1aED3NXXjZvkVR2fwZN6z0VZrJ58SgK777wJP77Z
-         6cV51AhfEShSsH8XqTjdEm5hLrxm/iT4BED0rKYU8zPGcvyh1ORclLUJ4Q8sQJc0dZ
-         sRjoVdAPia2JTZ4+ZXDMdLqgIJqjI7uWe8Aspccs=
+        b=vUcXwoIFNgxM0v7nJEK4MMo0ij/VzFyaA9qJZ00KeIFkFAH2bpv5WadtAzeGVxea4
+         s0mFqLHh/0mXisY4weTKk7E9g4DRi/lhfl+KB8HM/xnLzGiF7cBTkimb1SPlq7NjHU
+         ceA4ceCtdVlLN+j03YC5n4vlqXXFy4VAVx1InyfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        stable@vger.kernel.org, Andrew Cooper <Andrew.Cooper3@citrix.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 30/61] x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS
-Date:   Tue, 12 Jul 2022 20:39:27 +0200
-Message-Id: <20220712183238.177869341@linuxfoundation.org>
+Subject: [PATCH 5.15 58/78] x86/cpu/amd: Add Spectral Chicken
+Date:   Tue, 12 Jul 2022 20:39:28 +0200
+Message-Id: <20220712183241.233309010@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,15 +56,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7c693f54c873691a4b7da05c7e0f74e67745d144 upstream.
+commit d7caac991feeef1b871ee6988fd2c9725df09039 upstream.
 
-Extend spectre_v2= boot option with Kernel IBRS.
+Zen2 uarchs have an undocumented, unnamed, MSR that contains a chicken
+bit for some speculation behaviour. It needs setting.
 
-  [jpoimboe: no STIBP with IBRS]
+Note: very belatedly AMD released naming; it's now officially called
+      MSR_AMD64_DE_CFG2 and MSR_AMD64_DE_CFG2_SUPPRESS_NOBR_PRED_BIT
+      but shall remain the SPECTRAL CHICKEN.
 
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
@@ -73,192 +75,88 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |    1 
- arch/x86/include/asm/nospec-branch.h            |    1 
- arch/x86/kernel/cpu/bugs.c                      |   66 ++++++++++++++++++------
- 3 files changed, 54 insertions(+), 14 deletions(-)
+ arch/x86/include/asm/msr-index.h |    3 +++
+ arch/x86/kernel/cpu/amd.c        |   23 ++++++++++++++++++++++-
+ arch/x86/kernel/cpu/cpu.h        |    2 ++
+ arch/x86/kernel/cpu/hygon.c      |    6 ++++++
+ 4 files changed, 33 insertions(+), 1 deletion(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5503,6 +5503,7 @@
- 			eibrs		  - enhanced IBRS
- 			eibrs,retpoline   - enhanced IBRS + Retpolines
- 			eibrs,lfence      - enhanced IBRS + LFENCE
-+			ibrs		  - use IBRS to protect kernel
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -515,6 +515,9 @@
+ /* Fam 17h MSRs */
+ #define MSR_F17H_IRPERF			0xc00000e9
  
- 			Not specifying this option is equivalent to
- 			spectre_v2=auto.
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -211,6 +211,7 @@ enum spectre_v2_mitigation {
- 	SPECTRE_V2_EIBRS,
- 	SPECTRE_V2_EIBRS_RETPOLINE,
- 	SPECTRE_V2_EIBRS_LFENCE,
-+	SPECTRE_V2_IBRS,
- };
- 
- /* The indirect branch speculation control variants */
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -965,6 +965,7 @@ enum spectre_v2_mitigation_cmd {
- 	SPECTRE_V2_CMD_EIBRS,
- 	SPECTRE_V2_CMD_EIBRS_RETPOLINE,
- 	SPECTRE_V2_CMD_EIBRS_LFENCE,
-+	SPECTRE_V2_CMD_IBRS,
- };
- 
- enum spectre_v2_user_cmd {
-@@ -1037,11 +1038,12 @@ spectre_v2_parse_user_cmdline(enum spect
- 	return SPECTRE_V2_USER_CMD_AUTO;
++#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
++#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
++
+ /* Fam 16h MSRs */
+ #define MSR_F16H_L2I_PERF_CTL		0xc0010230
+ #define MSR_F16H_L2I_PERF_CTR		0xc0010231
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -886,6 +886,26 @@ static void init_amd_bd(struct cpuinfo_x
+ 	clear_rdrand_cpuid_bit(c);
  }
  
--static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
-+static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
- {
--	return (mode == SPECTRE_V2_EIBRS ||
--		mode == SPECTRE_V2_EIBRS_RETPOLINE ||
--		mode == SPECTRE_V2_EIBRS_LFENCE);
-+	return mode == SPECTRE_V2_IBRS ||
-+	       mode == SPECTRE_V2_EIBRS ||
-+	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
-+	       mode == SPECTRE_V2_EIBRS_LFENCE;
- }
- 
- static void __init
-@@ -1106,12 +1108,12 @@ spectre_v2_user_select_mitigation(enum s
- 	}
- 
- 	/*
--	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
--	 * required.
-+	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
-+	 * STIBP is not required.
- 	 */
- 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
- 	    !smt_possible ||
--	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
-+	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
- 		return;
- 
- 	/*
-@@ -1143,6 +1145,7 @@ static const char * const spectre_v2_str
- 	[SPECTRE_V2_EIBRS]			= "Mitigation: Enhanced IBRS",
- 	[SPECTRE_V2_EIBRS_LFENCE]		= "Mitigation: Enhanced IBRS + LFENCE",
- 	[SPECTRE_V2_EIBRS_RETPOLINE]		= "Mitigation: Enhanced IBRS + Retpolines",
-+	[SPECTRE_V2_IBRS]			= "Mitigation: IBRS",
- };
- 
- static const struct {
-@@ -1160,6 +1163,7 @@ static const struct {
- 	{ "eibrs,lfence",	SPECTRE_V2_CMD_EIBRS_LFENCE,	  false },
- 	{ "eibrs,retpoline",	SPECTRE_V2_CMD_EIBRS_RETPOLINE,	  false },
- 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
-+	{ "ibrs",		SPECTRE_V2_CMD_IBRS,              false },
- };
- 
- static void __init spec_v2_print_cond(const char *reason, bool secure)
-@@ -1222,6 +1226,24 @@ static enum spectre_v2_mitigation_cmd __
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
- 
-+	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_data.x86_vendor != X86_VENDOR_INTEL) {
-+		pr_err("%s selected but not Intel CPU. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
-+		return SPECTRE_V2_CMD_AUTO;
-+	}
++void init_spectral_chicken(struct cpuinfo_x86 *c)
++{
++	u64 value;
 +
-+	if (cmd == SPECTRE_V2_CMD_IBRS && !boot_cpu_has(X86_FEATURE_IBRS)) {
-+		pr_err("%s selected but CPU doesn't have IBRS. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
-+		return SPECTRE_V2_CMD_AUTO;
-+	}
-+
-+	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_has(X86_FEATURE_XENPV)) {
-+		pr_err("%s selected but running as XenPV guest. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
-+		return SPECTRE_V2_CMD_AUTO;
-+	}
-+
- 	spec_v2_print_cond(mitigation_options[i].option,
- 			   mitigation_options[i].secure);
- 	return cmd;
-@@ -1261,6 +1283,14 @@ static void __init spectre_v2_select_mit
- 			break;
- 		}
- 
-+		if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
-+		    retbleed_cmd != RETBLEED_CMD_OFF &&
-+		    boot_cpu_has(X86_FEATURE_IBRS) &&
-+		    boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
-+			mode = SPECTRE_V2_IBRS;
-+			break;
++	/*
++	 * On Zen2 we offer this chicken (bit) on the altar of Speculation.
++	 *
++	 * This suppresses speculation from the middle of a basic block, i.e. it
++	 * suppresses non-branch predictions.
++	 *
++	 * We use STIBP as a heuristic to filter out Zen2 from the rest of F17H
++	 */
++	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && cpu_has(c, X86_FEATURE_AMD_STIBP)) {
++		if (!rdmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, &value)) {
++			value |= MSR_ZEN2_SPECTRAL_CHICKEN_BIT;
++			wrmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, value);
 +		}
++	}
++}
 +
- 		mode = spectre_v2_select_retpoline();
- 		break;
- 
-@@ -1277,6 +1307,10 @@ static void __init spectre_v2_select_mit
- 		mode = spectre_v2_select_retpoline();
- 		break;
- 
-+	case SPECTRE_V2_CMD_IBRS:
-+		mode = SPECTRE_V2_IBRS;
-+		break;
-+
- 	case SPECTRE_V2_CMD_EIBRS:
- 		mode = SPECTRE_V2_EIBRS;
- 		break;
-@@ -1293,7 +1327,7 @@ static void __init spectre_v2_select_mit
- 	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
- 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
- 
--	if (spectre_v2_in_eibrs_mode(mode)) {
-+	if (spectre_v2_in_ibrs_mode(mode)) {
- 		/* Force it so VMEXIT will restore correctly */
- 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
- 		write_spec_ctrl_current(x86_spec_ctrl_base, true);
-@@ -1304,6 +1338,10 @@ static void __init spectre_v2_select_mit
- 	case SPECTRE_V2_EIBRS:
- 		break;
- 
-+	case SPECTRE_V2_IBRS:
-+		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
-+		break;
-+
- 	case SPECTRE_V2_LFENCE:
- 	case SPECTRE_V2_EIBRS_LFENCE:
- 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
-@@ -1330,17 +1368,17 @@ static void __init spectre_v2_select_mit
- 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
- 
- 	/*
--	 * Retpoline means the kernel is safe because it has no indirect
--	 * branches. Enhanced IBRS protects firmware too, so, enable restricted
--	 * speculation around firmware calls only when Enhanced IBRS isn't
--	 * supported.
-+	 * Retpoline protects the kernel, but doesn't protect firmware.  IBRS
-+	 * and Enhanced IBRS protect firmware too, so enable IBRS around
-+	 * firmware calls only when IBRS / Enhanced IBRS aren't otherwise
-+	 * enabled.
- 	 *
- 	 * Use "mode" to check Enhanced IBRS instead of boot_cpu_has(), because
- 	 * the user might select retpoline on the kernel command line and if
- 	 * the CPU supports Enhanced IBRS, kernel might un-intentionally not
- 	 * enable IBRS around firmware calls.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_eibrs_mode(mode)) {
-+	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_ibrs_mode(mode)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBRS_FW);
- 		pr_info("Enabling Restricted Speculation for firmware calls\n");
- 	}
-@@ -2082,7 +2120,7 @@ static ssize_t mmio_stale_data_show_stat
- 
- static char *stibp_state(void)
+ static void init_amd_zn(struct cpuinfo_x86 *c)
  {
--	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
-+	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
- 		return "";
+ 	set_cpu_cap(c, X86_FEATURE_ZEN);
+@@ -931,7 +951,8 @@ static void init_amd(struct cpuinfo_x86
+ 	case 0x12: init_amd_ln(c); break;
+ 	case 0x15: init_amd_bd(c); break;
+ 	case 0x16: init_amd_jg(c); break;
+-	case 0x17: fallthrough;
++	case 0x17: init_spectral_chicken(c);
++		   fallthrough;
+ 	case 0x19: init_amd_zn(c); break;
+ 	}
  
- 	switch (spectre_v2_user_stibp) {
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -61,6 +61,8 @@ static inline void tsx_init(void) { }
+ static inline void tsx_ap_init(void) { }
+ #endif /* CONFIG_CPU_SUP_INTEL */
+ 
++extern void init_spectral_chicken(struct cpuinfo_x86 *c);
++
+ extern void get_cpu_cap(struct cpuinfo_x86 *c);
+ extern void get_cpu_address_sizes(struct cpuinfo_x86 *c);
+ extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
+--- a/arch/x86/kernel/cpu/hygon.c
++++ b/arch/x86/kernel/cpu/hygon.c
+@@ -302,6 +302,12 @@ static void init_hygon(struct cpuinfo_x8
+ 	/* get apicid instead of initial apic id from cpuid */
+ 	c->apicid = hard_smp_processor_id();
+ 
++	/*
++	 * XXX someone from Hygon needs to confirm this DTRT
++	 *
++	init_spectral_chicken(c);
++	 */
++
+ 	set_cpu_cap(c, X86_FEATURE_ZEN);
+ 	set_cpu_cap(c, X86_FEATURE_CPB);
+ 
 
 
