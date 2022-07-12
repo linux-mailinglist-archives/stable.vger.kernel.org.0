@@ -2,122 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD4B572632
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B66572633
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbiGLToD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:44:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50642 "EHLO
+        id S234437AbiGLToq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:44:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234930AbiGLTni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:43:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6CE9DF7F;
-        Tue, 12 Jul 2022 12:26:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52792615E4;
-        Tue, 12 Jul 2022 19:26:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA9DC3411C;
-        Tue, 12 Jul 2022 19:26:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657653973;
-        bh=KofZy0gS7enXRLvK5w5s70pOuM52suAS0d4+pv9phsg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C+JpUI7Hlc73b9zL/pC97stcYKxyVPA2NzaJTw5CDhNHAWTdGQPl4eSAY2DrMC4yZ
-         4w5E3PHJwulm6Ys1IlHBPmCC+2Opm/xQnuZWr6p5ofmoxTUPqlxmpimVKTnLXUxJwp
-         P0Ur70+AdZXROv+Az3KlC8DmWNqTme9x8yRZX0c4=
-Date:   Tue, 12 Jul 2022 21:26:10 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Chuck Zmudzinski <brchuckz@netscape.net>
-Cc:     linux-kernel@vger.kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sean Christopherson <seanjc@google.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/PAT: Report PAT on CPUs that support PAT without MTRR
-Message-ID: <Ys3K0oS9QLx778Lb@kroah.com>
-References: <2885cdcaccffd287ef69c7509056ddf183a38a0e.1657647656.git.brchuckz.ref@aol.com>
- <2885cdcaccffd287ef69c7509056ddf183a38a0e.1657647656.git.brchuckz@aol.com>
- <Ys2/Lho9vQO33RZc@kroah.com>
- <a9efcbf3-3b34-53b7-0fa8-55a5ed3a17b4@netscape.net>
+        with ESMTP id S234522AbiGLToe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:44:34 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11966A8502;
+        Tue, 12 Jul 2022 12:30:03 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so9541117pjf.2;
+        Tue, 12 Jul 2022 12:30:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=gOuGCRXwXiKyEi+q6f/kQQx9V+X4ZNqMLyhvYkRh6Dg=;
+        b=U5wwcc01n56/WMcID8mlSqCHdRYXvlMU0BnIcGzbNLWScZAFtQrxqVsYkF6u75+b8R
+         oHoSdOu6eg1JJVjPSBTYJU/BzlyV5NexFEYX+iMbyAoyRRNFeqBH5Bi4edWOmdmucMtN
+         68Ig+F1bPClhb8t/5UWST7RlS/9T10HG8dPGs7cLQCr7faHzbsx/EDfWJMd5oqvIcJHh
+         wBKQB5hU2Zu1aDQ4r1aD3xrujbHAdDrRwNcvq2ya5Okdg/kJigzw2xx9j4QqO4kaRX0B
+         YmCHk1sDNfGkkipfqPlETC6Pro9uDsJpHzzFXELSUS0ikWxu3aIIWHUFb68/WdII6wp5
+         Y04g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=gOuGCRXwXiKyEi+q6f/kQQx9V+X4ZNqMLyhvYkRh6Dg=;
+        b=dV6ywInQEgPrIMWEulsnchuYaId9JNZCidrFXwD6calHKaPmF4RLAkbUcQETA+4uYL
+         K7DMDx97HN+VhGR38h57OvGM83meTdJt9j/FFM+4nokq0ClTk/ikDlstUEYlLCIKTFXL
+         ohXHJT/bE6a8GIM8zbYe/XUTunEjsf3LPSye0snPHlPFyb2xL8yBy66hGBppSTCTJhOZ
+         yzSwqx+wvG1AtysSstJMn3vn5sdXUPhrbDvP/3BGIrPKUj94LKoFWESW+EWBDoZgygky
+         qQnzF56li5nMwhDdhkpXx0ZIKjI2XJmMQHJO4UAA9BK8R0Ngx09+lUdCowupPASzorf8
+         wV+Q==
+X-Gm-Message-State: AJIora/YQP3ZmFhzdHwnFNlRih65cHLO96/ovO/xW3pdFZM4N3mJfs1s
+        3m+D0Ws9EPeQaSkAGJliX2HwDeJ4+eA=
+X-Google-Smtp-Source: AGRyM1sqZciOWjaiqOg8mSRtp60vBzpnGxY8KjIXuMkQA6I4VvZHJnQIzCvWvf6wdGWSgdFJ0QX02w==
+X-Received: by 2002:a17:903:11c6:b0:167:90e5:59ac with SMTP id q6-20020a17090311c600b0016790e559acmr25790396plh.143.1657654202526;
+        Tue, 12 Jul 2022 12:30:02 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id bf19-20020a656d13000000b004168945bdf4sm2605870pgb.66.2022.07.12.12.30.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Jul 2022 12:30:02 -0700 (PDT)
+Message-ID: <b3c1d411-34c5-197c-5643-6fe4c4ee3723@gmail.com>
+Date:   Tue, 12 Jul 2022 12:30:00 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a9efcbf3-3b34-53b7-0fa8-55a5ed3a17b4@netscape.net>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH stable 4.14 v3] net: dsa: bcm_sf2: force pause link
+ settings
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        olteanv@gmail.com, andrew@lunn.ch
+References: <20220708001405.1743251-1-f.fainelli@gmail.com>
+ <20220708001405.1743251-2-f.fainelli@gmail.com> <Ys3JIVVpKvEts/Am@kroah.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <Ys3JIVVpKvEts/Am@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 12, 2022 at 03:16:01PM -0400, Chuck Zmudzinski wrote:
-> On 7/12/22 2:36 PM, Greg KH wrote:
-> > On Tue, Jul 12, 2022 at 02:20:37PM -0400, Chuck Zmudzinski wrote:
-> > > The commit 99c13b8c8896d7bcb92753bf
-> > > ("x86/mm/pat: Don't report PAT on CPUs that don't support it")
-> > > incorrectly failed to account for the case in init_cache_modes() when
-> > > CPUs do support PAT and falsely reported PAT to be disabled when in
-> > > fact PAT is enabled. In some environments, notably in Xen PV domains,
-> > > MTRR is disabled but PAT is still enabled, and that is the case
-> > > that the aforementioned commit failed to account for.
-> > > 
-> > > As an unfortunate consequnce, the pat_enabled() function currently does
-> > > not correctly report that PAT is enabled in such environments. The fix
-> > > is implemented in init_cache_modes() by setting pat_bp_enabled to true
-> > > in init_cache_modes() for the case that commit 99c13b8c8896d7bcb92753bf
-> > > ("x86/mm/pat: Don't report PAT on CPUs that don't support it") failed
-> > > to account for.
-> > > 
-> > > This patch fixes a regression that some users are experiencing with
-> > > Linux as a Xen Dom0 driving particular Intel graphics devices by
-> > > correctly reporting to the Intel i915 driver that PAT is enabled where
-> > > previously it was falsely reporting that PAT is disabled.
-> > > 
-> > > Fixes: 99c13b8c8896d7bcb92753bf ("x86/mm/pat: Don't report PAT on CPUs that don't support it")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Chuck Zmudzinski <brchuckz@aol.com>
-> > > ---
-> > > Reminder: This patch is a regression fix that is needed on stable
-> > > versions 5.17 and later.
-> >
-> > Then why are you saying it fixes a commit that is in 4.4.y and newer?
-> >
-> > confused,
-> >
-> > greg k-h
+On 7/12/22 12:18, Greg Kroah-Hartman wrote:
+> On Thu, Jul 07, 2022 at 05:14:05PM -0700, Florian Fainelli wrote:
+>> From: Doug Berger <opendmb@gmail.com>
+>>
+>> commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream
+>>
+>> The pause settings reported by the PHY should also be applied to the
+>> GMII port status override otherwise the switch will not generate pause
+>> frames towards the link partner despite the advertisement saying
+>> otherwise.
+>>
+>> Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
+>> Signed-off-by: Doug Berger <opendmb@gmail.com>
+>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+>> Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
+>> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+>> ---
+>> Changes in v3:
+>>
+>> - gate the flow control enabling to links that are auto-negotiated and
+>>    in full duplex
+>>
 > 
-> It is true the erroneous reporting of PAT goes back to 4.4.y. But it
-> was not until 5.17.y when the i915 driver was patched with a commit
-> that started using pat_enabled() instead of boot_cpu_has(X86_FEATURE_PAT)
-> and that is when a regression that started annoying users appeared
-> in the kernel. I presume that we only backport patches to stable that
-> fix regressions that are really bothering users, so even though the
-> problem dates to 4.4.y, there is no need to backport before 5.17.y
-> which is when the problem manifested in a way that started
-> bothering users.
+> Are these versions better / ok now?
 
-If it needs to go back to 4.9.y or so, let's take it all the way back to
-be consistent everywhere.
+Vladimir "soft" acked it when posting the v3 to v2 incremental diff here:
 
-thanks,
+https://lore.kernel.org/stable/20220707221537.atc4b2k7fifhvaej@skbuf/
 
-greg k-h
+so yes, these are good now. Thanks and sorry for the noise.
+-- 
+Florian
