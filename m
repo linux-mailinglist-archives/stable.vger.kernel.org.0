@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2CD657256D
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A3557251D
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235771AbiGLTNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:13:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39036 "EHLO
+        id S235574AbiGLTHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235752AbiGLTMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:12:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A963A1034EF;
-        Tue, 12 Jul 2022 11:53:25 -0700 (PDT)
+        with ESMTP id S235463AbiGLTHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:07:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671EDFB8DB;
+        Tue, 12 Jul 2022 11:51:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E74A5B81B96;
-        Tue, 12 Jul 2022 18:53:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5148DC3411C;
-        Tue, 12 Jul 2022 18:53:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAE2160765;
+        Tue, 12 Jul 2022 18:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2200C3411C;
+        Tue, 12 Jul 2022 18:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657652002;
-        bh=XYlx/CGlMFklOfXxJVZihlVrGPOesdPtbd4itWoo9GI=;
+        s=korg; t=1657651868;
+        bh=PT4PWfwK45B4JD1CgXfqnE/bMOx6we86NxZZ1+7hpvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yg1Vr9C+iUnDPwRVI6F/VqMmZkisW4Hw9qs/OPZBcZMlvo9tixLEV+J9IRDyEbo2l
-         x9bI1/Gkd7gVC8qpsBXSEa9CS2koXjuxzFK8TC/eRKiI3YNXFh5Rojhm91Yk4mJaLA
-         d562Q9ybRgF00l/tl9UBdtfujHNOSg5bRlR6S5qY=
+        b=BiIzvcvl//dIBLDQiDZvAE2eewJoRlTapuiF1d1KR3gGqFC+F2CoMNxIBjXi+5HCC
+         Xk9YkEwU7FYqrDuMwvpKF2P5xxVejDZ4ZUvaWsXRH68O9vvjqbstJt70GnQX/6a9S+
+         mEoVX74pVss5exLzSbumA7UX4UodDOFEb9yzCTzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 50/61] KVM: VMX: Fix IBRS handling after vmexit
+Subject: [PATCH 5.15 77/78] x86/speculation: Disable RRSBA behavior
 Date:   Tue, 12 Jul 2022 20:39:47 +0200
-Message-Id: <20220712183238.926122450@linuxfoundation.org>
+Message-Id: <20220712183242.036588750@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit bea7e31a5caccb6fe8ed989c065072354f0ecb52 upstream.
+commit 4ad3278df6fe2b0852b00d5757fc2ccd8e92c26e upstream.
 
-For legacy IBRS to work, the IBRS bit needs to be always re-written
-after vmexit, even if it's already on.
+Some Intel processors may use alternate predictors for RETs on
+RSB-underflow. This condition may be vulnerable to Branch History
+Injection (BHI) and intramode-BTI.
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Kernel earlier added spectre_v2 mitigation modes (eIBRS+Retpolines,
+eIBRS+LFENCE, Retpolines) which protect indirect CALLs and JMPs against
+such attacks. However, on RSB-underflow, RET target prediction may
+fallback to alternate predictors. As a result, RET's predicted target
+may get influenced by branch history.
+
+A new MSR_IA32_SPEC_CTRL bit (RRSBA_DIS_S) controls this fallback
+behavior when in kernel mode. When set, RETs will not take predictions
+from alternate predictors, hence mitigating RETs as well. Support for
+this is enumerated by CPUID.7.2.EDX[RRSBA_CTRL] (bit2).
+
+For spectre v2 mitigation, when a user selects a mitigation that
+protects indirect CALLs and JMPs against BHI and intramode-BTI, set
+RRSBA_DIS_S also to protect RETs for RSB-underflow case.
+
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: no X86_FEATURE_INTEL_PPIN]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/cpufeatures.h     |    2 +-
+ arch/x86/include/asm/msr-index.h       |    9 +++++++++
+ arch/x86/kernel/cpu/bugs.c             |   26 ++++++++++++++++++++++++++
+ arch/x86/kernel/cpu/scattered.c        |    1 +
+ tools/arch/x86/include/asm/msr-index.h |    9 +++++++++
+ 5 files changed, 46 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6845,8 +6845,13 @@ void noinstr vmx_spec_ctrl_restore_host(
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -295,7 +295,7 @@
+ #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
+ #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
+ #define X86_FEATURE_ENTRY_IBPB		(11*32+10) /* "" Issue an IBPB on kernel entry */
+-/* FREE!				(11*32+11) */
++#define X86_FEATURE_RRSBA_CTRL		(11*32+11) /* "" RET prediction control */
+ #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+ #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
+ #define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -51,6 +51,8 @@
+ #define SPEC_CTRL_STIBP			BIT(SPEC_CTRL_STIBP_SHIFT)	/* STIBP mask */
+ #define SPEC_CTRL_SSBD_SHIFT		2	   /* Speculative Store Bypass Disable bit */
+ #define SPEC_CTRL_SSBD			BIT(SPEC_CTRL_SSBD_SHIFT)	/* Speculative Store Bypass Disable */
++#define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
++#define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
  
- 	/*
- 	 * If the guest/host SPEC_CTRL values differ, restore the host value.
-+	 *
-+	 * For legacy IBRS, the IBRS bit always needs to be written after
-+	 * transitioning from a less privileged predictor mode, regardless of
-+	 * whether the guest/host values differ.
- 	 */
--	if (vmx->spec_ctrl != hostval)
-+	if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) ||
-+	    vmx->spec_ctrl != hostval)
- 		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+@@ -139,6 +141,13 @@
+ 						 * bit available to control VERW
+ 						 * behavior.
+ 						 */
++#define ARCH_CAP_RRSBA			BIT(19)	/*
++						 * Indicates RET may use predictors
++						 * other than the RSB. With eIBRS
++						 * enabled predictions in kernel mode
++						 * are restricted to targets in
++						 * kernel.
++						 */
  
- 	barrier_nospec();
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1311,6 +1311,22 @@ static enum spectre_v2_mitigation __init
+ 	return SPECTRE_V2_RETPOLINE;
+ }
+ 
++/* Disable in-kernel use of non-RSB RET predictors */
++static void __init spec_ctrl_disable_kernel_rrsba(void)
++{
++	u64 ia32_cap;
++
++	if (!boot_cpu_has(X86_FEATURE_RRSBA_CTRL))
++		return;
++
++	ia32_cap = x86_read_arch_cap_msr();
++
++	if (ia32_cap & ARCH_CAP_RRSBA) {
++		x86_spec_ctrl_base |= SPEC_CTRL_RRSBA_DIS_S;
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++	}
++}
++
+ static void __init spectre_v2_select_mitigation(void)
+ {
+ 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
+@@ -1405,6 +1421,16 @@ static void __init spectre_v2_select_mit
+ 		break;
+ 	}
+ 
++	/*
++	 * Disable alternate RSB predictions in kernel when indirect CALLs and
++	 * JMPs gets protection against BHI and Intramode-BTI, but RET
++	 * prediction from a non-RSB predictor is still a risk.
++	 */
++	if (mode == SPECTRE_V2_EIBRS_LFENCE ||
++	    mode == SPECTRE_V2_EIBRS_RETPOLINE ||
++	    mode == SPECTRE_V2_RETPOLINE)
++		spec_ctrl_disable_kernel_rrsba();
++
+ 	spectre_v2_enabled = mode;
+ 	pr_info("%s\n", spectre_v2_strings[mode]);
+ 
+--- a/arch/x86/kernel/cpu/scattered.c
++++ b/arch/x86/kernel/cpu/scattered.c
+@@ -26,6 +26,7 @@ struct cpuid_bit {
+ static const struct cpuid_bit cpuid_bits[] = {
+ 	{ X86_FEATURE_APERFMPERF,       CPUID_ECX,  0, 0x00000006, 0 },
+ 	{ X86_FEATURE_EPB,		CPUID_ECX,  3, 0x00000006, 0 },
++	{ X86_FEATURE_RRSBA_CTRL,	CPUID_EDX,  2, 0x00000007, 2 },
+ 	{ X86_FEATURE_CQM_LLC,		CPUID_EDX,  1, 0x0000000f, 0 },
+ 	{ X86_FEATURE_CQM_OCCUP_LLC,	CPUID_EDX,  0, 0x0000000f, 1 },
+ 	{ X86_FEATURE_CQM_MBM_TOTAL,	CPUID_EDX,  1, 0x0000000f, 1 },
+--- a/tools/arch/x86/include/asm/msr-index.h
++++ b/tools/arch/x86/include/asm/msr-index.h
+@@ -51,6 +51,8 @@
+ #define SPEC_CTRL_STIBP			BIT(SPEC_CTRL_STIBP_SHIFT)	/* STIBP mask */
+ #define SPEC_CTRL_SSBD_SHIFT		2	   /* Speculative Store Bypass Disable bit */
+ #define SPEC_CTRL_SSBD			BIT(SPEC_CTRL_SSBD_SHIFT)	/* Speculative Store Bypass Disable */
++#define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
++#define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+ 
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+@@ -138,6 +140,13 @@
+ 						 * bit available to control VERW
+ 						 * behavior.
+ 						 */
++#define ARCH_CAP_RRSBA			BIT(19)	/*
++						 * Indicates RET may use predictors
++						 * other than the RSB. With eIBRS
++						 * enabled predictions in kernel mode
++						 * are restricted to targets in
++						 * kernel.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
 
 
