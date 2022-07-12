@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C3757243B
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84878572503
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234627AbiGLSzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
+        id S235662AbiGLTKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:10:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234896AbiGLSzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:55:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9764EA163;
-        Tue, 12 Jul 2022 11:46:16 -0700 (PDT)
+        with ESMTP id S235804AbiGLTJg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:09:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53C3FE535;
+        Tue, 12 Jul 2022 11:52:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 691BEB81BAB;
-        Tue, 12 Jul 2022 18:46:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996D8C3411C;
-        Tue, 12 Jul 2022 18:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A7ADB81BAB;
+        Tue, 12 Jul 2022 18:52:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8767C3411E;
+        Tue, 12 Jul 2022 18:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651574;
-        bh=N3qLSRnfhNQQ+z7m0DDtKuNmKRtrSS1K8O0XNISvmOc=;
+        s=korg; t=1657651938;
+        bh=VAnIXSRsOfe2239lyb31FghfiOJmX7EvGpAqs0uN16g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhhW/ZIJh1QMNV356JFt4U1HyvaDiEyW+RWQ6p9YXDLojV91eOV3SeB3g6DvKlZ3E
-         v+Y7oT6HxfD4WXtTv+4UVjul6UhyuR7OTLjMVC831l0VdUvra+BPNAm5uyY3AgJ2Fn
-         2ZKfliY9xSOJc7FL71w0i909MnU/goLMp8JFWH+U=
+        b=S/Nr1dUf3++8KEa56VGxnuUAsKyE3DDWs0uow9vTveqtR6ZvC0jujAxgu/xcgKD6z
+         EFrFodikpaPXSctWaH1qupc1XF3rWvjKZzv8lxHlIWMCe+1t4YL+AeTk4oLVCO7Kcz
+         rHTrVpKm7rAvshUbuuojFcyPS/t5pKo9og29zaXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@kernel.org>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 119/130] KVM: VMX: Convert launched argument to flags
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.18 28/61] x86/entry: Add kernel IBRS implementation
 Date:   Tue, 12 Jul 2022 20:39:25 +0200
-Message-Id: <20220712183251.962291661@linuxfoundation.org>
+Message-Id: <20220712183238.095989453@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,171 +56,352 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit bb06650634d3552c0f8557e9d16aa1a408040e28 upstream.
+commit 2dbb887e875b1de3ca8f40ddf26bcfe55798c609 upstream.
 
-Convert __vmx_vcpu_run()'s 'launched' argument to 'flags', in
-preparation for doing SPEC_CTRL handling immediately after vmexit, which
-will need another flag.
+Implement Kernel IBRS - currently the only known option to mitigate RSB
+underflow speculation issues on Skylake hardware.
 
-This is much easier than adding a fourth argument, because this code
-supports both 32-bit and 64-bit, and the fourth argument on 32-bit would
-have to be pushed on the stack.
+Note: since IBRS_ENTER requires fuller context established than
+UNTRAIN_RET, it must be placed after it. However, since UNTRAIN_RET
+itself implies a RET, it must come after IBRS_ENTER. This means
+IBRS_ENTER needs to also move UNTRAIN_RET.
 
-Note that __vmx_vcpu_run_flags() is called outside of the noinstr
-critical section because it will soon start calling potentially
-traceable functions.
+Note 2: KERNEL_IBRS is sub-optimal for XenPV.
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: conflict at arch/x86/entry/entry_64_compat.S]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c    |    2 +-
- arch/x86/kvm/vmx/run_flags.h |    7 +++++++
- arch/x86/kvm/vmx/vmenter.S   |    9 +++++----
- arch/x86/kvm/vmx/vmx.c       |   17 ++++++++++++++---
- arch/x86/kvm/vmx/vmx.h       |    5 ++++-
- 5 files changed, 31 insertions(+), 9 deletions(-)
- create mode 100644 arch/x86/kvm/vmx/run_flags.h
+ arch/x86/entry/calling.h           |   58 +++++++++++++++++++++++++++++++++++++
+ arch/x86/entry/entry_64.S          |   44 ++++++++++++++++++++++++----
+ arch/x86/entry/entry_64_compat.S   |   17 ++++++++--
+ arch/x86/include/asm/cpufeatures.h |    2 -
+ 4 files changed, 111 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3077,7 +3077,7 @@ static int nested_vmx_check_vmentry_hw(s
- 	}
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -7,6 +7,8 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/processor-flags.h>
+ #include <asm/ptrace-abi.h>
++#include <asm/msr.h>
++#include <asm/nospec-branch.h>
  
- 	vm_fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
--				 vmx->loaded_vmcs->launched);
-+				 __vmx_vcpu_run_flags(vmx));
+ /*
  
- 	if (vmx->msr_autoload.host.nr)
- 		vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, vmx->msr_autoload.host.nr);
---- /dev/null
-+++ b/arch/x86/kvm/vmx/run_flags.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __KVM_X86_VMX_RUN_FLAGS_H
-+#define __KVM_X86_VMX_RUN_FLAGS_H
+@@ -282,6 +284,62 @@ For 32-bit we have the following convent
+ #endif
+ 
+ /*
++ * IBRS kernel mitigation for Spectre_v2.
++ *
++ * Assumes full context is established (PUSH_REGS, CR3 and GS) and it clobbers
++ * the regs it uses (AX, CX, DX). Must be called before the first RET
++ * instruction (NOTE! UNTRAIN_RET includes a RET instruction)
++ *
++ * The optional argument is used to save/restore the current value,
++ * which is used on the paranoid paths.
++ *
++ * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
++ */
++.macro IBRS_ENTER save_reg
++	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
++	movl	$MSR_IA32_SPEC_CTRL, %ecx
 +
-+#define VMX_RUN_VMRESUME	(1 << 0)
++.ifnb \save_reg
++	rdmsr
++	shl	$32, %rdx
++	or	%rdx, %rax
++	mov	%rax, \save_reg
++	test	$SPEC_CTRL_IBRS, %eax
++	jz	.Ldo_wrmsr_\@
++	lfence
++	jmp	.Lend_\@
++.Ldo_wrmsr_\@:
++.endif
 +
-+#endif /* __KVM_X86_VMX_RUN_FLAGS_H */
---- a/arch/x86/kvm/vmx/vmenter.S
-+++ b/arch/x86/kvm/vmx/vmenter.S
-@@ -5,6 +5,7 @@
- #include <asm/kvm_vcpu_regs.h>
- #include <asm/nospec-branch.h>
- #include <asm/segment.h>
-+#include "run_flags.h"
- 
- #define WORD_SIZE (BITS_PER_LONG / 8)
- 
-@@ -34,7 +35,7 @@
-  * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
-  * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
-  * @regs:	unsigned long * (to guest registers)
-- * @launched:	%true if the VMCS has been launched
-+ * @flags:	VMX_RUN_VMRESUME: use VMRESUME instead of VMLAUNCH
++	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
++	movl	%edx, %eax
++	shr	$32, %rdx
++	wrmsr
++.Lend_\@:
++.endm
++
++/*
++ * Similar to IBRS_ENTER, requires KERNEL GS,CR3 and clobbers (AX, CX, DX)
++ * regs. Must be called after the last RET.
++ */
++.macro IBRS_EXIT save_reg
++	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
++	movl	$MSR_IA32_SPEC_CTRL, %ecx
++
++.ifnb \save_reg
++	mov	\save_reg, %rdx
++.else
++	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
++	andl	$(~SPEC_CTRL_IBRS), %edx
++.endif
++
++	movl	%edx, %eax
++	shr	$32, %rdx
++	wrmsr
++.Lend_\@:
++.endm
++
++/*
+  * Mitigate Spectre v1 for conditional swapgs code paths.
   *
-  * Returns:
-  *	0 on VM-Exit, 1 on VM-Fail
-@@ -59,7 +60,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+  * FENCE_SWAPGS_USER_ENTRY is used in the user entry swapgs code path, to
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -96,7 +96,6 @@ SYM_CODE_START(entry_SYSCALL_64)
+ 
+ SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)
+ 	ANNOTATE_NOENDBR
+-	UNTRAIN_RET
+ 
+ 	/* Construct struct pt_regs on stack */
+ 	pushq	$__USER_DS				/* pt_regs->ss */
+@@ -113,6 +112,11 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
+ 	movq	%rsp, %rdi
+ 	/* Sign extend the lower 32bit as syscall numbers are treated as int */
+ 	movslq	%eax, %rsi
++
++	/* clobbers %rax, make sure it is after saving the syscall nr */
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	call	do_syscall_64		/* returns with IRQs disabled */
+ 
+ 	/*
+@@ -192,6 +196,7 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
+ 	 * perf profiles. Nothing jumps here.
  	 */
- 	push %_ASM_ARG2
- 
--	/* Copy @launched to BL, _ASM_ARG3 is volatile. */
-+	/* Copy @flags to BL, _ASM_ARG3 is volatile. */
- 	mov %_ASM_ARG3B, %bl
- 
- 	lea (%_ASM_SP), %_ASM_ARG2
-@@ -69,7 +70,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	mov (%_ASM_SP), %_ASM_AX
- 
- 	/* Check if vmlaunch or vmresume is needed */
--	testb %bl, %bl
-+	testb $VMX_RUN_VMRESUME, %bl
- 
- 	/* Load guest registers.  Don't clobber flags. */
- 	mov VCPU_RCX(%_ASM_AX), %_ASM_CX
-@@ -92,7 +93,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	mov VCPU_RAX(%_ASM_AX), %_ASM_AX
- 
- 	/* Check EFLAGS.ZF from 'testb' above */
--	je .Lvmlaunch
-+	jz .Lvmlaunch
+ syscall_return_via_sysret:
++	IBRS_EXIT
+ 	POP_REGS pop_rdi=0
  
  	/*
- 	 * After a successful VMRESUME/VMLAUNCH, control flow "magically"
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -936,6 +936,16 @@ static bool msr_write_intercepted(struct
- 	return true;
- }
+@@ -596,6 +601,7 @@ __irqentry_text_end:
  
-+unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
-+{
-+	unsigned int flags = 0;
-+
-+	if (vmx->loaded_vmcs->launched)
-+		flags |= VMX_RUN_VMRESUME;
-+
-+	return flags;
-+}
-+
- static void clear_atomic_switch_msr_special(struct vcpu_vmx *vmx,
- 		unsigned long entry, unsigned long exit)
- {
-@@ -6688,7 +6698,8 @@ static fastpath_t vmx_exit_handlers_fast
- }
- 
- static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
--					struct vcpu_vmx *vmx)
-+					struct vcpu_vmx *vmx,
-+					unsigned long flags)
- {
- 	/*
- 	 * VMENTER enables interrupts (host state), but the kernel state is
-@@ -6725,7 +6736,7 @@ static noinstr void vmx_vcpu_enter_exit(
- 		native_write_cr2(vcpu->arch.cr2);
- 
- 	vmx->fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
--				   vmx->loaded_vmcs->launched);
-+				   flags);
- 
- 	vcpu->arch.cr2 = native_read_cr2();
- 
-@@ -6824,7 +6835,7 @@ reenter_guest:
- 	x86_spec_ctrl_set_guest(vmx->spec_ctrl, 0);
- 
- 	/* The actual VMENTER/EXIT is in the .noinstr.text section. */
--	vmx_vcpu_enter_exit(vcpu, vmx);
-+	vmx_vcpu_enter_exit(vcpu, vmx, __vmx_vcpu_run_flags(vmx));
+ SYM_CODE_START_LOCAL(common_interrupt_return)
+ SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
++	IBRS_EXIT
+ #ifdef CONFIG_DEBUG_ENTRY
+ 	/* Assert that pt_regs indicates user mode. */
+ 	testb	$3, CS(%rsp)
+@@ -882,6 +888,9 @@ SYM_CODE_END(xen_failsafe_callback)
+  *              1 -> no SWAPGS on exit
+  *
+  *     Y        GSBASE value at entry, must be restored in paranoid_exit
++ *
++ * R14 - old CR3
++ * R15 - old SPEC_CTRL
+  */
+ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	UNWIND_HINT_FUNC
+@@ -905,7 +914,6 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	 * be retrieved from a kernel internal table.
+ 	 */
+ 	SAVE_AND_SWITCH_TO_KERNEL_CR3 scratch_reg=%rax save_reg=%r14
+-	UNTRAIN_RET
  
  	/*
- 	 * We do not use IBRS in the kernel. If this vCPU has used the
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -13,6 +13,7 @@
- #include "vmcs.h"
- #include "vmx_ops.h"
- #include "cpuid.h"
-+#include "run_flags.h"
+ 	 * Handling GSBASE depends on the availability of FSGSBASE.
+@@ -927,7 +935,7 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	 * is needed here.
+ 	 */
+ 	SAVE_AND_SET_GSBASE scratch_reg=%rax save_reg=%rbx
+-	RET
++	jmp .Lparanoid_gsbase_done
  
- extern const u32 vmx_msr_index[];
+ .Lparanoid_entry_checkgs:
+ 	/* EBX = 1 -> kernel GSBASE active, no restore required */
+@@ -946,8 +954,16 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	xorl	%ebx, %ebx
+ 	swapgs
+ .Lparanoid_kernel_gsbase:
+-
+ 	FENCE_SWAPGS_KERNEL_ENTRY
++.Lparanoid_gsbase_done:
++
++	/*
++	 * Once we have CR3 and %GS setup save and set SPEC_CTRL. Just like
++	 * CR3 above, keep the old value in a callee saved register.
++	 */
++	IBRS_ENTER save_reg=%r15
++	UNTRAIN_RET
++
+ 	RET
+ SYM_CODE_END(paranoid_entry)
  
-@@ -365,7 +366,9 @@ void vmx_set_virtual_apic_mode(struct kv
- struct vmx_uret_msr *vmx_find_uret_msr(struct vcpu_vmx *vmx, u32 msr);
- void pt_update_intercept_for_msr(struct kvm_vcpu *vcpu);
- void vmx_update_host_rsp(struct vcpu_vmx *vmx, unsigned long host_rsp);
--bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs, bool launched);
-+unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx);
-+bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs,
-+		    unsigned int flags);
- int vmx_find_loadstore_msr_slot(struct vmx_msrs *m, u32 msr);
- void vmx_ept_load_pdptrs(struct kvm_vcpu *vcpu);
+@@ -969,9 +985,19 @@ SYM_CODE_END(paranoid_entry)
+  *              1 -> no SWAPGS on exit
+  *
+  *     Y        User space GSBASE, must be restored unconditionally
++ *
++ * R14 - old CR3
++ * R15 - old SPEC_CTRL
+  */
+ SYM_CODE_START_LOCAL(paranoid_exit)
+ 	UNWIND_HINT_REGS
++
++	/*
++	 * Must restore IBRS state before both CR3 and %GS since we need access
++	 * to the per-CPU x86_spec_ctrl_shadow variable.
++	 */
++	IBRS_EXIT save_reg=%r15
++
+ 	/*
+ 	 * The order of operations is important. RESTORE_CR3 requires
+ 	 * kernel GSBASE.
+@@ -1016,10 +1042,12 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	/* We have user CR3.  Change to kernel CR3. */
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
++	IBRS_ENTER
+ 	UNTRAIN_RET
  
+ 	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
+ .Lerror_entry_from_usermode_after_swapgs:
++
+ 	/* Put us onto the real thread stack. */
+ 	call	sync_regs
+ 	RET
+@@ -1069,6 +1097,7 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	SWAPGS
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
++	IBRS_ENTER
+ 	UNTRAIN_RET
+ 
+ 	/*
+@@ -1165,7 +1194,6 @@ SYM_CODE_START(asm_exc_nmi)
+ 	movq	%rsp, %rdx
+ 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+ 	UNWIND_HINT_IRET_REGS base=%rdx offset=8
+-	UNTRAIN_RET
+ 	pushq	5*8(%rdx)	/* pt_regs->ss */
+ 	pushq	4*8(%rdx)	/* pt_regs->rsp */
+ 	pushq	3*8(%rdx)	/* pt_regs->flags */
+@@ -1176,6 +1204,9 @@ SYM_CODE_START(asm_exc_nmi)
+ 	PUSH_AND_CLEAR_REGS rdx=(%rdx)
+ 	ENCODE_FRAME_POINTER
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	/*
+ 	 * At this point we no longer need to worry about stack damage
+ 	 * due to nesting -- we're on the normal thread stack and we're
+@@ -1400,6 +1431,9 @@ end_repeat_nmi:
+ 	movq	$-1, %rsi
+ 	call	exc_nmi
+ 
++	/* Always restore stashed SPEC_CTRL value (see paranoid_entry) */
++	IBRS_EXIT save_reg=%r15
++
+ 	/* Always restore stashed CR3 value (see paranoid_entry) */
+ 	RESTORE_CR3 scratch_reg=%r15 save_reg=%r14
+ 
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -4,7 +4,6 @@
+  *
+  * Copyright 2000-2002 Andi Kleen, SuSE Labs.
+  */
+-#include "calling.h"
+ #include <asm/asm-offsets.h>
+ #include <asm/current.h>
+ #include <asm/errno.h>
+@@ -18,6 +17,8 @@
+ #include <linux/linkage.h>
+ #include <linux/err.h>
+ 
++#include "calling.h"
++
+ 	.section .entry.text, "ax"
+ 
+ /*
+@@ -73,7 +74,6 @@ SYM_CODE_START(entry_SYSENTER_compat)
+ 	pushq	$__USER32_CS		/* pt_regs->cs */
+ 	pushq	$0			/* pt_regs->ip = 0 (placeholder) */
+ SYM_INNER_LABEL(entry_SYSENTER_compat_after_hwframe, SYM_L_GLOBAL)
+-	UNTRAIN_RET
+ 
+ 	/*
+ 	 * User tracing code (ptrace or signal handlers) might assume that
+@@ -115,6 +115,9 @@ SYM_INNER_LABEL(entry_SYSENTER_compat_af
+ 
+ 	cld
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	/*
+ 	 * SYSENTER doesn't filter flags, so we need to clear NT and AC
+ 	 * ourselves.  To save a few cycles, we can check whether
+@@ -217,7 +220,6 @@ SYM_CODE_START(entry_SYSCALL_compat)
+ 
+ SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
+ 	ANNOTATE_NOENDBR
+-	UNTRAIN_RET
+ 
+ 	/* Construct struct pt_regs on stack */
+ 	pushq	$__USER32_DS		/* pt_regs->ss */
+@@ -259,6 +261,9 @@ SYM_INNER_LABEL(entry_SYSCALL_compat_aft
+ 
+ 	UNWIND_HINT_REGS
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	movq	%rsp, %rdi
+ 	call	do_fast_syscall_32
+ 	/* XEN PV guests always use IRET path */
+@@ -273,6 +278,8 @@ sysret32_from_system_call:
+ 	 */
+ 	STACKLEAK_ERASE
+ 
++	IBRS_EXIT
++
+ 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
+ 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
+ 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
+@@ -385,7 +392,6 @@ SYM_CODE_START(entry_INT80_compat)
+ 	pushq	(%rdi)			/* pt_regs->di */
+ .Lint80_keep_stack:
+ 
+-	UNTRAIN_RET
+ 	pushq	%rsi			/* pt_regs->si */
+ 	xorl	%esi, %esi		/* nospec   si */
+ 	pushq	%rdx			/* pt_regs->dx */
+@@ -418,6 +424,9 @@ SYM_CODE_START(entry_INT80_compat)
+ 
+ 	cld
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	movq	%rsp, %rdi
+ 	call	do_int80_syscall_32
+ 	jmp	swapgs_restore_regs_and_return_to_usermode
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -203,7 +203,7 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-/* FREE!				( 7*32+12) */
++#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
+ /* FREE!				( 7*32+13) */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
 
 
