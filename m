@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A41572431
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07235724EF
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234604AbiGLS5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:57:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40762 "EHLO
+        id S235658AbiGLTKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:10:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234785AbiGLS5K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39498DC88F;
-        Tue, 12 Jul 2022 11:47:02 -0700 (PDT)
+        with ESMTP id S235640AbiGLTIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:08:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E9BE52AC;
+        Tue, 12 Jul 2022 11:51:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F09A60C93;
-        Tue, 12 Jul 2022 18:47:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C8EC3411C;
-        Tue, 12 Jul 2022 18:47:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E048B81B96;
+        Tue, 12 Jul 2022 18:51:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42F9C3411C;
+        Tue, 12 Jul 2022 18:51:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651621;
-        bh=v6IcRe3m3zGjisnaOPEL/c8dPABEyZPbTJYzs5Yb47o=;
+        s=korg; t=1657651910;
+        bh=CxcPrhiPZWW9bNWcwJqaGaYLMQw5OK3YOv7N9gr+eoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXXrydcUeQfFvXVJ9glGwgaMKrLiYwIElIgbEZZLHEhi9OKEW3NJQoSzBCm51a6z/
-         D8b23tVzBbY8/OTh/m0Wdut+cfkHA2ZapRhYFUd3wvHl/ZNyQ6WixK28LaFCtpg6Gd
-         5g9zUS8Kn5XvWgm6caAt6yJkuFvLvtCmgAcmeI0E=
+        b=E6ZWqoLwRVRH4wA0MKF2EKttOr7JpBhtDxK1D8gtfyXl9n5MXpalwVQYaJvpHCKBb
+         96qT4zOt1EYdLl+tzOP3MeYOdp1/9D6TDWbHD769svA9dhamdiOaFiybJOLoSn5c6E
+         eQFreN1UtM/sOqUm5CcX4u0/Mko7/IgqzHGjPDNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 111/130] x86/cpu/amd: Add Spectral Chicken
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.18 20/61] x86: Use return-thunk in asm code
 Date:   Tue, 12 Jul 2022 20:39:17 +0200
-Message-Id: <20220712183251.585031032@linuxfoundation.org>
+Message-Id: <20220712183237.764050483@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,106 +58,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit d7caac991feeef1b871ee6988fd2c9725df09039 upstream.
+commit aa3d480315ba6c3025a60958e1981072ea37c3df upstream.
 
-Zen2 uarchs have an undocumented, unnamed, MSR that contains a chicken
-bit for some speculation behaviour. It needs setting.
+Use the return thunk in asm code. If the thunk isn't needed, it will
+get patched into a RET instruction during boot by apply_returns().
 
-Note: very belatedly AMD released naming; it's now officially called
-      MSR_AMD64_DE_CFG2 and MSR_AMD64_DE_CFG2_SUPPRESS_NOBR_PRED_BIT
-      but shall remain the SPECTRAL CHICKEN.
+Since alternatives can't handle relocations outside of the first
+instruction, putting a 'jmp __x86_return_thunk' in one is not valid,
+therefore carve out the memmove ERMS path into a separate label and jump
+to it.
 
-Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: no RANDSTRUCT_CFLAGS]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/msr-index.h |    3 +++
- arch/x86/kernel/cpu/amd.c        |   23 ++++++++++++++++++++++-
- arch/x86/kernel/cpu/cpu.h        |    2 ++
- arch/x86/kernel/cpu/hygon.c      |    6 ++++++
- 4 files changed, 33 insertions(+), 1 deletion(-)
+ arch/x86/entry/vdso/Makefile   |    1 +
+ arch/x86/include/asm/linkage.h |    8 ++++++++
+ arch/x86/lib/memmove_64.S      |    7 ++++++-
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -508,6 +508,9 @@
- /* Fam 17h MSRs */
- #define MSR_F17H_IRPERF			0xc00000e9
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -92,6 +92,7 @@ endif
+ endif
  
-+#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
-+#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
-+
- /* Fam 16h MSRs */
- #define MSR_F16H_L2I_PERF_CTL		0xc0010230
- #define MSR_F16H_L2I_PERF_CTR		0xc0010231
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -914,6 +914,26 @@ static void init_amd_bd(struct cpuinfo_x
- 	clear_rdrand_cpuid_bit(c);
- }
+ $(vobjs): KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_LTO) $(GCC_PLUGINS_CFLAGS) $(RETPOLINE_CFLAGS),$(KBUILD_CFLAGS)) $(CFL)
++$(vobjs): KBUILD_AFLAGS += -DBUILD_VDSO
  
-+void init_spectral_chicken(struct cpuinfo_x86 *c)
-+{
-+	u64 value;
-+
-+	/*
-+	 * On Zen2 we offer this chicken (bit) on the altar of Speculation.
-+	 *
-+	 * This suppresses speculation from the middle of a basic block, i.e. it
-+	 * suppresses non-branch predictions.
-+	 *
-+	 * We use STIBP as a heuristic to filter out Zen2 from the rest of F17H
-+	 */
-+	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && cpu_has(c, X86_FEATURE_AMD_STIBP)) {
-+		if (!rdmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, &value)) {
-+			value |= MSR_ZEN2_SPECTRAL_CHICKEN_BIT;
-+			wrmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, value);
-+		}
-+	}
-+}
-+
- static void init_amd_zn(struct cpuinfo_x86 *c)
- {
- 	set_cpu_cap(c, X86_FEATURE_ZEN);
-@@ -959,7 +979,8 @@ static void init_amd(struct cpuinfo_x86
- 	case 0x12: init_amd_ln(c); break;
- 	case 0x15: init_amd_bd(c); break;
- 	case 0x16: init_amd_jg(c); break;
--	case 0x17: fallthrough;
-+	case 0x17: init_spectral_chicken(c);
-+		   fallthrough;
- 	case 0x19: init_amd_zn(c); break;
- 	}
+ #
+ # vDSO code runs in userspace and -pg doesn't help with profiling anyway.
+--- a/arch/x86/include/asm/linkage.h
++++ b/arch/x86/include/asm/linkage.h
+@@ -19,19 +19,27 @@
+ #define __ALIGN_STR	__stringify(__ALIGN)
+ #endif
  
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -60,6 +60,8 @@ extern void tsx_disable(void);
- static inline void tsx_init(void) { }
- #endif /* CONFIG_CPU_SUP_INTEL */
++#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
++#define RET	jmp __x86_return_thunk
++#else /* CONFIG_RETPOLINE */
+ #ifdef CONFIG_SLS
+ #define RET	ret; int3
+ #else
+ #define RET	ret
+ #endif
++#endif /* CONFIG_RETPOLINE */
  
-+extern void init_spectral_chicken(struct cpuinfo_x86 *c);
-+
- extern void get_cpu_cap(struct cpuinfo_x86 *c);
- extern void get_cpu_address_sizes(struct cpuinfo_x86 *c);
- extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
---- a/arch/x86/kernel/cpu/hygon.c
-+++ b/arch/x86/kernel/cpu/hygon.c
-@@ -318,6 +318,12 @@ static void init_hygon(struct cpuinfo_x8
- 	/* get apicid instead of initial apic id from cpuid */
- 	c->apicid = hard_smp_processor_id();
+ #else /* __ASSEMBLY__ */
  
-+	/*
-+	 * XXX someone from Hygon needs to confirm this DTRT
-+	 *
-+	init_spectral_chicken(c);
-+	 */
++#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
++#define ASM_RET	"jmp __x86_return_thunk\n\t"
++#else /* CONFIG_RETPOLINE */
+ #ifdef CONFIG_SLS
+ #define ASM_RET	"ret; int3\n\t"
+ #else
+ #define ASM_RET	"ret\n\t"
+ #endif
++#endif /* CONFIG_RETPOLINE */
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -39,7 +39,7 @@ SYM_FUNC_START(__memmove)
+ 	/* FSRM implies ERMS => no length checks, do the copy directly */
+ .Lmemmove_begin_forward:
+ 	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
+-	ALTERNATIVE "", __stringify(movq %rdx, %rcx; rep movsb; RET), X86_FEATURE_ERMS
++	ALTERNATIVE "", "jmp .Lmemmove_erms", X86_FEATURE_ERMS
+ 
+ 	/*
+ 	 * movsq instruction have many startup latency
+@@ -205,6 +205,11 @@ SYM_FUNC_START(__memmove)
+ 	movb %r11b, (%rdi)
+ 13:
+ 	RET
 +
- 	set_cpu_cap(c, X86_FEATURE_ZEN);
- 	set_cpu_cap(c, X86_FEATURE_CPB);
++.Lmemmove_erms:
++	movq %rdx, %rcx
++	rep movsb
++	RET
+ SYM_FUNC_END(__memmove)
+ EXPORT_SYMBOL(__memmove)
  
 
 
