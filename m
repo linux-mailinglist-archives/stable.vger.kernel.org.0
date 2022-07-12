@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A58F572473
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39338572526
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235144AbiGLTCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:02:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40412 "EHLO
+        id S235758AbiGLTLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:11:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235152AbiGLTAz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:00:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436A8B1D7;
-        Tue, 12 Jul 2022 11:48:46 -0700 (PDT)
+        with ESMTP id S236008AbiGLTKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:10:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F97FFE0F;
+        Tue, 12 Jul 2022 11:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20502B81B95;
-        Tue, 12 Jul 2022 18:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D65C3411C;
-        Tue, 12 Jul 2022 18:48:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D324A61274;
+        Tue, 12 Jul 2022 18:52:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E03BFC3411C;
+        Tue, 12 Jul 2022 18:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651723;
-        bh=CFdEholKIcIh8FP/B1CNlCU+W/FG+YpGdXpUqd9CToc=;
+        s=korg; t=1657651962;
+        bh=H1oq4uVfA8R9mjZ/zPPVepCseKRffdac0+kAYkJLC2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YfPQphafV4QeYM40WmTJjFFG+BFy7JRVDJrEibOQ4grijfEGftyzD1Phtt9xe/e+t
-         XhW3l+G7eGXT72mzSonehjRRtu8eCEVLNUYnEjp4zWe0JUqhAbAH0uewmI1LyNVHDU
-         EQVZZiAJGzlLjUKFkDQQncJ0NIpyIl3a4r2pS7v8=
+        b=fgSvlz2M72LsGJNkdMXaWI4ItTktsFuWBdIvgAq1pSTBJkvrGDDCSZ1ZS2MiGuwP9
+         WKMlG+TAcMWg/HiTqmIbEDTTdhG8Tu55kWGAj6J4Dfk9GrIRs7Ce5GE9+K8Mrhg1Qp
+         IycGPmYbhLNuh9R+TOh7cjFFdPA68ZbJ4lYOC4JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 36/78] x86/vsyscall_emu/64: Dont use RET in vsyscall emulation
+Subject: [PATCH 5.18 09/61] x86/retpoline: Swizzle retpoline thunk
 Date:   Tue, 12 Jul 2022 20:39:06 +0200
-Message-Id: <20220712183240.267699225@linuxfoundation.org>
+Message-Id: <20220712183237.319446654@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,45 +58,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 15583e514eb16744b80be85dea0774ece153177d upstream.
+commit 00e1533325fd1fb5459229fe37f235462649f668 upstream.
 
-This is userspace code and doesn't play by the normal kernel rules.
+Put the actual retpoline thunk as the original code so that it can
+become more complicated. Specifically, it allows RET to be a JMP,
+which can't be .altinstr_replacement since that doesn't do relocations
+(except for the very first instruction).
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/vsyscall/vsyscall_emu_64.S |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/lib/retpoline.S |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-+++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-@@ -19,17 +19,20 @@ __vsyscall_page:
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -33,9 +33,9 @@ SYM_INNER_LABEL(__x86_indirect_thunk_\re
+ 	UNWIND_HINT_EMPTY
+ 	ANNOTATE_NOENDBR
  
- 	mov $__NR_gettimeofday, %rax
- 	syscall
--	RET
-+	ret
-+	int3
+-	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+-		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE
++	ALTERNATIVE_2 __stringify(RETPOLINE \reg), \
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE, \
++		      __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), ALT_NOT(X86_FEATURE_RETPOLINE)
  
- 	.balign 1024, 0xcc
- 	mov $__NR_time, %rax
- 	syscall
--	RET
-+	ret
-+	int3
- 
- 	.balign 1024, 0xcc
- 	mov $__NR_getcpu, %rax
- 	syscall
--	RET
-+	ret
-+	int3
- 
- 	.balign 4096, 0xcc
+ .endm
  
 
 
