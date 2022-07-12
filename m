@@ -2,133 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06B66571EE6
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 17:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BAD571EEE
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 17:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233084AbiGLPWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 11:22:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56950 "EHLO
+        id S233715AbiGLPXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 11:23:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229776AbiGLPVc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 11:21:32 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3930F2D1F8
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 08:19:42 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id y8so10545804eda.3
-        for <stable@vger.kernel.org>; Tue, 12 Jul 2022 08:19:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=C9VaI0vSPKUD5SvoWT4Rlvx+rE2rxs+iV6uR37UPyfs=;
-        b=G3vieiWvH01IfSAf2DTS/mYiBZuPsMSXH7MlkDlEiQJuNUD33eBA3lU8zpnVu/iyH/
-         RHiix9oiqYDTVSpyT22raDMYkUU/DRkiGnsb8fEpAEIplFYXwhm2OHP/CS+BMZUcuCSw
-         Ge0P879iGSJblKX5fMWux/At6UBxetyip/f76gVA4umBJoEg5o3MaGSmisAgthdbAAj/
-         oSJDsiGpH55MSkIx+jtI32KQ2oZvVhVBhSrNwN2FcnXMNmMffRE2Am2tFHvhgKIndMkZ
-         VWJTQbd/rYP+6fhhnSAXPU5FyK6exyBPg965IrU8YdFOGTtGgN1yRBvl8HN0EWmQRJ8e
-         5ciQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=C9VaI0vSPKUD5SvoWT4Rlvx+rE2rxs+iV6uR37UPyfs=;
-        b=03L0fAFAmw1vLloipXB0oIX7xRitAIklpfxqSrxSVhd3bECoVmNaH0mlG/sGib6p09
-         01uBMCH9VuouDLjBe42fwygazvKtYzXQNtgqateOXhQa7oA6kyWLYzQbMuSCwqpZLynT
-         U5I+MEQ2XJuRS1Sxqjor04adNISRwxP7LY/+tYjfIwV8bPhWM0LGLRLUtZRhsVbOy5VM
-         2naGaBNr9BTHrFyLDdiMAk5lf3FFfl9FhcsC6V3O16yIFVVwHi76/dewevbNac9HiAz+
-         ggm63xdzkZorX0H6sR79V/PtVWARJ2etqRNio3Arb6THWSsw9nL10hI3f1Yef86RgKqm
-         Vlfg==
-X-Gm-Message-State: AJIora+8jGXZFfZwO7RSaa/vr6SSqSq9u19YzoEOH2+zs8ZFEf4hZhoa
-        DyHxtoHpUNX3Absu9lpdCvSqDHLr704aAo8iSGY=
-X-Google-Smtp-Source: AGRyM1uCLAdGLDWrBHKTlPgbK7mM1MRwJiXD6iCchvPA7KNWfKzYUHhfzOXF0CTlFfMxm2hRzW2LnzwAOQ6+2f03tv0=
-X-Received: by 2002:a05:6402:28c3:b0:43a:6d78:1b64 with SMTP id
- ef3-20020a05640228c300b0043a6d781b64mr31964242edb.93.1657639180802; Tue, 12
- Jul 2022 08:19:40 -0700 (PDT)
+        with ESMTP id S233161AbiGLPWy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 11:22:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA45C6348;
+        Tue, 12 Jul 2022 08:21:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04ECDB819D6;
+        Tue, 12 Jul 2022 15:21:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A30F9C341C0;
+        Tue, 12 Jul 2022 15:21:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1657639297;
+        bh=7JnyFsglCKgFnoItNxfBpbbgyPgOiVtVYUylqa7lLqM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Z/YEuO5SX4PTs+sp5WIGVxTNqqJe51Do5DJXh+ohvG2WiWAktSFBoswQhVqDPLx5m
+         V2U/TfN8+RgCMMwtaMru8vyYTvnzcw/Uwpt3M+PmYXoP5HNqdsD5tjxN/r7qKVoQB7
+         Kz6TGyiamqPCffVy8RquBNZ2RIXlVUKYZVvw6v7WR7EdXH4wjRUYgQtqL2FXBRs57C
+         xdXKd8/W6l5EfiWr0CDuB1EjfJcI+ghh7t98DIO9l9aDOSNJmz3t86viR16COE5OMl
+         2ngLhPyvj2Dj8wieO1Piu25szmtVjPjiLk7ckZiVaM2zW88yidvIgj2aadchVrYziz
+         32plUU+1lJCSg==
+Received: from mchehab by mail.kernel.org with local (Exim 4.95)
+        (envelope-from <mchehab@kernel.org>)
+        id 1oBHhe-004k23-Ao;
+        Tue, 12 Jul 2022 16:21:34 +0100
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Andi Shyti <andi.shyti@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH v5 1/2] drm/i915/gt: Serialize GRDOM access between multiple engine resets
+Date:   Tue, 12 Jul 2022 16:21:32 +0100
+Message-Id: <e0a2d894e77aed7c2e36b0d1abdc7dbac3011729.1657639152.git.mchehab@kernel.org>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <cover.1657639152.git.mchehab@kernel.org>
+References: <cover.1657639152.git.mchehab@kernel.org>
 MIME-Version: 1.0
-References: <20220711173928.3858-1-mario.kleiner.de@gmail.com>
-In-Reply-To: <20220711173928.3858-1-mario.kleiner.de@gmail.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Tue, 12 Jul 2022 11:19:29 -0400
-Message-ID: <CADnq5_Mm+Bjra+nqmmeMpX5zJ9fQUgQOJuBaqZYpjsCGtbXQUg@mail.gmail.com>
-Subject: Re: [PATCH] drm/amd/display: Only use depth 36 bpp linebuffers on DCN
- display engines.
-To:     Mario Kleiner <mario.kleiner.de@gmail.com>
-Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "for 3.8" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Applied.  Thanks!
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-Alex
+Don't allow two engines to be reset in parallel, as they would both
+try to select a reset bit (and send requests to common registers)
+and wait on that register, at the same time. Serialize control of
+the reset requests/acks using the uncore->lock, which will also ensure
+that no other GT state changes at the same time as the actual reset.
 
-On Mon, Jul 11, 2022 at 1:39 PM Mario Kleiner
-<mario.kleiner.de@gmail.com> wrote:
->
-> Various DCE versions had trouble with 36 bpp lb depth, requiring fixes,
-> last time in commit 353ca0fa5630 ("drm/amd/display: Fix 10bit 4K display
-> on CIK GPUs") for DCE-8. So far >= DCE-11.2 was considered ok, but now I
-> found out that on DCE-11.2 it causes dithering when there shouldn't be
-> any, so identity pixel passthrough with identity gamma LUTs doesn't work
-> when it should. This breaks various important neuroscience applications,
-> as reported to me by scientific users of Polaris cards under Ubuntu 22.04
-> with Linux 5.15, and confirmed by testing it myself on DCE-11.2.
->
-> Lets only use depth 36 for DCN engines, where my testing showed that it
-> is both necessary for high color precision output, e.g., RGBA16 fb's,
-> and not harmful, as far as more than one year in real-world use showed.
->
-> DCE engines seem to work fine for high precision output at 30 bpp, so
-> this ("famous last words") depth 30 should hopefully fix all known problems
-> without introducing new ones.
->
-> Successfully retested on DCE-11.2 Polaris and DCN-1.0 Raven Ridge on
-> top of Linux 5.19.0-rc2 + drm-next.
->
-> Fixes: 353ca0fa5630 ("drm/amd/display: Fix 10bit 4K display on CIK GPUs")
-> Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-> Tested-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-> Cc: stable@vger.kernel.org # 5.14.0
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Harry Wentland <harry.wentland@amd.com>
-> ---
->  drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-> index 6774dd8bb53e..3fe3fbac1e63 100644
-> --- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-> +++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-> @@ -1117,12 +1117,13 @@ bool resource_build_scaling_params(struct pipe_ctx *pipe_ctx)
->          * on certain displays, such as the Sharp 4k. 36bpp is needed
->          * to support SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616 and
->          * SURFACE_PIXEL_FORMAT_GRPH_ABGR16161616 with actual > 10 bpc
-> -        * precision on at least DCN display engines. However, at least
-> -        * Carrizo with DCE_VERSION_11_0 does not like 36 bpp lb depth,
-> -        * so use only 30 bpp on DCE_VERSION_11_0. Testing with DCE 11.2 and 8.3
-> -        * did not show such problems, so this seems to be the exception.
-> +        * precision on DCN display engines, but apparently not for DCE, as
-> +        * far as testing on DCE-11.2 and DCE-8 showed. Various DCE parts have
-> +        * problems: Carrizo with DCE_VERSION_11_0 does not like 36 bpp lb depth,
-> +        * neither do DCE-8 at 4k resolution, or DCE-11.2 (broken identify pixel
-> +        * passthrough). Therefore only use 36 bpp on DCN where it is actually needed.
->          */
-> -       if (plane_state->ctx->dce_version > DCE_VERSION_11_0)
-> +       if (plane_state->ctx->dce_version > DCE_VERSION_MAX)
->                 pipe_ctx->plane_res.scl_data.lb_params.depth = LB_PIXEL_DEPTH_36BPP;
->         else
->                 pipe_ctx->plane_res.scl_data.lb_params.depth = LB_PIXEL_DEPTH_30BPP;
-> --
-> 2.34.1
->
+Cc: stable@vger.kernel.org # v4.4 and upper
+Reported-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Acked-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+---
+
+See [PATCH v5 0/2] at: https://lore.kernel.org/all/cover.1657639152.git.mchehab@kernel.org/
+
+ drivers/gpu/drm/i915/gt/intel_reset.c | 37 ++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
+index a5338c3fde7a..c68d36fb5bbd 100644
+--- a/drivers/gpu/drm/i915/gt/intel_reset.c
++++ b/drivers/gpu/drm/i915/gt/intel_reset.c
+@@ -300,9 +300,9 @@ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
+ 	return err;
+ }
+ 
+-static int gen6_reset_engines(struct intel_gt *gt,
+-			      intel_engine_mask_t engine_mask,
+-			      unsigned int retry)
++static int __gen6_reset_engines(struct intel_gt *gt,
++				intel_engine_mask_t engine_mask,
++				unsigned int retry)
+ {
+ 	struct intel_engine_cs *engine;
+ 	u32 hw_mask;
+@@ -321,6 +321,20 @@ static int gen6_reset_engines(struct intel_gt *gt,
+ 	return gen6_hw_domain_reset(gt, hw_mask);
+ }
+ 
++static int gen6_reset_engines(struct intel_gt *gt,
++			      intel_engine_mask_t engine_mask,
++			      unsigned int retry)
++{
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&gt->uncore->lock, flags);
++	ret = __gen6_reset_engines(gt, engine_mask, retry);
++	spin_unlock_irqrestore(&gt->uncore->lock, flags);
++
++	return ret;
++}
++
+ static struct intel_engine_cs *find_sfc_paired_vecs_engine(struct intel_engine_cs *engine)
+ {
+ 	int vecs_id;
+@@ -487,9 +501,9 @@ static void gen11_unlock_sfc(struct intel_engine_cs *engine)
+ 	rmw_clear_fw(uncore, sfc_lock.lock_reg, sfc_lock.lock_bit);
+ }
+ 
+-static int gen11_reset_engines(struct intel_gt *gt,
+-			       intel_engine_mask_t engine_mask,
+-			       unsigned int retry)
++static int __gen11_reset_engines(struct intel_gt *gt,
++				 intel_engine_mask_t engine_mask,
++				 unsigned int retry)
+ {
+ 	struct intel_engine_cs *engine;
+ 	intel_engine_mask_t tmp;
+@@ -583,8 +597,11 @@ static int gen8_reset_engines(struct intel_gt *gt,
+ 	struct intel_engine_cs *engine;
+ 	const bool reset_non_ready = retry >= 1;
+ 	intel_engine_mask_t tmp;
++	unsigned long flags;
+ 	int ret;
+ 
++	spin_lock_irqsave(&gt->uncore->lock, flags);
++
+ 	for_each_engine_masked(engine, gt, engine_mask, tmp) {
+ 		ret = gen8_engine_reset_prepare(engine);
+ 		if (ret && !reset_non_ready)
+@@ -612,17 +629,19 @@ static int gen8_reset_engines(struct intel_gt *gt,
+ 	 * This is best effort, so ignore any error from the initial reset.
+ 	 */
+ 	if (IS_DG2(gt->i915) && engine_mask == ALL_ENGINES)
+-		gen11_reset_engines(gt, gt->info.engine_mask, 0);
++		__gen11_reset_engines(gt, gt->info.engine_mask, 0);
+ 
+ 	if (GRAPHICS_VER(gt->i915) >= 11)
+-		ret = gen11_reset_engines(gt, engine_mask, retry);
++		ret = __gen11_reset_engines(gt, engine_mask, retry);
+ 	else
+-		ret = gen6_reset_engines(gt, engine_mask, retry);
++		ret = __gen6_reset_engines(gt, engine_mask, retry);
+ 
+ skip_reset:
+ 	for_each_engine_masked(engine, gt, engine_mask, tmp)
+ 		gen8_engine_reset_cancel(engine);
+ 
++	spin_unlock_irqrestore(&gt->uncore->lock, flags);
++
+ 	return ret;
+ }
+ 
+-- 
+2.36.1
+
