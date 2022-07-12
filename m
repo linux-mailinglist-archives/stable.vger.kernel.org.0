@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2A45724B7
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEADC5723D4
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235289AbiGLTCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:02:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42264 "EHLO
+        id S233994AbiGLSxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235100AbiGLTBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:01:42 -0400
+        with ESMTP id S234607AbiGLSwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:52:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38D7E33A03;
-        Tue, 12 Jul 2022 11:49:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F3DBE5870;
+        Tue, 12 Jul 2022 11:45:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B064EB81B96;
-        Tue, 12 Jul 2022 18:49:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0850EC3411C;
-        Tue, 12 Jul 2022 18:49:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74EF4B81BAB;
+        Tue, 12 Jul 2022 18:44:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA3A0C3411C;
+        Tue, 12 Jul 2022 18:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651742;
-        bh=Bl+a6mW2V4551cZLNN1uv+MJYnjHCcEJrdjJuiWwKEU=;
+        s=korg; t=1657651492;
+        bh=LqAXempH+uBg7nKHHZs2ygdeOzpx6l017Z5ZBhQO7y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cErk5VJLMK2PeCBDCk2Kg05ahCgcEaAGfl6oRlP6O6bjT+dM6z+IxifeNwJ0Gfg6X
-         CTSI6F+6pI3fGo5uCwbbIQv5P+VfulDVqukkLwX4XVyWsLvRjx5ngzeKdWp8OfK6m1
-         YiIdDyoVV46mrjyvatC7JthTnXs2DQPhPmPExCzw=
+        b=p/8z8T/E08W5LQeQI0Aut76rz35mcslhqQVF8d7eIeKLB6nALQnqh3E9y4Wj/UCpA
+         XtRVuHkP6Guww4XwyGNQDE07HBQ+anNDsDiBjMwgQLZAqe+NJnoGFbXZe1j7K69+2m
+         oP7Mfa0p90oYoVKV3caJ1sdpXfjV8+EJsUyspOhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 11/78] x86/asm: Fix register order
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 075/130] x86/entry: Remove skip_r11rcx
 Date:   Tue, 12 Jul 2022 20:38:41 +0200
-Message-Id: <20220712183239.306258445@linuxfoundation.org>
+Message-Id: <20220712183249.925893382@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
-References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
+References: <20220712183246.394947160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,56 +57,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit a92ede2d584a2e070def59c7e47e6b6f6341c55c upstream.
+commit 1b331eeea7b8676fc5dbdf80d0a07e41be226177 upstream.
 
-Ensure the register order is correct; this allows for easy translation
-between register number and trampoline and vice-versa.
+Yes, r11 and rcx have been restored previously, but since they're being
+popped anyway (into rsi) might as well pop them into their own regs --
+setting them to the value they already are.
+
+Less magical code.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120309.978573921@infradead.org
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220506121631.365070674@infradead.org
+[bwh: Backported to 5.10: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/GEN-for-each-reg.h |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/x86/entry/calling.h  |   10 +---------
+ arch/x86/entry/entry_64.S |    3 +--
+ 2 files changed, 2 insertions(+), 11 deletions(-)
 
---- a/arch/x86/include/asm/GEN-for-each-reg.h
-+++ b/arch/x86/include/asm/GEN-for-each-reg.h
-@@ -1,11 +1,16 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * These are in machine order; things rely on that.
-+ */
- #ifdef CONFIG_64BIT
- GEN(rax)
--GEN(rbx)
- GEN(rcx)
- GEN(rdx)
-+GEN(rbx)
-+GEN(rsp)
-+GEN(rbp)
- GEN(rsi)
- GEN(rdi)
--GEN(rbp)
- GEN(r8)
- GEN(r9)
- GEN(r10)
-@@ -16,10 +21,11 @@ GEN(r14)
- GEN(r15)
- #else
- GEN(eax)
--GEN(ebx)
- GEN(ecx)
- GEN(edx)
-+GEN(ebx)
-+GEN(esp)
-+GEN(ebp)
- GEN(esi)
- GEN(edi)
--GEN(ebp)
- #endif
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -146,27 +146,19 @@ For 32-bit we have the following convent
+ 
+ .endm
+ 
+-.macro POP_REGS pop_rdi=1 skip_r11rcx=0
++.macro POP_REGS pop_rdi=1
+ 	popq %r15
+ 	popq %r14
+ 	popq %r13
+ 	popq %r12
+ 	popq %rbp
+ 	popq %rbx
+-	.if \skip_r11rcx
+-	popq %rsi
+-	.else
+ 	popq %r11
+-	.endif
+ 	popq %r10
+ 	popq %r9
+ 	popq %r8
+ 	popq %rax
+-	.if \skip_r11rcx
+-	popq %rsi
+-	.else
+ 	popq %rcx
+-	.endif
+ 	popq %rdx
+ 	popq %rsi
+ 	.if \pop_rdi
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -191,8 +191,7 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
+ 	 * perf profiles. Nothing jumps here.
+ 	 */
+ syscall_return_via_sysret:
+-	/* rcx and r11 are already restored (see code above) */
+-	POP_REGS pop_rdi=0 skip_r11rcx=1
++	POP_REGS pop_rdi=0
+ 
+ 	/*
+ 	 * Now all regs are restored except RSP and RDI.
 
 
