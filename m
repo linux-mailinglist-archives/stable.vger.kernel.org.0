@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E06F5722ED
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 661985722F4
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbiGLSle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233903AbiGLSle (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Jul 2022 14:41:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33330 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233899AbiGLSlE (ORCPT
+        with ESMTP id S233904AbiGLSlE (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:41:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B92C08C1;
-        Tue, 12 Jul 2022 11:40:51 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A44ADD6CCF;
+        Tue, 12 Jul 2022 11:40:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA39BB81BB4;
-        Tue, 12 Jul 2022 18:40:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0785C3411C;
-        Tue, 12 Jul 2022 18:40:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 201F961AD1;
+        Tue, 12 Jul 2022 18:40:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7C7C341D3;
+        Tue, 12 Jul 2022 18:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651248;
-        bh=5boINS1JazQ7nJt1mdx/fzP/a/m8Nko02sPbWZvm4I4=;
+        s=korg; t=1657651251;
+        bh=aXeY+HDy7y5ZCMPBdTis/j+MlUbP49bXjsG5jcTgf60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCTFI5K2qKsSWbTPXr8IPJJSMsv03ax78J91vrLQa3yrtNfu24ucRFjq+qG8LV4SF
-         EeFCJz6ydWcGpLi9lHr1rB3vi7i1M7WaH4BlXWNS0d/ONArgzes94I1ouhmTAo+L9i
-         gAbuOlyUYPHAbvCXD7eMn6f+4n56ZYDrej+CAnNg=
+        b=EoYwEs7yUZNBztLTokrlQT3MOHwA9K5HsJO7G9eKqmUIwX6aRu9Ht5z4IDBilVWi2
+         uMTi6EnIgyAVc0Jr0KeJemfxYzw5ZoIXaCjm1Z4fh6iihhrK5flCvkLT9bNs8L078n
+         s7lZaNZtgCF1l+r6+PNisirKu6+N3nl7rBWdG/0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 019/130] x86/alternative: Use insn_decode()
-Date:   Tue, 12 Jul 2022 20:37:45 +0200
-Message-Id: <20220712183247.281867457@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.10 020/130] x86: Add insn_decode_kernel()
+Date:   Tue, 12 Jul 2022 20:37:46 +0200
+Message-Id: <20220712183247.336409002@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
 In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
 References: <20220712183246.394947160@linuxfoundation.org>
@@ -53,40 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit 63c66cde7bbcc79aac14b25861c5b2495eede57b upstream.
+This was done by commit 52fa82c21f64e900a72437269a5cc9e0034b424e
+upstream, but this backport avoids changing all callers of the
+old decoder API.
 
-No functional changes, just simplification.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210304174237.31945-10-bp@alien8.de
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/insn.h       |    2 ++
+ arch/x86/kernel/alternative.c     |    2 +-
+ tools/arch/x86/include/asm/insn.h |    2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
+--- a/arch/x86/include/asm/insn.h
++++ b/arch/x86/include/asm/insn.h
+@@ -105,6 +105,8 @@ enum insn_mode {
+ 
+ extern int insn_decode(struct insn *insn, const void *kaddr, int buf_len, enum insn_mode m);
+ 
++#define insn_decode_kernel(_insn, _ptr) insn_decode((_insn), (_ptr), MAX_INSN_SIZE, INSN_MODE_KERN)
++
+ /* Attribute will be determined after getting ModRM (for opcode groups) */
+ static inline void insn_get_attribute(struct insn *insn)
+ {
 --- a/arch/x86/kernel/alternative.c
 +++ b/arch/x86/kernel/alternative.c
-@@ -1284,15 +1284,15 @@ static void text_poke_loc_init(struct te
- 			       const void *opcode, size_t len, const void *emulate)
- {
- 	struct insn insn;
-+	int ret;
- 
- 	memcpy((void *)tp->text, opcode, len);
+@@ -1290,7 +1290,7 @@ static void text_poke_loc_init(struct te
  	if (!emulate)
  		emulate = opcode;
  
--	kernel_insn_init(&insn, emulate, MAX_INSN_SIZE);
--	insn_get_length(&insn);
-+	ret = insn_decode(&insn, emulate, MAX_INSN_SIZE, INSN_MODE_KERN);
+-	ret = insn_decode(&insn, emulate, MAX_INSN_SIZE, INSN_MODE_KERN);
++	ret = insn_decode_kernel(&insn, emulate);
  
--	BUG_ON(!insn_complete(&insn));
-+	BUG_ON(ret < 0);
+ 	BUG_ON(ret < 0);
  	BUG_ON(len != insn.length);
+--- a/tools/arch/x86/include/asm/insn.h
++++ b/tools/arch/x86/include/asm/insn.h
+@@ -105,6 +105,8 @@ enum insn_mode {
  
- 	tp->rel_addr = addr - (void *)_stext;
+ extern int insn_decode(struct insn *insn, const void *kaddr, int buf_len, enum insn_mode m);
+ 
++#define insn_decode_kernel(_insn, _ptr) insn_decode((_insn), (_ptr), MAX_INSN_SIZE, INSN_MODE_KERN)
++
+ /* Attribute will be determined after getting ModRM (for opcode groups) */
+ static inline void insn_get_attribute(struct insn *insn)
+ {
 
 
