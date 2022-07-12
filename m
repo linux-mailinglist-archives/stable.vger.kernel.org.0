@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9119D57242A
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7103D572524
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234752AbiGLS41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55664 "EHLO
+        id S235617AbiGLTKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:10:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234744AbiGLSz6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:55:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE812DB2F4;
-        Tue, 12 Jul 2022 11:46:32 -0700 (PDT)
+        with ESMTP id S235926AbiGLTJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:09:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBBAFFE0B;
+        Tue, 12 Jul 2022 11:52:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77D42B81BAB;
-        Tue, 12 Jul 2022 18:46:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9F96C3411C;
-        Tue, 12 Jul 2022 18:46:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE03061274;
+        Tue, 12 Jul 2022 18:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B55F2C341C0;
+        Tue, 12 Jul 2022 18:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651590;
-        bh=27eIWJulyqSRKoMB+Qg9COgotQ0OI5jj3NKghFqH9oY=;
+        s=korg; t=1657651953;
+        bh=seRPMTj96YlQMAcbki8HQXrzTJgGhYbVsCfNyj/pMR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/qjLTwCdaTYlw2q/3bCVBHYZFhiWEEfL0ytipwomuBgWnL8WtZNMhTcwbcBo33sS
-         o8o83bugskX0hgxmuuSl+q/jV6zdrn5b9bOfaTLpBUbuhyBwW0KR0S+WvS/fJ1RZ+R
-         avDy2AV96vGZijr8KIW5t1TNkjzshe3b+5S6zwXE=
+        b=fgvhJTPAyZ9r0HdvNDHcGHFnzBWv981vkL8WgYcnoDNfDR8qaie3I9KpOoR0GtEUd
+         D7l7aBPdiGFo/uJbfEeC+WBMxmPTgBHNxOyJQNLtbepPm1RYmWD32mopxglTOj65OK
+         rLlbowgYbcXVtDqsQJ0k77iw2CtqBRY/XvTcAjeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
+        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 124/130] x86/cpu/amd: Enumerate BTC_NO
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.18 33/61] intel_idle: Disable IBRS during long idle
 Date:   Tue, 12 Jul 2022 20:39:30 +0200
-Message-Id: <20220712183252.194478286@linuxfoundation.org>
+Message-Id: <20220712183238.294505642@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
+References: <20220712183236.931648980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +56,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Cooper <andrew.cooper3@citrix.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 26aae8ccbc1972233afd08fb3f368947c0314265 upstream.
+commit bf5835bcdb9635c97f85120dba9bfa21e111130f upstream.
 
-BTC_NO indicates that hardware is not susceptible to Branch Type Confusion.
+Having IBRS enabled while the SMT sibling is idle unnecessarily slows
+down the running sibling. OTOH, disabling IBRS around idle takes two
+MSR writes, which will increase the idle latency.
 
-Zen3 CPUs don't suffer BTC.
+Therefore, only disable IBRS around deeper idle states. Shallow idle
+states are bounded by the tick in duration, since NOHZ is not allowed
+for them by virtue of their short target residency.
 
-Hypervisors are expected to synthesise BTC_NO when it is appropriate
-given the migration pool, to prevent kernels using heuristics.
+Only do this for mwait-driven idle, since that keeps interrupts disabled
+across idle, which makes disabling IBRS vs IRQ-entry a non-issue.
 
-  [ bp: Massage. ]
+Note: C6 is a random threshold, most importantly C1 probably shouldn't
+disable IBRS, benchmarking needed.
 
-Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Suggested-by: Tim Chen <tim.c.chen@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: no X86_FEATURE_BRS]
-[cascardo: no X86_FEATURE_CPPC]
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    1 +
- arch/x86/kernel/cpu/amd.c          |   21 +++++++++++++++------
- arch/x86/kernel/cpu/common.c       |    6 ++++--
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    1 
+ arch/x86/kernel/cpu/bugs.c           |    6 ++++
+ drivers/idle/intel_idle.c            |   44 ++++++++++++++++++++++++++++++-----
+ 3 files changed, 45 insertions(+), 6 deletions(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -316,6 +316,7 @@
- #define X86_FEATURE_AMD_SSBD		(13*32+24) /* "" Speculative Store Bypass Disable */
- #define X86_FEATURE_VIRT_SSBD		(13*32+25) /* Virtualized Speculative Store Bypass Disable */
- #define X86_FEATURE_AMD_SSB_NO		(13*32+26) /* "" Speculative Store Bypass is fixed in hardware. */
-+#define X86_FEATURE_BTC_NO		(13*32+29) /* "" Not vulnerable to Branch Type Confusion */
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -255,6 +255,7 @@ static inline void indirect_branch_predi
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
+ extern void write_spec_ctrl_current(u64 val, bool force);
++extern u64 spec_ctrl_current(void);
  
- /* Thermal and Power Management Leaf, CPUID level 0x00000006 (EAX), word 14 */
- #define X86_FEATURE_DTHERM		(14*32+ 0) /* Digital Thermal Sensor */
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -942,12 +942,21 @@ static void init_amd_zn(struct cpuinfo_x
- 	node_reclaim_distance = 32;
- #endif
- 
--	/*
--	 * Fix erratum 1076: CPB feature bit not being set in CPUID.
--	 * Always set it, except when running under a hypervisor.
--	 */
--	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !cpu_has(c, X86_FEATURE_CPB))
--		set_cpu_cap(c, X86_FEATURE_CPB);
-+	/* Fix up CPUID bits, but only if not virtualised. */
-+	if (!cpu_has(c, X86_FEATURE_HYPERVISOR)) {
-+
-+		/* Erratum 1076: CPB feature bit not being set in CPUID. */
-+		if (!cpu_has(c, X86_FEATURE_CPB))
-+			set_cpu_cap(c, X86_FEATURE_CPB);
-+
-+		/*
-+		 * Zen3 (Fam19 model < 0x10) parts are not susceptible to
-+		 * Branch Type Confusion, but predate the allocation of the
-+		 * BTC_NO bit.
-+		 */
-+		if (c->x86 == 0x19 && !cpu_has(c, X86_FEATURE_BTC_NO))
-+			set_cpu_cap(c, X86_FEATURE_BTC_NO);
-+	}
+ /*
+  * With retpoline, we must use IBRS to restrict branch prediction
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -79,6 +79,12 @@ void write_spec_ctrl_current(u64 val, bo
+ 		wrmsrl(MSR_IA32_SPEC_CTRL, val);
  }
  
- static void init_amd(struct cpuinfo_x86 *c)
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1246,8 +1246,10 @@ static void __init cpu_set_bug_bits(stru
- 	    !arch_cap_mmio_immune(ia32_cap))
- 		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
++u64 spec_ctrl_current(void)
++{
++	return this_cpu_read(x86_spec_ctrl_current);
++}
++EXPORT_SYMBOL_GPL(spec_ctrl_current);
++
+ /*
+  * The vendor and possibly platform specific bits which can be modified in
+  * x86_spec_ctrl_base.
+--- a/drivers/idle/intel_idle.c
++++ b/drivers/idle/intel_idle.c
+@@ -47,11 +47,13 @@
+ #include <linux/tick.h>
+ #include <trace/events/power.h>
+ #include <linux/sched.h>
++#include <linux/sched/smt.h>
+ #include <linux/notifier.h>
+ #include <linux/cpu.h>
+ #include <linux/moduleparam.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
++#include <asm/nospec-branch.h>
+ #include <asm/mwait.h>
+ #include <asm/msr.h>
  
--	if ((cpu_matches(cpu_vuln_blacklist, RETBLEED) || (ia32_cap & ARCH_CAP_RSBA)))
--		setup_force_cpu_bug(X86_BUG_RETBLEED);
-+	if (!cpu_has(c, X86_FEATURE_BTC_NO)) {
-+		if (cpu_matches(cpu_vuln_blacklist, RETBLEED) || (ia32_cap & ARCH_CAP_RSBA))
-+			setup_force_cpu_bug(X86_BUG_RETBLEED);
-+	}
+@@ -106,6 +108,12 @@ static unsigned int mwait_substates __in
+ #define CPUIDLE_FLAG_ALWAYS_ENABLE	BIT(15)
  
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
+ /*
++ * Disable IBRS across idle (when KERNEL_IBRS), is exclusive vs IRQ_ENABLE
++ * above.
++ */
++#define CPUIDLE_FLAG_IBRS		BIT(16)
++
++/*
+  * MWAIT takes an 8-bit "hint" in EAX "suggesting"
+  * the C-state (top nibble) and sub-state (bottom nibble)
+  * 0x00 means "MWAIT(C1)", 0x10 means "MWAIT(C2)" etc.
+@@ -159,6 +167,24 @@ static __cpuidle int intel_idle_irq(stru
+ 	return ret;
+ }
+ 
++static __cpuidle int intel_idle_ibrs(struct cpuidle_device *dev,
++				     struct cpuidle_driver *drv, int index)
++{
++	bool smt_active = sched_smt_active();
++	u64 spec_ctrl = spec_ctrl_current();
++	int ret;
++
++	if (smt_active)
++		wrmsrl(MSR_IA32_SPEC_CTRL, 0);
++
++	ret = __intel_idle(dev, drv, index);
++
++	if (smt_active)
++		wrmsrl(MSR_IA32_SPEC_CTRL, spec_ctrl);
++
++	return ret;
++}
++
+ /**
+  * intel_idle_s2idle - Ask the processor to enter the given idle state.
+  * @dev: cpuidle device of the target CPU.
+@@ -680,7 +706,7 @@ static struct cpuidle_state skl_cstates[
+ 	{
+ 		.name = "C6",
+ 		.desc = "MWAIT 0x20",
+-		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 85,
+ 		.target_residency = 200,
+ 		.enter = &intel_idle,
+@@ -688,7 +714,7 @@ static struct cpuidle_state skl_cstates[
+ 	{
+ 		.name = "C7s",
+ 		.desc = "MWAIT 0x33",
+-		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 124,
+ 		.target_residency = 800,
+ 		.enter = &intel_idle,
+@@ -696,7 +722,7 @@ static struct cpuidle_state skl_cstates[
+ 	{
+ 		.name = "C8",
+ 		.desc = "MWAIT 0x40",
+-		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 200,
+ 		.target_residency = 800,
+ 		.enter = &intel_idle,
+@@ -704,7 +730,7 @@ static struct cpuidle_state skl_cstates[
+ 	{
+ 		.name = "C9",
+ 		.desc = "MWAIT 0x50",
+-		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 480,
+ 		.target_residency = 5000,
+ 		.enter = &intel_idle,
+@@ -712,7 +738,7 @@ static struct cpuidle_state skl_cstates[
+ 	{
+ 		.name = "C10",
+ 		.desc = "MWAIT 0x60",
+-		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 890,
+ 		.target_residency = 5000,
+ 		.enter = &intel_idle,
+@@ -741,7 +767,7 @@ static struct cpuidle_state skx_cstates[
+ 	{
+ 		.name = "C6",
+ 		.desc = "MWAIT 0x20",
+-		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 133,
+ 		.target_residency = 600,
+ 		.enter = &intel_idle,
+@@ -1686,6 +1712,12 @@ static void __init intel_idle_init_cstat
+ 		if (cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE)
+ 			drv->states[drv->state_count].enter = intel_idle_irq;
+ 
++		if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) &&
++		    cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IBRS) {
++			WARN_ON_ONCE(cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE);
++			drv->states[drv->state_count].enter = intel_idle_ibrs;
++		}
++
+ 		if ((disabled_states_mask & BIT(drv->state_count)) ||
+ 		    ((icpu->use_acpi || force_use_acpi) &&
+ 		     intel_idle_off_by_default(mwait_hint) &&
 
 
