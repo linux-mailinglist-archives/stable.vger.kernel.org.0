@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 864D0572383
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4DA3572411
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:58:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234057AbiGLSte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:49:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
+        id S235080AbiGLS6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 14:58:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234511AbiGLStG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956F014D00;
-        Tue, 12 Jul 2022 11:43:45 -0700 (PDT)
+        with ESMTP id S235022AbiGLS5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:57:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B104DD213;
+        Tue, 12 Jul 2022 11:47:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90339B81BB9;
-        Tue, 12 Jul 2022 18:43:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF36C341C8;
-        Tue, 12 Jul 2022 18:43:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18B27B81B95;
+        Tue, 12 Jul 2022 18:47:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87105C3411C;
+        Tue, 12 Jul 2022 18:47:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651407;
-        bh=k9IrByeFv4ANj8rXmHXEEaxduV+WzzfaR+gGXS2EnL4=;
+        s=korg; t=1657651641;
+        bh=1DCPxPvjrPP4RCFt/kmt9VosaPKCE1ukz5C8TaZI250=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtVzi21yc/omcoCFGIQjPbWQOZBsrvd/8EBBsOJ39IVY+yp36W3tVA+nG2vMsvzSk
-         5yGyvZjQ3fLUysP5ZVulDKx4Hg9m0qP5esG0SBT98f9FTQBItwFwtfNvLmnxp6RCvi
-         lXx1C/s4HhC2KLt6/FChGCroP6SZ/Zfn8h5l/ZQ8=
+        b=FCOy8ordxRwzE9kFdcCKoyiLTVnfaOYll+5Gd0qtVciQtp40jWDPNsN0SML8RNhw4
+         jOIWEKB++T0+k+CnRa9GPFb9G0fiWqgD8eh9QSlbeZ5Psg4KevJhv2vJPP/CpgVOkk
+         gMAgbWFQ2uAX61qVUOTJDhtVGhNyILTN5UlyJDbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 066/130] x86: Add straight-line-speculation mitigation
+        stable@vger.kernel.org, Lai Jiangshan <jiangshan.ljs@antgroup.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 02/78] x86/entry: Switch the stack after error_entry() returns
 Date:   Tue, 12 Jul 2022 20:38:32 +0200
-Message-Id: <20220712183249.512243054@linuxfoundation.org>
+Message-Id: <20220712183238.937020352@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,200 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 
-commit e463a09af2f0677b9485a7e8e4e70b396b2ffb6f upstream.
+commit 520a7e80c96d655fbe4650d9cc985bd9d0443389 upstream.
 
-Make use of an upcoming GCC feature to mitigate
-straight-line-speculation for x86:
+error_entry() calls fixup_bad_iret() before sync_regs() if it is a fault
+from a bad IRET, to copy pt_regs to the kernel stack. It switches to the
+kernel stack directly after sync_regs().
 
-  https://gcc.gnu.org/g:53a643f8568067d7700a9f2facc8ba39974973d3
-  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102952
-  https://bugs.llvm.org/show_bug.cgi?id=52323
+But error_entry() itself is also a function call, so it has to stash
+the address it is going to return to, in %r12 which is unnecessarily
+complicated.
 
-It's built tested on x86_64-allyesconfig using GCC-12 and GCC-11.
+Move the stack switching after error_entry() and get rid of the need to
+handle the return address.
 
-Maintenance overhead of this should be fairly low due to objtool
-validation.
+  [ bp: Massage commit message. ]
 
-Size overhead of all these additional int3 instructions comes to:
-
-     text	   data	    bss	    dec	    hex	filename
-  22267751	6933356	2011368	31212475	1dc43bb	defconfig-build/vmlinux
-  22804126	6933356	1470696	31208178	1dc32f2	defconfig-build/vmlinux.sls
-
-Or roughly 2.4% additional text.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211204134908.140103474@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 5.10:
- - In scripts/Makefile.build, add the objtool option with an ifdef
-   block, same as for other options
- - Adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Link: https://lore.kernel.org/r/20220503032107.680190-3-jiangshanlai@gmail.com
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig                   |   12 ++++++++++++
- arch/x86/Makefile                  |    6 +++++-
- arch/x86/include/asm/linkage.h     |   10 ++++++++++
- arch/x86/include/asm/static_call.h |    2 +-
- arch/x86/kernel/ftrace.c           |    2 +-
- arch/x86/kernel/static_call.c      |    5 +++--
- arch/x86/lib/memmove_64.S          |    2 +-
- arch/x86/lib/retpoline.S           |    2 +-
- scripts/Makefile.build             |    3 +++
- scripts/link-vmlinux.sh            |    3 +++
- 10 files changed, 40 insertions(+), 7 deletions(-)
+ arch/x86/entry/entry_64.S |   16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -462,6 +462,18 @@ config RETPOLINE
- 	  branches. Requires a compiler with -mindirect-branch=thunk-extern
- 	  support for full protection. The kernel may run slower.
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -323,6 +323,8 @@ SYM_CODE_END(ret_from_fork)
+ .macro idtentry_body cfunc has_error_code:req
  
-+config CC_HAS_SLS
-+	def_bool $(cc-option,-mharden-sls=all)
-+
-+config SLS
-+	bool "Mitigate Straight-Line-Speculation"
-+	depends on CC_HAS_SLS && X86_64
-+	default n
-+	help
-+	  Compile the kernel with straight-line-speculation options to guard
-+	  against straight line speculation. The kernel image might be slightly
-+	  larger.
-+
- config X86_CPU_RESCTRL
- 	bool "x86 CPU resource control support"
- 	depends on X86 && (CPU_SUP_INTEL || CPU_SUP_AMD)
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -196,7 +196,11 @@ ifdef CONFIG_RETPOLINE
-   endif
- endif
+ 	call	error_entry
++	movq	%rax, %rsp			/* switch to the task stack if from userspace */
++	ENCODE_FRAME_POINTER
+ 	UNWIND_HINT_REGS
  
--KBUILD_LDFLAGS := -m elf_$(UTS_MACHINE)
-+ifdef CONFIG_SLS
-+  KBUILD_CFLAGS += -mharden-sls=all
-+endif
-+
-+KBUILD_LDFLAGS += -m elf_$(UTS_MACHINE)
+ 	movq	%rsp, %rdi			/* pt_regs pointer into 1st argument*/
+@@ -982,14 +984,10 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	/* We have user CR3.  Change to kernel CR3. */
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
  
- ifdef CONFIG_X86_NEED_RELOCS
- LDFLAGS_vmlinux := --emit-relocs --discard-none
---- a/arch/x86/include/asm/linkage.h
-+++ b/arch/x86/include/asm/linkage.h
-@@ -18,9 +18,19 @@
- #define __ALIGN_STR	__stringify(__ALIGN)
- #endif
- 
-+#ifdef CONFIG_SLS
-+#define RET	ret; int3
-+#else
-+#define RET	ret
-+#endif
-+
- #else /* __ASSEMBLY__ */
- 
-+#ifdef CONFIG_SLS
-+#define ASM_RET	"ret; int3\n\t"
-+#else
- #define ASM_RET	"ret\n\t"
-+#endif
- 
- #endif /* __ASSEMBLY__ */
- 
---- a/arch/x86/include/asm/static_call.h
-+++ b/arch/x86/include/asm/static_call.h
-@@ -35,7 +35,7 @@
- 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, ".byte 0xe9; .long " #func " - (. + 4)")
- 
- #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
--	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; nop; nop; nop; nop")
-+	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; int3; nop; nop; nop")
- 
- 
- #define ARCH_ADD_TRAMP_KEY(name)					\
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -308,7 +308,7 @@ union ftrace_op_code_union {
- 	} __attribute__((packed));
- };
- 
--#define RET_SIZE		1
-+#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
- 
- static unsigned long
- create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -11,6 +11,8 @@ enum insn_type {
- 	RET = 3,  /* tramp / site cond-tail-call */
- };
- 
-+static const u8 retinsn[] = { RET_INSN_OPCODE, 0xcc, 0xcc, 0xcc, 0xcc };
-+
- static void __ref __static_call_transform(void *insn, enum insn_type type, void *func)
- {
- 	int size = CALL_INSN_SIZE;
-@@ -30,8 +32,7 @@ static void __ref __static_call_transfor
- 		break;
- 
- 	case RET:
--		code = text_gen_insn(RET_INSN_OPCODE, insn, func);
--		size = RET_INSN_SIZE;
-+		code = &retinsn;
- 		break;
- 	}
- 
---- a/arch/x86/lib/memmove_64.S
-+++ b/arch/x86/lib/memmove_64.S
-@@ -40,7 +40,7 @@ SYM_FUNC_START(__memmove)
- 	/* FSRM implies ERMS => no length checks, do the copy directly */
- .Lmemmove_begin_forward:
- 	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
--	ALTERNATIVE "", "movq %rdx, %rcx; rep movsb; RET", X86_FEATURE_ERMS
-+	ALTERNATIVE "", __stringify(movq %rdx, %rcx; rep movsb; RET), X86_FEATURE_ERMS
++	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
+ .Lerror_entry_from_usermode_after_swapgs:
+ 	/* Put us onto the real thread stack. */
+-	popq	%r12				/* save return addr in %12 */
+-	movq	%rsp, %rdi			/* arg0 = pt_regs pointer */
+ 	call	sync_regs
+-	movq	%rax, %rsp			/* switch stack */
+-	ENCODE_FRAME_POINTER
+-	pushq	%r12
+ 	RET
  
  	/*
- 	 * movsq instruction have many startup latency
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -34,7 +34,7 @@ SYM_INNER_LABEL(__x86_indirect_thunk_\re
+@@ -1021,6 +1019,7 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	 */
+ .Lerror_entry_done_lfence:
+ 	FENCE_SWAPGS_KERNEL_ENTRY
++	leaq	8(%rsp), %rax			/* return pt_regs pointer */
+ 	RET
  
- 	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
- 		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
--		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), X86_FEATURE_RETPOLINE_LFENCE
-+		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE
+ .Lbstep_iret:
+@@ -1041,12 +1040,9 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	 * Pretend that the exception came from user mode: set up pt_regs
+ 	 * as if we faulted immediately after IRET.
+ 	 */
+-	popq	%r12				/* save return addr in %12 */
+-	movq	%rsp, %rdi			/* arg0 = pt_regs pointer */
++	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
+ 	call	fixup_bad_iret
+-	mov	%rax, %rsp
+-	ENCODE_FRAME_POINTER
+-	pushq	%r12
++	mov	%rax, %rdi
+ 	jmp	.Lerror_entry_from_usermode_after_swapgs
+ SYM_CODE_END(error_entry)
  
- .endm
- 
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -230,6 +230,9 @@ endif
- ifdef CONFIG_X86_SMAP
-   objtool_args += --uaccess
- endif
-+ifdef CONFIG_SLS
-+  objtool_args += --sls
-+endif
- 
- # 'OBJECT_FILES_NON_STANDARD := y': skip objtool checking for a directory
- # 'OBJECT_FILES_NON_STANDARD_foo.o := 'y': skip objtool checking for a file
---- a/scripts/link-vmlinux.sh
-+++ b/scripts/link-vmlinux.sh
-@@ -77,6 +77,9 @@ objtool_link()
- 		if [ -n "${CONFIG_X86_SMAP}" ]; then
- 			objtoolopt="${objtoolopt} --uaccess"
- 		fi
-+		if [ -n "${CONFIG_SLS}" ]; then
-+			objtoolopt="${objtoolopt} --sls"
-+		fi
- 		info OBJTOOL ${1}
- 		tools/objtool/objtool ${objtoolopt} ${1}
- 	fi
 
 
