@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7FC572552
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0D0572482
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235868AbiGLTMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 15:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36900 "EHLO
+        id S235211AbiGLTCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:02:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235797AbiGLTLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:11:32 -0400
+        with ESMTP id S235212AbiGLTBT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:01:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159371020B1;
-        Tue, 12 Jul 2022 11:52:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285462019C;
+        Tue, 12 Jul 2022 11:48:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E9DE61257;
-        Tue, 12 Jul 2022 18:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D593C341C0;
-        Tue, 12 Jul 2022 18:52:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BADD061248;
+        Tue, 12 Jul 2022 18:48:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED3CC3411C;
+        Tue, 12 Jul 2022 18:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651978;
-        bh=ElPnfsQ3frqXUSruRs//nCnaApLEIEGWuGRWi85JU9I=;
+        s=korg; t=1657651736;
+        bh=Sp4lzYf28TvH726a0QxviKjDpHbCkEZsCj2pLcovfbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4sIWntftaLJ0l9Idu+N3q06aZvSvRltDeYg9fFywG71We4th3SxBi2vLApgv0iBJ
-         XGaGTHuhtnGkCxFfxirptGrGy8MTJBbdZ7ul8sgBjqhz7btRxFlaGch8SSkywBjl7E
-         smO5fC1cMwnbzMdOpAtg/0XgApevVks19HYKa/cU=
+        b=XwxwBjO9FMj4bNCQbO/y/l4Hs6t7NwAJKE5XFc4twV8FpnyiYglMEtlso/XHS02Db
+         BtFsp9bWhse6cYTj1quvtNdx5i3ENabDj5NX/FcxcRrNNNxqlmmDP9y4+5ETWV+0YI
+         IeguSgNw/BG6sTmtXvrbTWklXH8cShSVbcb++fsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 12/61] x86,objtool: Create .return_sites
+Subject: [PATCH 5.15 39/78] x86/entry: Avoid very early RET
 Date:   Tue, 12 Jul 2022 20:39:09 +0200
-Message-Id: <20220712183237.438583634@linuxfoundation.org>
+Message-Id: <20220712183240.410962874@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-References: <20220712183236.931648980@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,11 +58,24 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit d9e9d2300681d68a775c28de6aa6e5290ae17796 upstream.
+commit 7c81c0c9210c9bfab2bae76aab2999de5bad27db upstream.
 
-Find all the return-thunk sites and record them in a .return_sites
-section such that the kernel can undo this.
+Commit
 
+  ee774dac0da1 ("x86/entry: Move PUSH_AND_CLEAR_REGS out of error_entry()")
+
+manages to introduce a CALL/RET pair that is before SWITCH_TO_KERNEL_CR3,
+which means it is before RETBleed can be mitigated.
+
+Revert to an earlier version of the commit in Fixes. Down side is that
+this will bloat .text size somewhat. The alternative is fully reverting
+it.
+
+The purpose of this patch was to allow migrating error_entry() to C,
+including the whole of kPTI. Much care needs to be taken moving that
+forward to not re-introduce this problem of early RETs.
+
+Fixes: ee774dac0da1 ("x86/entry: Move PUSH_AND_CLEAR_REGS out of error_entry()")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
@@ -70,182 +83,36 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/arch/x86/decode.c         |    5 ++
- tools/objtool/check.c                   |   74 ++++++++++++++++++++++++++++++++
- tools/objtool/include/objtool/arch.h    |    1 
- tools/objtool/include/objtool/elf.h     |    1 
- tools/objtool/include/objtool/objtool.h |    1 
- tools/objtool/objtool.c                 |    1 
- 6 files changed, 83 insertions(+)
+ arch/x86/entry/entry_64.S |   12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -787,3 +787,8 @@ bool arch_is_retpoline(struct symbol *sy
- {
- 	return !strncmp(sym->name, "__x86_indirect_", 15);
- }
-+
-+bool arch_is_rethunk(struct symbol *sym)
-+{
-+	return !strcmp(sym->name, "__x86_return_thunk");
-+}
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -747,6 +747,52 @@ static int create_retpoline_sites_sectio
- 	return 0;
- }
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -314,14 +314,6 @@ SYM_CODE_END(ret_from_fork)
+ #endif
+ .endm
  
-+static int create_return_sites_sections(struct objtool_file *file)
-+{
-+	struct instruction *insn;
-+	struct section *sec;
-+	int idx;
-+
-+	sec = find_section_by_name(file->elf, ".return_sites");
-+	if (sec) {
-+		WARN("file already has .return_sites, skipping");
-+		return 0;
-+	}
-+
-+	idx = 0;
-+	list_for_each_entry(insn, &file->return_thunk_list, call_node)
-+		idx++;
-+
-+	if (!idx)
-+		return 0;
-+
-+	sec = elf_create_section(file->elf, ".return_sites", 0,
-+				 sizeof(int), idx);
-+	if (!sec) {
-+		WARN("elf_create_section: .return_sites");
-+		return -1;
-+	}
-+
-+	idx = 0;
-+	list_for_each_entry(insn, &file->return_thunk_list, call_node) {
-+
-+		int *site = (int *)sec->data->d_buf + idx;
-+		*site = 0;
-+
-+		if (elf_add_reloc_to_insn(file->elf, sec,
-+					  idx * sizeof(int),
-+					  R_X86_64_PC32,
-+					  insn->sec, insn->offset)) {
-+			WARN("elf_add_reloc_to_insn: .return_sites");
-+			return -1;
-+		}
-+
-+		idx++;
-+	}
-+
-+	return 0;
-+}
-+
- static int create_ibt_endbr_seal_sections(struct objtool_file *file)
- {
- 	struct instruction *insn;
-@@ -1081,6 +1127,11 @@ __weak bool arch_is_retpoline(struct sym
- 	return false;
- }
+-/* Save all registers in pt_regs */
+-SYM_CODE_START_LOCAL(push_and_clear_regs)
+-	UNWIND_HINT_FUNC
+-	PUSH_AND_CLEAR_REGS save_ret=1
+-	ENCODE_FRAME_POINTER 8
+-	RET
+-SYM_CODE_END(push_and_clear_regs)
+-
+ /**
+  * idtentry_body - Macro to emit code calling the C function
+  * @cfunc:		C function to be called
+@@ -329,8 +321,8 @@ SYM_CODE_END(push_and_clear_regs)
+  */
+ .macro idtentry_body cfunc has_error_code:req
  
-+__weak bool arch_is_rethunk(struct symbol *sym)
-+{
-+	return false;
-+}
-+
- #define NEGATIVE_RELOC	((void *)-1L)
+-	call push_and_clear_regs
+-	UNWIND_HINT_REGS
++	PUSH_AND_CLEAR_REGS
++	ENCODE_FRAME_POINTER
  
- static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *insn)
-@@ -1248,6 +1299,18 @@ static void add_retpoline_call(struct ob
- 	annotate_call_site(file, insn, false);
- }
- 
-+static void add_return_call(struct objtool_file *file, struct instruction *insn)
-+{
-+	/*
-+	 * Return thunk tail calls are really just returns in disguise,
-+	 * so convert them accordingly.
-+	 */
-+	insn->type = INSN_RETURN;
-+	insn->retpoline_safe = true;
-+
-+	list_add_tail(&insn->call_node, &file->return_thunk_list);
-+}
-+
- static bool same_function(struct instruction *insn1, struct instruction *insn2)
- {
- 	return insn1->func->pfunc == insn2->func->pfunc;
-@@ -1300,6 +1363,9 @@ static int add_jump_destinations(struct
- 		} else if (reloc->sym->retpoline_thunk) {
- 			add_retpoline_call(file, insn);
- 			continue;
-+		} else if (reloc->sym->return_thunk) {
-+			add_return_call(file, insn);
-+			continue;
- 		} else if (insn->func) {
- 			/*
- 			 * External sibling call or internal sibling call with
-@@ -2182,6 +2248,9 @@ static int classify_symbols(struct objto
- 			if (arch_is_retpoline(func))
- 				func->retpoline_thunk = true;
- 
-+			if (arch_is_rethunk(func))
-+				func->return_thunk = true;
-+
- 			if (!strcmp(func->name, "__fentry__"))
- 				func->fentry = true;
- 
-@@ -3935,6 +4004,11 @@ int check(struct objtool_file *file)
- 		if (ret < 0)
- 			goto out;
- 		warnings += ret;
-+
-+		ret = create_return_sites_sections(file);
-+		if (ret < 0)
-+			goto out;
-+		warnings += ret;
- 	}
- 
- 	if (mcount) {
---- a/tools/objtool/include/objtool/arch.h
-+++ b/tools/objtool/include/objtool/arch.h
-@@ -89,6 +89,7 @@ const char *arch_ret_insn(int len);
- int arch_decode_hint_reg(u8 sp_reg, int *base);
- 
- bool arch_is_retpoline(struct symbol *sym);
-+bool arch_is_rethunk(struct symbol *sym);
- 
- int arch_rewrite_retpolines(struct objtool_file *file);
- 
---- a/tools/objtool/include/objtool/elf.h
-+++ b/tools/objtool/include/objtool/elf.h
-@@ -57,6 +57,7 @@ struct symbol {
- 	u8 uaccess_safe      : 1;
- 	u8 static_call_tramp : 1;
- 	u8 retpoline_thunk   : 1;
-+	u8 return_thunk      : 1;
- 	u8 fentry            : 1;
- 	u8 profiling_func    : 1;
- 	struct list_head pv_target;
---- a/tools/objtool/include/objtool/objtool.h
-+++ b/tools/objtool/include/objtool/objtool.h
-@@ -24,6 +24,7 @@ struct objtool_file {
- 	struct list_head insn_list;
- 	DECLARE_HASHTABLE(insn_hash, 20);
- 	struct list_head retpoline_call_list;
-+	struct list_head return_thunk_list;
- 	struct list_head static_call_list;
- 	struct list_head mcount_loc_list;
- 	struct list_head endbr_list;
---- a/tools/objtool/objtool.c
-+++ b/tools/objtool/objtool.c
-@@ -126,6 +126,7 @@ struct objtool_file *objtool_open_read(c
- 	INIT_LIST_HEAD(&file.insn_list);
- 	hash_init(file.insn_hash);
- 	INIT_LIST_HEAD(&file.retpoline_call_list);
-+	INIT_LIST_HEAD(&file.return_thunk_list);
- 	INIT_LIST_HEAD(&file.static_call_list);
- 	INIT_LIST_HEAD(&file.mcount_loc_list);
- 	INIT_LIST_HEAD(&file.endbr_list);
+ 	/*
+ 	 * Call error_entry() and switch to the task stack if from userspace.
 
 
