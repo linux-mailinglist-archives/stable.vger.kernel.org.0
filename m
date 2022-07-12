@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56CF25723DB
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3635724CB
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234007AbiGLSyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:54:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55248 "EHLO
+        id S235324AbiGLTCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:02:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234678AbiGLSxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:53:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE93E7AFA;
-        Tue, 12 Jul 2022 11:45:36 -0700 (PDT)
+        with ESMTP id S235247AbiGLTBn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:01:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B543732EE4;
+        Tue, 12 Jul 2022 11:49:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35C7460A5A;
-        Tue, 12 Jul 2022 18:45:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 381DBC3411C;
-        Tue, 12 Jul 2022 18:45:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79D62B81BAB;
+        Tue, 12 Jul 2022 18:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD6AC3411C;
+        Tue, 12 Jul 2022 18:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651527;
-        bh=djZlPbfcpfDt9G8q/aQbamH/xyggUYAi64L1vsv26VY=;
+        s=korg; t=1657651745;
+        bh=Hj9y0EMpELMnc+8la5ocvDNDFnUT/82b6WQhamMX5Tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqsWIhEbIr3Y3p0NuoY+CfocaLMRErUZ0dxe66oHJImaRPjCgXd5R1MT+IXmWBBlL
-         hwLqhNLnzJQXwaFktxNL+yRdZuz/RGTX8x/apNJEiFz8qDa6+1eEqRDKdJDBpw73QZ
-         R04SfGNlUtPKfm3ixSDq+DUHTNvyHiI9x3XzRTt4=
+        b=sNAW9ie92JqWpXTdmJj4Fs9B95xP7Mjayk9Co0f19or1UpxUjLE5LMtupfGrN5sfA
+         Hg+1idw4aUT8vYfAJo4uAv5y+DaZ9SUkkn6o4VeIzX9cT31igyzu2So33Vb/h4ujqb
+         yVXV6ottdmiwbiBG1k0kJSxdptbPxUkUcb+2PEgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 076/130] objtool: Fix objtool regression on x32 systems
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 12/78] x86/asm: Fixup odd GEN-for-each-reg.h usage
 Date:   Tue, 12 Jul 2022 20:38:42 +0200
-Message-Id: <20220712183249.966947589@linuxfoundation.org>
+Message-Id: <20220712183239.345894286@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 22682a07acc308ef78681572e19502ce8893c4d4 upstream.
+commit b6d3d9944bd7c9e8c06994ead3c9952f673f2a66 upstream.
 
-Commit c087c6e7b551 ("objtool: Fix type of reloc::addend") failed to
-appreciate cross building from ILP32 hosts, where 'int' == 'long' and
-the issue persists.
+Currently GEN-for-each-reg.h usage leaves GEN defined, relying on any
+subsequent usage to start with #undef, which is rude.
 
-As such, use s64/int64_t/Elf64_Sxword for this field and suffer the
-pain that is ISO C99 printf formats for it.
-
-Fixes: c087c6e7b551 ("objtool: Fix type of reloc::addend")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-[peterz: reword changelog, s/long long/s64/]
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2205161041260.11556@file01.intranet.prod.int.rdu2.redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120310.041792350@infradead.org
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c |    9 +++++----
- tools/objtool/elf.c   |    2 +-
- tools/objtool/elf.h   |    4 ++--
- 3 files changed, 8 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/asm-prototypes.h |    2 +-
+ arch/x86/lib/retpoline.S              |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -5,6 +5,7 @@
+--- a/arch/x86/include/asm/asm-prototypes.h
++++ b/arch/x86/include/asm/asm-prototypes.h
+@@ -19,9 +19,9 @@ extern void cmpxchg8b_emu(void);
  
- #include <string.h>
- #include <stdlib.h>
-+#include <inttypes.h>
- #include <sys/mman.h>
+ #ifdef CONFIG_RETPOLINE
  
- #include "builtin.h"
-@@ -467,12 +468,12 @@ static int add_dead_ends(struct objtool_
- 		else if (reloc->addend == reloc->sym->sec->len) {
- 			insn = find_last_insn(file, reloc->sym->sec);
- 			if (!insn) {
--				WARN("can't find unreachable insn at %s+0x%lx",
-+				WARN("can't find unreachable insn at %s+0x%" PRIx64,
- 				     reloc->sym->sec->name, reloc->addend);
- 				return -1;
- 			}
- 		} else {
--			WARN("can't find unreachable insn at %s+0x%lx",
-+			WARN("can't find unreachable insn at %s+0x%" PRIx64,
- 			     reloc->sym->sec->name, reloc->addend);
- 			return -1;
- 		}
-@@ -502,12 +503,12 @@ reachable:
- 		else if (reloc->addend == reloc->sym->sec->len) {
- 			insn = find_last_insn(file, reloc->sym->sec);
- 			if (!insn) {
--				WARN("can't find reachable insn at %s+0x%lx",
-+				WARN("can't find reachable insn at %s+0x%" PRIx64,
- 				     reloc->sym->sec->name, reloc->addend);
- 				return -1;
- 			}
- 		} else {
--			WARN("can't find reachable insn at %s+0x%lx",
-+			WARN("can't find reachable insn at %s+0x%" PRIx64,
- 			     reloc->sym->sec->name, reloc->addend);
- 			return -1;
- 		}
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -510,7 +510,7 @@ static struct section *elf_create_reloc_
- 						int reltype);
+-#undef GEN
+ #define GEN(reg) \
+ 	extern asmlinkage void __x86_indirect_thunk_ ## reg (void);
+ #include <asm/GEN-for-each-reg.h>
++#undef GEN
  
- int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
--		  unsigned int type, struct symbol *sym, long addend)
-+		  unsigned int type, struct symbol *sym, s64 addend)
- {
- 	struct reloc *reloc;
+ #endif /* CONFIG_RETPOLINE */
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -55,10 +55,10 @@ SYM_FUNC_END(__x86_indirect_thunk_\reg)
+ #define __EXPORT_THUNK(sym)	_ASM_NOKPROBE(sym); EXPORT_SYMBOL(sym)
+ #define EXPORT_THUNK(reg)	__EXPORT_THUNK(__x86_indirect_thunk_ ## reg)
  
---- a/tools/objtool/elf.h
-+++ b/tools/objtool/elf.h
-@@ -73,7 +73,7 @@ struct reloc {
- 	struct symbol *sym;
- 	unsigned long offset;
- 	unsigned int type;
--	long addend;
-+	s64 addend;
- 	int idx;
- 	bool jump_table_start;
- };
-@@ -127,7 +127,7 @@ struct elf *elf_open_read(const char *na
- struct section *elf_create_section(struct elf *elf, const char *name, unsigned int sh_flags, size_t entsize, int nr);
- 
- int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
--		  unsigned int type, struct symbol *sym, long addend);
-+		  unsigned int type, struct symbol *sym, s64 addend);
- int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
- 			  unsigned long offset, unsigned int type,
- 			  struct section *insn_sec, unsigned long insn_off);
+-#undef GEN
+ #define GEN(reg) THUNK reg
+ #include <asm/GEN-for-each-reg.h>
+-
+ #undef GEN
++
+ #define GEN(reg) EXPORT_THUNK(reg)
+ #include <asm/GEN-for-each-reg.h>
++#undef GEN
 
 
