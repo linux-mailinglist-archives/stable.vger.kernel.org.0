@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 925D257236C
-	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 20:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DF55724B8
+	for <lists+stable@lfdr.de>; Tue, 12 Jul 2022 21:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234535AbiGLStw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jul 2022 14:49:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
+        id S235339AbiGLTCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jul 2022 15:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234626AbiGLStX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 14:49:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C553139D;
-        Tue, 12 Jul 2022 11:43:50 -0700 (PDT)
+        with ESMTP id S235149AbiGLTCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jul 2022 15:02:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD57C95A8;
+        Tue, 12 Jul 2022 11:49:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 092C461AC9;
-        Tue, 12 Jul 2022 18:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE39C3411E;
-        Tue, 12 Jul 2022 18:43:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3DAA8CE1A8C;
+        Tue, 12 Jul 2022 18:49:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29C77C3411E;
+        Tue, 12 Jul 2022 18:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657651427;
-        bh=v2jQRb/cwYZnNJNo6P3W1xJ1OpzzWBGK68XPPMII0hA=;
+        s=korg; t=1657651760;
+        bh=WK8DbHid5KLbLdiibt9WMsu16ETa4CTZT9zNegHjyDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUrsly+J265bbTu6V59u9lBmuL5VefTyjVzkIfkYQQTB2zxzlG7XS9qaBpoVBgT9A
-         9SAdYZvQiwGTRGJ0SEFy6vGswerljc+HZ+tFZ5L/VXZDBmFJBXBSQIKqhFwWfJ1W8U
-         n0WR3tG9paQ5bfcARlUI6gMLdxyLINsnOs2EXyBE=
+        b=IYu452z0bmoKBpNkZA0RQo5SlokquzCTzjHDTowMtrSsOhbyIsflg1tAJ4B9zSv3V
+         Q3Syc4c2BrZ0fjBxbQdmIdKi6Vbck1EkJMACTG/l82OS7lbaQXo/tOUE15S0iN3hv3
+         iliu7y4NcL1yaAB3+vNl9hfploMxTAwjXe0V8K9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 071/130] objtool: Fix SLS validation for kcov tail-call replacement
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 07/78] objtool: Shrink struct instruction
 Date:   Tue, 12 Jul 2022 20:38:37 +0200
-Message-Id: <20220712183249.741563131@linuxfoundation.org>
+Message-Id: <20220712183239.137331211@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.0
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-References: <20220712183246.394947160@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+References: <20220712183238.844813653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,60 +59,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7a53f408902d913cd541b4f8ad7dbcd4961f5b82 upstream.
+commit c509331b41b7365e17396c246e8c5797bccc8074 upstream.
 
-Since not all compilers have a function attribute to disable KCOV
-instrumentation, objtool can rewrite KCOV instrumentation in noinstr
-functions as per commit:
+Any one instruction can only ever call a single function, therefore
+insn->mcount_loc_node is superfluous and can use insn->call_node.
 
-  f56dae88a81f ("objtool: Handle __sanitize_cov*() tail calls")
+This shrinks struct instruction, which is by far the most numerous
+structure objtool creates.
 
-However, this has subtle interaction with the SLS validation from
-commit:
-
-  1cc1e4c8aab4 ("objtool: Add straight-line-speculation validation")
-
-In that when a tail-call instrucion is replaced with a RET an
-additional INT3 instruction is also written, but is not represented in
-the decoded instruction stream.
-
-This then leads to false positive missing INT3 objtool warnings in
-noinstr code.
-
-Instead of adding additional struct instruction objects, mark the RET
-instruction with retpoline_safe to suppress the warning (since we know
-there really is an INT3).
-
-Fixes: 1cc1e4c8aab4 ("objtool: Add straight-line-speculation validation")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220323230712.GA8939@worktop.programming.kicks-ass.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Tested-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/r/20211026120309.785456706@infradead.org
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/objtool/check.c                 |    6 +++---
+ tools/objtool/include/objtool/check.h |    1 -
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
 --- a/tools/objtool/check.c
 +++ b/tools/objtool/check.c
-@@ -961,6 +961,17 @@ static void annotate_call_site(struct ob
- 			               : arch_nop_insn(insn->len));
+@@ -551,7 +551,7 @@ static int create_mcount_loc_sections(st
+ 		return 0;
  
- 		insn->type = sibling ? INSN_RETURN : INSN_NOP;
-+
-+		if (sibling) {
-+			/*
-+			 * We've replaced the tail-call JMP insn by two new
-+			 * insn: RET; INT3, except we only have a single struct
-+			 * insn here. Mark it retpoline_safe to avoid the SLS
-+			 * warning, instead of adding another insn.
-+			 */
-+			insn->retpoline_safe = true;
-+		}
-+
+ 	idx = 0;
+-	list_for_each_entry(insn, &file->mcount_loc_list, mcount_loc_node)
++	list_for_each_entry(insn, &file->mcount_loc_list, call_node)
+ 		idx++;
+ 
+ 	sec = elf_create_section(file->elf, "__mcount_loc", 0, sizeof(unsigned long), idx);
+@@ -559,7 +559,7 @@ static int create_mcount_loc_sections(st
+ 		return -1;
+ 
+ 	idx = 0;
+-	list_for_each_entry(insn, &file->mcount_loc_list, mcount_loc_node) {
++	list_for_each_entry(insn, &file->mcount_loc_list, call_node) {
+ 
+ 		loc = (unsigned long *)sec->data->d_buf + idx;
+ 		memset(loc, 0, sizeof(unsigned long));
+@@ -909,7 +909,7 @@ static void annotate_call_site(struct ob
+ 
+ 		insn->type = INSN_NOP;
+ 
+-		list_add_tail(&insn->mcount_loc_node, &file->mcount_loc_list);
++		list_add_tail(&insn->call_node, &file->mcount_loc_list);
  		return;
  	}
  }
+--- a/tools/objtool/include/objtool/check.h
++++ b/tools/objtool/include/objtool/check.h
+@@ -40,7 +40,6 @@ struct instruction {
+ 	struct list_head list;
+ 	struct hlist_node hash;
+ 	struct list_head call_node;
+-	struct list_head mcount_loc_node;
+ 	struct section *sec;
+ 	unsigned long offset;
+ 	unsigned int len;
 
 
