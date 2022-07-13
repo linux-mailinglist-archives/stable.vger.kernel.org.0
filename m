@@ -2,80 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DF1572EB3
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 09:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA315572FE4
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 10:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234508AbiGMHFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 03:05:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60396 "EHLO
+        id S232225AbiGMIAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 04:00:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234522AbiGMHFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 03:05:09 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E471BE0F4;
-        Wed, 13 Jul 2022 00:05:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=8cUkVHj6JMzwNeo6rQI43YJNxl4TIBWEA26ulmovh58=;
-        t=1657695907; x=1658905507; b=HKRvWBdg1WuTRIqDFHVofDE0IOdUbrpfgsoohxTU1AIdxzJ
-        sFTfboc1o7FklJTa+jPAu/rXmntpfE5ZXwNfvuNUwyUTGkEHZLY28MzDCfOd9+ks4C7BSBmSQcINq
-        pFTD6Y0gpgGJKYWFYnWzpKkYeZj+UTmfjJ3MhafBA4xW4v5tWz/fQUy9o8a1RtjkWjt4GccbblU+D
-        Fz7aWpf+vRI2NchJpoyIhQWZy4VaY+VlkgvJozavM1a/ISV8tMt/NhnjlvBoLIOD23YX+17D9R9MI
-        1AgcFVNmkuj5X8HkSOzD/zuWWH7Q6DNtwjtr/j8OKvXn8ugosfqAhP0zA1S0mNNA==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1oBWQi-00Eb1M-1d;
-        Wed, 13 Jul 2022 09:05:04 +0200
-Message-ID: <d2c55506bd0a93854320ce352a93303cf8080f48.camel@sipsolutions.net>
-Subject: Re: [PATCH] um: seed rng using host OS rng
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        linux-um@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Date:   Wed, 13 Jul 2022 09:05:03 +0200
-In-Reply-To: <20220712232738.77737-1-Jason@zx2c4.com>
-References: <20220712232738.77737-1-Jason@zx2c4.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.3 (3.44.3-1.fc36) 
+        with ESMTP id S235058AbiGMIAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 04:00:36 -0400
+X-Greylist: delayed 1786 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 13 Jul 2022 01:00:35 PDT
+Received: from www.kot-begemot.co.uk (ivanoab7.miniserver.com [37.128.132.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2654DE0249
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 01:00:35 -0700 (PDT)
+Received: from [192.168.18.6] (helo=jain.kot-begemot.co.uk)
+        by www.kot-begemot.co.uk with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <anton.ivanov@kot-begemot.co.uk>)
+        id 1oBWSZ-0001yh-IW; Wed, 13 Jul 2022 07:07:03 +0000
+Received: from madding.kot-begemot.co.uk ([192.168.3.98])
+        by jain.kot-begemot.co.uk with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <anton.ivanov@kot-begemot.co.uk>)
+        id 1oBWSS-003Myb-Hs; Wed, 13 Jul 2022 08:06:57 +0100
+Message-ID: <0cef6aca-6e94-bc77-75a2-c017e6f87f7b@kot-begemot.co.uk>
+Date:   Wed, 13 Jul 2022 08:06:52 +0100
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH] um: seed rng using host OS rng
+Content-Language: en-US
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-um@lists.infradead.org, linux-kernel@vger.kernel.org,
+        johannes@sipsolutions.net
+Cc:     stable@vger.kernel.org
+References: <20220712232738.77737-1-Jason@zx2c4.com>
+From:   Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
+In-Reply-To: <20220712232738.77737-1-Jason@zx2c4.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.0
+X-Spam-Score: -1.0
+X-Clacks-Overhead: GNU Terry Pratchett
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2022-07-13 at 01:27 +0200, Jason A. Donenfeld wrote:
->=20
+On 13/07/2022 00:27, Jason A. Donenfeld wrote:
+> UML generally does not provide access to special CPU instructions like
+> RDRAND, and execution tends to be rather deterministic, with no real
+> hardware interrupts, making good randomness really very hard, if not
+> all together impossible. Not only is this a security eyebrow raiser, but
+> it's also quite annoying when trying to do various pieces of UML-based
+> automation that takes a long time to boot, if ever.
+> 
+> Fix this by trivially calling getrandom() in the host and using that
+> seed as "bootloader randomness", which initializes the rng immediately
+> at UML boot.
+> 
+> The old behavior can be restored the same way as on any other arch, by
+> way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=n or
+> random.trust_bootloader=0. So seen from that perspective, this just
+> makes UML act like other archs, which is positive in its own right.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Johannes Berg <johannes@sipsolutions.net>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>   arch/um/include/shared/os.h | 7 +++++++
+>   arch/um/kernel/um_arch.c    | 8 ++++++++
+>   arch/um/os-Linux/util.c     | 6 ++++++
+>   3 files changed, 21 insertions(+)
+> 
+> diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
+> index fafde1d5416e..79644dd88d58 100644
+> --- a/arch/um/include/shared/os.h
 > +++ b/arch/um/include/shared/os.h
 > @@ -11,6 +11,12 @@
->  #include <irq_user.h>
->  #include <longjmp.h>
->  #include <mm_id.h>
+>   #include <irq_user.h>
+>   #include <longjmp.h>
+>   #include <mm_id.h>
 > +/* This is to get size_t */
 > +#ifndef __UM_HOST__
 > +#include <linux/types.h>
 > +#else
 > +#include <stddef.h>
 > +#endif
-> =20
->  #define CATCH_EINTR(expr) while ((errno =3D 0, ((expr) < 0)) && (errno =
-=3D=3D EINTR))
-> =20
+>   
+>   #define CATCH_EINTR(expr) while ((errno = 0, ((expr) < 0)) && (errno == EINTR))
+>   
 > @@ -243,6 +249,7 @@ extern void stack_protections(unsigned long address);
->  extern int raw(int fd);
->  extern void setup_machinename(char *machine_out);
->  extern void setup_hostinfo(char *buf, int len);
+>   extern int raw(int fd);
+>   extern void setup_machinename(char *machine_out);
+>   extern void setup_hostinfo(char *buf, int len);
 > +extern ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
+>   extern void os_dump_core(void) __attribute__ ((noreturn));
+>   extern void um_early_printk(const char *s, unsigned int n);
+>   extern void os_fix_helper_signals(void);
+> diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+> index 0760e24f2eba..74f3efd96bd4 100644
+> --- a/arch/um/kernel/um_arch.c
+> +++ b/arch/um/kernel/um_arch.c
+> @@ -16,6 +16,7 @@
+>   #include <linux/sched/task.h>
+>   #include <linux/kmsg_dump.h>
+>   #include <linux/suspend.h>
+> +#include <linux/random.h>
+>   
+>   #include <asm/processor.h>
+>   #include <asm/cpufeature.h>
+> @@ -406,6 +407,8 @@ int __init __weak read_initrd(void)
+>   
+>   void __init setup_arch(char **cmdline_p)
+>   {
+> +	u8 rng_seed[32];
+> +
+>   	stack_protections((unsigned long) &init_thread_info);
+>   	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
+>   	mem_total_pages(physmem_size, iomem_size, highmem);
+> @@ -416,6 +419,11 @@ void __init setup_arch(char **cmdline_p)
+>   	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
+>   	*cmdline_p = command_line;
+>   	setup_hostinfo(host_info, sizeof host_info);
+> +
+> +	if (os_getrandom(rng_seed, sizeof(rng_seed), 0) == sizeof(rng_seed)) {
+> +		add_bootloader_randomness(rng_seed, sizeof(rng_seed));
+> +		memzero_explicit(rng_seed, sizeof(rng_seed));
+> +	}
+>   }
+>   
+>   void __init check_bugs(void)
+> diff --git a/arch/um/os-Linux/util.c b/arch/um/os-Linux/util.c
+> index 41297ec404bf..fc0f2a9dee5a 100644
+> --- a/arch/um/os-Linux/util.c
+> +++ b/arch/um/os-Linux/util.c
+> @@ -14,6 +14,7 @@
+>   #include <sys/wait.h>
+>   #include <sys/mman.h>
+>   #include <sys/utsname.h>
+> +#include <sys/random.h>
+>   #include <init.h>
+>   #include <os.h>
+>   
+> @@ -96,6 +97,11 @@ static inline void __attribute__ ((noreturn)) uml_abort(void)
+>   			exit(127);
+>   }
+>   
+> +ssize_t os_getrandom(void *buf, size_t len, unsigned int flags)
+> +{
+> +	return getrandom(buf, len, flags);
+> +}
+> +
+>   /*
+>    * UML helper threads must not handle SIGWINCH/INT/TERM
+>    */
 
-For me, this doesn't compile, and per the man-page on my system, ssize_t
-requires <sys/types.h>, not <stddef.h>?
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-johannes
+-- 
+Anton R. Ivanov
+https://www.kot-begemot.co.uk/
