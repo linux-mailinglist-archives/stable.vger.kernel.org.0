@@ -2,121 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB092573807
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 15:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A44B57381F
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 15:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236048AbiGMNxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 09:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55254 "EHLO
+        id S235444AbiGMN6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 09:58:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236309AbiGMNx0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 09:53:26 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E5C120182;
-        Wed, 13 Jul 2022 06:53:25 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 1C5DF200C2;
-        Wed, 13 Jul 2022 13:53:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1657720404; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=DM39RGb67pC/dQ+Mn9Ekz27AAhpc6Ju3ivYPtP9YBvs=;
-        b=PKsAJZoJfkrCh5hlKucZ3+P2/L0LKquOqhJZlrEKdWTcV8r76nL07sOLRqnsNZGxze5+vi
-        rJmxMeIUwbdEIUKqqBpoKbEhQEJJdbgg9Gi9hF0ii5wA59hsnxdqbot1gMi31AeACQhp7s
-        9GFsn8IUMy7Qulz/jfF1ExTp7YNuBYM=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BE89C13754;
-        Wed, 13 Jul 2022 13:53:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 9UExLVPOzmLgUAAAMHmgww
-        (envelope-from <jgross@suse.com>); Wed, 13 Jul 2022 13:53:23 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, stable@vger.kernel.org,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH v2] xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
-Date:   Wed, 13 Jul 2022 15:53:22 +0200
-Message-Id: <20220713135322.19616-1-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
+        with ESMTP id S230057AbiGMN6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 09:58:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9D50F3BA
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 06:58:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1657720714;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/KaBUzMJAb8ELoURf+aDcmgxflG4+mAlNx4MhWPAnms=;
+        b=EoFNHBLHnVVd0/TqUZaISAtoJKFvVaooaz4fAR2FgVOKYornUFFxTqaGNZASrfUvHy/aLS
+        wqTOJSTh331kfdbjkW7JJz4B45ngXczyXH0NFLPjCaI0M0CTOm1y26H6eh1hslHYg6ZqwJ
+        duZ4kyMPK0ikGy2gQfj0I4yPbh6Opro=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-365-iXYDArJ2Pq2tnmG_TwCikw-1; Wed, 13 Jul 2022 09:58:31 -0400
+X-MC-Unique: iXYDArJ2Pq2tnmG_TwCikw-1
+Received: by mail-ed1-f72.google.com with SMTP id z20-20020a05640240d400b0043a82d9d65fso8341868edb.0
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 06:58:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:cc:references:in-reply-to;
+        bh=/KaBUzMJAb8ELoURf+aDcmgxflG4+mAlNx4MhWPAnms=;
+        b=QedwSaK3UPjWTGcZP5OwcjJZb5aUEumuId3G+id4tmjyMiEaqNClWMw7mk8ZIgR0FT
+         wFpzAMjvIFuGD4N1QqIAn/okuHebsCLAoA+0EKkIn2KcxrOF9xlLRB/9zkf51/47oz0k
+         CsnizZ7AN0NM+Hfueh1EyJLUy1Phb203wPWbxaPsOe8s/WctmApjcGxs1y6mBUH0bNZA
+         QEAxbhnRV0pqE0dIra8xm2WKGzdir4heNpocNIcFFV3e8uaHH+SbXRvY4bWOjsQHAkVC
+         BYhPKINnE6OJVYydUOUQNOi+7S3KobhfySKPEr45ggXEMKN+ZvodvY0mpMZ9ZPDvQGsk
+         ynpw==
+X-Gm-Message-State: AJIora8K02UU2lPiCcF2dfcLw612Q1YSEIvRkqpAXrY/wafMG8NaupBY
+        hGU16G/i5xfQL/Ox7N1gFxZJw49Ym+HEq2AjxY1eFAqvC7ArLFiISAsJSFvSUB4CrP1nU3ml4FO
+        iQG/y3WfOehQflCU9
+X-Received: by 2002:a17:907:9605:b0:6f5:c66:7c13 with SMTP id gb5-20020a170907960500b006f50c667c13mr3718846ejc.66.1657720710394;
+        Wed, 13 Jul 2022 06:58:30 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vMuFzYBhnUEpQjzR0GE0q5vpz83dYF6EUDZYybFG7bY9u68mWywkzQ+aLih1ks9mgLlfrtcg==
+X-Received: by 2002:a17:907:9605:b0:6f5:c66:7c13 with SMTP id gb5-20020a170907960500b006f50c667c13mr3718821ejc.66.1657720710145;
+        Wed, 13 Jul 2022 06:58:30 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:d69d:5353:dba5:ee81? (2001-1c00-0c1e-bf00-d69d-5353-dba5-ee81.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:d69d:5353:dba5:ee81])
+        by smtp.gmail.com with ESMTPSA id w21-20020a50fa95000000b0043a8f40a038sm7997545edr.93.2022.07.13.06.58.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Jul 2022 06:58:29 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="------------LEBEnV2skDghZQRyUOjQNnwZ"
+Message-ID: <2f32f2f5-2c78-9860-5794-2cfd0a283702@redhat.com>
+Date:   Wed, 13 Jul 2022 15:58:28 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [Regression] ACPI: video: Change how we determine if brightness
+ key-presses are handled
+Content-Language: en-US
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Ben Greening <bgreening@gmail.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
+        rafael@kernel.org, linux-acpi@vger.kernel.org
+References: <CALF=6jEe5G8+r1Wo0vvz4GjNQQhdkLT5p8uCHn6ZXhg4nsOWow@mail.gmail.com>
+ <02190bee-2e1b-bea3-b716-a7c7f5aa2ff0@redhat.com>
+ <CALF=6jG5gmqqXo5cSFFRWRM96K0rzx3WabNdwAmdZQH=unFG7g@mail.gmail.com>
+ <3ddcdb24-cab3-509d-d694-edd4ab85df0a@redhat.com>
+In-Reply-To: <3ddcdb24-cab3-509d-d694-edd4ab85df0a@redhat.com>
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xenvif_rx_next_skb() is expecting the rx queue not being empty, but
-in case the loop in xenvif_rx_action() is doing multiple iterations,
-the availability of another skb in the rx queue is not being checked.
+This is a multi-part message in MIME format.
+--------------LEBEnV2skDghZQRyUOjQNnwZ
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-This can lead to crashes:
+Hi again,
 
-[40072.537261] BUG: unable to handle kernel NULL pointer dereference at 0000000000000080
-[40072.537407] IP: xenvif_rx_skb+0x23/0x590 [xen_netback]
-[40072.537534] PGD 0 P4D 0
-[40072.537644] Oops: 0000 [#1] SMP NOPTI
-[40072.537749] CPU: 0 PID: 12505 Comm: v1-c40247-q2-gu Not tainted 4.12.14-122.121-default #1 SLE12-SP5
-[40072.537867] Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 11/23/2021
-[40072.537999] task: ffff880433b38100 task.stack: ffffc90043d40000
-[40072.538112] RIP: e030:xenvif_rx_skb+0x23/0x590 [xen_netback]
-[40072.538217] RSP: e02b:ffffc90043d43de0 EFLAGS: 00010246
-[40072.538319] RAX: 0000000000000000 RBX: ffffc90043cd7cd0 RCX: 00000000000000f7
-[40072.538430] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffc90043d43df8
-[40072.538531] RBP: 000000000000003f R08: 000077ff80000000 R09: 0000000000000008
-[40072.538644] R10: 0000000000007ff0 R11: 00000000000008f6 R12: ffffc90043ce2708
-[40072.538745] R13: 0000000000000000 R14: ffffc90043d43ed0 R15: ffff88043ea748c0
-[40072.538861] FS: 0000000000000000(0000) GS:ffff880484600000(0000) knlGS:0000000000000000
-[40072.538988] CS: e033 DS: 0000 ES: 0000 CR0: 0000000080050033
-[40072.539088] CR2: 0000000000000080 CR3: 0000000407ac8000 CR4: 0000000000040660
-[40072.539211] Call Trace:
-[40072.539319] xenvif_rx_action+0x71/0x90 [xen_netback]
-[40072.539429] xenvif_kthread_guest_rx+0x14a/0x29c [xen_netback]
+On 7/13/22 15:29, Hans de Goede wrote:
 
-Fix that by stopping the loop in case the rx queue becomes empty.
+<snip>
 
-Cc: stable@vger.kernel.org
-Fixes: 98f6d57ced73 ("xen-netback: process guest rx packets in batches")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
----
-V2:
-- modified patch title (Jan Beulich)
-- added Fixes: (Jan Beulich)
----
- drivers/net/xen-netback/rx.c | 1 +
- 1 file changed, 1 insertion(+)
+> So I plan to fix this part by adding a quirk to make native the default
+> on your machine. Can you do:
+> 
+> sudo dmidecode > dmidecode.txt
+> 
+> And email me the generated dmidecode.txt (this will contain serialnumbers
+> so you may want to send it off-list) ? Then I can also prepare a patch
+> to add a quirk to make native the default on your model.
 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index dbac4c03d21a..a0335407be42 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -495,6 +495,7 @@ void xenvif_rx_action(struct xenvif_queue *queue)
- 	queue->rx_copy.completed = &completed_skbs;
- 
- 	while (xenvif_rx_ring_slots_available(queue) &&
-+	       !skb_queue_empty(&queue->rx_queue) &&
- 	       work_done < RX_BATCH_SIZE) {
- 		xenvif_rx_skb(queue);
- 		work_done++;
--- 
-2.35.3
+I have found a DMI decode for your model here:
+https://github.com/linuxhw/DMI/
+
+So I've written the quirk patch (attached) based on that.
+
+Please give this a try. With a 5.18.1x kernel with both patches applied,
+everything should work without needing to specify anything on the kernel
+commandline.
+
+Regards,
+
+Hans
+--------------LEBEnV2skDghZQRyUOjQNnwZ
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-ACPI-video-Use-native-backlight-on-Dell-Inspiron-N40.patch"
+Content-Disposition: attachment;
+ filename*0="0001-ACPI-video-Use-native-backlight-on-Dell-Inspiron-N40.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
+
+RnJvbSAxMmIyYWU2Y2JiMzY4NjBmOTk2YTVjYTM4MmJiMWRkYTQzYTRmYjhiIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUByZWRoYXQu
+Y29tPgpEYXRlOiBXZWQsIDEzIEp1bCAyMDIyIDE1OjUzOjA4ICswMjAwClN1YmplY3Q6IFtQ
+QVRDSF0gQUNQSTogdmlkZW86IFVzZSBuYXRpdmUgYmFja2xpZ2h0IG9uIERlbGwgSW5zcGly
+b24gTjQwMTAKClRoZSBEZWxsIEluc3Bpcm9uIE40MDEwIGRvZXMgbm90IGhhdmUgQUNQSSBi
+YWNrbGlnaHQgY29udHJvbCwKc28gYWNwaV92aWRlb19nZXRfYmFja2xpZ2h0X3R5cGUoKSdz
+IGhldXJpc3RpY3MgcmV0dXJuIHZlbmRvciBhcwp0aGUgdHlwZSB0byB1c2UuCgpCdXQgdGhl
+IHZlbmRvciBpbnRlcmZhY2UgaXMgYnJva2VuLCB3aGVyZSBhcyB0aGUgbmF0aXZlIChpbnRl
+bF9iYWNrbGlnaHQpCndvcmtzIHdlbGwsIGFkZCBhIHF1aXJrIHRvIHVzZSBuYXRpdmUuCgpM
+aW5rOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9yZWdyZXNzaW9ucy9DQUxGPTZqRWU1Rzgr
+cjFXbzB2dno0R2pOUVFoZGtMVDVwOHVDSG42WlhoZzRuc09Xb3dAbWFpbC5nbWFpbC5jb20v
+ClJlcG9ydGVkLWFuZC10ZXN0ZWQtYnk6IEJlbiBHcmVlbmluZyA8YmdyZWVuaW5nQGdtYWls
+LmNvbT4KU2lnbmVkLW9mZi1ieTogSGFucyBkZSBHb2VkZSA8aGRlZ29lZGVAcmVkaGF0LmNv
+bT4KLS0tCiBkcml2ZXJzL2FjcGkvdmlkZW9fZGV0ZWN0LmMgfCA4ICsrKysrKysrCiAxIGZp
+bGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9hY3Bp
+L3ZpZGVvX2RldGVjdC5jIGIvZHJpdmVycy9hY3BpL3ZpZGVvX2RldGVjdC5jCmluZGV4IGJl
+Y2MxOThlNGMyMi4uNDA5OTE0MGJiZDVmIDEwMDY0NAotLS0gYS9kcml2ZXJzL2FjcGkvdmlk
+ZW9fZGV0ZWN0LmMKKysrIGIvZHJpdmVycy9hY3BpL3ZpZGVvX2RldGVjdC5jCkBAIC0zNDcs
+NiArMzQ3LDE0IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZG1pX3N5c3RlbV9pZCB2aWRlb19k
+ZXRlY3RfZG1pX3RhYmxlW10gPSB7CiAJCURNSV9NQVRDSChETUlfUFJPRFVDVF9OQU1FLCAi
+TWFjQm9va1BybzEyLDEiKSwKIAkJfSwKIAl9LAorCXsKKwkgLmNhbGxiYWNrID0gdmlkZW9f
+ZGV0ZWN0X2ZvcmNlX25hdGl2ZSwKKwkgLyogRGVsbCBJbnNwaXJvbiBONDAxMCAqLworCSAu
+bWF0Y2hlcyA9IHsKKwkJRE1JX01BVENIKERNSV9TWVNfVkVORE9SLCAiRGVsbCBJbmMuIiks
+CisJCURNSV9NQVRDSChETUlfUFJPRFVDVF9OQU1FLCAiSW5zcGlyb24gTjQwMTAiKSwKKwkJ
+fSwKKwl9LAogCXsKIAkgLmNhbGxiYWNrID0gdmlkZW9fZGV0ZWN0X2ZvcmNlX25hdGl2ZSwK
+IAkgLyogRGVsbCBWb3N0cm8gVjEzMSAqLwotLSAKMi4zNi4wCgo=
+
+--------------LEBEnV2skDghZQRyUOjQNnwZ--
 
