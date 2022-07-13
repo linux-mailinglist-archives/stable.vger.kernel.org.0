@@ -2,85 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29826573882
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 16:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A6C573885
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 16:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236446AbiGMOMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 10:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
+        id S231151AbiGMONn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 10:13:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231151AbiGMOMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 10:12:49 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1F032EC9;
-        Wed, 13 Jul 2022 07:12:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=wGRPtxM9zwJmyc5jc5elK4XE4EFRYrearKDZedH3sTg=; b=Z4A+w2PH9rZGkZa1+jFMumRm4R
-        8JDguw6Sbit9O1V65ZDAPzRELm91U/PbJsV4AFPD30IdPTRL56sLpWv8e7fhuABFvOHUeAWWOTUJw
-        FjLUI77YIqr8N7i6FOBGsVo6tti6QRrIatCQhIRjtWLVc6oUNaWaWi3ve3kCXzmvN/id8m3Sq3H5W
-        FXsqV8L9L+fRNVtMlLo4KgpZgIky2yGzVByls6IqBSGkpZqRbGx+Z+ehGgSc8pR+YCEN4JwjPAk34
-        WQp4hzRkmIffrCel9ogdZtu2uzQ+U78SOXT2HKTyMMqly1sIuxoPrd4Z2JDE/Uzz+QIZHZMlm2oO5
-        uIDJS7nA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oBd68-003aDZ-Ui; Wed, 13 Jul 2022 14:12:17 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C3B25300238;
-        Wed, 13 Jul 2022 16:12:13 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id AD62A20595D02; Wed, 13 Jul 2022 16:12:13 +0200 (CEST)
-Date:   Wed, 13 Jul 2022 16:12:13 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        kvm list <kvm@vger.kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        Alex =?iso-8859-1?Q?Benn=E9e?= <alex.bennee@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: Re: [PATCH 5.18 00/61] 5.18.12-rc1 review
-Message-ID: <Ys7Sved3UZOtzJLf@hirez.programming.kicks-ass.net>
-References: <20220712183236.931648980@linuxfoundation.org>
- <CA+G9fYvRQ9gzee8pjRmsyedz6oGyh5pzSYEPkuDoKEE+X2RZDg@mail.gmail.com>
- <Ys7Cm17ShWUOXkRw@kroah.com>
+        with ESMTP id S235415AbiGMONk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 10:13:40 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BBF9FC5
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 07:13:39 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id d1so191929qko.13
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 07:13:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zXRv0gtyHIIjpH4XHcFmhsbTOk+Z7GVu51i8mbaOjmU=;
+        b=z/dz1t+89fSoikCSPNvj2ywJY/buZPTmgbQ1N+m8xrst4vrTWeYz4qZOXZMWMUXGb4
+         2s6tWDBAak5/bqzgqVbkW5h53Wca2C2848w1FJHdwNtTmlAdk62sh8QDv8AuTH19uj4N
+         +weYBRwlOoYcCBslvWDtmMwznCTobZ5kYaW8/DDGczQeduZHx5t68m7FaMtbVpj7uhwQ
+         BT896bYA08lOh8Zh3e26csS/91xHcnAdEwyfhIm756VVCXGnv5+1XRxGgEguZ0RZBW2i
+         B1ibpyGlwR7xq9aqUWgGI8leuKYnW38GYsVZ1eR9U7pMjMiXPnTLUTCDgWNeGlE5p9BM
+         Hu+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zXRv0gtyHIIjpH4XHcFmhsbTOk+Z7GVu51i8mbaOjmU=;
+        b=cPxTuI+4l7fz7o7rEL5NHKOZSmnnTsbY3Ib3RF2Tili31Hn2I3ps4GdcoAUahwbVZ6
+         N1/OFlIH54lBLTwFprsP5yfraQnr7b6PDNefPqa8TYFy0eAsi2Cg6MOgVGSIJJ1oWX96
+         eBSs439RHgDc1v82tNytUGS+pd206FilYb9R37Il036qY9AqDQ0ceWb76kNc4xFIcCCu
+         3m/BI5QcmXBcofXyffei2qfnJ7kcdDKAKqPxSfhmlX/DTFLbfYESU9csg2Ed2FWWdsQK
+         P7AqHHBK9jDo18+EQ1Sj+CYPwjKfrE2P8We8UIZiwiH4+y7mWvbdDzFV7FSdNmztxc1A
+         LmrQ==
+X-Gm-Message-State: AJIora8ZgVPBF6J39X8SraZ1devkER9BWCmcd5kexH74XH8MCwV9GK0w
+        E7izJfs8Jggrvj67swFxQ0mKan0jIOdS2A==
+X-Google-Smtp-Source: AGRyM1s+u+leCBPwtg87lHA5q/oV4ruD4KylxxEIcztUxa3a/kH9KlYVUyLT8vIubJB8aH7WGVlNSQ==
+X-Received: by 2002:ae9:e64a:0:b0:6b5:90cf:822 with SMTP id x10-20020ae9e64a000000b006b590cf0822mr2500695qkl.541.1657721618420;
+        Wed, 13 Jul 2022 07:13:38 -0700 (PDT)
+Received: from localhost (cpe-174-109-172-136.nc.res.rr.com. [174.109.172.136])
+        by smtp.gmail.com with ESMTPSA id l20-20020a05622a175400b00304fa21762csm6778274qtk.53.2022.07.13.07.13.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Jul 2022 07:13:37 -0700 (PDT)
+From:   Josef Bacik <josef@toxicpanda.com>
+To:     akpm@linux-foundation.org, linux-mm@kvack.org
+Cc:     "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org,
+        Rik van Riel <riel@surriel.com>, Chris Mason <clm@fb.com>
+Subject: [PATCH v2] mm: fix page leak with multiple threads mapping the same page
+Date:   Wed, 13 Jul 2022 10:13:37 -0400
+Message-Id: <e90c8f0dbae836632b669c2afc434006a00d4a67.1657721478.git.josef@toxicpanda.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ys7Cm17ShWUOXkRw@kroah.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 13, 2022 at 03:03:23PM +0200, Greg Kroah-Hartman wrote:
+We have an application with a lot of threads that use a shared mmap
+backed by tmpfs mounted with -o huge=within_size.  This application
+started leaking loads of huge pages when we upgraded to a recent kernel.
 
-> > 2) qemu_x86_64 boot warning
-> >    - WARNING: CPU: 0 PID: 0 at arch/x86/kernel/alternative.c:558
-> > apply_returns+0x19c/0x1d0
-> 
-> Warning, but does everything still work?
-> 
-> And again, still on Linus's tree?
+Using the page ref tracepoints and a BPF program written by Tejun Heo we
+were able to determine that these pages would have multiple refcounts
+from the page fault path, but when it came to unmap time we wouldn't
+drop the number of refs we had added from the faults.
 
-Working on it: https://lkml.kernel.org/r/Ys66hwtFcGbYmoiZ@hirez.programming.kicks-ass.net
+I wrote a reproducer that mmap'ed a file backed by tmpfs with -o
+huge=always, and then spawned 20 threads all looping faulting random
+offsets in this map, while using madvise(MADV_DONTNEED) randomly for
+huge page aligned ranges.  This very quickly reproduced the problem.
+
+The problem here is that we check for the case that we have multiple
+threads faulting in a range that was previously unmapped.  One thread
+maps the PMD, the other thread loses the race and then returns 0.
+However at this point we already have the page, and we are no longer
+putting this page into the processes address space, and so we leak the
+page.  We actually did the correct thing prior to f9ce0be71d1f, however
+it looks like Kirill copied what we do in the anonymous page case.  In
+the anonymous page case we don't yet have a page, so we don't have to
+drop a reference on anything.  Previously we did the correct thing for
+file based faults by returning VM_FAULT_NOPAGE so we correctly drop the
+reference on the page we faulted in.
+
+Fix this by returning VM_FAULT_NOPAGE in the pmd_devmap_trans_unstable()
+case, this makes us drop the ref on the page properly, and now my
+reproducer no longer leaks the huge pages.
+
+Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@vger.kernel.org
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+---
+v1->v2:
+- Added Kirill's Acked-by.
+- Added cc:stable
+- Added a comment about why we need to return NOPAGE.
+
+ mm/memory.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/mm/memory.c b/mm/memory.c
+index 7a089145cad4..207b29b09286 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4369,9 +4369,12 @@ vm_fault_t finish_fault(struct vm_fault *vmf)
+ 			return VM_FAULT_OOM;
+ 	}
+ 
+-	/* See comment in handle_pte_fault() */
++	/*
++	 * See comment in handle_pte_fault() for how this scenario happens, we
++	 * need to return NOPAGE so that we drop this page.
++	 */
+ 	if (pmd_devmap_trans_unstable(vmf->pmd))
+-		return 0;
++		return VM_FAULT_NOPAGE;
+ 
+ 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
+ 				      vmf->address, &vmf->ptl);
+-- 
+2.36.1
+
