@@ -2,315 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F495736E3
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 15:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9DA5736E5
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 15:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235877AbiGMNIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 09:08:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57002 "EHLO
+        id S229939AbiGMNJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 09:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235917AbiGMNIm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 09:08:42 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3670029C8E
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 06:08:11 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id g4so10419224pgc.1
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 06:08:10 -0700 (PDT)
+        with ESMTP id S235917AbiGMNI4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 09:08:56 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2023E4C;
+        Wed, 13 Jul 2022 06:08:54 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id w12so13292360edd.13;
+        Wed, 13 Jul 2022 06:08:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0Mo7dt/N9bwMcRHYPHLgdsbt+C0IT0vg4lmBEMJ8vV4=;
-        b=8VOxd6YwcQIuLIExaoQQAPt9iFEE7pJEgXwga/zO2T0pkZSefhCDZSgcc5tHUn/AH3
-         ijqoDzhq5nmIdEE3GpAmUZlaYQe9zk1FOCa65f1DIwojJHW1h+Ey/bVFOGUAOBSPbel2
-         xnNOMRVFNCBYl8M7OVWpXRfmHQZ6Dl+3YT6l2EY45tcbin6umRt2Xr+1XSYH0YfTFGqH
-         BEzLKl9NXGQoiAVGFcnPPbhw1QOP7f6mWattcG3ekBVDubltbuzj/gRmsEjIQfI0thLV
-         ivtGjXMwrFiZxIF33HmLhvovMJUXCh1qMThCF908ks8GcnPuBEiUXknrezYAHGVI3N7L
-         lRSQ==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hMwe0rdT7SyoDOBgnmApSR8aVe/+Or+lmpy2VVuGPUM=;
+        b=JChb+wKuptilCTlze8CjLmidtgd/qaXrd4cGYb7elwnvZ861sF/hBKRcIeZbY5kvPF
+         kSBf9UYdiNceYHey0iUOtxeBU+aYRNxMe6hwy7tSxH0gSrXNh9JaB9+Dop4YnGng0e3M
+         gZhrKHZa4LXVfdxUYt7oaIRMf3IOFLBwHiQvLXCgxE9XHtuHTwasZzr6yihkUnOK0qTS
+         fVydBxmFC7kV4p1bP19BVz+zpUK42NtG5H0WAeRFc3NPx9AAfSySdBLBMUbgZ9zV9mAj
+         SGdXbh0F03EQAlrJ6/8kMqOEqqSAjO82K+cOi6dHyaUfmgLIKCi11KYwNR3uZOWMQ4IK
+         GrvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0Mo7dt/N9bwMcRHYPHLgdsbt+C0IT0vg4lmBEMJ8vV4=;
-        b=uDBcKmMEPgaKZ0A5jXa42ecvJwrlAKmfFkCSd5VOfBqWMQfrfT1K8e39EJgi24dP+x
-         evIGtXrriCedBZlp0EUBGSccKeGMowK9ZCkS5y1sUfdAR+/yEEvXTDNTPNbINvzwxUj7
-         16jgwrD9l3HP6FKuurKDRWr+jbRbBd6OZJnBxHn68w2UengsqdwH8bxcPM6vPvbAVet3
-         sXP3TtJOcNsoUSUFcdNe4Z0x517M6JhMUOndNfcxuzCCLS+zncA4I33tYRvFRyO4F+gG
-         5y/NJwoTBiqXjLw3M7U5OXER64Bh8TpVROCTDpUi7a3dbsIHq0oirz6iPRszso6kA/u4
-         wb5Q==
-X-Gm-Message-State: AJIora/PukKorOQSvvIudc8Mjy+0ywmCGQQJhmKx5XpWwyRm815OwF/T
-        WbC7z3KkZiimgsOTAXNj5Hxngg5F007WJur/
-X-Google-Smtp-Source: AGRyM1uo05vqxieqNeLy7dhKCZ+cp/045Uz7CLQqSpwrIxcrzFy0iry1+bOfTyegGqGtyFCGjCNu9w==
-X-Received: by 2002:a63:4664:0:b0:416:3564:2a94 with SMTP id v36-20020a634664000000b0041635642a94mr3025707pgk.112.1657717690270;
-        Wed, 13 Jul 2022 06:08:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x5-20020a623105000000b005289ef6db79sm8797311pfx.32.2022.07.13.06.08.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Jul 2022 06:08:09 -0700 (PDT)
-Message-ID: <62cec3b9.1c69fb81.b200b.d17e@mx.google.com>
-Date:   Wed, 13 Jul 2022 06:08:09 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hMwe0rdT7SyoDOBgnmApSR8aVe/+Or+lmpy2VVuGPUM=;
+        b=oaxJTietfli//HdwrpVSO6zstq1oMaYW5kWmKluTV+tfWyRzcs8Y4+gUuKiu0tLk9r
+         gW4ecAJ6TXbjXph6KaGq0p8ZhP/73ROsLP3e3vUZ28XzMHLPKEOSXmEBuxnaIxstToh6
+         HdMAfsm8kgPD47Vk1uckEohUFVIhtfG/0h+wMXTGc1Sg2jxfqfPHtSBBl2rqZZDq0W1A
+         +msrq21w7c/FV810+Ih68bRlqXyAtuCHZKKV8yUeHbVMvzImAdee5Fz39XT7FayxiBKd
+         LO+Zj/QaFlPyEv2oLgnZK+W+NCBYehWTeT3UMADFcJ0IEGXv/cmXiKr5sYkqr3NuScs3
+         RNfQ==
+X-Gm-Message-State: AJIora/ypjCoICJY2XeG4UhHzaHYYUm3bgcb0XFadaeXsp0xFnnbvqSN
+        TgGjoaiWHCOYRQ4SnHlGOAIuXTShpz0uhpmYWwM=
+X-Google-Smtp-Source: AGRyM1t0jrurFaS/EFX9ysqrxzvCqtBpUI3RhKRo4y0mOUMKcnHw5APGFXVw1pndrMZbP9PKLmmtZO8AiH0Iomv9Tig=
+X-Received: by 2002:aa7:c2d1:0:b0:43a:997:c6d8 with SMTP id
+ m17-20020aa7c2d1000000b0043a0997c6d8mr4702779edp.161.1657717733314; Wed, 13
+ Jul 2022 06:08:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.11-61-gfb3840cbaa38
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.18 baseline: 163 runs,
- 6 regressions (v5.18.11-61-gfb3840cbaa38)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <CALF=6jEe5G8+r1Wo0vvz4GjNQQhdkLT5p8uCHn6ZXhg4nsOWow@mail.gmail.com>
+ <02190bee-2e1b-bea3-b716-a7c7f5aa2ff0@redhat.com>
+In-Reply-To: <02190bee-2e1b-bea3-b716-a7c7f5aa2ff0@redhat.com>
+From:   Ben Greening <bgreening@gmail.com>
+Date:   Wed, 13 Jul 2022 06:08:16 -0700
+Message-ID: <CALF=6jG5gmqqXo5cSFFRWRM96K0rzx3WabNdwAmdZQH=unFG7g@mail.gmail.com>
+Subject: Re: [Regression] ACPI: video: Change how we determine if brightness
+ key-presses are handled
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
+        rafael@kernel.org, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 163 runs, 6 regressions (v5.18.11-61-gfb3840=
-cbaa38)
-
-Regressions Summary
--------------------
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
-config           | 1          =
-
-jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
-config           | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.11-61-gfb3840cbaa38/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.11-61-gfb3840cbaa38
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fb3840cbaa38d1b97fae7cd130f06a1c834ef156 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
-config           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cea882b4c89f4140a39bda
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cea882b4c89f4140a39=
-bdb
-        failing since 7 days (last pass: v5.18.9-96-g91cfa3d0b94d, first fa=
-il: v5.18.9-102-ga6b8287ea0b9) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
-config           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cea21f6b5b2c3b32a39beb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cea21f6b5b2c3b32a39=
-bec
-        failing since 0 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
-ail: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ce8eacecbd74a800a39bdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
-/baseline-qemu_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
-/baseline-qemu_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ce8eacecbd74a800a39=
-bdc
-        failing since 0 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
-ail: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ce8ebeecbd74a800a39c05
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ce8ebeecbd74a800a39=
-c06
-        failing since 0 day (last pass: v5.18.10-27-gbe5c4eef4e40, first fa=
-il: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ce93437190c4e73aa39c04
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ce93437190c4e73aa39=
-c05
-        failing since 0 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
-ail: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ce936a5f61895f82a39c4d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-gfb3840cbaa38/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ce936a5f61895f82a39=
-c4e
-        failing since 0 day (last pass: v5.18.10-27-gbe5c4eef4e40, first fa=
-il: v5.18.11-61-g8656c561960d) =
-
- =20
+Hi Hans, thanks for getting back to me.
+
+evemu-record shows events for both "Video Bus" and "Dell WMI hotkeys":
+
+Video Bus
+E: 0.000001 0001 00e0 0001 # EV_KEY / KEY_BRIGHTNESSDOWN   1
+E: 0.000001 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+E: 0.000020 0001 00e0 0000 # EV_KEY / KEY_BRIGHTNESSDOWN   0
+E: 0.000020 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+
+Dell WMI hotkeys
+E: 0.000001 0004 0004 57349 # EV_MSC / MSC_SCAN             57349
+E: 0.000001 0001 00e0 0001 # EV_KEY / KEY_BRIGHTNESSDOWN   1
+E: 0.000001 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+E: 0.000020 0001 00e0 0000 # EV_KEY / KEY_BRIGHTNESSDOWN   0
+E: 0.000020 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+
+Adding video.report_key_events=1 with acpi_backlight=video makes
+things work like you said it would.
+
+
+With acpi_backlight=video just has intel_backlight.
+
+Without acpi_backlight=video:
+    intel_backlight:
+        max_brightness: 4882
+        backlight control works with echo
+        brightness keys make no change to brightness value
+
+    dell_backlight:
+        max_brightness: 15
+        backlight control doesn't work immediately, but does on reboot
+to set brightness at POST.
+        brightness keys change brightness value, but you don't see the
+change until reboot.
+
+Thanks again,
+
+Ben
+
+On Wed, Jul 13, 2022 at 2:43 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi Ben,
+>
+> On 7/13/22 07:27, Ben Greening wrote:
+> > (resending because of HTML formatting)
+> > Hi, I'm on Arch Linux and upgraded from kernel 5.18.9.arch1-1 to
+> > 5.18.10.arch1-1. The brightness keys don't work as well as before.
+> > Gnome had 20 degrees of brightness, now it's 10, and Xfce went from 10
+> > to 5. Additionally, on Gnome the brightness keys are a little slow to
+> > respond and there's a bit of a stutter. Don't know why Xfce doesn't
+> > stutter, but halving the degrees of brightness for both makes me
+> > wonder if each press is being counted twice.
+>
+> Author of the troublesome patch here, sorry that this broke things
+> for you.
+>
+> So this sounds like you are getting duplicate key-events reported,
+> causing the brightness to take 2 steps on each key-press which is
+> likely also causing the perceived stutter.
+>
+> This suggests that acpi_video_handles_brightness_key_presses()
+> was returning true on your system and is now returning false.
+>
+> Lets confirm this theory, please run either evtest or evemu-record
+> as root and then record events from the "Video Bus" device and then
+> press the brightness up/down keys. Press CTRL+C to exit. After this
+> repeat selecting the "Dell WMI hotkeys" device as input device.
+>
+> I expect both tests/recordings to show brightness key events with
+> the troublesome kernel, showing that you are getting duplicate events.
+>
+> If this is the case then as a workaround you can add:
+>
+> video.report_key_events=1
+>
+> to the kernel commandline. This should silence the "Video Bus"
+> events. Also can you provide the output of:
+>
+> ls /sys/class/backlight
+>
+> please?
+>
+>
+> > Reverting commit 3a0cf7ab8d in acpi_video.c and rebuilding
+> > 5.18.10.arch1-1 fixed it.
+>
+> > The laptop is a Dell Inspiron n4010 and I use "acpi_backlight=video"
+> > to make the brightness keys work. Please let me know if there's any
+> > hardware info you need.
+>
+> Note needing to add a commandline argument like this to get things
+> to work is something which really should always be reported upstream,
+> so that we can either adjust our heuristics; or add a quirk for your
+> laptop-model so that things will just work when another user tries
+> Linux on the same model.
+>
+> So while at it lets look into fixing this properly to.
+>
+> When you do not pass anything on the kernel commandline, what
+> is then the output of:
+>
+> ls /sys/class/backlight
+>
+> And for each directory under there, please cd into the dir
+> and then (as root) do:
+>
+> cat max_brightness # this gives you the range of this backlight intf.
+> echo $some-value > brightness
+>
+> picking some-value in a range of 0-max_brightness, repeating the
+> echo with different values (e.g. half-range + max) and see if
+> the screens brightness changes. Please let me know which directories
+> under /sys/class/backlight result in working backlight control
+> and which ones do not.
+>
+> Also what is the output of "ls /sys/class/backlight" when
+> "acpi_backlight=video" is present on the kernel commandline ?
+>
+> Regards,
+>
+> Hans
+>
