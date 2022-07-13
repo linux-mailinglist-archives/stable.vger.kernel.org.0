@@ -2,155 +2,339 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2F6573CE8
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 21:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 015E7573D00
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 21:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234545AbiGMTHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 15:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33466 "EHLO
+        id S229782AbiGMTLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 15:11:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231477AbiGMTHx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 15:07:53 -0400
-Received: from sonic309-21.consmr.mail.gq1.yahoo.com (sonic309-21.consmr.mail.gq1.yahoo.com [98.137.65.147])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522812CDD0
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 12:07:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netscape.net; s=a2048; t=1657739271; bh=lrtn2id1/w6rDvkb7r86M1MSgYYCSarhdbpXFUxCFVo=; h=Date:From:Subject:To:Cc:References:In-Reply-To:From:Subject:Reply-To; b=B84svUECHrKyJj/S/IA0R8B6lzJRrmGR6EjjpwPre6q4FnLUCuFWxAtYl0QfyVHyIuxkXCqQOyFh6hsXj72Wk8JBJk3m2RTXCJElviQNFA3ulDFaBWg7Ao7PGijwTpRfKtWyHj0HT/FPOq7FG4bZRIzn6uGWpOG78VEr6iIUJP6nd8vslvQINGoin87C5RKWpEdOCYPbkdeOLX2Xm9/oKdguMR3gohWdVcDQ/kshLij0URNJEZQ72feeP2efpGeDcIUFj+ZlpjnOVxYOj+sOTOFrvNq1kfkjDKjliTl6YlGnnKILFOmoTqnzMxbIddJAJO8032CJs7C6YmurCvJvSg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1657739271; bh=gginz7UTVTgsk/g8Xk92Vk/h7wc2Tv65ymmhLjLTC1X=; h=X-Sonic-MF:Date:From:Subject:To:From:Subject; b=SG+GnJHKUuULT/10FXE8IbELqySkPBhK8iFZ3W73AbOJo+iITG6ge9uydl6ZejYBJm5INzzhh1nnkoAdNwKZiFtCc9GPU3a5WuMlCURYMMjBncMP/2aivjIqAbVvGI0PclkKRSvFIRsDvLGyq6ctVG8tbCviLZgMBIlQf7lpyP2B5uUGkno+GBrFgWgwvwJYPqfVjWhlkJvahJTeI2/uW/cie4pSWpzKHm/eFUo8j2nx7QET2lvcRdD37sgwPesL/CF+5bpctMwWCIy5iDkNypJ/Cpe2u7v0dRDqL0nXTruwlBwJKY+i4KZcNbRNfGPX3DiKO1KyEFY8IjHjmwUv0A==
-X-YMail-OSG: qTQWnokVM1lfWDhV4gNNqh7DX7aoOaA1up.GlrFFYo.ojAmpcQqaUbXwWXAPITa
- jNtkZMD.YGcpXxR32NhmVokKMcZFO4ZPbxASOKqpHO4dVXiO4uDYG3lP__.X.SfNsuHfoQONvY9r
- 4Flln156vhTaQP5jewRxpn3MC0Ivcx6VIn6nxB3kQuQvEUcZfWyzMNXbtnl35xTJKnXvGB_TW6cV
- Kj9lk_Rhpi8qsb_TzzKG0ZSfU0OemAuCEMILPkOGcdkmRCHVTZ.nBLNVpl8hIHqwE4uF2Q4Fgi7G
- dSzhvrgEuJPBPHFJeVQ7UnAO4qkRN.rPkuW1hnrRWrcvw8329G_8jV1wWNTHd5S44JrBEOED7Fxe
- sysf_gbsRcD.aSxbVO.EkXBNGTxoYopcr0VvOpWzZf2mI4OB_FbjtL7.TChw_mOPnN8e8wTv5bo0
- IIS7rvgNW2HEzEFq0l3F2hVm5Y4fvpzJ7Utpj7vckmmjRnUY0ArUtF3KYXvAEQQXPEbdMcgknCLh
- HJExWR1K9oxohb1xQ2yGWomIbn_vGav6tE27non3SPQDYFWs2wqPiETxdGvjmvy5vfpf1RjVxjFX
- 2W64SP10lFQXbPSbFppMLqFvS19RBlfP0Gdix7NvYMx686gBD3G1gfoBn3x32zSbfdesQSGP74PJ
- aSwfH_WzE65DvkfJq8wiy4EAIgF7QI7NDWq0CWLxQRAlgqk21eiOG6_33cgDpnRIC8v9gcOooKbH
- x0GMQaPyWtflSUqnewdH8_p3DQR3oGgW7.gnGfa5QcRYPOljbBWgzwQzHa8xnWOPwMd23c3.Q7w.
- DlbS.0o1UXu84Cm1xwBL1mHuvmRMi36haFjsn8xRaqACG6kEQsqowAuD5H40_1ayO9ITaZrPKpCn
- im05CwO_s_sbAl_qx5b0_RRzmqQysTtILJWXHNSY4RJtPRL4eojeE0jEYNU3rxs2AwC63XblRUUY
- m9RatyGSh1KMx__BVRh4iPWVTINIl6P7YOCRX12dvx8npvP0SVSGnpj7SOwcq4ZZ3DIV3s9zr51_
- Gnrv6Er0Sl6kLjel7L38RjaCHbFhnMIjduZBoGY39u_YFXbTwCPTwMAmMd1AUhKrXspWgahDnIAD
- zyABNCifHavhpX6_XLrTAn4mwTJpHUSn8ou4RzJtQsGn1xjIfO0Jdt8JY_knT3.fV5FE3Frl77kT
- rLdUf3zIeE_9VFiBhsBY12.GJBeByLvJomYLOv68Jbs0d6BFBkao7t78CP7JKOMXiYyQdnaioL9_
- pa8ZQcwKc6JGaJlo1z_OSKZt3PWBIR506nboq_mWxJUONsia50FbfBZb8AseH8C5lRXtoJKbJ1l8
- aDj1FHvEC6RXxX5JkrwatiSrUSiCsffA4Gs7iUzDGVEp0B2eb73SdybjGoIqjYPqp2GsAYH3Kx.S
- 546lUvL8Q8sp9z_G06ud8CQ9nY2ZZaooV1vur4hfuLNJ05c1e9v9K2TAhADd1PowklBHmur4CGmt
- 4srjVDIVSzaNUs5aHB4uXsAy1BLNiAmOm2L3Cb5HLFpNU2R.X9a0J8zbghJYLKT67QaKpxrSCLjA
- BSX_1Zs7KD9t4EIAC2WLwm0X38SOrQ3NXW.ooNoQ8YzkTeU0Jge.nypK7iWesFcFhdjTe.gZNx9K
- jbUwcZSP7Xenf_nZWXWkAIrrg2O4HKlYqzb0bB4h.F_OvTowEaOYYsSr76Job5sVqTuNAfQuC782
- BPWDW1hTQQNIjV0inTGndVGy1jhItiSYTi1I6Pm6dQCsgAOuurs2c9NRL4kwOyG3oivnEUfToCg3
- r4aIzVQHXyicSINk4G8w76OLcv2lMFYY7N3iVz4BiEcKV5lzcEK8OiEw9dd5hlYTF8JdrGDkdsdi
- KEouMePMCQFNTHUT.T0E3lB..9jT.poDvp4xHsBtiXo5i_c1c8MZM_pUJIDIZnlBVRjnK6IW_4Uk
- FqGl3AJrsGl59fteby2HlD2DFPG7Fv1YfG.7ZVIlV0eq9n3RVXV0EsQHmyNJYrZb9bACyo1IhDMU
- eVbffhs85QmI.wEB5FI9JAC8QgavPsMZSn0chgX3_mqw_W8RYDpE4J54emEMvPIUZey2f_QY45Mg
- i8fYcnPZvLkmUxkHlpxwLdRlXUNcx.D7jsKtHwkutbzQFEEg3LOY1An8g1kP1Ynogzv_Gff6R89d
- 3H2swFs5GqURCMNo.1XFgi1D0CHFgmC9WzJvsSCSh.i34nCEe7fa0QJJRcOcF_ZV0JHS5h6I4qvf
- TEQ--
-X-Sonic-MF: <brchuckz@aim.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Wed, 13 Jul 2022 19:07:51 +0000
-Received: by hermes--production-bf1-58957fb66f-h8ftj (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 65a156af75367857ded6d2cf2b081491;
-          Wed, 13 Jul 2022 19:07:48 +0000 (UTC)
-Message-ID: <56a304ad-606f-6d33-bd2b-8c614fcdb666@netscape.net>
-Date:   Wed, 13 Jul 2022 15:07:47 -0400
+        with ESMTP id S229604AbiGMTLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 15:11:45 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B67F11EEEA
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 12:11:44 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id o8so7082194wms.2
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 12:11:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=UMLD4QFGn0nGSz/zdsubDnPZvRiSIbff4bVPrsMQz3c=;
+        b=BLWep+tUV3HQG82H7hg+n8XnCAocFUD8Ckl1jLQqJGLV9RR9OvOZ9a+Uchtr9siDPa
+         irE/FqKWNbC42Hb8wwJqy4I9C9Wq29ksF64dpMCoNm2msXy7ur2qfPnZgRUF2RtA4FQu
+         AZBbbmG5YJE/CKO+Alym+bBo9JDxtNgDZudBnhfrDlNQBP3QiNdbP22g3yZBfT126n7N
+         QmNAn+Q5B+cg9JyhXPXLmuIsu84/IK3+VhMuRAUMywJZ5BrJxLxVM8qLSVgYV7W4MpFq
+         8wEMxyGc+2vzM0iGMOMbmxwkAQuNTC6Wrt8AI2mDOAkUfbs46AEia3+HUYDiXUQqOACE
+         Kbag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UMLD4QFGn0nGSz/zdsubDnPZvRiSIbff4bVPrsMQz3c=;
+        b=fZsNnUo7rXtMxbgT9onm5pY7BW3c1XzadTHBE4x6sW+hVxjp2n6Knuk0LDhTs58Ctb
+         1xtACwplfXJck1JYFfdl3k+uatHm33DJPdCnRaygNNNyjDlnlKf8kH/Q6PTgClIu6/yq
+         5FgGuwFkGmBwDQ02M0nvl7mvIBIs/UWoaW5G/7QCRVg7ECgQUjr1CkjaESDlcgCLZlhy
+         pYmZ5oxpBPDzzwcd4gUfAnHQrEruFAsy38PMReHqjYX8ca7353m40JgvwN8JidaisNq8
+         N51zcf34IEMp+kyi17ovL0kuWREDfgIinuFd/XqFQy5kXDkaZUqJ7bWBP/Iu//2ZmPEN
+         ep9w==
+X-Gm-Message-State: AJIora8nC/763IcG/W+WV+PGqORWgeJdm4V3lmywGUX8hU0sRGhv/41g
+        fYuekHWoBiQWXkqvU68XdA+vViiQiRE=
+X-Google-Smtp-Source: AGRyM1sP3SmCNg6G6w4Rg8PXNPl5lUdGE3xVNnqRDWAA4mqIm/BsUuvwTVGc4IBSAEmlI85ZrbNUFQ==
+X-Received: by 2002:a7b:cb82:0:b0:39e:f9cf:12b7 with SMTP id m2-20020a7bcb82000000b0039ef9cf12b7mr11282254wmi.135.1657739503076;
+        Wed, 13 Jul 2022 12:11:43 -0700 (PDT)
+Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
+        by smtp.gmail.com with ESMTPSA id b13-20020a056000054d00b0021d7d251c76sm11580808wrf.46.2022.07.13.12.11.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Jul 2022 12:11:42 -0700 (PDT)
+Date:   Wed, 13 Jul 2022 20:11:40 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     mathias.nyman@linux.intel.com, quic_pkondeti@quicinc.com,
+        s.shtylyov@omp.ru, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] xhci: make xhci_handshake timeout for
+ xhci_reset() adjustable" failed to apply to 4.14-stable tree
+Message-ID: <Ys8Y7NBN9FaWUSrc@debian>
+References: <164871736680140@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-From:   Chuck Zmudzinski <brchuckz@netscape.net>
-Subject: Re: [PATCH v2] Subject: x86/PAT: Report PAT on CPUs that support PAT
- without MTRR
-To:     Juergen Gross <jgross@suse.com>, Jan Beulich <jbeulich@suse.com>
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sean Christopherson <seanjc@google.com>,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-References: <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz.ref@aol.com>
- <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz@aol.com>
- <e0faeb99-6c32-a836-3f6b-269318a6b5a6@suse.com>
- <3d3f0766-2e06-428b-65bb-5d9f778a2baf@netscape.net>
- <e15c0030-3270-f524-17e4-c482e971eb88@suse.com>
- <775493aa-618c-676f-8aa4-d1667cf2ca78@netscape.net>
- <c2ead659-d0aa-5b1f-0079-ce7c02970b35@netscape.net>
- <1d06203b-97ff-e7eb-28ae-4cdbc7569218@suse.com>
- <a8d0763f-7757-38ec-f9c1-5be6629ee6b2@suse.com>
-Content-Language: en-US
-In-Reply-To: <a8d0763f-7757-38ec-f9c1-5be6629ee6b2@suse.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20407 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/mixed; boundary="pDbxQ2/0ejjFEjMy"
+Content-Disposition: inline
+In-Reply-To: <164871736680140@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/13/2022 9:45 AM, Juergen Gross wrote:
-> >> On 7/13/2022 6:36 AM, Chuck Zmudzinski wrote:
-> >> And in addition, if we are going to backport this patch to
-> >> all current stable branches, we better have a really, really,
-> >> good reason for changing the behavior of "nopat" on Xen.
-> >>
-> >> Does such a reason exist?
-> > 
-> > Well, the simple reason is: It doesn't work the same way under Xen
-> > and non-Xen (in turn because, before my patch or whatever equivalent
-> > work, things don't work properly anyway, PAT-wise). Yet it definitely
-> > ought to behave the same everywhere, imo.
->
-> There is Documentation/x86/pat.rst which rather clearly states, how
-> "nopat" is meant to work. It should not change the contents of the
-> PAT MSR and keep it just as it was set at boot time (the doc talks
-> about the "BIOS" setting of the MSR, and I guess in the Xen case
-> the hypervisor is kind of acting as the BIOS).
->
-> The question is, whether "nopat" needs to be translated to
-> pat_enabled() returning "false".
 
-When I started working on a re-factoring effort of the logic
-surrounding pat_enabled(), I noticed there are five different
-reasons in the current code for setting pat_disabled to true,
-which IMO is what should be a redundant variable that should
-always be equal !pat_enabled() and !pat_bp_enabled, but that
-unfortunately is not the case. The five reasons for setting
-pat_disabled to true are given as message strings:
+--pDbxQ2/0ejjFEjMy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-1. "MTRRs disabled, skipping PAT initialization too."
-2. "PAT support disabled because CONFIG_MTRR is disabled in the kernel."
-3. "PAT support disabled via boot option."
-4. "PAT not supported by the CPU."
-5. "PAT support disabled by the firmware."
+Hi Greg,
 
-The only effect of setting pat_disabled to true is to inhibit
-the execution of pat_init(), but it does not inhibit the execution
-of init_cache_modes(), which is for handling all these cases
-when pat_init() was skipped. The Xen case is one of those
-cases, so in the Xen case, pat_disabled will be true yet the
-only way to fix the current regression and the five-year-old
-commit is by setting pat_bp_enabled to true so pat_enabled()
-will return true. So to fix the five-year-old commit, we must have
+On Thu, Mar 31, 2022 at 11:02:46AM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-pat_enabled() != pat_disabled
+Here is the backport along with 72ae194704da ("xhci: bail out early if
+driver can't accress host in resume") to make the backporting little
+easier.
 
-Something is wrong with this logic, that is why I wanted to precede
-my fix with some re-factoring that will change some variable
-and function names and modify some comments before trying
-to fix the five-year-old commit, so that we will never have a situation
-when pat_enabled() != pat_disabled.
+--
+Regards
+Sudip
 
-Chuck
+--pDbxQ2/0ejjFEjMy
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-xhci-bail-out-early-if-driver-can-t-accress-host-in-.patch"
+
+From e941a8647912ffb1f8239eeeb7893eb2ddccfbf4 Mon Sep 17 00:00:00 2001
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
+Date: Thu, 12 Mar 2020 16:45:09 +0200
+Subject: [PATCH 1/2] xhci: bail out early if driver can't accress host in
+ resume
+
+commit 72ae194704da212e2ec312ab182a96799d070755 upstream.
+
+Bail out early if the xHC host needs to be reset at resume
+but driver can't access xHC PCI registers.
+
+If xhci driver already fails to reset the controller then there
+is no point in attempting to free, re-initialize, re-allocate and
+re-start the host. If failure to access the host is detected later,
+failing the resume, xhci interrupts will be double freed
+when remove is called.
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200312144517.1593-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/usb/host/xhci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 9724888196e3b..6bcf1412b2072 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1111,8 +1111,10 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+ 
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+-		xhci_reset(xhci);
++		retval = xhci_reset(xhci);
+ 		spin_unlock_irq(&xhci->lock);
++		if (retval)
++			return retval;
+ 		xhci_cleanup_msix(xhci);
+ 
+ 		xhci_dbg(xhci, "// Disabling event ring interrupts\n");
+-- 
+2.30.2
+
+
+--pDbxQ2/0ejjFEjMy
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0002-xhci-make-xhci_handshake-timeout-for-xhci_reset-adju.patch"
+
+From 4c176116d6a518d45e0de765b80e98332c98b6b5 Mon Sep 17 00:00:00 2001
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
+Date: Thu, 3 Mar 2022 13:08:55 +0200
+Subject: [PATCH 2/2] xhci: make xhci_handshake timeout for xhci_reset()
+ adjustable
+
+commit 14073ce951b5919da450022c050772902f24f054 upstream.
+
+xhci_reset() timeout was increased from 250ms to 10 seconds in order to
+give Renesas 720201 xHC enough time to get ready in probe.
+
+xhci_reset() is called with interrupts disabled in other places, and
+waiting for 10 seconds there is not acceptable.
+
+Add a timeout parameter to xhci_reset(), and adjust it back to 250ms
+when called from xhci_stop() or xhci_shutdown() where interrupts are
+disabled, and successful reset isn't that critical.
+This solves issues when deactivating host mode on platforms like SM8450.
+
+For now don't change the timeout if xHC is reset in xhci_resume().
+No issues are reported for it, and we need the reset to succeed.
+Locking around that reset needs to be revisited later.
+
+Additionally change the signed integer timeout parameter in
+xhci_handshake() to a u64 to match the timeout value we pass to
+readl_poll_timeout_atomic()
+
+Fixes: 22ceac191211 ("xhci: Increase reset timeout for Renesas 720201 host.")
+Cc: stable@vger.kernel.org
+Reported-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reported-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Tested-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220303110903.1662404-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/usb/host/xhci-hub.c |  2 +-
+ drivers/usb/host/xhci-mem.c |  2 +-
+ drivers/usb/host/xhci.c     | 20 +++++++++-----------
+ drivers/usb/host/xhci.h     |  7 +++++--
+ 4 files changed, 16 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index ad82d10d9cf5f..b2083dcf3bd2a 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -683,7 +683,7 @@ static int xhci_exit_test_mode(struct xhci_hcd *xhci)
+ 	}
+ 	pm_runtime_allow(xhci_to_hcd(xhci)->self.controller);
+ 	xhci->test_mode = 0;
+-	return xhci_reset(xhci);
++	return xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ }
+ 
+ void xhci_set_link_state(struct xhci_hcd *xhci, __le32 __iomem **port_array,
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 5fd1e95f5400f..e930e2777c875 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2574,7 +2574,7 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
+ 
+ fail:
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	xhci_mem_cleanup(xhci);
+ 	return -ENOMEM;
+ }
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 6bcf1412b2072..3da9cd3791c64 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -76,7 +76,7 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
+  * handshake done).  There are two failure modes:  "usec" have passed (major
+  * hardware flakeout), or the register reads as all-ones (hardware removed).
+  */
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
+ {
+ 	u32	result;
+ 	int	ret;
+@@ -84,7 +84,7 @@ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+ 	ret = readl_poll_timeout_atomic(ptr, result,
+ 					(result & mask) == done ||
+ 					result == U32_MAX,
+-					1, usec);
++					1, timeout_us);
+ 	if (result == U32_MAX)		/* card removed */
+ 		return -ENODEV;
+ 
+@@ -173,7 +173,7 @@ int xhci_start(struct xhci_hcd *xhci)
+  * Transactions will be terminated immediately, and operational registers
+  * will be set to their defaults.
+  */
+-int xhci_reset(struct xhci_hcd *xhci)
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
+ {
+ 	u32 command;
+ 	u32 state;
+@@ -206,8 +206,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	if (xhci->quirks & XHCI_INTEL_HOST)
+ 		udelay(1000);
+ 
+-	ret = xhci_handshake(&xhci->op_regs->command,
+-			CMD_RESET, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -220,8 +219,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	 * xHCI cannot write to any doorbells or operational registers other
+ 	 * than status until the "Controller Not Ready" flag is cleared.
+ 	 */
+-	ret = xhci_handshake(&xhci->op_regs->status,
+-			STS_CNR, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
+ 
+ 	for (i = 0; i < 2; i++) {
+ 		xhci->bus_state[i].port_c_suspend = 0;
+@@ -675,7 +673,7 @@ static void xhci_stop(struct usb_hcd *hcd)
+ 	xhci->xhc_state |= XHCI_STATE_HALTED;
+ 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -739,7 +737,7 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 	xhci_halt(xhci);
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+-		xhci_reset(xhci);
++		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -1111,7 +1109,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+ 
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+-		retval = xhci_reset(xhci);
++		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 		spin_unlock_irq(&xhci->lock);
+ 		if (retval)
+ 			return retval;
+@@ -4990,7 +4988,7 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
+ 
+ 	xhci_dbg(xhci, "Resetting HCD\n");
+ 	/* Reset the internal HC memory state and registers. */
+-	retval = xhci_reset(xhci);
++	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 	if (retval)
+ 		return retval;
+ 	xhci_dbg(xhci, "Reset complete\n");
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 300506de0c7a1..59167d4f98d00 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -236,6 +236,9 @@ struct xhci_op_regs {
+ #define CMD_ETE		(1 << 14)
+ /* bits 15:31 are reserved (and should be preserved on writes). */
+ 
++#define XHCI_RESET_LONG_USEC		(10 * 1000 * 1000)
++#define XHCI_RESET_SHORT_USEC		(250 * 1000)
++
+ /* IMAN - Interrupt Management Register */
+ #define IMAN_IE		(1 << 1)
+ #define IMAN_IP		(1 << 0)
+@@ -2016,11 +2019,11 @@ void xhci_free_command(struct xhci_hcd *xhci,
+ 
+ /* xHCI host controller glue */
+ typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec);
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us);
+ void xhci_quiesce(struct xhci_hcd *xhci);
+ int xhci_halt(struct xhci_hcd *xhci);
+ int xhci_start(struct xhci_hcd *xhci);
+-int xhci_reset(struct xhci_hcd *xhci);
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us);
+ int xhci_run(struct usb_hcd *hcd);
+ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
+ void xhci_shutdown(struct usb_hcd *hcd);
+-- 
+2.30.2
+
+
+--pDbxQ2/0ejjFEjMy--
