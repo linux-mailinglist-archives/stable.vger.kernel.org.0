@@ -2,151 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF66573C74
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 20:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80882573C79
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 20:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234904AbiGMSVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 14:21:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57586 "EHLO
+        id S236660AbiGMSYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 14:24:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbiGMSVy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 14:21:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE632CE20;
-        Wed, 13 Jul 2022 11:21:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29ACB61D59;
-        Wed, 13 Jul 2022 18:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C06DC34114;
-        Wed, 13 Jul 2022 18:21:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1657736512;
-        bh=la1r15x4KQLNGJA82valO7UZA8IXV/V5m6AHmO1sSv8=;
-        h=Date:To:From:Subject:From;
-        b=plPx68RCPjJzbM0nqp1RHw/Ge0jXx70eRyfx93EV0V/oSr+MFl9/0SzwKdckjBVEw
-         wD4Q3V3nKIJU6ALKFfNVBoSXu+Fz0noymAxoM6dxDunARMwImha4AtCXVyxDYFRo9l
-         hrmjU40GR+Ap4qoPXWXpd7Oqrgby4tWO7cTgq3vY=
-Date:   Wed, 13 Jul 2022 11:21:51 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        rppt@linux.ibm.com, peterx@redhat.com, jthoughton@google.com,
-        jack@suse.cz, david@redhat.com, aarcange@redhat.com,
-        namit@vmware.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + userfaultfd-provide-properly-masked-address-for-huge-pages.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220713182152.6C06DC34114@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S232305AbiGMSYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 14:24:20 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220F818E0F;
+        Wed, 13 Jul 2022 11:24:20 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id g16-20020a17090a7d1000b001ea9f820449so5039824pjl.5;
+        Wed, 13 Jul 2022 11:24:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=IQYaS9k5ojuuAez/KlcCMDap25vy0a+Fzv+USTDn99U=;
+        b=B9moJQ9cFhCxVBbJjcGabuBEjnJexLChQq1/dICXG2G16Mow8XDCwKK0LgGMJB+ODG
+         OJOkVQTIDJjhlkjkgLFh2lN4F7QqP6RlbFUnCTFw61NpW/ZF8brq/8kg2moSwP3vDued
+         K6vfUlo5tYZ372hsgyGfgdRbuyiv9pSsnn7tTiZXrEK3Lsd8CxykD7nDDQDx7r95SNdO
+         kGvcDenkEoLbBU2pf+kUz4UPWLNlzAhcGOhX6NVtmxbFgyZQNY4/gLpa45ETuuIyhl58
+         ZCL5gnlXqJwB+7wkShoEQ63r29ABnRwNKOaP/JGh68empXbFElP4VTje/unXO1g29tgi
+         pEqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=IQYaS9k5ojuuAez/KlcCMDap25vy0a+Fzv+USTDn99U=;
+        b=i1Mu32ca8NtjNVfblkkDyiiUwwH0HO58iYnML2RuFpRHyUCZpuYXxIxM9BzLfjgQaz
+         1Jdg0ViJvMe5fL3euAXHyIVPH2JRAJpjJrMEHiNvwLC6sw08kRGXf8T35aFxc7+rENVm
+         Q5ZJBBS6ibT75cMirz1riNe7poYLO/ub94a9TrRYrxkov7pcDt498ab1jcSYHJ3t7KKs
+         xYbl2ySZsWaolc3jSG8apivXLVtC36pqu3alb1DCyUntnqOQLyC/w+ceuMFA9HLU7851
+         podBSY/nGUrJCSzCAHoSRmmSaWljAxempN+LTsTE+N54ww70R/FkDzQIwetn/GE9Bev1
+         yaLg==
+X-Gm-Message-State: AJIora82rqOhKZB7lOAl53KLkXFg4GtdO1wWWpBUJsaH3l0/zJC2CkXw
+        0/FNnw2c+tKBzQSgdq7Anpw=
+X-Google-Smtp-Source: AGRyM1vcvr5UFFx0SqGohZovZlt1Wg+FldYoEgrWgQRCQ+x7RP2JfD8lZaMRkmpoqK1vnKWWcdFNsg==
+X-Received: by 2002:a17:902:cf11:b0:16b:e1a5:aee with SMTP id i17-20020a170902cf1100b0016be1a50aeemr4377856plg.132.1657736659471;
+        Wed, 13 Jul 2022 11:24:19 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id c5-20020a170902d48500b001638a171558sm9151471plg.202.2022.07.13.11.24.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Jul 2022 11:24:18 -0700 (PDT)
+Message-ID: <d7c01069-0b6a-447b-442a-b911a6375156@gmail.com>
+Date:   Wed, 13 Jul 2022 11:24:16 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH 5.10 000/131] 5.10.131-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220713094820.698453505@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220713094820.698453505@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 7/13/22 06:10, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.131 release.
+> There are 131 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 15 Jul 2022 09:47:55 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.131-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The patch titled
-     Subject: userfaultfd: provide properly masked address for huge-pages
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     userfaultfd-provide-properly-masked-address-for-huge-pages.patch
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/userfaultfd-provide-properly-masked-address-for-huge-pages.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Nadav Amit <namit@vmware.com>
-Subject: userfaultfd: provide properly masked address for huge-pages
-Date: Mon, 11 Jul 2022 09:59:06 -0700
-
-Commit 824ddc601adc ("userfaultfd: provide unmasked address on
-page-fault") was introduced to fix an old bug, in which the offset in the
-address of a page-fault was masked.  Concerns were raised - although were
-never backed by actual code - that some userspace code might break because
-the bug has been around for quite a while.  To address these concerns a
-new flag was introduced, and only when this flag is set by the user,
-userfaultfd provides the exact address of the page-fault.
-
-The commit however had a bug, and if the flag is unset, the offset was
-always masked based on a base-page granularity.  Yet, for huge-pages, the
-behavior prior to the commit was that the address is masked to the
-huge-page granulrity.
-
-While there are no reports on real breakage, fix this issue.  If the flag
-is unset, use the address with the masking that was done before.
-
-Link: https://lkml.kernel.org/r/20220711165906.2682-1-namit@vmware.com
-Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reported-by: James Houghton <jthoughton@google.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: James Houghton <jthoughton@google.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/userfaultfd.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
---- a/fs/userfaultfd.c~userfaultfd-provide-properly-masked-address-for-huge-pages
-+++ a/fs/userfaultfd.c
-@@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_
- }
- 
- static inline struct uffd_msg userfault_msg(unsigned long address,
-+					    unsigned long real_address,
- 					    unsigned int flags,
- 					    unsigned long reason,
- 					    unsigned int features)
- {
- 	struct uffd_msg msg;
-+
- 	msg_init(&msg);
- 	msg.event = UFFD_EVENT_PAGEFAULT;
- 
--	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
--		address &= PAGE_MASK;
--	msg.arg.pagefault.address = address;
-+	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
-+				    real_address : address;
-+
- 	/*
- 	 * These flags indicate why the userfault occurred:
- 	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
-@@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fa
- 
- 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
- 	uwq.wq.private = current;
--	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
--			ctx->features);
-+	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
-+				reason, ctx->features);
- 	uwq.ctx = ctx;
- 	uwq.waken = false;
- 
-_
-
-Patches currently in -mm which might be from namit@vmware.com are
-
-userfaultfd-provide-properly-masked-address-for-huge-pages.patch
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
