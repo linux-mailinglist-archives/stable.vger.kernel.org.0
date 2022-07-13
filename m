@@ -2,90 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7EE57311E
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 10:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49CC573155
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 10:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbiGMIaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 04:30:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40050 "EHLO
+        id S235784AbiGMIk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 04:40:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229863AbiGMIaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 04:30:10 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00BD9675A2;
-        Wed, 13 Jul 2022 01:30:09 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id o18so9810499pgu.9;
-        Wed, 13 Jul 2022 01:30:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=BWQvjMQ5inhsm0CdHfIF13hOiwKRb2a2r0nx6p9/cQg=;
-        b=Et5yLhyVmtQ/HToChewgH/H3j5oS9qpVmFXccRC53PvpTtqWzJlepeEJzcZzv2BGVc
-         W2T49G+70jqacCtK2w0nh/xJOEmqp7HeYrfIY9lNay9FCwxJ8MpUIzRkxRHwfPwkY9Zg
-         R2TeuWHrJWTBObVaB65Qjq344HIRQ29UFAuX30GzxcJGm44MdxeryYglcgHSup18QwVW
-         72JcC02zHvIakm/LTOxVuxLGRaioz+vIrrQPwke1sM+my8mYxZFUUUwWowm2aQpVgWSI
-         hLY6lFccqrCGLV6P0Ip6u6uk6BMkrPBuguHDIDUktiRX/C1iUM3xoCWKqKbeaQGDek6T
-         m1eA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=BWQvjMQ5inhsm0CdHfIF13hOiwKRb2a2r0nx6p9/cQg=;
-        b=6TpXHmpEHt0aDsc8zq+yhErj/+EJgG/d3qhvt2IOo5ZLdDWHweQc1panrpuLzFWAVP
-         W7bF9A9W2ZmnubJGWLuTPvC/DjSggwEsrV2rC7Zk/tZ9ZzbITLasFmjraVS4p8ijx6Ei
-         CXCkI5oAdZlRBXbKj3LkufphprbuspbJpZWLhxHw/9H+p1jPNXKPPomGj23lNhSBvy0w
-         kQ4egLClc68TXMxWoV/XKhM88g8D9IwWa/oAaLEQBDRYY1IvdJn+WFAex0LMoDMYZjpQ
-         xVrNxo711BleG0btqfGOniGBKtUfI3bBG4zKJy/bYWSbo2gdF/jJc6zN30Zr5k2GcKZS
-         N19Q==
-X-Gm-Message-State: AJIora8rPomU2D2lF8flrLac6MfbVCMiLlGZWFINhqT18JLXabr5XDCf
-        w2Ybmnv6sykONocemIoTu3g=
-X-Google-Smtp-Source: AGRyM1u6z3sl7mLQVq3cDI2EW77OeGWimtpFTZKrFrJbylx2lFL2WwlW7jI246VrujgqZCaxDQY0Dw==
-X-Received: by 2002:a63:f742:0:b0:415:cb55:7ceb with SMTP id f2-20020a63f742000000b00415cb557cebmr2107513pgk.134.1657701009430;
-        Wed, 13 Jul 2022 01:30:09 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-1.three.co.id. [180.214.232.1])
-        by smtp.gmail.com with ESMTPSA id c204-20020a624ed5000000b00528c4c770c5sm8168545pfb.77.2022.07.13.01.30.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Jul 2022 01:30:08 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 9F7D610396A; Wed, 13 Jul 2022 15:30:03 +0700 (WIB)
-Date:   Wed, 13 Jul 2022 15:30:02 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 00/61] 5.18.12-rc1 review
-Message-ID: <Ys6CilcxvmHAohV1@debian.me>
-References: <20220712183236.931648980@linuxfoundation.org>
+        with ESMTP id S235739AbiGMIkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 04:40:41 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 754FFE307A
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 01:40:40 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1oBXvB-00046c-4O; Wed, 13 Jul 2022 10:40:37 +0200
+Received: from mfe by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1oBXvA-0005TM-Kx; Wed, 13 Jul 2022 10:40:36 +0200
+Date:   Wed, 13 Jul 2022 10:40:36 +0200
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        linux-amarula@amarulasolutions.com,
+        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org,
+        Vinod Koul <vkoul@kernel.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        dmaengine@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v5 1/2] dmaengine: mxs: use platform_driver_register
+Message-ID: <20220713084036.ipcd6bhcdb574w7h@pengutronix.de>
+References: <20220712160909.2054141-1-dario.binacchi@amarulasolutions.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220712183236.931648980@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20220712160909.2054141-1-dario.binacchi@amarulasolutions.com>
+User-Agent: NeoMutt/20180716
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 12, 2022 at 08:38:57PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.12 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Hi Dario,
+
+On 22-07-12, Dario Binacchi wrote:
+> Driver registration fails on SOC imx8mn as its supplier, the clock
+> control module, is probed later than subsys initcall level. This driver
+> uses platform_driver_probe which is not compatible with deferred probing
+> and won't be probed again later if probe function fails due to clock not
+> being available at that time.
 > 
+> This patch replaces the use of platform_driver_probe with
+> platform_driver_register which will allow probing the driver later again
+> when the clock control module will be available.
+> 
+> Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+> Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+> Cc: stable@vger.kernel.org
+> 
+> ---
+> 
+> Changes in v5:
+> - Update the commit message.
+> - Create a new patch to remove the warning generated by this patch.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0)
-and powerpc (ps3_defconfig, GCC 12.1.0).
+Please squash this new patch into this patch since you introduce the
+warning with this patch.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Regards,
+  Marco
 
--- 
-An old man doll... just what I always wanted! - Clara
+> Changes in v4:
+> - Restore __init in front of mxs_dma_probe() definition.
+> - Rename the mxs_dma_driver variable to mxs_dma_driver_probe.
+> - Update the commit message.
+> - Use builtin_platform_driver() instead of module_platform_driver().
+> 
+> Changes in v3:
+> - Restore __init in front of mxs_dma_init() definition.
+> 
+> Changes in v2:
+> - Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
+> 
+>  drivers/dma/mxs-dma.c | 8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+> index 994fc4d2aca4..18f8154b859b 100644
+> --- a/drivers/dma/mxs-dma.c
+> +++ b/drivers/dma/mxs-dma.c
+> @@ -839,10 +839,6 @@ static struct platform_driver mxs_dma_driver = {
+>  		.name	= "mxs-dma",
+>  		.of_match_table = mxs_dma_dt_ids,
+>  	},
+> +	.probe = mxs_dma_probe,
+>  };
+> -
+> -static int __init mxs_dma_module_init(void)
+> -{
+> -	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+> -}
+> -subsys_initcall(mxs_dma_module_init);
+> +builtin_platform_driver(mxs_dma_driver);
+> -- 
+> 2.32.0
+> 
+> 
+> 
