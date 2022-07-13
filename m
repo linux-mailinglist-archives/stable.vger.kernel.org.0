@@ -2,108 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEFB573B30
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 18:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6022A573B69
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 18:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235889AbiGMQ1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 12:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34188 "EHLO
+        id S229913AbiGMQl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 12:41:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237165AbiGMQ1L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 12:27:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4FB60FE;
-        Wed, 13 Jul 2022 09:27:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7DB6ECE231F;
-        Wed, 13 Jul 2022 16:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE32C34114;
-        Wed, 13 Jul 2022 16:27:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657729625;
-        bh=QsCvpn2gWQQ1jAoqmKwmo/Cv3eyEdtKIBceRVgAOtxA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AZPtdVxsPialzeevmLca0Myws6u+ggFFxfdSyrByJNe/SP5gpXevDD1NpAM8cu8sC
-         BpDecMgFuJS7TdqW7J7+2GuZoBqeA+p0aZ5rz6xC6j+TPlqCBESwHEIuU9vQVg8ikJ
-         qzDNd3RNsCqqRR64oyz+o/dACayVru8aCSpxjbvOKKZuk0kGxSLMq2mApVn4lRTsmW
-         3sMjxNwZMNkmQkKWNE+YZ2b4J1yXbHzoKpGcyEcsBR0ThC4L9+JfbBl1OqpXLK4m8k
-         AmXW35S/ShAEifVdHrvvJzQxTASyBbNiw7N0IFsBWM+B5ndKuLoqe0daeHdKZlyBqY
-         OfEf5gs73l3GQ==
-Date:   Wed, 13 Jul 2022 09:27:03 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v2] x86/speculation: Use DECLARE_PER_CPU for
- x86_spec_ctrl_current
-Message-ID: <Ys7yV0VGXyxX3VWj@dev-arch.thelio-3990X>
-References: <20220713152436.2294819-1-nathan@kernel.org>
- <Ys7xUVjpNyXY0nXf@hirez.programming.kicks-ass.net>
+        with ESMTP id S230451AbiGMQl4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 12:41:56 -0400
+Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E522E9CD
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 09:41:52 -0700 (PDT)
+Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
+        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 951321004781F
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 16:41:42 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id BfQjohe65q24iBfQkok4xv; Wed, 13 Jul 2022 16:41:42 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=DaLSFthW c=1 sm=1 tr=0 ts=62cef5c6
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=RgO8CyIxsXoA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49g1BY1oxgyutxOluTAA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Zp43Rlgx1Ca3JCLNCDCynVy3hwwskCO4Zuk3rhmEhOo=; b=vAcbDuwKbtTBCLpdK4q0vSclpU
+        nJ90g6ZIiF52iVYZ9g/wPaIpYTSZ/4nINtSJ+2VYX7KipZ3QoBQY+78R6BDaOqRXCn8cxDUQZeCQY
+        fRN7xT/yWSRbrXurVISVahsUsds/2jCStORgsBdW4QgexVmCJ8hup6k4E3hqraoTmgIQjx/28ax/6
+        su34a0LmlfsP6G5HMaEm889gR7a7e/WHHloYKppkAOgajS0PW89qOEtYGMndDdf/AA2PsgZKJ8VSZ
+        Vny89/LGNw97QdZvrnw2GexlhmEDuTO1eiLQY5OOd51aG8PmHmZ8/QBFH1hVuhqsLeuVBMmJNjvHA
+        GO6AIhxA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:35854 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oBfQi-000H0z-UI;
+        Wed, 13 Jul 2022 10:41:40 -0600
+Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220712183238.844813653@linuxfoundation.org>
+In-Reply-To: <20220712183238.844813653@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <035bc11c-0c56-bfb2-157b-5c3a599777e6@w6rz.net>
+Date:   Wed, 13 Jul 2022 09:41:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ys7xUVjpNyXY0nXf@hirez.programming.kicks-ass.net>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oBfQi-000H0z-UI
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:35854
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 13, 2022 at 06:22:41PM +0200, Peter Zijlstra wrote:
-> On Wed, Jul 13, 2022 at 08:24:37AM -0700, Nathan Chancellor wrote:
-> > Clang warns:
-> > 
-> >   arch/x86/kernel/cpu/bugs.c:58:21: error: section attribute is specified on redeclared variable [-Werror,-Wsection]
-> >   DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
-> >                       ^
-> >   arch/x86/include/asm/nospec-branch.h:283:12: note: previous declaration is here
-> >   extern u64 x86_spec_ctrl_current;
-> >              ^
-> >   1 error generated.
-> > 
-> > The declaration should be using DECLARE_PER_CPU instead so all
-> > attributes stay in sync.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: fc02735b14ff ("KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS")
-> > Reported-by: kernel test robot <lkp@intel.com>
-> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > ---
-> > 
-> > v1 -> v2: https://lore.kernel.org/20220713152222.1697913-1-nathan@kernel.org/
-> > 
-> > * Use asm/percpu.h instead of linux/percpu.h to avoid static call
-> >   include errors.
-> > 
-> >  arch/x86/include/asm/nospec-branch.h | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-> > index bb05ed4f46bd..10a3bfc1eb23 100644
-> > --- a/arch/x86/include/asm/nospec-branch.h
-> > +++ b/arch/x86/include/asm/nospec-branch.h
-> > @@ -11,6 +11,7 @@
-> >  #include <asm/cpufeatures.h>
-> >  #include <asm/msr-index.h>
-> >  #include <asm/unwind_hints.h>
-> > +#include <asm/percpu.h>
-> >  
-> >  #define RETPOLINE_THUNK_SIZE	32
-> >  
-> 
-> When I tried this earlier today I ran into cyclic headers, you sure this
-> works?
+On 7/12/22 11:38 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.55 release.
+> There are 78 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 14 Jul 2022 18:32:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.55-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Yes, I did my regular set of x86 builds with clang and they all passed.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Cheers,
-Nathan
+Tested-by: Ron Economos <re@w6rz.net>
+
