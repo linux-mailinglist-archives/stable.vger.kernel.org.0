@@ -2,68 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D045A573B9B
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 18:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD80573BB2
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 19:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230436AbiGMQyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 12:54:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59894 "EHLO
+        id S231434AbiGMRB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 13:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229770AbiGMQyw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 12:54:52 -0400
-Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A3329824;
-        Wed, 13 Jul 2022 09:54:49 -0700 (PDT)
-Received: from quatroqueijos (unknown [179.93.156.216])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id EA0493F3C1;
-        Wed, 13 Jul 2022 16:54:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1657731287;
-        bh=k/051IrXQ3mmpWzTi8XT7epL2x4DGtpxxDFcro41vWg=;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To;
-        b=lMaqXf9giU92GcGHd+ZVPpAX5kivK5wyYyARwoHI7bGH8y2i47oZxnsAObklp5oZj
-         257I66VO52jz9BQs6Xnech7PgbGkQlI6tKY5UKgO37t/owXqPRBmIt40Dg+Mz65OiJ
-         qhjshI33C7vIhn9FIQKE15GQbyY53WIP/LoXH7iwCZ3+3kVzm64tS/UcdsXuiJnJX/
-         Lc4HXtQ28w1F09dKsC3jyedWww3A9B1FralCaVh8jGUoBvcF3zSkL7PkS3fS0kEjum
-         LRWR3Xh1/CZvdAsOLOZW4briQeum9tHkp926id3u6CppMVmjaK6Bg8RfLznviCa1++
-         vxmypy9QfSB0A==
-Date:   Wed, 13 Jul 2022 13:54:34 -0300
-From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kvm list <kvm@vger.kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        with ESMTP id S236207AbiGMRB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 13:01:56 -0400
+Received: from sonic314-19.consmr.mail.gq1.yahoo.com (sonic314-19.consmr.mail.gq1.yahoo.com [98.137.69.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A399E24F28
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 10:01:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netscape.net; s=a2048; t=1657731714; bh=NU1NSviOHW2bermSXqhjQpM9qBZCU0Z3Kd/YzNWxavI=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=aEWKX12vXsYr1pymabk9KossSuVjhxAFI1vZXffSGTInXnLxR8pZs3yGj1+UjschIsqBd/GF51LZ0ZM1iz4kfS142zwK0MuIyZNa56TLqT0TyFOi4uTjNxieUXDe5IIMYjuBrq0PNKycLKJSIDL6j6/vLuRPa+g3wqdsErPh+iVScX9L/YS9OYLkp9hEaH1SZvkpGqqgAUYuyfVbtVgULHSXQiBNaBuxzztKR6BaaelRRl2rK5FD9SCy0gL9DZrNG3xTbk3SPQOPkeSSwaKA1PrO4M9L4r33MZgio7OKEWxaGLKoUqd4idgrgVwN7wyz7cNpx2WEJ+dg+tKfaSEfMg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1657731714; bh=Bfz87iYQ9oTnfukf9wdP1ZP5eWZeKuJ1N1Ld/zusYU8=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=gBVnCeZHEb1/LdzivKXS43b72lPO5kzqh6IrgCSEx3EFhqqDuztAtX3bPf2iUT+zp230j34gB5NzajWKxNCK/e58g4oT35zMz9iDJHJ1VfQyRcBOkFXOXyXeWGMzlbCrmKsl+kWCDxKWh+Ya0DAbeilkhpZOe5F/16gjAOZy2PCmhekHaSAA1Jrlml7kdRzaS/gvfOuAqQARMhpEr6ZJbsnBgsvA3e7CdMeqLR2ouRZtoysTrLuQpZQ3yvH5DIWAwG15+CEvofH7l9OXhzGuXrfO6Tm8MFtvNseL+0yKx9zXiCgNmFIzhGsmAq4FBnDx+aLyJmEhwmaJEu+RkLbddA==
+X-YMail-OSG: 5KbDXZsVM1km7N4ZHR1DikLmAmfBvGEpUeMMAWSXDPk1CmOq9kjbqdp0GhMqGDY
+ pdKxijSWq8DOhHpEeikVZy1aXfwu9dt_1E3B8bCPZVq.hoh06gpkyXXoTH0EVK6Kygl.krk.kkwZ
+ XujsjXmjAqQlmlGhBc4ZGyq1M.12VzF.RG6TtMh0fFbSeYb9OHjf7OJ7RFTGM.bNsJ8Fr7AAEj6l
+ tnDcFnAqIXB9HBlrtjsw5BCgpjpP4rlrX3nH.IT1ykoARrDrTKkQAO93Zg.eUhChsFYQedJp2D2K
+ iOUqx8nis_95jcwsw3gkNySy08HuEiFOmZ7ajGNF3bVQMZv2bpE7khe0.PMJQL2jTb84MbCLTDtC
+ kBQmwQ.uGJjlZv.2t6DNxY2Ra4ZYZV0BPM5iwJU438YeNpKHT8GCpPu0OuddRVlo1vdBzENzR60U
+ 9B9kk0f5ECwmAJQAL8imed6Q.O13IkT_aqbCwGrVKTRMoaZsOAtFsAsJMp.6r1gtX1A359vsPLoI
+ 8SahK3hemKzgRwGhh4i6OM5V75m6iS8Doe3xOUg8MRyCIpJU14Jx4sD1r2hHe4u5ax_CP5sxNpAa
+ w_Qehl8yZpZnoDcYle.Ure.Fo_D5C6yA_foR85QLSlXvQhesrhEnIRTVxflatpfCxuaKztWL3ubW
+ h9R_RBsH9Alrlup7pP8Juns17PJ.GZ3XCLPG9jVGticdZyZP77.g48enJ4ZZ4Vfd590jYCoEWMxy
+ TW.T9s0nCLobg1n3XOUQX8hLtBTzZccDYg9LeU1BzZf7jVNCxblM3R8M7DwRLNOQ5W_8Gf9fMVL.
+ 84b8ByZyw_8xeZkCzD6puWDLzfzBFa9nrxDfPIMhNp0fgAY0NHifUjGbPOxXCevLkef7ErRbnoPw
+ jVLwGtc0mzn._FloHmLSK4fxS_iLotxCDQV.XvMeT8NmOKmNKV7s70RwXB27uk5i2O6u_Gq9ekmD
+ pmWKMTn94_AD1BMiEzJGpL72150uieSAlektdaSM_igKPaq7WOdYWJ4pwyCKbX6LOHZxvyviFwbk
+ qVVNgiXGKKqPzqOyoOJuBRhlNcQhNyjTtISpZ7lgEvZYTF3vNbYWL7CkoQcFztXm8HvnDE5.7Wfg
+ 9B6OgVxuWhci0qodjsgV1CXDQN3j1PeU2.jec5vwgHqRHQkVGLcmGQPPArlTr5YqADTFcxCqG2Ma
+ OjvL0s5DWNmH2Oz4Q.tuK9v5cluOepH5cnXTSb39SXuwgeTCgJqI.q8zTdWYlBbcp7NbCW0EUxyt
+ HRUCukJqcFVGUsUJTX16jylCZRCDwlHZ_taJ7OEprAs_IFQNr1pzVYVEiI8Ckp7ZLu1Qt0l.WATG
+ O30D2Ux9wkK1CwIcfGv3HzNXJN0x8qwmcMDLjXJaTcWkLHFPUXyoWvvWapRLaRv8KNG9TGk1xWkc
+ .2XIOg7rKY3HDLk55W8GxnqtXvkeInKI1kisrkHXzcgpExDxK4HKWuoriNAkB3XT.JWY_2GY0e8E
+ ut8P_IpX0i0pdpqhhdmy3KJSWnRra2SodwDXmEad9kp7BDeLA00Q_MjQcPEdMR_2CXGcI0l5JD05
+ DEZ2iCMoE4Exb9uqXNDRV1Xz2J34Zn08B9n8HegJfFec5ccErfTLjIymGzwEjrKZEb3QZ0_NocLH
+ YB3Y_2I.jgRQzibbYvdWk78q0uZWxwVmxURwjWuZP7X2Juy2P2ZIn7G2F5nUVrDW1eIlTMxs5ns.
+ 8IZbFXn5dCftlRDFHh7PQhv6n_hUzFdhwGvHxE7udQSffyb38MrikufUdNrBCPFy6BWv71d4HUHN
+ 25FYZgktRvIs58v_7Yvuy6zLDG62TV4vvrVt7TWVp41co7Xfxk6r9LKgN0qDChWdTcbmSeufw95d
+ ZrKtWd.haJAaUr61KKhrCxGFk.IjzeL0A6h6hvxvQLoGCoYpU6nyTAb.sgtXHy8kyA1vP373DSJ4
+ pUOMovc0diGJMLNp7y4cdhuq6pWwWLYdqDDcqVbEWuWTw.kuen2ybh5p21MtLqKx7KxwnhbtQHsn
+ wKnGBlHvm5vHUGaF_FP3L5TD2ArZoHYAtXbOoE3wSBNU9nn5uU4GK1YlfhSn0sWWXs5WeyXgmKk0
+ sr5LbjZPDgqzwmXTt_1juBevNbBHiG3bmBDq5hOLHwzmtmvZtfdejZrJeSVEsd7Za22848z8W0pS
+ 5bUZnuiYY4cD8kuSi8Ur4EY9NSCoZ_9hS4QyvlLf6lCYIkgfWlY3Eb5MGbTE0rllo8GaqEiJg2Qf
+ v6w--
+X-Sonic-MF: <brchuckz@aim.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.gq1.yahoo.com with HTTP; Wed, 13 Jul 2022 17:01:54 +0000
+Received: by hermes--production-bf1-58957fb66f-h8ftj (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 70b07e2b31dd12d124cfd72e82275b60;
+          Wed, 13 Jul 2022 17:01:48 +0000 (UTC)
+Message-ID: <3b903a7b-0405-84d4-5a3a-822e2ef51b2e@netscape.net>
+Date:   Wed, 13 Jul 2022 13:01:47 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2] Subject: x86/PAT: Report PAT on CPUs that support PAT
+ without MTRR
+Content-Language: en-US
+To:     Juergen Gross <jgross@suse.com>, Jan Beulich <jbeulich@suse.com>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        Alex =?iso-8859-1?Q?Benn=E9e?= <alex.bennee@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: Re: [PATCH 5.18 00/61] 5.18.12-rc1 review
-Message-ID: <Ys74yvOUuZqrl9D7@quatroqueijos>
-References: <20220712183236.931648980@linuxfoundation.org>
- <CA+G9fYvRQ9gzee8pjRmsyedz6oGyh5pzSYEPkuDoKEE+X2RZDg@mail.gmail.com>
- <Ys7Cm17ShWUOXkRw@kroah.com>
- <CA+G9fYuf7KqVYNqLdZci1BVYK--QEqaLOVYmmLjObTMROyvfew@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuf7KqVYNqLdZci1BVYK--QEqaLOVYmmLjObTMROyvfew@mail.gmail.com>
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Jane Chu <jane.chu@oracle.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sean Christopherson <seanjc@google.com>,
+        xen-devel@lists.xenproject.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+References: <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz.ref@aol.com>
+ <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz@aol.com>
+ <e0faeb99-6c32-a836-3f6b-269318a6b5a6@suse.com>
+ <3d3f0766-2e06-428b-65bb-5d9f778a2baf@netscape.net>
+ <e15c0030-3270-f524-17e4-c482e971eb88@suse.com>
+ <775493aa-618c-676f-8aa4-d1667cf2ca78@netscape.net>
+ <c2ead659-d0aa-5b1f-0079-ce7c02970b35@netscape.net>
+ <1d06203b-97ff-e7eb-28ae-4cdbc7569218@suse.com>
+ <a8d0763f-7757-38ec-f9c1-5be6629ee6b2@suse.com>
+From:   Chuck Zmudzinski <brchuckz@netscape.net>
+In-Reply-To: <a8d0763f-7757-38ec-f9c1-5be6629ee6b2@suse.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.20407 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,512 +100,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 13, 2022 at 07:28:40PM +0530, Naresh Kamboju wrote:
-> On Wed, 13 Jul 2022 at 18:33, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Jul 13, 2022 at 04:33:24PM +0530, Naresh Kamboju wrote:
-> > > On Wed, 13 Jul 2022 at 00:21, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 5.18.12 release.
-> > > > There are 61 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Thu, 14 Jul 2022 18:32:19 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.12-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > >
-> > >
-> > > Results from Linaro’s test farm.
-> > > Regressions on x86_64 (and still validating results)
-> > >
-> > > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> > >
-> > > 1) kernel panic on x86_64 while running kvm-unit-tests.
-> > >    - APIC base relocation is unsupported by KVM
-> >
-> > Seems others are hitting this too:
-> >         https://lore.kernel.org/r/CAMGffEm9y0wnn8LNS9Qo3obPhs0GD5iJZ0WejFzC4baGPDsYTw@mail.gmail.com
-> >
-> > Does this also happen right now on Linus's tree?
-> 
-> I see this on the mainline 5.19.0-rc6 kernel.
-> more data is at the bottom of the email.
-> 
+On 7/13/2022 9:45 AM, Juergen Gross wrote:
+> On 13.07.22 15:34, Jan Beulich wrote:
+> > On 13.07.2022 13:10, Chuck Zmudzinski wrote:
+> >> On 7/13/2022 6:36 AM, Chuck Zmudzinski wrote:
+> >>> On 7/13/2022 5:09 AM, Jan Beulich wrote:
+> >>>> On 13.07.2022 10:51, Chuck Zmudzinski wrote:
+> >>>>> On 7/13/22 2:18 AM, Jan Beulich wrote:
+> >>>>>> On 13.07.2022 03:36, Chuck Zmudzinski wrote:
+> >>>>>>> v2: *Add force_pat_disabled variable to fix "nopat" on Xen PV (Jan Beulich)
+> >>>>>>>      *Add the necessary code to incorporate the "nopat" fix
+> >>>>>>>      *void init_cache_modes(void) -> void __init init_cache_modes(void)
+> >>>>>>>      *Add Jan Beulich as Co-developer (Jan has not signed off yet)
+> >>>>>>>      *Expand the commit message to include relevant parts of the commit
+> >>>>>>>       message of Jan Beulich's proposed patch for this problem
+> >>>>>>>      *Fix 'else if ... {' placement and indentation
+> >>>>>>>      *Remove indication the backport to stable branches is only back to 5.17.y
+> >>>>>>>
+> >>>>>>> I think these changes address all the comments on the original patch
+> >>>>>>>
+> >>>>>>> I added Jan Beulich as a Co-developer because Juergen Gross asked me to
+> >>>>>>> include Jan's idea for fixing "nopat" that was missing from the first
+> >>>>>>> version of the patch.
+> >>>>>>
+> >>>>>> You've sufficiently altered this change to clearly no longer want my
+> >>>>>> S-o-b; unfortunately in fact I think you broke things:
+> >>>>>
+> >>>>> Well, I hope we can come to an agreement so I have
+> >>>>> your S-o-b. But that would probably require me to remove
+> >>>>> Juergen's R-b.
+> >>>>>
+> >>>>>>> @@ -292,7 +294,7 @@ void init_cache_modes(void)
+> >>>>>>>   		rdmsrl(MSR_IA32_CR_PAT, pat);
+> >>>>>>>   	}
+> >>>>>>>   
+> >>>>>>> -	if (!pat) {
+> >>>>>>> +	if (!pat || pat_force_disabled) {
+> >>>>>>
+> >>>>>> By checking the new variable here ...
+> >>>>>>
+> >>>>>>>   		/*
+> >>>>>>>   		 * No PAT. Emulate the PAT table that corresponds to the two
+> >>>>>>>   		 * cache bits, PWT (Write Through) and PCD (Cache Disable).
+> >>>>>>> @@ -313,6 +315,16 @@ void init_cache_modes(void)
+> >>>>>>>   		 */
+> >>>>>>>   		pat = PAT(0, WB) | PAT(1, WT) | PAT(2, UC_MINUS) | PAT(3, UC) |
+> >>>>>>>   		      PAT(4, WB) | PAT(5, WT) | PAT(6, UC_MINUS) | PAT(7, UC);
+> >>>>>>
+> >>>>>> ... you put in place a software view which doesn't match hardware. I
+> >>>>>> continue to think that ...
+> >>>>>>
+> >>>>>>> +	} else if (!pat_bp_enabled) {
+> >>>>>>
+> >>>>>> ... the variable wants checking here instead (at which point, yes,
+> >>>>>> this comes quite close to simply being a v2 of my original patch).
+> >>>>>>
+> >>>>>> By using !pat_bp_enabled here you actually broaden where the change
+> >>>>>> would take effect. Iirc Boris had asked to narrow things (besides
+> >>>>>> voicing opposition to this approach altogether). Even without that
+> >>>>>> request I wonder whether you aren't going to far with this.
+> >>>>>>
+> >>>>>> Jan
+> >>>>>
+> >>>>> I thought about checking for the administrator's "nopat"
+> >>>>> setting where you suggest which would limit the effect
+> >>>>> of "nopat" to not reporting PAT as enabled to device
+> >>>>> drivers who query for PAT availability using pat_enabled().
+> >>>>> The main reason I did not do that is that due to the fact
+> >>>>> that we cannot write to the PAT MSR, we cannot really
+> >>>>> disable PAT. But we come closer to respecting the wishes
+> >>>>> of the administrator by configuring the caching modes as
+> >>>>> if PAT is actually disabled by the hardware or firmware
+> >>>>> when in fact it is not.
+> >>>>>
+> >>>>> What would you propose logging as a message when
+> >>>>> we report PAT as disabled via pat_enabled()? The main
+> >>>>> reason I did not choose to check the new variable in the
+> >>>>> new 'else if' block is that I could not figure out what to
+> >>>>> tell the administrator in that case. I think we would have
+> >>>>> to log something like, "nopat is set, but we cannot disable
+> >>>>> PAT, doing our best to disable PAT by not reporting PAT
+> >>>>> as enabled via pat_enabled(), but that does not guarantee
+> >>>>> that kernel drivers and components cannot use PAT if they
+> >>>>> query for PAT support using boot_cpu_has(X86_FEATURE_PAT)
+> >>>>> instead of pat_enabled()." However, I acknowledge WC mappings
+> >>>>> would still be disabled because arch_can_pci_mmap_wc() will
+> >>>>> be false if pat_enabled() is false.
+> >>>>>
+> >>>>> Perhaps we also need to log something if we keep the
+> >>>>> check for "nopat" where I placed it. We could say something
+> >>>>> like: "nopat is set, but we cannot disable hardware/firmware
+> >>>>> PAT support, so we are emulating as if there is no PAT support
+> >>>>> which puts in place a software view that does not match
+> >>>>> hardware."
+> >>>>>
+> >>>>> No matter what, because we cannot write to PAT MSR in
+> >>>>> the Xen PV case, we probably need to log something to
+> >>>>> explain the problems associated with trying to honor the
+> >>>>> administrator's request. Also, what log level should it be.
+> >>>>> Should it be a pr_warn instead of a pr_info?
+> >>>>
+> >>>> I'm afraid I'm the wrong one to answer logging questions. As you
+> >>>> can see from my original patch, I didn't add any new logging (and
+> >>>> no addition was requested in the comments that I have got). I also
+> >>>> don't think "nopat" has ever meant "disable PAT", as the feature
+> >>>> is either there or not. Instead I think it was always seen as
+> >>>> "disable fiddling with PAT", which by implication means using
+> >>>> whatever is there (if the feature / MSR itself is available).
+> >>>
+> >>> IIRC, I do think I mentioned in the comments on your patch that
+> >>> it would be preferable to mention in the commit message that
+> >>> your patch would change the current behavior of "nopat" on
+> >>> Xen. The question is, how much do we want to change the
+> >>> current behavior of "nopat" on Xen. I think if we have to change
+> >>> the current behavior of "nopat" on Xen and if we are going
+> >>> to propagate that change to all current stable branches all
+> >>> the way back to 4.9.y,, we better make a lot of noise about
+> >>> what we are doing here.
+> >>>
+> >>> Chuck
+> >>
+> >> And in addition, if we are going to backport this patch to
+> >> all current stable branches, we better have a really, really,
+> >> good reason for changing the behavior of "nopat" on Xen.
+> >>
+> >> Does such a reason exist?
+> > 
+> > Well, the simple reason is: It doesn't work the same way under Xen
+> > and non-Xen (in turn because, before my patch or whatever equivalent
+> > work, things don't work properly anyway, PAT-wise). Yet it definitely
+> > ought to behave the same everywhere, imo.
+>
+> There is Documentation/x86/pat.rst which rather clearly states, how
+> "nopat" is meant to work. It should not change the contents of the
+> PAT MSR and keep it just as it was set at boot time (the doc talks
+> about the "BIOS" setting of the MSR, and I guess in the Xen case
+> the hypervisor is kind of acting as the BIOS).
+>
+> The question is, whether "nopat" needs to be translated to
+> pat_enabled() returning "false". I've found exactly one case where
+> "nopat" seems to be required for a driver to work correctly, but
+> this driver (drivers/media/pci/ivtv/ivtvfb.c) seems to rely on
+> MTRR availability, which isn't supported in Xen PV guests.
+>
+> Other than that the "nopat" option seems to be a chicken bit from
+> the early days of PAT usage, which probably isn't really needed any
+> more. So I wouldn't be worried to drop "nopat" having any effect
+> on the system in Xen PV guests.
+>
+> On bare metal it should still work, of course, if only for said
+> driver.
+>
+> >> Or perhaps, Juergen, could you
+> >> accept a v3 of my patch that does not need to decide
+> >> how to backport the change to "nopat" to the stable branches
+> >> that are affected by the current behavior of "nopat" on Xen?
+>
+> Note that it is not me to accept such a patch, this would be one
+> of the x86 maintainers (e.g. Boris).
+>
+>
+> Juergen
 
-I think I know what this is and I am just testing a fix. This is due to
-FASTOP_SIZE not taking into consideration the size of the return thunk jump.
+Thanks, I think you have given me enough information to try a
+v3 without a fix for "nopat" that you might be willing to give
+your Reviewed-by to.
 
-Cascardo.
+Unfortunately, I am not optimistic about coming to an agreement
+with Jan. I do not want to sign-off on a patch that makes the
+kind of changes to how "nopat" behaves with the attitude, "I'm not the
+one to ask about logging." We have to give the administrator accurate
+information about what we are doing with useful logs, and I
+cannot sign-off on Jan's approach without giving the administrator
+a sensible and honest message about what effects, or lack of effects,
+the "nopat" option will have with his approach. Perhaps Jan will change
+his mind and sign-off with me on a v3 that will explain with a log
+message the limitations of the "nopat" option using his approach.
 
-> TESTNAME=emulator TIMEOUT=90s ACCEL= ./x86/run x86/emulator.flat -smp 1
-> [  110.831265] kvm: emulating exchange as write
-> [  110.837146] int3: 0000 [#1] PREEMPT SMP PTI
-> [  110.837149] CPU: 3 PID: 3804 Comm: qemu-system-x86 Not tainted 5.19.0-rc6 #1
-> [  110.837151] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-> 2.0b 07/27/2017
-> [  110.837151] RIP: 0010:xaddw_ax_dx+0x9/0x10
-> 
-> https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v5.19-rc6-111-gb047602d579b/testrun/10811596/suite/log-parser-test/tests/
-> >
-> > > 2) qemu_x86_64 boot warning
-> > >    - WARNING: CPU: 0 PID: 0 at arch/x86/kernel/alternative.c:558
-> > > apply_returns+0x19c/0x1d0
-> >
-> > Warning, but does everything still work?
-> > And again, still on Linus's tree?
-> 
-> yes.
-> The same kernel warning on qemu_x86_64.
-> 
-> <6>[    1.163406] MDS: Vulnerable: Clear CPU buffers attempted, no microcode
-> <4>[    1.502974] ------------[ cut here ]------------
-> <4>[    1.504324] WARNING: CPU: 0 PID: 0 at
-> arch/x86/kernel/alternative.c:558 apply_returns+0x19c/0x1d0
-> <4>[    1.505319] Modules linked in:
-> <4>[    1.506482] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc6 #1
-> <4>[    1.507244] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-> BIOS 1.14.0-2 04/01/2014
-> <4>[    1.508031] RIP: 0010:apply_returns+0x19c/0x1d0
-> 
-> https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v5.19-rc6-111-gb047602d579b/testrun/10804486/suite/log-parser-test/tests/
-> 
-> >
-> 
-> >
-> > > 3) New warnings noticed while building perf
-> > >    - Warning: Kernel ABI header at
-> > > 'tools/arch/x86/include/asm/disabled-features.h' differs from latest
-> > > version at 'arch/x86/include/asm/disabled-features.h'
-> >
-> > Ick, I'll wait for that to get synced in Linus's tree.
-> >
-> 
-> ---
-> TESTNAME=emulator TIMEOUT=90s ACCEL= ./x86/run x86/emulator.flat -smp 1
-> [  110.831265] kvm: emulating exchange as write
-> [  110.837146] int3: 0000 [#1] PREEMPT SMP PTI
-> [  110.837149] CPU: 3 PID: 3804 Comm: qemu-system-x86 Not tainted 5.19.0-rc6 #1
-> [  110.837151] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-> 2.0b 07/27/2017
-> [  110.837151] RIP: 0010:xaddw_ax_dx+0x9/0x10
-> [  110.837155] Code: 00 0f bb d0 c3 cc cc cc cc 48 0f bb d0 c3 cc cc
-> cc cc 0f 1f 80 00 00 00 00 0f c0 d0 c3 cc cc cc cc 66 0f c1 d0 c3 cc
-> cc cc cc <0f> 1f 80 00 00 00 00 0f c1 d0 c3 cc cc cc cc 48 0f c1 d0 c3
-> cc cc
-> [  110.837156] RSP: 0018:ffffa3ca02fafce0 EFLAGS: 00000206
-> [  110.837158] RAX: 0000000089abcdef RBX: 0000000000000001 RCX: 0000000000000000
-> [  110.837159] RDX: 0000000076543210 RSI: ffffffffaa858f90 RDI: 0000000000000204
-> [  110.837160] RBP: ffffa3ca02fafce8 R08: ffff9785cd9e7380 R09: 0000000000000002
-> [  110.837161] R10: ffff9785cd9e7380 R11: ffff978583b6c0c8 R12: ffff9785cd9e7380
-> [  110.837161] R13: ffffffffabe09d20 R14: 0000000000000000 R15: 0000000000000000
-> [  110.837162] FS:  00007f9c6ee4f700(0000) GS:ffff9788dfd80000(0000)
-> knlGS:0000000000000000
-> [  110.837163] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  110.837164] CR2: 0000000000000000 CR3: 0000000103b86001 CR4: 00000000003726e0
-> [  110.837165] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [  110.837166] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [  110.837166] Call Trace:
-> [  110.837167]  <TASK>
-> [  110.837168]  ? fastop+0x5d/0xa0
-> [  110.837170]  x86_emulate_insn+0x7c9/0xf20
-> [  110.837172]  x86_emulate_instruction+0x46d/0x7e0
-> [  110.837174]  ? trace_hardirqs_on+0x37/0x100
-> [  110.837177]  complete_emulated_mmio+0x211/0x2c0
-> [  110.837178]  kvm_arch_vcpu_ioctl_run+0x12a3/0x2310
-> [  110.837180]  ? vfs_writev+0xcb/0x1a0
-> [  110.837183]  kvm_vcpu_ioctl+0x27e/0x6d0
-> [  110.837185]  ? clockevents_program_event+0x98/0x100
-> [  110.837188]  ? selinux_file_ioctl+0xae/0x140
-> [  110.837191]  ? selinux_file_ioctl+0xae/0x140
-> [  110.837193]  __x64_sys_ioctl+0x95/0xd0
-> [  110.837195]  do_syscall_64+0x3b/0x90
-> [  110.837199]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-> [  110.837200] RIP: 0033:0x7f9c707d98f7
-> [  110.837202] Code: b3 66 90 48 8b 05 a1 35 2c 00 64 c7 00 26 00 00
-> 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00
-> 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 71 35 2c 00 f7 d8 64 89
-> 01 48
-> [  110.837203] RSP: 002b:00007f9c6ee4ea28 EFLAGS: 00000246 ORIG_RAX:
-> 0000000000000010
-> [  110.837204] RAX: ffffffffffffffda RBX: 000000000000ae80 RCX: 00007f9c707d98f7
-> [  110.837205] RDX: 0000000000000000 RSI: 000000000000ae80 RDI: 000000000000000f
-> [  110.837206] RBP: 00005612cd03faf0 R08: 00005612cba7c450 R09: 00000000ffffffff
-> [  110.837206] R10: 00007ffdfdda3080 R11: 0000000000000246 R12: 0000000000000000
-> [  110.837207] R13: 00007f9c72b09000 R14: 0000000000000006 R15: 00005612cd03faf0
-> [  110.837208]  </TASK>
-> [  110.837209] Modules linked in: x86_pkg_temp_thermal
-> [  111.090304] ---[ end trace 0000000000000000 ]---
-> [  111.090304] RIP: 0010:xaddw_ax_dx+0x9/0x10
-> [  111.090306] Code: 00 0f bb d0 c3 cc cc cc cc 48 0f bb d0 c3 cc cc
-> cc cc 0f 1f 80 00 00 00 00 0f c0 d0 c3 cc cc cc cc 66 0f c1 d0 c3 cc
-> cc cc cc <0f> 1f 80 00 00 00 00 0f c1 d0 c3 cc cc cc cc 48 0f c1 d0 c3
-> cc cc
-> [  111.090306] RSP: 0018:ffffa3ca02fafce0 EFLAGS: 00000206
-> [  111.090307] RAX: 0000000089abcdef RBX: 0000000000000001 RCX: 0000000000000000
-> [  111.090308] RDX: 0000000076543210 RSI: ffffffffaa858f90 RDI: 0000000000000204
-> [  111.090309] RBP: ffffa3ca02fafce8 R08: ffff9785cd9e7380 R09: 0000000000000002
-> [  111.090309] R10: ffff9785cd9e7380 R11: ffff978583b6c0c8 R12: ffff9785cd9e7380
-> [  111.090310] R13: ffffffffabe09d20 R14: 0000000000000000 R15: 0000000000000000
-> [  111.090310] FS:  00007f9c6ee4f700(0000) GS:ffff9788dfd80000(0000)
-> knlGS:0000000000000000
-> [  111.090311] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  111.090312] CR2: 0000000000000000 CR3: 0000000103b86001 CR4: 00000000003726e0
-> [  111.090313] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [  111.090328] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [  111.090329] Kernel panic - not syncing: Fatal exception in interrupt
-> [  111.090367] Kernel Offset: 0x29800000 from 0xffffffff81000000
-> (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-> [  111.210947] ---[ end Kernel panic - not syncing: Fatal exception in
-> interrupt ]---
-> [  111.218507] ------------[ cut here ]------------
-> [  111.218508] sched: Unexpected reschedule of offline CPU#0!
-> [  111.218510] WARNING: CPU: 3 PID: 3804 at
-> arch/x86/kernel/apic/ipi.c:68 native_smp_send_reschedule+0x3e/0x50
-> [  111.218512] Modules linked in: x86_pkg_temp_thermal
-> [  111.218513] CPU: 3 PID: 3804 Comm: qemu-system-x86 Tainted: G
-> D           5.19.0-rc6 #1
-> [  111.218515] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-> 2.0b 07/27/2017
-> [  111.218515] RIP: 0010:native_smp_send_reschedule+0x3e/0x50
-> [  111.218516] Code: 1b 48 8b 05 24 b9 aa 01 be fd 00 00 00 48 8b 40
-> 30 e8 96 06 31 01 5d c3 cc cc cc cc 89 fe 48 c7 c7 c8 d9 25 ac e8 76
-> 56 f6 00 <0f> 0b 5d c3 cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f
-> 44 00
-> [  111.218517] RSP: 0018:ffffa3ca00168c40 EFLAGS: 00010086
-> [  111.218518] RAX: 0000000000000000 RBX: ffffffffac6189c0 RCX: 0000000000000001
-> [  111.218519] RDX: 0000000000000027 RSI: ffffffffac272909 RDI: 0000000000000001
-> [  111.218520] RBP: ffffa3ca00168c40 R08: ffffffffacb91045 R09: 0000000000000000
-> [  111.218520] R10: 0000000000000030 R11: ffffffffacb91045 R12: 0000000000000000
-> [  111.218521] R13: ffffa3ca00168cf8 R14: ffffa3ca00168cf8 R15: 0000000000000009
-> [  111.218521] FS:  00007f9c6ee4f700(0000) GS:ffff9788dfd80000(0000)
-> knlGS:0000000000000000
-> [  111.218522] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  111.218523] CR2: 0000000000000000 CR3: 0000000103b86001 CR4: 00000000003726e0
-> [  111.218523] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [  111.218524] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [  111.218525] Call Trace:
-> [  111.218525]  <IRQ>
-> [  111.218526]  resched_curr+0x5c/0xd0
-> [  111.218528]  check_preempt_curr+0x3b/0x70
-> [  111.218530]  ttwu_do_wakeup+0x1c/0x180
-> [  111.218531]  ttwu_do_activate+0x94/0x180
-> [  111.218533]  try_to_wake_up+0x276/0x5b0
-> [  111.218535]  default_wake_function+0x1a/0x40
-> [  111.218536]  autoremove_wake_function+0x12/0x40
-> [  111.218538]  __wake_up_common+0x7d/0x140
-> [  111.218540]  __wake_up_common_lock+0x7c/0xc0
-> [  111.218543]  __wake_up+0x13/0x20
-> [  111.218545]  wake_up_klogd_work_func+0x7b/0x90
-> [  111.218547]  irq_work_single+0x46/0xa0
-> [  111.218548]  irq_work_run_list+0x2a/0x40
-> [  111.218550]  irq_work_tick+0x4d/0x70
-> [  111.218551]  update_process_times+0x90/0xb0
-> [  111.218553]  tick_sched_handle+0x38/0x50
-> [  111.218555]  tick_sched_timer+0x7b/0xa0
-> [  111.218556]  ? tick_sched_do_timer+0xa0/0xa0
-> [  111.218557]  __hrtimer_run_queues+0xa7/0x300
-> [  111.218560]  hrtimer_interrupt+0x110/0x230
-> [  111.218562]  __sysvec_apic_timer_interrupt+0x84/0x170
-> [  111.218564]  sysvec_apic_timer_interrupt+0xab/0xd0
-> [  111.218566]  </IRQ>
-> [  111.218566]  <TASK>
-> [  111.218567]  asm_sysvec_apic_timer_interrupt+0x1b/0x20
-> [  111.218568] RIP: 0010:panic+0x253/0x292
-> [  111.218570] Code: e8 88 3b 1a ff 48 c7 c6 a0 ba b7 ac 48 c7 c7 80
-> 32 26 ac e8 23 5c 00 00 c7 05 e3 97 0a 01 01 00 00 00 e8 46 e6 28 ff
-> fb 31 db <4c> 39 eb 7c 1d 41 83 f4 01 48 8b 05 13 2d 32 01 44 89 e7 e8
-> ab ac
-> [  111.218571] RSP: 0018:ffffa3ca02fafb10 EFLAGS: 00000246
-> [  111.218572] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000001
-> [  111.218572] RDX: 0000000000110001 RSI: ffffffffab853daf RDI: ffffffffab858cfa
-> [  111.218573] RBP: ffffa3ca02fafb80 R08: ffffffffacb90fda R09: 00000000acb90fb6
-> [  111.218574] R10: ffffffffffffffff R11: ffffffffffffffff R12: 0000000000000000
-> [  111.218574] R13: 0000000000000000 R14: ffffffffac2520a6 R15: 0000000000000000
-> [  111.218575]  ? oops_end.cold+0xc/0x18
-> [  111.218577]  ? panic+0x250/0x292
-> [  111.218579]  oops_end.cold+0xc/0x18
-> [  111.218580]  die+0x43/0x60
-> [  111.218582]  exc_int3+0x137/0x160
-> [  111.218583]  asm_exc_int3+0x3a/0x40
-> [  111.218584] RIP: 0010:xaddw_ax_dx+0x9/0x10
-> [  111.218585] Code: 00 0f bb d0 c3 cc cc cc cc 48 0f bb d0 c3 cc cc
-> cc cc 0f 1f 80 00 00 00 00 0f c0 d0 c3 cc cc cc cc 66 0f c1 d0 c3 cc
-> cc cc cc <0f> 1f 80 00 00 00 00 0f c1 d0 c3 cc cc cc cc 48 0f c1 d0 c3
-> cc cc
-> [  111.218586] RSP: 0018:ffffa3ca02fafce0 EFLAGS: 00000206
-> [  111.218587] RAX: 0000000089abcdef RBX: 0000000000000001 RCX: 0000000000000000
-> [  111.218587] RDX: 0000000076543210 RSI: ffffffffaa858f90 RDI: 0000000000000204
-> [  111.218588] RBP: ffffa3ca02fafce8 R08: ffff9785cd9e7380 R09: 0000000000000002
-> [  111.218588] R10: ffff9785cd9e7380 R11: ffff978583b6c0c8 R12: ffff9785cd9e7380
-> [  111.218589] R13: ffffffffabe09d20 R14: 0000000000000000 R15: 0000000000000000
-> [  111.218590]  ? xaddw_ax_dx+0x8/0x10
-> [  111.218591]  ? xaddw_ax_dx+0x9/0x10
-> [  111.218592]  ? fastop+0x5d/0xa0
-> [  111.218594]  x86_emulate_insn+0x7c9/0xf20
-> [  111.218596]  x86_emulate_instruction+0x46d/0x7e0
-> [  111.218597]  ? trace_hardirqs_on+0x37/0x100
-> [  111.218599]  complete_emulated_mmio+0x211/0x2c0
-> [  111.218601]  kvm_arch_vcpu_ioctl_run+0x12a3/0x2310
-> [  111.218602]  ? vfs_writev+0xcb/0x1a0
-> [  111.218605]  kvm_vcpu_ioctl+0x27e/0x6d0
-> [  111.218607]  ? clockevents_program_event+0x98/0x100
-> [  111.218609]  ? selinux_file_ioctl+0xae/0x140
-> [  111.218612]  ? selinux_file_ioctl+0xae/0x140
-> [  111.218614]  __x64_sys_ioctl+0x95/0xd0
-> [  111.218616]  do_syscall_64+0x3b/0x90
-> [  111.218618]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-> [  111.218619] RIP: 0033:0x7f9c707d98f7
-> [  111.218620] Code: b3 66 90 48 8b 05 a1 35 2c 00 64 c7 00 26 00 00
-> 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00
-> 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 71 35 2c 00 f7 d8 64 89
-> 01 48
-> [  111.218621] RSP: 002b:00007f9c6ee4ea28 EFLAGS: 00000246 ORIG_RAX:
-> 0000000000000010
-> [  111.218622] RAX: ffffffffffffffda RBX: 000000000000ae80 RCX: 00007f9c707d98f7
-> [  111.218623] RDX: 0000000000000000 RSI: 000000000000ae80 RDI: 000000000000000f
-> [  111.218623] RBP: 00005612cd03faf0 R08: 00005612cba7c450 R09: 00000000ffffffff
-> [  111.218624] R10: 00007ffdfdda3080 R11: 0000000000000246 R12: 0000000000000000
-> [  111.218624] R13: 00007f9c72b09000 R14: 0000000000000006 R15: 00005612cd03faf0
-> [  111.218626]  </TASK>
-> [  111.218626] ---[ end trace 0000000000000000 ]---
-> [  111.218629] ------------[ cut here ]------------
-> [  111.218629] WARNING: CPU: 3 PID: 3804 at kernel/sched/core.c:3125
-> set_task_cpu+0x195/0x1b0
-> [  111.218631] Modules linked in: x86_pkg_temp_thermal
-> [  111.218632] CPU: 3 PID: 3804 Comm: qemu-system-x86 Tainted: G
-> D W         5.19.0-rc6 #1
-> [  111.218634] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-> 2.0b 07/27/2017
-> [  111.218634] RIP: 0010:set_task_cpu+0x195/0x1b0
-> [  111.218636] Code: 65 ff 0d 2e 0a 61 55 0f 85 db fe ff ff 0f 1f 44
-> 00 00 e9 d1 fe ff ff 80 8b 1c 05 00 00 04 e9 0f ff ff ff 0f 0b e9 9a
-> fe ff ff <0f> 0b 66 83 bb f8 03 00 00 00 0f 84 a9 fe ff ff 0f 0b e9 a2
-> fe ff
-> [  111.218636] RSP: 0018:ffffa3ca00168b98 EFLAGS: 00010006
-> [  111.218637] RAX: 0000000000000200 RBX: ffff9785826ad3c0 RCX: ffff978580836e00
-> [  111.218638] RDX: fffffffffffffff2 RSI: 0000000000000001 RDI: ffff9785826ad3c0
-> [  111.218638] RBP: ffffa3ca00168bb8 R08: 0000000000000001 R09: 0000000000000004
-> [  111.218639] R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000001
-> [  111.218639] R13: 0000000000000001 R14: 0000000000000087 R15: ffff9785826adc04
-> [  111.218640] FS:  00007f9c6ee4f700(0000) GS:ffff9788dfd80000(0000)
-> knlGS:0000000000000000
-> [  111.218641] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  111.218642] CR2: 0000000000000000 CR3: 0000000103b86001 CR4: 00000000003726e0
-> [  111.218642] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [  111.218643] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [  111.218643] Call Trace:
-> [  111.218644]  <IRQ>
-> [  111.218644]  try_to_wake_up+0x1d0/0x5b0
-> [  111.218646]  default_wake_function+0x1a/0x40
-> [  111.218648]  autoremove_wake_function+0x12/0x40
-> [  111.218649]  __wake_up_common+0x7d/0x140
-> [  111.218651]  __wake_up_common_lock+0x7c/0xc0
-> [  111.218653]  __wake_up+0x13/0x20
-> [  111.218655]  ep_poll_callback+0x117/0x290
-> [  111.218657]  __wake_up_common+0x7d/0x140
-> [  111.218659]  __wake_up_common_lock+0x7c/0xc0
-> [  111.218662]  __wake_up+0x13/0x20
-> [  111.218663]  wake_up_klogd_work_func+0x7b/0x90
-> [  111.218665]  irq_work_single+0x46/0xa0
-> [  111.218666]  irq_work_run_list+0x2a/0x40
-> [  111.218667]  irq_work_tick+0x4d/0x70
-> [  111.218669]  update_process_times+0x90/0xb0
-> [  111.218670]  tick_sched_handle+0x38/0x50
-> [  111.218672]  tick_sched_timer+0x7b/0xa0
-> [  111.218673]  ? tick_sched_do_timer+0xa0/0xa0
-> [  111.218674]  __hrtimer_run_queues+0xa7/0x300
-> [  111.218677]  hrtimer_interrupt+0x110/0x230
-> [  111.218679]  __sysvec_apic_timer_interrupt+0x84/0x170
-> [  111.218681]  sysvec_apic_timer_interrupt+0xab/0xd0
-> [  111.218683]  </IRQ>
-> [  111.218683]  <TASK>
-> [  111.218683]  asm_sysvec_apic_timer_interrupt+0x1b/0x20
-> [  111.218685] RIP: 0010:panic+0x253/0x292
-> [  111.218686] Code: e8 88 3b 1a ff 48 c7 c6 a0 ba b7 ac 48 c7 c7 80
-> 32 26 ac e8 23 5c 00 00 c7 05 e3 97 0a 01 01 00 00 00 e8 46 e6 28 ff
-> fb 31 db <4c> 39 eb 7c 1d 41 83 f4 01 48 8b 05 13 2d 32 01 44 89 e7 e8
-> ab ac
-> [  111.218686] RSP: 0018:ffffa3ca02fafb10 EFLAGS: 00000246
-> [  111.218687] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000001
-> [  111.218688] RDX: 0000000000110001 RSI: ffffffffab853daf RDI: ffffffffab858cfa
-> [  111.218688] RBP: ffffa3ca02fafb80 R08: ffffffffacb90fda R09: 00000000acb90fb6
-> [  111.218689] R10: ffffffffffffffff R11: ffffffffffffffff R12: 0000000000000000
-> [  111.218689] R13: 0000000000000000 R14: ffffffffac2520a6 R15: 0000000000000000
-> [  111.218690]  ? oops_end.cold+0xc/0x18
-> [  111.218692]  ? panic+0x250/0x292
-> [  111.218693]  oops_end.cold+0xc/0x18
-> [  111.218694]  die+0x43/0x60
-> [  111.218696]  exc_int3+0x137/0x160
-> [  111.218697]  asm_exc_int3+0x3a/0x40
-> [  111.218698] RIP: 0010:xaddw_ax_dx+0x9/0x10
-> [  111.218699] Code: 00 0f bb d0 c3 cc cc cc cc 48 0f bb d0 c3 cc cc
-> cc cc 0f 1f 80 00 00 00 00 0f c0 d0 c3 cc cc cc cc 66 0f c1 d0 c3 cc
-> cc cc cc <0f> 1f 80 00 00 00 00 0f c1 d0 c3 cc cc cc cc 48 0f c1 d0 c3
-> cc cc
-> [  111.218700] RSP: 0018:ffffa3ca02fafce0 EFLAGS: 00000206
-> [  111.218700] RAX: 0000000089abcdef RBX: 0000000000000001 RCX: 0000000000000000
-> [  111.218701] RDX: 0000000076543210 RSI: ffffffffaa858f90 RDI: 0000000000000204
-> [  111.218702] RBP: ffffa3ca02fafce8 R08: ffff9785cd9e7380 R09: 0000000000000002
-> [  111.218702] R10: ffff9785cd9e7380 R11: ffff978583b6c0c8 R12: ffff9785cd9e7380
-> [  111.218703] R13: ffffffffabe09d20 R14: 0000000000000000 R15: 0000000000000000
-> [  111.218704]  ? xaddw_ax_dx+0x8/0x10
-> [  111.218705]  ? xaddw_ax_dx+0x9/0x10
-> [  111.218706]  ? fastop+0x5d/0xa0
-> [  111.218707]  x86_emulate_insn+0x7c9/0xf20
-> [  111.218709]  x86_emulate_instruction+0x46d/0x7e0
-> [  111.218710]  ? trace_hardirqs_on+0x37/0x100
-> [  111.218713]  complete_emulated_mmio+0x211/0x2c0
-> [  111.218714]  kvm_arch_vcpu_ioctl_run+0x12a3/0x2310
-> [  111.218716]  ? vfs_writev+0xcb/0x1a0
-> [  111.218718]  kvm_vcpu_ioctl+0x27e/0x6d0
-> [  111.218720]  ? clockevents_program_event+0x98/0x100
-> [  111.218723]  ? selinux_file_ioctl+0xae/0x140
-> [  111.218725]  ? selinux_file_ioctl+0xae/0x140
-> [  111.218727]  __x64_sys_ioctl+0x95/0xd0
-> [  111.218729]  do_syscall_64+0x3b/0x90
-> [  111.218731]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-> [  111.218732] RIP: 0033:0x7f9c707d98f7
-> [  111.218733] Code: b3 66 90 48 8b 05 a1 35 2c 00 64 c7 00 26 00 00
-> 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00
-> 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 71 35 2c 00 f7 d8 64 89
-> 01 48
-> [  111.218734] RSP: 002b:00007f9c6ee4ea28 EFLAGS: 00000246 ORIG_RAX:
-> 0000000000000010
-> [  111.218735] RAX: ffffffffffffffda RBX: 000000000000ae80 RCX: 00007f9c707d98f7
-> [  111.218735] RDX: 0000000000000000 RSI: 000000000000ae80 RDI: 000000000000000f
-> [  111.218736] RBP: 00005612cd03faf0 R08: 00005612cba7c450 R09: 00000000ffffffff
-> [  111.218736] R10: 00007ffdfdda3080 R11: 0000000000000246 R12: 0000000000000000
-> [  111.218737] R13: 00007f9c72b09000 R14: 0000000000000006 R15: 00005612cd03faf0
-> [  111.218738]  </TASK>
-> [  111.218739] ---[ end trace 0000000000000000 ]---
-> [  111.218740] ------------[ cut here ]------------
-> [  111.218741] sched: Unexpected reschedule of offline CPU#1!
-> [  111.218742] WARNING: CPU: 3 PID: 3804 at
-> arch/x86/kernel/apic/ipi.c:68 native_smp_send_reschedule+0x3e/0x50
-> [  111.218743] Modules linked in: x86_pkg_temp_thermal
-> [  111.218744] CPU: 3 PID: 3804 Comm: qemu-system-x86 Tainted: G
-> D W         5.19.0-rc6 #1
-> [  111.218745] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-> 2.0b 07/27/2017
-> [  111.218745] RIP: 0010:native_smp_send_reschedule+0x3e/0x50
-> [  111.218747] Code: 1b 48 8b 05 24 b9 aa 01 be fd 00 00 00 48 8b 40
-> 30 e8 96 06 31 01 5d c3 cc cc cc cc 89 fe 48 c7 c7 c8 d9 25 ac e8 76
-> 56 f6 00 <0f> 0b 5d c3 cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f
-> 44 00
-> [  111.218747] RSP: 0018:ffffa3ca00168b20 EFLAGS: 00010082
-> [  111.218748] RAX: 0000000000000000 RBX: ffff978580362180 RCX: 0000000000000001
-> [  111.218749] RDX: 0000000000000027 RSI: ffffffffac272909 RDI: 0000000000000001
-> [  111.218749] RBP: ffffa3ca00168b20 R08: ffffffffacb93d75 R09: 0000000000000000
-> [  111.218750] R10: 0000000000000030 R11: ffffffffacb93d75 R12: 0000000000000001
-> [  111.218750] R13: ffffa3ca00168bd8 R14: ffffa3ca00168bd8 R15: 0000000000000049
-> [  111.218751] FS:  00007f9c6ee4f700(0000) GS:ffff9788dfd80000(0000)
-> knlGS:0000000000000000
-> [  111.218752] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  111.218753] CR2: 0000000000000000 CR3: 0000000103b86001 CR4: 00000000003726e0
-> [  111.218753] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [  111.218754] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [  111.218754] Call Trace:
-> [  111.218755]  <IRQ>
-> [  111.218755]  resched_curr+0x5c/0xd0
-> [  111.218756]  check_preempt_curr+0x3b/0x70
-> [  111.218758]  ttwu_do_wakeup+0x1c/0x180
-> [  111.218760]  ttwu_do_activate+0x94/0x180
-> [  111.218761]  try_to_wake_up+0x276/0x5b0
-> [  111.218763]  default_wake_function+0x1a/0x40
-> [  111.218765]  autoremove_wake_function+0x12/0x40
-> [  111.218766]  __wake_up_common+0x7d/0x140
-> [  111.218768]  __wake_up_common_lock+0x7c/0xc0
-> [  111.218770]  __wake_up+0x13/0x20
-> [  111.218772]  ep_poll_callback+0x117/0x290
-> [  111.218773]  __wake_up_common+0x7d/0x140
-> [  111.218775]  __wake_up_common_lock+0x7c/0xc0
-> [  111.218778]  __wake_up+0x13/0x20
-> [  111.218779]  wake_up_klogd_work_func+0x7b/0x90
-> [  111.218781]  irq_work_single+0x46/0xa0
-> [  111.218782]  irq_work_run_list+0x2a/0x40
-> [  111.218783]  irq_work_tick+0x4d/0x70
-> [  111.218784]  update_process_times+0x90/0xb0
-> [  111.218786]  tick_sched_handle+0x38/0x50
-> [  111.218788]  tick_sched_timer+0x7b/0xa0
-> [  111.218789]  ? tick_sched_do_timer+0xa0/0xa0
-> [  111.218790]  __hrtimer_run_queues+0xa7/0x300
-> [  111.218793]  hrtimer_interrupt+0x110/0x230
-> [  111.218795]  __sysvec_apic_timer_interrupt+0x84/0x170
-> [  111.218797]  sysvec_apic_timer_interrupt+0xab/0xd0
-> [  111.218798]  </IRQ>
-> [  111.218799]  <TASK>
-> [  111.218799]  asm_sysvec_apic_timer_interrupt+0x1b/0x20
-> [  111.218801] RIP: 0010:panic+0x253/0x292
-> [  111.218801] Code: e8 88 3b 1a ff 48 c7 c6 a0 ba b7 ac 48 c7 c7 80
-> 32 26 ac e8 23 5c 00 00 c7 05 e3 97 0a 01 01 00 00 00 e8 46 e6 28 ff
-> fb 31 db <4c> 39 eb 7c 1d 41 83 f4 01 48 8b 05 13 2d 32 01 44 89 e7 e8
-> ab ac
-> [  111.218802] RSP: 0018:ffffa3ca02fafb10 EFLAGS: 00000246
-> [  111.218803] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000001
-> [  111.218803] RDX: 0000000000110001 RSI: ffffffffab853daf RDI: ffffffffab858cfa
-> [  111.218804] RBP: ffffa3ca02fafb80 R08: ffffffffacb90fda R09: 00000000acb90fb6
-> [  111.218805] R10: ffffffffffffffff R11: ffffffffffffffff R12: 0000000000000000
-> [  111.218805] R13: 0000000000000000 R14: ffffffffac2520a6 R15: 0000000000000000
-> [  111.218806]  ? oops_end.cold+0xc/0x18
-> [  111.218807]  ? panic+0x250/0x292
-> [  111.218809]  oops_end.cold+0xc/0x18
-> [  111.218810]  die+0x43/0x60
-> [  111.218812]  exc_int3+0x137/0x160
-> [  111.218813]  asm_exc_int3+0x3a/0x40
-> [  111.218814] RIP: 0010:xaddw_ax_dx+0x9/0x10
-> [  111.218815] Code: 00 0f bb d0 c3 cc cc cc cc 48 0f bb d0 c3 cc cc
-> cc cc 0f 1f 80 00 00 00 00 0f c0 d0 c3 cc cc cc cc 66 0f c1 d0 c3 cc
-> cc cc cc <0f> 1f 80 00 00 00 00 0f c1 d0 c3 cc cc cc cc 48 0f c1 d0 c3
-> cc cc
-> [  111.218815] RSP: 0018:ffffa3ca02fafce0 EFLAGS: 00000206
-> [  111.218816] RAX: 0000000089abcdef RBX: 0000000000000001 RCX: 0000000000000000
-> [  111.218817] RDX: 0000000076543210 RSI: ffffffffaa858f90 RDI: 0000000000000204
-> [  111.218817] RBP: ffffa3ca02fafce8 R08: ffff9785cd9e7380 R09: 0000000000000002
-> [  111.218818] R10: ffff9785cd9e7380 R11: ffff978583b6c0c8 R12: ffff9785cd9e7380
-> [  111.218818] R13: ffffffffabe09d20 R14: 0000000000000000 R15: 0000000000000000
-> [  111.218819]  ? xaddw_ax_dx+0x8/0x10
-> [  111.218821]  ? xaddw_ax_dx+0x9/0x10
-> [  111.218822]  ? fastop+0x5d/0xa0
-> [  111.218823]  x86_emulate_insn+0x7c9/0xf20
-> [  111.218825]  x86_emulate_instruction+0x46d/0x7e0
-> [  111.218826]  ? trace_hardirqs_on+0x37/0x100
-> [  111.218828]  complete_emulated_mmio+0x211/0x2c0
-> [  111.218829]  kvm_arch_vcpu_ioctl_run+0x12a3/0x2310
-> [  111.218831]  ? vfs_writev+0xcb/0x1a0
-> [  111.218833]  kvm_vcpu_ioctl+0x27e/0x6d0
-> [  111.218835]  ? clockevents_program_event+0x98/0x100
-> [  111.218838]  ? selinux_file_ioctl+0xae/0x140
-> [  111.218840]  ? selinux_file_ioctl+0xae/0x140
-> [  111.218842]  __x64_sys_ioctl+0x95/0xd0
-> [  111.218844]  do_syscall_64+0x3b/0x90
-> [  111.218846]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-> [  111.218847] RIP: 0033:0x7f9c707d98f7
-> [  111.218848] Code: b3 66 90 48 8b 05 a1 35 2c 00 64 c7 00 26 00 00
-> 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00
-> 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 71 35 2c 00 f7 d8 64 89
-> 01 48
-> [  111.218849] RSP: 002b:00007f9c6ee4ea28 EFLAGS: 00000246 ORIG_RAX:
-> 0000000000000010
-> [  111.218849] RAX: ffffffffffffffda RBX: 000000000000ae80 RCX: 00007f9c707d98f7
-> [  111.218850] RDX: 0000000000000000 RSI: 000000000000ae80 RDI: 000000000000000f
-> [  111.218851] RBP: 00005612cd03faf0 R08: 00005612cba7c450 R09: 00000000ffffffff
-> [  111.218851] R10: 00007ffdfdda3080 R11: 0000000000000246 R12: 0000000000000000
-> [  111.218852] R13: 00007f9c72b09000 R14: 0000000000000006 R15: 00005612cd03faf0
-> [  111.218853]  </TASK>
-> [  111.218854] ---[ end trace 0000000000000000 ]---
-> 
-> https://lkft.validation.linaro.org/scheduler/job/5279904#L1721
-> 
-> - Naresh
+I am just against not being open about any issues that are present
+in what we always call "open source software."
+
+Chuck
