@@ -2,64 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0BC573C63
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 20:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF66573C74
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 20:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236564AbiGMSN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 14:13:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52008 "EHLO
+        id S234904AbiGMSVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 14:21:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236532AbiGMSN4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 14:13:56 -0400
-Received: from alexa-out-sd-01.qualcomm.com (alexa-out-sd-01.qualcomm.com [199.106.114.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8903365DA
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:13:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1657736035; x=1689272035;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=CXvvOG8FcSrNprGLQqqdtN6JlNTo0k5BlepCz1y9gik=;
-  b=b/FP66CI7FoLru4R0+sKMcIWmW4KB6TAhXeK+7cTOOKknkBUvL1kGchR
-   NofRHTzP+vSl1vhYsAhulQOAiA/OcLY1PGF4YiivqAE8EGajimaepCiRE
-   B5FH4jQONEMyrz9YAfda9FPsKFSW9xHAhhJ3Di6k3lKnfhdpRHdUeU2B9
-   g=;
-Received: from unknown (HELO ironmsg05-sd.qualcomm.com) ([10.53.140.145])
-  by alexa-out-sd-01.qualcomm.com with ESMTP; 13 Jul 2022 11:13:55 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg05-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2022 11:13:55 -0700
-Received: from nalasex01b.na.qualcomm.com (10.47.209.197) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Wed, 13 Jul 2022 11:13:54 -0700
-Received: from ubuntuvm.qualcomm.com (10.80.80.8) by
- nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Wed, 13 Jul 2022 11:13:53 -0700
-From:   Carl Vanderlip <quic_carlv@quicinc.com>
-To:     <stable@vger.kernel.org>
-CC:     Jeffrey Hugo <quic_jhugo@quicinc.com>, <kys@microsoft.com>,
-        <haiyangz@microsoft.com>, <sthemmin@microsoft.com>,
-        <wei.liu@microsoft.com>, <decui@microsoft.com>,
-        <lorenzo.pieralisi@arm.com>, <robh@kernel.org>, <kw@linux.org>,
-        <bhelgaas@google.com>, Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 5.18 4/4] PCI: hv: Fix interrupt mapping for multi-MSI
-Date:   Wed, 13 Jul 2022 18:12:54 +0000
-Message-ID: <20220713181254.5831-5-quic_carlv@quicinc.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220713181254.5831-1-quic_carlv@quicinc.com>
-References: <20220713181254.5831-1-quic_carlv@quicinc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        with ESMTP id S231754AbiGMSVy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 14:21:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE632CE20;
+        Wed, 13 Jul 2022 11:21:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29ACB61D59;
+        Wed, 13 Jul 2022 18:21:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C06DC34114;
+        Wed, 13 Jul 2022 18:21:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1657736512;
+        bh=la1r15x4KQLNGJA82valO7UZA8IXV/V5m6AHmO1sSv8=;
+        h=Date:To:From:Subject:From;
+        b=plPx68RCPjJzbM0nqp1RHw/Ge0jXx70eRyfx93EV0V/oSr+MFl9/0SzwKdckjBVEw
+         wD4Q3V3nKIJU6ALKFfNVBoSXu+Fz0noymAxoM6dxDunARMwImha4AtCXVyxDYFRo9l
+         hrmjU40GR+Ap4qoPXWXpd7Oqrgby4tWO7cTgq3vY=
+Date:   Wed, 13 Jul 2022 11:21:51 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        rppt@linux.ibm.com, peterx@redhat.com, jthoughton@google.com,
+        jack@suse.cz, david@redhat.com, aarcange@redhat.com,
+        namit@vmware.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + userfaultfd-provide-properly-masked-address-for-huge-pages.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220713182152.6C06DC34114@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -68,181 +46,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-According to Dexuan, the hypervisor folks beleive that multi-msi
-allocations are not correct.  compose_msi_msg() will allocate multi-msi
-one by one.  However, multi-msi is a block of related MSIs, with alignment
-requirements.  In order for the hypervisor to allocate properly aligned
-and consecutive entries in the IOMMU Interrupt Remapping Table, there
-should be a single mapping request that requests all of the multi-msi
-vectors in one shot.
+The patch titled
+     Subject: userfaultfd: provide properly masked address for huge-pages
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     userfaultfd-provide-properly-masked-address-for-huge-pages.patch
 
-Dexuan suggests detecting the multi-msi case and composing a single
-request related to the first MSI.  Then for the other MSIs in the same
-block, use the cached information.  This appears to be viable, so do it.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/userfaultfd-provide-properly-masked-address-for-huge-pages.patch
 
-Suggested-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Tested-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1652282599-21643-1-git-send-email-quic_jhugo@quicinc.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Nadav Amit <namit@vmware.com>
+Subject: userfaultfd: provide properly masked address for huge-pages
+Date: Mon, 11 Jul 2022 09:59:06 -0700
+
+Commit 824ddc601adc ("userfaultfd: provide unmasked address on
+page-fault") was introduced to fix an old bug, in which the offset in the
+address of a page-fault was masked.  Concerns were raised - although were
+never backed by actual code - that some userspace code might break because
+the bug has been around for quite a while.  To address these concerns a
+new flag was introduced, and only when this flag is set by the user,
+userfaultfd provides the exact address of the page-fault.
+
+The commit however had a bug, and if the flag is unset, the offset was
+always masked based on a base-page granularity.  Yet, for huge-pages, the
+behavior prior to the commit was that the address is masked to the
+huge-page granulrity.
+
+While there are no reports on real breakage, fix this issue.  If the flag
+is unset, use the address with the masking that was done before.
+
+Link: https://lkml.kernel.org/r/20220711165906.2682-1-namit@vmware.com
+Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reported-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: James Houghton <jthoughton@google.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 60 ++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index ac2b844ce81e..fb185cb05258 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1518,6 +1518,10 @@ static void hv_int_desc_free(struct hv_pci_dev *hpdev,
- 		u8 buffer[sizeof(struct pci_delete_interrupt)];
- 	} ctxt;
+ fs/userfaultfd.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+--- a/fs/userfaultfd.c~userfaultfd-provide-properly-masked-address-for-huge-pages
++++ a/fs/userfaultfd.c
+@@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_
+ }
  
-+	if (!int_desc->vector_count) {
-+		kfree(int_desc);
-+		return;
-+	}
- 	memset(&ctxt, 0, sizeof(ctxt));
- 	int_pkt = (struct pci_delete_interrupt *)&ctxt.pkt.message;
- 	int_pkt->message_type.type =
-@@ -1602,12 +1606,12 @@ static void hv_pci_compose_compl(void *context, struct pci_response *resp,
- 
- static u32 hv_compose_msi_req_v1(
- 	struct pci_create_interrupt *int_pkt, struct cpumask *affinity,
--	u32 slot, u8 vector)
-+	u32 slot, u8 vector, u8 vector_count)
+ static inline struct uffd_msg userfault_msg(unsigned long address,
++					    unsigned long real_address,
+ 					    unsigned int flags,
+ 					    unsigned long reason,
+ 					    unsigned int features)
  {
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
- 
- 	/*
-@@ -1630,14 +1634,14 @@ static int hv_compose_msi_req_get_cpu(struct cpumask *affinity)
- 
- static u32 hv_compose_msi_req_v2(
- 	struct pci_create_interrupt2 *int_pkt, struct cpumask *affinity,
--	u32 slot, u8 vector)
-+	u32 slot, u8 vector, u8 vector_count)
- {
- 	int cpu;
- 
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE2;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
- 	cpu = hv_compose_msi_req_get_cpu(affinity);
- 	int_pkt->int_desc.processor_array[0] =
-@@ -1649,7 +1653,7 @@ static u32 hv_compose_msi_req_v2(
- 
- static u32 hv_compose_msi_req_v3(
- 	struct pci_create_interrupt3 *int_pkt, struct cpumask *affinity,
--	u32 slot, u32 vector)
-+	u32 slot, u32 vector, u8 vector_count)
- {
- 	int cpu;
- 
-@@ -1657,7 +1661,7 @@ static u32 hv_compose_msi_req_v3(
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
- 	int_pkt->int_desc.reserved = 0;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
- 	cpu = hv_compose_msi_req_get_cpu(affinity);
- 	int_pkt->int_desc.processor_array[0] =
-@@ -1688,6 +1692,8 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 	struct cpumask *dest;
- 	struct compose_comp_ctxt comp;
- 	struct tran_int_desc *int_desc;
-+	struct msi_desc *msi_desc;
-+	u8 vector, vector_count;
- 	struct {
- 		struct pci_packet pci_pkt;
- 		union {
-@@ -1709,7 +1715,8 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		return;
- 	}
- 
--	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
-+	msi_desc  = irq_data_get_msi_desc(data);
-+	pdev = msi_desc_to_pci_dev(msi_desc);
- 	dest = irq_data_get_effective_affinity_mask(data);
- 	pbus = pdev->bus;
- 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
-@@ -1722,6 +1729,36 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 	if (!int_desc)
- 		goto drop_reference;
- 
-+	if (!msi_desc->pci.msi_attrib.is_msix && msi_desc->nvec_used > 1) {
-+		/*
-+		 * If this is not the first MSI of Multi MSI, we already have
-+		 * a mapping.  Can exit early.
-+		 */
-+		if (msi_desc->irq != data->irq) {
-+			data->chip_data = int_desc;
-+			int_desc->address = msi_desc->msg.address_lo |
-+					    (u64)msi_desc->msg.address_hi << 32;
-+			int_desc->data = msi_desc->msg.data +
-+					 (data->irq - msi_desc->irq);
-+			msg->address_hi = msi_desc->msg.address_hi;
-+			msg->address_lo = msi_desc->msg.address_lo;
-+			msg->data = int_desc->data;
-+			put_pcichild(hpdev);
-+			return;
-+		}
-+		/*
-+		 * The vector we select here is a dummy value.  The correct
-+		 * value gets sent to the hypervisor in unmask().  This needs
-+		 * to be aligned with the count, and also not zero.  Multi-msi
-+		 * is powers of 2 up to 32, so 32 will always work here.
-+		 */
-+		vector = 32;
-+		vector_count = msi_desc->nvec_used;
-+	} else {
-+		vector = hv_msi_get_int_vector(data);
-+		vector_count = 1;
-+	}
+ 	struct uffd_msg msg;
 +
- 	memset(&ctxt, 0, sizeof(ctxt));
- 	init_completion(&comp.comp_pkt.host_event);
- 	ctxt.pci_pkt.completion_func = hv_pci_compose_compl;
-@@ -1732,7 +1769,8 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					hv_msi_get_int_vector(data));
-+					vector,
-+					vector_count);
- 		break;
+ 	msg_init(&msg);
+ 	msg.event = UFFD_EVENT_PAGEFAULT;
  
- 	case PCI_PROTOCOL_VERSION_1_2:
-@@ -1740,14 +1778,16 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					hv_msi_get_int_vector(data));
-+					vector,
-+					vector_count);
- 		break;
+-	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
+-		address &= PAGE_MASK;
+-	msg.arg.pagefault.address = address;
++	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
++				    real_address : address;
++
+ 	/*
+ 	 * These flags indicate why the userfault occurred:
+ 	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
+@@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fa
  
- 	case PCI_PROTOCOL_VERSION_1_4:
- 		size = hv_compose_msi_req_v3(&ctxt.int_pkts.v3,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					hv_msi_get_int_vector(data));
-+					vector,
-+					vector_count);
- 		break;
+ 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
+ 	uwq.wq.private = current;
+-	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
+-			ctx->features);
++	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
++				reason, ctx->features);
+ 	uwq.ctx = ctx;
+ 	uwq.waken = false;
  
- 	default:
--- 
-2.25.1
+_
+
+Patches currently in -mm which might be from namit@vmware.com are
+
+userfaultfd-provide-properly-masked-address-for-huge-pages.patch
 
