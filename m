@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB2D1573CA8
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 20:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2110C573CAC
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 20:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236685AbiGMSlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 14:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43592 "EHLO
+        id S231819AbiGMSqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 14:46:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236613AbiGMSls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 14:41:48 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44D12F3A7
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:41:47 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id bp15so11145133ejb.6
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:41:47 -0700 (PDT)
+        with ESMTP id S231252AbiGMSqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 14:46:36 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A7D82C65B
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:46:35 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id r6so15232865edd.7
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:46:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=KifgCMjgebK/NLp6nn+G8EJhgQBv0NBPfKiflov1mlU=;
-        b=WXkiCM2m7cWXxt53oQNuRjMlHN9tRHeiD9hdMvRX9/jmGDWKVCpWfb/ymYf0GUrQkn
-         2gcUvM0fppN4jvlrJBHSQ6kMpDV+0P4G+reqg6RPyFytwCdFGVuiwifzJXcN+e0T0eK3
-         apqVZARbdC+XmrVpwiiRoZeHilhOPB7mXQ0Jw=
+        bh=PTaNdUVQ+FmmgGgyaGPbQquf7hxH0Xo9Q96HHi4sep8=;
+        b=L73SZ+mHgtriwniSrAhSkxjXKDDXd0WPgqFSlQUlKk5euLzrMbPjkEmJ9R+ZsDkWsH
+         g0Meu4SIWMqSxjGIrdgkCgnmWaUXM68miVezQGPM9PXgHGoW1g8lxifty3vtR7bbVqJ1
+         7asnHsF2ys8kx0XarbxrDW+2kekvsiZEVyWFI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KifgCMjgebK/NLp6nn+G8EJhgQBv0NBPfKiflov1mlU=;
-        b=JZ2c77eyZtRk5KCu94IWgZ3JEX8c60UwISg10+1w2mTvyfzACut9YJ7UR2C7FcFA4e
-         EyelZ+3lXeJNyLh2i0xw9BCDgU5d6n/Q8gSm9OfeSnBt8NpYEokh9byJmKXr/310uzop
-         pd0rVP3BlFTXnPnoqr5iIN5c3ip5QPqt7aQTUFN6THh/cj5dPDPhSo5yinqkeY6eO7S/
-         LyBjHZtG3VcKWkqJUmPUDzD3KkQ7G5SSjzfDKFyPXqlI6r50J7hZGg76KBoROnYaHkzW
-         6RJBBZnZDNLNKDDj5QcMctatCKk7KzsgbAtmAT+VWQlheTd7QEiaetuS6tTbLBCszjSz
-         kFMg==
-X-Gm-Message-State: AJIora+AUC+mULVAFQXKfdnqjA1r3he4f0MZCphfrKzQgiYlVhUdcSZA
-        6Md4or3xd9b+MIDo7mYbgs6sflbqxN6JsXBa9Do=
-X-Google-Smtp-Source: AGRyM1v+ea9hqplr2bKfXjNVYVHqcZc9rFMvpDvZibNFJdpxytRvaBMUNtZlB9HmmJDu4MwIl7i68A==
-X-Received: by 2002:a17:907:2e01:b0:72b:764f:ea1a with SMTP id ig1-20020a1709072e0100b0072b764fea1amr4731720ejc.666.1657737706209;
-        Wed, 13 Jul 2022 11:41:46 -0700 (PDT)
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com. [209.85.218.53])
-        by smtp.gmail.com with ESMTPSA id i8-20020a170906a28800b0072b13fa5e4csm5312444ejz.58.2022.07.13.11.41.45
+        bh=PTaNdUVQ+FmmgGgyaGPbQquf7hxH0Xo9Q96HHi4sep8=;
+        b=TKEFaW/r/ZsnkQZuSHmGHrnR2a5hiOKJuZmvwno32o/IJ0eYmVQvNp+4x44hfsLx9t
+         wfJAwgyJePKb46RuWrHKcm6yFZgp1x2JNUVok3GG1gH5D9wPWFyyONrTU48YOKxl4cZz
+         qJp0l8j3wpZ3Au5ix7E53eHuGua7sjOzve0jWUt0kYYYqi4hwFuRDffbrBlpXjbhdK8V
+         ZcqZ4kSdcSumMphA6r16y5gDLo71msJOnncs3eUugI51ojGLVweK6NBVrrgnb1qsD7Ph
+         MPEVIm4wl8IJtpurwDkFINFIcmJJ1gF9Bta5M0Ji/CYSD7w7sbLelmQq/88RcI1gqY9L
+         b2Hg==
+X-Gm-Message-State: AJIora9MUiP/pRYKO7jJOEjYvBH4HhINkzGEV2UOE5TJafM++0ioi7mx
+        SBIO3s6oxWfwb7V7ggvcNl+l6Q4t8L0EWXPM/7w=
+X-Google-Smtp-Source: AGRyM1uok5Dcl05K0s5FbGbMy3ltEXiZ5wS/fatleKXQl/RIYw8Ey1uzlmKbBcPIy0iyrDcQ+oj2iQ==
+X-Received: by 2002:a05:6402:c48:b0:437:d938:9691 with SMTP id cs8-20020a0564020c4800b00437d9389691mr6690382edb.254.1657737993570;
+        Wed, 13 Jul 2022 11:46:33 -0700 (PDT)
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com. [209.85.218.48])
+        by smtp.gmail.com with ESMTPSA id k18-20020a17090632d200b00722e771007fsm5194108ejk.37.2022.07.13.11.46.33
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 13 Jul 2022 11:41:46 -0700 (PDT)
-Received: by mail-ej1-f53.google.com with SMTP id oy13so16536265ejb.1
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:41:45 -0700 (PDT)
-X-Received: by 2002:a5d:544b:0:b0:21d:70cb:b4a2 with SMTP id
- w11-20020a5d544b000000b0021d70cbb4a2mr4440805wrv.281.1657737218805; Wed, 13
- Jul 2022 11:33:38 -0700 (PDT)
+        Wed, 13 Jul 2022 11:46:33 -0700 (PDT)
+Received: by mail-ej1-f48.google.com with SMTP id mf4so20246514ejc.3
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 11:46:33 -0700 (PDT)
+X-Received: by 2002:a05:6000:180f:b0:21d:68f8:c4ac with SMTP id
+ m15-20020a056000180f00b0021d68f8c4acmr4766164wrh.193.1657737619653; Wed, 13
+ Jul 2022 11:40:19 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220712183238.844813653@linuxfoundation.org> <CA+G9fYtntg7=zWSs-dm+n_AUr_u0eBOU0zrwWqMeXZ+SF6_bLw@mail.gmail.com>
- <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net>
-In-Reply-To: <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net>
+ <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net> <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
+In-Reply-To: <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 13 Jul 2022 11:33:22 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
-Message-ID: <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
+Date:   Wed, 13 Jul 2022 11:40:03 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com>
+Message-ID: <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com>
 Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
 To:     Guenter Roeck <linux@roeck-us.net>,
         Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>
+        Borislav Petkov <bp@suse.de>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         kvm list <kvm@vger.kernel.org>,
@@ -93,65 +94,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 13, 2022 at 6:34 AM Guenter Roeck <linux@roeck-us.net> wrote:
+On Wed, Jul 13, 2022 at 11:33 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> Looking into the log, I don't think that message is related to the crash.
+> So I think that that is where the "xaddw_ax_dx+8" comes from: some
+> code assumes that FASTOP_SIZE is 8, but that xaddw_ax_dx case was
+> actually 9 bytes and thus got that "int3 + padding" in the next 8
+> bytes.
 >
-> ...
-> [  105.653777] Modules linked in: x86_pkg_temp_thermal
-> [  105.902123] ---[ end trace cec99cae36bcbfd7 ]---
-> [  105.902124] RIP: 0010:xaddw_ax_dx+0x9/0x10    <--- crash
-> [  105.902126] Code: 00 0f bb d0 c3 cc cc cc cc 48 0f bb d0 c3 cc cc
+> The whole kvm x86 emulation thing is quite complicated and has lots
+> of instruction size #defines and magic.
+>
+> I'm not familiar enough with it to go "Ahh, it's obviously XYZ", but
+> I'm sure PeterZ and Borislav know exactly what's going on.
 
-Yeah, the code you snipped, shows
+And I see that Thadeau already figured it out:
 
-  20: 66 0f c1 d0          xadd   %dx,%ax
-  24: c3                    ret
-  25: cc                    int3
-  26: cc                    int3
-  27: cc                    int3
-  28: cc                    int3
-  29:* 0f 1f 80 00 00 00 00 nopl   0x0(%rax) <-- trapping instruction
-  30: 0f c1 d0              xadd   %edx,%eax
-  33: c3                    ret
-  34: cc                    int3
-  35: cc                    int3
-  36: cc                    int3
-  37: cc                    int3
-  38: 48 0f c1 d0          xadd   %rdx,%rax
-  3c: c3                    ret
-  3d: cc                    int3
+  https://lore.kernel.org/all/20220713171241.184026-1-cascardo@canonical.com/
 
-and that's a bit odd.
+So presumably we need that patch everywhere.
 
-It says "xaddw_ax_dx+0x9/0x10", but I think somebody jumped to
-"xaddw_ax_dx+8", hit the 'int3', and the RIP points to the next
-instruction (because that's how int3 works).
-
-And the fastop code says:
-
- * fastop functions have a special calling convention:
-...
- * Moreover, they are all exactly FASTOP_SIZE bytes long,
-
-but that is clearly *NOT* the case for xaddw_ax_dx, because it's 16
-bytes in size, and the other ones are 8 bytes. That's where the "nopl"
-comes from: it's the alignment instruction to the next fastop
-function.
-
-Compare that to the word-sized 'xaddl' case rigth afterwards: that one
-*is* just 8 bytes in size, so the 64-byte 'xaddq' comes 8 bytes aftrer
-it, and there's no 7-byte padding nop-instruction.
-
-So I think that that is where the "xaddw_ax_dx+8" comes from: some
-code assumes that FASTOP_SIZE is 8, but that xaddw_ax_dx case was
-actually 9 bytes and thus got that "int3 + padding" in the next 8
-bytes.
-
-The whole kvm x86 emulation thiing is quite complicated and has lots
-of instruction size #defines and magic.
-
-I'm not familiar enough with it to go "Ahh, it's obviously XYZ", but
-I'm sure PeterZ and Borislav know exactly what's going on.
-
-                 Linus
+              Linus
