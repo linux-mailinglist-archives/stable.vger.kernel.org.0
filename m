@@ -2,141 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C8AB573012
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 10:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4FA5730E1
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 10:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234760AbiGMIGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 04:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36622 "EHLO
+        id S235572AbiGMIWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 04:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234743AbiGMIGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 04:06:53 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBC7E8D84
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 01:06:51 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S235246AbiGMIVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 04:21:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE54C0521;
+        Wed, 13 Jul 2022 01:18:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 5A5711FD4C;
-        Wed, 13 Jul 2022 08:06:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1657699608; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=emdaMVA80C0I2NQBNWy9JRvc8QmGuFl6H6ubzim9F6E=;
-        b=Ag/pReFvvAfz/zZl7QfsAk+XP7zDJsY137PCquwFs6wvGxyuyDZvUZMS4qAMIycCN7S4bh
-        K8jVSKlm9tO/HvxQka4EzRogbKHfWlbwFgMi/caUFSCnh8QR8CdPIIVhUNgV/RNt1bukCz
-        5q9y1PD3xBafvppeNIwINFqBxoBljLw=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 70CD313AAD;
-        Wed, 13 Jul 2022 08:06:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ILdWDhd9zmISLgAAMHmgww
-        (envelope-from <wqu@suse.com>); Wed, 13 Jul 2022 08:06:47 +0000
-From:   Qu Wenruo <wqu@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 1/3] btrfs: enhance unsupported compat RO flags handling
-Date:   Wed, 13 Jul 2022 16:06:26 +0800
-Message-Id: <ae1b84256a04016c206003cdd39c5cf153a50156.1657699083.git.wqu@suse.com>
-X-Mailer: git-send-email 2.37.0
-In-Reply-To: <cover.1657699083.git.wqu@suse.com>
-References: <cover.1657699083.git.wqu@suse.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91778B81D51;
+        Wed, 13 Jul 2022 08:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4654C34114;
+        Wed, 13 Jul 2022 08:17:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657700278;
+        bh=mtrH3InFG5+OdX9MDNFuhP8YVtLJH9iCPwP6kVSeQBA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RNw0ZPfZ4XDUFl1OU0KtYSNVoPrhimN9C8WUNOLkrEM2PDKIikAlXT5KtLyFvfoSj
+         52tMmv00wi+C7QtuJK/LpMjgBdl8KCdG98862SBFWl3pKon531kXteZtKduprdN6lN
+         xhC71mUFuMt2EDX4uTN05ViTYP2TeAELehwRG9yo=
+Date:   Wed, 13 Jul 2022 10:17:54 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: Re: [PATCH 5.18 34/61] objtool: Update Retpoline validation
+Message-ID: <Ys5/ssHL076y4niP@kroah.com>
+References: <20220712183236.931648980@linuxfoundation.org>
+ <20220712183238.342232911@linuxfoundation.org>
+ <63e23f80-033f-f64e-7522-2816debbc367@kernel.org>
+ <509dd891-73cc-31b9-18ac-2e930084c02f@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <509dd891-73cc-31b9-18ac-2e930084c02f@kernel.org>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently there are two corner cases not handling compat RO flags
-correctly:
+On Wed, Jul 13, 2022 at 09:54:01AM +0200, Jiri Slaby wrote:
+> On 13. 07. 22, 9:45, Jiri Slaby wrote:
+> > On 12. 07. 22, 20:39, Greg Kroah-Hartman wrote:
+> > > From: Peter Zijlstra <peterz@infradead.org>
+> > > 
+> > > commit 9bb2ec608a209018080ca262f771e6a9ff203b6f upstream.
+> > > 
+> > > Update retpoline validation with the new CONFIG_RETPOLINE requirement of
+> > > not having bare naked RET instructions.
+> > 
+> > Hi,
+> > 
+> > this breaks compilation on i386:
+> >  > arch/x86/kernel/../../x86/xen/xen-head.S:35: Error: no such
+> > instruction: `annotate_unret_safe'
+> > 
+> > Config:
+> > https://raw.githubusercontent.com/openSUSE/kernel-source/stable/config/i386/pae
+> > 
+> > 
+> > And yeah, upstream¹⁾ is affected too.
+> > 
+> > ¹⁾I am at commit b047602d579b4fb028128a525f056bbdc890e7f0.
+> 
+> A naive fix is:
+> --- a/arch/x86/kernel/head_32.S
+> +++ b/arch/x86/kernel/head_32.S
+> @@ -23,6 +23,7 @@
+>  #include <asm/cpufeatures.h>
+>  #include <asm/percpu.h>
+>  #include <asm/nops.h>
+> +#include <asm/nospec-branch.h>
+>  #include <asm/bootparam.h>
+>  #include <asm/export.h>
+>  #include <asm/pgtable_32.h>
+> 
+> The question (I don't know answer to) is whether x86_32 should actually do
+> ANNOTATE_UNRET_SAFE.
 
-- Remount
-  We can still mount the fs RO with compat RO flags, then remount it RW.
-  We should not allow any write into a fs with unsupported RO flags.
+I doubt it should be doing that, but I'll let others answer more
+definitively.
 
-- Still try to search block group items
-  In fact, behavior/on-disk format change to extent tree should not
-  need a full incompat flag.
+Your commit seems sane, for some reason I thought Boris tested i386
+builds, but maybe in the end something snuck in that broke it.
 
-  And since we can ensure fs with unsupported RO flags never got any
-  writes (with above case fixed), then we can even skip block group
-  items search at mount time.
+thanks,
 
-This patch will enhance the unsupported RO compat flags by:
-
-- Reject RW remount if there is unsupported RO compat flags
-
-- Go dummy block group items directly for unsupported RO compat flags
-  In fact, only changes to chunk/subvolume/root/csum trees should go
-  incompat flags.
-
-The latter part should allow future change to extent tree to be compat
-RO flags.
-
-Thus this patch also needs to be backported to all stable trees.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Qu Wenruo <wqu@suse.com>
----
- fs/btrfs/block-group.c | 11 ++++++++++-
- fs/btrfs/super.c       |  9 +++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index ba1ce6a3bc93..5b08ac282ace 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2200,7 +2200,16 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
- 	int need_clear = 0;
- 	u64 cache_gen;
- 
--	if (!root)
-+	/*
-+	 * Either no extent root (with ibadroots rescue option) or we have
-+	 * unsupporter RO options. The fs can never be mounted RW, so no
-+	 * need to waste time search block group items.
-+	 *
-+	 * This also allows new extent tree related changes to be RO compat,
-+	 * no need for a full incompat flag.
-+	 */
-+	if (!root || (btrfs_super_compat_ro_flags(info->super_copy) &
-+		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
- 		return fill_dummy_bgs(info);
- 
- 	key.objectid = 0;
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 4c7089b1681b..7d3213e67fb5 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2110,6 +2110,15 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
- 			ret = -EINVAL;
- 			goto restore;
- 		}
-+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
-+			btrfs_err(fs_info,
-+		"can not remount read-write due to unsupported optional flags 0x%llx",
-+				btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+				~BTRFS_FEATURE_COMPAT_RO_SUPP);
-+			ret = -EINVAL;
-+			goto restore;
-+		}
- 		if (fs_info->fs_devices->rw_devices == 0) {
- 			ret = -EACCES;
- 			goto restore;
--- 
-2.37.0
-
+greg k-h
