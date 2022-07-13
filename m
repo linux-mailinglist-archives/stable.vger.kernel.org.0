@@ -2,102 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C22F573D82
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 22:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBA4573DA5
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 22:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbiGMUDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 16:03:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
+        id S229955AbiGMUL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 16:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237005AbiGMUDR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 16:03:17 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C922CCA0
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 13:03:16 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id o133so15674852oig.13
-        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 13:03:16 -0700 (PDT)
+        with ESMTP id S236437AbiGMUL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 16:11:56 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66DC2A73D
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 13:11:54 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id z12so17023124wrq.7
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 13:11:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=CAIH/48VCAZZUEhRpfaRPTSaBdpuCbyHyIV69iiJf1M=;
-        b=Hpr0tln76FaM/rHJTVKJ0xpL5V2+C2qbiC+mbrnJNvRfiyK5Eqhx4TFQa6tE3ZeML+
-         5FtqM1j3ntVQvtXNysFQ+Rx/h4iPZ+rSRoOlfEgCbM7KKZ7eYbmm3I3POc95E7wHEhJx
-         Bws1sEAPXrCMPlBZpC6PswI3j8HE4kzIP3usZOgQ0Qvf861a0WqCsGZIniHz5Ylg4mxi
-         1cBLol5pHO+UIMrGSi04SuSyvU+R0JXS3bp8k9vU3KmonD+axJikUtf1D16TJF3dOco0
-         nUMifrtftW784ePNQOr+NvqXAyA+RYCMp+WCWkIX+ZYRWeqEr6sEj5DhlOxA0xLbLqy4
-         MTXw==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=t4PfTSn1qhuTirXEQzPcMMCQA+yr5qCC4SSQsOkH2P0=;
+        b=BpNcVj5BKKuRsx/T7FZeQyNUj13vM8DzBv6cjhvUvZpK8IX28eSOQJCWNzIFXLD7mc
+         Eut62YvX+FkMJHKTMe2fwoYuYSY36SN+L4fncXHI1CPhca3haW0P7Ylq7i03B2AXK/gX
+         MN3cUxxWnIXrx7MRcajPSBO3g9OV8dor7tncMckhOfDofY7J5oZXBXS3lfmj1HwLLgYt
+         QS500zMP9bW4ezXmFRundI/Sg5hlKCjIqVmIjSWqgs/QfystXboOCoV5m9E4AHIb54VK
+         QybWTwU30PggNA1gjjVs/ghXPsUWgUg2pC9sZKnAic/KMb5DQed15/ZQbn11m1D8wc9Y
+         U08g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=CAIH/48VCAZZUEhRpfaRPTSaBdpuCbyHyIV69iiJf1M=;
-        b=qFAskPBXeFSUZexkPP0GIz6pXcPjDHxN0IxkjL9xy+bMho54lO5hpa1nrHFv+v3Ks5
-         BLdDVGWnwHvHUMx3RxbtUzctdJOcgEGevDcimN7MQUhL4LsF6mv6NZn7Nc3hFHcKjZZ3
-         Rjq6H7tUioe0GV0ARXKV4jPJL4VJq6Evk+M2qbwsdA0ZbT/aU5LJx63bmifiO/n8ePUO
-         mQ0Ph+IW00jheu0kh17NiyZiJOPySZfwMJpDS5sVgew6vHV0PsPW5wvbyrXGOL76EGZj
-         QC3lgYLlaQTpHKiiZxQOYjr2ot6QTG/yIrJrPiELHRNGsTu03/XW2DUAysKmebbqqOuK
-         u0fQ==
-X-Gm-Message-State: AJIora+ip6vOlAQVTUJiq1F+XQ3j8AD1pKAtqsWumkmE5je0Lt5bfUXl
-        c2V+/ON/vrtJvXLhTxqEsLx5uw8cFPkriheHXLI=
-X-Google-Smtp-Source: AGRyM1tsRq5P3qAbAI1UPt8WRljFAA48kW9AKt0mbhqykf7i/fiFiOgUx9fp+Jkm8dM4A9S+p/gbq5Kn8VESZwigh0k=
-X-Received: by 2002:a05:6808:f90:b0:339:ec43:c9ef with SMTP id
- o16-20020a0568080f9000b00339ec43c9efmr2642014oiw.248.1657742595483; Wed, 13
- Jul 2022 13:03:15 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=t4PfTSn1qhuTirXEQzPcMMCQA+yr5qCC4SSQsOkH2P0=;
+        b=tbjpaZcpom84E4Aw3bpbniWF488iPADxV6Cj4coUs67ScaHJFYUzIZ0n0JyBhW3ezV
+         7XJoSvvt3FdnKdrL4wZxbxWXF/bYeZ+mFbfrXRPYylc1o92lrtE0h3b9hBUbuqiqAUcs
+         X2ARTNdCqUb+pdsKV9j3P4mjbOzjn4Hem8PuxkQF98ksbBRWHId1YqcBWeTRY9A4dnOs
+         2IAm+p7nY1Mn7N8TQD1F7BzUgimVVM8NOhBxK5bfxkLPImKUFyDiHxSxDaeegmqOo4+N
+         H+PlMffLh67lVvqhMfWFlrb4DtXufZZLHyOyisx7tmodyVZvjv6kFYH8Y6l7f3h/Rs0F
+         nrKw==
+X-Gm-Message-State: AJIora/obQzCSwXMy80K0edoT9d5J6DCpcFn/j6L9442BXW2+5M9XKbd
+        neSrWOzYBalGJVfmHhZshDM=
+X-Google-Smtp-Source: AGRyM1vMsHjDEE51bHJgQxdUpoFScs6IKu54n1HFn+uD+n0heHZkmKxPN1llYIe5soIVSZMgpWl4WQ==
+X-Received: by 2002:a05:6000:1205:b0:21d:aa9b:9993 with SMTP id e5-20020a056000120500b0021daa9b9993mr4902379wrx.476.1657743113325;
+        Wed, 13 Jul 2022 13:11:53 -0700 (PDT)
+Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
+        by smtp.gmail.com with ESMTPSA id p185-20020a1c29c2000000b003a2e2a2e294sm3216276wmp.18.2022.07.13.13.11.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Jul 2022 13:11:52 -0700 (PDT)
+Date:   Wed, 13 Jul 2022 21:11:50 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     riel@surriel.com, akpm@linux-foundation.org, hannes@cmpxchg.org,
+        jhubbard@nvidia.com, linmiaohe@huawei.com, mgorman@suse.de,
+        naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org
+Subject: Re: FAILED: patch "[PATCH] mm: invalidate hwpoison page cache page
+ in fault path" failed to apply to 4.14-stable tree
+Message-ID: <Ys8nBq9dzw9gzVkw@debian>
+References: <164882002824865@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6358:44d6:b0:af:af41:b43 with HTTP; Wed, 13 Jul 2022
- 13:03:13 -0700 (PDT)
-Reply-To: pstefanopessina80@gmail.com
-From:   STEFANO PESSINA <muganesalome1968@gmail.com>
-Date:   Wed, 13 Jul 2022 23:03:13 +0300
-Message-ID: <CAD6WQ0CXKyAURb2RFCsU4VFW6=+S78RnOCkZDWhgsoTUEJrW=A@mail.gmail.com>
-Subject: donation
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:244 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4932]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [muganesalome1968[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [pstefanopessina80[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [muganesalome1968[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.2 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Type: multipart/mixed; boundary="vRGKYmIPh8ztCVjm"
+Content-Disposition: inline
+In-Reply-To: <164882002824865@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
 
-Congratulations!
-The sum of =E2=82=AC1,500,000.00 has been donated to you by STEFANO PESSINA=
-.
-Kindly get back for more info via pstefanopessina80@gmail.com
+--vRGKYmIPh8ztCVjm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Fri, Apr 01, 2022 at 03:33:48PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+Here is the backport.
+
+--
+Regards
+Sudip
+
+--vRGKYmIPh8ztCVjm
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-mm-invalidate-hwpoison-page-cache-page-in-fault-path.patch"
+
+From c28271b2a06bf66bdbde09481ffb500387a50238 Mon Sep 17 00:00:00 2001
+From: Rik van Riel <riel@surriel.com>
+Date: Tue, 22 Mar 2022 14:44:09 -0700
+Subject: [PATCH] mm: invalidate hwpoison page cache page in fault path
+
+commit e53ac7374e64dede04d745ff0e70ff5048378d1f upstream.
+
+Sometimes the page offlining code can leave behind a hwpoisoned clean
+page cache page.  This can lead to programs being killed over and over
+and over again as they fault in the hwpoisoned page, get killed, and
+then get re-spawned by whatever wanted to run them.
+
+This is particularly embarrassing when the page was offlined due to
+having too many corrected memory errors.  Now we are killing tasks due
+to them trying to access memory that probably isn't even corrupted.
+
+This problem can be avoided by invalidating the page from the page fault
+handler, which already has a branch for dealing with these kinds of
+pages.  With this patch we simply pretend the page fault was successful
+if the page was invalidated, return to userspace, incur another page
+fault, read in the file from disk (to a new memory page), and then
+everything works again.
+
+Link: https://lkml.kernel.org/r/20220212213740.423efcea@imladris.surriel.com
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[sudip: use int instead of vm_fault_t]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ mm/memory.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/mm/memory.c b/mm/memory.c
+index 4154fb45ac0f7..615cb3fe763dd 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3342,11 +3342,16 @@ static int __do_fault(struct vm_fault *vmf)
+ 		return ret;
+ 
+ 	if (unlikely(PageHWPoison(vmf->page))) {
+-		if (ret & VM_FAULT_LOCKED)
++		int poisonret = VM_FAULT_HWPOISON;
++		if (ret & VM_FAULT_LOCKED) {
++			/* Retry if a clean page was removed from the cache. */
++			if (invalidate_inode_page(vmf->page))
++				poisonret = 0;
+ 			unlock_page(vmf->page);
++		}
+ 		put_page(vmf->page);
+ 		vmf->page = NULL;
+-		return VM_FAULT_HWPOISON;
++		return poisonret;
+ 	}
+ 
+ 	if (unlikely(!(ret & VM_FAULT_LOCKED)))
+-- 
+2.30.2
+
+
+--vRGKYmIPh8ztCVjm--
