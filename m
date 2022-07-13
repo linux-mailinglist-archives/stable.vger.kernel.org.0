@@ -2,40 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EED572FBF
-	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 09:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8AB573012
+	for <lists+stable@lfdr.de>; Wed, 13 Jul 2022 10:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234965AbiGMHzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 03:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
+        id S234760AbiGMIGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 04:06:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234977AbiGMHzP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 03:55:15 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B33DF393;
-        Wed, 13 Jul 2022 00:54:51 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 1CFB31C0009; Wed, 13 Jul 2022 09:54:49 +0200 (CEST)
-Date:   Wed, 13 Jul 2022 09:54:48 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 000/130] 5.10.131-rc1 review
-Message-ID: <20220713075448.GA32307@duo.ucw.cz>
-References: <20220712183246.394947160@linuxfoundation.org>
+        with ESMTP id S234743AbiGMIGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 04:06:53 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBC7E8D84
+        for <stable@vger.kernel.org>; Wed, 13 Jul 2022 01:06:51 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 5A5711FD4C;
+        Wed, 13 Jul 2022 08:06:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1657699608; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=emdaMVA80C0I2NQBNWy9JRvc8QmGuFl6H6ubzim9F6E=;
+        b=Ag/pReFvvAfz/zZl7QfsAk+XP7zDJsY137PCquwFs6wvGxyuyDZvUZMS4qAMIycCN7S4bh
+        K8jVSKlm9tO/HvxQka4EzRogbKHfWlbwFgMi/caUFSCnh8QR8CdPIIVhUNgV/RNt1bukCz
+        5q9y1PD3xBafvppeNIwINFqBxoBljLw=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 70CD313AAD;
+        Wed, 13 Jul 2022 08:06:47 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id ILdWDhd9zmISLgAAMHmgww
+        (envelope-from <wqu@suse.com>); Wed, 13 Jul 2022 08:06:47 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/3] btrfs: enhance unsupported compat RO flags handling
+Date:   Wed, 13 Jul 2022 16:06:26 +0800
+Message-Id: <ae1b84256a04016c206003cdd39c5cf153a50156.1657699083.git.wqu@suse.com>
+X-Mailer: git-send-email 2.37.0
+In-Reply-To: <cover.1657699083.git.wqu@suse.com>
+References: <cover.1657699083.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-Content-Disposition: inline
-In-Reply-To: <20220712183246.394947160@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -43,40 +60,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Currently there are two corner cases not handling compat RO flags
+correctly:
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+- Remount
+  We can still mount the fs RO with compat RO flags, then remount it RW.
+  We should not allow any write into a fs with unsupported RO flags.
 
-Hi!
+- Still try to search block group items
+  In fact, behavior/on-disk format change to extent tree should not
+  need a full incompat flag.
 
-> This is the start of the stable review cycle for the 5.10.131 release.
-> There are 130 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+  And since we can ensure fs with unsupported RO flags never got any
+  writes (with above case fixed), then we can even skip block group
+  items search at mount time.
 
-CIP testing did not find any problems here:
+This patch will enhance the unsupported RO compat flags by:
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
+- Reject RW remount if there is unsupported RO compat flags
 
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+- Go dummy block group items directly for unsupported RO compat flags
+  In fact, only changes to chunk/subvolume/root/csum trees should go
+  incompat flags.
 
-Best regards,
-                                                                Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+The latter part should allow future change to extent tree to be compat
+RO flags.
 
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature; name="signature.asc"
+Thus this patch also needs to be backported to all stable trees.
 
------BEGIN PGP SIGNATURE-----
+Cc: stable@vger.kernel.org
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/block-group.c | 11 ++++++++++-
+ fs/btrfs/super.c       |  9 +++++++++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYs56SAAKCRAw5/Bqldv6
-8vgiAJ9BMwQw9VUUniv56vBVAL0hpOlqjQCfeo/SSIoDgzu12vkQMVk6Hm3hIF4=
-=MaTl
------END PGP SIGNATURE-----
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index ba1ce6a3bc93..5b08ac282ace 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2200,7 +2200,16 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
+ 	int need_clear = 0;
+ 	u64 cache_gen;
+ 
+-	if (!root)
++	/*
++	 * Either no extent root (with ibadroots rescue option) or we have
++	 * unsupporter RO options. The fs can never be mounted RW, so no
++	 * need to waste time search block group items.
++	 *
++	 * This also allows new extent tree related changes to be RO compat,
++	 * no need for a full incompat flag.
++	 */
++	if (!root || (btrfs_super_compat_ro_flags(info->super_copy) &
++		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
+ 		return fill_dummy_bgs(info);
+ 
+ 	key.objectid = 0;
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 4c7089b1681b..7d3213e67fb5 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2110,6 +2110,15 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
+ 			ret = -EINVAL;
+ 			goto restore;
+ 		}
++		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
++		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
++			btrfs_err(fs_info,
++		"can not remount read-write due to unsupported optional flags 0x%llx",
++				btrfs_super_compat_ro_flags(fs_info->super_copy) &
++				~BTRFS_FEATURE_COMPAT_RO_SUPP);
++			ret = -EINVAL;
++			goto restore;
++		}
+ 		if (fs_info->fs_devices->rw_devices == 0) {
+ 			ret = -EACCES;
+ 			goto restore;
+-- 
+2.37.0
 
---T4sUOijqQbZv57TR--
