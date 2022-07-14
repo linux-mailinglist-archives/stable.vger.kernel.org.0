@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 960C357436C
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEFAB57437D
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbiGNEem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:34:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47482 "EHLO
+        id S237504AbiGNEfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237494AbiGNEeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:34:01 -0400
+        with ESMTP id S237510AbiGNEeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:34:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48BDB3AE5D;
-        Wed, 13 Jul 2022 21:26:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F123AE60;
+        Wed, 13 Jul 2022 21:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA5A5B82382;
-        Thu, 14 Jul 2022 04:26:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C44BAC385A2;
-        Thu, 14 Jul 2022 04:26:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDC62B8237C;
+        Thu, 14 Jul 2022 04:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE23C36AF4;
+        Thu, 14 Jul 2022 04:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772763;
-        bh=IY9obyUbaF68yfYZpMGSF3IiznXLM6j2my70GgvTAUE=;
+        s=k20201202; t=1657772764;
+        bh=8UBj1z2lp/6daPvXBnEXV1Z/SWwo2LziTpTiD7CUaTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMe/b9J0KFWUc4DdFKcV0jrL4geiFkiah65aNQ+dq8n8rykwVI/hJZedhx71yaYTF
-         BObSfV8oZvzyMO0qInDfnzsSrDcIX0JDfX3fB1fiSJA0Po2DiiRs8oNqmn40FHS5Rz
-         lR1HExTElzi37Wc7twz6TF3cfiMt5u0a0BSGSlzm4/5SwsIxM7bGiIE+Mt3ywk+Em5
-         ZyE4FAOkjjx/8tpM/88GmjxvfXKiVamY7YCvht/+ee/GTHkJN5gUOzOGOR3a8v0NGg
-         wQGFFyFSQCSxBFFkFz0pfRzGw2XoPAU0LqXA4164Qij71YJoMZf1e+n0QJSLEccv/k
-         7o+4eNGI50sog==
+        b=HILDlXh4NSJ2S7eyFm9Aiob4rS5hSeSLyjerMkz9yDWkVc25Df+DLeatbe/qZUjC2
+         Da1EczqVAklo+8SeFROjvTqnWPOCuErBUAdnVqqwcikSeit9es/RQGyQiEGe3AguZV
+         ZoILNIezJzzg3tvdezgdsakn2NgpFuy06V8PXNzW8/ZDJKw+wxNZykryN+AuXCMkgV
+         0Qnn+D3FySFgjGtyI/JiWOWj7PeUea0rvnfBdaHDto6639sl5e8Z1hMWOup7/RDfN3
+         TG5UGl2J4O/IHQWf91XORabainYkEMpy3wDHWIXFcnXIYrjz4hwg+HHKSYo0rEjB+L
+         3ZLXHbBkNgFLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, brijesh.singh@amd.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com, ak@linux.intel.com,
-        michael.roth@amd.com, jroedel@suse.de, thomas.lendacky@amd.com
-Subject: [PATCH AUTOSEL 5.10 10/15] x86: Clear .brk area at early boot
-Date:   Thu, 14 Jul 2022 00:25:35 -0400
-Message-Id: <20220714042541.282175-10-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        khalasa@piap.pl
+Subject: [PATCH AUTOSEL 5.10 11/15] soc: ixp4xx/npe: Fix unused match warning
+Date:   Thu, 14 Jul 2022 00:25:36 -0400
+Message-Id: <20220714042541.282175-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042541.282175-1-sashal@kernel.org>
 References: <20220714042541.282175-1-sashal@kernel.org>
@@ -59,41 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 38fa5479b41376dc9d7f57e71c83514285a25ca0 ]
+[ Upstream commit 620f83b8326ce9706b1118334f0257ae028ce045 ]
 
-The .brk section has the same properties as .bss: it is an alloc-only
-section and should be cleared before being used.
+The kernel test robot found this inconsistency:
 
-Not doing so is especially a problem for Xen PV guests, as the
-hypervisor will validate page tables (check for writable page tables
-and hypervisor private bits) before accepting them to be used.
+  drivers/soc/ixp4xx/ixp4xx-npe.c:737:34: warning:
+  'ixp4xx_npe_of_match' defined but not used [-Wunused-const-variable=]
+     737 | static const struct of_device_id ixp4xx_npe_of_match[] = {
 
-Make sure .brk is initially zero by letting clear_bss() clear the brk
-area, too.
+This is because the match is enclosed in the of_match_ptr()
+which compiles into NULL when OF is disabled and this
+is unnecessary.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220630071441.28576-3-jgross@suse.com
+Fix it by dropping of_match_ptr() around the match.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220626074315.61209-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/head64.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/soc/ixp4xx/ixp4xx-npe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 05e117137b45..efe13ab366f4 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -419,6 +419,8 @@ static void __init clear_bss(void)
- {
- 	memset(__bss_start, 0,
- 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
-+	memset(__brk_base, 0,
-+	       (unsigned long) __brk_limit - (unsigned long) __brk_base);
- }
- 
- static unsigned long get_cmd_line_ptr(void)
+diff --git a/drivers/soc/ixp4xx/ixp4xx-npe.c b/drivers/soc/ixp4xx/ixp4xx-npe.c
+index 6065aaab6740..8482a4892b83 100644
+--- a/drivers/soc/ixp4xx/ixp4xx-npe.c
++++ b/drivers/soc/ixp4xx/ixp4xx-npe.c
+@@ -735,7 +735,7 @@ static const struct of_device_id ixp4xx_npe_of_match[] = {
+ static struct platform_driver ixp4xx_npe_driver = {
+ 	.driver = {
+ 		.name           = "ixp4xx-npe",
+-		.of_match_table = of_match_ptr(ixp4xx_npe_of_match),
++		.of_match_table = ixp4xx_npe_of_match,
+ 	},
+ 	.probe = ixp4xx_npe_probe,
+ 	.remove = ixp4xx_npe_remove,
 -- 
 2.35.1
 
