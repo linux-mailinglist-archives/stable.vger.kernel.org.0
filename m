@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61FE55743B9
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 315475743BB
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237709AbiGNEif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:38:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44314 "EHLO
+        id S237448AbiGNEij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:38:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236686AbiGNEhl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:37:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27AF27B07;
-        Wed, 13 Jul 2022 21:27:09 -0700 (PDT)
+        with ESMTP id S234778AbiGNEh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:37:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 947B83DBFA;
+        Wed, 13 Jul 2022 21:27:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E909B82371;
-        Thu, 14 Jul 2022 04:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DC1C34114;
-        Thu, 14 Jul 2022 04:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF662B82372;
+        Thu, 14 Jul 2022 04:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72259C3411C;
+        Thu, 14 Jul 2022 04:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772827;
-        bh=Bm9v9px20qjhnfPeUXRRvzIaEVzRnS3kuvbqmkLM0rU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J89DqVXbZ41QWZLtnqstg96F0/MBNuQID0xiqs8BnJG8qkhRKTavaCPbbp0iF+RY1
-         D7v0j8SUkjc3I9Ll6tFQ0pcDf0JaBLCzlLMykPKihmu5KZwVODy36SNeBSLoQjGWIy
-         Ot2KqZgZjnn9kO0JkHDtkdjREZ1y+jaJXifllLyaTN9RzeflMcjx9EIORjoJM/VtIs
-         eoUp+WhVMi+6lhQqCAjHHKLd555EJEZFH2outW6GbKYCNQKbjglY/SdWejI048tRm+
-         Pd/55NB5/iMd6nHmuYOsG7vGBgWyr/weWmqUin55ZBWMc2YyJMIDAQpGv/L6gp3t4p
-         K0doLwvS/SroQ==
+        s=k20201202; t=1657772830;
+        bh=iE5yQa2DJlA8HOw9QQ5apeEo47lHRTArshMl4xWFAGI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kMuFYAGbFPfW5H4Jg9m2bgovBuRotrdRroqC/XUZzW8U75j95hkrx3yvvxCLYysn3
+         jR9f99Q3oxjvXvpPWXDg+SCSaP9jH33rHmoeeg3UXOBrtta716yI/uaOiDVeuCyok+
+         Sh2Q7O2wAoW0vpkq/jaJcUaWpxrqqtg6QlKbZMiZwlkX39lHJmUD5rBrkGb4wraD+p
+         Q1MxwIedGPdlGNuM0QhA70IKQiMTOMd80DSxksL4jfEwNogTI7KV8NnTcSjBilZzgo
+         OPmvbN8yyXZAtwpU8sRWw2pXsq8dbX+bkF+no4VuRwMrLyyNaFSUOdrIodh689X5c2
+         DIrRyifqsnn/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ebiederm@xmission.com,
-        keescook@chromium.org, oleg@redhat.com, tglx@linutronix.de,
-        peterz@infradead.org
-Subject: [PATCH AUTOSEL 4.14 5/5] signal handling: don't use BUG_ON() for debugging
-Date:   Thu, 14 Jul 2022 00:26:52 -0400
-Message-Id: <20220714042653.282599-5-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 1/4] ASoC: ops: Fix off by one in range control validation
+Date:   Thu, 14 Jul 2022 00:27:04 -0400
+Message-Id: <20220714042707.282675-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220714042653.282599-1-sashal@kernel.org>
-References: <20220714042653.282599-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,52 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
+[ Upstream commit 5871321fb4558c55bf9567052b618ff0be6b975e ]
 
-These are indeed "should not happen" situations, but it turns out recent
-changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
-exists, is pending more testing), and the BUG_ON() makes it
-unnecessarily hard to actually debug for no good reason.
+We currently report that range controls accept a range of 0..(max-min) but
+accept writes in the range 0..(max-min+1). Remove that extra +1.
 
-It's been that way for a long time, but let's make it clear: BUG_ON() is
-not good for debugging, and should never be used in situations where you
-could just say "this shouldn't happen, but we can continue".
-
-Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
-continue running.  Instead of making the system basically unusuable
-because you crashed the machine while potentially holding some very core
-locks (eg this function is commonly called while holding 'tasklist_lock'
-for writing).
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220604105246.4055214-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/soc-ops.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 3619ab24644f..7c3fe8e0230a 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1662,12 +1662,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
- 	bool autoreap = false;
- 	u64 utime, stime;
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index 90ba5521c189..4fda8c24be29 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -535,7 +535,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
+ 		return -EINVAL;
+ 	if (mc->platform_max && tmp > mc->platform_max)
+ 		return -EINVAL;
+-	if (tmp > mc->max - mc->min + 1)
++	if (tmp > mc->max - mc->min)
+ 		return -EINVAL;
  
--	BUG_ON(sig == -1);
-+	WARN_ON_ONCE(sig == -1);
+ 	if (invert)
+@@ -556,7 +556,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
+ 			return -EINVAL;
+ 		if (mc->platform_max && tmp > mc->platform_max)
+ 			return -EINVAL;
+-		if (tmp > mc->max - mc->min + 1)
++		if (tmp > mc->max - mc->min)
+ 			return -EINVAL;
  
-- 	/* do_notify_parent_cldstop should have been called instead.  */
-- 	BUG_ON(task_is_stopped_or_traced(tsk));
-+	/* do_notify_parent_cldstop should have been called instead.  */
-+	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
- 
--	BUG_ON(!tsk->ptrace &&
-+	WARN_ON_ONCE(!tsk->ptrace &&
- 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
- 
- 	if (sig != SIGCHLD) {
+ 		if (invert)
 -- 
 2.35.1
 
