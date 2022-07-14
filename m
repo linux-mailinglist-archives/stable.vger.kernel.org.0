@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF5C5742AD
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7EE5742AF
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:25:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235036AbiGNEZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:25:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50250 "EHLO
+        id S235186AbiGNEZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:25:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233972AbiGNEY7 (ORCPT
+        with ESMTP id S234025AbiGNEY7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:24:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 904EE27CE7;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E7B27FD7;
         Wed, 13 Jul 2022 21:23:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0738B82371;
-        Thu, 14 Jul 2022 04:23:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71579C36AED;
-        Thu, 14 Jul 2022 04:23:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81F1361E17;
+        Thu, 14 Jul 2022 04:23:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F2BC385A5;
+        Thu, 14 Jul 2022 04:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772595;
-        bh=/fHJWlnFXw+q/18s8kVtADDVxFDL1rLDIEpi1M9ytc4=;
+        s=k20201202; t=1657772596;
+        bh=vG5/S0jHNPkDTGbunE+u84kCtFkDf6SxU2TdPXyQjuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rd8TQ7SO5IbO02MrQG6DtqBVKRPlKxbsRqIt6RM/hyZh7eJBdVbniEfk+luvrjtEN
-         ymbPJqKu7hFer5300sgheMxUgeeszGkqP1pVeKbmi9o+6aMVP0X3YQl24I6omSN0nT
-         AdTNXWsjNgm+NGsg+XGVHE6rBIGLMzhG8kyLBWyPS3e49B2xxjurIuAKzf/G435dIL
-         4q7UNuRaTU/9m4Sx8T/fRv7JtUzjBhAfClquhtBHjzKXHrGs2dFE75X6sBE3TuCNSU
-         R6ULXB6GhGnIyxNANo2mxyEGj34ddeAZdBPy6908crqzpJzlMiPLYum4Slz7VhcfT+
-         2NxEX++HiMUrg==
+        b=OchJE6Hu7jAtPMq8QwB2GS4HCjx06v6Vz4TVqIsc8B5aqyotM7N1qx+XdMUX+NjZ/
+         F3nLEpTJ/9CuIlfyHFAbe6ZcBGLMEFt0DVza2gNx8IeX3iVZIQs0OavJ6hFh2btQhe
+         ++saeJ/dpimBo0d8DipXpVGE706zQNiBBuJNOFK2xGpDcC4iTxij3Rr5Pq5tUig0AT
+         2rHSQxxu4a21KsYN5HZpACCkGcaTw29FyFiVwPb3Gl0HEOP8uufbHLkNd2E3hyM8ha
+         cp/atG8KXRNjRqFyegNcp4NsGS8tPzvJuHnDMqh7e4eyrtJcwcfYrCd8z1/ZtaFtjv
+         xs4qZE5UuI5Ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuming Fan <shumingf@realtek.com>,
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 20/41] ASoC: rt711-sdca: fix kernel NULL pointer dereference when IO error
-Date:   Thu, 14 Jul 2022 00:22:00 -0400
-Message-Id: <20220714042221.281187-20-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 21/41] ASoC: dapm: Initialise kcontrol data for mux/demux controls
+Date:   Thu, 14 Jul 2022 00:22:01 -0400
+Message-Id: <20220714042221.281187-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042221.281187-1-sashal@kernel.org>
 References: <20220714042221.281187-1-sashal@kernel.org>
@@ -58,45 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuming Fan <shumingf@realtek.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 1df793d479bef546569fc2e409ff8bb3f0fb8e99 ]
+[ Upstream commit 11d7a12f7f50baa5af9090b131c9b03af59503e7 ]
 
-The initial settings will be written before the codec probe function.
-But, the rt711->component doesn't be assigned yet.
-If IO error happened during initial settings operations, it will cause the kernel panic.
-This patch changed component->dev to slave->dev to fix this issue.
+DAPM keeps a copy of the current value of mux/demux controls,
+however this value is only initialised in the case of autodisable
+controls. This leads to false notification events when first
+modifying a DAPM kcontrol that has a non-zero default.
 
-Signed-off-by: Shuming Fan <shumingf@realtek.com>
-Link: https://lore.kernel.org/r/20220621090719.30558-1-shumingf@realtek.com
+Autodisable controls are left as they are, since they already
+initialise the value, and there would be more work required to
+support autodisable muxes where the first option isn't disabled
+and/or that isn't the default.
+
+Technically this issue could affect mixer/switch elements as well,
+although not on any of the devices I am currently running. There
+is also a little more work to do to address the issue there due to
+that side supporting stereo controls, so that has not been tackled
+in this patch.
+
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220623105120.1981154-1-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt711-sdca.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-dapm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/rt711-sdca.c b/sound/soc/codecs/rt711-sdca.c
-index d8821d535a24..ac75d8a2c9fe 100644
---- a/sound/soc/codecs/rt711-sdca.c
-+++ b/sound/soc/codecs/rt711-sdca.c
-@@ -34,7 +34,7 @@ static int rt711_sdca_index_write(struct rt711_sdca_priv *rt711,
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index 869c76506b66..a8e842e02cdc 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -62,6 +62,8 @@ struct snd_soc_dapm_widget *
+ snd_soc_dapm_new_control_unlocked(struct snd_soc_dapm_context *dapm,
+ 			 const struct snd_soc_dapm_widget *widget);
  
- 	ret = regmap_write(regmap, addr, value);
- 	if (ret < 0)
--		dev_err(rt711->component->dev,
-+		dev_err(&rt711->slave->dev,
- 			"Failed to set private value: %06x <= %04x ret=%d\n",
- 			addr, value, ret);
++static unsigned int soc_dapm_read(struct snd_soc_dapm_context *dapm, int reg);
++
+ /* dapm power sequences - make this per codec in the future */
+ static int dapm_up_seq[] = {
+ 	[snd_soc_dapm_pre] = 1,
+@@ -442,6 +444,9 @@ static int dapm_kcontrol_data_alloc(struct snd_soc_dapm_widget *widget,
  
-@@ -50,7 +50,7 @@ static int rt711_sdca_index_read(struct rt711_sdca_priv *rt711,
- 
- 	ret = regmap_read(regmap, addr, value);
- 	if (ret < 0)
--		dev_err(rt711->component->dev,
-+		dev_err(&rt711->slave->dev,
- 			"Failed to get private value: %06x => %04x ret=%d\n",
- 			addr, *value, ret);
- 
+ 			snd_soc_dapm_add_path(widget->dapm, data->widget,
+ 					      widget, NULL, NULL);
++		} else if (e->reg != SND_SOC_NOPM) {
++			data->value = soc_dapm_read(widget->dapm, e->reg) &
++				      (e->mask << e->shift_l);
+ 		}
+ 		break;
+ 	default:
 -- 
 2.35.1
 
