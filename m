@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA5265742E1
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4675742ED
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234802AbiGNE1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:27:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51826 "EHLO
+        id S235942AbiGNE1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235194AbiGNE1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:27:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5212C2BB02;
-        Wed, 13 Jul 2022 21:24:01 -0700 (PDT)
+        with ESMTP id S234645AbiGNE1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:27:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E15286C5;
+        Wed, 13 Jul 2022 21:24:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B75D7B82372;
-        Thu, 14 Jul 2022 04:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F28C341CA;
-        Thu, 14 Jul 2022 04:23:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 60F25CE2358;
+        Thu, 14 Jul 2022 04:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBB01C34114;
+        Thu, 14 Jul 2022 04:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772638;
-        bh=TrRXWrkQMD56R74PiDCIB/2Sib6HRyWtjxg0iqFt938=;
+        s=k20201202; t=1657772639;
+        bh=CH3O+8rE7gc07cwtk2Pd8nsB1wVExVHVq8mfQlHMR5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGDAazUjLIzBKqnpKZMSDsDQqiJJOdwqUHhysKqOeu1Qchasu0XtOlZGRj+seRT6T
-         dIg1VCbnJBl/3lYHnjIHu3jB2RhoCOw86gOC941ODt8+fE7V/jA17khvJFumJYudQ0
-         uJkT6DzoajrwHVq/k2JFWVvWRNdno0H3N1PJAO1zIXeLzQzxl2sXcwFdnSNmH5IaQq
-         VK/jZRHXq0mLSHit4ATWgGMCGM/XuDsmHwIxMM8urqSO39z0FiBdTC5f+m+OKjLuNJ
-         9ege8LQFm/hsX7tpN+0zkOND9tRwpgmn2F9S78g/LOoyEicDPljc2chtZBCVF/LuyD
-         511kzsQaH1ViQ==
+        b=j6M4EdKKExuf7iUl//Eg88iTfzk5q+8XQE8Ip0eMiX6lsFwFwtrCYIN3q8K9i9FUx
+         MqzjJkUNGPjKg6yvwNiPT5Jb+PyvU9nX0CfFMWc272jHB/qm+JdHpEo0b2J6xQXjuP
+         0ocyEksL10sxSujsZFexlNc0n0wnvNyPruG6DzbNwAap0hDJi6wmPGdK+vh68/5ES6
+         KJzC/87JmDuQjvQUjUlb503CD/WhDR7JuUFkMAAtNNeoBjdSrhyKs62sJb7w/6vs/I
+         F7lLP2Dh6EZedPDmhUpA0KFdJIqTSJtHWhfXyr30pMD/25k2w3fdRPhahGI8Wo7A1v
+         2vOT/66ng/TKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>, Chris Egolf <cegolf@ugholf.net>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
+Cc:     Keith Busch <kbusch@kernel.org>,
+        John Garry <john.garry@huawei.com>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, axboe@fb.com,
         sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 36/41] nvme-pci: phison e16 has bogus namespace ids
-Date:   Thu, 14 Jul 2022 00:22:16 -0400
-Message-Id: <20220714042221.281187-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 37/41] nvme: use struct group for generic command dwords
+Date:   Thu, 14 Jul 2022 00:22:17 -0400
+Message-Id: <20220714042221.281187-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042221.281187-1-sashal@kernel.org>
 References: <20220714042221.281187-1-sashal@kernel.org>
@@ -60,34 +60,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 73029c9b23cf1213e5f54c2b59efce08665199e7 ]
+[ Upstream commit 5c629dc9609dc43492a7bc8060cc6120875bf096 ]
 
-Add the quirk.
+This will allow the trace event to know the full size of the data
+intended to be copied and silence read overflow checks.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216049
-Reported-by: Chris Egolf <cegolf@ugholf.net>
+Reported-by: John Garry <john.garry@huawei.com>
+Suggested-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/host/trace.h | 2 +-
+ include/linux/nvme.h      | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index fe829377c7c2..ab575fdd8015 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3432,7 +3432,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 				NVME_QUIRK_DISABLE_WRITE_ZEROES|
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
--		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
-+		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN |
-+				NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1b4b, 0x1092),	/* Lexar 256 GB SSD */
- 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST |
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+diff --git a/drivers/nvme/host/trace.h b/drivers/nvme/host/trace.h
+index b5f85259461a..37c7f4c89f92 100644
+--- a/drivers/nvme/host/trace.h
++++ b/drivers/nvme/host/trace.h
+@@ -69,7 +69,7 @@ TRACE_EVENT(nvme_setup_cmd,
+ 		__entry->metadata = !!blk_integrity_rq(req);
+ 		__entry->fctype = cmd->fabrics.fctype;
+ 		__assign_disk_name(__entry->disk, req->q->disk);
+-		memcpy(__entry->cdw10, &cmd->common.cdw10,
++		memcpy(__entry->cdw10, &cmd->common.cdws,
+ 			sizeof(__entry->cdw10));
+ 	    ),
+ 	    TP_printk("nvme%d: %sqid=%d, cmdid=%u, nsid=%u, flags=0x%x, meta=0x%x, cmd=(%s %s)",
+diff --git a/include/linux/nvme.h b/include/linux/nvme.h
+index f626a445d1a8..99b1b56f0cd3 100644
+--- a/include/linux/nvme.h
++++ b/include/linux/nvme.h
+@@ -867,12 +867,14 @@ struct nvme_common_command {
+ 	__le32			cdw2[2];
+ 	__le64			metadata;
+ 	union nvme_data_ptr	dptr;
++	struct_group(cdws,
+ 	__le32			cdw10;
+ 	__le32			cdw11;
+ 	__le32			cdw12;
+ 	__le32			cdw13;
+ 	__le32			cdw14;
+ 	__le32			cdw15;
++	);
+ };
+ 
+ struct nvme_rw_command {
 -- 
 2.35.1
 
