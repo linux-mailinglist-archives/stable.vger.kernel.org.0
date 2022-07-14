@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 315475743BB
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:38:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B304C5743BF
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237448AbiGNEij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
+        id S237696AbiGNEi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234778AbiGNEh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:37:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 947B83DBFA;
-        Wed, 13 Jul 2022 21:27:13 -0700 (PDT)
+        with ESMTP id S237697AbiGNEiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:38:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BBC3ED4A;
+        Wed, 13 Jul 2022 21:27:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF662B82372;
-        Thu, 14 Jul 2022 04:27:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72259C3411C;
-        Thu, 14 Jul 2022 04:27:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EEFDB82371;
+        Thu, 14 Jul 2022 04:27:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8211AC34115;
+        Thu, 14 Jul 2022 04:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772830;
-        bh=iE5yQa2DJlA8HOw9QQ5apeEo47lHRTArshMl4xWFAGI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=kMuFYAGbFPfW5H4Jg9m2bgovBuRotrdRroqC/XUZzW8U75j95hkrx3yvvxCLYysn3
-         jR9f99Q3oxjvXvpPWXDg+SCSaP9jH33rHmoeeg3UXOBrtta716yI/uaOiDVeuCyok+
-         Sh2Q7O2wAoW0vpkq/jaJcUaWpxrqqtg6QlKbZMiZwlkX39lHJmUD5rBrkGb4wraD+p
-         Q1MxwIedGPdlGNuM0QhA70IKQiMTOMd80DSxksL4jfEwNogTI7KV8NnTcSjBilZzgo
-         OPmvbN8yyXZAtwpU8sRWw2pXsq8dbX+bkF+no4VuRwMrLyyNaFSUOdrIodh689X5c2
-         DIrRyifqsnn/Q==
+        s=k20201202; t=1657772833;
+        bh=FGbsfRAkzXDG408skh5FLJgLjQK83LBjEkUjRQg2WZA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tKNXrctVBg3SxO1QTghsSbWKLKRND+yiZ5Aq1zLcvQg/EgschLCcIz5oKxwE3BLXR
+         hNdX50sHZNTh4X3kFxtRvq7RMAUy7pKgkEM9xfmlSeb6Kvn6V9OjzXMkTRt/5NAgm2
+         RXpUGVr/UAAzrTm3fcuhd+eBj5vFO9eyIWp4xT/cRRJ2dgQgicvWZKe4qP5vb0RDPE
+         mmPTEjpn6ZU1VvtFQWkMNSAZKv9RSFnAJB2VgtMF9GjMZlX2WxC6VfKjkHhdSCgMR9
+         zduvW0vSQ9QO223/tBkRg9fmQdVVFGtn/J09vsXsI8UpFIwBTmb3bvtoVRmgnEeTEC
+         tOd1E0lY6DWUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 1/4] ASoC: ops: Fix off by one in range control validation
-Date:   Thu, 14 Jul 2022 00:27:04 -0400
-Message-Id: <20220714042707.282675-1-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, simont@opensource.cirrus.com,
+        patches@opensource.cirrus.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 2/4] ASoC: wm5110: Fix DRE control
+Date:   Thu, 14 Jul 2022 00:27:05 -0400
+Message-Id: <20220714042707.282675-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220714042707.282675-1-sashal@kernel.org>
+References: <20220714042707.282675-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,43 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 5871321fb4558c55bf9567052b618ff0be6b975e ]
+[ Upstream commit 0bc0ae9a5938d512fd5d44f11c9c04892dcf4961 ]
 
-We currently report that range controls accept a range of 0..(max-min) but
-accept writes in the range 0..(max-min+1). Remove that extra +1.
+The DRE controls on wm5110 should return a value of 1 if the DRE state
+is actually changed, update to fix this.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220604105246.4055214-1-broonie@kernel.org
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220621102041.1713504-2-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-ops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm5110.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
-index 90ba5521c189..4fda8c24be29 100644
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -535,7 +535,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
- 		return -EINVAL;
- 	if (mc->platform_max && tmp > mc->platform_max)
- 		return -EINVAL;
--	if (tmp > mc->max - mc->min + 1)
-+	if (tmp > mc->max - mc->min)
- 		return -EINVAL;
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index 06bae3b23fce..2b0342bcede4 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -404,6 +404,7 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 	unsigned int rnew = (!!ucontrol->value.integer.value[1]) << mc->rshift;
+ 	unsigned int lold, rold;
+ 	unsigned int lena, rena;
++	bool change = false;
+ 	int ret;
  
- 	if (invert)
-@@ -556,7 +556,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
- 			return -EINVAL;
- 		if (mc->platform_max && tmp > mc->platform_max)
- 			return -EINVAL;
--		if (tmp > mc->max - mc->min + 1)
-+		if (tmp > mc->max - mc->min)
- 			return -EINVAL;
+ 	snd_soc_dapm_mutex_lock(dapm);
+@@ -431,8 +432,8 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 		goto err;
+ 	}
  
- 		if (invert)
+-	ret = regmap_update_bits(arizona->regmap, ARIZONA_DRE_ENABLE,
+-				 mask, lnew | rnew);
++	ret = regmap_update_bits_check(arizona->regmap, ARIZONA_DRE_ENABLE,
++				       mask, lnew | rnew, &change);
+ 	if (ret) {
+ 		dev_err(arizona->dev, "Failed to set DRE: %d\n", ret);
+ 		goto err;
+@@ -445,6 +446,9 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 	if (!rnew && rold)
+ 		wm5110_clear_pga_volume(arizona, mc->rshift);
+ 
++	if (change)
++		ret = 1;
++
+ err:
+ 	snd_soc_dapm_mutex_unlock(dapm);
+ 
 -- 
 2.35.1
 
