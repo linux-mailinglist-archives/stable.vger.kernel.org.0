@@ -2,511 +2,315 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36ED1574CF7
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 14:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8204A574D24
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 14:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238737AbiGNMGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 08:06:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48820 "EHLO
+        id S239012AbiGNMLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 08:11:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239072AbiGNMGh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 08:06:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252B55C9C7;
-        Thu, 14 Jul 2022 05:06:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A520061E8B;
-        Thu, 14 Jul 2022 12:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AED3C341D5;
-        Thu, 14 Jul 2022 12:06:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657800390;
-        bh=6P20z5h2MUycPujNXzr/uCidHh0HYasRAXJnmLo1qyk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlD3Vr9ckkmNNCasqh6nUOGIhrRKDhf4+dEB/IqpYJO8c8mPJeXlilajL9YUkGa3b
-         GR58H4qmgBLVI5QtkgD/DsdlomdvFRnrtnreWFgmQpkSqbg94cmEwxJB7eV/eVAAif
-         vDJT4rGvMDDuCQ1PykmT1SZmVJ1Hg1vyg8cwVow1cYY1ScTiupNWBIk4dXLfAqpli0
-         WpSo0Jh/FlaR0ctMdFC1fhJMpYK6nyVvLk3OvWsS/NFy+KQDUyBL6QDlJ+W6YBH6T4
-         BBdhM1YfSGiL+sYG2ImfPGrd6RRr0zcuoDRSk5kIIRZloCHQG7UB0N5h2FgXw9TIDQ
-         wGymYQF/3nFIA==
-Received: from mchehab by mail.kernel.org with local (Exim 4.95)
-        (envelope-from <mchehab@kernel.org>)
-        id 1oBxbv-0059sk-T7;
-        Thu, 14 Jul 2022 13:06:27 +0100
-From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Chris Wilson <chris.p.wilson@intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Ashutosh Dixit <ashutosh.dixit@intel.com>,
-        Ayaz A Siddiqui <ayaz.siddiqui@intel.com>,
-        Casey Bowman <casey.g.bowman@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Ekstrand <jason@jlekstrand.net>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>,
-        Ramalingam C <ramalingam.c@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, stable@vger.kernel.org,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Fei Yang <fei.yang@intel.com>
-Subject: [PATCH v2 06/21] drm/i915/gt: Batch TLB invalidations
-Date:   Thu, 14 Jul 2022 13:06:11 +0100
-Message-Id: <9f535a97f32320a213a619a30c961ba44b595453.1657800199.git.mchehab@kernel.org>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <cover.1657800199.git.mchehab@kernel.org>
-References: <cover.1657800199.git.mchehab@kernel.org>
+        with ESMTP id S238613AbiGNMKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 08:10:43 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED895D0DC
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 05:09:18 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id p9so2675890pjd.3
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 05:09:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jI8v9pse0fKMvsIfU30qV04G7aAbOAPa3y1hDP+umE4=;
+        b=TQrClUaZhJVY+apgtm+jkSI3LKpiwMFkCHXZbn/QBCOqHzvbk0CaBYGik09Bp4SPqH
+         M5/kauvVmLJ9Z6zkK1n/SxY0aPJN0/j1pAr8fz6IkpzZ5Tqb2G/mbHn1OTRaDPYJVVQo
+         SOeRs1njUG8z59/ECyBsZDMavHT6BP8bLxCQHtr3R8mziKN8UKHdReMHkvhymfX0+Lby
+         v2bSV5qIkiOXdxarTZuGEXh2Oyi9Z2ItT+L8TuOEH4fXO9cZbJlu4G+6R1JTdgWpiw3r
+         eQH2JDkkXBLFoBTiuyvQ88B8opAHHOToEEsCmDTbESZp5LkemOkYkycCv0UyMbbmvMgB
+         XBGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jI8v9pse0fKMvsIfU30qV04G7aAbOAPa3y1hDP+umE4=;
+        b=2Eumr7KC//UmBohVUJ2W/CxwzJU4kM28b1dhfg7DPoWX9SSC6M14ycljX26Oy4PGSp
+         7EgvCc6MisqTN0Iz1r251Xm/diNkOPons0js8wOCeFcbyCJh1YkAYiuTAWibheTNsbBx
+         lWEKx0rdPwo/9C6+FimQD/G4bXTxpKr9V5jkvXfobiMhjgO5PySQtvj4OWyPvZ+eske9
+         +oBlr3gv/Row8id824kek0qkPqmnuh3hYduu+n54NCgKyf/cqZ7WAyjAvTiaM7yEyurL
+         DpyZ/3mJjiWBbeTqSR7kEQw8hixkaD4O5W6sMo17Re3+5st7RSmN0MK4/qf7vAPoysmf
+         2Jlg==
+X-Gm-Message-State: AJIora8wxzOz5QInJaffI/soQd3J+QUNy6xO+y2Qw3GGKztMNRkJI2dF
+        jJP93clEWG81cYm5vvFWA+ehtx6Wc7EZTeyLk64=
+X-Google-Smtp-Source: AGRyM1tIIRXxGjcdQzGIktMfIlOwd+zdQlsnQe6sWp2ageGywSE2Cimp/hdWadynsgYsdCawPbVY2A==
+X-Received: by 2002:a17:902:c992:b0:16b:d8b9:1c5f with SMTP id g18-20020a170902c99200b0016bd8b91c5fmr7999646plc.93.1657800554812;
+        Thu, 14 Jul 2022 05:09:14 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w75-20020a627b4e000000b005251f4596f0sm1485160pfc.107.2022.07.14.05.09.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Jul 2022 05:09:14 -0700 (PDT)
+Message-ID: <62d0076a.1c69fb81.b6f99.2185@mx.google.com>
+Date:   Thu, 14 Jul 2022 05:09:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.11-61-g8eed863760d7
+X-Kernelci-Branch: queue/5.18
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.18 baseline: 161 runs,
+ 6 regressions (v5.18.11-61-g8eed863760d7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+stable-rc/queue/5.18 baseline: 161 runs, 6 regressions (v5.18.11-61-g8eed86=
+3760d7)
 
-Invalidate TLB in patch, in order to reduce performance regressions.
+Regressions Summary
+-------------------
 
-Currently, every caller performs a full barrier around a TLB
-invalidation, ignoring all other invalidations that may have already
-removed their PTEs from the cache. As this is a synchronous operation
-and can be quite slow, we cause multiple threads to contend on the TLB
-invalidate mutex blocking userspace.
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
+config           | 1          =
 
-We only need to invalidate the TLB once after replacing our PTE to
-ensure that there is no possible continued access to the physical
-address before releasing our pages. By tracking a seqno for each full
-TLB invalidate we can quickly determine if one has been performed since
-rewriting the PTE, and only if necessary trigger one for ourselves.
+jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
+config           | 1          =
 
-That helps to reduce the performance regression introduced by TLB
-invalidate logic.
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
 
-[mchehab: rebased to not require moving the code to a separate file]
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-Cc: stable@vger.kernel.org
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Suggested-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Fei Yang <fei.yang@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
----
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
 
-To avoid mailbombing on a large number of people, only mailing lists were C/C on the cover.
-See [PATCH v2 00/21] at: https://lore.kernel.org/all/cover.1657800199.git.mchehab@kernel.org/
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
- .../gpu/drm/i915/gem/i915_gem_object_types.h  |  3 +-
- drivers/gpu/drm/i915/gem/i915_gem_pages.c     | 21 +++++---
- drivers/gpu/drm/i915/gt/intel_gt.c            | 53 ++++++++++++++-----
- drivers/gpu/drm/i915/gt/intel_gt.h            | 12 ++++-
- drivers/gpu/drm/i915/gt/intel_gt_types.h      | 18 ++++++-
- drivers/gpu/drm/i915/gt/intel_ppgtt.c         |  8 ++-
- drivers/gpu/drm/i915/i915_vma.c               | 34 +++++++++---
- drivers/gpu/drm/i915/i915_vma.h               |  1 +
- drivers/gpu/drm/i915/i915_vma_resource.c      |  5 +-
- drivers/gpu/drm/i915/i915_vma_resource.h      |  6 ++-
- 10 files changed, 125 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-index 5cf36a130061..9f6b14ec189a 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-@@ -335,7 +335,6 @@ struct drm_i915_gem_object {
- #define I915_BO_READONLY          BIT(7)
- #define I915_TILING_QUIRK_BIT     8 /* unknown swizzling; do not release! */
- #define I915_BO_PROTECTED         BIT(9)
--#define I915_BO_WAS_BOUND_BIT     10
- 	/**
- 	 * @mem_flags - Mutable placement-related flags
- 	 *
-@@ -616,6 +615,8 @@ struct drm_i915_gem_object {
- 		 * pages were last acquired.
- 		 */
- 		bool dirty:1;
-+
-+		u32 tlb;
- 	} mm;
- 
- 	struct {
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-index 6835279943df..8357dbdcab5c 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-@@ -191,6 +191,18 @@ static void unmap_object(struct drm_i915_gem_object *obj, void *ptr)
- 		vunmap(ptr);
- }
- 
-+static void flush_tlb_invalidate(struct drm_i915_gem_object *obj)
-+{
-+	struct drm_i915_private *i915 = to_i915(obj->base.dev);
-+	struct intel_gt *gt = to_gt(i915);
-+
-+	if (!obj->mm.tlb)
-+		return;
-+
-+	intel_gt_invalidate_tlb(gt, obj->mm.tlb);
-+	obj->mm.tlb = 0;
-+}
-+
- struct sg_table *
- __i915_gem_object_unset_pages(struct drm_i915_gem_object *obj)
- {
-@@ -216,14 +228,7 @@ __i915_gem_object_unset_pages(struct drm_i915_gem_object *obj)
- 	__i915_gem_object_reset_page_iter(obj);
- 	obj->mm.page_sizes.phys = obj->mm.page_sizes.sg = 0;
- 
--	if (test_and_clear_bit(I915_BO_WAS_BOUND_BIT, &obj->flags)) {
--		struct drm_i915_private *i915 = to_i915(obj->base.dev);
--		struct intel_gt *gt = to_gt(i915);
--		intel_wakeref_t wakeref;
--
--		with_intel_gt_pm_if_awake(gt, wakeref)
--			intel_gt_invalidate_tlbs(gt);
--	}
-+	flush_tlb_invalidate(obj);
- 
- 	return pages;
- }
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index 5c55a90672f4..f435e06125aa 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -38,8 +38,6 @@ static void __intel_gt_init_early(struct intel_gt *gt)
- {
- 	spin_lock_init(&gt->irq_lock);
- 
--	mutex_init(&gt->tlb_invalidate_lock);
--
- 	INIT_LIST_HEAD(&gt->closed_vma);
- 	spin_lock_init(&gt->closed_lock);
- 
-@@ -50,6 +48,8 @@ static void __intel_gt_init_early(struct intel_gt *gt)
- 	intel_gt_init_reset(gt);
- 	intel_gt_init_requests(gt);
- 	intel_gt_init_timelines(gt);
-+	mutex_init(&gt->tlb.invalidate_lock);
-+	seqcount_mutex_init(&gt->tlb.seqno, &gt->tlb.invalidate_lock);
- 	intel_gt_pm_init_early(gt);
- 
- 	intel_uc_init_early(&gt->uc);
-@@ -770,6 +770,7 @@ void intel_gt_driver_late_release_all(struct drm_i915_private *i915)
- 		intel_gt_fini_requests(gt);
- 		intel_gt_fini_reset(gt);
- 		intel_gt_fini_timelines(gt);
-+		mutex_destroy(&gt->tlb.invalidate_lock);
- 		intel_engines_free(gt);
- 	}
- }
-@@ -908,7 +909,7 @@ get_reg_and_bit(const struct intel_engine_cs *engine, const bool gen8,
- 	return rb;
- }
- 
--void intel_gt_invalidate_tlbs(struct intel_gt *gt)
-+static void mmio_invalidate_full(struct intel_gt *gt)
- {
- 	static const i915_reg_t gen8_regs[] = {
- 		[RENDER_CLASS]			= GEN8_RTCR,
-@@ -931,12 +932,6 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	const i915_reg_t *regs;
- 	unsigned int num = 0;
- 
--	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
--		return;
--
--	if (intel_gt_is_wedged(gt))
--		return;
--
- 	if (GRAPHICS_VER(i915) == 12) {
- 		regs = gen12_regs;
- 		num = ARRAY_SIZE(gen12_regs);
-@@ -951,9 +946,6 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 			  "Platform does not implement TLB invalidation!"))
- 		return;
- 
--	GEM_TRACE("\n");
--
--	mutex_lock(&gt->tlb_invalidate_lock);
- 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
- 
- 	spin_lock_irq(&uncore->lock); /* serialise invalidate with GT reset */
-@@ -973,6 +965,8 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		awake |= engine->mask;
- 	}
- 
-+	GT_TRACE(gt, "invalidated engines %08x\n", awake);
-+
- 	/* Wa_2207587034:tgl,dg1,rkl,adl-s,adl-p */
- 	if (awake &&
- 	    (IS_TIGERLAKE(i915) ||
-@@ -1012,5 +1006,38 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	 * transitions.
- 	 */
- 	intel_uncore_forcewake_put_delayed(uncore, FORCEWAKE_ALL);
--	mutex_unlock(&gt->tlb_invalidate_lock);
-+}
-+
-+static bool tlb_seqno_passed(const struct intel_gt *gt, u32 seqno)
-+{
-+	u32 cur = intel_gt_tlb_seqno(gt);
-+
-+	/* Only skip if a *full* TLB invalidate barrier has passed */
-+	return (s32)(cur - ALIGN(seqno, 2)) > 0;
-+}
-+
-+void intel_gt_invalidate_tlb(struct intel_gt *gt, u32 seqno)
-+{
-+	intel_wakeref_t wakeref;
-+
-+	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
-+		return;
-+
-+	if (intel_gt_is_wedged(gt))
-+		return;
-+
-+	if (tlb_seqno_passed(gt, seqno))
-+		return;
-+
-+	with_intel_gt_pm_if_awake(gt, wakeref) {
-+		mutex_lock(&gt->tlb.invalidate_lock);
-+		if (tlb_seqno_passed(gt, seqno))
-+			goto unlock;
-+
-+		mmio_invalidate_full(gt);
-+
-+		write_seqcount_invalidate(&gt->tlb.seqno);
-+unlock:
-+		mutex_unlock(&gt->tlb.invalidate_lock);
-+	}
- }
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.h b/drivers/gpu/drm/i915/gt/intel_gt.h
-index 82d6f248d876..40b06adf509a 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.h
-@@ -101,6 +101,16 @@ void intel_gt_info_print(const struct intel_gt_info *info,
- 
- void intel_gt_watchdog_work(struct work_struct *work);
- 
--void intel_gt_invalidate_tlbs(struct intel_gt *gt);
-+static inline u32 intel_gt_tlb_seqno(const struct intel_gt *gt)
-+{
-+	return seqprop_sequence(&gt->tlb.seqno);
-+}
-+
-+static inline u32 intel_gt_next_invalidate_tlb_full(const struct intel_gt *gt)
-+{
-+	return intel_gt_tlb_seqno(gt) | 1;
-+}
-+
-+void intel_gt_invalidate_tlb(struct intel_gt *gt, u32 seqno);
- 
- #endif /* __INTEL_GT_H__ */
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_types.h b/drivers/gpu/drm/i915/gt/intel_gt_types.h
-index df708802889d..3804a583382b 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_types.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_types.h
-@@ -11,6 +11,7 @@
- #include <linux/llist.h>
- #include <linux/mutex.h>
- #include <linux/notifier.h>
-+#include <linux/seqlock.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
- #include <linux/workqueue.h>
-@@ -83,7 +84,22 @@ struct intel_gt {
- 	struct intel_uc uc;
- 	struct intel_gsc gsc;
- 
--	struct mutex tlb_invalidate_lock;
-+	struct {
-+		/* Serialize global tlb invalidations */
-+		struct mutex invalidate_lock;
-+
-+		/*
-+		 * Batch TLB invalidations
-+		 *
-+		 * After unbinding the PTE, we need to ensure the TLB
-+		 * are invalidated prior to releasing the physical pages.
-+		 * But we only need one such invalidation for all unbinds,
-+		 * so we track how many TLB invalidations have been
-+		 * performed since unbind the PTE and only emit an extra
-+		 * invalidate if no full barrier has been passed.
-+		 */
-+		seqcount_mutex_t seqno;
-+	} tlb;
- 
- 	struct i915_wa_list wa_list;
- 
-diff --git a/drivers/gpu/drm/i915/gt/intel_ppgtt.c b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
-index d8b94d638559..2da6c82a8bd2 100644
---- a/drivers/gpu/drm/i915/gt/intel_ppgtt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
-@@ -206,8 +206,12 @@ void ppgtt_bind_vma(struct i915_address_space *vm,
- void ppgtt_unbind_vma(struct i915_address_space *vm,
- 		      struct i915_vma_resource *vma_res)
- {
--	if (vma_res->allocated)
--		vm->clear_range(vm, vma_res->start, vma_res->vma_size);
-+	if (!vma_res->allocated)
-+		return;
-+
-+	vm->clear_range(vm, vma_res->start, vma_res->vma_size);
-+	if (vma_res->tlb)
-+		vma_invalidate_tlb(vm, *vma_res->tlb);
- }
- 
- static unsigned long pd_count(u64 size, int shift)
-diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-index 646f419b2035..84a9ccbc5fc5 100644
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -538,9 +538,6 @@ int i915_vma_bind(struct i915_vma *vma,
- 				   bind_flags);
- 	}
- 
--	if (bind_flags & I915_VMA_LOCAL_BIND)
--		set_bit(I915_BO_WAS_BOUND_BIT, &vma->obj->flags);
--
- 	atomic_or(bind_flags, &vma->flags);
- 	return 0;
- }
-@@ -1311,6 +1308,19 @@ I915_SELFTEST_EXPORT int i915_vma_get_pages(struct i915_vma *vma)
- 	return err;
- }
- 
-+void vma_invalidate_tlb(struct i915_address_space *vm, u32 tlb)
-+{
-+	/*
-+	 * Before we release the pages that were bound by this vma, we
-+	 * must invalidate all the TLBs that may still have a reference
-+	 * back to our physical address. It only needs to be done once,
-+	 * so after updating the PTE to point away from the pages, record
-+	 * the most recent TLB invalidation seqno, and if we have not yet
-+	 * flushed the TLBs upon release, perform a full invalidation.
-+	 */
-+	WRITE_ONCE(tlb, intel_gt_next_invalidate_tlb_full(vm->gt));
-+}
-+
- static void __vma_put_pages(struct i915_vma *vma, unsigned int count)
- {
- 	/* We allocate under vma_get_pages, so beware the shrinker */
-@@ -1942,7 +1952,12 @@ struct dma_fence *__i915_vma_evict(struct i915_vma *vma, bool async)
- 		vma->vm->skip_pte_rewrite;
- 	trace_i915_vma_unbind(vma);
- 
--	unbind_fence = i915_vma_resource_unbind(vma_res);
-+	if (async)
-+		unbind_fence = i915_vma_resource_unbind(vma_res,
-+							&vma->obj->mm.tlb);
-+	else
-+		unbind_fence = i915_vma_resource_unbind(vma_res, NULL);
-+
- 	vma->resource = NULL;
- 
- 	atomic_and(~(I915_VMA_BIND_MASK | I915_VMA_ERROR | I915_VMA_GGTT_WRITE),
-@@ -1950,10 +1965,13 @@ struct dma_fence *__i915_vma_evict(struct i915_vma *vma, bool async)
- 
- 	i915_vma_detach(vma);
- 
--	if (!async && unbind_fence) {
--		dma_fence_wait(unbind_fence, false);
--		dma_fence_put(unbind_fence);
--		unbind_fence = NULL;
-+	if (!async) {
-+		if (unbind_fence) {
-+			dma_fence_wait(unbind_fence, false);
-+			dma_fence_put(unbind_fence);
-+			unbind_fence = NULL;
-+		}
-+		vma_invalidate_tlb(vma->vm, vma->obj->mm.tlb);
- 	}
- 
- 	/*
-diff --git a/drivers/gpu/drm/i915/i915_vma.h b/drivers/gpu/drm/i915/i915_vma.h
-index 88ca0bd9c900..5048eed536da 100644
---- a/drivers/gpu/drm/i915/i915_vma.h
-+++ b/drivers/gpu/drm/i915/i915_vma.h
-@@ -213,6 +213,7 @@ bool i915_vma_misplaced(const struct i915_vma *vma,
- 			u64 size, u64 alignment, u64 flags);
- void __i915_vma_set_map_and_fenceable(struct i915_vma *vma);
- void i915_vma_revoke_mmap(struct i915_vma *vma);
-+void vma_invalidate_tlb(struct i915_address_space *vm, u32 tlb);
- struct dma_fence *__i915_vma_evict(struct i915_vma *vma, bool async);
- int __i915_vma_unbind(struct i915_vma *vma);
- int __must_check i915_vma_unbind(struct i915_vma *vma);
-diff --git a/drivers/gpu/drm/i915/i915_vma_resource.c b/drivers/gpu/drm/i915/i915_vma_resource.c
-index 27c55027387a..5a67995ea5fe 100644
---- a/drivers/gpu/drm/i915/i915_vma_resource.c
-+++ b/drivers/gpu/drm/i915/i915_vma_resource.c
-@@ -223,10 +223,13 @@ i915_vma_resource_fence_notify(struct i915_sw_fence *fence,
-  * Return: A refcounted pointer to a dma-fence that signals when unbinding is
-  * complete.
-  */
--struct dma_fence *i915_vma_resource_unbind(struct i915_vma_resource *vma_res)
-+struct dma_fence *i915_vma_resource_unbind(struct i915_vma_resource *vma_res,
-+					   u32 *tlb)
- {
- 	struct i915_address_space *vm = vma_res->vm;
- 
-+	vma_res->tlb = tlb;
-+
- 	/* Reference for the sw fence */
- 	i915_vma_resource_get(vma_res);
- 
-diff --git a/drivers/gpu/drm/i915/i915_vma_resource.h b/drivers/gpu/drm/i915/i915_vma_resource.h
-index 5d8427caa2ba..06923d1816e7 100644
---- a/drivers/gpu/drm/i915/i915_vma_resource.h
-+++ b/drivers/gpu/drm/i915/i915_vma_resource.h
-@@ -67,6 +67,7 @@ struct i915_page_sizes {
-  * taken when the unbind is scheduled.
-  * @skip_pte_rewrite: During ggtt suspend and vm takedown pte rewriting
-  * needs to be skipped for unbind.
-+ * @tlb: pointer for obj->mm.tlb, if async unbind. Otherwise, NULL
-  *
-  * The lifetime of a struct i915_vma_resource is from a binding request to
-  * the actual possible asynchronous unbind has completed.
-@@ -119,6 +120,8 @@ struct i915_vma_resource {
- 	bool immediate_unbind:1;
- 	bool needs_wakeref:1;
- 	bool skip_pte_rewrite:1;
-+
-+	u32 *tlb;
- };
- 
- bool i915_vma_resource_hold(struct i915_vma_resource *vma_res,
-@@ -131,7 +134,8 @@ struct i915_vma_resource *i915_vma_resource_alloc(void);
- 
- void i915_vma_resource_free(struct i915_vma_resource *vma_res);
- 
--struct dma_fence *i915_vma_resource_unbind(struct i915_vma_resource *vma_res);
-+struct dma_fence *i915_vma_resource_unbind(struct i915_vma_resource *vma_res,
-+					   u32 *tlb);
- 
- void __i915_vma_resource_init(struct i915_vma_resource *vma_res);
- 
--- 
-2.36.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
+nel/v5.18.11-61-g8eed863760d7/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.18
+  Describe: v5.18.11-61-g8eed863760d7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8eed863760d70afc1e9d9ef78015f935c78cb0a2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
+config           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62cfe8ecbedc25b129a39c40
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62cfe8ecbedc25b129a39=
+c41
+        failing since 8 days (last pass: v5.18.9-96-g91cfa3d0b94d, first fa=
+il: v5.18.9-102-ga6b8287ea0b9) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
+config           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62cfd714c965e2ee66a39be0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62cfd714c965e2ee66a39=
+be1
+        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62cfd1119c2fd1673fa39be1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62cfd1119c2fd1673fa39=
+be2
+        failing since 1 day (last pass: v5.18.10-27-gbe5c4eef4e40, first fa=
+il: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62cfd3e8c0311c747ea39bdd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
+/baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
+/baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62cfd3e8c0311c747ea39=
+bde
+        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62cfd3c528e49a3736a39bdb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62cfd3c528e49a3736a39=
+bdc
+        failing since 1 day (last pass: v5.18.10-27-gbe5c4eef4e40, first fa=
+il: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62cfd83a168caeaccba39be4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62cfd83a168caeaccba39=
+be5
+        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =20
