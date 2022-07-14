@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 316BF57438D
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5598A574394
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231613AbiGNEgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:36:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48370 "EHLO
+        id S237605AbiGNEgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237516AbiGNEfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:35:11 -0400
+        with ESMTP id S237661AbiGNEf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:35:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CC0B3C8EB;
-        Wed, 13 Jul 2022 21:26:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1845C3CBDC;
+        Wed, 13 Jul 2022 21:26:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2283161EC5;
-        Thu, 14 Jul 2022 04:26:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A322C341C6;
-        Thu, 14 Jul 2022 04:26:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3B2E61E51;
+        Thu, 14 Jul 2022 04:26:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D126C34114;
+        Thu, 14 Jul 2022 04:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772786;
-        bh=2qjO8+odQ7oxEl1fALycalDewY6Q0DjTfZWWlCdvWKE=;
+        s=k20201202; t=1657772790;
+        bh=aCxKvGgvHIIyXlj7KbS97sr9G2YeS9r+HloRo3tKYo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STHeHZNpG2mlyLgQ9phKf/k5Fdjdvdq6qBJLvnOVSbHPDd0uoz29542z2iG7Bg7UD
-         AKiDzPEhVH87ey6+7WjsphBFl/kjVWyGahjV0JAKMPjd1fCdTkjAl7ZD5N+hyS8yKy
-         yeaJqKpPDmBQ9LLu1q/9GIWLvzbqoX0qoO4t7cpvuF+HSwVvZ6NPRghbn+xacRTfJ0
-         9mXOS/+61FqXdLKWoJvKd/CrwCX5zs66Ve+nsiiq7ejRa/Su6RMhTXY+864zKCKaQO
-         vkc/dreXJffTbVGssqF+j+RkbOFGWYJlP8ujaROHt+X3qi6GWAvnNnE1j3HcECBYUi
-         iW6Iq2Gxuu2pQ==
+        b=QQSe6ajwBtw+5pe0FOMGkLDiy0JVhbbbCpr7AVaC5umztEkQDAvAsZ7n56RHWm12f
+         7Yc+on5as0ansPQK2/cAhKKZYGqxbgJvrsCwbqwoWu3KqBCWgdVWgCb3u+8nsaPENl
+         3X/wRjDBk5URiz7+k4UQyW/FanMsv8wr/zqSCrHMEUn30mSXwfAAN7SgQ6Sf98P+Bx
+         VRcAkjAGfWcrzEYBtZRWcCLncS5sDT2P5wFKohem4iv6rNs7HLSZP7PYB6bFInYxOG
+         wDFVbTRmsxukxpEuwCB9aESUoljdBw5QQP019pIkphs/KevftdCEPhidEEXX1LIrFw
+         4YRp/YXY2JeTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stafford Horne <shorne@gmail.com>, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, tglx@linutronix.de,
-        openrisc@lists.librecores.org
-Subject: [PATCH AUTOSEL 5.4 06/10] irqchip: or1k-pic: Undefine mask_ack for level triggered hardware
-Date:   Thu, 14 Jul 2022 00:26:08 -0400
-Message-Id: <20220714042612.282378-6-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, brijesh.singh@amd.com, ak@linux.intel.com,
+        kirill.shutemov@linux.intel.com, michael.roth@amd.com,
+        sathyanarayanan.kuppuswamy@linux.intel.com, thomas.lendacky@amd.com
+Subject: [PATCH AUTOSEL 5.4 07/10] x86: Clear .brk area at early boot
+Date:   Thu, 14 Jul 2022 00:26:09 -0400
+Message-Id: <20220714042612.282378-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042612.282378-1-sashal@kernel.org>
 References: <20220714042612.282378-1-sashal@kernel.org>
@@ -57,39 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stafford Horne <shorne@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 8520501346ed8d1c4a6dfa751cb57328a9c843f1 ]
+[ Upstream commit 38fa5479b41376dc9d7f57e71c83514285a25ca0 ]
 
-The mask_ack operation clears the interrupt by writing to the PICSR
-register.  This we don't want for level triggered interrupt because
-it does not actually clear the interrupt on the source hardware.
+The .brk section has the same properties as .bss: it is an alloc-only
+section and should be cleared before being used.
 
-This was causing issues in qemu with multi core setups where
-interrupts would continue to fire even though they had been cleared in
-PICSR.
+Not doing so is especially a problem for Xen PV guests, as the
+hypervisor will validate page tables (check for writable page tables
+and hypervisor private bits) before accepting them to be used.
 
-Just remove the mask_ack operation.
+Make sure .brk is initially zero by letting clear_bss() clear the brk
+area, too.
 
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220630071441.28576-3-jgross@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-or1k-pic.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/kernel/head64.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
-index 03d2366118dd..d5f1fabc45d7 100644
---- a/drivers/irqchip/irq-or1k-pic.c
-+++ b/drivers/irqchip/irq-or1k-pic.c
-@@ -66,7 +66,6 @@ static struct or1k_pic_dev or1k_pic_level = {
- 		.name = "or1k-PIC-level",
- 		.irq_unmask = or1k_pic_unmask,
- 		.irq_mask = or1k_pic_mask,
--		.irq_mask_ack = or1k_pic_mask_ack,
- 	},
- 	.handle = handle_level_irq,
- 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 206a4b6144c2..950286016f63 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -383,6 +383,8 @@ static void __init clear_bss(void)
+ {
+ 	memset(__bss_start, 0,
+ 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
++	memset(__brk_base, 0,
++	       (unsigned long) __brk_limit - (unsigned long) __brk_base);
+ }
+ 
+ static unsigned long get_cmd_line_ptr(void)
 -- 
 2.35.1
 
