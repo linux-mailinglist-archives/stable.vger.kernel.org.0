@@ -2,84 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 038FD5755D0
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 21:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28EAE5755E9
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 21:38:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240422AbiGNT1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 15:27:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60428 "EHLO
+        id S239339AbiGNTiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 15:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232306AbiGNT1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 15:27:06 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609CB49B5A;
-        Thu, 14 Jul 2022 12:27:04 -0700 (PDT)
-Received: from [127.0.0.1] (dynamic-002-247-249-041.2.247.pool.telefonica.de [2.247.249.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 3C4FA1EC0434;
-        Thu, 14 Jul 2022 21:26:58 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1657826818;
+        with ESMTP id S232310AbiGNTiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 15:38:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0718E67583
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 12:38:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1657827500;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Z4MQJTZj6BmKFE8enGCuKKJcgI7E41yi2bEFmH/f2RE=;
-        b=WKZJWjPprl/ocjkLjPori4zBGFj2SBPEhyTAfzDr1Ks4lBVL8yIT4mZbt/PR+Ks+M52R4M
-        elaR0vHa3qV9grOTlmkZZFb/yyGRPvnYwfvlWuN5yei8RzKiCWr/9QtwZuuC7jE1kiaPTz
-        oOCh3xgqvApT0Xo/rmM2Rm687SYBfp4=
-Date:   Thu, 14 Jul 2022 19:26:54 +0000
-From:   Boris Petkov <bp@alien8.de>
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>
-CC:     Paolo Bonzini <pbonzini@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Slade Watkins <slade@sladewatkins.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        X86 ML <x86@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kvm list <kvm@vger.kernel.org>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        patches@kernelci.org, Sean Christopherson <seanjc@google.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, stable <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, lkft-triage@lists.linaro.org,
-        Pavel Machek <pavel@denx.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        =?ISO-8859-1?Q?Alex_Benn=E9e?= <alex.bennee@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
-In-Reply-To: <CAHk-=whYia1fnjJFiJ59xZv4ROqqTfG4crQNWxb71JYJf5B-Lg@mail.gmail.com>
-References: <20220712183238.844813653@linuxfoundation.org> <CA+G9fYtntg7=zWSs-dm+n_AUr_u0eBOU0zrwWqMeXZ+SF6_bLw@mail.gmail.com> <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net> <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com> <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com> <Ys/bYJ2bLVfNBjFI@nazgul.tnic> <6b4337f4-d1de-7ba3-14e8-3ad0f9b18788@redhat.com> <8BEC3365-FC09-46C5-8211-518657C0308E@alien8.de> <CAHk-=wj4vtoWZPMXJU-B9qW1zLHsoA1Qb2P0NW=UFhZmrCrf9Q@mail.gmail.com> <YtBQutgSh2j3mFNB@worktop.programming.kicks-ass.net> <CAHk-=wjAouqJQ=C4XZVUmWEV9kerNzbOkK9OeErpHshNkcR=gQ@mail.gmail.com> <CAHk-=whYia1fnjJFiJ59xZv4ROqqTfG4crQNWxb71JYJf5B-Lg@mail.gmail.com>
-Message-ID: <6210C171-BBBD-4FC4-B5FF-68D715941501@alien8.de>
+        bh=h2gwjfySPN5w9CEE1tS8fl1rO2civ/bV3ydiTYY1dv0=;
+        b=N5p41/a18PxQUl2oywymUTi1n+dpsN/T6zH5x8cZFbUsyiXanawz6r76QI6E6gGHnJmHYn
+        +dG98Uzk036zIlW4d1whkNJtCBgmuq9KZoHgjUE1P05RJ5OCzaJcHMGWuxW5iEB2DDGzSY
+        tkkCic8oor109gG881WNVBJtTakq3hQ=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-381-XWJBKOFLORC8JNrbs_PaHA-1; Thu, 14 Jul 2022 15:38:18 -0400
+X-MC-Unique: XWJBKOFLORC8JNrbs_PaHA-1
+Received: by mail-ed1-f69.google.com with SMTP id o13-20020a056402438d00b0043aa846b2d2so2062316edc.8
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 12:38:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=h2gwjfySPN5w9CEE1tS8fl1rO2civ/bV3ydiTYY1dv0=;
+        b=yLD8h3UkBPPTSrIvvkGvh5YGI1Ho8X/iZl60FtVvexox/B1aUUmieKyX7yHsUJ77DU
+         dnzHx0tUC5fyipUh9zUa3SpbGhhh76R42ihfj+mcrJR0zuIO0NlK+9yxW6yJ+87lSzoQ
+         +FILNHt6cGyyXbO1oZ5FTnrYbMU108M9YsbnbE0PhLvB9fZFLrKQcjBTJTpxk8nGDH26
+         f4UdODn4RkgklkuwLo8s1OrIcd2FgEXWSOeFP1pXVtNuOPKN25KZ4gKo6YGfZWKe/nHQ
+         Tdc1SWCym9gIMIxuAj/d+Kfrttd1ZG/AnOW7A9kjZZa+HREzscf48qbfEBjAy7EZYoak
+         z6nA==
+X-Gm-Message-State: AJIora/iGlSkqNpCaQcFEukyHH1dL0ZfVQbcJ4MQJIyfk9PFGv7Ise8f
+        J6yvOxW6O4HaRmkPEhk5qPj08X/UXBYtHbKoGR1s5vsSw+whNkX9Kb9pa0b6GPdV1qsOdphnQFI
+        TJyWAcvKlGNurqnPb
+X-Received: by 2002:a05:6402:cba:b0:43a:6b17:f6b5 with SMTP id cn26-20020a0564020cba00b0043a6b17f6b5mr14553390edb.330.1657827497664;
+        Thu, 14 Jul 2022 12:38:17 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1t4xuOIXNbl2CNGIAEfrjxV7mv997tcOYLHcI0NV/Q8nRqHgyvSdTrNt6iYAQ263foi/jKBRA==
+X-Received: by 2002:a05:6402:cba:b0:43a:6b17:f6b5 with SMTP id cn26-20020a0564020cba00b0043a6b17f6b5mr14553372edb.330.1657827497479;
+        Thu, 14 Jul 2022 12:38:17 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:d69d:5353:dba5:ee81? (2001-1c00-0c1e-bf00-d69d-5353-dba5-ee81.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:d69d:5353:dba5:ee81])
+        by smtp.gmail.com with ESMTPSA id f4-20020a17090631c400b0072ee9790894sm378628ejf.197.2022.07.14.12.38.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Jul 2022 12:38:16 -0700 (PDT)
+Message-ID: <3b317137-6550-61f4-8386-4aa787c453af@redhat.com>
+Date:   Thu, 14 Jul 2022 21:38:16 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [Regression] ACPI: video: Change how we determine if brightness
+ key-presses are handled
+Content-Language: en-US
+To:     Ben Greening <bgreening@gmail.com>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
+        rafael@kernel.org, linux-acpi@vger.kernel.org
+References: <CALF=6jEe5G8+r1Wo0vvz4GjNQQhdkLT5p8uCHn6ZXhg4nsOWow@mail.gmail.com>
+ <02190bee-2e1b-bea3-b716-a7c7f5aa2ff0@redhat.com>
+ <CALF=6jG5gmqqXo5cSFFRWRM96K0rzx3WabNdwAmdZQH=unFG7g@mail.gmail.com>
+ <3ddcdb24-cab3-509d-d694-edd4ab85df0a@redhat.com>
+ <eb760bcd-8817-65ed-471e-60e8d9bdae79@redhat.com>
+ <CALF=6jF1TTgc4_mXRcx=6EV64Cj=VWLU3zXi7AoyM1F3bdgT=A@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <CALF=6jF1TTgc4_mXRcx=6EV64Cj=VWLU3zXi7AoyM1F3bdgT=A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On July 14, 2022 6:16:40 PM UTC, Linus Torvalds <torvalds@linux-foundation=
-=2Eorg> wrote:
->So yeah, it would be less dense, but do we care? Wouldn't the "this is
->really simple" be a nice thing? It's not like there are a ton of those
->fastop functions anyway=2E 128 of them? Plus 16 of the "setCC" ones?
+Hi,
 
-I definitely like simple=2E
+On 7/14/22 01:56, Ben Greening wrote:
+> Hi Hans,
+> 
+> Applying the latest
+> 0001-ACPI-video-Change-how-we-determine-if-brightness-key.patch you
+> sent me off-list (my fault, forgot to reply all) and
+> 0001-ACPI-video-Use-native-backlight-on-Dell-Inspiron-N40.patch makes
+> it all work again. And a bonus that I don't need any extra kernel
+> parameters anymore.
+> 
+>> It would also be interesting if you can start evemu-record on the
+>> Dell WMI Hotkeys device before pressing any of the brightness keys.
+>>
+>> There might still be a single duplicate event reported there on
+>> the first press. I don't really see a way around that (without causing
+>> all brightness key presses on some panasonic models to be duplicated),
+>> but I'm curious if it is a problem at all...
+> 
+> I rebooted and ran evemu-record before pressing the brightness keys
+> and "Dell WMI hotkeys" didn't show any events at all.
 
-Along with a comment why we have this magic 16 there=2E
+Great thank you for reporting and testing this!
 
---=20
-Sent from a small device: formatting sux and brevity is inevitable=2E 
+I will send the fix on its way to Linus tomorrow and I've just
+submitted the new acpi_backlight=native quirk upstream too.
+
+Regards,
+
+Hans
+
+
+> On Wed, Jul 13, 2022 at 6:49 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>>
+>> Hi Ben,
+>>
+>> On 7/13/22 15:29, Hans de Goede wrote:
+>>> Hi,
+>>>
+>>> On 7/13/22 15:08, Ben Greening wrote:
+>>>> Hi Hans, thanks for getting back to me.
+>>>>
+>>>> evemu-record shows events for both "Video Bus" and "Dell WMI hotkeys":
+>>>>
+>>>> Video Bus
+>>>> E: 0.000001 0001 00e0 0001 # EV_KEY / KEY_BRIGHTNESSDOWN   1
+>>>> E: 0.000001 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+>>>> E: 0.000020 0001 00e0 0000 # EV_KEY / KEY_BRIGHTNESSDOWN   0
+>>>> E: 0.000020 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+>>>>
+>>>> Dell WMI hotkeys
+>>>> E: 0.000001 0004 0004 57349 # EV_MSC / MSC_SCAN             57349
+>>>> E: 0.000001 0001 00e0 0001 # EV_KEY / KEY_BRIGHTNESSDOWN   1
+>>>> E: 0.000001 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+>>>> E: 0.000020 0001 00e0 0000 # EV_KEY / KEY_BRIGHTNESSDOWN   0
+>>>> E: 0.000020 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
+>>>>
+>>>> Adding video.report_key_events=1 with acpi_backlight=video makes
+>>>> things work like you said it would.
+>>>>
+>>>>
+>>>> With acpi_backlight=video just has intel_backlight.
+>>>>
+>>>> Without acpi_backlight=video:
+>>>>     intel_backlight:
+>>>>         max_brightness: 4882
+>>>>         backlight control works with echo
+>>>>         brightness keys make no change to brightness value
+>>>>
+>>>>     dell_backlight:
+>>>>         max_brightness: 15
+>>>>         backlight control doesn't work immediately, but does on reboot
+>>>> to set brightness at POST.
+>>>>         brightness keys change brightness value, but you don't see the
+>>>> change until reboot.
+>>>
+>>> Ok, so your system lacks ACPI video backlight control, yet still reports
+>>> brightness keypresses through the ACPI Video Bus. Interesting (weird)...
+>>>
+>>> I think I believe I know how to fix the regression, 1 patch coming up.
+>>
+>> Can you please give the attached patch a try, with
+>> video.report_key_events=1 *removed* from the commandline ?
+>>
+>> It would also be interesting if you can start evemu-record on the
+>> Dell WMI Hotkeys device before pressing any of the brightness keys.
+>>
+>> There might still be a single duplicate event reported there on
+>> the first press. I don't really see a way around that (without causing
+>> all brightness key presses on some panasonic models to be duplicated),
+>> but I'm curious if it is a problem at all...
+>>
+>> Regards,
+>>
+>> Hans
+>>
+>>
+>>
+>>
+>>
+> 
+
