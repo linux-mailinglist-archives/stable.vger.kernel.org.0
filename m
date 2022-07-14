@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C202C574348
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B409F57434B
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237477AbiGNEb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:31:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36058 "EHLO
+        id S237427AbiGNEcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237244AbiGNEbU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:31:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 594B132BB1;
-        Wed, 13 Jul 2022 21:25:24 -0700 (PDT)
+        with ESMTP id S237433AbiGNEb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:31:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2AB32DB7;
+        Wed, 13 Jul 2022 21:25:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0734FB82372;
-        Thu, 14 Jul 2022 04:25:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 178A1C341C6;
-        Thu, 14 Jul 2022 04:25:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA139B82333;
+        Thu, 14 Jul 2022 04:25:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D5BC34114;
+        Thu, 14 Jul 2022 04:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772721;
-        bh=Gf0LKqlKu1/jTIdxolSfG0iMtIyumwv6zYWKDbpiuJ8=;
+        s=k20201202; t=1657772726;
+        bh=Yq4+OAykBYjQ9xMianAzkJZwCiKUJxPTc6gaUkZ7J+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIdVum7J9lj9jybfXFRb9QlTsFCvWSfLOih+HWUlokgEVt9fMLOUMBPZAHCWiSDw6
-         LnnIV2FMLzW7LUtHXHvGAZSEdedv7KT82MooUwWL5Tao9Kp/C8DYy+fBvi8NbcGHgy
-         XLGetisnrKtkhx2YSRNdZ4h/qwfZImPly+jIDPkUV5vUYz2OI4noEw8ushr2eOZZrZ
-         wGPxF/OMQH3K9Co0OmlPUTsfHrjFJjK4RlGl8R2sU69dAgKzDRGnuWcwGhKt+As6XE
-         e8Oz0jCKAie3Nl2u0MMDIQuohzr6P38hbkwgh1Gj/6H9f4AIX0s0NczKhe/QiFma5B
-         p1Po3q70qoSUA==
+        b=m5ErzDG4Sw/0VlhEmu4vMf9pS8dIlgq9vaRTLHpVYNj3FsGlrNxwtR5HSkqKJoAI7
+         kVY/u/r+6duYq+fSljtKxg8ImuB8IQfjWOPDf9fjCs1Pda+UsjWor8NCG0FVlKN4Fn
+         0SDwQTZtSSVWvuR0lLHlc7/2CoPb1CeaaMG/+rz4y06P3IqQi88mGfuTY7U5XvOenC
+         IwdfT56E3L2zYTarZyyeIatjUyYdnDcokvRsnlrFsoIMmkE4werwk2hmsJ8yWpJT70
+         kQHN2KdYeaY1A17SmDi2Pc20fBz9JP3KdbiEUiIIult2DsUx0WyGiUBe9mTdm+ajte
+         5UouWLBL/P7+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Neeli <srinivas.neeli@xilinx.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, appana.durga.rao@xilinx.com,
-        wg@grandegger.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, michal.simek@xilinx.com,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 23/28] Revert "can: xilinx_can: Limit CANFD brp to 2"
-Date:   Thu, 14 Jul 2022 00:24:24 -0400
-Message-Id: <20220714042429.281816-23-sashal@kernel.org>
+Cc:     John Veness <john-linux@pelago.org.uk>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, hahnjo@hahnjo.de,
+        sdoregor@sdore.me, willovertonuk@gmail.com, brendan@grieve.com.au,
+        alexander@tsoy.me, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 24/28] ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices
+Date:   Thu, 14 Jul 2022 00:24:25 -0400
+Message-Id: <20220714042429.281816-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042429.281816-1-sashal@kernel.org>
 References: <20220714042429.281816-1-sashal@kernel.org>
@@ -60,46 +58,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Neeli <srinivas.neeli@xilinx.com>
+From: John Veness <john-linux@pelago.org.uk>
 
-[ Upstream commit c6da4590fe819dfe28a4f8037a8dc1e056542fb4 ]
+[ Upstream commit 6e2c9105e0b743c92a157389d40f00b81bdd09fe ]
 
-This reverts commit 05ca14fdb6fe65614e0652d03e44b02748d25af7.
+Treat the claimed 96kHz 1ch in the descriptors as 48kHz 2ch, so that
+the audio stream doesn't sound mono. Also fix initial stream
+alignment, so that left and right channels are in the correct order.
 
-On early silicon engineering samples observed bit shrinking issue when
-we use brp as 1. Hence updated brp_min as 2. As in production silicon
-this issue is fixed, so reverting the patch.
-
-Link: https://lore.kernel.org/all/20220609082433.1191060-2-srinivas.neeli@xilinx.com
-Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: John Veness <john-linux@pelago.org.uk>
+Link: https://lore.kernel.org/r/20220624140757.28758-1-john-linux@pelago.org.uk
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/quirks-table.h | 48 ++++++++++++++++++++++++++++++++++++++++
+ sound/usb/quirks.c       |  3 +++
+ 2 files changed, 51 insertions(+)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index 262b783d1df8..a2e751f0ae0b 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -259,7 +259,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd2 = {
- 	.tseg2_min = 1,
- 	.tseg2_max = 128,
- 	.sjw_max = 128,
--	.brp_min = 2,
-+	.brp_min = 1,
- 	.brp_max = 256,
- 	.brp_inc = 1,
- };
-@@ -272,7 +272,7 @@ static const struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
- 	.tseg2_min = 1,
- 	.tseg2_max = 16,
- 	.sjw_max = 16,
--	.brp_min = 2,
-+	.brp_min = 1,
- 	.brp_max = 256,
- 	.brp_inc = 1,
- };
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index 4f56e1784932..853da162fd18 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3802,6 +3802,54 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 	}
+ },
+ 
++/*
++ * MacroSilicon MS2100/MS2106 based AV capture cards
++ *
++ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
++ * They also need QUIRK_FLAG_ALIGN_TRANSFER, which makes one wonder if
++ * they pretend to be 96kHz mono as a workaround for stereo being broken
++ * by that...
++ *
++ * They also have an issue with initial stream alignment that causes the
++ * channels to be swapped and out of phase, which is dealt with in quirks.c.
++ */
++{
++	USB_AUDIO_DEVICE(0x534d, 0x0021),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "MacroSilicon",
++		.product_name = "MS210x",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_MIXER,
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S16_LE,
++					.channels = 2,
++					.iface = 3,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.attributes = 0,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_CONTINUOUS,
++					.rate_min = 48000,
++					.rate_max = 48000,
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++
+ /*
+  * MacroSilicon MS2109 based HDMI capture cards
+  *
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index e8468f9b007d..a72874bc0936 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1478,6 +1478,7 @@ void snd_usb_set_format_quirk(struct snd_usb_substream *subs,
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
+ 		break;
++	case USB_ID(0x534d, 0x0021): /* MacroSilicon MS2100/MS2106 */
+ 	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
+ 		subs->stream_offset_adj = 2;
+ 		break;
+@@ -1904,6 +1905,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x413c, 0xa506, /* Dell AE515 sound bar */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
++	DEVICE_FLG(0x534d, 0x0021, /* MacroSilicon MS2100/MS2106 */
++		   QUIRK_FLAG_ALIGN_TRANSFER),
+ 	DEVICE_FLG(0x534d, 0x2109, /* MacroSilicon MS2109 */
+ 		   QUIRK_FLAG_ALIGN_TRANSFER),
+ 	DEVICE_FLG(0x1224, 0x2a25, /* Jieli Technology USB PHY 2.0 */
 -- 
 2.35.1
 
