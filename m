@@ -2,56 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC8E574485
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 07:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4AA8574489
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 07:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbiGNFaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 01:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40136 "EHLO
+        id S234220AbiGNFcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 01:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234312AbiGNFax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 01:30:53 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C708021277;
-        Wed, 13 Jul 2022 22:30:51 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1oBrR1-0001Nh-2x; Thu, 14 Jul 2022 07:30:47 +0200
-Message-ID: <5ea45b0d-32b5-1a13-de86-9988144c0dbe@leemhuis.info>
-Date:   Thu, 14 Jul 2022 07:30:45 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v2] Subject: x86/PAT: Report PAT on CPUs that support PAT
- without MTRR
-Content-Language: en-US
-To:     Chuck Zmudzinski <brchuckz@aol.com>, linux-kernel@vger.kernel.org
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        with ESMTP id S234625AbiGNFcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 01:32:51 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BC2C20BEF;
+        Wed, 13 Jul 2022 22:32:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1657776771; x=1689312771;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=g3JhouRCSU7SAPZqa1QXPR7km+MMP1OzGRbcWLjGIBc=;
+  b=dm+rkUwdHg6rTyd0I88Bo2IPQD8Cee74n1wssixFf0D2t65ULZHien0j
+   zZFqBgm9P5eYoNhJ2Gl6vk0BZo5VIQ3MLDTCD8hEseXjCOWch8Cw4A4Hv
+   QerlxhbgG9QRcmXZoOJA2uS+9BtWgTGz0DcziJRQKcuC31fJI4dOIoe3d
+   N1ItER9joqNW8lRDKxrMXIiADx4olGj8jcHS1ITP8URs2H4yb1Yo4DvkH
+   ItmApJXhsx5qihu69TRJb/MeRMUE3AaBbKgQbDkDSt1CV+bD2zDBlEpll
+   G/fl/BWIJZ4Ue3nttxdvXNyMIu5bEDIMZ25vSBLlf7KF/wdzB+1TT+Uq+
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10407"; a="265208550"
+X-IronPort-AV: E=Sophos;i="5.92,269,1650956400"; 
+   d="scan'208";a="265208550"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2022 22:32:38 -0700
+X-IronPort-AV: E=Sophos;i="5.92,269,1650956400"; 
+   d="scan'208";a="653719713"
+Received: from pfische1-mobl1.amr.corp.intel.com (HELO desk) ([10.251.18.51])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2022 22:32:38 -0700
+Date:   Wed, 13 Jul 2022 22:32:37 -0700
+From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sean Christopherson <seanjc@google.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org
-References: <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz.ref@aol.com>
- <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz@aol.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <9d5070ae4f3e956a95d3f50e24f1a93488b9ff52.1657671676.git.brchuckz@aol.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1657776651;878720af;
-X-HE-SMSGID: 1oBrR1-0001Nh-2x
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        antonio.gomez.iglesias@linux.intel.com,
+        Josh Poimboeuf <jpoimboe@kernel.org>
+Subject: [PATCH] x86/bugs: Switch to "auto" when "ibrs" selected on Enhanced
+ IBRS parts
+Message-ID: <0456b35fb9ef957d9a9138e0913fb1a3fd445dff.1657747493.git.pawan.kumar.gupta@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-Spam-Status: No, score=-2.1 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,65 +61,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13.07.22 03:36, Chuck Zmudzinski wrote:
-> The commit 99c13b8c8896d7bcb92753bf
-> ("x86/mm/pat: Don't report PAT on CPUs that don't support it")
-> incorrectly failed to account for the case in init_cache_modes() when
-> CPUs do support PAT and falsely reported PAT to be disabled when in
-> fact PAT is enabled. In some environments, notably in Xen PV domains,
-> MTRR is disabled but PAT is still enabled, and that is the case
-> that the aforementioned commit failed to account for.
-> 
-> As an unfortunate consequnce, the pat_enabled() function currently does
-> not correctly report that PAT is enabled in such environments. The fix
-> is implemented in init_cache_modes() by setting pat_bp_enabled to true
-> in init_cache_modes() for the case that commit 99c13b8c8896d7bcb92753bf
-> ("x86/mm/pat: Don't report PAT on CPUs that don't support it") failed
-> to account for.
-> 
-> This approach arranges for pat_enabled() to return true in the Xen PV
-> environment without undermining the rest of PAT MSR management logic
-> that considers PAT to be disabled: Specifically, no writes to the PAT
-> MSR should occur.
-> 
-> This patch fixes a regression that some users are experiencing with
-> Linux as a Xen Dom0 driving particular Intel graphics devices by
-> correctly reporting to the Intel i915 driver that PAT is enabled where
-> previously it was falsely reporting that PAT is disabled. Some users
-> are experiencing system hangs in Xen PV Dom0 and all users on Xen PV
-> Dom0 are experiencing reduced graphics performance because the keying of
-> the use of WC mappings to pat_enabled() (see arch_can_pci_mmap_wc())
-> means that in particular graphics frame buffer accesses are quite a bit
-> less performant than possible without this patch.
-> 
-> Also, with the current code, in the Xen PV environment, PAT will not be
-> disabled if the administrator sets the "nopat" boot option. Introduce
-> a new boolean variable, pat_force_disable, to forcibly disable PAT
-> when the administrator sets the "nopat" option to override the default
-> behavior of using the PAT configuration that Xen has provided.
-> 
-> For the new boolean to live in .init.data, init_cache_modes() also needs
-> moving to .init.text (where it could/should have lived already before).
-> 
-> Fixes: 99c13b8c8896d7bcb92753bf ("x86/mm/pat: Don't report PAT on CPUs that don't support it")
+Currently spectre_v2=ibrs forces write to MSR_IA32_SPEC_CTRL at every
+entry and exit. On Enhanced IBRS parts setting MSR_IA32_SPEC_CTRL[IBRS]
+only once at bootup is sufficient. MSR write at every kernel entry/exit
+incur unnecessary penalty that can be avoided.
 
-BTW, "submitting-patches.rst" says it should just be "the first 12
-characters of the SHA-1 ID"
+When Enhanced IBRS feature is present, switch from "ibrs" to "auto" mode
+so that appropriate mitigation is selected.
 
-> Co-developed-by: Jan Beulich <jbeulich@suse.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Chuck Zmudzinski <brchuckz@aol.com>
+Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+Cc: stable@vger.kernel.org # 5.10+
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+---
+ arch/x86/kernel/cpu/bugs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Sorry, have to ask: is this supposed to finally fix this regression?
-https://lore.kernel.org/regressions/YnHK1Z3o99eMXsVK@mail-itl/
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 0dd04713434b..7d7ebfdfbeda 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1303,6 +1303,12 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
+ 
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_has(X86_FEATURE_IBRS_ENHANCED)) {
++		pr_err("%s selected but CPU supports Enhanced IBRS. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
 
-If yes, please include Link: and Reported-by: tags, as explained in
-submitting-patches.rst (I only care about the link tag, as I'm tacking
-that regression).
+base-commit: 72a8e05d4f66b5af7854df4490e3135168694b6b
+-- 
+2.35.3
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
