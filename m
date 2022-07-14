@@ -2,61 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BBC574046
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 01:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C02D6574141
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 04:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229931AbiGMX5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jul 2022 19:57:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
+        id S232165AbiGNCH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jul 2022 22:07:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229495AbiGMX5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 19:57:02 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC9B4D4D5;
-        Wed, 13 Jul 2022 16:57:01 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id oy13so537204ejb.1;
-        Wed, 13 Jul 2022 16:57:01 -0700 (PDT)
+        with ESMTP id S230201AbiGNCHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jul 2022 22:07:25 -0400
+Received: from mail-ua1-x92b.google.com (mail-ua1-x92b.google.com [IPv6:2607:f8b0:4864:20::92b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ACD12314C;
+        Wed, 13 Jul 2022 19:07:24 -0700 (PDT)
+Received: by mail-ua1-x92b.google.com with SMTP id r25so152474uap.7;
+        Wed, 13 Jul 2022 19:07:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=z86mKblHBYOAAN3KH0exFGa+ySzzd2OPDuMCYnxF2eo=;
-        b=VmUlwpdixn3QC60HKdeE1cHM8yrgbDEyAwm0eMxmtg+5aPK27tKda3WQVob2wsZGuH
-         p2IOdDwZ224EqCdK4Y2wm02VUZa2cELDCdl4FWvjvg+KCVGAu76mHWij+zRX9A9ZVd2J
-         hxmHJEh+GeJtyyBmi7D91KgL0QDdqX/Cb8SD2LS5vsxwreJeuJePA9FISyhZ0wkk4rHk
-         BjGbe+ynbrme4EbSEcUjCphfRpml/E4KMXjK5Titcg9RO+N29qImtlGLrK0tzgjcJcii
-         3tbFDHToZ/ZxkVPA/2Yf4yDlXqAeELpCvDrEOTGa1FkrIugoriC0eu5ifBahmo0oKUDL
-         ptMQ==
+        bh=NpLH38IQjk7redhO9PrQcXlLl1raddOqHif56KP33pc=;
+        b=gJ/Poz6fnHmy6tw3/ekjOTdZC6WAanr/z9pOUQdssMiy7McyExvpdd2WUfWAj5C8de
+         TncoEwlo8JJLiUN9u6ikmdNggPa0I8xHqcrzSFyA8+4axrtQt1keJ3CngNjRaLncRycp
+         qQwcp767wZ15QiyGPZzbaIaVB7YDgBsPq6aKOkidU3/YYJI9s6YTbbDDpyvbGvociREx
+         d54hnyqMsAqBySNzMiQPlt7aNjoilHYVamiweBh9OT8UgjMxk8qBjyBkfRVI/cBrDttl
+         e0diMOgIGJYy6CfzH7aYgBRsDb70meGOSPVAWYLpYBJ5O+5isELaxkVSWBkr3TqqsNUZ
+         J84g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=z86mKblHBYOAAN3KH0exFGa+ySzzd2OPDuMCYnxF2eo=;
-        b=YZceGZg4TbE+i2tPsjcIe/cBLqbiUNWUtKuPGB1ax8JD4VGQVFnnpN7tAtDPO/AxaO
-         BY9JrtzJ0dksezUh0PqL1CCyG/GOV4nYeqmQ+/qsJT4obbbfN31Z6OwMi7mpSX3R42o2
-         oWnjuW0rxy/tBhL35oUej4t15NpLPGpPiOf3f6Uw1Nbi2nuVE7Lss0mcGbQkMJL/Cqw2
-         xfQpEzCPY32KQvonQ4iR+nA9cyzLeH/+zX6yHYWim54+4t0XegxtT7/lZf0pTWYTFTdE
-         RLTAuHKIRX9b5h5XM/3LRbWlnyuGuM83NYvGKb6YANPD93zc2cBJCUkaaWzJjSLDgUTn
-         DuRw==
-X-Gm-Message-State: AJIora9/9umdIig3Y3VWksny6bYNF2RGeRnHsbaObqDtFrKbqbQpg7v+
-        Pocftl84PReULvd8EesfCGtMfGXeGrHIx3pn/cVXNMFqgF/6FA==
-X-Google-Smtp-Source: AGRyM1v5zP3X+O4Y/a/iJJOpZ/eXsVsCEdU3tMrvQqnFKdXanoWjvd6L/O+HycYaHT5iEl3w7rl1+bE6paQd6r0wCYc=
-X-Received: by 2002:a17:907:72d1:b0:72b:6da5:9bb with SMTP id
- du17-20020a17090772d100b0072b6da509bbmr5605606ejc.681.1657756620373; Wed, 13
- Jul 2022 16:57:00 -0700 (PDT)
+        bh=NpLH38IQjk7redhO9PrQcXlLl1raddOqHif56KP33pc=;
+        b=jCF6pb9FI9vjZJAtgwyzs5AOiQOz6a/I/wZWuv0AJKR3VsIYY0S+v3TCBwiZsTUSuv
+         f1Fz3EhLzOVq/NpoylO/A2hSRIKfnzULMDgIR7bg46cRoVGQZuz2iZTT4Z0ai4h2mRJe
+         OvUcW77drccSqX9FJGpl+JyqW7peFvzmv3VpZcI/gEwtphmxd5/Go9hSa5bJoEUuUieq
+         gj+3uByVAisBkNTlP0b0O6nDwmSiancaLgkK+T+QjU4rhZLZ5xjNGupXc6D8PSdHgsga
+         9qpH/tsfluFOQv+/rUi5+/HNwYIzlmMs4RnOlpvyxw+k2JKOApQFopnU2L+zdaGmIpuL
+         FwRQ==
+X-Gm-Message-State: AJIora9t/UrodRBa0g4JVBuNKvgw4xT5tW0ch4RoHgM0s6X6lKVQuf3V
+        K1gHAG3YYhARqQ+X/arqzP1ILHIKjVVp5zCZCDiy77J1gzhANwDD
+X-Google-Smtp-Source: AGRyM1vFQyB5NO+1tpFvYvLDE44n1imGoxyRKDVxoA97HOyDWY4NrzjwmwdLmSMIFxgFLR+iBY3k18fU4R1SCofoqMw=
+X-Received: by 2002:ab0:6798:0:b0:382:d9f4:8d0 with SMTP id
+ v24-20020ab06798000000b00382d9f408d0mr2611303uar.63.1657764443460; Wed, 13
+ Jul 2022 19:07:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <CALF=6jEe5G8+r1Wo0vvz4GjNQQhdkLT5p8uCHn6ZXhg4nsOWow@mail.gmail.com>
- <02190bee-2e1b-bea3-b716-a7c7f5aa2ff0@redhat.com> <CALF=6jG5gmqqXo5cSFFRWRM96K0rzx3WabNdwAmdZQH=unFG7g@mail.gmail.com>
- <3ddcdb24-cab3-509d-d694-edd4ab85df0a@redhat.com> <eb760bcd-8817-65ed-471e-60e8d9bdae79@redhat.com>
-In-Reply-To: <eb760bcd-8817-65ed-471e-60e8d9bdae79@redhat.com>
-From:   Ben Greening <bgreening@gmail.com>
-Date:   Wed, 13 Jul 2022 16:56:23 -0700
-Message-ID: <CALF=6jF1TTgc4_mXRcx=6EV64Cj=VWLU3zXi7AoyM1F3bdgT=A@mail.gmail.com>
-Subject: Re: [Regression] ACPI: video: Change how we determine if brightness
- key-presses are handled
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
-        rafael@kernel.org, linux-acpi@vger.kernel.org
+References: <20220712075255.1345991-1-chenhuacai@loongson.cn>
+ <20220712075255.1345991-3-chenhuacai@loongson.cn> <CAMuHMdUazqHLbc80vpZ+Msg9A3j5aPJ3fx+CdCG3kuWDSf8WSw@mail.gmail.com>
+ <CAAhV-H775jXMbcR9j=oLBuHo1PfFziZSUQWttJAEw20sUt+GAA@mail.gmail.com>
+ <CAMuHMdUHbepd974u5iox3BcOyo_Q2ZgT-znruk+WCt+HMQ_Lgw@mail.gmail.com>
+ <CAAhV-H78Fi0aE-h5MOgRa5L+Jt7D0wG0nLcYzx45jVney8T1BQ@mail.gmail.com>
+ <CAMuHMdVXFmKR4LuXHYRrSk3Q0VRqATGbsM512DxayWCPCE-wvg@mail.gmail.com> <c8c959fa-f17d-f0dd-6a8d-e0b0ce622f3a@xen0n.name>
+In-Reply-To: <c8c959fa-f17d-f0dd-6a8d-e0b0ce622f3a@xen0n.name>
+From:   Huacai Chen <chenhuacai@gmail.com>
+Date:   Thu, 14 Jul 2022 10:07:10 +0800
+Message-ID: <CAAhV-H6g5nLGJMz0ZsZqC5-73VSGffVdc6r0=3HHBo3Z8PQOBg@mail.gmail.com>
+Subject: Re: [PATCH 3/6] M68K: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+To:     WANG Xuerui <kernel@xen0n.name>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michal Simek <monstr@monstr.eu>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        loongarch@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -68,94 +86,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Hans,
+Hi, all,
 
-Applying the latest
-0001-ACPI-video-Change-how-we-determine-if-brightness-key.patch you
-sent me off-list (my fault, forgot to reply all) and
-0001-ACPI-video-Use-native-backlight-on-Dell-Inspiron-N40.patch makes
-it all work again. And a bonus that I don't need any extra kernel
-parameters anymore.
-
-> It would also be interesting if you can start evemu-record on the
-> Dell WMI Hotkeys device before pressing any of the brightness keys.
+On Tue, Jul 12, 2022 at 6:15 PM WANG Xuerui <kernel@xen0n.name> wrote:
 >
-> There might still be a single duplicate event reported there on
-> the first press. I don't really see a way around that (without causing
-> all brightness key presses on some panasonic models to be duplicated),
-> but I'm curious if it is a problem at all...
-
-I rebooted and ran evemu-record before pressing the brightness keys
-and "Dell WMI hotkeys" didn't show any events at all.
-
-Thanks for the fix!
-Ben
-
-On Wed, Jul 13, 2022 at 6:49 AM Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi Geert and Huacai,
 >
-> Hi Ben,
->
-> On 7/13/22 15:29, Hans de Goede wrote:
-> > Hi,
+> On 2022/7/12 17:13, Geert Uytterhoeven wrote:
+> > Hi Huacai,
 > >
-> > On 7/13/22 15:08, Ben Greening wrote:
-> >> Hi Hans, thanks for getting back to me.
-> >>
-> >> evemu-record shows events for both "Video Bus" and "Dell WMI hotkeys":
-> >>
-> >> Video Bus
-> >> E: 0.000001 0001 00e0 0001 # EV_KEY / KEY_BRIGHTNESSDOWN   1
-> >> E: 0.000001 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
-> >> E: 0.000020 0001 00e0 0000 # EV_KEY / KEY_BRIGHTNESSDOWN   0
-> >> E: 0.000020 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
-> >>
-> >> Dell WMI hotkeys
-> >> E: 0.000001 0004 0004 57349 # EV_MSC / MSC_SCAN             57349
-> >> E: 0.000001 0001 00e0 0001 # EV_KEY / KEY_BRIGHTNESSDOWN   1
-> >> E: 0.000001 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
-> >> E: 0.000020 0001 00e0 0000 # EV_KEY / KEY_BRIGHTNESSDOWN   0
-> >> E: 0.000020 0000 0000 0000 # ------------ SYN_REPORT (0) ---------- +0ms
-> >>
-> >> Adding video.report_key_events=1 with acpi_backlight=video makes
-> >> things work like you said it would.
-> >>
-> >>
-> >> With acpi_backlight=video just has intel_backlight.
-> >>
-> >> Without acpi_backlight=video:
-> >>     intel_backlight:
-> >>         max_brightness: 4882
-> >>         backlight control works with echo
-> >>         brightness keys make no change to brightness value
-> >>
-> >>     dell_backlight:
-> >>         max_brightness: 15
-> >>         backlight control doesn't work immediately, but does on reboot
-> >> to set brightness at POST.
-> >>         brightness keys change brightness value, but you don't see the
-> >> change until reboot.
-> >
-> > Ok, so your system lacks ACPI video backlight control, yet still reports
-> > brightness keypresses through the ACPI Video Bus. Interesting (weird)...
-> >
-> > I think I believe I know how to fix the regression, 1 patch coming up.
+> > On Tue, Jul 12, 2022 at 11:08 AM Huacai Chen <chenhuacai@gmail.com> wrote:
+> >> On Tue, Jul 12, 2022 at 5:01 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> >>> On Tue, Jul 12, 2022 at 10:53 AM Huacai Chen <chenhuacai@gmail.com> wrote:
+> >>>> On Tue, Jul 12, 2022 at 4:33 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> >>>>> On Tue, Jul 12, 2022 at 9:53 AM Huacai Chen <chenhuacai@loongson.cn> wrote:
+> >>>>>> When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
+> >>>>> DEBUG_PER_CPU_MAPS depends on SMP, which is not supported on m68k,
+> >>>>> and thus cannot be enabled.
+> >>>> This patch is derived from MIPS and LoongArch, I search all
+> >>>> architectures and change those that look the same as MIPS and
+> >>>> LoongArch.
+> >>>> And the warning message below is also a copy-paste from LoongArch, sorry.
+> >>>>
+> >>>> Since M68K doesn't support SMP, then this patch seems to make no
+> >>>> difference, but does it make sense to keep consistency across all
+> >>>> architectures?
+> >>> Yes, having consistency is good.  But that should be mentioned in the
+> >>> patch description, instead of a scary warning CCed to stable ;-)
+> >>>
+> >>> BTW, you probably want to update the other copy of c_start() in
+> >>> arch/m68k/kernel/setup_mm.c, too.
+> >> For no-SMP architectures, it seems c_start() in
+> >> arch/m68k/kernel/setup_mm.c is more reasonable (just use 1, neither
+> >> NR_CPUS, nor nr_cpu_ids)?
+> > The advantage of using nr_cpu_ids() is that this is one place less
+> > to update when adding SMP support later...
 >
-> Can you please give the attached patch a try, with
-> video.report_key_events=1 *removed* from the commandline ?
+> Hmm, so I've been watching m68k development lately (although not as
+> closely as I'd like to, due to lack of vintage hardware at hand), given
+> the current amazing  momentum all the hobbyists/developers have been
+> contributing to, SMP is well within reach...
 >
-> It would also be interesting if you can start evemu-record on the
-> Dell WMI Hotkeys device before pressing any of the brightness keys.
->
-> There might still be a single duplicate event reported there on
-> the first press. I don't really see a way around that (without causing
-> all brightness key presses on some panasonic models to be duplicated),
-> but I'm curious if it is a problem at all...
->
-> Regards,
->
-> Hans
->
->
->
->
+> But judging from the intent of this patch series (fixing WARNs on
+> certain configs), and that the triggering condition is currently
+> impossible on m68k (and other non-SMP) platforms, I think cleanups for
+> such arches could come as a separate patch series later. I think the
+> m68k refactoring is reasonable after all, due to my observation above,
+> but for the other non-SMP arches we may want to wait for the respective
+> maintainers' opinions.
+It seems that the best solution is only fix architectures with SMP
+support and leave others (m68k, microblaze, um) as is. :)
+
+Huacai
 >
