@@ -2,106 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADFF1574769
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 10:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2399E574780
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 10:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237349AbiGNIm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 04:42:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38382 "EHLO
+        id S237142AbiGNIqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 04:46:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236911AbiGNImU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 04:42:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59D13D5A7;
-        Thu, 14 Jul 2022 01:42:18 -0700 (PDT)
+        with ESMTP id S237486AbiGNIqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 04:46:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF8A402FA;
+        Thu, 14 Jul 2022 01:46:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64F0F61E1F;
-        Thu, 14 Jul 2022 08:42:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF69C34115;
-        Thu, 14 Jul 2022 08:42:12 +0000 (UTC)
-From:   Huacai Chen <chenhuacai@loongson.cn>
-To:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>
-Cc:     loongarch@lists.linux.dev, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Huacai Chen <chenhuacai@gmail.com>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
-        Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
-Subject: [PATCH V2 3/3] SH: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-Date:   Thu, 14 Jul 2022 16:41:36 +0800
-Message-Id: <20220714084136.570176-3-chenhuacai@loongson.cn>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220714084136.570176-1-chenhuacai@loongson.cn>
-References: <20220714084136.570176-1-chenhuacai@loongson.cn>
+        by ams.source.kernel.org (Postfix) with ESMTPS id D28DCB823C0;
+        Thu, 14 Jul 2022 08:46:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887C1C34114;
+        Thu, 14 Jul 2022 08:46:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657788361;
+        bh=YvDXaxqtI1ZaBSWpwefeqgjLcPs3Jqvc4sIJBv80ws8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RBlFHN9Mkp0dnvOPW0m8j+KUxMrvjgdrcd7Y8kOhQBEa+5PBoJ9F7gsLXixpwyrSl
+         032eMu3WtEC35FgcQu6tlKYhSeLPLU5f+dOAbz6tQHNkG7XaBWIAdOvYbtPvQF2Ids
+         AmhfrzMs27LV4x6qnmxvFJMVVKVB6D/a0FjPyyWc=
+Date:   Thu, 14 Jul 2022 10:45:57 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     kernel test robot <lkp@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>, kbuild-all@lists.01.org,
+        linux-kernel@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        stable@vger.kernel.org
+Subject: Re: [linux-stable-rc:linux-5.10.y 7082/7120]
+ arch/x86/kernel/head_64.o: warning: objtool: xen_hypercall_mmu_update():
+ can't find starting instruction
+Message-ID: <Ys/XxcHvpgd3MbzH@kroah.com>
+References: <202207130531.SkRjrrn8-lkp@intel.com>
+ <Ys9MKAriCchlEO8S@decadent.org.uk>
+ <Ys+8ZYxkDmSCcDWv@kroah.com>
+ <Ys/TxoePQHvaYWcs@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Ys/TxoePQHvaYWcs@kroah.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-cpu_max_bits_warn() generates a runtime warning similar as below while
-we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-instead of NR_CPUS to iterate CPUs.
+On Thu, Jul 14, 2022 at 10:28:54AM +0200, Greg Kroah-Hartman wrote:
+> On Thu, Jul 14, 2022 at 08:49:09AM +0200, Greg Kroah-Hartman wrote:
+> > On Thu, Jul 14, 2022 at 12:50:16AM +0200, Ben Hutchings wrote:
+> > > On Wed, Jul 13, 2022 at 05:38:47AM +0800, kernel test robot wrote:
+> > > > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > > > head:   53b881e19526bcc3e51d9668cab955c80dcf584c
+> > > > commit: 7575d3f3bbd1c68d6833b45d1b98ed182832bd44 [7082/7120] x86: Use return-thunk in asm code
+> > > > config: x86_64-rhel-8.3-syz (https://download.01.org/0day-ci/archive/20220713/202207130531.SkRjrrn8-lkp@intel.com/config)
+> > > > compiler: gcc-11 (Debian 11.3.0-3) 11.3.0
+> > > > reproduce (this is a W=1 build):
+> > > >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=7575d3f3bbd1c68d6833b45d1b98ed182832bd44
+> > > >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > > >         git fetch --no-tags linux-stable-rc linux-5.10.y
+> > > >         git checkout 7575d3f3bbd1c68d6833b45d1b98ed182832bd44
+> > > >         # save the config file
+> > > >         mkdir build_dir && cp config build_dir/.config
+> > > >         make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash arch/x86/
+> > > > 
+> > > > If you fix the issue, kindly add following tag where applicable
+> > > > Reported-by: kernel test robot <lkp@intel.com>
+> > > > 
+> > > > All warnings (new ones prefixed by >>):
+> > > > 
+> > > > >> arch/x86/kernel/head_64.o: warning: objtool: xen_hypercall_mmu_update(): can't find starting instruction
+> > > > 
+> > > > -- 
+> > > > 0-DAY CI Kernel Test Service
+> > > > https://01.org/lkp
+> > > 
+> > > Please add the following patch to fix this.  This would also be
+> > > needed for 5.15-stable.
+> > > 
+> > > Ben.
+> > > 
+> > > From: Ben Hutchings <ben@decadent.org.uk>
+> > > Date: Thu, 14 Jul 2022 00:39:33 +0200
+> > > Subject: [PATCH] x86/xen: Fix initialisation in hypercall_page after rethunk
+> > > 
+> > > The hypercall_page is special and the RETs there should not be changed
+> > > into rethunk calls (but can have SLS mitigation).  Change the initial
+> > > instructions to ret + int3 padding, as was done in upstream commit
+> > > 5b2fc51576ef "x86/ibt,xen: Sprinkle the ENDBR".
+> > > 
+> > > Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> > > ---
+> > >  arch/x86/xen/xen-head.S | 4 ++--
+> > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
+> > > index 38b73e7e54ba..2a3ef5fcba34 100644
+> > > --- a/arch/x86/xen/xen-head.S
+> > > +++ b/arch/x86/xen/xen-head.S
+> > > @@ -69,9 +69,9 @@ SYM_CODE_END(asm_cpu_bringup_and_idle)
+> > >  SYM_CODE_START(hypercall_page)
+> > >  	.rept (PAGE_SIZE / 32)
+> > >  		UNWIND_HINT_FUNC
+> > > -		.skip 31, 0x90
+> > >  		ANNOTATE_UNRET_SAFE
+> > > -		RET
+> > > +		ret
+> > > +		.skip 31, 0xcc
+> > >  	.endr
+> > >  
+> > >  #define HYPERCALL(n) \
+> > > 
+> > > 
+> > 
+> > That's really odd, I swear I tried this myself:
+> > 	https://lore.kernel.org/r/Ys2jlGMqAe6+h1SX@kroah.com
+> > 
+> > I'll go queue this up and see if that solves the issue on my side.  But
+> > see Boris's comment about how this shouldn't be an issue in the end.
+> 
+> Ah, yes, it does fix that warning, but causes this new one:
+> 	arch/x86/kernel/head_64.o: warning: objtool: .text+0x5: unreachable instruction
+> 
+> I'll keep your patch here, as it makes sense, but it does just exchange
+> one warning for another one...
 
-[    3.052463] ------------[ cut here ]------------
-[    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-[    3.070072] Modules linked in: efivarfs autofs4
-[    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-[    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-[    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-[    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-[    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-[    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-[    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-[    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-[    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-[    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-[    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-[    3.195868]         ...
-[    3.199917] Call Trace:
-[    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-[    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-[    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-[    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-[    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-[    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-[    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-[    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-[    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-[    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-[    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-[    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+Odd, I get the build warning when I build locally, but on my build
+server, that does this as a clean build, no warnings at all.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
----
- arch/sh/kernel/cpu/proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Let's see what the build systems say...
 
-diff --git a/arch/sh/kernel/cpu/proc.c b/arch/sh/kernel/cpu/proc.c
-index a306bcd6b341..5f6d0e827bae 100644
---- a/arch/sh/kernel/cpu/proc.c
-+++ b/arch/sh/kernel/cpu/proc.c
-@@ -132,7 +132,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
- 
- static void *c_start(struct seq_file *m, loff_t *pos)
- {
--	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
-+	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
- }
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
- {
--- 
-2.31.1
-
+greg k-h
