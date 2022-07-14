@@ -2,61 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 318585757E8
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 01:15:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98342575829
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 01:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbiGNXPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 19:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        id S232445AbiGNXsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 19:48:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbiGNXPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 19:15:37 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937AD70E52;
-        Thu, 14 Jul 2022 16:15:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657840536; x=1689376536;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=H72vDAfPb/FZ8kn2h1SLYLPaWmLyKQvlwofVuzFDncI=;
-  b=V90tkd6ftmY8KikbwIimUrh8Q0SqrRur5Nr8gQD3gG0fnbIhEv4UaYxQ
-   nNM0eZDHHQ4vFqC7aFZFa3j02F7VJIRsubh3Or2/deTgQBcB+hCNDafgL
-   TTd6qNg+h5kHlutl99rlvB5iNx3Gkq/KUkb3Yi2hKjjBmxFXR7sKOkcgh
-   zyRNSTA+0NnMnS82/yz+zk5pvOQ6SNG0VEW04Gr8NvLtpouMjWDUAyHk1
-   3fP6zs3RkVijNuMS3UcEzE4nwW/gI7F+PFYiXGoxNz39kvLkZGC7uJUCK
-   gFOdszqyD/rgWuhG/yExcgNVmCHnq9jNNA28W0kJVkmmltvyIS8/1fFn9
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10408"; a="286390807"
-X-IronPort-AV: E=Sophos;i="5.92,272,1650956400"; 
-   d="scan'208";a="286390807"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2022 16:15:36 -0700
-X-IronPort-AV: E=Sophos;i="5.92,272,1650956400"; 
-   d="scan'208";a="546446644"
-Received: from jacobode-mobl.amr.corp.intel.com (HELO desk) ([10.212.243.89])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2022 16:15:35 -0700
-Date:   Thu, 14 Jul 2022 16:15:35 -0700
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        antonio.gomez.iglesias@linux.intel.com,
-        Josh Poimboeuf <jpoimboe@kernel.org>
-Subject: [PATCH v2] x86/bugs: Warn when "ibrs" mitigation is selected on
- Enhanced IBRS parts
-Message-ID: <2a5eaf54583c2bfe0edc4fea64006656256cca17.1657814857.git.pawan.kumar.gupta@linux.intel.com>
-References: <0456b35fb9ef957d9a9138e0913fb1a3fd445dff.1657747493.git.pawan.kumar.gupta@linux.intel.com>
+        with ESMTP id S232083AbiGNXs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 19:48:29 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBBEB70E7B
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 16:48:28 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id h132so2942345pgc.10
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 16:48:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=aOcxBLKbAaOiQdzJaRf+11UDxeQicW1Hbq1G+AnWI6U=;
+        b=NEB3ogRbOSRf8TaWzXwNMLMcJooSHuvmgRPM5F4ZkBlAVxBUh3Z1BqBbfVakw6a/jS
+         fHseO0v2ewotxjdIoXmHagWUUM4sEXSvV0ix1vpF3Dm+leGfP2aURlayPSymlrYAQA+c
+         2f8t6nDemQxW1Abkz5pY7vvpND1BmR7rKrSlKGIH+rv1u70W9ciCE+tlOCx6LgQO6PDG
+         WgtSZICKunU/BVIzQ6rST12nRvVarVbF79/+fxUwlyZEsnuSOizZWuYlHp/WRLhdacpD
+         Q5mZB7Hdt4ZVqPQKrSeRqUunwP2U1kVAzCHBbZ7vdElkjxueiY1gTqmhFkjCoGwGYMtM
+         dSZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=aOcxBLKbAaOiQdzJaRf+11UDxeQicW1Hbq1G+AnWI6U=;
+        b=5Fb+aNUwGUdjcxJluggAkrXYDMj5AHlcFhlYGVN7l6eYSjQLvNaEmbr0myzMs+xN5M
+         E+Ic17Es480CDDgcWRflxID2zvpnjuJJnaCVX3UJFt4geds6/vRXng4Yr8RNCUwaWwLE
+         sn8fBplhODy+Ysnr67KJC1ENqcnbBdxrkWvq0JA9UG/14gHm7dVcq/MDVRfyDxyCqiGO
+         IL1N/EyrysIsvcXUCe/M0aA1I4PqhQPw1xB9wS24drsLddAefzJqTNuasG3CnXVOzpo7
+         Xf/6CN4cpospe/NhV+N6k5wHexFSXMEVpccW9ZKHqzrGRkIsWk1ON2ADLMje6eGsikUl
+         6uuw==
+X-Gm-Message-State: AJIora9pziRHDSFyAMiq0Z7eCP8a78yxqsVvyJFkqmbHSb2gMEbhDRc/
+        ztsTw5lCaugbALjhGyrxP7t5ye0DtYsCrC4vNl4=
+X-Google-Smtp-Source: AGRyM1s8UW0du4cv68O+gLd0D6el7Gtd6075Zctx++oFigRFA8DJds21Go8xj1+yCj13k4qOh0wqdQ==
+X-Received: by 2002:a63:224f:0:b0:412:12cc:1960 with SMTP id t15-20020a63224f000000b0041212cc1960mr9312597pgm.348.1657842508087;
+        Thu, 14 Jul 2022 16:48:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f15-20020a170902ce8f00b001636d95fe59sm2043694plg.172.2022.07.14.16.48.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Jul 2022 16:48:27 -0700 (PDT)
+Message-ID: <62d0ab4b.1c69fb81.c4fa9.34be@mx.google.com>
+Date:   Thu, 14 Jul 2022 16:48:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <0456b35fb9ef957d9a9138e0913fb1a3fd445dff.1657747493.git.pawan.kumar.gupta@linux.intel.com>
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.11-62-g9bdfd8703447
+X-Kernelci-Branch: queue/5.18
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.18 baseline: 99 runs,
+ 3 regressions (v5.18.11-62-g9bdfd8703447)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -64,48 +70,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-IBRS mitigation for spectre_v2 forces write to MSR_IA32_SPEC_CTRL at
-every kernel entry/exit. On Enhanced IBRS parts setting
-MSR_IA32_SPEC_CTRL[IBRS] only once at boot is sufficient. MSR writes at
-every kernel entry/exit incur unnecessary performance loss.
+stable-rc/queue/5.18 baseline: 99 runs, 3 regressions (v5.18.11-62-g9bdfd87=
+03447)
 
-When Enhanced IBRS feature is present, print a warning about this
-unnecessary performance loss.
+Regressions Summary
+-------------------
 
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
----
-v1->v2: Instead of changing the mitigation, print a warning about the
-        perf loss.
+platform               | arch   | lab          | compiler | defconfig      =
+              | regressions
+-----------------------+--------+--------------+----------+----------------=
+--------------+------------
+imx8mn-ddr4-evk        | arm64  | lab-baylibre | gcc-10   | defconfig      =
+              | 1          =
 
-v1: https://lore.kernel.org/lkml/0456b35fb9ef957d9a9138e0913fb1a3fd445dff.1657747493.git.pawan.kumar.gupta@linux.intel.com/
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre | gcc-10   | x86_64_defcon..=
+.6-chromebook | 1          =
 
- arch/x86/kernel/cpu/bugs.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 0dd04713434b..1c54fad3c54b 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -975,6 +975,7 @@ static inline const char *spectre_v2_module_string(void) { return ""; }
- #define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
- #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
- #define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
-+#define SPECTRE_V2_IBRS_PERF_MSG "WARNING: IBRS mitigation selected on Enhanced IBRS CPU, this may cause unnecessary performance loss\n"
- 
- #ifdef CONFIG_BPF_SYSCALL
- void unpriv_ebpf_notify(int new_state)
-@@ -1415,6 +1416,8 @@ static void __init spectre_v2_select_mitigation(void)
- 
- 	case SPECTRE_V2_IBRS:
- 		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
-+		if (boot_cpu_has(X86_FEATURE_IBRS_ENHANCED))
-+			pr_warn(SPECTRE_V2_IBRS_PERF_MSG);
- 		break;
- 
- 	case SPECTRE_V2_LFENCE:
-
-base-commit: 4a57a8400075bc5287c5c877702c68aeae2a033d
--- 
-2.35.3
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie  | gcc-10   | x86_64_defcon..=
+.6-chromebook | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
+nel/v5.18.11-62-g9bdfd8703447/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.18
+  Describe: v5.18.11-62-g9bdfd8703447
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9bdfd8703447e5f4cce888982183f101b0c2b1a9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform               | arch   | lab          | compiler | defconfig      =
+              | regressions
+-----------------------+--------+--------------+----------+----------------=
+--------------+------------
+imx8mn-ddr4-evk        | arm64  | lab-baylibre | gcc-10   | defconfig      =
+              | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d07b1ececec2c0d9a39c05
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+62-g9bdfd8703447/arm64/defconfig/gcc-10/lab-baylibre/baseline-imx8mn-ddr4-e=
+vk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+62-g9bdfd8703447/arm64/defconfig/gcc-10/lab-baylibre/baseline-imx8mn-ddr4-e=
+vk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d07b1ececec2c0d9a39=
+c06
+        new failure (last pass: v5.18.11-62-gf8ff14144283) =
+
+ =
+
+
+
+platform               | arch   | lab          | compiler | defconfig      =
+              | regressions
+-----------------------+--------+--------------+----------+----------------=
+--------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre | gcc-10   | x86_64_defcon..=
+.6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d074e3a192572ed6a39bf7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+62-g9bdfd8703447/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
+/baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+62-g9bdfd8703447/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
+/baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d074e3a192572ed6a39=
+bf8
+        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab          | compiler | defconfig      =
+              | regressions
+-----------------------+--------+--------------+----------+----------------=
+--------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie  | gcc-10   | x86_64_defcon..=
+.6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d08dfba6c2db6da0a39bda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+62-g9bdfd8703447/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+62-g9bdfd8703447/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d08dfba6c2db6da0a39=
+bdb
+        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =20
