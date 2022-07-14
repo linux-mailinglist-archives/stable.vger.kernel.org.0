@@ -2,162 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 009AE5753C6
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 19:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB1F5753E3
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 19:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240272AbiGNRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 13:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
+        id S236756AbiGNRUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 13:20:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232573AbiGNRMJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 13:12:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A9AFD4C60E
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 10:12:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1657818727;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HjWNjW2j61ucjIjN1Yf39Thjioq1zyAsNONdyKe2ob0=;
-        b=NfJmaqUOF/VyVcxoJGzXGNSm0Rdg5u0Lcpn64hGrUjt6ioJZ25FE/2fEHIywIjXKg4We8u
-        muwh3gYGoyfiTiT2X6ZTTnW99RniZM0DuVwp93L4CWqCFNNqIMMmxrEh6TxQ2UIjN6m6MG
-        FzQNw3A8AtyznPehVER4UlpJP32ZSxM=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-38-fTutQPS3NhqiR7pQthVpmg-1; Thu, 14 Jul 2022 13:12:06 -0400
-X-MC-Unique: fTutQPS3NhqiR7pQthVpmg-1
-Received: by mail-ed1-f71.google.com with SMTP id v19-20020a056402349300b0043b0f690cbaso1865527edc.11
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 10:12:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=HjWNjW2j61ucjIjN1Yf39Thjioq1zyAsNONdyKe2ob0=;
-        b=2vtUCFASpY4iprrN8GfkA0q43FjHPiqNnqphiRgNYfImONgmLjAW7f9wWHvUHHGtW2
-         BwaxyTpcHojjwtNNkSzd7qR+3e9XO4WmqvrRDjt0b1+pa4unvzKf6kU9QkG3bPYneUdc
-         gdvBPOUuVv8VFI7VtFZJ7vdN9G3oYUt5MHNP3EkoU71c4rJNj89Gb+y6A0sJyhUkCQHk
-         /p69vVEeYm3R61K8JUiSP8N831sG/PnahU9ZurnBIH/C6k3q1EOx+drVJ1MzJLgqba3p
-         Ls9WLYQgQv2wdo8RUEeU9JubJDRexaKbbs5K6A3a+G8BFy0BFu3dWLh1YJpnh3IosX1s
-         lOzw==
-X-Gm-Message-State: AJIora99WjJE8xqOpAZ5XG+GocDBSBpFSYclK9iXX+fgswR/lQN82+Kd
-        Rmi8qElghwAxsStUE+A8D3GvOuSOFJN5uKG7MhBH1cRkqWQN9MtbPseMIU2vQMPMiZXE+NxAzuC
-        ySsWMAKchVPG5rwyl
-X-Received: by 2002:a17:906:98c8:b0:72b:41dc:c271 with SMTP id zd8-20020a17090698c800b0072b41dcc271mr9951323ejb.36.1657818725037;
-        Thu, 14 Jul 2022 10:12:05 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1s4QWugzGtCYIVhcQOfjMkddqnFDUCHwgwKB/hRFje6kOt4GvXPs1eutx8bZ864l4FIGpiklA==
-X-Received: by 2002:a17:906:98c8:b0:72b:41dc:c271 with SMTP id zd8-20020a17090698c800b0072b41dcc271mr9951310ejb.36.1657818724813;
-        Thu, 14 Jul 2022 10:12:04 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
-        by smtp.googlemail.com with ESMTPSA id n6-20020aa7c786000000b0043787ad7cfasm1362571eds.22.2022.07.14.10.12.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Jul 2022 10:12:04 -0700 (PDT)
-Message-ID: <19b6f502-94f2-621a-4c30-fe9641474669@redhat.com>
-Date:   Thu, 14 Jul 2022 19:12:00 +0200
+        with ESMTP id S235744AbiGNRUS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 13:20:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ABEC4E85F;
+        Thu, 14 Jul 2022 10:20:17 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A83CFB8279B;
+        Thu, 14 Jul 2022 17:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 0EEC6C341C6;
+        Thu, 14 Jul 2022 17:20:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1657819214;
+        bh=mwbikd27srKBB4H1oi//HqBqo/5GVj37mlD7K7FUkgA=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=i0M9UqPnWQFLgyHm4Z5KBRGohNmeutOSy85I3+8THypH/7W6Ot5JYIN7PyfYrjyFs
+         XOXBtezsTNRndqDnZvi9a2rdWjDQsLxRdCUsLTIA585m6UkMGx5PpCC8/cKLt76Jzk
+         XgWuVdip4t/iHftcShz8kuFoAtQm38WNf8Q4E0nxvgY/kt1Nt9z9h1HAmcbrxSyFtT
+         00OEZmGv850vZ088Q4bY1ZiDuE16FcGP5Rjpop1oJFCeDFrug9yW44beUTDG7sl5Sm
+         yk+HzJUoEPPjqjASsd//N+ov/q/JruLwH+6kBpydPh2/Jmf07UrvEwGIWNtwaSUCag
+         UxQojyc3DaRhw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id E7A4FE45227;
+        Thu, 14 Jul 2022 17:20:13 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Content-Language: en-US
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Boris Petkov <bp@alien8.de>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        kvm list <kvm@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        stable <stable@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Slade Watkins <slade@sladewatkins.com>, patches@kernelci.org,
-        Sean Christopherson <seanjc@google.com>,
-        Shuah Khan <shuah@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>,
-        lkft-triage@lists.linaro.org,
-        =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Anders Roxell <anders.roxell@linaro.org>
-References: <20220712183238.844813653@linuxfoundation.org>
- <CA+G9fYtntg7=zWSs-dm+n_AUr_u0eBOU0zrwWqMeXZ+SF6_bLw@mail.gmail.com>
- <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net>
- <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
- <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com>
- <Ys/bYJ2bLVfNBjFI@nazgul.tnic>
- <6b4337f4-d1de-7ba3-14e8-3ad0f9b18788@redhat.com>
- <8BEC3365-FC09-46C5-8211-518657C0308E@alien8.de>
- <CAHk-=wj4vtoWZPMXJU-B9qW1zLHsoA1Qb2P0NW=UFhZmrCrf9Q@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
-In-Reply-To: <CAHk-=wj4vtoWZPMXJU-B9qW1zLHsoA1Qb2P0NW=UFhZmrCrf9Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2] xen/netback: avoid entering xenvif_rx_next_skb() with an
+ empty rx queue
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165781921394.9202.6162247811572175997.git-patchwork-notify@kernel.org>
+Date:   Thu, 14 Jul 2022 17:20:13 +0000
+References: <20220713135322.19616-1-jgross@suse.com>
+In-Reply-To: <20220713135322.19616-1-jgross@suse.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, wei.liu@kernel.org, paul@xen.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, stable@vger.kernel.org, jbeulich@suse.com
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/14/22 19:02, Linus Torvalds wrote:
-> And guess what? The code could just use roundup_pow_of_two(), which is
-> designed exactly like ilog2() to be used for compile-time constant
-> values.
-> 
-> So the code should just use
-> 
->      #define FASTOP_SIZE roundup_pow_of_two(FASTOP_LENGTH)
-> 
-> and be a lot more legible, wouldn't it?
-> 
-> Because I don't think there is anything magical about the length
-> "8/16/32". It's purely "aligned and big enough to contain
-> FASTOP_LENGTH".
+Hello:
 
-roundup_pow_of_two unfortunately is not enough for stringizing 
-FASTOP_SIZE into an asm statement. :(
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-	#define __FOP_FUNC(name) \
-	        ".align " __stringify(FASTOP_SIZE) " \n\t" \
-	        ".type " name ", @function \n\t" \
-	        name ":\n\t" \
-	        ASM_ENDBR
-
-The shifts are what we came up with for the SETCC thunks when ENDBR and 
-SLS made them grew beyond 4 bytes; Peter's patch is reusing the trick 
-for the fastop thunks.
-
-> Because I don't think there is anything magical about the length
-> "8/16/32". It's purely "aligned and big enough to contain
-> FASTOP_LENGTH".
-
-I agree with that, it's only limited to 8/16/32 to keep the macro to a 
-decent size.
-
-> And then the point of that
+On Wed, 13 Jul 2022 15:53:22 +0200 you wrote:
+> xenvif_rx_next_skb() is expecting the rx queue not being empty, but
+> in case the loop in xenvif_rx_action() is doing multiple iterations,
+> the availability of another skb in the rx queue is not being checked.
 > 
->     static_assert(FASTOP_LENGTH <= FASTOP_SIZE);
+> This can lead to crashes:
 > 
-> just goes away, because there are no subtle math issues there any more.
+> [40072.537261] BUG: unable to handle kernel NULL pointer dereference at 0000000000000080
+> [40072.537407] IP: xenvif_rx_skb+0x23/0x590 [xen_netback]
+> [40072.537534] PGD 0 P4D 0
+> [40072.537644] Oops: 0000 [#1] SMP NOPTI
+> [40072.537749] CPU: 0 PID: 12505 Comm: v1-c40247-q2-gu Not tainted 4.12.14-122.121-default #1 SLE12-SP5
+> [40072.537867] Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 11/23/2021
+> [40072.537999] task: ffff880433b38100 task.stack: ffffc90043d40000
+> [40072.538112] RIP: e030:xenvif_rx_skb+0x23/0x590 [xen_netback]
+> [40072.538217] RSP: e02b:ffffc90043d43de0 EFLAGS: 00010246
+> [40072.538319] RAX: 0000000000000000 RBX: ffffc90043cd7cd0 RCX: 00000000000000f7
+> [40072.538430] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffc90043d43df8
+> [40072.538531] RBP: 000000000000003f R08: 000077ff80000000 R09: 0000000000000008
+> [40072.538644] R10: 0000000000007ff0 R11: 00000000000008f6 R12: ffffc90043ce2708
+> [40072.538745] R13: 0000000000000000 R14: ffffc90043d43ed0 R15: ffff88043ea748c0
+> [40072.538861] FS: 0000000000000000(0000) GS:ffff880484600000(0000) knlGS:0000000000000000
+> [40072.538988] CS: e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [40072.539088] CR2: 0000000000000080 CR3: 0000000407ac8000 CR4: 0000000000040660
+> [40072.539211] Call Trace:
+> [40072.539319] xenvif_rx_action+0x71/0x90 [xen_netback]
+> [40072.539429] xenvif_kthread_guest_rx+0x14a/0x29c [xen_netback]
 > 
-> In fact, the remaining question is just "where did the 7 come from" in
-> 
->     #define FASTOP_LENGTH (7 + ENDBR_INSN_SIZE + RET_LENGTH)
+> [...]
 
-The 7 is an upper limit to the length of the code between endbr and ret.
-There's no particular reason to limit to 7, but it allows using an 
-alignment of 8 in the smallest case (no thunks, no SLS, no endbr) where 
-you just have ".align 8; ...; ret".
+Here is the summary with links:
+  - [v2] xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
+    https://git.kernel.org/netdev/net/c/94e810067888
 
-Paolo
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
