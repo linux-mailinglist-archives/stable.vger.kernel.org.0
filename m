@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88893574309
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A026D57430C
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235256AbiGNE30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:29:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34990 "EHLO
+        id S234504AbiGNE3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235484AbiGNE2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:28:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1623228E0C;
-        Wed, 13 Jul 2022 21:24:44 -0700 (PDT)
+        with ESMTP id S235691AbiGNE2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:28:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1267D3138B;
+        Wed, 13 Jul 2022 21:24:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9515261E95;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FF0D61EBA;
+        Thu, 14 Jul 2022 04:24:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B4BC36AE5;
         Thu, 14 Jul 2022 04:24:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6884AC34115;
-        Thu, 14 Jul 2022 04:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772683;
-        bh=MThhBE+OgevlSZDjVIJEd6z5DpIYHMc9RCE/7PEP6cQ=;
+        s=k20201202; t=1657772684;
+        bh=U/U+/pbPd0nXOgKMQT8FyspifEtcz4QPkhnCcVQdsHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mk+gycltGEvRZ6KF8xr1eEpES+NMEif2Qa4SaqwsWipC1So80M9jjyDyX9NrZsYTf
-         h/dwK0+LDXiGmm5/005u04fZxFfFK7Cs4/kmav25wBFutmPzOkNM8LpkQ+BnZiMJwG
-         6bwpn/5AA9p+oNk+52RfEgdXgoo7POI4IeU2DWzF0Dhkoff/S11OOM0n7aJDXv1JWO
-         PPHrtVO3B0I2pmFQmwUCpr0LTa/QYWFDDM4//EkCGBw14j9rJIP/3GJosWm5WhuNf3
-         c6gCVgcsDGJwq+4Z1E7ohhdoBHehBvaWgMGzXjXv1vY4Y2m2R+qFYR6JZnvhZzL9My
-         9EXLC1bq/DVRg==
+        b=CY7rPlEdxKg7AeBElAHaJc/lD9GZOkfhcpSXL0Jz+AilH6zz0QCau9dBzod1oruuS
+         c3vmXiERFgPaMTrsofWuVLNY7w5tNR4ZERCSLzkN6nNVwv8Vm5pdIrq+hKLlkFuAZc
+         bp8ahHAJmp19WpmU6Ip7Et7jUr0Rs9RZ0mhAw8kIBdj63BRJusaLUCXr1hkND6EMZg
+         nXqC8fAM2+9OWNM17MEfK+UrRfew8K6d5LYZwXmw/2KwfrqqA4W5osPq+bokyOLEiN
+         MIE6gaieg0uGFcan/OzJUd9fd0X3ZaiOJNZhHMPKajs32Kgtlv/NnSj7F4rnfNu8Si
+         W1BseezvAnl0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Rander Wang <rander.wang@intel.com>,
         Bard Liao <yung-chuan.liao@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        ranjani.sridharan@linux.intel.com, kai.vehmanen@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, gongjun.song@intel.com,
+        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 05/28] ASoC: Intel: sof_sdw: handle errors on card registration
-Date:   Thu, 14 Jul 2022 00:24:06 -0400
-Message-Id: <20220714042429.281816-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 06/28] ASoC: rt711: fix calibrate mutex initialization
+Date:   Thu, 14 Jul 2022 00:24:07 -0400
+Message-Id: <20220714042429.281816-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042429.281816-1-sashal@kernel.org>
 References: <20220714042429.281816-1-sashal@kernel.org>
@@ -64,103 +62,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit fe154c4ff376bc31041c6441958a08243df09c99 ]
+[ Upstream commit 08bb5dc6ce02374169213cea772b1c297eaf32d5 ]
 
-If the card registration fails, typically because of deferred probes,
-the device properties added for headset codecs are not removed, which
-leads to kernel oopses in driver bind/unbind tests.
-
-We already clean-up the device properties when the card is removed,
-this code can be moved as a helper and called upon card registration
-errors.
+Follow the same flow as rt711-sdca and initialize all mutexes at probe
+time.
 
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Rander Wang <rander.wang@intel.com>
 Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220606203752.144159-4-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220606203752.144159-5-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 51 ++++++++++++++++++--------------
- 1 file changed, 29 insertions(+), 22 deletions(-)
+ sound/soc/codecs/rt711-sdw.c | 3 +++
+ sound/soc/codecs/rt711.c     | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 0bf3e56e1d58..abe39a0ef14b 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -1323,6 +1323,33 @@ static struct snd_soc_card card_sof_sdw = {
- 	.late_probe = sof_sdw_card_late_probe,
- };
+diff --git a/sound/soc/codecs/rt711-sdw.c b/sound/soc/codecs/rt711-sdw.c
+index f49c94baa37c..4fe68bcf2a7c 100644
+--- a/sound/soc/codecs/rt711-sdw.c
++++ b/sound/soc/codecs/rt711-sdw.c
+@@ -474,6 +474,9 @@ static int rt711_sdw_remove(struct sdw_slave *slave)
+ 	if (rt711->first_hw_init)
+ 		pm_runtime_disable(&slave->dev);
  
-+static void mc_dailink_exit_loop(struct snd_soc_card *card)
-+{
-+	struct snd_soc_dai_link *link;
-+	int ret;
-+	int i, j;
++	mutex_destroy(&rt711->calibrate_mutex);
++	mutex_destroy(&rt711->disable_irq_lock);
 +
-+	for (i = 0; i < ARRAY_SIZE(codec_info_list); i++) {
-+		if (!codec_info_list[i].exit)
-+			continue;
-+		/*
-+		 * We don't need to call .exit function if there is no matched
-+		 * dai link found.
-+		 */
-+		for_each_card_prelinks(card, j, link) {
-+			if (!strcmp(link->codecs[0].dai_name,
-+				    codec_info_list[i].dai_name)) {
-+				ret = codec_info_list[i].exit(card, link);
-+				if (ret)
-+					dev_warn(card->dev,
-+						 "codec exit failed %d\n",
-+						 ret);
-+				break;
-+			}
-+		}
-+	}
-+}
-+
- static int mc_probe(struct platform_device *pdev)
- {
- 	struct snd_soc_card *card = &card_sof_sdw;
-@@ -1387,6 +1414,7 @@ static int mc_probe(struct platform_device *pdev)
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 	if (ret) {
- 		dev_err(card->dev, "snd_soc_register_card failed %d\n", ret);
-+		mc_dailink_exit_loop(card);
- 		return ret;
- 	}
- 
-@@ -1398,29 +1426,8 @@ static int mc_probe(struct platform_device *pdev)
- static int mc_remove(struct platform_device *pdev)
- {
- 	struct snd_soc_card *card = platform_get_drvdata(pdev);
--	struct snd_soc_dai_link *link;
--	int ret;
--	int i, j;
- 
--	for (i = 0; i < ARRAY_SIZE(codec_info_list); i++) {
--		if (!codec_info_list[i].exit)
--			continue;
--		/*
--		 * We don't need to call .exit function if there is no matched
--		 * dai link found.
--		 */
--		for_each_card_prelinks(card, j, link) {
--			if (!strcmp(link->codecs[0].dai_name,
--				    codec_info_list[i].dai_name)) {
--				ret = codec_info_list[i].exit(card, link);
--				if (ret)
--					dev_warn(&pdev->dev,
--						 "codec exit failed %d\n",
--						 ret);
--				break;
--			}
--		}
--	}
-+	mc_dailink_exit_loop(card);
- 
  	return 0;
  }
+ 
+diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
+index a7c5608a0ef8..6f3a26bf53d0 100644
+--- a/sound/soc/codecs/rt711.c
++++ b/sound/soc/codecs/rt711.c
+@@ -1196,6 +1196,7 @@ int rt711_init(struct device *dev, struct regmap *sdw_regmap,
+ 	rt711->sdw_regmap = sdw_regmap;
+ 	rt711->regmap = regmap;
+ 
++	mutex_init(&rt711->calibrate_mutex);
+ 	mutex_init(&rt711->disable_irq_lock);
+ 
+ 	/*
+@@ -1310,7 +1311,6 @@ int rt711_io_init(struct device *dev, struct sdw_slave *slave)
+ 			rt711_jack_detect_handler);
+ 		INIT_DELAYED_WORK(&rt711->jack_btn_check_work,
+ 			rt711_btn_check_handler);
+-		mutex_init(&rt711->calibrate_mutex);
+ 		INIT_WORK(&rt711->calibration_work, rt711_calibration_work);
+ 		schedule_work(&rt711->calibration_work);
+ 	}
 -- 
 2.35.1
 
