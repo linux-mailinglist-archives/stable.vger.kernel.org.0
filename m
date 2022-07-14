@@ -2,153 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C68574F71
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 15:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE486574F8C
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 15:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239736AbiGNNlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 09:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        id S239537AbiGNNrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 09:47:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239849AbiGNNlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 09:41:15 -0400
+        with ESMTP id S239382AbiGNNrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 09:47:02 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BD22A60682
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 06:41:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8785852FC9
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 06:47:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1657806073;
+        s=mimecast20190719; t=1657806419;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=BtW5PPKAfhTJm0YL6anRbNB4Y3Wy27fKoHc3eglkYhW4un5ySaGdQ3nbHAWAPqlcuE8fyd
-        MYjF6781jPaFghQVkv1YNcQsiw48z2+PQOXOW3TmjrnBOtu+eZPKHqLMePkpUaVpZbSMae
-        FdfvXUhu5Bv53S/qPDN04TqC/igkPQI=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=+awr3ZhBs5ChFhOgpPkaLATcx5cLB7nHdpf6QXxPxMY=;
+        b=PPBF2Gs3BACqWjwRUIcGHL3jOFStnAQ+CzLuB+Xc8R+twAT7uKE/vCDKgQexZPBF1Z5y+d
+        yKMS1+za6R4wuFF0uoWmOlD/iXUaRFpNJ+xuf6KcvdLwJPTOqQAvYXbvCUbD5pjJ/jltXk
+        yQDs43ZZjXVYE0CxM/cgmwlBTci8iuA=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-333-BzMD-YJZMyKtv2byBaO23Q-1; Thu, 14 Jul 2022 09:41:11 -0400
-X-MC-Unique: BzMD-YJZMyKtv2byBaO23Q-1
-Received: by mail-pg1-f198.google.com with SMTP id u64-20020a638543000000b00412b09eae15so1260731pgd.15
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 06:41:11 -0700 (PDT)
+ us-mta-647-jIAOfKdhPHWtI73qMDaJtQ-1; Thu, 14 Jul 2022 09:46:58 -0400
+X-MC-Unique: jIAOfKdhPHWtI73qMDaJtQ-1
+Received: by mail-ej1-f71.google.com with SMTP id qb28-20020a1709077e9c00b0072af6ccc1aeso778822ejc.6
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 06:46:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=1kCsZw+wcy/fCIzCUqNXvBWC2/BXbZ23sT1T63RyNFqcblwK+xYdzNuwJ7ZZxtX1/Y
-         8fY1IBAWqf3vM0Av2p3eEfy27up09yP7m98sjFAIx+a7kF7H1XoQjqHX7OxWwQ5D3GML
-         hQVcRZi20MW3woEWh53artdTnujWb2L2l0DiH57pPtpUzxWwLZ6MWYta+9mDW7b59Rsw
-         PI68qr7UlF5plYBnlwIucMPUANef3GLKl+iZTPqjey4urRgC3fEUz0uEkxjUjhDk1l6Z
-         AFwlHZL7O7QlXIJCwtY/bKCb6q7g11pUzzDjXt28eNw1uTlCMF2YVzLDcaGsscleURNF
-         V1mA==
-X-Gm-Message-State: AJIora/bYN6wakQGbfSv/ftfIG5GdDzDj+U2WVN5FnE186MJExzisueg
-        +WxZq6PIjRGEANKlpyV5TBH61gxxCIeTgpT9KNiPB2Z03XQ2ex3iWncUuu5hXdgHkD/UA/6cQ7v
-        hCaFUIRzUM0QfC9JU
-X-Received: by 2002:a17:90b:4b82:b0:1f0:196d:4204 with SMTP id lr2-20020a17090b4b8200b001f0196d4204mr16396519pjb.194.1657806070929;
-        Thu, 14 Jul 2022 06:41:10 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1v6W73kkND0lzdShUq0XCk7I59w6K6H/HhxbM9LJ4h4Bhv+gs6tfqbnzg5qbuZf1Ex6YUHUFA==
-X-Received: by 2002:a17:90b:4b82:b0:1f0:196d:4204 with SMTP id lr2-20020a17090b4b8200b001f0196d4204mr16396483pjb.194.1657806070591;
-        Thu, 14 Jul 2022 06:41:10 -0700 (PDT)
-Received: from localhost ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id h10-20020aa79f4a000000b00528d880a32fsm1663006pfr.78.2022.07.14.06.41.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Jul 2022 06:41:10 -0700 (PDT)
-From:   Coiby Xu <coxu@redhat.com>
-To:     kexec@lists.infradead.org, linux-integrity@vger.kernel.org
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
-        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-s390@vger.kernel.org (open list:S390),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v10 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
-Date:   Thu, 14 Jul 2022 21:40:27 +0800
-Message-Id: <20220714134027.394370-5-coxu@redhat.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220714134027.394370-1-coxu@redhat.com>
-References: <20220714134027.394370-1-coxu@redhat.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=+awr3ZhBs5ChFhOgpPkaLATcx5cLB7nHdpf6QXxPxMY=;
+        b=b6zMRdmnLxwUcFg9QHAHVIEsOQqup4lrn0fEdbvA0iPubk/PLhKbP68hp947wYKZ7u
+         ZLTs5ytYeh1dQLGKEMnKs+gZ6nKzQl6ueWNMGXnpYJIUxwsSM6lACR5SgPo729cSafQP
+         ZYeNxX+CcsladdfRV9BOTEirmVnsayz1b8anrhpqSxXWkNDt5ejUwQBc7Z6yBD01xvcL
+         PHLf06qtan2CEYLekR/Qk1ODK0CWQePePc90bYJc0WU+AxEMIqnzt6rwIYv/JOD+rqin
+         7RSU0Qgxe2RPgC0n7BlMoMNagzP/T7tpBJFJ0m9ghJRJLgrQSpOXqqaLjDiqyaeRizwG
+         x2WA==
+X-Gm-Message-State: AJIora/d8x3QcawtUTJHIl/DkeYe9hzrFyqB4wG2QcXAl3fSrgyHnYk9
+        kSu+++leJcVH3ucatqhCAnOBqfzHXePs3cqYVMWY+Spp3t82T9XD6KzC3DXiTT0Sag7IDBQ8Waq
+        Jwmq7FArqgYXfycPb
+X-Received: by 2002:a17:907:1c8c:b0:72b:6b8f:4add with SMTP id nb12-20020a1709071c8c00b0072b6b8f4addmr8917274ejc.556.1657806417355;
+        Thu, 14 Jul 2022 06:46:57 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1sLM5Xyg7JtYTCIQNuUJMLYhlONllSjxPkuyV7k114ks5G16n5o0fFDxAMDpk1LxZB8rtufpA==
+X-Received: by 2002:a17:907:1c8c:b0:72b:6b8f:4add with SMTP id nb12-20020a1709071c8c00b0072b6b8f4addmr8917259ejc.556.1657806417122;
+        Thu, 14 Jul 2022 06:46:57 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
+        by smtp.googlemail.com with ESMTPSA id r14-20020aa7cfce000000b0043a4de1d421sm1072680edy.84.2022.07.14.06.46.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Jul 2022 06:46:56 -0700 (PDT)
+Message-ID: <6b4337f4-d1de-7ba3-14e8-3ad0f9b18788@redhat.com>
+Date:   Thu, 14 Jul 2022 15:46:53 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
+Content-Language: en-US
+To:     Borislav Petkov <bp@alien8.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        kvm list <kvm@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Slade Watkins <slade@sladewatkins.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+References: <20220712183238.844813653@linuxfoundation.org>
+ <CA+G9fYtntg7=zWSs-dm+n_AUr_u0eBOU0zrwWqMeXZ+SF6_bLw@mail.gmail.com>
+ <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net>
+ <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
+ <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com>
+ <Ys/bYJ2bLVfNBjFI@nazgul.tnic>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <Ys/bYJ2bLVfNBjFI@nazgul.tnic>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+On 7/14/22 11:01, Borislav Petkov wrote:
+> On Wed, Jul 13, 2022 at 11:40:03AM -0700, Linus Torvalds wrote:
+>> And I see that Thadeau already figured it out:
+>>
+>>    https://lore.kernel.org/all/20220713171241.184026-1-cascardo@canonical.com/
+>>
+>> So presumably we need that patch everywhere.
+> Right, I've queued it along with other fallout fixes. Will do some
+> testing before I send them to you on Sunday.
+> 
+> I'm guessing you're thinking of cutting an -rc7 so that people can test
+> the whole retbleed mitigation disaster an additional week?
 
-commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-adds support for KEXEC_SIG verification with keys from platform keyring
-but the built-in keys and secondary keyring are not used.
+Please leave that one out as Peter suggested a better fix and I have 
+that queued for Linus.
 
-Add support for the built-in keys and secondary keyring as x86 does.
+(If you don't no big deal, the conflict will be very clear, but it will 
+be a bit more work for everyone).
 
-Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-Cc: stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
----
- arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 8f43575a4dd3..fc6d5f58debe 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len;
-+	int ret;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EBADMSG;
- 	}
- 
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	ret = verify_pkcs7_signature(kernel, kernel_len,
-+				     kernel + kernel_len, sig_len,
-+				     VERIFY_USE_SECONDARY_KEYRING,
-+				     VERIFYING_MODULE_SIGNATURE,
-+				     NULL, NULL);
-+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-+		ret = verify_pkcs7_signature(kernel, kernel_len,
-+					     kernel + kernel_len, sig_len,
-+					     VERIFY_USE_PLATFORM_KEYRING,
-+					     VERIFYING_MODULE_SIGNATURE,
-+					     NULL, NULL);
-+	return ret;
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
--- 
-2.35.3
+Paolo
 
