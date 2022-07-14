@@ -2,108 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 186C9574568
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 09:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FCF0574584
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 09:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235409AbiGNG7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 02:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41654 "EHLO
+        id S235688AbiGNHJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 03:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235628AbiGNG7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 02:59:50 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AB831358;
-        Wed, 13 Jul 2022 23:59:49 -0700 (PDT)
-Received: from mail-yw1-f179.google.com ([209.85.128.179]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1N1gWU-1nRZcp1vKq-0121bf; Thu, 14 Jul 2022 08:59:47 +0200
-Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-3137316bb69so7773597b3.10;
-        Wed, 13 Jul 2022 23:59:46 -0700 (PDT)
-X-Gm-Message-State: AJIora9GH7WajOmMba1dYRPU+hdA234H9buJh6Ky2tf8vSs4aT4bl4na
-        BGtE5eGvzJR9z4uFeVZ4KnqGveEcFmGdhIPgw/c=
-X-Google-Smtp-Source: AGRyM1tgxYSVD/gYAxs1WCM6JhzELwA8WwTUgiYEaMRwN6Q6Zg/uUd6yRx65tlEIUnIRkovs/IpphI7wi/ZKPISkkKw=
-X-Received: by 2002:a81:f8f:0:b0:31c:bd9f:31ce with SMTP id
- 137-20020a810f8f000000b0031cbd9f31cemr8121384ywp.347.1657781985894; Wed, 13
- Jul 2022 23:59:45 -0700 (PDT)
+        with ESMTP id S235364AbiGNHJE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 03:09:04 -0400
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B501903F;
+        Thu, 14 Jul 2022 00:09:03 -0700 (PDT)
+Received: by mail-qv1-f47.google.com with SMTP id r12so847975qvm.3;
+        Thu, 14 Jul 2022 00:09:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=T0TGzHJ/d88sjvucmzrmHfr2w3pyHWB6L9OYmNBsm0w=;
+        b=O2nHyfeeyJtoK+5rSSf9i1yQuTds1Fi3By82z54ItHDp1b/KD3f8tLFmExu8gK7hkT
+         1NdxsX04JPsSuPp2B3xh8HpIGWNzWnaNhRXrumRoOmH4R0H1tdKSCXIC9qqO5JKXVMke
+         JHT2CJz1HIrqe8vsg3fmi6ffwaLkHpZgYYPVou6n78MTrQUZcilkrX2H0ZisVUd/JbL4
+         x2+BDxTyY68LrKoEQ48c0NXE51KYJMh2wiA2AoZg8g63ORkPQTOXkNVSyogadwk0wm7V
+         jfXZNnk1cZiE9y5vgTO4NnODKdn7wL23CEa2A73kaGwFLWWuEBDzsFXOdx7b7pO6lK3m
+         Bz5A==
+X-Gm-Message-State: AJIora/9M8/e+BXHt7GQfThBEPfncHzrNWnH1qjjtJkEOQETyZSGWSrS
+        puYJmI38YHPpN/tr8az6FPW1p8B2oDJpXQ==
+X-Google-Smtp-Source: AGRyM1tnClzyP0ypUH6cJ/Q1DKTs5xvyrdwVNH4AjfK3QF1RIbxw3yLvV9ABmkEA+h2vnqwAqshjhA==
+X-Received: by 2002:ad4:596f:0:b0:473:2ebe:db7e with SMTP id eq15-20020ad4596f000000b004732ebedb7emr6643117qvb.106.1657782542296;
+        Thu, 14 Jul 2022 00:09:02 -0700 (PDT)
+Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com. [209.85.219.173])
+        by smtp.gmail.com with ESMTPSA id k19-20020ac84793000000b0031ece8b6666sm901796qtq.43.2022.07.14.00.09.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Jul 2022 00:09:01 -0700 (PDT)
+Received: by mail-yb1-f173.google.com with SMTP id y195so1817054yby.0;
+        Thu, 14 Jul 2022 00:09:01 -0700 (PDT)
+X-Received: by 2002:a05:6902:a:b0:65c:b38e:6d9f with SMTP id
+ l10-20020a056902000a00b0065cb38e6d9fmr7497019ybh.36.1657782541422; Thu, 14
+ Jul 2022 00:09:01 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220712075255.1345991-1-chenhuacai@loongson.cn>
- <20220712075255.1345991-3-chenhuacai@loongson.cn> <CAMuHMdUazqHLbc80vpZ+Msg9A3j5aPJ3fx+CdCG3kuWDSf8WSw@mail.gmail.com>
- <CAAhV-H775jXMbcR9j=oLBuHo1PfFziZSUQWttJAEw20sUt+GAA@mail.gmail.com>
- <CAMuHMdUHbepd974u5iox3BcOyo_Q2ZgT-znruk+WCt+HMQ_Lgw@mail.gmail.com>
- <CAAhV-H78Fi0aE-h5MOgRa5L+Jt7D0wG0nLcYzx45jVney8T1BQ@mail.gmail.com>
- <CAMuHMdVXFmKR4LuXHYRrSk3Q0VRqATGbsM512DxayWCPCE-wvg@mail.gmail.com>
- <c8c959fa-f17d-f0dd-6a8d-e0b0ce622f3a@xen0n.name> <CAAhV-H6g5nLGJMz0ZsZqC5-73VSGffVdc6r0=3HHBo3Z8PQOBg@mail.gmail.com>
-In-Reply-To: <CAAhV-H6g5nLGJMz0ZsZqC5-73VSGffVdc6r0=3HHBo3Z8PQOBg@mail.gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 14 Jul 2022 08:59:28 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a0GUPSYBai3Z9vzw0wrXGLFiik6hdY3zc6nQ6mQs7yHvQ@mail.gmail.com>
-Message-ID: <CAK8P3a0GUPSYBai3Z9vzw0wrXGLFiik6hdY3zc6nQ6mQs7yHvQ@mail.gmail.com>
-Subject: Re: [PATCH 3/6] M68K: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-To:     Huacai Chen <chenhuacai@gmail.com>
-Cc:     WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michal Simek <monstr@monstr.eu>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        loongarch@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Guo Ren <guoren@kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
+References: <20220714042221.281187-1-sashal@kernel.org> <20220714042221.281187-39-sashal@kernel.org>
+In-Reply-To: <20220714042221.281187-39-sashal@kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 14 Jul 2022 09:08:49 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWumKeJmsOsd7_=F-+8znY=0YtH-CbeLN7knSJ1LDOR_w@mail.gmail.com>
+Message-ID: <CAMuHMdWumKeJmsOsd7_=F-+8znY=0YtH-CbeLN7knSJ1LDOR_w@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.18 39/41] wireguard: selftests: use virt machine
+ on m68k
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Shuah Khan <shuah@kernel.org>, wireguard@lists.zx2c4.com,
+        netdev <netdev@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:S+dPkrdCzelsMkcwO0BrfMc/NpzZrrixUyf7kOvJSMedG2kadje
- 9CLju2PAGNjHMpIu7w6bLZ7Lgdlc/mH9RmE4ioSBlCVmVSuKm3xaJK9FGj1w1vHmo7qPy8D
- XkJk0hQRPq7YUnlXAEVdobnLJGu8dB9RIkWydZGZr6CsoNdbS9b4sHhfjirDdDHZneN+7wu
- SWPt6Sbx7168UDuceg8nw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:j1f5yUH9gOg=:D0C9pIIxbHRz8DL8BN9Eho
- Wl2eHXYYGr+4tCVeCxkvN1i5c+HXdSXsDKh7l6gnyx8RbsDgjgnYxZBYIQo0CgRotdtzV/AA9
- dCOw0znX1Fx90hK8PVCSVIFwBbySXFGrkVT3BFnXFOgpvmDpakkZK2uJc2FCm9dn2qiER/8UH
- NOAs1qa1uDTPJuLMVIHbiG9pkhVPhgMiII0v+NyOuDa8d/l8GE9DahcEflOrKJA/LwExsLYT0
- zuKYZq8LiLpmq2AqpQFC4xVEFBf5dFJ/0Qfyq/Zw1CXnR5YcW7mJk2L3Or3sN7DhqvUrrvv51
- D9QhMJrWOUxH8628xoTjsQlkFqHTWEBPQ5exFO6RXFuJ01k0WqF4C5J26u9CieWish+AnWnxu
- uMUrDeoXYeQih/zIRYGL2qBX+zdNNTIimHAkGJNwN0efT9N7o0sPVt/GBMO+WhpeXBO0OOhCE
- FFLzQvys24vsGzKgoLgJtLzwEcZHbq4xx+hYmiNdZVsDqlQOlj/mIw2/TTlfCXn2utZPbiixS
- +q2mAU+PxK9ldbEin2VD9DPIUdM8QZd7g3lp1mrcGM1nJO8tu3jgJCYMSYZPA3bgsIkHF6i46
- 5/Fv/ceTX8O6T/ynvDF8QD0JVO8VbJPWXDdNxdnt0fMTVXS7IefR5y9zm3qjLFVdcG7xh3GsG
- d23Cwg9bjlFqdpBfpq8/Sqst0Zczz5xuNVXuTWYRmoBa2lxrVGKbBJ0lF1XEKvfOZOj83Kr7C
- W+vbCp+p78WJrgnGIDFEij9c8LrhhObmmmAxpg==
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 4:07 AM Huacai Chen <chenhuacai@gmail.com> wrote:
-> On Tue, Jul 12, 2022 at 6:15 PM WANG Xuerui <kernel@xen0n.name> wrote:
-> > On 2022/7/12 17:13, Geert Uytterhoeven wrote:
-> >
-> > But judging from the intent of this patch series (fixing WARNs on
-> > certain configs), and that the triggering condition is currently
-> > impossible on m68k (and other non-SMP) platforms, I think cleanups for
-> > such arches could come as a separate patch series later. I think the
-> > m68k refactoring is reasonable after all, due to my observation above,
-> > but for the other non-SMP arches we may want to wait for the respective
-> > maintainers' opinions.
+Hi Sasha,
+
+On Thu, Jul 14, 2022 at 6:29 AM Sasha Levin <sashal@kernel.org> wrote:
+> From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 >
-> It seems that the best solution is only fix architectures with SMP
-> support and leave others (m68k, microblaze, um) as is. :)
+> [ Upstream commit 1f2f341a62639c7066ee4c76b7d9ebe867e0a1d5 ]
+>
+> This should be a bit more stable hopefully.
+>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I think it probably makes sense to do this as a combined cleanup patch,
-which I can merge through the asm-generic tree, for all architectures
-whose maintainer does not pick it up directly. For SMP architectures,
-it's a bugfix that we probably want backported into stable kernels, while
-for non-SMP targets it is just a minor cleanup for consistency.
+Thanks for your patch!
 
-        Arnd
+> --- a/tools/testing/selftests/wireguard/qemu/arch/m68k.config
+> +++ b/tools/testing/selftests/wireguard/qemu/arch/m68k.config
+> @@ -1,10 +1,7 @@
+>  CONFIG_MMU=y
+> +CONFIG_VIRT=y
+
+The m68k virt machine was introduced in v5.19-rc1, so this patch
+must not be backported to v5.18 and earlier.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
