@@ -2,140 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54DAF5745C4
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 09:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D677A5745DE
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 09:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234454AbiGNHQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 03:16:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51784 "EHLO
+        id S231300AbiGNHbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 03:31:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231887AbiGNHQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 03:16:35 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FB114099
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 00:16:34 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id va17so1870211ejb.0
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 00:16:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ionos.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=EQybo/mazhxMtTGDkUYLtW7YqQjdHytFSKMWIUktp7Y=;
-        b=d0t45VsacujveQ1Wbw+8kJppeMT4oBRwrnHJc5niW+JN5hKi2+w6CtcYcyeNZy6G2u
-         dEHaxNaZ3lF2sPjottqApmcaflK4v4ApaVApCRvj3V5H6/TfIhNa0lzcwzkIZDxeBlSI
-         2debgcqeNHjAdD58AceU4k89Wa6DnwFGtWRqwxcMIZtbZrNcddOIEm72fnKprSiSd3+d
-         p95n4/bALpxsfNjaJ1XpJFHAwpqXRzC9jRqoLZC3GD1roSaH3xbiWEEg3TAVJy/XHTvN
-         TyKh0ytQc+lfU1sLydq/sBxfvgKtvLiJ11uN0jkDhRQFeSwdU41zqa9NjdAFRBz560Nc
-         yKNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=EQybo/mazhxMtTGDkUYLtW7YqQjdHytFSKMWIUktp7Y=;
-        b=YYsqlzOiwwS+kZVjppTjdtAISTnWgPZF8qUFEHl5sDotNmHIaYhEZ1sjLFYW7kqCvE
-         YnJKQdoJOdKP08IU+CaXCGSh05pJrFNc6jpoeo1fjtjkmgIFzUySnJLMBEl/Lf0ek7qN
-         YJvqwyqVGMSW32p+EoABF2egqwdEWy3VjjWfaLwBKDhYlkTWWaHP1osLYSLQERl0tXRA
-         +yj/tGZVC1Ww2Z3VcQlOy6TLwTKsdoOJY+8d7aJl4PflAUNOM2xG7TZZygaMTeT4m7v0
-         DMR9dHkwH3jcHAOzqkqGLN5ldRUxkuX4JOuUbJQzt/PwCZYlY51px585BXnW5Nm2PJHI
-         Mvuw==
-X-Gm-Message-State: AJIora/M5LP2NjH/320VFYO46nBuWUQP4pjhn2A9MGjeyi9JTzz5YYUb
-        uv4j2jMfeHVIAnapPHdvRXNepXjzEejcXOYZ+MEOpg==
-X-Google-Smtp-Source: AGRyM1voA8NMtQEOdGczAdieyK2B7k8X/4dsXZ8MlAJApwx1KhWFIhSPlEElA0Xr24VkrlO5A7TIjYYq/QfBLQj3SeA=
-X-Received: by 2002:a17:906:8a69:b0:72b:40d3:7b6c with SMTP id
- hy9-20020a1709068a6900b0072b40d37b6cmr7372491ejc.624.1657782992615; Thu, 14
- Jul 2022 00:16:32 -0700 (PDT)
+        with ESMTP id S231281AbiGNHbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 03:31:14 -0400
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FBF530F7F;
+        Thu, 14 Jul 2022 00:31:13 -0700 (PDT)
+X-UUID: 932b742c3a0648f9b5f4477775c95999-20220714
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.8,REQID:257bfe7c-b61a-482f-a1e8-442ce3a16703,OB:0,LO
+        B:0,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACT
+        ION:release,TS:-5
+X-CID-META: VersionHash:0f94e32,CLOUDID:e9514664-0b3f-4b2c-b3a6-ed5c044366a0,C
+        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:1,File:nil
+        ,QS:nil,BEC:nil,COL:0
+X-UUID: 932b742c3a0648f9b5f4477775c95999-20220714
+Received: from mtkmbs11n2.mediatek.inc [(172.21.101.187)] by mailgw02.mediatek.com
+        (envelope-from <mark-pk.tsai@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1739704461; Thu, 14 Jul 2022 15:31:06 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.185) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.792.15; Thu, 14 Jul 2022 15:31:05 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.792.3 via Frontend Transport; Thu, 14 Jul 2022 15:31:05 +0800
+From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+To:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>,
+        "Mel Gorman" <mgorman@suse.de>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+CC:     <yj.chiang@mediatek.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>
+Subject: [PATCH 5.4] sched/rt: Disable RT_RUNTIME_SHARE by default
+Date:   Thu, 14 Jul 2022 15:30:52 +0800
+Message-ID: <20220714073055.15049-1-mark-pk.tsai@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-References: <CAMGffEm9y0wnn8LNS9Qo3obPhs0GD5iJZ0WejFzC4baGPDsYTw@mail.gmail.com>
- <CAMGffEnTobhKvwKcRTnSz1JgNBVeTTtbOvP2OtAMgceqOOhN4A@mail.gmail.com>
- <Ys7CFYqA62YcIFiT@kroah.com> <CAMGffEmdqz-ggqkHOwddu7bTPBs47tY-5cSi58qvYwPmxrYumg@mail.gmail.com>
- <Ys81Bor99YlUrM0k@google.com>
-In-Reply-To: <Ys81Bor99YlUrM0k@google.com>
-From:   Jinpu Wang <jinpu.wang@ionos.com>
-Date:   Thu, 14 Jul 2022 09:16:22 +0200
-Message-ID: <CAMGffEmRC2FWp=U5Bbbp4B+gb-OPsaz-NSAcr50dtmkGHY-ViQ@mail.gmail.com>
-Subject: Re: 5.10.131-rc1 crash with int3: RIP 0010:xaddw_ax_dx+0x9/0x10 [kvm]
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kvm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 13, 2022 at 11:11 PM Sean Christopherson <seanjc@google.com> wrote:
->
-> On Wed, Jul 13, 2022, Jinpu Wang wrote:
-> > On Wed, Jul 13, 2022 at 3:01 PM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Wed, Jul 13, 2022 at 02:26:44PM +0200, Jinpu Wang wrote:
-> > > > On Wed, Jul 13, 2022 at 12:49 PM Jinpu Wang <jinpu.wang@ionos.com> wrote:
-> > > > > #5.10.131-1+feature+linux+5.10.y+20220712.1850+30f4172c~deb11
->
-> ...
->
-> > > > > [ 1895.979325] Call Trace:
-> > > > > [ 1895.979325]  ? fastop+0x59/0xa0 [kvm]
-> > > > > [ 1895.979326]  ? x86_emulate_insn+0x73a/0xe00 [kvm]
-> > > > > [ 1895.979326]  ? x86_emulate_instruction+0x2d0/0x750 [kvm]
-> > > > > [ 1895.979326]  ? vmx_vcpu_load+0x21/0x70 [kvm_intel]
-> > > > > [ 1895.979327]  ? complete_emulated_mmio+0x236/0x310 [kvm]
-> > > > > [ 1895.979327]  ? kvm_arch_vcpu_ioctl_run+0x1744/0x1920 [kvm]
-> > > > > [ 1895.979327]  ? kvm_vcpu_ioctl+0x211/0x5a0 [kvm]
-> > > > > [ 1895.979328]  ? __fget_files+0x79/0xb0
-> > > > > [ 1895.979328]  ? __fget_files+0x79/0xb0
-> > > > > [ 1895.979328]  ? __x64_sys_ioctl+0x8b/0xc0
-> > > > > [ 1895.979329]  ? do_syscall_64+0x33/0x40
-> > > > > [ 1895.979329]  ? entry_SYSCALL_64_after_hwframe+0x61/0xc6
->
-> ...
->
-> > > > > Is this bug known, any hint how to fix it?
-> > > > I did more tests on different Servers, so far all the machine
-> > > > checked(Skylake/Icelake/Haswell/Broadwell/EPYC) crash immediately
-> > > > except AMD Opteron.
-> > > > kvm-unit-tests succeeded without regression.
-> > >
-> > > Same issue on Linus's tree right now as well?  Or does that pass just
-> > > fine?
-> >
-> > Hi Greg,
-> >
-> > I haven't try linus tree, but just tried 5.15.55-rc1 on Intel Skylake,
-> > it crashed the same.
-> >
-> > I will give Linus tree a try.
->
-> Looks like fastop() got broken by the retbleed mitigations, i.e. this isn't unique
-> to stable trees.
->
-> https://lore.kernel.org/all/20220713171241.184026-1-cascardo@canonical.com
-Hi Sean,
+From: Daniel Bristot de Oliveira <bristot@redhat.com>
 
-Thanks for the link, I will give it a try, to apply to kernel  5.10, I
-adapted it a bit to
+commit 2586af1ac187f6b3a50930a4e33497074e81762d upstream.
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 59e5d79f5c34..aa7b5adac633 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -189,7 +189,7 @@
- #define X16(x...) X8(x), X8(x)
+The RT_RUNTIME_SHARE sched feature enables the sharing of rt_runtime
+between CPUs, allowing a CPU to run a real-time task up to 100% of the
+time while leaving more space for non-real-time tasks to run on the CPU
+that lend rt_runtime.
 
- #define NR_FASTOP (ilog2(sizeof(ulong)) + 1)
--#define FASTOP_SIZE 8
-+#define FASTOP_SIZE (8 * (1 + (IS_ENABLED(CONFIG_RETHUNK))))
+The problem is that a CPU can easily borrow enough rt_runtime to allow
+a spinning rt-task to run forever, starving per-cpu tasks like kworkers,
+which are non-real-time by design.
 
- struct opcode {
-        u64 flags : 56;
+This patch disables RT_RUNTIME_SHARE by default, avoiding this problem.
+The feature will still be present for users that want to enable it,
+though.
 
-With it, kvm-unit-tests is working again, no gression found.
+Signed-off-by: Daniel Bristot de Oliveira <bristot@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Wei Wang <wvw@google.com>
+Link: https://lkml.kernel.org/r/b776ab46817e3db5d8ef79175fa0d71073c051c7.1600697903.git.bristot@redhat.com
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Cc: stable@vger.kernel.org
+---
+ kernel/sched/features.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks!
+diff --git a/kernel/sched/features.h b/kernel/sched/features.h
+index 2410db5e9a35..66c74aa4753e 100644
+--- a/kernel/sched/features.h
++++ b/kernel/sched/features.h
+@@ -77,7 +77,7 @@ SCHED_FEAT(WARN_DOUBLE_CLOCK, false)
+ SCHED_FEAT(RT_PUSH_IPI, true)
+ #endif
+ 
+-SCHED_FEAT(RT_RUNTIME_SHARE, true)
++SCHED_FEAT(RT_RUNTIME_SHARE, false)
+ SCHED_FEAT(LB_MIN, false)
+ SCHED_FEAT(ATTACH_AGE_LOAD, true)
+ 
+-- 
+2.18.0
+
