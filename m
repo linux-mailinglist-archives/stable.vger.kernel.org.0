@@ -2,145 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2399E574780
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 10:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88AF45747A6
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 11:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237142AbiGNIqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 04:46:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
+        id S231131AbiGNJCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 05:02:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237486AbiGNIqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 04:46:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF8A402FA;
-        Thu, 14 Jul 2022 01:46:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S229555AbiGNJCX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 05:02:23 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41FAC42AFE;
+        Thu, 14 Jul 2022 02:02:20 -0700 (PDT)
+Received: from nazgul.tnic (unknown [193.86.92.180])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D28DCB823C0;
-        Thu, 14 Jul 2022 08:46:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887C1C34114;
-        Thu, 14 Jul 2022 08:46:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657788361;
-        bh=YvDXaxqtI1ZaBSWpwefeqgjLcPs3Jqvc4sIJBv80ws8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RBlFHN9Mkp0dnvOPW0m8j+KUxMrvjgdrcd7Y8kOhQBEa+5PBoJ9F7gsLXixpwyrSl
-         032eMu3WtEC35FgcQu6tlKYhSeLPLU5f+dOAbz6tQHNkG7XaBWIAdOvYbtPvQF2Ids
-         AmhfrzMs27LV4x6qnmxvFJMVVKVB6D/a0FjPyyWc=
-Date:   Thu, 14 Jul 2022 10:45:57 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     kernel test robot <lkp@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>, kbuild-all@lists.01.org,
-        linux-kernel@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 4BEC71EC0441;
+        Thu, 14 Jul 2022 11:02:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1657789334;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=Xf9/SHcY0J8Gahz0C+2tRg8fDa1mCoqGtP9Fi6/j8GY=;
+        b=bRBjyaejPCWt1V01aLc3bIkqbaBfBTQzioRpL9K4fyZCTcisYVAdedK/f+hx35zRCkpqr/
+        OCExwW3J9UIGkZPji2NxbacZCmzSM831s2F2oxyGRwxzoQS3MEVNgNJkjts5WCAxMG8a79
+        XmdYu0wP/WHK9eIZvyp4e+/OYienl+c=
+Date:   Thu, 14 Jul 2022 11:01:30 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Peter Zijlstra <peterz@infradead.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        stable@vger.kernel.org
-Subject: Re: [linux-stable-rc:linux-5.10.y 7082/7120]
- arch/x86/kernel/head_64.o: warning: objtool: xen_hypercall_mmu_update():
- can't find starting instruction
-Message-ID: <Ys/XxcHvpgd3MbzH@kroah.com>
-References: <202207130531.SkRjrrn8-lkp@intel.com>
- <Ys9MKAriCchlEO8S@decadent.org.uk>
- <Ys+8ZYxkDmSCcDWv@kroah.com>
- <Ys/TxoePQHvaYWcs@kroah.com>
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        kvm list <kvm@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Slade Watkins <slade@sladewatkins.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
+Message-ID: <Ys/bYJ2bLVfNBjFI@nazgul.tnic>
+References: <20220712183238.844813653@linuxfoundation.org>
+ <CA+G9fYtntg7=zWSs-dm+n_AUr_u0eBOU0zrwWqMeXZ+SF6_bLw@mail.gmail.com>
+ <eb63e4ce-843f-c840-060e-6e15defd3c4d@roeck-us.net>
+ <CAHk-=wj5cOA+fbGeV15kvwe6YGT54Wsk8F2UGoekVQLTPJz_pw@mail.gmail.com>
+ <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Ys/TxoePQHvaYWcs@kroah.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <CAHk-=wgq1soM4gudypWLVQdYuvJbXn38LtvJMtnLZX+RTypqLg@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 10:28:54AM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Jul 14, 2022 at 08:49:09AM +0200, Greg Kroah-Hartman wrote:
-> > On Thu, Jul 14, 2022 at 12:50:16AM +0200, Ben Hutchings wrote:
-> > > On Wed, Jul 13, 2022 at 05:38:47AM +0800, kernel test robot wrote:
-> > > > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > > > head:   53b881e19526bcc3e51d9668cab955c80dcf584c
-> > > > commit: 7575d3f3bbd1c68d6833b45d1b98ed182832bd44 [7082/7120] x86: Use return-thunk in asm code
-> > > > config: x86_64-rhel-8.3-syz (https://download.01.org/0day-ci/archive/20220713/202207130531.SkRjrrn8-lkp@intel.com/config)
-> > > > compiler: gcc-11 (Debian 11.3.0-3) 11.3.0
-> > > > reproduce (this is a W=1 build):
-> > > >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=7575d3f3bbd1c68d6833b45d1b98ed182832bd44
-> > > >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > >         git fetch --no-tags linux-stable-rc linux-5.10.y
-> > > >         git checkout 7575d3f3bbd1c68d6833b45d1b98ed182832bd44
-> > > >         # save the config file
-> > > >         mkdir build_dir && cp config build_dir/.config
-> > > >         make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash arch/x86/
-> > > > 
-> > > > If you fix the issue, kindly add following tag where applicable
-> > > > Reported-by: kernel test robot <lkp@intel.com>
-> > > > 
-> > > > All warnings (new ones prefixed by >>):
-> > > > 
-> > > > >> arch/x86/kernel/head_64.o: warning: objtool: xen_hypercall_mmu_update(): can't find starting instruction
-> > > > 
-> > > > -- 
-> > > > 0-DAY CI Kernel Test Service
-> > > > https://01.org/lkp
-> > > 
-> > > Please add the following patch to fix this.  This would also be
-> > > needed for 5.15-stable.
-> > > 
-> > > Ben.
-> > > 
-> > > From: Ben Hutchings <ben@decadent.org.uk>
-> > > Date: Thu, 14 Jul 2022 00:39:33 +0200
-> > > Subject: [PATCH] x86/xen: Fix initialisation in hypercall_page after rethunk
-> > > 
-> > > The hypercall_page is special and the RETs there should not be changed
-> > > into rethunk calls (but can have SLS mitigation).  Change the initial
-> > > instructions to ret + int3 padding, as was done in upstream commit
-> > > 5b2fc51576ef "x86/ibt,xen: Sprinkle the ENDBR".
-> > > 
-> > > Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> > > ---
-> > >  arch/x86/xen/xen-head.S | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
-> > > index 38b73e7e54ba..2a3ef5fcba34 100644
-> > > --- a/arch/x86/xen/xen-head.S
-> > > +++ b/arch/x86/xen/xen-head.S
-> > > @@ -69,9 +69,9 @@ SYM_CODE_END(asm_cpu_bringup_and_idle)
-> > >  SYM_CODE_START(hypercall_page)
-> > >  	.rept (PAGE_SIZE / 32)
-> > >  		UNWIND_HINT_FUNC
-> > > -		.skip 31, 0x90
-> > >  		ANNOTATE_UNRET_SAFE
-> > > -		RET
-> > > +		ret
-> > > +		.skip 31, 0xcc
-> > >  	.endr
-> > >  
-> > >  #define HYPERCALL(n) \
-> > > 
-> > > 
-> > 
-> > That's really odd, I swear I tried this myself:
-> > 	https://lore.kernel.org/r/Ys2jlGMqAe6+h1SX@kroah.com
-> > 
-> > I'll go queue this up and see if that solves the issue on my side.  But
-> > see Boris's comment about how this shouldn't be an issue in the end.
+On Wed, Jul 13, 2022 at 11:40:03AM -0700, Linus Torvalds wrote:
+> And I see that Thadeau already figured it out:
 > 
-> Ah, yes, it does fix that warning, but causes this new one:
-> 	arch/x86/kernel/head_64.o: warning: objtool: .text+0x5: unreachable instruction
+>   https://lore.kernel.org/all/20220713171241.184026-1-cascardo@canonical.com/
 > 
-> I'll keep your patch here, as it makes sense, but it does just exchange
-> one warning for another one...
+> So presumably we need that patch everywhere.
 
-Odd, I get the build warning when I build locally, but on my build
-server, that does this as a clean build, no warnings at all.
+Right, I've queued it along with other fallout fixes. Will do some
+testing before I send them to you on Sunday.
 
-Let's see what the build systems say...
+I'm guessing you're thinking of cutting an -rc7 so that people can test
+the whole retbleed mitigation disaster an additional week?
 
-greg k-h
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
