@@ -2,61 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B51557573C
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 23:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E57D575743
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 23:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240544AbiGNVwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 17:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47326 "EHLO
+        id S239378AbiGNV4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 17:56:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240760AbiGNVwP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 17:52:15 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BB93491D7
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 14:52:12 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id os14so5798920ejb.4
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 14:52:12 -0700 (PDT)
+        with ESMTP id S232299AbiGNV4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 17:56:32 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5800E2CE00
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 14:56:31 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id v12so4080280edc.10
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 14:56:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=gCwGv/e/gf0C6iderKEIRJdi0X+OWhvleA0ffjecAUA=;
-        b=dxV59InvESm2MJqKBf3+U1Ds3/hawDeEnGZ38sSmB5Il756bzpwxIre3Atc0Q1lkzC
-         hyBFGJ3TV2g0q8oktcCZOMFI8cRxHm73bG0bhfMCqzN/UjJnIR7jKT4a9XBskQw9dd6h
-         OqDy+jIwcgGlmmWZTsqokmdOnUKSxRvScSSq0=
+        bh=2h7rSRvHiDfpV/JqGRkiaejTHAdpZEG7Nka6Pnjwvpo=;
+        b=FAJHcFc6Pyx6GGP8vdmgf+D87FHKZIDU4UUfWsXA0WewkwL17U/1QlPKqu4O/F8LE9
+         JfpMTCmZoPBCS8TLm4xmpgZBOQo9wDEYpKkuh3sullDTs4kLFk+Oybo3QTYXyGsvBZDD
+         VeeHRypWibElYQzySO6Uhn086bFCNc6RzuQPM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=gCwGv/e/gf0C6iderKEIRJdi0X+OWhvleA0ffjecAUA=;
-        b=iueIucrlTqgNIoqAXK5ZdHwIFVIUeeT+zOTqkX2AKwcM9TprnQ46GaXYYN9jd+Eg2i
-         KereHqRkn66QnEdKNEggI1SKbEj2No2K7uNCDsD+LB22Xr7veIRG4OoB+L4r6rHMX/Td
-         vCt9GQupygGWg+G4cljUmkIMpxFkJWw4h5SDIrZ8DBBtcCngwQjIjQEHS02V+MLyXSEO
-         ljzRjDEfrQgfMRCpH5r2j5srSfSqNM0RZKIgaLCkwkneT946Omfy6Lob7Klfe0t0kg52
-         fReSLAjLHZ67nQu0W2PU3LQSo0LvSFwdcfz3E9sypoImleQK+piuMhQo5LhIsTPjmv7Q
-         7NBg==
-X-Gm-Message-State: AJIora9nXEFT5RoCrvvoE0tz2RIcCUZV0xz/TewT7TyiN7beU4Bu7pKL
-        tNzeLzJSgdHzEM5afm/DFaYtBb/8EPMuhQiR9aE=
-X-Google-Smtp-Source: AGRyM1vcpcnICn1f154QQetljG5hKyLJX/UTfPGm66Xp6aHafWQMDelQU4VKhCcTWRhUiD2YB/LYCQ==
-X-Received: by 2002:a17:907:3f04:b0:6e8:4b0e:438d with SMTP id hq4-20020a1709073f0400b006e84b0e438dmr10649786ejc.391.1657835530833;
-        Thu, 14 Jul 2022 14:52:10 -0700 (PDT)
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com. [209.85.221.50])
-        by smtp.gmail.com with ESMTPSA id b18-20020a170906d11200b0072b4e4cd346sm1148862ejz.188.2022.07.14.14.52.09
+        bh=2h7rSRvHiDfpV/JqGRkiaejTHAdpZEG7Nka6Pnjwvpo=;
+        b=PoHQJ93n7KGMY8i7YFzS904Lll7OyIIRtw90YO7Yid5GqLe18LlyMiqULqGGm4m7Qj
+         Ch9FZBDhkHF+Q3uX/mc/ZGlLp+qAFKkIG6G/nn1VfjMume5iWfme2cdIamHSBOQY1rKY
+         VNWRQF1htVLvdaAa/bpSWkisXgiJyoHMSndTzOJFkcL++yvT3jZ1X1GQYVjUq8+hLfF9
+         fVrweLqDKLcvPg1Gct10euSiyMTw4JLR0PunGDjkzmARC63jWHpuAVOpt9/YEO7laLlz
+         TzORtxCtoj4nCzGbxv7sXQ9758MDn5xmnro7ZnsxiqD9ew5e8CD0/jcifz13yDQdvwiK
+         jbEA==
+X-Gm-Message-State: AJIora/4qJ/5K1wwddhLA0G24CUwuvTwh9TuUitKeIS/bvU5ECjA99SJ
+        LYKNOZt09fxgBJgpKaQls1YxXkV454WUyJ9vdXQ=
+X-Google-Smtp-Source: AGRyM1tfuOxRG/7sneVX8P5Beuo0M9sUDbWzskMaZkjccv5fHxOgVJXHKS+DSneM+NQKKYhBLSGU1Q==
+X-Received: by 2002:a50:ce1d:0:b0:43a:742f:9db3 with SMTP id y29-20020a50ce1d000000b0043a742f9db3mr15001264edi.308.1657835789728;
+        Thu, 14 Jul 2022 14:56:29 -0700 (PDT)
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com. [209.85.128.49])
+        by smtp.gmail.com with ESMTPSA id f15-20020a17090631cf00b0072a66960843sm505350ejf.51.2022.07.14.14.56.28
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Jul 2022 14:52:09 -0700 (PDT)
-Received: by mail-wr1-f50.google.com with SMTP id h17so4363849wrx.0
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 14:52:09 -0700 (PDT)
-X-Received: by 2002:a5d:544b:0:b0:21d:70cb:b4a2 with SMTP id
- w11-20020a5d544b000000b0021d70cbb4a2mr9822619wrv.281.1657835528671; Thu, 14
- Jul 2022 14:52:08 -0700 (PDT)
+        Thu, 14 Jul 2022 14:56:29 -0700 (PDT)
+Received: by mail-wm1-f49.google.com with SMTP id be14-20020a05600c1e8e00b003a04a458c54so1979014wmb.3
+        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 14:56:28 -0700 (PDT)
+X-Received: by 2002:a7b:cd97:0:b0:3a2:dfcf:dd2d with SMTP id
+ y23-20020a7bcd97000000b003a2dfcfdd2dmr16997798wmj.68.1657835788646; Thu, 14
+ Jul 2022 14:56:28 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220713152436.2294819-1-nathan@kernel.org> <20220714143005.73c71cf8@kernel.org>
-In-Reply-To: <20220714143005.73c71cf8@kernel.org>
+ <CAHk-=wi+O_3+uef45jxj1+GhT+H0vXs9iz8rpjk49vCiyLS4DA@mail.gmail.com>
+In-Reply-To: <CAHk-=wi+O_3+uef45jxj1+GhT+H0vXs9iz8rpjk49vCiyLS4DA@mail.gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 14 Jul 2022 14:51:52 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wi+O_3+uef45jxj1+GhT+H0vXs9iz8rpjk49vCiyLS4DA@mail.gmail.com>
-Message-ID: <CAHk-=wi+O_3+uef45jxj1+GhT+H0vXs9iz8rpjk49vCiyLS4DA@mail.gmail.com>
+Date:   Thu, 14 Jul 2022 14:56:12 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjeVbrd3HOMh-t8968pMgZUFs6uP-p45Fn8qr27j8D0aQ@mail.gmail.com>
+Message-ID: <CAHk-=wjeVbrd3HOMh-t8968pMgZUFs6uP-p45Fn8qr27j8D0aQ@mail.gmail.com>
 Subject: Re: [PATCH v2] x86/speculation: Use DECLARE_PER_CPU for x86_spec_ctrl_current
 To:     Jakub Kicinski <kuba@kernel.org>
 Cc:     Nathan Chancellor <nathan@kernel.org>,
@@ -80,17 +81,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 2:30 PM Jakub Kicinski <kuba@kernel.org> wrote:
+On Thu, Jul 14, 2022 at 2:51 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> Hi, sorry to bother, any idea on the ETA for this fix getting into
-> Linus's tree? I'm trying to figure out if we should wait with
-> forwarding the networking trees or this will take a while.
+> But if this particular one causes problems for maintainers, I can
+> easily just take it right away just cherry-pick it from my own
+> test-tree to my "main" tree.
 
-Well, I have that patch by now in my own clang tree, but was holding
-it off just because I was expecting a few other fixes for the fallout.
+Oh, and as I did that cherry-pick, I suddenly remembered that I think
+PeterZ had a slightly different version of it - the one I picked up is
+Nathan's "v2".
 
-But if this particular one causes problems for maintainers, I can
-easily just take it right away just cherry-pick it from my own
-test-tree to my "main" tree.
+PeterZ, do you have preferences? I've waited this long, I might as
+well wait a bit more before I push out whatever version people prefer.
 
-            Linus
+              Linus
