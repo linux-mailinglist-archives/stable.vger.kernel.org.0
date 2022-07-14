@@ -2,66 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83146574C6E
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 13:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94ACD574C6D
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 13:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238628AbiGNLsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 07:48:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60440 "EHLO
+        id S238285AbiGNLsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 07:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230425AbiGNLsH (ORCPT
+        with ESMTP id S230423AbiGNLsH (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 07:48:07 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A015B054
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 04:48:06 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id ez10so2889082ejc.13
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 04:48:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dQ0fCq0ZyyLcCu2RaWJmjAKVYgnq2Ry9Qz7y6l9Krms=;
-        b=K/nOeGDGN++Gsq4Rj5Uy0wMI4/nxZVXiUITEjCOaFaWl+/RPljyJ0JK4g5RhkelyN1
-         1QhYynVk/wFdutgWXpEGdMFXfxeRESAHAiEg17dSzeC5l9W8qq+2JM2/JAIUQCJRblJ4
-         knckvzkZveeCYfSXnyxrn3AO9w+Vv1zA2Gi0NWSzQWdXw1i821Hn+Eadw2Bohis11GjP
-         QdgLEiOPpibD1jELa+gIGfB6Zbyd844Q8dnlecbComnMHcUhdX96BdEMwCWUCWCkpTEK
-         f0ZOXf//d0XKiIweLQ9WoopzZnncaFiF4hZkoxr2KEvJ7vMWEiPtvWFBDdGuuYf5QM66
-         BELg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dQ0fCq0ZyyLcCu2RaWJmjAKVYgnq2Ry9Qz7y6l9Krms=;
-        b=0rThACyb4tI/Tu9rj9dSu1rCRx+Ku7a89w4kk6QDnO8J8mbk8r5DGkRkXm7T4Fw2o3
-         J6wH7zhgZMS67zpQsGQaxePm/SVBs4KkprrsKEBVE2ucCqHoNw0alvJufQglcsvfIVJB
-         yhzf4vUnEW/lJYmGKusz/B1Q4QXXdSQr0Og2Lnj+xhBg9LVmNaDlvwFunTXJsqcmODeS
-         c0cTng5oPZH3lKovJMbb36SeRaRbZDJEaj/hRf+7ZA+SQbh6HwlGCNhiAIkzKjgzBVhq
-         PTdz4XieAHj5yDr1NPFjQYB6/dIyfLpQcTEerOBy53rWkHHyyKiNhMVg/zoVa1iDujn4
-         E2Jw==
-X-Gm-Message-State: AJIora8cy1c64/nKh/AI4CXJokesl7jlsQK8xlLWEXKJazIu3Sxsresq
-        u5OLCr6hfgGjcr6CTW0H7R0kBJ/71WSl/voGs/9PNA==
-X-Google-Smtp-Source: AGRyM1sAmuGPOa/LunsNi0GiSrbOj8H+RlLYQEoG2ZcAko018Odq3/IonxMSKHyCcOiCXMz3XdUqUewDhN1ftX+VmXc=
-X-Received: by 2002:a17:907:7294:b0:72b:1ae:9c47 with SMTP id
- dt20-20020a170907729400b0072b01ae9c47mr8209782ejc.253.1657799285189; Thu, 14
- Jul 2022 04:48:05 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE475A463;
+        Thu, 14 Jul 2022 04:48:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A616B824A3;
+        Thu, 14 Jul 2022 11:48:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 051ABC34114;
+        Thu, 14 Jul 2022 11:48:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657799283;
+        bh=OYIOsndITZUylHXaFbdAXqi+tObMpDd4N1pmU9B5qYw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BU5RqMC2H20MKgktAQXQMf8Vr4LLbRpMuGkENKg4y95+EPQDYYieK3kU+h7dMfA3M
+         73WQxG+TiIP+gTOb8Ms+EQq3YpVxX0H+IlZrvCoyQ3eROBBRC/bDqlDll23RswRRkp
+         YJiTcWSPyCODC+PjmHIdPTUovvwf33Fz2gUKuO5o=
+Date:   Thu, 14 Jul 2022 13:48:00 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Linux Kernel Functional Testing <lkft@linaro.org>
+Subject: Re: [PATCH] x86/kvm: fix FASTOP_SIZE when return thunks are enabled
+Message-ID: <YtACcLRLs3qlwbbV@kroah.com>
+References: <20220713171241.184026-1-cascardo@canonical.com>
+ <Ys/ncSnSFEST4fgL@worktop.programming.kicks-ass.net>
+ <976510d2-c7ad-2108-27e0-4c3b82c210f1@redhat.com>
 MIME-Version: 1.0
-References: <20220713094820.698453505@linuxfoundation.org>
-In-Reply-To: <20220713094820.698453505@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 14 Jul 2022 17:17:53 +0530
-Message-ID: <CA+G9fYs0E4tAty4hFBCNOYLK9zwCQAZ=nWJHx2a1NvvGLYScDw@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/131] 5.10.131-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <976510d2-c7ad-2108-27e0-4c3b82c210f1@redhat.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,31 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 13 Jul 2022 at 18:40, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.131 release.
-> There are 131 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 15 Jul 2022 09:47:55 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.131-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
-FYI,
+On Thu, Jul 14, 2022 at 01:36:22PM +0200, Paolo Bonzini wrote:
+> On 7/14/22 11:52, Peter Zijlstra wrote:
+> > On Wed, Jul 13, 2022 at 02:12:41PM -0300, Thadeu Lima de Souza Cascardo wrote:
+> > > The return thunk call makes the fastop functions larger, just like IBT
+> > > does. Consider a 16-byte FASTOP_SIZE when CONFIG_RETHUNK is enabled.
+> > > 
+> > > Otherwise, functions will be incorrectly aligned and when computing their
+> > > position for differently sized operators, they will executed in the middle
+> > > or end of a function, which may as well be an int3, leading to a crash
+> > > like:
+> > 
+> > Bah.. I did the SETcc stuff, but then forgot about the FASTOP :/
+> > 
+> >    af2e140f3420 ("x86/kvm: Fix SETcc emulation for return thunks")
+> > 
+> > > Fixes: aa3d480315ba ("x86: Use return-thunk in asm code")
+> > > Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+> > > Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > Cc: Borislav Petkov <bp@suse.de>
+> > > Cc: Josh Poimboeuf <jpoimboe@kernel.org>
+> > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> > > ---
+> > >   arch/x86/kvm/emulate.c | 2 +-
+> > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+> > > index db96bf7d1122..d779eea1052e 100644
+> > > --- a/arch/x86/kvm/emulate.c
+> > > +++ b/arch/x86/kvm/emulate.c
+> > > @@ -190,7 +190,7 @@
+> > >   #define X16(x...) X8(x), X8(x)
+> > >   #define NR_FASTOP (ilog2(sizeof(ulong)) + 1)
+> > > -#define FASTOP_SIZE (8 * (1 + HAS_KERNEL_IBT))
+> > > +#define FASTOP_SIZE (8 * (1 + (HAS_KERNEL_IBT | IS_ENABLED(CONFIG_RETHUNK))))
+> > 
+> > Would it make sense to do something like this instead?
+> 
+> Yes, definitely.  Applied with a small tweak to make FASTOP_LENGTH
+> more similar to SETCC_LENGTH:
+> diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+> index db96bf7d1122..0a15b0fec6d9 100644
+> --- a/arch/x86/kvm/emulate.c
+> +++ b/arch/x86/kvm/emulate.c
+> @@ -189,8 +189,12 @@
+>  #define X8(x...) X4(x), X4(x)
+>  #define X16(x...) X8(x), X8(x)
+> -#define NR_FASTOP (ilog2(sizeof(ulong)) + 1)
+> -#define FASTOP_SIZE (8 * (1 + HAS_KERNEL_IBT))
+> +#define NR_FASTOP	(ilog2(sizeof(ulong)) + 1)
+> +#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETHUNK)) + \
+> +			 IS_ENABLED(CONFIG_SLS))
+> +#define FASTOP_LENGTH	(ENDBR_INSN_SIZE + 7 + RET_LENGTH)
+> +#define FASTOP_SIZE	(8 << ((FASTOP_LENGTH > 8) & 1) << ((FASTOP_LENGTH > 16) & 1))
+> +static_assert(FASTOP_LENGTH <= FASTOP_SIZE);
+>  struct opcode {
+>  	u64 flags;
+> @@ -442,8 +446,6 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+>   * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETHUNK]
+>   * INT3				[1 byte; CONFIG_SLS]
+>   */
+> -#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETHUNK)) + \
+> -			 IS_ENABLED(CONFIG_SLS))
+>  #define SETCC_LENGTH	(ENDBR_INSN_SIZE + 3 + RET_LENGTH)
+>  #define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
+>  static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+> 
+> 
+> Paolo
+> 
 
-With rc2 the perf build issues got fixed.
+Any hint as to _where_ this was applied to?  I'm trying to keep in sync
+with what is going to Linus "soon" for issues that are affecting the
+stable trees here.
 
-but we still see
-Kernel panic on x86 while running kvm-unit-tests.
+Shouldn't this go through the x86-urgent tree with the other retbleed
+fixes?
 
-- Naresh
+thanks,
+
+greg k-h
