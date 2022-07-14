@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C75D557433D
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A35574341
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:32:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237367AbiGNEbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:31:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33060 "EHLO
+        id S237468AbiGNEby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237371AbiGNEbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:31:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1926129833;
-        Wed, 13 Jul 2022 21:25:21 -0700 (PDT)
+        with ESMTP id S237370AbiGNEbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:31:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953DA29830;
+        Wed, 13 Jul 2022 21:25:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8D6B82377;
-        Thu, 14 Jul 2022 04:25:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D36C34115;
-        Thu, 14 Jul 2022 04:25:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 329B961E96;
+        Thu, 14 Jul 2022 04:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A822C341C8;
+        Thu, 14 Jul 2022 04:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772718;
-        bh=V8Bnn0Qdmea87DKi19dp6Ps/3Mkn7B5N1/5lffCMd6U=;
+        s=k20201202; t=1657772719;
+        bh=MwrqexhpLf/SooKdi98I/BD1VAoLu+JvpTmN4MR5/aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0y2UIKS+FMTxjDhMDVUtWm5spqY/1a1WwFdF/uQlmGRpX5ssuB9/I7/UCTefg1/Q
-         Pm8BRTDnXvENXP3OV0WX9LwlfDwyy4FQDDhZ6+UHWDm1OfdKkoQ8xs4f7XuTstTJdK
-         gbgk/rR1Mpfa8RykGUwuQy18vqBtomqtjd9E67n2QICDHXJHBOv8Tt3GOHBfmCnxKn
-         yrdlW78snEeVRFOlz9aShvVzMrTxIS6PvGQlG1dq6bb2fKgqiJAKF7pyu9rXaNWtmu
-         pTOaH4ByaAGYnh/zApYi1KYRSRBRxFmgs1YLJMwI6xJzY+SeLvHiVjricErUPlH4/O
-         4ZcOb1HT3gTaQ==
+        b=eNdSJxUYEbVJKM/4kfCXOmAM7Z3YHqW2L3CfgJq7L7xyvWROfh5CVxsC4GUuA8IEL
+         diTeQ7wXdXp1yZKjI7izhVFHBtmzAFc7vPcF0XDYlpkJerwzzaxoQWMW5pHwj2PLIo
+         uWeKh7VyK57UCwzy/qUUuI7pJ5iaXsbOwzX9sEX9kAdhTl1wk29EpwfQVYzt4173np
+         /oLEw+iIbzKNYDbMVKcFswL/ORa1U9ZA+QiIkmlmQ+PqcQhjki0XIfOpXPsHvt25IR
+         eAi7sDvTAz5pColCkFwrPvInKYsmHdI9ouh4hQ67X+XeJqK1detOHSbu/qZLl4aXjC
+         wfVoYYx6/dttQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        khalasa@piap.pl
-Subject: [PATCH AUTOSEL 5.15 21/28] soc: ixp4xx/npe: Fix unused match warning
-Date:   Thu, 14 Jul 2022 00:24:22 -0400
-Message-Id: <20220714042429.281816-21-sashal@kernel.org>
+Cc:     Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, mcoquelin.stm32@gmail.com,
+        devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 22/28] ARM: dts: stm32: use the correct clock source for CEC on stm32mp151
+Date:   Thu, 14 Jul 2022 00:24:23 -0400
+Message-Id: <20220714042429.281816-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042429.281816-1-sashal@kernel.org>
 References: <20220714042429.281816-1-sashal@kernel.org>
@@ -56,43 +60,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
 
-[ Upstream commit 620f83b8326ce9706b1118334f0257ae028ce045 ]
+[ Upstream commit 78ece8cce1ba0c3f3e5a7c6c1b914b3794f04c44 ]
 
-The kernel test robot found this inconsistency:
+The peripheral clock of CEC is not LSE but CEC.
 
-  drivers/soc/ixp4xx/ixp4xx-npe.c:737:34: warning:
-  'ixp4xx_npe_of_match' defined but not used [-Wunused-const-variable=]
-     737 | static const struct of_device_id ixp4xx_npe_of_match[] = {
-
-This is because the match is enclosed in the of_match_ptr()
-which compiles into NULL when OF is disabled and this
-is unnecessary.
-
-Fix it by dropping of_match_ptr() around the match.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220626074315.61209-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ixp4xx/ixp4xx-npe.c | 2 +-
+ arch/arm/boot/dts/stm32mp151.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/ixp4xx/ixp4xx-npe.c b/drivers/soc/ixp4xx/ixp4xx-npe.c
-index f490c4ca51f5..a0159805d061 100644
---- a/drivers/soc/ixp4xx/ixp4xx-npe.c
-+++ b/drivers/soc/ixp4xx/ixp4xx-npe.c
-@@ -743,7 +743,7 @@ static const struct of_device_id ixp4xx_npe_of_match[] = {
- static struct platform_driver ixp4xx_npe_driver = {
- 	.driver = {
- 		.name           = "ixp4xx-npe",
--		.of_match_table = of_match_ptr(ixp4xx_npe_of_match),
-+		.of_match_table = ixp4xx_npe_of_match,
- 	},
- 	.probe = ixp4xx_npe_probe,
- 	.remove = ixp4xx_npe_remove,
+diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
+index 6992a4b0ba79..714ecd339c68 100644
+--- a/arch/arm/boot/dts/stm32mp151.dtsi
++++ b/arch/arm/boot/dts/stm32mp151.dtsi
+@@ -553,7 +553,7 @@ cec: cec@40016000 {
+ 			compatible = "st,stm32-cec";
+ 			reg = <0x40016000 0x400>;
+ 			interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&rcc CEC_K>, <&clk_lse>;
++			clocks = <&rcc CEC_K>, <&rcc CEC>;
+ 			clock-names = "cec", "hdmi-cec";
+ 			status = "disabled";
+ 		};
 -- 
 2.35.1
 
