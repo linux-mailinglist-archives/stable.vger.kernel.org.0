@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E70D35743B8
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61FE55743B9
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237638AbiGNEib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46940 "EHLO
+        id S237709AbiGNEif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234296AbiGNEhj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:37:39 -0400
+        with ESMTP id S236686AbiGNEhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:37:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E771A81E;
-        Wed, 13 Jul 2022 21:27:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27AF27B07;
+        Wed, 13 Jul 2022 21:27:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8867EB82376;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E909B82371;
+        Thu, 14 Jul 2022 04:27:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DC1C34114;
         Thu, 14 Jul 2022 04:27:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85A16C34114;
-        Thu, 14 Jul 2022 04:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772824;
-        bh=4fuDo9GyeOb4vTdduQvEyIq7rIyMwxLnhvLNqWOmU98=;
+        s=k20201202; t=1657772827;
+        bh=Bm9v9px20qjhnfPeUXRRvzIaEVzRnS3kuvbqmkLM0rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2ljjy1oD+zxOGckcDl7YTVuuuetpHX7soZ//vBJ7l+/fYkclzTHu7Tf1P3A0CVnu
-         ZFVmAA64s9KDw0ev+ePF4EJz1wOsy9/utflWhK0u7YhnBFaoGxOLxVLQU/WfkidBzv
-         ReL3tJHB1bg3fm7caNb/9Oi6f4spUibLlkgUtlk13XF7QHeQaVeRbtm4sFL2ntzHS8
-         sCsY0E264fr5kUXsojj8caF2F7vtWlszDpNkhlMq+WCfBYkvUZtUvuCmXq0+FrymrN
-         rMktEzyZjl6eQifXMOwOVARU/0Rm4yNMwdyEwB7fO+gYmky/0p9JTeX8hjD3iVlbfh
-         VS5hCBcjOATwg==
+        b=J89DqVXbZ41QWZLtnqstg96F0/MBNuQID0xiqs8BnJG8qkhRKTavaCPbbp0iF+RY1
+         D7v0j8SUkjc3I9Ll6tFQ0pcDf0JaBLCzlLMykPKihmu5KZwVODy36SNeBSLoQjGWIy
+         Ot2KqZgZjnn9kO0JkHDtkdjREZ1y+jaJXifllLyaTN9RzeflMcjx9EIORjoJM/VtIs
+         eoUp+WhVMi+6lhQqCAjHHKLd555EJEZFH2outW6GbKYCNQKbjglY/SdWejI048tRm+
+         Pd/55NB5/iMd6nHmuYOsG7vGBgWyr/weWmqUin55ZBWMc2YyJMIDAQpGv/L6gp3t4p
+         K0doLwvS/SroQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, brijesh.singh@amd.com,
-        kirill.shutemov@linux.intel.com, michael.roth@amd.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com, thomas.lendacky@amd.com
-Subject: [PATCH AUTOSEL 4.14 4/5] x86: Clear .brk area at early boot
-Date:   Thu, 14 Jul 2022 00:26:51 -0400
-Message-Id: <20220714042653.282599-4-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ebiederm@xmission.com,
+        keescook@chromium.org, oleg@redhat.com, tglx@linutronix.de,
+        peterz@infradead.org
+Subject: [PATCH AUTOSEL 4.14 5/5] signal handling: don't use BUG_ON() for debugging
+Date:   Thu, 14 Jul 2022 00:26:52 -0400
+Message-Id: <20220714042653.282599-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042653.282599-1-sashal@kernel.org>
 References: <20220714042653.282599-1-sashal@kernel.org>
@@ -59,41 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 38fa5479b41376dc9d7f57e71c83514285a25ca0 ]
+[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
 
-The .brk section has the same properties as .bss: it is an alloc-only
-section and should be cleared before being used.
+These are indeed "should not happen" situations, but it turns out recent
+changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
+exists, is pending more testing), and the BUG_ON() makes it
+unnecessarily hard to actually debug for no good reason.
 
-Not doing so is especially a problem for Xen PV guests, as the
-hypervisor will validate page tables (check for writable page tables
-and hypervisor private bits) before accepting them to be used.
+It's been that way for a long time, but let's make it clear: BUG_ON() is
+not good for debugging, and should never be used in situations where you
+could just say "this shouldn't happen, but we can continue".
 
-Make sure .brk is initially zero by letting clear_bss() clear the brk
-area, too.
+Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
+continue running.  Instead of making the system basically unusuable
+because you crashed the machine while potentially holding some very core
+locks (eg this function is commonly called while holding 'tasklist_lock'
+for writing).
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220630071441.28576-3-jgross@suse.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/head64.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/signal.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index e00ccbcc2913..59aa1d0646e4 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -292,6 +292,8 @@ static void __init clear_bss(void)
- {
- 	memset(__bss_start, 0,
- 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
-+	memset(__brk_base, 0,
-+	       (unsigned long) __brk_limit - (unsigned long) __brk_base);
- }
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 3619ab24644f..7c3fe8e0230a 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1662,12 +1662,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
+ 	bool autoreap = false;
+ 	u64 utime, stime;
  
- static unsigned long get_cmd_line_ptr(void)
+-	BUG_ON(sig == -1);
++	WARN_ON_ONCE(sig == -1);
+ 
+- 	/* do_notify_parent_cldstop should have been called instead.  */
+- 	BUG_ON(task_is_stopped_or_traced(tsk));
++	/* do_notify_parent_cldstop should have been called instead.  */
++	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
+ 
+-	BUG_ON(!tsk->ptrace &&
++	WARN_ON_ONCE(!tsk->ptrace &&
+ 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
+ 
+ 	if (sig != SIGCHLD) {
 -- 
 2.35.1
 
