@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC96957475F
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 10:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFF1574769
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 10:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236446AbiGNImD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 04:42:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38138 "EHLO
+        id S237349AbiGNIm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 04:42:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230233AbiGNImB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 04:42:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C035F87;
-        Thu, 14 Jul 2022 01:41:56 -0700 (PDT)
+        with ESMTP id S236911AbiGNImU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 04:42:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59D13D5A7;
+        Thu, 14 Jul 2022 01:42:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54A51B823E0;
-        Thu, 14 Jul 2022 08:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EFE8C34115;
-        Thu, 14 Jul 2022 08:41:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64F0F61E1F;
+        Thu, 14 Jul 2022 08:42:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF69C34115;
+        Thu, 14 Jul 2022 08:42:12 +0000 (UTC)
 From:   Huacai Chen <chenhuacai@loongson.cn>
 To:     Arnd Bergmann <arnd@arndb.de>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -32,9 +32,9 @@ Cc:     loongarch@lists.linux.dev, linux-arch@vger.kernel.org,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
         Huacai Chen <chenhuacai@loongson.cn>, stable@vger.kernel.org
-Subject: [PATCH V2 2/3] LoongArch: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-Date:   Thu, 14 Jul 2022 16:41:35 +0800
-Message-Id: <20220714084136.570176-2-chenhuacai@loongson.cn>
+Subject: [PATCH V2 3/3] SH: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
+Date:   Thu, 14 Jul 2022 16:41:36 +0800
+Message-Id: <20220714084136.570176-3-chenhuacai@loongson.cn>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220714084136.570176-1-chenhuacai@loongson.cn>
 References: <20220714084136.570176-1-chenhuacai@loongson.cn>
@@ -58,7 +58,6 @@ instead of NR_CPUS to iterate CPUs.
 [    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
 [    3.070072] Modules linked in: efivarfs autofs4
 [    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-[    3.084034] Hardware name: Loongson Loongson-3A5000-7A1000-1w-V0.1-CRB/Loongson-LS3A5000-7A1000-1w-EVB-V1.21, BIOS Loongson-UDK2018-V2.0.04082-beta7 04/27
 [    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
 [    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
 [    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
@@ -87,22 +86,22 @@ instead of NR_CPUS to iterate CPUs.
 Cc: stable@vger.kernel.org
 Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
 ---
- arch/loongarch/kernel/proc.c | 2 +-
+ arch/sh/kernel/cpu/proc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/loongarch/kernel/proc.c b/arch/loongarch/kernel/proc.c
-index e0b5f3b031b1..b12a1f21f864 100644
---- a/arch/loongarch/kernel/proc.c
-+++ b/arch/loongarch/kernel/proc.c
-@@ -106,7 +106,7 @@ static void *c_start(struct seq_file *m, loff_t *pos)
+diff --git a/arch/sh/kernel/cpu/proc.c b/arch/sh/kernel/cpu/proc.c
+index a306bcd6b341..5f6d0e827bae 100644
+--- a/arch/sh/kernel/cpu/proc.c
++++ b/arch/sh/kernel/cpu/proc.c
+@@ -132,7 +132,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 
+ static void *c_start(struct seq_file *m, loff_t *pos)
  {
- 	unsigned long i = *pos;
- 
--	return i < NR_CPUS ? (void *)(i + 1) : NULL;
-+	return i < nr_cpu_ids ? (void *)(i + 1) : NULL;
+-	return *pos < NR_CPUS ? cpu_data + *pos : NULL;
++	return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
  }
- 
  static void *c_next(struct seq_file *m, void *v, loff_t *pos)
+ {
 -- 
 2.31.1
 
