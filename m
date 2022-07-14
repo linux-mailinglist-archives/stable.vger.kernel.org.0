@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 240DC57424D
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7EF574251
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:23:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233712AbiGNEXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:23:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50024 "EHLO
+        id S233797AbiGNEXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:23:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233930AbiGNEWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:22:49 -0400
+        with ESMTP id S233805AbiGNEWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:22:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C1B27CDE;
-        Wed, 13 Jul 2022 21:22:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F280627CFF;
+        Wed, 13 Jul 2022 21:22:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75890B82373;
-        Thu, 14 Jul 2022 04:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD409C341CF;
-        Thu, 14 Jul 2022 04:22:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B9D3B8236F;
+        Thu, 14 Jul 2022 04:22:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FFDC34114;
+        Thu, 14 Jul 2022 04:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772558;
-        bh=/yLYH+geq49XNoPjucPvvOS5nstF1WxYkuZ8Nv55o/k=;
+        s=k20201202; t=1657772559;
+        bh=SlrhLM8CiLrapZm3BcyHGoU9JGNSw8/TZ+SDGIgRx/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMz+4A+tdHtqXjB51ndYNqaoxrg06wvBDdMRg+V/Vcv9MFO8SYGf2Ziug5CvCeFzi
-         BPcxQPpK8tAcxJ45FZCFUEAUimx9yL+7HcFZAjKXnib3sz5X27NmzU9kEqAgHivAbB
-         jONhtcmLih92YuyWR3lIE7wCkosIXHRJbxQnW2/YHN6gWwR75wSNgoeHKAETMh3RUX
-         0GNXSwPqMtEwL/JEf3a1YgatK4uJCPaxIk/1dWQAv8WLiG85Bf2RJ9zfLphtfE+eh4
-         Cp5imureJbgxIhe5WGKnOS43/a+hRg1xOJFyjQznwl5+/PXKy5nt0I5dD2DxUI5Odu
-         J+TKjVjYcl9MA==
+        b=spNymYqVCh0VaMWmPYn/TkX9P2j5PXyuXnOCmp/AyAeeXffPbtrGqj++I7FD25LN9
+         V+JwoJuhYWt8ApvcRCuPcJ7c8MNg+g4vW4okKGlgmSU8T5dfg+Y/pXcl0sYpR0Als1
+         sA3O+SPwGsg7lwd7XpNO3KNwmN4S7JO3Ob3JQB038NsgYSmcYXsUD0k8TtQsqyNLgd
+         EmaZsmdrb/aivrV1BjN8hwcxgxv2s7pR7BAdMy+OK3/yHcZb0Bq/rHzy9t4SredoWd
+         +KrBtGjsSDuu/MeQbCen3QuAwHoMiHS5iLwDWOYVBGLhQ004UHxKXh8qYj+J+7Suqt
+         mQBiNB/m45u0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
@@ -40,9 +40,9 @@ Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
         lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 06/41] ASoC: rt711: fix calibrate mutex initialization
-Date:   Thu, 14 Jul 2022 00:21:46 -0400
-Message-Id: <20220714042221.281187-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 07/41] ASoC: rt7*-sdw: harden jack_detect_handler
+Date:   Thu, 14 Jul 2022 00:21:47 -0400
+Message-Id: <20220714042221.281187-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042221.281187-1-sashal@kernel.org>
 References: <20220714042221.281187-1-sashal@kernel.org>
@@ -62,56 +62,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 08bb5dc6ce02374169213cea772b1c297eaf32d5 ]
+[ Upstream commit 0484271ab0ce50649329fa9dc23c50853c5b26a4 ]
 
-Follow the same flow as rt711-sdca and initialize all mutexes at probe
-time.
+Realtek headset codec drivers typically check if the card is
+instantiated before proceeding with the jack detection.
+
+The rt700, rt711 and rt711-sdca are however missing a check on the
+card pointer, which can lead to NULL dereferences encountered in
+driver bind/unbind tests.
 
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Rander Wang <rander.wang@intel.com>
 Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220606203752.144159-5-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220606203752.144159-6-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt711-sdw.c | 3 +++
- sound/soc/codecs/rt711.c     | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt700.c      | 2 +-
+ sound/soc/codecs/rt711-sdca.c | 2 +-
+ sound/soc/codecs/rt711.c      | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/rt711-sdw.c b/sound/soc/codecs/rt711-sdw.c
-index f49c94baa37c..4fe68bcf2a7c 100644
---- a/sound/soc/codecs/rt711-sdw.c
-+++ b/sound/soc/codecs/rt711-sdw.c
-@@ -474,6 +474,9 @@ static int rt711_sdw_remove(struct sdw_slave *slave)
- 	if (rt711->first_hw_init)
- 		pm_runtime_disable(&slave->dev);
+diff --git a/sound/soc/codecs/rt700.c b/sound/soc/codecs/rt700.c
+index e61a8257bf64..1f4da32639d4 100644
+--- a/sound/soc/codecs/rt700.c
++++ b/sound/soc/codecs/rt700.c
+@@ -162,7 +162,7 @@ static void rt700_jack_detect_handler(struct work_struct *work)
+ 	if (!rt700->hs_jack)
+ 		return;
  
-+	mutex_destroy(&rt711->calibrate_mutex);
-+	mutex_destroy(&rt711->disable_irq_lock);
-+
- 	return 0;
- }
+-	if (!rt700->component->card->instantiated)
++	if (!rt700->component->card || !rt700->component->card->instantiated)
+ 		return;
  
+ 	reg = RT700_VERB_GET_PIN_SENSE | RT700_HP_OUT;
+diff --git a/sound/soc/codecs/rt711-sdca.c b/sound/soc/codecs/rt711-sdca.c
+index e5a0ec984bdd..9c88c92c0abc 100644
+--- a/sound/soc/codecs/rt711-sdca.c
++++ b/sound/soc/codecs/rt711-sdca.c
+@@ -294,7 +294,7 @@ static void rt711_sdca_jack_detect_handler(struct work_struct *work)
+ 	if (!rt711->hs_jack)
+ 		return;
+ 
+-	if (!rt711->component->card->instantiated)
++	if (!rt711->component->card || !rt711->component->card->instantiated)
+ 		return;
+ 
+ 	/* SDW_SCP_SDCA_INT_SDCA_0 is used for jack detection */
 diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
-index ea25fd58d43a..39f7ded1371e 100644
+index 39f7ded1371e..3cb4bf76c021 100644
 --- a/sound/soc/codecs/rt711.c
 +++ b/sound/soc/codecs/rt711.c
-@@ -1203,6 +1203,7 @@ int rt711_init(struct device *dev, struct regmap *sdw_regmap,
- 	rt711->sdw_regmap = sdw_regmap;
- 	rt711->regmap = regmap;
+@@ -242,7 +242,7 @@ static void rt711_jack_detect_handler(struct work_struct *work)
+ 	if (!rt711->hs_jack)
+ 		return;
  
-+	mutex_init(&rt711->calibrate_mutex);
- 	mutex_init(&rt711->disable_irq_lock);
+-	if (!rt711->component->card->instantiated)
++	if (!rt711->component->card || !rt711->component->card->instantiated)
+ 		return;
  
- 	/*
-@@ -1317,7 +1318,6 @@ int rt711_io_init(struct device *dev, struct sdw_slave *slave)
- 			rt711_jack_detect_handler);
- 		INIT_DELAYED_WORK(&rt711->jack_btn_check_work,
- 			rt711_btn_check_handler);
--		mutex_init(&rt711->calibrate_mutex);
- 		INIT_WORK(&rt711->calibration_work, rt711_calibration_work);
- 		schedule_work(&rt711->calibration_work);
- 	}
+ 	if (pm_runtime_status_suspended(rt711->slave->dev.parent)) {
 -- 
 2.35.1
 
