@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFEAC574371
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 189FC57436B
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237045AbiGNEer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:34:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46048 "EHLO
+        id S231808AbiGNEeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237573AbiGNEeM (ORCPT
+        with ESMTP id S237568AbiGNEeM (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:34:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13503AE79;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476ED3AE74;
         Wed, 13 Jul 2022 21:26:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44AA6B82372;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB85261EB7;
         Thu, 14 Jul 2022 04:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62C53C385A2;
-        Thu, 14 Jul 2022 04:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560ADC385A9;
+        Thu, 14 Jul 2022 04:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772767;
-        bh=NGZvUX2/8YYY7PFd7hqg4wLi0Lty1gk9Q+AsMykP6rs=;
+        s=k20201202; t=1657772769;
+        bh=LR5BiutOma/0B/U/EoBoNYPeDfUNWk7C5GzJ7/aCzNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rdDA3Z4JkVyXgLId71lOqcS7wfYvljFTRAsEoXwAenJ6uk3yUAyJYWqeR2bIW8JjD
-         Y9aAPvR5IeJr8ufVSGLIT/e1bnO+bWxrAnA9xP6A2lc3pbaSM6OFAthdTojzJ7c+ly
-         W00LpW4ZrL845nTA49H1N/etehFxTVZ8o/NNWE5mmWSCGtIq3kVZHZzoFyYXI9BYBn
-         qpjC9OHPTogxolFqZy68DdNeKi7ESJu9R6/nb/U3q/xpmBW+J+871MoyyTv5c2LJmh
-         Q5PzVWmfawBxIozjIdIXjK8SdWOLwBtbryJ1NlHlRpnlLOF6DoXqfHGDKhMITv9ApL
-         Qh4zZmESFIpPw==
+        b=LELWtHleY4LZgN5UnPFPe/q+szrcgmanKFeALFe4ClyFPe4XD6pK71bUCB/RXz4RQ
+         mDgeALdKa2drFtW0kL8xruzXUQkcIX1tXbCulmh54OMZ6hyp0crEUQf/qyVmJVoqYz
+         Xif70E18y5U20TB9btY0iGWXg2g+1FoIrff3FTi2DiSw1ZVNK85hPTmYCjJbBskMI5
+         J008UyP9RR39OEyXWA5wV/mcvNQNJLAzBatN4BwtKEDz2I0aOz9RadCVr/iiVzewAd
+         7SRxNSvrv8/x2qjRbrV86aL1FHiErFWVzORWmWRs5neApQcAz3qqr2NQwBy9B+XpKu
+         X/9LokPFp1arw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Neeli <srinivas.neeli@xilinx.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, appana.durga.rao@xilinx.com,
-        wg@grandegger.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, michal.simek@xilinx.com,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 13/15] Revert "can: xilinx_can: Limit CANFD brp to 2"
-Date:   Thu, 14 Jul 2022 00:25:38 -0400
-Message-Id: <20220714042541.282175-13-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>, Chris Egolf <cegolf@ugholf.net>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 14/15] nvme-pci: phison e16 has bogus namespace ids
+Date:   Thu, 14 Jul 2022 00:25:39 -0400
+Message-Id: <20220714042541.282175-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042541.282175-1-sashal@kernel.org>
 References: <20220714042541.282175-1-sashal@kernel.org>
@@ -60,46 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Neeli <srinivas.neeli@xilinx.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit c6da4590fe819dfe28a4f8037a8dc1e056542fb4 ]
+[ Upstream commit 73029c9b23cf1213e5f54c2b59efce08665199e7 ]
 
-This reverts commit 05ca14fdb6fe65614e0652d03e44b02748d25af7.
+Add the quirk.
 
-On early silicon engineering samples observed bit shrinking issue when
-we use brp as 1. Hence updated brp_min as 2. As in production silicon
-this issue is fixed, so reverting the patch.
-
-Link: https://lore.kernel.org/all/20220609082433.1191060-2-srinivas.neeli@xilinx.com
-Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216049
+Reported-by: Chris Egolf <cegolf@ugholf.net>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index 1c42417810fc..1a3fba352cad 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -259,7 +259,7 @@ static const struct can_bittiming_const xcan_bittiming_const_canfd2 = {
- 	.tseg2_min = 1,
- 	.tseg2_max = 128,
- 	.sjw_max = 128,
--	.brp_min = 2,
-+	.brp_min = 1,
- 	.brp_max = 256,
- 	.brp_inc = 1,
- };
-@@ -272,7 +272,7 @@ static const struct can_bittiming_const xcan_data_bittiming_const_canfd2 = {
- 	.tseg2_min = 1,
- 	.tseg2_max = 16,
- 	.sjw_max = 16,
--	.brp_min = 2,
-+	.brp_min = 1,
- 	.brp_max = 256,
- 	.brp_inc = 1,
- };
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 3622c5c9515f..ce129655ef0a 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3234,7 +3234,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_DISABLE_WRITE_ZEROES|
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
+-		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN |
++				NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1b4b, 0x1092),	/* Lexar 256 GB SSD */
+ 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
 -- 
 2.35.1
 
