@@ -2,46 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C6A5749CA
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 11:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11A3574A0B
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 12:04:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237906AbiGNJ5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 05:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36364 "EHLO
+        id S237856AbiGNKEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 06:04:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231756AbiGNJ5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 05:57:08 -0400
-Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 29F814C607;
-        Thu, 14 Jul 2022 02:57:07 -0700 (PDT)
-Received: from uucp (helo=alpha)
-        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
-        id 1oBvaj-0006rx-00; Thu, 14 Jul 2022 11:57:05 +0200
-Received: by alpha.franken.de (Postfix, from userid 1000)
-        id 4A3C8C047F; Thu, 14 Jul 2022 11:54:40 +0200 (CEST)
-Date:   Thu, 14 Jul 2022 11:54:40 +0200
-From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To:     Huacai Chen <chenhuacai@loongson.cn>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, loongarch@lists.linux.dev,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH V2 1/3] MIPS: cpuinfo: Fix a warning for
- CONFIG_CPUMASK_OFFSTACK
-Message-ID: <20220714095440.GA10086@alpha.franken.de>
-References: <20220714084136.570176-1-chenhuacai@loongson.cn>
+        with ESMTP id S237673AbiGNKEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 06:04:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F431DFFC;
+        Thu, 14 Jul 2022 03:04:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA07161FC9;
+        Thu, 14 Jul 2022 10:04:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB804C34114;
+        Thu, 14 Jul 2022 10:04:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657793058;
+        bh=XV+fvidSE85iVWA39bDNH9XKnV+Mg+AU/aBFdWrQP6U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GHlKKvxhKp92LpsmEhGWbxA+YNanFCYGwblEx8EnCl0B6TSwCkui+2/e1X5FwT9RS
+         VJfNrvvvRd3vZwghSZeH6UjGSx1+MHncMhQ0pl1rjUt86PiNurIhu7w/cdcqOlnL7N
+         1EHQUaTMKAVnvi8VPw3SmSLn0UPQCp/HDLzMws1k=
+Date:   Thu, 14 Jul 2022 12:04:15 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Maxim Levitsky <mlevitsk@redhat.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        kvm list <kvm@vger.kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        Alex =?iso-8859-1?Q?Benn=E9e?= <alex.bennee@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: Re: [PATCH 5.15 00/78] 5.15.55-rc1 review
+Message-ID: <Ys/qHw7E/6gWqEbN@kroah.com>
+References: <20220712183238.844813653@linuxfoundation.org>
+ <CA+G9fYtntg7=zWSs-dm+n_AUr_u0eBOU0zrwWqMeXZ+SF6_bLw@mail.gmail.com>
+ <1a143d949dc333666374cf14fae4496045f77db4.camel@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220714084136.570176-1-chenhuacai@loongson.cn>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1a143d949dc333666374cf14fae4496045f77db4.camel@redhat.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,52 +66,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 04:41:34PM +0800, Huacai Chen wrote:
-> When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-> cpu_max_bits_warn() generates a runtime warning similar as below while
-> we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-> instead of NR_CPUS to iterate CPUs.
+On Thu, Jul 14, 2022 at 12:50:10PM +0300, Maxim Levitsky wrote:
+> On Wed, 2022-07-13 at 18:22 +0530, Naresh Kamboju wrote:
+> > On Wed, 13 Jul 2022 at 00:17, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > > 
+> > > This is the start of the stable review cycle for the 5.15.55 release.
+> > > There are 78 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Thu, 14 Jul 2022 18:32:19 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.55-rc1.gz
+> > > or in the git tree and branch at:
+> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > Results from Linaro’s test farm.
+> > Regressions on x86_64.
+> > 
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> > 
+> > 1) Kernel panic noticed on device x86_6 while running kvm-unit-tests.
+> >    - APIC base relocation is unsupported by KVM
 > 
-> [    3.052463] ------------[ cut here ]------------
-> [    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-> [    3.070072] Modules linked in: efivarfs autofs4
-> [    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-> [    3.084034] Hardware name: Loongson Loongson-3A4000-7A1000-1w-V0.1-CRB/Loongson-LS3A4000-7A1000-1w-EVB-V1.21, BIOS Loongson-UDK2018-V2.0.04082-beta7 04/27
-> [    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-> [    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-> [    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-> [    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-> [    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-> [    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-> [    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-> [    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-> [    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-> [    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-> [    3.195868]         ...
-> [    3.199917] Call Trace:
-> [    3.203941] [<98000000002086d8>] show_stack+0x38/0x14c
-> [    3.210666] [<9800000000cf846c>] dump_stack_lvl+0x60/0x88
-> [    3.217625] [<980000000023d268>] __warn+0xd0/0x100
-> [    3.223958] [<9800000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-> [    3.231150] [<9800000000210220>] show_cpuinfo+0x5e8/0x5f0
-> [    3.238080] [<98000000004f578c>] seq_read_iter+0x354/0x4b4
-> [    3.245098] [<98000000004c2e90>] new_sync_read+0x17c/0x1c4
-> [    3.252114] [<98000000004c5174>] vfs_read+0x138/0x1d0
-> [    3.258694] [<98000000004c55f8>] ksys_read+0x70/0x100
-> [    3.265265] [<9800000000cfde9c>] do_syscall+0x7c/0x94
-> [    3.271820] [<9800000000202fe4>] handle_syscall+0xc4/0x160
-> [    3.281824] ---[ end trace 8b484262b4b8c24c ]---
+> My 0.2 cent:
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-> ---
->  arch/mips/kernel/proc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> APIC base relocation warning is harmless, and I removed it 5.19 kernel:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.19-rc6&id=3743c2f0251743b8ae968329708bbbeefff244cf
 
-applied to mips-next.
+Nice, but doesn't look relevant for stable trees.
 
-Thomas.
+> The 'emulating exchange as write' is also something that KVM unit tests trigger
+> normally although this warning recently did signal a real and very nasty bug, which I fixed in this commit:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.19-rc6&id=33fbe6befa622c082f7d417896832856814bdde0
 
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+Already in the 5.18.2 release, doesn't look all that relevant for 5.15,
+odd that it is showing up on 5.15.
+
+thanks,
+
+greg k-h
