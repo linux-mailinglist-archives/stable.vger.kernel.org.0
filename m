@@ -2,315 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8204A574D24
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 14:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFC1574D44
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 14:15:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239012AbiGNMLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 08:11:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
+        id S238354AbiGNMPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 08:15:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238613AbiGNMKn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 08:10:43 -0400
+        with ESMTP id S230220AbiGNMPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 08:15:39 -0400
 Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED895D0DC
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 05:09:18 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id p9so2675890pjd.3
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 05:09:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E98275D3;
+        Thu, 14 Jul 2022 05:15:38 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id fz10so2717848pjb.2;
+        Thu, 14 Jul 2022 05:15:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jI8v9pse0fKMvsIfU30qV04G7aAbOAPa3y1hDP+umE4=;
-        b=TQrClUaZhJVY+apgtm+jkSI3LKpiwMFkCHXZbn/QBCOqHzvbk0CaBYGik09Bp4SPqH
-         M5/kauvVmLJ9Z6zkK1n/SxY0aPJN0/j1pAr8fz6IkpzZ5Tqb2G/mbHn1OTRaDPYJVVQo
-         SOeRs1njUG8z59/ECyBsZDMavHT6BP8bLxCQHtr3R8mziKN8UKHdReMHkvhymfX0+Lby
-         v2bSV5qIkiOXdxarTZuGEXh2Oyi9Z2ItT+L8TuOEH4fXO9cZbJlu4G+6R1JTdgWpiw3r
-         eQH2JDkkXBLFoBTiuyvQ88B8opAHHOToEEsCmDTbESZp5LkemOkYkycCv0UyMbbmvMgB
-         XBGA==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=XpMOn6GHmpbn67dLURX5KQmmlMf+JtWjMyaO5NMuNA0=;
+        b=hFPn5UlXDky5uKdnyyRZW7Ryj6M2C8b0tpXo3aq53nbNtfv2RQw2pmcz0NkTm5CIfF
+         /fkK1juklP+/m9dqAdzNJQjboMpR7VDmYcvQtyqpqdnH96TuiBvnkco3KwKpr5CXX0+J
+         nB7VirN6mllO989cwXczrRzFfrejllwyr0tIz3n9J9aBNzgQmIE0fquxbqIcO/KoAwqc
+         5PFpxwTG/QC7Bgm3YFvlqN11KJc/m8cb/JorBKKlNFYwGiA8xo5XVUgchdXesIzQbACe
+         wUehsYdU/uUki42bYNVvhl85yoHgPU/Q7a3DGvhlM7l0Iu6oygz5u+p0eOrcMLr6Y9YS
+         U2DQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jI8v9pse0fKMvsIfU30qV04G7aAbOAPa3y1hDP+umE4=;
-        b=2Eumr7KC//UmBohVUJ2W/CxwzJU4kM28b1dhfg7DPoWX9SSC6M14ycljX26Oy4PGSp
-         7EgvCc6MisqTN0Iz1r251Xm/diNkOPons0js8wOCeFcbyCJh1YkAYiuTAWibheTNsbBx
-         lWEKx0rdPwo/9C6+FimQD/G4bXTxpKr9V5jkvXfobiMhjgO5PySQtvj4OWyPvZ+eske9
-         +oBlr3gv/Row8id824kek0qkPqmnuh3hYduu+n54NCgKyf/cqZ7WAyjAvTiaM7yEyurL
-         DpyZ/3mJjiWBbeTqSR7kEQw8hixkaD4O5W6sMo17Re3+5st7RSmN0MK4/qf7vAPoysmf
-         2Jlg==
-X-Gm-Message-State: AJIora8wxzOz5QInJaffI/soQd3J+QUNy6xO+y2Qw3GGKztMNRkJI2dF
-        jJP93clEWG81cYm5vvFWA+ehtx6Wc7EZTeyLk64=
-X-Google-Smtp-Source: AGRyM1tIIRXxGjcdQzGIktMfIlOwd+zdQlsnQe6sWp2ageGywSE2Cimp/hdWadynsgYsdCawPbVY2A==
-X-Received: by 2002:a17:902:c992:b0:16b:d8b9:1c5f with SMTP id g18-20020a170902c99200b0016bd8b91c5fmr7999646plc.93.1657800554812;
-        Thu, 14 Jul 2022 05:09:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w75-20020a627b4e000000b005251f4596f0sm1485160pfc.107.2022.07.14.05.09.14
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=XpMOn6GHmpbn67dLURX5KQmmlMf+JtWjMyaO5NMuNA0=;
+        b=a9IpUUCpl/tdLMIL33AsY19i7Je4wt7oz570JOVJPWwkhElYm4szqr9fXbVu7GV4WK
+         q0HVCPutMKbfJdlFFPGL9T2JBtMlZCfzwognQcYkOaIIjFMD5/wdVNLNgDOhsJsM8oJK
+         HXuBQuEOwGf91LMeDOdYOdzNh6oaOqjsDffZuI0BDF0IEy5HOSFatYCoXk3JLUWf7y0Z
+         lT1Ev1hboJRbhEI8euhBIbqwkfXKlpthmYHGiuw0E/cllnxwbIB1xc9DOElbVZykO5Rt
+         SfSlivFL+s1E1kj0vmaVzoMxqHcnd1oGDAeQQ1uOvTy710YV6X3Rn/M41xZM0n7YU0/V
+         lpEw==
+X-Gm-Message-State: AJIora+q03bm83SQxXi9U3oEUtli1sxIGx5RgKnl2bmCFgya+/rO5LWd
+        UOyQE7QLLuqf3TQXH3VQR2zJTZDVc4A=
+X-Google-Smtp-Source: AGRyM1vh3892D+nLD1T9HewwIjBPUf6QJ3X0Z0V+orXUeRT4shcRtJ+VZFRhMBYd8u3mhIJ3Dmaegg==
+X-Received: by 2002:a17:903:1109:b0:16c:b5e7:652f with SMTP id n9-20020a170903110900b0016cb5e7652fmr1456156plh.142.1657800937621;
+        Thu, 14 Jul 2022 05:15:37 -0700 (PDT)
+Received: from localhost ([2406:7400:63:cb1d:811:33e9:9bc2:d40])
+        by smtp.gmail.com with ESMTPSA id d7-20020a170902cec700b0016c4f0065b4sm1345759plg.84.2022.07.14.05.15.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Jul 2022 05:09:14 -0700 (PDT)
-Message-ID: <62d0076a.1c69fb81.b6f99.2185@mx.google.com>
-Date:   Thu, 14 Jul 2022 05:09:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 14 Jul 2022 05:15:37 -0700 (PDT)
+Date:   Thu, 14 Jul 2022 17:45:32 +0530
+From:   Ritesh Harjani <ritesh.list@gmail.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Ted Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 02/10] mbcache: Add functions to delete entry if unused
+Message-ID: <20220714121532.xwh72dnys3ngg37k@riteshh-domain>
+References: <20220712104519.29887-1-jack@suse.cz>
+ <20220712105436.32204-2-jack@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.11-61-g8eed863760d7
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.18 baseline: 161 runs,
- 6 regressions (v5.18.11-61-g8eed863760d7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220712105436.32204-2-jack@suse.cz>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 161 runs, 6 regressions (v5.18.11-61-g8eed86=
-3760d7)
-
-Regressions Summary
--------------------
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
-config           | 1          =
-
-jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
-config           | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.11-61-g8eed863760d7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.11-61-g8eed863760d7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8eed863760d70afc1e9d9ef78015f935c78cb0a2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
-config           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cfe8ecbedc25b129a39c40
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cfe8ecbedc25b129a39=
-c41
-        failing since 8 days (last pass: v5.18.9-96-g91cfa3d0b94d, first fa=
-il: v5.18.9-102-ga6b8287ea0b9) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
-config           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cfd714c965e2ee66a39be0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cfd714c965e2ee66a39=
-be1
-        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
-ail: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cfd1119c2fd1673fa39be1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cfd1119c2fd1673fa39=
-be2
-        failing since 1 day (last pass: v5.18.10-27-gbe5c4eef4e40, first fa=
-il: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cfd3e8c0311c747ea39bdd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
-/baseline-qemu_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
-/baseline-qemu_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cfd3e8c0311c747ea39=
-bde
-        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
-ail: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cfd3c528e49a3736a39bdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cfd3c528e49a3736a39=
-bdc
-        failing since 1 day (last pass: v5.18.10-27-gbe5c4eef4e40, first fa=
-il: v5.18.11-61-g8656c561960d) =
-
- =
-
-
-
-platform               | arch   | lab             | compiler | defconfig   =
-                 | regressions
------------------------+--------+-----------------+----------+-------------=
------------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62cfd83a168caeaccba39be4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
-61-g8eed863760d7/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62cfd83a168caeaccba39=
-be5
-        failing since 1 day (last pass: v5.18.10-112-ga454acbfee6a, first f=
-ail: v5.18.11-61-g8656c561960d) =
-
- =20
+On 22/07/12 12:54PM, Jan Kara wrote:
+> Add function mb_cache_entry_delete_or_get() to delete mbcache entry if
+> it is unused and also add a function to wait for entry to become unused
+> - mb_cache_entry_wait_unused(). We do not share code between the two
+> deleting function as one of them will go away soon.
+>
+> CC: stable@vger.kernel.org
+> Fixes: 82939d7999df ("ext4: convert to mbcache2")
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> ---
+>  fs/mbcache.c            | 66 +++++++++++++++++++++++++++++++++++++++--
+>  include/linux/mbcache.h | 10 ++++++-
+>  2 files changed, 73 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/mbcache.c b/fs/mbcache.c
+> index cfc28129fb6f..2010bc80a3f2 100644
+> --- a/fs/mbcache.c
+> +++ b/fs/mbcache.c
+> @@ -11,7 +11,7 @@
+>  /*
+>   * Mbcache is a simple key-value store. Keys need not be unique, however
+>   * key-value pairs are expected to be unique (we use this fact in
+> - * mb_cache_entry_delete()).
+> + * mb_cache_entry_delete_or_get()).
+>   *
+>   * Ext2 and ext4 use this cache for deduplication of extended attribute blocks.
+>   * Ext4 also uses it for deduplication of xattr values stored in inodes.
+> @@ -125,6 +125,19 @@ void __mb_cache_entry_free(struct mb_cache_entry *entry)
+>  }
+>  EXPORT_SYMBOL(__mb_cache_entry_free);
+>
+> +/*
+> + * mb_cache_entry_wait_unused - wait to be the last user of the entry
+> + *
+> + * @entry - entry to work on
+> + *
+> + * Wait to be the last user of the entry.
+> + */
+> +void mb_cache_entry_wait_unused(struct mb_cache_entry *entry)
+> +{
+> +	wait_var_event(&entry->e_refcnt, atomic_read(&entry->e_refcnt) <= 3);
+
+It's not very intuitive of why we check for refcnt <= 3.
+A small note at top of this function might be helpful.
+IIUC, it is because by default when anyone creates an entry we start with
+a refcnt of 2 (in mb_cache_entry_create.
+- Now when the user of the entry wants to delete this, it will try and call
+  mb_cache_entry_delete_or_get(). If during this function call it sees that the
+  refcnt is elevated more than 2, that means there is another user of this entry
+  currently active and hence we should wait before we remove this entry from the
+  cache. So it will take an extra refcnt and return.
+- So then this caller will call mb_cache_entry_wait_unused() for the refcnt to
+  be <= 3, so that the entry can be deleted.
+
+Quick qn -
+So now is the design like, ext4_evict_ea_inode() will be waiting indefinitely
+until the other user of this mb_cache entry releases the reference right?
+And that will not happen until,
+- either the shrinker removes this entry from the cache during which we are
+  checking if the refcnt <= 3, then we call a wakeup event
+- Or the user removes/deletes the xattr entry
+Is the above understanding correct?
+
+-ritesh
+
+
+> +}
+> +EXPORT_SYMBOL(mb_cache_entry_wait_unused);
+> +
+>  static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
+>  					   struct mb_cache_entry *entry,
+>  					   u32 key)
+> @@ -217,7 +230,7 @@ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
+>  }
+>  EXPORT_SYMBOL(mb_cache_entry_get);
+>
+> -/* mb_cache_entry_delete - remove a cache entry
+> +/* mb_cache_entry_delete - try to remove a cache entry
+>   * @cache - cache we work with
+>   * @key - key
+>   * @value - value
+> @@ -254,6 +267,55 @@ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value)
+>  }
+>  EXPORT_SYMBOL(mb_cache_entry_delete);
+>
+> +/* mb_cache_entry_delete_or_get - remove a cache entry if it has no users
+> + * @cache - cache we work with
+> + * @key - key
+> + * @value - value
+> + *
+> + * Remove entry from cache @cache with key @key and value @value. The removal
+> + * happens only if the entry is unused. The function returns NULL in case the
+> + * entry was successfully removed or there's no entry in cache. Otherwise the
+> + * function grabs reference of the entry that we failed to delete because it
+> + * still has users and return it.
+> + */
+> +struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
+> +						    u32 key, u64 value)
+> +{
+> +	struct hlist_bl_node *node;
+> +	struct hlist_bl_head *head;
+> +	struct mb_cache_entry *entry;
+> +
+> +	head = mb_cache_entry_head(cache, key);
+> +	hlist_bl_lock(head);
+> +	hlist_bl_for_each_entry(entry, node, head, e_hash_list) {
+> +		if (entry->e_key == key && entry->e_value == value) {
+> +			if (atomic_read(&entry->e_refcnt) > 2) {
+> +				atomic_inc(&entry->e_refcnt);
+> +				hlist_bl_unlock(head);
+> +				return entry;
+> +			}
+> +			/* We keep hash list reference to keep entry alive */
+> +			hlist_bl_del_init(&entry->e_hash_list);
+> +			hlist_bl_unlock(head);
+> +			spin_lock(&cache->c_list_lock);
+> +			if (!list_empty(&entry->e_list)) {
+> +				list_del_init(&entry->e_list);
+> +				if (!WARN_ONCE(cache->c_entry_count == 0,
+> +		"mbcache: attempt to decrement c_entry_count past zero"))
+> +					cache->c_entry_count--;
+> +				atomic_dec(&entry->e_refcnt);
+> +			}
+> +			spin_unlock(&cache->c_list_lock);
+> +			mb_cache_entry_put(cache, entry);
+> +			return NULL;
+> +		}
+> +	}
+> +	hlist_bl_unlock(head);
+> +
+> +	return NULL;
+> +}
+> +EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
+> +
+>  /* mb_cache_entry_touch - cache entry got used
+>   * @cache - cache the entry belongs to
+>   * @entry - entry that got used
+> diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
+> index 20f1e3ff6013..8eca7f25c432 100644
+> --- a/include/linux/mbcache.h
+> +++ b/include/linux/mbcache.h
+> @@ -30,15 +30,23 @@ void mb_cache_destroy(struct mb_cache *cache);
+>  int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+>  			  u64 value, bool reusable);
+>  void __mb_cache_entry_free(struct mb_cache_entry *entry);
+> +void mb_cache_entry_wait_unused(struct mb_cache_entry *entry);
+>  static inline int mb_cache_entry_put(struct mb_cache *cache,
+>  				     struct mb_cache_entry *entry)
+>  {
+> -	if (!atomic_dec_and_test(&entry->e_refcnt))
+> +	unsigned int cnt = atomic_dec_return(&entry->e_refcnt);
+> +
+> +	if (cnt > 0) {
+> +		if (cnt <= 3)
+> +			wake_up_var(&entry->e_refcnt);
+>  		return 0;
+> +	}
+>  	__mb_cache_entry_free(entry);
+>  	return 1;
+>  }
+>
+> +struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
+> +						    u32 key, u64 value);
+>  void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value);
+>  struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
+>  					  u64 value);
+> --
+> 2.35.3
+>
