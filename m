@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2945743A2
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 850DB5743A7
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237048AbiGNEh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48142 "EHLO
+        id S237549AbiGNEhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232500AbiGNEgr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:36:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D384D103;
-        Wed, 13 Jul 2022 21:26:43 -0700 (PDT)
+        with ESMTP id S237632AbiGNEgw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:36:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E0E3D5A8;
+        Wed, 13 Jul 2022 21:26:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9434261EB3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3D0BB8236E;
+        Thu, 14 Jul 2022 04:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A16BC36AE2;
         Thu, 14 Jul 2022 04:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFD54C385A2;
-        Thu, 14 Jul 2022 04:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772803;
-        bh=Fx1M8c3FrFG6aIocqtJj5YqSitj0ITCfGvnQlG5jYXc=;
+        s=k20201202; t=1657772804;
+        bh=5IEYN5foefB4K0Dyg0jaz4/QY7YbSg5VpEmxben9s0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Prp/cRaYA3osRig5Va6R1AoqfxlelYEjLjADXbBViywMUS3Yh+fzyvYjqYVL3MasQ
-         xqyWBfl3wXTx0AYoTSebiNNXNs8R46rKGSroOdaSZrvwPKMEO1KTBI2lk9/LuOB6Nb
-         /HiETQrKRIsoje2UOZiHS14qiABdrk9QSndamuKvDP4pZJzU8+d/mmzhK+oZPaDVAL
-         gA4ATp8FG9qvuphTx+dWjE0Yo48/3T46T2lviESBBhFdXwa6+jSP/HnZV3YYKJddrY
-         Pcife0gDhOndo7UVRZbHO2tJW+RsAHs2TaEA++V/AGVobBrx8SDF+F02FTd8JPgadY
-         z7Vv4B4AL777w==
+        b=r52H2BeKhEe9ihsH+cIjm3WWV6WdxQrcKwVIAk2W/NUdqfAc2HBn4z3V55TFYWeDT
+         j+vMiEPnB/MQbrBysAH7Ku+/TPveUtrw1uJb9ZZTcHBJhFszf4X4v36MHfiQ0ujd/v
+         m3jfTNE0Ohde8ztQQIE4AuXZT4MeSym7epZvwZl41KHxamfqHwg9SppdKaAkIeGwIb
+         +M6QAZF8IrCxC5w5q7WKUqZE5aadMqcHabiUkRH/TWx3Yr50ehDEIwprOXRwjWffuh
+         /jBaf9KYcFZoA66UCoJhcdoaT0jYHAwp9Dfdwh872gHakdCwMK0mbpzAVB9mwfly6T
+         tUGTd/7WOUB8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, simont@opensource.cirrus.com,
-        patches@opensource.cirrus.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 2/6] ASoC: wm5110: Fix DRE control
-Date:   Thu, 14 Jul 2022 00:26:32 -0400
-Message-Id: <20220714042637.282511-2-sashal@kernel.org>
+Cc:     Stafford Horne <shorne@gmail.com>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, tglx@linutronix.de,
+        openrisc@lists.librecores.org
+Subject: [PATCH AUTOSEL 4.19 3/6] irqchip: or1k-pic: Undefine mask_ack for level triggered hardware
+Date:   Thu, 14 Jul 2022 00:26:33 -0400
+Message-Id: <20220714042637.282511-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042637.282511-1-sashal@kernel.org>
 References: <20220714042637.282511-1-sashal@kernel.org>
@@ -58,54 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 0bc0ae9a5938d512fd5d44f11c9c04892dcf4961 ]
+[ Upstream commit 8520501346ed8d1c4a6dfa751cb57328a9c843f1 ]
 
-The DRE controls on wm5110 should return a value of 1 if the DRE state
-is actually changed, update to fix this.
+The mask_ack operation clears the interrupt by writing to the PICSR
+register.  This we don't want for level triggered interrupt because
+it does not actually clear the interrupt on the source hardware.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220621102041.1713504-2-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This was causing issues in qemu with multi core setups where
+interrupts would continue to fire even though they had been cleared in
+PICSR.
+
+Just remove the mask_ack operation.
+
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5110.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-or1k-pic.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index b0789a03d699..e510aca55163 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -414,6 +414,7 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
- 	unsigned int rnew = (!!ucontrol->value.integer.value[1]) << mc->rshift;
- 	unsigned int lold, rold;
- 	unsigned int lena, rena;
-+	bool change = false;
- 	int ret;
- 
- 	snd_soc_dapm_mutex_lock(dapm);
-@@ -441,8 +442,8 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
- 		goto err;
- 	}
- 
--	ret = regmap_update_bits(arizona->regmap, ARIZONA_DRE_ENABLE,
--				 mask, lnew | rnew);
-+	ret = regmap_update_bits_check(arizona->regmap, ARIZONA_DRE_ENABLE,
-+				       mask, lnew | rnew, &change);
- 	if (ret) {
- 		dev_err(arizona->dev, "Failed to set DRE: %d\n", ret);
- 		goto err;
-@@ -455,6 +456,9 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
- 	if (!rnew && rold)
- 		wm5110_clear_pga_volume(arizona, mc->rshift);
- 
-+	if (change)
-+		ret = 1;
-+
- err:
- 	snd_soc_dapm_mutex_unlock(dapm);
- 
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index dd9d5d12fea2..05931fdedbb9 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -70,7 +70,6 @@ static struct or1k_pic_dev or1k_pic_level = {
+ 		.name = "or1k-PIC-level",
+ 		.irq_unmask = or1k_pic_unmask,
+ 		.irq_mask = or1k_pic_mask,
+-		.irq_mask_ack = or1k_pic_mask_ack,
+ 	},
+ 	.handle = handle_level_irq,
+ 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
 -- 
 2.35.1
 
