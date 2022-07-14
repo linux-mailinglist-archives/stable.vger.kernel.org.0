@@ -2,37 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7775752AC
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 18:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BDD57534B
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 18:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238688AbiGNQWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 12:22:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49444 "EHLO
+        id S239844AbiGNQrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 12:47:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238119AbiGNQWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 12:22:40 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B13D362A47
-        for <stable@vger.kernel.org>; Thu, 14 Jul 2022 09:22:38 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C28B71D13;
-        Thu, 14 Jul 2022 09:22:38 -0700 (PDT)
-Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.174])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8B1433F70D;
-        Thu, 14 Jul 2022 09:22:37 -0700 (PDT)
-From:   James Morse <james.morse@arm.com>
-To:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Sumit Gupta <sumitg@nvidia.com>
-Subject: [stable:PATCH v4.9.323] arm64: entry: Restore tramp_map_kernel ISB
-Date:   Thu, 14 Jul 2022 17:22:25 +0100
-Message-Id: <20220714162225.280073-1-james.morse@arm.com>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S240022AbiGNQqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 12:46:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE69A6BC19;
+        Thu, 14 Jul 2022 09:45:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EA3A62054;
+        Thu, 14 Jul 2022 16:44:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C01FC34114;
+        Thu, 14 Jul 2022 16:44:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1657817069;
+        bh=iM0sHba9YtLd8lM6n792MFUeeIeWthKKRCzYAJSsaiI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=USWNvHsK5uZ9X+4GaAJNb0zO9c3mkeZ86qiWdqvOkTD44X3QZKGFcMEUyEIeLfA+v
+         YJPHd/yQYytXaHZv8jbcb+tVdV1nnLM89TJ2LaFpb2AYkZ0g3e9cF+BXLF8uP2AXz7
+         7YaV7oPnUHP5yNHgtGSENcQC1QWRAntFMiRRXXXgFV+KU9LzFSczBWiqhomPo+DDzt
+         GO+JG3l9jawbqON4ewGl8EKpghvT9dwxqJNtIFFPTwt+2hwjgaA/g26HIs96iz74W+
+         DeZYARD50imniZKQFLyh6j1Bh83dVykm9MgjMiqZgppEGJCeXyu83pS9QKfC7gaMZV
+         a5C7y/75wGXjw==
+From:   SeongJae Park <sj@kernel.org>
+To:     Jianglei Nie <niejianglei2021@163.com>
+Cc:     sj@kernel.org, akpm@linux-foundation.org, damon@lists.linux.dev,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] mm/damon/reclaim: fix potential memory leak in damon_reclaim_init()
+Date:   Thu, 14 Jul 2022 16:44:27 +0000
+Message-Id: <20220714164427.157184-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220714063746.2343549-1-niejianglei2021@163.com>
+References: 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -40,43 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Summit reports that the BHB backports for v4.9 prevent vulnerable
-platforms from booting when CONFIG_RANDOMIZE_BASE is enabled.
+Hello Jianglei,
 
-This is because the trampoline code takes a translation fault when
-accessing the data page, because the TTBR write hasn't been completed
-by an ISB before the access is made.
+On Thu, 14 Jul 2022 14:37:46 +0800 Jianglei Nie <niejianglei2021@163.com> wrote:
 
-Upstream has a complex erratum workaround for QCOM_FALKOR_E1003 in
-this area, which removes the ISB when the workaround has been applied.
-v4.9 lacks this workaround, but should still have the ISB.
+> damon_reclaim_init() allocates a memory chunk for ctx with
+> damon_new_ctx(). When damon_select_ops() fails, ctx is not released, which
+> will lead to a memory leak.
+> 
+> We should release the ctx with damon_destroy_ctx() when damon_select_ops()
+> fails to fix the memory leak.
 
-Restore the barrier.
+Thank you for this patch!
 
-Fixes: aee10c2dd013 ("arm64: entry: Add macro for reading symbol addresses from the trampoline")
-Reported-by: Sumit Gupta <sumitg@nvidia.com>
-Tested-by: Sumit Gupta <sumitg@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: James Morse <james.morse@arm.com>
----
-This only applies to the v4.9 backport, as v4.14 has the QCOM_FALKOR_E1003
-workaround.
+I think below tags would be better to be added.
 
- arch/arm64/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+Fixes: 4d69c3457821 ("mm/damon/reclaim: use damon_select_ops() instead of damon_{v,p}a_set_operations()")
+Cc: <stable@vger.kernel.org> # 5.18.x
 
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 1f79abb1e5dd..4551c0f35fc4 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -964,6 +964,7 @@ __ni_sys_trace:
- 	b	.
- 2:
- 	tramp_map_kernel	x30
-+	isb
- 	tramp_data_read_var	x30, vectors
- 	prfm	plil1strm, [x30, #(1b - \vector_start)]
- 	msr	vbar_el1, x30
--- 
-2.30.2
+> 
+> Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
 
+Reviewed-by: SeongJae Park <sj@kernel.org>
+
+
+Thanks,
+SJ
+
+> ---
+>  mm/damon/reclaim.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/mm/damon/reclaim.c b/mm/damon/reclaim.c
+> index 4b07c29effe9..0b3c7396cb90 100644
+> --- a/mm/damon/reclaim.c
+> +++ b/mm/damon/reclaim.c
+> @@ -441,8 +441,10 @@ static int __init damon_reclaim_init(void)
+>  	if (!ctx)
+>  		return -ENOMEM;
+>  
+> -	if (damon_select_ops(ctx, DAMON_OPS_PADDR))
+> +	if (damon_select_ops(ctx, DAMON_OPS_PADDR)) {
+> +		damon_destroy_ctx(ctx);
+>  		return -EINVAL;
+> +	}
+>  
+>  	ctx->callback.after_wmarks_check = damon_reclaim_after_wmarks_check;
+>  	ctx->callback.after_aggregation = damon_reclaim_after_aggregation;
+> -- 
+> 2.25.1
