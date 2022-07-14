@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D0B574266
-	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F6B57426D
+	for <lists+stable@lfdr.de>; Thu, 14 Jul 2022 06:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234563AbiGNEY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jul 2022 00:24:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51894 "EHLO
+        id S234665AbiGNEYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jul 2022 00:24:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234577AbiGNEXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:23:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15EFB286F5;
-        Wed, 13 Jul 2022 21:22:54 -0700 (PDT)
+        with ESMTP id S234711AbiGNEYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Jul 2022 00:24:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A38B27B09;
+        Wed, 13 Jul 2022 21:22:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 565F261E91;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2913B82375;
+        Thu, 14 Jul 2022 04:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ADD3C3411C;
         Thu, 14 Jul 2022 04:22:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32763C34114;
-        Thu, 14 Jul 2022 04:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657772573;
-        bh=14XCnMkq1arqiNi6FR7twGUnaj1vfw1y++YI1I9tfEc=;
+        s=k20201202; t=1657772575;
+        bh=iA9/mffzugg5arwehs0PfA8MRLkpYI57QgbLR0O4YSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0Z4iWOrTV20fGjM94zK7D9kCZ5Kfxg+VeOCdeQpSMhOVOpLJ3BM8P8AeSk2SATSe
-         dsEqKgksUVrUQsaojZFgfExFeUTKxTAWZjXtakilYYdiCTgjFx2gEK9uHW8+CkBXhx
-         yNJPz4O5Te7PyebFDenJiSLHz5gINQOuvBu8P/Rti+Dm8LGlhHxYJtzTNZ2SbVcrJ/
-         90/uROe9NZkLO1bp2+SLcEeOLu/eu2UgG7VZx6AOF7Cz2/0vGQGDnlSGgumJnsJ9Tr
-         9izMmRrI99ecNobES0S2lMTVczWl/3hJa+6MzSfMTmNH0lTJr+7HFvgb/AlPPGuQ0g
-         I9pudgAygHHCg==
+        b=l7uXCoUu05LNZeVf9WvazV0SCXWy/EnwCX1SYtiyC92DKYbHDXr0hJgK/dCLtKiUp
+         s2/KBbap9t2fumqVWnUuLQH+PWSCOLVNarC9NV3nU5zIwbYn0HEZT9ssTULNetC5iO
+         8GfYew68JiZRYUgUMLZiU54JDr9kkPdsGx6DR3fXkXshhTE20HQkC69EqIw7f01d10
+         Eu52gGpCAI31xmYrmin7i1Y9Q9Gh0fdAkIY8HMqqF8YJiW8PkbfrPQtAeREJdPnn4b
+         rQzhNiVjzGoxt5bq6gResVxBnvUNU9eLmIztyt3jjNu6G8Tke2osPkZD6eVSokzeT/
+         k+rDjbeto0HGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+Cc:     Yassine Oudjana <y.oudjana@protonmail.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
-        kai.vehmanen@linux.intel.com, yang.jie@linux.intel.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 11/41] ASoC: SOF: Intel: hda-loader: Clarify the cl_dsp_init() flow
-Date:   Thu, 14 Jul 2022 00:21:51 -0400
-Message-Id: <20220714042221.281187-11-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        srinivas.kandagatla@linaro.org, bgoswami@quicinc.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 12/41] ASoC: wcd9335: Remove RX channel from old list before adding it to a new one
+Date:   Thu, 14 Jul 2022 00:21:52 -0400
+Message-Id: <20220714042221.281187-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220714042221.281187-1-sashal@kernel.org>
 References: <20220714042221.281187-1-sashal@kernel.org>
@@ -62,52 +59,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-[ Upstream commit bbfef046c6613404c01aeb9e9928bebb78dd327a ]
+[ Upstream commit be6dd72edb216f20fc80e426ece9fe9b8aabf033 ]
 
-Update the comment for the cl_dsp_init() to clarify what is done by the
-function and use the chip->init_core_mask instead of BIT(0) when
-unstalling/running the init core.
+Currently in slim_rx_mux_put, an RX channel gets added to a new list
+even if it is already in one. This can mess up links and make either
+it, the new list head, or both, get linked to the wrong entries.
+This can cause an entry to link to itself which in turn ends up
+making list_for_each_entry in other functions loop infinitely.
+To avoid issues, always remove the RX channel from any list it's in
+before adding it to a new list.
 
-Complements: 2a68ff846164 ("ASoC: SOF: Intel: hda: Revisit IMR boot sequence")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20220609085949.29062-4-peter.ujfalusi@linux.intel.com
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Link: https://lore.kernel.org/r/20220606152226.149164-1-y.oudjana@protonmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-loader.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/codecs/wcd9335.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
-index 9f624a84182b..88d23924e1bf 100644
---- a/sound/soc/sof/intel/hda-loader.c
-+++ b/sound/soc/sof/intel/hda-loader.c
-@@ -97,9 +97,9 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
- }
+diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
+index 1e60db4056ad..12be043ee9a3 100644
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -1289,9 +1289,12 @@ static int slim_rx_mux_put(struct snd_kcontrol *kc,
  
- /*
-- * first boot sequence has some extra steps. core 0 waits for power
-- * status on core 1, so power up core 1 also momentarily, keep it in
-- * reset/stall and then turn it off
-+ * first boot sequence has some extra steps.
-+ * power on all host managed cores and only unstall/run the boot core to boot the
-+ * DSP then turn off all non boot cores (if any) is powered on.
-  */
- static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
- {
-@@ -127,7 +127,7 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
- 			  ((stream_tag - 1) << 9)));
+ 	wcd->rx_port_value[port_id] = ucontrol->value.enumerated.item[0];
  
- 	/* step 3: unset core 0 reset state & unstall/run core 0 */
--	ret = hda_dsp_core_run(sdev, BIT(0));
-+	ret = hda_dsp_core_run(sdev, chip->init_core_mask);
- 	if (ret < 0) {
- 		if (hda->boot_iteration == HDA_FW_BOOT_ATTEMPTS)
- 			dev_err(sdev->dev,
++	/* Remove channel from any list it's in before adding it to a new one */
++	list_del_init(&wcd->rx_chs[port_id].list);
++
+ 	switch (wcd->rx_port_value[port_id]) {
+ 	case 0:
+-		list_del_init(&wcd->rx_chs[port_id].list);
++		/* Channel already removed from lists. Nothing to do here */
+ 		break;
+ 	case 1:
+ 		list_add_tail(&wcd->rx_chs[port_id].list,
 -- 
 2.35.1
 
