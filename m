@@ -2,124 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 708A8576379
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 16:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D2B57638C
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 16:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235323AbiGOOOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 10:14:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42300 "EHLO
+        id S229532AbiGOOVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 10:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235359AbiGOOOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 10:14:12 -0400
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E3714091;
-        Fri, 15 Jul 2022 07:14:10 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id EA2735C00ED;
-        Fri, 15 Jul 2022 10:14:07 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 15 Jul 2022 10:14:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; t=1657894447; x=1657980847; bh=xUs+Fa77kr
-        OyO5S4vACFreFi4W0sYUD0E2jG/FaLPJ0=; b=uaewZsONjI/FGiYO1CmrPp94pQ
-        +EbTpYs0zltsiN2zMcbuHKqz+tMuJBG+Sfyoi+Aqaea1aUVFy353BG9zI0sp+lPQ
-        d4ikMUtESrDAACgDP8/Mwa0TB18rkhZyhHvR8tHBlnCeadx80VWnpbJ9ChQY4oZx
-        5IDXfBc9IufgaZsEr80vvyqBgtHfEuRuL87trpnzs/jzyZRdD0gpNll6V2t7XNac
-        0+ybP8HVbyc9Q/xc/9+WymO1XojBSD+/gziOUM/S1Vo3J7bLVaJRD8il3c3BLYPr
-        ui9ozAf8Bg8fSr/ZmSCltcx2Fy5vTF50KUYT/+Np7PzNSO1yxuJlBXKIZQXA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1657894447; x=1657980847; bh=xUs+Fa77krOyO5S4vACFreFi4W0s
-        YUD0E2jG/FaLPJ0=; b=SNTD2mKFMG7hVD/tArK44XjJLKLmu4pB0SPLWpq46sWe
-        xuTJBQp/aMsPpt/b+0ZAQEGh+1j/d+mGrvkNWDtJYlHim4UJSXAHP/wAhtFIfmiX
-        Fu8NoCYXo3mq/eywmwzNuNn44Q8c37zpLSxI7ktB2V0gz4819KN69EwQFuUNNNi+
-        3JDTxUeruv+F9+yU892LZslG2HkThCroJktB5kAmjKGtwq1NJYE9rAG1R9mXucU2
-        DMj/r+Q8p08ZWN/STNeSgyogRekKO1/LKNZQ5A4TbTLzU7arSL7HqXr+L3IMnw10
-        KpEjSsePRapzvA4eHB0QuiyG3tgGCzAsKvN21FH3qg==
-X-ME-Sender: <xms:LnbRYu6JK8A7QOtt4SbNnQ449ycSfQ-JE4mnwika5sFRRGpmZ3ndbA>
-    <xme:LnbRYn6q08OotmzFw85NojQZ2m5YZBrs6LSjBHegrMScM4FptF699GdBiQcCqE4xW
-    R873XoyMPHtng>
-X-ME-Received: <xmr:LnbRYtcj1fNhVrkPq-fKecq3nK8fQ7RAm0DWiSsTMrCjip7kqTqMCjBpLuSmWUljeQSpc3TWJt-OM_17kQJezGwSFcfy-lua>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudekuddgjeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgeehue
-    ehgfdtledutdelkeefgeejteegieekheefudeiffdvudeffeelvedttddvnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:LnbRYrLYChHAFVJRn5QfggQl0gIp_TOWK68oBJDa1Y4UMJKfYfVELw>
-    <xmx:LnbRYiL0qVztBl62gRF6IhfIHg8tDmlBEc8UPnVlHzdLXyy5CVwEgg>
-    <xmx:LnbRYswa8jHVHu00hk_UZQ7a2SMFNuB-8zFP31uv4XaGkDwV1emNJA>
-    <xmx:L3bRYhUmyk13avp4LuEqBpwv2OrsMg-Hv7rezY9IfN7Ze7iviscOGw>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 15 Jul 2022 10:14:05 -0400 (EDT)
-Date:   Fri, 15 Jul 2022 16:14:01 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        yj.chiang@mediatek.com,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH 5.4] sched/rt: Disable RT_RUNTIME_SHARE by default
-Message-ID: <YtF2KVJkAnUlx5li@kroah.com>
-References: <20220714073055.15049-1-mark-pk.tsai@mediatek.com>
+        with ESMTP id S229436AbiGOOVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 10:21:00 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4463F5C9C7
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 07:20:59 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id h132so4521467pgc.10
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 07:20:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tf8E8jT+MfwvxjgryQK/+y+a3E6fJoqY6d92RiJ2OJ4=;
+        b=kFUsq4MggMw9ERPhBH4S4UIcHQVdF03T6x+AlIw7mSpLUUfDyi73hglvQavJhtiKnK
+         m/+Hz8SWc92K0o3FBtKVhPkkI+oET24cGAch3APJVbA64N8qMeR02EiL/Iy9FkBuWxjf
+         C0q65suEzC0UwBN0B4RIKc0JqnB7VvLgpYAZn8cKxryRHrkw6eQTgxdYcllvqiEPEF7n
+         R0sMHHyNIZWDtShKg4tfSq7VAhPA/E11F2Lhw6Hiq8S2nnPXMrwR5MCGhjvBD097GYz0
+         PxgjXBLKMM47KTVV/5gqiVbD80GUELXw/DfDgmrrhVZzz3mwSWNfRr0Xhk62epxbKJ2I
+         j2Jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tf8E8jT+MfwvxjgryQK/+y+a3E6fJoqY6d92RiJ2OJ4=;
+        b=v7R5SBgnwiDhj6w+6Wkoyu9HEY8eGsQiVLf67PX5GeCp4oTNw0ayQ/nxIMohZDzA9P
+         OgAjs/im2dAGikXUvnKoPUvMg/9QlbrkvloDrBQVb6VMQyO6bzq1Y9BTyS059lkWBdcy
+         aPDotYXhVGx+30KZywWtneREtSTufpTErX5sn8c0rDfWbhw0knn96eqW66NUmTO+9134
+         EfrnKja24DCryoFFRhkp1xKdjr7t3dwZnr1XAdeF05MQNqoR1Me5ZLJlV5JsQruGliQQ
+         qwSaSTAyjW4pyucjjhqxLw/F5Q5fT2DdbgPvUZC5LGGuxCmaRIUdDc0tUAwwFYYZJKyn
+         He+w==
+X-Gm-Message-State: AJIora+fYK5iSKkfrRygsiWDJF5gqyh4v8tqE6KHxTASGUWMciqIe8oM
+        aK/HaDuRF1kHR1kYFXDQjqiKAXWVjRSDbGjn
+X-Google-Smtp-Source: AGRyM1sNSJLrxzH4z/4JNKlmCF5ueBpM6/3tuEoIbo0lxmWjhOyLAYx/9oClenRoSmD0lSltGHy7FQ==
+X-Received: by 2002:a05:6a00:150d:b0:52b:1ffb:503f with SMTP id q13-20020a056a00150d00b0052b1ffb503fmr8047277pfu.27.1657894858647;
+        Fri, 15 Jul 2022 07:20:58 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z15-20020aa79f8f000000b00518a473265csm3883791pfr.217.2022.07.15.07.20.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jul 2022 07:20:58 -0700 (PDT)
+Message-ID: <62d177ca.1c69fb81.7a67.5ffc@mx.google.com>
+Date:   Fri, 15 Jul 2022 07:20:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220714073055.15049-1-mark-pk.tsai@mediatek.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.12
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.18.y baseline: 93 runs, 2 regressions (v5.18.12)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 03:30:52PM +0800, Mark-PK Tsai wrote:
-> From: Daniel Bristot de Oliveira <bristot@redhat.com>
-> 
-> commit 2586af1ac187f6b3a50930a4e33497074e81762d upstream.
-> 
-> The RT_RUNTIME_SHARE sched feature enables the sharing of rt_runtime
-> between CPUs, allowing a CPU to run a real-time task up to 100% of the
-> time while leaving more space for non-real-time tasks to run on the CPU
-> that lend rt_runtime.
-> 
-> The problem is that a CPU can easily borrow enough rt_runtime to allow
-> a spinning rt-task to run forever, starving per-cpu tasks like kworkers,
-> which are non-real-time by design.
-> 
-> This patch disables RT_RUNTIME_SHARE by default, avoiding this problem.
-> The feature will still be present for users that want to enable it,
-> though.
-> 
-> Signed-off-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Tested-by: Wei Wang <wvw@google.com>
-> Link: https://lkml.kernel.org/r/b776ab46817e3db5d8ef79175fa0d71073c051c7.1600697903.git.bristot@redhat.com
-> Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-> Cc: stable@vger.kernel.org
-> ---
->  kernel/sched/features.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+stable/linux-5.18.y baseline: 93 runs, 2 regressions (v5.18.12)
 
-Now queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+jetson-tk1         | arm  | lab-baylibre    | gcc-10   | tegra_defconfig   =
+  | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
+/v5.18.12/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.18.y
+  Describe: v5.18.12
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      c2e9702659dfc309dfda6116da48f200fe425aab =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d1498772e227a6b5a39be3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
+rm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
+rm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d1498772e227a6b5a39=
+be4
+        new failure (last pass: v5.18.11) =
+
+ =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+jetson-tk1         | arm  | lab-baylibre    | gcc-10   | tegra_defconfig   =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d1489034c5e790d4a39bfd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
+rm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
+rm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d1489034c5e790d4a39=
+bfe
+        failing since 46 days (last pass: v5.18, first fail: v5.18.1) =
+
+ =20
