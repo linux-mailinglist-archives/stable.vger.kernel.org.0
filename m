@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF45576286
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A6FD576287
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229525AbiGONIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 09:08:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46628 "EHLO
+        id S229573AbiGONIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 09:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiGONIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:08:04 -0400
+        with ESMTP id S229475AbiGONIY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:08:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19CAC4330C
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:08:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076E63D599
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:08:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A46AB62389
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:07:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931FFC34115;
-        Fri, 15 Jul 2022 13:07:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88C3262389
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:08:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D077C34115;
+        Fri, 15 Jul 2022 13:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657890479;
-        bh=tKPoGbPM/QAbQPwvlOB1mHl4zEA9zPDGxCWV2N/ISeo=;
+        s=korg; t=1657890502;
+        bh=945VZTaRU8+SC+BWz3Bxm4ObtsxOTbrNAk7IpFqVhDs=;
         h=Subject:To:Cc:From:Date:From;
-        b=tVTkiA6zcEeU6SWHy1hzhKZLGcNj659oSbVrsugNgKTNAdYBk6ygHBOME+fgvSCz6
-         CckF5EHsqJKfkktgY5InKbRtqEn24R89z6uO2Ckgwg5JSQX6ZG7n9UMDvuPuUsogE+
-         BGn/FE3wP1MdB596OB5AL74DjdNLAvSkV7fVLLLk=
-Subject: FAILED: patch "[PATCH] fs/remap: constrain dedupe of EOF blocks" failed to apply to 5.4-stable tree
-To:     dchinner@redhat.com, ansgar.loesser@tu-darmstadt.de,
-        torvalds@linux-foundation.org
+        b=lqVkUSY28P/2hG4u9yC0lUjLZ+yB1f/+m4pM0I0I2fyy/lvgRLwHhyZr/TbCzrYue
+         xAwF6DzfxRM/H3GH4kTmScrXZX4Rm9hrft0fkh0Z3IiInu2Ic4GMaTakoa7mZIkJbP
+         1r1pAwad1P7rzSzVWWIJiEAH6jmCQxANeeKxj7Io=
+Subject: FAILED: patch "[PATCH] ipc: Free mq_sysctls if ipc namespace creation failed" failed to apply to 5.18-stable tree
+To:     legion@kernel.org, ebiederm@xmission.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 Jul 2022 15:07:56 +0200
-Message-ID: <1657890476193144@kroah.com>
+Date:   Fri, 15 Jul 2022 15:08:18 +0200
+Message-ID: <165789049888216@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,44 +58,137 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5750676b64a561f7ec920d7c6ba130fc9c7378f3 Mon Sep 17 00:00:00 2001
-From: Dave Chinner <dchinner@redhat.com>
-Date: Wed, 13 Jul 2022 17:49:15 +1000
-Subject: [PATCH] fs/remap: constrain dedupe of EOF blocks
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From db7cfc380900bc4243b09623fd72fabe0a8ff23b Mon Sep 17 00:00:00 2001
+From: Alexey Gladkov <legion@kernel.org>
+Date: Wed, 22 Jun 2022 22:07:29 +0200
+Subject: [PATCH] ipc: Free mq_sysctls if ipc namespace creation failed
 
-If dedupe of an EOF block is not constrainted to match against only
-other EOF blocks with the same EOF offset into the block, it can
-match against any other block that has the same matching initial
-bytes in it, even if the bytes beyond EOF in the source file do
-not match.
+The problem that Dmitry Vyukov pointed out is that if setup_ipc_sysctls fails,
+mq_sysctls must be freed before return.
 
-Fix this by constraining the EOF block matching to only match
-against other EOF blocks that have identical EOF offsets and data.
-This allows "whole file dedupe" to continue to work without allowing
-eof blocks to randomly match against partial full blocks with the
-same data.
+executing program
+BUG: memory leak
+unreferenced object 0xffff888112fc9200 (size 512):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    ef d3 60 85 ff ff ff ff 0c 9b d2 12 81 88 ff ff  ..`.............
+    04 00 00 00 a4 01 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814b6eb3>] kmemdup+0x23/0x50 mm/util.c:129
+    [<ffffffff82219a9b>] kmemdup include/linux/fortify-string.h:456 [inline]
+    [<ffffffff82219a9b>] setup_mq_sysctls+0x4b/0x1c0 ipc/mq_sysctl.c:89
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Reported-by: Ansgar Lößer <ansgar.loesser@tu-darmstadt.de>
-Fixes: 1383a7ed6749 ("vfs: check file ranges before cloning files")
-Link: https://lore.kernel.org/linux-fsdevel/a7c93559-4ba1-df2f-7a85-55a143696405@tu-darmstadt.de/
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BUG: memory leak
+unreferenced object 0xffff888112fd5f00 (size 256):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    00 92 fc 12 81 88 ff ff 00 00 00 00 01 00 00 00  ................
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816fea1b>] kmalloc include/linux/slab.h:605 [inline]
+    [<ffffffff816fea1b>] kzalloc include/linux/slab.h:733 [inline]
+    [<ffffffff816fea1b>] __register_sysctl_table+0x7b/0x7f0 fs/proc/proc_sysctl.c:1344
+    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-diff --git a/fs/remap_range.c b/fs/remap_range.c
-index e112b5424cdb..881a306ee247 100644
---- a/fs/remap_range.c
-+++ b/fs/remap_range.c
-@@ -71,7 +71,8 @@ static int generic_remap_checks(struct file *file_in, loff_t pos_in,
- 	 * Otherwise, make sure the count is also block-aligned, having
- 	 * already confirmed the starting offsets' block alignment.
- 	 */
--	if (pos_in + count == size_in) {
-+	if (pos_in + count == size_in &&
-+	    (!(remap_flags & REMAP_FILE_DEDUP) || pos_out + count == size_out)) {
- 		bcount = ALIGN(size_in, bs) - pos_in;
- 	} else {
- 		if (!IS_ALIGNED(count, bs))
+BUG: memory leak
+unreferenced object 0xffff888112fbba00 (size 256):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    78 ba fb 12 81 88 ff ff 00 00 00 00 01 00 00 00  x...............
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816fef49>] kmalloc include/linux/slab.h:605 [inline]
+    [<ffffffff816fef49>] kzalloc include/linux/slab.h:733 [inline]
+    [<ffffffff816fef49>] new_dir fs/proc/proc_sysctl.c:978 [inline]
+    [<ffffffff816fef49>] get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+    [<ffffffff816fef49>] __register_sysctl_table+0x5a9/0x7f0 fs/proc/proc_sysctl.c:1373
+    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+BUG: memory leak
+unreferenced object 0xffff888112fbb900 (size 256):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    78 b9 fb 12 81 88 ff ff 00 00 00 00 01 00 00 00  x...............
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816fef49>] kmalloc include/linux/slab.h:605 [inline]
+    [<ffffffff816fef49>] kzalloc include/linux/slab.h:733 [inline]
+    [<ffffffff816fef49>] new_dir fs/proc/proc_sysctl.c:978 [inline]
+    [<ffffffff816fef49>] get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+    [<ffffffff816fef49>] __register_sysctl_table+0x5a9/0x7f0 fs/proc/proc_sysctl.c:1373
+    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Reported-by: syzbot+b4b0d1b35442afbf6fd2@syzkaller.appspotmail.com
+Signed-off-by: Alexey Gladkov <legion@kernel.org>
+Link: https://lkml.kernel.org/r/000000000000f5004705e1db8bad@google.com
+Link: https://lkml.kernel.org/r/20220622200729.2639663-1-legion@kernel.org
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+
+diff --git a/ipc/namespace.c b/ipc/namespace.c
+index 754f3237194a..e1fcaedba4fa 100644
+--- a/ipc/namespace.c
++++ b/ipc/namespace.c
+@@ -64,7 +64,7 @@ static struct ipc_namespace *create_ipc_ns(struct user_namespace *user_ns,
+ 		goto fail_put;
+ 
+ 	if (!setup_ipc_sysctls(ns))
+-		goto fail_put;
++		goto fail_mq;
+ 
+ 	sem_init_ns(ns);
+ 	msg_init_ns(ns);
+@@ -72,6 +72,9 @@ static struct ipc_namespace *create_ipc_ns(struct user_namespace *user_ns,
+ 
+ 	return ns;
+ 
++fail_mq:
++	retire_mq_sysctls(ns);
++
+ fail_put:
+ 	put_user_ns(ns->user_ns);
+ 	ns_free_inum(&ns->ns);
 
