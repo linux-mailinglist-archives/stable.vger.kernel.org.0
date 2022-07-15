@@ -2,208 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B7E8576260
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5F957626D
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231933AbiGONB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 09:01:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42880 "EHLO
+        id S232603AbiGONFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 09:05:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229704AbiGONBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:01:55 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBEA914D0F
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:01:54 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id g4so4367856pgc.1
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:01:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6UI8eKDjHLh1Y/PXsIpJ84Dq0MAwfGR8bOBv7jsdh/4=;
-        b=VK3sfSkzekeSFDEmbaSGYLsytoOAZ79BbFM9U98kgC60lxcXSGz0drPSUN457cCnD0
-         pffnZ+PLTcVaMJGu3muAQT5aMb0JZ2sbvKCX/bjL+FN7dqhTQUuQUoAF5iONHMDTim2+
-         WF3ac29DIk6AxZY2Luy+0GPURxkmLzZeN9bjlPPa8ajyVvTDCmKfj8sI1ikCwAj0E4RJ
-         R2sKV9MtuXj5J5VpSYRPTrqoUIe6T82HJ0n5u2Ju7KrUGSooo6Z0AtxJlAPROiV0OyXv
-         3M6BG1dZmGdxRH6ze9xRMaCwqYAtxYCNyRt7n0Xk1KWucUD884/syAxLtiH56w36fj8Q
-         wFHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6UI8eKDjHLh1Y/PXsIpJ84Dq0MAwfGR8bOBv7jsdh/4=;
-        b=DX0lsSKeiBrZs5gxqSpTR3DGQE7GrkSB5AeHDRrLKXmeBbiXo4Kn2KusV6113TEST3
-         pUOmxkgLsXNsp9loI7QhHVr7dsmP+KfJPtTUbpUvmGPe50kF7NRUj2IIKTBkIT/mS1xc
-         OVnzZAC+0+ONvHQQl8OmTUeQNBtn6nDVJ18I+GXVyM/khwaGCIsgV9zKwYNJh5XaKzkR
-         KcAnySD2RMOQT8KZl1SmtSyHyoWW0k/9IQap9k7K88nrflCzL9JJQcWyByjccM0E02QN
-         dFXGx4cQhyqOM7A4WQ4x//3UEUQmvUvyU/TFtlWm5X/4Aw2eTfUj5zYo6jj8CJba1DIT
-         zmPw==
-X-Gm-Message-State: AJIora+yExCgYAnPIGXC3RPGMQzila/S1CI6yuQ+9K81PJUcB6sQpo9Y
-        BhuwDpwM3w9cAx3EEgKwTM9zLze2rXB+xWjk
-X-Google-Smtp-Source: AGRyM1t8M+HvfVwiA1UoN3BYiTFMoN9u6lm3lrmKHDxKs+Fo9/+TgMqjJhE4hANKAXXo4YkP50uuRA==
-X-Received: by 2002:a63:3fcb:0:b0:40c:4da1:555a with SMTP id m194-20020a633fcb000000b0040c4da1555amr12320670pga.3.1657890114109;
-        Fri, 15 Jul 2022 06:01:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a28-20020aa795bc000000b00528c8ed356dsm3871309pfk.96.2022.07.15.06.01.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Jul 2022 06:01:53 -0700 (PDT)
-Message-ID: <62d16541.1c69fb81.51374.63b4@mx.google.com>
-Date:   Fri, 15 Jul 2022 06:01:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229908AbiGONFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:05:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA82F6447
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:05:01 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58E89CE2F4A
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27EF0C34115;
+        Fri, 15 Jul 2022 13:04:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657890297;
+        bh=bYew9I1sHMHIZxF0UcGJQXS692fARCi5jnwxatOSGHo=;
+        h=Subject:To:Cc:From:Date:From;
+        b=DuTSunovDtCaceL1fXk+IgIi5KhTX+M4vMyHe7JgVyjiBNpl3STSD+lPBeFotZo8h
+         NryFXWt5h3Py1cCdfctNsMpWqp/sE0e7CSmeusDy2WyrC7+Ekff2rPLPzoBLbOYHli
+         3Uq8IddbiTZdzyHJEp+cnRjbifdK9PFB+f4HA4iQ=
+Subject: FAILED: patch "[PATCH] ARM: 9214/1: alignment: advance IT state after emulating" failed to apply to 4.9-stable tree
+To:     ardb@kernel.org, linus.walleij@linaro.org,
+        rmk+kernel@armlinux.org.uk, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 15 Jul 2022 15:04:54 +0200
+Message-ID: <165789029450158@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.54-1-g6548926238e12
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 138 runs,
- 3 regressions (v5.15.54-1-g6548926238e12)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 138 runs, 3 regressions (v5.15.54-1-g6548926=
-238e12)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform   | arch | lab          | compiler | defconfig           | regress=
-ions
------------+------+--------------+----------+---------------------+--------=
-----
-beagle-xm  | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1      =
-    =
+thanks,
 
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1      =
-    =
+greg k-h
 
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig     | 1      =
-    =
+------------------ original commit in Linus's tree ------------------
 
+From e5c46fde75e43c15a29b40e5fc5641727f97ae47 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Thu, 30 Jun 2022 16:46:54 +0100
+Subject: [PATCH] ARM: 9214/1: alignment: advance IT state after emulating
+ Thumb instruction
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.54-1-g6548926238e12/plan/baseline/
+After emulating a misaligned load or store issued in Thumb mode, we have
+to advance the IT state by hand, or it will get out of sync with the
+actual instruction stream, which means we'll end up applying the wrong
+condition code to subsequent instructions. This might corrupt the
+program state rather catastrophically.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.54-1-g6548926238e12
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6548926238e1233af0fd0be3a550665eaf150362 =
+So borrow the it_advance() helper from the probing code, and use it on
+CPSR if the emulated instruction is Thumb.
 
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
+diff --git a/arch/arm/include/asm/ptrace.h b/arch/arm/include/asm/ptrace.h
+index 93051e2f402c..1408a6a15d0e 100644
+--- a/arch/arm/include/asm/ptrace.h
++++ b/arch/arm/include/asm/ptrace.h
+@@ -163,5 +163,31 @@ static inline unsigned long user_stack_pointer(struct pt_regs *regs)
+ 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
+ })
+ 
++
++/*
++ * Update ITSTATE after normal execution of an IT block instruction.
++ *
++ * The 8 IT state bits are split into two parts in CPSR:
++ *	ITSTATE<1:0> are in CPSR<26:25>
++ *	ITSTATE<7:2> are in CPSR<15:10>
++ */
++static inline unsigned long it_advance(unsigned long cpsr)
++{
++	if ((cpsr & 0x06000400) == 0) {
++		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
++		cpsr &= ~PSR_IT_MASK;
++	} else {
++		/* We need to shift left ITSTATE<4:0> */
++		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
++		unsigned long it = cpsr & mask;
++		it <<= 1;
++		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
++		it &= mask;
++		cpsr &= ~mask;
++		cpsr |= it;
++	}
++	return cpsr;
++}
++
+ #endif /* __ASSEMBLY__ */
+ #endif
+diff --git a/arch/arm/mm/alignment.c b/arch/arm/mm/alignment.c
+index 6f499559d193..f8dd0b3cc8e0 100644
+--- a/arch/arm/mm/alignment.c
++++ b/arch/arm/mm/alignment.c
+@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+ 	if (type == TYPE_LDST)
+ 		do_alignment_finish_ldst(addr, instr, regs, offset);
+ 
++	if (thumb_mode(regs))
++		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
++
+ 	return 0;
+ 
+  bad_or_fault:
+diff --git a/arch/arm/probes/decode.h b/arch/arm/probes/decode.h
+index 973173598992..facc889d05ee 100644
+--- a/arch/arm/probes/decode.h
++++ b/arch/arm/probes/decode.h
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/stddef.h>
+ #include <asm/probes.h>
++#include <asm/ptrace.h>
+ #include <asm/kprobes.h>
+ 
+ void __init arm_probes_decode_init(void);
+@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
+ #endif
+ 
+ 
+-/*
+- * Update ITSTATE after normal execution of an IT block instruction.
+- *
+- * The 8 IT state bits are split into two parts in CPSR:
+- *	ITSTATE<1:0> are in CPSR<26:25>
+- *	ITSTATE<7:2> are in CPSR<15:10>
+- */
+-static inline unsigned long it_advance(unsigned long cpsr)
+-	{
+-	if ((cpsr & 0x06000400) == 0) {
+-		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
+-		cpsr &= ~PSR_IT_MASK;
+-	} else {
+-		/* We need to shift left ITSTATE<4:0> */
+-		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
+-		unsigned long it = cpsr & mask;
+-		it <<= 1;
+-		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
+-		it &= mask;
+-		cpsr &= ~mask;
+-		cpsr |= it;
+-	}
+-	return cpsr;
+-}
+-
+ static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
+ {
+ 	long cpsr = regs->ARM_cpsr;
 
-Test Regressions
----------------- =
-
-
-
-platform   | arch | lab          | compiler | defconfig           | regress=
-ions
------------+------+--------------+----------+---------------------+--------=
-----
-beagle-xm  | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/62d12fb553c8c0e4dba39bd6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.54-=
-1-g6548926238e12/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.54-=
-1-g6548926238e12/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62d12fb553c8c0e4dba39=
-bd7
-        failing since 106 days (last pass: v5.15.31-2-g57d4301e22c2, first =
-fail: v5.15.31-3-g4ae45332eb9c) =
-
- =
-
-
-
-platform   | arch | lab          | compiler | defconfig           | regress=
-ions
------------+------+--------------+----------+---------------------+--------=
-----
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig  | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/62d1348e77694dc449a39be4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.54-=
-1-g6548926238e12/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.54-=
-1-g6548926238e12/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62d1348e77694dc449a39=
-be5
-        failing since 0 day (last pass: v5.15.54-80-g107b7d3eba74, first fa=
-il: v5.15.54-81-gc4a4b677ef955) =
-
- =
-
-
-
-platform   | arch | lab          | compiler | defconfig           | regress=
-ions
------------+------+--------------+----------+---------------------+--------=
-----
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig     | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/62d12e8ba374abb110a39bec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.54-=
-1-g6548926238e12/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.54-=
-1-g6548926238e12/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62d12e8ba374abb110a39=
-bed
-        failing since 10 days (last pass: v5.15.51-43-gad3bd1f3e86e, first =
-fail: v5.15.51-60-g300ca5992dde) =
-
- =20
