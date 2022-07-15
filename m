@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4BD576279
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D789576284
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbiGONFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 09:05:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
+        id S231586AbiGONGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 09:06:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiGONFw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:05:52 -0400
+        with ESMTP id S230055AbiGONGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:06:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E0B1DA5C
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:05:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E1484330C
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:06:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 841EF62388
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:05:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8C5C34115;
-        Fri, 15 Jul 2022 13:05:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A7EE62389
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECCD2C34115;
+        Fri, 15 Jul 2022 13:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657890349;
-        bh=cjCR9wwjfVlbGAmlygcCJsvyjdAGfjRVJe+QgmCwZpo=;
+        s=korg; t=1657890392;
+        bh=ZDKBh6n3/Gc/K89uNG8/CwqKdtulnlJYlxQi3SR+q2Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ehll1AA6SAtFJA3J5N1EKWJ2gKOwSUNHn2AQBx7AV8n4TplrI1IQvUP3Mx03iF/MQ
-         suvYqR1/9ZLdnrvW1UwEVr4CFsUOEt5TTn2VOnS5lL0CiQX64pr23ICUIdC7A5YVw6
-         /+H40tjBHS3SPMtwvEkX5G7lUZHDkKSChir4GqdI=
-Subject: FAILED: patch "[PATCH] cgroup: Use separate src/dst nodes when preloading css_sets" failed to apply to 4.9-stable tree
-To:     tj@kernel.org, quic_mojha@quicinc.com, shisiyuan19870131@gmail.com
+        b=dGpGj6gkQabtrJrU10FdwzhU3TyaBcQiZYwXpAjx/6jM/NB4ztNfunG6lPYsQrnZ8
+         7T0VuxU01J5Gts16uItRquxPCVc8+5CelqSW24WtdUCU7EnUpXsPynZGRutzEx50X3
+         xxzLKlP1NXiViyjKidYh2AynahOrT+8TeTEJb7BI=
+Subject: FAILED: patch "[PATCH] btrfs: zoned: drop optimization of zone finish" failed to apply to 5.18-stable tree
+To:     naohiro.aota@wdc.com, dsterba@suse.com, johannes.thumshirn@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 Jul 2022 15:05:46 +0200
-Message-ID: <165789034689196@kroah.com>
+Date:   Fri, 15 Jul 2022 15:06:29 +0200
+Message-ID: <165789038912014@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,201 +58,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 07fd5b6cdf3cc30bfde8fe0f644771688be04447 Mon Sep 17 00:00:00 2001
-From: Tejun Heo <tj@kernel.org>
-Date: Mon, 13 Jun 2022 12:19:50 -1000
-Subject: [PATCH] cgroup: Use separate src/dst nodes when preloading css_sets
- for migration
+From b3a3b0255797e1d395253366ba24a4cc6c8bdf9c Mon Sep 17 00:00:00 2001
+From: Naohiro Aota <naohiro.aota@wdc.com>
+Date: Wed, 29 Jun 2022 11:00:38 +0900
+Subject: [PATCH] btrfs: zoned: drop optimization of zone finish
 
-Each cset (css_set) is pinned by its tasks. When we're moving tasks around
-across csets for a migration, we need to hold the source and destination
-csets to ensure that they don't go away while we're moving tasks about. This
-is done by linking cset->mg_preload_node on either the
-mgctx->preloaded_src_csets or mgctx->preloaded_dst_csets list. Using the
-same cset->mg_preload_node for both the src and dst lists was deemed okay as
-a cset can't be both the source and destination at the same time.
+We have an optimization in do_zone_finish() to send REQ_OP_ZONE_FINISH only
+when necessary, i.e. we don't send REQ_OP_ZONE_FINISH when we assume we
+wrote fully into the zone.
 
-Unfortunately, this overloading becomes problematic when multiple tasks are
-involved in a migration and some of them are identity noop migrations while
-others are actually moving across cgroups. For example, this can happen with
-the following sequence on cgroup1:
+The assumption is determined by "alloc_offset == capacity". This condition
+won't work if the last ordered extent is canceled due to some errors. In
+that case, we consider the zone is deactivated without sending the finish
+command while it's still active.
 
- #1> mkdir -p /sys/fs/cgroup/misc/a/b
- #2> echo $$ > /sys/fs/cgroup/misc/a/cgroup.procs
- #3> RUN_A_COMMAND_WHICH_CREATES_MULTIPLE_THREADS &
- #4> PID=$!
- #5> echo $PID > /sys/fs/cgroup/misc/a/b/tasks
- #6> echo $PID > /sys/fs/cgroup/misc/a/cgroup.procs
+This inconstancy results in activating another block group while we cannot
+really activate the underlying zone, which causes the active zone exceeds
+errors like below.
 
-the process including the group leader back into a. In this final migration,
-non-leader threads would be doing identity migration while the group leader
-is doing an actual one.
+    BTRFS error (device nvme3n2): allocation failed flags 1, wanted 520192 tree-log 0, relocation: 0
+    nvme3n2: I/O Cmd(0x7d) @ LBA 160432128, 127 blocks, I/O Error (sct 0x1 / sc 0xbd) MORE DNR
+    active zones exceeded error, dev nvme3n2, sector 0 op 0xd:(ZONE_APPEND) flags 0x4800 phys_seg 1 prio class 0
+    nvme3n2: I/O Cmd(0x7d) @ LBA 160432128, 127 blocks, I/O Error (sct 0x1 / sc 0xbd) MORE DNR
+    active zones exceeded error, dev nvme3n2, sector 0 op 0xd:(ZONE_APPEND) flags 0x4800 phys_seg 1 prio class 0
 
-After #3, let's say the whole process was in cset A, and that after #4, the
-leader moves to cset B. Then, during #6, the following happens:
+Fix the issue by removing the optimization for now.
 
- 1. cgroup_migrate_add_src() is called on B for the leader.
+Fixes: 8376d9e1ed8f ("btrfs: zoned: finish superblock zone once no space left for new SB")
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
- 2. cgroup_migrate_add_src() is called on A for the other threads.
-
- 3. cgroup_migrate_prepare_dst() is called. It scans the src list.
-
- 4. It notices that B wants to migrate to A, so it tries to A to the dst
-    list but realizes that its ->mg_preload_node is already busy.
-
- 5. and then it notices A wants to migrate to A as it's an identity
-    migration, it culls it by list_del_init()'ing its ->mg_preload_node and
-    putting references accordingly.
-
- 6. The rest of migration takes place with B on the src list but nothing on
-    the dst list.
-
-This means that A isn't held while migration is in progress. If all tasks
-leave A before the migration finishes and the incoming task pins it, the
-cset will be destroyed leading to use-after-free.
-
-This is caused by overloading cset->mg_preload_node for both src and dst
-preload lists. We wanted to exclude the cset from the src list but ended up
-inadvertently excluding it from the dst list too.
-
-This patch fixes the issue by separating out cset->mg_preload_node into
-->mg_src_preload_node and ->mg_dst_preload_node, so that the src and dst
-preloadings don't interfere with each other.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reported-by: shisiyuan <shisiyuan19870131@gmail.com>
-Link: http://lkml.kernel.org/r/1654187688-27411-1-git-send-email-shisiyuan@xiaomi.com
-Link: https://www.spinics.net/lists/cgroups/msg33313.html
-Fixes: f817de98513d ("cgroup: prepare migration path for unified hierarchy")
-Cc: stable@vger.kernel.org # v3.16+
-
-diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
-index 1bfcfb1af352..d4427d0a0e18 100644
---- a/include/linux/cgroup-defs.h
-+++ b/include/linux/cgroup-defs.h
-@@ -264,7 +264,8 @@ struct css_set {
- 	 * List of csets participating in the on-going migration either as
- 	 * source or destination.  Protected by cgroup_mutex.
- 	 */
--	struct list_head mg_preload_node;
-+	struct list_head mg_src_preload_node;
-+	struct list_head mg_dst_preload_node;
- 	struct list_head mg_node;
- 
- 	/*
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 1779ccddb734..13c8e91d7862 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -765,7 +765,8 @@ struct css_set init_css_set = {
- 	.task_iters		= LIST_HEAD_INIT(init_css_set.task_iters),
- 	.threaded_csets		= LIST_HEAD_INIT(init_css_set.threaded_csets),
- 	.cgrp_links		= LIST_HEAD_INIT(init_css_set.cgrp_links),
--	.mg_preload_node	= LIST_HEAD_INIT(init_css_set.mg_preload_node),
-+	.mg_src_preload_node	= LIST_HEAD_INIT(init_css_set.mg_src_preload_node),
-+	.mg_dst_preload_node	= LIST_HEAD_INIT(init_css_set.mg_dst_preload_node),
- 	.mg_node		= LIST_HEAD_INIT(init_css_set.mg_node),
- 
- 	/*
-@@ -1240,7 +1241,8 @@ static struct css_set *find_css_set(struct css_set *old_cset,
- 	INIT_LIST_HEAD(&cset->threaded_csets);
- 	INIT_HLIST_NODE(&cset->hlist);
- 	INIT_LIST_HEAD(&cset->cgrp_links);
--	INIT_LIST_HEAD(&cset->mg_preload_node);
-+	INIT_LIST_HEAD(&cset->mg_src_preload_node);
-+	INIT_LIST_HEAD(&cset->mg_dst_preload_node);
- 	INIT_LIST_HEAD(&cset->mg_node);
- 
- 	/* Copy the set of subsystem state objects generated in
-@@ -2597,21 +2599,27 @@ int cgroup_migrate_vet_dst(struct cgroup *dst_cgrp)
-  */
- void cgroup_migrate_finish(struct cgroup_mgctx *mgctx)
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 9892f7413705..e33987cefbd4 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1889,7 +1889,6 @@ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_writ
  {
--	LIST_HEAD(preloaded);
- 	struct css_set *cset, *tmp_cset;
+ 	struct btrfs_fs_info *fs_info = block_group->fs_info;
+ 	struct map_lookup *map;
+-	bool need_zone_finish;
+ 	int ret = 0;
+ 	int i;
  
- 	lockdep_assert_held(&cgroup_mutex);
- 
- 	spin_lock_irq(&css_set_lock);
- 
--	list_splice_tail_init(&mgctx->preloaded_src_csets, &preloaded);
--	list_splice_tail_init(&mgctx->preloaded_dst_csets, &preloaded);
-+	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_src_csets,
-+				 mg_src_preload_node) {
-+		cset->mg_src_cgrp = NULL;
-+		cset->mg_dst_cgrp = NULL;
-+		cset->mg_dst_cset = NULL;
-+		list_del_init(&cset->mg_src_preload_node);
-+		put_css_set_locked(cset);
-+	}
- 
--	list_for_each_entry_safe(cset, tmp_cset, &preloaded, mg_preload_node) {
-+	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_dst_csets,
-+				 mg_dst_preload_node) {
- 		cset->mg_src_cgrp = NULL;
- 		cset->mg_dst_cgrp = NULL;
- 		cset->mg_dst_cset = NULL;
--		list_del_init(&cset->mg_preload_node);
-+		list_del_init(&cset->mg_dst_preload_node);
- 		put_css_set_locked(cset);
+@@ -1946,12 +1945,6 @@ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_writ
+ 		}
  	}
  
-@@ -2651,7 +2659,7 @@ void cgroup_migrate_add_src(struct css_set *src_cset,
- 	if (src_cset->dead)
- 		return;
- 
--	if (!list_empty(&src_cset->mg_preload_node))
-+	if (!list_empty(&src_cset->mg_src_preload_node))
- 		return;
- 
- 	src_cgrp = cset_cgroup_from_root(src_cset, dst_cgrp->root);
-@@ -2664,7 +2672,7 @@ void cgroup_migrate_add_src(struct css_set *src_cset,
- 	src_cset->mg_src_cgrp = src_cgrp;
- 	src_cset->mg_dst_cgrp = dst_cgrp;
- 	get_css_set(src_cset);
--	list_add_tail(&src_cset->mg_preload_node, &mgctx->preloaded_src_csets);
-+	list_add_tail(&src_cset->mg_src_preload_node, &mgctx->preloaded_src_csets);
- }
- 
- /**
-@@ -2689,7 +2697,7 @@ int cgroup_migrate_prepare_dst(struct cgroup_mgctx *mgctx)
- 
- 	/* look up the dst cset for each src cset and link it to src */
- 	list_for_each_entry_safe(src_cset, tmp_cset, &mgctx->preloaded_src_csets,
--				 mg_preload_node) {
-+				 mg_src_preload_node) {
- 		struct css_set *dst_cset;
- 		struct cgroup_subsys *ss;
- 		int ssid;
-@@ -2708,7 +2716,7 @@ int cgroup_migrate_prepare_dst(struct cgroup_mgctx *mgctx)
- 		if (src_cset == dst_cset) {
- 			src_cset->mg_src_cgrp = NULL;
- 			src_cset->mg_dst_cgrp = NULL;
--			list_del_init(&src_cset->mg_preload_node);
-+			list_del_init(&src_cset->mg_src_preload_node);
- 			put_css_set(src_cset);
- 			put_css_set(dst_cset);
+-	/*
+-	 * The block group is not fully allocated, so not fully written yet. We
+-	 * need to send ZONE_FINISH command to free up an active zone.
+-	 */
+-	need_zone_finish = !btrfs_zoned_bg_is_full(block_group);
+-
+ 	block_group->zone_is_active = 0;
+ 	block_group->alloc_offset = block_group->zone_capacity;
+ 	block_group->free_space_ctl->free_space = 0;
+@@ -1967,15 +1960,13 @@ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_writ
+ 		if (device->zone_info->max_active_zones == 0)
  			continue;
-@@ -2716,8 +2724,8 @@ int cgroup_migrate_prepare_dst(struct cgroup_mgctx *mgctx)
  
- 		src_cset->mg_dst_cset = dst_cset;
+-		if (need_zone_finish) {
+-			ret = blkdev_zone_mgmt(device->bdev, REQ_OP_ZONE_FINISH,
+-					       physical >> SECTOR_SHIFT,
+-					       device->zone_info->zone_size >> SECTOR_SHIFT,
+-					       GFP_NOFS);
++		ret = blkdev_zone_mgmt(device->bdev, REQ_OP_ZONE_FINISH,
++				       physical >> SECTOR_SHIFT,
++				       device->zone_info->zone_size >> SECTOR_SHIFT,
++				       GFP_NOFS);
  
--		if (list_empty(&dst_cset->mg_preload_node))
--			list_add_tail(&dst_cset->mg_preload_node,
-+		if (list_empty(&dst_cset->mg_dst_preload_node))
-+			list_add_tail(&dst_cset->mg_dst_preload_node,
- 				      &mgctx->preloaded_dst_csets);
- 		else
- 			put_css_set(dst_cset);
-@@ -2963,7 +2971,8 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
- 		goto out_finish;
+-			if (ret)
+-				return ret;
+-		}
++		if (ret)
++			return ret;
  
- 	spin_lock_irq(&css_set_lock);
--	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets, mg_preload_node) {
-+	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets,
-+			    mg_src_preload_node) {
- 		struct task_struct *task, *ntask;
- 
- 		/* all tasks in src_csets need to be migrated */
+ 		btrfs_dev_clear_active_zone(device, physical);
+ 	}
 
