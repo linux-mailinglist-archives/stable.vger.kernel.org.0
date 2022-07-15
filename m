@@ -2,88 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B1657640E
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:05:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E8D57643F
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:16:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232692AbiGOPE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 11:04:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46094 "EHLO
+        id S233519AbiGOPQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 11:16:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbiGOPE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:04:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C65D2B275
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 08:04:58 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE10C62041
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 15:04:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8BEC34115;
-        Fri, 15 Jul 2022 15:04:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657897497;
-        bh=EdeUh0P60IsCGnV7exKNsrtWwGeoSTBn5VI20keVTwE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EeI8LCuuUWb8H626KKDvo8ApeTyVnUbJMLT2oR6Mj3IO2rDBxLqb+Gq74agaQvewI
-         sXH1M1yje0/fQNJbvWljIjYe62icqYROczaUIDdLwoxunWwmqkY+TtzMqVNgeSgfRZ
-         VByBmwVwT+my55umvevJVSE4UlBUaZQdcQSWKpnE=
-Date:   Fri, 15 Jul 2022 17:04:54 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-mtd@lists.infradead.org, Han Xu <han.xu@nxp.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        kernel@pengutronix.de, stable@vger.kernel.org
-Subject: Re: [PATCH] mtd: rawnand: gpmi: Fix setting busy timeout setting
-Message-ID: <YtGCFmN+0/SYdvOz@kroah.com>
-References: <20220614083138.3455683-1-s.hauer@pengutronix.de>
- <20220715142209.GA1688021@roeck-us.net>
+        with ESMTP id S229480AbiGOPQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:16:17 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23D3326EC;
+        Fri, 15 Jul 2022 08:16:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1657898176; x=1689434176;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=WRHSubit+Lk19ufdasQNizHHZwCF18420UwzZxf6a8w=;
+  b=LE4/cLSbfI0y/0abW/EijQzbYytTUCLQzkcUe/qBf5RcHTOF+ecmwKjc
+   emD7hTXDHOwlgXbRubGih5EUw/NyVYa61xX0VxiB/+hwhGtEmC7etNiW1
+   yDRQkCedpMRvsQgX0riLKuYAZB8p/vn7Dfc1FJkfebw/05S/O2IU9535K
+   LEwq4b4rk5ia4on2eSmtHrvMgVjJnpXQMrKo4o32CxNPiDDiN3KYB0h9I
+   nO4n8Jp54PdpJQsaiHCTzU6zNUqp/kQO3R80LV661HqQok/e3xMmV9V6H
+   00IX4cI+KJIYNMItWRAoKRSG52kUcn2LO+nbLLejxHjislMpKSQDI5T6b
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10408"; a="286955082"
+X-IronPort-AV: E=Sophos;i="5.92,274,1650956400"; 
+   d="scan'208";a="286955082"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jul 2022 08:16:16 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,274,1650956400"; 
+   d="scan'208";a="723109285"
+Received: from irvmail001.ir.intel.com ([10.43.11.63])
+  by orsmga004.jf.intel.com with ESMTP; 15 Jul 2022 08:16:13 -0700
+Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
+        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 26FFGBwn012966;
+        Fri, 15 Jul 2022 16:16:11 +0100
+From:   Alexander Lobakin <alexandr.lobakin@intel.com>
+To:     Yury Norov <yury.norov@gmail.com>
+Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        platform-driver-x86@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
+Subject: [PATCH] x86/olpc: fix 'logical not is only applied to the left hand side'
+Date:   Fri, 15 Jul 2022 17:15:36 +0200
+Message-Id: <20220715151536.67401-1-alexandr.lobakin@intel.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220715142209.GA1688021@roeck-us.net>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 15, 2022 at 07:22:09AM -0700, Guenter Roeck wrote:
-> On Tue, Jun 14, 2022 at 10:31:38AM +0200, Sascha Hauer wrote:
-> > The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
-> > 
-> > | Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
-> > | mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
-> > 
-> > So instead of multiplying the value in cycles with 4096, we have to
-> > divide it by that value. Use DIV_ROUND_UP to make sure we are on the
-> > safe side, especially when the calculated value in cycles is smaller
-> > than 4096 as typically the case.
-> > 
-> > This bug likely never triggered because any timeout != 0 usually will
-> > do. In my case the busy timeout in cycles was originally calculated as
-> > 2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
-> > taken for the 16 bit wide register field, so the register value was
-> > 0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
-> > setting") however the value in cycles became 2384, which multiplied
-> > with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
-> > intermediate timeout when reading from NAND.
-> > 
-> > Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-> 
-> I see this patch was reverted in a set of rush stable releases,
-> but I still see it in the mainline kernel. Is it going to be reverted
-> there as well ?
+The bitops compile-time optimization series revealed one more
+problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
+warnings:
 
-A fix has been sent, it was said to be picked up hopefully next week:
-	https://lore.kernel.org/all/20220701110341.3094023-1-s.hauer@pengutronix.de/
+arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
+arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
+   83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
+      |                                                               ^~
+arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
 
-thanks,
+Despite this code working as intended, this redundant double
+negation of boolean value, together with comparing to `char`
+with no explicit conversion to bool, makes compilers think
+the author made some unintentional logical mistakes here.
+Make it the other way around and negate the char instead
+to silence the warnings.
 
-greg k-h
+Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
+Cc: stable@vger.kernel.org # 3.5+
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+---
+ arch/x86/platform/olpc/olpc-xo1-sci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/olpc/olpc-xo1-sci.c
+index f03a6883dcc6..89f25af4b3c3 100644
+--- a/arch/x86/platform/olpc/olpc-xo1-sci.c
++++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
+@@ -80,7 +80,7 @@ static void send_ebook_state(void)
+ 		return;
+ 	}
+ 
+-	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
++	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
+ 		return; /* Nothing new to report. */
+ 
+ 	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
+-- 
+2.36.1
+
