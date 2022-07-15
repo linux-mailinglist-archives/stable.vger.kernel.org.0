@@ -2,73 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6DA9575F35
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 12:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DE9575F46
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 12:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231933AbiGOKPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 06:15:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53852 "EHLO
+        id S230055AbiGOKWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 06:22:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230407AbiGOKPk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 06:15:40 -0400
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3370820D2;
-        Fri, 15 Jul 2022 03:15:38 -0700 (PDT)
-Received: by mail-lf1-x12a.google.com with SMTP id u13so7085612lfn.5;
-        Fri, 15 Jul 2022 03:15:38 -0700 (PDT)
+        with ESMTP id S229499AbiGOKWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 06:22:41 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1AC52FEE
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 03:22:40 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id o31-20020a17090a0a2200b001ef7bd037bbso5725847pjo.0
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 03:22:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=3jL/lfoMTvA3SObDpy7W+GRYeEbbVoydVSs+VhMSyQ8=;
-        b=LKqUeJAhYet/E4+FOjDCJ0dKq4cDW2x4E+rfQdu83sWKvClZdCu1e1M0E0f3NVLWeY
-         RXqHP7rrV4Gy0UvBJZ6Bv4RiaH1MNOZ0zYRfjZ35s6KLeY6hYXQcra7SL8Bs6qETPdr5
-         dYYLgG48qse3A1sQodtQrzuSaIVuhSnWYGOCsfY5B7tL5JDS6Z3SbspiTM2N6zT81LBz
-         GrmAOEmVMPpU117asGxfbCJUPK8r1VAAGAELjEv0s/Ph5p+GAAYDP5wadDJdkdPE4Jv9
-         Ebcy0Ity1RZ3igPwXdeAet2+5VSr+p+LL13YixBvp19SsNp9YpNMvk/gnMMrJ07RuCcm
-         55Dw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YkeG6dKscOJP6MXJtvirU0KFvxmP79WWglAEsY4kleM=;
+        b=KwmcPgsSz4QXCqRjEXRSFZled3w3kGzLnMrG+tI/VSdf56M9tGjytkJekgrltpcZDU
+         cfQDKO6pKLp8RQRNC0K/i+VDKwv1GPfv7ttdOd6AOnnh4pGkU86Ac5AY/8A4oxfe8yrj
+         eIzQhEDAfPa427e6bsnwey3OXC0b4YBuIJ3ScNFTcpq8Qvs/1vVJ/Gm37y5/QKIZ9LeP
+         e20WBosAyXRKFRxJDZLDoRlcg5gnixSVk1im7YrkinS5530V5aewUGAVGHjSO4Cio4sX
+         do5G5n+tvPknkDtSObYxECSPJAlSdqwyHClx7zyx76SzidWJ9t3khQvn0x+RaGRoQV/A
+         Me6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=3jL/lfoMTvA3SObDpy7W+GRYeEbbVoydVSs+VhMSyQ8=;
-        b=Y7AlmLyyzzUhLU0Xa4nnzSHExxCy6sgmJ9ZLAfSqcXOWufbtKk1WlSJ9FaWzANZ+22
-         9PgFI1QNoD2RHSFwQoWyp/x2HH7DVpZfbAQSurGMrw8noaYiRxnvH1JoHURxwdZN7bjN
-         3qOvD4pXKRS8cIIVqlvpysFLHYlF20Af93B8+fEmsUNvjmQP9vsRyIg6kTpjGaQOogc7
-         7602wOzgmrF5/kZtCibbw/bXUT/v+Odkev1ts1ph3pto2A2huoiAy7nrlX2BxejMTPdt
-         w5Tx1T9/jONGD9vp10uHzBIzd68qz9K7mGVT80Hsqzh+g1sH40peJksW5GBY0vsxeRr+
-         SFGg==
-X-Gm-Message-State: AJIora+b6uOdsYuJVoLDxswHz4dLLL4KAfYgr5A2mzhHmed66rwUKx5C
-        oSNCTtJW+fpjmw3pZT7J4Hs=
-X-Google-Smtp-Source: AGRyM1t48mlwdtZzT1aWp5fHW0tldYcGnnIY2KtrlB80elovY46YP+G88J/+IMfODsBiDN0SPqzLiA==
-X-Received: by 2002:a19:4f0b:0:b0:489:c753:5c1d with SMTP id d11-20020a194f0b000000b00489c7535c1dmr7473118lfb.339.1657880136897;
-        Fri, 15 Jul 2022 03:15:36 -0700 (PDT)
-Received: from [192.168.1.7] ([212.22.223.21])
-        by smtp.gmail.com with ESMTPSA id e10-20020a19674a000000b00483f8c40c14sm835123lfj.243.2022.07.15.03.15.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Jul 2022 03:15:36 -0700 (PDT)
-Message-ID: <41207539-f621-1bb2-2f43-0b2b9e3f6866@gmail.com>
-Date:   Fri, 15 Jul 2022 13:15:34 +0300
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YkeG6dKscOJP6MXJtvirU0KFvxmP79WWglAEsY4kleM=;
+        b=wsDs22xlJpXJSpzL0WF5qEN6HLF0SEN6ksBCSsMQUcBodfMklIpTw3AN8nDKwjKGbI
+         SQgi6ka+KAddM/g5KKPguOaP2Ya24TFuyhzti6+EAH7foI9VLlgcc5zhNkPwHguCHIeG
+         BJKqxov9zbltjdb1qiHycqMn8CZeEfL8f/NgpxadywywatkH1VceHuZZKOZ+f8O3+I07
+         pKR8Jg3rqB4qBQo/pSZwUEGmIQujdS1rmeXF0dHvi1hXr90JFaNQZ6EcCiZUSKnIYkS5
+         zHo+D/RGXEDKbBIJIcITTxVB+xXdl1H51tuuj46a6P+AIfS1sFtv8tWtdnB0bVBFfxzf
+         j2eg==
+X-Gm-Message-State: AJIora+7DSCvOX9o7ZwYrxsST32XDTYDYcpzxjqOiAFwi6xlTNL76fFz
+        6VoxzCcFFmdu/OSU2Ol0UErLolsjD1goRgtw
+X-Google-Smtp-Source: AGRyM1udC4eRkKPeQOXjk+7fbCr9C7GdHe8QbxmsrLuf2VJomxuJpZ/GZk5QUa4/A6akItzTctxQSA==
+X-Received: by 2002:a17:90a:408f:b0:1e3:23a:2370 with SMTP id l15-20020a17090a408f00b001e3023a2370mr14639792pjg.84.1657880559631;
+        Fri, 15 Jul 2022 03:22:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id rj1-20020a17090b3e8100b001ecfa85c8f0sm5329392pjb.26.2022.07.15.03.22.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jul 2022 03:22:39 -0700 (PDT)
+Message-ID: <62d13fef.1c69fb81.4bd0f.875a@mx.google.com>
+Date:   Fri, 15 Jul 2022 03:22:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v2] xen-blkback: fix persistent grants negotiation
-Content-Language: en-US
-To:     SeongJae Park <sj@kernel.org>, roger.pau@citrix.com,
-        jgross@suse.com
-Cc:     axboe@kernel.dk, boris.ostrovsky@oracle.com, mheyne@amazon.de,
-        xen-devel@lists.xenproject.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        andrii.chepurnyi82@gmail.com
-References: <20220714224410.51147-1-sj@kernel.org>
-From:   Oleksandr <olekstysh@gmail.com>
-In-Reply-To: <20220714224410.51147-1-sj@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.11-63-g15e4c0612627
+X-Kernelci-Branch: queue/5.18
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.18 baseline: 138 runs,
+ 8 regressions (v5.18.11-63-g15e4c0612627)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,110 +70,319 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.18 baseline: 138 runs, 8 regressions (v5.18.11-63-g15e4c0=
+612627)
 
-On 15.07.22 01:44, SeongJae Park wrote:
+Regressions Summary
+-------------------
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+hp-x360-14-G1-sona     | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
+config           | 1          =
+
+jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
+config           | 1          =
+
+jetson-tk1             | arm    | lab-baylibre    | gcc-10   | tegra_defcon=
+fig              | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
 
 
-Hello all.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
+nel/v5.18.11-63-g15e4c0612627/plan/baseline/
 
-Adding Andrii Chepurnyi to CC who have played with the use-case which 
-required reconnect recently and faced some issues with 
-feature_persistent handling.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.18
+  Describe: v5.18.11-63-g15e4c0612627
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      15e4c061262783b735e1dfed2b135dc9f322d233 =
 
 
 
+Test Regressions
+---------------- =
 
-> Persistent grants feature can be used only when both backend and the
-> frontend supports the feature.  The feature was always supported by
-> 'blkback', but commit aac8a70db24b ("xen-blkback: add a parameter for
-> disabling of persistent grants") has introduced a parameter for
-> disabling it runtime.
->
-> To avoid the parameter be updated while being used by 'blkback', the
-> commit caches the parameter into 'vbd->feature_gnt_persistent' in
-> 'xen_vbd_create()', and then check if the guest also supports the
-> feature and finally updates the field in 'connect_ring()'.
->
-> However, 'connect_ring()' could be called before 'xen_vbd_create()', so
-> later execution of 'xen_vbd_create()' can wrongly overwrite 'true' to
-> 'vbd->feature_gnt_persistent'.  As a result, 'blkback' could try to use
-> 'persistent grants' feature even if the guest doesn't support the
-> feature.
->
-> This commit fixes the issue by moving the parameter value caching to
-> 'xen_blkif_alloc()', which allocates the 'blkif'.  Because the struct
-> embeds 'vbd' object, which will be used by 'connect_ring()' later, this
-> should be called before 'connect_ring()' and therefore this should be
-> the right and safe place to do the caching.
->
-> Fixes: aac8a70db24b ("xen-blkback: add a parameter for disabling of persistent grants")
-> Cc: <stable@vger.kernel.org> # 5.10.x
-> Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
-> Signed-off-by: SeongJae Park <sj@kernel.org>
-> ---
->
-> Changes from v1[1]
-> - Avoid the behavioral change[2]
-> - Rebase on latest xen/tip/linux-next
-> - Re-work by SeongJae Park <sj@kernel.org>
-> - Cc stable@
->
-> [1] https://lore.kernel.org/xen-devel/20220106091013.126076-1-mheyne@amazon.de/
-> [2] https://lore.kernel.org/xen-devel/20220121102309.27802-1-sj@kernel.org/
->
->   drivers/block/xen-blkback/xenbus.c | 15 +++++++--------
->   1 file changed, 7 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
-> index 97de13b14175..16c6785d260c 100644
-> --- a/drivers/block/xen-blkback/xenbus.c
-> +++ b/drivers/block/xen-blkback/xenbus.c
-> @@ -157,6 +157,11 @@ static int xen_blkif_alloc_rings(struct xen_blkif *blkif)
->   	return 0;
->   }
->   
-> +/* Enable the persistent grants feature. */
-> +static bool feature_persistent = true;
-> +module_param(feature_persistent, bool, 0644);
-> +MODULE_PARM_DESC(feature_persistent, "Enables the persistent grants feature");
-> +
->   static struct xen_blkif *xen_blkif_alloc(domid_t domid)
->   {
->   	struct xen_blkif *blkif;
-> @@ -181,6 +186,8 @@ static struct xen_blkif *xen_blkif_alloc(domid_t domid)
->   	__module_get(THIS_MODULE);
->   	INIT_WORK(&blkif->free_work, xen_blkif_deferred_free);
->   
-> +	blkif->vbd.feature_gnt_persistent = feature_persistent;
-> +
->   	return blkif;
->   }
->   
-> @@ -472,12 +479,6 @@ static void xen_vbd_free(struct xen_vbd *vbd)
->   	vbd->bdev = NULL;
->   }
->   
-> -/* Enable the persistent grants feature. */
-> -static bool feature_persistent = true;
-> -module_param(feature_persistent, bool, 0644);
-> -MODULE_PARM_DESC(feature_persistent,
-> -		"Enables the persistent grants feature");
-> -
->   static int xen_vbd_create(struct xen_blkif *blkif, blkif_vdev_t handle,
->   			  unsigned major, unsigned minor, int readonly,
->   			  int cdrom)
-> @@ -520,8 +521,6 @@ static int xen_vbd_create(struct xen_blkif *blkif, blkif_vdev_t handle,
->   	if (bdev_max_secure_erase_sectors(bdev))
->   		vbd->discard_secure = true;
->   
-> -	vbd->feature_gnt_persistent = feature_persistent;
-> -
->   	pr_debug("Successful creation of handle=%04x (dom=%u)\n",
->   		handle, blkif->domid);
->   	return 0;
 
--- 
-Regards,
 
-Oleksandr Tyshchenko
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+hp-x360-14-G1-sona     | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
+
+  Details:     https://kernelci.org/test/plan/id/62d1070ccc43a6d92fa39bda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-hp-x360-14-G1-sona.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-hp-x360-14-G1-sona.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d1070ccc43a6d92fa39=
+bdb
+        new failure (last pass: v5.18.11-62-g9bdfd8703447) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+imx6ul-pico-hobbit     | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
+config           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d12ae63b90527db2a39bdf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d12ae63b90527db2a39=
+be0
+        failing since 9 days (last pass: v5.18.9-96-g91cfa3d0b94d, first fa=
+il: v5.18.9-102-ga6b8287ea0b9) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+jetson-tk1             | arm    | lab-baylibre    | gcc-10   | multi_v7_def=
+config           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d107a0ec4c81077ea39be6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
+-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d107a0ec4c81077ea39=
+be7
+        failing since 2 days (last pass: v5.18.10-112-ga454acbfee6a, first =
+fail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+jetson-tk1             | arm    | lab-baylibre    | gcc-10   | tegra_defcon=
+fig              | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d10660b3f838eb0da39bcd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
+1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
+1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d10660b3f838eb0da39=
+bce
+        failing since 0 day (last pass: v5.18.11-62-gf8ff14144283, first fa=
+il: v5.18.11-62-g9bdfd8703447) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d102a7dc6ac858d6a39bdc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
+/baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
+/baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d102a7dc6ac858d6a39=
+bdd
+        failing since 2 days (last pass: v5.18.10-112-ga454acbfee6a, first =
+fail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d103d22b22561adda39bf5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d103d22b22561adda39=
+bf6
+        failing since 2 days (last pass: v5.18.10-27-gbe5c4eef4e40, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d106ae309f3737b9a39bda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d106ae309f3737b9a39=
+bdb
+        failing since 2 days (last pass: v5.18.10-112-ga454acbfee6a, first =
+fail: v5.18.11-61-g8656c561960d) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d1078b56f96df33ca39bce
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.11-=
+63-g15e4c0612627/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d1078b56f96df33ca39=
+bcf
+        failing since 2 days (last pass: v5.18.10-27-gbe5c4eef4e40, first f=
+ail: v5.18.11-61-g8656c561960d) =
+
+ =20
