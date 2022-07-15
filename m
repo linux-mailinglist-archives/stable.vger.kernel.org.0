@@ -2,193 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB7E57628C
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:08:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C335762CE
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231807AbiGONIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 09:08:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47306 "EHLO
+        id S229715AbiGONav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 09:30:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiGONIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:08:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C03BE15
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:08:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47FE0B82BF6
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:08:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95984C34115;
-        Fri, 15 Jul 2022 13:08:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657890517;
-        bh=Nx76BLkWeQ8RIrefcM7Z+6+zHTKncmpaPuvDpL6LTOE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=p48l9L5Mw/JilpBQAAGQJmy4Ermv8mXQXyQhq+71uKg8pPoUBQxYv8b1BFY71leLI
-         2wRO3MYJYigcyvJ81mQP4Jr/iLh3ImowgDYYCZMDl8vYvbaGaOkDYkQOqe9ZKIq5hW
-         TfxzH21rpQWWxONvbIc9zpfdSzUripxljIXVzBfA=
-Subject: FAILED: patch "[PATCH] ipc: Free mq_sysctls if ipc namespace creation failed" failed to apply to 5.4-stable tree
-To:     legion@kernel.org, ebiederm@xmission.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 Jul 2022 15:08:26 +0200
-Message-ID: <165789050625095@kroah.com>
+        with ESMTP id S229550AbiGONau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:30:50 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F3EA37FA7
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:30:50 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id b2so3240816plx.7
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:30:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=aIUdkqdE7yzZ5x1YKtQSz50R4sU7oJTTfipxxjmhwBA=;
+        b=p7vfH5dakRVYtwuojEWTNrXwlLGwzzmhvy5kkXJ5Xtsm9CRSpv90esZhn8yg+w3cMh
+         jlzNHmenfqVt5PdGdFLAPYX7aB5zO65iyskubzpfcbuynexSwj/AC5SzQudvOipHv1am
+         O7beLh2TKUq3kHHd9c9FHqEeiWdtRrGIrvBpatCApEQORdoeMTxT2PIczyNJYISks5IL
+         Ke3JTWNSa+A892nqt7XBx85bafMOTqsh+kmQvS7x6KZol1+5MaLIudc+tuZGN9mgVY1U
+         CfxeDz3ZAOCVKB53M82GGLlYPYNAwSq+0e4mxotJIN2aZWWTwgdvISAEENhH8bmKpsU0
+         e6+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=aIUdkqdE7yzZ5x1YKtQSz50R4sU7oJTTfipxxjmhwBA=;
+        b=yrtCJxEE681htwXLRu/Vhk/uhm1GhF5SaW0hZnos9sIMIMhTubYjobyOeNuYn6hwkV
+         7igG4Y758abD/wThHWUNeZ16NlRKu8hiV2l8UID+66HIiqZ8hL7kJ0mV7jzEz5Qt+v0Y
+         XxkIh2wWNrI5Tv3yaO7RYgArA25b2Qoq4YdbozsGS88ThJUEHVPZOPEQ+pEFllIsCtbr
+         xp+RbfoSUSyKWZ6OVHNhYDvCuc6gjWv3bi/NR20EnFijp7OMH70KF/I3z5K//cC6q20u
+         HtPBqaV5ERIqIIT5EM2odaBw8pMZtjpT6yUnq8gMU9ovNHItvCezuHv+h/XCbUqz01D6
+         FhIQ==
+X-Gm-Message-State: AJIora9zOSufUZoFNoWvGti/1N6gL8a0Pd+1ybgKfV7FqxKNHe65jIkm
+        gF64KaKt3c9u4oqT5yB3wuR/0G9MZ4JpBhnn
+X-Google-Smtp-Source: AGRyM1vYJ46qU8XdHo/XJtOCMAySv9ZI/w0/JCy/8x5uIVATQDj4q7wIofLSLit/qVHkqIGZpT3Vxw==
+X-Received: by 2002:a17:90a:bc8f:b0:1ef:845d:d34d with SMTP id x15-20020a17090abc8f00b001ef845dd34dmr15944108pjr.118.1657891849458;
+        Fri, 15 Jul 2022 06:30:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id oa12-20020a17090b1bcc00b001ef8de342b8sm3550503pjb.15.2022.07.15.06.30.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jul 2022 06:30:49 -0700 (PDT)
+Message-ID: <62d16c09.1c69fb81.5593b.56fd@mx.google.com>
+Date:   Fri, 15 Jul 2022 06:30:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.130-1-g05215305b554
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 56 runs,
+ 1 regressions (v5.10.130-1-g05215305b554)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 56 runs, 1 regressions (v5.10.130-1-g0521530=
+5b554)
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.130-1-g05215305b554/plan/baseline/
 
-From db7cfc380900bc4243b09623fd72fabe0a8ff23b Mon Sep 17 00:00:00 2001
-From: Alexey Gladkov <legion@kernel.org>
-Date: Wed, 22 Jun 2022 22:07:29 +0200
-Subject: [PATCH] ipc: Free mq_sysctls if ipc namespace creation failed
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.130-1-g05215305b554
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      05215305b554db793b3d034d3292edbd33fcb0c4 =
 
-The problem that Dmitry Vyukov pointed out is that if setup_ipc_sysctls fails,
-mq_sysctls must be freed before return.
 
-executing program
-BUG: memory leak
-unreferenced object 0xffff888112fc9200 (size 512):
-  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
-  hex dump (first 32 bytes):
-    ef d3 60 85 ff ff ff ff 0c 9b d2 12 81 88 ff ff  ..`.............
-    04 00 00 00 a4 01 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff814b6eb3>] kmemdup+0x23/0x50 mm/util.c:129
-    [<ffffffff82219a9b>] kmemdup include/linux/fortify-string.h:456 [inline]
-    [<ffffffff82219a9b>] setup_mq_sysctls+0x4b/0x1c0 ipc/mq_sysctl.c:89
-    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
-    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
-    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
-    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
-    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
-    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
-    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
-    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-BUG: memory leak
-unreferenced object 0xffff888112fd5f00 (size 256):
-  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
-  hex dump (first 32 bytes):
-    00 92 fc 12 81 88 ff ff 00 00 00 00 01 00 00 00  ................
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff816fea1b>] kmalloc include/linux/slab.h:605 [inline]
-    [<ffffffff816fea1b>] kzalloc include/linux/slab.h:733 [inline]
-    [<ffffffff816fea1b>] __register_sysctl_table+0x7b/0x7f0 fs/proc/proc_sysctl.c:1344
-    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
-    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
-    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
-    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
-    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
-    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
-    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
-    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
-    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Test Regressions
+---------------- =
 
-BUG: memory leak
-unreferenced object 0xffff888112fbba00 (size 256):
-  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
-  hex dump (first 32 bytes):
-    78 ba fb 12 81 88 ff ff 00 00 00 00 01 00 00 00  x...............
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff816fef49>] kmalloc include/linux/slab.h:605 [inline]
-    [<ffffffff816fef49>] kzalloc include/linux/slab.h:733 [inline]
-    [<ffffffff816fef49>] new_dir fs/proc/proc_sysctl.c:978 [inline]
-    [<ffffffff816fef49>] get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-    [<ffffffff816fef49>] __register_sysctl_table+0x5a9/0x7f0 fs/proc/proc_sysctl.c:1373
-    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
-    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
-    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
-    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
-    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
-    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
-    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
-    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
-    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-BUG: memory leak
-unreferenced object 0xffff888112fbb900 (size 256):
-  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
-  hex dump (first 32 bytes):
-    78 b9 fb 12 81 88 ff ff 00 00 00 00 01 00 00 00  x...............
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff816fef49>] kmalloc include/linux/slab.h:605 [inline]
-    [<ffffffff816fef49>] kzalloc include/linux/slab.h:733 [inline]
-    [<ffffffff816fef49>] new_dir fs/proc/proc_sysctl.c:978 [inline]
-    [<ffffffff816fef49>] get_subdir fs/proc/proc_sysctl.c:1022 [inline]
-    [<ffffffff816fef49>] __register_sysctl_table+0x5a9/0x7f0 fs/proc/proc_sysctl.c:1373
-    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
-    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
-    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
-    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
-    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
-    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
-    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
-    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
-    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
-    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Reported-by: syzbot+b4b0d1b35442afbf6fd2@syzkaller.appspotmail.com
-Signed-off-by: Alexey Gladkov <legion@kernel.org>
-Link: https://lkml.kernel.org/r/000000000000f5004705e1db8bad@google.com
-Link: https://lkml.kernel.org/r/20220622200729.2639663-1-legion@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
 
-diff --git a/ipc/namespace.c b/ipc/namespace.c
-index 754f3237194a..e1fcaedba4fa 100644
---- a/ipc/namespace.c
-+++ b/ipc/namespace.c
-@@ -64,7 +64,7 @@ static struct ipc_namespace *create_ipc_ns(struct user_namespace *user_ns,
- 		goto fail_put;
- 
- 	if (!setup_ipc_sysctls(ns))
--		goto fail_put;
-+		goto fail_mq;
- 
- 	sem_init_ns(ns);
- 	msg_init_ns(ns);
-@@ -72,6 +72,9 @@ static struct ipc_namespace *create_ipc_ns(struct user_namespace *user_ns,
- 
- 	return ns;
- 
-+fail_mq:
-+	retire_mq_sysctls(ns);
-+
- fail_put:
- 	put_user_ns(ns->user_ns);
- 	ns_free_inum(&ns->ns);
 
+  Details:     https://kernelci.org/test/plan/id/62d138b38208bf27fda39c00
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.130=
+-1-g05215305b554/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
+1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.130=
+-1-g05215305b554/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
+1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d138b38208bf27fda39=
+c01
+        failing since 1 day (last pass: v5.10.130-131-gb71540e08722, first =
+fail: v5.10.130-132-g59d697b2ea179) =
+
+ =20
