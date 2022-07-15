@@ -2,110 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E8D57643F
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72980576480
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbiGOPQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 11:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53726 "EHLO
+        id S229573AbiGOPgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 11:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229480AbiGOPQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:16:17 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23D3326EC;
-        Fri, 15 Jul 2022 08:16:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657898176; x=1689434176;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=WRHSubit+Lk19ufdasQNizHHZwCF18420UwzZxf6a8w=;
-  b=LE4/cLSbfI0y/0abW/EijQzbYytTUCLQzkcUe/qBf5RcHTOF+ecmwKjc
-   emD7hTXDHOwlgXbRubGih5EUw/NyVYa61xX0VxiB/+hwhGtEmC7etNiW1
-   yDRQkCedpMRvsQgX0riLKuYAZB8p/vn7Dfc1FJkfebw/05S/O2IU9535K
-   LEwq4b4rk5ia4on2eSmtHrvMgVjJnpXQMrKo4o32CxNPiDDiN3KYB0h9I
-   nO4n8Jp54PdpJQsaiHCTzU6zNUqp/kQO3R80LV661HqQok/e3xMmV9V6H
-   00IX4cI+KJIYNMItWRAoKRSG52kUcn2LO+nbLLejxHjislMpKSQDI5T6b
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10408"; a="286955082"
-X-IronPort-AV: E=Sophos;i="5.92,274,1650956400"; 
-   d="scan'208";a="286955082"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jul 2022 08:16:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,274,1650956400"; 
-   d="scan'208";a="723109285"
-Received: from irvmail001.ir.intel.com ([10.43.11.63])
-  by orsmga004.jf.intel.com with ESMTP; 15 Jul 2022 08:16:13 -0700
-Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
-        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 26FFGBwn012966;
-        Fri, 15 Jul 2022 16:16:11 +0100
-From:   Alexander Lobakin <alexandr.lobakin@intel.com>
-To:     Yury Norov <yury.norov@gmail.com>
-Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        platform-driver-x86@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: [PATCH] x86/olpc: fix 'logical not is only applied to the left hand side'
-Date:   Fri, 15 Jul 2022 17:15:36 +0200
-Message-Id: <20220715151536.67401-1-alexandr.lobakin@intel.com>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S233293AbiGOPgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:36:11 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BD1255091
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 08:36:10 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id 89-20020a17090a09e200b001ef7638e536so11860234pjo.3
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 08:36:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GH0cZokFFoeU5C1I+z+KSqjMFKveOmAd6lAgxbXe6Dw=;
+        b=z8oBJLIYpj/dm8m+RB+15SHNO8r4QzBeEzGmXImmlbZj08WIql7zaodN8bSOcA88ZA
+         GScj7nue4Ro+zCiI7hSAYoF+woNQzXtAFaioBDgHUxoizdZ11TurfGtqMxLEeI1CoNbb
+         OEYA+VhVIszEsEzRrV0vNGOu2ykAgU8ZO2CaCS9/pxkKdz9dNnbGQ0ZEXtKSfh3nnSRB
+         +D3GleBAXcyAu4i1eAOlRrmljFwBsRO9Scf06w0ffMDvOEgBNDQvPpMrsh/7nxt9nWl4
+         vo90YfvbhpPyu198rMx1IhsBiRF33NgtXljVQCHqVKGek1wESl5UojA6juHsUm6WBHSA
+         Xbyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GH0cZokFFoeU5C1I+z+KSqjMFKveOmAd6lAgxbXe6Dw=;
+        b=QGh/QwjmMn8UWoS6o10Dqz8KfDLRWAESfmRePOSDGsSHpJwkod4OnCNJMucPpEp/OA
+         2c9VVcUXDdLOdo6MI5BGKnFV4GlJVjHkHPlLLwCZfpKVwCzVxZMLIMH6sk1KPMJad4/D
+         ZDE57n393SyLmPYfFeCMqrF2wsxkV9dmAvziyGFTuoaKLvzhonBnoishQRmyqiMlyTc/
+         oMoYKfqDgEvoW6ZEVS3UeKPzqhacqMCtfJhHu1m6q3OWdbnTtR/KADXCjOGLmR+ppU6q
+         JvKJuhQIk/BHgtuq66zLshWYCex+X+r423R0Sex/tv+VNPAT6E+BWWMFeU49yjLrXw3d
+         ICng==
+X-Gm-Message-State: AJIora9K9lBrfKX/cf1KxTAnXVKUNQpJSGlBWI0DFI1FLT90j6ObMqP8
+        ZDxcHCnfVh50Fb+hR3bba0LQzyXoYNnvtLY4
+X-Google-Smtp-Source: AGRyM1sHutNC9UJ3ZPhSORKHrHpbT0YLZm5W/cnvqrrLpzsZesZJhTK3gVteviatEQJ62N3zbPZQ+A==
+X-Received: by 2002:a17:90b:4b0e:b0:1f0:2e9:28f8 with SMTP id lx14-20020a17090b4b0e00b001f002e928f8mr16453547pjb.43.1657899369634;
+        Fri, 15 Jul 2022 08:36:09 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id r16-20020a63fc50000000b0041245ccb6b1sm3308776pgk.62.2022.07.15.08.36.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jul 2022 08:36:09 -0700 (PDT)
+Message-ID: <62d18969.1c69fb81.caf72.506a@mx.google.com>
+Date:   Fri, 15 Jul 2022 08:36:09 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.12
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.18.y baseline: 137 runs, 3 regressions (v5.18.12)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The bitops compile-time optimization series revealed one more
-problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
-warnings:
+stable-rc/linux-5.18.y baseline: 137 runs, 3 regressions (v5.18.12)
 
-arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
-   83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-      |                                                               ^~
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
+Regressions Summary
+-------------------
 
-Despite this code working as intended, this redundant double
-negation of boolean value, together with comparing to `char`
-with no explicit conversion to bool, makes compilers think
-the author made some unintentional logical mistakes here.
-Make it the other way around and negate the char instead
-to silence the warnings.
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-10   | imx_v6_v7_defconf=
+ig | 1          =
 
-Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
-Cc: stable@vger.kernel.org # 3.5+
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
----
- arch/x86/platform/olpc/olpc-xo1-sci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+jetson-tk1         | arm   | lab-baylibre    | gcc-10   | tegra_defconfig  =
+   | 1          =
 
-diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/olpc/olpc-xo1-sci.c
-index f03a6883dcc6..89f25af4b3c3 100644
---- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-+++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-@@ -80,7 +80,7 @@ static void send_ebook_state(void)
- 		return;
- 	}
- 
--	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-+	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
- 		return; /* Nothing new to report. */
- 
- 	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
--- 
-2.36.1
+kontron-pitx-imx8m | arm64 | lab-kontron     | gcc-10   | defconfig        =
+   | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.18.y/ker=
+nel/v5.18.12/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.18.y
+  Describe: v5.18.12
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c2e9702659dfc309dfda6116da48f200fe425aab =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-10   | imx_v6_v7_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d1549f254cdb8373a39bd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbi=
+t.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbi=
+t.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d1549f254cdb8373a39=
+bd2
+        failing since 14 days (last pass: v5.18.8, first fail: v5.18.8-7-g2=
+c9a64b3a872) =
+
+ =
+
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+jetson-tk1         | arm   | lab-baylibre    | gcc-10   | tegra_defconfig  =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d155238805516703a39bfa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d155238805516703a39=
+bfb
+        failing since 31 days (last pass: v5.18.2-880-g09bf95a7c28a7, first=
+ fail: v5.18.2-1220-gd5ac9cd9153f6) =
+
+ =
+
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+kontron-pitx-imx8m | arm64 | lab-kontron     | gcc-10   | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d15878b91ab9809da39bd6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d15878b91ab9809da39=
+bd7
+        new failure (last pass: v5.18.11-62-g18f94637a014) =
+
+ =20
