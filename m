@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55EE5576285
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF45576286
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229559AbiGONGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 09:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46228 "EHLO
+        id S229525AbiGONIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 09:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229587AbiGONGy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:06:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DEC5C96F
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:06:53 -0700 (PDT)
+        with ESMTP id S229475AbiGONIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:08:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19CAC4330C
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:08:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6123762392
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E388C34115;
-        Fri, 15 Jul 2022 13:06:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A46AB62389
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:07:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931FFC34115;
+        Fri, 15 Jul 2022 13:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657890412;
-        bh=vawO7ezRv5friL+uIS5dqv1FARG2tZANNZqCgScqNOw=;
+        s=korg; t=1657890479;
+        bh=tKPoGbPM/QAbQPwvlOB1mHl4zEA9zPDGxCWV2N/ISeo=;
         h=Subject:To:Cc:From:Date:From;
-        b=citf+8vayj/Rnwpg95gLL5wwArTcOHarLv3lreuov1qUYBDWPG3H2CiPVutAOuRbs
-         uJy74p9R+EcY7t46WE2hIYWB6+HiqEEWBpzBNXu9cUBBp/VlKxLY4plzV0KT1z785m
-         HmEJMVXOyNkHGZuFK61e6F9Aa6zVhFQrFPwdsLYQ=
-Subject: FAILED: patch "[PATCH] drm/panfrost: Put mapping instead of shmem obj on" failed to apply to 5.4-stable tree
-To:     dmitry.osipenko@collabora.com, steven.price@arm.com
+        b=tVTkiA6zcEeU6SWHy1hzhKZLGcNj659oSbVrsugNgKTNAdYBk6ygHBOME+fgvSCz6
+         CckF5EHsqJKfkktgY5InKbRtqEn24R89z6uO2Ckgwg5JSQX6ZG7n9UMDvuPuUsogE+
+         BGn/FE3wP1MdB596OB5AL74DjdNLAvSkV7fVLLLk=
+Subject: FAILED: patch "[PATCH] fs/remap: constrain dedupe of EOF blocks" failed to apply to 5.4-stable tree
+To:     dchinner@redhat.com, ansgar.loesser@tu-darmstadt.de,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 Jul 2022 15:06:49 +0200
-Message-ID: <1657890409152100@kroah.com>
+Date:   Fri, 15 Jul 2022 15:07:56 +0200
+Message-ID: <1657890476193144@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -58,33 +59,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb6e0637ab7ebd8e61fe24f4d663c4bae99cfa62 Mon Sep 17 00:00:00 2001
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Date: Thu, 30 Jun 2022 23:06:00 +0300
-Subject: [PATCH] drm/panfrost: Put mapping instead of shmem obj on
- panfrost_mmu_map_fault_addr() error
+From 5750676b64a561f7ec920d7c6ba130fc9c7378f3 Mon Sep 17 00:00:00 2001
+From: Dave Chinner <dchinner@redhat.com>
+Date: Wed, 13 Jul 2022 17:49:15 +1000
+Subject: [PATCH] fs/remap: constrain dedupe of EOF blocks
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-When panfrost_mmu_map_fault_addr() fails, the BO's mapping should be
-unreferenced and not the shmem object which backs the mapping.
+If dedupe of an EOF block is not constrainted to match against only
+other EOF blocks with the same EOF offset into the block, it can
+match against any other block that has the same matching initial
+bytes in it, even if the bytes beyond EOF in the source file do
+not match.
 
-Cc: stable@vger.kernel.org
-Fixes: bdefca2d8dc0 ("drm/panfrost: Add the panfrost_gem_mapping concept")
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220630200601.1884120-2-dmitry.osipenko@collabora.com
+Fix this by constraining the EOF block matching to only match
+against other EOF blocks that have identical EOF offsets and data.
+This allows "whole file dedupe" to continue to work without allowing
+eof blocks to randomly match against partial full blocks with the
+same data.
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-index d3f82b26a631..b285a8001b1d 100644
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -518,7 +518,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
- err_pages:
- 	drm_gem_shmem_put_pages(&bo->base);
- err_bo:
--	drm_gem_object_put(&bo->base.base);
-+	panfrost_gem_mapping_put(bomapping);
- 	return ret;
- }
- 
+Reported-by: Ansgar Lößer <ansgar.loesser@tu-darmstadt.de>
+Fixes: 1383a7ed6749 ("vfs: check file ranges before cloning files")
+Link: https://lore.kernel.org/linux-fsdevel/a7c93559-4ba1-df2f-7a85-55a143696405@tu-darmstadt.de/
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/fs/remap_range.c b/fs/remap_range.c
+index e112b5424cdb..881a306ee247 100644
+--- a/fs/remap_range.c
++++ b/fs/remap_range.c
+@@ -71,7 +71,8 @@ static int generic_remap_checks(struct file *file_in, loff_t pos_in,
+ 	 * Otherwise, make sure the count is also block-aligned, having
+ 	 * already confirmed the starting offsets' block alignment.
+ 	 */
+-	if (pos_in + count == size_in) {
++	if (pos_in + count == size_in &&
++	    (!(remap_flags & REMAP_FILE_DEDUP) || pos_out + count == size_out)) {
+ 		bcount = ALIGN(size_in, bs) - pos_in;
+ 	} else {
+ 		if (!IS_ALIGNED(count, bs))
 
