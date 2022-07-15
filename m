@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5F957626D
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4BD576279
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 15:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232603AbiGONFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 09:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44952 "EHLO
+        id S229550AbiGONFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 09:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbiGONFD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:05:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA82F6447
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:05:01 -0700 (PDT)
+        with ESMTP id S229436AbiGONFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 09:05:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E0B1DA5C
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 06:05:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 58E89CE2F4A
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:04:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27EF0C34115;
-        Fri, 15 Jul 2022 13:04:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 841EF62388
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 13:05:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8C5C34115;
+        Fri, 15 Jul 2022 13:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657890297;
-        bh=bYew9I1sHMHIZxF0UcGJQXS692fARCi5jnwxatOSGHo=;
+        s=korg; t=1657890349;
+        bh=cjCR9wwjfVlbGAmlygcCJsvyjdAGfjRVJe+QgmCwZpo=;
         h=Subject:To:Cc:From:Date:From;
-        b=DuTSunovDtCaceL1fXk+IgIi5KhTX+M4vMyHe7JgVyjiBNpl3STSD+lPBeFotZo8h
-         NryFXWt5h3Py1cCdfctNsMpWqp/sE0e7CSmeusDy2WyrC7+Ekff2rPLPzoBLbOYHli
-         3Uq8IddbiTZdzyHJEp+cnRjbifdK9PFB+f4HA4iQ=
-Subject: FAILED: patch "[PATCH] ARM: 9214/1: alignment: advance IT state after emulating" failed to apply to 4.9-stable tree
-To:     ardb@kernel.org, linus.walleij@linaro.org,
-        rmk+kernel@armlinux.org.uk, stable@vger.kernel.org
+        b=Ehll1AA6SAtFJA3J5N1EKWJ2gKOwSUNHn2AQBx7AV8n4TplrI1IQvUP3Mx03iF/MQ
+         suvYqR1/9ZLdnrvW1UwEVr4CFsUOEt5TTn2VOnS5lL0CiQX64pr23ICUIdC7A5YVw6
+         /+H40tjBHS3SPMtwvEkX5G7lUZHDkKSChir4GqdI=
+Subject: FAILED: patch "[PATCH] cgroup: Use separate src/dst nodes when preloading css_sets" failed to apply to 4.9-stable tree
+To:     tj@kernel.org, quic_mojha@quicinc.com, shisiyuan19870131@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 Jul 2022 15:04:54 +0200
-Message-ID: <165789029450158@kroah.com>
+Date:   Fri, 15 Jul 2022 15:05:46 +0200
+Message-ID: <165789034689196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,118 +58,201 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e5c46fde75e43c15a29b40e5fc5641727f97ae47 Mon Sep 17 00:00:00 2001
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Thu, 30 Jun 2022 16:46:54 +0100
-Subject: [PATCH] ARM: 9214/1: alignment: advance IT state after emulating
- Thumb instruction
+From 07fd5b6cdf3cc30bfde8fe0f644771688be04447 Mon Sep 17 00:00:00 2001
+From: Tejun Heo <tj@kernel.org>
+Date: Mon, 13 Jun 2022 12:19:50 -1000
+Subject: [PATCH] cgroup: Use separate src/dst nodes when preloading css_sets
+ for migration
 
-After emulating a misaligned load or store issued in Thumb mode, we have
-to advance the IT state by hand, or it will get out of sync with the
-actual instruction stream, which means we'll end up applying the wrong
-condition code to subsequent instructions. This might corrupt the
-program state rather catastrophically.
+Each cset (css_set) is pinned by its tasks. When we're moving tasks around
+across csets for a migration, we need to hold the source and destination
+csets to ensure that they don't go away while we're moving tasks about. This
+is done by linking cset->mg_preload_node on either the
+mgctx->preloaded_src_csets or mgctx->preloaded_dst_csets list. Using the
+same cset->mg_preload_node for both the src and dst lists was deemed okay as
+a cset can't be both the source and destination at the same time.
 
-So borrow the it_advance() helper from the probing code, and use it on
-CPSR if the emulated instruction is Thumb.
+Unfortunately, this overloading becomes problematic when multiple tasks are
+involved in a migration and some of them are identity noop migrations while
+others are actually moving across cgroups. For example, this can happen with
+the following sequence on cgroup1:
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+ #1> mkdir -p /sys/fs/cgroup/misc/a/b
+ #2> echo $$ > /sys/fs/cgroup/misc/a/cgroup.procs
+ #3> RUN_A_COMMAND_WHICH_CREATES_MULTIPLE_THREADS &
+ #4> PID=$!
+ #5> echo $PID > /sys/fs/cgroup/misc/a/b/tasks
+ #6> echo $PID > /sys/fs/cgroup/misc/a/cgroup.procs
 
-diff --git a/arch/arm/include/asm/ptrace.h b/arch/arm/include/asm/ptrace.h
-index 93051e2f402c..1408a6a15d0e 100644
---- a/arch/arm/include/asm/ptrace.h
-+++ b/arch/arm/include/asm/ptrace.h
-@@ -163,5 +163,31 @@ static inline unsigned long user_stack_pointer(struct pt_regs *regs)
- 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
- })
+the process including the group leader back into a. In this final migration,
+non-leader threads would be doing identity migration while the group leader
+is doing an actual one.
+
+After #3, let's say the whole process was in cset A, and that after #4, the
+leader moves to cset B. Then, during #6, the following happens:
+
+ 1. cgroup_migrate_add_src() is called on B for the leader.
+
+ 2. cgroup_migrate_add_src() is called on A for the other threads.
+
+ 3. cgroup_migrate_prepare_dst() is called. It scans the src list.
+
+ 4. It notices that B wants to migrate to A, so it tries to A to the dst
+    list but realizes that its ->mg_preload_node is already busy.
+
+ 5. and then it notices A wants to migrate to A as it's an identity
+    migration, it culls it by list_del_init()'ing its ->mg_preload_node and
+    putting references accordingly.
+
+ 6. The rest of migration takes place with B on the src list but nothing on
+    the dst list.
+
+This means that A isn't held while migration is in progress. If all tasks
+leave A before the migration finishes and the incoming task pins it, the
+cset will be destroyed leading to use-after-free.
+
+This is caused by overloading cset->mg_preload_node for both src and dst
+preload lists. We wanted to exclude the cset from the src list but ended up
+inadvertently excluding it from the dst list too.
+
+This patch fixes the issue by separating out cset->mg_preload_node into
+->mg_src_preload_node and ->mg_dst_preload_node, so that the src and dst
+preloadings don't interfere with each other.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reported-by: shisiyuan <shisiyuan19870131@gmail.com>
+Link: http://lkml.kernel.org/r/1654187688-27411-1-git-send-email-shisiyuan@xiaomi.com
+Link: https://www.spinics.net/lists/cgroups/msg33313.html
+Fixes: f817de98513d ("cgroup: prepare migration path for unified hierarchy")
+Cc: stable@vger.kernel.org # v3.16+
+
+diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
+index 1bfcfb1af352..d4427d0a0e18 100644
+--- a/include/linux/cgroup-defs.h
++++ b/include/linux/cgroup-defs.h
+@@ -264,7 +264,8 @@ struct css_set {
+ 	 * List of csets participating in the on-going migration either as
+ 	 * source or destination.  Protected by cgroup_mutex.
+ 	 */
+-	struct list_head mg_preload_node;
++	struct list_head mg_src_preload_node;
++	struct list_head mg_dst_preload_node;
+ 	struct list_head mg_node;
  
-+
-+/*
-+ * Update ITSTATE after normal execution of an IT block instruction.
-+ *
-+ * The 8 IT state bits are split into two parts in CPSR:
-+ *	ITSTATE<1:0> are in CPSR<26:25>
-+ *	ITSTATE<7:2> are in CPSR<15:10>
-+ */
-+static inline unsigned long it_advance(unsigned long cpsr)
-+{
-+	if ((cpsr & 0x06000400) == 0) {
-+		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
-+		cpsr &= ~PSR_IT_MASK;
-+	} else {
-+		/* We need to shift left ITSTATE<4:0> */
-+		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
-+		unsigned long it = cpsr & mask;
-+		it <<= 1;
-+		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
-+		it &= mask;
-+		cpsr &= ~mask;
-+		cpsr |= it;
-+	}
-+	return cpsr;
-+}
-+
- #endif /* __ASSEMBLY__ */
- #endif
-diff --git a/arch/arm/mm/alignment.c b/arch/arm/mm/alignment.c
-index 6f499559d193..f8dd0b3cc8e0 100644
---- a/arch/arm/mm/alignment.c
-+++ b/arch/arm/mm/alignment.c
-@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 	if (type == TYPE_LDST)
- 		do_alignment_finish_ldst(addr, instr, regs, offset);
+ 	/*
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 1779ccddb734..13c8e91d7862 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -765,7 +765,8 @@ struct css_set init_css_set = {
+ 	.task_iters		= LIST_HEAD_INIT(init_css_set.task_iters),
+ 	.threaded_csets		= LIST_HEAD_INIT(init_css_set.threaded_csets),
+ 	.cgrp_links		= LIST_HEAD_INIT(init_css_set.cgrp_links),
+-	.mg_preload_node	= LIST_HEAD_INIT(init_css_set.mg_preload_node),
++	.mg_src_preload_node	= LIST_HEAD_INIT(init_css_set.mg_src_preload_node),
++	.mg_dst_preload_node	= LIST_HEAD_INIT(init_css_set.mg_dst_preload_node),
+ 	.mg_node		= LIST_HEAD_INIT(init_css_set.mg_node),
  
-+	if (thumb_mode(regs))
-+		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
-+
- 	return 0;
+ 	/*
+@@ -1240,7 +1241,8 @@ static struct css_set *find_css_set(struct css_set *old_cset,
+ 	INIT_LIST_HEAD(&cset->threaded_csets);
+ 	INIT_HLIST_NODE(&cset->hlist);
+ 	INIT_LIST_HEAD(&cset->cgrp_links);
+-	INIT_LIST_HEAD(&cset->mg_preload_node);
++	INIT_LIST_HEAD(&cset->mg_src_preload_node);
++	INIT_LIST_HEAD(&cset->mg_dst_preload_node);
+ 	INIT_LIST_HEAD(&cset->mg_node);
  
-  bad_or_fault:
-diff --git a/arch/arm/probes/decode.h b/arch/arm/probes/decode.h
-index 973173598992..facc889d05ee 100644
---- a/arch/arm/probes/decode.h
-+++ b/arch/arm/probes/decode.h
-@@ -14,6 +14,7 @@
- #include <linux/types.h>
- #include <linux/stddef.h>
- #include <asm/probes.h>
-+#include <asm/ptrace.h>
- #include <asm/kprobes.h>
- 
- void __init arm_probes_decode_init(void);
-@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
- #endif
- 
- 
--/*
-- * Update ITSTATE after normal execution of an IT block instruction.
-- *
-- * The 8 IT state bits are split into two parts in CPSR:
-- *	ITSTATE<1:0> are in CPSR<26:25>
-- *	ITSTATE<7:2> are in CPSR<15:10>
-- */
--static inline unsigned long it_advance(unsigned long cpsr)
--	{
--	if ((cpsr & 0x06000400) == 0) {
--		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
--		cpsr &= ~PSR_IT_MASK;
--	} else {
--		/* We need to shift left ITSTATE<4:0> */
--		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
--		unsigned long it = cpsr & mask;
--		it <<= 1;
--		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
--		it &= mask;
--		cpsr &= ~mask;
--		cpsr |= it;
--	}
--	return cpsr;
--}
--
- static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
+ 	/* Copy the set of subsystem state objects generated in
+@@ -2597,21 +2599,27 @@ int cgroup_migrate_vet_dst(struct cgroup *dst_cgrp)
+  */
+ void cgroup_migrate_finish(struct cgroup_mgctx *mgctx)
  {
- 	long cpsr = regs->ARM_cpsr;
+-	LIST_HEAD(preloaded);
+ 	struct css_set *cset, *tmp_cset;
+ 
+ 	lockdep_assert_held(&cgroup_mutex);
+ 
+ 	spin_lock_irq(&css_set_lock);
+ 
+-	list_splice_tail_init(&mgctx->preloaded_src_csets, &preloaded);
+-	list_splice_tail_init(&mgctx->preloaded_dst_csets, &preloaded);
++	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_src_csets,
++				 mg_src_preload_node) {
++		cset->mg_src_cgrp = NULL;
++		cset->mg_dst_cgrp = NULL;
++		cset->mg_dst_cset = NULL;
++		list_del_init(&cset->mg_src_preload_node);
++		put_css_set_locked(cset);
++	}
+ 
+-	list_for_each_entry_safe(cset, tmp_cset, &preloaded, mg_preload_node) {
++	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_dst_csets,
++				 mg_dst_preload_node) {
+ 		cset->mg_src_cgrp = NULL;
+ 		cset->mg_dst_cgrp = NULL;
+ 		cset->mg_dst_cset = NULL;
+-		list_del_init(&cset->mg_preload_node);
++		list_del_init(&cset->mg_dst_preload_node);
+ 		put_css_set_locked(cset);
+ 	}
+ 
+@@ -2651,7 +2659,7 @@ void cgroup_migrate_add_src(struct css_set *src_cset,
+ 	if (src_cset->dead)
+ 		return;
+ 
+-	if (!list_empty(&src_cset->mg_preload_node))
++	if (!list_empty(&src_cset->mg_src_preload_node))
+ 		return;
+ 
+ 	src_cgrp = cset_cgroup_from_root(src_cset, dst_cgrp->root);
+@@ -2664,7 +2672,7 @@ void cgroup_migrate_add_src(struct css_set *src_cset,
+ 	src_cset->mg_src_cgrp = src_cgrp;
+ 	src_cset->mg_dst_cgrp = dst_cgrp;
+ 	get_css_set(src_cset);
+-	list_add_tail(&src_cset->mg_preload_node, &mgctx->preloaded_src_csets);
++	list_add_tail(&src_cset->mg_src_preload_node, &mgctx->preloaded_src_csets);
+ }
+ 
+ /**
+@@ -2689,7 +2697,7 @@ int cgroup_migrate_prepare_dst(struct cgroup_mgctx *mgctx)
+ 
+ 	/* look up the dst cset for each src cset and link it to src */
+ 	list_for_each_entry_safe(src_cset, tmp_cset, &mgctx->preloaded_src_csets,
+-				 mg_preload_node) {
++				 mg_src_preload_node) {
+ 		struct css_set *dst_cset;
+ 		struct cgroup_subsys *ss;
+ 		int ssid;
+@@ -2708,7 +2716,7 @@ int cgroup_migrate_prepare_dst(struct cgroup_mgctx *mgctx)
+ 		if (src_cset == dst_cset) {
+ 			src_cset->mg_src_cgrp = NULL;
+ 			src_cset->mg_dst_cgrp = NULL;
+-			list_del_init(&src_cset->mg_preload_node);
++			list_del_init(&src_cset->mg_src_preload_node);
+ 			put_css_set(src_cset);
+ 			put_css_set(dst_cset);
+ 			continue;
+@@ -2716,8 +2724,8 @@ int cgroup_migrate_prepare_dst(struct cgroup_mgctx *mgctx)
+ 
+ 		src_cset->mg_dst_cset = dst_cset;
+ 
+-		if (list_empty(&dst_cset->mg_preload_node))
+-			list_add_tail(&dst_cset->mg_preload_node,
++		if (list_empty(&dst_cset->mg_dst_preload_node))
++			list_add_tail(&dst_cset->mg_dst_preload_node,
+ 				      &mgctx->preloaded_dst_csets);
+ 		else
+ 			put_css_set(dst_cset);
+@@ -2963,7 +2971,8 @@ static int cgroup_update_dfl_csses(struct cgroup *cgrp)
+ 		goto out_finish;
+ 
+ 	spin_lock_irq(&css_set_lock);
+-	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets, mg_preload_node) {
++	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets,
++			    mg_src_preload_node) {
+ 		struct task_struct *task, *ntask;
+ 
+ 		/* all tasks in src_csets need to be migrated */
 
