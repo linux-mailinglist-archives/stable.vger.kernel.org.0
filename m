@@ -2,111 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A99115769B5
-	for <lists+stable@lfdr.de>; Sat, 16 Jul 2022 00:11:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B945F5769C4
+	for <lists+stable@lfdr.de>; Sat, 16 Jul 2022 00:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbiGOWLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 18:11:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45896 "EHLO
+        id S231903AbiGOWQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 18:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232698AbiGOWLQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 18:11:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F4E9B9EB;
-        Fri, 15 Jul 2022 15:06:21 -0700 (PDT)
+        with ESMTP id S232036AbiGOWQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 18:16:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72628262;
+        Fri, 15 Jul 2022 15:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7141DB82EB3;
-        Fri, 15 Jul 2022 22:06:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50143C3411E;
-        Fri, 15 Jul 2022 22:06:09 +0000 (UTC)
-Date:   Fri, 15 Jul 2022 18:06:07 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Zheng Yejian <zhengyejian1@huawei.com>
-Cc:     <stable@vger.kernel.org>, <paulmck@linux.vnet.ibm.com>,
-        <josh@joshtriplett.org>, <mathieu.desnoyers@efficios.com>,
-        <jiangshanlai@gmail.com>, <linux-kernel@vger.kernel.org>,
-        <peterz@infradead.org>, <xukuohai@huawei.com>
-Subject: Re: [PATCH 4.19] rcu/tree: Mark functions as notrace
-Message-ID: <20220715180607.4509fb86@gandalf.local.home>
-In-Reply-To: <20220713102009.126339-1-zhengyejian1@huawei.com>
-References: <20220713102009.126339-1-zhengyejian1@huawei.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1185161701;
+        Fri, 15 Jul 2022 22:16:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C99AC34115;
+        Fri, 15 Jul 2022 22:16:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1657923390;
+        bh=5/bcyrjFpp5Iuv4UCuUwJcz8BDDH3Jj7t4EoceoC5iE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NvfK/jLzTa/S0wO9Yu7D5Jj5Fqj2YFjk1gi1svN5MtA8ehbFBJQc2RMO9X4ScthVs
+         QsizMcGJn7zk4W0Q3qGAkYt5Xj7DUH3MiVecJWCNDWVTicNQBpujr5kpgNbSeEotZJ
+         OL7a0dy1v8P4oiwQ2lzX1fSSWGN5aJz9TvIhxB8GxpoV6utwwratBETIkCoPtKgB8G
+         zgF1NCIytZlL2WQlSg6UoeibjYVBrB6HeYMze2quwYG0Tc0fnlsZ57dLrUSVvRgN9V
+         m/k5ebjsanBpcE15qxEz7qp7QPV+iB5uoCnQDAXTMlzemLomd7+ODKbJzYMRAGSxkc
+         peojgDaJNTxsQ==
+From:   SeongJae Park <sj@kernel.org>
+To:     SeongJae Park <sj@kernel.org>
+Cc:     roger.pau@citrix.com, axboe@kernel.dk, boris.ostrovsky@oracle.com,
+        jgross@suse.com, olekstysh@gmail.com, andrii.chepurnyi82@gmail.com,
+        mheyne@amazon.de, xen-devel@lists.xenproject.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3 0/2] Fix persistent grants negotiation with a behavior change
+Date:   Fri, 15 Jul 2022 22:16:27 +0000
+Message-Id: <20220715221627.127648-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220715181226.126714-1-sj@kernel.org>
+References: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 13 Jul 2022 18:20:09 +0800
-Zheng Yejian <zhengyejian1@huawei.com> wrote:
+Hi all,
 
-> This patch and problem analysis is based on v4.19 LTS, but v5.4 LTS
-> and below seem to be involved.
+On Fri, 15 Jul 2022 18:12:26 +0000 SeongJae Park <sj@kernel.org> wrote:
+
+> Hi all,
 > 
-> Hulk Robot reports a softlockup problem, see following logs:
->   [   41.463870] watchdog: BUG: soft lockup - CPU#0 stuck for 22s!  [ksoftirqd/0:9]
+> On Fri, 15 Jul 2022 17:55:19 +0000 SeongJae Park <sj@kernel.org> wrote:
+> 
+> > The first patch of this patchset fixes 'feature_persistent' parameter
+> > handling in 'blkback' to respect the frontend's persistent grants
+> > support always.  The fix makes a behavioral change, so the second patch
+> > makes the counterpart of 'blkfront' to consistently follow the behavior
+> > change.
+> 
+> I made the behavior change as requested by Andrii[1].  I therefore made similar
+> behavior change to blkfront and Cc-ed stable for the second change, too.
 
-This detects something that is spinning with preemption disabled but
-interrupts enabled.
+Now I realize that commit aac8a70db24b ("xen-blkback: add a parameter for
+disabling of persistent grants") introduced two issues.  One is what Max
+reported with his patch, and the second one is unintended behavioral change
+that broke Andrii's use case.
 
-> Look into above call stack, there is a recursive call in
-> 'ftrace_graph_call', and the direct cause of above recursion is that
-> 'rcu_dynticks_curr_cpu_in_eqs' is traced, see following snippet:
->     __read_once_size_nocheck.constprop.0
->       ftrace_graph_call    <-- 1. first call
->         ......
->           rcu_dynticks_curr_cpu_in_eqs
->             ftrace_graph_call    <-- 2. recursive call here!!!
+That is, Andrii's use case should had no problem at all before the introduction
+of 'feature_persistent', as at that time 'blkback' checked if the frontend
+support the persistent grants for every 'reconnect()' and enables it if so.
+However, introduction of the parameter made it behaves differently.
 
-This is not the bug. That code can handle a recursion:
-
-ftrace_graph_call is assembly that is converted to call
-
-void prepare_ftrace_return(unsigned long ip, unsigned long *parent,
-			   unsigned long frame_pointer)
-{
- [..]
-
-	bit = ftrace_test_recursion_trylock(ip, *parent);
-	if (bit < 0)
-		return;
-
-This will stop the code as "bit" will be < 0 on the second call to
-ftrace_graph_call. If it was a real recursion issue, it would crash the
-machine when the recursion runs out of stack space.
+Yes, we intended to make the prameter to make effects to newly created devices.
+But, as it breaks user workflows, this should be fixed.  Same for the
+'blkfront' side 'feature_persistent'.
 
 > 
-> Comparing with mainline kernel, commit ff5c4f5cad33 ("rcu/tree:
-> Mark the idle relevant functions noinstr") mark related functions as
-> 'noinstr' which implies notrace, noinline and sticks things in the
-> .noinstr.text section.
-> Link: https://lore.kernel.org/all/20200416114706.625340212@infradead.org/
-> 
-> But we cannot directly backport that commit, because there seems to be
-> many prepatches. Instead, marking the functions as 'notrace' where it is
-> 'noinstr' in that commit and mark 'rcu_dynticks_curr_cpu_in_eqs' as
-> inline look like it resolves the problem.
+> To make the change history clear and reduce the stable side overhead, however,
+> it might be better to apply the v2, which don't make behavior change but only
+> fix the issue, Cc stable@ for it, make the behavior change commits for both
+> blkback and blkfront, update the documents, and don't Cc stable@ for the
+> behavior change and documents update commits.
 
-That will not fix your problem.
+I'd say having one patch for each issue would be the right way to go, and all
+fixes should Cc stable@.
 
 > 
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+> One downside of that would be that it will make a behavioral difference in
+> pre-5.19.x and post-5.19.x.
 
-Can you reproduce this consistently without this patch, and then not so
-with this patch?
+The unintended behavioral fix should also be considered fix and therefore
+should be merged into stable@, so above concern is not valid.
 
-Or are you just assuming that this fixes a bug because you observed a
-recursion?
+I will send the next spin soon.
 
-Please explain to me why this would cause the hang?
 
--- Steve
+Thanks,
+SJ
+
+[...]
