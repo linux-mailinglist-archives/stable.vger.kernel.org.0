@@ -2,100 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A14C75764D1
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 18:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E1B57650E
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 18:03:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbiGOQAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 12:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59724 "EHLO
+        id S229563AbiGOQD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 12:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbiGOQAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 12:00:10 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4241E958C;
-        Fri, 15 Jul 2022 09:00:09 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id C617334706;
-        Fri, 15 Jul 2022 16:00:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1657900807; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PmxgdbvxN1/lfrPzGsVJbbJYjv4n4eZUn1st8Pyud1c=;
-        b=Pp7kVSGsWY466CZ1qFGSNRDkhPmHn/u9goTaAqs2/WE8qQOHSHmG+BNk3IRkqT9Yt++P2R
-        g3aKdXGwyrby2L4UmhbAIEzDIxmc09knKMXBzXD/og4vcJCd50+z/Ti41ckR9z/fV9klD1
-        zWd2d6WjWHKfY2LDq/1DEzAZYnqZ+K4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1657900807;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PmxgdbvxN1/lfrPzGsVJbbJYjv4n4eZUn1st8Pyud1c=;
-        b=/hSNKCiAIoNQ9mboeeqD94aXqaTdvW2Sp2lj+FfzOYmCyn15JPqbejyqYWq4OEf/TfsUBX
-        BDuLuwo1UjJAJnAg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B846513AC3;
-        Fri, 15 Jul 2022 16:00:07 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id tLP0LAeP0WLeZgAAMHmgww
-        (envelope-from <bp@suse.de>); Fri, 15 Jul 2022 16:00:07 +0000
-Date:   Fri, 15 Jul 2022 18:00:00 +0200
-From:   Borislav Petkov <bp@suse.de>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <llvm@lists.linux.dev>,
-        stable <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v2] x86/speculation: Use DECLARE_PER_CPU for
- x86_spec_ctrl_current
-Message-ID: <YtGPAG0ZBqvotud1@zn.tnic>
-References: <20220713152436.2294819-1-nathan@kernel.org>
- <20220714143005.73c71cf8@kernel.org>
- <CAHk-=wi+O_3+uef45jxj1+GhT+H0vXs9iz8rpjk49vCiyLS4DA@mail.gmail.com>
- <20220714145652.22cf4878@kernel.org>
- <CAHk-=wgqJFV45497fBfc1HS3Oaoqi3pfenZ0XM3uqFGYz8wTQQ@mail.gmail.com>
+        with ESMTP id S233537AbiGOQDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 12:03:11 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C6A753A3
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 09:03:02 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id d10so5002613pfd.9
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 09:03:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dMcPLYAZZk9H+0TYHpwnmcOBINnmeDwuPTJsk3lT58M=;
+        b=RSBRIKT3DPfgMZCRwUHG8HmwPCF0bhgvhWZeLZPFCCXLZs7DwMRxRDlxjbUSEhzW1I
+         ub19MtnR7ahC3YNsbq9/FF5rCs1Cs77HsADnDLclv8Vb6eVLswBU5duc4SCZ/2DEJ9AX
+         sf2ixQHcUA50//Mj9mW3sWuK8dQs4cbncZpkSOa7mntdr8/btU1cO2CR3RZO6aoa1wg7
+         aVDcNbzSvJY5f1viMtOB6E5f0D3ryQqSXz0qZBGvkzlJFed1VfAbgmwcYmJHHiVxozo5
+         KFWbmcYbKAznK7MZS83QlyHxudofgYxN3ZgNqO/zXW8iazTTYhFqXynbBGaAEHGTYy9j
+         BGYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dMcPLYAZZk9H+0TYHpwnmcOBINnmeDwuPTJsk3lT58M=;
+        b=pV6P3PNiAbxzySrqQEg5bT+lKRGSMWkKl8z5XtzfUv6vmd9XDYETE/fPhNOQ3dob4K
+         oAutYZCzzzhpgS2paFY1NrHGhk46aQGY747s5pzU4CrJm2y+7mdmVzlVENRSTGvaXNx7
+         e5pC/FRte0poJXmaGAy8WKNt9CrEdUPm0G2DLcwSy5MqjmKNmSvYbv/3xrQP0Bmmvkc0
+         pYaQb+WAYxudIApgyVle32JqzUnjTIdOSSA1OyBXLDzWqG5x5X+vQHnDgPMe249846kz
+         WVgEaIw0hVS2KSF9Qxbg+gpBfjUHYICZY3n1lfpeIi3V2w2kbK3n9Z4/2WpHJ08jH//+
+         vRVA==
+X-Gm-Message-State: AJIora+Yy2U81KDBy46LLjE4N2T7lAQbpUwlAccz/PWS3GlQ86Y1lGEN
+        1ymIMc1GoVKDZgnVZkduyp8SZFKEUX1m1Zkb
+X-Google-Smtp-Source: AGRyM1vudgqcd3HwJzeT7o7CwWIrQleO9Ee49HCn5o16AlqSPpHL/vHLGWHaTB15NA++7i6clYFHTA==
+X-Received: by 2002:a05:6a00:168a:b0:4f7:e161:83cd with SMTP id k10-20020a056a00168a00b004f7e16183cdmr14569874pfc.56.1657900982122;
+        Fri, 15 Jul 2022 09:03:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e29-20020aa7981d000000b0052ab54a4711sm3995587pfl.150.2022.07.15.09.03.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jul 2022 09:03:01 -0700 (PDT)
+Message-ID: <62d18fb5.1c69fb81.33a47.6551@mx.google.com>
+Date:   Fri, 15 Jul 2022 09:03:01 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHk-=wgqJFV45497fBfc1HS3Oaoqi3pfenZ0XM3uqFGYz8wTQQ@mail.gmail.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.131
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 74 runs, 1 regressions (v5.10.131)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 03:14:53PM -0700, Linus Torvalds wrote:
-> Anyway, I cherry-picked Nathan's patch from my clang tree and pushed
-> it out as commit db886979683a ("x86/speculation: Use DECLARE_PER_CPU
-> for x86_spec_ctrl_current").
+stable-rc/linux-5.10.y baseline: 74 runs, 1 regressions (v5.10.131)
 
-... and I've zapped it from my lineup.
+Regressions Summary
+-------------------
 
-Thx.
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
 
--- 
-Regards/Gruss,
-    Boris.
 
-SUSE Software Solutions Germany GmbH
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Martje Boudien Moerman
-(HRB 36809, AG Nürnberg)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.131/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.131
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8f95261a006489c828f1d909355669875649668b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d15c04df50c440e4a39bf6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+31/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+31/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220708.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d15c04df50c440e4a39=
+bf7
+        failing since 38 days (last pass: v5.10.118-218-g22be67db7d53, firs=
+t fail: v5.10.120) =
+
+ =20
