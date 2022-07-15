@@ -2,66 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D2B57638C
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 16:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0630E57638E
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 16:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229532AbiGOOVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 10:21:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46206 "EHLO
+        id S229768AbiGOOWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 10:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiGOOVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 10:21:00 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4463F5C9C7
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 07:20:59 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id h132so4521467pgc.10
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 07:20:59 -0700 (PDT)
+        with ESMTP id S229436AbiGOOWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 10:22:12 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E06862A62
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 07:22:11 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id l12so3349025plk.13
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 07:22:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tf8E8jT+MfwvxjgryQK/+y+a3E6fJoqY6d92RiJ2OJ4=;
-        b=kFUsq4MggMw9ERPhBH4S4UIcHQVdF03T6x+AlIw7mSpLUUfDyi73hglvQavJhtiKnK
-         m/+Hz8SWc92K0o3FBtKVhPkkI+oET24cGAch3APJVbA64N8qMeR02EiL/Iy9FkBuWxjf
-         C0q65suEzC0UwBN0B4RIKc0JqnB7VvLgpYAZn8cKxryRHrkw6eQTgxdYcllvqiEPEF7n
-         R0sMHHyNIZWDtShKg4tfSq7VAhPA/E11F2Lhw6Hiq8S2nnPXMrwR5MCGhjvBD097GYz0
-         PxgjXBLKMM47KTVV/5gqiVbD80GUELXw/DfDgmrrhVZzz3mwSWNfRr0Xhk62epxbKJ2I
-         j2Jg==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=scD5Y6x8Dpii4wtV8lReK71mpwGJMxDbW8aqYBDgeNI=;
+        b=P7YBPp4VxZafQR8wxDfEMTbszffEPaXUZfooPpzw1qP6Z/tBabiKR6Y/IYGtxXdoSm
+         HXAtK0pa0mu8Mhm6YKeKNgVDA4QGY/dYMAFS8NKGGFKR7GsVKz42vNKVeYdosnkL067K
+         JkTFwVvF8PrMOaHRLkrIq8ZKX4DkWpqpx6c3aoMgOp7wsaZhUPEWw9K1f+jYFLzEEqzd
+         fIKa367VbsmEH3RbxlKciafYlSUr5nnhptjV7ZLP17UHGpmF/fXUp7TF/oUgmGgAYsQu
+         D77jUOhomMXDQmKY2lWGtZr+bZUhxvU0LOuOIZXnvw1q5y2yp1mzYA3iLdxrcCtnGWao
+         Q1lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tf8E8jT+MfwvxjgryQK/+y+a3E6fJoqY6d92RiJ2OJ4=;
-        b=v7R5SBgnwiDhj6w+6Wkoyu9HEY8eGsQiVLf67PX5GeCp4oTNw0ayQ/nxIMohZDzA9P
-         OgAjs/im2dAGikXUvnKoPUvMg/9QlbrkvloDrBQVb6VMQyO6bzq1Y9BTyS059lkWBdcy
-         aPDotYXhVGx+30KZywWtneREtSTufpTErX5sn8c0rDfWbhw0knn96eqW66NUmTO+9134
-         EfrnKja24DCryoFFRhkp1xKdjr7t3dwZnr1XAdeF05MQNqoR1Me5ZLJlV5JsQruGliQQ
-         qwSaSTAyjW4pyucjjhqxLw/F5Q5fT2DdbgPvUZC5LGGuxCmaRIUdDc0tUAwwFYYZJKyn
-         He+w==
-X-Gm-Message-State: AJIora+fYK5iSKkfrRygsiWDJF5gqyh4v8tqE6KHxTASGUWMciqIe8oM
-        aK/HaDuRF1kHR1kYFXDQjqiKAXWVjRSDbGjn
-X-Google-Smtp-Source: AGRyM1sNSJLrxzH4z/4JNKlmCF5ueBpM6/3tuEoIbo0lxmWjhOyLAYx/9oClenRoSmD0lSltGHy7FQ==
-X-Received: by 2002:a05:6a00:150d:b0:52b:1ffb:503f with SMTP id q13-20020a056a00150d00b0052b1ffb503fmr8047277pfu.27.1657894858647;
-        Fri, 15 Jul 2022 07:20:58 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z15-20020aa79f8f000000b00518a473265csm3883791pfr.217.2022.07.15.07.20.58
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=scD5Y6x8Dpii4wtV8lReK71mpwGJMxDbW8aqYBDgeNI=;
+        b=M4qvPROsYpEUX5vptWqaSxE7oJ+b9PdsUraGYKQQxt3pVMI9s4bp+tW5Wu/l0k08MO
+         9feKTLPH5b37Xru2T0nAUCGsvuF0lfCx4NEG2KGMU9xGB8P0Yb50e9bPwIFxgF9YC/G1
+         CbEKhPx1MLodW/2Hu99GDF78Q4qdWx0joAkfytPpcBzSgCPlAO71ELjmUrNr827ehJ40
+         wlS4gTM40tT3q1MdQtfZHN6EjbwaSxxzL7WJn4El4sMnWgkQWJPMqcC1a636dZpR8ePi
+         Kahsym6RQ0wFphwOCIDupoOtlyOb8S2fkyeCBp4Mfe7G+/G+rcW4rDJ5Kvp3LBPro5MU
+         4JhA==
+X-Gm-Message-State: AJIora9Zd6n/Bzj9ikPEmqkIZgPlnKZSbtKdbj3wymPlsBgpTmS9b37D
+        BtIOfetQLUMoSayIkxIw1Sc=
+X-Google-Smtp-Source: AGRyM1s6txUyAuDdY9j0njA9GU/kwNRpimk3GXWtXzlwoE2/zj/C15RXSuCCW1nGjqoP7FNge9m7LA==
+X-Received: by 2002:a17:90b:3b43:b0:1ef:d89b:3454 with SMTP id ot3-20020a17090b3b4300b001efd89b3454mr22310522pjb.87.1657894930959;
+        Fri, 15 Jul 2022 07:22:10 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 200-20020a6304d1000000b004126fc7c986sm3312826pge.13.2022.07.15.07.22.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Jul 2022 07:20:58 -0700 (PDT)
-Message-ID: <62d177ca.1c69fb81.7a67.5ffc@mx.google.com>
-Date:   Fri, 15 Jul 2022 07:20:58 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 15 Jul 2022 07:22:10 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 15 Jul 2022 07:22:09 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     linux-mtd@lists.infradead.org, Han Xu <han.xu@nxp.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        kernel@pengutronix.de, stable@vger.kernel.org
+Subject: Re: [PATCH] mtd: rawnand: gpmi: Fix setting busy timeout setting
+Message-ID: <20220715142209.GA1688021@roeck-us.net>
+References: <20220614083138.3455683-1-s.hauer@pengutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.12
-X-Kernelci-Branch: linux-5.18.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.18.y baseline: 93 runs, 2 regressions (v5.18.12)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220614083138.3455683-1-s.hauer@pengutronix.de>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,98 +72,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.18.y baseline: 93 runs, 2 regressions (v5.18.12)
+On Tue, Jun 14, 2022 at 10:31:38AM +0200, Sascha Hauer wrote:
+> The DEVICE_BUSY_TIMEOUT value is described in the Reference Manual as:
+> 
+> | Timeout waiting for NAND Ready/Busy or ATA IRQ. Used in WAIT_FOR_READY
+> | mode. This value is the number of GPMI_CLK cycles multiplied by 4096.
+> 
+> So instead of multiplying the value in cycles with 4096, we have to
+> divide it by that value. Use DIV_ROUND_UP to make sure we are on the
+> safe side, especially when the calculated value in cycles is smaller
+> than 4096 as typically the case.
+> 
+> This bug likely never triggered because any timeout != 0 usually will
+> do. In my case the busy timeout in cycles was originally calculated as
+> 2408, which multiplied with 4096 is 0x968000. The lower 16 bits were
+> taken for the 16 bit wide register field, so the register value was
+> 0x8000. With 2970bf5a32f0 ("mtd: rawnand: gpmi: fix controller timings
+> setting") however the value in cycles became 2384, which multiplied
+> with 4096 is 0x950000. The lower 16 bit are 0x0 now resulting in an
+> intermediate timeout when reading from NAND.
+> 
+> Fixes: b1206122069aa ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
 
-Regressions Summary
--------------------
+I see this patch was reverted in a set of rush stable releases,
+but I still see it in the mainline kernel. Is it going to be reverted
+there as well ?
 
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
+Thanks,
+Guenter
 
-jetson-tk1         | arm  | lab-baylibre    | gcc-10   | tegra_defconfig   =
-  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
-/v5.18.12/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.18.y
-  Describe: v5.18.12
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      c2e9702659dfc309dfda6116da48f200fe425aab =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62d1498772e227a6b5a39be3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
-rm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
-rm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62d1498772e227a6b5a39=
-be4
-        new failure (last pass: v5.18.11) =
-
- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
-  | regressions
--------------------+------+-----------------+----------+-------------------=
---+------------
-jetson-tk1         | arm  | lab-baylibre    | gcc-10   | tegra_defconfig   =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62d1489034c5e790d4a39bfd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
-rm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.12/a=
-rm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220708.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62d1489034c5e790d4a39=
-bfe
-        failing since 46 days (last pass: v5.18, first fail: v5.18.1) =
-
- =20
+> ---
+> 
+> Just a resend with +Cc: stable@vger.kernel.org
+> 
+>  drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+> index 0b68d05846e18..889e403299568 100644
+> --- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+> +++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+> @@ -890,7 +890,7 @@ static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
+>  	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+>  		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
+>  		      BF_GPMI_TIMING0_DATA_SETUP(data_setup_cycles);
+> -	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(busy_timeout_cycles * 4096);
+> +	hw->timing1 = BF_GPMI_TIMING1_BUSY_TIMEOUT(DIV_ROUND_UP(busy_timeout_cycles, 4096));
+>  
+>  	/*
+>  	 * Derive NFC ideal delay from {3}:
