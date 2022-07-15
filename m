@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD505764C1
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380695764C2
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229463AbiGOPwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 11:52:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54200 "EHLO
+        id S229608AbiGOPwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 11:52:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbiGOPwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:52:18 -0400
+        with ESMTP id S229628AbiGOPwX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:52:23 -0400
 Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB6710FF8
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 08:52:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89BA95508B
+        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 08:52:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1657900337; x=1689436337;
+  t=1657900342; x=1689436342;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Ud/wQci+E8Yp/rWOofetQcdsaGr+T2xg5n8d3IeLtuU=;
-  b=YAINQ+Fj6x0DEtHltu/YYDuKNXQqQN5BQF5Gik4s6yfh1dBUz5DqBu7t
-   cQmILLmzbL40sP6PnaJ8Kf9eShPjBgIz5Xc/IEqyvMC32UAAZEpkDuAlk
-   I/YNlu5qeKM6/Mdy9bvnNkHZltmr+QS9D/GVSIumsFh1SgHuSB4piJSvr
-   A=;
-Received: from unknown (HELO ironmsg03-sd.qualcomm.com) ([10.53.140.143])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 15 Jul 2022 08:52:17 -0700
+  bh=kAsuJxKz81bzasfN5Msl+NjFZ727+SN8HlrPXqtbgm4=;
+  b=syJOWn0slKpAdonss0xzObxEe1RnpFJpuP2HnKjkRo/je0hgMoUXz6cN
+   9oSYh2WzdYcxrznmbpqTEiD5SWF6fL/2JIZFBm2IUbw0xnt6UmdfeneIi
+   KxmCT697f25ecOPPxdhjaVyJ9b8LdK78POGflHo6abSh4/A7XsFf7L05H
+   o=;
+Received: from unknown (HELO ironmsg05-sd.qualcomm.com) ([10.53.140.145])
+  by alexa-out-sd-02.qualcomm.com with ESMTP; 15 Jul 2022 08:52:22 -0700
 X-QCInternal: smtphost
 Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg03-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jul 2022 08:52:16 -0700
+  by ironmsg05-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jul 2022 08:52:22 -0700
 Received: from nalasex01b.na.qualcomm.com (10.47.209.197) by
  nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 15 Jul 2022 08:52:16 -0700
+ 15.2.986.22; Fri, 15 Jul 2022 08:52:21 -0700
 Received: from ubuntuvm.qualcomm.com (10.80.80.8) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 15 Jul 2022 08:52:15 -0700
+ 15.2.986.22; Fri, 15 Jul 2022 08:52:20 -0700
 From:   Carl Vanderlip <quic_carlv@quicinc.com>
 To:     <stable@vger.kernel.org>
 CC:     Jeffrey Hugo <quic_jhugo@quicinc.com>, <kys@microsoft.com>,
@@ -46,9 +46,9 @@ CC:     Jeffrey Hugo <quic_jhugo@quicinc.com>, <kys@microsoft.com>,
         <bhelgaas@google.com>, Michael Kelley <mikelley@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>,
         Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 5.18 v2 2/4] PCI: hv: Fix hv_arch_irq_unmask() for multi-MSI
-Date:   Fri, 15 Jul 2022 15:51:24 +0000
-Message-ID: <20220715155126.13445-3-quic_carlv@quicinc.com>
+Subject: [PATCH 5.18 v2 3/4] PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()
+Date:   Fri, 15 Jul 2022 15:51:25 +0000
+Message-ID: <20220715155126.13445-4-quic_carlv@quicinc.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220715155126.13445-1-quic_carlv@quicinc.com>
 References: <20220713181254.5831-1-quic_carlv@quicinc.com>
@@ -70,86 +70,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-[ upstream change 455880dfe292a2bdd3b4ad6a107299fce610e64b ]
+[ upstream change b4b77778ecc5bfbd4e77de1b2fd5c1dd3c655f1f ]
 
-In the multi-MSI case, hv_arch_irq_unmask() will only operate on the first
-MSI of the N allocated.  This is because only the first msi_desc is cached
-and it is shared by all the MSIs of the multi-MSI block.  This means that
-hv_arch_irq_unmask() gets the correct address, but the wrong data (always
-0).
+Currently if compose_msi_msg() is called multiple times, it will free any
+previous IRTE allocation, and generate a new allocation.  While nothing
+prevents this from occurring, it is extraneous when Linux could just reuse
+the existing allocation and avoid a bunch of overhead.
 
-This can break MSIs.
-
-Lets assume MSI0 is vector 34 on CPU0, and MSI1 is vector 33 on CPU0.
-
-hv_arch_irq_unmask() is called on MSI0.  It uses a hypercall to configure
-the MSI address and data (0) to vector 34 of CPU0.  This is correct.  Then
-hv_arch_irq_unmask is called on MSI1.  It uses another hypercall to
-configure the MSI address and data (0) to vector 33 of CPU0.  This is
-wrong, and results in both MSI0 and MSI1 being routed to vector 33.  Linux
-will observe extra instances of MSI1 and no instances of MSI0 despite the
-endpoint device behaving correctly.
-
-For the multi-MSI case, we need unique address and data info for each MSI,
-but the cached msi_desc does not provide that.  However, that information
-can be gotten from the int_desc cached in the chip_data by
-compose_msi_msg().  Fix the multi-MSI case to use that cached information
-instead.  Since hv_set_msi_entry_from_desc() is no longer applicable,
-remove it.
+However, when future IRTE allocations operate on blocks of MSIs instead of
+a single line, freeing the allocation will impact all of the lines.  This
+could cause an issue where an allocation of N MSIs occurs, then some of
+the lines are retargeted, and finally the allocation is freed/reallocated.
+The freeing of the allocation removes all of the configuration for the
+entire block, which requires all the lines to be retargeted, which might
+not happen since some lines might already be unmasked/active.
 
 Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1651068453-29588-1-git-send-email-quic_jhugo@quicinc.com
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1652282582-21595-1-git-send-email-quic_jhugo@quicinc.com
 Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
 ---
- drivers/pci/controller/pci-hyperv.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/pci/controller/pci-hyperv.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 1cbe24b92a38..d30821a39a7b 100644
+index d30821a39a7b..ac2b844ce81e 100644
 --- a/drivers/pci/controller/pci-hyperv.c
 +++ b/drivers/pci/controller/pci-hyperv.c
-@@ -604,13 +604,6 @@ static unsigned int hv_msi_get_int_vector(struct irq_data *data)
- 	return cfg->vector;
- }
+@@ -1700,6 +1700,15 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	u32 size;
+ 	int ret;
  
--static void hv_set_msi_entry_from_desc(union hv_msi_entry *msi_entry,
--				       struct msi_desc *msi_desc)
--{
--	msi_entry->address.as_uint32 = msi_desc->msg.address_lo;
--	msi_entry->data.as_uint32 = msi_desc->msg.data;
--}
--
- static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
- 			  int nvec, msi_alloc_info_t *info)
- {
-@@ -640,6 +633,7 @@ static void hv_arch_irq_unmask(struct irq_data *data)
- {
- 	struct msi_desc *msi_desc = irq_data_get_msi_desc(data);
- 	struct hv_retarget_device_interrupt *params;
-+	struct tran_int_desc *int_desc;
- 	struct hv_pcibus_device *hbus;
- 	struct cpumask *dest;
- 	cpumask_var_t tmp;
-@@ -654,6 +648,7 @@ static void hv_arch_irq_unmask(struct irq_data *data)
- 	pdev = msi_desc_to_pci_dev(msi_desc);
++	/* Reuse the previous allocation */
++	if (data->chip_data) {
++		int_desc = data->chip_data;
++		msg->address_hi = int_desc->address >> 32;
++		msg->address_lo = int_desc->address & 0xffffffff;
++		msg->data = int_desc->data;
++		return;
++	}
++
+ 	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
+ 	dest = irq_data_get_effective_affinity_mask(data);
  	pbus = pdev->bus;
- 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
-+	int_desc = data->chip_data;
+@@ -1709,13 +1718,6 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	if (!hpdev)
+ 		goto return_null_message;
  
- 	spin_lock_irqsave(&hbus->retarget_msi_interrupt_lock, flags);
- 
-@@ -661,7 +656,8 @@ static void hv_arch_irq_unmask(struct irq_data *data)
- 	memset(params, 0, sizeof(*params));
- 	params->partition_id = HV_PARTITION_ID_SELF;
- 	params->int_entry.source = HV_INTERRUPT_SOURCE_MSI;
--	hv_set_msi_entry_from_desc(&params->int_entry.msi_entry, msi_desc);
-+	params->int_entry.msi_entry.address.as_uint32 = int_desc->address & 0xffffffff;
-+	params->int_entry.msi_entry.data.as_uint32 = int_desc->data;
- 	params->device_id = (hbus->hdev->dev_instance.b[5] << 24) |
- 			   (hbus->hdev->dev_instance.b[4] << 16) |
- 			   (hbus->hdev->dev_instance.b[7] << 8) |
+-	/* Free any previous message that might have already been composed. */
+-	if (data->chip_data) {
+-		int_desc = data->chip_data;
+-		data->chip_data = NULL;
+-		hv_int_desc_free(hpdev, int_desc);
+-	}
+-
+ 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
+ 	if (!int_desc)
+ 		goto drop_reference;
 -- 
 2.25.1
 
