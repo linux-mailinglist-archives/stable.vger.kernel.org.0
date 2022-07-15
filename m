@@ -2,123 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C4D5764B4
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD56D5764B7
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 17:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235080AbiGOPph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 11:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49778 "EHLO
+        id S235513AbiGOPqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 11:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235179AbiGOPp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:45:27 -0400
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C6D65CD;
-        Fri, 15 Jul 2022 08:45:25 -0700 (PDT)
-Received: by mail-ot1-x32c.google.com with SMTP id k25-20020a056830169900b0061c6f68f451so3749318otr.9;
-        Fri, 15 Jul 2022 08:45:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=655e0l8Ufrzl8KZoLGS7moHsWbNQ4DYiyVxrPdbF/BQ=;
-        b=h8zBD1fhNJJnThqKgZTCwZxoabS7jOccDS5Mf8PetFktQOc1QrWq3yvZG+ES2KQQk7
-         xOn36wdZpR/uJCo0yeqmy/A1hEc/7n2a+cBOZ9dzQ8mUu4u9t7dI2avVHEf8WOrxKpNy
-         vDxnyn5dNBiBhHrYrbcH9ThsFPANGBaK95X/qp3wBgLymQoWTJDywJ+kco4RCZ3SicIO
-         cBGNjTSZtYk16okRH9yHcgXwePIT5u9Eqm4A0xUb/Ng9ntxB7A27noBR9I6zYgzs5sD0
-         YRlEekMGAW7NNpr53LHBrZhi6+8gzQCHPTpu+8fBDrHm+xXCDutKaomTV42DrDnFFgrC
-         Ymew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=655e0l8Ufrzl8KZoLGS7moHsWbNQ4DYiyVxrPdbF/BQ=;
-        b=ss//8hWLBk8qAxheyjgk7pENPM4B1/nXswpB+L5gYhAAW+ctkc7qe9SaV3B3ild0iJ
-         eG0goh4FIv2xw04xi+9wWxIZa3XR3see5cnTouUoJtgco4o38k6/nXUlKVaTD2z0iuUo
-         /UoABdbVNq14hv49Se8NRKsE3363hL4lCJyUm906wjYIOLAESZPyS3Yn4oYcmKVuMa2R
-         V1Y18IBCyB6tpVG29J+HUG2E097M4LdMQuHvGwSKa4OaSN4/Mdzx7znAEITiv4trp8oJ
-         A7ZYp79FY06RHoX7PCtRsHBOQEFmlHqLo9ErErWZtVMLik/QoOTdFX5eOIiuDiiIwqrr
-         CySg==
-X-Gm-Message-State: AJIora8WhZPYArmRLrFaoBQomaW2GILBjFzKQT38QDPoaJg8ASc2uJnB
-        5HbC0qmDAnwPMYzUvtY0d8U=
-X-Google-Smtp-Source: AGRyM1vEUgGJ3EUP8mxug2fVc4afhtvaqapY7HeD1isLY14NNpAMBaQVy7Ob398UzvOj5TWP7aE+Kg==
-X-Received: by 2002:a9d:7858:0:b0:61c:412b:c789 with SMTP id c24-20020a9d7858000000b0061c412bc789mr5523448otm.185.1657899924394;
-        Fri, 15 Jul 2022 08:45:24 -0700 (PDT)
-Received: from localhost ([12.97.180.36])
-        by smtp.gmail.com with ESMTPSA id e16-20020a0568301e5000b0060603221255sm2037477otj.37.2022.07.15.08.45.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Jul 2022 08:45:24 -0700 (PDT)
-Date:   Fri, 15 Jul 2022 08:45:23 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        platform-driver-x86@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH] x86/olpc: fix 'logical not is only applied to the left
- hand side'
-Message-ID: <YtGLkx1E8ZifiUQo@yury-laptop>
-References: <20220715151536.67401-1-alexandr.lobakin@intel.com>
+        with ESMTP id S235179AbiGOPqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 11:46:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E4CA231;
+        Fri, 15 Jul 2022 08:46:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFBEB62135;
+        Fri, 15 Jul 2022 15:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65BE5C34115;
+        Fri, 15 Jul 2022 15:46:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1657900006;
+        bh=1pP6wpTZR6yxJttIfhQ8GaI8CR+vOrFTZHxcwN15uk0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nTS1MBom8JQTTyxEVLiCJsH0hjcLXRd+KWRW8j3+FwNB94NtVwxVS2b96USqC+sj4
+         X/y9CH5O8YMTLBPq2aLd6pHgYwMMkzcQE8XH7EE5DFEuPgy48tsQv1wK1nuHVA8sjv
+         d9LxY2RmBRhHoOoqQHLHJmdKo67NuGc+5QL5hrDXhUzcvX1aesCIXJLRFKlGsLsT+U
+         rvJ9XJYf3yOkXRvfjwP0iY+hRoZsNgrRJ1SbPWaq5DYVaa4NkP9SzzfADd2GOYlAmX
+         BGuzgB7BqNF8zrOFWIG+/Hiit3qJ6zHtel3LuLoAF7S4p7KhMQcV/CU9YTJSlfi0if
+         u/t2DHgvbMY0g==
+From:   SeongJae Park <sj@kernel.org>
+To:     Andrii Chepurnyi <andrii.chepurnyi82@gmail.com>
+Cc:     Oleksandr <olekstysh@gmail.com>, SeongJae Park <sj@kernel.org>,
+        roger.pau@citrix.com, jgross@suse.com, axboe@kernel.dk,
+        boris.ostrovsky@oracle.com, mheyne@amazon.de,
+        xen-devel@lists.xenproject.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] xen-blkback: fix persistent grants negotiation
+Date:   Fri, 15 Jul 2022 15:46:43 +0000
+Message-Id: <20220715154643.54334-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <CAJwUmVB6H3iTs-C+U=v-pwJB7-_ZRHPxHzKRJZ22xEPW7z8a=g@mail.gmail.com>
+References: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220715151536.67401-1-alexandr.lobakin@intel.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 15, 2022 at 05:15:36PM +0200, Alexander Lobakin wrote:
-> The bitops compile-time optimization series revealed one more
-> problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
-> warnings:
-> 
-> arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
-> arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
->    83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
->       |                                                               ^~
-> arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
-> 
-> Despite this code working as intended, this redundant double
-> negation of boolean value, together with comparing to `char`
-> with no explicit conversion to bool, makes compilers think
-> the author made some unintentional logical mistakes here.
-> Make it the other way around and negate the char instead
-> to silence the warnings.
-> 
-> Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
-> Cc: stable@vger.kernel.org # 3.5+
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Hello,
 
-Applied, thanks!
 
-> ---
->  arch/x86/platform/olpc/olpc-xo1-sci.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Oleksandr, thank you for Cc-ing Andrii.  Andrii, thank you for the comment!
+
+On Fri, 15 Jul 2022 15:00:10 +0300 Andrii Chepurnyi <andrii.chepurnyi82@gmail.com> wrote:
+
+> [-- Attachment #1: Type: text/plain, Size: 5237 bytes --]
 > 
-> diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/olpc/olpc-xo1-sci.c
-> index f03a6883dcc6..89f25af4b3c3 100644
-> --- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-> +++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-> @@ -80,7 +80,7 @@ static void send_ebook_state(void)
->  		return;
->  	}
->  
-> -	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-> +	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
->  		return; /* Nothing new to report. */
->  
->  	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
-> -- 
-> 2.36.1
+> Hello All,
+> 
+> I faced the mentioned issue recently and just to bring more context here is
+> our setup:
+> We use pvblock backend for Android guest. It starts using u-boot with
+> pvblock support(which frontend doesn't support the persistent grants
+> feature), later it loads and starts the Linux kernel(which frontend
+> supports the persistent grants feature). So in total, we have sequent two
+> different frontends reconnection, the first of which doesn't support
+> persistent grants.
+> So the original patch [1] perfectly solves the original issue and provides
+> the ability to use persistent grants after the reconnection when Linux
+> frontend which supports persistent grants comes into play.
+> At the same time [2] will disable the persistent grants feature for the
+> first and second frontend.
+
+Thank you for this great explanation of your situation.
+
+> Is it possible to keep [1]  as is?
+
+Yes, my concerns about Max's original patch[1] are conflicting behavior
+description in the document[1] and different behavior on blkfront-side
+'feature_persistent' parameter.  I will post Max's patch again with patches for
+blkfront behavior change and Documents updates.
+
+[1] https://lore.kernel.org/xen-devel/20220121102309.27802-1-sj@kernel.org/
+
+
+Thanks,
+SJ
+
+> 
+> [1]
+> https://lore.kernel.org/xen-devel/20220106091013.126076-1-mheyne@amazon.de/
+> [2] https://lore.kernel.org/xen-devel/20220714224410.51147-1-sj@kernel.org/
+> 
+> Best regards,
+> Andrii
+> 
+> On Fri, Jul 15, 2022 at 1:15 PM Oleksandr <olekstysh@gmail.com> wrote:
+> 
+> >
+> > On 15.07.22 01:44, SeongJae Park wrote:
+> >
+> >
+> > Hello all.
+> >
+> > Adding Andrii Chepurnyi to CC who have played with the use-case which
+> > required reconnect recently and faced some issues with
+> > feature_persistent handling.
+[...]
