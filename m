@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57036575ECD
-	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 11:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9359E575EDB
+	for <lists+stable@lfdr.de>; Fri, 15 Jul 2022 11:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231261AbiGOJuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 05:50:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34334 "EHLO
+        id S232217AbiGOJ4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 05:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbiGOJt7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 05:49:59 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40F445056;
-        Fri, 15 Jul 2022 02:49:56 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id e15so5619710edj.2;
-        Fri, 15 Jul 2022 02:49:56 -0700 (PDT)
+        with ESMTP id S230479AbiGOJ4r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 05:56:47 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E6E711155;
+        Fri, 15 Jul 2022 02:56:45 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id bp15so8096180ejb.6;
+        Fri, 15 Jul 2022 02:56:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=n8dig1NyCS89iLcaSuvcTKO6sSVkH9JK71gnqh5Lh8E=;
-        b=npPvJAf/ASIAUbinUfObY5olndXL0Muo034OOWiwKss5bECxrcwyQ0+LM9TghRoV/S
-         J/833Ge/svqfAQCkSR/dS1wPzYyJn8WNNhHHbVknBLhF1lEdZ6Xrh+AF7/c3gt7ru8N2
-         wcDaBIjgNdE+jdE9EwTxcZtVjPxzewVRuKRD8I/KcitWQHC8KiXsyoLE59acd/FDECZS
-         tyAsZJX2denp+1w1Cut2pGr6sFm5mSp5L9CJXCzfcffzIF8YEUqW8n1oTbK6bFO7mbX2
-         RgxHfC0RSj2wFA85MDwAYp2fOn/rER7ohi36CUQxwfgj+qN8JKn8fYZQU5PfRyPzMhpR
-         ui1Q==
+        bh=W6/njTJhbblJdaS78KnMlJaVOm5XBe95k1aZo4s+bAo=;
+        b=W+DS+qxnzxSxSJ8oOVhMDb6bGkzTFsS8K4TTg+9uHkBgVLfrg4oDfG1k25let+IBd0
+         GW8mA/cn3iaxUW1tfln396K2Aj2pORHlzohmCr+6nyUNPbFPvQ2/4DZJ4t4ij9VLNn2j
+         IaT8km2bEWRBSpfLo+hl57Bo6d03bHcV+1GWRxAeGlIJew/HJbWOHx3w+E2R+MNYtJr5
+         DaZkff7lSU30RBMU/swhX6+Jq/c2nB4o2pMkRfrcuoVpWPwtxBuqpxszFzDQRWkbyQ5r
+         7w0WP4F586IUxIHmJqNv1pKdiZGUZQNWP+nbq7iOa42b2XKa0+/S60Po0jhxFmz9H5Zx
+         kVpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=n8dig1NyCS89iLcaSuvcTKO6sSVkH9JK71gnqh5Lh8E=;
-        b=rNlvKz//3Sqc+pjwISI5+8xfXQBBbDEefoZ0YqBru5AZqkWr4P0PPQPWaaW6dmWHVP
-         iMgG+4zHvJIYk67y5YyhgCE7EipYNggFKpdsjnDyNGiEaU7PD+UebsI/O62gf2kwQuLw
-         r/SkDXKTV46piGmoqOKjGGugwHP03g+147VhQTCYbY4Iv9CDm5St4Y1HlrHmck6Dd+w6
-         AoLJUS0PwcvegLtseYRDVPKNKh3cMxOWL1infpKacW+RIcW7OZw0Tw6OxV/J/gz5bZMn
-         nOW3ldFt60qSszqY9L7+gm2pg0Kqd+aTekBmXYk91AE0ahqYci694xji+eXL90i95Qyy
-         /mFw==
-X-Gm-Message-State: AJIora9smxqJe+3nQxiyhxTY5vw9WIbNWwzv+xk/nycvPgLNl+k4NEtr
-        EP4B2O+YEEQjdyKsjWCFTKs=
-X-Google-Smtp-Source: AGRyM1sm7VeOyASXxNayrISmW3m9C3QJ+gI9QUdkeh5N6u77Hyk7D/7YGa9/3x08ZYqK+PmjHP5BOg==
-X-Received: by 2002:a05:6402:1606:b0:43a:2204:8b5e with SMTP id f6-20020a056402160600b0043a22048b5emr17438836edv.316.1657878595331;
-        Fri, 15 Jul 2022 02:49:55 -0700 (PDT)
+        bh=W6/njTJhbblJdaS78KnMlJaVOm5XBe95k1aZo4s+bAo=;
+        b=4tyom1pPI4kGsPyL/vhssrhvy4wCn1xA36r8wCtx3TFdfXbnsDjo8EWIvh0/4EbOkL
+         ZZs3UkPAVTKJyYu7V9rk9/qlUY/hVauftvB21gPYvrmmGOEIrGa+f81pgMXSFGDutIb3
+         2yFDuPGe3My+eaHnrZ0u4RVP3F+iID272yS3gzMXoG/JAc6iGhPAAfBBlPIIgvrKgrEP
+         R5MRysMvTsXhoJLMlNsduWVXsUU1m6OZ92Exy9rER2OHkab8vm+PlceDBLMlf785Qbd9
+         3XJhDhXtgirZi9BpQNYOqP1412W14G+4/gc+MncZSi7nTGKKqXqR8Bg0Jyu3uDVgQLm9
+         IVIg==
+X-Gm-Message-State: AJIora+oTkwgdg/EjUhpYSWJTybDUSvdvsBIRyJ9vZoDXNaHTIOA0zNZ
+        P8G6HQVso/YKFjtLHVc63rNT4RtcZMeUYw==
+X-Google-Smtp-Source: AGRyM1sBSZZRCBk6S+oCCQ1x092DjVZIGdzQLuz6UsaK3FznGSUppL+v6g4P9EOiam927z0ne53Hjw==
+X-Received: by 2002:a17:907:7781:b0:6fe:4398:47b3 with SMTP id ky1-20020a170907778100b006fe439847b3mr12840889ejc.513.1657879004200;
+        Fri, 15 Jul 2022 02:56:44 -0700 (PDT)
 Received: from localhost.localdomain (2a02-a466-aae1-1-52eb-71ff-fe56-bb66.fixed6.kpn.net. [2a02:a466:aae1:1:52eb:71ff:fe56:bb66])
-        by smtp.gmail.com with ESMTPSA id r1-20020a17090609c100b0072af102e65csm1811036eje.152.2022.07.15.02.49.54
+        by smtp.gmail.com with ESMTPSA id w23-20020a1709060a1700b0072b2378027csm1823612ejf.26.2022.07.15.02.56.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Jul 2022 02:49:54 -0700 (PDT)
+        Fri, 15 Jul 2022 02:56:43 -0700 (PDT)
 From:   Frans Klaver <fransklaver@gmail.com>
 X-Google-Original-From: Frans Klaver <frans.klaver@vislink.com>
 To:     Johan Hovold <johan@kernel.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
         Frans Klaver <frans.klaver@vislink.com>, stable@vger.kernel.org
-Subject: [PATCH] usb: serial: qcserial: add EM9191 support
-Date:   Fri, 15 Jul 2022 11:49:15 +0200
-Message-Id: <20220715094915.27348-1-frans.klaver@vislink.com>
+Subject: [PATCH v2] usb: serial: qcserial: add EM9191 support
+Date:   Fri, 15 Jul 2022 11:56:23 +0200
+Message-Id: <20220715095623.28002-1-frans.klaver@vislink.com>
 X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -68,6 +68,8 @@ X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
+
+From: Frans Klaver <frans.klaver@vislink.com>
 
 Support for QDL mode is already present for EM9191 modules, but the
 non-QDL mode appears to be missing. Add it now.
@@ -87,6 +89,9 @@ I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=qcserial
 Cc: stable@vger.kernel.org
 Signed-off-by: Frans Klaver <frans.klaver@vislink.com>
 ---
+I noticed an e-mail address discrepancy that git-send-email didn't
+magically fix for me. No change otherwise.
+
  drivers/usb/serial/qcserial.c | 1 +
  1 file changed, 1 insertion(+)
 
