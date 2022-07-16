@@ -2,64 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F786576A80
-	for <lists+stable@lfdr.de>; Sat, 16 Jul 2022 01:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F856576B53
+	for <lists+stable@lfdr.de>; Sat, 16 Jul 2022 04:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230424AbiGOXQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jul 2022 19:16:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
+        id S230010AbiGPCdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jul 2022 22:33:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231994AbiGOXQX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 19:16:23 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE20190D9D
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 16:16:22 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id o200-20020a2541d1000000b0066ebb148de6so4842624yba.15
-        for <stable@vger.kernel.org>; Fri, 15 Jul 2022 16:16:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=M/e6KYta8k454tv6cUU3yk3M9/megrk9Osp3qk1WTb8=;
-        b=Yy8KCGywfkAAfO3LjSVhSMyG48X/3HF0iUCChpf9Y8VUt0En16Jg9o3VtrbLTNwCWK
-         zGKoQG0hSWUBadHVdE+nn/LmkQ08M8Q5oUMXDtcD35KCy2J9+oVqR9Qx1juUTMceIS/O
-         y9LuYMIFW9yDdt9KAAcA4h1/DwwTthGWunScqjhTdgrrgIugVfIzlJbioEJI+uPdW34k
-         GYB9zkJMk41nojUwjMKtrNBU8QwR0da/N3IpjZq93CEqBbHMB/hqdImpRIigUcsOLxMn
-         i4wf7sXCTOmZbr7X1aMuUzC96VbPrtr/Gdkc3BSlebFE5XgJ3FPi55C9fR4FKv9qWiky
-         O5Mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=M/e6KYta8k454tv6cUU3yk3M9/megrk9Osp3qk1WTb8=;
-        b=OoMg2JGj230tfu9BsUOpc17ZT+uxlLb5z+KWn0Od/3VHCW8IxWbFMqGmlx3yg5j83h
-         eQq7soHUn0sN57mcbzsxCqIQ4yywO38BOephrh9AL8LRhlZyuUN0qd6yFge8gXL56d+U
-         1z7s2JQE/0On4qdZsmQRVU1l+OdfNqIO1jhXWVM1ejL0uy+ggY3wnCVUOEa2XFwNRqpr
-         suyCOWMypPatKaosR+2iewjnKbmeJbSxhX3dNVHbuNBKulyVx9/Ik6ZQmi/VC37mLDuz
-         Kt0ANFFUUIYDMZ6vsIaHiVwzyRdSVRuUo37ms/oZyAKlvOKXJqQnmb/+wsP70HLM5fFO
-         JxeA==
-X-Gm-Message-State: AJIora/+CqKKONojmrMOWJq8b0fqcmRLIuI/2GZI1AB8Xscs00Ekhz00
-        MHP8riFYXywKaPXUj9tT0HA9Naw=
-X-Google-Smtp-Source: AGRyM1tWaWSx+X7eqUhVHFly73ad79BBhy7HXPKLRigVydfEy/dgfLiDYex/y5itiGR0gWeo/OVcEvU=
-X-Received: from hmarynka.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:925])
- (user=ovt job=sendgmr) by 2002:a0d:d757:0:b0:31c:87bb:d546 with SMTP id
- z84-20020a0dd757000000b0031c87bbd546mr18029453ywd.472.1657926982067; Fri, 15
- Jul 2022 16:16:22 -0700 (PDT)
-Date:   Fri, 15 Jul 2022 23:15:42 +0000
-In-Reply-To: <20220715231542.2169650-1-ovt@google.com>
-Message-Id: <20220715231542.2169650-3-ovt@google.com>
-Mime-Version: 1.0
-References: <20220715231542.2169650-1-ovt@google.com>
-X-Mailer: git-send-email 2.37.0.170.g444d1eabd0-goog
-Subject: [PATCH 2/2] Revert "selftest/vm: verify mmap addr in mremap_test"
-From:   Oleksandr Tymoshenko <ovt@google.com>
-To:     gregkh@linuxfoundation.org
-Cc:     sidhartha.kumar@oracle.com, stable@vger.kernel.org,
-        Oleksandr Tymoshenko <ovt@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        with ESMTP id S229507AbiGPCde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jul 2022 22:33:34 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F42618377;
+        Fri, 15 Jul 2022 19:33:33 -0700 (PDT)
+Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.57])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4LlBzc6WHpz1M7tN;
+        Sat, 16 Jul 2022 10:30:52 +0800 (CST)
+Received: from [10.174.177.174] (10.174.177.174) by
+ dggpeml500021.china.huawei.com (7.185.36.21) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Sat, 16 Jul 2022 10:33:30 +0800
+Message-ID: <425ab528-7d9a-975a-7f4c-5f903cedd8bc@huawei.com>
+Date:   Sat, 16 Jul 2022 10:33:30 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 4.19] ext4: fix race condition between ext4_ioctl_setflags
+ and ext4_fiemap
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <linux-ext4@vger.kernel.org>,
+        <tytso@mit.edu>, <adilger.kernel@dilger.ca>, <jack@suse.cz>,
+        <ritesh.list@gmail.com>, <lczerner@redhat.com>,
+        <enwlinux@gmail.com>, <linux-kernel@vger.kernel.org>,
+        <yi.zhang@huawei.com>, <yebin10@huawei.com>, <yukuai3@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>
+References: <20220715023928.2701166-1-libaokun1@huawei.com>
+ <YtF1XygwvIo2Dwae@kroah.com>
+From:   Baokun Li <libaokun1@huawei.com>
+In-Reply-To: <YtF1XygwvIo2Dwae@kroah.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.177.174]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpeml500021.china.huawei.com (7.185.36.21)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,60 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit e8b9989597daac896b3400b7005f24bf15233d9a.
+在 2022/7/15 22:10, Greg KH 写道:
+> On Fri, Jul 15, 2022 at 10:39:28AM +0800, Baokun Li wrote:
+>> This patch and problem analysis is based on v4.19 LTS.
+>> The d3b6f23f7167("ext4: move ext4_fiemap to use iomap framework") patch
+>> is incorporated in v5.7-rc1. This patch avoids this problem by switching
+>> to iomap in ext4_fiemap.
+>>
+>> Hulk Robot reported a BUG on stable 4.19.252:
+>> ==================================================================
+>> kernel BUG at fs/ext4/extents_status.c:762!
+>> invalid opcode: 0000 [#1] SMP KASAN PTI
+>> CPU: 7 PID: 2845 Comm: syz-executor Not tainted 4.19.252 #46
+>> RIP: 0010:ext4_es_cache_extent+0x30e/0x370
+>> [...]
+>> Call Trace:
+>>   ext4_cache_extents+0x238/0x2f0
+>>   ext4_find_extent+0x785/0xa40
+>>   ext4_fiemap+0x36d/0xe90
+>>   do_vfs_ioctl+0x6af/0x1200
+>> [...]
+>> ==================================================================
+>>
+>> Above issue may happen as follows:
+>> -------------------------------------
+>>             cpu1		    cpu2
+>> _____________________|_____________________
+>> do_vfs_ioctl
+>>   ext4_ioctl
+>>    ext4_ioctl_setflags
+>>     ext4_ind_migrate
+>>                          do_vfs_ioctl
+>>                           ioctl_fiemap
+>>                            ext4_fiemap
+>>                             ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)
+>>                             ext4_fill_fiemap_extents
+>>      down_write(&EXT4_I(inode)->i_data_sem);
+>>      ext4_ext_check_inode
+>>      ext4_clear_inode_flag(inode, EXT4_INODE_EXTENTS)
+>>      memset(ei->i_data, 0, sizeof(ei->i_data))
+>>      up_write(&EXT4_I(inode)->i_data_sem);
+>>                              down_read(&EXT4_I(inode)->i_data_sem);
+>>                              ext4_find_extent
+>>                               ext4_cache_extents
+>>                                ext4_es_cache_extent
+>>                                 BUG_ON(end < lblk)
+>>
+>> We can easily reproduce this problem with the syzkaller testcase:
+>> ```
+>> 02:37:07 executing program 3:
+>> r0 = openat(0xffffffffffffff9c, &(0x7f0000000040)='./file0\x00', 0x26e1, 0x0)
+>> ioctl$FS_IOC_FSSETXATTR(r0, 0x40086602, &(0x7f0000000080)={0x17e})
+>> mkdirat(0xffffffffffffff9c, &(0x7f00000000c0)='./file1\x00', 0x1ff)
+>> r1 = openat(0xffffffffffffff9c, &(0x7f0000000100)='./file1\x00', 0x0, 0x0)
+>> ioctl$FS_IOC_FIEMAP(r1, 0xc020660b, &(0x7f0000000180)={0x0, 0x1, 0x0, 0xef3, 0x6, []}) (async, rerun: 32)
+>> ioctl$FS_IOC_FSSETXATTR(r1, 0x40086602, &(0x7f0000000140)={0x17e}) (rerun: 32)
+>> ```
+>>
+>> To solve this issue, we use __generic_block_fiemap() instead of
+>> generic_block_fiemap() and add inode_lock_shared to avoid race condition.
+>>
+>> Reported-by: Hulk Robot <hulkci@huawei.com>
+>> Signed-off-by: Baokun Li <libaokun1@huawei.com>
+>> ---
+>>   fs/ext4/extents.c | 15 +++++++++++----
+>>   1 file changed, 11 insertions(+), 4 deletions(-)
+> What is the git commit id of this change in Linus's tree?
+>
+> If it is not in Linus's tree, why not?
+>
+> confused,
+>
+> greg k-h
+> .
 
-The upstream commit 9c85a9bae267 ("selftest/vm: verify mmap addr in
-mremap_test") was backported as commit a17404fcbfd0 ("selftest/vm:
-verify mmap addr in mremap_test"). Repeated backport introduced the
-duplicate of function get_mmap_min_addr to the file breakign the vm
-selftest build.
+This patch does not exist in the Linus' tree.
 
-Fixes: e8b9989597da ("selftest/vm: verify mmap addr in mremap_test")
-Signed-off-by: Oleksandr Tymoshenko <ovt@google.com>
----
- tools/testing/selftests/vm/mremap_test.c | 29 ------------------------
- 1 file changed, 29 deletions(-)
+This problem persists until the patch d3b6f23f7167("ext4: move 
+ext4_fiemap to use iomap framework") is incorporated in v5.7-rc1.
 
-diff --git a/tools/testing/selftests/vm/mremap_test.c b/tools/testing/selftests/vm/mremap_test.c
-index efcbf537b3d5..e3ce33a9954e 100644
---- a/tools/testing/selftests/vm/mremap_test.c
-+++ b/tools/testing/selftests/vm/mremap_test.c
-@@ -66,35 +66,6 @@ enum {
- 	.expect_failure = should_fail				\
- }
- 
--/* Returns mmap_min_addr sysctl tunable from procfs */
--static unsigned long long get_mmap_min_addr(void)
--{
--	FILE *fp;
--	int n_matched;
--	static unsigned long long addr;
--
--	if (addr)
--		return addr;
--
--	fp = fopen("/proc/sys/vm/mmap_min_addr", "r");
--	if (fp == NULL) {
--		ksft_print_msg("Failed to open /proc/sys/vm/mmap_min_addr: %s\n",
--			strerror(errno));
--		exit(KSFT_SKIP);
--	}
--
--	n_matched = fscanf(fp, "%llu", &addr);
--	if (n_matched != 1) {
--		ksft_print_msg("Failed to read /proc/sys/vm/mmap_min_addr: %s\n",
--			strerror(errno));
--		fclose(fp);
--		exit(KSFT_SKIP);
--	}
--
--	fclose(fp);
--	return addr;
--}
--
- /*
-  * Returns false if the requested remap region overlaps with an
-  * existing mapping (e.g text, stack) else returns true.
+However, this problem can be found by asserting  after patch 
+4068664e3cd2 ("ext4: fix extent_status fragmentation for plain files") 
+is incorporated into v5.6-rc1.
+
+If someone don't want to convert ext4_fiemap to iomap, this patch may help.
+
+I also CC linux-ext4 in hopes of getting some advice.
+
+Feel free to improve it if something wrong.
+
+Thanks a lot!
+
 -- 
-2.37.0.170.g444d1eabd0-goog
+With Best Regards,
+Baokun Li
+
+
+
 
