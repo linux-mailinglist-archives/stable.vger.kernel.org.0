@@ -2,163 +2,1470 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A65E576DB1
-	for <lists+stable@lfdr.de>; Sat, 16 Jul 2022 14:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45911576FDA
+	for <lists+stable@lfdr.de>; Sat, 16 Jul 2022 17:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231319AbiGPMDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Jul 2022 08:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49128 "EHLO
+        id S231903AbiGPPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Jul 2022 11:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbiGPMD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 16 Jul 2022 08:03:29 -0400
-Received: from sonic304-51.consmr.mail.gq1.yahoo.com (sonic304-51.consmr.mail.gq1.yahoo.com [98.137.68.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755C823BFA
-        for <stable@vger.kernel.org>; Sat, 16 Jul 2022 05:03:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netscape.net; s=a2048; t=1657973005; bh=DAM/bEP7xnNDHYTVl67GsU8rgaN43Xl0MJMznYJcJ8k=; h=Date:Subject:From:To:Cc:References:In-Reply-To:From:Subject:Reply-To; b=NP41fgjAshEYihUjHn3vCQb5C01OBhdiioWHeY+5uv9KuLa77wA7bT4hLSKPulU9KLcAuP8QA/fWGSI/yZJA1J53tBLGn2vbgKWXokQTnrcbThcmY51hB54mvG7ddAD0Wnpot/g0gSYer8FzyjqSPTryrZeVmZn1hX0f/lg0TroTzRgwBPluhI7HciiC40Day7CFXrIGeYs65PK4bH93MSmaFjMgNs+UzoohkjzYIGCc3wlzqGYn3x+erVkcQerCs5WN6pTr53KiTbZ6J6PgqpoXcMC+xxdIJCiGDKBMLr7Dp9J4G09dumyL6/8978uBPTD3hoKxiQZPGsDtKO3tNQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1657973005; bh=+hW1DQW7YFURSc4bkniM2nFGuTDWQjmcm2vfVIrE9Y4=; h=X-Sonic-MF:Date:Subject:From:To:From:Subject; b=Q6+0mwXVEJtGc2uIcAK2YSoWUszCUKu85XQX8U7hqhjlvxPOQRVEwEsrLx+6kSqiaoRGpbJZDkjYx5teYXBtqd39zPFyESjBxiMIIAoxyYY/P/sg5EsLND0AMHNKLb1hGvUvdbqGzYGuBbNQBjGcLbRdcyIz9yXF/gMSJBkg+n1NKsk1WjfKJcQN5YdZ7qfJCKqceeA2LhRmJlfOz6IiFoGup9N8FQrO4e9qyAq1StQPeRKPtFq1bkyYS6Vw/gxh/SOK5FEBq9FSYYXeK+L2sADzU4HxpjBm/yE//2mb/TQoame8aHGwjG4AJAcuo7MLPB/S79SHpr9tbDBBLgn9hw==
-X-YMail-OSG: UyYPEY8VM1knZXXCuCD9X7SMCCLHmK47it_NQ7T3OD6p35j98RQWU0OArQdTxwE
- Tv5lMIOAFO6E2gQX.W6NBOoIY59Fn9QsdL0WKVOpcQqcUkJM3YzpvCeRt3EgtT.n_ys8T6z6YTDy
- lhVqxN2uFxa.o.KQWB4ZgUvrG4x0ZfZ9Gd8hXfeYlg6jwQxzbg.UqjGrXYvpCmB6YRp0GkpuYn6z
- pYL2pjjizzaTCsWS1kdTNsa9LVPYpdc_uuvnKSuvSLY05TDnD8tniwtBriJf3mexDfrvMNDFdgAX
- un7ODWI9OQBr.ZFWroiKNWXsL_iWcypAbHGseQMpalAkzuCact3nvSPnEJWR2yxcoxWuOCJzBiix
- 44wMH6uoLZQovIue0xCp7dKoRXFlSRAW5VNggCqK7hqnWE3umaku5_yGtayouv2fla2VmF0XnsUs
- M5tmI9GdLz1GMuth_9NJhkQCAZ.5iI79inO1OAkdIfWqzSnmQaCPgF71SsTe256sJhN5ue7ld.Ak
- KeRaJIBKNoUDWTpgI5wWhbK3JTgSC9FYgy_WxuIYLjZiPlBfoZrPtktHErLisikKqOXArXD6x.s0
- KWCqQz1i06Ch2AavloZ1K54HPiXYkcnw_SVd5fpN7.E4jBFS9EIs9ec7SgooW3S6WZc_1ZNJZoZt
- limpkLNDPG9TSt_fxWaaMdh3vKnDJYGe_sqLo0NRObJZz5qBQMJmyZNaahD.5I_JU9GvnLHMh1KO
- _Iz88ifTyBgGe5X0HNWLPwy56ivkxPoMvL.LRkAlf_6Rzkp.DzhZZOjIKT3EQs9L3.nT24zXxoH7
- zNS8HDJruz__GJb4NYNmAUzAOT78aEzZ_Wr5g1pKkt94h8TUsfGHT_KqnobnEAe0MqhCed6UaCda
- L8X3veByAOWVfuRjqrYqcdjzxosEaj1vJE0zMolLBVQDSCWHPuuMOw8GJR9OygNL68OYl2YDbLFI
- 36qiT5T9cf_yqCyM4IOGcWmNZ_7oP80TqLU7MzkTZVoIpOK6ZckdLqmG4MwDhfwePWkSy32QLrIm
- 03fA7cUK1Z0XdYzN9tqh9l2Sx7DqxTbhmj5vCcXpjZjOeMwfLmmqnN4SeBhXg862LdHzql._q3or
- zp8ccokJmgb.SBEXUbgpkHFbcnjmGEIMIyrbUnuyH2wm0TXyAqvYcXSre8_s3b5H_WLB_ms_eBjx
- 0yNy3dWFNV1YsPhix5KFACxsrj8jqjrwCKIylbhRSQ6JeEx.ADf0M2sIsrXzvRSHTq0N33dbQcBf
- cm4mHGzsgolEroBnnIrWlPvKFkFqYdlFuA_9pcTXWUvatBwalFEupzp7NZZj3K8MgiN8pDUPGJRe
- ymuVULKAMnLxOCjuXqfBEv4HFBsxSR9.E0MH9rRukA59.wXby33kr0Q3VEmzKEoOcWkxi7zvi7gm
- pWSngiyu5i0b2Ff05ruxewFf_4bYC.XKAHrH9PtMcqBGfvnmgoM_qnlv0z7Bu7oEMUccunlRjBm6
- LgY7wBBlFCx0xPUUArhXv4s.xPLRkCZG7_40fqtB7nvqME2c.9iTQVQVjcrgoC6792I5A8HzwBTi
- 1y46aQjhUp26giE52sFny7k72JkjmdZ5TOiYBi9Omjw.FyQHofL5DonUzl46T8sf.80uAS0m5MF7
- QMVmkf4VytjBOtuxcwPca67UseXeYoDee2uz6Vi9drl0wRnHJVo7By4EUW1V7WFm_a.oT3_bfXyL
- oMEpf8.zN0AZJwqbglnUXZb.VW4vSh1EAGBpfJOr6oeQP_bWyMpbpfLkZjw.MCU0hoAZFK_K8Xts
- eHFnU.RpR98uMGoB1dzQqrC4flHL.QyyneeGOHuxoPyLjffmObTueEbtxQiIWWp3SnKvqrBWxdfj
- 2wp6Bf6DETmwz6rMpC74pdJqNKEQ_by8cqXyK8kSIU4FjOBcNcXYyYh5A2OZybWv9MsNwJgnAIyC
- mV29Bd7EvTpcjm_FYghulo9hevzrXcSQE9l836ACoaTzty79ShCgiZEyS0P0jPvTOSO_Wgufr4HW
- Q7uJXRCij_P3B7yBfay9QVNTQ48Rq_EV0EBSyX9D3T5SfPl.qFr4g.YXv_FBwQ9c1ZzYpcKHPq4.
- wluTRmXIyIM6RFDKzwoVLvXRz1mSAn_26s4_AJ1mGGE_myeHJBLXotfMCLDlx1W2Q2BuuDrzrZbq
- sWfgP6QesGJrR10ZdZKhY4RDE04GDrnLxlqppV7cTfQXBf32jMlfMfnB1jYkWxOUwinpplyTPIbM
- x9HwiLw7xhm4AIwJ4Xh.Op5rnDa2W1MPm
-X-Sonic-MF: <brchuckz@aim.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.gq1.yahoo.com with HTTP; Sat, 16 Jul 2022 12:03:25 +0000
-Received: by hermes--production-bf1-58957fb66f-qrtmg (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 15342210b74ec2b3efb792f6ae39851b;
-          Sat, 16 Jul 2022 12:01:22 +0000 (UTC)
-Message-ID: <a5fd5d8f-c360-ce4c-57fb-504f8998190c@netscape.net>
-Date:   Sat, 16 Jul 2022 08:01:22 -0400
+        with ESMTP id S229501AbiGPPZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 Jul 2022 11:25:52 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE3D1F631;
+        Sat, 16 Jul 2022 08:25:48 -0700 (PDT)
+Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.54])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4LlX6f0TkTz19TvR;
+        Sat, 16 Jul 2022 23:23:06 +0800 (CST)
+Received: from dggpeml100012.china.huawei.com (7.185.36.121) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Sat, 16 Jul 2022 23:25:44 +0800
+Received: from ubuntu1804.huawei.com (10.67.174.66) by
+ dggpeml100012.china.huawei.com (7.185.36.121) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Sat, 16 Jul 2022 23:25:44 +0800
+From:   Zheng Yejian <zhengyejian1@huawei.com>
+To:     <rostedt@goodmis.org>
+CC:     <jiangshanlai@gmail.com>, <josh@joshtriplett.org>,
+        <linux-kernel@vger.kernel.org>, <mathieu.desnoyers@efficios.com>,
+        <paulmck@linux.vnet.ibm.com>, <peterz@infradead.org>,
+        <stable@vger.kernel.org>, <xukuohai@huawei.com>,
+        <zhengyejian1@huawei.com>
+Subject: Re: [PATCH 4.19] rcu/tree: Mark functions as notrace
+Date:   Sat, 16 Jul 2022 23:23:13 +0800
+Message-ID: <20220716152313.46350-1-zhengyejian1@huawei.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220715180607.4509fb86@gandalf.local.home>
+References: <20220715180607.4509fb86@gandalf.local.home>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 0/3] x86: make pat and mtrr independent from each other
-Content-Language: en-US
-From:   Chuck Zmudzinski <brchuckz@netscape.net>
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org,
-        linux-pm@vger.kernel.org,
-        Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     jbeulich@suse.com, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "# 5 . 17" <stable@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-References: <20220715142549.25223-1-jgross@suse.com>
- <7bf307c7-0b05-781b-a2a3-19b47589eb8a@netscape.net>
-In-Reply-To: <7bf307c7-0b05-781b-a2a3-19b47589eb8a@netscape.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20407 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.174.66]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpeml100012.china.huawei.com (7.185.36.121)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/16/2022 7:32 AM, Chuck Zmudzinski wrote:
-> On 7/15/2022 10:25 AM, Juergen Gross wrote:
-> > Today PAT can't be used without MTRR being available, unless MTRR is at
-> > least configured via CONFIG_MTRR and the system is running as Xen PV
-> > guest. In this case PAT is automatically available via the hypervisor,
-> > but the PAT MSR can't be modified by the kernel and MTRR is disabled.
-> >
-> > As an additional complexity the availability of PAT can't be queried
-> > via pat_enabled() in the Xen PV case, as the lack of MTRR will set PAT
-> > to be disabled. This leads to some drivers believing that not all cache
-> > modes are available, resulting in failures or degraded functionality.
-> >
-> > The same applies to a kernel built with no MTRR support: it won't
-> > allow to use the PAT MSR, even if there is no technical reason for
-> > that, other than setting up PAT on all cpus the same way (which is a
-> > requirement of the processor's cache management) is relying on some
-> > MTRR specific code.
-> >
-> > Fix all of that by:
-> >
-> > - moving the function needed by PAT from MTRR specific code one level
-> >   up
-> > - adding a PAT indirection layer supporting the 3 cases "no or disabled
-> >   PAT", "PAT under kernel control", and "PAT under Xen control"
-> > - removing the dependency of PAT on MTRR
-> >
-> > Juergen Gross (3):
-> >   x86: move some code out of arch/x86/kernel/cpu/mtrr
-> >   x86: add wrapper functions for mtrr functions handling also pat
-> >   x86: decouple pat and mtrr handling
-> >
-> >  arch/x86/include/asm/memtype.h     |  13 ++-
-> >  arch/x86/include/asm/mtrr.h        |  27 ++++--
-> >  arch/x86/include/asm/processor.h   |  10 +++
-> >  arch/x86/kernel/cpu/common.c       | 123 +++++++++++++++++++++++++++-
-> >  arch/x86/kernel/cpu/mtrr/generic.c |  90 ++------------------
-> >  arch/x86/kernel/cpu/mtrr/mtrr.c    |  58 ++++---------
-> >  arch/x86/kernel/cpu/mtrr/mtrr.h    |   1 -
-> >  arch/x86/kernel/setup.c            |  12 +--
-> >  arch/x86/kernel/smpboot.c          |   8 +-
-> >  arch/x86/mm/pat/memtype.c          | 127 +++++++++++++++++++++--------
-> >  arch/x86/power/cpu.c               |   2 +-
-> >  arch/x86/xen/enlighten_pv.c        |   4 +
-> >  12 files changed, 289 insertions(+), 186 deletions(-)
-> >
+On Fri, 15 Jul 2022 18:06:07 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Wed, 13 Jul 2022 18:20:09 +0800
+> Zheng Yejian <zhengyejian1@huawei.com> wrote:
 >
-> This patch series seems related to the regression reported
-> here on May 5, 2022:
+> > This patch and problem analysis is based on v4.19 LTS, but v5.4 LTS
+> > and below seem to be involved.
+> >
+> > Hulk Robot reports a softlockup problem, see following logs:
+> >   [   41.463870] watchdog: BUG: soft lockup - CPU#0 stuck for 22s!  [ksoftirqd/0:9]
+>
+> This detects something that is spinning with preemption disabled but
+> interrupts enabled.
+>
+> > Look into above call stack, there is a recursive call in
+> > 'ftrace_graph_call', and the direct cause of above recursion is that
+> > 'rcu_dynticks_curr_cpu_in_eqs' is traced, see following snippet:
+> >     __read_once_size_nocheck.constprop.0
+> >       ftrace_graph_call    <-- 1. first call
+> >         ......
+> >           rcu_dynticks_curr_cpu_in_eqs
+> >             ftrace_graph_call    <-- 2. recursive call here!!!
+>
+> This is not the bug. That code can handle a recursion:
+>
+> ftrace_graph_call is assembly that is converted to call
+>
+> void prepare_ftrace_return(unsigned long ip, unsigned long *parent,
+> 			   unsigned long frame_pointer)
+> {
+>  [..]
+>
+> 	bit = ftrace_test_recursion_trylock(ip, *parent);
+> 	if (bit < 0)
+> 		return;
+>
+> This will stop the code as "bit" will be < 0 on the second call to
+> ftrace_graph_call. If it was a real recursion issue, it would crash the
+> machine when the recursion runs out of stack space.
 
-I'm sorry, the date of that report was May 4, 2022, not
-May 5, 2022 - just to avoid any doubt about which regression
-I am referring to.
-
-Chuck
+Yes, it was not a real recursion issue, the shell was still responsive but
+became much more slower than normal, maybe something wrong affected the
+interrupt handling. I'll try to explain it below.
 
 >
-> https://lore.kernel.org/regressions/YnHK1Z3o99eMXsVK@mail-itl/
+> >
+> > Comparing with mainline kernel, commit ff5c4f5cad33 ("rcu/tree:
+> > Mark the idle relevant functions noinstr") mark related functions as
+> > 'noinstr' which implies notrace, noinline and sticks things in the
+> > .noinstr.text section.
+> > Link: https://lore.kernel.org/all/20200416114706.625340212@infradead.org/
+> >
+> > But we cannot directly backport that commit, because there seems to be
+> > many prepatches. Instead, marking the functions as 'notrace' where it is
+> > 'noinstr' in that commit and mark 'rcu_dynticks_curr_cpu_in_eqs' as
+> > inline look like it resolves the problem.
 >
-> I am experiencing that regression 
+> That will not fix your problem.
 
-or a very similar regression that is caused by the same commit:
+But base on reproduction rule I summarized, this patch happened to 'fix'
+the problem, need deeper analysis, please see below.
 
-bdd8b6c98239cad
-("drm/i915: replace X86_FEATURE_PAT with pat_enabled()")
-
-> and could test this patch
-> on my system.
 >
-> Can you confirm that with this patch series you are trying
-> to fix that regression?
+> >
+> > Reported-by: Hulk Robot <hulkci@huawei.com>
+> > Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 >
-> Chuck
+> Can you reproduce this consistently without this patch, and then not so
+> with this patch?
+>
+> Or are you just assuming that this fixes a bug because you observed a
+> recursion?
+>
+> Please explain to me why this would cause the hang?
+>
+> -- Steve
 
-Chuck
+I've confirmed that it can be consistently reproduced without this patch by:
+  1. compile the reproducing code which is placed at the end of this email;
+  2. compile kernel and start qemu with following options:
+     qemu-system-aarch64 -m 8192 -smp 8 -chardev socket,id=SOCKSYZ,server=on,wait=off,host=localhost,port=15555 \
+       -mon chardev=SOCKSYZ,mode=control -display none -serial stdio -no-reboot -name VM-3 -device virtio-rng-pci \
+       -machine virt,accel=kvm,gic-version=3 -cpu host -device virtio-net-pci,netdev=net0 -kernel arch/arm64/boot/Image \
+       -netdev user,id=net0,restrict=on,hostfwd=tcp:127.0.0.1:40001-:22 -snapshot -initrd rootfs.cpio.gz \
+       -append "root=/dev/vda console=ttyAMA0 console=ttyAMA0 root=/dev/ram rdinit=/sbin/init nohz_full=1 earlycon=pl011,0x9000000"
+  3. exceute reproducing binary in one shell;
+  4. press 'top' command in another shell, wait about 30 seconds, almost
+     inevitably, problem reproduced.
+
+When problem reproduced, the phenomenon I summarized is that:
+  1. shell reponse is very slow when press anything;
+  2. 'top' command refresh info very slowly;
+  3. CPU time spent handling hardware & software interrupts show by 'top' is
+     abnormally high, note following field idle / irq / siq, 4.19.252 is abnormal:
+       4.19.252(abnormal): CPU:  0.6% usr 23.2% sys  0.0% nic  0.7% idle  0.0% io 63.2% irq 12.1% sirq
+       5.10.130(normal):   CPU:  0.1% usr 57.9% sys  0.0% nic  2.5% idle  0.0% io 33.1% irq  6.1% sirq
+  4. sometimes no softlockup warnings.
+
+Base on above reproduction method, I perform following practices:
+  1. Do bisect to find the patch that introduce the problem, currently I found that:
+    1) on linux-4.19.y, introduced from v4.19.156~29 by
+       commit 2de780dfbe1a ("ftrace: Handle tracing when switching between context")
+    2) on linux-4.14.y, introduced from v4.14.205~26 by
+       commit 4e3df0faba76 ("ftrace: Handle tracing when switching between context")
+    3) on v5.4 and above, even contain above commit, but I didn't reproduce,
+       I currently don't know why ???
+  2. I write this patch with referencing to commit ff5c4f5cad33 ("rcu/tree:
+     Mark the idle relevant functions noinstr") because at first I think it
+     is the fix, and the problem look like being fixed, see following 'top' output:
+       5.10.130(normal):      CPU:  0.1% usr 57.9% sys  0.0% nic  2.5% idle  0.0% io 33.1% irq  6.1% sirq
+       4.19.252 before patch: CPU:  0.6% usr 23.2% sys  0.0% nic  0.7% idle  0.0% io 63.2% irq 12.1% sirq
+       4.19.252 after patch:  CPU:  1.3% usr 60.3% sys  0.0% nic  1.7% idle  0.0% io 30.0% irq  6.5% sirq
+
+So we may focus on 726b3d3f141f ("ftrace: Handle tracing when switching between context")
+to explain the problem and find a real resolution!!!
+
+Reproducing code (reproduce.c) is as follows:
+``` C
+// autogenerated by syzkaller (https://github.com/google/syzkaller)
+
+#define _GNU_SOURCE
+
+#include <arpa/inet.h>
+#include <dirent.h>
+#include <endian.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <net/if.h>
+#include <net/if_arp.h>
+#include <netinet/in.h>
+#include <sched.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/mount.h>
+#include <sys/prctl.h>
+#include <sys/resource.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
+
+#include <linux/capability.h>
+#include <linux/genetlink.h>
+#include <linux/if_addr.h>
+#include <linux/if_ether.h>
+#include <linux/if_link.h>
+#include <linux/if_tun.h>
+#include <linux/in6.h>
+#include <linux/ip.h>
+#include <linux/neighbour.h>
+#include <linux/net.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <linux/tcp.h>
+#include <linux/veth.h>
+
+#ifndef __NR_mmap
+#define __NR_mmap 222
+#endif
+#ifndef __NR_perf_event_open
+#define __NR_perf_event_open 241
+#endif
+#ifndef __NR_setsockopt
+#define __NR_setsockopt 208
+#endif
+
+static unsigned long long procid;
+
+static void sleep_ms(uint64_t ms)
+{
+  usleep(ms * 1000);
+}
+
+static uint64_t current_time_ms(void)
+{
+  struct timespec ts;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts))
+    exit(1);
+  return (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1000000;
+}
+
+#define BITMASK(bf_off, bf_len) (((1ull << (bf_len)) - 1) << (bf_off))
+#define STORE_BY_BITMASK(type, htobe, addr, val, bf_off, bf_len)               \
+  *(type*)(addr) =                                                             \
+      htobe((htobe(*(type*)(addr)) & ~BITMASK((bf_off), (bf_len))) |           \
+            (((type)(val) << (bf_off)) & BITMASK((bf_off), (bf_len))))
+
+static bool write_file(const char* file, const char* what, ...)
+{
+  char buf[1024];
+  va_list args;
+  va_start(args, what);
+  vsnprintf(buf, sizeof(buf), what, args);
+  va_end(args);
+  buf[sizeof(buf) - 1] = 0;
+  int len = strlen(buf);
+  int fd = open(file, O_WRONLY | O_CLOEXEC);
+  if (fd == -1)
+    return false;
+  if (write(fd, buf, len) != len) {
+    int err = errno;
+    close(fd);
+    errno = err;
+    return false;
+  }
+  close(fd);
+  return true;
+}
+
+struct nlmsg {
+  char* pos;
+  int nesting;
+  struct nlattr* nested[8];
+  char buf[4096];
+};
+
+static void netlink_init(struct nlmsg* nlmsg, int typ, int flags,
+                         const void* data, int size)
+{
+  memset(nlmsg, 0, sizeof(*nlmsg));
+  struct nlmsghdr* hdr = (struct nlmsghdr*)nlmsg->buf;
+  hdr->nlmsg_type = typ;
+  hdr->nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK | flags;
+  memcpy(hdr + 1, data, size);
+  nlmsg->pos = (char*)(hdr + 1) + NLMSG_ALIGN(size);
+}
+
+static void netlink_attr(struct nlmsg* nlmsg, int typ, const void* data,
+                         int size)
+{
+  struct nlattr* attr = (struct nlattr*)nlmsg->pos;
+  attr->nla_len = sizeof(*attr) + size;
+  attr->nla_type = typ;
+  if (size > 0)
+    memcpy(attr + 1, data, size);
+  nlmsg->pos += NLMSG_ALIGN(attr->nla_len);
+}
+
+static void netlink_nest(struct nlmsg* nlmsg, int typ)
+{
+  struct nlattr* attr = (struct nlattr*)nlmsg->pos;
+  attr->nla_type = typ;
+  nlmsg->pos += sizeof(*attr);
+  nlmsg->nested[nlmsg->nesting++] = attr;
+}
+
+static void netlink_done(struct nlmsg* nlmsg)
+{
+  struct nlattr* attr = nlmsg->nested[--nlmsg->nesting];
+  attr->nla_len = nlmsg->pos - (char*)attr;
+}
+
+static int netlink_send_ext(struct nlmsg* nlmsg, int sock, uint16_t reply_type,
+                            int* reply_len, bool dofail)
+{
+  if (nlmsg->pos > nlmsg->buf + sizeof(nlmsg->buf) || nlmsg->nesting)
+    exit(1);
+  struct nlmsghdr* hdr = (struct nlmsghdr*)nlmsg->buf;
+  hdr->nlmsg_len = nlmsg->pos - nlmsg->buf;
+  struct sockaddr_nl addr;
+  memset(&addr, 0, sizeof(addr));
+  addr.nl_family = AF_NETLINK;
+  ssize_t n = sendto(sock, nlmsg->buf, hdr->nlmsg_len, 0,
+                     (struct sockaddr*)&addr, sizeof(addr));
+  if (n != (ssize_t)hdr->nlmsg_len) {
+    if (dofail)
+      exit(1);
+    return -1;
+  }
+  n = recv(sock, nlmsg->buf, sizeof(nlmsg->buf), 0);
+  if (reply_len)
+    *reply_len = 0;
+  if (n < 0) {
+    if (dofail)
+      exit(1);
+    return -1;
+  }
+  if (n < (ssize_t)sizeof(struct nlmsghdr)) {
+    errno = EINVAL;
+    if (dofail)
+      exit(1);
+    return -1;
+  }
+  if (hdr->nlmsg_type == NLMSG_DONE)
+    return 0;
+  if (reply_len && hdr->nlmsg_type == reply_type) {
+    *reply_len = n;
+    return 0;
+  }
+  if (n < (ssize_t)(sizeof(struct nlmsghdr) + sizeof(struct nlmsgerr))) {
+    errno = EINVAL;
+    if (dofail)
+      exit(1);
+    return -1;
+  }
+  if (hdr->nlmsg_type != NLMSG_ERROR) {
+    errno = EINVAL;
+    if (dofail)
+      exit(1);
+    return -1;
+  }
+  errno = -((struct nlmsgerr*)(hdr + 1))->error;
+  return -errno;
+}
+
+static int netlink_send(struct nlmsg* nlmsg, int sock)
+{
+  return netlink_send_ext(nlmsg, sock, 0, NULL, true);
+}
+
+static int netlink_query_family_id(struct nlmsg* nlmsg, int sock,
+                                   const char* family_name, bool dofail)
+{
+  struct genlmsghdr genlhdr;
+  memset(&genlhdr, 0, sizeof(genlhdr));
+  genlhdr.cmd = CTRL_CMD_GETFAMILY;
+  netlink_init(nlmsg, GENL_ID_CTRL, 0, &genlhdr, sizeof(genlhdr));
+  netlink_attr(nlmsg, CTRL_ATTR_FAMILY_NAME, family_name,
+               strnlen(family_name, GENL_NAMSIZ - 1) + 1);
+  int n = 0;
+  int err = netlink_send_ext(nlmsg, sock, GENL_ID_CTRL, &n, dofail);
+  if (err < 0) {
+    return -1;
+  }
+  uint16_t id = 0;
+  struct nlattr* attr = (struct nlattr*)(nlmsg->buf + NLMSG_HDRLEN +
+                                         NLMSG_ALIGN(sizeof(genlhdr)));
+  for (; (char*)attr < nlmsg->buf + n;
+       attr = (struct nlattr*)((char*)attr + NLMSG_ALIGN(attr->nla_len))) {
+    if (attr->nla_type == CTRL_ATTR_FAMILY_ID) {
+      id = *(uint16_t*)(attr + 1);
+      break;
+    }
+  }
+  if (!id) {
+    errno = EINVAL;
+    return -1;
+  }
+  recv(sock, nlmsg->buf, sizeof(nlmsg->buf), 0);
+  return id;
+}
+
+static int netlink_next_msg(struct nlmsg* nlmsg, unsigned int offset,
+                            unsigned int total_len)
+{
+  struct nlmsghdr* hdr = (struct nlmsghdr*)(nlmsg->buf + offset);
+  if (offset == total_len || offset + hdr->nlmsg_len > total_len)
+    return -1;
+  return hdr->nlmsg_len;
+}
+
+static void netlink_add_device_impl(struct nlmsg* nlmsg, const char* type,
+                                    const char* name)
+{
+  struct ifinfomsg hdr;
+  memset(&hdr, 0, sizeof(hdr));
+  netlink_init(nlmsg, RTM_NEWLINK, NLM_F_EXCL | NLM_F_CREATE, &hdr,
+               sizeof(hdr));
+  if (name)
+    netlink_attr(nlmsg, IFLA_IFNAME, name, strlen(name));
+  netlink_nest(nlmsg, IFLA_LINKINFO);
+  netlink_attr(nlmsg, IFLA_INFO_KIND, type, strlen(type));
+}
+
+static void netlink_add_device(struct nlmsg* nlmsg, int sock, const char* type,
+                               const char* name)
+{
+  netlink_add_device_impl(nlmsg, type, name);
+  netlink_done(nlmsg);
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_veth(struct nlmsg* nlmsg, int sock, const char* name,
+                             const char* peer)
+{
+  netlink_add_device_impl(nlmsg, "veth", name);
+  netlink_nest(nlmsg, IFLA_INFO_DATA);
+  netlink_nest(nlmsg, VETH_INFO_PEER);
+  nlmsg->pos += sizeof(struct ifinfomsg);
+  netlink_attr(nlmsg, IFLA_IFNAME, peer, strlen(peer));
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_hsr(struct nlmsg* nlmsg, int sock, const char* name,
+                            const char* slave1, const char* slave2)
+{
+  netlink_add_device_impl(nlmsg, "hsr", name);
+  netlink_nest(nlmsg, IFLA_INFO_DATA);
+  int ifindex1 = if_nametoindex(slave1);
+  netlink_attr(nlmsg, IFLA_HSR_SLAVE1, &ifindex1, sizeof(ifindex1));
+  int ifindex2 = if_nametoindex(slave2);
+  netlink_attr(nlmsg, IFLA_HSR_SLAVE2, &ifindex2, sizeof(ifindex2));
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_linked(struct nlmsg* nlmsg, int sock, const char* type,
+                               const char* name, const char* link)
+{
+  netlink_add_device_impl(nlmsg, type, name);
+  netlink_done(nlmsg);
+  int ifindex = if_nametoindex(link);
+  netlink_attr(nlmsg, IFLA_LINK, &ifindex, sizeof(ifindex));
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_vlan(struct nlmsg* nlmsg, int sock, const char* name,
+                             const char* link, uint16_t id, uint16_t proto)
+{
+  netlink_add_device_impl(nlmsg, "vlan", name);
+  netlink_nest(nlmsg, IFLA_INFO_DATA);
+  netlink_attr(nlmsg, IFLA_VLAN_ID, &id, sizeof(id));
+  netlink_attr(nlmsg, IFLA_VLAN_PROTOCOL, &proto, sizeof(proto));
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  int ifindex = if_nametoindex(link);
+  netlink_attr(nlmsg, IFLA_LINK, &ifindex, sizeof(ifindex));
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_macvlan(struct nlmsg* nlmsg, int sock, const char* name,
+                                const char* link)
+{
+  netlink_add_device_impl(nlmsg, "macvlan", name);
+  netlink_nest(nlmsg, IFLA_INFO_DATA);
+  uint32_t mode = MACVLAN_MODE_BRIDGE;
+  netlink_attr(nlmsg, IFLA_MACVLAN_MODE, &mode, sizeof(mode));
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  int ifindex = if_nametoindex(link);
+  netlink_attr(nlmsg, IFLA_LINK, &ifindex, sizeof(ifindex));
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_geneve(struct nlmsg* nlmsg, int sock, const char* name,
+                               uint32_t vni, struct in_addr* addr4,
+                               struct in6_addr* addr6)
+{
+  netlink_add_device_impl(nlmsg, "geneve", name);
+  netlink_nest(nlmsg, IFLA_INFO_DATA);
+  netlink_attr(nlmsg, IFLA_GENEVE_ID, &vni, sizeof(vni));
+  if (addr4)
+    netlink_attr(nlmsg, IFLA_GENEVE_REMOTE, addr4, sizeof(*addr4));
+  if (addr6)
+    netlink_attr(nlmsg, IFLA_GENEVE_REMOTE6, addr6, sizeof(*addr6));
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+#define IFLA_IPVLAN_FLAGS 2
+#define IPVLAN_MODE_L3S 2
+#undef IPVLAN_F_VEPA
+#define IPVLAN_F_VEPA 2
+
+static void netlink_add_ipvlan(struct nlmsg* nlmsg, int sock, const char* name,
+                               const char* link, uint16_t mode, uint16_t flags)
+{
+  netlink_add_device_impl(nlmsg, "ipvlan", name);
+  netlink_nest(nlmsg, IFLA_INFO_DATA);
+  netlink_attr(nlmsg, IFLA_IPVLAN_MODE, &mode, sizeof(mode));
+  netlink_attr(nlmsg, IFLA_IPVLAN_FLAGS, &flags, sizeof(flags));
+  netlink_done(nlmsg);
+  netlink_done(nlmsg);
+  int ifindex = if_nametoindex(link);
+  netlink_attr(nlmsg, IFLA_LINK, &ifindex, sizeof(ifindex));
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static void netlink_device_change(struct nlmsg* nlmsg, int sock,
+                                  const char* name, bool up, const char* master,
+                                  const void* mac, int macsize,
+                                  const char* new_name)
+{
+  struct ifinfomsg hdr;
+  memset(&hdr, 0, sizeof(hdr));
+  if (up)
+    hdr.ifi_flags = hdr.ifi_change = IFF_UP;
+  hdr.ifi_index = if_nametoindex(name);
+  netlink_init(nlmsg, RTM_NEWLINK, 0, &hdr, sizeof(hdr));
+  if (new_name)
+    netlink_attr(nlmsg, IFLA_IFNAME, new_name, strlen(new_name));
+  if (master) {
+    int ifindex = if_nametoindex(master);
+    netlink_attr(nlmsg, IFLA_MASTER, &ifindex, sizeof(ifindex));
+  }
+  if (macsize)
+    netlink_attr(nlmsg, IFLA_ADDRESS, mac, macsize);
+  int err = netlink_send(nlmsg, sock);
+  if (err < 0) {
+  }
+}
+
+static int netlink_add_addr(struct nlmsg* nlmsg, int sock, const char* dev,
+                            const void* addr, int addrsize)
+{
+  struct ifaddrmsg hdr;
+  memset(&hdr, 0, sizeof(hdr));
+  hdr.ifa_family = addrsize == 4 ? AF_INET : AF_INET6;
+  hdr.ifa_prefixlen = addrsize == 4 ? 24 : 120;
+  hdr.ifa_scope = RT_SCOPE_UNIVERSE;
+  hdr.ifa_index = if_nametoindex(dev);
+  netlink_init(nlmsg, RTM_NEWADDR, NLM_F_CREATE | NLM_F_REPLACE, &hdr,
+               sizeof(hdr));
+  netlink_attr(nlmsg, IFA_LOCAL, addr, addrsize);
+  netlink_attr(nlmsg, IFA_ADDRESS, addr, addrsize);
+  return netlink_send(nlmsg, sock);
+}
+
+static void netlink_add_addr4(struct nlmsg* nlmsg, int sock, const char* dev,
+                              const char* addr)
+{
+  struct in_addr in_addr;
+  inet_pton(AF_INET, addr, &in_addr);
+  int err = netlink_add_addr(nlmsg, sock, dev, &in_addr, sizeof(in_addr));
+  if (err < 0) {
+  }
+}
+
+static void netlink_add_addr6(struct nlmsg* nlmsg, int sock, const char* dev,
+                              const char* addr)
+{
+  struct in6_addr in6_addr;
+  inet_pton(AF_INET6, addr, &in6_addr);
+  int err = netlink_add_addr(nlmsg, sock, dev, &in6_addr, sizeof(in6_addr));
+  if (err < 0) {
+  }
+}
+
+static struct nlmsg nlmsg;
+
+#define DEVLINK_FAMILY_NAME "devlink"
+
+#define DEVLINK_CMD_PORT_GET 5
+#define DEVLINK_ATTR_BUS_NAME 1
+#define DEVLINK_ATTR_DEV_NAME 2
+#define DEVLINK_ATTR_NETDEV_NAME 7
+
+static struct nlmsg nlmsg2;
+
+static void initialize_devlink_ports(const char* bus_name, const char* dev_name,
+                                     const char* netdev_prefix)
+{
+  struct genlmsghdr genlhdr;
+  int len, total_len, id, err, offset;
+  uint16_t netdev_index;
+  int sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
+  if (sock == -1)
+    exit(1);
+  int rtsock = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+  if (rtsock == -1)
+    exit(1);
+  id = netlink_query_family_id(&nlmsg, sock, DEVLINK_FAMILY_NAME, true);
+  if (id == -1)
+    goto error;
+  memset(&genlhdr, 0, sizeof(genlhdr));
+  genlhdr.cmd = DEVLINK_CMD_PORT_GET;
+  netlink_init(&nlmsg, id, NLM_F_DUMP, &genlhdr, sizeof(genlhdr));
+  netlink_attr(&nlmsg, DEVLINK_ATTR_BUS_NAME, bus_name, strlen(bus_name) + 1);
+  netlink_attr(&nlmsg, DEVLINK_ATTR_DEV_NAME, dev_name, strlen(dev_name) + 1);
+  err = netlink_send_ext(&nlmsg, sock, id, &total_len, true);
+  if (err < 0) {
+    goto error;
+  }
+  offset = 0;
+  netdev_index = 0;
+  while ((len = netlink_next_msg(&nlmsg, offset, total_len)) != -1) {
+    struct nlattr* attr = (struct nlattr*)(nlmsg.buf + offset + NLMSG_HDRLEN +
+                                           NLMSG_ALIGN(sizeof(genlhdr)));
+    for (; (char*)attr < nlmsg.buf + offset + len;
+         attr = (struct nlattr*)((char*)attr + NLMSG_ALIGN(attr->nla_len))) {
+      if (attr->nla_type == DEVLINK_ATTR_NETDEV_NAME) {
+        char* port_name;
+        char netdev_name[IFNAMSIZ];
+        port_name = (char*)(attr + 1);
+        snprintf(netdev_name, sizeof(netdev_name), "%s%d", netdev_prefix,
+                 netdev_index);
+        netlink_device_change(&nlmsg2, rtsock, port_name, true, 0, 0, 0,
+                              netdev_name);
+        break;
+      }
+    }
+    offset += len;
+    netdev_index++;
+  }
+error:
+  close(rtsock);
+  close(sock);
+}
+
+#define DEV_IPV4 "172.20.20.%d"
+#define DEV_IPV6 "fe80::%02x"
+#define DEV_MAC 0x00aaaaaaaaaa
+
+static void netdevsim_add(unsigned int addr, unsigned int port_count)
+{
+  char buf[16];
+  sprintf(buf, "%u %u", addr, port_count);
+  if (write_file("/sys/bus/netdevsim/new_device", buf)) {
+    snprintf(buf, sizeof(buf), "netdevsim%d", addr);
+    initialize_devlink_ports("netdevsim", buf, "netdevsim");
+  }
+}
+
+#define WG_GENL_NAME "wireguard"
+enum wg_cmd {
+  WG_CMD_GET_DEVICE,
+  WG_CMD_SET_DEVICE,
+};
+enum wgdevice_attribute {
+  WGDEVICE_A_UNSPEC,
+  WGDEVICE_A_IFINDEX,
+  WGDEVICE_A_IFNAME,
+  WGDEVICE_A_PRIVATE_KEY,
+  WGDEVICE_A_PUBLIC_KEY,
+  WGDEVICE_A_FLAGS,
+  WGDEVICE_A_LISTEN_PORT,
+  WGDEVICE_A_FWMARK,
+  WGDEVICE_A_PEERS,
+};
+enum wgpeer_attribute {
+  WGPEER_A_UNSPEC,
+  WGPEER_A_PUBLIC_KEY,
+  WGPEER_A_PRESHARED_KEY,
+  WGPEER_A_FLAGS,
+  WGPEER_A_ENDPOINT,
+  WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+  WGPEER_A_LAST_HANDSHAKE_TIME,
+  WGPEER_A_RX_BYTES,
+  WGPEER_A_TX_BYTES,
+  WGPEER_A_ALLOWEDIPS,
+  WGPEER_A_PROTOCOL_VERSION,
+};
+enum wgallowedip_attribute {
+  WGALLOWEDIP_A_UNSPEC,
+  WGALLOWEDIP_A_FAMILY,
+  WGALLOWEDIP_A_IPADDR,
+  WGALLOWEDIP_A_CIDR_MASK,
+};
+
+static void netlink_wireguard_setup(void)
+{
+  const char ifname_a[] = "wg0";
+  const char ifname_b[] = "wg1";
+  const char ifname_c[] = "wg2";
+  const char private_a[] =
+      "\xa0\x5c\xa8\x4f\x6c\x9c\x8e\x38\x53\xe2\xfd\x7a\x70\xae\x0f\xb2\x0f\xa1"
+      "\x52\x60\x0c\xb0\x08\x45\x17\x4f\x08\x07\x6f\x8d\x78\x43";
+  const char private_b[] =
+      "\xb0\x80\x73\xe8\xd4\x4e\x91\xe3\xda\x92\x2c\x22\x43\x82\x44\xbb\x88\x5c"
+      "\x69\xe2\x69\xc8\xe9\xd8\x35\xb1\x14\x29\x3a\x4d\xdc\x6e";
+  const char private_c[] =
+      "\xa0\xcb\x87\x9a\x47\xf5\xbc\x64\x4c\x0e\x69\x3f\xa6\xd0\x31\xc7\x4a\x15"
+      "\x53\xb6\xe9\x01\xb9\xff\x2f\x51\x8c\x78\x04\x2f\xb5\x42";
+  const char public_a[] =
+      "\x97\x5c\x9d\x81\xc9\x83\xc8\x20\x9e\xe7\x81\x25\x4b\x89\x9f\x8e\xd9\x25"
+      "\xae\x9f\x09\x23\xc2\x3c\x62\xf5\x3c\x57\xcd\xbf\x69\x1c";
+  const char public_b[] =
+      "\xd1\x73\x28\x99\xf6\x11\xcd\x89\x94\x03\x4d\x7f\x41\x3d\xc9\x57\x63\x0e"
+      "\x54\x93\xc2\x85\xac\xa4\x00\x65\xcb\x63\x11\xbe\x69\x6b";
+  const char public_c[] =
+      "\xf4\x4d\xa3\x67\xa8\x8e\xe6\x56\x4f\x02\x02\x11\x45\x67\x27\x08\x2f\x5c"
+      "\xeb\xee\x8b\x1b\xf5\xeb\x73\x37\x34\x1b\x45\x9b\x39\x22";
+  const uint16_t listen_a = 20001;
+  const uint16_t listen_b = 20002;
+  const uint16_t listen_c = 20003;
+  const uint16_t af_inet = AF_INET;
+  const uint16_t af_inet6 = AF_INET6;
+  const struct sockaddr_in endpoint_b_v4 = {
+      .sin_family = AF_INET,
+      .sin_port = htons(listen_b),
+      .sin_addr = {htonl(INADDR_LOOPBACK)}};
+  const struct sockaddr_in endpoint_c_v4 = {
+      .sin_family = AF_INET,
+      .sin_port = htons(listen_c),
+      .sin_addr = {htonl(INADDR_LOOPBACK)}};
+  struct sockaddr_in6 endpoint_a_v6 = {.sin6_family = AF_INET6,
+                                       .sin6_port = htons(listen_a)};
+  endpoint_a_v6.sin6_addr = in6addr_loopback;
+  struct sockaddr_in6 endpoint_c_v6 = {.sin6_family = AF_INET6,
+                                       .sin6_port = htons(listen_c)};
+  endpoint_c_v6.sin6_addr = in6addr_loopback;
+  const struct in_addr first_half_v4 = {0};
+  const struct in_addr second_half_v4 = {(uint32_t)htonl(128 << 24)};
+  const struct in6_addr first_half_v6 = {{{0}}};
+  const struct in6_addr second_half_v6 = {{{0x80}}};
+  const uint8_t half_cidr = 1;
+  const uint16_t persistent_keepalives[] = {1, 3, 7, 9, 14, 19};
+  struct genlmsghdr genlhdr = {.cmd = WG_CMD_SET_DEVICE, .version = 1};
+  int sock;
+  int id, err;
+  sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
+  if (sock == -1) {
+    return;
+  }
+  id = netlink_query_family_id(&nlmsg, sock, WG_GENL_NAME, true);
+  if (id == -1)
+    goto error;
+  netlink_init(&nlmsg, id, 0, &genlhdr, sizeof(genlhdr));
+  netlink_attr(&nlmsg, WGDEVICE_A_IFNAME, ifname_a, strlen(ifname_a) + 1);
+  netlink_attr(&nlmsg, WGDEVICE_A_PRIVATE_KEY, private_a, 32);
+  netlink_attr(&nlmsg, WGDEVICE_A_LISTEN_PORT, &listen_a, 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGDEVICE_A_PEERS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGPEER_A_PUBLIC_KEY, public_b, 32);
+  netlink_attr(&nlmsg, WGPEER_A_ENDPOINT, &endpoint_b_v4,
+               sizeof(endpoint_b_v4));
+  netlink_attr(&nlmsg, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+               &persistent_keepalives[0], 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGPEER_A_ALLOWEDIPS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &first_half_v4,
+               sizeof(first_half_v4));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet6, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &first_half_v6,
+               sizeof(first_half_v6));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGPEER_A_PUBLIC_KEY, public_c, 32);
+  netlink_attr(&nlmsg, WGPEER_A_ENDPOINT, &endpoint_c_v6,
+               sizeof(endpoint_c_v6));
+  netlink_attr(&nlmsg, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+               &persistent_keepalives[1], 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGPEER_A_ALLOWEDIPS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &second_half_v4,
+               sizeof(second_half_v4));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet6, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &second_half_v6,
+               sizeof(second_half_v6));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  err = netlink_send(&nlmsg, sock);
+  if (err < 0) {
+  }
+  netlink_init(&nlmsg, id, 0, &genlhdr, sizeof(genlhdr));
+  netlink_attr(&nlmsg, WGDEVICE_A_IFNAME, ifname_b, strlen(ifname_b) + 1);
+  netlink_attr(&nlmsg, WGDEVICE_A_PRIVATE_KEY, private_b, 32);
+  netlink_attr(&nlmsg, WGDEVICE_A_LISTEN_PORT, &listen_b, 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGDEVICE_A_PEERS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGPEER_A_PUBLIC_KEY, public_a, 32);
+  netlink_attr(&nlmsg, WGPEER_A_ENDPOINT, &endpoint_a_v6,
+               sizeof(endpoint_a_v6));
+  netlink_attr(&nlmsg, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+               &persistent_keepalives[2], 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGPEER_A_ALLOWEDIPS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &first_half_v4,
+               sizeof(first_half_v4));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet6, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &first_half_v6,
+               sizeof(first_half_v6));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGPEER_A_PUBLIC_KEY, public_c, 32);
+  netlink_attr(&nlmsg, WGPEER_A_ENDPOINT, &endpoint_c_v4,
+               sizeof(endpoint_c_v4));
+  netlink_attr(&nlmsg, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+               &persistent_keepalives[3], 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGPEER_A_ALLOWEDIPS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &second_half_v4,
+               sizeof(second_half_v4));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet6, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &second_half_v6,
+               sizeof(second_half_v6));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  err = netlink_send(&nlmsg, sock);
+  if (err < 0) {
+  }
+  netlink_init(&nlmsg, id, 0, &genlhdr, sizeof(genlhdr));
+  netlink_attr(&nlmsg, WGDEVICE_A_IFNAME, ifname_c, strlen(ifname_c) + 1);
+  netlink_attr(&nlmsg, WGDEVICE_A_PRIVATE_KEY, private_c, 32);
+  netlink_attr(&nlmsg, WGDEVICE_A_LISTEN_PORT, &listen_c, 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGDEVICE_A_PEERS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGPEER_A_PUBLIC_KEY, public_a, 32);
+  netlink_attr(&nlmsg, WGPEER_A_ENDPOINT, &endpoint_a_v6,
+               sizeof(endpoint_a_v6));
+  netlink_attr(&nlmsg, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+               &persistent_keepalives[4], 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGPEER_A_ALLOWEDIPS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &first_half_v4,
+               sizeof(first_half_v4));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet6, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &first_half_v6,
+               sizeof(first_half_v6));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGPEER_A_PUBLIC_KEY, public_b, 32);
+  netlink_attr(&nlmsg, WGPEER_A_ENDPOINT, &endpoint_b_v4,
+               sizeof(endpoint_b_v4));
+  netlink_attr(&nlmsg, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
+               &persistent_keepalives[5], 2);
+  netlink_nest(&nlmsg, NLA_F_NESTED | WGPEER_A_ALLOWEDIPS);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &second_half_v4,
+               sizeof(second_half_v4));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_nest(&nlmsg, NLA_F_NESTED | 0);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_FAMILY, &af_inet6, 2);
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_IPADDR, &second_half_v6,
+               sizeof(second_half_v6));
+  netlink_attr(&nlmsg, WGALLOWEDIP_A_CIDR_MASK, &half_cidr, 1);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  netlink_done(&nlmsg);
+  err = netlink_send(&nlmsg, sock);
+  if (err < 0) {
+  }
+
+error:
+  close(sock);
+}
+static void initialize_netdevices(void)
+{
+  char netdevsim[16];
+  sprintf(netdevsim, "netdevsim%d", (int)procid);
+  struct {
+    const char* type;
+    const char* dev;
+  } devtypes[] = {
+      {"ip6gretap", "ip6gretap0"}, {"bridge", "bridge0"},
+      {"vcan", "vcan0"},           {"bond", "bond0"},
+      {"team", "team0"},           {"dummy", "dummy0"},
+      {"nlmon", "nlmon0"},         {"caif", "caif0"},
+      {"batadv", "batadv0"},       {"vxcan", "vxcan1"},
+      {"netdevsim", netdevsim},    {"veth", 0},
+      {"xfrm", "xfrm0"},           {"wireguard", "wg0"},
+      {"wireguard", "wg1"},        {"wireguard", "wg2"},
+  };
+  const char* devmasters[] = {"bridge", "bond", "team", "batadv"};
+  struct {
+    const char* name;
+    int macsize;
+    bool noipv6;
+  } devices[] = {
+      {"lo", ETH_ALEN},
+      {"sit0", 0},
+      {"bridge0", ETH_ALEN},
+      {"vcan0", 0, true},
+      {"tunl0", 0},
+      {"gre0", 0},
+      {"gretap0", ETH_ALEN},
+      {"ip_vti0", 0},
+      {"ip6_vti0", 0},
+      {"ip6tnl0", 0},
+      {"ip6gre0", 0},
+      {"ip6gretap0", ETH_ALEN},
+      {"erspan0", ETH_ALEN},
+      {"bond0", ETH_ALEN},
+      {"veth0", ETH_ALEN},
+      {"veth1", ETH_ALEN},
+      {"team0", ETH_ALEN},
+      {"veth0_to_bridge", ETH_ALEN},
+      {"veth1_to_bridge", ETH_ALEN},
+      {"veth0_to_bond", ETH_ALEN},
+      {"veth1_to_bond", ETH_ALEN},
+      {"veth0_to_team", ETH_ALEN},
+      {"veth1_to_team", ETH_ALEN},
+      {"veth0_to_hsr", ETH_ALEN},
+      {"veth1_to_hsr", ETH_ALEN},
+      {"hsr0", 0},
+      {"dummy0", ETH_ALEN},
+      {"nlmon0", 0},
+      {"vxcan0", 0, true},
+      {"vxcan1", 0, true},
+      {"caif0", ETH_ALEN},
+      {"batadv0", ETH_ALEN},
+      {netdevsim, ETH_ALEN},
+      {"xfrm0", ETH_ALEN},
+      {"veth0_virt_wifi", ETH_ALEN},
+      {"veth1_virt_wifi", ETH_ALEN},
+      {"virt_wifi0", ETH_ALEN},
+      {"veth0_vlan", ETH_ALEN},
+      {"veth1_vlan", ETH_ALEN},
+      {"vlan0", ETH_ALEN},
+      {"vlan1", ETH_ALEN},
+      {"macvlan0", ETH_ALEN},
+      {"macvlan1", ETH_ALEN},
+      {"ipvlan0", ETH_ALEN},
+      {"ipvlan1", ETH_ALEN},
+      {"veth0_macvtap", ETH_ALEN},
+      {"veth1_macvtap", ETH_ALEN},
+      {"macvtap0", ETH_ALEN},
+      {"macsec0", ETH_ALEN},
+      {"veth0_to_batadv", ETH_ALEN},
+      {"veth1_to_batadv", ETH_ALEN},
+      {"batadv_slave_0", ETH_ALEN},
+      {"batadv_slave_1", ETH_ALEN},
+      {"geneve0", ETH_ALEN},
+      {"geneve1", ETH_ALEN},
+      {"wg0", 0},
+      {"wg1", 0},
+      {"wg2", 0},
+  };
+  int sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+  if (sock == -1)
+    exit(1);
+  unsigned i;
+  for (i = 0; i < sizeof(devtypes) / sizeof(devtypes[0]); i++)
+    netlink_add_device(&nlmsg, sock, devtypes[i].type, devtypes[i].dev);
+  for (i = 0; i < sizeof(devmasters) / (sizeof(devmasters[0])); i++) {
+    char master[32], slave0[32], veth0[32], slave1[32], veth1[32];
+    sprintf(slave0, "%s_slave_0", devmasters[i]);
+    sprintf(veth0, "veth0_to_%s", devmasters[i]);
+    netlink_add_veth(&nlmsg, sock, slave0, veth0);
+    sprintf(slave1, "%s_slave_1", devmasters[i]);
+    sprintf(veth1, "veth1_to_%s", devmasters[i]);
+    netlink_add_veth(&nlmsg, sock, slave1, veth1);
+    sprintf(master, "%s0", devmasters[i]);
+    netlink_device_change(&nlmsg, sock, slave0, false, master, 0, 0, NULL);
+    netlink_device_change(&nlmsg, sock, slave1, false, master, 0, 0, NULL);
+  }
+  netlink_device_change(&nlmsg, sock, "bridge_slave_0", true, 0, 0, 0, NULL);
+  netlink_device_change(&nlmsg, sock, "bridge_slave_1", true, 0, 0, 0, NULL);
+  netlink_add_veth(&nlmsg, sock, "hsr_slave_0", "veth0_to_hsr");
+  netlink_add_veth(&nlmsg, sock, "hsr_slave_1", "veth1_to_hsr");
+  netlink_add_hsr(&nlmsg, sock, "hsr0", "hsr_slave_0", "hsr_slave_1");
+  netlink_device_change(&nlmsg, sock, "hsr_slave_0", true, 0, 0, 0, NULL);
+  netlink_device_change(&nlmsg, sock, "hsr_slave_1", true, 0, 0, 0, NULL);
+  netlink_add_veth(&nlmsg, sock, "veth0_virt_wifi", "veth1_virt_wifi");
+  netlink_add_linked(&nlmsg, sock, "virt_wifi", "virt_wifi0",
+                     "veth1_virt_wifi");
+  netlink_add_veth(&nlmsg, sock, "veth0_vlan", "veth1_vlan");
+  netlink_add_vlan(&nlmsg, sock, "vlan0", "veth0_vlan", 0, htons(ETH_P_8021Q));
+  netlink_add_vlan(&nlmsg, sock, "vlan1", "veth0_vlan", 1, htons(ETH_P_8021AD));
+  netlink_add_macvlan(&nlmsg, sock, "macvlan0", "veth1_vlan");
+  netlink_add_macvlan(&nlmsg, sock, "macvlan1", "veth1_vlan");
+  netlink_add_ipvlan(&nlmsg, sock, "ipvlan0", "veth0_vlan", IPVLAN_MODE_L2, 0);
+  netlink_add_ipvlan(&nlmsg, sock, "ipvlan1", "veth0_vlan", IPVLAN_MODE_L3S,
+                     IPVLAN_F_VEPA);
+  netlink_add_veth(&nlmsg, sock, "veth0_macvtap", "veth1_macvtap");
+  netlink_add_linked(&nlmsg, sock, "macvtap", "macvtap0", "veth0_macvtap");
+  netlink_add_linked(&nlmsg, sock, "macsec", "macsec0", "veth1_macvtap");
+  char addr[32];
+  sprintf(addr, DEV_IPV4, 14 + 10);
+  struct in_addr geneve_addr4;
+  if (inet_pton(AF_INET, addr, &geneve_addr4) <= 0)
+    exit(1);
+  struct in6_addr geneve_addr6;
+  if (inet_pton(AF_INET6, "fc00::01", &geneve_addr6) <= 0)
+    exit(1);
+  netlink_add_geneve(&nlmsg, sock, "geneve0", 0, &geneve_addr4, 0);
+  netlink_add_geneve(&nlmsg, sock, "geneve1", 1, 0, &geneve_addr6);
+  netdevsim_add((int)procid, 4);
+  netlink_wireguard_setup();
+  for (i = 0; i < sizeof(devices) / (sizeof(devices[0])); i++) {
+    char addr[32];
+    sprintf(addr, DEV_IPV4, i + 10);
+    netlink_add_addr4(&nlmsg, sock, devices[i].name, addr);
+    if (!devices[i].noipv6) {
+      sprintf(addr, DEV_IPV6, i + 10);
+      netlink_add_addr6(&nlmsg, sock, devices[i].name, addr);
+    }
+    uint64_t macaddr = DEV_MAC + ((i + 10ull) << 40);
+    netlink_device_change(&nlmsg, sock, devices[i].name, true, 0, &macaddr,
+                          devices[i].macsize, NULL);
+  }
+  close(sock);
+}
+static void initialize_netdevices_init(void)
+{
+  int sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+  if (sock == -1)
+    exit(1);
+  struct {
+    const char* type;
+    int macsize;
+    bool noipv6;
+    bool noup;
+  } devtypes[] = {
+      {"nr", 7, true},
+      {"rose", 5, true, true},
+  };
+  unsigned i;
+  for (i = 0; i < sizeof(devtypes) / sizeof(devtypes[0]); i++) {
+    char dev[32], addr[32];
+    sprintf(dev, "%s%d", devtypes[i].type, (int)procid);
+    sprintf(addr, "172.30.%d.%d", i, (int)procid + 1);
+    netlink_add_addr4(&nlmsg, sock, dev, addr);
+    if (!devtypes[i].noipv6) {
+      sprintf(addr, "fe88::%02x:%02x", i, (int)procid + 1);
+      netlink_add_addr6(&nlmsg, sock, dev, addr);
+    }
+    int macsize = devtypes[i].macsize;
+    uint64_t macaddr = 0xbbbbbb +
+                       ((unsigned long long)i << (8 * (macsize - 2))) +
+                       (procid << (8 * (macsize - 1)));
+    netlink_device_change(&nlmsg, sock, dev, !devtypes[i].noup, 0, &macaddr,
+                          macsize, NULL);
+  }
+  close(sock);
+}
+
+#define MAX_FDS 30
+
+static void setup_common()
+{
+  if (mount(0, "/sys/fs/fuse/connections", "fusectl", 0, 0)) {
+  }
+}
+
+static void setup_binderfs()
+{
+  if (mkdir("/dev/binderfs", 0777)) {
+  }
+  if (mount("binder", "/dev/binderfs", "binder", 0, NULL)) {
+  }
+  if (symlink("/dev/binderfs", "./binderfs")) {
+  }
+}
+
+static void loop();
+
+static void sandbox_common()
+{
+  prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0);
+  setsid();
+  struct rlimit rlim;
+  rlim.rlim_cur = rlim.rlim_max = (200 << 20);
+  setrlimit(RLIMIT_AS, &rlim);
+  rlim.rlim_cur = rlim.rlim_max = 32 << 20;
+  setrlimit(RLIMIT_MEMLOCK, &rlim);
+  rlim.rlim_cur = rlim.rlim_max = 136 << 20;
+  setrlimit(RLIMIT_FSIZE, &rlim);
+  rlim.rlim_cur = rlim.rlim_max = 1 << 20;
+  setrlimit(RLIMIT_STACK, &rlim);
+  rlim.rlim_cur = rlim.rlim_max = 0;
+  setrlimit(RLIMIT_CORE, &rlim);
+  rlim.rlim_cur = rlim.rlim_max = 256;
+  setrlimit(RLIMIT_NOFILE, &rlim);
+  if (unshare(CLONE_NEWNS)) {
+  }
+  if (mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL)) {
+  }
+  if (unshare(CLONE_NEWIPC)) {
+  }
+  if (unshare(0x02000000)) {
+  }
+  if (unshare(CLONE_NEWUTS)) {
+  }
+  if (unshare(CLONE_SYSVSEM)) {
+  }
+  typedef struct {
+    const char* name;
+    const char* value;
+  } sysctl_t;
+  static const sysctl_t sysctls[] = {
+      {"/proc/sys/kernel/shmmax", "16777216"},
+      {"/proc/sys/kernel/shmall", "536870912"},
+      {"/proc/sys/kernel/shmmni", "1024"},
+      {"/proc/sys/kernel/msgmax", "8192"},
+      {"/proc/sys/kernel/msgmni", "1024"},
+      {"/proc/sys/kernel/msgmnb", "1024"},
+      {"/proc/sys/kernel/sem", "1024 1048576 500 1024"},
+  };
+  unsigned i;
+  for (i = 0; i < sizeof(sysctls) / sizeof(sysctls[0]); i++)
+    write_file(sysctls[i].name, sysctls[i].value);
+}
+
+static int wait_for_loop(int pid)
+{
+  if (pid < 0)
+    exit(1);
+  int status = 0;
+  while (waitpid(-1, &status, __WALL) != pid) {
+  }
+  return WEXITSTATUS(status);
+}
+
+static void drop_caps(void)
+{
+  struct __user_cap_header_struct cap_hdr = {};
+  struct __user_cap_data_struct cap_data[2] = {};
+  cap_hdr.version = _LINUX_CAPABILITY_VERSION_3;
+  cap_hdr.pid = getpid();
+  if (syscall(SYS_capget, &cap_hdr, &cap_data))
+    exit(1);
+  const int drop = (1 << CAP_SYS_PTRACE) | (1 << CAP_SYS_NICE);
+  cap_data[0].effective &= ~drop;
+  cap_data[0].permitted &= ~drop;
+  cap_data[0].inheritable &= ~drop;
+  if (syscall(SYS_capset, &cap_hdr, &cap_data))
+    exit(1);
+}
+
+static int do_sandbox_none(void)
+{
+  if (unshare(CLONE_NEWPID)) {
+  }
+  int pid = fork();
+  if (pid != 0)
+    return wait_for_loop(pid);
+  setup_common();
+  sandbox_common();
+  drop_caps();
+  initialize_netdevices_init();
+  if (unshare(CLONE_NEWNET)) {
+  }
+  initialize_netdevices();
+  setup_binderfs();
+  loop();
+  exit(1);
+}
+
+static void kill_and_wait(int pid, int* status)
+{
+  kill(-pid, SIGKILL);
+  kill(pid, SIGKILL);
+  for (int i = 0; i < 100; i++) {
+    if (waitpid(-1, status, WNOHANG | __WALL) == pid)
+      return;
+    usleep(1000);
+  }
+  DIR* dir = opendir("/sys/fs/fuse/connections");
+  if (dir) {
+    for (;;) {
+      struct dirent* ent = readdir(dir);
+      if (!ent)
+        break;
+      if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+        continue;
+      char abort[300];
+      snprintf(abort, sizeof(abort), "/sys/fs/fuse/connections/%s/abort",
+               ent->d_name);
+      int fd = open(abort, O_WRONLY);
+      if (fd == -1) {
+        continue;
+      }
+      if (write(fd, abort, 1) < 0) {
+      }
+      close(fd);
+    }
+    closedir(dir);
+  } else {
+  }
+  while (waitpid(-1, status, __WALL) != pid) {
+  }
+}
+
+static void setup_test()
+{
+  prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0);
+  setpgrp();
+  write_file("/proc/self/oom_score_adj", "1000");
+}
+
+static void close_fds()
+{
+  for (int fd = 3; fd < MAX_FDS; fd++)
+    close(fd);
+}
+
+static void execute_one(void);
+
+#define WAIT_FLAGS __WALL
+
+static void loop(void)
+{
+  int iter = 0;
+  for (;; iter++) {
+    int pid = fork();
+    if (pid < 0)
+      exit(1);
+    if (pid == 0) {
+      setup_test();
+      execute_one();
+      close_fds();
+      exit(0);
+    }
+    int status = 0;
+    uint64_t start = current_time_ms();
+    for (;;) {
+      if (waitpid(-1, &status, WNOHANG | WAIT_FLAGS) == pid)
+        break;
+      sleep_ms(1);
+      if (current_time_ms() - start < 5000)
+        continue;
+      kill_and_wait(pid, &status);
+      break;
+    }
+  }
+}
+
+void execute_one(void)
+{
+  *(uint32_t*)0x20000740 = 2;
+  *(uint32_t*)0x20000744 = 0x80;
+  *(uint8_t*)0x20000748 = 1;
+  *(uint8_t*)0x20000749 = 0;
+  *(uint8_t*)0x2000074a = 0;
+  *(uint8_t*)0x2000074b = 0;
+  *(uint32_t*)0x2000074c = 0;
+  *(uint64_t*)0x20000750 = 0;
+  *(uint64_t*)0x20000758 = 0;
+  *(uint64_t*)0x20000760 = 0;
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 0, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 1, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 2, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 3, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 4, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 5, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 6, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 7, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 8, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 9, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 10, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 11, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 12, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 13, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 14, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 15, 2);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 17, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 18, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 19, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 20, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 21, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 22, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 23, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 24, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 25, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 26, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 27, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 28, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 29, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 30, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 31, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 32, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 33, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 34, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 35, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 36, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 37, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000768, 0, 38, 26);
+  *(uint32_t*)0x20000770 = 0;
+  *(uint32_t*)0x20000774 = 0;
+  *(uint64_t*)0x20000778 = 0;
+  *(uint64_t*)0x20000780 = 0;
+  *(uint64_t*)0x20000788 = 0;
+  *(uint64_t*)0x20000790 = 0;
+  *(uint32_t*)0x20000798 = 0;
+  *(uint32_t*)0x2000079c = 0;
+  *(uint64_t*)0x200007a0 = 0;
+  *(uint32_t*)0x200007a8 = 0;
+  *(uint16_t*)0x200007ac = 0;
+  *(uint16_t*)0x200007ae = 0;
+  *(uint32_t*)0x200007b0 = 0;
+  *(uint32_t*)0x200007b4 = 0;
+  *(uint64_t*)0x200007b8 = 0;
+  syscall(__NR_perf_event_open, 0x20000740ul, -1, 0ul, -1, 0ul);
+  {
+    int i;
+    for (i = 0; i < 32; i++) {
+      syscall(__NR_perf_event_open, 0x20000740ul, -1, 0ul, -1, 0ul);
+    }
+  }
+  *(uint32_t*)0x20000040 = 0;
+  *(uint32_t*)0x20000044 = 0x80;
+  *(uint8_t*)0x20000048 = 0;
+  *(uint8_t*)0x20000049 = 0;
+  *(uint8_t*)0x2000004a = 0;
+  *(uint8_t*)0x2000004b = 0;
+  *(uint32_t*)0x2000004c = 0;
+  *(uint64_t*)0x20000050 = 0;
+  *(uint64_t*)0x20000058 = 0;
+  *(uint64_t*)0x20000060 = 0;
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 0, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 1, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 2, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 3, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 4, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 5, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 6, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 7, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 8, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 9, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 10, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 11, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 12, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 13, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 14, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 15, 2);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 17, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 18, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 19, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 20, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 21, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 22, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 23, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 24, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 25, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 26, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 27, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 28, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 29, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 30, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 31, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 32, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 33, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 34, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 35, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 36, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 37, 1);
+  STORE_BY_BITMASK(uint64_t, , 0x20000068, 0, 38, 26);
+  *(uint32_t*)0x20000070 = 0;
+  *(uint32_t*)0x20000074 = 0;
+  *(uint64_t*)0x20000078 = 0;
+  *(uint64_t*)0x20000080 = 0;
+  *(uint64_t*)0x20000088 = 0;
+  *(uint64_t*)0x20000090 = 0;
+  *(uint32_t*)0x20000098 = 0;
+  *(uint32_t*)0x2000009c = 0;
+  *(uint64_t*)0x200000a0 = 0;
+  *(uint32_t*)0x200000a8 = 0;
+  *(uint16_t*)0x200000ac = 0;
+  *(uint16_t*)0x200000ae = 0;
+  *(uint32_t*)0x200000b0 = 0;
+  *(uint32_t*)0x200000b4 = 0;
+  *(uint64_t*)0x200000b8 = 0;
+  syscall(__NR_perf_event_open, 0x20000040ul, 0, 0ul, -1, 0ul);
+  *(uint32_t*)0x20000000 = htobe32(0xe0000002);
+  *(uint8_t*)0x20000004 = 0xac;
+  *(uint8_t*)0x20000005 = 0x14;
+  *(uint8_t*)0x20000006 = 0x14;
+  *(uint8_t*)0x20000007 = 0xaa;
+  *(uint32_t*)0x20000008 = 0;
+  syscall(__NR_setsockopt, -1, 0, 0x23, 0x20000000ul, 0xcul);
+}
+int main(void)
+{
+  syscall(__NR_mmap, 0x1ffff000ul, 0x1000ul, 0ul, 0x32ul, -1, 0ul);
+  syscall(__NR_mmap, 0x20000000ul, 0x1000000ul, 7ul, 0x32ul, -1, 0ul);
+  syscall(__NR_mmap, 0x21000000ul, 0x1000ul, 0ul, 0x32ul, -1, 0ul);
+  for (procid = 0; procid < 8; procid++) {
+    if (fork() == 0) {
+      do_sandbox_none();
+    }
+  }
+  sleep(1000000);
+  return 0;
+}
+```
