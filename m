@@ -2,235 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65076577452
-	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 06:38:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28167577502
+	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 09:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbiGQEiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jul 2022 00:38:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        id S232809AbiGQHzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jul 2022 03:55:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232739AbiGQEiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 00:38:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3924F2250E;
-        Sat, 16 Jul 2022 21:38:03 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF58CB80CA8;
-        Sun, 17 Jul 2022 04:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A737CC3411E;
-        Sun, 17 Jul 2022 04:38:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1658032680;
-        bh=8Tt7CcDMdJPq3AN3TLlZun9V/C4iED3bfNXIC3K2AjM=;
-        h=Date:To:From:Subject:From;
-        b=KFoDCGTBMDJ/ULduEE6X6QO8eRL25/aXafXNmcA1KJri+ffk7GCMrwSn1TcAIal/U
-         jWnfOjDjlgSjoxjS9p0aoafAjYV2pNJb9eAtaHCcJ6GSAd+z5GeWvqGDwgzIsfjAy/
-         Fy0o0TtDcDpvS/nxQaOunc4Yyy7V2EJoPDKoCHRQ=
-Date:   Sat, 16 Jul 2022 21:38:00 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, jack@suse.cz, hdanton@sina.com,
-        ebiggers@kernel.org, axelrasmussen@google.com, rppt@linux.ibm.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] secretmem-fix-unhandled-fault-in-truncate.patch removed from -mm tree
-Message-Id: <20220717043800.A737CC3411E@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229476AbiGQHzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 03:55:09 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9377115834;
+        Sun, 17 Jul 2022 00:55:08 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1oCz7G-0003PZ-5e; Sun, 17 Jul 2022 09:55:02 +0200
+Message-ID: <efbde93b-e280-0e40-798d-dc7bf8ca83cf@leemhuis.info>
+Date:   Sun, 17 Jul 2022 09:55:00 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 0/3] x86: make pat and mtrr independent from each other
+Content-Language: en-US
+To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Cc:     brchuckz@netscape.net, jbeulich@suse.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "# 5 . 17" <stable@vger.kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>, Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+References: <20220715142549.25223-1-jgross@suse.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20220715142549.25223-1-jgross@suse.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1658044508;3110b8b4;
+X-HE-SMSGID: 1oCz7G-0003PZ-5e
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Juergen!
 
-The quilt patch titled
-     Subject: secretmem: fix unhandled fault in truncate
-has been removed from the -mm tree.  Its filename was
-     secretmem-fix-unhandled-fault-in-truncate.patch
+On 15.07.22 16:25, Juergen Gross wrote:
+> Today PAT can't be used without MTRR being available, unless MTRR is at
+> least configured via CONFIG_MTRR and the system is running as Xen PV
+> guest. In this case PAT is automatically available via the hypervisor,
+> but the PAT MSR can't be modified by the kernel and MTRR is disabled.
+> 
+> As an additional complexity the availability of PAT can't be queried
+> via pat_enabled() in the Xen PV case, as the lack of MTRR will set PAT
+> to be disabled. This leads to some drivers believing that not all cache
+> modes are available, resulting in failures or degraded functionality.
+> 
+> The same applies to a kernel built with no MTRR support: it won't
+> allow to use the PAT MSR, even if there is no technical reason for
+> that, other than setting up PAT on all cpus the same way (which is a
+> requirement of the processor's cache management) is relying on some
+> MTRR specific code.
+> 
+> Fix all of that by:
+> 
+> - moving the function needed by PAT from MTRR specific code one level
+>   up
+> - adding a PAT indirection layer supporting the 3 cases "no or disabled
+>   PAT", "PAT under kernel control", and "PAT under Xen control"
+> - removing the dependency of PAT on MTRR
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Thx for working on this. If you need to respin these patches for one
+reason or another, could you do me a favor and add proper 'Link:' tags
+pointing to all reports about this issue? e.g. like this:
 
-------------------------------------------------------
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: secretmem: fix unhandled fault in truncate
-Date: Thu, 7 Jul 2022 19:56:50 +0300
+ Link: https://lore.kernel.org/regressions/YnHK1Z3o99eMXsVK@mail-itl/
 
-syzkaller reports the following issue:
+These tags are considered important by Linus[1] and others, as they
+allow anyone to look into the backstory weeks or years from now. That is
+why they should be placed in cases like this, as
+Documentation/process/submitting-patches.rst and
+Documentation/process/5.Posting.rst explain in more detail. I care
+personally, because these tags make my regression tracking efforts a
+whole lot easier, as they allow my tracking bot 'regzbot' to
+automatically connect reports with patches posted or committed to fix
+tracked regressions.
 
-BUG: unable to handle page fault for address: ffff888021f7e005
-PGD 11401067 P4D 11401067 PUD 11402067 PMD 21f7d063 PTE 800fffffde081060
-Oops: 0002 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 3761 Comm: syz-executor281 Not tainted 5.19.0-rc4-syzkaller-00014-g941e3e791269 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:memset_erms+0x9/0x10 arch/x86/lib/memset_64.S:64
-Code: c1 e9 03 40 0f b6 f6 48 b8 01 01 01 01 01 01 01 01 48 0f af c6 f3 48 ab 89 d1 f3 aa 4c 89 c8 c3 90 49 89 f9 40 88 f0 48 89 d1 <f3> aa 4c 89 c8 c3 90 49 89 fa 40 0f b6 ce 48 b8 01 01 01 01 01 01
-RSP: 0018:ffffc9000329fa90 EFLAGS: 00010202
-RAX: 0000000000000000 RBX: 0000000000001000 RCX: 0000000000000ffb
-RDX: 0000000000000ffb RSI: 0000000000000000 RDI: ffff888021f7e005
-RBP: ffffea000087df80 R08: 0000000000000001 R09: ffff888021f7e005
-R10: ffffed10043efdff R11: 0000000000000000 R12: 0000000000000005
-R13: 0000000000000000 R14: 0000000000001000 R15: 0000000000000ffb
-FS:  00007fb29d8b2700(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff888021f7e005 CR3: 0000000026e7b000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- zero_user_segments include/linux/highmem.h:272 [inline]
- folio_zero_range include/linux/highmem.h:428 [inline]
- truncate_inode_partial_folio+0x76a/0xdf0 mm/truncate.c:237
- truncate_inode_pages_range+0x83b/0x1530 mm/truncate.c:381
- truncate_inode_pages mm/truncate.c:452 [inline]
- truncate_pagecache+0x63/0x90 mm/truncate.c:753
- simple_setattr+0xed/0x110 fs/libfs.c:535
- secretmem_setattr+0xae/0xf0 mm/secretmem.c:170
- notify_change+0xb8c/0x12b0 fs/attr.c:424
- do_truncate+0x13c/0x200 fs/open.c:65
- do_sys_ftruncate+0x536/0x730 fs/open.c:193
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7fb29d900899
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 11 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fb29d8b2318 EFLAGS: 00000246 ORIG_RAX: 000000000000004d
-RAX: ffffffffffffffda RBX: 00007fb29d988408 RCX: 00007fb29d900899
-RDX: 00007fb29d900899 RSI: 0000000000000005 RDI: 0000000000000003
-RBP: 00007fb29d988400 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fb29d98840c
-R13: 00007ffca01a23bf R14: 00007fb29d8b2400 R15: 0000000000022000
- </TASK>
-Modules linked in:
-CR2: ffff888021f7e005
----[ end trace 0000000000000000 ]---
+[1] see for example:
+https://lore.kernel.org/all/CAHk-=wjMmSZzMJ3Xnskdg4+GGz=5p5p+GSYyFBTh0f-DgvdBWg@mail.gmail.com/
+https://lore.kernel.org/all/CAHk-=wgs38ZrfPvy=nOwVkVzjpM3VFU1zobP37Fwd_h9iAD5JQ@mail.gmail.com/
+https://lore.kernel.org/all/CAHk-=wjxzafG-=J8oT30s7upn4RhBs6TX-uVFZ5rME+L5_DoJA@mail.gmail.com/
 
-Eric Biggers suggested that this happens when
-secretmem_setattr()->simple_setattr() races with secretmem_fault() so that
-a page that is faulted in by secretmem_fault() (and thus removed from the
-direct map) is zeroed by inode truncation right afterwards.
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
-Use mapping->invalidate_lock to make secretmem_fault() and
-secretmem_setattr() mutually exclusive.
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
 
-[rppt@linux.ibm.com: v3]
-  Link: https://lkml.kernel.org/r/20220714091337.412297-1-rppt@kernel.org
-Link: https://lkml.kernel.org/r/20220707165650.248088-1-rppt@kernel.org
-Reported-by: syzbot+9bd2b7adbd34b30b87e4@syzkaller.appspotmail.com
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Suggested-by: Eric Biggers <ebiggers@kernel.org>
-Reviewed-by: Axel Rasmussen <axelrasmussen@google.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+BTW, let me tell regzbot to monitor this thread:
 
- mm/secretmem.c |   33 ++++++++++++++++++++++++++-------
- 1 file changed, 26 insertions(+), 7 deletions(-)
-
---- a/mm/secretmem.c~secretmem-fix-unhandled-fault-in-truncate
-+++ a/mm/secretmem.c
-@@ -55,22 +55,28 @@ static vm_fault_t secretmem_fault(struct
- 	gfp_t gfp = vmf->gfp_mask;
- 	unsigned long addr;
- 	struct page *page;
-+	vm_fault_t ret;
- 	int err;
- 
- 	if (((loff_t)vmf->pgoff << PAGE_SHIFT) >= i_size_read(inode))
- 		return vmf_error(-EINVAL);
- 
-+	filemap_invalidate_lock_shared(mapping);
-+
- retry:
- 	page = find_lock_page(mapping, offset);
- 	if (!page) {
- 		page = alloc_page(gfp | __GFP_ZERO);
--		if (!page)
--			return VM_FAULT_OOM;
-+		if (!page) {
-+			ret = VM_FAULT_OOM;
-+			goto out;
-+		}
- 
- 		err = set_direct_map_invalid_noflush(page);
- 		if (err) {
- 			put_page(page);
--			return vmf_error(err);
-+			ret = vmf_error(err);
-+			goto out;
- 		}
- 
- 		__SetPageUptodate(page);
-@@ -86,7 +92,8 @@ retry:
- 			if (err == -EEXIST)
- 				goto retry;
- 
--			return vmf_error(err);
-+			ret = vmf_error(err);
-+			goto out;
- 		}
- 
- 		addr = (unsigned long)page_address(page);
-@@ -94,7 +101,11 @@ retry:
- 	}
- 
- 	vmf->page = page;
--	return VM_FAULT_LOCKED;
-+	ret = VM_FAULT_LOCKED;
-+
-+out:
-+	filemap_invalidate_unlock_shared(mapping);
-+	return ret;
- }
- 
- static const struct vm_operations_struct secretmem_vm_ops = {
-@@ -162,12 +173,20 @@ static int secretmem_setattr(struct user
- 			     struct dentry *dentry, struct iattr *iattr)
- {
- 	struct inode *inode = d_inode(dentry);
-+	struct address_space *mapping = inode->i_mapping;
- 	unsigned int ia_valid = iattr->ia_valid;
-+	int ret;
-+
-+	filemap_invalidate_lock(mapping);
- 
- 	if ((ia_valid & ATTR_SIZE) && inode->i_size)
--		return -EINVAL;
-+		ret = -EINVAL;
-+	else
-+		ret = simple_setattr(mnt_userns, dentry, iattr);
-+
-+	filemap_invalidate_unlock(mapping);
- 
--	return simple_setattr(mnt_userns, dentry, iattr);
-+	return ret;
- }
- 
- static const struct inode_operations secretmem_iops = {
-_
-
-Patches currently in -mm which might be from rppt@linux.ibm.com are
-
-csky-drop-definition-of-pte_order.patch
-csky-drop-definition-of-pgd_order.patch
-mips-rename-pud_order-to-pud_table_order.patch
-mips-drop-definitions-of-pte_order.patch
-mips-rename-pgd_order-to-pgd_table_order.patch
-nios2-drop-definition-of-pte_order.patch
-nios2-drop-definition-of-pgd_order.patch
-loongarch-drop-definition-of-pte_order.patch
-loongarch-drop-definition-of-pmd_order.patch
-loongarch-drop-definition-of-pud_order.patch
-loongarch-drop-definition-of-pgd_order.patch
-loongarch-drop-definition-of-pgd_order-v2.patch
-parisc-rename-pgd_order-to-pgd_table_order.patch
-xtensa-drop-definition-of-pgd_order.patch
-arm-heads-rename-pmd_order-to-pmd_entry_order.patch
-
+#regzbot ^backmonitor:
+https://lore.kernel.org/regressions/YnHK1Z3o99eMXsVK@mail-itl/
