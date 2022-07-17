@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 754F657744C
+	by mail.lfdr.de (Postfix) with ESMTP id 2928457744B
 	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 06:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbiGQEho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231784AbiGQEho (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 17 Jul 2022 00:37:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50430 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231672AbiGQEhn (ORCPT
+        with ESMTP id S229772AbiGQEhn (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 00:37:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB59220CE;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD932183A;
         Sat, 16 Jul 2022 21:37:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61981B8097A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF94060FAD;
         Sun, 17 Jul 2022 04:37:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5616C3411E;
-        Sun, 17 Jul 2022 04:37:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD69C341C0;
+        Sun, 17 Jul 2022 04:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1658032659;
-        bh=TgePP8OUopno1wKCZMsIhJJaTxjYEZXFgy9TmROnRq8=;
+        s=korg; t=1658032660;
+        bh=g+TH/ezThdO+ZUxOPkbP7szduzuheuHOtaQ1HZ+X2IU=;
         h=Date:To:From:Subject:From;
-        b=QbHl3SNOCFaf7HLA128d2s7Ecy2L49gSGZqKkEkPtF/YO0zrpdWwI6YjHNTm2P25J
-         a0URdTtWGaa7JWt01FXggdAnzcx7Z11XrIMmD1MLTHrYkZVNaYPNYSSMFyp/s514UW
-         8olZAhPv3DKqd6c84Jpsu8Ntd1V6J27i7AY5VigM=
-Date:   Sat, 16 Jul 2022 21:37:38 -0700
-To:     mm-commits@vger.kernel.org, viro@zeniv.linux.org.uk,
-        stable@vger.kernel.org, avagin@gmail.com, akpm@linux-foundation.org
+        b=g7FZsDHGT1HWk4TZj6zNBZGMzIID+NTalTCXFs+W3wxCxK4GOYjQFiUfrSHSdP9xh
+         g3jTCRX0KZ9+4RID6ZD548HNbIRnFZTps33A3+0d+EinFqJR7vqrLWnYMWX05mQNez
+         hHSTgsE33MFV9fRrHnthS5yMtYJimq03Hy7goYYA=
+Date:   Sat, 16 Jul 2022 21:37:39 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, mike.kravetz@oracle.com,
+        baolin.wang@linux.alibaba.com, anshuman.khandual@arm.com,
+        linmiaohe@huawei.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] fs-sendfile-handles-o_nonblock-of-out_fd.patch removed from -mm tree
-Message-Id: <20220717043738.E5616C3411E@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] hugetlb-fix-memoryleak-in-hugetlb_mcopy_atomic_pte.patch removed from -mm tree
+Message-Id: <20220717043740.2CD69C341C0@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -45,129 +47,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: fs: sendfile handles O_NONBLOCK of out_fd
+     Subject: hugetlb: fix memoryleak in hugetlb_mcopy_atomic_pte
 has been removed from the -mm tree.  Its filename was
-     fs-sendfile-handles-o_nonblock-of-out_fd.patch
+     hugetlb-fix-memoryleak-in-hugetlb_mcopy_atomic_pte.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Andrei Vagin <avagin@gmail.com>
-Subject: fs: sendfile handles O_NONBLOCK of out_fd
+From: Miaohe Lin <linmiaohe@huawei.com>
+Subject: hugetlb: fix memoryleak in hugetlb_mcopy_atomic_pte
+Date: Sat, 9 Jul 2022 17:26:29 +0800
 
-sendfile has to return EAGAIN if out_fd is nonblocking and the write into
-it would block.
+When alloc_huge_page fails, *pagep is set to NULL without put_page first.
+So the hugepage indicated by *pagep is leaked.
 
-Here is a small reproducer for the problem:
-
-#define _GNU_SOURCE /* See feature_test_macros(7) */
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/sendfile.h>
-
-
-#define FILE_SIZE (1UL << 30)
-int main(int argc, char **argv) {
-        int p[2], fd;
-
-        if (pipe2(p, O_NONBLOCK))
-                return 1;
-
-        fd = open(argv[1], O_RDWR | O_TMPFILE, 0666);
-        if (fd < 0)
-                return 1;
-        ftruncate(fd, FILE_SIZE);
-
-        if (sendfile(p[1], fd, 0, FILE_SIZE) == -1) {
-                fprintf(stderr, "FAIL\n");
-        }
-        if (sendfile(p[1], fd, 0, FILE_SIZE) != -1 || errno != EAGAIN) {
-                fprintf(stderr, "FAIL\n");
-        }
-        return 0;
-}
-
-It worked before b964bf53e540, it is stuck after b964bf53e540, and it
-works again with this fix.
-
-This regression occurred because do_splice_direct() calls pipe_write
-that handles O_NONBLOCK.  Here is a trace log from the reproducer:
-
- 1)               |  __x64_sys_sendfile64() {
- 1)               |    do_sendfile() {
- 1)               |      __fdget()
- 1)               |      rw_verify_area()
- 1)               |      __fdget()
- 1)               |      rw_verify_area()
- 1)               |      do_splice_direct() {
- 1)               |        rw_verify_area()
- 1)               |        splice_direct_to_actor() {
- 1)               |          do_splice_to() {
- 1)               |            rw_verify_area()
- 1)               |            generic_file_splice_read()
- 1) + 74.153 us   |          }
- 1)               |          direct_splice_actor() {
- 1)               |            iter_file_splice_write() {
- 1)               |              __kmalloc()
- 1)   0.148 us    |              pipe_lock();
- 1)   0.153 us    |              splice_from_pipe_next.part.0();
- 1)   0.162 us    |              page_cache_pipe_buf_confirm();
-... 16 times
- 1)   0.159 us    |              page_cache_pipe_buf_confirm();
- 1)               |              vfs_iter_write() {
- 1)               |                do_iter_write() {
- 1)               |                  rw_verify_area()
- 1)               |                  do_iter_readv_writev() {
- 1)               |                    pipe_write() {
- 1)               |                      mutex_lock()
- 1)   0.153 us    |                      mutex_unlock();
- 1)   1.368 us    |                    }
- 1)   1.686 us    |                  }
- 1)   5.798 us    |                }
- 1)   6.084 us    |              }
- 1)   0.174 us    |              kfree();
- 1)   0.152 us    |              pipe_unlock();
- 1) + 14.461 us   |            }
- 1) + 14.783 us   |          }
- 1)   0.164 us    |          page_cache_pipe_buf_release();
-... 16 times
- 1)   0.161 us    |          page_cache_pipe_buf_release();
- 1)               |          touch_atime()
- 1) + 95.854 us   |        }
- 1) + 99.784 us   |      }
- 1) ! 107.393 us  |    }
- 1) ! 107.699 us  |  }
-
-Link: https://lkml.kernel.org/r/20220415005015.525191-1-avagin@gmail.com
-Fixes: b964bf53e540 ("teach sendfile(2) to handle send-to-pipe directly")
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/20220709092629.54291-1-linmiaohe@huawei.com
+Fixes: 8cc5fcbb5be8 ("mm, hugetlb: fix racy resv_huge_pages underflow on UFFDIO_COPY")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/read_write.c |    3 +++
- 1 file changed, 3 insertions(+)
+ mm/hugetlb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/read_write.c~fs-sendfile-handles-o_nonblock-of-out_fd
-+++ a/fs/read_write.c
-@@ -1263,6 +1263,9 @@ static ssize_t do_sendfile(int out_fd, i
- 					  count, fl);
- 		file_end_write(out.file);
- 	} else {
-+		if (out.file->f_flags & O_NONBLOCK)
-+			fl |= SPLICE_F_NONBLOCK;
-+
- 		retval = splice_file_to_pipe(in.file, opipe, &pos, count, fl);
- 	}
+--- a/mm/hugetlb.c~hugetlb-fix-memoryleak-in-hugetlb_mcopy_atomic_pte
++++ a/mm/hugetlb.c
+@@ -5952,6 +5952,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
  
+ 		page = alloc_huge_page(dst_vma, dst_addr, 0);
+ 		if (IS_ERR(page)) {
++			put_page(*pagep);
+ 			ret = -ENOMEM;
+ 			*pagep = NULL;
+ 			goto out;
 _
 
-Patches currently in -mm which might be from avagin@gmail.com are
+Patches currently in -mm which might be from linmiaohe@huawei.com are
 
+mm-hugetlb-avoid-corrupting-page-mapping-in-hugetlb_mcopy_atomic_pte.patch
+mm-page_alloc-minor-clean-up-for-memmap_init_compound.patch
+mm-mmapc-fix-missing-call-to-vm_unacct_memory-in-mmap_region.patch
+filemap-minor-cleanup-for-filemap_write_and_wait_range.patch
+mm-huge_memory-use-flush_pmd_tlb_range-in-move_huge_pmd.patch
+mm-huge_memory-access-vm_page_prot-with-read_once-in-remove_migration_pmd.patch
+mm-huge_memory-fix-comment-of-__pud_trans_huge_lock.patch
+mm-huge_memory-use-helper-touch_pud-in-huge_pud_set_accessed.patch
+mm-huge_memory-use-helper-touch_pmd-in-huge_pmd_set_accessed.patch
+mm-huge_memory-rename-mmun_start-to-haddr-in-remove_migration_pmd.patch
+mm-huge_memory-use-helper-function-vma_lookup-in-split_huge_pages_pid.patch
+mm-huge_memory-use-helper-macro-__attr_rw.patch
+mm-huge_memory-fix-comment-in-zap_huge_pud.patch
+mm-huge_memory-check-pmd_present-first-in-is_huge_zero_pmd.patch
+mm-huge_memory-try-to-free-subpage-in-swapcache-when-possible.patch
+mm-huge_memory-minor-cleanup-for-split_huge_pages_all.patch
+mm-huge_memory-fix-comment-of-page_deferred_list.patch
+mm-huge_memory-correct-comment-of-prep_transhuge_page.patch
+mm-huge_memory-comment-the-subtly-logic-in-__split_huge_pmd.patch
+mm-huge_memory-use-helper-macro-is_err_or_null-in-split_huge_pages_pid.patch
+mm-page_vma_mappedc-use-helper-function-huge_pte_lock.patch
+mm-mmap-fix-obsolete-comment-of-find_extend_vma.patch
+mm-remove-obsolete-comment-in-do_fault_around.patch
 
