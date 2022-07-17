@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9DE577522
-	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 10:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E265775CC
+	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 12:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232662AbiGQIrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jul 2022 04:47:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54032 "EHLO
+        id S229587AbiGQKvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jul 2022 06:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbiGQIrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 04:47:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83671901C;
-        Sun, 17 Jul 2022 01:47:09 -0700 (PDT)
+        with ESMTP id S229463AbiGQKvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 06:51:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4A4813DEE;
+        Sun, 17 Jul 2022 03:51:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AC929CE0B6A;
-        Sun, 17 Jul 2022 08:47:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38532C3411E;
-        Sun, 17 Jul 2022 08:47:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A240B80DA0;
+        Sun, 17 Jul 2022 10:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D1CC3411E;
+        Sun, 17 Jul 2022 10:50:57 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="EHWk64TX"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="MEsuW0od"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1658047623;
+        t=1658055055;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ebnlPQ+YCKyrl2kWouLEm/rPCd7OSClEYfjMTKUshl8=;
-        b=EHWk64TXMx4tvuBx/p/C2zFtC+gDcGGgDZwUJ4I6kaFFrCNPoy6aE3+QpMbvcJDXQ5608c
-        vCCO3b+HTyn28M2rGWwqfTEvCf/W5o0m7Da1N3wTvoDGEYoZeELomYJhxJQxq1Bk+Arb7o
-        ZPTKBswtG6qIkNEmp33SdLxlyW7rxH0=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a11e09e3 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Sun, 17 Jul 2022 08:47:02 +0000 (UTC)
+        bh=Ek6KalEqiR9K2C8TvXhyPaLq+7aoeM70tfVuh0PUCMo=;
+        b=MEsuW0odAWGidMsSM/69WVeX42IuiqW2M/PdgNLX2PzIUhM07EtKbTEjjynnsdDhvB3xwG
+        hm54lssCQ5pPA3ua8TKNYo7wXCiNoYytNsJ/kR60oBC1QmJRmaR5Cx+6eYwA8yi/+DLlAV
+        Uzc8RH0EWi1rD2Hf9QMVaoIA3yfbO+Y=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id def87755 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sun, 17 Jul 2022 10:50:55 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     linux-um@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
         Johannes Berg <johannes@sipsolutions.net>,
         Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: [PATCH v3] um: seed rng using host OS rng
-Date:   Sun, 17 Jul 2022 10:46:52 +0200
-Message-Id: <20220717084652.1525087-1-Jason@zx2c4.com>
-In-Reply-To: <20220713095815.162741-1-Jason@zx2c4.com>
-References: <20220713095815.162741-1-Jason@zx2c4.com>
+Subject: [PATCH v4] um: seed rng using host OS rng
+Date:   Sun, 17 Jul 2022 12:50:51 +0200
+Message-Id: <20220717105051.1539173-1-Jason@zx2c4.com>
+In-Reply-To: <20220717084652.1525087-1-Jason@zx2c4.com>
+References: <20220717084652.1525087-1-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -85,24 +85,30 @@ Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Johannes - I need to take this through random.git, because it relies on
 some other changes living there. Is that okay with you? -Jason
 
- arch/um/include/asm/archrandom.h | 27 +++++++++++++++++++++++++++
+Changes v3->v4:
+- Don't include os.h, per Johannes' suggestion.
+
+ arch/um/include/asm/archrandom.h | 30 ++++++++++++++++++++++++++++++
  arch/um/include/shared/os.h      |  7 +++++++
  arch/um/kernel/um_arch.c         |  8 ++++++++
  arch/um/os-Linux/util.c          |  6 ++++++
- 4 files changed, 48 insertions(+)
+ 4 files changed, 51 insertions(+)
  create mode 100644 arch/um/include/asm/archrandom.h
 
 diff --git a/arch/um/include/asm/archrandom.h b/arch/um/include/asm/archrandom.h
 new file mode 100644
-index 000000000000..fdfa53862eb1
+index 000000000000..2f24cb96391d
 --- /dev/null
 +++ b/arch/um/include/asm/archrandom.h
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,30 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef __ASM_UM_ARCHRANDOM_H__
 +#define __ASM_UM_ARCHRANDOM_H__
 +
-+#include <os.h>
++#include <linux/types.h>
++
++/* This is from <os.h>, but better not to #include that in a global header here. */
++ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
 +
 +static inline bool __must_check arch_get_random_long(unsigned long *v)
 +{
