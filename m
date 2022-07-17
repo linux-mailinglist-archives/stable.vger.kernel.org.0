@@ -2,112 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28167577502
-	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 09:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9DE577522
+	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 10:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232809AbiGQHzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jul 2022 03:55:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
+        id S232662AbiGQIrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jul 2022 04:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbiGQHzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 03:55:09 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9377115834;
-        Sun, 17 Jul 2022 00:55:08 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1oCz7G-0003PZ-5e; Sun, 17 Jul 2022 09:55:02 +0200
-Message-ID: <efbde93b-e280-0e40-798d-dc7bf8ca83cf@leemhuis.info>
-Date:   Sun, 17 Jul 2022 09:55:00 +0200
+        with ESMTP id S229476AbiGQIrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 04:47:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83671901C;
+        Sun, 17 Jul 2022 01:47:09 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AC929CE0B6A;
+        Sun, 17 Jul 2022 08:47:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38532C3411E;
+        Sun, 17 Jul 2022 08:47:05 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="EHWk64TX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1658047623;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ebnlPQ+YCKyrl2kWouLEm/rPCd7OSClEYfjMTKUshl8=;
+        b=EHWk64TXMx4tvuBx/p/C2zFtC+gDcGGgDZwUJ4I6kaFFrCNPoy6aE3+QpMbvcJDXQ5608c
+        vCCO3b+HTyn28M2rGWwqfTEvCf/W5o0m7Da1N3wTvoDGEYoZeELomYJhxJQxq1Bk+Arb7o
+        ZPTKBswtG6qIkNEmp33SdLxlyW7rxH0=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a11e09e3 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sun, 17 Jul 2022 08:47:02 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-um@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: [PATCH v3] um: seed rng using host OS rng
+Date:   Sun, 17 Jul 2022 10:46:52 +0200
+Message-Id: <20220717084652.1525087-1-Jason@zx2c4.com>
+In-Reply-To: <20220713095815.162741-1-Jason@zx2c4.com>
+References: <20220713095815.162741-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 0/3] x86: make pat and mtrr independent from each other
-Content-Language: en-US
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Cc:     brchuckz@netscape.net, jbeulich@suse.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "# 5 . 17" <stable@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-References: <20220715142549.25223-1-jgross@suse.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <20220715142549.25223-1-jgross@suse.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1658044508;3110b8b4;
-X-HE-SMSGID: 1oCz7G-0003PZ-5e
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Juergen!
+UML generally does not provide access to special CPU instructions like
+RDRAND, and execution tends to be rather deterministic, with no real
+hardware interrupts, making good randomness really very hard, if not
+all together impossible. Not only is this a security eyebrow raiser, but
+it's also quite annoying when trying to do various pieces of UML-based
+automation that takes a long time to boot, if ever.
 
-On 15.07.22 16:25, Juergen Gross wrote:
-> Today PAT can't be used without MTRR being available, unless MTRR is at
-> least configured via CONFIG_MTRR and the system is running as Xen PV
-> guest. In this case PAT is automatically available via the hypervisor,
-> but the PAT MSR can't be modified by the kernel and MTRR is disabled.
-> 
-> As an additional complexity the availability of PAT can't be queried
-> via pat_enabled() in the Xen PV case, as the lack of MTRR will set PAT
-> to be disabled. This leads to some drivers believing that not all cache
-> modes are available, resulting in failures or degraded functionality.
-> 
-> The same applies to a kernel built with no MTRR support: it won't
-> allow to use the PAT MSR, even if there is no technical reason for
-> that, other than setting up PAT on all cpus the same way (which is a
-> requirement of the processor's cache management) is relying on some
-> MTRR specific code.
-> 
-> Fix all of that by:
-> 
-> - moving the function needed by PAT from MTRR specific code one level
->   up
-> - adding a PAT indirection layer supporting the 3 cases "no or disabled
->   PAT", "PAT under kernel control", and "PAT under Xen control"
-> - removing the dependency of PAT on MTRR
+Fix this by trivially calling getrandom() in the host and using that
+seed as "bootloader randomness", which initializes the rng immediately
+at UML boot.
 
-Thx for working on this. If you need to respin these patches for one
-reason or another, could you do me a favor and add proper 'Link:' tags
-pointing to all reports about this issue? e.g. like this:
+The old behavior can be restored the same way as on any other arch, by
+way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=n or
+random.trust_bootloader=0. So seen from that perspective, this just
+makes UML act like other archs, which is positive in its own right.
 
- Link: https://lore.kernel.org/regressions/YnHK1Z3o99eMXsVK@mail-itl/
+Additionally, wire up arch_get_random_{int,long}() in the same way, so
+that reseeds can also make use of the host RNG, controllable by
+CONFIG_TRUST_CPU_RANDOMNESS and random.trust_cpu, per usual.
 
-These tags are considered important by Linus[1] and others, as they
-allow anyone to look into the backstory weeks or years from now. That is
-why they should be placed in cases like this, as
-Documentation/process/submitting-patches.rst and
-Documentation/process/5.Posting.rst explain in more detail. I care
-personally, because these tags make my regression tracking efforts a
-whole lot easier, as they allow my tracking bot 'regzbot' to
-automatically connect reports with patches posted or committed to fix
-tracked regressions.
+Cc: stable@vger.kernel.org
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+Johannes - I need to take this through random.git, because it relies on
+some other changes living there. Is that okay with you? -Jason
 
-[1] see for example:
-https://lore.kernel.org/all/CAHk-=wjMmSZzMJ3Xnskdg4+GGz=5p5p+GSYyFBTh0f-DgvdBWg@mail.gmail.com/
-https://lore.kernel.org/all/CAHk-=wgs38ZrfPvy=nOwVkVzjpM3VFU1zobP37Fwd_h9iAD5JQ@mail.gmail.com/
-https://lore.kernel.org/all/CAHk-=wjxzafG-=J8oT30s7upn4RhBs6TX-uVFZ5rME+L5_DoJA@mail.gmail.com/
+ arch/um/include/asm/archrandom.h | 27 +++++++++++++++++++++++++++
+ arch/um/include/shared/os.h      |  7 +++++++
+ arch/um/kernel/um_arch.c         |  8 ++++++++
+ arch/um/os-Linux/util.c          |  6 ++++++
+ 4 files changed, 48 insertions(+)
+ create mode 100644 arch/um/include/asm/archrandom.h
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+diff --git a/arch/um/include/asm/archrandom.h b/arch/um/include/asm/archrandom.h
+new file mode 100644
+index 000000000000..fdfa53862eb1
+--- /dev/null
++++ b/arch/um/include/asm/archrandom.h
+@@ -0,0 +1,27 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_UM_ARCHRANDOM_H__
++#define __ASM_UM_ARCHRANDOM_H__
++
++#include <os.h>
++
++static inline bool __must_check arch_get_random_long(unsigned long *v)
++{
++	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
++}
++
++static inline bool __must_check arch_get_random_int(unsigned int *v)
++{
++	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
++}
++
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
++{
++	return false;
++}
++
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++{
++	return false;
++}
++
++#endif
+diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
+index fafde1d5416e..0df646c6651e 100644
+--- a/arch/um/include/shared/os.h
++++ b/arch/um/include/shared/os.h
+@@ -11,6 +11,12 @@
+ #include <irq_user.h>
+ #include <longjmp.h>
+ #include <mm_id.h>
++/* This is to get size_t */
++#ifndef __UM_HOST__
++#include <linux/types.h>
++#else
++#include <sys/types.h>
++#endif
+ 
+ #define CATCH_EINTR(expr) while ((errno = 0, ((expr) < 0)) && (errno == EINTR))
+ 
+@@ -243,6 +249,7 @@ extern void stack_protections(unsigned long address);
+ extern int raw(int fd);
+ extern void setup_machinename(char *machine_out);
+ extern void setup_hostinfo(char *buf, int len);
++extern ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
+ extern void os_dump_core(void) __attribute__ ((noreturn));
+ extern void um_early_printk(const char *s, unsigned int n);
+ extern void os_fix_helper_signals(void);
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index 0760e24f2eba..74f3efd96bd4 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -16,6 +16,7 @@
+ #include <linux/sched/task.h>
+ #include <linux/kmsg_dump.h>
+ #include <linux/suspend.h>
++#include <linux/random.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/cpufeature.h>
+@@ -406,6 +407,8 @@ int __init __weak read_initrd(void)
+ 
+ void __init setup_arch(char **cmdline_p)
+ {
++	u8 rng_seed[32];
++
+ 	stack_protections((unsigned long) &init_thread_info);
+ 	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
+ 	mem_total_pages(physmem_size, iomem_size, highmem);
+@@ -416,6 +419,11 @@ void __init setup_arch(char **cmdline_p)
+ 	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = command_line;
+ 	setup_hostinfo(host_info, sizeof host_info);
++
++	if (os_getrandom(rng_seed, sizeof(rng_seed), 0) == sizeof(rng_seed)) {
++		add_bootloader_randomness(rng_seed, sizeof(rng_seed));
++		memzero_explicit(rng_seed, sizeof(rng_seed));
++	}
+ }
+ 
+ void __init check_bugs(void)
+diff --git a/arch/um/os-Linux/util.c b/arch/um/os-Linux/util.c
+index 41297ec404bf..fc0f2a9dee5a 100644
+--- a/arch/um/os-Linux/util.c
++++ b/arch/um/os-Linux/util.c
+@@ -14,6 +14,7 @@
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <sys/utsname.h>
++#include <sys/random.h>
+ #include <init.h>
+ #include <os.h>
+ 
+@@ -96,6 +97,11 @@ static inline void __attribute__ ((noreturn)) uml_abort(void)
+ 			exit(127);
+ }
+ 
++ssize_t os_getrandom(void *buf, size_t len, unsigned int flags)
++{
++	return getrandom(buf, len, flags);
++}
++
+ /*
+  * UML helper threads must not handle SIGWINCH/INT/TERM
+  */
+-- 
+2.35.1
 
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
-
-BTW, let me tell regzbot to monitor this thread:
-
-#regzbot ^backmonitor:
-https://lore.kernel.org/regressions/YnHK1Z3o99eMXsVK@mail-itl/
