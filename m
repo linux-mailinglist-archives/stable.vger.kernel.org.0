@@ -2,95 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA8775775CE
-	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 12:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C3F577883
+	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 23:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229681AbiGQKwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jul 2022 06:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48398 "EHLO
+        id S229544AbiGQVx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jul 2022 17:53:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbiGQKwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 06:52:04 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334E913DEE;
-        Sun, 17 Jul 2022 03:52:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=WYi/qNyaZufNs0i6DbcSRbqr7NgmOtWvT8f/uUZqRXg=;
-        t=1658055123; x=1659264723; b=SBWDeWSKy3/wa8YNxhnnw/7uvV6NpGlx2IYCzFqFAo611+o
-        l4rN3B8MNt2XOCax9J6UoZWY+ckI6d6tf2pPM3F8d5h3vemfBhQxTCh8e3r8Xa1eebleKL3W0yyQm
-        G+eWGwvN6ctq0fkZj0lKzQ+Vbyu+b9JlUJH+XD7f58OobSgsLjWWJ12cqX0QDYsbqhRJ9FGEMRLEA
-        dFthetJ8z7zq1aIO83Gqxywo5zJv8ERg1mxDkFC3j6Q9rr5xJNZDplYOSjQLxlPG45r4+bq4Sp3HO
-        TdWYe8d/n340tTiT2/asjnPXDoj90frflg29KwqV6Xl1RWcYpT4DWN1icC9r/14w==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.96)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1oD1sV-000hUE-1N;
-        Sun, 17 Jul 2022 12:51:59 +0200
-Message-ID: <3a03bc428ebc5741494a3e05ee98f55be2bdd3ec.camel@sipsolutions.net>
-Subject: Re: [PATCH v4] um: seed rng using host OS rng
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        linux-um@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Date:   Sun, 17 Jul 2022 12:51:58 +0200
-In-Reply-To: <20220717105051.1539173-1-Jason@zx2c4.com>
-References: <20220717084652.1525087-1-Jason@zx2c4.com>
-         <20220717105051.1539173-1-Jason@zx2c4.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.3 (3.44.3-1.fc36) 
+        with ESMTP id S232806AbiGQVx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 17:53:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A15BCC7;
+        Sun, 17 Jul 2022 14:53:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A5E97CE112B;
+        Sun, 17 Jul 2022 21:53:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D43C341C0;
+        Sun, 17 Jul 2022 21:53:52 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="iEuuU2sQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1658094830;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ny84T9MsouS8xlPpZE0UKru4/DgwDfAXAKuzjKR6LbU=;
+        b=iEuuU2sQnrUZVRJlvE+kuRoL7HDSk5iViUpaISQ5BIpdu1qTSay3i8KbOkdmV/fx1OQWUm
+        OhN78RveXyQBlqelblWF7O/SPPmO3KVRkFsek/Tqp53Rb/HvznkQzxnsFd6gSl1Xhy0AOo
+        9pVGOGGl3qI/6ATbfPbTmzW8WqrRBmc=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id cf6e9676 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sun, 17 Jul 2022 21:53:50 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     tglx@linutronix.de, linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH v4 RESEND] timekeeping: contribute wall clock to rng on time change
+Date:   Sun, 17 Jul 2022 23:53:34 +0200
+Message-Id: <20220717215334.221236-1-Jason@zx2c4.com>
+In-Reply-To: <Yr2f13QhFsyxdDS7@zx2c4.com>
+References: <Yr2f13QhFsyxdDS7@zx2c4.com>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 2022-07-17 at 12:50 +0200, Jason A. Donenfeld wrote:
-> UML generally does not provide access to special CPU instructions like
-> RDRAND, and execution tends to be rather deterministic, with no real
-> hardware interrupts, making good randomness really very hard, if not
-> all together impossible. Not only is this a security eyebrow raiser, but
-> it's also quite annoying when trying to do various pieces of UML-based
-> automation that takes a long time to boot, if ever.
->=20
-> Fix this by trivially calling getrandom() in the host and using that
-> seed as "bootloader randomness", which initializes the rng immediately
-> at UML boot.
->=20
-> The old behavior can be restored the same way as on any other arch, by
-> way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=3Dn or
-> random.trust_bootloader=3D0. So seen from that perspective, this just
-> makes UML act like other archs, which is positive in its own right.
->=20
-> Additionally, wire up arch_get_random_{int,long}() in the same way, so
-> that reseeds can also make use of the host RNG, controllable by
-> CONFIG_TRUST_CPU_RANDOMNESS and random.trust_cpu, per usual.
->=20
-> Cc: stable@vger.kernel.org
-> Cc: Johannes Berg <johannes@sipsolutions.net>
-> Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
-> Johannes - I need to take this through random.git, because it relies on
-> some other changes living there. Is that okay with you? -Jason
+The rng's random_init() function contributes the real time to the rng at
+boot time, so that events can at least start in relation to something
+particular in the real world. But this clock might not yet be set that
+point in boot, so nothing is contributed. In addition, the relation
+between minor clock changes from, say, NTP, and the cycle counter is
+potentially useful entropic data.
 
-Sure, go ahead, thanks for doing this work!
+This commit addresses this by mixing in a time stamp on calls to
+settimeofday and adjtimex. No entropy is credited in doing so, so it
+doesn't make initialization faster, but it is still useful input to
+have.
 
-> Changes v3->v4:
-> - Don't include os.h, per Johannes' suggestion.
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ kernel/time/timekeeping.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Thanks.
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index 8e4b3c32fcf9..f72b9f1de178 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -23,6 +23,7 @@
+ #include <linux/pvclock_gtod.h>
+ #include <linux/compiler.h>
+ #include <linux/audit.h>
++#include <linux/random.h>
+ 
+ #include "tick-internal.h"
+ #include "ntp_internal.h"
+@@ -1343,8 +1344,10 @@ int do_settimeofday64(const struct timespec64 *ts)
+ 	/* Signal hrtimers about time change */
+ 	clock_was_set(CLOCK_SET_WALL);
+ 
+-	if (!ret)
++	if (!ret) {
+ 		audit_tk_injoffset(ts_delta);
++		add_device_randomness(ts, sizeof(*ts));
++	}
+ 
+ 	return ret;
+ }
+@@ -2430,6 +2433,7 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 	ret = timekeeping_validate_timex(txc);
+ 	if (ret)
+ 		return ret;
++	add_device_randomness(txc, sizeof(*txc));
+ 
+ 	if (txc->modes & ADJ_SETOFFSET) {
+ 		struct timespec64 delta;
+@@ -2447,6 +2451,7 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 	audit_ntp_init(&ad);
+ 
+ 	ktime_get_real_ts64(&ts);
++	add_device_randomness(&ts, sizeof(ts));
+ 
+ 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
+ 	write_seqcount_begin(&tk_core.seq);
+-- 
+2.35.1
 
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
-
-
-johannes
