@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2350357744E
-	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 06:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4905757744F
+	for <lists+stable@lfdr.de>; Sun, 17 Jul 2022 06:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbiGQEh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Jul 2022 00:37:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
+        id S232708AbiGQEiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Jul 2022 00:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbiGQEhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 00:37:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B97220F5;
-        Sat, 16 Jul 2022 21:37:54 -0700 (PDT)
+        with ESMTP id S232706AbiGQEh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Jul 2022 00:37:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5577F22289;
+        Sat, 16 Jul 2022 21:37:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACEB7B8097A;
-        Sun, 17 Jul 2022 04:37:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51CD1C341C0;
-        Sun, 17 Jul 2022 04:37:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D541C60EBA;
+        Sun, 17 Jul 2022 04:37:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34791C3411E;
+        Sun, 17 Jul 2022 04:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1658032671;
-        bh=E6Mn9ibbihdvfJTq3sG+S2MM3LpnYY6ye+/qwOHf71M=;
+        s=korg; t=1658032676;
+        bh=tBcUcdeAIImk8OfatCBc+zbL4ZGh0aMtIoTQpnUf8wI=;
         h=Date:To:From:Subject:From;
-        b=WWokQT5PGJQ1DPtfbeQv9qX5RMI0p5nFA7KRU970vxKQjnZtgoKfm0tMV+HYOPiQG
-         YvFQeyI6hENl1fIsF6E3ETjbeiBiNsv3ETqIT2yQv4CHoglPq+dlxeKQM00OvOSWvT
-         +afRFl1kgfm7ZDK+LpzBgOOYDQFth/3/HLomQSmE=
-Date:   Sat, 16 Jul 2022 21:37:50 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        piaojun@huawei.com, mark@fasheh.com, junxiao.bi@oracle.com,
-        joseph.qi@linux.alibaba.com, jlbec@evilplan.org,
-        heming.zhao@suse.com, ghe@suse.com, gechangwei@live.cn,
-        ocfs2-devel@oss.oracle.com, akpm@linux-foundation.org
+        b=tZxmwp4VYL5R8j3JJg7HV0dK/0aSOCBSq++HMwGr3SZcjug01oxzWdOpY9q1nprW+
+         dRtyohoSmD/s4mFUG4x64nGqXNJVr1huiihDCQjPrC19plS12pEmeGPr1mcWVgzYBe
+         od8iu1lELsnnUKrbnS5kRngk5pcElwCQS8JwyZU4=
+Date:   Sat, 16 Jul 2022 21:37:55 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        stable@vger.kernel.org, riel@surriel.com,
+        kirill.shutemov@linux.intel.com, clm@fb.com, josef@toxicpanda.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] revert-ocfs2-mount-shared-volume-without-ha-stack.patch removed from -mm tree
-Message-Id: <20220717043751.51CD1C341C0@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch removed from -mm tree
+Message-Id: <20220717043756.34791C3411E@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -48,254 +47,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: Revert "ocfs2: mount shared volume without ha stack"
+     Subject: mm: fix page leak with multiple threads mapping the same page
 has been removed from the -mm tree.  Its filename was
-     revert-ocfs2-mount-shared-volume-without-ha-stack.patch
+     mm-fix-page-leak-with-multiple-threads-mapping-the-same-page.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Junxiao Bi via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
-Subject: Revert "ocfs2: mount shared volume without ha stack"
-Date: Fri, 3 Jun 2022 15:28:01 -0700
+From: Josef Bacik <josef@toxicpanda.com>
+Subject: mm: fix page leak with multiple threads mapping the same page
+Date: Tue, 5 Jul 2022 16:00:36 -0400
 
-This reverts commit 912f655d78c5d4ad05eac287f23a435924df7144.
+We have an application with a lot of threads that use a shared mmap backed
+by tmpfs mounted with -o huge=within_size.  This application started
+leaking loads of huge pages when we upgraded to a recent kernel.
 
-This commit introduced a regression that can cause mount hung.  The
-changes in __ocfs2_find_empty_slot causes that any node with none-zero
-node number can grab the slot that was already taken by node 0, so node 1
-will access the same journal with node 0, when it try to grab journal
-cluster lock, it will hung because it was already acquired by node 0. 
-It's very easy to reproduce this, in one cluster, mount node 0 first, then
-node 1, you will see the following call trace from node 1.
+Using the page ref tracepoints and a BPF program written by Tejun Heo we
+were able to determine that these pages would have multiple refcounts from
+the page fault path, but when it came to unmap time we wouldn't drop the
+number of refs we had added from the faults.
 
-[13148.735424] INFO: task mount.ocfs2:53045 blocked for more than 122 seconds.
-[13148.739691]       Not tainted 5.15.0-2148.0.4.el8uek.mountracev2.x86_64 #2
-[13148.742560] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[13148.745846] task:mount.ocfs2     state:D stack:    0 pid:53045 ppid: 53044 flags:0x00004000
-[13148.749354] Call Trace:
-[13148.750718]  <TASK>
-[13148.752019]  ? usleep_range+0x90/0x89
-[13148.753882]  __schedule+0x210/0x567
-[13148.755684]  schedule+0x44/0xa8
-[13148.757270]  schedule_timeout+0x106/0x13c
-[13148.759273]  ? __prepare_to_swait+0x53/0x78
-[13148.761218]  __wait_for_common+0xae/0x163
-[13148.763144]  __ocfs2_cluster_lock.constprop.0+0x1d6/0x870 [ocfs2]
-[13148.765780]  ? ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
-[13148.768312]  ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
-[13148.770968]  ocfs2_journal_init+0x91/0x340 [ocfs2]
-[13148.773202]  ocfs2_check_volume+0x39/0x461 [ocfs2]
-[13148.775401]  ? iput+0x69/0xba
-[13148.777047]  ocfs2_mount_volume.isra.0.cold+0x40/0x1f5 [ocfs2]
-[13148.779646]  ocfs2_fill_super+0x54b/0x853 [ocfs2]
-[13148.781756]  mount_bdev+0x190/0x1b7
-[13148.783443]  ? ocfs2_remount+0x440/0x440 [ocfs2]
-[13148.785634]  legacy_get_tree+0x27/0x48
-[13148.787466]  vfs_get_tree+0x25/0xd0
-[13148.789270]  do_new_mount+0x18c/0x2d9
-[13148.791046]  __x64_sys_mount+0x10e/0x142
-[13148.792911]  do_syscall_64+0x3b/0x89
-[13148.794667]  entry_SYSCALL_64_after_hwframe+0x170/0x0
-[13148.797051] RIP: 0033:0x7f2309f6e26e
-[13148.798784] RSP: 002b:00007ffdcee7d408 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-[13148.801974] RAX: ffffffffffffffda RBX: 00007ffdcee7d4a0 RCX: 00007f2309f6e26e
-[13148.804815] RDX: 0000559aa762a8ae RSI: 0000559aa939d340 RDI: 0000559aa93a22b0
-[13148.807719] RBP: 00007ffdcee7d5b0 R08: 0000559aa93a2290 R09: 00007f230a0b4820
-[13148.810659] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffdcee7d420
-[13148.813609] R13: 0000000000000000 R14: 0000559aa939f000 R15: 0000000000000000
-[13148.816564]  </TASK>
+I wrote a reproducer that mmap'ed a file backed by tmpfs with -o
+huge=always, and then spawned 20 threads all looping faulting random
+offsets in this map, while using madvise(MADV_DONTNEED) randomly for huge
+page aligned ranges.  This very quickly reproduced the problem.
 
-To fix it, we can just fix __ocfs2_find_empty_slot.  But original commit
-introduced the feature to mount ocfs2 locally even it is cluster based,
-that is a very dangerous, it can easily cause serious data corruption,
-there is no way to stop other nodes mounting the fs and corrupting it. 
-Setup ha or other cluster-aware stack is just the cost that we have to
-take for avoiding corruption, otherwise we have to do it in kernel.
+The problem here is that we check for the case that we have multiple
+threads faulting in a range that was previously unmapped.  One thread maps
+the PMD, the other thread loses the race and then returns 0.  However at
+this point we already have the page, and we are no longer putting this
+page into the processes address space, and so we leak the page.  We
+actually did the correct thing prior to f9ce0be71d1f, however it looks
+like Kirill copied what we do in the anonymous page case.  In the
+anonymous page case we don't yet have a page, so we don't have to drop a
+reference on anything.  Previously we did the correct thing for file based
+faults by returning VM_FAULT_NOPAGE so we correctly drop the reference on
+the page we faulted in.
 
-Link: https://lkml.kernel.org/r/20220603222801.42488-1-junxiao.bi@oracle.com
-Fixes: 912f655d78c5("ocfs2: mount shared volume without ha stack")
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <heming.zhao@suse.com>
+Fix this by returning VM_FAULT_NOPAGE in the pmd_devmap_trans_unstable()
+case, this makes us drop the ref on the page properly, and now my
+reproducer no longer leaks the huge pages.
+
+[josef@toxicpanda.com: v2]
+  Link: https://lkml.kernel.org/r/e90c8f0dbae836632b669c2afc434006a00d4a67.1657721478.git.josef@toxicpanda.com
+Link: https://lkml.kernel.org/r/2b798acfd95c9ab9395fe85e8d5a835e2e10a920.1657051137.git.josef@toxicpanda.com
+Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/ocfs2.h    |    4 ---
- fs/ocfs2/slot_map.c |   46 +++++++++++++++++-------------------------
- fs/ocfs2/super.c    |   21 -------------------
- 3 files changed, 20 insertions(+), 51 deletions(-)
+ mm/memory.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/ocfs2.h~revert-ocfs2-mount-shared-volume-without-ha-stack
-+++ a/fs/ocfs2/ocfs2.h
-@@ -277,7 +277,6 @@ enum ocfs2_mount_options
- 	OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT = 1 << 15,  /* Journal Async Commit */
- 	OCFS2_MOUNT_ERRORS_CONT = 1 << 16, /* Return EIO to the calling process on error */
- 	OCFS2_MOUNT_ERRORS_ROFS = 1 << 17, /* Change filesystem to read-only on error */
--	OCFS2_MOUNT_NOCLUSTER = 1 << 18, /* No cluster aware filesystem mount */
- };
- 
- #define OCFS2_OSB_SOFT_RO	0x0001
-@@ -673,8 +672,7 @@ static inline int ocfs2_cluster_o2cb_glo
- 
- static inline int ocfs2_mount_local(struct ocfs2_super *osb)
- {
--	return ((osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT)
--		|| (osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER));
-+	return (osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT);
- }
- 
- static inline int ocfs2_uses_extended_slot_map(struct ocfs2_super *osb)
---- a/fs/ocfs2/slot_map.c~revert-ocfs2-mount-shared-volume-without-ha-stack
-+++ a/fs/ocfs2/slot_map.c
-@@ -252,16 +252,14 @@ static int __ocfs2_find_empty_slot(struc
- 	int i, ret = -ENOSPC;
- 
- 	if ((preferred >= 0) && (preferred < si->si_num_slots)) {
--		if (!si->si_slots[preferred].sl_valid ||
--		    !si->si_slots[preferred].sl_node_num) {
-+		if (!si->si_slots[preferred].sl_valid) {
- 			ret = preferred;
- 			goto out;
- 		}
+--- a/mm/memory.c~mm-fix-page-leak-with-multiple-threads-mapping-the-same-page
++++ a/mm/memory.c
+@@ -4369,9 +4369,12 @@ vm_fault_t finish_fault(struct vm_fault
+ 			return VM_FAULT_OOM;
  	}
  
- 	for(i = 0; i < si->si_num_slots; i++) {
--		if (!si->si_slots[i].sl_valid ||
--		    !si->si_slots[i].sl_node_num) {
-+		if (!si->si_slots[i].sl_valid) {
- 			ret = i;
- 			break;
- 		}
-@@ -456,30 +454,24 @@ int ocfs2_find_slot(struct ocfs2_super *
- 	spin_lock(&osb->osb_lock);
- 	ocfs2_update_slot_info(si);
+-	/* See comment in handle_pte_fault() */
++	/*
++	 * See comment in handle_pte_fault() for how this scenario happens, we
++	 * need to return NOPAGE so that we drop this page.
++	 */
+ 	if (pmd_devmap_trans_unstable(vmf->pmd))
+-		return 0;
++		return VM_FAULT_NOPAGE;
  
--	if (ocfs2_mount_local(osb))
--		/* use slot 0 directly in local mode */
--		slot = 0;
--	else {
--		/* search for ourselves first and take the slot if it already
--		 * exists. Perhaps we need to mark this in a variable for our
--		 * own journal recovery? Possibly not, though we certainly
--		 * need to warn to the user */
--		slot = __ocfs2_node_num_to_slot(si, osb->node_num);
-+	/* search for ourselves first and take the slot if it already
-+	 * exists. Perhaps we need to mark this in a variable for our
-+	 * own journal recovery? Possibly not, though we certainly
-+	 * need to warn to the user */
-+	slot = __ocfs2_node_num_to_slot(si, osb->node_num);
-+	if (slot < 0) {
-+		/* if no slot yet, then just take 1st available
-+		 * one. */
-+		slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
- 		if (slot < 0) {
--			/* if no slot yet, then just take 1st available
--			 * one. */
--			slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
--			if (slot < 0) {
--				spin_unlock(&osb->osb_lock);
--				mlog(ML_ERROR, "no free slots available!\n");
--				status = -EINVAL;
--				goto bail;
--			}
--		} else
--			printk(KERN_INFO "ocfs2: Slot %d on device (%s) was "
--			       "already allocated to this node!\n",
--			       slot, osb->dev_str);
--	}
-+			spin_unlock(&osb->osb_lock);
-+			mlog(ML_ERROR, "no free slots available!\n");
-+			status = -EINVAL;
-+			goto bail;
-+		}
-+	} else
-+		printk(KERN_INFO "ocfs2: Slot %d on device (%s) was already "
-+		       "allocated to this node!\n", slot, osb->dev_str);
- 
- 	ocfs2_set_slot(si, slot, osb->node_num);
- 	osb->slot_num = slot;
---- a/fs/ocfs2/super.c~revert-ocfs2-mount-shared-volume-without-ha-stack
-+++ a/fs/ocfs2/super.c
-@@ -172,7 +172,6 @@ enum {
- 	Opt_dir_resv_level,
- 	Opt_journal_async_commit,
- 	Opt_err_cont,
--	Opt_nocluster,
- 	Opt_err,
- };
- 
-@@ -206,7 +205,6 @@ static const match_table_t tokens = {
- 	{Opt_dir_resv_level, "dir_resv_level=%u"},
- 	{Opt_journal_async_commit, "journal_async_commit"},
- 	{Opt_err_cont, "errors=continue"},
--	{Opt_nocluster, "nocluster"},
- 	{Opt_err, NULL}
- };
- 
-@@ -618,13 +616,6 @@ static int ocfs2_remount(struct super_bl
- 		goto out;
- 	}
- 
--	tmp = OCFS2_MOUNT_NOCLUSTER;
--	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
--		ret = -EINVAL;
--		mlog(ML_ERROR, "Cannot change nocluster option on remount\n");
--		goto out;
--	}
--
- 	tmp = OCFS2_MOUNT_HB_LOCAL | OCFS2_MOUNT_HB_GLOBAL |
- 		OCFS2_MOUNT_HB_NONE;
- 	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
-@@ -865,7 +856,6 @@ static int ocfs2_verify_userspace_stack(
- 	}
- 
- 	if (ocfs2_userspace_stack(osb) &&
--	    !(osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
- 	    strncmp(osb->osb_cluster_stack, mopt->cluster_stack,
- 		    OCFS2_STACK_LABEL_LEN)) {
- 		mlog(ML_ERROR,
-@@ -1137,11 +1127,6 @@ static int ocfs2_fill_super(struct super
- 	       osb->s_mount_opt & OCFS2_MOUNT_DATA_WRITEBACK ? "writeback" :
- 	       "ordered");
- 
--	if ((osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
--	   !(osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT))
--		printk(KERN_NOTICE "ocfs2: The shared device (%s) is mounted "
--		       "without cluster aware mode.\n", osb->dev_str);
--
- 	atomic_set(&osb->vol_state, VOLUME_MOUNTED);
- 	wake_up(&osb->osb_mount_event);
- 
-@@ -1452,9 +1437,6 @@ static int ocfs2_parse_options(struct su
- 		case Opt_journal_async_commit:
- 			mopt->mount_opt |= OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT;
- 			break;
--		case Opt_nocluster:
--			mopt->mount_opt |= OCFS2_MOUNT_NOCLUSTER;
--			break;
- 		default:
- 			mlog(ML_ERROR,
- 			     "Unrecognized mount option \"%s\" "
-@@ -1566,9 +1548,6 @@ static int ocfs2_show_options(struct seq
- 	if (opts & OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT)
- 		seq_printf(s, ",journal_async_commit");
- 
--	if (opts & OCFS2_MOUNT_NOCLUSTER)
--		seq_printf(s, ",nocluster");
--
- 	return 0;
- }
- 
+ 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
+ 				      vmf->address, &vmf->ptl);
 _
 
-Patches currently in -mm which might be from ocfs2-devel@oss.oracle.com are
+Patches currently in -mm which might be from josef@toxicpanda.com are
 
 
