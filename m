@@ -2,609 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36148578925
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 20:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FBF4578936
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 20:07:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbiGRSCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 14:02:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46034 "EHLO
+        id S235644AbiGRSHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 14:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233972AbiGRSCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 14:02:31 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 07D7A2E6A4;
-        Mon, 18 Jul 2022 11:02:29 -0700 (PDT)
-Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 8734520FD8AA;
-        Mon, 18 Jul 2022 11:02:28 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8734520FD8AA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1658167348;
-        bh=NWpc2uo6Ue/xII6Anu98LXQW9gYITJWvYlQHSmXzrwc=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=HrDQ/mfbbXMiSubCvznN1exKm+MpHQFQucnSCQU4x5k3rTELKoQnMJWADM94IWDhw
-         c6E+cgnDnUA/o4l8v2T5K3Wh0iWc0LlzO8Zis7ivo9XPMXOMV+GXTXiVBeqcuy1BOC
-         4nBJZXT2sEZ8BRLkVvD8ExC0dblAeVsIOwKX7cM0=
-Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-10bd4812c29so25787005fac.11;
-        Mon, 18 Jul 2022 11:02:28 -0700 (PDT)
-X-Gm-Message-State: AJIora8UVrbrC37wJEqLhBlV55UCwqArpKjAHKwBvA2MONT4iT77mE7g
-        eFAHJE+iD/tMPhFMO/ReSnURxDPL2SoeZQ/SfH0=
-X-Google-Smtp-Source: AGRyM1sdWBvJlONn7aD5Z6jUDYoTzbFn/hfo+DHfxMFd2MkUWhgvZK9tRYsYHJlAx8an94QaDK7dw104Ultb5FmqdEs=
-X-Received: by 2002:a05:6808:9b2:b0:33a:84ce:f363 with SMTP id
- e18-20020a05680809b200b0033a84cef363mr1539836oig.15.1658167347582; Mon, 18
- Jul 2022 11:02:27 -0700 (PDT)
+        with ESMTP id S235616AbiGRSHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 14:07:46 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F1E2ED75;
+        Mon, 18 Jul 2022 11:07:45 -0700 (PDT)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26IHUTSd013970;
+        Mon, 18 Jul 2022 18:07:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=l/382ZIWv89MHabu7YBz+U2qU0IwDqLsi4YlDpU4EYQ=;
+ b=xxPVd8NTJ2GPnY/KbARDsqkhqg0DTnsoKoClW+7d+sjKGaN/2iuPtQvfGAfD98uHpg6p
+ WloLntd1UpaRzT7CHl9C4P9Myc3NF8Q1KgF/NTdX0z5cT8hEGnIfEiV0oT7Xt6iJpDQw
+ W5epC41tiO/G0efT6Ea7tEo5PHpnPtvo0Gz6VEyx7KNr+fVOYqC0XK8MCU766eFMuDCT
+ nKtx56kgDougbVR3B1YIvBI6pMwZbjLlNDFUny6vh60ulNwb20O+8ksvfLF2Ry3iJGgG
+ DXMPEHq/b1f/LQzQyKhn/BunqvQhVLrPvZrX+WR1Jq9llTEl1rxvsAWniTBvnOsFW+QF Jg== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3hbmxs43a5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 18 Jul 2022 18:07:17 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 26IHMpIq007895;
+        Mon, 18 Jul 2022 18:07:16 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2175.outbound.protection.outlook.com [104.47.56.175])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3hc1eku7ap-2
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 18 Jul 2022 18:07:16 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=EbEFQ5pf7MjoqWn897+1Sc7PfSDAuHV9BKGQngjeu+vvwhOcIJ2IE3jDBxFAl/XAStm+4Yz4ASmwNRM5fQ+lx80lEyJ0xmFMywDf7LUTXRQwNSbbhwa1LoRi6Mm5sNyAZjeeiiaRvc3JqQaXEwpjBOSYz9GmoB/8LMNs/blCbhv0iV5ceAwt2LhZtDCFA+ApFGhiSmm47FktG6OJhyZV2NY2KqW1cT8RPqvF1HjfIZWlAiZOafk6WebunCpxCO+450FQHrszkjsmTFlPA0X30phduNcWY17D5Z+HaeOxnWulw/nU8KZaPu19fk7FTzUloyjJZIdA3CX1Y/d+RYALIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=l/382ZIWv89MHabu7YBz+U2qU0IwDqLsi4YlDpU4EYQ=;
+ b=BQgDPfnuA0ohRkznIgG25ZnfLcZ8sBdcQuojIYfCmAG9FwsrMYbZv7DlclQbRxGwmtfUQVVoEVJ1JjoclL0/cXsZNK30/gaaN/U6D5/BNPZUfZPxWvGAqveFP9IE+lTQAvWA6aTn3alW0LyHXZbhGlLLNoRX7WwpUgpWIhcRN9oDMzuVHB36rXr07fnJKkWHExWEm5A2hWsrc6XLlNNEJ1XVeeMQ8BBRhpb70bHBYb2+QN7uFEc6N8vpPpmijjKbQS6aBIQ/ThLE9kQu2cWkCXhNNaWdIs8DobofDeUWgwJYiD8bcLhyJAT4OBOQOSynYTmYrkMUjmcHVtNjOmhFOg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=l/382ZIWv89MHabu7YBz+U2qU0IwDqLsi4YlDpU4EYQ=;
+ b=Fq5W32uNy08DoAlgSJeNVwsPV/3F/oGdZC9n1L5wqMnr7JsHi69i0wfUy1aQxOYT7OCqdNIInwcrw7CulGQEOY5pPG4EUyMcVySNwyjlU2qu1ADSzLdkVx6Umv3VVAYNEA/ZLQcbnnVmpXwlIKFQUJ3DGXBtU4OwrCjXnKIFNmQ=
+Received: from SJ0PR10MB4752.namprd10.prod.outlook.com (2603:10b6:a03:2d7::19)
+ by BLAPR10MB5267.namprd10.prod.outlook.com (2603:10b6:208:30e::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5438.14; Mon, 18 Jul
+ 2022 18:07:14 +0000
+Received: from SJ0PR10MB4752.namprd10.prod.outlook.com
+ ([fe80::61e3:46f5:e886:d7a1]) by SJ0PR10MB4752.namprd10.prod.outlook.com
+ ([fe80::61e3:46f5:e886:d7a1%3]) with mapi id 15.20.5438.023; Mon, 18 Jul 2022
+ 18:07:14 +0000
+Message-ID: <70bfaa1f-9a33-406f-3998-e185daea48b3@oracle.com>
+Date:   Mon, 18 Jul 2022 11:07:11 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [merged mm-hotfixes-stable]
+ revert-ocfs2-mount-shared-volume-without-ha-stack.patch removed from -mm tree
+Content-Language: en-US
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        piaojun@huawei.com, mark@fasheh.com, joseph.qi@linux.alibaba.com,
+        jlbec@evilplan.org, heming.zhao@suse.com, ghe@suse.com,
+        gechangwei@live.cn, ocfs2-devel@oss.oracle.com
+References: <20220717043751.51CD1C341C0@smtp.kernel.org>
+From:   Junxiao Bi <junxiao.bi@oracle.com>
+In-Reply-To: <20220717043751.51CD1C341C0@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: CY5PR04CA0012.namprd04.prod.outlook.com
+ (2603:10b6:930:1e::11) To SJ0PR10MB4752.namprd10.prod.outlook.com
+ (2603:10b6:a03:2d7::19)
 MIME-Version: 1.0
-References: <20220506013306.3563504-1-chao@kernel.org> <20220713012218.292a3816@t490s>
- <a2c4e03c-e137-887f-bd7a-fdacffcb1ee9@kernel.org>
-In-Reply-To: <a2c4e03c-e137-887f-bd7a-fdacffcb1ee9@kernel.org>
-From:   Matteo Croce <mcroce@linux.microsoft.com>
-Date:   Mon, 18 Jul 2022 20:01:51 +0200
-X-Gmail-Original-Message-ID: <CAFnufp0-3=-=_TkQLEV33u3R4AZJu5V42jYy7=5pB9eCqo1JgA@mail.gmail.com>
-Message-ID: <CAFnufp0-3=-=_TkQLEV33u3R4AZJu5V42jYy7=5pB9eCqo1JgA@mail.gmail.com>
-Subject: Re: [f2fs-dev] [PATCH v4] f2fs: fix to do sanity check on total_data_blocks
-To:     Chao Yu <chao@kernel.org>
-Cc:     jaegeuk@kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        Ming Yan <yanming@tju.edu.cn>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: f48a5c60-d52b-4e81-a47a-08da68e857b2
+X-MS-TrafficTypeDiagnostic: BLAPR10MB5267:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: IFhgYGayK/Fa1BktszhSOmiAtgp7QN0/Gnnj5v74g/YdU3Z+Z/XQE03hd/KDk8TnGtbPs/CuEQ04/IyJ7epygYfx2jUBPcSviRmxBHXD7XwyZw3ylP4vyUvP5xmVTZGIUpPuLnt7GbAjf7pQuj69PT1gdEFTIbn7l3xjGTUbfPOk5LvVLxKLVV5v1hAge2pGYPbrijfrscQhPY6kPCGrGSveWYG01Vc8wNdfT6Hz3S9T2EAQilM7PK5CMZAp8Kq3QhnP/J6hMlZs5dWDiyxUW0PEqWVHw/rtYsuq7Dp1k/K3OINZgeOYtocAyFzaLVNzO2VFaEOnDlVaVU5FMmsZx6NVMDkOXLnVtWTGOn4BcERwer3EsNNvNZeiOlAj9RU1iRRWUv4lcsQAwP9OgTXrjg0KCVTk2j66hNmfQlt67qZl1cAexFa01qTA/LG6n147UnE9jWG5t0N8V+6etjr1WqB4BsGnH6Xofa1Ci0zqelDmJOU+D5mIocYrNbojL9olKBKhMQVo+ydTAQeaZWneVWOuw6CZeJK/6JxfaU7U2hpcGSk2+tj7+bpxSbib1tyPtwDUUE1A0JeGI3NmcYDzwYrCWUuirDVqNLZn7IU+KYhU1poip5++B8SBRQhRsi5mmEjXgO1ZUwPxwXsGhBKudzmQmGyoksgK+sGI5xnwngAq8dHVntH9liqbTJIu4QO4eJA7zgYxRY6v3s/0uC/k9IT8qQq6kR9+X5YX0E+vDltIU7QXDP7N17sUnvCXSGJH3FRrC+ltEIro6X3r8F9Kcf8JON6JcYWdVA585zHJdGjVlC2A3PuoafjAIrcszuFaI7mIn7Iw4Tuf6V4+0Ej93Ne0HjOKA72xM9fzsZGCXFY=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR10MB4752.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(376002)(346002)(366004)(136003)(396003)(39860400002)(84040400005)(6506007)(26005)(6512007)(53546011)(2616005)(921005)(478600001)(8936002)(7416002)(5660300002)(6486002)(2906002)(44832011)(41300700001)(4744005)(6666004)(186003)(86362001)(38100700002)(83380400001)(31696002)(36756003)(66946007)(66556008)(31686004)(66476007)(316002)(8676002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cWZRZVVVRFVQS2RJeUk1bk8yK1Z0aGZ5Q2ZXZE5lZm9CV2M3azJuNzJaL2Ft?=
+ =?utf-8?B?UGx3TmJFNU1rYklrM0hHek9TU1Z3UVRlTzdBTytLZlo2TDg5SUkyZEZXNjQ2?=
+ =?utf-8?B?OHJzT1d3N2VIUmhWMDB3UFNQOTJoT3pmVnhHOVROdEFNSktZZDhGamdMcnJ1?=
+ =?utf-8?B?Zjg3WVFEeG56cytia0dzeWdVbHNuTFRLSWRrNWN2V1djdHM0bkFaR0JZSnZh?=
+ =?utf-8?B?a3BjL0k0OU1qdzRMZVMvWUJSUXRrNUZ6RWtoRHpqZGl4S0lSR21uZytKWnBp?=
+ =?utf-8?B?OXdvenVyb0ZWVVNTYVhWUFFYWUpzbFFuazlmWUJwanZlaXFtRVlab2Yzb0lB?=
+ =?utf-8?B?TENGK0NWdnowQVdwSmwwY0p0dlEvVTJvc3RTVXZYa1ExcUdtd2cybFdwYmxh?=
+ =?utf-8?B?dnVoM1RwWGhKMWxMUTR2NDgzK05XUXpsY1cwVTBjVGs5aTFPWnpCNFd5N0tX?=
+ =?utf-8?B?YkZHSmhhR21WSGUxaUp5MnJjY3llM0pMaTd5eDV1Uk9mQUhQYmlKWkFMNXZY?=
+ =?utf-8?B?OTVZVEMvNmNxTkthZzdrMTlLS215cmhCcWVEaVlWUldkbStGRlcydzJYMW8x?=
+ =?utf-8?B?NDVNMDNuc2lIdGlRTFFtRjZETVFsVnpCMzBwUHcyVDA4WTVyS2ZWYmZKbDBD?=
+ =?utf-8?B?V09adEtKSDdKQ1FXWkwwbk1kSEdUZGIyZFl2NGJVVjVTSFhiRVl5ejhVL1hp?=
+ =?utf-8?B?NmMzdFdncnExNVlrVDNMVXFiQWJiYnB3NE52Q0RWUkdwdGJzMCtHU0lXQ1Qz?=
+ =?utf-8?B?TXBscUNncE53WExCU29LYytCUkZ0dVZ3YWd6c2FwOWJ4ZGJDU2JOenVZWDZ0?=
+ =?utf-8?B?U0htVWhGaUlZdjdVa21JQnQwMUxzaUc5R1BEWmoyc0sva25BZk44VzYzSEpL?=
+ =?utf-8?B?WlpuTEdwYkdEVHZ4SkEweW5laE9sY1RCK2d1SUdMYTZocmI5cHpvVzZsd09Q?=
+ =?utf-8?B?RzNDaEs4Y3p2cFBQRzZESmlyRFI4NVBlU2Q5bGttMTNMclFJUFpibEgxVU96?=
+ =?utf-8?B?WmZjaXBsbjQ2MmFWWkVLeXpGZGV4YkRoaVpUUkpvUzJjTXAwS2JyNjhRUTFR?=
+ =?utf-8?B?RUZkU2NEUFFwajRYUCtkYnJ1Ylh4d05FT1dkNWppY3lBazQxNzQvaXpRK2lY?=
+ =?utf-8?B?V3NtZURaNERHdUVKOSs1VmU4UXhTZ3JSQmQwQ2JXSkNTYWhFV0FNSTJaTTRN?=
+ =?utf-8?B?OHFvYlVmUHpMdXgrblA3SldKSFkzSS9HZURqRkM4Yi9aN29YYkF6OGJhQ253?=
+ =?utf-8?B?aC9PT3FXYmQ0akR5L1NTdERJdWY1bkRxcWgzeHB1NFdrdFBwU2FSMjVtdS9w?=
+ =?utf-8?B?R0pzY2hLdkdHYjRKVitSSDZXZU5Zc2hEUkFhYzNueDZncGY4OXRzYkhIUzUy?=
+ =?utf-8?B?ZXd5Rks4bmh5ODNlRDR4Y3h6dDYvK0tuOTZKY09xcDhzZlRxVjZTd0dMcThZ?=
+ =?utf-8?B?UHlheVdZY0VDL0VWVXFXcTZUOHJoUHFHUWllQjFpT2lRVUhyWUFRWHhCMkMw?=
+ =?utf-8?B?SEs2YlNPYTdCN3VPdWIwR1h5ckVxeHUvTnRXWE9SQlYzR2dORFdsaDRTOUdQ?=
+ =?utf-8?B?VnRScnU2c3V3RGhvNDFBUkZSL2o5OHlUWkh5cWYxZVJNN1VwUkVZbW1XWUJP?=
+ =?utf-8?B?dTRSU2JZbnFYYndpOXlmVUZ4WW1ac1drS3RiMkk0UHVUZWVicVo4RHV0U1hN?=
+ =?utf-8?B?NTFrZ2Y4NVdnbWRFemczWnovbTIzZEQ3TUxjYTljZGZEWmRCUld0cy9TRGQ1?=
+ =?utf-8?B?MDh1Z2x1c2ZmVmNXVGN1R0E3RG5pb2xLdWtzUzlXUkxaK09PWDZ6ZmJrcEUw?=
+ =?utf-8?B?MmxKWWJLVkNCZENLc0FPMEg3VkgzdXNWWkhrR0pKWVFEVjgxTFVZcVdKK1Vu?=
+ =?utf-8?B?aWRFZXEzaGFrMlhmUVMxTDgyNVZnRnhnNml1TnFyWStscE1ZemRhM1FDL3Z3?=
+ =?utf-8?B?Y0cxQTBTRGlEd3lvamhocHJBL1ZGdVMzS25tckt4WG1LSGRZdjM1QkVrSFN6?=
+ =?utf-8?B?VjlXVURqaXh5UTI5bmZKWFNpeldSeGJFd0tsT1ZSOE1KdnJOZGFPWVVkTG45?=
+ =?utf-8?B?QUJ1azJGbEp1NTgrMXVLVlIzMThEUG5Yc1BJK3FTb0lvTlZOUWNKczZjZnQy?=
+ =?utf-8?Q?XxF4VuoYRzOZe2X4okQygySFq?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f48a5c60-d52b-4e81-a47a-08da68e857b2
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR10MB4752.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jul 2022 18:07:14.1091
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UjAMrkjIrLmTtDl04t96N2V9F/IrVn3vX4KLYK6ydkgHZcRQoURW4PYN0kuyCiWbrWNxFcnH9qm2MByf6T6PiQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5267
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-18_17,2022-07-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxscore=0 mlxlogscore=999
+ suspectscore=0 phishscore=0 adultscore=0 spamscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207180077
+X-Proofpoint-GUID: REkJWitHhhHkhIx9pmFTRuWfMe6yXhov
+X-Proofpoint-ORIG-GUID: REkJWitHhhHkhIx9pmFTRuWfMe6yXhov
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 13, 2022 at 4:15 AM Chao Yu <chao@kernel.org> wrote:
+Hi Andrew,
+
+Can you help fix below "From:" to "From: Junxiao Bi <junxiao.bi@oracle.com>"
+
+Thanks,
+
+Junxiao.
+
+On 7/16/22 9:37 PM, Andrew Morton wrote:
+> From: Junxiao Bi via Ocfs2-devel<ocfs2-devel@oss.oracle.com>
+> Subject: Revert "ocfs2: mount shared volume without ha stack"
+> Date: Fri, 3 Jun 2022 15:28:01 -0700
 >
-> On 2022/7/13 7:22, Matteo Croce wrote:
-> > On Fri,  6 May 2022 09:33:06 +0800
-> > Chao Yu <chao@kernel.org> wrote:
-> >
-> >> As Yanming reported in bugzilla:
-> >>
-> >> https://bugzilla.kernel.org/show_bug.cgi?id=215916
-> >>
-> >> The kernel message is shown below:
-> >>
-> >> kernel BUG at fs/f2fs/segment.c:2560!
-> >> Call Trace:
-> >>   allocate_segment_by_default+0x228/0x440
-> >>   f2fs_allocate_data_block+0x13d1/0x31f0
-> >>   do_write_page+0x18d/0x710
-> >>   f2fs_outplace_write_data+0x151/0x250
-> >>   f2fs_do_write_data_page+0xef9/0x1980
-> >>   move_data_page+0x6af/0xbc0
-> >>   do_garbage_collect+0x312f/0x46f0
-> >>   f2fs_gc+0x6b0/0x3bc0
-> >>   f2fs_balance_fs+0x921/0x2260
-> >>   f2fs_write_single_data_page+0x16be/0x2370
-> >>   f2fs_write_cache_pages+0x428/0xd00
-> >>   f2fs_write_data_pages+0x96e/0xd50
-> >>   do_writepages+0x168/0x550
-> >>   __writeback_single_inode+0x9f/0x870
-> >>   writeback_sb_inodes+0x47d/0xb20
-> >>   __writeback_inodes_wb+0xb2/0x200
-> >>   wb_writeback+0x4bd/0x660
-> >>   wb_workfn+0x5f3/0xab0
-> >>   process_one_work+0x79f/0x13e0
-> >>   worker_thread+0x89/0xf60
-> >>   kthread+0x26a/0x300
-> >>   ret_from_fork+0x22/0x30
-> >> RIP: 0010:new_curseg+0xe8d/0x15f0
-> >>
-> >> The root cause is: ckpt.valid_block_count is inconsistent with SIT
-> >> table, stat info indicates filesystem has free blocks, but SIT table
-> >> indicates filesystem has no free segment.
-> >>
-> >> So that during garbage colloection, it triggers panic when LFS
-> >> allocator fails to find free segment.
-> >>
-> >> This patch tries to fix this issue by checking consistency in between
-> >> ckpt.valid_block_count and block accounted from SIT.
-> >>
-> >> Cc: stable@vger.kernel.org
-> >> Reported-by: Ming Yan <yanming@tju.edu.cn>
-> >> Signed-off-by: Chao Yu <chao.yu@oppo.com>
-> >> ---
-> >> v4:
-> >> - fix to set data/node type correctly.
-> >>   fs/f2fs/segment.c | 37 ++++++++++++++++++++++++++-----------
-> >>   1 file changed, 26 insertions(+), 11 deletions(-)
-> >>
-> >> diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-> >> index 3a3e2cec2ac4..4735d477059d 100644
-> >> --- a/fs/f2fs/segment.c
-> >> +++ b/fs/f2fs/segment.c
-> >> @@ -4461,7 +4461,8 @@ static int build_sit_entries(struct
-> >> f2fs_sb_info *sbi) unsigned int i, start, end;
-> >>      unsigned int readed, start_blk = 0;
-> >>      int err = 0;
-> >> -    block_t total_node_blocks = 0;
-> >> +    block_t sit_valid_blocks[2] = {0, 0};
-> >> +    int type;
-> >>
-> >>      do {
-> >>              readed = f2fs_ra_meta_pages(sbi, start_blk,
-> >> BIO_MAX_VECS, @@ -4486,8 +4487,9 @@ static int
-> >> build_sit_entries(struct f2fs_sb_info *sbi) if (err)
-> >>                              return err;
-> >>                      seg_info_from_raw_sit(se, &sit);
-> >> -                    if (IS_NODESEG(se->type))
-> >> -                            total_node_blocks +=
-> >> se->valid_blocks; +
-> >> +                    type = IS_NODESEG(se->type) ? NODE : DATA;
-> >> +                    sit_valid_blocks[type] += se->valid_blocks;
-> >>
-> >>                      if (f2fs_block_unit_discard(sbi)) {
-> >>                              /* build discard map only one time */
-> >> @@ -4527,15 +4529,17 @@ static int build_sit_entries(struct
-> >> f2fs_sb_info *sbi) sit = sit_in_journal(journal, i);
-> >>
-> >>              old_valid_blocks = se->valid_blocks;
-> >> -            if (IS_NODESEG(se->type))
-> >> -                    total_node_blocks -= old_valid_blocks;
-> >> +
-> >> +            type = IS_NODESEG(se->type) ? NODE : DATA;
-> >> +            sit_valid_blocks[type] -= old_valid_blocks;
-> >>
-> >>              err = check_block_count(sbi, start, &sit);
-> >>              if (err)
-> >>                      break;
-> >>              seg_info_from_raw_sit(se, &sit);
-> >> -            if (IS_NODESEG(se->type))
-> >> -                    total_node_blocks += se->valid_blocks;
-> >> +
-> >> +            type = IS_NODESEG(se->type) ? NODE : DATA;
-> >> +            sit_valid_blocks[type] += se->valid_blocks;
-> >>
-> >>              if (f2fs_block_unit_discard(sbi)) {
-> >>                      if (is_set_ckpt_flags(sbi, CP_TRIMMED_FLAG))
-> >> { @@ -4557,13 +4561,24 @@ static int build_sit_entries(struct
-> >> f2fs_sb_info *sbi) }
-> >>      up_read(&curseg->journal_rwsem);
-> >>
-> >> -    if (!err && total_node_blocks != valid_node_count(sbi)) {
-> >> +    if (err)
-> >> +            return err;
-> >> +
-> >> +    if (sit_valid_blocks[NODE] != valid_node_count(sbi)) {
-> >>              f2fs_err(sbi, "SIT is corrupted node# %u vs %u",
-> >> -                     total_node_blocks, valid_node_count(sbi));
-> >> -            err = -EFSCORRUPTED;
-> >> +                     sit_valid_blocks[NODE],
-> >> valid_node_count(sbi));
-> >> +            return -EFSCORRUPTED;
-> >>      }
-> >>
-> >> -    return err;
-> >> +    if (sit_valid_blocks[DATA] + sit_valid_blocks[NODE] >
-> >> +                            valid_user_blocks(sbi)) {
-> >> +            f2fs_err(sbi, "SIT is corrupted data# %u %u vs %u",
-> >> +                     sit_valid_blocks[DATA],
-> >> sit_valid_blocks[NODE],
-> >> +                     valid_user_blocks(sbi));
-> >> +            return -EFSCORRUPTED;
-> >> +    }
-> >> +
-> >> +    return 0;
-> >>   }
-> >>
-> >>   static void init_free_segmap(struct f2fs_sb_info *sbi)
-> >
-> > Hi all,
-> >
-> > I'm experiencing this with kernel 5.18.5:
+> This reverts commit 912f655d78c5d4ad05eac287f23a435924df7144.
 >
-> Hi Matteo,
->
-> It looks in your attached log there is no similar stack as below?
->
->  >> kernel BUG at fs/f2fs/segment.c:2560!
->  >> Call Trace:
->  >>   allocate_segment_by_default+0x228/0x440
->  >>   f2fs_allocate_data_block+0x13d1/0x31f0
->  >>   do_write_page+0x18d/0x710
->
-> Could you please check cpu usage when the bug reproduces?
->
-> Thanks,
-
-Hi,
-
-This happens when the bug happens:
-
-  PID USER   PR  NI    S  %CPU  %MEM     TIME+ COMMAND
-  398 root   20   0    R 100,0   0,0   2:05.80 f2fs_gc-179:130
-
-
-
->
-> >
-> > [1774085.200363] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774085.206139] rcu:   1-....: (2099 ticks this GP) idle=a7f/1/0x4000000000000000 softirq=6435692/6435692 fqs=977
-> > [1774085.216272]        (t=2101 jiffies g=30461565 q=289)
-> > [1774085.216276] Task dump for CPU 1:
-> > [1774085.216278] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774085.216285] Call trace:
-> > [1774085.216287]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774085.216299]  show_stack+0x14/0x30
-> > [1774085.216304]  sched_show_task+0x130/0x160
-> > [1774085.216309]  dump_cpu_task+0x40/0x4c
-> > [1774085.216313]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774085.216317]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774085.216321]  update_process_times+0x98/0x180
-> > [1774085.216324]  tick_sched_timer+0x54/0xd0
-> > [1774085.216329]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774085.216333]  hrtimer_interrupt+0x110/0x2c0
-> > [1774085.216336]  arch_timer_handler_phys+0x28/0x40
-> > [1774085.216342]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774085.216348]  generic_handle_domain_irq+0x28/0x40
-> > [1774085.216352]  gic_handle_irq+0x58/0x80
-> > [1774085.216357]  call_on_irq_stack+0x2c/0x3c
-> > [1774085.216360]  do_interrupt_handler+0x78/0x84
-> > [1774085.216364]  el1_interrupt+0x30/0x50
-> > [1774085.216368]  el1h_64_irq_handler+0x14/0x20
-> > [1774085.216371]  el1h_64_irq+0x64/0x68
-> > [1774085.216374]  __filemap_get_folio+0xa0/0x3b0
-> > [1774085.216378]  pagecache_get_page+0x18/0x70
-> > [1774085.216383]  grab_cache_page_write_begin+0x20/0x30
-> > [1774085.216388]  f2fs_get_read_data_page+0x3c/0x480
-> > [1774085.216392]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774085.216395]  move_data_page+0x34/0x530
-> > [1774085.216398]  do_garbage_collect+0xc54/0x12e0
-> > [1774085.216401]  f2fs_gc+0x3b4/0x800
-> > [1774085.216404]  gc_thread_func+0x4c8/0x640
-> > [1774085.216407]  kthread+0xd0/0xe0
-> > [1774085.216411]  ret_from_fork+0x10/0x20
-> > [1774115.558533] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774115.564309] rcu:   1-....: (2099 ticks this GP) idle=be7/1/0x4000000000000000 softirq=6435694/6435694 fqs=1016
-> > [1774115.574528]        (t=2101 jiffies g=30461569 q=847)
-> > [1774115.574532] Task dump for CPU 1:
-> > [1774115.574534] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774115.574541] Call trace:
-> > [1774115.574543]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774115.574555]  show_stack+0x14/0x30
-> > [1774115.574559]  sched_show_task+0x130/0x160
-> > [1774115.574564]  dump_cpu_task+0x40/0x4c
-> > [1774115.574569]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774115.574572]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774115.574576]  update_process_times+0x98/0x180
-> > [1774115.574580]  tick_sched_timer+0x54/0xd0
-> > [1774115.574584]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774115.574587]  hrtimer_interrupt+0x110/0x2c0
-> > [1774115.574590]  arch_timer_handler_phys+0x28/0x40
-> > [1774115.574596]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774115.574603]  generic_handle_domain_irq+0x28/0x40
-> > [1774115.574606]  gic_handle_irq+0x58/0x80
-> > [1774115.574611]  call_on_irq_stack+0x2c/0x3c
-> > [1774115.574615]  do_interrupt_handler+0x78/0x84
-> > [1774115.574618]  el1_interrupt+0x30/0x50
-> > [1774115.574623]  el1h_64_irq_handler+0x14/0x20
-> > [1774115.574626]  el1h_64_irq+0x64/0x68
-> > [1774115.574629]  f2fs_is_valid_blkaddr+0x184/0x310
-> > [1774115.574633]  f2fs_get_read_data_page+0x80/0x480
-> > [1774115.574637]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774115.574640]  move_data_page+0x34/0x530
-> > [1774115.574643]  do_garbage_collect+0xc54/0x12e0
-> > [1774115.574646]  f2fs_gc+0x3b4/0x800
-> > [1774115.574649]  gc_thread_func+0x4c8/0x640
-> > [1774115.574652]  kthread+0xd0/0xe0
-> > [1774115.574655]  ret_from_fork+0x10/0x20
-> > [1774178.604732] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774178.610507] rcu:   1-....: (8404 ticks this GP) idle=be7/1/0x4000000000000000 softirq=6435694/6435694 fqs=3918
-> > [1774178.620727]        (t=8406 jiffies g=30461569 q=2117)
-> > [1774178.620730] Task dump for CPU 1:
-> > [1774178.620732] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774178.620739] Call trace:
-> > [1774178.620741]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774178.620750]  show_stack+0x14/0x30
-> > [1774178.620754]  sched_show_task+0x130/0x160
-> > [1774178.620762]  dump_cpu_task+0x40/0x4c
-> > [1774178.620766]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774178.620769]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774178.620774]  update_process_times+0x98/0x180
-> > [1774178.620777]  tick_sched_timer+0x54/0xd0
-> > [1774178.620781]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774178.620785]  hrtimer_interrupt+0x110/0x2c0
-> > [1774178.620788]  arch_timer_handler_phys+0x28/0x40
-> > [1774178.620793]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774178.620798]  generic_handle_domain_irq+0x28/0x40
-> > [1774178.620801]  gic_handle_irq+0x58/0x80
-> > [1774178.620806]  call_on_irq_stack+0x2c/0x3c
-> > [1774178.620810]  do_interrupt_handler+0x78/0x84
-> > [1774178.620813]  el1_interrupt+0x30/0x50
-> > [1774178.620818]  el1h_64_irq_handler+0x14/0x20
-> > [1774178.620821]  el1h_64_irq+0x64/0x68
-> > [1774178.620823]  f2fs_lookup_extent_cache+0x18c/0x310
-> > [1774178.620828]  f2fs_get_read_data_page+0x54/0x480
-> > [1774178.620832]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774178.620835]  move_data_page+0x34/0x530
-> > [1774178.620838]  do_garbage_collect+0xc54/0x12e0
-> > [1774178.620842]  f2fs_gc+0x3b4/0x800
-> > [1774178.620844]  gc_thread_func+0x4c8/0x640
-> > [1774178.620848]  kthread+0xd0/0xe0
-> > [1774178.620851]  ret_from_fork+0x10/0x20
-> > [1774260.049828] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774260.055605] rcu:   0-....: (2099 ticks this GP) idle=915/1/0x4000000000000000 softirq=6031130/6031130 fqs=1015
-> > [1774260.065826]        (t=2101 jiffies g=30461577 q=931)
-> > [1774260.065830] Task dump for CPU 0:
-> > [1774260.065832] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774260.065839] Call trace:
-> > [1774260.065841]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774260.065854]  show_stack+0x14/0x30
-> > [1774260.065858]  sched_show_task+0x130/0x160
-> > [1774260.065863]  dump_cpu_task+0x40/0x4c
-> > [1774260.065868]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774260.065871]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774260.065875]  update_process_times+0x98/0x180
-> > [1774260.065879]  tick_sched_timer+0x54/0xd0
-> > [1774260.065883]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774260.065887]  hrtimer_interrupt+0x110/0x2c0
-> > [1774260.065890]  arch_timer_handler_phys+0x28/0x40
-> > [1774260.065896]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774260.065901]  generic_handle_domain_irq+0x28/0x40
-> > [1774260.065904]  gic_handle_irq+0x58/0x80
-> > [1774260.065909]  call_on_irq_stack+0x2c/0x3c
-> > [1774260.065913]  do_interrupt_handler+0x78/0x84
-> > [1774260.065916]  el1_interrupt+0x30/0x50
-> > [1774260.065922]  el1h_64_irq_handler+0x14/0x20
-> > [1774260.065925]  el1h_64_irq+0x64/0x68
-> > [1774260.065928]  folio_wait_stable+0x8/0x30
-> > [1774260.065933]  pagecache_get_page+0x18/0x70
-> > [1774260.065938]  grab_cache_page_write_begin+0x20/0x30
-> > [1774260.065943]  f2fs_get_read_data_page+0x3c/0x480
-> > [1774260.065947]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774260.065950]  move_data_page+0x34/0x530
-> > [1774260.065954]  do_garbage_collect+0xc54/0x12e0
-> > [1774260.065957]  f2fs_gc+0x3b4/0x800
-> > [1774260.065960]  gc_thread_func+0x4c8/0x640
-> > [1774260.065963]  kthread+0xd0/0xe0
-> > [1774260.065966]  ret_from_fork+0x10/0x20
-> > [1774323.086033] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774323.091808] rcu:   0-....: (8403 ticks this GP) idle=915/1/0x4000000000000000 softirq=6031130/6031130 fqs=4088
-> > [1774323.102028]        (t=8405 jiffies g=30461577 q=1422)
-> > [1774323.102031] Task dump for CPU 0:
-> > [1774323.102033] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774323.102040] Call trace:
-> > [1774323.102042]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774323.102052]  show_stack+0x14/0x30
-> > [1774323.102055]  sched_show_task+0x130/0x160
-> > [1774323.102060]  dump_cpu_task+0x40/0x4c
-> > [1774323.102065]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774323.102068]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774323.102073]  update_process_times+0x98/0x180
-> > [1774323.102076]  tick_sched_timer+0x54/0xd0
-> > [1774323.102080]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774323.102084]  hrtimer_interrupt+0x110/0x2c0
-> > [1774323.102087]  arch_timer_handler_phys+0x28/0x40
-> > [1774323.102092]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774323.102097]  generic_handle_domain_irq+0x28/0x40
-> > [1774323.102100]  gic_handle_irq+0x58/0x80
-> > [1774323.102105]  call_on_irq_stack+0x2c/0x3c
-> > [1774323.102109]  do_interrupt_handler+0x78/0x84
-> > [1774323.102112]  el1_interrupt+0x30/0x50
-> > [1774323.102118]  el1h_64_irq_handler+0x14/0x20
-> > [1774323.102120]  el1h_64_irq+0x64/0x68
-> > [1774323.102123]  folio_unlock+0x8/0x40
-> > [1774323.102127]  f2fs_get_lock_data_page+0xf4/0x260
-> > [1774323.102131]  move_data_page+0x34/0x530
-> > [1774323.102135]  do_garbage_collect+0xc54/0x12e0
-> > [1774323.102138]  f2fs_gc+0x3b4/0x800
-> > [1774323.102141]  gc_thread_func+0x4c8/0x640
-> > [1774323.102144]  kthread+0xd0/0xe0
-> > [1774323.102147]  ret_from_fork+0x10/0x20
-> > [1774386.122242] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774386.128015] rcu:   0-....: (14707 ticks this GP) idle=915/1/0x4000000000000000 softirq=6031130/6031130 fqs=7133
-> > [1774386.138322]        (t=14709 jiffies g=30461577 q=1895)
-> > [1774386.138325] Task dump for CPU 0:
-> > [1774386.138327] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774386.138334] Call trace:
-> > [1774386.138335]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774386.138345]  show_stack+0x14/0x30
-> > [1774386.138349]  sched_show_task+0x130/0x160
-> > [1774386.138354]  dump_cpu_task+0x40/0x4c
-> > [1774386.138358]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774386.138361]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774386.138365]  update_process_times+0x98/0x180
-> > [1774386.138369]  tick_sched_timer+0x54/0xd0
-> > [1774386.138373]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774386.138376]  hrtimer_interrupt+0x110/0x2c0
-> > [1774386.138380]  arch_timer_handler_phys+0x28/0x40
-> > [1774386.138384]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774386.138389]  generic_handle_domain_irq+0x28/0x40
-> > [1774386.138393]  gic_handle_irq+0x58/0x80
-> > [1774386.138397]  call_on_irq_stack+0x2c/0x3c
-> > [1774386.138401]  do_interrupt_handler+0x78/0x84
-> > [1774386.138405]  el1_interrupt+0x30/0x50
-> > [1774386.138410]  el1h_64_irq_handler+0x14/0x20
-> > [1774386.138413]  el1h_64_irq+0x64/0x68
-> > [1774386.138416]  f2fs_lookup_extent_cache+0x18c/0x310
-> > [1774386.138420]  f2fs_get_read_data_page+0x54/0x480
-> > [1774386.138424]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774386.138427]  move_data_page+0x34/0x530
-> > [1774386.138431]  do_garbage_collect+0xc54/0x12e0
-> > [1774386.138434]  f2fs_gc+0x3b4/0x800
-> > [1774386.138437]  gc_thread_func+0x4c8/0x640
-> > [1774386.138440]  kthread+0xd0/0xe0
-> > [1774386.138443]  ret_from_fork+0x10/0x20
-> > [1774449.158452] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774449.164226] rcu:   0-....: (21011 ticks this GP) idle=915/1/0x4000000000000000 softirq=6031130/6031130 fqs=10163
-> > [1774449.174619]        (t=21013 jiffies g=30461577 q=2392)
-> > [1774449.174622] Task dump for CPU 0:
-> > [1774449.174624] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774449.174630] Call trace:
-> > [1774449.174632]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774449.174641]  show_stack+0x14/0x30
-> > [1774449.174645]  sched_show_task+0x130/0x160
-> > [1774449.174650]  dump_cpu_task+0x40/0x4c
-> > [1774449.174654]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774449.174657]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774449.174661]  update_process_times+0x98/0x180
-> > [1774449.174664]  tick_sched_timer+0x54/0xd0
-> > [1774449.174668]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774449.174672]  hrtimer_interrupt+0x110/0x2c0
-> > [1774449.174675]  arch_timer_handler_phys+0x28/0x40
-> > [1774449.174680]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774449.174685]  generic_handle_domain_irq+0x28/0x40
-> > [1774449.174688]  gic_handle_irq+0x58/0x80
-> > [1774449.174693]  call_on_irq_stack+0x2c/0x3c
-> > [1774449.174696]  do_interrupt_handler+0x78/0x84
-> > [1774449.174700]  el1_interrupt+0x30/0x50
-> > [1774449.174705]  el1h_64_irq_handler+0x14/0x20
-> > [1774449.174708]  el1h_64_irq+0x64/0x68
-> > [1774449.174711]  __filemap_get_folio+0x20/0x3b0
-> > [1774449.174715]  pagecache_get_page+0x18/0x70
-> > [1774449.174720]  grab_cache_page_write_begin+0x20/0x30
-> > [1774449.174725]  f2fs_get_read_data_page+0x3c/0x480
-> > [1774449.174729]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774449.174732]  move_data_page+0x34/0x530
-> > [1774449.174735]  do_garbage_collect+0xc54/0x12e0
-> > [1774449.174738]  f2fs_gc+0x3b4/0x800
-> > [1774449.174741]  gc_thread_func+0x4c8/0x640
-> > [1774449.174744]  kthread+0xd0/0xe0
-> > [1774449.174748]  ret_from_fork+0x10/0x20
-> > [1774512.194663] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774512.200436] rcu:   0-....: (27315 ticks this GP) idle=915/1/0x4000000000000000 softirq=6031130/6031130 fqs=13122
-> > [1774512.210828]        (t=27317 jiffies g=30461577 q=2781)
-> > [1774512.210831] Task dump for CPU 0:
-> > [1774512.210834] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774512.210841] Call trace:
-> > [1774512.210842]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774512.210852]  show_stack+0x14/0x30
-> > [1774512.210856]  sched_show_task+0x130/0x160
-> > [1774512.210860]  dump_cpu_task+0x40/0x4c
-> > [1774512.210864]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774512.210868]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774512.210872]  update_process_times+0x98/0x180
-> > [1774512.210875]  tick_sched_timer+0x54/0xd0
-> > [1774512.210879]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774512.210882]  hrtimer_interrupt+0x110/0x2c0
-> > [1774512.210886]  arch_timer_handler_phys+0x28/0x40
-> > [1774512.210891]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774512.210896]  generic_handle_domain_irq+0x28/0x40
-> > [1774512.210899]  gic_handle_irq+0x58/0x80
-> > [1774512.210904]  call_on_irq_stack+0x2c/0x3c
-> > [1774512.210907]  do_interrupt_handler+0x78/0x84
-> > [1774512.210911]  el1_interrupt+0x30/0x50
-> > [1774512.210916]  el1h_64_irq_handler+0x14/0x20
-> > [1774512.210918]  el1h_64_irq+0x64/0x68
-> > [1774512.210921]  __filemap_get_folio+0x8c/0x3b0
-> > [1774512.210925]  pagecache_get_page+0x18/0x70
-> > [1774512.210930]  grab_cache_page_write_begin+0x20/0x30
-> > [1774512.210935]  f2fs_get_read_data_page+0x3c/0x480
-> > [1774512.210939]  f2fs_get_lock_data_page+0x3c/0x260
-> > [1774512.210942]  move_data_page+0x34/0x530
-> > [1774512.210945]  do_garbage_collect+0xc54/0x12e0
-> > [1774512.210948]  f2fs_gc+0x3b4/0x800
-> > [1774512.210951]  gc_thread_func+0x4c8/0x640
-> > [1774512.210954]  kthread+0xd0/0xe0
-> > [1774512.210957]  ret_from_fork+0x10/0x20
-> > [1774560.785116] INFO: task f2fs_ckpt-179:1:401 blocked for more than 404 seconds.
-> > [1774560.792572]       Not tainted 5.18.5-matteo #107
-> > [1774560.797401] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> > [1774560.805445] task:f2fs_ckpt-179:1 state:D stack:    0 pid:  401 ppid:     2 flags:0x00000008
-> > [1774560.805453] Call trace:
-> > [1774560.805456]  __switch_to+0xc0/0x100
-> > [1774560.805465]  __schedule+0x258/0x620
-> > [1774560.805469]  schedule+0x44/0xb0
-> > [1774560.805472]  rwsem_down_write_slowpath+0x314/0x5a0
-> > [1774560.805478]  down_write+0x44/0x50
-> > [1774560.805482]  __checkpoint_and_complete_reqs+0x6c/0x1c0
-> > [1774560.805487]  issue_checkpoint_thread+0x34/0xc0
-> > [1774560.805490]  kthread+0xd0/0xe0
-> > [1774560.805494]  ret_from_fork+0x10/0x20
-> > [1774560.805504] INFO: task NetworkManager:1061 blocked for more than 404 seconds.
-> > [1774560.812854]       Not tainted 5.18.5-matteo #107
-> > [1774560.817667] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> > [1774560.825708] task:NetworkManager  state:D stack:    0 pid: 1061 ppid:     1 flags:0x00000000
-> > [1774560.825714] Call trace:
-> > [1774560.825716]  __switch_to+0xc0/0x100
-> > [1774560.825720]  __schedule+0x258/0x620
-> > [1774560.825723]  schedule+0x44/0xb0
-> > [1774560.825726]  schedule_timeout+0x114/0x150
-> > [1774560.825730]  __wait_for_common+0xc8/0x200
-> > [1774560.825733]  wait_for_completion+0x1c/0x30
-> > [1774560.825736]  f2fs_issue_checkpoint+0xd0/0x190
-> > [1774560.825740]  f2fs_sync_fs+0x48/0xd0
-> > [1774560.825745]  f2fs_do_sync_file+0x178/0x8a0
-> > [1774560.825749]  f2fs_sync_file+0x28/0x40
-> > [1774560.825753]  vfs_fsync_range+0x30/0x80
-> > [1774560.825758]  do_fsync+0x38/0x80
-> > [1774560.825762]  __arm64_sys_fsync+0x14/0x20
-> > [1774560.825767]  invoke_syscall.constprop.0+0x4c/0xe0
-> > [1774560.825771]  do_el0_svc+0x40/0xd0
-> > [1774560.825775]  el0_svc+0x14/0x50
-> > [1774560.825779]  el0t_64_sync_handler+0xa8/0xb0
-> > [1774560.825782]  el0t_64_sync+0x148/0x14c
-> > [1774560.825803] INFO: task kworker/u8:4:335638 blocked for more than 404 seconds.
-> > [1774560.833149]       Not tainted 5.18.5-matteo #107
-> > [1774560.837962] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> > [1774560.846002] task:kworker/u8:4    state:D stack:    0 pid:335638 ppid:     2 flags:0x00000008
-> > [1774560.846009] Workqueue: writeback wb_workfn (flush-179:128)
-> > [1774560.846016] Call trace:
-> > [1774560.846017]  __switch_to+0xc0/0x100
-> > [1774560.846021]  __schedule+0x258/0x620
-> > [1774560.846024]  schedule+0x44/0xb0
-> > [1774560.846027]  schedule_timeout+0x114/0x150
-> > [1774560.846031]  __wait_for_common+0xc8/0x200
-> > [1774560.846034]  wait_for_completion+0x1c/0x30
-> > [1774560.846037]  f2fs_issue_checkpoint+0xd0/0x190
-> > [1774560.846040]  f2fs_sync_fs+0x48/0xd0
-> > [1774560.846044]  f2fs_balance_fs_bg+0x114/0x2b0
-> > [1774560.846048]  f2fs_write_node_pages+0x38/0x1f0
-> > [1774560.846053]  do_writepages+0x68/0x1e0
-> > [1774560.846058]  __writeback_single_inode+0x3c/0x3c0
-> > [1774560.846062]  writeback_sb_inodes+0x230/0x520
-> > [1774560.846065]  __writeback_inodes_wb+0x50/0x130
-> > [1774560.846069]  wb_writeback+0x244/0x340
-> > [1774560.846073]  wb_workfn+0x308/0x560
-> > [1774560.846077]  process_one_work+0x1dc/0x420
-> > [1774560.846081]  worker_thread+0x170/0x4c0
-> > [1774560.846084]  kthread+0xd0/0xe0
-> > [1774560.846086]  ret_from_fork+0x10/0x20
-> > [1774623.467979] rcu: INFO: rcu_sched self-detected stall on CPU
-> > [1774623.473755] rcu:   0-....: (2099 ticks this GP) idle=643/1/0x4000000000000000 softirq=6031246/6031247 fqs=1028
-> > [1774623.483976]        (t=2101 jiffies g=30461613 q=633)
-> > [1774623.483979] Task dump for CPU 0:
-> > [1774623.483982] task:f2fs_gc-179:130 state:R  running task     stack:    0 pid:  400 ppid:     2 flags:0x0000000a
-> > [1774623.483989] Call trace:
-> > [1774623.483991]  dump_backtrace.part.0+0xb4/0xc0
-> > [1774623.484003]  show_stack+0x14/0x30
-> > [1774623.484007]  sched_show_task+0x130/0x160
-> > [1774623.484013]  dump_cpu_task+0x40/0x4c
-> > [1774623.484018]  rcu_dump_cpu_stacks+0xec/0x130
-> > [1774623.484021]  rcu_sched_clock_irq+0x8f8/0xaa0
-> > [1774623.484025]  update_process_times+0x98/0x180
-> > [1774623.484028]  tick_sched_timer+0x54/0xd0
-> > [1774623.484033]  __hrtimer_run_queues+0x134/0x2d0
-> > [1774623.484036]  hrtimer_interrupt+0x110/0x2c0
-> > [1774623.484040]  arch_timer_handler_phys+0x28/0x40
-> > [1774623.484045]  handle_percpu_devid_irq+0x84/0x1c0
-> > [1774623.484050]  generic_handle_domain_irq+0x28/0x40
-> > [1774623.484054]  gic_handle_irq+0x58/0x80
-> > [1774623.484059]  call_on_irq_stack+0x2c/0x3c
-> > [1774623.484062]  do_interrupt_handler+0x78/0x84
-> > [1774623.484066]  el1_interrupt+0x30/0x50
-> > [1774623.484071]  el1h_64_irq_handler+0x14/0x20
-> > [1774623.484074]  el1h_64_irq+0x64/0x68
-> > [1774623.484077]  folio_unlock+0x18/0x40
-> > [1774623.484081]  f2fs_get_lock_data_page+0xf4/0x260
-> > [1774623.484085]  move_data_page+0x34/0x530
-> > [1774623.484089]  do_garbage_collect+0xc54/0x12e0
-> > [1774623.484092]  f2fs_gc+0x3b4/0x800
-> > [1774623.484095]  gc_thread_func+0x4c8/0x640
-> > [1774623.484098]  kthread+0xd0/0xe0
-> > [1774623.484101]  ret_from_fork+0x10/0x20
-> >
-> > root@macchiatobin:~# uname -a
-> > Linux macchiatobin 5.18.5-matteo #107 SMP Fri Jun 17 17:58:26 CEST 2022 aarch64 GNU/Linux
-> >
-> >
-
-
-
---
-per aspera ad upstream
+> This commit introduced a regression that can cause mount hung.  The
+> changes in __ocfs2_find_empty_slot causes that any node with none-zero
+> node number can grab the slot that was already taken by node 0, so node 1
+> will access the same journal with node 0, when it try to grab journal
+> cluster lock, it will hung because it was already acquired by node 0.
+> It's very easy to reproduce this, in one cluster, mount node 0 first, then
+> node 1, you will see the following call trace from node 1.
