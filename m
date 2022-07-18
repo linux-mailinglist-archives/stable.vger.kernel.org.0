@@ -2,105 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91D55789BF
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 20:46:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9AF578B49
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 21:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233897AbiGRSqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 14:46:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
+        id S233431AbiGRTzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 15:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230171AbiGRSqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 14:46:37 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E702E9C9;
-        Mon, 18 Jul 2022 11:46:36 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id B8A6A2077E;
-        Mon, 18 Jul 2022 18:46:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1658169994; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IEi9Vz+G38C+o5hOJ1yrZT3rdapUJkl0ZlusWRAZA3Y=;
-        b=PBmt63953sU4ntvHe/O4lDUWhLNlStCouc89TG1qj4oyRYUikRKLT9nDc7a1FR9noEb7kd
-        3KTGn3YIqmNBinlxvIhO86rkmN0SuFmWjOauSSA77poxIzTdIx2s0piwJXjyhF47kGzrf5
-        oovfUqBNs8O5RF6X+Gc5L/rog70oYww=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1658169994;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IEi9Vz+G38C+o5hOJ1yrZT3rdapUJkl0ZlusWRAZA3Y=;
-        b=BAT9hQXmWJEFK31Hvu6iX3BQ2einZEoUKLMmV5WZyxpH8E+RKirOwRW2k81ScjCkAkEycG
-        xm425/Qt6Q7Q39Ag==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9E9C813A37;
-        Mon, 18 Jul 2022 18:46:34 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id h92nJoqq1WIOMAAAMHmgww
-        (envelope-from <bp@suse.de>); Mon, 18 Jul 2022 18:46:34 +0000
-Date:   Mon, 18 Jul 2022 20:46:34 +0200
-From:   Borislav Petkov <bp@suse.de>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Andrew Cooper <Andrew.Cooper3@citrix.com>
-Subject: Re: [PATCH] efi/x86: use naked RET on mixed mode call wrapper
-Message-ID: <YtWqit2B3UYIWht1@zn.tnic>
-References: <20220715194550.793957-1-cascardo@canonical.com>
- <YtVG8VBmFikS6GMn@worktop.programming.kicks-ass.net>
- <YtWKK2ZLib1R7itI@zn.tnic>
- <CAHk-=wiWQOsxqE+tvZi_MjzGaqfG6Xo5AhbYXtiLWcKVVvbycQ@mail.gmail.com>
+        with ESMTP id S235979AbiGRTzd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 15:55:33 -0400
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B7E2B250
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 12:55:33 -0700 (PDT)
+Received: by mail-yb1-xb41.google.com with SMTP id 64so22791622ybt.12
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 12:55:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=h0ZslgqQ94UM3iGDYCZGEx8ZwvbYHY5ZrQARiO/Kpbc=;
+        b=HVCuRE4RG/5rXdX9sRHb8ZQTO0ahmYn3w3CtJkCzHjdqDZj8+W9wTXDUUeoZd9AtYK
+         l9kScs2tNMCQgQnLi1gjGoIjWr+UPpC9rrXov6aS48NTSA8cnPTe1wPJ0weACG4JGxOL
+         ULcFs4A3ymCNMRrpipIPQVRT7MbXOJZRMClTpmAzPzKjJsA7gxZqCRiLdqZcGEzHI7+R
+         n1cQkHjFThVaJJeMhAYusCAxc6XUVyAYC+HgDhveAkx3g2+x9kUM3Z+sk14rHXEc3762
+         CkPkvI46UaD7RwoPFJTekVFnsAscZnTYrYqh5LKeY6pJzAQsrq8tYM4sKepRGvNkZubG
+         ZVBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=h0ZslgqQ94UM3iGDYCZGEx8ZwvbYHY5ZrQARiO/Kpbc=;
+        b=j0z+7AF0skKg67Yb/bL4pK8dwFs3v4IztGZHuEuj28WuUm8Quh2vdnFhtiqhD/pVA+
+         fRxqxHZRXEnjfJ6P5lwBXuqXfox0TwRjHHdwT5gJq8nJ1tfj9xCOE2OV2v0wZ9esnslu
+         NajN9pOdtPhpfnXumP3z7bOR8+zjJjhB0Qi190+qQ4EtuH8N1WHVEyRWzOdim4zCY7Rg
+         xBCsEzYdYYCnXQr9SV+Cj5eaFeY/bnlEDsfTDFZ2Xz/tqoWerJP5J6TBmJZNh52GnHRQ
+         ogSbsMk+R3BgENK8nJVKICvANeDfGz2/q5zQqpoC/3xSPztInLyPwMuU8w7r+tl2qrKf
+         D68g==
+X-Gm-Message-State: AJIora9I7uHiG5NK78hRJZgN5xpF1MFA3S265s6hnL/+6gHOLcf9DFXy
+        f6DzTk2NCyywh11esPPtWo1U2l3KUKIpP0AF4mI=
+X-Google-Smtp-Source: AGRyM1sIKZGV8rKedeSqneamIEQqdvwJKdkVHr9z2pmJPThkmncgRFY8wX7Q5BbTOQrK0bPbiTRpEEVlxC6DCsLsGgA=
+X-Received: by 2002:a25:d94f:0:b0:66e:626f:7786 with SMTP id
+ q76-20020a25d94f000000b0066e626f7786mr27145212ybg.426.1658174132233; Mon, 18
+ Jul 2022 12:55:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHk-=wiWQOsxqE+tvZi_MjzGaqfG6Xo5AhbYXtiLWcKVVvbycQ@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:7000:34dd:0:0:0:0 with HTTP; Mon, 18 Jul 2022 12:55:31
+ -0700 (PDT)
+Reply-To: lilywilliam989@gmail.com
+From:   Lily William <rayimemogn@gmail.com>
+Date:   Mon, 18 Jul 2022 11:55:31 -0800
+Message-ID: <CAMefwTOQmVXjb44T7OnN_ndTQV77_1EGnGDmW6bYhR34jKRNrw@mail.gmail.com>
+Subject: Hi Dear,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 18, 2022 at 11:34:02AM -0700, Linus Torvalds wrote:
-> Why would we have to protect the kernel from EFI?
+Hi Dear,
 
-Yes, we cleared this up on IRC in the meantime.
+My name is Dr Lily William from the United States.I am a French and
+American nationality (dual) living in the U.S and sometimes in France
+for Work Purpose.
 
-This was raised as a concern in case we don't trust EFI. But we cannot
-not (double negation on purpose) trust EFI because it can do whatever it
-likes anyway, "underneath" the OS.
+I hope you consider my friend request. I will share some of my pics
+and more details about myself when I get your response.
 
-I'm keeping the UNTRAIN_RET-in-C diff in my patches/ folder, though - I
-get the feeling we might need it soon for something else.
+Thanks
 
-:-)
-
--- 
-Regards/Gruss,
-    Boris.
-
-SUSE Software Solutions Germany GmbH
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Martje Boudien Moerman
-(HRB 36809, AG Nürnberg)
+With love
+Lily
