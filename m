@@ -2,105 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D59A85786C0
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 17:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CFD5786DF
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 18:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235080AbiGRPuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 11:50:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60308 "EHLO
+        id S234501AbiGRQBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 12:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235077AbiGRPuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:50:13 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E78DD22B34
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:50:11 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-117-A0hH_xv2Ml6J23bNz6aY3A-1; Mon, 18 Jul 2022 16:50:09 +0100
-X-MC-Unique: A0hH_xv2Ml6J23bNz6aY3A-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.36; Mon, 18 Jul 2022 16:50:06 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.036; Mon, 18 Jul 2022 16:50:06 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Mauro Carvalho Chehab' <mauro.chehab@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        =?utf-8?B?VGhvbWFzIEhlbGxzdHLDtm0=?= 
+        with ESMTP id S229886AbiGRQBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 12:01:06 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93411DF3A;
+        Mon, 18 Jul 2022 09:01:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1658160063; x=1689696063;
+  h=date:from:to:cc:subject:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=C6vWqUcyXQkTAuAAqqcnVbId6I4b0LLhuzC6Emj2LTg=;
+  b=ny87szQTt7zBeXtvhsu18grUus6XtfPtAZvX6L2JyEQUC6ELGzT7lkwC
+   Eo6nCMhV3/GBhSutC+0A1EIw+xgY4et6lxad/aD76pTUczxs5yl2xSVwI
+   stObR2HivokLz+Kunp8RuBCYhWbj91aJVjE0++D67jJBnIBiMEMfT39kP
+   L8vwxYCUghimkE4T+ERxBrVC6rQLBnAWTYd57e23X+v5/7AUSeMOTqWy8
+   YiVbIH22J7A8vM3CQHgQnTFJkjf8PrLIahIYwRTg/EmgCRmH6hQ+EUOlQ
+   mVv+h0o8fD+OIKSv5hqCsQ4b33sNke5vMjDbvf7dJA2IFLcv0PMq9z9Zj
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10412"; a="286999542"
+X-IronPort-AV: E=Sophos;i="5.92,281,1650956400"; 
+   d="scan'208";a="286999542"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2022 09:01:01 -0700
+X-IronPort-AV: E=Sophos;i="5.92,281,1650956400"; 
+   d="scan'208";a="655344616"
+Received: from maurocar-mobl2.ger.corp.intel.com (HELO maurocar-mobl2) ([10.249.35.85])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2022 09:00:56 -0700
+Date:   Mon, 18 Jul 2022 18:00:54 +0200
+From:   Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
+To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Thomas =?UTF-8?B?SGVsbHN0?= =?UTF-8?B?csO2bQ==?= 
         <thomas.hellstrom@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        Chris Wilson <chris.p.wilson@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
- invalidations on idle engines
-Thread-Topic: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
- invalidations on idle engines
-Thread-Index: AQHYmrY8zdEzbxnvNkSYe57Mev6je62ERXnQ
-Date:   Mon, 18 Jul 2022 15:50:06 +0000
-Message-ID: <b244f88e85a44485be9038c622fa13b1@AcuMS.aculab.com>
+        Dave Airlie <airlied@redhat.com>, stable@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org
+Subject: Re: [Intel-gfx] [PATCH v2 04/21] drm/i915/gt: Only invalidate TLBs
+ exposed to user manipulation
+Message-ID: <20220718180054.048929ef@maurocar-mobl2>
+In-Reply-To: <72a40626-ee71-fffe-3816-933fbec92c4d@linux.intel.com>
 References: <cover.1657800199.git.mchehab@kernel.org>
-        <c014a1d743fa46a6b57f02bffb7badf438136442.1657800199.git.mchehab@kernel.org>
-        <76318fe1-37dc-8a1e-317e-76333995b8ca@linux.intel.com>
- <20220718165341.30ee6e31@maurocar-mobl2>
-In-Reply-To: <20220718165341.30ee6e31@maurocar-mobl2>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        <c0ab69f803cfe439f9218d0c0a930eae563dee83.1657800199.git.mchehab@kernel.org>
+        <72a40626-ee71-fffe-3816-933fbec92c4d@linux.intel.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiDQo+IFNlbnQ6IDE4IEp1bHkgMjAyMiAxNTo1NA0K
-PiANCj4gT24gTW9uLCAxOCBKdWwgMjAyMiAxNDoxNjoxMCArMDEwMA0KPiBUdnJ0a28gVXJzdWxp
-biA8dHZydGtvLnVyc3VsaW5AbGludXguaW50ZWwuY29tPiB3cm90ZToNCj4gDQo+ID4gT24gMTQv
-MDcvMjAyMiAxMzowNiwgTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIHdyb3RlOg0KPiA+ID4gRnJvbTog
-Q2hyaXMgV2lsc29uIDxjaHJpcy5wLndpbHNvbkBpbnRlbC5jb20+DQo+ID4gPg0KPiA+ID4gQ2hl
-Y2sgaWYgdGhlIGRldmljZSBpcyBwb3dlcmVkIGRvd24gcHJpb3IgdG8gYW55IGVuZ2luZSBhY3Rp
-dml0eSwNCj4gPiA+IGFzLCBvbiBzdWNoIGNhc2VzLCBhbGwgdGhlIFRMQnMgd2VyZSBhbHJlYWR5
-IGludmFsaWRhdGVkLCBzbyBhbg0KPiA+ID4gZXhwbGljaXQgVExCIGludmFsaWRhdGlvbiBpcyBu
-b3QgbmVlZGVkLCB0aHVzIHJlZHVjaW5nIHRoZQ0KPiA+ID4gcGVyZm9ybWFuY2UgcmVncmVzc2lv
-biBpbXBhY3QgZHVlIHRvIGl0Lg0KPiA+ID4NCj4gPiA+IFRoaXMgYmVjb21lcyBtb3JlIHNpZ25p
-ZmljYW50IHdpdGggR3VDLCBhcyBpdCBjYW4gb25seSBkbyBzbyB3aGVuDQo+ID4gPiB0aGUgY29u
-bmVjdGlvbiB0byB0aGUgR3VDIGlzIGF3YWtlLg0KPiA+ID4NCj4gPiA+IENjOiBzdGFibGVAdmdl
-ci5rZXJuZWwub3JnDQo+ID4gPiBGaXhlczogNzkzOGQ2MTU5MWQzICgiZHJtL2k5MTU6IEZsdXNo
-IFRMQnMgYmVmb3JlIHJlbGVhc2luZyBiYWNraW5nIHN0b3JlIikNCj4gPg0KPiA+IFBhdGNoIGl0
-c2VsZiBsb29rcyBmaW5lIGJ1dCBJIGRvbid0IHRoaW5rIHdlIGNsb3NlZCBvbiB0aGUgaXNzdWUg
-b2YNCj4gPiBzdGFibGUvZml4ZXMgb24gdGhpcyBwYXRjaD8NCj4gDQo+IE5vLCBiZWNhdXNlIFRM
-QiBjYWNoZSBpbnZhbGlkYXRpb24gdGFrZXMgdGltZSBhbmQgY2F1c2VzIHRpbWUgb3V0cywgd2hp
-Y2gNCj4gaW4gdHVybiBhZmZlY3RzIGFwcGxpY2F0aW9ucyBhbmQgcHJvZHVjZSBLZXJuZWwgd2Fy
-bmluZ3MuDQoNCkl0J3Mgbm90IG9ubHkgdGhlIFRMQiBmbHVzaGVzIHRoYXQgY2F1c2UgZ3JpZWYu
-DQoNClRoZXJlIGlzIGEgbG9vcCB0aGF0IGZvcmNlcyBhIHdyaXRlLWJhY2sgb2YgYWxsIHRoZSBm
-cmFtZSBidWZmZXIgcGFnZXMuDQpXaXRoIGEgbGFyZ2UgZGlzcGxheSBhbmQgc29tZSBjcHUgKGxp
-a2UgbXkgSXZ5IGJyaWRnZSBvbmUpIHRoYXQNCnRha2VzIGxvbmcgZW5vdWdoIHdpdGggcHJlLWVt
-cHRpb24gZGlzYWJsZWQgdGhhdCB3YWtldXAgb2YgUlQgcHJvY2Vzc2VzDQooYW5kIGFueSBwaW5u
-ZWQgdG8gdGhlIGNwdSkgdGFrZXMgZmFyIGxvbmdlciB0aGFuIG9uZSBtaWdodCBoYXZlDQp3aXNo
-ZWQgZm9yLg0KDQpTaW5jZSBzb21lIFggc2VydmVycyByZXF1ZXN0IGEgZmx1c2ggZXZlcnkgZmV3
-IHNlY29uZHMgdGhpcyBtYWtlcw0KdGhlIHN5c3RlbSB1bnVzYWJsZSBmb3Igc29tZSB3b3JrbG9h
-ZHMuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkg
-Um9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlv
-biBObzogMTM5NzM4NiAoV2FsZXMpDQo=
+On Mon, 18 Jul 2022 14:39:17 +0100
+Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
 
+> On 14/07/2022 13:06, Mauro Carvalho Chehab wrote:
+> > From: Chris Wilson <chris.p.wilson@intel.com>
+> > 
+> > Don't flush TLBs when the buffer is only used in the GGTT under full
+> > control of the kernel, as there's no risk of concurrent access
+> > and stale access from prefetch.
+> > 
+> > We only need to invalidate the TLB if they are accessible by the user.
+> > That helps to reduce the performance regression introduced by TLB
+> > invalidate logic.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")  
+> 
+> Do we really need or want stable and fixes on this one?
+> 
+> What do we think the performance improvement is, given there's very 
+> little in GGTT, which is not mapped via PPGTT as well?
+> 
+> I think it is safe, but part of me would ideally not even want to think 
+> about whether it is safe, if the performance improvement is 
+> non-existent. Which I can't imagine how there would be?
+
+Makes sense. Patch 6 actually ends removing the code doing
+that, so I'll just fold this patch with patch 6, in order to
+avoid adding something that will later be removed.
+
+Regards,
+Mauro
