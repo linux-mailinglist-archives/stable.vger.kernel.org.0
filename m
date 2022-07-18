@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F99578945
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 20:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B1E578946
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 20:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235812AbiGRSJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 14:09:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
+        id S235834AbiGRSJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 14:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235879AbiGRSJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 14:09:20 -0400
+        with ESMTP id S235960AbiGRSJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 14:09:21 -0400
 Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B0C32A408
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 11:09:17 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DBD525C00BB;
-        Mon, 18 Jul 2022 14:09:16 -0400 (EDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2C02D1E2
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 11:09:19 -0700 (PDT)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id C5BA65C0136;
+        Mon, 18 Jul 2022 14:09:18 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 18 Jul 2022 14:09:16 -0400
+  by compute1.internal (MEProxy); Mon, 18 Jul 2022 14:09:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
         :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1658167756; x=1658254156; bh=Du7er5SQVhxuW3kUx1splIMx/vSJydk7q3s
-        MOCxCorg=; b=4dJ5goc6lMYpkem4v7o0ERbl6Z6YhuumCMBlSRxOvFg0jvk7YwI
-        sVMEMUjXtRtJAHJnnsgpocnodLF8ieMPtT/cpJQkpBs58UUG08qDLAU60JRP4aKm
-        8+u7+j35linn7XIUsqxE9e8CiDJVoVfvnkU7MCZgAO1tbAw4bObe/NRCpKtrJT/y
-        uceV39RxjJ7zowQecrHKgZHrhOKKv/lASOluv7HC30djWqpJEJ/cyg/yC7FHPZKC
-        Nq+BpuJMjBVW0FD+5uyAXbh9cYEFaD+tlwIgXkp1Hty7a/CftjbkcltkXt0edJQU
-        SsaRLtNaE3TZ6tLLGIKQRA2KQm39r/3QH2A==
+        1658167758; x=1658254158; bh=zetN2Gdm7SQF49L9d/RaHd27ZFZZJEqIZva
+        4v9uU+Uo=; b=MyGqT2z9GBTFrKYQ/kjsuueYUB/qcbvKvzqSkuRT/sH8woIPgVH
+        As0fUMduWrZ4wCc/Nurhl17cSHwghbe+q5S+U6A9C5iSX/Vnv82sNZEBrJjNA2Or
+        0dIrt9jPrmG2cSDgk91g35AXwYDehPBMRIrUfY05zsu57U3gl6o9aYIslsaNpu14
+        wBasI0U/q0UZlyiuiMvciVFRuS2zXFSRQH6EQUVU1osNxqdMpzvvACHBb4lbMUYs
+        /QKOSppcsUPjJd2opPcDsgwZbB17ZTc1+AX0um88hKDZgnWtob68GS9mnRvLHNvc
+        7LMJv45BxxcHJ92+P5KNZ27U2CHyLI7T3zA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
         :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
         :message-id:mime-version:references:reply-to:sender:subject
         :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; t=1658167756; x=1658254156; bh=Du7er5SQVhxuW
-        3kUx1splIMx/vSJydk7q3sMOCxCorg=; b=XbBcUBFLu919Z6KwAfeQGFr4KczHL
-        SwfOLg05B1OciMLBoBl2NHIEBcq0e609ejTlYa/gN2Ue5yUQLLTmk5rOqE7y2hO/
-        eS9KMQBK9E39Y6ldIZFd1E6LJ0AfOZTjUlP4OWQYe3D9gbDWYHnBCspGIpsYk9+d
-        cgmn76Zql7XYJwYJZk05ADfpWSVi78SVhIlCzdR32o2bb9nMlgz2G1kUVP97eMvw
-        sHasNyN3Drr+MGZfmTtiZxKWq7tlij1e3fTSmwZlrqYr/oiamgZz/mhSjIKSlWNK
-        H4RKC3PiwWfse/bi5YjgLa0da78A9D+6Ijci8Tw/koHccbrv9egEKlKjA==
-X-ME-Sender: <xms:zKHVYqhLAs1vpS7xZlCHZB8jIxNmTCHRAJBx_OMmh5Fj-8WfmgFm4A>
-    <xme:zKHVYrBCyRCK9nxFfrA2T32uhvEPf-1Eb66vsUF1791iCuBtZ0HMbfvkutBYrofD_
-    R1_U3TnUKBJaZg>
-X-ME-Received: <xmr:zKHVYiHdOwnxQg9_2uB5KIuz18vrb--_MqopiBaNT9gLzj67kuXVSXTs0ExST8faPfmrqjsz-9vJ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudekkedguddulecutefuodetggdotefrod
+        :x-sasl-enc; s=fm3; t=1658167758; x=1658254158; bh=zetN2Gdm7SQF4
+        9L9d/RaHd27ZFZZJEqIZva4v9uU+Uo=; b=hChnZsCnCeM7i5qyYiHA08uFDvtS1
+        RmChDdLXcnweH5uJl5gXVt5moXdW13Y3A9CsIasGtrUs828+1M5mW9qiiG0vd7Yi
+        d7lgPt3/QJLuw5YWDn76zYgc1lnJdMGVyPj5jRSib6bB8auTuK3PqQMJxsEH4A7z
+        HuJgU1M4RFdYoNB3CZcj9Rfl2l9MD2oUgY/dMAvtVLAr/DCu6Iqz/0Oi21M91eR1
+        0tAA8uIeeD1z6KjiaYvIap+7mzeihX5jNXYto3x2upBukbgOMMIMHuEiDAkgAPhm
+        yiWqH0usd5hKx3Lq0z6GNgWoOEgvfu97NQIH+LUDEKTTUbhUH97DsbT0w==
+X-ME-Sender: <xms:zqHVYphSD1nSPcrjuWhXYEJ9jEcH5T21zncHVsbHglUW3WC6mFaaFA>
+    <xme:zqHVYuDW0OtzhVNfwKGI1Zcb9yXiR6cEHjbpP0nbuq_jSQezTFBUmv8R2yTGTwK3o
+    IWSPmrdoofoin0>
+X-ME-Received: <xmr:zqHVYpEV2VbMNnjDdrl3MD2XTZbeCU5UV-KgSDTSdT6K3Q40DeWa_Qniq5MAGdWokPqjLwOBdhSU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudekkedguddukecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
     enucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeffvghm
@@ -55,13 +55,13 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudekkedguddulecutefuodetgg
     hefghffhffejteekleeufeffteffhfdtudehteenucevlhhushhtvghrufhiiigvpedtne
     curfgrrhgrmhepmhgrihhlfhhrohhmpeguvghmihesihhnvhhishhisghlvghthhhinhhg
     shhlrggsrdgtohhm
-X-ME-Proxy: <xmx:zKHVYjQ5eHTM9J0B2_sdBEkULiScYXy3YFWR9L5D-6Haf9SIEVpjlg>
-    <xmx:zKHVYnzXyKqS5KmHtNIjw_ZUbpA8823OJdbaVRiidz69Q2d4mz5Q7g>
-    <xmx:zKHVYh7EU9iEx87dzbbtFois8qbxbJI520NGQbRAqSfDWh3YJpFXaw>
-    <xmx:zKHVYpuSWtfxhWv2PvI5HxpLPRusL5kgqB62GTjZwKuHkFYsv-NYaQ>
+X-ME-Proxy: <xmx:zqHVYuTgXejzC2BU3Gf1cUeoZX5jRRR8__E4bZs0JPQjZKUoHvSnDA>
+    <xmx:zqHVYmxdeY58J5cTXPUv01V7ydzfpCI5tx47ROkhV_id1i47S_VUAw>
+    <xmx:zqHVYk5rEvxO3y-9hQmrJWCt_vLy47bnvihVc-e0CDlpNlA6NSAViw>
+    <xmx:zqHVYgtgzUifzsg73I53O2w68gkBsIJq54YGyJMzmMnFTj7M_q0iyA>
 Feedback-ID: iac594737:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 18 Jul 2022 14:09:16 -0400 (EDT)
+ 18 Jul 2022 14:09:17 -0400 (EDT)
 From:   Demi Marie Obenour <demi@invisiblethingslab.com>
 To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Juergen Gross <jgross@suse.com>,
@@ -69,9 +69,9 @@ To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Demi Marie Obenour <demi@invisiblethingslab.com>,
         xen-devel@lists.xenproject.org, stable@vger.kernel.org
-Subject: [PATCH 2/5] Ignore failure to unmap -1
-Date:   Mon, 18 Jul 2022 14:08:19 -0400
-Message-Id: <20220718180820.2555-3-demi@invisiblethingslab.com>
+Subject: [PATCH 3/5] Ignore failure to unmap -1
+Date:   Mon, 18 Jul 2022 14:08:20 -0400
+Message-Id: <20220718180820.2555-4-demi@invisiblethingslab.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220718180820.2555-1-demi@invisiblethingslab.com>
 References: <20220718180820.2555-1-demi@invisiblethingslab.com>
@@ -102,16 +102,16 @@ unmapping can legitimately fail.
 Suggested-by: Juergen Gross <jgross@suse.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Fixes: 2fe26a9a7048 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Fixes: 73e9e72247b9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
 ---
  drivers/xen/gntdev.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 2827015604fbaa45f0ca60c342bbf71ce4132dec..799173755b785e2f3e2483855f75af1eba8e9373 100644
+index 492084814f55d8ed46d2d656db75b28a91dd7f06..27d955c5d9f9076266f77b9fedfa1a6a2ba08f56 100644
 --- a/drivers/xen/gntdev.c
 +++ b/drivers/xen/gntdev.c
-@@ -393,7 +393,8 @@ static void __unmap_grant_pages_done(int result,
+@@ -416,7 +416,8 @@ static void __unmap_grant_pages_done(int result,
  	unsigned int offset = data->unmap_ops - map->unmap_ops;
  
  	for (i = 0; i < data->count; i++) {
