@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7761C5786AE
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 17:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87F05786B5
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 17:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231334AbiGRPtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 11:49:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58800 "EHLO
+        id S234870AbiGRPtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 11:49:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229639AbiGRPtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:49:13 -0400
+        with ESMTP id S230174AbiGRPtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:49:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4871265D
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:49:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D5F0B4B1
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:49:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E228B8165A
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 15:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BBBC341C0;
-        Mon, 18 Jul 2022 15:49:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3770B8165E
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 15:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A13BC341CA;
+        Mon, 18 Jul 2022 15:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658159350;
-        bh=r72Rbnk1G4NMtRwv6j+nPPgMgWvgnTvY+HBeBVuLzUw=;
+        s=korg; t=1658159358;
+        bh=7Ggm60N68l/vQVqa2M12mRzK9ja9CnzBBjGY9+pw91U=;
         h=Subject:To:Cc:From:Date:From;
-        b=NP8MAlcvetOhuPfw/HRrITCqAASDGupkiYnMOqOx3l4AqSs0XAGqOWieMQwtypLFS
-         bir5VCx2skUNnJt9z7PZo/zTahvIycu+zfpBukApi/z4mTMItlNlZmwkpZwLYnziII
-         h8HNEaeRQSn4obczBrlh7LViPYZMGzQr9VGaR41E=
-Subject: FAILED: patch "[PATCH] serial: mvebu-uart: correctly report configured baudrate" failed to apply to 5.15-stable tree
+        b=ElK6EA5Vshk5ucqS40hQveDsBbxdKRUoBV2HE5xFB6CR2PDip7cPD/7h2i6flFSYw
+         0+hXirgn82FaCEzoKXOpZCj/ThvB5CQimn2RHXMMtM8qHOCv1WB/ueFhySfk1mNHBL
+         uSb9tdu6Qs1qtuyl/57NZ61OPY1Pl1GiTaXvfAT0=
+Subject: FAILED: patch "[PATCH] serial: mvebu-uart: correctly report configured baudrate" failed to apply to 5.4-stable tree
 To:     pali@kernel.org, gregkh@linuxfoundation.org,
         ilpo.jarvinen@linux.intel.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jul 2022 17:49:07 +0200
-Message-ID: <16581593477499@kroah.com>
+Date:   Mon, 18 Jul 2022 17:49:08 +0200
+Message-ID: <1658159348133197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
