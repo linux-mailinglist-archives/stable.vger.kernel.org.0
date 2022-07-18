@@ -2,78 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9AF578B49
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 21:56:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF262578BE0
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 22:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbiGRTzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 15:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
+        id S235930AbiGRUfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 16:35:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235979AbiGRTzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 15:55:33 -0400
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B7E2B250
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 12:55:33 -0700 (PDT)
-Received: by mail-yb1-xb41.google.com with SMTP id 64so22791622ybt.12
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 12:55:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=h0ZslgqQ94UM3iGDYCZGEx8ZwvbYHY5ZrQARiO/Kpbc=;
-        b=HVCuRE4RG/5rXdX9sRHb8ZQTO0ahmYn3w3CtJkCzHjdqDZj8+W9wTXDUUeoZd9AtYK
-         l9kScs2tNMCQgQnLi1gjGoIjWr+UPpC9rrXov6aS48NTSA8cnPTe1wPJ0weACG4JGxOL
-         ULcFs4A3ymCNMRrpipIPQVRT7MbXOJZRMClTpmAzPzKjJsA7gxZqCRiLdqZcGEzHI7+R
-         n1cQkHjFThVaJJeMhAYusCAxc6XUVyAYC+HgDhveAkx3g2+x9kUM3Z+sk14rHXEc3762
-         CkPkvI46UaD7RwoPFJTekVFnsAscZnTYrYqh5LKeY6pJzAQsrq8tYM4sKepRGvNkZubG
-         ZVBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=h0ZslgqQ94UM3iGDYCZGEx8ZwvbYHY5ZrQARiO/Kpbc=;
-        b=j0z+7AF0skKg67Yb/bL4pK8dwFs3v4IztGZHuEuj28WuUm8Quh2vdnFhtiqhD/pVA+
-         fRxqxHZRXEnjfJ6P5lwBXuqXfox0TwRjHHdwT5gJq8nJ1tfj9xCOE2OV2v0wZ9esnslu
-         NajN9pOdtPhpfnXumP3z7bOR8+zjJjhB0Qi190+qQ4EtuH8N1WHVEyRWzOdim4zCY7Rg
-         xBCsEzYdYYCnXQr9SV+Cj5eaFeY/bnlEDsfTDFZ2Xz/tqoWerJP5J6TBmJZNh52GnHRQ
-         ogSbsMk+R3BgENK8nJVKICvANeDfGz2/q5zQqpoC/3xSPztInLyPwMuU8w7r+tl2qrKf
-         D68g==
-X-Gm-Message-State: AJIora9I7uHiG5NK78hRJZgN5xpF1MFA3S265s6hnL/+6gHOLcf9DFXy
-        f6DzTk2NCyywh11esPPtWo1U2l3KUKIpP0AF4mI=
-X-Google-Smtp-Source: AGRyM1sIKZGV8rKedeSqneamIEQqdvwJKdkVHr9z2pmJPThkmncgRFY8wX7Q5BbTOQrK0bPbiTRpEEVlxC6DCsLsGgA=
-X-Received: by 2002:a25:d94f:0:b0:66e:626f:7786 with SMTP id
- q76-20020a25d94f000000b0066e626f7786mr27145212ybg.426.1658174132233; Mon, 18
- Jul 2022 12:55:32 -0700 (PDT)
+        with ESMTP id S235704AbiGRUfg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 16:35:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978C330556
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 13:35:34 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EF41B817A8
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 20:35:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B4AC341C0;
+        Mon, 18 Jul 2022 20:35:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658176532;
+        bh=vfdnsO+OlAsr9jM0RpD3lwAK42Wi9S5+wWzIvth2PU8=;
+        h=Subject:To:Cc:From:Date:From;
+        b=CRn6+mDBLifTOS8gUzFdfJEFfsJ7VLJ/Ha9wcIb1NYrmQvO3+YVhuLmgyTrWwQFoE
+         GOEXBvanBNQXVkN6a+sdzDpMRIegEc1eMQ3+GYssaL9v3DYnZaSy0zSPIbtCpoAY3l
+         vWxo3gH5e/j47fDfzAlt0rBBRjkEfSLCndLehp74=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Ensure valid event timestamp for cursor-only" failed to apply to 5.10-stable tree
+To:     mdaenzer@redhat.com, alexander.deucher@amd.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Jul 2022 22:35:28 +0200
+Message-ID: <1658176528920@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a05:7000:34dd:0:0:0:0 with HTTP; Mon, 18 Jul 2022 12:55:31
- -0700 (PDT)
-Reply-To: lilywilliam989@gmail.com
-From:   Lily William <rayimemogn@gmail.com>
-Date:   Mon, 18 Jul 2022 11:55:31 -0800
-Message-ID: <CAMefwTOQmVXjb44T7OnN_ndTQV77_1EGnGDmW6bYhR34jKRNrw@mail.gmail.com>
-Subject: Hi Dear,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Dear,
 
-My name is Dr Lily William from the United States.I am a French and
-American nationality (dual) living in the U.S and sometimes in France
-for Work Purpose.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I hope you consider my friend request. I will share some of my pics
-and more details about myself when I get your response.
+thanks,
 
-Thanks
+greg k-h
 
-With love
-Lily
+------------------ original commit in Linus's tree ------------------
+
+From 3283c83eb6fcfbda8ea03d7149d8e42e71c5d45e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Mon, 11 Jul 2022 16:51:31 +0200
+Subject: [PATCH] drm/amd/display: Ensure valid event timestamp for cursor-only
+ commits
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Requires enabling the vblank machinery for them.
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2030
+Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index d2e628358429..93ac33a8de9a 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -463,6 +463,26 @@ static void dm_pflip_high_irq(void *interrupt_params)
+ 		     vrr_active, (int) !e);
+ }
+ 
++static void dm_crtc_handle_vblank(struct amdgpu_crtc *acrtc)
++{
++	struct drm_crtc *crtc = &acrtc->base;
++	struct drm_device *dev = crtc->dev;
++	unsigned long flags;
++
++	drm_crtc_handle_vblank(crtc);
++
++	spin_lock_irqsave(&dev->event_lock, flags);
++
++	/* Send completion event for cursor-only commits */
++	if (acrtc->event && acrtc->pflip_status != AMDGPU_FLIP_SUBMITTED) {
++		drm_crtc_send_vblank_event(crtc, acrtc->event);
++		drm_crtc_vblank_put(crtc);
++		acrtc->event = NULL;
++	}
++
++	spin_unlock_irqrestore(&dev->event_lock, flags);
++}
++
+ static void dm_vupdate_high_irq(void *interrupt_params)
+ {
+ 	struct common_irq_params *irq_params = interrupt_params;
+@@ -501,7 +521,7 @@ static void dm_vupdate_high_irq(void *interrupt_params)
+ 		 * if a pageflip happened inside front-porch.
+ 		 */
+ 		if (vrr_active) {
+-			drm_crtc_handle_vblank(&acrtc->base);
++			dm_crtc_handle_vblank(acrtc);
+ 
+ 			/* BTR processing for pre-DCE12 ASICs */
+ 			if (acrtc->dm_irq_params.stream &&
+@@ -553,7 +573,7 @@ static void dm_crtc_high_irq(void *interrupt_params)
+ 	 * to dm_vupdate_high_irq after end of front-porch.
+ 	 */
+ 	if (!vrr_active)
+-		drm_crtc_handle_vblank(&acrtc->base);
++		dm_crtc_handle_vblank(acrtc);
+ 
+ 	/**
+ 	 * Following stuff must happen at start of vblank, for crc
+@@ -9174,6 +9194,7 @@ static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
+ 	struct amdgpu_bo *abo;
+ 	uint32_t target_vblank, last_flip_vblank;
+ 	bool vrr_active = amdgpu_dm_vrr_active(acrtc_state);
++	bool cursor_update = false;
+ 	bool pflip_present = false;
+ 	struct {
+ 		struct dc_surface_update surface_updates[MAX_SURFACES];
+@@ -9209,8 +9230,13 @@ static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
+ 		struct dm_plane_state *dm_new_plane_state = to_dm_plane_state(new_plane_state);
+ 
+ 		/* Cursor plane is handled after stream updates */
+-		if (plane->type == DRM_PLANE_TYPE_CURSOR)
++		if (plane->type == DRM_PLANE_TYPE_CURSOR) {
++			if ((fb && crtc == pcrtc) ||
++			    (old_plane_state->fb && old_plane_state->crtc == pcrtc))
++				cursor_update = true;
++
+ 			continue;
++		}
+ 
+ 		if (!fb || !crtc || pcrtc != crtc)
+ 			continue;
+@@ -9373,6 +9399,17 @@ static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
+ 				bundle->stream_update.vrr_infopacket =
+ 					&acrtc_state->stream->vrr_infopacket;
+ 		}
++	} else if (cursor_update && acrtc_state->active_planes > 0 &&
++		   !acrtc_state->force_dpms_off &&
++		   acrtc_attach->base.state->event) {
++		drm_crtc_vblank_get(pcrtc);
++
++		spin_lock_irqsave(&pcrtc->dev->event_lock, flags);
++
++		acrtc_attach->event = acrtc_attach->base.state->event;
++		acrtc_attach->base.state->event = NULL;
++
++		spin_unlock_irqrestore(&pcrtc->dev->event_lock, flags);
+ 	}
+ 
+ 	/* Update the planes if changed or disable if we don't have any. */
+
