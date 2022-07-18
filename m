@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 158955786A6
+	by mail.lfdr.de (Postfix) with ESMTP id EC49E5786A7
 	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 17:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234786AbiGRPq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 11:46:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56856 "EHLO
+        id S231334AbiGRPq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 11:46:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234831AbiGRPqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:46:24 -0400
+        with ESMTP id S234832AbiGRPq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:46:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D8F52A243
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:46:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 651D52A249
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:46:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8E5AB8165E
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 15:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E016C341C0;
-        Mon, 18 Jul 2022 15:46:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0522BB8165B
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 15:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D04C341C0;
+        Mon, 18 Jul 2022 15:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658159180;
-        bh=yshkrMSo5J7RXjAharhY9jvScD7vPVp6JvuJJf1pR+Y=;
+        s=korg; t=1658159183;
+        bh=lht7hV427LATpVbQ5xJG3jPWtNigqp7WP3+5a5a1P68=;
         h=Subject:To:Cc:From:Date:From;
-        b=fyb/qnjUsMoEeoAvzBFn/rGYhbrxFuYxRWw+FYDuGGYl1Akr+n7GHyBtjZSGhHVF0
-         IPhMcjln9LBYSZv39Di2U+xseAQJjhN2KGVZZrKyEseb+nKJlG/HDxAEge0p12lxmn
-         nItgynruUhqBTKLN9jsGQO1wreLU9wTgwNIBcJzY=
-Subject: FAILED: patch "[PATCH] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE" failed to apply to 4.19-stable tree
+        b=nh9/ImIOuqS67IF9VmdtJS8B1PpEe2+K1qE8ttvqzrEx8SZOZhhaSb02Sf0BgYli1
+         HAV35Y7ypdpyVugbe1uDRI5o/uGepUBuRevpKuYkaecSB//OcamgeYxOXw+5MRcV0I
+         03y1myTz25MFBC0TZZnH4QVhIsIdRaLHOs+f9U1E=
+Subject: FAILED: patch "[PATCH] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE" failed to apply to 4.14-stable tree
 To:     demi@invisiblethingslab.com, jgross@suse.com,
         oleksandr_tyshchenko@epam.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jul 2022 17:46:13 +0200
-Message-ID: <165815917315636@kroah.com>
+Date:   Mon, 18 Jul 2022 17:46:14 +0200
+Message-ID: <1658159174107255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
