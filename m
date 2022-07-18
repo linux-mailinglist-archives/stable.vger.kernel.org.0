@@ -2,43 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4A85786BF
-	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 17:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D59A85786C0
+	for <lists+stable@lfdr.de>; Mon, 18 Jul 2022 17:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235065AbiGRPuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Jul 2022 11:50:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60202 "EHLO
+        id S235080AbiGRPuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Jul 2022 11:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235078AbiGRPuF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:50:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C516E00D
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:50:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0570AB8163C
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 15:50:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE3DC341C0;
-        Mon, 18 Jul 2022 15:50:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658159401;
-        bh=v5OkgN48lEr0uz3hYDT2+Zg+yR4QtygLKHVcZW7NmkY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=mPMrtfSg1cGj1/asLIK3nveLH9cTPeRusW605MY+lD4oovkkWYjobVtNLryHt4QlD
-         hbeXXn7JWeKY/C+umniyMPHb0Ju4QzIQ8i9qJEXOLIdh4RByOdiJlxORNUjP0ayGUG
-         q3Q04RdRqbypbzBkN9/fgoK7uLoC8CikMbZcpJOs=
-Subject: FAILED: patch "[PATCH] x86/pat: Fix x86_has_pat_wp()" failed to apply to 4.14-stable tree
-To:     jgross@suse.com, bp@suse.de, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Jul 2022 17:49:49 +0200
-Message-ID: <165815938910133@kroah.com>
+        with ESMTP id S235077AbiGRPuN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Jul 2022 11:50:13 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E78DD22B34
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 08:50:11 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-117-A0hH_xv2Ml6J23bNz6aY3A-1; Mon, 18 Jul 2022 16:50:09 +0100
+X-MC-Unique: A0hH_xv2Ml6J23bNz6aY3A-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.36; Mon, 18 Jul 2022 16:50:06 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.036; Mon, 18 Jul 2022 16:50:06 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Mauro Carvalho Chehab' <mauro.chehab@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        Chris Wilson <chris.p.wilson@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Dave Airlie <airlied@redhat.com>,
+        =?utf-8?B?VGhvbWFzIEhlbGxzdHLDtm0=?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
+ invalidations on idle engines
+Thread-Topic: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
+ invalidations on idle engines
+Thread-Index: AQHYmrY8zdEzbxnvNkSYe57Mev6je62ERXnQ
+Date:   Mon, 18 Jul 2022 15:50:06 +0000
+Message-ID: <b244f88e85a44485be9038c622fa13b1@AcuMS.aculab.com>
+References: <cover.1657800199.git.mchehab@kernel.org>
+        <c014a1d743fa46a6b57f02bffb7badf438136442.1657800199.git.mchehab@kernel.org>
+        <76318fe1-37dc-8a1e-317e-76333995b8ca@linux.intel.com>
+ <20220718165341.30ee6e31@maurocar-mobl2>
+In-Reply-To: <20220718165341.30ee6e31@maurocar-mobl2>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,73 +74,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 230ec83d4299b30c51a1c133b4f2a669972cc08a Mon Sep 17 00:00:00 2001
-From: Juergen Gross <jgross@suse.com>
-Date: Fri, 8 Jul 2022 15:14:56 +0200
-Subject: [PATCH] x86/pat: Fix x86_has_pat_wp()
-
-x86_has_pat_wp() is using a wrong test, as it relies on the normal
-PAT configuration used by the kernel. In case the PAT MSR has been
-setup by another entity (e.g. Xen hypervisor) it might return false
-even if the PAT configuration is allowing WP mappings. This due to the
-fact that when running as Xen PV guest the PAT MSR is setup by the
-hypervisor and cannot be changed by the guest. This results in the WP
-related entry to be at a different position when running as Xen PV
-guest compared to the bare metal or fully virtualized case.
-
-The correct way to test for WP support is:
-
-1. Get the PTE protection bits needed to select WP mode by reading
-   __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP] (depending on the PAT MSR
-   setting this might return protection bits for a stronger mode, e.g.
-   UC-)
-2. Translate those bits back into the real cache mode selected by those
-   PTE bits by reading __pte2cachemode_tbl[__pte2cm_idx(prot)]
-3. Test for the cache mode to be _PAGE_CACHE_MODE_WP
-
-Fixes: f88a68facd9a ("x86/mm: Extend early_memremap() support with additional attrs")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org> # 4.14
-Link: https://lore.kernel.org/r/20220503132207.17234-1-jgross@suse.com
-
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index d8cfce221275..57ba5502aecf 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -77,10 +77,20 @@ static uint8_t __pte2cachemode_tbl[8] = {
- 	[__pte2cm_idx(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)] = _PAGE_CACHE_MODE_UC,
- };
- 
--/* Check that the write-protect PAT entry is set for write-protect */
-+/*
-+ * Check that the write-protect PAT entry is set for write-protect.
-+ * To do this without making assumptions how PAT has been set up (Xen has
-+ * another layout than the kernel), translate the _PAGE_CACHE_MODE_WP cache
-+ * mode via the __cachemode2pte_tbl[] into protection bits (those protection
-+ * bits will select a cache mode of WP or better), and then translate the
-+ * protection bits back into the cache mode using __pte2cm_idx() and the
-+ * __pte2cachemode_tbl[] array. This will return the really used cache mode.
-+ */
- bool x86_has_pat_wp(void)
- {
--	return __pte2cachemode_tbl[_PAGE_CACHE_MODE_WP] == _PAGE_CACHE_MODE_WP;
-+	uint16_t prot = __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP];
-+
-+	return __pte2cachemode_tbl[__pte2cm_idx(prot)] == _PAGE_CACHE_MODE_WP;
- }
- 
- enum page_cache_mode pgprot2cachemode(pgprot_t pgprot)
+RnJvbTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiDQo+IFNlbnQ6IDE4IEp1bHkgMjAyMiAxNTo1NA0K
+PiANCj4gT24gTW9uLCAxOCBKdWwgMjAyMiAxNDoxNjoxMCArMDEwMA0KPiBUdnJ0a28gVXJzdWxp
+biA8dHZydGtvLnVyc3VsaW5AbGludXguaW50ZWwuY29tPiB3cm90ZToNCj4gDQo+ID4gT24gMTQv
+MDcvMjAyMiAxMzowNiwgTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIHdyb3RlOg0KPiA+ID4gRnJvbTog
+Q2hyaXMgV2lsc29uIDxjaHJpcy5wLndpbHNvbkBpbnRlbC5jb20+DQo+ID4gPg0KPiA+ID4gQ2hl
+Y2sgaWYgdGhlIGRldmljZSBpcyBwb3dlcmVkIGRvd24gcHJpb3IgdG8gYW55IGVuZ2luZSBhY3Rp
+dml0eSwNCj4gPiA+IGFzLCBvbiBzdWNoIGNhc2VzLCBhbGwgdGhlIFRMQnMgd2VyZSBhbHJlYWR5
+IGludmFsaWRhdGVkLCBzbyBhbg0KPiA+ID4gZXhwbGljaXQgVExCIGludmFsaWRhdGlvbiBpcyBu
+b3QgbmVlZGVkLCB0aHVzIHJlZHVjaW5nIHRoZQ0KPiA+ID4gcGVyZm9ybWFuY2UgcmVncmVzc2lv
+biBpbXBhY3QgZHVlIHRvIGl0Lg0KPiA+ID4NCj4gPiA+IFRoaXMgYmVjb21lcyBtb3JlIHNpZ25p
+ZmljYW50IHdpdGggR3VDLCBhcyBpdCBjYW4gb25seSBkbyBzbyB3aGVuDQo+ID4gPiB0aGUgY29u
+bmVjdGlvbiB0byB0aGUgR3VDIGlzIGF3YWtlLg0KPiA+ID4NCj4gPiA+IENjOiBzdGFibGVAdmdl
+ci5rZXJuZWwub3JnDQo+ID4gPiBGaXhlczogNzkzOGQ2MTU5MWQzICgiZHJtL2k5MTU6IEZsdXNo
+IFRMQnMgYmVmb3JlIHJlbGVhc2luZyBiYWNraW5nIHN0b3JlIikNCj4gPg0KPiA+IFBhdGNoIGl0
+c2VsZiBsb29rcyBmaW5lIGJ1dCBJIGRvbid0IHRoaW5rIHdlIGNsb3NlZCBvbiB0aGUgaXNzdWUg
+b2YNCj4gPiBzdGFibGUvZml4ZXMgb24gdGhpcyBwYXRjaD8NCj4gDQo+IE5vLCBiZWNhdXNlIFRM
+QiBjYWNoZSBpbnZhbGlkYXRpb24gdGFrZXMgdGltZSBhbmQgY2F1c2VzIHRpbWUgb3V0cywgd2hp
+Y2gNCj4gaW4gdHVybiBhZmZlY3RzIGFwcGxpY2F0aW9ucyBhbmQgcHJvZHVjZSBLZXJuZWwgd2Fy
+bmluZ3MuDQoNCkl0J3Mgbm90IG9ubHkgdGhlIFRMQiBmbHVzaGVzIHRoYXQgY2F1c2UgZ3JpZWYu
+DQoNClRoZXJlIGlzIGEgbG9vcCB0aGF0IGZvcmNlcyBhIHdyaXRlLWJhY2sgb2YgYWxsIHRoZSBm
+cmFtZSBidWZmZXIgcGFnZXMuDQpXaXRoIGEgbGFyZ2UgZGlzcGxheSBhbmQgc29tZSBjcHUgKGxp
+a2UgbXkgSXZ5IGJyaWRnZSBvbmUpIHRoYXQNCnRha2VzIGxvbmcgZW5vdWdoIHdpdGggcHJlLWVt
+cHRpb24gZGlzYWJsZWQgdGhhdCB3YWtldXAgb2YgUlQgcHJvY2Vzc2VzDQooYW5kIGFueSBwaW5u
+ZWQgdG8gdGhlIGNwdSkgdGFrZXMgZmFyIGxvbmdlciB0aGFuIG9uZSBtaWdodCBoYXZlDQp3aXNo
+ZWQgZm9yLg0KDQpTaW5jZSBzb21lIFggc2VydmVycyByZXF1ZXN0IGEgZmx1c2ggZXZlcnkgZmV3
+IHNlY29uZHMgdGhpcyBtYWtlcw0KdGhlIHN5c3RlbSB1bnVzYWJsZSBmb3Igc29tZSB3b3JrbG9h
+ZHMuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkg
+Um9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlv
+biBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
