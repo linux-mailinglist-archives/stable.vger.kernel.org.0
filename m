@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130FC579979
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29187579C29
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237986AbiGSMDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:03:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39746 "EHLO
+        id S240617AbiGSMgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:36:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237832AbiGSMCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:02:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 357274B4B2;
-        Tue, 19 Jul 2022 04:59:11 -0700 (PDT)
+        with ESMTP id S240744AbiGSMgU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AA0796B7;
+        Tue, 19 Jul 2022 05:14:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4AB061614;
-        Tue, 19 Jul 2022 11:59:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85365C341C6;
-        Tue, 19 Jul 2022 11:59:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BECD6178A;
+        Tue, 19 Jul 2022 12:14:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E4BC341C6;
+        Tue, 19 Jul 2022 12:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231949;
-        bh=/ipGYTVwk1OzimX0UrqPplK1MkgzjYeMLu3WOu1KFfA=;
+        s=korg; t=1658232848;
+        bh=iRdcB/QDuKaxQEa1v+agCnxuXz0oKFDO+q7CXH6ZxRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzVsEAMeQnohoer+Oflba2yo0Mw9UUOD5nhz5agYNFeNPi3FBsUJOpsnbMWQf65Vb
-         Oca10Uyik3oKkocHZ3Dlu/Uc4ZodprEq+z7mdxQkSVjueUhrlM+bqZ4wKa+ZWDoB/d
-         HjUOg9CFEDocofkxMuimQHoXBTbS34xXlbcXQt3w=
+        b=zaT9FFf+VAWS9bAhw8Rm7T8U7Pj/iz+MlnjYkrfiVn5na366ejshJqzjbWd4qWJH0
+         W0OiXDSwAkLDxFB1GLiSl3sAl6W0EU5ONi3ALf9tbiMlYIeYdouDIys7S16FFxfXE9
+         /ZQXGQS1mGutOA/80vD2Qh6G/BtzBb3XlPnqRpJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 01/48] ALSA: hda - Add fixup for Dell Latitidue E5430
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 086/167] icmp: Fix a data-race around sysctl_icmp_errors_use_inbound_ifaddr.
 Date:   Tue, 19 Jul 2022 13:53:38 +0200
-Message-Id: <20220719114520.110422511@linuxfoundation.org>
+Message-Id: <20220719114704.885929079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,31 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 841bdf85c226803a78a9319af9b2caa9bf3e2eda upstream.
+[ Upstream commit d2efabce81db7eed1c98fa1a3f203f0edd738ac3 ]
 
-Another Dell model, another fixup entry: Latitude E5430 needs the same
-fixup as other Latitude E series as workaround for noise problems.
+While reading sysctl_icmp_errors_use_inbound_ifaddr, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220712060005.20176-1-tangmeng@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1c2fb7f93cb2 ("[IPV4]: Sysctl configurable icmp error source address.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/icmp.c            | 2 +-
+ net/ipv4/sysctl_net_ipv4.c | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7029,6 +7029,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x1330, "Acer TravelMate X514-51T", ALC255_FIXUP_ACER_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0470, "Dell M101z", ALC269_FIXUP_DELL_M101Z),
-+	SND_PCI_QUIRK(0x1028, 0x053c, "Dell Latitude E5430", ALC292_FIXUP_DELL_E7X),
- 	SND_PCI_QUIRK(0x1028, 0x054b, "Dell XPS one 2710", ALC275_FIXUP_DELL_XPS),
- 	SND_PCI_QUIRK(0x1028, 0x05bd, "Dell Latitude E6440", ALC292_FIXUP_DELL_E7X),
- 	SND_PCI_QUIRK(0x1028, 0x05be, "Dell Latitude E6540", ALC292_FIXUP_DELL_E7X),
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 6f444b2b7d1a..e40a79bb0a6e 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -702,7 +702,7 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
+ 
+ 		rcu_read_lock();
+ 		if (rt_is_input_route(rt) &&
+-		    net->ipv4.sysctl_icmp_errors_use_inbound_ifaddr)
++		    READ_ONCE(net->ipv4.sysctl_icmp_errors_use_inbound_ifaddr))
+ 			dev = dev_get_by_index_rcu(net, inet_iif(skb_in));
+ 
+ 		if (dev)
+diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+index 51863031b178..49a8167dda87 100644
+--- a/net/ipv4/sysctl_net_ipv4.c
++++ b/net/ipv4/sysctl_net_ipv4.c
+@@ -648,6 +648,8 @@ static struct ctl_table ipv4_net_table[] = {
+ 		.maxlen		= sizeof(u8),
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dou8vec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE
+ 	},
+ 	{
+ 		.procname	= "icmp_ratelimit",
+-- 
+2.35.1
+
 
 
