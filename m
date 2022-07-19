@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1C6579A91
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F832579E1D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239079AbiGSMPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
+        id S242125AbiGSM6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:58:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239676AbiGSMOz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D85453D24;
-        Tue, 19 Jul 2022 05:05:50 -0700 (PDT)
+        with ESMTP id S242165AbiGSM5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:57:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2925D0C9;
+        Tue, 19 Jul 2022 05:23:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 435FECE1BE5;
-        Tue, 19 Jul 2022 12:05:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B218C341C6;
-        Tue, 19 Jul 2022 12:05:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 662D2B81B21;
+        Tue, 19 Jul 2022 12:23:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A09C341CA;
+        Tue, 19 Jul 2022 12:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232342;
-        bh=kPEkXdJG6toWpLYoJEYZmYyKfOgzuHoZaGUd+sZWypk=;
+        s=korg; t=1658233385;
+        bh=EfOYFyw83csPAeTB3cOrj1p3bu3mp5DP6XDuWqNdGtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7Mum2+6tYaM0l3LFjc8UM5rh/s1bibntKmiOR7q9e3WXfk4XnrNZ+/6NfxKiznXA
-         GildjW1UoALNH3bTUsaq3xYCah1/U2ysratjglbRatyfo6BA+HNjrz9CFwmtSLejXk
-         ozrbN/hSAXzmUA06VAPIhKqlhZu4tcmpknV/fFEo=
+        b=Y6cfv2n8gZ729uJoy46PB7fHnBOPVyN6cEGp4NNNZxae6fnbDuLmvJAuJOBqsdzTL
+         dVAOe7ui8zj4BBsnCMqo4QC/hLGu93RQ6UMe1LRfU9DbGUxnTgi97Fs2ur9jkawfl1
+         xzE22toJYVPClpX1/A3gsAHEkWDI6F8SJ98eqUPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominique MARTINET <dominique.martinet@atmark-techno.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 017/112] btrfs: return -EAGAIN for NOWAIT dio reads/writes on compressed and inline extents
+        stable@vger.kernel.org, Kashyap Desai <kashyap.desai@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 105/231] bnxt_en: reclaim max resources if sriov enable fails
 Date:   Tue, 19 Jul 2022 13:53:10 +0200
-Message-Id: <20220719114627.652374367@linuxfoundation.org>
+Message-Id: <20220719114723.475307137@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Kashyap Desai <kashyap.desai@broadcom.com>
 
-commit a4527e1853f8ff6e0b7c2dadad6268bd38427a31 upstream.
+[ Upstream commit c5b744d38c36a407a41e918602eec4d89730787b ]
 
-When doing a direct IO read or write, we always return -ENOTBLK when we
-find a compressed extent (or an inline extent) so that we fallback to
-buffered IO. This however is not ideal in case we are in a NOWAIT context
-(io_uring for example), because buffered IO can block and we currently
-have no support for NOWAIT semantics for buffered IO, so if we need to
-fallback to buffered IO we should first signal the caller that we may
-need to block by returning -EAGAIN instead.
+If bnxt_sriov_enable() fails after some resources have been reserved
+for the VFs, the current code is not unwinding properly and the
+reserved resources become unavailable afterwards.  Fix it by
+properly unwinding with a call to bnxt_hwrm_func_qcaps() to
+reset all maximum resources.
 
-This behaviour can also result in short reads being returned to user
-space, which although it's not incorrect and user space should be able
-to deal with partial reads, it's somewhat surprising and even some popular
-applications like QEMU (Link tag #1) and MariaDB (Link tag #2) don't
-deal with short reads properly (or at all).
+Also, add the missing bnxt_ulp_sriov_cfg() call to let the RDMA
+driver know to abort.
 
-The short read case happens when we try to read from a range that has a
-non-compressed and non-inline extent followed by a compressed extent.
-After having read the first extent, when we find the compressed extent we
-return -ENOTBLK from btrfs_dio_iomap_begin(), which results in iomap to
-treat the request as a short read, returning 0 (success) and waiting for
-previously submitted bios to complete (this happens at
-fs/iomap/direct-io.c:__iomap_dio_rw()). After that, and while at
-btrfs_file_read_iter(), we call filemap_read() to use buffered IO to
-read the remaining data, and pass it the number of bytes we were able to
-read with direct IO. Than at filemap_read() if we get a page fault error
-when accessing the read buffer, we return a partial read instead of an
--EFAULT error, because the number of bytes previously read is greater
-than zero.
-
-So fix this by returning -EAGAIN for NOWAIT direct IO when we find a
-compressed or an inline extent.
-
-Reported-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
-Link: https://lore.kernel.org/linux-btrfs/YrrFGO4A1jS0GI0G@atmark-techno.com/
-Link: https://jira.mariadb.org/browse/MDEV-27900?focusedCommentId=216582&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-216582
-Tested-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Signed-off-by: Kashyap Desai <kashyap.desai@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c       | 2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h       | 1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c | 7 ++++++-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -7480,7 +7480,19 @@ static int btrfs_dio_iomap_begin(struct
- 	if (test_bit(EXTENT_FLAG_COMPRESSED, &em->flags) ||
- 	    em->block_start == EXTENT_MAP_INLINE) {
- 		free_extent_map(em);
--		ret = -ENOTBLK;
-+		/*
-+		 * If we are in a NOWAIT context, return -EAGAIN in order to
-+		 * fallback to buffered IO. This is not only because we can
-+		 * block with buffered IO (no support for NOWAIT semantics at
-+		 * the moment) but also to avoid returning short reads to user
-+		 * space - this happens if we were able to read some data from
-+		 * previous non-compressed extents and then when we fallback to
-+		 * buffered IO, at btrfs_file_read_iter() by calling
-+		 * filemap_read(), we fail to fault in pages for the read buffer,
-+		 * in which case filemap_read() returns a short read (the number
-+		 * of bytes previously read is > 0, so it does not return -EFAULT).
-+		 */
-+		ret = (flags & IOMAP_NOWAIT) ? -EAGAIN : -ENOTBLK;
- 		goto unlock_err;
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index d5149478a351..ee6686a111bd 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -7641,7 +7641,7 @@ static void bnxt_hwrm_dbg_qcaps(struct bnxt *bp)
  
+ static int bnxt_hwrm_queue_qportcfg(struct bnxt *bp);
+ 
+-static int bnxt_hwrm_func_qcaps(struct bnxt *bp)
++int bnxt_hwrm_func_qcaps(struct bnxt *bp)
+ {
+ 	int rc;
+ 
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+index 98453a78cbd0..4c6ce2b2b3b7 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -2310,6 +2310,7 @@ int bnxt_cancel_reservations(struct bnxt *bp, bool fw_reset);
+ int bnxt_hwrm_alloc_wol_fltr(struct bnxt *bp);
+ int bnxt_hwrm_free_wol_fltr(struct bnxt *bp);
+ int bnxt_hwrm_func_resc_qcaps(struct bnxt *bp, bool all);
++int bnxt_hwrm_func_qcaps(struct bnxt *bp);
+ int bnxt_hwrm_fw_set_time(struct bnxt *);
+ int bnxt_open_nic(struct bnxt *, bool, bool);
+ int bnxt_half_open_nic(struct bnxt *bp);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+index ddf2f3963abe..a1a2c7a64fd5 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c
+@@ -823,8 +823,10 @@ static int bnxt_sriov_enable(struct bnxt *bp, int *num_vfs)
+ 		goto err_out2;
+ 
+ 	rc = pci_enable_sriov(bp->pdev, *num_vfs);
+-	if (rc)
++	if (rc) {
++		bnxt_ulp_sriov_cfg(bp, 0);
+ 		goto err_out2;
++	}
+ 
+ 	return 0;
+ 
+@@ -832,6 +834,9 @@ static int bnxt_sriov_enable(struct bnxt *bp, int *num_vfs)
+ 	/* Free the resources reserved for various VF's */
+ 	bnxt_hwrm_func_vf_resource_free(bp, *num_vfs);
+ 
++	/* Restore the max resources */
++	bnxt_hwrm_func_qcaps(bp);
++
+ err_out1:
+ 	bnxt_free_vf_resources(bp);
+ 
+-- 
+2.35.1
+
 
 
