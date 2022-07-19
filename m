@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD155798E3
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDD657992F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237472AbiGSL4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:56:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54934 "EHLO
+        id S237668AbiGSMAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:00:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237313AbiGSL4E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:56:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F37422CA;
-        Tue, 19 Jul 2022 04:55:57 -0700 (PDT)
+        with ESMTP id S237674AbiGSL72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:59:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C7B45077;
+        Tue, 19 Jul 2022 04:57:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 893B6B81B2C;
-        Tue, 19 Jul 2022 11:55:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D31C341C6;
-        Tue, 19 Jul 2022 11:55:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59B28B81B29;
+        Tue, 19 Jul 2022 11:57:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5E1C341C6;
+        Tue, 19 Jul 2022 11:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231754;
-        bh=KtcIH+E3c9VLP7E/93kgfkyPI4Y4Eqggbw0U3c+oQjc=;
+        s=korg; t=1658231861;
+        bh=AEjRY8Z/6UqJYMXdaNDbjO4FfX6+wnbZE1T5tQK1gyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMl+L0B5JKnlNm4uvu8j9wR5OhmaYAT8M/OfR3YxcCysj2c7OtQoUetDPJJLV3+9g
-         oPQE8H1CzCJ+CTB+2Vrg1RkJjB0J6QKp8/ppGWuZhGtsojiMJNL/Ck/io3O6PmEZZd
-         /ks2kNWJzcPzkhKZIJ35P+6G2RWycvt72dRg2KIk=
+        b=BVaInKxZrPVujxP0sxxgzcYcEgMjnzNEKJQ21Ph6npkfhvjI3Jlj77aHPQUlOzN0+
+         6GgdnIRxk0C8tov+1EsVMkFCHe9O7T7VfBl2xzzwj5c2iAjtiQGic+kpGeo+Wl/8vO
+         O0ilPfiNuHZK5BlxyLpM/GDQdqdZ0A5rYI4TtHpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Andrea Mayer <andrea.mayer@uniroma2.it>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/28] virtio_mmio: Restore guest page size on resume
+Subject: [PATCH 4.14 22/43] seg6: fix skb checksum evaluation in SRH encapsulation/insertion
 Date:   Tue, 19 Jul 2022 13:53:53 +0200
-Message-Id: <20220719114457.698901288@linuxfoundation.org>
+Message-Id: <20220719114523.938172623@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
-References: <20220719114455.701304968@linuxfoundation.org>
+In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
+References: <20220719114521.868169025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Andrea Mayer <andrea.mayer@uniroma2.it>
 
-[ Upstream commit e0c2ce8217955537dd5434baeba061f209797119 ]
+[ Upstream commit df8386d13ea280d55beee1b95f61a59234a3798b ]
 
-Virtio devices might lose their state when the VMM is restarted
-after a suspend to disk (hibernation) cycle. This means that the
-guest page size register must be restored for the virtio_mmio legacy
-interface, since otherwise the virtio queues are not functional.
+Support for SRH encapsulation and insertion was introduced with
+commit 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and
+injection with lwtunnels"), through the seg6_do_srh_encap() and
+seg6_do_srh_inline() functions, respectively.
+The former encapsulates the packet in an outer IPv6 header along with
+the SRH, while the latter inserts the SRH between the IPv6 header and
+the payload. Then, the headers are initialized/updated according to the
+operating mode (i.e., encap/inline).
+Finally, the skb checksum is calculated to reflect the changes applied
+to the headers.
 
-This is particularly problematic for QEMU that currently still defaults
-to using the legacy interface for virtio_mmio. Write the guest page
-size register again in virtio_mmio_restore() to make legacy virtio_mmio
-devices work correctly after hibernation.
+The IPv6 payload length ('payload_len') is not initialized
+within seg6_do_srh_{inline,encap}() but is deferred in seg6_do_srh(), i.e.
+the caller of seg6_do_srh_{inline,encap}().
+However, this operation invalidates the skb checksum, since the
+'payload_len' is updated only after the checksum is evaluated.
 
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Message-Id: <20220621110621.3638025-3-stephan.gerhold@kernkonzept.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+To solve this issue, the initialization of the IPv6 payload length is
+moved from seg6_do_srh() directly into the seg6_do_srh_{inline,encap}()
+functions and before the skb checksum update takes place.
+
+Fixes: 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and injection with lwtunnels")
+Reported-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/all/20220705190727.69d532417be7438b15404ee1@uniroma2.it
+Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv6/seg6_iptunnel.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index d69f0c5135ff..413f6af4d132 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -502,6 +502,9 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
+diff --git a/net/ipv6/seg6_iptunnel.c b/net/ipv6/seg6_iptunnel.c
+index 1d641e21f23f..3f43a4688602 100644
+--- a/net/ipv6/seg6_iptunnel.c
++++ b/net/ipv6/seg6_iptunnel.c
+@@ -156,6 +156,8 @@ int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh, int proto)
+ 	}
+ #endif
  
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
++	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
 +
- 	return virtio_device_restore(&vm_dev->vdev);
- }
+ 	skb_postpush_rcsum(skb, hdr, tot_len);
  
+ 	return 0;
+@@ -208,6 +210,8 @@ int seg6_do_srh_inline(struct sk_buff *skb, struct ipv6_sr_hdr *osrh)
+ 	}
+ #endif
+ 
++	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
++
+ 	skb_postpush_rcsum(skb, hdr, sizeof(struct ipv6hdr) + hdrlen);
+ 
+ 	return 0;
+@@ -269,7 +273,6 @@ static int seg6_do_srh(struct sk_buff *skb)
+ 		break;
+ 	}
+ 
+-	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
+ 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
+ 
+ 	return 0;
 -- 
 2.35.1
 
