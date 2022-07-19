@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD73579CF3
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF986579F50
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239545AbiGSMqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:46:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32890 "EHLO
+        id S243247AbiGSNNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:13:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241640AbiGSMpc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:45:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36FC48AB05;
-        Tue, 19 Jul 2022 05:18:16 -0700 (PDT)
+        with ESMTP id S243313AbiGSNMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BE8419B9;
+        Tue, 19 Jul 2022 05:29:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6C9B61812;
-        Tue, 19 Jul 2022 12:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C981DC341C6;
-        Tue, 19 Jul 2022 12:17:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E392B60DE0;
+        Tue, 19 Jul 2022 12:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF68FC341C6;
+        Tue, 19 Jul 2022 12:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233065;
-        bh=qMqGTcyTV1zKuzj9JV7oWfW0roSzsFgkuVU8ppy6/Sk=;
+        s=korg; t=1658233784;
+        bh=1rsOjCzTzZZGjsOkD4VV/Yi0b4wpzhVrNjevvk3ABTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ji9g+fETgz9dvxm9hDevjvghDdE5hpDNjBnpphyy6xaDTagzQ2ejwciQKOzrDYVmf
-         K5cQl+LeQX70GzPE1/z0AczzVRmutEgBYI3R7HRsbWLGN8DKh4tH2QJSEjX4MvQm2T
-         Tv5gL+B/YBPWaZHmXZDke+4F7WN8fGNTG6jUCTwg=
+        b=B7YiVPHPq+/BIewCuIuothP172iHYQpS4WpgY+BiRyEsPrZrSHoWvDxhgtaHGzrWO
+         JLjif9vG2qINdlggH3PF8/eDELsTQ+/OGgkeWqdrWPI3Jxft/90t4J9JdDmrln+8wt
+         WwzzNjxzkpYsugtuThhxPb6IxQres3zz6d/05xOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Chanho Park <chanho61.park@samsung.com>
-Subject: [PATCH 5.15 161/167] tty: serial: samsung_tty: set dma burst_size to 1
-Date:   Tue, 19 Jul 2022 13:54:53 +0200
-Message-Id: <20220719114712.069259484@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 209/231] x86: Clear .brk area at early boot
+Date:   Tue, 19 Jul 2022 13:54:54 +0200
+Message-Id: <20220719114731.488525670@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanho Park <chanho61.park@samsung.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit f7e35e4bf1e8dc2c8cbd5e0955dc1bd58558dae0 upstream.
+[ Upstream commit 38fa5479b41376dc9d7f57e71c83514285a25ca0 ]
 
-The src_maxburst and dst_maxburst have been changed to 1 but the settings
-of the UCON register aren't changed yet. They should be changed as well
-according to the dmaengine slave config.
+The .brk section has the same properties as .bss: it is an alloc-only
+section and should be cleared before being used.
 
-Fixes: aa2f80e752c7 ("serial: samsung: fix maxburst parameter for DMA transactions")
-Cc: stable <stable@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20220627065113.139520-1-chanho61.park@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Not doing so is especially a problem for Xen PV guests, as the
+hypervisor will validate page tables (check for writable page tables
+and hypervisor private bits) before accepting them to be used.
+
+Make sure .brk is initially zero by letting clear_bss() clear the brk
+area, too.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220630071441.28576-3-jgross@suse.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/samsung_tty.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/x86/kernel/head64.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/samsung_tty.c
-+++ b/drivers/tty/serial/samsung_tty.c
-@@ -378,8 +378,7 @@ static void enable_tx_dma(struct s3c24xx
- 	/* Enable tx dma mode */
- 	ucon = rd_regl(port, S3C2410_UCON);
- 	ucon &= ~(S3C64XX_UCON_TXBURST_MASK | S3C64XX_UCON_TXMODE_MASK);
--	ucon |= (dma_get_cache_alignment() >= 16) ?
--		S3C64XX_UCON_TXBURST_16 : S3C64XX_UCON_TXBURST_1;
-+	ucon |= S3C64XX_UCON_TXBURST_1;
- 	ucon |= S3C64XX_UCON_TXMODE_DMA;
- 	wr_regl(port,  S3C2410_UCON, ucon);
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 2e10a33778cf..92eae95f1a0b 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -425,6 +425,8 @@ void __init clear_bss(void)
+ {
+ 	memset(__bss_start, 0,
+ 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
++	memset(__brk_base, 0,
++	       (unsigned long) __brk_limit - (unsigned long) __brk_base);
+ }
  
-@@ -675,7 +674,7 @@ static void enable_rx_dma(struct s3c24xx
- 			S3C64XX_UCON_DMASUS_EN |
- 			S3C64XX_UCON_TIMEOUT_EN |
- 			S3C64XX_UCON_RXMODE_MASK);
--	ucon |= S3C64XX_UCON_RXBURST_16 |
-+	ucon |= S3C64XX_UCON_RXBURST_1 |
- 			0xf << S3C64XX_UCON_TIMEOUT_SHIFT |
- 			S3C64XX_UCON_EMPTYINT_EN |
- 			S3C64XX_UCON_TIMEOUT_EN |
+ static unsigned long get_cmd_line_ptr(void)
+-- 
+2.35.1
+
 
 
