@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB17579CD6
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D50579A80
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241521AbiGSMni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53592 "EHLO
+        id S239860AbiGSMPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241398AbiGSMnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08FE880535;
-        Tue, 19 Jul 2022 05:16:45 -0700 (PDT)
+        with ESMTP id S239078AbiGSMOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D0A140E9;
+        Tue, 19 Jul 2022 05:05:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F5CE61772;
-        Tue, 19 Jul 2022 12:16:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E16C341C6;
-        Tue, 19 Jul 2022 12:16:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B45566172E;
+        Tue, 19 Jul 2022 12:04:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ABE5C341C6;
+        Tue, 19 Jul 2022 12:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232987;
-        bh=DX8GnNXoZmg5Xm54obL/bmHPMlMYP2TaYkBJHhzBO74=;
+        s=korg; t=1658232290;
+        bh=ZHDS7axaqv3eoGXc0bA8B+TANT3b2ltotVfUt2qyR04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4nwaMN4MsFQQnnX6PrAiJ2MUJnrDNLcZhluMJgiZbe/ATpDu5iKN1HtVUYYs04AO
-         W56Z8Yimhgvf86RcEmg80HMLVQiWecjlvEH1F2/ZASib/ool82bifG0fm6J1QOWgAi
-         Z5eb5S+rzKyGLH3GMp/exLjx6CXVpCSOFpdobzt8=
+        b=SLOJkBBS9e2MX836PmD7jAWdlTJhY9rxycLvc+g1TwgZVvo00MFWUoNeKKOidDjQW
+         3+nHC9F+uHzFrTZzVG/9WlHIdrNflRAZTxL64YuXfGeyT1scomV4nnk5Woj1nbRhUx
+         if8tfBrFb23jStOlXoI1OTUMqoFgsvEepQbilQuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 134/167] ASoC: rt711-sdca-sdw: fix calibrate mutex initialization
-Date:   Tue, 19 Jul 2022 13:54:26 +0200
-Message-Id: <20220719114709.516587635@linuxfoundation.org>
+        stable@vger.kernel.org, Lucien Buchmann <lucien.buchmann@gmx.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 64/71] USB: serial: ftdi_sio: add Belimo device ids
+Date:   Tue, 19 Jul 2022 13:54:27 +0200
+Message-Id: <20220719114558.683059891@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Lucien Buchmann <lucien.buchmann@gmx.net>
 
-[ Upstream commit ed0a7fb29c9fd4f53eeb37d1fe2354df7a038047 ]
+commit 7c239a071d1f04b7137789810807b4108d475c72 upstream.
 
-In codec driver bind/unbind test, the following warning is thrown:
+Those two product ids are known.
 
-DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-...
-[  699.182495]  rt711_sdca_jack_init+0x1b/0x1d0 [snd_soc_rt711_sdca]
-[  699.182498]  rt711_sdca_set_jack_detect+0x3b/0x90 [snd_soc_rt711_sdca]
-[  699.182500]  snd_soc_component_set_jack+0x24/0x50 [snd_soc_core]
-
-A quick check in the code shows that the 'calibrate_mutex' used by
-this driver are not initialized at probe time. Moving the
-initialization to the probe removes the issue.
-
-BugLink: https://github.com/thesofproject/linux/issues/3644
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220606203752.144159-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Lucien Buchmann <lucien.buchmann@gmx.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt711-sdca-sdw.c |    3 +++
- sound/soc/codecs/rt711-sdca.c     |    2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 9 insertions(+)
 
---- a/sound/soc/codecs/rt711-sdca-sdw.c
-+++ b/sound/soc/codecs/rt711-sdca-sdw.c
-@@ -373,6 +373,9 @@ static int rt711_sdca_sdw_remove(struct
- 	if (rt711->first_hw_init)
- 		pm_runtime_disable(&slave->dev);
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1023,6 +1023,9 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_DISPLAY_PID) },
+ 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_LITE_PID) },
+ 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_ANALOG_PID) },
++	/* Belimo Automation devices */
++	{ USB_DEVICE(FTDI_VID, BELIMO_ZTH_PID) },
++	{ USB_DEVICE(FTDI_VID, BELIMO_ZIP_PID) },
+ 	/* ICP DAS I-756xU devices */
+ 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7560U_PID) },
+ 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7561U_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1569,6 +1569,12 @@
+ #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
  
-+	mutex_destroy(&rt711->calibrate_mutex);
-+	mutex_destroy(&rt711->disable_irq_lock);
+ /*
++ * Belimo Automation
++ */
++#define BELIMO_ZTH_PID			0x8050
++#define BELIMO_ZIP_PID			0xC811
 +
- 	return 0;
- }
- 
---- a/sound/soc/codecs/rt711-sdca.c
-+++ b/sound/soc/codecs/rt711-sdca.c
-@@ -1414,6 +1414,7 @@ int rt711_sdca_init(struct device *dev,
- 	rt711->regmap = regmap;
- 	rt711->mbq_regmap = mbq_regmap;
- 
-+	mutex_init(&rt711->calibrate_mutex);
- 	mutex_init(&rt711->disable_irq_lock);
- 
- 	/*
-@@ -1552,7 +1553,6 @@ int rt711_sdca_io_init(struct device *de
- 			rt711_sdca_jack_detect_handler);
- 		INIT_DELAYED_WORK(&rt711->jack_btn_check_work,
- 			rt711_sdca_btn_check_handler);
--		mutex_init(&rt711->calibrate_mutex);
- 	}
- 
- 	/* calibration */
++/*
+  * Unjo AB
+  */
+ #define UNJO_VID			0x22B7
 
 
