@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 482AB579BA6
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F353579E00
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236845AbiGSMbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54346 "EHLO
+        id S242400AbiGSM5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:57:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240210AbiGSM2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:28:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC8066BA2;
-        Tue, 19 Jul 2022 05:10:49 -0700 (PDT)
+        with ESMTP id S242351AbiGSM4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DEC9A685;
+        Tue, 19 Jul 2022 05:22:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC37661746;
-        Tue, 19 Jul 2022 12:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E6E7C341C6;
-        Tue, 19 Jul 2022 12:10:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08004B81A7F;
+        Tue, 19 Jul 2022 12:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 568B9C341C6;
+        Tue, 19 Jul 2022 12:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232648;
-        bh=tN+Yms2lOPAuzEgL9UFe3c+rrRIeWkblCZ6G8JUZFis=;
+        s=korg; t=1658233347;
+        bh=IwVwEtCJlMNehkWKAKpAVbfVe1eP3EAOJxfrxWmzl/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAaf9newImqn/mETYPximiSpfpsfCsXyAVbecelzP/L+FQSY+mAdkXg5OonJSS+Au
-         tzx6eCanQbwkG7juBjRo+wLs4r/KxOL5YA7AiDev1tszY+3oxccvqyKqb4X8E6C/iy
-         cNv/zvK6j2wkJLp5jsrQJz49Lv+JAmyKSG5mhVX8=
+        b=Ztr7NDSOC6zK2sEigxaX/CklQUOBhEkbT++2xAPG9DWz8pooSOEeLefFtNJalEtVS
+         K3wkUhNbNvOXrl3y/oWijTwoPoFrd1JSZupLm+YcS09gCZLcvU5m7jrK4tue8MhRYb
+         wyZzQlxfM5pc+OnvnejNRidgkCxijTcEoGkJBOw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 017/167] wifi: mac80211: fix queue selection for mesh/OCB interfaces
-Date:   Tue, 19 Jul 2022 13:52:29 +0200
-Message-Id: <20220719114658.410007643@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Kajetan Puchalski <kajetan.puchalski@arm.com>,
+        Florian Westphal <fw@strlen.de>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 065/231] netfilter: conntrack: fix crash due to confirmed bit load reordering
+Date:   Tue, 19 Jul 2022 13:52:30 +0200
+Message-Id: <20220719114719.675342376@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +54,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Florian Westphal <fw@strlen.de>
 
-commit 50e2ab39291947b6c6c7025cf01707c270fcde59 upstream.
+[ Upstream commit 0ed8f619b412b52360ccdfaf997223ccd9319569 ]
 
-When using iTXQ, the code assumes that there is only one vif queue for
-broadcast packets, using the BE queue. Allowing non-BE queue marking
-violates that assumption and txq->ac == skb_queue_mapping is no longer
-guaranteed. This can cause issues with queue handling in the driver and
-also causes issues with the recent ATF change, resulting in an AQL
-underflow warning.
+Kajetan Puchalski reports crash on ARM, with backtrace of:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20220702145227.39356-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+__nf_ct_delete_from_lists
+nf_ct_delete
+early_drop
+__nf_conntrack_alloc
+
+Unlike atomic_inc_not_zero, refcount_inc_not_zero is not a full barrier.
+conntrack uses SLAB_TYPESAFE_BY_RCU, i.e. it is possible that a 'newly'
+allocated object is still in use on another CPU:
+
+CPU1						CPU2
+						encounter 'ct' during hlist walk
+ delete_from_lists
+ refcount drops to 0
+ kmem_cache_free(ct);
+ __nf_conntrack_alloc() // returns same object
+						refcount_inc_not_zero(ct); /* might fail */
+
+						/* If set, ct is public/in the hash table */
+						test_bit(IPS_CONFIRMED_BIT, &ct->status);
+
+In case CPU1 already set refcount back to 1, refcount_inc_not_zero()
+will succeed.
+
+The expected possibilities for a CPU that obtained the object 'ct'
+(but no reference so far) are:
+
+1. refcount_inc_not_zero() fails.  CPU2 ignores the object and moves to
+   the next entry in the list.  This happens for objects that are about
+   to be free'd, that have been free'd, or that have been reallocated
+   by __nf_conntrack_alloc(), but where the refcount has not been
+   increased back to 1 yet.
+
+2. refcount_inc_not_zero() succeeds. CPU2 checks the CONFIRMED bit
+   in ct->status.  If set, the object is public/in the table.
+
+   If not, the object must be skipped; CPU2 calls nf_ct_put() to
+   un-do the refcount increment and moves to the next object.
+
+Parallel deletion from the hlists is prevented by a
+'test_and_set_bit(IPS_DYING_BIT, &ct->status);' check, i.e. only one
+cpu will do the unlink, the other one will only drop its reference count.
+
+Because refcount_inc_not_zero is not a full barrier, CPU2 may try to
+delete an object that is not on any list:
+
+1. refcount_inc_not_zero() successful (refcount inited to 1 on other CPU)
+2. CONFIRMED test also successful (load was reordered or zeroing
+   of ct->status not yet visible)
+3. delete_from_lists unlinks entry not on the hlist, because
+   IPS_DYING_BIT is 0 (already cleared).
+
+2) is already wrong: CPU2 will handle a partially initited object
+that is supposed to be private to CPU1.
+
+Add needed barriers when refcount_inc_not_zero() is successful.
+
+It also inserts a smp_wmb() before the refcount is set to 1 during
+allocation.
+
+Because other CPU might still see the object, refcount_set(1)
+"resurrects" it, so we need to make sure that other CPUs will also observe
+the right content.  In particular, the CONFIRMED bit test must only pass
+once the object is fully initialised and either in the hash or about to be
+inserted (with locks held to delay possible unlink from early_drop or
+gc worker).
+
+I did not change flow_offload_alloc(), as far as I can see it should call
+refcount_inc(), not refcount_inc_not_zero(): the ct object is attached to
+the skb so its refcount should be >= 1 in all cases.
+
+v2: prefer smp_acquire__after_ctrl_dep to smp_rmb (Will Deacon).
+v3: keep smp_acquire__after_ctrl_dep close to refcount_inc_not_zero call
+    add comment in nf_conntrack_netlink, no control dependency there
+    due to locks.
+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/all/Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com/
+Reported-by: Kajetan Puchalski <kajetan.puchalski@arm.com>
+Diagnosed-by: Will Deacon <will@kernel.org>
+Fixes: 719774377622 ("netfilter: conntrack: convert to refcount_t api")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/wme.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_core.c       | 22 ++++++++++++++++++++++
+ net/netfilter/nf_conntrack_netlink.c    |  1 +
+ net/netfilter/nf_conntrack_standalone.c |  3 +++
+ 3 files changed, 26 insertions(+)
 
---- a/net/mac80211/wme.c
-+++ b/net/mac80211/wme.c
-@@ -147,8 +147,8 @@ u16 __ieee80211_select_queue(struct ieee
- 	bool qos;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 9010b6e5a072..5a85735512ce 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -764,6 +764,9 @@ static void nf_ct_gc_expired(struct nf_conn *ct)
+ 	if (!refcount_inc_not_zero(&ct->ct_general.use))
+ 		return;
  
- 	/* all mesh/ocb stations are required to support WME */
--	if (sdata->vif.type == NL80211_IFTYPE_MESH_POINT ||
--	    sdata->vif.type == NL80211_IFTYPE_OCB)
-+	if (sta && (sdata->vif.type == NL80211_IFTYPE_MESH_POINT ||
-+		    sdata->vif.type == NL80211_IFTYPE_OCB))
- 		qos = true;
- 	else if (sta)
- 		qos = sta->sta.wme;
++	/* load ->status after refcount increase */
++	smp_acquire__after_ctrl_dep();
++
+ 	if (nf_ct_should_gc(ct))
+ 		nf_ct_kill(ct);
+ 
+@@ -830,6 +833,9 @@ __nf_conntrack_find_get(struct net *net, const struct nf_conntrack_zone *zone,
+ 		 */
+ 		ct = nf_ct_tuplehash_to_ctrack(h);
+ 		if (likely(refcount_inc_not_zero(&ct->ct_general.use))) {
++			/* re-check key after refcount */
++			smp_acquire__after_ctrl_dep();
++
+ 			if (likely(nf_ct_key_equal(h, tuple, zone, net)))
+ 				goto found;
+ 
+@@ -1369,6 +1375,9 @@ static unsigned int early_drop_list(struct net *net,
+ 		if (!refcount_inc_not_zero(&tmp->ct_general.use))
+ 			continue;
+ 
++		/* load ->ct_net and ->status after refcount increase */
++		smp_acquire__after_ctrl_dep();
++
+ 		/* kill only if still in same netns -- might have moved due to
+ 		 * SLAB_TYPESAFE_BY_RCU rules.
+ 		 *
+@@ -1518,6 +1527,9 @@ static void gc_worker(struct work_struct *work)
+ 			if (!refcount_inc_not_zero(&tmp->ct_general.use))
+ 				continue;
+ 
++			/* load ->status after refcount increase */
++			smp_acquire__after_ctrl_dep();
++
+ 			if (gc_worker_skip_ct(tmp)) {
+ 				nf_ct_put(tmp);
+ 				continue;
+@@ -1749,6 +1761,16 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
+ 	if (!exp)
+ 		__nf_ct_try_assign_helper(ct, tmpl, GFP_ATOMIC);
+ 
++	/* Other CPU might have obtained a pointer to this object before it was
++	 * released.  Because refcount is 0, refcount_inc_not_zero() will fail.
++	 *
++	 * After refcount_set(1) it will succeed; ensure that zeroing of
++	 * ct->status and the correct ct->net pointer are visible; else other
++	 * core might observe CONFIRMED bit which means the entry is valid and
++	 * in the hash table, but its not (anymore).
++	 */
++	smp_wmb();
++
+ 	/* Now it is inserted into the unconfirmed list, set refcount to 1. */
+ 	refcount_set(&ct->ct_general.use, 1);
+ 	nf_ct_add_to_unconfirmed_list(ct);
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 2e9c8183e4a2..431e005ff14d 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -1203,6 +1203,7 @@ ctnetlink_dump_table(struct sk_buff *skb, struct netlink_callback *cb)
+ 					   hnnode) {
+ 			ct = nf_ct_tuplehash_to_ctrack(h);
+ 			if (nf_ct_is_expired(ct)) {
++				/* need to defer nf_ct_kill() until lock is released */
+ 				if (i < ARRAY_SIZE(nf_ct_evict) &&
+ 				    refcount_inc_not_zero(&ct->ct_general.use))
+ 					nf_ct_evict[i++] = ct;
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 55aa55b252b2..48812dda273b 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -306,6 +306,9 @@ static int ct_seq_show(struct seq_file *s, void *v)
+ 	if (unlikely(!refcount_inc_not_zero(&ct->ct_general.use)))
+ 		return 0;
+ 
++	/* load ->status after refcount increase */
++	smp_acquire__after_ctrl_dep();
++
+ 	if (nf_ct_should_gc(ct)) {
+ 		nf_ct_kill(ct);
+ 		goto release;
+-- 
+2.35.1
+
 
 
