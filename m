@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 950DF57993A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B555F5798EE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237767AbiGSMAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55184 "EHLO
+        id S237465AbiGSL4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237769AbiGSMAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:00:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FD548EBA;
-        Tue, 19 Jul 2022 04:57:58 -0700 (PDT)
+        with ESMTP id S237476AbiGSL4N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:56:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CC841D37;
+        Tue, 19 Jul 2022 04:56:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEEC5B81B2C;
-        Tue, 19 Jul 2022 11:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 448B9C341C6;
-        Tue, 19 Jul 2022 11:57:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73B2360B27;
+        Tue, 19 Jul 2022 11:56:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F98C341C6;
+        Tue, 19 Jul 2022 11:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231875;
-        bh=Yn/jMuAgDhaAo8EvuAzql3ECAH8cMmvlm8r3h/A/msY=;
+        s=korg; t=1658231768;
+        bh=FGbsfRAkzXDG408skh5FLJgLjQK83LBjEkUjRQg2WZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hi+4VSbC+drBjd8KlbqHDEFRo6B78R2w4iKHqHu9YGIIrRERC2J7gHG2G2lB8F/Jn
-         c5JEJtul+gmsZ2l9n3KqEHxLxDnXC3lqERE4CKKI2tkcoZR3poVZ6GHR2xdguqXXWh
-         3yqu7SqKbMoTniVmvSAfGIKWEBhaZl/jv1On1QSU=
+        b=0CoJBcA24xBh266tYp66SBcBoxWE/o8dPyWWHHyWkG+MfWJZhrunmV7My2VFRSW9p
+         v3LkHQWQm8N9xBa77gH7je41QA7QEXudd3DVpYoV1ATVmI/A+iFonne/BdQgmap+8i
+         uitglcpl7SyW99TkuG4rT3MjIxL/PsQJaRgEQFjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Radim Hrazdil <rhrazdil@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/43] netfilter: br_netfilter: do not skip all hooks with 0 priority
+Subject: [PATCH 4.9 20/28] ASoC: wm5110: Fix DRE control
 Date:   Tue, 19 Jul 2022 13:53:58 +0200
-Message-Id: <20220719114524.359047916@linuxfoundation.org>
+Message-Id: <20220719114458.073064651@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit c2577862eeb0be94f151f2f1fff662b028061b00 ]
+[ Upstream commit 0bc0ae9a5938d512fd5d44f11c9c04892dcf4961 ]
 
-When br_netfilter module is loaded, skbs may be diverted to the
-ipv4/ipv6 hooks, just like as if we were routing.
+The DRE controls on wm5110 should return a value of 1 if the DRE state
+is actually changed, update to fix this.
 
-Unfortunately, bridge filter hooks with priority 0 may be skipped
-in this case.
-
-Example:
-1. an nftables bridge ruleset is loaded, with a prerouting
-   hook that has priority 0.
-2. interface is added to the bridge.
-3. no tcp packet is ever seen by the bridge prerouting hook.
-4. flush the ruleset
-5. load the bridge ruleset again.
-6. tcp packets are processed as expected.
-
-After 1) the only registered hook is the bridge prerouting hook, but its
-not called yet because the bridge hasn't been brought up yet.
-
-After 2), hook order is:
-   0 br_nf_pre_routing // br_netfilter internal hook
-   0 chain bridge f prerouting // nftables bridge ruleset
-
-The packet is diverted to br_nf_pre_routing.
-If call-iptables is off, the nftables bridge ruleset is called as expected.
-
-But if its enabled, br_nf_hook_thresh() will skip it because it assumes
-that all 0-priority hooks had been called previously in bridge context.
-
-To avoid this, check for the br_nf_pre_routing hook itself, we need to
-resume directly after it, even if this hook has a priority of 0.
-
-Unfortunately, this still results in different packet flow.
-With this fix, the eval order after in 3) is:
-1. br_nf_pre_routing
-2. ip(6)tables (if enabled)
-3. nftables bridge
-
-but after 5 its the much saner:
-1. nftables bridge
-2. br_nf_pre_routing
-3. ip(6)tables (if enabled)
-
-Unfortunately I don't see a solution here:
-It would be possible to move br_nf_pre_routing to a higher priority
-so that it will be called later in the pipeline, but this also impacts
-ebtables evaluation order, and would still result in this very ordering
-problem for all nftables-bridge hooks with the same priority as the
-br_nf_pre_routing one.
-
-Searching back through the git history I don't think this has
-ever behaved in any other way, hence, no fixes-tag.
-
-Reported-by: Radim Hrazdil <rhrazdil@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220621102041.1713504-2-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ sound/soc/codecs/wm5110.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 7e50bd9f3611..ee7a03ff89f3 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -998,9 +998,24 @@ int br_nf_hook_thresh(unsigned int hook, struct net *net,
- 		return okfn(net, sk, skb);
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index 06bae3b23fce..2b0342bcede4 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -404,6 +404,7 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 	unsigned int rnew = (!!ucontrol->value.integer.value[1]) << mc->rshift;
+ 	unsigned int lold, rold;
+ 	unsigned int lena, rena;
++	bool change = false;
+ 	int ret;
  
- 	ops = nf_hook_entries_get_hook_ops(e);
--	for (i = 0; i < e->num_hook_entries &&
--	      ops[i]->priority <= NF_BR_PRI_BRNF; i++)
--		;
-+	for (i = 0; i < e->num_hook_entries; i++) {
-+		/* These hooks have already been called */
-+		if (ops[i]->priority < NF_BR_PRI_BRNF)
-+			continue;
-+
-+		/* These hooks have not been called yet, run them. */
-+		if (ops[i]->priority > NF_BR_PRI_BRNF)
-+			break;
-+
-+		/* take a closer look at NF_BR_PRI_BRNF. */
-+		if (ops[i]->hook == br_nf_pre_routing) {
-+			/* This hook diverted the skb to this function,
-+			 * hooks after this have not been run yet.
-+			 */
-+			i++;
-+			break;
-+		}
-+	}
+ 	snd_soc_dapm_mutex_lock(dapm);
+@@ -431,8 +432,8 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 		goto err;
+ 	}
  
- 	nf_hook_state_init(&state, hook, NFPROTO_BRIDGE, indev, outdev,
- 			   sk, net, okfn);
+-	ret = regmap_update_bits(arizona->regmap, ARIZONA_DRE_ENABLE,
+-				 mask, lnew | rnew);
++	ret = regmap_update_bits_check(arizona->regmap, ARIZONA_DRE_ENABLE,
++				       mask, lnew | rnew, &change);
+ 	if (ret) {
+ 		dev_err(arizona->dev, "Failed to set DRE: %d\n", ret);
+ 		goto err;
+@@ -445,6 +446,9 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 	if (!rnew && rold)
+ 		wm5110_clear_pga_volume(arizona, mc->rshift);
+ 
++	if (change)
++		ret = 1;
++
+ err:
+ 	snd_soc_dapm_mutex_unlock(dapm);
+ 
 -- 
 2.35.1
 
