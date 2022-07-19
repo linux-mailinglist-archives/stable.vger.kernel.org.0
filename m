@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A910579926
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA275798E1
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237734AbiGSL7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:59:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
+        id S234410AbiGSL4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237778AbiGSL7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:59:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3089A422FF;
-        Tue, 19 Jul 2022 04:57:35 -0700 (PDT)
+        with ESMTP id S237233AbiGSLz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:55:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0742041D37;
+        Tue, 19 Jul 2022 04:55:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD23CB81B1C;
-        Tue, 19 Jul 2022 11:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 299D0C341C6;
-        Tue, 19 Jul 2022 11:57:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C29AB81B25;
+        Tue, 19 Jul 2022 11:55:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52AEC341C6;
+        Tue, 19 Jul 2022 11:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231852;
-        bh=hDYxTrmhxg2oXocl7+kJNSoaNXsxGhvVaUgtHU2TV7A=;
+        s=korg; t=1658231751;
+        bh=cbhrjjI2ACYwPNg073yABjQun3/N+aYHZNnGJjt2v9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHss98e22jvDz1DEFW+LJEvVatJlXqPju5miZ0+Yo/OnVUFPzo+goMMZeS6JqS0Mt
-         KqojP0aqySwenocDOdcrP73m4eFkJ5VqRetrObvLPOBvNTG5+2Llnxi30EYq216IwB
-         K8PAJ4fulMW63/a6lcPH/BWwoAZNwO1LnesfmVfs=
+        b=djp2+Y4lM0NopfkflkRzNnlVby/ORFk75F1+j+pHLZn9c/IBBaUNxw/atWd8DbZoU
+         db2zwxXeZSvZ1hwa0OiNnCDq+Ams/lBTijH8x64GrfhCR5D4OEcqu/TKlDbcnNzGly
+         o1LlEwtHgIoMdzdO7yocZXR7Aavr60KM2pl/SgoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/43] ipv4: Fix data-races around sysctl_ip_dynaddr.
-Date:   Tue, 19 Jul 2022 13:53:51 +0200
-Message-Id: <20220719114523.783441466@linuxfoundation.org>
+Subject: [PATCH 4.9 14/28] virtio_mmio: Add missing PM calls to freeze/restore
+Date:   Tue, 19 Jul 2022 13:53:52 +0200
+Message-Id: <20220719114457.614602734@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
+[ Upstream commit ed7ac37fde33ccd84e4bd2b9363c191f925364c7 ]
 
-While reading sysctl_ip_dynaddr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Most virtio drivers provide freeze/restore callbacks to finish up
+device usage before suspend and to reinitialize the virtio device after
+resume. However, these callbacks are currently only called when using
+virtio_pci. virtio_mmio does not have any PM ops defined.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This causes problems for example after suspend to disk (hibernation),
+since the virtio devices might lose their state after the VMM is
+restarted. Calling virtio_device_freeze()/restore() ensures that
+the virtio devices are re-initialized correctly.
+
+Fix this by implementing the dev_pm_ops for virtio_mmio,
+similar to virtio_pci_common.
+
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Message-Id: <20220621110621.3638025-2-stephan.gerhold@kernkonzept.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 2 +-
- net/ipv4/af_inet.c                     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_mmio.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index 0278b6d1bc71..5849c119e0ef 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -858,7 +858,7 @@ ip_nonlocal_bind - BOOLEAN
- 	which can be quite useful - but may break some applications.
- 	Default: 0
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index f62da3b7c27b..d69f0c5135ff 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -66,6 +66,7 @@
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/pm.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/virtio.h>
+@@ -489,6 +490,25 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
+ 	.bus_name	= vm_bus_name,
+ };
  
--ip_dynaddr - BOOLEAN
-+ip_dynaddr - INTEGER
- 	If set non-zero, enables support for dynamic addresses.
- 	If set to a non-zero value larger than 1, a kernel log
- 	message will be printed when dynamic address rewriting
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index ee42907f4827..93dea10ef9a6 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1152,7 +1152,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
- 	if (new_saddr == old_saddr)
- 		return 0;
++#ifdef CONFIG_PM_SLEEP
++static int virtio_mmio_freeze(struct device *dev)
++{
++	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
++
++	return virtio_device_freeze(&vm_dev->vdev);
++}
++
++static int virtio_mmio_restore(struct device *dev)
++{
++	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
++
++	return virtio_device_restore(&vm_dev->vdev);
++}
++
++static const struct dev_pm_ops virtio_mmio_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
++};
++#endif
  
--	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
- 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
- 			__func__, &old_saddr, &new_saddr);
- 	}
-@@ -1207,7 +1207,7 @@ int inet_sk_rebuild_header(struct sock *sk)
- 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
- 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
- 		 */
--		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
-+		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
- 		    sk->sk_state != TCP_SYN_SENT ||
- 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
- 		    (err = inet_sk_reselect_saddr(sk)) != 0)
+ 
+ /* Platform device */
+@@ -730,6 +750,9 @@ static struct platform_driver virtio_mmio_driver = {
+ 		.name	= "virtio-mmio",
+ 		.of_match_table	= virtio_mmio_match,
+ 		.acpi_match_table = ACPI_PTR(virtio_mmio_acpi_match),
++#ifdef CONFIG_PM_SLEEP
++		.pm	= &virtio_mmio_pm_ops,
++#endif
+ 	},
+ };
+ 
 -- 
 2.35.1
 
