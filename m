@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D7445799A4
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7DD579EB6
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238079AbiGSMFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40276 "EHLO
+        id S242781AbiGSNFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238368AbiGSMEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5EEF48C89;
-        Tue, 19 Jul 2022 05:00:25 -0700 (PDT)
+        with ESMTP id S243160AbiGSNEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:04:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2FC9DEF9;
+        Tue, 19 Jul 2022 05:26:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4E526163C;
-        Tue, 19 Jul 2022 12:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4EA7C341CB;
-        Tue, 19 Jul 2022 12:00:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22EACB81B10;
+        Tue, 19 Jul 2022 12:26:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58133C341C6;
+        Tue, 19 Jul 2022 12:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232024;
-        bh=mCgHYsGDI+vC+1H68ecPBnpX83haIYkP7kW+/upei7g=;
+        s=korg; t=1658233595;
+        bh=eiHQRO2eTKAg/yVdtMzvxSG5jzk8ywMUzDNQLp/ZplQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7JyyRmNvAMSZkGTj7SvrR5K0RehXRc6iH912TOsUQYDP5CNNj03mmiI8XMg/PJH6
-         kTownkWsbooGCmyt2WkNRon0GrY8Qsn0oIk2qO6GIcVdADAskmQUnM0I7JFRs6g8Gd
-         XpbmVlmsZaigPe+COiSiXFhEYe34Wm/lKmZ2qp+4=
+        b=A0Mw8JjApDAF4JXTvTg4D+aju8NLYWrXNHpipyJluGLeFMTr5dEaS6ZHuTZzPwB2i
+         DTjaDfFCWoEUjTgAJEesx5y4rTTE60hQNApU1fCFVuwnV6pMh/LwZhVg6OeJfZT2Om
+         4c/4uZPqexYChDuDdtM4zIm3xLv6Tci8t5SIxUV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/48] cipso: Fix data-races around sysctl.
+Subject: [PATCH 5.18 148/231] objtool: Update Retpoline validation
 Date:   Tue, 19 Jul 2022 13:53:53 +0200
-Message-Id: <20220719114521.255611396@linuxfoundation.org>
+Message-Id: <20220719114726.776451398@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +55,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit dd44f04b9214adb68ef5684ae87a81ba03632250 ]
+[ Upstream commit 9bb2ec608a209018080ca262f771e6a9ff203b6f ]
 
-While reading cipso sysctl variables, they can be changed concurrently.
-So, we need to add READ_ONCE() to avoid data-races.
+Update retpoline validation with the new CONFIG_RETPOLINE requirement of
+not having bare naked RET instructions.
 
-Fixes: 446fda4f2682 ("[NetLabel]: CIPSOv4 engine")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt |  2 +-
- net/ipv4/cipso_ipv4.c                  | 12 +++++++-----
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |  6 ++++++
+ arch/x86/mm/mem_encrypt_boot.S       |  2 ++
+ arch/x86/xen/xen-head.S              |  1 +
+ tools/objtool/check.c                | 19 +++++++++++++------
+ 4 files changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index 3c617d620b6f..ae56957f51e4 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -810,7 +810,7 @@ cipso_cache_enable - BOOLEAN
- cipso_cache_bucket_size - INTEGER
- 	The CIPSO label cache consists of a fixed size hash table with each
- 	hash bucket containing a number of cache entries.  This variable limits
--	the number of entries in each hash bucket; the larger the value the
-+	the number of entries in each hash bucket; the larger the value is, the
- 	more CIPSO label mappings that can be cached.  When the number of
- 	entries in a given hash bucket reaches this limit adding new entries
- 	causes the oldest entry in the bucket to be removed to make room.
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index e8b8dd1cb157..8dcf9aec7b77 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -254,7 +254,7 @@ static int cipso_v4_cache_check(const unsigned char *key,
- 	struct cipso_v4_map_cache_entry *prev_entry = NULL;
- 	u32 hash;
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index da251a5645b0..f1a7ecd0a7c7 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -75,6 +75,12 @@
+ 	.popsection
+ .endm
  
--	if (!cipso_v4_cache_enabled)
-+	if (!READ_ONCE(cipso_v4_cache_enabled))
- 		return -ENOENT;
++/*
++ * (ab)use RETPOLINE_SAFE on RET to annotate away 'bare' RET instructions
++ * vs RETBleed validation.
++ */
++#define ANNOTATE_UNRET_SAFE ANNOTATE_RETPOLINE_SAFE
++
+ /*
+  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
+  * indirect jmp/call which may be susceptible to the Spectre variant 2
+diff --git a/arch/x86/mm/mem_encrypt_boot.S b/arch/x86/mm/mem_encrypt_boot.S
+index d94dea450fa6..9de3d900bc92 100644
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -66,6 +66,7 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	pop	%rbp
  
- 	hash = cipso_v4_map_cache_hash(key, key_len);
-@@ -311,13 +311,14 @@ static int cipso_v4_cache_check(const unsigned char *key,
- int cipso_v4_cache_add(const unsigned char *cipso_ptr,
- 		       const struct netlbl_lsm_secattr *secattr)
- {
-+	int bkt_size = READ_ONCE(cipso_v4_cache_bucketsize);
- 	int ret_val = -EPERM;
- 	u32 bkt;
- 	struct cipso_v4_map_cache_entry *entry = NULL;
- 	struct cipso_v4_map_cache_entry *old_entry = NULL;
- 	u32 cipso_ptr_len;
+ 	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
+ 	ret
+ 	int3
+ SYM_FUNC_END(sme_encrypt_execute)
+@@ -154,6 +155,7 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r15
  
--	if (!cipso_v4_cache_enabled || cipso_v4_cache_bucketsize <= 0)
-+	if (!READ_ONCE(cipso_v4_cache_enabled) || bkt_size <= 0)
- 		return 0;
+ 	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
+ 	ret
+ 	int3
+ .L__enc_copy_end:
+diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
+index 13af6fe453e3..ffaa62167f6e 100644
+--- a/arch/x86/xen/xen-head.S
++++ b/arch/x86/xen/xen-head.S
+@@ -26,6 +26,7 @@ SYM_CODE_START(hypercall_page)
+ 	.rept (PAGE_SIZE / 32)
+ 		UNWIND_HINT_FUNC
+ 		ANNOTATE_NOENDBR
++		ANNOTATE_UNRET_SAFE
+ 		ret
+ 		/*
+ 		 * Xen will write the hypercall page, and sort out ENDBR.
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index f66e4ac0af94..fbe41203fc9b 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -2030,8 +2030,9 @@ static int read_retpoline_hints(struct objtool_file *file)
+ 		}
  
- 	cipso_ptr_len = cipso_ptr[1];
-@@ -337,7 +338,7 @@ int cipso_v4_cache_add(const unsigned char *cipso_ptr,
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC) {
+-			WARN_FUNC("retpoline_safe hint not an indirect jump/call",
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN) {
++			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret",
+ 				  insn->sec, insn->offset);
+ 			return -1;
+ 		}
+@@ -3561,7 +3562,8 @@ static int validate_retpoline(struct objtool_file *file)
  
- 	bkt = entry->hash & (CIPSO_V4_CACHE_BUCKETS - 1);
- 	spin_lock_bh(&cipso_v4_cache[bkt].lock);
--	if (cipso_v4_cache[bkt].size < cipso_v4_cache_bucketsize) {
-+	if (cipso_v4_cache[bkt].size < bkt_size) {
- 		list_add(&entry->list, &cipso_v4_cache[bkt].list);
- 		cipso_v4_cache[bkt].size += 1;
- 	} else {
-@@ -1214,7 +1215,8 @@ static int cipso_v4_gentag_rbm(const struct cipso_v4_doi *doi_def,
- 		/* This will send packets using the "optimized" format when
- 		 * possible as specified in  section 3.4.2.6 of the
- 		 * CIPSO draft. */
--		if (cipso_v4_rbm_optfmt && ret_val > 0 && ret_val <= 10)
-+		if (READ_ONCE(cipso_v4_rbm_optfmt) && ret_val > 0 &&
-+		    ret_val <= 10)
- 			tag_len = 14;
- 		else
- 			tag_len = 4 + ret_val;
-@@ -1617,7 +1619,7 @@ int cipso_v4_validate(const struct sk_buff *skb, unsigned char **option)
- 			 * all the CIPSO validations here but it doesn't
- 			 * really specify _exactly_ what we need to validate
- 			 * ... so, just make it a sysctl tunable. */
--			if (cipso_v4_rbm_strictvalid) {
-+			if (READ_ONCE(cipso_v4_rbm_strictvalid)) {
- 				if (cipso_v4_map_lvl_valid(doi_def,
- 							   tag[3]) < 0) {
- 					err_offset = opt_iter + 3;
+ 	for_each_insn(file, insn) {
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC)
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN)
+ 			continue;
+ 
+ 		if (insn->retpoline_safe)
+@@ -3576,9 +3578,14 @@ static int validate_retpoline(struct objtool_file *file)
+ 		if (!strcmp(insn->sec->name, ".init.text") && !module)
+ 			continue;
+ 
+-		WARN_FUNC("indirect %s found in RETPOLINE build",
+-			  insn->sec, insn->offset,
+-			  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		if (insn->type == INSN_RETURN) {
++			WARN_FUNC("'naked' return found in RETPOLINE build",
++				  insn->sec, insn->offset);
++		} else {
++			WARN_FUNC("indirect %s found in RETPOLINE build",
++				  insn->sec, insn->offset,
++				  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		}
+ 
+ 		warnings++;
+ 	}
 -- 
 2.35.1
 
