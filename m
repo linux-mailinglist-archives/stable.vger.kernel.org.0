@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC5D57999E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A728C579A9B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237984AbiGSMFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40170 "EHLO
+        id S238720AbiGSMPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238252AbiGSMEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8B0CE1;
-        Tue, 19 Jul 2022 05:00:09 -0700 (PDT)
+        with ESMTP id S238882AbiGSMNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:13:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5757B1900B;
+        Tue, 19 Jul 2022 05:04:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6721DB81A8F;
-        Tue, 19 Jul 2022 12:00:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B248DC341C6;
-        Tue, 19 Jul 2022 12:00:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0EDF6173D;
+        Tue, 19 Jul 2022 12:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82DC0C341C6;
+        Tue, 19 Jul 2022 12:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232007;
-        bh=7ZYWiRyY+pdBvXiE3F4IZL5+o6eMslmSkCprIoHSkHs=;
+        s=korg; t=1658232244;
+        bh=Gp0hYuhUtPpI2slSZ1jNHZ6CZOKc7M9FB2d/Lt6BXSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cd9O+r+KmVP9sG74bBPx0ZWWMFlCAZcjsYoPflAI9kAXk2Ys6yxNmI+dxN8sFNttf
-         1WCOhRLq5nwf78xNjl+TjMzYwAnX+6utivm7SiNoLrUL4HGH6T2Kpg9e+k223Ofpet
-         tTcof6ejArYG2nGxkRaJCt87jp5q1cIZUsxwBKsc=
+        b=hFCrotNpbUzKLBMsj3N3Sj6JfuocXSPYaXkt2uwiEqPLgMqmVBi8KBgRvbDvW9raJ
+         sTal+u0tNVpzxlyVusQ4UXydtj6FIpojs+/3kAkq5QSeBdy4Nv2TxiXGEy51vDAn5D
+         wmZeeoCP8hHayS00rRHIP99Gxnc8rOYyT42eh6mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Tommy Pettersson <ptp@lysator.liu.se>,
-        Ciprian Craciun <ciprian.craciun@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 10/48] nilfs2: fix incorrect masking of permission flags for symlinks
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Fabio Estevam <festevam@denx.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 24/71] ASoC: sgtl5000: Fix noise on shutdown/remove
 Date:   Tue, 19 Jul 2022 13:53:47 +0200
-Message-Id: <20220719114520.841055062@linuxfoundation.org>
+Message-Id: <20220719114554.577162129@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-commit 5924e6ec1585445f251ea92713eb15beb732622a upstream.
+[ Upstream commit 040e3360af3736348112d29425bf5d0be5b93115 ]
 
-The permission flags of newly created symlinks are wrongly dropped on
-nilfs2 with the current umask value even though symlinks should have 777
-(rwxrwxrwx) permissions:
+Put the SGTL5000 in a silent/safe state on shutdown/remove, this is
+required since the SGTL5000 produces a constant noise on its output
+after it is configured and its clock is removed. Without this change
+this is happening every time the module is unbound/removed or from
+reboot till the clock is enabled again.
 
- $ umask
- 0022
- $ touch file && ln -s file symlink; ls -l file symlink
- -rw-r--r--. 1 root root 0 Jun 23 16:29 file
- lrwxr-xr-x. 1 root root 4 Jun 23 16:29 symlink -> file
+The issue was experienced on both a Toradex Colibri/Apalis iMX6, but can
+be easily reproduced everywhere just playing something on the codec and
+after that removing/unbinding the driver.
 
-This fixes the bug by inserting a missing check that excludes
-symlinks.
-
-Link: https://lkml.kernel.org/r/1655974441-5612-1-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: Tommy Pettersson <ptp@lysator.liu.se>
-Reported-by: Ciprian Craciun <ciprian.craciun@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9b34e6cc3bc2 ("ASoC: Add Freescale SGTL5000 codec support")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@denx.de>
+Link: https://lore.kernel.org/r/20220624101301.441314-1-francesco.dolcini@toradex.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/nilfs.h |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/sgtl5000.c | 9 +++++++++
+ sound/soc/codecs/sgtl5000.h | 1 +
+ 2 files changed, 10 insertions(+)
 
---- a/fs/nilfs2/nilfs.h
-+++ b/fs/nilfs2/nilfs.h
-@@ -198,6 +198,9 @@ static inline int nilfs_acl_chmod(struct
- 
- static inline int nilfs_init_acl(struct inode *inode, struct inode *dir)
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 8a1e485982d8..76d3c0681f37 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1788,6 +1788,9 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
  {
-+	if (S_ISLNK(inode->i_mode))
-+		return 0;
+ 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
+ 
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
 +
- 	inode->i_mode &= ~current_umask();
+ 	clk_disable_unprepare(sgtl5000->mclk);
+ 	regulator_bulk_disable(sgtl5000->num_supplies, sgtl5000->supplies);
+ 	regulator_bulk_free(sgtl5000->num_supplies, sgtl5000->supplies);
+@@ -1795,6 +1798,11 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
  	return 0;
  }
+ 
++static void sgtl5000_i2c_shutdown(struct i2c_client *client)
++{
++	sgtl5000_i2c_remove(client);
++}
++
+ static const struct i2c_device_id sgtl5000_id[] = {
+ 	{"sgtl5000", 0},
+ 	{},
+@@ -1815,6 +1823,7 @@ static struct i2c_driver sgtl5000_i2c_driver = {
+ 		   },
+ 	.probe = sgtl5000_i2c_probe,
+ 	.remove = sgtl5000_i2c_remove,
++	.shutdown = sgtl5000_i2c_shutdown,
+ 	.id_table = sgtl5000_id,
+ };
+ 
+diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
+index 56ec5863f250..3a808c762299 100644
+--- a/sound/soc/codecs/sgtl5000.h
++++ b/sound/soc/codecs/sgtl5000.h
+@@ -80,6 +80,7 @@
+ /*
+  * SGTL5000_CHIP_DIG_POWER
+  */
++#define SGTL5000_DIG_POWER_DEFAULT		0x0000
+ #define SGTL5000_ADC_EN				0x0040
+ #define SGTL5000_DAC_EN				0x0020
+ #define SGTL5000_DAP_POWERUP			0x0010
+-- 
+2.35.1
+
 
 
