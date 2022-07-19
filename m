@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51335579C7B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D1F579ED4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241123AbiGSMkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
+        id S243088AbiGSNGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239116AbiGSMiZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:38:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969B3C5B;
-        Tue, 19 Jul 2022 05:15:03 -0700 (PDT)
+        with ESMTP id S243109AbiGSNGa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:06:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C07A0259;
+        Tue, 19 Jul 2022 05:27:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26D8B60F10;
-        Tue, 19 Jul 2022 12:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECF98C341C6;
-        Tue, 19 Jul 2022 12:15:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9904A61978;
+        Tue, 19 Jul 2022 12:26:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C5CC341D0;
+        Tue, 19 Jul 2022 12:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232902;
-        bh=FX3acsEqsS0HF4T8PaNc5W2h67o+9MYPSUaaw3v9HPY=;
+        s=korg; t=1658233615;
+        bh=FFOp3TiFjA6X4kN9wrJUlb/4XNEw+QMu8X8lFkJOVCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Io8NawtgMPP9NtDokkJo3ckr1Vw+w8EsOnQ08v89j0IBJ3lS5F17RpvTr/hmZrHiQ
-         kiw6LjVYkN9s1epzfSAlkXzILH3j3KHmCFtUQEv/uSH6a1EKs7izfSQygcZNFi6LZK
-         tn+4C0U7wQDR0ZX16C9CnHjn+b0clJVXSjvAWyi4=
+        b=D0agrEKQWyai5kIrDILY7URGuGsgkE9ycirfTQPGjD/7WWP8+WELpUfhckwHxjcQS
+         FLZ0E0V4R9ssxPJCGiZ1QRcc+ea7fOFFuW3RNKErj5s2jTiNdmDoFYpnKsQoGzNLsz
+         y5p8sEyQy+5FCabkuGF2SkOXdAX5QO7m3iv1xUwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 106/167] net: atlantic: remove aq_nic_deinit() when resume
+Subject: [PATCH 5.18 153/231] ASoC: dt-bindings: Fix description for msm8916
 Date:   Tue, 19 Jul 2022 13:53:58 +0200
-Message-Id: <20220719114706.711249419@linuxfoundation.org>
+Message-Id: <20220719114727.178368901@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 2e15c51fefaffaf9f72255eaef4fada05055e4c5 ]
+[ Upstream commit 94c65dffd4c4af052b3ea8934fbcb2fa8da276a8 ]
 
-aq_nic_deinit() has been called while suspending, so we don't have to call
-it again on resume.
-Actually, call it again leads to another hang issue when resuming from
-S3.
+For the existing msm8916 bindings the minimum reg/reg-names is 1 not 2.
+Similarly the minimum interrupt/interrupt-names is 1 not 2.
 
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992345] Call Trace:
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992346] <TASK>
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992348] aq_nic_deinit+0xb4/0xd0 [atlantic]
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992356] aq_pm_thaw+0x7f/0x100 [atlantic]
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992362] pci_pm_resume+0x5c/0x90
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992366] ? pci_pm_thaw+0x80/0x80
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992368] dpm_run_callback+0x4e/0x120
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992371] device_resume+0xad/0x200
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992373] async_resume+0x1e/0x40
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992374] async_run_entry_fn+0x33/0x120
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992377] process_one_work+0x220/0x3c0
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992380] worker_thread+0x4d/0x3f0
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992382] ? process_one_work+0x3c0/0x3c0
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992384] kthread+0x12a/0x150
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992386] ? set_kthread_struct+0x40/0x40
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992387] ret_from_fork+0x22/0x30
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992391] </TASK>
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992392] ---[ end trace 1ec8c79604ed5e0d ]---
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992394] PM: dpm_run_callback(): pci_pm_resume+0x0/0x90 returns -110
-Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992397] atlantic 0000:02:00.0: PM: failed to resume async: error -110
-
-Fixes: 1809c30b6e5a ("net: atlantic: always deep reset on pm op, fixing up my null deref regression")
-Signed-off-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
-Link: https://lore.kernel.org/r/20220713111224.1535938-2-acelan.kao@canonical.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: f3fc4fbfa2d2 ("ASoC: dt-bindings: Add SC7280 lpass cpu bindings")
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220629114012.3282945-1-bryan.odonoghue@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c | 3 ---
- 1 file changed, 3 deletions(-)
+ .../devicetree/bindings/sound/qcom,lpass-cpu.yaml         | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-index dbd5263130f9..8647125d60ae 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -413,9 +413,6 @@ static int atl_resume_common(struct device *dev)
- 	pci_set_power_state(pdev, PCI_D0);
- 	pci_restore_state(pdev);
+diff --git a/Documentation/devicetree/bindings/sound/qcom,lpass-cpu.yaml b/Documentation/devicetree/bindings/sound/qcom,lpass-cpu.yaml
+index 2c81efb5fa37..47bb67d43ac2 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,lpass-cpu.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,lpass-cpu.yaml
+@@ -25,12 +25,12 @@ properties:
+       - qcom,sc7280-lpass-cpu
  
--	/* Reinitialize Nic/Vecs objects */
--	aq_nic_deinit(nic, !nic->aq_hw->aq_nic_cfg->wol);
--
- 	if (netif_running(nic->ndev)) {
- 		ret = aq_nic_init(nic);
- 		if (ret)
+   reg:
+-    minItems: 2
++    minItems: 1
+     maxItems: 6
+     description: LPAIF core registers
+ 
+   reg-names:
+-    minItems: 2
++    minItems: 1
+     maxItems: 6
+ 
+   clocks:
+@@ -42,12 +42,12 @@ properties:
+     maxItems: 7
+ 
+   interrupts:
+-    minItems: 2
++    minItems: 1
+     maxItems: 4
+     description: LPAIF DMA buffer interrupt
+ 
+   interrupt-names:
+-    minItems: 2
++    minItems: 1
+     maxItems: 4
+ 
+   qcom,adsp:
 -- 
 2.35.1
 
