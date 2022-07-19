@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7310579A02
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C26B579AC5
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238465AbiGSMKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51686 "EHLO
+        id S238930AbiGSMSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:18:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238601AbiGSMJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1734050184;
-        Tue, 19 Jul 2022 05:02:20 -0700 (PDT)
+        with ESMTP id S239032AbiGSMRP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:17:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83A6564CD;
+        Tue, 19 Jul 2022 05:06:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1285616F9;
-        Tue, 19 Jul 2022 12:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69700C341C6;
-        Tue, 19 Jul 2022 12:02:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E48F61734;
+        Tue, 19 Jul 2022 12:06:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711A8C341C6;
+        Tue, 19 Jul 2022 12:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232138;
-        bh=AqoUla41OwbAt/AcTKQpn/WlleyqhAgDTGoqOsLIvsI=;
+        s=korg; t=1658232371;
+        bh=51Mmdic7ub3897atJeAtVIKWsQQ+JyCHmodSqpsbTNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdILadeL07ZNOue+9RNgqPdZ4DriqBK+lF/jZ+jxvsHMiGQKuDTfqhjIS3LaiekYU
-         pkhdKegVgQ84DWzNKkarfTOPHLYgUdP2sjzGcG6ozVVWzf3A0UTrkwPZYYUFr4Jqgw
-         vzR+vS0lnGnFggs51h8H+BdSIyrtqTQa7ZJQ+6Q4=
+        b=JGfHgqy/3xhzue9gzb6WF53VT7myNX223I8DgBu06eo3YXQXi4qoSib7kIpkerl1f
+         ZjVJCfwoQGbRlnQrDOjGbMnjprbT8hRoMxM5mqXMSD/wpNtLS3jTLcmsu5dPgvHMig
+         RyEcIIPLZryMTER2GMyXGJwHsHE5NJmQYBXzBPbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 04/71] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc221
-Date:   Tue, 19 Jul 2022 13:53:27 +0200
-Message-Id: <20220719114552.826332506@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 035/112] ASoC: tas2764: Add post reset delays
+Date:   Tue, 19 Jul 2022 13:53:28 +0200
+Message-Id: <20220719114629.624351091@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit 4ba5c853d7945b3855c3dcb293f7f9f019db641e upstream.
+[ Upstream commit cd10bb89b0d57bca98eb75e0444854a1c129a14e ]
 
-On a HP 288 Pro G2 MT (X9W02AV), the front mic could not be detected.
-In order to get it working, the pin configuration needs to be set
-correctly, and the ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE fixup needs
-to be applied.
+Make sure there is at least 1 ms delay from reset to first command as
+is specified in the datasheet. This is a fix similar to commit
+307f31452078 ("ASoC: tas2770: Insert post reset delay").
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220713063332.30095-1-tangmeng@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220630075135.2221-1-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/soc/codecs/tas2764.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6427,6 +6427,7 @@ enum {
- 	ALC298_FIXUP_LENOVO_SPK_VOLUME,
- 	ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER,
- 	ALC269_FIXUP_ATIV_BOOK_8,
-+	ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE,
- 	ALC221_FIXUP_HP_MIC_NO_PRESENCE,
- 	ALC256_FIXUP_ASUS_HEADSET_MODE,
- 	ALC256_FIXUP_ASUS_MIC,
-@@ -7305,6 +7306,16 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_NO_SHUTUP
- 	},
-+	[ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
-+			{ 0x1a, 0x01813030 }, /* use as headphone mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE
-+	},
- 	[ALC221_FIXUP_HP_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -8163,6 +8174,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x2335, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
- 	SND_PCI_QUIRK(0x103c, 0x2336, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
- 	SND_PCI_QUIRK(0x103c, 0x2337, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
-+	SND_PCI_QUIRK(0x103c, 0x2b5e, "HP 288 Pro G2 MT", ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x802e, "HP Z240 SFF", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x802f, "HP Z240", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x820d, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index 14a193e48dc7..d8e79cc2cd1d 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -42,10 +42,12 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
+ 		gpiod_set_value_cansleep(tas2764->reset_gpio, 0);
+ 		msleep(20);
+ 		gpiod_set_value_cansleep(tas2764->reset_gpio, 1);
++		usleep_range(1000, 2000);
+ 	}
+ 
+ 	snd_soc_component_write(tas2764->component, TAS2764_SW_RST,
+ 				TAS2764_RST);
++	usleep_range(1000, 2000);
+ }
+ 
+ static int tas2764_set_bias_level(struct snd_soc_component *component,
+@@ -107,8 +109,10 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
+ 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
+ 	int ret;
+ 
+-	if (tas2764->sdz_gpio)
++	if (tas2764->sdz_gpio) {
+ 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
++		usleep_range(1000, 2000);
++	}
+ 
+ 	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+ 					    TAS2764_PWR_CTRL_MASK,
+@@ -501,8 +505,10 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
+ 
+ 	tas2764->component = component;
+ 
+-	if (tas2764->sdz_gpio)
++	if (tas2764->sdz_gpio) {
+ 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
++		usleep_range(1000, 2000);
++	}
+ 
+ 	tas2764_reset(tas2764);
+ 
+-- 
+2.35.1
+
 
 
