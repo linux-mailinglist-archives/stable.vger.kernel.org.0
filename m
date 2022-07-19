@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BFF4579F06
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A09C8579B4F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235808AbiGSNKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
+        id S239920AbiGSM0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:26:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243224AbiGSNIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:08:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB536550DF;
-        Tue, 19 Jul 2022 05:28:12 -0700 (PDT)
+        with ESMTP id S239760AbiGSMZo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:25:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B07E61DB7;
+        Tue, 19 Jul 2022 05:09:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2AD6B81B84;
-        Tue, 19 Jul 2022 12:27:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48858C341C6;
-        Tue, 19 Jul 2022 12:27:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B7426175C;
+        Tue, 19 Jul 2022 12:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E19C341CB;
+        Tue, 19 Jul 2022 12:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233659;
-        bh=U3MgG21b5SazhZDFf0lLfuAYMuBp9MqEc7e1BPZoKXY=;
+        s=korg; t=1658232587;
+        bh=2hxcyOrTSBY6NUhGwyWlaha8eRuFLOpauYLap/1TLQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kE1sG8GKhYrTqbMn6/qqxfRXTMRM2g/E7S/jNLf0vc607z7flew4EdxMPIF3ZfNsT
-         ALNmyIe235SdqZyagNDq5+E7ynCdYjCiftURJz4S8fU+EEG4AAOa7ZKDmi7NO1LrK9
-         OT+lmPqT55HJpya0nLNHwHd44NtaDwyMzjCOhOEA=
+        b=A1SIYHTydE3B+fyuVhWvnsj57y6APpw9qFjQ4+x2vvPQrIWJ0tZrlpXbVvkGerG7x
+         miHQp8LnrxowuZkZayzFp3uG1BYun+Bnjo4zYNTR+z1lLz6VZ4qp1uN5VdKsjsyoMc
+         yGOV87NLvmBsbWDQAq9cZlErSIlIQHhqbIqU2GoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 197/231] ASoC: Intel: bytcr_wm5102: Fix GPIO related probe-ordering problem
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 5.10 109/112] serial: stm32: Clear prev values before setting RTS delays
 Date:   Tue, 19 Jul 2022 13:54:42 +0200
-Message-Id: <20220719114730.648078383@linuxfoundation.org>
+Message-Id: <20220719114637.787036788@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 4e07479eab8a044cc9542414ccb4aeb8eb033bde ]
+commit 5c5f44e36217de5ead789ff25da71c31c2331c96 upstream.
 
-The "wlf,spkvdd-ena" GPIO needed by the bytcr_wm5102 driver
-is made available through a gpio-lookup table.
+The code lacks clearing of previous DEAT/DEDT values. Thus, changing
+values on the fly results in garbage delays tending towards the maximum
+value as more and more bits are ORed together. (Leaving RS485 mode
+would have cleared the old values though).
 
-This gpio-lookup table is registered by drivers/mfd/arizona-spi.c, which
-may get probed after the bytcr_wm5102 driver.
-
-If the gpio-lookup table has not registered yet then the gpiod_get()
-will return -ENOENT. Treat -ENOENT as -EPROBE_DEFER to still keep
-things working in this case.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220612155652.107310-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1bcda09d2910 ("serial: stm32: add support for RS485 hardware control mode")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220627150753.34510-1-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_wm5102.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/tty/serial/stm32-usart.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_wm5102.c b/sound/soc/intel/boards/bytcr_wm5102.c
-index 8d8e96e3cd2d..f6d0cef1b28c 100644
---- a/sound/soc/intel/boards/bytcr_wm5102.c
-+++ b/sound/soc/intel/boards/bytcr_wm5102.c
-@@ -421,8 +421,17 @@ static int snd_byt_wm5102_mc_probe(struct platform_device *pdev)
- 	priv->spkvdd_en_gpio = gpiod_get(codec_dev, "wlf,spkvdd-ena", GPIOD_OUT_LOW);
- 	put_device(codec_dev);
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -70,6 +70,8 @@ static void stm32_usart_config_reg_rs485
+ 	*cr3 |= USART_CR3_DEM;
+ 	over8 = *cr1 & USART_CR1_OVER8;
  
--	if (IS_ERR(priv->spkvdd_en_gpio))
--		return dev_err_probe(dev, PTR_ERR(priv->spkvdd_en_gpio), "getting spkvdd-GPIO\n");
-+	if (IS_ERR(priv->spkvdd_en_gpio)) {
-+		ret = PTR_ERR(priv->spkvdd_en_gpio);
-+		/*
-+		 * The spkvdd gpio-lookup is registered by: drivers/mfd/arizona-spi.c,
-+		 * so -ENOENT means that arizona-spi hasn't probed yet.
-+		 */
-+		if (ret == -ENOENT)
-+			ret = -EPROBE_DEFER;
++	*cr1 &= ~(USART_CR1_DEDT_MASK | USART_CR1_DEAT_MASK);
 +
-+		return dev_err_probe(dev, ret, "getting spkvdd-GPIO\n");
-+	}
- 
- 	/* override platform name, if required */
- 	byt_wm5102_card.dev = dev;
--- 
-2.35.1
-
+ 	if (over8)
+ 		rs485_deat_dedt = delay_ADE * baud * 8;
+ 	else
 
 
