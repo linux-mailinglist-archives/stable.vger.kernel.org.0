@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7E6579AA4
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14AC1579E5A
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbiGSMRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:17:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38362 "EHLO
+        id S243287AbiGSNAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:00:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237545AbiGSMPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C02BB54656;
-        Tue, 19 Jul 2022 05:06:01 -0700 (PDT)
+        with ESMTP id S242607AbiGSM7N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49DE69B542;
+        Tue, 19 Jul 2022 05:24:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49011B81B32;
-        Tue, 19 Jul 2022 12:05:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DAFC341C6;
-        Tue, 19 Jul 2022 12:05:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0517B81B1A;
+        Tue, 19 Jul 2022 12:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D592C341C6;
+        Tue, 19 Jul 2022 12:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232334;
-        bh=TaXABxc8N8pbG30PP50/ekto0HoZyuiPfVaoSoQDmSQ=;
+        s=korg; t=1658233437;
+        bh=kljyRoFz+3KUUUd3bQlrQWVQc83iAkC23StdOGnlkig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSbRSQfsri5XPaYT26TGpoy0n9vFLPTyyquGKVeO7QUeYoEGt816baF+XzIvcRzVX
-         YIajbC0aitgOWCxpDqNS4ONJGJcDt5FzAMOrWOM6HteTP8fpZ+dz7MLTu37eg6K6Ug
-         mbJXif+OtDhO8jTeDXV7LEN5EklRNZk6fdlWr/nw=
+        b=i/dP4qqdtpc/xx9BaNL5z3MYLdX6Rw3ihcXd1k7MhrDjV7ZTv7kt838ymgURAcNFe
+         FA4GskyBD24kGMlcQvlaDwjTjdEfYwGF0qeA8U3yyPJXYMd1Gy8Cx3BRYXmNYjAh1B
+         FxWN4JIez7k0sHSqggFTDssZk+RTXsBGx5qweHy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chris@accessvector.net,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 008/112] fix race between exit_itimers() and /proc/pid/timers
+        stable@vger.kernel.org, Yevhen Orlov <yevhen.orlov@plvision.eu>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 096/231] net: marvell: prestera: fix missed deinit sequence
 Date:   Tue, 19 Jul 2022 13:53:01 +0200
-Message-Id: <20220719114626.799742622@linuxfoundation.org>
+Message-Id: <20220719114722.824466935@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Yevhen Orlov <yevhen.orlov@plvision.eu>
 
-commit d5b36a4dbd06c5e8e36ca8ccc552f679069e2946 upstream.
+[ Upstream commit f946964a9f79f8dcb5a6329265281eebfc23aee5 ]
 
-As Chris explains, the comment above exit_itimers() is not correct,
-we can race with proc_timers_seq_ops. Change exit_itimers() to clear
-signal->posix_timers with ->siglock held.
+Add unregister_fib_notifier as rollback of register_fib_notifier.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: chris@accessvector.net
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4394fbcb78cf ("net: marvell: prestera: handle fib notifications")
+Signed-off-by: Yevhen Orlov <yevhen.orlov@plvision.eu>
+Link: https://lore.kernel.org/r/20220710122021.7642-1-yevhen.orlov@plvision.eu
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exec.c                  |    2 +-
- include/linux/sched/task.h |    2 +-
- kernel/exit.c              |    2 +-
- kernel/time/posix-timers.c |   19 ++++++++++++++-----
- 4 files changed, 17 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/marvell/prestera/prestera_router.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1286,7 +1286,7 @@ int begin_new_exec(struct linux_binprm *
- 	bprm->mm = NULL;
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_router.c b/drivers/net/ethernet/marvell/prestera/prestera_router.c
+index 6c5618cf4f08..97d9012db189 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_router.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_router.c
+@@ -587,6 +587,7 @@ int prestera_router_init(struct prestera_switch *sw)
  
- #ifdef CONFIG_POSIX_TIMERS
--	exit_itimers(me->signal);
-+	exit_itimers(me);
- 	flush_itimer_signals();
- #endif
- 
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -82,7 +82,7 @@ static inline void exit_thread(struct ta
- extern void do_group_exit(int);
- 
- extern void exit_files(struct task_struct *);
--extern void exit_itimers(struct signal_struct *);
-+extern void exit_itimers(struct task_struct *);
- 
- extern pid_t kernel_clone(struct kernel_clone_args *kargs);
- struct task_struct *fork_idle(int);
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -782,7 +782,7 @@ void __noreturn do_exit(long code)
- 
- #ifdef CONFIG_POSIX_TIMERS
- 		hrtimer_cancel(&tsk->signal->real_timer);
--		exit_itimers(tsk->signal);
-+		exit_itimers(tsk);
- #endif
- 		if (tsk->mm)
- 			setmax_mm_hiwater_rss(&tsk->signal->maxrss, tsk->mm);
---- a/kernel/time/posix-timers.c
-+++ b/kernel/time/posix-timers.c
-@@ -1051,15 +1051,24 @@ retry_delete:
- }
- 
- /*
-- * This is called by do_exit or de_thread, only when there are no more
-- * references to the shared signal_struct.
-+ * This is called by do_exit or de_thread, only when nobody else can
-+ * modify the signal->posix_timers list. Yet we need sighand->siglock
-+ * to prevent the race with /proc/pid/timers.
-  */
--void exit_itimers(struct signal_struct *sig)
-+void exit_itimers(struct task_struct *tsk)
+ void prestera_router_fini(struct prestera_switch *sw)
  {
-+	struct list_head timers;
- 	struct k_itimer *tmr;
- 
--	while (!list_empty(&sig->posix_timers)) {
--		tmr = list_entry(sig->posix_timers.next, struct k_itimer, list);
-+	if (list_empty(&tsk->signal->posix_timers))
-+		return;
-+
-+	spin_lock_irq(&tsk->sighand->siglock);
-+	list_replace_init(&tsk->signal->posix_timers, &timers);
-+	spin_unlock_irq(&tsk->sighand->siglock);
-+
-+	while (!list_empty(&timers)) {
-+		tmr = list_first_entry(&timers, struct k_itimer, list);
- 		itimer_delete(tmr);
- 	}
- }
++	unregister_fib_notifier(&init_net, &sw->router->fib_nb);
+ 	unregister_inetaddr_notifier(&sw->router->inetaddr_nb);
+ 	unregister_inetaddr_validator_notifier(&sw->router->inetaddr_valid_nb);
+ 	rhashtable_destroy(&sw->router->kern_fib_cache_ht);
+-- 
+2.35.1
+
 
 
