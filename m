@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E90EB579DC8
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B1CD579BB2
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242184AbiGSMzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
+        id S234065AbiGSMbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:31:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242490AbiGSMyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:54:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414AD97A3B;
-        Tue, 19 Jul 2022 05:21:47 -0700 (PDT)
+        with ESMTP id S240642AbiGSM3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0017E691F9;
+        Tue, 19 Jul 2022 05:11:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1AF2618E1;
-        Tue, 19 Jul 2022 12:21:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95285C341C6;
-        Tue, 19 Jul 2022 12:21:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD62BB81B32;
+        Tue, 19 Jul 2022 12:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B8E3C341CF;
+        Tue, 19 Jul 2022 12:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233304;
-        bh=nLlYFQCkhFBiv9hsoKKuZAY8cVQn2YoAKCkhCpyctqo=;
+        s=korg; t=1658232685;
+        bh=HpRZwYpGGp11YRHRT9z7MzDiIt7YNlvkO80tr+oVew8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+W0xGDNbzgNfK5lO84r7RcZep3z7T9E55RwHSYlObPiCzsTGGnQShyHiuniLUy2Q
-         9d75d/zSJjZx4xkeLb4642QSOH/K+2pdMzN9CCYsY2Yed4WJpHLKHw5B4ZssQ/ATQP
-         QNRzWMkZniua3mO6RISvG3mDSOve9Mje+kf3Zh6M=
+        b=e9qZniKmRC3UzYZlLKzgd4Njv09lWr5yR0eY7ynWvYqcjwG2k1qQhm0rmnIbY9lqY
+         A1+jpwdobmbHyyC91OaLSddQfZOCsUVKVQD+jxu/VmJp03a4USktFJmenaWG9q2l3u
+         gCh9EZh9Zy4gwSmYZVxTrRFcS0IWdP+MqIWUvhRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 077/231] net: Fix data-races around sysctl_mem.
+Subject: [PATCH 5.15 030/167] reset: Fix devm bulk optional exclusive control getter
 Date:   Tue, 19 Jul 2022 13:52:42 +0200
-Message-Id: <20220719114721.176165552@linuxfoundation.org>
+Message-Id: <20220719114659.674929709@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 310731e2f1611d1d13aae237abcf8e66d33345d5 ]
+[ Upstream commit a57f68ddc8865d59a19783080cc52fb4a11dc209 ]
 
-While reading .sysctl_mem, it can be changed concurrently.
-So, we need to add READ_ONCE() to avoid data-races.
+Most likely due to copy-paste mistake the device managed version of the
+denoted reset control getter has been implemented with invalid semantic,
+which can be immediately spotted by having "WARN_ON(shared && acquired)"
+warning in the system log as soon as the method is called. Anyway let's
+fix it by altering the boolean arguments passed to the
+__devm_reset_control_bulk_get() method from
+- shared = true, optional = false, acquired = true
+to
++ shared = false, optional = true, acquired = true
+That's what they were supposed to be in the first place (see the non-devm
+version of the same method: reset_control_bulk_get_optional_exclusive()).
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 48d71395896d ("reset: Add reset_control_bulk API")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220624141853.7417-2-Sergey.Semin@baikalelectronics.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h | 2 +-
+ include/linux/reset.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 3c4fb8f03fd9..6bef0ffb1e7b 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1534,7 +1534,7 @@ void __sk_mem_reclaim(struct sock *sk, int amount);
- /* sysctl_mem values are in pages, we convert them in SK_MEM_QUANTUM units */
- static inline long sk_prot_mem_limits(const struct sock *sk, int index)
+diff --git a/include/linux/reset.h b/include/linux/reset.h
+index db0e6115a2f6..7bb583737528 100644
+--- a/include/linux/reset.h
++++ b/include/linux/reset.h
+@@ -711,7 +711,7 @@ static inline int __must_check
+ devm_reset_control_bulk_get_optional_exclusive(struct device *dev, int num_rstcs,
+ 					       struct reset_control_bulk_data *rstcs)
  {
--	long val = sk->sk_prot->sysctl_mem[index];
-+	long val = READ_ONCE(sk->sk_prot->sysctl_mem[index]);
+-	return __devm_reset_control_bulk_get(dev, num_rstcs, rstcs, true, false, true);
++	return __devm_reset_control_bulk_get(dev, num_rstcs, rstcs, false, true, true);
+ }
  
- #if PAGE_SIZE > SK_MEM_QUANTUM
- 	val <<= PAGE_SHIFT - SK_MEM_QUANTUM_SHIFT;
+ /**
 -- 
 2.35.1
 
