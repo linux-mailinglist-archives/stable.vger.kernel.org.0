@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59BE1579D18
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88262579F05
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241638AbiGSMpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36174 "EHLO
+        id S232757AbiGSNKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241798AbiGSMoi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17FA687348;
-        Tue, 19 Jul 2022 05:17:38 -0700 (PDT)
+        with ESMTP id S243154AbiGSNIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:08:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4521D550E4;
+        Tue, 19 Jul 2022 05:28:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE6C9B81B13;
-        Tue, 19 Jul 2022 12:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B96C341C6;
-        Tue, 19 Jul 2022 12:17:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 321266020F;
+        Tue, 19 Jul 2022 12:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA306C341C6;
+        Tue, 19 Jul 2022 12:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233056;
-        bh=rcwtNqc+GPYqJXpwkFe1nLuwgUVQoC9tmju2aIdG9LU=;
+        s=korg; t=1658233691;
+        bh=TqZD68mi36gm9aiOSQeCq3F2D3ZSF1PXzG4Ef1OaD6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAuu/Mfi+7OVrr23RUYyo3E+VhvvaUWmqg0LSWs9XX/n+j2Y0dc58EDu9HqMc9cZv
-         dfc8H/Lodkuy8TsTmj0UvYxEORnh3CJ+y+yZDbvG1A03Bs9xD9rwYlQ04c3x2yDaj2
-         Wx7iPQI5Ay9VVJa6Edbre3/0QsnqWwF7mvjujI1s=
+        b=sfw4Fp2TPm6VnP3fIJTSxQ+U7nW+OvMcnyeC7ZIGqjIGQgZqv4R8SsMDMcOc13Txw
+         lw9UJHsoNltYU25Ms7SdEUkKIkK/fk4O6ocr2frHcT6xlEvklzxPtfDBL6TA8mGJ6X
+         lwl4ZnP+OnqU9Gm26SGSyzhsYrJEYWJCS4Q3j4JE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linyu Yuan <quic_linyyuan@quicinc.com>
-Subject: [PATCH 5.15 159/167] usb: typec: add missing uevent when partner support PD
-Date:   Tue, 19 Jul 2022 13:54:51 +0200
-Message-Id: <20220719114711.876486032@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 207/231] irqchip: or1k-pic: Undefine mask_ack for level triggered hardware
+Date:   Tue, 19 Jul 2022 13:54:52 +0200
+Message-Id: <20220719114731.345635622@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,37 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linyu Yuan <quic_linyyuan@quicinc.com>
+From: Stafford Horne <shorne@gmail.com>
 
-commit 6fb9e1d94789e8ee5a258a23bc588693f743fd6c upstream.
+[ Upstream commit 8520501346ed8d1c4a6dfa751cb57328a9c843f1 ]
 
-System like Android allow user control power role from UI, it is possible
-to implement application base on typec uevent to refresh UI, but found
-there is chance that UI show different state from typec attribute file.
+The mask_ack operation clears the interrupt by writing to the PICSR
+register.  This we don't want for level triggered interrupt because
+it does not actually clear the interrupt on the source hardware.
 
-In typec_set_pwr_opmode(), when partner support PD, there is no uevent
-send to user space which cause the problem.
+This was causing issues in qemu with multi core setups where
+interrupts would continue to fire even though they had been cleared in
+PICSR.
 
-Fix it by sending uevent notification when change power mode to PD.
+Just remove the mask_ack operation.
 
-Fixes: bdecb33af34f ("usb: typec: API for controlling USB Type-C Multiplexers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
-Link: https://lore.kernel.org/r/1656662934-10226-1-git-send-email-quic_linyyuan@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/class.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-or1k-pic.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/typec/class.c
-+++ b/drivers/usb/typec/class.c
-@@ -1718,6 +1718,7 @@ void typec_set_pwr_opmode(struct typec_p
- 			partner->usb_pd = 1;
- 			sysfs_notify(&partner_dev->kobj, NULL,
- 				     "supports_usb_power_delivery");
-+			kobject_uevent(&partner_dev->kobj, KOBJ_CHANGE);
- 		}
- 		put_device(partner_dev);
- 	}
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index 49b47e787644..f289ccd95291 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -66,7 +66,6 @@ static struct or1k_pic_dev or1k_pic_level = {
+ 		.name = "or1k-PIC-level",
+ 		.irq_unmask = or1k_pic_unmask,
+ 		.irq_mask = or1k_pic_mask,
+-		.irq_mask_ack = or1k_pic_mask_ack,
+ 	},
+ 	.handle = handle_level_irq,
+ 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
+-- 
+2.35.1
+
 
 
