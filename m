@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6847579DBD
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D352579DC7
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241965AbiGSMyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52574 "EHLO
+        id S242188AbiGSMzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242037AbiGSMx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:53:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E0D3936B1;
-        Tue, 19 Jul 2022 05:21:16 -0700 (PDT)
+        with ESMTP id S242545AbiGSMyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:54:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A169097D74;
+        Tue, 19 Jul 2022 05:21:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 964246177D;
-        Tue, 19 Jul 2022 12:21:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6111BC36AEF;
-        Tue, 19 Jul 2022 12:21:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03D35B81B2C;
+        Tue, 19 Jul 2022 12:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF50C341C6;
+        Tue, 19 Jul 2022 12:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233274;
-        bh=ASndOkuuuaWHwQJWwIUvQAr0o/kQ4UHxMrFqEXaLhew=;
+        s=korg; t=1658233306;
+        bh=AGVlhapnJHOEqrr6lBO8D1LBDrm6Jidzcfdm+f6X8pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEHlkmLlhpXzuSIDmjrrLQvNSjnFy0h+2Lw1m1rAQsWTIh9i3htZVdbj+TJlRO6Zz
-         IwtOgqmd/v/GgOHT2akGyOwA5oYz+9QcwYUHA45OCXsd7GFBbYiU/CqStnMs9tbEph
-         A6Z5LF0kPeUXGLTQnFQh9Mug2aVkDA+It23YUbEc=
+        b=N+mv5P8FZCD3HKBf1eY2ZRiYRCHTR6KY/Kfc5DIoA2OcNcNqsSTKuMcvAiaxisVEf
+         d8N+qBmI6ZHbbVuh2GUwwz/eP3DCCI6IRH3lUthPQ5RMyNCF4DqTHDTMot4TNVjd2B
+         n9BRdNhafCqXZWr1FCX6ne4AICsMa0JDRCkaCLkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 059/231] ASoC: Intel: Skylake: Correct the handling of fmt_config flexible array
-Date:   Tue, 19 Jul 2022 13:52:24 +0200
-Message-Id: <20220719114719.128741063@linuxfoundation.org>
+Subject: [PATCH 5.18 060/231] netfilter: ecache: move to separate structure
+Date:   Tue, 19 Jul 2022 13:52:25 +0200
+Message-Id: <20220719114719.210273645@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -55,130 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit fc976f5629afb4160ee77798b14a693eac903ffd ]
+[ Upstream commit 9027ce0b071a1bbd046682907fc2e23ca3592883 ]
 
-The struct nhlt_format's fmt_config is a flexible array, it must not be
-used as normal array.
-When moving to the next nhlt_fmt_cfg we need to take into account the data
-behind the ->config.caps (indicated by ->config.size).
+This makes it easier for a followup patch to only expose ecache
+related parts of nf_conntrack_net structure.
 
-The logic of the code also changed: it is no longer saves the _last_
-fmt_cfg for all found rates.
-
-Fixes: bc2bd45b1f7f3 ("ASoC: Intel: Skylake: Parse nhlt and register clock device")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20220630065638.11183-3-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-nhlt.c | 37 ++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ include/net/netfilter/nf_conntrack.h |  8 ++++++--
+ net/netfilter/nf_conntrack_ecache.c  | 19 ++++++++++---------
+ 2 files changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-nhlt.c b/sound/soc/intel/skylake/skl-nhlt.c
-index 366f7bd9bc02..deb7b820325e 100644
---- a/sound/soc/intel/skylake/skl-nhlt.c
-+++ b/sound/soc/intel/skylake/skl-nhlt.c
-@@ -111,11 +111,12 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 	if (fmt->fmt_count == 0)
- 		return;
+diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
+index b08b70989d2c..69e6c6a218be 100644
+--- a/include/net/netfilter/nf_conntrack.h
++++ b/include/net/netfilter/nf_conntrack.h
+@@ -43,6 +43,11 @@ union nf_conntrack_expect_proto {
+ 	/* insert expect proto private data here */
+ };
  
-+	fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
- 	for (i = 0; i < fmt->fmt_count; i++) {
-+		struct nhlt_fmt_cfg *saved_fmt_cfg = fmt_cfg;
- 		bool present = false;
- 
--		fmt_cfg = &fmt->fmt_config[i];
--		wav_fmt = &fmt_cfg->fmt_ext;
-+		wav_fmt = &saved_fmt_cfg->fmt_ext;
- 
- 		channels = wav_fmt->fmt.channels;
- 		bps = wav_fmt->fmt.bits_per_sample;
-@@ -133,12 +134,18 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 		 * derive the rate.
- 		 */
- 		for (j = i; j < fmt->fmt_count; j++) {
--			fmt_cfg = &fmt->fmt_config[j];
--			wav_fmt = &fmt_cfg->fmt_ext;
-+			struct nhlt_fmt_cfg *tmp_fmt_cfg = fmt_cfg;
++struct nf_conntrack_net_ecache {
++	struct delayed_work dwork;
++	struct netns_ct *ct_net;
++};
 +
-+			wav_fmt = &tmp_fmt_cfg->fmt_ext;
- 			if ((fs == wav_fmt->fmt.samples_per_sec) &&
--			   (bps == wav_fmt->fmt.bits_per_sample))
-+			   (bps == wav_fmt->fmt.bits_per_sample)) {
- 				channels = max_t(u16, channels,
- 						wav_fmt->fmt.channels);
-+				saved_fmt_cfg = tmp_fmt_cfg;
-+			}
-+			/* Move to the next nhlt_fmt_cfg */
-+			tmp_fmt_cfg = (struct nhlt_fmt_cfg *)(tmp_fmt_cfg->config.caps +
-+							      tmp_fmt_cfg->config.size);
- 		}
+ struct nf_conntrack_net {
+ 	/* only used when new connection is allocated: */
+ 	atomic_t count;
+@@ -58,8 +63,7 @@ struct nf_conntrack_net {
+ 	struct ctl_table_header	*sysctl_header;
+ #endif
+ #ifdef CONFIG_NF_CONNTRACK_EVENTS
+-	struct delayed_work ecache_dwork;
+-	struct netns_ct *ct_net;
++	struct nf_conntrack_net_ecache ecache;
+ #endif
+ };
  
- 		rate = channels * bps * fs;
-@@ -154,8 +161,11 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+diff --git a/net/netfilter/nf_conntrack_ecache.c b/net/netfilter/nf_conntrack_ecache.c
+index 07e65b4e92f8..0cb2da0a759a 100644
+--- a/net/netfilter/nf_conntrack_ecache.c
++++ b/net/netfilter/nf_conntrack_ecache.c
+@@ -96,8 +96,8 @@ static enum retry_state ecache_work_evict_list(struct ct_pcpu *pcpu)
  
- 		/* Fill rate and parent for sclk/sclkfs */
- 		if (!present) {
-+			struct nhlt_fmt_cfg *first_fmt_cfg;
-+
-+			first_fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
- 			i2s_config_ext = (struct skl_i2s_config_blob_ext *)
--						fmt->fmt_config[0].config.caps;
-+						first_fmt_cfg->config.caps;
- 
- 			/* MCLK Divider Source Select */
- 			if (is_legacy_blob(i2s_config_ext->hdr.sig)) {
-@@ -169,6 +179,9 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 
- 			parent = skl_get_parent_clk(clk_src);
- 
-+			/* Move to the next nhlt_fmt_cfg */
-+			fmt_cfg = (struct nhlt_fmt_cfg *)(fmt_cfg->config.caps +
-+							  fmt_cfg->config.size);
- 			/*
- 			 * Do not copy the config data if there is no parent
- 			 * clock available for this clock source select
-@@ -177,9 +190,9 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 				continue;
- 
- 			sclk[id].rate_cfg[rate_index].rate = rate;
--			sclk[id].rate_cfg[rate_index].config = fmt_cfg;
-+			sclk[id].rate_cfg[rate_index].config = saved_fmt_cfg;
- 			sclkfs[id].rate_cfg[rate_index].rate = rate;
--			sclkfs[id].rate_cfg[rate_index].config = fmt_cfg;
-+			sclkfs[id].rate_cfg[rate_index].config = saved_fmt_cfg;
- 			sclk[id].parent_name = parent->name;
- 			sclkfs[id].parent_name = parent->name;
- 
-@@ -193,13 +206,13 @@ static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
+ static void ecache_work(struct work_struct *work)
  {
- 	struct skl_i2s_config_blob_ext *i2s_config_ext;
- 	struct skl_i2s_config_blob_legacy *i2s_config;
--	struct nhlt_specific_cfg *fmt_cfg;
-+	struct nhlt_fmt_cfg *fmt_cfg;
- 	struct skl_clk_parent_src *parent;
- 	u32 clkdiv, div_ratio;
- 	u8 clk_src;
+-	struct nf_conntrack_net *cnet = container_of(work, struct nf_conntrack_net, ecache_dwork.work);
+-	struct netns_ct *ctnet = cnet->ct_net;
++	struct nf_conntrack_net *cnet = container_of(work, struct nf_conntrack_net, ecache.dwork.work);
++	struct netns_ct *ctnet = cnet->ecache.ct_net;
+ 	int cpu, delay = -1;
+ 	struct ct_pcpu *pcpu;
  
--	fmt_cfg = &fmt->fmt_config[0].config;
--	i2s_config_ext = (struct skl_i2s_config_blob_ext *)fmt_cfg->caps;
-+	fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
-+	i2s_config_ext = (struct skl_i2s_config_blob_ext *)fmt_cfg->config.caps;
+@@ -127,7 +127,7 @@ static void ecache_work(struct work_struct *work)
  
- 	/* MCLK Divider Source Select and divider */
- 	if (is_legacy_blob(i2s_config_ext->hdr.sig)) {
-@@ -228,7 +241,7 @@ static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
- 		return;
- 
- 	mclk[id].rate_cfg[0].rate = parent->rate/div_ratio;
--	mclk[id].rate_cfg[0].config = &fmt->fmt_config[0];
-+	mclk[id].rate_cfg[0].config = fmt_cfg;
- 	mclk[id].parent_name = parent->name;
+ 	ctnet->ecache_dwork_pending = delay > 0;
+ 	if (delay >= 0)
+-		schedule_delayed_work(&cnet->ecache_dwork, delay);
++		schedule_delayed_work(&cnet->ecache.dwork, delay);
  }
  
+ static int __nf_conntrack_eventmask_report(struct nf_conntrack_ecache *e,
+@@ -293,12 +293,12 @@ void nf_conntrack_ecache_work(struct net *net, enum nf_ct_ecache_state state)
+ 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+ 
+ 	if (state == NFCT_ECACHE_DESTROY_FAIL &&
+-	    !delayed_work_pending(&cnet->ecache_dwork)) {
+-		schedule_delayed_work(&cnet->ecache_dwork, HZ);
++	    !delayed_work_pending(&cnet->ecache.dwork)) {
++		schedule_delayed_work(&cnet->ecache.dwork, HZ);
+ 		net->ct.ecache_dwork_pending = true;
+ 	} else if (state == NFCT_ECACHE_DESTROY_SENT) {
+ 		net->ct.ecache_dwork_pending = false;
+-		mod_delayed_work(system_wq, &cnet->ecache_dwork, 0);
++		mod_delayed_work(system_wq, &cnet->ecache.dwork, 0);
+ 	}
+ }
+ 
+@@ -310,8 +310,9 @@ void nf_conntrack_ecache_pernet_init(struct net *net)
+ 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+ 
+ 	net->ct.sysctl_events = nf_ct_events;
+-	cnet->ct_net = &net->ct;
+-	INIT_DELAYED_WORK(&cnet->ecache_dwork, ecache_work);
++
++	cnet->ecache.ct_net = &net->ct;
++	INIT_DELAYED_WORK(&cnet->ecache.dwork, ecache_work);
+ 
+ 	BUILD_BUG_ON(__IPCT_MAX >= 16);	/* e->ctmask is u16 */
+ }
+@@ -320,5 +321,5 @@ void nf_conntrack_ecache_pernet_fini(struct net *net)
+ {
+ 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+ 
+-	cancel_delayed_work_sync(&cnet->ecache_dwork);
++	cancel_delayed_work_sync(&cnet->ecache.dwork);
+ }
 -- 
 2.35.1
 
