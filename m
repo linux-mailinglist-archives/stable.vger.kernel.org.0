@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 997FC579C4B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0887F579A72
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241035AbiGSMiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:38:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38074 "EHLO
+        id S237523AbiGSMQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:16:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240924AbiGSMh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:37:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7367DF6;
-        Tue, 19 Jul 2022 05:14:34 -0700 (PDT)
+        with ESMTP id S239226AbiGSMPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BBEB55088;
+        Tue, 19 Jul 2022 05:06:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89C50B81B1A;
-        Tue, 19 Jul 2022 12:14:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB248C341C6;
-        Tue, 19 Jul 2022 12:14:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7BF69CE1BE5;
+        Tue, 19 Jul 2022 12:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59933C341CE;
+        Tue, 19 Jul 2022 12:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232868;
-        bh=x0+4UCqMcFvc411OmzWF/tUroj0lfUAwCABl3Uwn5qA=;
+        s=korg; t=1658232368;
+        bh=tMNxQ2F3KZNLqDxrBWmtqWS2xQEseH1geOd7U1PyNjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Du64/rxdBkd3X5c5qSFEr6+bMNg7gl8oEu6/Iksw+S6kll2Z8o66y0dw5Gc6E+1YM
-         PrG0+fOIYaUipMRuuijv8Mt836klXKgVNqQWhqicUPZ5xQUGMYMXd8p+43GrTeKZkX
-         TZTpT6vKaclQipCX16a1CaXyA1mjRgOtG4HkLF1g=
+        b=MoRuRSJuQXDGrOSwW0vFeW1Svlc0xsMW3tcUG0OtNkEbsM2BhBFNT3h8sz0zna/Lx
+         adqBW8NNB1TiP02bxf87rUvN1tADGYGxL3xHkMW683SEJTGifNX3zeUpJkux1LedO7
+         vV3u0YyQWMHdfeISgSKJxXMX4hBeGTb4xdxxSbX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Fabio Estevam <festevam@denx.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/167] drm/i915/selftests: fix a couple IS_ERR() vs NULL tests
-Date:   Tue, 19 Jul 2022 13:53:26 +0200
-Message-Id: <20220719114703.677828621@linuxfoundation.org>
+Subject: [PATCH 5.10 034/112] ASoC: sgtl5000: Fix noise on shutdown/remove
+Date:   Tue, 19 Jul 2022 13:53:27 +0200
+Message-Id: <20220719114629.507107396@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-[ Upstream commit 896dcabd1f8f613c533d948df17408c41f8929f5 ]
+[ Upstream commit 040e3360af3736348112d29425bf5d0be5b93115 ]
 
-The shmem_pin_map() function doesn't return error pointers, it returns
-NULL.
+Put the SGTL5000 in a silent/safe state on shutdown/remove, this is
+required since the SGTL5000 produces a constant noise on its output
+after it is configured and its clock is removed. Without this change
+this is happening every time the module is unbound/removed or from
+reboot till the clock is enabled again.
 
-Fixes: be1cb55a07bf ("drm/i915/gt: Keep a no-frills swappable copy of the default context state")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220708094104.GL2316@kadam
-(cherry picked from commit d50f5a109cf4ed50c5b575c1bb5fc3bd17b23308)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+The issue was experienced on both a Toradex Colibri/Apalis iMX6, but can
+be easily reproduced everywhere just playing something on the codec and
+after that removing/unbinding the driver.
+
+Fixes: 9b34e6cc3bc2 ("ASoC: Add Freescale SGTL5000 codec support")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@denx.de>
+Link: https://lore.kernel.org/r/20220624101301.441314-1-francesco.dolcini@toradex.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/selftest_lrc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/codecs/sgtl5000.c | 9 +++++++++
+ sound/soc/codecs/sgtl5000.h | 1 +
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/selftest_lrc.c b/drivers/gpu/drm/i915/gt/selftest_lrc.c
-index b0977a3b699b..bc2950fbbaf9 100644
---- a/drivers/gpu/drm/i915/gt/selftest_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/selftest_lrc.c
-@@ -153,8 +153,8 @@ static int live_lrc_layout(void *arg)
- 			continue;
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 4c0e87e22b97..f066e016a874 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1797,6 +1797,9 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
+ {
+ 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
  
- 		hw = shmem_pin_map(engine->default_state);
--		if (IS_ERR(hw)) {
--			err = PTR_ERR(hw);
-+		if (!hw) {
-+			err = -ENOMEM;
- 			break;
- 		}
- 		hw += LRC_STATE_OFFSET / sizeof(*hw);
-@@ -329,8 +329,8 @@ static int live_lrc_fixed(void *arg)
- 			continue;
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
++
+ 	clk_disable_unprepare(sgtl5000->mclk);
+ 	regulator_bulk_disable(sgtl5000->num_supplies, sgtl5000->supplies);
+ 	regulator_bulk_free(sgtl5000->num_supplies, sgtl5000->supplies);
+@@ -1804,6 +1807,11 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
+ 	return 0;
+ }
  
- 		hw = shmem_pin_map(engine->default_state);
--		if (IS_ERR(hw)) {
--			err = PTR_ERR(hw);
-+		if (!hw) {
-+			err = -ENOMEM;
- 			break;
- 		}
- 		hw += LRC_STATE_OFFSET / sizeof(*hw);
++static void sgtl5000_i2c_shutdown(struct i2c_client *client)
++{
++	sgtl5000_i2c_remove(client);
++}
++
+ static const struct i2c_device_id sgtl5000_id[] = {
+ 	{"sgtl5000", 0},
+ 	{},
+@@ -1824,6 +1832,7 @@ static struct i2c_driver sgtl5000_i2c_driver = {
+ 		   },
+ 	.probe = sgtl5000_i2c_probe,
+ 	.remove = sgtl5000_i2c_remove,
++	.shutdown = sgtl5000_i2c_shutdown,
+ 	.id_table = sgtl5000_id,
+ };
+ 
+diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
+index 56ec5863f250..3a808c762299 100644
+--- a/sound/soc/codecs/sgtl5000.h
++++ b/sound/soc/codecs/sgtl5000.h
+@@ -80,6 +80,7 @@
+ /*
+  * SGTL5000_CHIP_DIG_POWER
+  */
++#define SGTL5000_DIG_POWER_DEFAULT		0x0000
+ #define SGTL5000_ADC_EN				0x0040
+ #define SGTL5000_DAC_EN				0x0020
+ #define SGTL5000_DAP_POWERUP			0x0010
 -- 
 2.35.1
 
