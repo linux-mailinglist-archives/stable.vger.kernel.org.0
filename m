@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A3B579B30
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4715799AD
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239692AbiGSMZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
+        id S238119AbiGSMFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:05:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239750AbiGSMYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3411445F67;
-        Tue, 19 Jul 2022 05:09:05 -0700 (PDT)
+        with ESMTP id S238486AbiGSMEn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1CEE4D4CD;
+        Tue, 19 Jul 2022 05:00:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFA57B81B2D;
-        Tue, 19 Jul 2022 12:08:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19C55C341C6;
-        Tue, 19 Jul 2022 12:08:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A5A61655;
+        Tue, 19 Jul 2022 12:00:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59ABC341CF;
+        Tue, 19 Jul 2022 12:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232516;
-        bh=2RIulnpy12qPfd61qCeePjC6mrMyrKz5F9JHzlryf7A=;
+        s=korg; t=1658232038;
+        bh=l1u1mqPWr6KkvTGe6RxTRSXt6DLJuiZb38yg1TUF2gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBFbqEnbGtFyoOsFIvQM9iUS8Zbd1yNRCzbjTrWGckMW4dZbcERXV3XjWWzVUvJEY
-         yKlYJnn7eK9v73D55Cc0v9RU/7antg8m7Ykw08HqGNNyJgyQJGwzMREC4vf0M7+8ja
-         uIwlTqKIxp0IOGcpTK9Glf6e1Kvo680UCm/IQ1eQ=
+        b=0hysTn1B4clQ3hZ1glUGjcFSDBj0FbiMkCfHs382x2sO+lfWxlAUcYfh6Z4/hCjgK
+         YpllUlYn4yeWY/62NS87KklkJ3SLEYoW6v3BK2mmM0oa1H1pC/fko4ArVZJAXPB2P4
+         +/AjXFZlOd3FFEPhNUWn64T54D9EorDcHdnZyTpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/112] NFC: nxp-nci: dont print header length mismatch on i2c error
+Subject: [PATCH 4.19 40/48] signal handling: dont use BUG_ON() for debugging
 Date:   Tue, 19 Jul 2022 13:54:17 +0200
-Message-Id: <20220719114634.750619240@linuxfoundation.org>
+Message-Id: <20220719114523.368849978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 9577fc5fdc8b07b891709af6453545db405e24ad ]
+[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
 
-Don't print a misleading header length mismatch error if the i2c call
-returns an error. Instead just return the error code without any error
-message.
+These are indeed "should not happen" situations, but it turns out recent
+changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
+exists, is pending more testing), and the BUG_ON() makes it
+unnecessarily hard to actually debug for no good reason.
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It's been that way for a long time, but let's make it clear: BUG_ON() is
+not good for debugging, and should never be used in situations where you
+could just say "this shouldn't happen, but we can continue".
+
+Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
+continue running.  Instead of making the system basically unusuable
+because you crashed the machine while potentially holding some very core
+locks (eg this function is commonly called while holding 'tasklist_lock'
+for writing).
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nxp-nci/i2c.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ kernel/signal.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/nfc/nxp-nci/i2c.c
-+++ b/drivers/nfc/nxp-nci/i2c.c
-@@ -122,7 +122,9 @@ static int nxp_nci_i2c_fw_read(struct nx
- 	skb_put_data(*skb, &header, NXP_NCI_FW_HDR_LEN);
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 4cc3f3ba13a9..c79b87ac1041 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1825,12 +1825,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
+ 	bool autoreap = false;
+ 	u64 utime, stime;
  
- 	r = i2c_master_recv(client, skb_put(*skb, frame_len), frame_len);
--	if (r != frame_len) {
-+	if (r < 0) {
-+		goto fw_read_exit_free_skb;
-+	} else if (r != frame_len) {
- 		nfc_err(&client->dev,
- 			"Invalid frame length: %u (expected %zu)\n",
- 			r, frame_len);
-@@ -166,7 +168,9 @@ static int nxp_nci_i2c_nci_read(struct n
- 		return 0;
+-	BUG_ON(sig == -1);
++	WARN_ON_ONCE(sig == -1);
  
- 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
--	if (r != header.plen) {
-+	if (r < 0) {
-+		goto nci_read_exit_free_skb;
-+	} else if (r != header.plen) {
- 		nfc_err(&client->dev,
- 			"Invalid frame payload length: %u (expected %u)\n",
- 			r, header.plen);
+- 	/* do_notify_parent_cldstop should have been called instead.  */
+- 	BUG_ON(task_is_stopped_or_traced(tsk));
++	/* do_notify_parent_cldstop should have been called instead.  */
++	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
+ 
+-	BUG_ON(!tsk->ptrace &&
++	WARN_ON_ONCE(!tsk->ptrace &&
+ 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
+ 
+ 	if (sig != SIGCHLD) {
+-- 
+2.35.1
+
 
 
