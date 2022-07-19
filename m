@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 560935798DB
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:55:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6929C5798F4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233699AbiGSLzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54306 "EHLO
+        id S233316AbiGSL4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:56:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236046AbiGSLzr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:55:47 -0400
+        with ESMTP id S233851AbiGSL4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:56:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911E82126B;
-        Tue, 19 Jul 2022 04:55:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10DF6422CE;
+        Tue, 19 Jul 2022 04:56:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2846261604;
-        Tue, 19 Jul 2022 11:55:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08285C341C6;
-        Tue, 19 Jul 2022 11:55:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 324C160B27;
+        Tue, 19 Jul 2022 11:56:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 233B9C341CA;
+        Tue, 19 Jul 2022 11:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231745;
-        bh=WF+JF/DvnZSZ5LUxV1QMZaljY2ecx2pyfyAY8MPY1/c=;
+        s=korg; t=1658231777;
+        bh=TU9v5a2oWC0O5pMZvZGTI08WLnI0FifRCJYCMF7RG18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hieiSK2O3dWCybMwycNfluaGn0YM++k39xrWQCajZSJ6izJT/UWVY6WjoTCxHA8/r
-         PpOlEkMSzZ8svVE2qAouhp1DkUMJRx76sb1B5VqPa4o9onf84blZMGE7dnB1UJuaBx
-         Kcu3SxUeACrqwULwgjGK5OXdaa+ZAZegd86P+3gA=
+        b=misgbBMMHzFJ3GaFjJauoJ/hIbOx4RnvzGMRsPDB/I+HVp9qgU8eb4scuOHbXrl7w
+         1pSQyrNdO5Fs+HX312tUzXhUOBRxJ111puOKMr0bmKweLl25k0DsPh0H27b8ooXQ9d
+         FtFacl4hluWJZ2NRGUmqr1Ey86i2LmcjRJgzo1Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 04/28] net: sock: tracing: Fix sock_exceed_buf_limit not to dereference stale pointer
-Date:   Tue, 19 Jul 2022 13:53:42 +0200
-Message-Id: <20220719114456.983007516@linuxfoundation.org>
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.9 05/28] ARM: 9213/1: Print message about disabled Spectre workarounds only once
+Date:   Tue, 19 Jul 2022 13:53:43 +0200
+Message-Id: <20220719114457.041638750@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
 References: <20220719114455.701304968@linuxfoundation.org>
@@ -54,53 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit 820b8963adaea34a87abbecb906d1f54c0aabfb7 upstream.
+commit e4ced82deb5fb17222fb82e092c3f8311955b585 upstream.
 
-The trace event sock_exceed_buf_limit saves the prot->sysctl_mem pointer
-and then dereferences it in the TP_printk() portion. This is unsafe as the
-TP_printk() portion is executed at the time the buffer is read. That is,
-it can be seconds, minutes, days, months, even years later. If the proto
-is freed, then this dereference will can also lead to a kernel crash.
-
-Instead, save the sysctl_mem array into the ring buffer and have the
-TP_printk() reference that instead. This is the proper and safe way to
-read pointers in trace events.
-
-Link: https://lore.kernel.org/all/20220706052130.16368-12-kuniyu@amazon.com/
+Print the message about disabled Spectre workarounds only once. The
+message is printed each time CPU goes out from idling state on NVIDIA
+Tegra boards, causing storm in KMSG that makes system unusable.
 
 Cc: stable@vger.kernel.org
-Fixes: 3847ce32aea9f ("core: add tracepoints for queueing skb to rcvbuf")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Acked-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/sock.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/mm/proc-v7-bugs.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/trace/events/sock.h
-+++ b/include/trace/events/sock.h
-@@ -37,7 +37,7 @@ TRACE_EVENT(sock_exceed_buf_limit,
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -110,8 +110,7 @@ static unsigned int spectre_v2_install_w
+ #else
+ static unsigned int spectre_v2_install_workaround(unsigned int method)
+ {
+-	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n",
+-		smp_processor_id());
++	pr_info_once("Spectre V2: workarounds disabled by configuration\n");
  
- 	TP_STRUCT__entry(
- 		__array(char, name, 32)
--		__field(long *, sysctl_mem)
-+		__array(long, sysctl_mem, 3)
- 		__field(long, allocated)
- 		__field(int, sysctl_rmem)
- 		__field(int, rmem_alloc)
-@@ -45,7 +45,9 @@ TRACE_EVENT(sock_exceed_buf_limit,
- 
- 	TP_fast_assign(
- 		strncpy(__entry->name, prot->name, 32);
--		__entry->sysctl_mem = prot->sysctl_mem;
-+		__entry->sysctl_mem[0] = READ_ONCE(prot->sysctl_mem[0]);
-+		__entry->sysctl_mem[1] = READ_ONCE(prot->sysctl_mem[1]);
-+		__entry->sysctl_mem[2] = READ_ONCE(prot->sysctl_mem[2]);
- 		__entry->allocated = allocated;
- 		__entry->sysctl_rmem = prot->sysctl_rmem[0];
- 		__entry->rmem_alloc = atomic_read(&sk->sk_rmem_alloc);
+ 	return SPECTRE_VULNERABLE;
+ }
 
 
