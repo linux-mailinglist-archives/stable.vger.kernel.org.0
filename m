@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF52B579A6E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32A8F579E39
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239099AbiGSMQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
+        id S242179AbiGSM7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239171AbiGSMPd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BDA455084;
-        Tue, 19 Jul 2022 05:06:14 -0700 (PDT)
+        with ESMTP id S242238AbiGSM6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2555E32F;
+        Tue, 19 Jul 2022 05:23:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 907BDB81B13;
-        Tue, 19 Jul 2022 12:05:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC414C341C6;
-        Tue, 19 Jul 2022 12:05:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C780A618F1;
+        Tue, 19 Jul 2022 12:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7952C341C6;
+        Tue, 19 Jul 2022 12:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232348;
-        bh=fOlF4eY+hzJn4YXVxFeaaXj09DXc9UVTfIYTLEV6CfY=;
+        s=korg; t=1658233417;
+        bh=6IOMZz7gILfFZJHf3t+fgNOMfg8Rc7QlheseHOz1F5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiJprmg0diloWLFCvj6hzV0RoU4UeWbARVMLPKm5rzHz3CCkNamX7739zY3kjb7zH
-         wMdP9m3G2gUuBhRooDzE7zA3BfR4x5m7Y3AHMk+soHgsJxUBRhXLM3s/Ze1XzpnDAq
-         hJk300JADvrENZXFasQJtRc+pd6X+ukD9NPYbPak=
+        b=t2ZpCfvh2WGzP4U/VpdTRjlu4+NziJlsIIVsS61PQW+chCdeb5yfe1M9PHFE9PFjx
+         SVn83Y4RFb40Pq9ouLOlbX35e84gkyzj38uMGZxP2GToIINBML4gCjNkixL4mDaWsA
+         mOqdUjKrL+oFT/invJpSULkXZ59aa/lphU1k9aE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 027/112] ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
+Subject: [PATCH 5.18 115/231] icmp: Fix a data-race around sysctl_icmp_ignore_bogus_error_responses.
 Date:   Tue, 19 Jul 2022 13:53:20 +0200
-Message-Id: <20220719114628.659718650@linuxfoundation.org>
+Message-Id: <20220719114724.188064907@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 0609e200246bfd3b7516091c491bec4308349055 ]
+[ Upstream commit b04f9b7e85c7d7aecbada620e8759a662af068d3 ]
 
-Jon reports that the Spectre-BHB init code is filling up the kernel log
-with spurious notifications about which mitigation has been enabled,
-every time any CPU comes out of a low power state.
+While reading sysctl_icmp_ignore_bogus_error_responses, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-Given that Spectre-BHB mitigations are system wide, only a single
-mitigation can be enabled, and we already print an error if two types of
-CPUs coexist in a single system that require different Spectre-BHB
-mitigations.
-
-This means that the pr_info() that describes the selected mitigation
-does not need to be emitted for each CPU anyway, and so we can simply
-emit it only once.
-
-In order to clarify the above in the log message, update it to describe
-that the selected mitigation will be enabled on all CPUs, including ones
-that are unaffected. If another CPU comes up later that is affected and
-requires a different mitigation, we report an error as before.
-
-Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-v7-bugs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv4/icmp.c            | 2 +-
+ net/ipv4/sysctl_net_ipv4.c | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
-index f9730eba0632..8bc7a2d6d6c7 100644
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -208,10 +208,10 @@ static int spectre_bhb_install_workaround(int method)
- 			return SPECTRE_VULNERABLE;
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 2c402b4671a1..1a061d10949f 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -930,7 +930,7 @@ static bool icmp_unreach(struct sk_buff *skb)
+ 	 *	get the other vendor to fix their kit.
+ 	 */
  
- 		spectre_bhb_method = method;
--	}
- 
--	pr_info("CPU%u: Spectre BHB: using %s workaround\n",
--		smp_processor_id(), spectre_bhb_method_name(method));
-+		pr_info("CPU%u: Spectre BHB: enabling %s workaround for all CPUs\n",
-+			smp_processor_id(), spectre_bhb_method_name(method));
-+	}
- 
- 	return SPECTRE_MITIGATED;
- }
+-	if (!net->ipv4.sysctl_icmp_ignore_bogus_error_responses &&
++	if (!READ_ONCE(net->ipv4.sysctl_icmp_ignore_bogus_error_responses) &&
+ 	    inet_addr_type_dev_table(net, skb->dev, iph->daddr) == RTN_BROADCAST) {
+ 		net_warn_ratelimited("%pI4 sent an invalid ICMP type %u, code %u error to a broadcast: %pI4 on %s\n",
+ 				     &ip_hdr(skb)->saddr,
+diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+index 6613351094ce..4cf2a6f560d4 100644
+--- a/net/ipv4/sysctl_net_ipv4.c
++++ b/net/ipv4/sysctl_net_ipv4.c
+@@ -630,6 +630,8 @@ static struct ctl_table ipv4_net_table[] = {
+ 		.maxlen		= sizeof(u8),
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dou8vec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE
+ 	},
+ 	{
+ 		.procname	= "icmp_errors_use_inbound_ifaddr",
 -- 
 2.35.1
 
