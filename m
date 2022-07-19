@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FD0579A16
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E217E579C63
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238576AbiGSMKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
+        id S240652AbiGSMkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:40:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239006AbiGSMJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720F64B490;
-        Tue, 19 Jul 2022 05:03:04 -0700 (PDT)
+        with ESMTP id S241093AbiGSMir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:38:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEAEE24F0B;
+        Tue, 19 Jul 2022 05:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01A8DB81B1A;
-        Tue, 19 Jul 2022 12:03:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58525C341C6;
-        Tue, 19 Jul 2022 12:03:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C58A60F10;
+        Tue, 19 Jul 2022 12:15:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 223F9C341C6;
+        Tue, 19 Jul 2022 12:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232181;
-        bh=nMsubhdoTkGiqDrKOeabGkoifRMZSppsWnIiitMOLPU=;
+        s=korg; t=1658232922;
+        bh=Fm3LsUhGs+2lwQNvSwWdfXPnG9aC/70429wLcfFpyA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WP5wnbjldyJUp3uT5+Mp5YPqWRk5+McvAJuser84CpFkVH+0HTzXe4OuTn3ti5eZ/
-         oddlmuHOksjpa8ITBAfegu00EygIniyY3PvolP8wGn1pKYvZheeuQxNA09OqIYqhFr
-         EpMnkNtdM7KdeD7KE8gVLGGkp/zWxaCOppWzm1GY=
+        b=ur1c2C80iftkPF0HjY6SCMmSCjY/Y75myPeq2o8pao9gLQ0VujwD5fgSNbLw01Dlc
+         m7TNms7/BUmy3lGDJlPl5N0gcO3Prqkjt0cZF6hFkcu+uAa+U9WPL0Lkzd8GMXDZMv
+         1pXIfy0IH9GVm1Io7/Cwr+60J3TecdwdTF79f++Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Mayer <andrea.mayer@uniroma2.it>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/71] seg6: fix skb checksum in SRv6 End.B6 and End.B6.Encaps behaviors
+Subject: [PATCH 5.15 112/167] btrfs: zoned: fix a leaked bioc in read_zone_info
 Date:   Tue, 19 Jul 2022 13:54:04 +0200
-Message-Id: <20220719114556.269234550@linuxfoundation.org>
+Message-Id: <20220719114707.350845467@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Mayer <andrea.mayer@uniroma2.it>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit f048880fc77058d864aff5c674af7918b30f312a ]
+[ Upstream commit 2963457829decf0c824a443238d251151ed18ff5 ]
 
-The SRv6 End.B6 and End.B6.Encaps behaviors rely on functions
-seg6_do_srh_{encap,inline}() to, respectively: i) encapsulate the
-packet within an outer IPv6 header with the specified Segment Routing
-Header (SRH); ii) insert the specified SRH directly after the IPv6
-header of the packet.
+The bioc would leak on the normal completion path and also on the RAID56
+check (but that one won't happen in practice due to the invalid
+combination with zoned mode).
 
-This patch removes the initialization of the IPv6 header payload length
-from the input_action_end_b6{_encap}() functions, as it is now handled
-properly by seg6_do_srh_{encap,inline}() to avoid corruption of the skb
-checksum.
-
-Fixes: 140f04c33bbc ("ipv6: sr: implement several seg6local actions")
-Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 7db1c5d14dcd ("btrfs: zoned: support dev-replace in zoned filesystems")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ update changelog ]
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6_local.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/btrfs/zoned.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv6/seg6_local.c b/net/ipv6/seg6_local.c
-index 802eebf8ac4b..ef5b5cee2201 100644
---- a/net/ipv6/seg6_local.c
-+++ b/net/ipv6/seg6_local.c
-@@ -421,7 +421,6 @@ static int input_action_end_b6(struct sk_buff *skb, struct seg6_local_lwt *slwt)
- 	if (err)
- 		goto drop;
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index ce4eeffc4f12..574769f921a2 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1511,12 +1511,14 @@ static int read_zone_info(struct btrfs_fs_info *fs_info, u64 logical,
+ 	ret = btrfs_map_sblock(fs_info, BTRFS_MAP_GET_READ_MIRRORS, logical,
+ 			       &mapped_length, &bioc);
+ 	if (ret || !bioc || mapped_length < PAGE_SIZE) {
+-		btrfs_put_bioc(bioc);
+-		return -EIO;
++		ret = -EIO;
++		goto out_put_bioc;
+ 	}
  
--	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
- 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
+-	if (bioc->map_type & BTRFS_BLOCK_GROUP_RAID56_MASK)
+-		return -EINVAL;
++	if (bioc->map_type & BTRFS_BLOCK_GROUP_RAID56_MASK) {
++		ret = -EINVAL;
++		goto out_put_bioc;
++	}
  
- 	seg6_lookup_nexthop(skb, NULL, 0);
-@@ -453,7 +452,6 @@ static int input_action_end_b6_encap(struct sk_buff *skb,
- 	if (err)
- 		goto drop;
+ 	nofs_flag = memalloc_nofs_save();
+ 	nmirrors = (int)bioc->num_stripes;
+@@ -1535,7 +1537,8 @@ static int read_zone_info(struct btrfs_fs_info *fs_info, u64 logical,
+ 		break;
+ 	}
+ 	memalloc_nofs_restore(nofs_flag);
+-
++out_put_bioc:
++	btrfs_put_bioc(bioc);
+ 	return ret;
+ }
  
--	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
- 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
- 
- 	seg6_lookup_nexthop(skb, NULL, 0);
 -- 
 2.35.1
 
