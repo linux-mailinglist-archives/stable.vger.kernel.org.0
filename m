@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D869A579BF5
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65477579A9F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237769AbiGSMfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:35:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
+        id S239949AbiGSMPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240490AbiGSMdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:33:54 -0400
+        with ESMTP id S239133AbiGSMOQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D0774DE7;
-        Tue, 19 Jul 2022 05:12:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4610245F75;
+        Tue, 19 Jul 2022 05:05:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 484C2B81B1A;
-        Tue, 19 Jul 2022 12:12:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6DEAC341C6;
-        Tue, 19 Jul 2022 12:12:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD755B81B13;
+        Tue, 19 Jul 2022 12:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC87C341C6;
+        Tue, 19 Jul 2022 12:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232777;
-        bh=ZG3776QSZuja70voJ1g0ymRaEyAfYER6qQIvzhPcQ40=;
+        s=korg; t=1658232319;
+        bh=allqpcWgtmop4MK52CIWPpf37JWtx4r+5C0yxrJXd/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1m2jRhYqx8wlhZjNezYZ0Ts3I/tRgz2WP46jf2NnEgZekW5TkPj6bvUstR+UOXAe
-         atp9FF+c5nzIa28EigrWJNDYzdUS81QUDftqJbCWv77v9Trm2SVfoCWmrJR7Ujdl+3
-         qVTfmjsqKGBXPHv+w15KDu193msO7a4NWtCK/NSE=
+        b=gciAvmYzCvQFXKO5GRfYbBOZf7L3BT3Yg8kjamlijcbX7J81NzWVzjx6sT7XNLE7s
+         nIUnqrmHMmX1MLnVMFwxXdQbskpFnlp9hQIYhlB5Be+jGXPSGhK1wzWC//q7QOke+Z
+         HOENcINkXJ0AiQhIjHRKU79usc4buBFdyBbzcsi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 044/167] ASoC: tas2764: Fix and extend FSYNC polarity handling
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 003/112] ALSA: hda/realtek: Fix headset mic for Acer SF313-51
 Date:   Tue, 19 Jul 2022 13:52:56 +0200
-Message-Id: <20220719114700.919550761@linuxfoundation.org>
+Message-Id: <20220719114626.433626419@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Meng Tang <tangmeng@uniontech.com>
 
-[ Upstream commit d1a10f1b48202e2d183cce144c218a211e98d906 ]
+commit 5f3fe25e70559fa3b096ab17e13316c93ddb7020 upstream.
 
-Fix setting of FSYNC polarity in case of LEFT_J and DSP_A/B formats.
-Do NOT set the SCFG field as was previously done, because that is not
-correct and is also in conflict with the "ASI1 Source" control which
-sets the same SCFG field!
+The issue on Acer SWIFT SF313-51 is that headset microphone
+doesn't work. The following quirk fixed headset microphone issue.
+Note that the fixup of SF314-54/55 (ALC256_FIXUP_ACER_HEADSET_MIC)
+was not successful on my SF313-51.
 
-Also add support for explicit polarity inversion.
-
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220630075135.2221-2-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220711081527.6254-1-tangmeng@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2764.c | 30 +++++++++++++++++-------------
- sound/soc/codecs/tas2764.h |  6 ++----
- 2 files changed, 19 insertions(+), 17 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index edc66ff6dc49..46c815650b2c 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -135,7 +135,8 @@ static const char * const tas2764_ASI1_src[] = {
- };
- 
- static SOC_ENUM_SINGLE_DECL(
--	tas2764_ASI1_src_enum, TAS2764_TDM_CFG2, 4, tas2764_ASI1_src);
-+	tas2764_ASI1_src_enum, TAS2764_TDM_CFG2, TAS2764_TDM_CFG2_SCFG_SHIFT,
-+	tas2764_ASI1_src);
- 
- static const struct snd_kcontrol_new tas2764_asi1_mux =
- 	SOC_DAPM_ENUM("ASI1 Source", tas2764_ASI1_src_enum);
-@@ -333,20 +334,22 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- {
- 	struct snd_soc_component *component = dai->component;
- 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
--	u8 tdm_rx_start_slot = 0, asi_cfg_1 = 0;
--	int iface;
-+	u8 tdm_rx_start_slot = 0, asi_cfg_0 = 0, asi_cfg_1 = 0;
- 	int ret;
- 
- 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
-+	case SND_SOC_DAIFMT_NB_IF:
-+		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
-+		fallthrough;
- 	case SND_SOC_DAIFMT_NB_NF:
- 		asi_cfg_1 = TAS2764_TDM_CFG1_RX_RISING;
- 		break;
-+	case SND_SOC_DAIFMT_IB_IF:
-+		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
-+		fallthrough;
- 	case SND_SOC_DAIFMT_IB_NF:
- 		asi_cfg_1 = TAS2764_TDM_CFG1_RX_FALLING;
- 		break;
--	default:
--		dev_err(tas2764->dev, "ASI format Inverse is not found\n");
--		return -EINVAL;
- 	}
- 
- 	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
-@@ -357,13 +360,13 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
-+		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
-+		fallthrough;
- 	case SND_SOC_DAIFMT_DSP_A:
--		iface = TAS2764_TDM_CFG2_SCFG_I2S;
- 		tdm_rx_start_slot = 1;
- 		break;
- 	case SND_SOC_DAIFMT_DSP_B:
- 	case SND_SOC_DAIFMT_LEFT_J:
--		iface = TAS2764_TDM_CFG2_SCFG_LEFT_J;
- 		tdm_rx_start_slot = 0;
- 		break;
- 	default:
-@@ -372,14 +375,15 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 		return -EINVAL;
- 	}
- 
--	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
--					    TAS2764_TDM_CFG1_MASK,
--					    (tdm_rx_start_slot << TAS2764_TDM_CFG1_51_SHIFT));
-+	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG0,
-+					    TAS2764_TDM_CFG0_FRAME_START,
-+					    asi_cfg_0);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG2,
--					    TAS2764_TDM_CFG2_SCFG_MASK, iface);
-+	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
-+					    TAS2764_TDM_CFG1_MASK,
-+					    (tdm_rx_start_slot << TAS2764_TDM_CFG1_51_SHIFT));
- 	if (ret < 0)
- 		return ret;
- 
-diff --git a/sound/soc/codecs/tas2764.h b/sound/soc/codecs/tas2764.h
-index 67d6fd903c42..f015f22a083b 100644
---- a/sound/soc/codecs/tas2764.h
-+++ b/sound/soc/codecs/tas2764.h
-@@ -47,6 +47,7 @@
- #define TAS2764_TDM_CFG0_MASK		GENMASK(3, 1)
- #define TAS2764_TDM_CFG0_44_1_48KHZ	BIT(3)
- #define TAS2764_TDM_CFG0_88_2_96KHZ	(BIT(3) | BIT(1))
-+#define TAS2764_TDM_CFG0_FRAME_START	BIT(0)
- 
- /* TDM Configuration Reg1 */
- #define TAS2764_TDM_CFG1		TAS2764_REG(0X0, 0x09)
-@@ -66,10 +67,7 @@
- #define TAS2764_TDM_CFG2_RXS_16BITS	0x0
- #define TAS2764_TDM_CFG2_RXS_24BITS	BIT(0)
- #define TAS2764_TDM_CFG2_RXS_32BITS	BIT(1)
--#define TAS2764_TDM_CFG2_SCFG_MASK	GENMASK(5, 4)
--#define TAS2764_TDM_CFG2_SCFG_I2S	0x0
--#define TAS2764_TDM_CFG2_SCFG_LEFT_J	BIT(4)
--#define TAS2764_TDM_CFG2_SCFG_RIGHT_J	BIT(5)
-+#define TAS2764_TDM_CFG2_SCFG_SHIFT	4
- 
- /* TDM Configuration Reg3 */
- #define TAS2764_TDM_CFG3		TAS2764_REG(0X0, 0x0c)
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8633,6 +8633,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x129c, "Acer SWIFT SF314-55", ALC256_FIXUP_ACER_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1025, 0x129d, "Acer SWIFT SF313-51", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1300, "Acer SWIFT SF314-56", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1308, "Acer Aspire Z24-890", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
 
 
