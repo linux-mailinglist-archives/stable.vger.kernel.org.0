@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1CFC579C53
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 241B9579A50
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241024AbiGSMin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:38:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40602 "EHLO
+        id S238633AbiGSMNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:13:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241022AbiGSMiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:38:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97BEA491DA;
-        Tue, 19 Jul 2022 05:14:43 -0700 (PDT)
+        with ESMTP id S238925AbiGSMMi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:12:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6743D52DF9;
+        Tue, 19 Jul 2022 05:03:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E7A160F10;
-        Tue, 19 Jul 2022 12:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB9FC341C6;
-        Tue, 19 Jul 2022 12:14:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7329ECE1BE4;
+        Tue, 19 Jul 2022 12:03:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D02C341C6;
+        Tue, 19 Jul 2022 12:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232882;
-        bh=pICYGzsPyb3Cr3w3nKiZNi1nfzcrhdKuuanHrSSfq8I=;
+        s=korg; t=1658232227;
+        bh=yPlDga9F1jLRX/iThlINi45gCIJJGIo7UG9swg1UtPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCbhcf2gbPNvfgalW+jWxDQMvXHLtplwUqzv3G1agUanrDTCjWdRwxGElmfmmTNnb
-         FM/xFkxAgumJlF6gSdPQcUP/WiCDnd3IYHQkK4QSkVuGFQThr+h8aXtJ5KBRwq0byd
-         tHcymkHJbky2L/r7N4EIc8T0z9wlTV/1fuo58aas=
+        b=HgR3DvUvjPYBi7XXnLb6KeuoEH6I3xeIzGQ431AWPFo4H9WO6XU0qdhkqJMIHufSj
+         uQnVuSiO+MI45JOiE3iGopUyTMh4KOIi7L0NrHsUkn32OMADwa412i1ZzGPONnLUis
+         EL9KC6EjAG8eRTjnwEhM6ENJNpl/Rqz4iuYO5/jA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanghang Liu <yanghliu@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 099/167] sfc: fix use after free when disabling sriov
+Subject: [PATCH 5.4 28/71] cipso: Fix data-races around sysctl.
 Date:   Tue, 19 Jul 2022 13:53:51 +0200
-Message-Id: <20220719114706.019714700@linuxfoundation.org>
+Message-Id: <20220719114555.088364849@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit ebe41da5d47ac0fff877e57bd14c54dccf168827 ]
+[ Upstream commit dd44f04b9214adb68ef5684ae87a81ba03632250 ]
 
-Use after free is detected by kfence when disabling sriov. What was read
-after being freed was vf->pci_dev: it was freed from pci_disable_sriov
-and later read in efx_ef10_sriov_free_vf_vports, called from
-efx_ef10_sriov_free_vf_vswitching.
+While reading cipso sysctl variables, they can be changed concurrently.
+So, we need to add READ_ONCE() to avoid data-races.
 
-Set the pointer to NULL at release time to not trying to read it later.
-
-Reproducer and dmesg log (note that kfence doesn't detect it every time):
-$ echo 1 > /sys/class/net/enp65s0f0np0/device/sriov_numvfs
-$ echo 0 > /sys/class/net/enp65s0f0np0/device/sriov_numvfs
-
- BUG: KFENCE: use-after-free read in efx_ef10_sriov_free_vf_vswitching+0x82/0x170 [sfc]
-
- Use-after-free read at 0x00000000ff3c1ba5 (in kfence-#224):
-  efx_ef10_sriov_free_vf_vswitching+0x82/0x170 [sfc]
-  efx_ef10_pci_sriov_disable+0x38/0x70 [sfc]
-  efx_pci_sriov_configure+0x24/0x40 [sfc]
-  sriov_numvfs_store+0xfe/0x140
-  kernfs_fop_write_iter+0x11c/0x1b0
-  new_sync_write+0x11f/0x1b0
-  vfs_write+0x1eb/0x280
-  ksys_write+0x5f/0xe0
-  do_syscall_64+0x5c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- kfence-#224: 0x00000000edb8ef95-0x00000000671f5ce1, size=2792, cache=kmalloc-4k
-
- allocated by task 6771 on cpu 10 at 3137.860196s:
-  pci_alloc_dev+0x21/0x60
-  pci_iov_add_virtfn+0x2a2/0x320
-  sriov_enable+0x212/0x3e0
-  efx_ef10_sriov_configure+0x67/0x80 [sfc]
-  efx_pci_sriov_configure+0x24/0x40 [sfc]
-  sriov_numvfs_store+0xba/0x140
-  kernfs_fop_write_iter+0x11c/0x1b0
-  new_sync_write+0x11f/0x1b0
-  vfs_write+0x1eb/0x280
-  ksys_write+0x5f/0xe0
-  do_syscall_64+0x5c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- freed by task 6771 on cpu 12 at 3170.991309s:
-  device_release+0x34/0x90
-  kobject_cleanup+0x3a/0x130
-  pci_iov_remove_virtfn+0xd9/0x120
-  sriov_disable+0x30/0xe0
-  efx_ef10_pci_sriov_disable+0x57/0x70 [sfc]
-  efx_pci_sriov_configure+0x24/0x40 [sfc]
-  sriov_numvfs_store+0xfe/0x140
-  kernfs_fop_write_iter+0x11c/0x1b0
-  new_sync_write+0x11f/0x1b0
-  vfs_write+0x1eb/0x280
-  ksys_write+0x5f/0xe0
-  do_syscall_64+0x5c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 3c5eb87605e85 ("sfc: create vports for VFs and assign random MAC addresses")
-Reported-by: Yanghang Liu <yanghliu@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220712062642.6915-1-ihuguet@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 446fda4f2682 ("[NetLabel]: CIPSOv4 engine")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10_sriov.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ Documentation/networking/ip-sysctl.txt |  2 +-
+ net/ipv4/cipso_ipv4.c                  | 12 +++++++-----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
-index 752d6406f07e..f488461a23d1 100644
---- a/drivers/net/ethernet/sfc/ef10_sriov.c
-+++ b/drivers/net/ethernet/sfc/ef10_sriov.c
-@@ -408,8 +408,9 @@ static int efx_ef10_pci_sriov_enable(struct efx_nic *efx, int num_vfs)
- static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
+diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
+index 8af3771a3ebf..f60d4159fff4 100644
+--- a/Documentation/networking/ip-sysctl.txt
++++ b/Documentation/networking/ip-sysctl.txt
+@@ -876,7 +876,7 @@ cipso_cache_enable - BOOLEAN
+ cipso_cache_bucket_size - INTEGER
+ 	The CIPSO label cache consists of a fixed size hash table with each
+ 	hash bucket containing a number of cache entries.  This variable limits
+-	the number of entries in each hash bucket; the larger the value the
++	the number of entries in each hash bucket; the larger the value is, the
+ 	more CIPSO label mappings that can be cached.  When the number of
+ 	entries in a given hash bucket reaches this limit adding new entries
+ 	causes the oldest entry in the bucket to be removed to make room.
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index c1ac802d6894..42eaad5e515f 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -240,7 +240,7 @@ static int cipso_v4_cache_check(const unsigned char *key,
+ 	struct cipso_v4_map_cache_entry *prev_entry = NULL;
+ 	u32 hash;
+ 
+-	if (!cipso_v4_cache_enabled)
++	if (!READ_ONCE(cipso_v4_cache_enabled))
+ 		return -ENOENT;
+ 
+ 	hash = cipso_v4_map_cache_hash(key, key_len);
+@@ -297,13 +297,14 @@ static int cipso_v4_cache_check(const unsigned char *key,
+ int cipso_v4_cache_add(const unsigned char *cipso_ptr,
+ 		       const struct netlbl_lsm_secattr *secattr)
  {
- 	struct pci_dev *dev = efx->pci_dev;
-+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
- 	unsigned int vfs_assigned = pci_vfs_assigned(dev);
--	int rc = 0;
-+	int i, rc = 0;
++	int bkt_size = READ_ONCE(cipso_v4_cache_bucketsize);
+ 	int ret_val = -EPERM;
+ 	u32 bkt;
+ 	struct cipso_v4_map_cache_entry *entry = NULL;
+ 	struct cipso_v4_map_cache_entry *old_entry = NULL;
+ 	u32 cipso_ptr_len;
  
- 	if (vfs_assigned && !force) {
- 		netif_info(efx, drv, efx->net_dev, "VFs are assigned to guests; "
-@@ -417,10 +418,13 @@ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
- 		return -EBUSY;
- 	}
+-	if (!cipso_v4_cache_enabled || cipso_v4_cache_bucketsize <= 0)
++	if (!READ_ONCE(cipso_v4_cache_enabled) || bkt_size <= 0)
+ 		return 0;
  
--	if (!vfs_assigned)
-+	if (!vfs_assigned) {
-+		for (i = 0; i < efx->vf_count; i++)
-+			nic_data->vf[i].pci_dev = NULL;
- 		pci_disable_sriov(dev);
--	else
-+	} else {
- 		rc = -EBUSY;
-+	}
+ 	cipso_ptr_len = cipso_ptr[1];
+@@ -323,7 +324,7 @@ int cipso_v4_cache_add(const unsigned char *cipso_ptr,
  
- 	efx_ef10_sriov_free_vf_vswitching(efx);
- 	efx->vf_count = 0;
+ 	bkt = entry->hash & (CIPSO_V4_CACHE_BUCKETS - 1);
+ 	spin_lock_bh(&cipso_v4_cache[bkt].lock);
+-	if (cipso_v4_cache[bkt].size < cipso_v4_cache_bucketsize) {
++	if (cipso_v4_cache[bkt].size < bkt_size) {
+ 		list_add(&entry->list, &cipso_v4_cache[bkt].list);
+ 		cipso_v4_cache[bkt].size += 1;
+ 	} else {
+@@ -1200,7 +1201,8 @@ static int cipso_v4_gentag_rbm(const struct cipso_v4_doi *doi_def,
+ 		/* This will send packets using the "optimized" format when
+ 		 * possible as specified in  section 3.4.2.6 of the
+ 		 * CIPSO draft. */
+-		if (cipso_v4_rbm_optfmt && ret_val > 0 && ret_val <= 10)
++		if (READ_ONCE(cipso_v4_rbm_optfmt) && ret_val > 0 &&
++		    ret_val <= 10)
+ 			tag_len = 14;
+ 		else
+ 			tag_len = 4 + ret_val;
+@@ -1603,7 +1605,7 @@ int cipso_v4_validate(const struct sk_buff *skb, unsigned char **option)
+ 			 * all the CIPSO validations here but it doesn't
+ 			 * really specify _exactly_ what we need to validate
+ 			 * ... so, just make it a sysctl tunable. */
+-			if (cipso_v4_rbm_strictvalid) {
++			if (READ_ONCE(cipso_v4_rbm_strictvalid)) {
+ 				if (cipso_v4_map_lvl_valid(doi_def,
+ 							   tag[3]) < 0) {
+ 					err_offset = opt_iter + 3;
 -- 
 2.35.1
 
