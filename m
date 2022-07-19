@@ -2,113 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A6F579528
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 10:22:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4006857979B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 12:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234182AbiGSIV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 04:21:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35682 "EHLO
+        id S235371AbiGSKZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 06:25:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230384AbiGSIV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 04:21:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE2BB2AC72;
-        Tue, 19 Jul 2022 01:21:56 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 748F06172D;
-        Tue, 19 Jul 2022 08:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F235AC341C6;
-        Tue, 19 Jul 2022 08:21:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658218915;
-        bh=uFWv6V41ZhYFK+dcq+m81Z2Uo7jjsf77bW8D4oEYjOM=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=HTFlMJqKVdA7gXCwGP8dmr2tTTP2BFnBQgMaHXsXj3RvJzZjKzFoCz4KNCY1s0/KD
-         GX6jW2Rg3JxJ/JooOC+LSTFe20hB2xgRvuTyJ281cusR9ckkf6eepEaEVxz2AaqqdT
-         vmMykyjDc63lWahlNQgg+11oxD1Egx4iNFIcOxgrRzvjQfF+zhrse2VMVL9RcM+Cgl
-         m6A3sdx5OjdcjU+PuUabRJ3UeNy6Zm2QNIBykIAN+kS6XqPy8NuBEmb8C30KNfwcQQ
-         kXLeiyeb7Crw3ByRo/rxw1xlzypS6Hp/mEOfOMS8zef3siuNBXKNJ2yAvT6G7LUEZ/
-         NBZ/6et/VqR+Q==
-Date:   Tue, 19 Jul 2022 09:31:52 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-Cc:     lars@metafoo.de, linux-iio@vger.kernel.org, stable@vger.kernel.org,
-        Fawzi Khaber <fawzi.khaber@tdk.com>,
-        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Subject: Re: [PATCH v2] iio: fix iio_format_avail_range() printing for none
- IIO_VAL_INT
-Message-ID: <20220719093152.5d3ac7d6@jic23-huawei>
-In-Reply-To: <20220718130706.32571-1-jmaneyrol@invensense.com>
-References: <20220718130706.32571-1-jmaneyrol@invensense.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-pc-linux-gnu)
+        with ESMTP id S233909AbiGSKZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 06:25:39 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAB965FB;
+        Tue, 19 Jul 2022 03:25:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1658226338; x=1689762338;
+  h=date:from:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=o4UkXWVncsf5NlHgJbAtNT6K7mnE/rm+QaA7Sbcg8tQ=;
+  b=LPQkGTDw46RRtLWeE/PbBQ3zj1PV92d57h69jjlGtCyDx3G7N7ZDHWqe
+   9O6XKIyfOTmYRRMrOhvPSCP78DR7X9eldUl7FpOpZtishuaXbFJqCW0ZU
+   4SFTZmCnsy+Dzsye6IQvde6gWV3uceEwF9WnOjpK7Jl99UsEXkZ/8WfHl
+   JMAtR4g2Q741l+nL4nqu3gY71+m4PWTm6eu//ewXnkjd5AoEk+L8/KfEG
+   UWAvKl8tue+cm1g4DHAAf0l/rIBZhHgvkzmwl5lCmYLiZ7R3gXHQ8OIDE
+   ddS/uG2PuyDA/EGZhQNLAsNs0qWUdiP+3gc4V1mF+9q/qMieDougWjJcd
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10412"; a="266856253"
+X-IronPort-AV: E=Sophos;i="5.92,283,1650956400"; 
+   d="scan'208";a="266856253"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2022 03:25:38 -0700
+X-IronPort-AV: E=Sophos;i="5.92,283,1650956400"; 
+   d="scan'208";a="655700133"
+Received: from gegelmee-mobl1.ger.corp.intel.com ([10.252.42.45])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2022 03:25:36 -0700
+Date:   Tue, 19 Jul 2022 13:25:34 +0300 (EEST)
+From:   =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To:     Shenwei Wang <shenwei.wang@nxp.com>
+cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-serial <linux-serial@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH V2 1/1] serial: fsl_lpuart: zero out parity bit in CS7
+ mode
+In-Reply-To: <20220714185858.615373-1-shenwei.wang@nxp.com>
+Message-ID: <bf982c0-403c-1677-b8a-5098f7e85b82@linux.intel.com>
+References: <20220714185858.615373-1-shenwei.wang@nxp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 18 Jul 2022 15:07:06 +0200
-Jean-Baptiste Maneyrol <jmaneyrol@invensense.com> wrote:
+On Thu, 14 Jul 2022, Shenwei Wang wrote:
 
-> From: Fawzi Khaber <fawzi.khaber@tdk.com>
-> 
-> iio_format_avail_range() should print range as follow [min, step, max], so
-> the function was previously calling iio_format_list() with length = 3,
-> length variable refers to the array size of values not the number of
-> elements. In case of non IIO_VAL_INT values each element has integer part
-> and decimal part. With length = 3 this would cause premature end of loop
-> and result in printing only one element.
-> 
-> Signed-off-by: Fawzi Khaber <fawzi.khaber@tdk.com>
-> Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-> Fixes: eda20ba1e25e ("iio: core: Consolidate iio_format_avail_{list,range}()")
-As I'm hoping to sneak in a late pull request for the coming merge window
-(as the cycle has been delayed), I've picked this on up on the togreg branch of iio.git.
-+ marked for stable.
+> The LPUART hardware doesn't zero out the parity bit on the received
+> characters. This behavior won't impact the use cases of CS8 because
+> the parity bit is the 9th bit which is not currently used by software.
+> But the parity bit for CS7 must be zeroed out by software in order to
+> get the correct raw data.
 
-Thanks,
+This problem only occurs with the lpuart32 variant? Or should the other 
+functions be changed as well?
 
-Jonathan
+-- 
+ i.
 
+
+> Signed-off-by: Shenwei Wang <shenwei.wang@nxp.com>
 > ---
->  drivers/iio/industrialio-core.c | 18 +++++++++++++++++-
->  1 file changed, 17 insertions(+), 1 deletion(-)
+> changes in v2
+> - remove the "inline" keyword from the function of lpuart_tty_insert_flip_string;
 > 
-> diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-> index 358b909298c0..0f4dbda3b9d3 100644
-> --- a/drivers/iio/industrialio-core.c
-> +++ b/drivers/iio/industrialio-core.c
-> @@ -812,7 +812,23 @@ static ssize_t iio_format_avail_list(char *buf, const int *vals,
->  
->  static ssize_t iio_format_avail_range(char *buf, const int *vals, int type)
->  {
-> -	return iio_format_list(buf, vals, type, 3, "[", "]");
-> +	int length;
+> changes in v1
+> - fix the code indent and whitespace issue;
+> 
+>  drivers/tty/serial/fsl_lpuart.c | 26 ++++++++++++++++++++++++--
+>  1 file changed, 24 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+> index fc7d235a1e270..afa0f941c862f 100644
+> --- a/drivers/tty/serial/fsl_lpuart.c
+> +++ b/drivers/tty/serial/fsl_lpuart.c
+> @@ -274,6 +274,8 @@ struct lpuart_port {
+>  	int			rx_dma_rng_buf_len;
+>  	unsigned int		dma_tx_nents;
+>  	wait_queue_head_t	dma_wait;
+> +	bool			is_cs7; /* Set to true when character size is 7 */
+> +					/* and the parity is enabled		*/
+>  };
+> 
+>  struct lpuart_soc_data {
+> @@ -1022,6 +1024,9 @@ static void lpuart32_rxint(struct lpuart_port *sport)
+>  				flg = TTY_OVERRUN;
+>  		}
+> 
+> +		if (sport->is_cs7)
+> +			rx &= 0x7F;
 > +
-> +	/*
-> +	 * length refers to the array size , not the number of elements.
-> +	 * The purpose is to print the range [min , step ,max] so length should
-> +	 * be 3 in case of int, and 6 for other types.
-> +	 */
-> +	switch (type) {
-> +	case IIO_VAL_INT:
-> +		length = 3;
-> +		break;
-> +	default:
-> +		length = 6;
-> +		break;
-> +	}
-> +
-> +	return iio_format_list(buf, vals, type, length, "[", "]");
+>  		if (tty_insert_flip_char(port, rx, flg) == 0)
+>  			sport->port.icount.buf_overrun++;
+>  	}
+> @@ -1107,6 +1112,17 @@ static void lpuart_handle_sysrq(struct lpuart_port *sport)
+>  	}
 >  }
->  
->  static ssize_t iio_read_channel_info_avail(struct device *dev,
-
+> 
+> +static int lpuart_tty_insert_flip_string(struct tty_port *port,
+> +	unsigned char *chars, size_t size, bool is_cs7)
+> +{
+> +	int i;
+> +
+> +	if (is_cs7)
+> +		for (i = 0; i < size; i++)
+> +			chars[i] &= 0x7F;
+> +	return tty_insert_flip_string(port, chars, size);
+> +}
+> +
+>  static void lpuart_copy_rx_to_tty(struct lpuart_port *sport)
+>  {
+>  	struct tty_port *port = &sport->port.state->port;
+> @@ -1217,7 +1233,8 @@ static void lpuart_copy_rx_to_tty(struct lpuart_port *sport)
+>  	if (ring->head < ring->tail) {
+>  		count = sport->rx_sgl.length - ring->tail;
+> 
+> -		copied = tty_insert_flip_string(port, ring->buf + ring->tail, count);
+> +		copied = lpuart_tty_insert_flip_string(port, ring->buf + ring->tail,
+> +					count, sport->is_cs7);
+>  		if (copied != count)
+>  			sport->port.icount.buf_overrun++;
+>  		ring->tail = 0;
+> @@ -1227,7 +1244,8 @@ static void lpuart_copy_rx_to_tty(struct lpuart_port *sport)
+>  	/* Finally we read data from tail to head */
+>  	if (ring->tail < ring->head) {
+>  		count = ring->head - ring->tail;
+> -		copied = tty_insert_flip_string(port, ring->buf + ring->tail, count);
+> +		copied = lpuart_tty_insert_flip_string(port, ring->buf + ring->tail,
+> +					count, sport->is_cs7);
+>  		if (copied != count)
+>  			sport->port.icount.buf_overrun++;
+>  		/* Wrap ring->head if needed */
+> @@ -2066,6 +2084,7 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
+>  	ctrl = old_ctrl = lpuart32_read(&sport->port, UARTCTRL);
+>  	bd = lpuart32_read(&sport->port, UARTBAUD);
+>  	modem = lpuart32_read(&sport->port, UARTMODIR);
+> +	sport->is_cs7 = false;
+>  	/*
+>  	 * only support CS8 and CS7, and for CS7 must enable PE.
+>  	 * supported mode:
+> @@ -2184,6 +2203,9 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
+>  	lpuart32_write(&sport->port, ctrl, UARTCTRL);
+>  	/* restore control register */
+> 
+> +	if ((ctrl & (UARTCTRL_PE | UARTCTRL_M)) == UARTCTRL_PE)
+> +		sport->is_cs7 = true;
+> +
+>  	if (old && sport->lpuart_dma_rx_use) {
+>  		if (!lpuart_start_rx_dma(sport))
+>  			rx_dma_timer_init(sport);
+> --
+> 2.25.1
+> 
