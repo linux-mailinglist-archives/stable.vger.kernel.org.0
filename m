@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9AC5799FE
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E336579AD4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238451AbiGSMKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
+        id S237124AbiGSMUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238592AbiGSMJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0C850183;
-        Tue, 19 Jul 2022 05:02:15 -0700 (PDT)
+        with ESMTP id S239750AbiGSMTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:19:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64CCE599CD;
+        Tue, 19 Jul 2022 05:07:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0EDB81B2D;
-        Tue, 19 Jul 2022 12:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D170C341C6;
-        Tue, 19 Jul 2022 12:02:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 928D0B81B2D;
+        Tue, 19 Jul 2022 12:07:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E549BC341CA;
+        Tue, 19 Jul 2022 12:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232133;
-        bh=/YKQ7D/w6ff5ZwaE0DJ2ZPHJml5aPh3NmKusv3Ju3jE=;
+        s=korg; t=1658232429;
+        bh=odMzcP6B526YaN5bzmYNomjGHeZ1A39Dsgl49anFcoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXhl57HNOayFQVrN9yserNxbg6s5byMT7ZHTZjXVdOQqldoDrtUQAz4GtlNiMqXRA
-         bkw6pXDmrNQlCn04XAiq6C2dfzPaY0D5IgIOOrGRd2MhrkHsK9Y9lwsPTEfJEd/2tL
-         W9BIak7K+QjhhLkAnSdKt5yq7PBgPa3taWjBFuCo=
+        b=Fc6DqNeUE1K5ktPIFsAWveRDu1OROCknzZ7DKZdqG9ShguBEcrLL1Y8Ujmj5Q5XmS
+         uowloNA8ZZASGJYKidftvgFO9aNNmoVoSEdM9+6jp4+0YkvQiZs4KPDG3i0WZE2CRj
+         90eP8fADPdQsi0nlsKX9B9N8gEOVUWdeKl13kTj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huaxin Lu <luhuaxin1@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/71] ima: Fix a potential integer overflow in ima_appraise_measurement
+Subject: [PATCH 5.10 053/112] ipv4: Fix a data-race around sysctl_fib_sync_mem.
 Date:   Tue, 19 Jul 2022 13:53:46 +0200
-Message-Id: <20220719114554.491545435@linuxfoundation.org>
+Message-Id: <20220719114631.578554321@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huaxin Lu <luhuaxin1@huawei.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit d2ee2cfc4aa85ff6a2a3b198a3a524ec54e3d999 ]
+[ Upstream commit 73318c4b7dbd0e781aaababff17376b2894745c0 ]
 
-When the ima-modsig is enabled, the rc passed to evm_verifyxattr() may be
-negative, which may cause the integer overflow problem.
+While reading sysctl_fib_sync_mem, it can be changed concurrently.
+So, we need to add READ_ONCE() to avoid a data-race.
 
-Fixes: 39b07096364a ("ima: Implement support for module-style appended signatures")
-Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 9ab948a91b2c ("ipv4: Allow amount of dirty memory from fib resizing to be controllable")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_appraise.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/fib_trie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 23b04c6521b2..9368688449b0 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -352,7 +352,8 @@ int ima_appraise_measurement(enum ima_hooks func,
- 		goto out;
+diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
+index ffc5332f1390..a28f525e2c47 100644
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -497,7 +497,7 @@ static void tnode_free(struct key_vector *tn)
+ 		tn = container_of(head, struct tnode, rcu)->kv;
  	}
  
--	status = evm_verifyxattr(dentry, XATTR_NAME_IMA, xattr_value, rc, iint);
-+	status = evm_verifyxattr(dentry, XATTR_NAME_IMA, xattr_value,
-+				 rc < 0 ? 0 : rc, iint);
- 	switch (status) {
- 	case INTEGRITY_PASS:
- 	case INTEGRITY_PASS_IMMUTABLE:
+-	if (tnode_free_size >= sysctl_fib_sync_mem) {
++	if (tnode_free_size >= READ_ONCE(sysctl_fib_sync_mem)) {
+ 		tnode_free_size = 0;
+ 		synchronize_rcu();
+ 	}
 -- 
 2.35.1
 
