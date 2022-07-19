@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FEE579B40
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 253A6579EF6
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239629AbiGSMZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:25:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59304 "EHLO
+        id S243190AbiGSNId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:08:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239593AbiGSMZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:25:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F30E3509C5;
-        Tue, 19 Jul 2022 05:09:51 -0700 (PDT)
+        with ESMTP id S243026AbiGSNII (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:08:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B287021E19;
+        Tue, 19 Jul 2022 05:27:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85C78B81B1A;
-        Tue, 19 Jul 2022 12:09:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0ADC341C6;
-        Tue, 19 Jul 2022 12:09:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 234D8609FB;
+        Tue, 19 Jul 2022 12:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 021BEC341C6;
+        Tue, 19 Jul 2022 12:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232590;
-        bh=h7JjNDchfBZCJul5brCU/ZWQNoSqPcJ/+4p44Ch7AEs=;
+        s=korg; t=1658233665;
+        bh=URhcXxTWUNtIzStOAzJURnj/9iuxRya7GBYaj5eiSz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pInYzlMEra6k7DjBeLJvJayMPcWEWKElzg4Opcy9G7Kc+eNXdP+FQFf61/eHwySXD
-         FLUgY0dmvRfG87Jv25B+8nzHJ5OqvqBHctsm3c4PGpHoapeSBXaqm6kxWE4nSGPhUr
-         CIuZ5GZ/ZPmQtpeU0ZCh+Yjy5kkzJKTuOw+g/IWk=
+        b=gUSgJkGTPuJGtAhRlF79frdMl37EObYn9U9TVh8lai4SG0VM3v8ewhnYzVCkmtX3+
+         mT7/35jtlOFo3jtfUb3aWcwhjzixYTOrSE7sGiNkHKweS/qqK64mphGz2qIvINFVMn
+         gwoHUxkz6Dm3IVXRRS7KigJDVK0SSGd01oVc31/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Lukas Wunner <lukas@wunner.de>,
-        =?UTF-8?q?Nuno=20Gon=C3=A7alves?= <nunojpg@gmail.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.10 110/112] serial: pl011: UPSTAT_AUTORTS requires .throttle/unthrottle
-Date:   Tue, 19 Jul 2022 13:54:43 +0200
-Message-Id: <20220719114637.905796375@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 199/231] ASoC: wm5110: Fix DRE control
+Date:   Tue, 19 Jul 2022 13:54:44 +0200
+Message-Id: <20220719114730.787286403@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 211565b100993c90b53bf40851eacaefc830cfe0 upstream.
+[ Upstream commit 0bc0ae9a5938d512fd5d44f11c9c04892dcf4961 ]
 
-The driver must provide throttle and unthrottle in uart_ops when it
-sets UPSTAT_AUTORTS. Add them using existing stop_rx &
-enable_interrupts functions.
+The DRE controls on wm5110 should return a value of 1 if the DRE state
+is actually changed, update to fix this.
 
-Fixes: 2a76fa283098 (serial: pl011: Adopt generic flag to store auto RTS status)
-Cc: stable <stable@kernel.org>
-Cc: Lukas Wunner <lukas@wunner.de>
-Reported-by: Nuno Gonçalves <nunojpg@gmail.com>
-Tested-by: Nuno Gonçalves <nunojpg@gmail.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220614075637.8558-1-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220621102041.1713504-2-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm5110.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1326,6 +1326,15 @@ static void pl011_stop_rx(struct uart_po
- 	pl011_dma_rx_stop(uap);
- }
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index 4973ba1ed779..4ab7a672f8de 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -413,6 +413,7 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 	unsigned int rnew = (!!ucontrol->value.integer.value[1]) << mc->rshift;
+ 	unsigned int lold, rold;
+ 	unsigned int lena, rena;
++	bool change = false;
+ 	int ret;
  
-+static void pl011_throttle_rx(struct uart_port *port)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	pl011_stop_rx(port);
-+	spin_unlock_irqrestore(&port->lock, flags);
-+}
-+
- static void pl011_enable_ms(struct uart_port *port)
- {
- 	struct uart_amba_port *uap =
-@@ -1717,9 +1726,10 @@ static int pl011_allocate_irq(struct uar
-  */
- static void pl011_enable_interrupts(struct uart_amba_port *uap)
- {
-+	unsigned long flags;
- 	unsigned int i;
+ 	snd_soc_dapm_mutex_lock(dapm);
+@@ -440,8 +441,8 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 		goto err;
+ 	}
  
--	spin_lock_irq(&uap->port.lock);
-+	spin_lock_irqsave(&uap->port.lock, flags);
+-	ret = regmap_update_bits(arizona->regmap, ARIZONA_DRE_ENABLE,
+-				 mask, lnew | rnew);
++	ret = regmap_update_bits_check(arizona->regmap, ARIZONA_DRE_ENABLE,
++				       mask, lnew | rnew, &change);
+ 	if (ret) {
+ 		dev_err(arizona->dev, "Failed to set DRE: %d\n", ret);
+ 		goto err;
+@@ -454,6 +455,9 @@ static int wm5110_put_dre(struct snd_kcontrol *kcontrol,
+ 	if (!rnew && rold)
+ 		wm5110_clear_pga_volume(arizona, mc->rshift);
  
- 	/* Clear out any spuriously appearing RX interrupts */
- 	pl011_write(UART011_RTIS | UART011_RXIS, uap, REG_ICR);
-@@ -1741,7 +1751,14 @@ static void pl011_enable_interrupts(stru
- 	if (!pl011_dma_rx_running(uap))
- 		uap->im |= UART011_RXIM;
- 	pl011_write(uap->im, uap, REG_IMSC);
--	spin_unlock_irq(&uap->port.lock);
-+	spin_unlock_irqrestore(&uap->port.lock, flags);
-+}
++	if (change)
++		ret = 1;
 +
-+static void pl011_unthrottle_rx(struct uart_port *port)
-+{
-+	struct uart_amba_port *uap = container_of(port, struct uart_amba_port, port);
-+
-+	pl011_enable_interrupts(uap);
- }
+ err:
+ 	snd_soc_dapm_mutex_unlock(dapm);
  
- static int pl011_startup(struct uart_port *port)
-@@ -2116,6 +2133,8 @@ static const struct uart_ops amba_pl011_
- 	.stop_tx	= pl011_stop_tx,
- 	.start_tx	= pl011_start_tx,
- 	.stop_rx	= pl011_stop_rx,
-+	.throttle	= pl011_throttle_rx,
-+	.unthrottle	= pl011_unthrottle_rx,
- 	.enable_ms	= pl011_enable_ms,
- 	.break_ctl	= pl011_break_ctl,
- 	.startup	= pl011_startup,
+-- 
+2.35.1
+
 
 
