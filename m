@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C7C579D54
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF67579D55
 	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241667AbiGSMuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
+        id S241783AbiGSMuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242011AbiGSMtd (ORCPT
+        with ESMTP id S242009AbiGSMtd (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFAE57251;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48EEE57E0A;
         Tue, 19 Jul 2022 05:19:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6D47B81B21;
-        Tue, 19 Jul 2022 12:19:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D7A6C341CB;
-        Tue, 19 Jul 2022 12:19:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A2561772;
+        Tue, 19 Jul 2022 12:19:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83D5C341C6;
+        Tue, 19 Jul 2022 12:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233176;
-        bh=sbQIp1iuSqFAx1B/WohVsdh2Cc+XuohFd1zUxHgf1og=;
+        s=korg; t=1658233179;
+        bh=ZtuTMOXdGKSBN/V/+9/N8POc6UZtNU7FV97Ie2c+9aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgLP1gDLId6YDzsNSo9ynAfmwK/+VKFA4Qun4rMdga2shpP6FyPVYnQlWGq7GDdG8
-         2pCLMiXeDG7JWsaOvxsaDvyTtfsvPbtLy9T8v34R6ashmRQBDFxL+vXRijdr+TVKzY
-         yLbEwrIQzv3gbEmzlJH0FqtA+LF9DVzgJpO4jnn4=
+        b=UOY72UHanwdFx09UarZvYyIQhhc2dwaMiCFNAGybkWyfOq3Ni7optrHEJZz7RGGzi
+         wLXSu6R550kZ262+TQfQvsk8vhSQy/4fK3FjUciZWAje7gIhIzRB/Dbvw+ZzzKPHwv
+         zTh+uFjAqrEGdn3HQQ7O9UnovcZJ7XtTXiYv7dWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 008/231] ALSA: hda/conexant: Apply quirk for another HP ProDesk 600 G3 model
-Date:   Tue, 19 Jul 2022 13:51:33 +0200
-Message-Id: <20220719114714.845346554@linuxfoundation.org>
+Subject: [PATCH 5.18 009/231] ALSA: hda/realtek: Fix headset mic for Acer SF313-51
+Date:   Tue, 19 Jul 2022 13:51:34 +0200
+Message-Id: <20220719114714.914212537@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,30 +54,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Meng Tang <tangmeng@uniontech.com>
 
-commit d16d69bf5a25d91c6d8f3e29711be12551bf56cd upstream.
+commit 5f3fe25e70559fa3b096ab17e13316c93ddb7020 upstream.
 
-There is another HP ProDesk 600 G3 model with the PCI SSID 103c:82b4
-that requires the quirk HP_MIC_NO_PRESENCE. Add the corresponding
-entry to the quirk table.
+The issue on Acer SWIFT SF313-51 is that headset microphone
+doesn't work. The following quirk fixed headset microphone issue.
+Note that the fixup of SF314-54/55 (ALC256_FIXUP_ACER_HEADSET_MIC)
+was not successful on my SF313-51.
 
 Signed-off-by: Meng Tang <tangmeng@uniontech.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220711101744.25189-1-tangmeng@uniontech.com
+Link: https://lore.kernel.org/r/20220711081527.6254-1-tangmeng@uniontech.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_conexant.c |    1 +
+ sound/pci/hda/patch_realtek.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -944,6 +944,7 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x103c, 0x82b4, "HP ProDesk 600 G3", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8938,6 +8938,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x129c, "Acer SWIFT SF314-55", ALC256_FIXUP_ACER_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1025, 0x129d, "Acer SWIFT SF313-51", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1300, "Acer SWIFT SF314-56", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1025, 0x1308, "Acer Aspire Z24-890", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
 
 
