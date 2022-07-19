@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB1D579E7F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F3E579A89
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242539AbiGSNBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:01:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
+        id S239887AbiGSMPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238580AbiGSM6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E3135FAD5;
-        Tue, 19 Jul 2022 05:23:50 -0700 (PDT)
+        with ESMTP id S239305AbiGSMO3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133274B4BE;
+        Tue, 19 Jul 2022 05:05:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D5E0618EE;
-        Tue, 19 Jul 2022 12:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A7BC341C6;
-        Tue, 19 Jul 2022 12:23:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 471806165C;
+        Tue, 19 Jul 2022 12:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1467BC341C6;
+        Tue, 19 Jul 2022 12:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233428;
-        bh=Vl4Pwnt45oXUZQsM1fX5l8ZaNSfjY4t1rnLD8VJxKg0=;
+        s=korg; t=1658232325;
+        bh=BfSC3aFZ9iSx+lS+0pmq96tWuG2ABybDSn/Mp4D7j/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJyFqPRnPTd39mwl1Wy7zKVaf7QozoU5tVD+IbqD9DrtKZO1b7HMrvNaH9WpV4atU
-         JJ3e1nvCc7UKInXQtmtsBhodRsHkTN9cpZ4lSpRbCgW4Iqf1hch5qYQJ6cL4Wpb0OQ
-         ML58dRv+6y1aTssMo0ZRfBqBNgKopdtTKSpGmcVo=
+        b=LZ4P48r1RynsQumkglZkbHU2UqSpYI33sdR7VaA7W567Q2tjGE6hHkSqMhiBiJ85Z
+         N/Ew+lUobNxt8hUutu/YrYJR2qd9fz5zyIXSjQ1YmTfkgA8cmB+J47xDi5O6uJpBwb
+         rQL0SMZUfZUauRxiJfdXPMUgb6AUGwKYDqmZnAZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Mammedov <imammedo@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 093/231] NFSD: Decode NFSv4 birth time attribute
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 005/112] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc221
 Date:   Tue, 19 Jul 2022 13:52:58 +0200
-Message-Id: <20220719114722.627670095@linuxfoundation.org>
+Message-Id: <20220719114626.573913872@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Meng Tang <tangmeng@uniontech.com>
 
-[ Upstream commit 5b2f3e0777da2a5dd62824bbe2fdab1d12caaf8f ]
+commit 4ba5c853d7945b3855c3dcb293f7f9f019db641e upstream.
 
-NFSD has advertised support for the NFSv4 time_create attribute
-since commit e377a3e698fb ("nfsd: Add support for the birth time
-attribute").
+On a HP 288 Pro G2 MT (X9W02AV), the front mic could not be detected.
+In order to get it working, the pin configuration needs to be set
+correctly, and the ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE fixup needs
+to be applied.
 
-Igor Mammedov reports that Mac OS clients attempt to set the NFSv4
-birth time attribute via OPEN(CREATE) and SETATTR if the server
-indicates that it supports it, but since the above commit was
-merged, those attempts now fail.
-
-Table 5 in RFC 8881 lists the time_create attribute as one that can
-be both set and retrieved, but the above commit did not add server
-support for clients to provide a time_create attribute. IMO that's
-a bug in our implementation of the NFSv4 protocol, which this commit
-addresses.
-
-Whether NFSD silently ignores the new birth time or actually sets it
-is another matter. I haven't found another filesystem service in the
-Linux kernel that enables users or clients to modify a file's birth
-time attribute.
-
-This commit reflects my (perhaps incorrect) understanding of whether
-Linux users can set a file's birth time. NFSD will now recognize a
-time_create attribute but it ignores its value. It clears the
-time_create bit in the returned attribute bitmask to indicate that
-the value was not used.
-
-Reported-by: Igor Mammedov <imammedo@redhat.com>
-Fixes: e377a3e698fb ("nfsd: Add support for the birth time attribute")
-Tested-by: Igor Mammedov <imammedo@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220713063332.30095-1-tangmeng@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4xdr.c | 9 +++++++++
- fs/nfsd/nfsd.h    | 3 ++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
-index da92e7d2ab6a..264c3a4629c9 100644
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -470,6 +470,15 @@ nfsd4_decode_fattr4(struct nfsd4_compoundargs *argp, u32 *bmval, u32 bmlen,
- 			return nfserr_bad_xdr;
- 		}
- 	}
-+	if (bmval[1] & FATTR4_WORD1_TIME_CREATE) {
-+		struct timespec64 ts;
-+
-+		/* No Linux filesystem supports setting this attribute. */
-+		bmval[1] &= ~FATTR4_WORD1_TIME_CREATE;
-+		status = nfsd4_decode_nfstime4(argp, &ts);
-+		if (status)
-+			return status;
-+	}
- 	if (bmval[1] & FATTR4_WORD1_TIME_MODIFY_SET) {
- 		u32 set_it;
- 
-diff --git a/fs/nfsd/nfsd.h b/fs/nfsd/nfsd.h
-index 4fc1fd639527..727754d56243 100644
---- a/fs/nfsd/nfsd.h
-+++ b/fs/nfsd/nfsd.h
-@@ -460,7 +460,8 @@ static inline bool nfsd_attrs_supported(u32 minorversion, const u32 *bmval)
- 	(FATTR4_WORD0_SIZE | FATTR4_WORD0_ACL)
- #define NFSD_WRITEABLE_ATTRS_WORD1 \
- 	(FATTR4_WORD1_MODE | FATTR4_WORD1_OWNER | FATTR4_WORD1_OWNER_GROUP \
--	| FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_MODIFY_SET)
-+	| FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_CREATE \
-+	| FATTR4_WORD1_TIME_MODIFY_SET)
- #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
- #define MAYBE_FATTR4_WORD2_SECURITY_LABEL \
- 	FATTR4_WORD2_SECURITY_LABEL
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6725,6 +6725,7 @@ enum {
+ 	ALC298_FIXUP_LENOVO_SPK_VOLUME,
+ 	ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER,
+ 	ALC269_FIXUP_ATIV_BOOK_8,
++	ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE,
+ 	ALC221_FIXUP_HP_MIC_NO_PRESENCE,
+ 	ALC256_FIXUP_ASUS_HEADSET_MODE,
+ 	ALC256_FIXUP_ASUS_MIC,
+@@ -7651,6 +7652,16 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_NO_SHUTUP
+ 	},
++	[ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ 0x1a, 0x01813030 }, /* use as headphone mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE
++	},
+ 	[ALC221_FIXUP_HP_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -8758,6 +8769,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x2335, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
+ 	SND_PCI_QUIRK(0x103c, 0x2336, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
+ 	SND_PCI_QUIRK(0x103c, 0x2337, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
++	SND_PCI_QUIRK(0x103c, 0x2b5e, "HP 288 Pro G2 MT", ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x802e, "HP Z240 SFF", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x802f, "HP Z240", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x8077, "HP", ALC256_FIXUP_HP_HEADSET_MIC),
 
 
