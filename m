@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E608A579E60
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73704579AE6
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243324AbiGSNA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:00:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
+        id S234127AbiGSMVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:21:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242702AbiGSM71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C05749B6A;
-        Tue, 19 Jul 2022 05:24:35 -0700 (PDT)
+        with ESMTP id S239447AbiGSMSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:18:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D51157E03;
+        Tue, 19 Jul 2022 05:06:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 840E6B81B25;
-        Tue, 19 Jul 2022 12:24:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D837C341CF;
-        Tue, 19 Jul 2022 12:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13BD76175D;
+        Tue, 19 Jul 2022 12:06:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6909C341CA;
+        Tue, 19 Jul 2022 12:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233472;
-        bh=ds/jYxyr9dNl95S3HVk6w7DZ/o5Nsle7cc9jjK4Z3SM=;
+        s=korg; t=1658232409;
+        bh=9x6wjyw3uowRy38Uv06KV/a6m80Ia3Ch4Tpqz7nyfXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hb4S3UwuUX/sCHsZc0re79/EUdskvdM3MOvC1kdAU2zB3S3tZcVbF/t93iqJ21DOn
-         o87RR6TYu1KDYMAH8TErqmvZYlB/LsfknKS9jXswqobWq4/M5exxR57k6DngyEKLUe
-         q5J0vummavTe/m1KcwceTdCJzR7/DgHrSWJ17ASM=
+        b=X+wdDx0SZdbUm1j8DeKvMHoyMvG24b1fomsAe4UY4zZtB1wbchoe7oFoQM9ZBAkVj
+         IPl9FAA2r9bOw4lY6LtUgYsYjESnHc6uganA/T34Pk8wC+OcC71BlYhkKuDLsSkjPX
+         jClVlmr6K5p5+0xhsJrgxsbSVmifnGZ0Xf3LWXs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanghang Liu <yanghliu@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 134/231] sfc: fix use after free when disabling sriov
+Subject: [PATCH 5.10 046/112] sysctl: Fix data races in proc_doulongvec_minmax().
 Date:   Tue, 19 Jul 2022 13:53:39 +0200
-Message-Id: <20220719114725.712936540@linuxfoundation.org>
+Message-Id: <20220719114630.922469359@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit ebe41da5d47ac0fff877e57bd14c54dccf168827 ]
+[ Upstream commit c31bcc8fb89fc2812663900589c6325ba35d9a65 ]
 
-Use after free is detected by kfence when disabling sriov. What was read
-after being freed was vf->pci_dev: it was freed from pci_disable_sriov
-and later read in efx_ef10_sriov_free_vf_vports, called from
-efx_ef10_sriov_free_vf_vswitching.
+A sysctl variable is accessed concurrently, and there is always a chance
+of data-race.  So, all readers and writers need some basic protection to
+avoid load/store-tearing.
 
-Set the pointer to NULL at release time to not trying to read it later.
+This patch changes proc_doulongvec_minmax() to use READ_ONCE() and
+WRITE_ONCE() internally to fix data-races on the sysctl side.  For now,
+proc_doulongvec_minmax() itself is tolerant to a data-race, but we still
+need to add annotations on the other subsystem's side.
 
-Reproducer and dmesg log (note that kfence doesn't detect it every time):
-$ echo 1 > /sys/class/net/enp65s0f0np0/device/sriov_numvfs
-$ echo 0 > /sys/class/net/enp65s0f0np0/device/sriov_numvfs
-
- BUG: KFENCE: use-after-free read in efx_ef10_sriov_free_vf_vswitching+0x82/0x170 [sfc]
-
- Use-after-free read at 0x00000000ff3c1ba5 (in kfence-#224):
-  efx_ef10_sriov_free_vf_vswitching+0x82/0x170 [sfc]
-  efx_ef10_pci_sriov_disable+0x38/0x70 [sfc]
-  efx_pci_sriov_configure+0x24/0x40 [sfc]
-  sriov_numvfs_store+0xfe/0x140
-  kernfs_fop_write_iter+0x11c/0x1b0
-  new_sync_write+0x11f/0x1b0
-  vfs_write+0x1eb/0x280
-  ksys_write+0x5f/0xe0
-  do_syscall_64+0x5c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- kfence-#224: 0x00000000edb8ef95-0x00000000671f5ce1, size=2792, cache=kmalloc-4k
-
- allocated by task 6771 on cpu 10 at 3137.860196s:
-  pci_alloc_dev+0x21/0x60
-  pci_iov_add_virtfn+0x2a2/0x320
-  sriov_enable+0x212/0x3e0
-  efx_ef10_sriov_configure+0x67/0x80 [sfc]
-  efx_pci_sriov_configure+0x24/0x40 [sfc]
-  sriov_numvfs_store+0xba/0x140
-  kernfs_fop_write_iter+0x11c/0x1b0
-  new_sync_write+0x11f/0x1b0
-  vfs_write+0x1eb/0x280
-  ksys_write+0x5f/0xe0
-  do_syscall_64+0x5c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- freed by task 6771 on cpu 12 at 3170.991309s:
-  device_release+0x34/0x90
-  kobject_cleanup+0x3a/0x130
-  pci_iov_remove_virtfn+0xd9/0x120
-  sriov_disable+0x30/0xe0
-  efx_ef10_pci_sriov_disable+0x57/0x70 [sfc]
-  efx_pci_sriov_configure+0x24/0x40 [sfc]
-  sriov_numvfs_store+0xfe/0x140
-  kernfs_fop_write_iter+0x11c/0x1b0
-  new_sync_write+0x11f/0x1b0
-  vfs_write+0x1eb/0x280
-  ksys_write+0x5f/0xe0
-  do_syscall_64+0x5c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 3c5eb87605e85 ("sfc: create vports for VFs and assign random MAC addresses")
-Reported-by: Yanghang Liu <yanghliu@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220712062642.6915-1-ihuguet@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10_sriov.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ kernel/sysctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
-index 7f5aa4a8c451..92550c7e85ce 100644
---- a/drivers/net/ethernet/sfc/ef10_sriov.c
-+++ b/drivers/net/ethernet/sfc/ef10_sriov.c
-@@ -408,8 +408,9 @@ static int efx_ef10_pci_sriov_enable(struct efx_nic *efx, int num_vfs)
- static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
- {
- 	struct pci_dev *dev = efx->pci_dev;
-+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
- 	unsigned int vfs_assigned = pci_vfs_assigned(dev);
--	int rc = 0;
-+	int i, rc = 0;
- 
- 	if (vfs_assigned && !force) {
- 		netif_info(efx, drv, efx->net_dev, "VFs are assigned to guests; "
-@@ -417,10 +418,13 @@ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
- 		return -EBUSY;
- 	}
- 
--	if (!vfs_assigned)
-+	if (!vfs_assigned) {
-+		for (i = 0; i < efx->vf_count; i++)
-+			nic_data->vf[i].pci_dev = NULL;
- 		pci_disable_sriov(dev);
--	else
-+	} else {
- 		rc = -EBUSY;
-+	}
- 
- 	efx_ef10_sriov_free_vf_vswitching(efx);
- 	efx->vf_count = 0;
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index df6090ba1d0b..e7409788db64 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1193,9 +1193,9 @@ static int __do_proc_doulongvec_minmax(void *data, struct ctl_table *table,
+ 				err = -EINVAL;
+ 				break;
+ 			}
+-			*i = val;
++			WRITE_ONCE(*i, val);
+ 		} else {
+-			val = convdiv * (*i) / convmul;
++			val = convdiv * READ_ONCE(*i) / convmul;
+ 			if (!first)
+ 				proc_put_char(&buffer, &left, '\t');
+ 			proc_put_long(&buffer, &left, val, false);
 -- 
 2.35.1
 
