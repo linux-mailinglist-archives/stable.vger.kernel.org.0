@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CC3579E6E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FC4579CC9
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242495AbiGSNBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:01:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
+        id S241088AbiGSMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243242AbiGSNAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:00:43 -0400
+        with ESMTP id S239439AbiGSMmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:42:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D4978C154;
-        Tue, 19 Jul 2022 05:25:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25537FE6C;
+        Tue, 19 Jul 2022 05:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCA9861924;
-        Tue, 19 Jul 2022 12:25:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998F5C341C6;
-        Tue, 19 Jul 2022 12:25:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACF656182A;
+        Tue, 19 Jul 2022 12:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F01EC341C6;
+        Tue, 19 Jul 2022 12:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233553;
-        bh=W6YdQucwnWPTC/znTUpqgn+m+9J1rxn04314aFykl0I=;
+        s=korg; t=1658232981;
+        bh=vaJUynLGbfCplRsDW60OG5aSx//g6F4tBTnT7pWjYiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPctHZSTgKE5K/PY9mhDV1VJL//l/KktZrZbYcUPcqm5hseGrriUbjRWgKcQQubA3
-         wvztT7zFZDniom8HFRyL6JAFpC8whhi3q4wb/n6wYv6XBm1XBCSIJfW5JafDxIiSly
-         tW3HbMdnTeGm9Xs/CixDz7yqBr1if7/EbCi7ollg=
+        b=1kO+/yim9SL6tEQTpC0A2tXMGCm5RP/lCffGci94TV5FAKK/8iyhz+6EfXyKA7MHJ
+         5nrT40WFAWvfkb034MDxGkOczRciRiFrOnSUIAraRVIJnj/oXyFGFYcqUdmBEDJQqZ
+         95da9yVdQQ7mrIrrEai8bbPF7u4xK8qro435roWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Namjae Jeon <linkinjeon@kerne.org>,
-        Hyunchul Lee <hyc.lee@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 161/231] ksmbd: use SOCK_NONBLOCK type for kernel_accept()
-Date:   Tue, 19 Jul 2022 13:54:06 +0200
-Message-Id: <20220719114727.763325492@linuxfoundation.org>
+Subject: [PATCH 5.15 115/167] vdpa/mlx5: Initialize CVQ vringh only once
+Date:   Tue, 19 Jul 2022 13:54:07 +0200
+Message-Id: <20220719114707.667896153@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit fe0fde09e1cb83effcf8fafa372533f438d93a1a ]
+[ Upstream commit ace9252446ec615cd79a5f77d90edb25c0b9d024 ]
 
-I found that normally it is O_NONBLOCK but there are different value
-for some arch.
+Currently, CVQ vringh is initialized inside setup_virtqueues() which is
+called every time a memory update is done. This is undesirable since it
+resets all the context of the vring, including the available and used
+indices.
 
-/include/linux/net.h:
-#ifndef SOCK_NONBLOCK
-#define SOCK_NONBLOCK   O_NONBLOCK
-#endif
+Move the initialization to mlx5_vdpa_set_status() when
+VIRTIO_CONFIG_S_DRIVER_OK is set.
 
-/arch/alpha/include/asm/socket.h:
-#define SOCK_NONBLOCK   0x40000000
-
-Use SOCK_NONBLOCK instead of O_NONBLOCK for kernel_accept().
-
-Suggested-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kerne.org>
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Message-Id: <20220613075958.511064-2-elic@nvidia.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/transport_tcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/fs/ksmbd/transport_tcp.c b/fs/ksmbd/transport_tcp.c
-index 8fef9de787d3..143bba4e4db8 100644
---- a/fs/ksmbd/transport_tcp.c
-+++ b/fs/ksmbd/transport_tcp.c
-@@ -230,7 +230,7 @@ static int ksmbd_kthread_fn(void *p)
- 			break;
- 		}
- 		ret = kernel_accept(iface->ksmbd_socket, &client_sk,
--				    O_NONBLOCK);
-+				    SOCK_NONBLOCK);
- 		mutex_unlock(&iface->sock_release_lock);
- 		if (ret) {
- 			if (ret == -EAGAIN)
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 467a349dc26c..e748c00789f0 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1898,7 +1898,6 @@ static int verify_driver_features(struct mlx5_vdpa_dev *mvdev, u64 features)
+ static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
+ {
+ 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+-	struct mlx5_control_vq *cvq = &mvdev->cvq;
+ 	int err;
+ 	int i;
+ 
+@@ -1908,16 +1907,6 @@ static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
+ 			goto err_vq;
+ 	}
+ 
+-	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)) {
+-		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
+-					MLX5_CVQ_MAX_ENT, false,
+-					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
+-					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
+-					(struct vring_used *)(uintptr_t)cvq->device_addr);
+-		if (err)
+-			goto err_vq;
+-	}
+-
+ 	return 0;
+ 
+ err_vq:
+@@ -2184,6 +2173,21 @@ static void clear_vqs_ready(struct mlx5_vdpa_net *ndev)
+ 	ndev->mvdev.cvq.ready = false;
+ }
+ 
++static int setup_cvq_vring(struct mlx5_vdpa_dev *mvdev)
++{
++	struct mlx5_control_vq *cvq = &mvdev->cvq;
++	int err = 0;
++
++	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ))
++		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
++					MLX5_CVQ_MAX_ENT, false,
++					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
++					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
++					(struct vring_used *)(uintptr_t)cvq->device_addr);
++
++	return err;
++}
++
+ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+ {
+ 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+@@ -2194,6 +2198,11 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+ 
+ 	if ((status ^ ndev->mvdev.status) & VIRTIO_CONFIG_S_DRIVER_OK) {
+ 		if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
++			err = setup_cvq_vring(mvdev);
++			if (err) {
++				mlx5_vdpa_warn(mvdev, "failed to setup control VQ vring\n");
++				goto err_setup;
++			}
+ 			err = setup_driver(mvdev);
+ 			if (err) {
+ 				mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
 -- 
 2.35.1
 
