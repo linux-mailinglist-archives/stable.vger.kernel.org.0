@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E70579AD1
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4851579C38
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234840AbiGSMU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51326 "EHLO
+        id S240949AbiGSMhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:37:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239034AbiGSMSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:18:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EEE4459AA;
-        Tue, 19 Jul 2022 05:06:45 -0700 (PDT)
+        with ESMTP id S240682AbiGSMgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160B86464;
+        Tue, 19 Jul 2022 05:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78240B81B2D;
-        Tue, 19 Jul 2022 12:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BBEC341C6;
-        Tue, 19 Jul 2022 12:06:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1507861746;
+        Tue, 19 Jul 2022 12:13:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBB04C341C6;
+        Tue, 19 Jul 2022 12:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232389;
-        bh=IFZjXbJ7sgr7lOozH+tV907JnfMAKDS4Ba+tDZu8KHk=;
+        s=korg; t=1658232831;
+        bh=USoxJJmNigTeOjCpA6MsQrQcsLyDaGVfZyfTu4lJXjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJIAzUJpYBo3FobnHPheTvaFUGzbZLHzmSyOwdrn2x6fVvo17F8cAycAvyljVW2Hc
-         G1sbm8muaIVW+hkKt2S1zrtJD5zaUU0PPkUxoyuUDflhdoIXcag/606w/l/wbPZNU5
-         Q+cDCFcbZdZU7oh2R4u3YdHSIJ4X/FFRgtXxkGtI=
+        b=fCQ5TWP8OSY0HL8Y6eY2opfFQ2VkoG8w9ICHRuvpztYdBlGXT0sjdqycYNSUqPOtj
+         AQoGWia25V/BJMzJ/RequBmy1Do4JSOnHmXHD1ZgA8pwjlaydf6RHnSaNVkdICjSo1
+         QSU6qWC7B1WZystVnfBOpp0KtihwJ4d6RMKwl9+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Richard Cochran <richardcochran@gmail.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/112] ASoC: Intel: Skylake: Correct the handling of fmt_config flexible array
+Subject: [PATCH 5.15 081/167] bnxt_en: Fix bnxt_refclk_read()
 Date:   Tue, 19 Jul 2022 13:53:33 +0200
-Message-Id: <20220719114630.202019099@linuxfoundation.org>
+Message-Id: <20220719114704.408719777@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,128 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Pavan Chebbi <pavan.chebbi@broadcom.com>
 
-[ Upstream commit fc976f5629afb4160ee77798b14a693eac903ffd ]
+[ Upstream commit ddde5412fdaa5048bbca31529d46cb8da882870c ]
 
-The struct nhlt_format's fmt_config is a flexible array, it must not be
-used as normal array.
-When moving to the next nhlt_fmt_cfg we need to take into account the data
-behind the ->config.caps (indicated by ->config.size).
+The upper 32-bit PHC register is not latched when reading the lower
+32-bit PHC register.  Current code leaves a small window where we may
+not read correct higher order bits if the lower order bits are just about
+to wrap around.
 
-The logic of the code also changed: it is no longer saves the _last_
-fmt_cfg for all found rates.
+This patch fixes this by reading higher order bits twice and makes
+sure that final value is correctly paired with its lower 32 bits.
 
-Fixes: bc2bd45b1f7f3 ("ASoC: Intel: Skylake: Parse nhlt and register clock device")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20220630065638.11183-3-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 30e96f487f64 ("bnxt_en: Do not read the PTP PHC during chip reset")
+Cc: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-nhlt.c | 37 ++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-nhlt.c b/sound/soc/intel/skylake/skl-nhlt.c
-index c668e10baade..3b3868df9f67 100644
---- a/sound/soc/intel/skylake/skl-nhlt.c
-+++ b/sound/soc/intel/skylake/skl-nhlt.c
-@@ -213,11 +213,12 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 	if (fmt->fmt_count == 0)
- 		return;
- 
-+	fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
- 	for (i = 0; i < fmt->fmt_count; i++) {
-+		struct nhlt_fmt_cfg *saved_fmt_cfg = fmt_cfg;
- 		bool present = false;
- 
--		fmt_cfg = &fmt->fmt_config[i];
--		wav_fmt = &fmt_cfg->fmt_ext;
-+		wav_fmt = &saved_fmt_cfg->fmt_ext;
- 
- 		channels = wav_fmt->fmt.channels;
- 		bps = wav_fmt->fmt.bits_per_sample;
-@@ -235,12 +236,18 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 		 * derive the rate.
- 		 */
- 		for (j = i; j < fmt->fmt_count; j++) {
--			fmt_cfg = &fmt->fmt_config[j];
--			wav_fmt = &fmt_cfg->fmt_ext;
-+			struct nhlt_fmt_cfg *tmp_fmt_cfg = fmt_cfg;
-+
-+			wav_fmt = &tmp_fmt_cfg->fmt_ext;
- 			if ((fs == wav_fmt->fmt.samples_per_sec) &&
--			   (bps == wav_fmt->fmt.bits_per_sample))
-+			   (bps == wav_fmt->fmt.bits_per_sample)) {
- 				channels = max_t(u16, channels,
- 						wav_fmt->fmt.channels);
-+				saved_fmt_cfg = tmp_fmt_cfg;
-+			}
-+			/* Move to the next nhlt_fmt_cfg */
-+			tmp_fmt_cfg = (struct nhlt_fmt_cfg *)(tmp_fmt_cfg->config.caps +
-+							      tmp_fmt_cfg->config.size);
- 		}
- 
- 		rate = channels * bps * fs;
-@@ -256,8 +263,11 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 
- 		/* Fill rate and parent for sclk/sclkfs */
- 		if (!present) {
-+			struct nhlt_fmt_cfg *first_fmt_cfg;
-+
-+			first_fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
- 			i2s_config_ext = (struct skl_i2s_config_blob_ext *)
--						fmt->fmt_config[0].config.caps;
-+						first_fmt_cfg->config.caps;
- 
- 			/* MCLK Divider Source Select */
- 			if (is_legacy_blob(i2s_config_ext->hdr.sig)) {
-@@ -271,6 +281,9 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 
- 			parent = skl_get_parent_clk(clk_src);
- 
-+			/* Move to the next nhlt_fmt_cfg */
-+			fmt_cfg = (struct nhlt_fmt_cfg *)(fmt_cfg->config.caps +
-+							  fmt_cfg->config.size);
- 			/*
- 			 * Do not copy the config data if there is no parent
- 			 * clock available for this clock source select
-@@ -279,9 +292,9 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 				continue;
- 
- 			sclk[id].rate_cfg[rate_index].rate = rate;
--			sclk[id].rate_cfg[rate_index].config = fmt_cfg;
-+			sclk[id].rate_cfg[rate_index].config = saved_fmt_cfg;
- 			sclkfs[id].rate_cfg[rate_index].rate = rate;
--			sclkfs[id].rate_cfg[rate_index].config = fmt_cfg;
-+			sclkfs[id].rate_cfg[rate_index].config = saved_fmt_cfg;
- 			sclk[id].parent_name = parent->name;
- 			sclkfs[id].parent_name = parent->name;
- 
-@@ -295,13 +308,13 @@ static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
+index 62a931de5b1a..a78cc65a38f2 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
+@@ -61,14 +61,23 @@ static int bnxt_refclk_read(struct bnxt *bp, struct ptp_system_timestamp *sts,
+ 			    u64 *ns)
  {
- 	struct skl_i2s_config_blob_ext *i2s_config_ext;
- 	struct skl_i2s_config_blob_legacy *i2s_config;
--	struct nhlt_specific_cfg *fmt_cfg;
-+	struct nhlt_fmt_cfg *fmt_cfg;
- 	struct skl_clk_parent_src *parent;
- 	u32 clkdiv, div_ratio;
- 	u8 clk_src;
+ 	struct bnxt_ptp_cfg *ptp = bp->ptp_cfg;
++	u32 high_before, high_now, low;
  
--	fmt_cfg = &fmt->fmt_config[0].config;
--	i2s_config_ext = (struct skl_i2s_config_blob_ext *)fmt_cfg->caps;
-+	fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
-+	i2s_config_ext = (struct skl_i2s_config_blob_ext *)fmt_cfg->config.caps;
+ 	if (test_bit(BNXT_STATE_IN_FW_RESET, &bp->state))
+ 		return -EIO;
  
- 	/* MCLK Divider Source Select and divider */
- 	if (is_legacy_blob(i2s_config_ext->hdr.sig)) {
-@@ -330,7 +343,7 @@ static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
- 		return;
- 
- 	mclk[id].rate_cfg[0].rate = parent->rate/div_ratio;
--	mclk[id].rate_cfg[0].config = &fmt->fmt_config[0];
-+	mclk[id].rate_cfg[0].config = fmt_cfg;
- 	mclk[id].parent_name = parent->name;
++	high_before = readl(bp->bar0 + ptp->refclk_mapped_regs[1]);
+ 	ptp_read_system_prets(sts);
+-	*ns = readl(bp->bar0 + ptp->refclk_mapped_regs[0]);
++	low = readl(bp->bar0 + ptp->refclk_mapped_regs[0]);
+ 	ptp_read_system_postts(sts);
+-	*ns |= (u64)readl(bp->bar0 + ptp->refclk_mapped_regs[1]) << 32;
++	high_now = readl(bp->bar0 + ptp->refclk_mapped_regs[1]);
++	if (high_now != high_before) {
++		ptp_read_system_prets(sts);
++		low = readl(bp->bar0 + ptp->refclk_mapped_regs[0]);
++		ptp_read_system_postts(sts);
++	}
++	*ns = ((u64)high_now << 32) | low;
++
+ 	return 0;
  }
  
 -- 
