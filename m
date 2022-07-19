@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 751E7579D16
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20479579D04
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237991AbiGSMrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:47:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37392 "EHLO
+        id S241587AbiGSMp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242013AbiGSMo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C6A87C1A;
-        Tue, 19 Jul 2022 05:17:56 -0700 (PDT)
+        with ESMTP id S241778AbiGSMof (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDE38721E;
+        Tue, 19 Jul 2022 05:17:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 035F7B81B82;
-        Tue, 19 Jul 2022 12:17:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EFBEC341C6;
-        Tue, 19 Jul 2022 12:17:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C33561830;
+        Tue, 19 Jul 2022 12:17:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47688C341C6;
+        Tue, 19 Jul 2022 12:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233050;
-        bh=fHBYmqcIiLMomw61JKDjJgzcDQQWoa5ofC83PhIIq4k=;
+        s=korg; t=1658233053;
+        bh=ZHDS7axaqv3eoGXc0bA8B+TANT3b2ltotVfUt2qyR04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSIJTHUCpEMqPKTBqDs+lTiNSLEr9NnLVcSVNrlQg9n/0ONjaY85IEB6efW79witK
-         ydzsUblNxHFAfG0LS3JmJGB8HbCgtCKmcZe4JjgeurdWpGYSQZ8whDTVuKUS1VmxV6
-         BmVAwPDGupboOO3/H+/vw9muAIk3/CLvzRsnItnA=
+        b=Cn/IanRQIYF4VsGr2VFkjIG34ll8BY4qzSmdD9tyuCVF2j3omuTraF9mAtFEglc/2
+         jVqhjGOt02or39RJ41mM+fzEDrGk8NwMpo1IYPZh/1KJD2fH56MOYw+Qu80qRI0Z4L
+         lw/ohGpG7B95mObmUYoADf+a2Q6NryjQDYPohnGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 157/167] signal handling: dont use BUG_ON() for debugging
-Date:   Tue, 19 Jul 2022 13:54:49 +0200
-Message-Id: <20220719114711.690583853@linuxfoundation.org>
+        stable@vger.kernel.org, Lucien Buchmann <lucien.buchmann@gmx.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 158/167] USB: serial: ftdi_sio: add Belimo device ids
+Date:   Tue, 19 Jul 2022 13:54:50 +0200
+Message-Id: <20220719114711.784220801@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
 References: <20220719114656.750574879@linuxfoundation.org>
@@ -53,54 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Lucien Buchmann <lucien.buchmann@gmx.net>
 
-[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
+commit 7c239a071d1f04b7137789810807b4108d475c72 upstream.
 
-These are indeed "should not happen" situations, but it turns out recent
-changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
-exists, is pending more testing), and the BUG_ON() makes it
-unnecessarily hard to actually debug for no good reason.
+Those two product ids are known.
 
-It's been that way for a long time, but let's make it clear: BUG_ON() is
-not good for debugging, and should never be used in situations where you
-could just say "this shouldn't happen, but we can continue".
-
-Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
-continue running.  Instead of making the system basically unusuable
-because you crashed the machine while potentially holding some very core
-locks (eg this function is commonly called while holding 'tasklist_lock'
-for writing).
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Lucien Buchmann <lucien.buchmann@gmx.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/signal.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index d831f0aec56e..c7dbb19219b9 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2027,12 +2027,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
- 	bool autoreap = false;
- 	u64 utime, stime;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1023,6 +1023,9 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_DISPLAY_PID) },
+ 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_LITE_PID) },
+ 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_ANALOG_PID) },
++	/* Belimo Automation devices */
++	{ USB_DEVICE(FTDI_VID, BELIMO_ZTH_PID) },
++	{ USB_DEVICE(FTDI_VID, BELIMO_ZIP_PID) },
+ 	/* ICP DAS I-756xU devices */
+ 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7560U_PID) },
+ 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7561U_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1569,6 +1569,12 @@
+ #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
  
--	BUG_ON(sig == -1);
-+	WARN_ON_ONCE(sig == -1);
- 
-- 	/* do_notify_parent_cldstop should have been called instead.  */
-- 	BUG_ON(task_is_stopped_or_traced(tsk));
-+	/* do_notify_parent_cldstop should have been called instead.  */
-+	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
- 
--	BUG_ON(!tsk->ptrace &&
-+	WARN_ON_ONCE(!tsk->ptrace &&
- 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
- 
- 	/* Wake up all pidfd waiters */
--- 
-2.35.1
-
+ /*
++ * Belimo Automation
++ */
++#define BELIMO_ZTH_PID			0x8050
++#define BELIMO_ZIP_PID			0xC811
++
++/*
+  * Unjo AB
+  */
+ #define UNJO_VID			0x22B7
 
 
