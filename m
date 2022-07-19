@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 282CE579F0C
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1EF579B70
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243090AbiGSNKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:10:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54918 "EHLO
+        id S240121AbiGSM1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:27:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243304AbiGSNJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:09:15 -0400
+        with ESMTP id S239901AbiGSM0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:26:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D64151A19;
-        Tue, 19 Jul 2022 05:28:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8419111D;
+        Tue, 19 Jul 2022 05:10:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99021B81B32;
-        Tue, 19 Jul 2022 12:28:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63E1C341DB;
-        Tue, 19 Jul 2022 12:28:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 851C0B81B1A;
+        Tue, 19 Jul 2022 12:10:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F54C341C6;
+        Tue, 19 Jul 2022 12:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233703;
-        bh=+pwhI5DseAVUweaksDK2NMrC+e9Ib1UwCS+TtiDZy7g=;
+        s=korg; t=1658232605;
+        bh=2qjO8+odQ7oxEl1fALycalDewY6Q0DjTfZWWlCdvWKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHAyN0hd0ojMNsJ6yYvwuCYHe73SjDmFPUcpYCVE2umVX2wrECZYogA2N7kil3kvo
-         hkEX8Pwpvkzy3TvAUvZeKoa7oLTtdcX9jOAJ/HgMXsqw/mFo4Yh0xZfZUPyhOn3CHW
-         yilGiNuC/KZS+Ekns+PECHYHlbL+Wujobfbb32mQ=
+        b=lY1+1yHbVlAnxhZcxAr5su2RLEUMLEAVxI7P5c50j9Do5x4+jbLFg9sPrJ0YSkkkk
+         e0H4fj8QUVGYCZCBCOu0DSzpqeUWNynrX3AGxhun6kpoGLgrniGniI0SaPS9hDf7ft
+         ONLgxQ2qVCxouqGk23yNW4PKerRoDer4lWzhiBf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 183/231] ASoC: ops: Fix off by one in range control validation
-Date:   Tue, 19 Jul 2022 13:54:28 +0200
-Message-Id: <20220719114729.617862702@linuxfoundation.org>
+Subject: [PATCH 5.10 096/112] irqchip: or1k-pic: Undefine mask_ack for level triggered hardware
+Date:   Tue, 19 Jul 2022 13:54:29 +0200
+Message-Id: <20220719114636.096127479@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 5871321fb4558c55bf9567052b618ff0be6b975e ]
+[ Upstream commit 8520501346ed8d1c4a6dfa751cb57328a9c843f1 ]
 
-We currently report that range controls accept a range of 0..(max-min) but
-accept writes in the range 0..(max-min+1). Remove that extra +1.
+The mask_ack operation clears the interrupt by writing to the PICSR
+register.  This we don't want for level triggered interrupt because
+it does not actually clear the interrupt on the source hardware.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220604105246.4055214-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This was causing issues in qemu with multi core setups where
+interrupts would continue to fire even though they had been cleared in
+PICSR.
+
+Just remove the mask_ack operation.
+
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-ops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-or1k-pic.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
-index e693070f51fe..d867f449d82d 100644
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -526,7 +526,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
- 		return -EINVAL;
- 	if (mc->platform_max && tmp > mc->platform_max)
- 		return -EINVAL;
--	if (tmp > mc->max - mc->min + 1)
-+	if (tmp > mc->max - mc->min)
- 		return -EINVAL;
- 
- 	if (invert)
-@@ -547,7 +547,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
- 			return -EINVAL;
- 		if (mc->platform_max && tmp > mc->platform_max)
- 			return -EINVAL;
--		if (tmp > mc->max - mc->min + 1)
-+		if (tmp > mc->max - mc->min)
- 			return -EINVAL;
- 
- 		if (invert)
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index 03d2366118dd..d5f1fabc45d7 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -66,7 +66,6 @@ static struct or1k_pic_dev or1k_pic_level = {
+ 		.name = "or1k-PIC-level",
+ 		.irq_unmask = or1k_pic_unmask,
+ 		.irq_mask = or1k_pic_mask,
+-		.irq_mask_ack = or1k_pic_mask_ack,
+ 	},
+ 	.handle = handle_level_irq,
+ 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
 -- 
 2.35.1
 
