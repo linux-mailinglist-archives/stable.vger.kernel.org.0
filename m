@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D56579D2D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271D7579D29
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241707AbiGSMsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
+        id S241650AbiGSMrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:47:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241676AbiGSMqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25268BAA8;
+        with ESMTP id S241707AbiGSMqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2BC8BA9F;
         Tue, 19 Jul 2022 05:18:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B319B81B31;
-        Tue, 19 Jul 2022 12:18:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACFEAC341C6;
-        Tue, 19 Jul 2022 12:18:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE19961839;
+        Tue, 19 Jul 2022 12:18:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77F73C341C6;
+        Tue, 19 Jul 2022 12:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233088;
-        bh=ejnKotZB6Y2TMNzJtjiQwLLGKsKmTL1udkyokr7DcUk=;
+        s=korg; t=1658233090;
+        bh=gb/czhMg4fVob1ttITgWIuTsBA07eCazqwFw3vqBK4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVDJj7zF/mjKPaUK4XzqJmDYNVOh8S1zXQid1fnHjzEGqJFB/DUHqHw7dURPTNGAS
-         UODGnDKTqtR8cZw5zm2FbujFzzJxxd2XSzxnIj897uo5q8ELTH56ISCDdyk6fSaSgk
-         QR8XBqDvrkJEHh8ySKb7q40u42xG6SQ4N/7EVHbM=
+        b=nl/sOQr4UMfllrwmWkTpvpKOBjYTxPK4DYw/iaj8BNuM49KqhkshwtxtU5HLPuPtj
+         Tnlr0ULgIKo5bBwNcY3p8W/2u8nclTZwWYEP+jCLe0doV9o9D08MaaBl1waIAmo9qh
+         hFvQYz/ZPQjSLrAo8UAPXT5jjoB5t0DxamPvcxg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 144/167] ASoC: dapm: Initialise kcontrol data for mux/demux controls
-Date:   Tue, 19 Jul 2022 13:54:36 +0200
-Message-Id: <20220719114710.415049137@linuxfoundation.org>
+Subject: [PATCH 5.15 145/167] ASoC: cs47l15: Fix event generation for low power mux control
+Date:   Tue, 19 Jul 2022 13:54:37 +0200
+Message-Id: <20220719114710.508413989@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
 References: <20220719114656.750574879@linuxfoundation.org>
@@ -56,55 +56,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 11d7a12f7f50baa5af9090b131c9b03af59503e7 ]
+[ Upstream commit 7f103af4a10f375b9b346b4d0b730f6a66b8c451 ]
 
-DAPM keeps a copy of the current value of mux/demux controls,
-however this value is only initialised in the case of autodisable
-controls. This leads to false notification events when first
-modifying a DAPM kcontrol that has a non-zero default.
-
-Autodisable controls are left as they are, since they already
-initialise the value, and there would be more work required to
-support autodisable muxes where the first option isn't disabled
-and/or that isn't the default.
-
-Technically this issue could affect mixer/switch elements as well,
-although not on any of the devices I am currently running. There
-is also a little more work to do to address the issue there due to
-that side supporting stereo controls, so that has not been tackled
-in this patch.
+cs47l15_in1_adc_put always returns zero regardless of if the control
+value was updated. This results in missing notifications to user-space
+of the control change. Update the handling to return 1 when the value is
+changed.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220623105120.1981154-1-ckeepax@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20220623105120.1981154-3-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/codecs/cs47l15.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index 47b85ba5b7d6..b957049bae33 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -62,6 +62,8 @@ struct snd_soc_dapm_widget *
- snd_soc_dapm_new_control_unlocked(struct snd_soc_dapm_context *dapm,
- 			 const struct snd_soc_dapm_widget *widget);
+diff --git a/sound/soc/codecs/cs47l15.c b/sound/soc/codecs/cs47l15.c
+index 1ee83160b83f..ac9ccdea15b5 100644
+--- a/sound/soc/codecs/cs47l15.c
++++ b/sound/soc/codecs/cs47l15.c
+@@ -122,6 +122,9 @@ static int cs47l15_in1_adc_put(struct snd_kcontrol *kcontrol,
+ 		snd_soc_kcontrol_component(kcontrol);
+ 	struct cs47l15 *cs47l15 = snd_soc_component_get_drvdata(component);
  
-+static unsigned int soc_dapm_read(struct snd_soc_dapm_context *dapm, int reg);
++	if (!!ucontrol->value.integer.value[0] == cs47l15->in1_lp_mode)
++		return 0;
 +
- /* dapm power sequences - make this per codec in the future */
- static int dapm_up_seq[] = {
- 	[snd_soc_dapm_pre] = 1,
-@@ -442,6 +444,9 @@ static int dapm_kcontrol_data_alloc(struct snd_soc_dapm_widget *widget,
- 
- 			snd_soc_dapm_add_path(widget->dapm, data->widget,
- 					      widget, NULL, NULL);
-+		} else if (e->reg != SND_SOC_NOPM) {
-+			data->value = soc_dapm_read(widget->dapm, e->reg) &
-+				      (e->mask << e->shift_l);
- 		}
+ 	switch (ucontrol->value.integer.value[0]) {
+ 	case 0:
+ 		/* Set IN1 to normal mode */
+@@ -150,7 +153,7 @@ static int cs47l15_in1_adc_put(struct snd_kcontrol *kcontrol,
  		break;
- 	default:
+ 	}
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ static const struct snd_kcontrol_new cs47l15_snd_controls[] = {
 -- 
 2.35.1
 
