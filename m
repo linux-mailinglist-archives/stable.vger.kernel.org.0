@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A2D579A99
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57ECB579EF1
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239214AbiGSMPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
+        id S243171AbiGSNIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238953AbiGSMNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:13:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 880811EADD;
-        Tue, 19 Jul 2022 05:04:53 -0700 (PDT)
+        with ESMTP id S243138AbiGSNHn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:07:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2704DFA0;
+        Tue, 19 Jul 2022 05:27:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 178DC61642;
-        Tue, 19 Jul 2022 12:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADB2C341CE;
-        Tue, 19 Jul 2022 12:04:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EE316020F;
+        Tue, 19 Jul 2022 12:27:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC93C341C6;
+        Tue, 19 Jul 2022 12:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232282;
-        bh=8UBj1z2lp/6daPvXBnEXV1Z/SWwo2LziTpTiD7CUaTk=;
+        s=korg; t=1658233656;
+        bh=2RIulnpy12qPfd61qCeePjC6mrMyrKz5F9JHzlryf7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4MLXP5QV6gCWPuUo1mD8V+5T+/GKRyTlV7y8cgvrfwILFBVsnwD5Vi1xYHI1oMyw
-         JffZr9xhwP5MI4JcpmPPlduE44WCrkPLItXf1yx3ErONPkmVSpn1SRnFLPwFL5eSlL
-         gktT8Z6sR/SGpJowAZB6buDtdfDZHaLWlHN7L9Sw=
+        b=vyV/66snmrrRMqXOWXeksyywKZQBrReRayBhQaOIyxKZmeTtAtuo5Z0r8RNkU5kE9
+         1p95piaIJRocDKtQ28VD/2lgxhYV4lY8hGsw6HtnLT1Rie5fIRXfIO6vPcjdM8SFR/
+         bmXhsnpikEclOqD+du3+9SEdGpfhf/FRODYKC7mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 61/71] soc: ixp4xx/npe: Fix unused match warning
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 179/231] NFC: nxp-nci: dont print header length mismatch on i2c error
 Date:   Tue, 19 Jul 2022 13:54:24 +0200
-Message-Id: <20220719114558.284808978@linuxfoundation.org>
+Message-Id: <20220719114729.260805577@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 620f83b8326ce9706b1118334f0257ae028ce045 ]
+[ Upstream commit 9577fc5fdc8b07b891709af6453545db405e24ad ]
 
-The kernel test robot found this inconsistency:
+Don't print a misleading header length mismatch error if the i2c call
+returns an error. Instead just return the error code without any error
+message.
 
-  drivers/soc/ixp4xx/ixp4xx-npe.c:737:34: warning:
-  'ixp4xx_npe_of_match' defined but not used [-Wunused-const-variable=]
-     737 | static const struct of_device_id ixp4xx_npe_of_match[] = {
-
-This is because the match is enclosed in the of_match_ptr()
-which compiles into NULL when OF is disabled and this
-is unnecessary.
-
-Fix it by dropping of_match_ptr() around the match.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220626074315.61209-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ixp4xx/ixp4xx-npe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/nxp-nci/i2c.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/ixp4xx/ixp4xx-npe.c b/drivers/soc/ixp4xx/ixp4xx-npe.c
-index 6065aaab6740..8482a4892b83 100644
---- a/drivers/soc/ixp4xx/ixp4xx-npe.c
-+++ b/drivers/soc/ixp4xx/ixp4xx-npe.c
-@@ -735,7 +735,7 @@ static const struct of_device_id ixp4xx_npe_of_match[] = {
- static struct platform_driver ixp4xx_npe_driver = {
- 	.driver = {
- 		.name           = "ixp4xx-npe",
--		.of_match_table = of_match_ptr(ixp4xx_npe_of_match),
-+		.of_match_table = ixp4xx_npe_of_match,
- 	},
- 	.probe = ixp4xx_npe_probe,
- 	.remove = ixp4xx_npe_remove,
--- 
-2.35.1
-
+--- a/drivers/nfc/nxp-nci/i2c.c
++++ b/drivers/nfc/nxp-nci/i2c.c
+@@ -122,7 +122,9 @@ static int nxp_nci_i2c_fw_read(struct nx
+ 	skb_put_data(*skb, &header, NXP_NCI_FW_HDR_LEN);
+ 
+ 	r = i2c_master_recv(client, skb_put(*skb, frame_len), frame_len);
+-	if (r != frame_len) {
++	if (r < 0) {
++		goto fw_read_exit_free_skb;
++	} else if (r != frame_len) {
+ 		nfc_err(&client->dev,
+ 			"Invalid frame length: %u (expected %zu)\n",
+ 			r, frame_len);
+@@ -166,7 +168,9 @@ static int nxp_nci_i2c_nci_read(struct n
+ 		return 0;
+ 
+ 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
+-	if (r != header.plen) {
++	if (r < 0) {
++		goto nci_read_exit_free_skb;
++	} else if (r != header.plen) {
+ 		nfc_err(&client->dev,
+ 			"Invalid frame payload length: %u (expected %u)\n",
+ 			r, header.plen);
 
 
