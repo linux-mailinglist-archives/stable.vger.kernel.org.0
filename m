@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9F00579C77
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9AC5799FE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240659AbiGSMkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:40:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51040 "EHLO
+        id S238451AbiGSMKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241287AbiGSMjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:39:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED6141D31;
-        Tue, 19 Jul 2022 05:15:40 -0700 (PDT)
+        with ESMTP id S238592AbiGSMJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0C850183;
+        Tue, 19 Jul 2022 05:02:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 60B5BCE1BD6;
-        Tue, 19 Jul 2022 12:15:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FB6C341C6;
-        Tue, 19 Jul 2022 12:15:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0EDB81B2D;
+        Tue, 19 Jul 2022 12:02:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D170C341C6;
+        Tue, 19 Jul 2022 12:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232936;
-        bh=4Ae9WzvhYzV9DqfC1sH5vWDfWr4NdbtZgH8jm50vzHg=;
+        s=korg; t=1658232133;
+        bh=/YKQ7D/w6ff5ZwaE0DJ2ZPHJml5aPh3NmKusv3Ju3jE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAivdXXhZJo9JAj7yIce1PrgInTx0xHt3C310/2aZ1CEfxpvpxgt1hh8JgfB2AMOJ
-         dQIX13KTSexNBwkuIbgQepTfUY1LFWjFidM6s60DqOG5hKdgYQehEQALWlezG+onxh
-         PEChvQpZwFetzYSWb2Ucu3JybYQeTZegF0IatJwc=
+        b=nXhl57HNOayFQVrN9yserNxbg6s5byMT7ZHTZjXVdOQqldoDrtUQAz4GtlNiMqXRA
+         bkw6pXDmrNQlCn04XAiq6C2dfzPaY0D5IgIOOrGRd2MhrkHsK9Y9lwsPTEfJEd/2tL
+         W9BIak7K+QjhhLkAnSdKt5yq7PBgPa3taWjBFuCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Huaxin Lu <luhuaxin1@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/167] net: stmmac: fix leaks in probe
+Subject: [PATCH 5.4 23/71] ima: Fix a potential integer overflow in ima_appraise_measurement
 Date:   Tue, 19 Jul 2022 13:53:46 +0200
-Message-Id: <20220719114705.592488765@linuxfoundation.org>
+Message-Id: <20220719114554.491545435@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Huaxin Lu <luhuaxin1@huawei.com>
 
-[ Upstream commit 23aa6d5088e3bd65de77c5c307237b9937f8b48a ]
+[ Upstream commit d2ee2cfc4aa85ff6a2a3b198a3a524ec54e3d999 ]
 
-These two error paths should clean up before returning.
+When the ima-modsig is enabled, the rc passed to evm_verifyxattr() may be
+negative, which may cause the integer overflow problem.
 
-Fixes: 2bb4b98b60d7 ("net: stmmac: Add Ingenic SoCs MAC support.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 39b07096364a ("ima: Implement support for module-style appended signatures")
+Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-ingenic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ security/integrity/ima/ima_appraise.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ingenic.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ingenic.c
-index 9a6d819b84ae..378b4dd826bb 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ingenic.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ingenic.c
-@@ -273,7 +273,8 @@ static int ingenic_mac_probe(struct platform_device *pdev)
- 			mac->tx_delay = tx_delay_ps * 1000;
- 		} else {
- 			dev_err(&pdev->dev, "Invalid TX clock delay: %dps\n", tx_delay_ps);
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto err_remove_config_dt;
- 		}
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 23b04c6521b2..9368688449b0 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -352,7 +352,8 @@ int ima_appraise_measurement(enum ima_hooks func,
+ 		goto out;
  	}
  
-@@ -283,7 +284,8 @@ static int ingenic_mac_probe(struct platform_device *pdev)
- 			mac->rx_delay = rx_delay_ps * 1000;
- 		} else {
- 			dev_err(&pdev->dev, "Invalid RX clock delay: %dps\n", rx_delay_ps);
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto err_remove_config_dt;
- 		}
- 	}
- 
+-	status = evm_verifyxattr(dentry, XATTR_NAME_IMA, xattr_value, rc, iint);
++	status = evm_verifyxattr(dentry, XATTR_NAME_IMA, xattr_value,
++				 rc < 0 ? 0 : rc, iint);
+ 	switch (status) {
+ 	case INTEGRITY_PASS:
+ 	case INTEGRITY_PASS_IMMUTABLE:
 -- 
 2.35.1
 
