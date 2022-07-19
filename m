@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 388C0579E4B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D5E5799A5
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242475AbiGSNBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55718 "EHLO
+        id S238083AbiGSMFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242712AbiGSM72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C541422CE;
-        Tue, 19 Jul 2022 05:24:53 -0700 (PDT)
+        with ESMTP id S238386AbiGSMEf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0080548E82;
+        Tue, 19 Jul 2022 05:00:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4320DB81B29;
-        Tue, 19 Jul 2022 12:24:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9593BC341D4;
-        Tue, 19 Jul 2022 12:24:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB7361655;
+        Tue, 19 Jul 2022 12:00:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77069C341C6;
+        Tue, 19 Jul 2022 12:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233491;
-        bh=ZzoeeK22UdI5rV/NKmOMY8h+jq09j5Z1NOc3uDW+Uf0=;
+        s=korg; t=1658232026;
+        bh=TU9v5a2oWC0O5pMZvZGTI08WLnI0FifRCJYCMF7RG18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXRCAmYdpmTkhnZYJqbNFWOlBLwlji9GZPq4dC+meYyoAyiBqspAC4WhOUkrW4RI3
-         7a8uApqM0u28Mg51d9ZHkeFtKpuIpmz1vJ8EFm34W2iOQ0xf6XT45MJx/WCxemS3m8
-         ZFdA+3LdKwZ7DHFItmopwKKL2yA4XN2elq/qXh/k=
+        b=HXZRTivThv/v1UVYjLOEI2v3MMmNpcWNDfE2TQXbY892dI5YdFAH4JmULcRR/xijX
+         DCKRF7FxPAU4dDtRuHMZSH58v2aXLipOcI6ys1MlrmENoDKOknuhyANbQOLPnzF3JM
+         JuMMjIVC3QCWVKrmP0VPJ1u4HKkv5wRBnkCJKmv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ma Yuying <yuma@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Edward Cree <ecree.xilinx@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 139/231] sfc: fix kernel panic when creating VF
+        stable@vger.kernel.org,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 07/48] ARM: 9213/1: Print message about disabled Spectre workarounds only once
 Date:   Tue, 19 Jul 2022 13:53:44 +0200
-Message-Id: <20220719114726.087418351@linuxfoundation.org>
+Message-Id: <20220719114520.582845636@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-[ Upstream commit ada74c5539eba06cf8b47d068f92e0b3963a9a6e ]
+commit e4ced82deb5fb17222fb82e092c3f8311955b585 upstream.
 
-When creating VFs a kernel panic can happen when calling to
-efx_ef10_try_update_nic_stats_vf.
+Print the message about disabled Spectre workarounds only once. The
+message is printed each time CPU goes out from idling state on NVIDIA
+Tegra boards, causing storm in KMSG that makes system unusable.
 
-When releasing a DMA coherent buffer, sometimes, I don't know in what
-specific circumstances, it has to unmap memory with vunmap. It is
-disallowed to do that in IRQ context or with BH disabled. Otherwise, we
-hit this line in vunmap, causing the crash:
-  BUG_ON(in_interrupt());
-
-This patch reenables BH to release the buffer.
-
-Log messages when the bug is hit:
- kernel BUG at mm/vmalloc.c:2727!
- invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 6 PID: 1462 Comm: NetworkManager Kdump: loaded Tainted: G          I      --------- ---  5.14.0-119.el9.x86_64 #1
- Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
- RIP: 0010:vunmap+0x2e/0x30
- ...skip...
- Call Trace:
-  __iommu_dma_free+0x96/0x100
-  efx_nic_free_buffer+0x2b/0x40 [sfc]
-  efx_ef10_try_update_nic_stats_vf+0x14a/0x1c0 [sfc]
-  efx_ef10_update_stats_vf+0x18/0x40 [sfc]
-  efx_start_all+0x15e/0x1d0 [sfc]
-  efx_net_open+0x5a/0xe0 [sfc]
-  __dev_open+0xe7/0x1a0
-  __dev_change_flags+0x1d7/0x240
-  dev_change_flags+0x21/0x60
-  ...skip...
-
-Fixes: d778819609a2 ("sfc: DMA the VF stats only when requested")
-Reported-by: Ma Yuying <yuma@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220713092116.21238-1-ihuguet@redhat.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/mm/proc-v7-bugs.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index 186cb28c03bd..8b62ce21aff3 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -1932,7 +1932,10 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -110,8 +110,7 @@ static unsigned int spectre_v2_install_w
+ #else
+ static unsigned int spectre_v2_install_workaround(unsigned int method)
+ {
+-	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n",
+-		smp_processor_id());
++	pr_info_once("Spectre V2: workarounds disabled by configuration\n");
  
- 	efx_update_sw_stats(efx, stats);
- out:
-+	/* releasing a DMA coherent buffer with BH disabled can panic */
-+	spin_unlock_bh(&efx->stats_lock);
- 	efx_nic_free_buffer(efx, &stats_buf);
-+	spin_lock_bh(&efx->stats_lock);
- 	return rc;
+ 	return SPECTRE_VULNERABLE;
  }
- 
--- 
-2.35.1
-
 
 
