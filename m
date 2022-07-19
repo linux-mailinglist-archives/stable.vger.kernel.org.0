@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF9B579E58
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02338579A07
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242637AbiGSNBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:01:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55936 "EHLO
+        id S238493AbiGSMKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:10:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242988AbiGSM7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 112345C976;
-        Tue, 19 Jul 2022 05:25:25 -0700 (PDT)
+        with ESMTP id S238655AbiGSMJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73CE5071E;
+        Tue, 19 Jul 2022 05:02:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2204C61924;
-        Tue, 19 Jul 2022 12:25:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01987C341C6;
-        Tue, 19 Jul 2022 12:25:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4591C616B7;
+        Tue, 19 Jul 2022 12:02:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 210AAC341C6;
+        Tue, 19 Jul 2022 12:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233524;
-        bh=Q/LC8x8u1BICLPDe82F7RyQjByOA98Fh4+OHqOj3ey0=;
+        s=korg; t=1658232144;
+        bh=5K400RCghF5zqReCilMHPXz2UVxcHIGAjqGAIynvirY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQ9+idosvDfudSTxY38YvKnH7q7cnvj+ZoaRCw4AteGpo95IkuUDA9VvRuFaTw9vv
-         A1Phirj/MsvlfQ47sikUI5U1efM9EFPfKy4zVZ+EcCGnyzHYpL2J1+NfxdGGlwgjZW
-         0ZxR3MxHkibompJSFZwHS4OGuWaWaC0r6W/66H9k=
+        b=MvQr/6vOK0TBXRxnwFmVNOS1BQKsppvoOCE5kMzeXYI4QEFRzb7+ENOkhAwJfqJQT
+         mRnmWwshmKCTiJXwe7r7yZieDe8Z7guIg7EKa9VnWvgW3i5JALauS8FuDKQS13k32J
+         iH9ebssdBm/t1v/gliYP8duEwnRu2IrhNsxcqAgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 124/231] net: ftgmac100: Hold reference returned by of_get_child_by_name()
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 06/71] xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
 Date:   Tue, 19 Jul 2022 13:53:29 +0200
-Message-Id: <20220719114724.883323292@linuxfoundation.org>
+Message-Id: <20220719114552.941821660@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 49b9f431ff0d845a36be0b3ede35ec324f2e5fee ]
+commit 94e8100678889ab428e68acadf042de723f094b9 upstream.
 
-In ftgmac100_probe(), we should hold the refernece returned by
-of_get_child_by_name() and use it to call of_node_put() for
-reference balance.
+xenvif_rx_next_skb() is expecting the rx queue not being empty, but
+in case the loop in xenvif_rx_action() is doing multiple iterations,
+the availability of another skb in the rx queue is not being checked.
 
-Fixes: 39bfab8844a0 ("net: ftgmac100: Add support for DT phy-handle property")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can lead to crashes:
+
+[40072.537261] BUG: unable to handle kernel NULL pointer dereference at 0000000000000080
+[40072.537407] IP: xenvif_rx_skb+0x23/0x590 [xen_netback]
+[40072.537534] PGD 0 P4D 0
+[40072.537644] Oops: 0000 [#1] SMP NOPTI
+[40072.537749] CPU: 0 PID: 12505 Comm: v1-c40247-q2-gu Not tainted 4.12.14-122.121-default #1 SLE12-SP5
+[40072.537867] Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 11/23/2021
+[40072.537999] task: ffff880433b38100 task.stack: ffffc90043d40000
+[40072.538112] RIP: e030:xenvif_rx_skb+0x23/0x590 [xen_netback]
+[40072.538217] RSP: e02b:ffffc90043d43de0 EFLAGS: 00010246
+[40072.538319] RAX: 0000000000000000 RBX: ffffc90043cd7cd0 RCX: 00000000000000f7
+[40072.538430] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffc90043d43df8
+[40072.538531] RBP: 000000000000003f R08: 000077ff80000000 R09: 0000000000000008
+[40072.538644] R10: 0000000000007ff0 R11: 00000000000008f6 R12: ffffc90043ce2708
+[40072.538745] R13: 0000000000000000 R14: ffffc90043d43ed0 R15: ffff88043ea748c0
+[40072.538861] FS: 0000000000000000(0000) GS:ffff880484600000(0000) knlGS:0000000000000000
+[40072.538988] CS: e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+[40072.539088] CR2: 0000000000000080 CR3: 0000000407ac8000 CR4: 0000000000040660
+[40072.539211] Call Trace:
+[40072.539319] xenvif_rx_action+0x71/0x90 [xen_netback]
+[40072.539429] xenvif_kthread_guest_rx+0x14a/0x29c [xen_netback]
+
+Fix that by stopping the loop in case the rx queue becomes empty.
+
+Cc: stable@vger.kernel.org
+Fixes: 98f6d57ced73 ("xen-netback: process guest rx packets in batches")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Link: https://lore.kernel.org/r/20220713135322.19616-1-jgross@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/net/xen-netback/rx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
-index 5231818943c6..c03663785a8d 100644
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1764,6 +1764,19 @@ static int ftgmac100_setup_clk(struct ftgmac100 *priv)
- 	return rc;
- }
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -482,6 +482,7 @@ void xenvif_rx_action(struct xenvif_queu
+ 	queue->rx_copy.completed = &completed_skbs;
  
-+static bool ftgmac100_has_child_node(struct device_node *np, const char *name)
-+{
-+	struct device_node *child_np = of_get_child_by_name(np, name);
-+	bool ret = false;
-+
-+	if (child_np) {
-+		ret = true;
-+		of_node_put(child_np);
-+	}
-+
-+	return ret;
-+}
-+
- static int ftgmac100_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
-@@ -1883,7 +1896,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
- 
- 		/* Display what we found */
- 		phy_attached_info(phy);
--	} else if (np && !of_get_child_by_name(np, "mdio")) {
-+	} else if (np && !ftgmac100_has_child_node(np, "mdio")) {
- 		/* Support legacy ASPEED devicetree descriptions that decribe a
- 		 * MAC with an embedded MDIO controller but have no "mdio"
- 		 * child node. Automatically scan the MDIO bus for available
--- 
-2.35.1
-
+ 	while (xenvif_rx_ring_slots_available(queue) &&
++	       !skb_queue_empty(&queue->rx_queue) &&
+ 	       work_done < RX_BATCH_SIZE) {
+ 		xenvif_rx_skb(queue);
+ 		work_done++;
 
 
