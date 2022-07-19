@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89FAB579A9D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB17579CD6
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239181AbiGSMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38038 "EHLO
+        id S241521AbiGSMni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238885AbiGSMNp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:13:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D2A167FE;
-        Tue, 19 Jul 2022 05:04:49 -0700 (PDT)
+        with ESMTP id S241398AbiGSMnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08FE880535;
+        Tue, 19 Jul 2022 05:16:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4642CB81B36;
-        Tue, 19 Jul 2022 12:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 944FFC341CA;
-        Tue, 19 Jul 2022 12:04:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F5CE61772;
+        Tue, 19 Jul 2022 12:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E16C341C6;
+        Tue, 19 Jul 2022 12:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232288;
-        bh=oL3oDNe2y17tLOJuvr/IYi8IQy7QdCfHnwou0u2wIic=;
+        s=korg; t=1658232987;
+        bh=DX8GnNXoZmg5Xm54obL/bmHPMlMYP2TaYkBJHhzBO74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4xlXyiYESKhyw+X5HM1kSL/J8gyuRSTTvz6zHdwzc9IkMpKNuJpxo9eboLAsWXDv
-         J8AAc5bvWp6ItqusIbpl7ZYfSFS9t5n8yBRD5XB69ISuf+PsXNpQHJYMZf0JU0ogFb
-         XwrwVbZJ1Ek68BGSOEJK/msFApDRUaN+nehpfVUg=
+        b=c4nwaMN4MsFQQnnX6PrAiJ2MUJnrDNLcZhluMJgiZbe/ATpDu5iKN1HtVUYYs04AO
+         W56Z8Yimhgvf86RcEmg80HMLVQiWecjlvEH1F2/ZASib/ool82bifG0fm6J1QOWgAi
+         Z5eb5S+rzKyGLH3GMp/exLjx6CXVpCSOFpdobzt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/71] signal handling: dont use BUG_ON() for debugging
+Subject: [PATCH 5.15 134/167] ASoC: rt711-sdca-sdw: fix calibrate mutex initialization
 Date:   Tue, 19 Jul 2022 13:54:26 +0200
-Message-Id: <20220719114558.547746636@linuxfoundation.org>
+Message-Id: <20220719114709.516587635@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
+[ Upstream commit ed0a7fb29c9fd4f53eeb37d1fe2354df7a038047 ]
 
-These are indeed "should not happen" situations, but it turns out recent
-changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
-exists, is pending more testing), and the BUG_ON() makes it
-unnecessarily hard to actually debug for no good reason.
+In codec driver bind/unbind test, the following warning is thrown:
 
-It's been that way for a long time, but let's make it clear: BUG_ON() is
-not good for debugging, and should never be used in situations where you
-could just say "this shouldn't happen, but we can continue".
+DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+...
+[  699.182495]  rt711_sdca_jack_init+0x1b/0x1d0 [snd_soc_rt711_sdca]
+[  699.182498]  rt711_sdca_set_jack_detect+0x3b/0x90 [snd_soc_rt711_sdca]
+[  699.182500]  snd_soc_component_set_jack+0x24/0x50 [snd_soc_core]
 
-Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
-continue running.  Instead of making the system basically unusuable
-because you crashed the machine while potentially holding some very core
-locks (eg this function is commonly called while holding 'tasklist_lock'
-for writing).
+A quick check in the code shows that the 'calibrate_mutex' used by
+this driver are not initialized at probe time. Moving the
+initialization to the probe removes the issue.
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://github.com/thesofproject/linux/issues/3644
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220606203752.144159-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/codecs/rt711-sdca-sdw.c |    3 +++
+ sound/soc/codecs/rt711-sdca.c     |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 3f61367fd168..1f4293a107b4 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1916,12 +1916,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
- 	bool autoreap = false;
- 	u64 utime, stime;
+--- a/sound/soc/codecs/rt711-sdca-sdw.c
++++ b/sound/soc/codecs/rt711-sdca-sdw.c
+@@ -373,6 +373,9 @@ static int rt711_sdca_sdw_remove(struct
+ 	if (rt711->first_hw_init)
+ 		pm_runtime_disable(&slave->dev);
  
--	BUG_ON(sig == -1);
-+	WARN_ON_ONCE(sig == -1);
++	mutex_destroy(&rt711->calibrate_mutex);
++	mutex_destroy(&rt711->disable_irq_lock);
++
+ 	return 0;
+ }
  
-- 	/* do_notify_parent_cldstop should have been called instead.  */
-- 	BUG_ON(task_is_stopped_or_traced(tsk));
-+	/* do_notify_parent_cldstop should have been called instead.  */
-+	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
+--- a/sound/soc/codecs/rt711-sdca.c
++++ b/sound/soc/codecs/rt711-sdca.c
+@@ -1414,6 +1414,7 @@ int rt711_sdca_init(struct device *dev,
+ 	rt711->regmap = regmap;
+ 	rt711->mbq_regmap = mbq_regmap;
  
--	BUG_ON(!tsk->ptrace &&
-+	WARN_ON_ONCE(!tsk->ptrace &&
- 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
++	mutex_init(&rt711->calibrate_mutex);
+ 	mutex_init(&rt711->disable_irq_lock);
  
- 	/* Wake up all pidfd waiters */
--- 
-2.35.1
-
+ 	/*
+@@ -1552,7 +1553,6 @@ int rt711_sdca_io_init(struct device *de
+ 			rt711_sdca_jack_detect_handler);
+ 		INIT_DELAYED_WORK(&rt711->jack_btn_check_work,
+ 			rt711_sdca_btn_check_handler);
+-		mutex_init(&rt711->calibrate_mutex);
+ 	}
+ 
+ 	/* calibration */
 
 
