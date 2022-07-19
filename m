@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C75975799A9
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29985579B24
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238087AbiGSMFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
+        id S239642AbiGSMZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237981AbiGSMEA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:00 -0400
+        with ESMTP id S240207AbiGSMYp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B72C4BD2C;
-        Tue, 19 Jul 2022 04:59:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F2924A81A;
+        Tue, 19 Jul 2022 05:09:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0264E6163C;
-        Tue, 19 Jul 2022 11:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D55B8C341C6;
-        Tue, 19 Jul 2022 11:59:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08CEC6177F;
+        Tue, 19 Jul 2022 12:09:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7192C341D3;
+        Tue, 19 Jul 2022 12:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231984;
-        bh=5m/azPAvToI2gCQubBnf5EiYpONtrM6AIun8UYrg7eA=;
+        s=korg; t=1658232557;
+        bh=vjxibplRmYoM5AjjTBzU2tI1aoEEjXJTn1NajLk+/d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEQugnUtTaf5vxaMhm+RZBWt0lpdWBUiIvbp2uaPsrNzG7IFDOT7yR/QhnQfg5Arm
-         nTlxebqQ4wNcxq0rvWYQ716RE3JKIbdecn5hYQjz6UsZuvaAtc0sTsCsSDHhsSqSMq
-         JWyZDORN+FN5xAtHTHTeBRRBvpmXpenbrqWNEyV8=
+        b=J2sNmNEL6miIgnVyy1aMirhGIXsiWpMMpuY+2CSDQzB4eTOu4b5a3YP2TQT/fdVAa
+         TaMBpDXxBEoytt9ooNVScNnUCxxVH7jWQy8ZZh6kf0XMVR9IDjfdRF36DVOB6Dt+nY
+         Zm2WkaOK3LchVsD4/KgykkcFx5MgT0EQGxo85sbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Coiby Xu <coxu@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/48] ipv4: Fix data-races around sysctl_ip_dynaddr.
+Subject: [PATCH 5.10 065/112] ima: force signature verification when CONFIG_KEXEC_SIG is configured
 Date:   Tue, 19 Jul 2022 13:53:58 +0200
-Message-Id: <20220719114521.742897353@linuxfoundation.org>
+Message-Id: <20220719114632.773018707@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Coiby Xu <coxu@redhat.com>
 
-[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
+[ Upstream commit af16df54b89dee72df253abc5e7b5e8a6d16c11c ]
 
-While reading sysctl_ip_dynaddr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Currently, an unsigned kernel could be kexec'ed when IMA arch specific
+policy is configured unless lockdown is enabled. Enforce kernel
+signature verification check in the kexec_file_load syscall when IMA
+arch specific policy is configured.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 99d5cadfde2b ("kexec_file: split KEXEC_VERIFY_SIG into KEXEC_SIG and KEXEC_SIG_FORCE")
+Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 2 +-
- net/ipv4/af_inet.c                     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/ima_arch.c |  2 ++
+ include/linux/kexec.h      |  6 ++++++
+ kernel/kexec_file.c        | 11 ++++++++++-
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index ae56957f51e4..e315e6052b9f 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -887,7 +887,7 @@ ip_nonlocal_bind - BOOLEAN
- 	which can be quite useful - but may break some applications.
- 	Default: 0
- 
--ip_dynaddr - BOOLEAN
-+ip_dynaddr - INTEGER
- 	If set non-zero, enables support for dynamic addresses.
- 	If set to a non-zero value larger than 1, a kernel log
- 	message will be printed when dynamic address rewriting
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index d8c22246629a..dadd42a07c07 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1209,7 +1209,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
- 	if (new_saddr == old_saddr)
- 		return 0;
- 
--	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
- 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
- 			__func__, &old_saddr, &new_saddr);
+diff --git a/arch/x86/kernel/ima_arch.c b/arch/x86/kernel/ima_arch.c
+index 7dfb1e808928..bd218470d145 100644
+--- a/arch/x86/kernel/ima_arch.c
++++ b/arch/x86/kernel/ima_arch.c
+@@ -88,6 +88,8 @@ const char * const *arch_get_ima_policy(void)
+ 	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) && arch_ima_get_secureboot()) {
+ 		if (IS_ENABLED(CONFIG_MODULE_SIG))
+ 			set_module_sig_enforced();
++		if (IS_ENABLED(CONFIG_KEXEC_SIG))
++			set_kexec_sig_enforced();
+ 		return sb_arch_rules;
  	}
-@@ -1264,7 +1264,7 @@ int inet_sk_rebuild_header(struct sock *sk)
- 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
- 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
- 		 */
--		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
-+		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
- 		    sk->sk_state != TCP_SYN_SENT ||
- 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
- 		    (err = inet_sk_reselect_saddr(sk)) != 0)
+ 	return NULL;
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 037192c3a46f..a1f12e959bba 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -442,6 +442,12 @@ static inline int kexec_crash_loaded(void) { return 0; }
+ #define kexec_in_progress false
+ #endif /* CONFIG_KEXEC_CORE */
+ 
++#ifdef CONFIG_KEXEC_SIG
++void set_kexec_sig_enforced(void);
++#else
++static inline void set_kexec_sig_enforced(void) {}
++#endif
++
+ #endif /* !defined(__ASSEBMLY__) */
+ 
+ #endif /* LINUX_KEXEC_H */
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 2e0f0b3fb9ab..fff11916aba3 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -29,6 +29,15 @@
+ #include <linux/vmalloc.h>
+ #include "kexec_internal.h"
+ 
++#ifdef CONFIG_KEXEC_SIG
++static bool sig_enforce = IS_ENABLED(CONFIG_KEXEC_SIG_FORCE);
++
++void set_kexec_sig_enforced(void)
++{
++	sig_enforce = true;
++}
++#endif
++
+ static int kexec_calculate_store_digests(struct kimage *image);
+ 
+ /*
+@@ -159,7 +168,7 @@ kimage_validate_signature(struct kimage *image)
+ 					   image->kernel_buf_len);
+ 	if (ret) {
+ 
+-		if (IS_ENABLED(CONFIG_KEXEC_SIG_FORCE)) {
++		if (sig_enforce) {
+ 			pr_notice("Enforced kernel signature verification failed (%d).\n", ret);
+ 			return ret;
+ 		}
 -- 
 2.35.1
 
