@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60527579F46
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29937579F4E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243369AbiGSNMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:12:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
+        id S243244AbiGSNNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243368AbiGSNMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEFE367589;
-        Tue, 19 Jul 2022 05:29:34 -0700 (PDT)
+        with ESMTP id S237103AbiGSNMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8192D67C92;
+        Tue, 19 Jul 2022 05:29:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C5C9B81B10;
-        Tue, 19 Jul 2022 12:29:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8999C341C6;
-        Tue, 19 Jul 2022 12:29:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 00ABFCE1BE3;
+        Tue, 19 Jul 2022 12:29:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAA90C341C6;
+        Tue, 19 Jul 2022 12:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233772;
-        bh=r+Pn/SmVZvoZW00fOdHXa1Z9ZhleyKI8tYjwvnl8F/w=;
+        s=korg; t=1658233775;
+        bh=TrRXWrkQMD56R74PiDCIB/2Sib6HRyWtjxg0iqFt938=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZeJwJrnvcax7LkwpoKF4VpoFIUlDGLeOGuxGqJg+O0LH76/Dn6hP61K2PtA8/pD1N
-         7iWAWE+nmfoIEkc6k8txheQS0kq+9AMYbeqNjy4wY2ShFGjN3ZCBy9KZYa7eVFB1XS
-         tOAeNzxSYmGzdmlXPtO/x2asledjuvp1TojU366s=
+        b=YPNcY29esKTqD0nSSQ2UMkQZxajpWW7kBq/v1bo9xVe7PNATY95o27y2iJ8aWsJv2
+         kKIcqa+OgoHW3im2mqiDBNcga+fj4tY29ffBwMO+gEXguvy0dT6bM+8ML3nNLZ++Mk
+         d26kCntUk2uH4B6QF6YEsvOwS8jVFe8HpHsVN0PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Egor Vorontsov <sdoregor@sdore.me>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 215/231] ALSA: usb-audio: Add quirk for Fiero SC-01 (fw v1.0.0)
-Date:   Tue, 19 Jul 2022 13:55:00 +0200
-Message-Id: <20220719114731.907645974@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Egolf <cegolf@ugholf.net>,
+        Keith Busch <kbusch@kernel.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 216/231] nvme-pci: phison e16 has bogus namespace ids
+Date:   Tue, 19 Jul 2022 13:55:01 +0200
+Message-Id: <20220719114731.977198713@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -52,180 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Egor Vorontsov <sdoregor@sdore.me>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 2307a0e1ca0b5c1337b37ac6302f96e017ebac3c ]
+[ Upstream commit 73029c9b23cf1213e5f54c2b59efce08665199e7 ]
 
-The patch applies the same quirks used for SC-01 at firmware v1.1.0 to
-the ones running v1.0.0, with respect to hard-coded sample rates.
+Add the quirk.
 
-I got two more units and successfully tested the patch series with both
-firmwares.
-
-The support is now complete (not accounting ASIO).
-
-Signed-off-by: Egor Vorontsov <sdoregor@sdore.me>
-Link: https://lore.kernel.org/r/20220627100041.2861494-2-sdoregor@sdore.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216049
+Reported-by: Chris Egolf <cegolf@ugholf.net>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks-table.h |  132 +++++++++++++++++++++++++++++++++++++++++++++++
- sound/usb/quirks.c       |    4 +
- 2 files changed, 136 insertions(+)
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -4169,6 +4169,138 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- },
- {
- 	/*
-+	 * Fiero SC-01 (firmware v1.0.0 @ 48 kHz)
-+	 */
-+	USB_DEVICE(0x2b53, 0x0023),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "Fiero",
-+		.product_name = "SC-01",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_STANDARD_INTERFACE
-+			},
-+			/* Playback */
-+			{
-+				.ifnum = 1,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S32_LE,
-+					.channels = 2,
-+					.fmt_bits = 24,
-+					.iface = 1,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						   USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 },
-+					.clock = 0x29
-+				}
-+			},
-+			/* Capture */
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S32_LE,
-+					.channels = 2,
-+					.fmt_bits = 24,
-+					.iface = 2,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						   USB_ENDPOINT_SYNC_ASYNC |
-+						   USB_ENDPOINT_USAGE_IMPLICIT_FB,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 },
-+					.clock = 0x29
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
-+{
-+	/*
-+	 * Fiero SC-01 (firmware v1.0.0 @ 96 kHz)
-+	 */
-+	USB_DEVICE(0x2b53, 0x0024),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "Fiero",
-+		.product_name = "SC-01",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_STANDARD_INTERFACE
-+			},
-+			/* Playback */
-+			{
-+				.ifnum = 1,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S32_LE,
-+					.channels = 2,
-+					.fmt_bits = 24,
-+					.iface = 1,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						   USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_96000,
-+					.rate_min = 96000,
-+					.rate_max = 96000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 96000 },
-+					.clock = 0x29
-+				}
-+			},
-+			/* Capture */
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S32_LE,
-+					.channels = 2,
-+					.fmt_bits = 24,
-+					.iface = 2,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						   USB_ENDPOINT_SYNC_ASYNC |
-+						   USB_ENDPOINT_USAGE_IMPLICIT_FB,
-+					.rates = SNDRV_PCM_RATE_96000,
-+					.rate_min = 96000,
-+					.rate_max = 96000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 96000 },
-+					.clock = 0x29
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
-+{
-+	/*
- 	 * Fiero SC-01 (firmware v1.1.0)
- 	 */
- 	USB_DEVICE(0x2b53, 0x0031),
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1915,6 +1915,10 @@ static const struct usb_audio_quirk_flag
- 		   QUIRK_FLAG_ALIGN_TRANSFER),
- 	DEVICE_FLG(0x1224, 0x2a25, /* Jieli Technology USB PHY 2.0 */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x2b53, 0x0023, /* Fiero SC-01 (firmware v1.0.0 @ 48 kHz) */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x2b53, 0x0024, /* Fiero SC-01 (firmware v1.0.0 @ 96 kHz) */
-+		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x2b53, 0x0031, /* Fiero SC-01 (firmware v1.1.0) */
- 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index fe829377c7c2..ab575fdd8015 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3432,7 +3432,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_DISABLE_WRITE_ZEROES|
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x1987, 0x5016),	/* Phison E16 */
+-		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
++		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN |
++				NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1b4b, 0x1092),	/* Lexar 256 GB SSD */
+ 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST |
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+-- 
+2.35.1
+
 
 
