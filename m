@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E28A75799A1
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E67579EEA
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238055AbiGSMFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39542 "EHLO
+        id S242973AbiGSNH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238318AbiGSME2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6CC2237C5;
-        Tue, 19 Jul 2022 05:00:18 -0700 (PDT)
+        with ESMTP id S243067AbiGSNHV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:07:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114C3BA247;
+        Tue, 19 Jul 2022 05:27:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8F2BB81A8F;
-        Tue, 19 Jul 2022 12:00:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45CAFC341C6;
-        Tue, 19 Jul 2022 12:00:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 806986195B;
+        Tue, 19 Jul 2022 12:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CEFC341C6;
+        Tue, 19 Jul 2022 12:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232015;
-        bh=jGPwMUwbfOZ7GpoOyhWdg7Ls+gHDhmAm/kZrbrmQ56A=;
+        s=korg; t=1658233621;
+        bh=99oYuSj1M8WEb4HdX2609nGaiPr3UQnE0ldIVJt3eB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6jDmmKYZ3CgAZKIpP1rJrmhFCY9phToWt4lmEQX4PK+EqthlPHZZC9DDnfPecn4Z
-         phrLe1apm6DkRM78UAZLDKDfV2p/waL5kSmKk1QRQgjN3tQbpWToNEIatHHwNjAMXL
-         Xo/J4jFFyG8EfrtmNP1AfSrHoETF/PCbgp16oQ7s=
+        b=tD/B/HsXfv6Bq9io5BgWp0LujqRuFrWCLsQBdW+SulnnLyT8vYfMkWMX8CUWpz+fq
+         tVEjzSbiCy1vYSpy9cpFIKoqmkcxVL2IWHOLJ8j29bhmmkoQ4rNy5O05nPUO6mo5I3
+         U1zKHmp8YYfxQIlopnWYmIZ+5qGqwoRYY9h/xKs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Fabio Estevam <festevam@denx.de>,
-        Mark Brown <broonie@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/48] ASoC: sgtl5000: Fix noise on shutdown/remove
+Subject: [PATCH 5.18 145/231] x86/kvm: Fix SETcc emulation for return thunks
 Date:   Tue, 19 Jul 2022 13:53:50 +0200
-Message-Id: <20220719114521.041462345@linuxfoundation.org>
+Message-Id: <20220719114726.554097958@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 040e3360af3736348112d29425bf5d0be5b93115 ]
+[ Upstream commit af2e140f34208a5dfb6b7a8ad2d56bda88f0524d ]
 
-Put the SGTL5000 in a silent/safe state on shutdown/remove, this is
-required since the SGTL5000 produces a constant noise on its output
-after it is configured and its clock is removed. Without this change
-this is happening every time the module is unbound/removed or from
-reboot till the clock is enabled again.
+Prepare the SETcc fastop stuff for when RET can be larger still.
 
-The issue was experienced on both a Toradex Colibri/Apalis iMX6, but can
-be easily reproduced everywhere just playing something on the codec and
-after that removing/unbinding the driver.
+The tricky bit here is that the expressions should not only be
+constant C expressions, but also absolute GAS expressions. This means
+no ?: and 'true' is ~0.
 
-Fixes: 9b34e6cc3bc2 ("ASoC: Add Freescale SGTL5000 codec support")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Fabio Estevam <festevam@denx.de>
-Link: https://lore.kernel.org/r/20220624101301.441314-1-francesco.dolcini@toradex.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Also ensure em_setcc() has the same alignment as the actual FOP_SETCC()
+ops, this ensures there cannot be an alignment hole between em_setcc()
+and the first op.
+
+Additionally, add a .skip directive to the FOP_SETCC() macro to fill
+any remaining space with INT3 traps; however the primary purpose of
+this directive is to generate AS warnings when the remaining space
+goes negative. Which is a very good indication the alignment magic
+went side-ways.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 9 +++++++++
- sound/soc/codecs/sgtl5000.h | 1 +
- 2 files changed, 10 insertions(+)
+ arch/x86/kvm/emulate.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index 17255e9683f5..13e752f8b3f7 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1769,6 +1769,9 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
- {
- 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 89b11e7dca8a..b01437015f99 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -325,13 +325,15 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ #define FOP_RET(name) \
+ 	__FOP_RET(#name)
  
-+	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
-+	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
+-#define FOP_START(op) \
++#define __FOP_START(op, align) \
+ 	extern void em_##op(struct fastop *fake); \
+ 	asm(".pushsection .text, \"ax\" \n\t" \
+ 	    ".global em_" #op " \n\t" \
+-	    ".align " __stringify(FASTOP_SIZE) " \n\t" \
++	    ".align " __stringify(align) " \n\t" \
+ 	    "em_" #op ":\n\t"
+ 
++#define FOP_START(op) __FOP_START(op, FASTOP_SIZE)
 +
- 	clk_disable_unprepare(sgtl5000->mclk);
- 	regulator_bulk_disable(sgtl5000->num_supplies, sgtl5000->supplies);
- 	regulator_bulk_free(sgtl5000->num_supplies, sgtl5000->supplies);
-@@ -1776,6 +1779,11 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
- 	return 0;
- }
+ #define FOP_END \
+ 	    ".popsection")
  
-+static void sgtl5000_i2c_shutdown(struct i2c_client *client)
-+{
-+	sgtl5000_i2c_remove(client);
-+}
-+
- static const struct i2c_device_id sgtl5000_id[] = {
- 	{"sgtl5000", 0},
- 	{},
-@@ -1796,6 +1804,7 @@ static struct i2c_driver sgtl5000_i2c_driver = {
- 		   },
- 	.probe = sgtl5000_i2c_probe,
- 	.remove = sgtl5000_i2c_remove,
-+	.shutdown = sgtl5000_i2c_shutdown,
- 	.id_table = sgtl5000_id,
- };
- 
-diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
-index 066517e352a7..0ed4bad92cd1 100644
---- a/sound/soc/codecs/sgtl5000.h
-+++ b/sound/soc/codecs/sgtl5000.h
-@@ -80,6 +80,7 @@
+@@ -435,16 +437,15 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
  /*
-  * SGTL5000_CHIP_DIG_POWER
+  * Depending on .config the SETcc functions look like:
+  *
+- * ENDBR       [4 bytes; CONFIG_X86_KERNEL_IBT]
+- * SETcc %al   [3 bytes]
+- * RET         [1 byte]
+- * INT3        [1 byte; CONFIG_SLS]
+- *
+- * Which gives possible sizes 4, 5, 8 or 9.  When rounded up to the
+- * next power-of-two alignment they become 4, 8 or 16 resp.
++ * ENDBR			[4 bytes; CONFIG_X86_KERNEL_IBT]
++ * SETcc %al			[3 bytes]
++ * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETPOLINE]
++ * INT3				[1 byte; CONFIG_SLS]
   */
-+#define SGTL5000_DIG_POWER_DEFAULT		0x0000
- #define SGTL5000_ADC_EN				0x0040
- #define SGTL5000_DAC_EN				0x0020
- #define SGTL5000_DAP_POWERUP			0x0010
+-#define SETCC_LENGTH	(ENDBR_INSN_SIZE + 4 + IS_ENABLED(CONFIG_SLS))
+-#define SETCC_ALIGN	(4 << IS_ENABLED(CONFIG_SLS) << HAS_KERNEL_IBT)
++#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETPOLINE)) + \
++			 IS_ENABLED(CONFIG_SLS))
++#define SETCC_LENGTH	(ENDBR_INSN_SIZE + 3 + RET_LENGTH)
++#define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
+ static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+ 
+ #define FOP_SETCC(op) \
+@@ -453,9 +454,10 @@ static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+ 	#op ": \n\t" \
+ 	ASM_ENDBR \
+ 	#op " %al \n\t" \
+-	__FOP_RET(#op)
++	__FOP_RET(#op) \
++	".skip " __stringify(SETCC_ALIGN) " - (.-" #op "), 0xcc \n\t"
+ 
+-FOP_START(setcc)
++__FOP_START(setcc, SETCC_ALIGN)
+ FOP_SETCC(seto)
+ FOP_SETCC(setno)
+ FOP_SETCC(setc)
 -- 
 2.35.1
 
