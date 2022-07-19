@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D58A2579C2E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E6E579E32
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240894AbiGSMhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:37:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        id S242572AbiGSM6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240768AbiGSMgX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F9626104;
-        Tue, 19 Jul 2022 05:14:13 -0700 (PDT)
+        with ESMTP id S242330AbiGSM6Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F665F106;
+        Tue, 19 Jul 2022 05:23:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACFC4B81B21;
-        Tue, 19 Jul 2022 12:13:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE48C341C6;
-        Tue, 19 Jul 2022 12:13:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D0E6618F1;
+        Tue, 19 Jul 2022 12:23:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA4BFC341C6;
+        Tue, 19 Jul 2022 12:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232811;
-        bh=uinYfMvxMPlZBnKki7jUgXVpXy55MFvui2maCfMC+nk=;
+        s=korg; t=1658233411;
+        bh=JFj+LVCeBm8RwxCHRYQqnzhufZo45CcRt8VNjkTJA6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6Bu21ZpnK/ubCGV46g2V9LsXBeoURjzyg+cUD0a8CMMKcxS1xfXivjFqTUovaCVy
-         6bjTuMT6Z9aavGN3HQ4BE+ZJNYSBmPzQ8xX+g0rl40GgsG7bQdw2kODUhEVHDAo5kz
-         S4lEO2jiW/168EFPjO0ojAhmhF4DWKyk11GP73pw=
+        b=JA3YbHojfMvEDxXhiuTRllr+bq7xoOrBzP6XHBBmhrdhzD+FSu/ozwl5qUCqhY9DA
+         H1OEjaTknaywBAzWn/CIvhQiM8LSj/wmMhG8tqBAqxi1foSJfdrtjj1pJTRO8yUCS9
+         WKm6bXWG2zZT2p/wF03nmF+TVA/rVL2wXQn6Ja6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Zhang <william.zhang@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 066/167] arm64: dts: broadcom: bcm4908: Fix cpu node for smp boot
+Subject: [PATCH 5.18 113/231] icmp: Fix data-races around sysctl_icmp_echo_enable_probe.
 Date:   Tue, 19 Jul 2022 13:53:18 +0200
-Message-Id: <20220719114702.911394756@linuxfoundation.org>
+Message-Id: <20220719114724.048794263@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Zhang <william.zhang@broadcom.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 8bd582ae9a71d7f14c4e0c735b2eacaf7516d626 ]
+[ Upstream commit 4a2f7083cc6cb72dade9a63699ca352fad26d1cd ]
 
-Add spin-table enable-method and cpu-release-addr properties for
-cpu0 node. This is required by all ARMv8 SoC. Otherwise some
-bootloader like u-boot can not update cpu-release-addr and linux
-fails to start up secondary cpus.
+While reading sysctl_icmp_echo_enable_probe, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: 2961f69f151c ("arm64: dts: broadcom: add BCM4908 and Asus GT-AC5300 early DTS files")
-Signed-off-by: William Zhang <william.zhang@broadcom.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d329ea5bd884 ("icmp: add response to RFC 8335 PROBE messages")
+Fixes: 1fd07f33c3ea ("ipv6: ICMPV6: add response to ICMPV6 RFC 8335 PROBE messages")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/icmp.c | 2 +-
+ net/ipv6/icmp.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-index e8907d3fe2d1..e510a6961cf9 100644
---- a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-@@ -29,6 +29,8 @@ cpu0: cpu@0 {
- 			device_type = "cpu";
- 			compatible = "brcm,brahma-b53";
- 			reg = <0x0>;
-+			enable-method = "spin-table";
-+			cpu-release-addr = <0x0 0xfff8>;
- 			next-level-cache = <&l2>;
- 		};
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 92eaa96a9ff1..7edc8a3b1646 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -1025,7 +1025,7 @@ bool icmp_build_probe(struct sk_buff *skb, struct icmphdr *icmphdr)
+ 	u16 ident_len;
+ 	u8 status;
+ 
+-	if (!net->ipv4.sysctl_icmp_echo_enable_probe)
++	if (!READ_ONCE(net->ipv4.sysctl_icmp_echo_enable_probe))
+ 		return false;
+ 
+ 	/* We currently only support probing interfaces on the proxy node
+diff --git a/net/ipv6/icmp.c b/net/ipv6/icmp.c
+index e6b978ea0e87..26554aa6fc1b 100644
+--- a/net/ipv6/icmp.c
++++ b/net/ipv6/icmp.c
+@@ -919,7 +919,7 @@ static int icmpv6_rcv(struct sk_buff *skb)
+ 		break;
+ 	case ICMPV6_EXT_ECHO_REQUEST:
+ 		if (!net->ipv6.sysctl.icmpv6_echo_ignore_all &&
+-		    net->ipv4.sysctl_icmp_echo_enable_probe)
++		    READ_ONCE(net->ipv4.sysctl_icmp_echo_enable_probe))
+ 			icmpv6_echo_reply(skb);
+ 		break;
  
 -- 
 2.35.1
