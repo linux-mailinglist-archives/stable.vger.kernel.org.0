@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED6C579AA8
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E78D7579AB6
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238619AbiGSMRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:17:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39418 "EHLO
+        id S238959AbiGSMRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239089AbiGSMP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:26 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9DD854C88;
-        Tue, 19 Jul 2022 05:06:08 -0700 (PDT)
+        with ESMTP id S239092AbiGSMQL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:16:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C9B558E3;
+        Tue, 19 Jul 2022 05:06:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 72449CE1BE6;
-        Tue, 19 Jul 2022 12:06:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B98C341C6;
-        Tue, 19 Jul 2022 12:05:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 807F1616FD;
+        Tue, 19 Jul 2022 12:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC0DC341C6;
+        Tue, 19 Jul 2022 12:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232359;
-        bh=Ei5OpdfzeLsXv6I8F7TTEkawWi+25j66vjp+az5qjh8=;
+        s=korg; t=1658232362;
+        bh=Y1ibfx5gZ3x+9GRpzoeqWy0wy1zYbYYTTXhhhPIAmSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzNq2/IuPPwVudwJ/DN8hFRajKIwgP/OCmW1W8JfQsPwxjveK/fhPoD+dEOgWEwkD
-         vVRSVEc9+d4gqpFgHL0CMVHHpJoP8m2L1FFTvhl16Vs7Yb2mhQIB1SNidRnu1P1N6I
-         6EhIzLM2g9mlIZJrlivfoAN3PUtmqXZuCYq6SfWg=
+        b=TN4ARJhzkJ4OyeI7NfQolbsx8qO+WhmGvHpb2RJvuquNMVFVXMK9EmCezaTsqS5Ac
+         ZeybyNxlIwy7PRsL55eZhs1/6JfeRRhCibmxBJ7KKACmu75wfvf2BOZZNKVGxIrYnu
+         bni1Utm6h2VpPnvxSBQLf0KhBxQ28oVX1+VHTtVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/112] net/mlx5e: Fix capability check for updating vnic env counters
-Date:   Tue, 19 Jul 2022 13:53:24 +0200
-Message-Id: <20220719114629.120968574@linuxfoundation.org>
+Subject: [PATCH 5.10 032/112] drm/i915: fix a possible refcount leak in intel_dp_add_mst_connector()
+Date:   Tue, 19 Jul 2022 13:53:25 +0200
+Message-Id: <20220719114629.240121234@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
 References: <20220719114626.156073229@linuxfoundation.org>
@@ -54,40 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <gal@nvidia.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 452133dd580811f184e76b1402983182ee425298 ]
+[ Upstream commit 85144df9ff4652816448369de76897c57cbb1b93 ]
 
-The existing capability check for vnic env counters only checks for
-receive steering discards, although we need the counters update for the
-exposed internal queue oob counter as well. This could result in the
-latter counter not being updated correctly when the receive steering
-discards counter is not supported.
-Fix that by checking whether any counter is supported instead of only
-the steering counter capability.
+If drm_connector_init fails, intel_connector_free will be called to take
+care of proper free. So it is necessary to drop the refcount of port
+before intel_connector_free.
 
-Fixes: 0cfafd4b4ddf ("net/mlx5e: Add device out of buffer counter")
-Signed-off-by: Gal Pressman <gal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 091a4f91942a ("drm/i915: Handle drm-layer errors in intel_dp_add_mst_connector")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220624130406.17996-1-jose.souza@intel.com
+Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
+(cherry picked from commit cea9ed611e85d36a05db52b6457bf584b7d969e2)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_stats.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_dp_mst.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-index 78f6a6f0a7e0..ff4f10d0f090 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-@@ -536,7 +536,7 @@ static MLX5E_DECLARE_STATS_GRP_OP_UPDATE_STATS(vnic_env)
- 	u32 in[MLX5_ST_SZ_DW(query_vnic_env_in)] = {};
- 	struct mlx5_core_dev *mdev = priv->mdev;
- 
--	if (!MLX5_CAP_GEN(priv->mdev, nic_receive_steering_discard))
-+	if (!mlx5e_stats_grp_vnic_env_num_stats(priv))
- 		return;
- 
- 	MLX5_SET(query_vnic_env_in, in, opcode, MLX5_CMD_OP_QUERY_VNIC_ENV);
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+index ecaa538b2d35..ef7878193491 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+@@ -790,6 +790,7 @@ static struct drm_connector *intel_dp_add_mst_connector(struct drm_dp_mst_topolo
+ 	ret = drm_connector_init(dev, connector, &intel_dp_mst_connector_funcs,
+ 				 DRM_MODE_CONNECTOR_DisplayPort);
+ 	if (ret) {
++		drm_dp_mst_put_port_malloc(port);
+ 		intel_connector_free(intel_connector);
+ 		return NULL;
+ 	}
 -- 
 2.35.1
 
