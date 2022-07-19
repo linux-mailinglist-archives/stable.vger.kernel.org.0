@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE7F579EC2
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D30BA579A39
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242858AbiGSNFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:05:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39322 "EHLO
+        id S238676AbiGSMMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:12:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242903AbiGSNDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:03:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A279CE04;
-        Tue, 19 Jul 2022 05:26:20 -0700 (PDT)
+        with ESMTP id S238675AbiGSMK4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:10:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F041052887;
+        Tue, 19 Jul 2022 05:03:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DC5AB81B08;
-        Tue, 19 Jul 2022 12:26:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71B0CC341C6;
-        Tue, 19 Jul 2022 12:26:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38DE360F10;
+        Tue, 19 Jul 2022 12:03:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DDA7C341C6;
+        Tue, 19 Jul 2022 12:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233572;
-        bh=aArpVS4VNheVFDiOhTep3qwKK7+LFJJviBSs/dkrB5s=;
+        s=korg; t=1658232207;
+        bh=kPe8xopwvnNA8m2s6tHtebLGrFISyObFHT9vk0LshX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrYtGqCH0WIRI5jC8zIbhI1PsP/iDbEDiGBj4MeotyNGzhQDHPdWLVdSGq1KmYsPg
-         wYeOOsTFNxNg7sqtkjTyMxxbjcEboEjF8+YApLf0HGHcgNOAIuCudnLEd60ufeBTIs
-         DMNW4/nnRhsQZvbtYxLIssw6Rb35z2IJjDlN2CKE=
+        b=HY2VccC95sa46trtHmx7XjESvyiiRNjAZZJ62aA1Ey3+qdxKv2/5orUhaazF361Ks
+         Tv6MTVvaYvVPhqUeKPG7F1x1JXjGRoyuEZo4Kq+DswcVbhY41PqFN9ukrwNJ6t/aGh
+         Tji4T8FF3wae9EKsigkDFwQ5Tp70aH9C3NC5gLQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 167/231] virtio_mmio: Restore guest page size on resume
+Subject: [PATCH 5.4 49/71] platform/x86: hp-wmi: Ignore Sanitization Mode event
 Date:   Tue, 19 Jul 2022 13:54:12 +0200
-Message-Id: <20220719114728.202958489@linuxfoundation.org>
+Message-Id: <20220719114557.081143562@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit e0c2ce8217955537dd5434baeba061f209797119 ]
+[ Upstream commit 9ab762a84b8094540c18a170e5ddd6488632c456 ]
 
-Virtio devices might lose their state when the VMM is restarted
-after a suspend to disk (hibernation) cycle. This means that the
-guest page size register must be restored for the virtio_mmio legacy
-interface, since otherwise the virtio queues are not functional.
+After system resume the hp-wmi driver may complain:
+[ 702.620180] hp_wmi: Unknown event_id - 23 - 0x0
 
-This is particularly problematic for QEMU that currently still defaults
-to using the legacy interface for virtio_mmio. Write the guest page
-size register again in virtio_mmio_restore() to make legacy virtio_mmio
-devices work correctly after hibernation.
+According to HP it means 'Sanitization Mode' and it's harmless to just
+ignore the event.
 
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Message-Id: <20220621110621.3638025-3-stephan.gerhold@kernkonzept.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jorge Lopez <jorge.lopez2@hp.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20220628123726.250062-1-kai.heng.feng@canonical.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 3 +++
+ drivers/platform/x86/hp-wmi.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 7522832529dd..fe696aafaed8 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -556,6 +556,9 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 63a530a3d9fe..c3fdb0ecad96 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -62,6 +62,7 @@ enum hp_wmi_event_ids {
+ 	HPWMI_BACKLIT_KB_BRIGHTNESS	= 0x0D,
+ 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
+ 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
++	HPWMI_SANITIZATION_MODE		= 0x17,
+ };
  
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
+ struct bios_args {
+@@ -629,6 +630,8 @@ static void hp_wmi_notify(u32 value, void *context)
+ 		break;
+ 	case HPWMI_BATTERY_CHARGE_PERIOD:
+ 		break;
++	case HPWMI_SANITIZATION_MODE:
++		break;
+ 	default:
+ 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
+ 		break;
 -- 
 2.35.1
 
