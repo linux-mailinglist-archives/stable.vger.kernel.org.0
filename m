@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A571579B47
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4594C579F0A
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239895AbiGSM0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:26:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40570 "EHLO
+        id S243071AbiGSNKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239734AbiGSMZb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:25:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FEE509F4;
-        Tue, 19 Jul 2022 05:09:56 -0700 (PDT)
+        with ESMTP id S243284AbiGSNJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:09:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C48EC62A73;
+        Tue, 19 Jul 2022 05:28:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A6D615F4;
-        Tue, 19 Jul 2022 12:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3A3C341C6;
-        Tue, 19 Jul 2022 12:09:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A4F6B81B10;
+        Tue, 19 Jul 2022 12:27:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E602BC341C6;
+        Tue, 19 Jul 2022 12:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232593;
-        bh=E8+69TaZ2IM2aWfcdtetfdC5ymtkGiNUfdOUYrUlMMI=;
+        s=korg; t=1658233668;
+        bh=uwPXRMAA96VqSh+TZh2f80g4MkVZh92p9R/dw4aDIT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1z6n6kMAePRA8N987EF1PVxgOF0IJqvD+mBjjBZjvI2lEGATkCfAnS7Bbco5Em3Fs
-         VElIZv8bQBHH7zyCcmt+bcZTSOBubOltX5UB+NQQC++q6+57WzBzli8m0srwFEwGPq
-         Cb+KBz1xciJPTqSI2UMUt3X/oulOOqaHy2mR9o0I=
+        b=DvfVPqd3W/a3VGH+PbAZ5g/V39Y78nkf20+OSciZAzy1Ermn4wmvO2X5D1N9Yxe6g
+         1hoWC3/Fp8UPit5CJlO1VOUHNRQWLVDQKw9KSbtrEHojRe774hl0Yhl/BsFJYrGIi0
+         ovEbAW03kTb2/6wnGunAGTtL/GoC0yWNj4TTRbiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.10 111/112] serial: 8250: Fix PM usage_count for console handover
-Date:   Tue, 19 Jul 2022 13:54:44 +0200
-Message-Id: <20220719114638.023993965@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 200/231] ASoC: cs35l41: Correct some control names
+Date:   Tue, 19 Jul 2022 13:54:45 +0200
+Message-Id: <20220719114730.857350006@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit f9b11229b79c0fb2100b5bb4628a101b1d37fbf6 upstream.
+[ Upstream commit c6a5f22f9b4fd5f21414be690ce34046d9712f05 ]
 
-When console is enabled, univ8250_console_setup() calls
-serial8250_console_setup() before .dev is set to uart_port. Therefore,
-it will not call pm_runtime_get_sync(). Later, when the actual driver
-is going to take over univ8250_console_exit() is called. As .dev is
-already set, serial8250_console_exit() makes pm_runtime_put_sync() call
-with usage count being zero triggering PM usage count warning
-(extra debug for univ8250_console_setup(), univ8250_console_exit(), and
-serial8250_register_ports()):
+Various boolean controls on cs35l41 are missing the required "Switch" in
+the name, add these.
 
-[    0.068987] univ8250_console_setup ttyS0 nodev
-[    0.499670] printk: console [ttyS0] enabled
-[    0.717955] printk: console [ttyS0] printing thread started
-[    1.960163] serial8250_register_ports assigned dev for ttyS0
-[    1.976830] printk: console [ttyS0] disabled
-[    1.976888] printk: console [ttyS0] printing thread stopped
-[    1.977073] univ8250_console_exit ttyS0 usage:0
-[    1.977075] serial8250 serial8250: Runtime PM usage count underflow!
-[    1.977429] dw-apb-uart.6: ttyS0 at MMIO 0x4010006000 (irq = 33, base_baud = 115200) is a 16550A
-[    1.977812] univ8250_console_setup ttyS0 usage:2
-[    1.978167] printk: console [ttyS0] printing thread started
-[    1.978203] printk: console [ttyS0] enabled
-
-To fix the issue, call pm_runtime_get_sync() in
-serial8250_register_ports() as soon as .dev is set for an uart_port
-if it has console enabled.
-
-This problem became apparent only recently because 82586a721595 ("PM:
-runtime: Avoid device usage count underflows") added the warning
-printout. I confirmed this problem also occurs with v5.18 (w/o the
-warning printout, obviously).
-
-Fixes: bedb404e91bb ("serial: 8250_port: Don't use power management for kernel console")
-Cc: stable <stable@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/b4f428e9-491f-daf2-2232-819928dc276e@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220621102041.1713504-3-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c |    4 ++++
- drivers/tty/serial/serial_core.c    |    5 -----
- include/linux/serial_core.h         |    5 +++++
- 3 files changed, 9 insertions(+), 5 deletions(-)
+ sound/soc/codecs/cs35l41.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -23,6 +23,7 @@
- #include <linux/sysrq.h>
- #include <linux/delay.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/tty.h>
- #include <linux/ratelimit.h>
- #include <linux/tty_flip.h>
-@@ -571,6 +572,9 @@ serial8250_register_ports(struct uart_dr
- 
- 		up->port.dev = dev;
- 
-+		if (uart_console_enabled(&up->port))
-+			pm_runtime_get_sync(up->port.dev);
-+
- 		serial8250_apply_quirks(up);
- 		uart_add_one_port(drv, &up->port);
- 	}
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1941,11 +1941,6 @@ static int uart_proc_show(struct seq_fil
- }
- #endif
- 
--static inline bool uart_console_enabled(struct uart_port *port)
--{
--	return uart_console(port) && (port->cons->flags & CON_ENABLED);
--}
--
- static void uart_port_spin_lock_init(struct uart_port *port)
- {
- 	spin_lock_init(&port->lock);
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -394,6 +394,11 @@ static const bool earlycon_acpi_spcr_ena
- static inline int setup_earlycon(char *buf) { return 0; }
- #endif
- 
-+static inline bool uart_console_enabled(struct uart_port *port)
-+{
-+	return uart_console(port) && (port->cons->flags & CON_ENABLED);
-+}
-+
- struct uart_port *uart_get_console(struct uart_port *ports, int nr,
- 				   struct console *c);
- int uart_parse_earlycon(char *p, unsigned char *iotype, resource_size_t *addr,
+diff --git a/sound/soc/codecs/cs35l41.c b/sound/soc/codecs/cs35l41.c
+index 6b784a62df0c..20c76a53a508 100644
+--- a/sound/soc/codecs/cs35l41.c
++++ b/sound/soc/codecs/cs35l41.c
+@@ -392,7 +392,7 @@ static const struct snd_kcontrol_new cs35l41_aud_controls[] = {
+ 	SOC_SINGLE("HW Noise Gate Enable", CS35L41_NG_CFG, 8, 63, 0),
+ 	SOC_SINGLE("HW Noise Gate Delay", CS35L41_NG_CFG, 4, 7, 0),
+ 	SOC_SINGLE("HW Noise Gate Threshold", CS35L41_NG_CFG, 0, 7, 0),
+-	SOC_SINGLE("Aux Noise Gate CH1 Enable",
++	SOC_SINGLE("Aux Noise Gate CH1 Switch",
+ 		   CS35L41_MIXER_NGATE_CH1_CFG, 16, 1, 0),
+ 	SOC_SINGLE("Aux Noise Gate CH1 Entry Delay",
+ 		   CS35L41_MIXER_NGATE_CH1_CFG, 8, 15, 0),
+@@ -400,15 +400,15 @@ static const struct snd_kcontrol_new cs35l41_aud_controls[] = {
+ 		   CS35L41_MIXER_NGATE_CH1_CFG, 0, 7, 0),
+ 	SOC_SINGLE("Aux Noise Gate CH2 Entry Delay",
+ 		   CS35L41_MIXER_NGATE_CH2_CFG, 8, 15, 0),
+-	SOC_SINGLE("Aux Noise Gate CH2 Enable",
++	SOC_SINGLE("Aux Noise Gate CH2 Switch",
+ 		   CS35L41_MIXER_NGATE_CH2_CFG, 16, 1, 0),
+ 	SOC_SINGLE("Aux Noise Gate CH2 Threshold",
+ 		   CS35L41_MIXER_NGATE_CH2_CFG, 0, 7, 0),
+-	SOC_SINGLE("SCLK Force", CS35L41_SP_FORMAT, CS35L41_SCLK_FRC_SHIFT, 1, 0),
+-	SOC_SINGLE("LRCLK Force", CS35L41_SP_FORMAT, CS35L41_LRCLK_FRC_SHIFT, 1, 0),
+-	SOC_SINGLE("Invert Class D", CS35L41_AMP_DIG_VOL_CTRL,
++	SOC_SINGLE("SCLK Force Switch", CS35L41_SP_FORMAT, CS35L41_SCLK_FRC_SHIFT, 1, 0),
++	SOC_SINGLE("LRCLK Force Switch", CS35L41_SP_FORMAT, CS35L41_LRCLK_FRC_SHIFT, 1, 0),
++	SOC_SINGLE("Invert Class D Switch", CS35L41_AMP_DIG_VOL_CTRL,
+ 		   CS35L41_AMP_INV_PCM_SHIFT, 1, 0),
+-	SOC_SINGLE("Amp Gain ZC", CS35L41_AMP_GAIN_CTRL,
++	SOC_SINGLE("Amp Gain ZC Switch", CS35L41_AMP_GAIN_CTRL,
+ 		   CS35L41_AMP_GAIN_ZC_SHIFT, 1, 0),
+ 	WM_ADSP2_PRELOAD_SWITCH("DSP1", 1),
+ 	WM_ADSP_FW_CONTROL("DSP1", 0),
+-- 
+2.35.1
+
 
 
