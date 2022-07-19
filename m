@@ -2,73 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4EC579282
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 07:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13AA25792A8
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 07:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233249AbiGSFen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 01:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42340 "EHLO
+        id S236850AbiGSFss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 01:48:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235393AbiGSFea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 01:34:30 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F7F6141
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 22:34:28 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id h17so20010642wrx.0
-        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 22:34:28 -0700 (PDT)
+        with ESMTP id S236833AbiGSFsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 01:48:47 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 216382F003
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 22:48:46 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id d7-20020a17090a564700b001f209736b89so126545pji.0
+        for <stable@vger.kernel.org>; Mon, 18 Jul 2022 22:48:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HZpvt/nDVkZNx/by2rqCcokxCcDrSaABgHJjiKPWe04=;
-        b=UKIDUZ8n3SlCbEXFhHRnFzGE7USwYMpo7BRL8fDU2+hoEDWRWNU8BBm3h4WIdy7MNm
-         knvxTFg/tVPi4D+dWPEctfKilEeI9bql6bmv+D46GWTl1cOX9y/TCiH81p8zHUgpn1ta
-         BwfH7pfqqIfYFR9vgvokguR/zXt4UheVi64Qn4IjeycigbJYuNf3vwI/5yIyT7djxRP1
-         oKcCED/Eidjnqds6P871ma8ccP0rMwH0oryYiIixhYOHreB3o5caRci8qDybQ5jX03FN
-         TIFeXI/8BcwX9PelCOlM1I54jLq18ZDqhhdUUEtnmZaqEt7uSYSIppWX4ce/FCRX0+zV
-         zg6g==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GyYhk0E/df4qlJw9cakDeuhJXOYU65WeH2iCVxbZt3E=;
+        b=73SMBMT111SQFAVKNNIC4A+IWUb/aV2PLsKTC5oUhHslQ6ayYuEQW1wgP7s6ceduxN
+         PqczE0FrdXm3KHHnqJSQH6J2W0qCzQ6jZS2+vm+wZLJFR5LaZ8SL5iJmoeXcLKjeVGCT
+         GUoscPPVJg//jIedS6YG0NgbMnrpZsx925ZF7rlpi+hrPWSoNzcBUNiByGsc7CcdUr2I
+         w9sDB68d64ju/lBjA5/39/GXhwL/GEnN97RUT4ekTI7w+gLVwu1VjJX7MOrKR+aLZddQ
+         sKKTldsRFivVGrpBlcOtWPVjz/MM45YXmL0m1Zx2P8D+iF8uXkChelybRrM/3RMlTTTr
+         gJhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HZpvt/nDVkZNx/by2rqCcokxCcDrSaABgHJjiKPWe04=;
-        b=UYQ3HKTZMaNDVRFHqWCHWK6mjBaKthcDnE9Zn19VelwCRP9SK6sj+IXx1IxpNxWSSF
-         5M5SfUNQFy34IF5mOFw4ZNy1ytwXtetCmYC9BUTmwsW4AHmN1vu7gH7kqsM3X82AYPGb
-         4NS170QMkvxeQkaGgvF7M1sMI7WkClbaAz5QV+4zfGaF07w2YP/17mOmUp39tvSdXda5
-         dWol0UN8m9rt8+PNrcjfJwTmEyI+jwLSzMPf/oEemVduUpc/jTQRZP+9U12uK27g03oi
-         n4LKKr7yWY8XeQh2JYVIjnta1DATooUmaRCJ97GEysm8BV5KfOiVtzVlrlBsEc9sAKT3
-         8tjQ==
-X-Gm-Message-State: AJIora+FYUTzP+fbMqY8jUuQjQCrdYTeYwkL2h7k5oL3FhdD4QaSai4s
-        FGFGIqgzj20CI0FFTlDGmieHAZ4Uvfw6ivvZiuPlzA==
-X-Google-Smtp-Source: AGRyM1sGYqcJjifeqZclEnEFGEOeCtPHs5KpfV6He2nsjr2qXhCXqSil0twnsrVPSqh+YPAnDH49ZQO8wlw6XLGEo8Y=
-X-Received: by 2002:a05:6000:1a8e:b0:21d:a7a8:54f4 with SMTP id
- f14-20020a0560001a8e00b0021da7a854f4mr25981039wry.654.1658208866803; Mon, 18
- Jul 2022 22:34:26 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GyYhk0E/df4qlJw9cakDeuhJXOYU65WeH2iCVxbZt3E=;
+        b=5VeqcCj7pJpbaK9y+HhZ0sxIkzozZ1InghleDO46PSnzaeD7emDdpBrz7ly4AbpZO7
+         QD9xuqI2Uioh9NzqIsuwj9z1X8wX4OJgjY1yR+7GNuLOYeNfnHWML0Qjbp/H3UA2OYDX
+         E3ZyZX5y9vrQ19V99/MWeO4jBn9q70emIokUhtwm9BRfpwPbXQxPupcKkSWJc0nVv4iW
+         bkW10RsDt8lYiULpgTCQkODsu9CxTV/LQX+dzxR+iTfAzg9vBrPooByvK4HbyZ9O7Elw
+         NXmXkKX+6HpMIVvvxSs3qoR7DBug6UWR56TbImsuhXj17Vam4FryL37qfhW5fiBY1GJR
+         R+rA==
+X-Gm-Message-State: AJIora97zFg25XXN4HIfHg+tzTlZ9Vhkm2xr+uIuTvZLjN6AHJh2h7g+
+        VQNaB5ER8gIfoBuEcsUa9/5mbHq1SzgZMjKE
+X-Google-Smtp-Source: AGRyM1v8XOvKlLFtlRi3GbKhmo9eqVpDfefDe8jQUmLsgF76Etl5V0ajjaczUun5gwSEEcpeHUlg3Q==
+X-Received: by 2002:a17:90b:4f86:b0:1f0:98d1:764a with SMTP id qe6-20020a17090b4f8600b001f098d1764amr34755035pjb.242.1658209725428;
+        Mon, 18 Jul 2022 22:48:45 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n8-20020a170902e54800b0016b81679c1fsm10652933plf.216.2022.07.18.22.48.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Jul 2022 22:48:45 -0700 (PDT)
+Message-ID: <62d645bd.1c69fb81.52964.fc45@mx.google.com>
+Date:   Mon, 18 Jul 2022 22:48:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <CA+G9fYsd0DaBtWk5cFxPhfM_cZRMQk3MbaxMRN3WJ-yNjAkp7Q@mail.gmail.com>
-In-Reply-To: <CA+G9fYsd0DaBtWk5cFxPhfM_cZRMQk3MbaxMRN3WJ-yNjAkp7Q@mail.gmail.com>
-From:   Ian Rogers <irogers@google.com>
-Date:   Mon, 18 Jul 2022 22:34:13 -0700
-Message-ID: <CAP-5=fU+58WdCpAT5nc138AdQ31Pm=iuWt9Wh+WLmPk-kb+=Dg@mail.gmail.com>
-Subject: Re: perf: util/annotate.c:1752:9: error: too few arguments to
- function 'init_disassemble_info'
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        perf-users <perf-users@linaro.org>, bpf <bpf@vger.kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>, kubakici@wp.pl,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.12-232-g19fd4a416ec3
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.18.y baseline: 83 runs,
+ 1 regressions (v5.18.12-232-g19fd4a416ec3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,78 +70,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 18, 2022 at 10:45 AM Naresh Kamboju
-<naresh.kamboju@linaro.org> wrote:
->
-> with reference to other email thread on perf build failure on Linus mainline
-> https://lore.kernel.org/bpf/20220715191641.go6xbmhic3kafcsc@awork3.anarazel.de/T/
->
-> I see perf build failures on stable-rc 5.18 .. 5.4 with this error [1]
-> and also noticed on today's linus mainline tree.
->
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
->
-> steps to reproduce:
-> --------------------
->
-> tuxmake --runtime podman \
->         --target-arch x86_64 \
->         --toolchain gcc-11 \
->         --kconfig
-> https://builds.tuxbuild.com/2C7oWWWYOYGFtqq4SWX1yG4a2Ne/config \
->         debugkernel headers kernel modules perf
->
-> Error log:
-> -----------
->   CC       event-parse-api.o
->   CC       staticobjs/btf_dump.o
-> find: 'x86_64-linux-gnu-gcc/arch': No such file or directory
-> error: Found argument '-I' which wasn't expected, or isn't valid in this context
->
-> USAGE:
->     sccache [FLAGS] [OPTIONS] [cmd]...
->
-> For more information try --help
->
-> and
->
->   CC       util/annotate.o
->   MKDIR    util/
->   CC       util/block-range.o
->   MKDIR    bench/
->   CC       bench/sched-pipe.o
-> util/annotate.c: In function 'symbol__disassemble_bpf':
-> util/annotate.c:1752:9: error: too few arguments to function
-> 'init_disassemble_info'
->  1752 |         init_disassemble_info(&info, s,
->       |         ^~~~~~~~~~~~~~~~~~~~~
-> In file included from util/annotate.c:1709:
-> /usr/include/dis-asm.h:472:13: note: declared here
->   472 | extern void init_disassemble_info (struct disassemble_info
-> *dinfo, void *stream,
->       |             ^~~~~~~~~~~~~~~~~~~~~
+stable-rc/linux-5.18.y baseline: 83 runs, 1 regressions (v5.18.12-232-g19fd=
+4a416ec3)
 
-This include is guarded by:
-#if defined(HAVE_LIBBFD_SUPPORT) && defined(HAVE_LIBBPF_SUPPORT)
+Regressions Summary
+-------------------
 
-and from the header path in the failure you are getting an installed
-version of libbfd from /usr/include. Using libbfd (GPLv3) with perf
-(GPLv2) is becoming an under tested combination due to:
-https://www.gnu.org/licenses/gpl-faq.en.html#v2v3Compatibility
-Add the make flag NO_LIBBFD=1 to test without libbfd, which will most
-accurately match what distributions build.
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
 
-Testing on my own machine with libbfd version 2.38 didn't show any failures.
 
-Thanks,
-Ian
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.18.y/ker=
+nel/v5.18.12-232-g19fd4a416ec3/plan/baseline/
 
-> [1] https://builds.tuxbuild.com/2C7oWWWYOYGFtqq4SWX1yG4a2Ne/
->
-> Best regards
-> Naresh Kamboju
->
->
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.18.y
+  Describe: v5.18.12-232-g19fd4a416ec3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      19fd4a416ec344f739d224a7dd49bffede8c9c95 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62d6255e1b44b8c009a39bcd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2-232-g19fd4a416ec3/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline=
+-imx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
+2-232-g19fd4a416ec3/arm/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline=
+-imx6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62d6255e1b44b8c009a39=
+bce
+        failing since 17 days (last pass: v5.18.8, first fail: v5.18.8-7-g2=
+c9a64b3a872) =
+
+ =20
