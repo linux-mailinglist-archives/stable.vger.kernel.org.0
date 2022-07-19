@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 342235798DE
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A910579926
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:59:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236799AbiGSLzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54416 "EHLO
+        id S237734AbiGSL7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:59:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236727AbiGSLzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:55:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAB241D24;
-        Tue, 19 Jul 2022 04:55:49 -0700 (PDT)
+        with ESMTP id S237778AbiGSL7R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:59:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3089A422FF;
+        Tue, 19 Jul 2022 04:57:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08BE961604;
-        Tue, 19 Jul 2022 11:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5ECFC341C6;
-        Tue, 19 Jul 2022 11:55:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD23CB81B1C;
+        Tue, 19 Jul 2022 11:57:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 299D0C341C6;
+        Tue, 19 Jul 2022 11:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231748;
-        bh=gT8Ik6KgVMS1p6vFucWCMY3W+3AsCRvbsXnSo3WEkqg=;
+        s=korg; t=1658231852;
+        bh=hDYxTrmhxg2oXocl7+kJNSoaNXsxGhvVaUgtHU2TV7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mRf5YQphMrl7A1g9/+irNK5Aq/ZQeXKJEQUQyKxQuKOU2DFB/yA3zQffzyWBvTmq
-         CwEUs27IF4ALq9uIIJ19meIz1kM0aCuh/0QWKWDxtZOwcAki+dH/bhxoA75/+3a6Uw
-         ++IAg4jRQMaC+MwKd+hokKoQy43Ab4+UyLzZ2NN0=
+        b=NHss98e22jvDz1DEFW+LJEvVatJlXqPju5miZ0+Yo/OnVUFPzo+goMMZeS6JqS0Mt
+         KqojP0aqySwenocDOdcrP73m4eFkJ5VqRetrObvLPOBvNTG5+2Llnxi30EYq216IwB
+         K8PAJ4fulMW63/a6lcPH/BWwoAZNwO1LnesfmVfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ma Yuying <yuma@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Edward Cree <ecree.xilinx@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/28] sfc: fix kernel panic when creating VF
+Subject: [PATCH 4.14 20/43] ipv4: Fix data-races around sysctl_ip_dynaddr.
 Date:   Tue, 19 Jul 2022 13:53:51 +0200
-Message-Id: <20220719114457.556085695@linuxfoundation.org>
+Message-Id: <20220719114523.783441466@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
-References: <20220719114455.701304968@linuxfoundation.org>
+In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
+References: <20220719114521.868169025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit ada74c5539eba06cf8b47d068f92e0b3963a9a6e ]
+[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
 
-When creating VFs a kernel panic can happen when calling to
-efx_ef10_try_update_nic_stats_vf.
+While reading sysctl_ip_dynaddr, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-When releasing a DMA coherent buffer, sometimes, I don't know in what
-specific circumstances, it has to unmap memory with vunmap. It is
-disallowed to do that in IRQ context or with BH disabled. Otherwise, we
-hit this line in vunmap, causing the crash:
-  BUG_ON(in_interrupt());
-
-This patch reenables BH to release the buffer.
-
-Log messages when the bug is hit:
- kernel BUG at mm/vmalloc.c:2727!
- invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 6 PID: 1462 Comm: NetworkManager Kdump: loaded Tainted: G          I      --------- ---  5.14.0-119.el9.x86_64 #1
- Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
- RIP: 0010:vunmap+0x2e/0x30
- ...skip...
- Call Trace:
-  __iommu_dma_free+0x96/0x100
-  efx_nic_free_buffer+0x2b/0x40 [sfc]
-  efx_ef10_try_update_nic_stats_vf+0x14a/0x1c0 [sfc]
-  efx_ef10_update_stats_vf+0x18/0x40 [sfc]
-  efx_start_all+0x15e/0x1d0 [sfc]
-  efx_net_open+0x5a/0xe0 [sfc]
-  __dev_open+0xe7/0x1a0
-  __dev_change_flags+0x1d7/0x240
-  dev_change_flags+0x21/0x60
-  ...skip...
-
-Fixes: d778819609a2 ("sfc: DMA the VF stats only when requested")
-Reported-by: Ma Yuying <yuma@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220713092116.21238-1-ihuguet@redhat.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/networking/ip-sysctl.txt | 2 +-
+ net/ipv4/af_inet.c                     | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index aa2cef8675f4..7b8e0f624c98 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -1830,7 +1830,10 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
+diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
+index 0278b6d1bc71..5849c119e0ef 100644
+--- a/Documentation/networking/ip-sysctl.txt
++++ b/Documentation/networking/ip-sysctl.txt
+@@ -858,7 +858,7 @@ ip_nonlocal_bind - BOOLEAN
+ 	which can be quite useful - but may break some applications.
+ 	Default: 0
  
- 	efx_update_sw_stats(efx, stats);
- out:
-+	/* releasing a DMA coherent buffer with BH disabled can panic */
-+	spin_unlock_bh(&efx->stats_lock);
- 	efx_nic_free_buffer(efx, &stats_buf);
-+	spin_lock_bh(&efx->stats_lock);
- 	return rc;
- }
+-ip_dynaddr - BOOLEAN
++ip_dynaddr - INTEGER
+ 	If set non-zero, enables support for dynamic addresses.
+ 	If set to a non-zero value larger than 1, a kernel log
+ 	message will be printed when dynamic address rewriting
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index ee42907f4827..93dea10ef9a6 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1152,7 +1152,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
+ 	if (new_saddr == old_saddr)
+ 		return 0;
  
+-	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
++	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
+ 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
+ 			__func__, &old_saddr, &new_saddr);
+ 	}
+@@ -1207,7 +1207,7 @@ int inet_sk_rebuild_header(struct sock *sk)
+ 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
+ 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
+ 		 */
+-		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
++		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
+ 		    sk->sk_state != TCP_SYN_SENT ||
+ 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
+ 		    (err = inet_sk_reselect_saddr(sk)) != 0)
 -- 
 2.35.1
 
