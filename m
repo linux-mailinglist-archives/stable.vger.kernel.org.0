@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 669BE5799AF
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE140579B2F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238145AbiGSMF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39040 "EHLO
+        id S239648AbiGSMZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:25:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238513AbiGSMEp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36F44599B;
-        Tue, 19 Jul 2022 05:00:43 -0700 (PDT)
+        with ESMTP id S240089AbiGSMYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:32 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE4F161D80;
+        Tue, 19 Jul 2022 05:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88886B81B2A;
-        Tue, 19 Jul 2022 12:00:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA3DEC341C6;
-        Tue, 19 Jul 2022 12:00:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 01A70CE1BE6;
+        Tue, 19 Jul 2022 12:08:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0F52C341C6;
+        Tue, 19 Jul 2022 12:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232041;
-        bh=inlCVBtmslE6b/tBdIQkNV6kyILqfwaGCpRnjVkfgVU=;
+        s=korg; t=1658232519;
+        bh=/PBo5aChT/HITL0n8XQjCAQovVMDJHQ5AmS2ELAt8oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvmYiyAKQOO19vLSJQtnqPp04XWuqtVVRYFqcY9DTxd4ZSs0jHXODO5haOGKydLbl
-         aU+/qxgVcm38QzsCgQORNnD6sC58QngasvBCRZxgMGTpnVayIR7yT1Nm+GXgoq2A7P
-         HK5/9smuhlv4ujgfDY8H8YssZE18v+iAJ6XRUghQ=
+        b=VoU5Koc0IYCHHU4UzIV7MeDe59RIOMQfouLGslBmCen5tKo2JygY/x1/TiUVtvU6a
+         mn8o7JuOy8j/pK0zC+mw8hV8l7jBJTNSLgxUDeMPFjMde4T/MY1m/aa4ib4o2JkBiB
+         9DwKfLwQtA11BiX+rdhZbNKiLESWBwOUxMHZ495A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucien Buchmann <lucien.buchmann@gmx.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 41/48] USB: serial: ftdi_sio: add Belimo device ids
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 085/112] nvme-tcp: always fail a request when sending it failed
 Date:   Tue, 19 Jul 2022 13:54:18 +0200
-Message-Id: <20220719114523.450138474@linuxfoundation.org>
+Message-Id: <20220719114634.861288875@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucien Buchmann <lucien.buchmann@gmx.net>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 7c239a071d1f04b7137789810807b4108d475c72 upstream.
+[ Upstream commit 41d07df7de841bfbc32725ce21d933ad358f2844 ]
 
-Those two product ids are known.
+queue stoppage and inflight requests cancellation is fully fenced from
+io_work and thus failing a request from this context. Hence we don't
+need to try to guess from the socket retcode if this failure is because
+the queue is about to be torn down or not.
 
-Signed-off-by: Lucien Buchmann <lucien.buchmann@gmx.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We are perfectly safe to just fail it, the request will not be cancelled
+later on.
+
+This solves possible very long shutdown delays when the users issues a
+'nvme disconnect-all'
+
+Reported-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
- 2 files changed, 9 insertions(+)
+ drivers/nvme/host/tcp.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1013,6 +1013,9 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_DISPLAY_PID) },
- 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_LITE_PID) },
- 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_ANALOG_PID) },
-+	/* Belimo Automation devices */
-+	{ USB_DEVICE(FTDI_VID, BELIMO_ZTH_PID) },
-+	{ USB_DEVICE(FTDI_VID, BELIMO_ZIP_PID) },
- 	/* ICP DAS I-756xU devices */
- 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7560U_PID) },
- 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7561U_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1569,6 +1569,12 @@
- #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
- 
- /*
-+ * Belimo Automation
-+ */
-+#define BELIMO_ZTH_PID			0x8050
-+#define BELIMO_ZIP_PID			0xC811
-+
-+/*
-  * Unjo AB
-  */
- #define UNJO_VID			0x22B7
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 7e3932033707..d5e162f2c23a 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1149,8 +1149,7 @@ static int nvme_tcp_try_send(struct nvme_tcp_queue *queue)
+ 	} else if (ret < 0) {
+ 		dev_err(queue->ctrl->ctrl.device,
+ 			"failed to send request %d\n", ret);
+-		if (ret != -EPIPE && ret != -ECONNRESET)
+-			nvme_tcp_fail_request(queue->request);
++		nvme_tcp_fail_request(queue->request);
+ 		nvme_tcp_done_send_req(queue);
+ 	}
+ 	return ret;
+-- 
+2.35.1
+
 
 
