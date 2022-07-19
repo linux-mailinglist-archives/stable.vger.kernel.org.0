@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9269F5799EE
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1375579C1F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238473AbiGSMIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50736 "EHLO
+        id S239250AbiGSMgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:36:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238486AbiGSMIX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:08:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE44A4F675;
-        Tue, 19 Jul 2022 05:01:38 -0700 (PDT)
+        with ESMTP id S240305AbiGSMfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:35:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCDD7AB11;
+        Tue, 19 Jul 2022 05:14:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1169B81A2E;
-        Tue, 19 Jul 2022 12:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1A6C341CA;
-        Tue, 19 Jul 2022 12:01:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70CC3B81B32;
+        Tue, 19 Jul 2022 12:13:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF17DC341C6;
+        Tue, 19 Jul 2022 12:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232095;
-        bh=ZsRmY19ATdi0iXR4OwxBA0GF5sb5W6FBkrSL8mWejcM=;
+        s=korg; t=1658232834;
+        bh=PH0I0FrJz8Iu1ZppSIcZbT/GPSH/t/4UMdyeC++/lI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMEaJpwb8Lv1oIu+LoGWKVS20vgzELdBznMdjm8sim0YhXkJ7XqfveB7j0waLfMYc
-         7r4xJM8RzLVk5KCjHjQplukoIH79y64Uj5kO8swf0xO5xMTSPGi5g6DuvTeLrcPcJp
-         yYa0J2Droji+1SQXaaq8M63dEijvcDtsEkRHZKBU=
+        b=uOqY+hTCPcb6HijPlHfB8Kyyzzu5ONRhA68ctXJiHrG83iVG06TiMbcVLxGfMFLDz
+         F57PEERp5B3RPwipsO1Mkp0X4EIwBrjFEy7+ezuwMbFbApI0rprRgy2rco9yXwOvIC
+         Zrgs1lvtqGqtCdHtYAcRa8K/A3XeWaUbNw7Txpyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 11/71] ARM: 9214/1: alignment: advance IT state after emulating Thumb instruction
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 082/167] sysctl: Fix data-races in proc_dou8vec_minmax().
 Date:   Tue, 19 Jul 2022 13:53:34 +0200
-Message-Id: <20220719114553.344240228@linuxfoundation.org>
+Message-Id: <20220719114704.502067143@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,117 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit e5c46fde75e43c15a29b40e5fc5641727f97ae47 upstream.
+[ Upstream commit 7dee5d7747a69aa2be41f04c6a7ecfe3ac8cdf18 ]
 
-After emulating a misaligned load or store issued in Thumb mode, we have
-to advance the IT state by hand, or it will get out of sync with the
-actual instruction stream, which means we'll end up applying the wrong
-condition code to subsequent instructions. This might corrupt the
-program state rather catastrophically.
+A sysctl variable is accessed concurrently, and there is always a chance
+of data-race.  So, all readers and writers need some basic protection to
+avoid load/store-tearing.
 
-So borrow the it_advance() helper from the probing code, and use it on
-CPSR if the emulated instruction is Thumb.
+This patch changes proc_dou8vec_minmax() to use READ_ONCE() and
+WRITE_ONCE() internally to fix data-races on the sysctl side.  For now,
+proc_dou8vec_minmax() itself is tolerant to a data-race, but we still
+need to add annotations on the other subsystem's side.
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cb9444130662 ("sysctl: add proc_dou8vec_minmax()")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/ptrace.h |   26 ++++++++++++++++++++++++++
- arch/arm/mm/alignment.c       |    3 +++
- arch/arm/probes/decode.h      |   26 +-------------------------
- 3 files changed, 30 insertions(+), 25 deletions(-)
+ kernel/sysctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/include/asm/ptrace.h
-+++ b/arch/arm/include/asm/ptrace.h
-@@ -164,5 +164,31 @@ static inline unsigned long user_stack_p
- 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
- })
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 5be8108a9a45..357900d0cef9 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1138,13 +1138,13 @@ int proc_dou8vec_minmax(struct ctl_table *table, int write,
  
-+
-+/*
-+ * Update ITSTATE after normal execution of an IT block instruction.
-+ *
-+ * The 8 IT state bits are split into two parts in CPSR:
-+ *	ITSTATE<1:0> are in CPSR<26:25>
-+ *	ITSTATE<7:2> are in CPSR<15:10>
-+ */
-+static inline unsigned long it_advance(unsigned long cpsr)
-+{
-+	if ((cpsr & 0x06000400) == 0) {
-+		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
-+		cpsr &= ~PSR_IT_MASK;
-+	} else {
-+		/* We need to shift left ITSTATE<4:0> */
-+		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
-+		unsigned long it = cpsr & mask;
-+		it <<= 1;
-+		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
-+		it &= mask;
-+		cpsr &= ~mask;
-+		cpsr |= it;
-+	}
-+	return cpsr;
-+}
-+
- #endif /* __ASSEMBLY__ */
- #endif
---- a/arch/arm/mm/alignment.c
-+++ b/arch/arm/mm/alignment.c
-@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigne
- 	if (type == TYPE_LDST)
- 		do_alignment_finish_ldst(addr, instr, regs, offset);
- 
-+	if (thumb_mode(regs))
-+		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
-+
+ 	tmp.maxlen = sizeof(val);
+ 	tmp.data = &val;
+-	val = *data;
++	val = READ_ONCE(*data);
+ 	res = do_proc_douintvec(&tmp, write, buffer, lenp, ppos,
+ 				do_proc_douintvec_minmax_conv, &param);
+ 	if (res)
+ 		return res;
+ 	if (write)
+-		*data = val;
++		WRITE_ONCE(*data, val);
  	return 0;
- 
-  bad_or_fault:
---- a/arch/arm/probes/decode.h
-+++ b/arch/arm/probes/decode.h
-@@ -14,6 +14,7 @@
- #include <linux/types.h>
- #include <linux/stddef.h>
- #include <asm/probes.h>
-+#include <asm/ptrace.h>
- #include <asm/kprobes.h>
- 
- void __init arm_probes_decode_init(void);
-@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
- #endif
- 
- 
--/*
-- * Update ITSTATE after normal execution of an IT block instruction.
-- *
-- * The 8 IT state bits are split into two parts in CPSR:
-- *	ITSTATE<1:0> are in CPSR<26:25>
-- *	ITSTATE<7:2> are in CPSR<15:10>
-- */
--static inline unsigned long it_advance(unsigned long cpsr)
--	{
--	if ((cpsr & 0x06000400) == 0) {
--		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
--		cpsr &= ~PSR_IT_MASK;
--	} else {
--		/* We need to shift left ITSTATE<4:0> */
--		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
--		unsigned long it = cpsr & mask;
--		it <<= 1;
--		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
--		it &= mask;
--		cpsr &= ~mask;
--		cpsr |= it;
--	}
--	return cpsr;
--}
--
- static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
- {
- 	long cpsr = regs->ARM_cpsr;
+ }
+ EXPORT_SYMBOL_GPL(proc_dou8vec_minmax);
+-- 
+2.35.1
+
 
 
