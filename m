@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7989D579D53
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C7C579D54
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237626AbiGSMuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241667AbiGSMuU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Jul 2022 08:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50154 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241964AbiGSMt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:27 -0400
+        with ESMTP id S242011AbiGSMtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003CB57239;
-        Tue, 19 Jul 2022 05:19:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFAE57251;
+        Tue, 19 Jul 2022 05:19:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5A5DB81B10;
-        Tue, 19 Jul 2022 12:19:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC1AC341C6;
-        Tue, 19 Jul 2022 12:19:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6D47B81B21;
+        Tue, 19 Jul 2022 12:19:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D7A6C341CB;
+        Tue, 19 Jul 2022 12:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233173;
-        bh=pDdl6SrgjTaZos2aFU5eHtS6uXHfP+Tj9so6V++wH9Y=;
+        s=korg; t=1658233176;
+        bh=sbQIp1iuSqFAx1B/WohVsdh2Cc+XuohFd1zUxHgf1og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1GWhs1Und6XznlEhwm7Ko3eB5SWIY7m0S142fArMYJMxZJWW52TwExofYJDh/VuD
-         LT2tCt6xwSWYHRDMMAyJgpOLki/VXzS321ZqBK6YJi/h+hoEKradh/GAn91sW1+C3p
-         Uj7Rl/CCD6iy5Ofc7kd1p8w6jFt2tzECgvwxVGMQ=
+        b=KgLP1gDLId6YDzsNSo9ynAfmwK/+VKFA4Qun4rMdga2shpP6FyPVYnQlWGq7GDdG8
+         2pCLMiXeDG7JWsaOvxsaDvyTtfsvPbtLy9T8v34R6ashmRQBDFxL+vXRijdr+TVKzY
+         yLbEwrIQzv3gbEmzlJH0FqtA+LF9DVzgJpO4jnn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 007/231] ALSA: hda - Add fixup for Dell Latitidue E5430
-Date:   Tue, 19 Jul 2022 13:51:32 +0200
-Message-Id: <20220719114714.775497020@linuxfoundation.org>
+Subject: [PATCH 5.18 008/231] ALSA: hda/conexant: Apply quirk for another HP ProDesk 600 G3 model
+Date:   Tue, 19 Jul 2022 13:51:33 +0200
+Message-Id: <20220719114714.845346554@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,29 +54,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Meng Tang <tangmeng@uniontech.com>
 
-commit 841bdf85c226803a78a9319af9b2caa9bf3e2eda upstream.
+commit d16d69bf5a25d91c6d8f3e29711be12551bf56cd upstream.
 
-Another Dell model, another fixup entry: Latitude E5430 needs the same
-fixup as other Latitude E series as workaround for noise problems.
+There is another HP ProDesk 600 G3 model with the PCI SSID 103c:82b4
+that requires the quirk HP_MIC_NO_PRESENCE. Add the corresponding
+entry to the quirk table.
 
 Signed-off-by: Meng Tang <tangmeng@uniontech.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220712060005.20176-1-tangmeng@uniontech.com
+Link: https://lore.kernel.org/r/20220711101744.25189-1-tangmeng@uniontech.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
+ sound/pci/hda/patch_conexant.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8947,6 +8947,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1025, 0x1430, "Acer TravelMate B311R-31", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x1466, "Acer Aspire A515-56", ALC255_FIXUP_ACER_HEADPHONE_AND_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0470, "Dell M101z", ALC269_FIXUP_DELL_M101Z),
-+	SND_PCI_QUIRK(0x1028, 0x053c, "Dell Latitude E5430", ALC292_FIXUP_DELL_E7X),
- 	SND_PCI_QUIRK(0x1028, 0x054b, "Dell XPS one 2710", ALC275_FIXUP_DELL_XPS),
- 	SND_PCI_QUIRK(0x1028, 0x05bd, "Dell Latitude E6440", ALC292_FIXUP_DELL_E7X),
- 	SND_PCI_QUIRK(0x1028, 0x05be, "Dell Latitude E6540", ALC292_FIXUP_DELL_E7X),
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -944,6 +944,7 @@ static const struct snd_pci_quirk cxt506
+ 	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
+ 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x103c, 0x82b4, "HP ProDesk 600 G3", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
 
 
