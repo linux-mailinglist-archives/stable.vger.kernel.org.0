@@ -2,130 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7C2579A8C
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258FB579E0C
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238647AbiGSMPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37542 "EHLO
+        id S242293AbiGSM5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:57:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239505AbiGSMOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C9152E77;
-        Tue, 19 Jul 2022 05:05:40 -0700 (PDT)
+        with ESMTP id S242173AbiGSM4m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037089A6B4;
+        Tue, 19 Jul 2022 05:22:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21367B81A8F;
-        Tue, 19 Jul 2022 12:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71BFFC341C6;
-        Tue, 19 Jul 2022 12:05:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91E6361632;
+        Tue, 19 Jul 2022 12:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F8CCC341C6;
+        Tue, 19 Jul 2022 12:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232336;
-        bh=YMDBGYootgjGAwFHAuKAVkJi74f5AYifSu57aZ2Fmkw=;
+        s=korg; t=1658233364;
+        bh=921mvB/gIVMmZca84WRSiz80R1gD2ZDb922HQgrDXGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5mxilaX/5A1KtNbGomZZOA63Timi1VLxuVxSp6f94GYpqD+kIy+MyBo856DDIcvP
-         YXxYHAR/9jKUk575F16wqSZ7w8Gbl0ZFqGLkBdmEtc/beMI6jKO9yAGoOBwDy4i8lv
-         OklqVw/vGN325Q3fwx4rOcPuNCH1zVcmqd3TXXBM=
+        b=WYqmuqYnktmxrYhdHgNMefnnrGbdQWTw+gIkHkzQid04/RP+Cibk0hYmXVOcHUljJ
+         lYvAGBq9Xa4SOTMl3oIPpjyYHgQB02PqtVxpa6NE2Oycxdgw4L949a+esijULWqGO0
+         LhzVrmvb5H0SpomWGRxBjt28kCnjeWgek6tQUJU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Gowans <jgowans@amazon.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        "=?UTF-8?q?Jan=20H . =20Sch=C3=B6nherr?=" <jschoenh@amazon.de>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 009/112] mm: split huge PUD on wp_huge_pud fallback
-Date:   Tue, 19 Jul 2022 13:53:02 +0200
-Message-Id: <20220719114626.879484109@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.18 098/231] ice: change devlink code to read NVM in blocks
+Date:   Tue, 19 Jul 2022 13:53:03 +0200
+Message-Id: <20220719114722.961831691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gowans, James <jgowans@amazon.com>
+From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
 
-commit 14c99d65941538aa33edd8dc7b1bbbb593c324a2 upstream.
+[ Upstream commit 7b6f9462a3234c35cf808453d39a074a04e71de1 ]
 
-Currently the implementation will split the PUD when a fallback is taken
-inside the create_huge_pud function.  This isn't where it should be done:
-the splitting should be done in wp_huge_pud, just like it's done for PMDs.
-Reason being that if a callback is taken during create, there is no PUD
-yet so nothing to split, whereas if a fallback is taken when encountering
-a write protection fault there is something to split.
+When creating a snapshot of the NVM the driver needs to read the entire
+contents from the NVM and store it. The NVM reads are protected by a lock
+that is shared between the driver and the firmware.
 
-It looks like this was the original intention with the commit where the
-splitting was introduced, but somehow it got moved to the wrong place
-between v1 and v2 of the patch series.  Rebase mistake perhaps.
+If the driver takes too long to read the entire NVM (which can happen on
+some systems) then the firmware could reclaim the lock and cause subsequent
+reads from the driver to fail.
 
-Link: https://lkml.kernel.org/r/6f48d622eb8bce1ae5dd75327b0b73894a2ec407.camel@amazon.com
-Fixes: 327e9fd48972 ("mm: Split huge pages on write-notify or COW")
-Signed-off-by: James Gowans <jgowans@amazon.com>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Jan H. Schönherr <jschoenh@amazon.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We could fix this by increasing the timeout that we pass to the firmware,
+but we could end up in the same situation again if the system is slow.
+Instead have the driver break the reading of the NVM into blocks that are
+small enough that we have confidence that the read will complete within the
+timeout time, but large enough not to cause significant AQ overhead.
+
+Fixes: dce730f17825 ("ice: add a devlink region for dumping NVM contents")
+Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_devlink.c | 59 +++++++++++++-------
+ 1 file changed, 40 insertions(+), 19 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4369,6 +4369,19 @@ static vm_fault_t create_huge_pud(struct
- 	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
- 	/* No support for anonymous transparent PUD pages yet */
- 	if (vma_is_anonymous(vmf->vma))
-+		return VM_FAULT_FALLBACK;
-+	if (vmf->vma->vm_ops->huge_fault)
-+		return vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PUD);
-+#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
-+	return VM_FAULT_FALLBACK;
-+}
-+
-+static vm_fault_t wp_huge_pud(struct vm_fault *vmf, pud_t orig_pud)
-+{
-+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) &&			\
-+	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
-+	/* No support for anonymous transparent PUD pages yet */
-+	if (vma_is_anonymous(vmf->vma))
- 		goto split;
- 	if (vmf->vma->vm_ops->huge_fault) {
- 		vm_fault_t ret = vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PUD);
-@@ -4379,19 +4392,7 @@ static vm_fault_t create_huge_pud(struct
- split:
- 	/* COW or write-notify not handled on PUD level: split pud.*/
- 	__split_huge_pud(vmf->vma, vmf->pud, vmf->address);
--#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
--	return VM_FAULT_FALLBACK;
--}
--
--static vm_fault_t wp_huge_pud(struct vm_fault *vmf, pud_t orig_pud)
--{
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	/* No support for anonymous transparent PUD pages yet */
--	if (vma_is_anonymous(vmf->vma))
--		return VM_FAULT_FALLBACK;
--	if (vmf->vma->vm_ops->huge_fault)
--		return vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PUD);
--#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
-+#endif /* CONFIG_TRANSPARENT_HUGEPAGE && CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
- 	return VM_FAULT_FALLBACK;
+diff --git a/drivers/net/ethernet/intel/ice/ice_devlink.c b/drivers/net/ethernet/intel/ice/ice_devlink.c
+index 4a9de59121d8..31836bbdf813 100644
+--- a/drivers/net/ethernet/intel/ice/ice_devlink.c
++++ b/drivers/net/ethernet/intel/ice/ice_devlink.c
+@@ -792,6 +792,8 @@ void ice_devlink_destroy_vf_port(struct ice_vf *vf)
+ 	devlink_port_unregister(devlink_port);
  }
  
++#define ICE_DEVLINK_READ_BLK_SIZE (1024 * 1024)
++
+ /**
+  * ice_devlink_nvm_snapshot - Capture a snapshot of the NVM flash contents
+  * @devlink: the devlink instance
+@@ -818,8 +820,9 @@ static int ice_devlink_nvm_snapshot(struct devlink *devlink,
+ 	struct ice_pf *pf = devlink_priv(devlink);
+ 	struct device *dev = ice_pf_to_dev(pf);
+ 	struct ice_hw *hw = &pf->hw;
+-	void *nvm_data;
+-	u32 nvm_size;
++	u8 *nvm_data, *tmp, i;
++	u32 nvm_size, left;
++	s8 num_blks;
+ 	int status;
+ 
+ 	nvm_size = hw->flash.flash_size;
+@@ -827,26 +830,44 @@ static int ice_devlink_nvm_snapshot(struct devlink *devlink,
+ 	if (!nvm_data)
+ 		return -ENOMEM;
+ 
+-	status = ice_acquire_nvm(hw, ICE_RES_READ);
+-	if (status) {
+-		dev_dbg(dev, "ice_acquire_nvm failed, err %d aq_err %d\n",
+-			status, hw->adminq.sq_last_status);
+-		NL_SET_ERR_MSG_MOD(extack, "Failed to acquire NVM semaphore");
+-		vfree(nvm_data);
+-		return status;
+-	}
+ 
+-	status = ice_read_flat_nvm(hw, 0, &nvm_size, nvm_data, false);
+-	if (status) {
+-		dev_dbg(dev, "ice_read_flat_nvm failed after reading %u bytes, err %d aq_err %d\n",
+-			nvm_size, status, hw->adminq.sq_last_status);
+-		NL_SET_ERR_MSG_MOD(extack, "Failed to read NVM contents");
++	num_blks = DIV_ROUND_UP(nvm_size, ICE_DEVLINK_READ_BLK_SIZE);
++	tmp = nvm_data;
++	left = nvm_size;
++
++	/* Some systems take longer to read the NVM than others which causes the
++	 * FW to reclaim the NVM lock before the entire NVM has been read. Fix
++	 * this by breaking the reads of the NVM into smaller chunks that will
++	 * probably not take as long. This has some overhead since we are
++	 * increasing the number of AQ commands, but it should always work
++	 */
++	for (i = 0; i < num_blks; i++) {
++		u32 read_sz = min_t(u32, ICE_DEVLINK_READ_BLK_SIZE, left);
++
++		status = ice_acquire_nvm(hw, ICE_RES_READ);
++		if (status) {
++			dev_dbg(dev, "ice_acquire_nvm failed, err %d aq_err %d\n",
++				status, hw->adminq.sq_last_status);
++			NL_SET_ERR_MSG_MOD(extack, "Failed to acquire NVM semaphore");
++			vfree(nvm_data);
++			return -EIO;
++		}
++
++		status = ice_read_flat_nvm(hw, i * ICE_DEVLINK_READ_BLK_SIZE,
++					   &read_sz, tmp, false);
++		if (status) {
++			dev_dbg(dev, "ice_read_flat_nvm failed after reading %u bytes, err %d aq_err %d\n",
++				read_sz, status, hw->adminq.sq_last_status);
++			NL_SET_ERR_MSG_MOD(extack, "Failed to read NVM contents");
++			ice_release_nvm(hw);
++			vfree(nvm_data);
++			return -EIO;
++		}
+ 		ice_release_nvm(hw);
+-		vfree(nvm_data);
+-		return status;
+-	}
+ 
+-	ice_release_nvm(hw);
++		tmp += read_sz;
++		left -= read_sz;
++	}
+ 
+ 	*data = nvm_data;
+ 
+-- 
+2.35.1
+
 
 
