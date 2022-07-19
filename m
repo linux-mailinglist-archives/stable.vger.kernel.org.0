@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EAB579E57
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD50579A04
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242632AbiGSNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:01:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55878 "EHLO
+        id S238467AbiGSMKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:10:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242971AbiGSM7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580F95007D;
-        Tue, 19 Jul 2022 05:25:23 -0700 (PDT)
+        with ESMTP id S238648AbiGSMJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 758A550713;
+        Tue, 19 Jul 2022 05:02:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 547A16182C;
-        Tue, 19 Jul 2022 12:25:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2592BC341C6;
-        Tue, 19 Jul 2022 12:25:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D47E0B81B2D;
+        Tue, 19 Jul 2022 12:02:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CAF0C341C6;
+        Tue, 19 Jul 2022 12:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233521;
-        bh=W61HKVJbMsqMD6iutIUHFWIUDrrKWcXaFRcxexO6GVM=;
+        s=korg; t=1658232141;
+        bh=eeh+2nf4lsuKbnUTy/VRaqLc3ZWatD414jgxT+uVw9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzoYzyCYCRsJpl3pD3Lscfcn4axl5FoCtyyE14ZDH878iLGpcv6zOtOleOu8lAwSr
-         osBaeHH3sngGlureeNwxzfZjJNYkW9Tb9SVuMEh4nRM/z0eDQ217Pl5YSbqEzlvJkG
-         Q5+vrnWzTg7i1A3+RxYoDZmnu5OCooRdzIIVoakc=
+        b=PpfkBeusdfL+jzEgbcyeEhrsSYjegNH7qiSndCzKkspJerF9CtudzsoCxdt/yQ+Qo
+         4OE46ZEGgqHZ5AdpANr8JkbKFmOD5AUSKtBmipOXv4y9MijTuZN5jS5Cb+MwrzW4bl
+         CcmV3RNBXGxSKgml867GnCcTDueO/RsOPW5V2yfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 123/231] nexthop: Fix data-races around nexthop_compat_mode.
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 05/71] ALSA: hda/realtek - Enable the headset-mic on a Xiaomis laptop
 Date:   Tue, 19 Jul 2022 13:53:28 +0200
-Message-Id: <20220719114724.792687497@linuxfoundation.org>
+Message-Id: <20220719114552.885430931@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Meng Tang <tangmeng@uniontech.com>
 
-[ Upstream commit bdf00bf24bef9be1ca641a6390fd5487873e0d2e ]
+commit 9b043a8f386485c74c0f8eea2c287d5bdbdf3279 upstream.
 
-While reading nexthop_compat_mode, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+The headset on this machine is not defined, after applying the quirk
+ALC256_FIXUP_ASUS_HEADSET_MIC, the headset-mic works well
 
-Fixes: 4f80116d3df3 ("net: ipv4: add sysctl for nexthop api compatibility mode")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220713094133.9894-1-tangmeng@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c |    2 +-
- net/ipv4/nexthop.c       |    5 +++--
- net/ipv6/route.c         |    2 +-
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -1811,7 +1811,7 @@ int fib_dump_info(struct sk_buff *skb, u
- 			goto nla_put_failure;
- 		if (nexthop_is_blackhole(fi->nh))
- 			rtm->rtm_type = RTN_BLACKHOLE;
--		if (!fi->fib_net->ipv4.sysctl_nexthop_compat_mode)
-+		if (!READ_ONCE(fi->fib_net->ipv4.sysctl_nexthop_compat_mode))
- 			goto offload;
- 	}
- 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -1858,7 +1858,7 @@ static void __remove_nexthop_fib(struct
- 		/* __ip6_del_rt does a release, so do a hold here */
- 		fib6_info_hold(f6i);
- 		ipv6_stub->ip6_del_rt(net, f6i,
--				      !net->ipv4.sysctl_nexthop_compat_mode);
-+				      !READ_ONCE(net->ipv4.sysctl_nexthop_compat_mode));
- 	}
- }
- 
-@@ -2361,7 +2361,8 @@ out:
- 	if (!rc) {
- 		nh_base_seq_inc(net);
- 		nexthop_notify(RTM_NEWNEXTHOP, new_nh, &cfg->nlinfo);
--		if (replace_notify && net->ipv4.sysctl_nexthop_compat_mode)
-+		if (replace_notify &&
-+		    READ_ONCE(net->ipv4.sysctl_nexthop_compat_mode))
- 			nexthop_replace_notify(net, new_nh, &cfg->nlinfo);
- 	}
- 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -5737,7 +5737,7 @@ static int rt6_fill_node(struct net *net
- 		if (nexthop_is_blackhole(rt->nh))
- 			rtm->rtm_type = RTN_BLACKHOLE;
- 
--		if (net->ipv4.sysctl_nexthop_compat_mode &&
-+		if (READ_ONCE(net->ipv4.sysctl_nexthop_compat_mode) &&
- 		    rt6_fill_node_nexthop(skb, rt->nh, &nh_flags) < 0)
- 			goto nla_put_failure;
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8423,6 +8423,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1d72, 0x1945, "Redmi G", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1947, "RedmiBook Air", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x8086, 0x2074, "Intel NUC 8", ALC233_FIXUP_INTEL_NUC8_DMIC),
+ 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
 
 
