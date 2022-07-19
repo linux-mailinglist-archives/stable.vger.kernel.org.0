@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7F53579D44
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DFC579D42
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238661AbiGSMuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
+        id S238137AbiGSMuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237674AbiGSMsl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:48:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939B38D5CA;
-        Tue, 19 Jul 2022 05:19:09 -0700 (PDT)
+        with ESMTP id S241700AbiGSMsm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:48:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A2188D5DC;
+        Tue, 19 Jul 2022 05:19:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BF2DB81B21;
-        Tue, 19 Jul 2022 12:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2CF1C341C6;
-        Tue, 19 Jul 2022 12:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3DD96177F;
+        Tue, 19 Jul 2022 12:19:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF202C341C6;
+        Tue, 19 Jul 2022 12:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233148;
-        bh=o7qzqHx+I24J2T5hE92OpaglvEMG/SRhBOpBoQSsWHs=;
+        s=korg; t=1658233151;
+        bh=PEuV/4o35jeAEzG8xHkh/SJRBVMvdGbRaqzCgxIJ/OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFQrfIQHQP1z08Tjte6vMAqu9vjpOqFO3oQmd2ZEVk0N4eu6TsHVrN6w0MBqpWf+3
-         +b4M1LAQQ0bzVaNbYwoeyse7d8IKG/Yca2KCJ7eBcfKsVREbVOrxrS6mMmEV4xTaR+
-         Z1UCcplxGj6sp/I+LQQUBIntctHVR1eM+XgPbFO0=
+        b=TBTSmiDGOCBShHVwj2wsV40YBeTo+ggdJODGwV7pEZJt9tOjbOrVjynEtpQzNFRLR
+         G0qM8XwjGV3n5g2lNSSvGDyhV6qZMpFAN7l1S2CqNKH7e2lakJTn+gXG5U+N1T1sNz
+         a1V1/vnAY800v3Np+vzVGEzpoMXxiPBYbF3O0f8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Edwin Brossette <edwin.brossette@6wind.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.18 022/231] ip: fix dflt addr selection for connected nexthop
-Date:   Tue, 19 Jul 2022 13:51:47 +0200
-Message-Id: <20220719114715.859200840@linuxfoundation.org>
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.18 023/231] ARM: 9213/1: Print message about disabled Spectre workarounds only once
+Date:   Tue, 19 Jul 2022 13:51:48 +0200
+Message-Id: <20220719114715.954895250@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,92 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit 747c14307214b55dbd8250e1ab44cad8305756f1 upstream.
+commit e4ced82deb5fb17222fb82e092c3f8311955b585 upstream.
 
-When a nexthop is added, without a gw address, the default scope was set
-to 'host'. Thus, when a source address is selected, 127.0.0.1 may be chosen
-but rejected when the route is used.
+Print the message about disabled Spectre workarounds only once. The
+message is printed each time CPU goes out from idling state on NVIDIA
+Tegra boards, causing storm in KMSG that makes system unusable.
 
-When using a route without a nexthop id, the scope can be configured in the
-route, thus the problem doesn't exist.
-
-To explain more deeply: when a user creates a nexthop, it cannot specify
-the scope. To create it, the function nh_create_ipv4() calls fib_check_nh()
-with scope set to 0. fib_check_nh() calls fib_check_nh_nongw() wich was
-setting scope to 'host'. Then, nh_create_ipv4() calls
-fib_info_update_nhc_saddr() with scope set to 'host'. The src addr is
-chosen before the route is inserted.
-
-When a 'standard' route (ie without a reference to a nexthop) is added,
-fib_create_info() calls fib_info_update_nhc_saddr() with the scope set by
-the user. iproute2 set the scope to 'link' by default.
-
-Here is a way to reproduce the problem:
-ip netns add foo
-ip -n foo link set lo up
-ip netns add bar
-ip -n bar link set lo up
-sleep 1
-
-ip -n foo link add name eth0 type dummy
-ip -n foo link set eth0 up
-ip -n foo address add 192.168.0.1/24 dev eth0
-
-ip -n foo link add name veth0 type veth peer name veth1 netns bar
-ip -n foo link set veth0 up
-ip -n bar link set veth1 up
-
-ip -n bar address add 192.168.1.1/32 dev veth1
-ip -n bar route add default dev veth1
-
-ip -n foo nexthop add id 1 dev veth0
-ip -n foo route add 192.168.1.1 nhid 1
-
-Try to get/use the route:
-> $ ip -n foo route get 192.168.1.1
-> RTNETLINK answers: Invalid argument
-> $ ip netns exec foo ping -c1 192.168.1.1
-> ping: connect: Invalid argument
-
-Try without nexthop group (iproute2 sets scope to 'link' by dflt):
-ip -n foo route del 192.168.1.1
-ip -n foo route add 192.168.1.1 dev veth0
-
-Try to get/use the route:
-> $ ip -n foo route get 192.168.1.1
-> 192.168.1.1 dev veth0 src 192.168.0.1 uid 0
->     cache
-> $ ip netns exec foo ping -c1 192.168.1.1
-> PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
-> 64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.039 ms
->
-> --- 192.168.1.1 ping statistics ---
-> 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-> rtt min/avg/max/mdev = 0.039/0.039/0.039/0.000 ms
-
-CC: stable@vger.kernel.org
-Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
-Reported-by: Edwin Brossette <edwin.brossette@6wind.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Link: https://lore.kernel.org/r/20220713114853.29406-1-nicolas.dichtel@6wind.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mm/proc-v7-bugs.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -1230,7 +1230,7 @@ static int fib_check_nh_nongw(struct net
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -108,8 +108,7 @@ static unsigned int spectre_v2_install_w
+ #else
+ static unsigned int spectre_v2_install_workaround(unsigned int method)
+ {
+-	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n",
+-		smp_processor_id());
++	pr_info_once("Spectre V2: workarounds disabled by configuration\n");
  
- 	nh->fib_nh_dev = in_dev->dev;
- 	dev_hold_track(nh->fib_nh_dev, &nh->fib_nh_dev_tracker, GFP_ATOMIC);
--	nh->fib_nh_scope = RT_SCOPE_HOST;
-+	nh->fib_nh_scope = RT_SCOPE_LINK;
- 	if (!netif_carrier_ok(nh->fib_nh_dev))
- 		nh->fib_nh_flags |= RTNH_F_LINKDOWN;
- 	err = 0;
+ 	return SPECTRE_VULNERABLE;
+ }
 
 
