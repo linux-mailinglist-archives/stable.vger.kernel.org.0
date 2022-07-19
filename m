@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E4B579E02
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 968E4579BB3
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242359AbiGSM5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:57:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40378 "EHLO
+        id S236257AbiGSM34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242280AbiGSM41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290215B798;
-        Tue, 19 Jul 2022 05:22:33 -0700 (PDT)
+        with ESMTP id S237838AbiGSM3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4E467157;
+        Tue, 19 Jul 2022 05:10:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C76DBB81B10;
-        Tue, 19 Jul 2022 12:22:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D07BC341C6;
-        Tue, 19 Jul 2022 12:22:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD175616F8;
+        Tue, 19 Jul 2022 12:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 884AEC341C6;
+        Tue, 19 Jul 2022 12:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233350;
-        bh=Mkvf0EX9t/n0RX1AyTZNR8hPmODfZOits7KU9Qsew+E=;
+        s=korg; t=1658232653;
+        bh=qvrK/dgaVvy8Ibcvi3b3/DXHImhH9aiPUqLY+jKaZKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BwX2cJjqxmiEYbGK6decVcgLZYQIFCnMGn+8fMeREXLA5GLOOaZshkCoQzVsttG0y
-         JiAirOh7l7fBxGZFN5KMSY8dYLxN+PNzkmJH//yqEUs/MglAG7HTRn3OU5ztlSCeae
-         16ig1LEbjiuh0Is/yqET+UIxq2AxEWaxKcl9b3co=
+        b=0TzwcOobmVlPMlJikqVpuf6RNGqoDCH8GaXmIR12V+jKRiUW3vzwFbYv4Nw/bYN7Y
+         T3KkaeHJbnJpFk2MLBn46y5AJi0dbjsQREgqut+ypUBLxVuWm/KC3xjYBx5IC82iJ4
+         e58GJqhNeHUejqfe89+hjBtoAgoW9CSjy5YMdXeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 066/231] net: stmmac: dwc-qos: Disable split header for Tegra194
+        stable@vger.kernel.org,
+        Dominique MARTINET <dominique.martinet@atmark-techno.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 019/167] btrfs: return -EAGAIN for NOWAIT dio reads/writes on compressed and inline extents
 Date:   Tue, 19 Jul 2022 13:52:31 +0200
-Message-Id: <20220719114719.771014731@linuxfoundation.org>
+Message-Id: <20220719114658.606783628@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 029c1c2059e9c4b38f97a06204cdecd10cfbeb8a ]
+commit a4527e1853f8ff6e0b7c2dadad6268bd38427a31 upstream.
 
-There is a long-standing issue with the Synopsys DWC Ethernet driver
-for Tegra194 where random system crashes have been observed [0]. The
-problem occurs when the split header feature is enabled in the stmmac
-driver. In the bad case, a larger than expected buffer length is
-received and causes the calculation of the total buffer length to
-overflow. This results in a very large buffer length that causes the
-kernel to crash. Why this larger buffer length is received is not clear,
-however, the feedback from the NVIDIA design team is that the split
-header feature is not supported for Tegra194. Therefore, disable split
-header support for Tegra194 to prevent these random crashes from
-occurring.
+When doing a direct IO read or write, we always return -ENOTBLK when we
+find a compressed extent (or an inline extent) so that we fallback to
+buffered IO. This however is not ideal in case we are in a NOWAIT context
+(io_uring for example), because buffered IO can block and we currently
+have no support for NOWAIT semantics for buffered IO, so if we need to
+fallback to buffered IO we should first signal the caller that we may
+need to block by returning -EAGAIN instead.
 
-[0] https://lore.kernel.org/linux-tegra/b0b17697-f23e-8fa5-3757-604a86f3a095@nvidia.com/
+This behaviour can also result in short reads being returned to user
+space, which although it's not incorrect and user space should be able
+to deal with partial reads, it's somewhat surprising and even some popular
+applications like QEMU (Link tag #1) and MariaDB (Link tag #2) don't
+deal with short reads properly (or at all).
 
-Fixes: 67afd6d1cfdf ("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20220706083913.13750-1-jonathanh@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The short read case happens when we try to read from a range that has a
+non-compressed and non-inline extent followed by a compressed extent.
+After having read the first extent, when we find the compressed extent we
+return -ENOTBLK from btrfs_dio_iomap_begin(), which results in iomap to
+treat the request as a short read, returning 0 (success) and waiting for
+previously submitted bios to complete (this happens at
+fs/iomap/direct-io.c:__iomap_dio_rw()). After that, and while at
+btrfs_file_read_iter(), we call filemap_read() to use buffered IO to
+read the remaining data, and pass it the number of bytes we were able to
+read with direct IO. Than at filemap_read() if we get a page fault error
+when accessing the read buffer, we return a partial read instead of an
+-EFAULT error, because the number of bytes previously read is greater
+than zero.
+
+So fix this by returning -EAGAIN for NOWAIT direct IO when we find a
+compressed or an inline extent.
+
+Reported-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
+Link: https://lore.kernel.org/linux-btrfs/YrrFGO4A1jS0GI0G@atmark-techno.com/
+Link: https://jira.mariadb.org/browse/MDEV-27900?focusedCommentId=216582&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-216582
+Tested-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/inode.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-index bc91fd867dcd..358fc26f8d1f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-@@ -361,6 +361,7 @@ static int tegra_eqos_probe(struct platform_device *pdev,
- 	data->fix_mac_speed = tegra_eqos_fix_speed;
- 	data->init = tegra_eqos_init;
- 	data->bsp_priv = eqos;
-+	data->sph_disable = 1;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7957,7 +7957,19 @@ static int btrfs_dio_iomap_begin(struct
+ 	if (test_bit(EXTENT_FLAG_COMPRESSED, &em->flags) ||
+ 	    em->block_start == EXTENT_MAP_INLINE) {
+ 		free_extent_map(em);
+-		ret = -ENOTBLK;
++		/*
++		 * If we are in a NOWAIT context, return -EAGAIN in order to
++		 * fallback to buffered IO. This is not only because we can
++		 * block with buffered IO (no support for NOWAIT semantics at
++		 * the moment) but also to avoid returning short reads to user
++		 * space - this happens if we were able to read some data from
++		 * previous non-compressed extents and then when we fallback to
++		 * buffered IO, at btrfs_file_read_iter() by calling
++		 * filemap_read(), we fail to fault in pages for the read buffer,
++		 * in which case filemap_read() returns a short read (the number
++		 * of bytes previously read is > 0, so it does not return -EFAULT).
++		 */
++		ret = (flags & IOMAP_NOWAIT) ? -EAGAIN : -ENOTBLK;
+ 		goto unlock_err;
+ 	}
  
- 	err = tegra_eqos_init(pdev, eqos);
- 	if (err < 0)
--- 
-2.35.1
-
 
 
