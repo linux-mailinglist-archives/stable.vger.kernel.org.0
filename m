@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF401579E25
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB235579E44
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242523AbiGSM6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
+        id S242238AbiGSM7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:59:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242477AbiGSM5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:57:45 -0400
+        with ESMTP id S242477AbiGSM6e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A085C9FB;
-        Tue, 19 Jul 2022 05:23:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866F95F10C;
+        Tue, 19 Jul 2022 05:23:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A0C3B81B1A;
-        Tue, 19 Jul 2022 12:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B988C341CA;
-        Tue, 19 Jul 2022 12:23:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D12EB81B10;
+        Tue, 19 Jul 2022 12:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809A1C385A5;
+        Tue, 19 Jul 2022 12:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233391;
-        bh=ZEvhBsiFb0MsBA5AbLVJ+Wg+sCQobeZjz46lu0goM20=;
+        s=korg; t=1658233419;
+        bh=T750x+VhZsZMYNY0oaiE3SyflqHPJnBA4N1zMOZhvHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OM6IzAe9YMNOQ8rekMkme+F6QeinKrR6und3ni8dTBDKWytaMQAnxVenlqWqkbL70
-         9LVgsdTyxItzUiJn3+q481LINzYFDXKCowOM1Dx9agkxl/ujXT3c2/yi2UJcepamds
-         /sqWT+7NdES3Uy55PQpZQQBOZzE79ALE9ujIDdj8=
+        b=YmTzwA0AQROWGfBZf5MFxBx9p3DgS914CRwWu6TdBZXXgQNmtIBivMXGvciQqEr1a
+         b5bwqd44u0OGMzaxWTieeIrXHoGiQj+DdRUJO0JN6O18Ii/j6smB29IsbXSGT5YBXS
+         vkPccuBuPUNdGVZfWPsFARZ7Nimw2Zn8zlryRBWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bin Meng <bmeng.cn@gmail.com>,
-        Anup Patel <apatel@ventanamicro.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
-        Anup Patel <anup@brainfault.org>,
+        stable@vger.kernel.org, Andrzej Hajda <andrzej.hajda@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 089/231] RISC-V: KVM: Fix SRCU deadlock caused by kvm_riscv_check_vcpu_requests()
-Date:   Tue, 19 Jul 2022 13:52:54 +0200
-Message-Id: <20220719114722.253629343@linuxfoundation.org>
+Subject: [PATCH 5.18 090/231] drm/i915/gvt: IS_ERR() vs NULL bug in intel_gvt_update_reg_whitelist()
+Date:   Tue, 19 Jul 2022 13:52:55 +0200
+Message-Id: <20220719114722.325130692@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -56,48 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anup Patel <apatel@ventanamicro.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit be82abe6a76ba8e76f25312566182b0f13c4fbf9 ]
+[ Upstream commit e87197fbd137c888fd6c871c72fe7e89445dd015 ]
 
-The kvm_riscv_check_vcpu_requests() is called with SRCU read lock held
-and for KVM_REQ_SLEEP request it will block the VCPU without releasing
-SRCU read lock. This causes KVM ioctls (such as KVM_IOEVENTFD) from
-other VCPUs of the same Guest/VM to hang/deadlock if there is any
-synchronize_srcu() or synchronize_srcu_expedited() in the path.
+The shmem_pin_map() function returns NULL, it doesn't return error
+pointers.
 
-To fix the above in kvm_riscv_check_vcpu_requests(), we should do SRCU
-read unlock before blocking the VCPU and do SRCU read lock after VCPU
-wakeup.
-
-Fixes: cce69aff689e ("RISC-V: KVM: Implement VCPU interrupts and requests handling")
-Reported-by: Bin Meng <bmeng.cn@gmail.com>
-Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Tested-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
-Tested-by: Bin Meng <bmeng.cn@gmail.com>
-Signed-off-by: Anup Patel <anup@brainfault.org>
+Fixes: 97ea656521c8 ("drm/i915/gvt: Parse default state to update reg whitelist")
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/Ysftoia2BPUyqVcD@kili
+Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kvm/vcpu.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/i915/gvt/cmd_parser.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
-index 7461f964d20a..3894777bfa87 100644
---- a/arch/riscv/kvm/vcpu.c
-+++ b/arch/riscv/kvm/vcpu.c
-@@ -673,9 +673,11 @@ static void kvm_riscv_check_vcpu_requests(struct kvm_vcpu *vcpu)
+diff --git a/drivers/gpu/drm/i915/gvt/cmd_parser.c b/drivers/gpu/drm/i915/gvt/cmd_parser.c
+index 2459213b6c87..f49c1e8b8df7 100644
+--- a/drivers/gpu/drm/i915/gvt/cmd_parser.c
++++ b/drivers/gpu/drm/i915/gvt/cmd_parser.c
+@@ -3117,9 +3117,9 @@ void intel_gvt_update_reg_whitelist(struct intel_vgpu *vgpu)
+ 			continue;
  
- 	if (kvm_request_pending(vcpu)) {
- 		if (kvm_check_request(KVM_REQ_SLEEP, vcpu)) {
-+			kvm_vcpu_srcu_read_unlock(vcpu);
- 			rcuwait_wait_event(wait,
- 				(!vcpu->arch.power_off) && (!vcpu->arch.pause),
- 				TASK_INTERRUPTIBLE);
-+			kvm_vcpu_srcu_read_lock(vcpu);
+ 		vaddr = shmem_pin_map(engine->default_state);
+-		if (IS_ERR(vaddr)) {
+-			gvt_err("failed to map %s->default state, err:%zd\n",
+-				engine->name, PTR_ERR(vaddr));
++		if (!vaddr) {
++			gvt_err("failed to map %s->default state\n",
++				engine->name);
+ 			return;
+ 		}
  
- 			if (vcpu->arch.power_off || vcpu->arch.pause) {
- 				/*
 -- 
 2.35.1
 
