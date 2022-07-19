@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71EBA579A5E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:14:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611D857998A
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238971AbiGSMN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:13:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36556 "EHLO
+        id S237884AbiGSME4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:04:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238921AbiGSMNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:13:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696D7F1C;
-        Tue, 19 Jul 2022 05:04:33 -0700 (PDT)
+        with ESMTP id S238099AbiGSMDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:03:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E1A4BD0A;
+        Tue, 19 Jul 2022 04:59:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47580B81A8F;
-        Tue, 19 Jul 2022 12:04:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B61FC341C6;
-        Tue, 19 Jul 2022 12:04:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA9C6B81A2E;
+        Tue, 19 Jul 2022 11:59:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 247CDC341D0;
+        Tue, 19 Jul 2022 11:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232242;
-        bh=lIGn+EkYk/KbpFsuPs7gjDgknOujUHPpafCF3+1seNY=;
+        s=korg; t=1658231978;
+        bh=JIJUzDb0o+rJbqzCQAWSd05bBePyhZTphlerFNhxAdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wU2gUDZnAHG2ZI32THaKxodgMG3X0B3b9wGpWHSbVvS6dgPg0EEDV0ShbgJXLhE++
-         1haEmqGRvaNOocbnZLWw8OUO5c/JLR/eukZsaGuBP3fxb2kiXVJ3lO4Omd557kACX2
-         fgscFGzFZU4gsCh6OBc4lKJe2RhFcyrkVMFhme6o=
+        b=R3hgLC61NT8aCCJaqq7xfbbwclW1LPji/5e4R1fnOC6+2gVBJdUKGbyhVvMnKFveb
+         zWrmSK2m7SFVrM6UKl0tgcSVWzqWFLKF5XYfDvYTR58W3xs4zuadCNG/9oJJJCwnAo
+         eP9ac1OGI0+lhk1+PYA2RtMMQ+qUwfoZpUGeScfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/71] drm/i915/gt: Serialize TLB invalidates with GT resets
+Subject: [PATCH 4.19 19/48] icmp: Fix a data-race around sysctl_icmp_ratelimit.
 Date:   Tue, 19 Jul 2022 13:53:56 +0200
-Message-Id: <20220719114555.489104924@linuxfoundation.org>
+Message-Id: <20220719114521.589392013@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,71 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit a1c5a7bf79c1faa5633b918b5c0666545e84c4d1 ]
+[ Upstream commit 2a4eb714841f288cf51c7d942d98af6a8c6e4b01 ]
 
-Avoid trying to invalidate the TLB in the middle of performing an
-engine reset, as this may result in the reset timing out. Currently,
-the TLB invalidate is only serialised by its own mutex, forgoing the
-uncore lock, but we can take the uncore->lock as well to serialise
-the mmio access, thereby serialising with the GDRST.
+While reading sysctl_icmp_ratelimit, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Tested on a NUC5i7RYB, BIOS RYBDWi35.86A.0380.2019.0517.1530 with
-i915 selftest/hangcheck.
-
-Cc: stable@vger.kernel.org  # v4.4 and upper
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Reported-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1e59a7c45dd919a530256b9ac721ac6ea86c0677.1657639152.git.mchehab@kernel.org
-(cherry picked from commit 33da97894758737895e90c909f16786052680ef4)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ net/ipv4/icmp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index c8c070375d29..f6d7f5d307d7 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -339,6 +339,20 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	mutex_lock(&gt->tlb_invalidate_lock);
- 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 953cc70851cf..eb29da8971e1 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -333,7 +333,8 @@ static bool icmpv4_xrlim_allow(struct net *net, struct rtable *rt,
  
-+	spin_lock_irq(&uncore->lock); /* serialise invalidate with GT reset */
-+
-+	for_each_engine(engine, gt, id) {
-+		struct reg_and_bit rb;
-+
-+		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
-+		if (!i915_mmio_reg_offset(rb.reg))
-+			continue;
-+
-+		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-+	}
-+
-+	spin_unlock_irq(&uncore->lock);
-+
- 	for_each_engine(engine, gt, id) {
- 		/*
- 		 * HW architecture suggest typical invalidation time at 40us,
-@@ -353,7 +367,6 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		if (!i915_mmio_reg_offset(rb.reg))
- 			continue;
- 
--		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
- 		if (__intel_wait_for_register_fw(uncore,
- 						 rb.reg, rb.bit, 0,
- 						 timeout_us, timeout_ms,
+ 	vif = l3mdev_master_ifindex(dst->dev);
+ 	peer = inet_getpeer_v4(net->ipv4.peers, fl4->daddr, vif, 1);
+-	rc = inet_peer_xrlim_allow(peer, net->ipv4.sysctl_icmp_ratelimit);
++	rc = inet_peer_xrlim_allow(peer,
++				   READ_ONCE(net->ipv4.sysctl_icmp_ratelimit));
+ 	if (peer)
+ 		inet_putpeer(peer);
+ out:
 -- 
 2.35.1
 
