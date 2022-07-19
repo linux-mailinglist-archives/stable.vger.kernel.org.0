@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B58CA579E70
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D869A579BF5
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242503AbiGSNBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:01:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52118 "EHLO
+        id S237769AbiGSMfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:35:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242540AbiGSM6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:38 -0400
+        with ESMTP id S240490AbiGSMdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:33:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54DB05C947;
-        Tue, 19 Jul 2022 05:23:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D0774DE7;
+        Tue, 19 Jul 2022 05:12:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 148E7B81A7F;
-        Tue, 19 Jul 2022 12:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69239C341C6;
-        Tue, 19 Jul 2022 12:23:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 484C2B81B1A;
+        Tue, 19 Jul 2022 12:12:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6DEAC341C6;
+        Tue, 19 Jul 2022 12:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233422;
-        bh=MbtqvblcDyxVBgmf+7fz/Bb/HJlp2IV/sr6R4VkWY+4=;
+        s=korg; t=1658232777;
+        bh=ZG3776QSZuja70voJ1g0ymRaEyAfYER6qQIvzhPcQ40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+EtxXa7EYARDOCVBu1fAj/Sr2LRG+k+cdsshGM2vfolxa/zfTpevfzZvTwPdTns/
-         FsTLESy638klkYFuJzs6F3VdbPrbGeKppHaUWcbMtGm9HDBWuauKBcNeAuDj9mwFH4
-         U4odKkGzm6ROXjFyn+QNy96q1RCAGQBqez2yyLbU=
+        b=H1m2jRhYqx8wlhZjNezYZ0Ts3I/tRgz2WP46jf2NnEgZekW5TkPj6bvUstR+UOXAe
+         atp9FF+c5nzIa28EigrWJNDYzdUS81QUDftqJbCWv77v9Trm2SVfoCWmrJR7Ujdl+3
+         qVTfmjsqKGBXPHv+w15KDu193msO7a4NWtCK/NSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 091/231] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
+Subject: [PATCH 5.15 044/167] ASoC: tas2764: Fix and extend FSYNC polarity handling
 Date:   Tue, 19 Jul 2022 13:52:56 +0200
-Message-Id: <20220719114722.395824225@linuxfoundation.org>
+Message-Id: <20220719114700.919550761@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 166d3863231667c4f64dee72b77d1102cdfad11f ]
+[ Upstream commit d1a10f1b48202e2d183cce144c218a211e98d906 ]
 
-The error paths of gntdev_mmap() can call unmap_grant_pages() even
-though not all of the pages have been successfully mapped.  This will
-trigger the WARN_ON()s in __unmap_grant_pages_done().  The number of
-warnings can be very large; I have observed thousands of lines of
-warnings in the systemd journal.
+Fix setting of FSYNC polarity in case of LEFT_J and DSP_A/B formats.
+Do NOT set the SCFG field as was previously done, because that is not
+correct and is also in conflict with the "ASI1 Source" control which
+sets the same SCFG field!
 
-Avoid this problem by only warning on unmapping failure if the handle
-being unmapped is not INVALID_GRANT_HANDLE.  The handle field of any
-page that was not successfully mapped will be INVALID_GRANT_HANDLE, so
-this catches all cases where unmapping can legitimately fail.
+Also add support for explicit polarity inversion.
 
-Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
-Cc: stable@vger.kernel.org
-Suggested-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220710230522.1563-1-demi@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220630075135.2221-2-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/codecs/tas2764.c | 30 +++++++++++++++++-------------
+ sound/soc/codecs/tas2764.h |  6 ++----
+ 2 files changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 4b56c39f766d..84b143eef395 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -396,13 +396,15 @@ static void __unmap_grant_pages_done(int result,
- 	unsigned int offset = data->unmap_ops - map->unmap_ops;
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index edc66ff6dc49..46c815650b2c 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -135,7 +135,8 @@ static const char * const tas2764_ASI1_src[] = {
+ };
  
- 	for (i = 0; i < data->count; i++) {
--		WARN_ON(map->unmap_ops[offset+i].status);
-+		WARN_ON(map->unmap_ops[offset + i].status != GNTST_okay &&
-+			map->unmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
- 		pr_debug("unmap handle=%d st=%d\n",
- 			map->unmap_ops[offset+i].handle,
- 			map->unmap_ops[offset+i].status);
- 		map->unmap_ops[offset+i].handle = INVALID_GRANT_HANDLE;
- 		if (use_ptemod) {
--			WARN_ON(map->kunmap_ops[offset+i].status);
-+			WARN_ON(map->kunmap_ops[offset + i].status != GNTST_okay &&
-+				map->kunmap_ops[offset + i].handle != INVALID_GRANT_HANDLE);
- 			pr_debug("kunmap handle=%u st=%d\n",
- 				 map->kunmap_ops[offset+i].handle,
- 				 map->kunmap_ops[offset+i].status);
+ static SOC_ENUM_SINGLE_DECL(
+-	tas2764_ASI1_src_enum, TAS2764_TDM_CFG2, 4, tas2764_ASI1_src);
++	tas2764_ASI1_src_enum, TAS2764_TDM_CFG2, TAS2764_TDM_CFG2_SCFG_SHIFT,
++	tas2764_ASI1_src);
+ 
+ static const struct snd_kcontrol_new tas2764_asi1_mux =
+ 	SOC_DAPM_ENUM("ASI1 Source", tas2764_ASI1_src_enum);
+@@ -333,20 +334,22 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
+-	u8 tdm_rx_start_slot = 0, asi_cfg_1 = 0;
+-	int iface;
++	u8 tdm_rx_start_slot = 0, asi_cfg_0 = 0, asi_cfg_1 = 0;
+ 	int ret;
+ 
+ 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
++	case SND_SOC_DAIFMT_NB_IF:
++		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
++		fallthrough;
+ 	case SND_SOC_DAIFMT_NB_NF:
+ 		asi_cfg_1 = TAS2764_TDM_CFG1_RX_RISING;
+ 		break;
++	case SND_SOC_DAIFMT_IB_IF:
++		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
++		fallthrough;
+ 	case SND_SOC_DAIFMT_IB_NF:
+ 		asi_cfg_1 = TAS2764_TDM_CFG1_RX_FALLING;
+ 		break;
+-	default:
+-		dev_err(tas2764->dev, "ASI format Inverse is not found\n");
+-		return -EINVAL;
+ 	}
+ 
+ 	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
+@@ -357,13 +360,13 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_I2S:
++		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
++		fallthrough;
+ 	case SND_SOC_DAIFMT_DSP_A:
+-		iface = TAS2764_TDM_CFG2_SCFG_I2S;
+ 		tdm_rx_start_slot = 1;
+ 		break;
+ 	case SND_SOC_DAIFMT_DSP_B:
+ 	case SND_SOC_DAIFMT_LEFT_J:
+-		iface = TAS2764_TDM_CFG2_SCFG_LEFT_J;
+ 		tdm_rx_start_slot = 0;
+ 		break;
+ 	default:
+@@ -372,14 +375,15 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
+-					    TAS2764_TDM_CFG1_MASK,
+-					    (tdm_rx_start_slot << TAS2764_TDM_CFG1_51_SHIFT));
++	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG0,
++					    TAS2764_TDM_CFG0_FRAME_START,
++					    asi_cfg_0);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG2,
+-					    TAS2764_TDM_CFG2_SCFG_MASK, iface);
++	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
++					    TAS2764_TDM_CFG1_MASK,
++					    (tdm_rx_start_slot << TAS2764_TDM_CFG1_51_SHIFT));
+ 	if (ret < 0)
+ 		return ret;
+ 
+diff --git a/sound/soc/codecs/tas2764.h b/sound/soc/codecs/tas2764.h
+index 67d6fd903c42..f015f22a083b 100644
+--- a/sound/soc/codecs/tas2764.h
++++ b/sound/soc/codecs/tas2764.h
+@@ -47,6 +47,7 @@
+ #define TAS2764_TDM_CFG0_MASK		GENMASK(3, 1)
+ #define TAS2764_TDM_CFG0_44_1_48KHZ	BIT(3)
+ #define TAS2764_TDM_CFG0_88_2_96KHZ	(BIT(3) | BIT(1))
++#define TAS2764_TDM_CFG0_FRAME_START	BIT(0)
+ 
+ /* TDM Configuration Reg1 */
+ #define TAS2764_TDM_CFG1		TAS2764_REG(0X0, 0x09)
+@@ -66,10 +67,7 @@
+ #define TAS2764_TDM_CFG2_RXS_16BITS	0x0
+ #define TAS2764_TDM_CFG2_RXS_24BITS	BIT(0)
+ #define TAS2764_TDM_CFG2_RXS_32BITS	BIT(1)
+-#define TAS2764_TDM_CFG2_SCFG_MASK	GENMASK(5, 4)
+-#define TAS2764_TDM_CFG2_SCFG_I2S	0x0
+-#define TAS2764_TDM_CFG2_SCFG_LEFT_J	BIT(4)
+-#define TAS2764_TDM_CFG2_SCFG_RIGHT_J	BIT(5)
++#define TAS2764_TDM_CFG2_SCFG_SHIFT	4
+ 
+ /* TDM Configuration Reg3 */
+ #define TAS2764_TDM_CFG3		TAS2764_REG(0X0, 0x0c)
 -- 
 2.35.1
 
