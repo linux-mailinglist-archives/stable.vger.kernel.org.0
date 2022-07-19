@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9728B579E05
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B89B579B87
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242362AbiGSM5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40962 "EHLO
+        id S240171AbiGSM2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242361AbiGSM4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0A95C945;
-        Tue, 19 Jul 2022 05:22:39 -0700 (PDT)
+        with ESMTP id S240182AbiGSM2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:28:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D45D26556D;
+        Tue, 19 Jul 2022 05:10:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73D1DB81B10;
-        Tue, 19 Jul 2022 12:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20BFC341C6;
-        Tue, 19 Jul 2022 12:22:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8A2861746;
+        Tue, 19 Jul 2022 12:10:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 782B3C341CA;
+        Tue, 19 Jul 2022 12:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233356;
-        bh=hA1qIK0DBCrwchGNAPuuqfIrR5e5Gk370lNmeck5ih8=;
+        s=korg; t=1658232633;
+        bh=rq7NF9/tOFm6Aq6DbFiY6QDlf4ceEsnv+kPLrsWJb/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxXmWR8BgRZU1X7cp8QU1RqmtMd9jCd8HQa1VrPUcu8sZadGgLe26w1QKWVx30GQ0
-         RzNIVj4Mn/sX+WLkbNWuMS7JBmk0HhEM6MmDRu0McDhlep2tYRYX26mMK0UL2TVVhE
-         mvcIItcop0L7t39M5AGpPy1zUgHDPSRLzkYb3aFo=
+        b=lr59wufhKjtYqt+wiKe0uedCjFocUnf57f3wxwQ/GUm9EOnlcJqtrtJalx99UhLBY
+         q4YEFVHPaexktuM3tiBFNgOtWLlpW+2Prf5NkP63Q3+WZa9faNsZ5/CxQFjY615z//
+         fnsDdpda8wptKBT67k0uR9Ea3IxzHwb4nz+6eiRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 058/231] ASoC: Intel: Skylake: Correct the ssp rate discovery in skl_get_ssp_clks()
-Date:   Tue, 19 Jul 2022 13:52:23 +0200
-Message-Id: <20220719114719.058311756@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Tom Zanussi <tom.zanussi@linux.intel.com>,
+        Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [PATCH 5.15 012/167] tracing/histograms: Fix memory leak problem
+Date:   Tue, 19 Jul 2022 13:52:24 +0200
+Message-Id: <20220719114657.877994957@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-[ Upstream commit 219af251bd1694bce1f627d238347d2eaf13de61 ]
+commit 7edc3945bdce9c39198a10d6129377a5c53559c2 upstream.
 
-The present flag is only set once when one rate has been found to be saved.
-This will effectively going to ignore any rate discovered at later time and
-based on the code, this is not the intention.
+This reverts commit 46bbe5c671e06f070428b9be142cc4ee5cedebac.
 
-Fixes: bc2bd45b1f7f3 ("ASoC: Intel: Skylake: Parse nhlt and register clock device")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20220630065638.11183-2-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As commit 46bbe5c671e0 ("tracing: fix double free") said, the
+"double free" problem reported by clang static analyzer is:
+  > In parse_var_defs() if there is a problem allocating
+  > var_defs.expr, the earlier var_defs.name is freed.
+  > This free is duplicated by free_var_defs() which frees
+  > the rest of the list.
+
+However, if there is a problem allocating N-th var_defs.expr:
+  + in parse_var_defs(), the freed 'earlier var_defs.name' is
+    actually the N-th var_defs.name;
+  + then in free_var_defs(), the names from 0th to (N-1)-th are freed;
+
+                        IF ALLOCATING PROBLEM HAPPENED HERE!!! -+
+                                                                 \
+                                                                  |
+          0th           1th                 (N-1)-th      N-th    V
+          +-------------+-------------+-----+-------------+-----------
+var_defs: | name | expr | name | expr | ... | name | expr | name | ///
+          +-------------+-------------+-----+-------------+-----------
+
+These two frees don't act on same name, so there was no "double free"
+problem before. Conversely, after that commit, we get a "memory leak"
+problem because the above "N-th var_defs.name" is not freed.
+
+If enable CONFIG_DEBUG_KMEMLEAK and inject a fault at where the N-th
+var_defs.expr allocated, then execute on shell like:
+  $ echo 'hist:key=call_site:val=$v1,$v2:v1=bytes_req,v2=bytes_alloc' > \
+/sys/kernel/debug/tracing/events/kmem/kmalloc/trigger
+
+Then kmemleak reports:
+  unreferenced object 0xffff8fb100ef3518 (size 8):
+    comm "bash", pid 196, jiffies 4295681690 (age 28.538s)
+    hex dump (first 8 bytes):
+      76 31 00 00 b1 8f ff ff                          v1......
+    backtrace:
+      [<0000000038fe4895>] kstrdup+0x2d/0x60
+      [<00000000c99c049a>] event_hist_trigger_parse+0x206f/0x20e0
+      [<00000000ae70d2cc>] trigger_process_regex+0xc0/0x110
+      [<0000000066737a4c>] event_trigger_write+0x75/0xd0
+      [<000000007341e40c>] vfs_write+0xbb/0x2a0
+      [<0000000087fde4c2>] ksys_write+0x59/0xd0
+      [<00000000581e9cdf>] do_syscall_64+0x3a/0x80
+      [<00000000cf3b065c>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Link: https://lkml.kernel.org/r/20220711014731.69520-1-zhengyejian1@huawei.com
+
+Cc: stable@vger.kernel.org
+Fixes: 46bbe5c671e0 ("tracing: fix double free")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/skylake/skl-nhlt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/skylake/skl-nhlt.c b/sound/soc/intel/skylake/skl-nhlt.c
-index 2439a574ac2f..366f7bd9bc02 100644
---- a/sound/soc/intel/skylake/skl-nhlt.c
-+++ b/sound/soc/intel/skylake/skl-nhlt.c
-@@ -99,7 +99,6 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 	struct nhlt_fmt_cfg *fmt_cfg;
- 	struct wav_fmt_ext *wav_fmt;
- 	unsigned long rate;
--	bool present = false;
- 	int rate_index = 0;
- 	u16 channels, bps;
- 	u8 clk_src;
-@@ -113,6 +112,8 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
- 		return;
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -4056,6 +4056,8 @@ static int parse_var_defs(struct hist_tr
  
- 	for (i = 0; i < fmt->fmt_count; i++) {
-+		bool present = false;
-+
- 		fmt_cfg = &fmt->fmt_config[i];
- 		wav_fmt = &fmt_cfg->fmt_ext;
- 
--- 
-2.35.1
-
+ 			s = kstrdup(field_str, GFP_KERNEL);
+ 			if (!s) {
++				kfree(hist_data->attrs->var_defs.name[n_vars]);
++				hist_data->attrs->var_defs.name[n_vars] = NULL;
+ 				ret = -ENOMEM;
+ 				goto free;
+ 			}
 
 
