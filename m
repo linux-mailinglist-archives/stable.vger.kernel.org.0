@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A55AB579F0D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4220579EFA
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243160AbiGSNKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:10:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55054 "EHLO
+        id S243226AbiGSNIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:08:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243346AbiGSNJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:09:17 -0400
+        with ESMTP id S243055AbiGSNIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:08:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B113BB8EB;
-        Tue, 19 Jul 2022 05:28:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F29ABB8C7;
+        Tue, 19 Jul 2022 05:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C561D60C8C;
-        Tue, 19 Jul 2022 12:27:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A20BEC341C6;
-        Tue, 19 Jul 2022 12:27:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9251360693;
+        Tue, 19 Jul 2022 12:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74AC4C341C6;
+        Tue, 19 Jul 2022 12:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233674;
-        bh=vG5/S0jHNPkDTGbunE+u84kCtFkDf6SxU2TdPXyQjuE=;
+        s=korg; t=1658233676;
+        bh=pOS5a7puDGZ/iWqaJdM1223AaUj8iUfebzf3eXEB9Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaaBrmVPFeVzlTX0DP/yjZXPKGLkWkkwahGhxFYUHfNu8PsBJwGbaKJBqmYK6julC
-         hw5UdHnaFxGbFmhTMzkNJpJgy/REWkpIDDqx1By7K62nG3ELfnTXEhUqa9C/LsMMUe
-         DU5p48Sw2J2pBTnxcwzBNq8Ngp/xOewlcY8PuLGE=
+        b=2k6Y92IPJBt/pJplCtMjv+iVf55V8YgEYd3A0epv6wMbp82zadCxe13/FDQlucdZC
+         2SjY6HyfvqABI6Sv+BEFsE41pGI0YwG/dCLLniePOAsUxGmzBy6Rxq/F3sJkPSMiRc
+         j6cV4bPe1bmi9rv262FVIPzTisltDrnvl03PLVeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 202/231] ASoC: dapm: Initialise kcontrol data for mux/demux controls
-Date:   Tue, 19 Jul 2022 13:54:47 +0200
-Message-Id: <20220719114730.997536321@linuxfoundation.org>
+Subject: [PATCH 5.18 203/231] ASoC: cs35l41: Add ASP TX3/4 source to register patch
+Date:   Tue, 19 Jul 2022 13:54:48 +0200
+Message-Id: <20220719114731.066776089@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -56,55 +56,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 11d7a12f7f50baa5af9090b131c9b03af59503e7 ]
+[ Upstream commit 46b0d050c8c7df6dfb2c376aaa149bf2cfc5ca3e ]
 
-DAPM keeps a copy of the current value of mux/demux controls,
-however this value is only initialised in the case of autodisable
-controls. This leads to false notification events when first
-modifying a DAPM kcontrol that has a non-zero default.
-
-Autodisable controls are left as they are, since they already
-initialise the value, and there would be more work required to
-support autodisable muxes where the first option isn't disabled
-and/or that isn't the default.
-
-Technically this issue could affect mixer/switch elements as well,
-although not on any of the devices I am currently running. There
-is also a little more work to do to address the issue there due to
-that side supporting stereo controls, so that has not been tackled
-in this patch.
+The mixer controls for ASP TX3/4 are set to values that are not included
+in their enumeration control. This will cause spurious event
+notifications when the controls are first changed, as the register value
+changes whilst the actual visible enumeration value does not. Use the
+register patch to set them to a known value, zero, which equates to zero
+fill, thereby avoiding the spurious notifications.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220623105120.1981154-1-ckeepax@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20220623105120.1981154-2-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/codecs/cs35l41-lib.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index 869c76506b66..a8e842e02cdc 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -62,6 +62,8 @@ struct snd_soc_dapm_widget *
- snd_soc_dapm_new_control_unlocked(struct snd_soc_dapm_context *dapm,
- 			 const struct snd_soc_dapm_widget *widget);
+diff --git a/sound/soc/codecs/cs35l41-lib.c b/sound/soc/codecs/cs35l41-lib.c
+index 17cf782f39af..538b5c4d3abf 100644
+--- a/sound/soc/codecs/cs35l41-lib.c
++++ b/sound/soc/codecs/cs35l41-lib.c
+@@ -36,8 +36,8 @@ static const struct reg_default cs35l41_reg[] = {
+ 	{ CS35L41_DAC_PCM1_SRC,			0x00000008 },
+ 	{ CS35L41_ASP_TX1_SRC,			0x00000018 },
+ 	{ CS35L41_ASP_TX2_SRC,			0x00000019 },
+-	{ CS35L41_ASP_TX3_SRC,			0x00000020 },
+-	{ CS35L41_ASP_TX4_SRC,			0x00000021 },
++	{ CS35L41_ASP_TX3_SRC,			0x00000000 },
++	{ CS35L41_ASP_TX4_SRC,			0x00000000 },
+ 	{ CS35L41_DSP1_RX1_SRC,			0x00000008 },
+ 	{ CS35L41_DSP1_RX2_SRC,			0x00000009 },
+ 	{ CS35L41_DSP1_RX3_SRC,			0x00000018 },
+@@ -643,6 +643,8 @@ static const struct reg_sequence cs35l41_reva0_errata_patch[] = {
+ 	{ CS35L41_DSP1_XM_ACCEL_PL0_PRI, 0x00000000 },
+ 	{ CS35L41_PWR_CTRL2,		 0x00000000 },
+ 	{ CS35L41_AMP_GAIN_CTRL,	 0x00000000 },
++	{ CS35L41_ASP_TX3_SRC,		 0x00000000 },
++	{ CS35L41_ASP_TX4_SRC,		 0x00000000 },
+ };
  
-+static unsigned int soc_dapm_read(struct snd_soc_dapm_context *dapm, int reg);
-+
- /* dapm power sequences - make this per codec in the future */
- static int dapm_up_seq[] = {
- 	[snd_soc_dapm_pre] = 1,
-@@ -442,6 +444,9 @@ static int dapm_kcontrol_data_alloc(struct snd_soc_dapm_widget *widget,
+ static const struct reg_sequence cs35l41_revb0_errata_patch[] = {
+@@ -654,6 +656,8 @@ static const struct reg_sequence cs35l41_revb0_errata_patch[] = {
+ 	{ CS35L41_DSP1_XM_ACCEL_PL0_PRI, 0x00000000 },
+ 	{ CS35L41_PWR_CTRL2,		 0x00000000 },
+ 	{ CS35L41_AMP_GAIN_CTRL,	 0x00000000 },
++	{ CS35L41_ASP_TX3_SRC,		 0x00000000 },
++	{ CS35L41_ASP_TX4_SRC,		 0x00000000 },
+ };
  
- 			snd_soc_dapm_add_path(widget->dapm, data->widget,
- 					      widget, NULL, NULL);
-+		} else if (e->reg != SND_SOC_NOPM) {
-+			data->value = soc_dapm_read(widget->dapm, e->reg) &
-+				      (e->mask << e->shift_l);
- 		}
- 		break;
- 	default:
+ static const struct reg_sequence cs35l41_revb2_errata_patch[] = {
+@@ -665,6 +669,8 @@ static const struct reg_sequence cs35l41_revb2_errata_patch[] = {
+ 	{ CS35L41_DSP1_XM_ACCEL_PL0_PRI, 0x00000000 },
+ 	{ CS35L41_PWR_CTRL2,		 0x00000000 },
+ 	{ CS35L41_AMP_GAIN_CTRL,	 0x00000000 },
++	{ CS35L41_ASP_TX3_SRC,		 0x00000000 },
++	{ CS35L41_ASP_TX4_SRC,		 0x00000000 },
+ };
+ 
+ static const struct cs35l41_otp_map_element_t cs35l41_otp_map_map[] = {
 -- 
 2.35.1
 
