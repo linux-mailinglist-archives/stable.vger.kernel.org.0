@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD931579920
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7BCB57990D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237533AbiGSL7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55308 "EHLO
+        id S237111AbiGSL6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237674AbiGSL6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:58:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0071A474E2;
-        Tue, 19 Jul 2022 04:57:20 -0700 (PDT)
+        with ESMTP id S237452AbiGSL5d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:57:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5D842AFA;
+        Tue, 19 Jul 2022 04:56:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76D59B81A8F;
-        Tue, 19 Jul 2022 11:57:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA63C341C6;
-        Tue, 19 Jul 2022 11:57:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22FDB61658;
+        Tue, 19 Jul 2022 11:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 035DFC341C6;
+        Tue, 19 Jul 2022 11:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231838;
-        bh=apWjY8WVYNFOiJAFKjsh1sUHoKAzWbOYkW1POaZJlH8=;
+        s=korg; t=1658231806;
+        bh=/Tw7e8jXDBjDHRN/SUkV+CT4FXKh69IvvmtKfwSRwQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glhH9vQe3POB5sb7+loOeybW5vpVOku5GKSn+8p6O/wYS9r6IzaWnpTlrMFx8YDpr
-         M2xe3ZYJYAgKioHK5O4L31Eo7FEMHfRMvCKHfWtKepm8e4MIxwPN6ZHU6qkmMphAkA
-         F68d+6COqgXxzdwvUMf5SuJWJzlBcJg7jXJfn6eE=
+        b=u0UjdKjWnrRZ9xQLD7V3VtBCyfkvcURhHoAfCZODVgFreBjIfmxvJMn/Xj6yIstTO
+         p1wmN+UdaXiI0VxPn9VwTvqTU6kR3mcniYGuh/R7XHf689pyxEQbTIq/2lyh66pPpY
+         4uFxkxv+u5kcVP55GSaCQkz9h4V1IjD6CsSI+Q0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Paul Moore <paul@paul-moore.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/43] cipso: Fix data-races around sysctl.
-Date:   Tue, 19 Jul 2022 13:53:46 +0200
-Message-Id: <20220719114523.334238277@linuxfoundation.org>
+Subject: [PATCH 4.9 09/28] cipso: Fix data-races around sysctl.
+Date:   Tue, 19 Jul 2022 13:53:47 +0200
+Message-Id: <20220719114457.295183288@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index 5f1e3dc567f1..0278b6d1bc71 100644
+index a374412610ba..67dfda40b8e6 100644
 --- a/Documentation/networking/ip-sysctl.txt
 +++ b/Documentation/networking/ip-sysctl.txt
 @@ -781,7 +781,7 @@ cipso_cache_enable - BOOLEAN
@@ -85,7 +85,7 @@ index 5f1e3dc567f1..0278b6d1bc71 100644
  	entries in a given hash bucket reaches this limit adding new entries
  	causes the oldest entry in the bucket to be removed to make room.
 diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index e8b8dd1cb157..8dcf9aec7b77 100644
+index b7dc20a65b64..0bf7196d5d40 100644
 --- a/net/ipv4/cipso_ipv4.c
 +++ b/net/ipv4/cipso_ipv4.c
 @@ -254,7 +254,7 @@ static int cipso_v4_cache_check(const unsigned char *key,
