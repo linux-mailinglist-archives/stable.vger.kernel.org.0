@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E38579DFC
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92F2579BAA
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242233AbiGSM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:56:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38140 "EHLO
+        id S240428AbiGSMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:31:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242229AbiGSM4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820175B787;
-        Tue, 19 Jul 2022 05:22:23 -0700 (PDT)
+        with ESMTP id S240168AbiGSM2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:28:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C3666B93;
+        Tue, 19 Jul 2022 05:10:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B507C6177D;
-        Tue, 19 Jul 2022 12:22:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972B1C341C6;
-        Tue, 19 Jul 2022 12:22:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7056CB81B81;
+        Tue, 19 Jul 2022 12:10:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3EDC341C6;
+        Tue, 19 Jul 2022 12:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233342;
-        bh=Nf4t3W8Y5OtNITd3bs5jprA180YUIhX2K1C40cMbr3o=;
+        s=korg; t=1658232645;
+        bh=Rs6tJx4noeNRuRacr17BW7h+FGcVD0qglmkeEcifLKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTB8Kay1aRumf4+nFjgQL5iu1Im54GbVl89vmgmWX5hFDHBEvuXYZ0p+bqjNjoMvJ
-         uhc/sxMMUDBDSv20oaAC8iAFkDycdgT0c73Wxq/8spEPqq7kj9xbjEcqzS1Km7O2qv
-         howOQ3C3i1ji+q8yhCIavB4LcR7SB8qyfICLJvV4=
+        b=UxfU7bUP/LKYTorHVJQrfEIKHHKwxVqo0lz0BmWxhX0QN1cQoz2J6H/WeErfCEGFR
+         Lt1rpoEzviA7Q3kaIidY/avmOusdUD7uMXbR6Gddx7XcZ3Yihm4Ps8JCKj7fCdoJpy
+         eHGGAeXUeswFxeCV1wH5PMHx67AvBY85WF2XBdgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 063/231] netfilter: conntrack: include ecache dying list in dumps
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.15 016/167] ARM: 9214/1: alignment: advance IT state after emulating Thumb instruction
 Date:   Tue, 19 Jul 2022 13:52:28 +0200
-Message-Id: <20220719114719.478483842@linuxfoundation.org>
+Message-Id: <20220719114658.299446631@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,121 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 0d3cc504ba9cdcff76346306c37eb1ea01e60a86 ]
+commit e5c46fde75e43c15a29b40e5fc5641727f97ae47 upstream.
 
-The new pernet dying list includes conntrack entries that await
-delivery of the 'destroy' event via ctnetlink.
+After emulating a misaligned load or store issued in Thumb mode, we have
+to advance the IT state by hand, or it will get out of sync with the
+actual instruction stream, which means we'll end up applying the wrong
+condition code to subsequent instructions. This might corrupt the
+program state rather catastrophically.
 
-The old percpu dying list will be removed soon.
+So borrow the it_advance() helper from the probing code, and use it on
+CPSR if the emulated instruction is Thumb.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_conntrack_ecache.h |  2 +
- net/netfilter/nf_conntrack_ecache.c         | 10 +++++
- net/netfilter/nf_conntrack_netlink.c        | 43 +++++++++++++++++++++
- 3 files changed, 55 insertions(+)
+ arch/arm/include/asm/ptrace.h |   26 ++++++++++++++++++++++++++
+ arch/arm/mm/alignment.c       |    3 +++
+ arch/arm/probes/decode.h      |   26 +-------------------------
+ 3 files changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/include/net/netfilter/nf_conntrack_ecache.h b/include/net/netfilter/nf_conntrack_ecache.h
-index a6135b5030dd..b57d73785e4d 100644
---- a/include/net/netfilter/nf_conntrack_ecache.h
-+++ b/include/net/netfilter/nf_conntrack_ecache.h
-@@ -164,6 +164,8 @@ void nf_conntrack_ecache_work(struct net *net, enum nf_ct_ecache_state state);
- void nf_conntrack_ecache_pernet_init(struct net *net);
- void nf_conntrack_ecache_pernet_fini(struct net *net);
+--- a/arch/arm/include/asm/ptrace.h
++++ b/arch/arm/include/asm/ptrace.h
+@@ -163,5 +163,31 @@ static inline unsigned long user_stack_p
+ 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
+ })
  
-+struct nf_conntrack_net_ecache *nf_conn_pernet_ecache(const struct net *net);
 +
- static inline bool nf_conntrack_ecache_dwork_pending(const struct net *net)
- {
- 	return net->ct.ecache_dwork_pending;
-diff --git a/net/netfilter/nf_conntrack_ecache.c b/net/netfilter/nf_conntrack_ecache.c
-index 2752859479b2..334b2b4e5e8b 100644
---- a/net/netfilter/nf_conntrack_ecache.c
-+++ b/net/netfilter/nf_conntrack_ecache.c
-@@ -38,6 +38,16 @@ enum retry_state {
- 	STATE_DONE,
- };
- 
-+struct nf_conntrack_net_ecache *nf_conn_pernet_ecache(const struct net *net)
++/*
++ * Update ITSTATE after normal execution of an IT block instruction.
++ *
++ * The 8 IT state bits are split into two parts in CPSR:
++ *	ITSTATE<1:0> are in CPSR<26:25>
++ *	ITSTATE<7:2> are in CPSR<15:10>
++ */
++static inline unsigned long it_advance(unsigned long cpsr)
 +{
-+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
-+
-+	return &cnet->ecache;
-+}
-+#if IS_MODULE(CONFIG_NF_CT_NETLINK)
-+EXPORT_SYMBOL_GPL(nf_conn_pernet_ecache);
-+#endif
-+
- static enum retry_state ecache_work_evict_list(struct nf_conntrack_net *cnet)
- {
- 	unsigned long stop = jiffies + ECACHE_MAX_JIFFIES;
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 924d766e6c53..a4ec2aad2187 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -62,6 +62,7 @@ struct ctnetlink_list_dump_ctx {
- 	struct nf_conn *last;
- 	unsigned int cpu;
- 	bool done;
-+	bool retrans_done;
- };
- 
- static int ctnetlink_dump_tuples_proto(struct sk_buff *skb,
-@@ -1802,6 +1803,48 @@ ctnetlink_dump_list(struct sk_buff *skb, struct netlink_callback *cb, bool dying
- static int
- ctnetlink_dump_dying(struct sk_buff *skb, struct netlink_callback *cb)
- {
-+	struct ctnetlink_list_dump_ctx *ctx = (void *)cb->ctx;
-+	struct nf_conn *last = ctx->last;
-+#ifdef CONFIG_NF_CONNTRACK_EVENTS
-+	const struct net *net = sock_net(skb->sk);
-+	struct nf_conntrack_net_ecache *ecache_net;
-+	struct nf_conntrack_tuple_hash *h;
-+	struct hlist_nulls_node *n;
-+#endif
-+
-+	if (ctx->retrans_done)
-+		return ctnetlink_dump_list(skb, cb, true);
-+
-+	ctx->last = NULL;
-+
-+#ifdef CONFIG_NF_CONNTRACK_EVENTS
-+	ecache_net = nf_conn_pernet_ecache(net);
-+	spin_lock_bh(&ecache_net->dying_lock);
-+
-+	hlist_nulls_for_each_entry(h, n, &ecache_net->dying_list, hnnode) {
-+		struct nf_conn *ct;
-+		int res;
-+
-+		ct = nf_ct_tuplehash_to_ctrack(h);
-+		if (last && last != ct)
-+			continue;
-+
-+		res = ctnetlink_dump_one_entry(skb, cb, ct, true);
-+		if (res < 0) {
-+			spin_unlock_bh(&ecache_net->dying_lock);
-+			nf_ct_put(last);
-+			return skb->len;
-+		}
-+
-+		nf_ct_put(last);
-+		last = NULL;
++	if ((cpsr & 0x06000400) == 0) {
++		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
++		cpsr &= ~PSR_IT_MASK;
++	} else {
++		/* We need to shift left ITSTATE<4:0> */
++		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
++		unsigned long it = cpsr & mask;
++		it <<= 1;
++		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
++		it &= mask;
++		cpsr &= ~mask;
++		cpsr |= it;
 +	}
++	return cpsr;
++}
 +
-+	spin_unlock_bh(&ecache_net->dying_lock);
-+#endif
-+	nf_ct_put(last);
-+	ctx->retrans_done = true;
-+
- 	return ctnetlink_dump_list(skb, cb, true);
- }
+ #endif /* __ASSEMBLY__ */
+ #endif
+--- a/arch/arm/mm/alignment.c
++++ b/arch/arm/mm/alignment.c
+@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigne
+ 	if (type == TYPE_LDST)
+ 		do_alignment_finish_ldst(addr, instr, regs, offset);
  
--- 
-2.35.1
-
++	if (thumb_mode(regs))
++		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
++
+ 	return 0;
+ 
+  bad_or_fault:
+--- a/arch/arm/probes/decode.h
++++ b/arch/arm/probes/decode.h
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/stddef.h>
+ #include <asm/probes.h>
++#include <asm/ptrace.h>
+ #include <asm/kprobes.h>
+ 
+ void __init arm_probes_decode_init(void);
+@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
+ #endif
+ 
+ 
+-/*
+- * Update ITSTATE after normal execution of an IT block instruction.
+- *
+- * The 8 IT state bits are split into two parts in CPSR:
+- *	ITSTATE<1:0> are in CPSR<26:25>
+- *	ITSTATE<7:2> are in CPSR<15:10>
+- */
+-static inline unsigned long it_advance(unsigned long cpsr)
+-	{
+-	if ((cpsr & 0x06000400) == 0) {
+-		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
+-		cpsr &= ~PSR_IT_MASK;
+-	} else {
+-		/* We need to shift left ITSTATE<4:0> */
+-		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
+-		unsigned long it = cpsr & mask;
+-		it <<= 1;
+-		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
+-		it &= mask;
+-		cpsr &= ~mask;
+-		cpsr |= it;
+-	}
+-	return cpsr;
+-}
+-
+ static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
+ {
+ 	long cpsr = regs->ARM_cpsr;
 
 
