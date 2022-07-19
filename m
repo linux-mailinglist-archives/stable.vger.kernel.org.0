@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6A0579D15
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F9B5799D9
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241630AbiGSMpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:45:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37834 "EHLO
+        id S238227AbiGSMHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:07:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241483AbiGSMn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA8682466;
-        Tue, 19 Jul 2022 05:17:04 -0700 (PDT)
+        with ESMTP id S238255AbiGSMHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:07:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA314E63A;
+        Tue, 19 Jul 2022 05:01:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35C1DB81B2E;
-        Tue, 19 Jul 2022 12:16:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93CF0C341C6;
-        Tue, 19 Jul 2022 12:16:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 521B1B81B2D;
+        Tue, 19 Jul 2022 12:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 938F8C36AE2;
+        Tue, 19 Jul 2022 12:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233005;
-        bh=XuABzMacapUPj02uf/mQtFYuIsg4w+Lm1rTeYvXdPwA=;
+        s=korg; t=1658232067;
+        bh=3wNf9MU5nkqkVJi/QAPuv9CYhltkS5PKt+M/rdroE8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhtqLyq/EphofoZ6U8GZ9LD8rl5o1JWAom4KBDBYJlDTlvg4EZFyzisHR2431wr1l
-         xro89JyS7BZtKqCLDdw/V8lze3ukOd4uw5iFC/R4X+6WqMK/DYdPSJYfvFCRdhmoRz
-         BO1uEsCOSqVu5DAVEEx30BMU7tPHoZ1IyTkNiIOM=
+        b=BHhQbLUdV7CnkJdso3l8zCG7q0dODczTaFdI00DNQbRGLy7O26sdf4UpKlAw2driC
+         /qrgpaqjtsOmPa7tbJ5WLilAunOfile9Fw7ciIjp6Ag+FPfFrCnlcfPg9Rjanvrnul
+         Gds+KXeQjaCbwoUCjnWAKAPjQYBAoUcDHeKP4pHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 116/167] vduse: Tie vduse mgmtdev and its device
+Subject: [PATCH 4.19 31/48] platform/x86: hp-wmi: Ignore Sanitization Mode event
 Date:   Tue, 19 Jul 2022 13:54:08 +0200
-Message-Id: <20220719114707.784885019@linuxfoundation.org>
+Message-Id: <20220719114522.657993635@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,132 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 0e0348ac3f0a6e6606f1aa5acb1803ada913aa3d ]
+[ Upstream commit 9ab762a84b8094540c18a170e5ddd6488632c456 ]
 
-vduse devices are not backed by any real devices such as PCI. Hence it
-doesn't have any parent device linked to it.
+After system resume the hp-wmi driver may complain:
+[ 702.620180] hp_wmi: Unknown event_id - 23 - 0x0
 
-Kernel driver model in [1] suggests to avoid an empty device
-release callback.
+According to HP it means 'Sanitization Mode' and it's harmless to just
+ignore the event.
 
-Hence tie the mgmtdevice object's life cycle to an allocate dummy struct
-device instead of static one.
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/core-api/kobject.rst?h=v5.18-rc7#n284
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Message-Id: <20220613195223.473966-1-parav@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Cc: Jorge Lopez <jorge.lopez2@hp.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20220628123726.250062-1-kai.heng.feng@canonical.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 60 ++++++++++++++++++------------
- 1 file changed, 37 insertions(+), 23 deletions(-)
+ drivers/platform/x86/hp-wmi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 9270398caf15..73e67fa88972 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1466,16 +1466,12 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
- 	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
- }
- 
--static void vduse_mgmtdev_release(struct device *dev)
--{
--}
--
--static struct device vduse_mgmtdev = {
--	.init_name = "vduse",
--	.release = vduse_mgmtdev_release,
-+struct vduse_mgmt_dev {
-+	struct vdpa_mgmt_dev mgmt_dev;
-+	struct device dev;
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 93fadd4abf14..f911410bb4c7 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -75,6 +75,7 @@ enum hp_wmi_event_ids {
+ 	HPWMI_BACKLIT_KB_BRIGHTNESS	= 0x0D,
+ 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
+ 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
++	HPWMI_SANITIZATION_MODE		= 0x17,
  };
  
--static struct vdpa_mgmt_dev mgmt_dev;
-+static struct vduse_mgmt_dev *vduse_mgmt;
- 
- static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- {
-@@ -1500,7 +1496,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- 	}
- 	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
- 	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
--	vdev->vdpa.mdev = &mgmt_dev;
-+	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
- 
- 	return 0;
- }
-@@ -1545,34 +1541,52 @@ static struct virtio_device_id id_table[] = {
- 	{ 0 },
- };
- 
--static struct vdpa_mgmt_dev mgmt_dev = {
--	.device = &vduse_mgmtdev,
--	.id_table = id_table,
--	.ops = &vdpa_dev_mgmtdev_ops,
--};
-+static void vduse_mgmtdev_release(struct device *dev)
-+{
-+	struct vduse_mgmt_dev *mgmt_dev;
-+
-+	mgmt_dev = container_of(dev, struct vduse_mgmt_dev, dev);
-+	kfree(mgmt_dev);
-+}
- 
- static int vduse_mgmtdev_init(void)
- {
- 	int ret;
- 
--	ret = device_register(&vduse_mgmtdev);
--	if (ret)
-+	vduse_mgmt = kzalloc(sizeof(*vduse_mgmt), GFP_KERNEL);
-+	if (!vduse_mgmt)
-+		return -ENOMEM;
-+
-+	ret = dev_set_name(&vduse_mgmt->dev, "vduse");
-+	if (ret) {
-+		kfree(vduse_mgmt);
- 		return ret;
-+	}
- 
--	ret = vdpa_mgmtdev_register(&mgmt_dev);
-+	vduse_mgmt->dev.release = vduse_mgmtdev_release;
-+
-+	ret = device_register(&vduse_mgmt->dev);
- 	if (ret)
--		goto err;
-+		goto dev_reg_err;
- 
--	return 0;
--err:
--	device_unregister(&vduse_mgmtdev);
-+	vduse_mgmt->mgmt_dev.id_table = id_table;
-+	vduse_mgmt->mgmt_dev.ops = &vdpa_dev_mgmtdev_ops;
-+	vduse_mgmt->mgmt_dev.device = &vduse_mgmt->dev;
-+	ret = vdpa_mgmtdev_register(&vduse_mgmt->mgmt_dev);
-+	if (ret)
-+		device_unregister(&vduse_mgmt->dev);
-+
-+	return ret;
-+
-+dev_reg_err:
-+	put_device(&vduse_mgmt->dev);
- 	return ret;
- }
- 
- static void vduse_mgmtdev_exit(void)
- {
--	vdpa_mgmtdev_unregister(&mgmt_dev);
--	device_unregister(&vduse_mgmtdev);
-+	vdpa_mgmtdev_unregister(&vduse_mgmt->mgmt_dev);
-+	device_unregister(&vduse_mgmt->dev);
- }
- 
- static int vduse_init(void)
+ struct bios_args {
+@@ -631,6 +632,8 @@ static void hp_wmi_notify(u32 value, void *context)
+ 		break;
+ 	case HPWMI_BATTERY_CHARGE_PERIOD:
+ 		break;
++	case HPWMI_SANITIZATION_MODE:
++		break;
+ 	default:
+ 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
+ 		break;
 -- 
 2.35.1
 
