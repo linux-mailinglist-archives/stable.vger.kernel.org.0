@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0865579A13
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4C7579B2C
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238555AbiGSMKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52172 "EHLO
+        id S239678AbiGSMZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:25:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238958AbiGSMJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:53 -0400
+        with ESMTP id S239688AbiGSMYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:11 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B3A4B0D8;
-        Tue, 19 Jul 2022 05:02:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 753A94F6B4;
+        Tue, 19 Jul 2022 05:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CBC80CE1BDA;
-        Tue, 19 Jul 2022 12:02:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98D4C341C6;
-        Tue, 19 Jul 2022 12:02:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 23404CE1BE4;
+        Tue, 19 Jul 2022 12:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28253C341C6;
+        Tue, 19 Jul 2022 12:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232173;
-        bh=nUtBfzTlgUJml8ct1cuSb6IjNcqZCJQfoT1HGe4/vb4=;
+        s=korg; t=1658232467;
+        bh=EagEinv4UePaI3RSHvxrisUpYgtR4TzqlnWpdLHNqgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJP1hR8YFGRoSPlYh2aYJ9N/W70Hb0Z/Lhwu+qHHe/cBw9hGtPbxNET43SvjM2YPh
-         Jg4XLPuPdFt9tQLQYWY199X7k9aAGfvkOoGFTRh2e1Wf51um9vuQofr9DRn11qNgZk
-         IK4chOGewe96HZFQ5FpCfxQ41TjZjGO+UxEsTTXE=
+        b=Xl5+ixcTwD2cnvLiDuvxOmvCHWIh7w861IPHltSo2q2HU5nKXTu/geluH7PFhgmFk
+         MEvw3qQpQC2EuBh4OlVY/ySeEUrtSXKuN8wDx07yyRXmtXZpxqgExyO6Jf52ggAfn7
+         Rq0U1kG67dzar2DCYZO6GrlzNl00CphRnzcDmkbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Andrea Mayer <andrea.mayer@uniroma2.it>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/71] net: ftgmac100: Hold reference returned by of_get_child_by_name()
+Subject: [PATCH 5.10 068/112] seg6: fix skb checksum evaluation in SRH encapsulation/insertion
 Date:   Tue, 19 Jul 2022 13:54:01 +0200
-Message-Id: <20220719114555.971850774@linuxfoundation.org>
+Message-Id: <20220719114633.088779949@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Andrea Mayer <andrea.mayer@uniroma2.it>
 
-[ Upstream commit 49b9f431ff0d845a36be0b3ede35ec324f2e5fee ]
+[ Upstream commit df8386d13ea280d55beee1b95f61a59234a3798b ]
 
-In ftgmac100_probe(), we should hold the refernece returned by
-of_get_child_by_name() and use it to call of_node_put() for
-reference balance.
+Support for SRH encapsulation and insertion was introduced with
+commit 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and
+injection with lwtunnels"), through the seg6_do_srh_encap() and
+seg6_do_srh_inline() functions, respectively.
+The former encapsulates the packet in an outer IPv6 header along with
+the SRH, while the latter inserts the SRH between the IPv6 header and
+the payload. Then, the headers are initialized/updated according to the
+operating mode (i.e., encap/inline).
+Finally, the skb checksum is calculated to reflect the changes applied
+to the headers.
 
-Fixes: 39bfab8844a0 ("net: ftgmac100: Add support for DT phy-handle property")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The IPv6 payload length ('payload_len') is not initialized
+within seg6_do_srh_{inline,encap}() but is deferred in seg6_do_srh(), i.e.
+the caller of seg6_do_srh_{inline,encap}().
+However, this operation invalidates the skb checksum, since the
+'payload_len' is updated only after the checksum is evaluated.
+
+To solve this issue, the initialization of the IPv6 payload length is
+moved from seg6_do_srh() directly into the seg6_do_srh_{inline,encap}()
+functions and before the skb checksum update takes place.
+
+Fixes: 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and injection with lwtunnels")
+Reported-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/all/20220705190727.69d532417be7438b15404ee1@uniroma2.it
+Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ net/ipv6/seg6_iptunnel.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
-index d7478d332820..98e94d914597 100644
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1734,6 +1734,19 @@ static void ftgmac100_setup_clk(struct ftgmac100 *priv)
- 			FTGMAC_100MHZ);
- }
+diff --git a/net/ipv6/seg6_iptunnel.c b/net/ipv6/seg6_iptunnel.c
+index 4d4399c5c5ea..40ac23242c37 100644
+--- a/net/ipv6/seg6_iptunnel.c
++++ b/net/ipv6/seg6_iptunnel.c
+@@ -188,6 +188,8 @@ int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh, int proto)
+ 	}
+ #endif
  
-+static bool ftgmac100_has_child_node(struct device_node *np, const char *name)
-+{
-+	struct device_node *child_np = of_get_child_by_name(np, name);
-+	bool ret = false;
++	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
 +
-+	if (child_np) {
-+		ret = true;
-+		of_node_put(child_np);
-+	}
-+
-+	return ret;
-+}
-+
- static int ftgmac100_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
-@@ -1850,7 +1863,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
+ 	skb_postpush_rcsum(skb, hdr, tot_len);
  
- 		/* Display what we found */
- 		phy_attached_info(phy);
--	} else if (np && !of_get_child_by_name(np, "mdio")) {
-+	} else if (np && !ftgmac100_has_child_node(np, "mdio")) {
- 		/* Support legacy ASPEED devicetree descriptions that decribe a
- 		 * MAC with an embedded MDIO controller but have no "mdio"
- 		 * child node. Automatically scan the MDIO bus for available
+ 	return 0;
+@@ -240,6 +242,8 @@ int seg6_do_srh_inline(struct sk_buff *skb, struct ipv6_sr_hdr *osrh)
+ 	}
+ #endif
+ 
++	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
++
+ 	skb_postpush_rcsum(skb, hdr, sizeof(struct ipv6hdr) + hdrlen);
+ 
+ 	return 0;
+@@ -301,7 +305,6 @@ static int seg6_do_srh(struct sk_buff *skb)
+ 		break;
+ 	}
+ 
+-	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
+ 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
+ 
+ 	return 0;
 -- 
 2.35.1
 
