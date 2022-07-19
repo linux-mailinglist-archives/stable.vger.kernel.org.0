@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1703579ECF
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29916579A53
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243063AbiGSNGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:06:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42148 "EHLO
+        id S238709AbiGSMNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243271AbiGSNE7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:04:59 -0400
+        with ESMTP id S238872AbiGSMMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:12:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 355A99F05A;
-        Tue, 19 Jul 2022 05:26:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6BC474D8;
+        Tue, 19 Jul 2022 05:04:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E35B7616FB;
-        Tue, 19 Jul 2022 12:26:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC9C9C341C6;
-        Tue, 19 Jul 2022 12:26:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 036A56172E;
+        Tue, 19 Jul 2022 12:03:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC1B9C341C6;
+        Tue, 19 Jul 2022 12:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233604;
-        bh=c9nhF8SJnbgT1PcdEw9BhinCExmguSEsqIqZEydceYM=;
+        s=korg; t=1658232236;
+        bh=8gwb14lwxk96huJEsxdNmcsQBKLncsI+cIC1WzKMpw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEmqGlrqyHCkmsyrXWW8qZrlO0MfGhc29KQCKWQXigPUDL+AulBeWhwUa31bKpgnL
-         BhEa/emKjjsIkFDgVBQI65mIIn0royfRsc6nbvCWXUG2dwJb55UkoozhRR5HiSXDcH
-         YwUbEDWPW7gDuFPfI6SsItfwQnV+ukq6k9RttFRQ=
+        b=m7MGfjYRBf3WXGF5t/ordm7rtQ3EkjhQJOiMh+7iXN3qD1V+qWstvUhkHQRHIMyzd
+         b28a/YUGZUEUvPatbZU6Vfxg//e0mjsNcXwSgVGF2UgZV+pHaw46lolZc5P2j+WvYm
+         Q5a/aJkm4SyUtGJJios7EHkbovTbZ9o2oShv1gzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
+        stable@vger.kernel.org, Ryan Wanner <Ryan.Wanner@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 149/231] x86/xen: Rename SYS* entry points
+Subject: [PATCH 5.4 31/71] ARM: dts: at91: sama5d2: Fix typo in i2s1 node
 Date:   Tue, 19 Jul 2022 13:53:54 +0200
-Message-Id: <20220719114726.863667223@linuxfoundation.org>
+Message-Id: <20220719114555.314007885@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,140 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Ryan Wanner <Ryan.Wanner@microchip.com>
 
-[ Upstream commit b75b7f8ef1148be1b9321ffc2f6c19238904b438 ]
+[ Upstream commit 2fdf15b50a46e366740df4cccbe2343269b4ff55 ]
 
-Native SYS{CALL,ENTER} entry points are called
-entry_SYS{CALL,ENTER}_{64,compat}, make sure the Xen versions are
-named consistently.
+Fix typo in i2s1 causing errors in dt binding validation.
+Change assigned-parrents to assigned-clock-parents
+to match i2s0 node formatting.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Fixes: 1ca81883c557 ("ARM: dts: at91: sama5d2: add nodes for I2S controllers")
+Signed-off-by: Ryan Wanner <Ryan.Wanner@microchip.com>
+[claudiu.beznea: use imperative addressing in commit description, remove
+ blank line after fixes tag, fix typo in commit message]
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220707215812.193008-1-Ryan.Wanner@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/setup.c   |  6 +++---
- arch/x86/xen/xen-asm.S | 20 ++++++++++----------
- arch/x86/xen/xen-ops.h |  6 +++---
- 3 files changed, 16 insertions(+), 16 deletions(-)
+ arch/arm/boot/dts/sama5d2.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
-index 81aa46f770c5..cfa99e8f054b 100644
---- a/arch/x86/xen/setup.c
-+++ b/arch/x86/xen/setup.c
-@@ -918,7 +918,7 @@ void xen_enable_sysenter(void)
- 	if (!boot_cpu_has(sysenter_feature))
- 		return;
+diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
+index 09816a2ee367..dbfdffd54003 100644
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -933,7 +933,7 @@ AT91_XDMAC_DT_PERID(33))>,
+ 				clocks = <&pmc PMC_TYPE_PERIPHERAL 55>, <&pmc PMC_TYPE_GCK 55>;
+ 				clock-names = "pclk", "gclk";
+ 				assigned-clocks = <&pmc PMC_TYPE_CORE PMC_I2S1_MUX>;
+-				assigned-parrents = <&pmc PMC_TYPE_GCK 55>;
++				assigned-clock-parents = <&pmc PMC_TYPE_GCK 55>;
+ 				status = "disabled";
+ 			};
  
--	ret = register_callback(CALLBACKTYPE_sysenter, xen_sysenter_target);
-+	ret = register_callback(CALLBACKTYPE_sysenter, xen_entry_SYSENTER_compat);
- 	if(ret != 0)
- 		setup_clear_cpu_cap(sysenter_feature);
- }
-@@ -927,7 +927,7 @@ void xen_enable_syscall(void)
- {
- 	int ret;
- 
--	ret = register_callback(CALLBACKTYPE_syscall, xen_syscall_target);
-+	ret = register_callback(CALLBACKTYPE_syscall, xen_entry_SYSCALL_64);
- 	if (ret != 0) {
- 		printk(KERN_ERR "Failed to set syscall callback: %d\n", ret);
- 		/* Pretty fatal; 64-bit userspace has no other
-@@ -936,7 +936,7 @@ void xen_enable_syscall(void)
- 
- 	if (boot_cpu_has(X86_FEATURE_SYSCALL32)) {
- 		ret = register_callback(CALLBACKTYPE_syscall32,
--					xen_syscall32_target);
-+					xen_entry_SYSCALL_compat);
- 		if (ret != 0)
- 			setup_clear_cpu_cap(X86_FEATURE_SYSCALL32);
- 	}
-diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
-index caa9bc2fa100..6bf9d45b9178 100644
---- a/arch/x86/xen/xen-asm.S
-+++ b/arch/x86/xen/xen-asm.S
-@@ -234,7 +234,7 @@ SYM_CODE_END(xenpv_restore_regs_and_return_to_usermode)
-  */
- 
- /* Normal 64-bit system call target */
--SYM_CODE_START(xen_syscall_target)
-+SYM_CODE_START(xen_entry_SYSCALL_64)
- 	UNWIND_HINT_EMPTY
- 	ENDBR
- 	popq %rcx
-@@ -249,12 +249,12 @@ SYM_CODE_START(xen_syscall_target)
- 	movq $__USER_CS, 1*8(%rsp)
- 
- 	jmp entry_SYSCALL_64_after_hwframe
--SYM_CODE_END(xen_syscall_target)
-+SYM_CODE_END(xen_entry_SYSCALL_64)
- 
- #ifdef CONFIG_IA32_EMULATION
- 
- /* 32-bit compat syscall target */
--SYM_CODE_START(xen_syscall32_target)
-+SYM_CODE_START(xen_entry_SYSCALL_compat)
- 	UNWIND_HINT_EMPTY
- 	ENDBR
- 	popq %rcx
-@@ -269,10 +269,10 @@ SYM_CODE_START(xen_syscall32_target)
- 	movq $__USER32_CS, 1*8(%rsp)
- 
- 	jmp entry_SYSCALL_compat_after_hwframe
--SYM_CODE_END(xen_syscall32_target)
-+SYM_CODE_END(xen_entry_SYSCALL_compat)
- 
- /* 32-bit compat sysenter target */
--SYM_CODE_START(xen_sysenter_target)
-+SYM_CODE_START(xen_entry_SYSENTER_compat)
- 	UNWIND_HINT_EMPTY
- 	ENDBR
- 	/*
-@@ -291,19 +291,19 @@ SYM_CODE_START(xen_sysenter_target)
- 	movq $__USER32_CS, 1*8(%rsp)
- 
- 	jmp entry_SYSENTER_compat_after_hwframe
--SYM_CODE_END(xen_sysenter_target)
-+SYM_CODE_END(xen_entry_SYSENTER_compat)
- 
- #else /* !CONFIG_IA32_EMULATION */
- 
--SYM_CODE_START(xen_syscall32_target)
--SYM_CODE_START(xen_sysenter_target)
-+SYM_CODE_START(xen_entry_SYSCALL_compat)
-+SYM_CODE_START(xen_entry_SYSENTER_compat)
- 	UNWIND_HINT_EMPTY
- 	ENDBR
- 	lea 16(%rsp), %rsp	/* strip %rcx, %r11 */
- 	mov $-ENOSYS, %rax
- 	pushq $0
- 	jmp hypercall_iret
--SYM_CODE_END(xen_sysenter_target)
--SYM_CODE_END(xen_syscall32_target)
-+SYM_CODE_END(xen_entry_SYSENTER_compat)
-+SYM_CODE_END(xen_entry_SYSCALL_compat)
- 
- #endif	/* CONFIG_IA32_EMULATION */
-diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
-index fd0fec6e92f4..9a8bb972193d 100644
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -10,10 +10,10 @@
- /* These are code, but not functions.  Defined in entry.S */
- extern const char xen_failsafe_callback[];
- 
--void xen_sysenter_target(void);
-+void xen_entry_SYSENTER_compat(void);
- #ifdef CONFIG_X86_64
--void xen_syscall_target(void);
--void xen_syscall32_target(void);
-+void xen_entry_SYSCALL_64(void);
-+void xen_entry_SYSCALL_compat(void);
- #endif
- 
- extern void *xen_initial_gdt;
 -- 
 2.35.1
 
