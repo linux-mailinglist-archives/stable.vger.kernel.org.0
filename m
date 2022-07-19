@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E407E57994D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E94A5798FA
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237858AbiGSMBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:01:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54672 "EHLO
+        id S237537AbiGSL5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:57:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237785AbiGSMAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:00:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7201345F40;
-        Tue, 19 Jul 2022 04:58:12 -0700 (PDT)
+        with ESMTP id S237476AbiGSL4q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:56:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBF0422FE;
+        Tue, 19 Jul 2022 04:56:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28633B81B29;
-        Tue, 19 Jul 2022 11:58:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80ED6C341CB;
-        Tue, 19 Jul 2022 11:58:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE7D961658;
+        Tue, 19 Jul 2022 11:56:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0479C341CA;
+        Tue, 19 Jul 2022 11:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231889;
-        bh=iOryIuztZtcKAP5hvukVe7Zk0bwpXnU3KwdWuJ63QAQ=;
+        s=korg; t=1658231786;
+        bh=pneqByNjx/sGoWroweySELz1T991Ow00L40BUVLYOUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rC6CbuPUpE9Cmam7S5iMX9CBec7E02fKFWcfqK87IqCp0TWoFQJR5+O7Up0SHohkx
-         ocCehwl+McXWhvLvowBV1yIIkJFzNPqdqe8ynAZtaXsIAHSX1nDl1Im55mRD/cXXDc
-         Yb+GKmaC22aQnn1IkGJr6nrTO3SM4SwIBjdrQpmU=
+        b=qdktbnFjFF5lcnIli2KG7Y3zuiYuysAvWChvHB6qoxh0PvJX/heZouCdlnSV3fuCq
+         U7RbZ0L5SI3LiY2EcCatAoCuzkwbwOr0nQAkdWLqIK8p+EXvFVGrklsS+hlTTvvHUo
+         G2u9Y3zTaUmLUi7+P+DpbLWt7N1MhtgoyL4v58AA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 31/43] NFC: nxp-nci: dont print header length mismatch on i2c error
-Date:   Tue, 19 Jul 2022 13:54:02 +0200
-Message-Id: <20220719114524.685458603@linuxfoundation.org>
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 4.9 25/28] tty: serial: samsung_tty: set dma burst_size to 1
+Date:   Tue, 19 Jul 2022 13:54:03 +0200
+Message-Id: <20220719114458.480800734@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Chanho Park <chanho61.park@samsung.com>
 
-[ Upstream commit 9577fc5fdc8b07b891709af6453545db405e24ad ]
+commit f7e35e4bf1e8dc2c8cbd5e0955dc1bd58558dae0 upstream.
 
-Don't print a misleading header length mismatch error if the i2c call
-returns an error. Instead just return the error code without any error
-message.
+The src_maxburst and dst_maxburst have been changed to 1 but the settings
+of the UCON register aren't changed yet. They should be changed as well
+according to the dmaengine slave config.
 
-Signed-off-by: Michael Walle <michael@walle.cc>
+Fixes: aa2f80e752c7 ("serial: samsung: fix maxburst parameter for DMA transactions")
+Cc: stable <stable@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220627065113.139520-1-chanho61.park@samsung.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/nxp-nci/i2c.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/tty/serial/samsung.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nfc/nxp-nci/i2c.c b/drivers/nfc/nxp-nci/i2c.c
-index 871ad23d05c0..f93571d776a8 100644
---- a/drivers/nfc/nxp-nci/i2c.c
-+++ b/drivers/nfc/nxp-nci/i2c.c
-@@ -138,7 +138,9 @@ static int nxp_nci_i2c_fw_read(struct nxp_nci_i2c_phy *phy,
- 	skb_put_data(*skb, &header, NXP_NCI_FW_HDR_LEN);
+--- a/drivers/tty/serial/samsung.c
++++ b/drivers/tty/serial/samsung.c
+@@ -241,8 +241,7 @@ static void enable_tx_dma(struct s3c24xx
+ 	/* Enable tx dma mode */
+ 	ucon = rd_regl(port, S3C2410_UCON);
+ 	ucon &= ~(S3C64XX_UCON_TXBURST_MASK | S3C64XX_UCON_TXMODE_MASK);
+-	ucon |= (dma_get_cache_alignment() >= 16) ?
+-		S3C64XX_UCON_TXBURST_16 : S3C64XX_UCON_TXBURST_1;
++	ucon |= S3C64XX_UCON_TXBURST_1;
+ 	ucon |= S3C64XX_UCON_TXMODE_DMA;
+ 	wr_regl(port,  S3C2410_UCON, ucon);
  
- 	r = i2c_master_recv(client, skb_put(*skb, frame_len), frame_len);
--	if (r != frame_len) {
-+	if (r < 0) {
-+		goto fw_read_exit_free_skb;
-+	} else if (r != frame_len) {
- 		nfc_err(&client->dev,
- 			"Invalid frame length: %u (expected %zu)\n",
- 			r, frame_len);
-@@ -182,7 +184,9 @@ static int nxp_nci_i2c_nci_read(struct nxp_nci_i2c_phy *phy,
- 		return 0;
- 
- 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
--	if (r != header.plen) {
-+	if (r < 0) {
-+		goto nci_read_exit_free_skb;
-+	} else if (r != header.plen) {
- 		nfc_err(&client->dev,
- 			"Invalid frame payload length: %u (expected %u)\n",
- 			r, header.plen);
--- 
-2.35.1
-
+@@ -515,7 +514,7 @@ static void enable_rx_dma(struct s3c24xx
+ 			S3C64XX_UCON_DMASUS_EN |
+ 			S3C64XX_UCON_TIMEOUT_EN |
+ 			S3C64XX_UCON_RXMODE_MASK);
+-	ucon |= S3C64XX_UCON_RXBURST_16 |
++	ucon |= S3C64XX_UCON_RXBURST_1 |
+ 			0xf << S3C64XX_UCON_TIMEOUT_SHIFT |
+ 			S3C64XX_UCON_EMPTYINT_EN |
+ 			S3C64XX_UCON_TIMEOUT_EN |
 
 
