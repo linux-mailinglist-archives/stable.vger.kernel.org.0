@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48509579BB0
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7F0579DA3
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240823AbiGSM37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:29:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55264 "EHLO
+        id S238060AbiGSMxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:53:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240399AbiGSM3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BB5B67598;
-        Tue, 19 Jul 2022 05:11:12 -0700 (PDT)
+        with ESMTP id S241907AbiGSMw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:52:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267E48FD79;
+        Tue, 19 Jul 2022 05:20:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC5AA61614;
-        Tue, 19 Jul 2022 12:11:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA18CC341C6;
-        Tue, 19 Jul 2022 12:11:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45DB0B81B2C;
+        Tue, 19 Jul 2022 12:20:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B04DC36AF6;
+        Tue, 19 Jul 2022 12:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232671;
-        bh=LsnCz5CVOq/TfFnwBQFFj4Cv7CudoW66po+20PVqBg0=;
+        s=korg; t=1658233240;
+        bh=112p4IasrsPbPAFxru+Qf08e6ZUpipmetpaKg9UAZAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZoiKN4KgZ/3zLcyCRoHXU0qXg9Xw6bb8oiy8odougAdtWKm4BG85hRQuSzNuxfnT
-         pVBP8l3WmC7e/TMWzUelgK2nOHBGvSZOT5dc3WvQScaMlESwZg7HyQXEZT8jDVpglD
-         etET0Yc0rsMD9b92k6RzXkEQTMPxvv1KzXYyTO54=
+        b=Jt2afqfJG5aHKjv0q++LfTFbX1KrnwORZryxOVphNXMsL/a1pZCCfAoa/NtNlFlPU
+         OObIezYTD8sqZ7GGtn5d3oAVuDUZ8r8zX93tyb7GRcC/pKSWDOFtriG6lCGOa+V82V
+         khD9krkOYF3IW56w0g4Pqzvd2lVISHfQPzcWPRI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 007/167] ALSA: hda/realtek - Enable the headset-mic on a Xiaomis laptop
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 054/231] ASoC: tas2764: Add post reset delays
 Date:   Tue, 19 Jul 2022 13:52:19 +0200
-Message-Id: <20220719114657.424419693@linuxfoundation.org>
+Message-Id: <20220719114718.761224517@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit 9b043a8f386485c74c0f8eea2c287d5bdbdf3279 upstream.
+[ Upstream commit cd10bb89b0d57bca98eb75e0444854a1c129a14e ]
 
-The headset on this machine is not defined, after applying the quirk
-ALC256_FIXUP_ASUS_HEADSET_MIC, the headset-mic works well
+Make sure there is at least 1 ms delay from reset to first command as
+is specified in the datasheet. This is a fix similar to commit
+307f31452078 ("ASoC: tas2770: Insert post reset delay").
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220713094133.9894-1-tangmeng@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220630075135.2221-1-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/tas2764.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9158,6 +9158,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1d72, 0x1945, "Redmi G", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1947, "RedmiBook Air", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x8086, 0x2074, "Intel NUC 8", ALC233_FIXUP_INTEL_NUC8_DMIC),
- 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index 9265af41c235..edc66ff6dc49 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -42,10 +42,12 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
+ 		gpiod_set_value_cansleep(tas2764->reset_gpio, 0);
+ 		msleep(20);
+ 		gpiod_set_value_cansleep(tas2764->reset_gpio, 1);
++		usleep_range(1000, 2000);
+ 	}
+ 
+ 	snd_soc_component_write(tas2764->component, TAS2764_SW_RST,
+ 				TAS2764_RST);
++	usleep_range(1000, 2000);
+ }
+ 
+ static int tas2764_set_bias_level(struct snd_soc_component *component,
+@@ -107,8 +109,10 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
+ 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
+ 	int ret;
+ 
+-	if (tas2764->sdz_gpio)
++	if (tas2764->sdz_gpio) {
+ 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
++		usleep_range(1000, 2000);
++	}
+ 
+ 	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+ 					    TAS2764_PWR_CTRL_MASK,
+@@ -501,8 +505,10 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
+ 
+ 	tas2764->component = component;
+ 
+-	if (tas2764->sdz_gpio)
++	if (tas2764->sdz_gpio) {
+ 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
++		usleep_range(1000, 2000);
++	}
+ 
+ 	tas2764_reset(tas2764);
+ 
+-- 
+2.35.1
+
 
 
