@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BD5579C66
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B0E579B11
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237911AbiGSMkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:40:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51712 "EHLO
+        id S238955AbiGSMY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:24:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241364AbiGSMja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:39:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FCEF53D1E;
-        Tue, 19 Jul 2022 05:15:53 -0700 (PDT)
+        with ESMTP id S239736AbiGSMYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC2D961134;
+        Tue, 19 Jul 2022 05:09:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B44C8B81B08;
-        Tue, 19 Jul 2022 12:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09DF0C341C6;
-        Tue, 19 Jul 2022 12:15:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09FDD6165C;
+        Tue, 19 Jul 2022 12:08:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA8FAC341C6;
+        Tue, 19 Jul 2022 12:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232950;
-        bh=qxmioDZyujmnpHoNtR0DVNnhK2IOg2mO6CRoNr8v3fg=;
+        s=korg; t=1658232482;
+        bh=+gmyvOgCkIdlZeHOrXPsGFQ4i4vUrAXEpwwq4tJ8hdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2TtkmIIaSBpdkNs6WUvT9+UeJBGr+O5w9gQ+pgZwOSTn2RUbUUlEU1vTh9nrTFN2K
-         PC9N7IEk72p4+5wZjE8Tf3guG6j4789dScH687r7/uDz1RDZqUCJ5HUdlL2e09OwMv
-         0IVZSdVoocWUKJM3EjX5D8URAfNgTyoEI61jbf8o=
+        b=uD3hLWWWhvVfAzXvvKVCi4nXT+lqHWRIwFLRri5GmUcdvdmKTMRC/KJQ9amvK7HlF
+         5AUZfTrCMM8PuJVRMv3STc5GhnB3QJr+nuiOd09PE0pSgXodlpjZ99+dBQ/WsXvF0A
+         9zaMKmMfTGfJkLKxIUihH2EwAb6oaY9TQDSigvUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 114/167] powerpc/xive/spapr: correct bitmap allocation size
+Subject: [PATCH 5.10 073/112] net: atlantic: remove aq_nic_deinit() when resume
 Date:   Tue, 19 Jul 2022 13:54:06 +0200
-Message-Id: <20220719114707.554183659@linuxfoundation.org>
+Message-Id: <20220719114633.549666637@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
 
-[ Upstream commit 19fc5bb93c6bbdce8292b4d7eed04e2fa118d2fe ]
+[ Upstream commit 2e15c51fefaffaf9f72255eaef4fada05055e4c5 ]
 
-kasan detects access beyond the end of the xibm->bitmap allocation:
+aq_nic_deinit() has been called while suspending, so we don't have to call
+it again on resume.
+Actually, call it again leads to another hang issue when resuming from
+S3.
 
-BUG: KASAN: slab-out-of-bounds in _find_first_zero_bit+0x40/0x140
-Read of size 8 at addr c00000001d1d0118 by task swapper/0/1
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992345] Call Trace:
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992346] <TASK>
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992348] aq_nic_deinit+0xb4/0xd0 [atlantic]
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992356] aq_pm_thaw+0x7f/0x100 [atlantic]
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992362] pci_pm_resume+0x5c/0x90
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992366] ? pci_pm_thaw+0x80/0x80
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992368] dpm_run_callback+0x4e/0x120
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992371] device_resume+0xad/0x200
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992373] async_resume+0x1e/0x40
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992374] async_run_entry_fn+0x33/0x120
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992377] process_one_work+0x220/0x3c0
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992380] worker_thread+0x4d/0x3f0
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992382] ? process_one_work+0x3c0/0x3c0
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992384] kthread+0x12a/0x150
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992386] ? set_kthread_struct+0x40/0x40
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992387] ret_from_fork+0x22/0x30
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992391] </TASK>
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992392] ---[ end trace 1ec8c79604ed5e0d ]---
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992394] PM: dpm_run_callback(): pci_pm_resume+0x0/0x90 returns -110
+Jul 8 03:09:44 u-Precision-7865-Tower kernel: [ 5910.992397] atlantic 0000:02:00.0: PM: failed to resume async: error -110
 
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-rc2-00001-g90df023b36dd #28
-Call Trace:
-[c00000001d98f770] [c0000000012baab8] dump_stack_lvl+0xac/0x108 (unreliable)
-[c00000001d98f7b0] [c00000000068faac] print_report+0x37c/0x710
-[c00000001d98f880] [c0000000006902c0] kasan_report+0x110/0x354
-[c00000001d98f950] [c000000000692324] __asan_load8+0xa4/0xe0
-[c00000001d98f970] [c0000000011c6ed0] _find_first_zero_bit+0x40/0x140
-[c00000001d98f9b0] [c0000000000dbfbc] xive_spapr_get_ipi+0xcc/0x260
-[c00000001d98fa70] [c0000000000d6d28] xive_setup_cpu_ipi+0x1e8/0x450
-[c00000001d98fb30] [c000000004032a20] pSeries_smp_probe+0x5c/0x118
-[c00000001d98fb60] [c000000004018b44] smp_prepare_cpus+0x944/0x9ac
-[c00000001d98fc90] [c000000004009f9c] kernel_init_freeable+0x2d4/0x640
-[c00000001d98fd90] [c0000000000131e8] kernel_init+0x28/0x1d0
-[c00000001d98fe10] [c00000000000cd54] ret_from_kernel_thread+0x5c/0x64
-
-Allocated by task 0:
- kasan_save_stack+0x34/0x70
- __kasan_kmalloc+0xb4/0xf0
- __kmalloc+0x268/0x540
- xive_spapr_init+0x4d0/0x77c
- pseries_init_irq+0x40/0x27c
- init_IRQ+0x44/0x84
- start_kernel+0x2a4/0x538
- start_here_common+0x1c/0x20
-
-The buggy address belongs to the object at c00000001d1d0118
- which belongs to the cache kmalloc-8 of size 8
-The buggy address is located 0 bytes inside of
- 8-byte region [c00000001d1d0118, c00000001d1d0120)
-
-The buggy address belongs to the physical page:
-page:c00c000000074740 refcount:1 mapcount:0 mapping:0000000000000000 index:0xc00000001d1d0558 pfn:0x1d1d
-flags: 0x7ffff000000200(slab|node=0|zone=0|lastcpupid=0x7ffff)
-raw: 007ffff000000200 c00000001d0003c8 c00000001d0003c8 c00000001d010480
-raw: c00000001d1d0558 0000000001e1000a 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- c00000001d1d0000: fc 00 fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- c00000001d1d0080: fc fc 00 fc fc fc fc fc fc fc fc fc fc fc fc fc
->c00000001d1d0100: fc fc fc 02 fc fc fc fc fc fc fc fc fc fc fc fc
-                            ^
- c00000001d1d0180: fc fc fc fc 04 fc fc fc fc fc fc fc fc fc fc fc
- c00000001d1d0200: fc fc fc fc fc 04 fc fc fc fc fc fc fc fc fc fc
-
-This happens because the allocation uses the wrong unit (bits) when it
-should pass (BITS_TO_LONGS(count) * sizeof(long)) or equivalent. With small
-numbers of bits, the allocated object can be smaller than sizeof(long),
-which results in invalid accesses.
-
-Use bitmap_zalloc() to allocate and initialize the irq bitmap, paired with
-bitmap_free() for consistency.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220623182509.3985625-1-nathanl@linux.ibm.com
+Fixes: 1809c30b6e5a ("net: atlantic: always deep reset on pm op, fixing up my null deref regression")
+Signed-off-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+Link: https://lore.kernel.org/r/20220713111224.1535938-2-acelan.kao@canonical.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/spapr.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-index a82f32fbe772..583b2c6df390 100644
---- a/arch/powerpc/sysdev/xive/spapr.c
-+++ b/arch/powerpc/sysdev/xive/spapr.c
-@@ -13,6 +13,7 @@
- #include <linux/of.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-+#include <linux/bitmap.h>
- #include <linux/cpumask.h>
- #include <linux/mm.h>
- #include <linux/delay.h>
-@@ -55,7 +56,7 @@ static int xive_irq_bitmap_add(int base, int count)
- 	spin_lock_init(&xibm->lock);
- 	xibm->base = base;
- 	xibm->count = count;
--	xibm->bitmap = kzalloc(xibm->count, GFP_KERNEL);
-+	xibm->bitmap = bitmap_zalloc(xibm->count, GFP_KERNEL);
- 	if (!xibm->bitmap) {
- 		kfree(xibm);
- 		return -ENOMEM;
-@@ -73,7 +74,7 @@ static void xive_irq_bitmap_remove_all(void)
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
+index 8c05b2b79339..a0ce213c473b 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
+@@ -419,9 +419,6 @@ static int atl_resume_common(struct device *dev)
+ 	pci_set_power_state(pdev, PCI_D0);
+ 	pci_restore_state(pdev);
  
- 	list_for_each_entry_safe(xibm, tmp, &xive_irq_bitmaps, list) {
- 		list_del(&xibm->list);
--		kfree(xibm->bitmap);
-+		bitmap_free(xibm->bitmap);
- 		kfree(xibm);
- 	}
- }
+-	/* Reinitialize Nic/Vecs objects */
+-	aq_nic_deinit(nic, !nic->aq_hw->aq_nic_cfg->wol);
+-
+ 	if (netif_running(nic->ndev)) {
+ 		ret = aq_nic_init(nic);
+ 		if (ret)
 -- 
 2.35.1
 
