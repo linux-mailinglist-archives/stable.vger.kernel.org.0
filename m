@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF345579962
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC58D579911
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237918AbiGSMCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
+        id S237626AbiGSL6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237920AbiGSMBe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:01:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494064331A;
-        Tue, 19 Jul 2022 04:58:40 -0700 (PDT)
+        with ESMTP id S237644AbiGSL57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:57:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE0B45F6D;
+        Tue, 19 Jul 2022 04:56:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEDAA61640;
-        Tue, 19 Jul 2022 11:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC96C341CA;
-        Tue, 19 Jul 2022 11:58:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7042061697;
+        Tue, 19 Jul 2022 11:56:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502F7C341CB;
+        Tue, 19 Jul 2022 11:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231918;
-        bh=yO7cXLAxMONxPcse2MF3SOWUyJi9k0jjmONBy+J6g8w=;
+        s=korg; t=1658231817;
+        bh=5K400RCghF5zqReCilMHPXz2UVxcHIGAjqGAIynvirY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9sH05ZnIcALOeZpweIeq3wBfQH677LvddXuvqx+ZhubMVQVfnEYcGTgvqj2aJycJ
-         rxAnS7mjtNvEmlAB3gE4r5vWQCGDlz0RzsFshrjyCUvoRvk/OzwFAQAna9ueC6qXWt
-         RuWS3XYvpuD30lUxkXaKSLvmkW3B6lH4oKX47/wc=
+        b=PX8rixR0nWCviAbIwt2U8Eudw5vb2jMp3FwpoAiK/IPysyEXEkndqZgorw4X0VdOG
+         0NM76puE22uQ3lBtG8g4BywIQctYlhkmBk866s2tto+N8MbqkKYnX62+DiXzNKa9JJ
+         x7tkp3WNJBgXBZW8CFu8nxboOPNzNdLEpXUjHlMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 10/43] xhci: bail out early if driver cant accress host in resume
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 03/28] xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
 Date:   Tue, 19 Jul 2022 13:53:41 +0200
-Message-Id: <20220719114522.949172508@linuxfoundation.org>
+Message-Id: <20220719114456.893357746@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 72ae194704da212e2ec312ab182a96799d070755 upstream.
+commit 94e8100678889ab428e68acadf042de723f094b9 upstream.
 
-Bail out early if the xHC host needs to be reset at resume
-but driver can't access xHC PCI registers.
+xenvif_rx_next_skb() is expecting the rx queue not being empty, but
+in case the loop in xenvif_rx_action() is doing multiple iterations,
+the availability of another skb in the rx queue is not being checked.
 
-If xhci driver already fails to reset the controller then there
-is no point in attempting to free, re-initialize, re-allocate and
-re-start the host. If failure to access the host is detected later,
-failing the resume, xhci interrupts will be double freed
-when remove is called.
+This can lead to crashes:
 
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200312144517.1593-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+[40072.537261] BUG: unable to handle kernel NULL pointer dereference at 0000000000000080
+[40072.537407] IP: xenvif_rx_skb+0x23/0x590 [xen_netback]
+[40072.537534] PGD 0 P4D 0
+[40072.537644] Oops: 0000 [#1] SMP NOPTI
+[40072.537749] CPU: 0 PID: 12505 Comm: v1-c40247-q2-gu Not tainted 4.12.14-122.121-default #1 SLE12-SP5
+[40072.537867] Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 11/23/2021
+[40072.537999] task: ffff880433b38100 task.stack: ffffc90043d40000
+[40072.538112] RIP: e030:xenvif_rx_skb+0x23/0x590 [xen_netback]
+[40072.538217] RSP: e02b:ffffc90043d43de0 EFLAGS: 00010246
+[40072.538319] RAX: 0000000000000000 RBX: ffffc90043cd7cd0 RCX: 00000000000000f7
+[40072.538430] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffc90043d43df8
+[40072.538531] RBP: 000000000000003f R08: 000077ff80000000 R09: 0000000000000008
+[40072.538644] R10: 0000000000007ff0 R11: 00000000000008f6 R12: ffffc90043ce2708
+[40072.538745] R13: 0000000000000000 R14: ffffc90043d43ed0 R15: ffff88043ea748c0
+[40072.538861] FS: 0000000000000000(0000) GS:ffff880484600000(0000) knlGS:0000000000000000
+[40072.538988] CS: e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+[40072.539088] CR2: 0000000000000080 CR3: 0000000407ac8000 CR4: 0000000000040660
+[40072.539211] Call Trace:
+[40072.539319] xenvif_rx_action+0x71/0x90 [xen_netback]
+[40072.539429] xenvif_kthread_guest_rx+0x14a/0x29c [xen_netback]
+
+Fix that by stopping the loop in case the rx queue becomes empty.
+
+Cc: stable@vger.kernel.org
+Fixes: 98f6d57ced73 ("xen-netback: process guest rx packets in batches")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Link: https://lore.kernel.org/r/20220713135322.19616-1-jgross@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/xen-netback/rx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1111,8 +1111,10 @@ int xhci_resume(struct xhci_hcd *xhci, b
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -482,6 +482,7 @@ void xenvif_rx_action(struct xenvif_queu
+ 	queue->rx_copy.completed = &completed_skbs;
  
- 		xhci_dbg(xhci, "Stop HCD\n");
- 		xhci_halt(xhci);
--		xhci_reset(xhci);
-+		retval = xhci_reset(xhci);
- 		spin_unlock_irq(&xhci->lock);
-+		if (retval)
-+			return retval;
- 		xhci_cleanup_msix(xhci);
- 
- 		xhci_dbg(xhci, "// Disabling event ring interrupts\n");
+ 	while (xenvif_rx_ring_slots_available(queue) &&
++	       !skb_queue_empty(&queue->rx_queue) &&
+ 	       work_done < RX_BATCH_SIZE) {
+ 		xenvif_rx_skb(queue);
+ 		work_done++;
 
 
