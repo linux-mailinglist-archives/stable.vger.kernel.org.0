@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B88B1579D4E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6435579D51
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241771AbiGSMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241774AbiGSMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Jul 2022 08:50:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50382 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241890AbiGSMtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCC857262;
-        Tue, 19 Jul 2022 05:19:30 -0700 (PDT)
+        with ESMTP id S241906AbiGSMtV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190EF8E4F1;
+        Tue, 19 Jul 2022 05:19:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AA67B81B1A;
-        Tue, 19 Jul 2022 12:19:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B56C341C6;
-        Tue, 19 Jul 2022 12:19:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FF13617B2;
+        Tue, 19 Jul 2022 12:19:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA1DC341CA;
+        Tue, 19 Jul 2022 12:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233168;
-        bh=tDk3be72/UF4Ume5NsKASOFXAKCgogPYwNFyRZ70KOQ=;
+        s=korg; t=1658233170;
+        bh=wt4k0BMHgTqMtsDUiI5OoAhxupig8hdc03zTNxLLy00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xG0DA5JFcLyMFSxav++3lofmEJPLAAsb/T7R4sGSwTEIYLU/pvwMFBDqn51xy/eCm
-         fhHzU9GUi//4bwa1xEXip8+eEfPtet9KcTW/mRo7ZPzfWi6tX+GzyyZGX1/EaKqdN5
-         VKoiUePsStbgklTXwu6pkUPexwmICbMDF7xfqjdU=
+        b=xBbZJ2U++1hAKuOdpdt2gxPKlU1hujt/Im+NPNUKgwYYAWECie+Bfukz4muHXq6Q6
+         YN9ceJK1n5OTQdg94HRzFdkY7BJ1rnQhY3QwqbqwKM/swJZtKJu7W5X4SXieHQWLV1
+         gU/ipfiJOi46r2uXnZ9e++DkljU5bWdjsCCqnTlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Chanho Park <chanho61.park@samsung.com>
-Subject: [PATCH 5.18 005/231] tty: serial: samsung_tty: set dma burst_size to 1
-Date:   Tue, 19 Jul 2022 13:51:30 +0200
-Message-Id: <20220719114714.634827047@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.18 006/231] x86/xen: Use clear_bss() for Xen PV guests
+Date:   Tue, 19 Jul 2022 13:51:31 +0200
+Message-Id: <20220719114714.704934047@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,45 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanho Park <chanho61.park@samsung.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit f7e35e4bf1e8dc2c8cbd5e0955dc1bd58558dae0 upstream.
+commit 96e8fc5818686d4a1591bb6907e7fdb64ef29884 upstream.
 
-The src_maxburst and dst_maxburst have been changed to 1 but the settings
-of the UCON register aren't changed yet. They should be changed as well
-according to the dmaengine slave config.
+Instead of clearing the bss area in assembly code, use the clear_bss()
+function.
 
-Fixes: aa2f80e752c7 ("serial: samsung: fix maxburst parameter for DMA transactions")
-Cc: stable <stable@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20220627065113.139520-1-chanho61.park@samsung.com
+This requires to pass the start_info address as parameter to
+xen_start_kernel() in order to avoid the xen_start_info being zeroed
+again.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20220630071441.28576-2-jgross@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/samsung_tty.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/setup.h |    3 +++
+ arch/x86/kernel/head64.c     |    2 +-
+ arch/x86/xen/enlighten_pv.c  |    8 ++++++--
+ arch/x86/xen/xen-head.S      |   10 +---------
+ 4 files changed, 11 insertions(+), 12 deletions(-)
 
---- a/drivers/tty/serial/samsung_tty.c
-+++ b/drivers/tty/serial/samsung_tty.c
-@@ -377,8 +377,7 @@ static void enable_tx_dma(struct s3c24xx
- 	/* Enable tx dma mode */
- 	ucon = rd_regl(port, S3C2410_UCON);
- 	ucon &= ~(S3C64XX_UCON_TXBURST_MASK | S3C64XX_UCON_TXMODE_MASK);
--	ucon |= (dma_get_cache_alignment() >= 16) ?
--		S3C64XX_UCON_TXBURST_16 : S3C64XX_UCON_TXBURST_1;
-+	ucon |= S3C64XX_UCON_TXBURST_1;
- 	ucon |= S3C64XX_UCON_TXMODE_DMA;
- 	wr_regl(port,  S3C2410_UCON, ucon);
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -132,6 +132,9 @@ void *extend_brk(size_t size, size_t ali
+ 	}
  
-@@ -674,7 +673,7 @@ static void enable_rx_dma(struct s3c24xx
- 			S3C64XX_UCON_DMASUS_EN |
- 			S3C64XX_UCON_TIMEOUT_EN |
- 			S3C64XX_UCON_RXMODE_MASK);
--	ucon |= S3C64XX_UCON_RXBURST_16 |
-+	ucon |= S3C64XX_UCON_RXBURST_1 |
- 			0xf << S3C64XX_UCON_TIMEOUT_SHIFT |
- 			S3C64XX_UCON_EMPTYINT_EN |
- 			S3C64XX_UCON_TIMEOUT_EN |
+ extern void probe_roms(void);
++
++void clear_bss(void);
++
+ #ifdef __i386__
+ 
+ asmlinkage void __init i386_start_kernel(void);
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -421,7 +421,7 @@ void __init do_early_exception(struct pt
+ 
+ /* Don't add a printk in there. printk relies on the PDA which is not initialized 
+    yet. */
+-static void __init clear_bss(void)
++void __init clear_bss(void)
+ {
+ 	memset(__bss_start, 0,
+ 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1183,15 +1183,19 @@ static void __init xen_domu_set_legacy_f
+ extern void early_xen_iret_patch(void);
+ 
+ /* First C function to be called on Xen boot */
+-asmlinkage __visible void __init xen_start_kernel(void)
++asmlinkage __visible void __init xen_start_kernel(struct start_info *si)
+ {
+ 	struct physdev_set_iopl set_iopl;
+ 	unsigned long initrd_start = 0;
+ 	int rc;
+ 
+-	if (!xen_start_info)
++	if (!si)
+ 		return;
+ 
++	clear_bss();
++
++	xen_start_info = si;
++
+ 	__text_gen_insn(&early_xen_iret_patch,
+ 			JMP32_INSN_OPCODE, &early_xen_iret_patch, &xen_iret,
+ 			JMP32_INSN_SIZE);
+--- a/arch/x86/xen/xen-head.S
++++ b/arch/x86/xen/xen-head.S
+@@ -48,15 +48,6 @@ SYM_CODE_START(startup_xen)
+ 	ANNOTATE_NOENDBR
+ 	cld
+ 
+-	/* Clear .bss */
+-	xor %eax,%eax
+-	mov $__bss_start, %rdi
+-	mov $__bss_stop, %rcx
+-	sub %rdi, %rcx
+-	shr $3, %rcx
+-	rep stosq
+-
+-	mov %rsi, xen_start_info
+ 	mov initial_stack(%rip), %rsp
+ 
+ 	/* Set up %gs.
+@@ -71,6 +62,7 @@ SYM_CODE_START(startup_xen)
+ 	cdq
+ 	wrmsr
+ 
++	mov	%rsi, %rdi
+ 	call xen_start_kernel
+ SYM_CODE_END(startup_xen)
+ 	__FINIT
 
 
