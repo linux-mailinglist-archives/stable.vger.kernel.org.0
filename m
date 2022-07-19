@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6A7579994
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0865579A13
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238008AbiGSME6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39036 "EHLO
+        id S238555AbiGSMKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:10:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238160AbiGSMEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0D0A45075;
-        Tue, 19 Jul 2022 04:59:55 -0700 (PDT)
+        with ESMTP id S238958AbiGSMJx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B3A4B0D8;
+        Tue, 19 Jul 2022 05:02:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F130B81B2A;
-        Tue, 19 Jul 2022 11:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75231C341C6;
-        Tue, 19 Jul 2022 11:59:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CBC80CE1BDA;
+        Tue, 19 Jul 2022 12:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98D4C341C6;
+        Tue, 19 Jul 2022 12:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231992;
-        bh=FW+wkwAP1yoydPb5SuQr7Hc5acBNohEvdSAzABYv3pU=;
+        s=korg; t=1658232173;
+        bh=nUtBfzTlgUJml8ct1cuSb6IjNcqZCJQfoT1HGe4/vb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sR6rbyqDwiv2c4eW5C4Ay4JtiN7EOXf6aj+H1dLxIj4wijZZ22miaGfCZo2EhNh16
-         v4BoIj3EZ5+xDzQss0yC47Zy5Yi6p8OW9cxCJLVBQMNoBZm5wWqpi84/FQirWS5OxZ
-         pEwEsQqVznAFJLQndc4qillbfC+uWxaa6OOm95RI=
+        b=sJP1hR8YFGRoSPlYh2aYJ9N/W70Hb0Z/Lhwu+qHHe/cBw9hGtPbxNET43SvjM2YPh
+         Jg4XLPuPdFt9tQLQYWY199X7k9aAGfvkOoGFTRh2e1Wf51um9vuQofr9DRn11qNgZk
+         IK4chOGewe96HZFQ5FpCfxQ41TjZjGO+UxEsTTXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Mayer <andrea.mayer@uniroma2.it>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/48] seg6: fix skb checksum in SRv6 End.B6 and End.B6.Encaps behaviors
+Subject: [PATCH 5.4 38/71] net: ftgmac100: Hold reference returned by of_get_child_by_name()
 Date:   Tue, 19 Jul 2022 13:54:01 +0200
-Message-Id: <20220719114522.039706892@linuxfoundation.org>
+Message-Id: <20220719114555.971850774@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Mayer <andrea.mayer@uniroma2.it>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit f048880fc77058d864aff5c674af7918b30f312a ]
+[ Upstream commit 49b9f431ff0d845a36be0b3ede35ec324f2e5fee ]
 
-The SRv6 End.B6 and End.B6.Encaps behaviors rely on functions
-seg6_do_srh_{encap,inline}() to, respectively: i) encapsulate the
-packet within an outer IPv6 header with the specified Segment Routing
-Header (SRH); ii) insert the specified SRH directly after the IPv6
-header of the packet.
+In ftgmac100_probe(), we should hold the refernece returned by
+of_get_child_by_name() and use it to call of_node_put() for
+reference balance.
 
-This patch removes the initialization of the IPv6 header payload length
-from the input_action_end_b6{_encap}() functions, as it is now handled
-properly by seg6_do_srh_{encap,inline}() to avoid corruption of the skb
-checksum.
-
-Fixes: 140f04c33bbc ("ipv6: sr: implement several seg6local actions")
-Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 39bfab8844a0 ("net: ftgmac100: Add support for DT phy-handle property")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6_local.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/faraday/ftgmac100.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/seg6_local.c b/net/ipv6/seg6_local.c
-index 607709a8847c..18970f6a68c6 100644
---- a/net/ipv6/seg6_local.c
-+++ b/net/ipv6/seg6_local.c
-@@ -415,7 +415,6 @@ static int input_action_end_b6(struct sk_buff *skb, struct seg6_local_lwt *slwt)
- 	if (err)
- 		goto drop;
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index d7478d332820..98e94d914597 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1734,6 +1734,19 @@ static void ftgmac100_setup_clk(struct ftgmac100 *priv)
+ 			FTGMAC_100MHZ);
+ }
  
--	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
- 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
++static bool ftgmac100_has_child_node(struct device_node *np, const char *name)
++{
++	struct device_node *child_np = of_get_child_by_name(np, name);
++	bool ret = false;
++
++	if (child_np) {
++		ret = true;
++		of_node_put(child_np);
++	}
++
++	return ret;
++}
++
+ static int ftgmac100_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+@@ -1850,7 +1863,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
  
- 	seg6_lookup_nexthop(skb, NULL, 0);
-@@ -447,7 +446,6 @@ static int input_action_end_b6_encap(struct sk_buff *skb,
- 	if (err)
- 		goto drop;
- 
--	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
- 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
- 
- 	seg6_lookup_nexthop(skb, NULL, 0);
+ 		/* Display what we found */
+ 		phy_attached_info(phy);
+-	} else if (np && !of_get_child_by_name(np, "mdio")) {
++	} else if (np && !ftgmac100_has_child_node(np, "mdio")) {
+ 		/* Support legacy ASPEED devicetree descriptions that decribe a
+ 		 * MAC with an embedded MDIO controller but have no "mdio"
+ 		 * child node. Automatically scan the MDIO bus for available
 -- 
 2.35.1
 
