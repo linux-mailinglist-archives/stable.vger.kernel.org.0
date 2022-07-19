@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 271D7579D29
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F98B579EE8
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241650AbiGSMrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:47:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37972 "EHLO
+        id S238242AbiGSNHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241707AbiGSMqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2BC8BA9F;
-        Tue, 19 Jul 2022 05:18:30 -0700 (PDT)
+        with ESMTP id S243037AbiGSNHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:07:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6A9B9A15;
+        Tue, 19 Jul 2022 05:27:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE19961839;
-        Tue, 19 Jul 2022 12:18:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77F73C341C6;
-        Tue, 19 Jul 2022 12:18:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B376E6020F;
+        Tue, 19 Jul 2022 12:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94551C341CB;
+        Tue, 19 Jul 2022 12:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233090;
-        bh=gb/czhMg4fVob1ttITgWIuTsBA07eCazqwFw3vqBK4Y=;
+        s=korg; t=1658233642;
+        bh=Nu25KeaHG2mnQyV9qxyD+sSs3aEncDCtP3ul7XyJKUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nl/sOQr4UMfllrwmWkTpvpKOBjYTxPK4DYw/iaj8BNuM49KqhkshwtxtU5HLPuPtj
-         Tnlr0ULgIKo5bBwNcY3p8W/2u8nclTZwWYEP+jCLe0doV9o9D08MaaBl1waIAmo9qh
-         hFvQYz/ZPQjSLrAo8UAPXT5jjoB5t0DxamPvcxg8=
+        b=U2MK59tKZPlru2QYjxAmc6XuA6V1aCf8JZpjUAAwLk+OwZibIoyfloTQOsG05R7xW
+         p6WVIcVBraaBKLgBQsh+rdgVh+1FKfepEVejOt09zzRVGqTyMIza9vjfcm/rxHQeXB
+         j7/7bRWbesoEPv2mqbJs6SY5RNdN/sQBvwY4wfM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 145/167] ASoC: cs47l15: Fix event generation for low power mux control
+Subject: [PATCH 5.18 192/231] ASoC: SOF: Intel: hda-loader: Make sure that the fw load sequence is followed
 Date:   Tue, 19 Jul 2022 13:54:37 +0200
-Message-Id: <20220719114710.508413989@linuxfoundation.org>
+Message-Id: <20220719114730.293222807@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit 7f103af4a10f375b9b346b4d0b730f6a66b8c451 ]
+[ Upstream commit c31691e0d126ec5d60d2b6b03f699c11b613b219 ]
 
-cs47l15_in1_adc_put always returns zero regardless of if the control
-value was updated. This results in missing notifications to user-space
-of the control change. Update the handling to return 1 when the value is
-changed.
+The hda_dsp_enable_core() is powering up _and_ unstall the core in one
+call while the first step of the firmware loading  must not unstall the
+core.
+The core can be unstalled only after the set cpb_cfp and the configuration
+of the IPC register for the ROM_CONTROL message.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220623105120.1981154-3-ckeepax@opensource.cirrus.com
+Complements: 2a68ff846164 ("ASoC: SOF: Intel: hda: Revisit IMR boot sequence")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20220609085949.29062-3-peter.ujfalusi@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs47l15.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/sof/intel/hda-loader.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs47l15.c b/sound/soc/codecs/cs47l15.c
-index 1ee83160b83f..ac9ccdea15b5 100644
---- a/sound/soc/codecs/cs47l15.c
-+++ b/sound/soc/codecs/cs47l15.c
-@@ -122,6 +122,9 @@ static int cs47l15_in1_adc_put(struct snd_kcontrol *kcontrol,
- 		snd_soc_kcontrol_component(kcontrol);
- 	struct cs47l15 *cs47l15 = snd_soc_component_get_drvdata(component);
+diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
+index 2ac5d9d0719b..9f624a84182b 100644
+--- a/sound/soc/sof/intel/hda-loader.c
++++ b/sound/soc/sof/intel/hda-loader.c
+@@ -112,7 +112,7 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
+ 	int ret;
  
-+	if (!!ucontrol->value.integer.value[0] == cs47l15->in1_lp_mode)
-+		return 0;
-+
- 	switch (ucontrol->value.integer.value[0]) {
- 	case 0:
- 		/* Set IN1 to normal mode */
-@@ -150,7 +153,7 @@ static int cs47l15_in1_adc_put(struct snd_kcontrol *kcontrol,
- 		break;
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- static const struct snd_kcontrol_new cs47l15_snd_controls[] = {
+ 	/* step 1: power up corex */
+-	ret = hda_dsp_enable_core(sdev, chip->host_managed_cores_mask);
++	ret = hda_dsp_core_power_up(sdev, chip->host_managed_cores_mask);
+ 	if (ret < 0) {
+ 		if (hda->boot_iteration == HDA_FW_BOOT_ATTEMPTS)
+ 			dev_err(sdev->dev, "error: dsp core 0/1 power up failed\n");
 -- 
 2.35.1
 
