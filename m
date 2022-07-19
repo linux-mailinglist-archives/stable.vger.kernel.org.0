@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA69579C91
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 388C0579E4B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241231AbiGSMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47758 "EHLO
+        id S242475AbiGSNBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241250AbiGSMjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:39:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2BB4E86B;
-        Tue, 19 Jul 2022 05:15:33 -0700 (PDT)
+        with ESMTP id S242712AbiGSM72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C541422CE;
+        Tue, 19 Jul 2022 05:24:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 582ACB81B2C;
-        Tue, 19 Jul 2022 12:15:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E55C341C6;
-        Tue, 19 Jul 2022 12:15:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4320DB81B29;
+        Tue, 19 Jul 2022 12:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9593BC341D4;
+        Tue, 19 Jul 2022 12:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232931;
-        bh=CEtsbmYi11VwkTcpvylIh79Ne3MbyQX0beNtqeTNKN4=;
+        s=korg; t=1658233491;
+        bh=ZzoeeK22UdI5rV/NKmOMY8h+jq09j5Z1NOc3uDW+Uf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=km0aq/8F5L7cGrKSlOICzvFrC1KS6vCYM1QGNMNH/mjYOVBaISc+lAzMGnnth1qWg
-         HuuJmT7H3QiO6Qey7tD8D3qM42jpndrbl1LK2JJdvaW2fkHNd8OUw5zQbmHtch/ibq
-         zfbX6qYvc1nK1rddLRcZLUxDXLTN1E44qUmUMTEg=
+        b=MXRCAmYdpmTkhnZYJqbNFWOlBLwlji9GZPq4dC+meYyoAyiBqspAC4WhOUkrW4RI3
+         7a8uApqM0u28Mg51d9ZHkeFtKpuIpmz1vJ8EFm34W2iOQ0xf6XT45MJx/WCxemS3m8
+         ZFdA+3LdKwZ7DHFItmopwKKL2yA4XN2elq/qXh/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ma Yuying <yuma@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/167] nexthop: Fix data-races around nexthop_compat_mode.
+Subject: [PATCH 5.18 139/231] sfc: fix kernel panic when creating VF
 Date:   Tue, 19 Jul 2022 13:53:44 +0200
-Message-Id: <20220719114705.410986956@linuxfoundation.org>
+Message-Id: <20220719114726.087418351@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit bdf00bf24bef9be1ca641a6390fd5487873e0d2e ]
+[ Upstream commit ada74c5539eba06cf8b47d068f92e0b3963a9a6e ]
 
-While reading nexthop_compat_mode, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+When creating VFs a kernel panic can happen when calling to
+efx_ef10_try_update_nic_stats_vf.
 
-Fixes: 4f80116d3df3 ("net: ipv4: add sysctl for nexthop api compatibility mode")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When releasing a DMA coherent buffer, sometimes, I don't know in what
+specific circumstances, it has to unmap memory with vunmap. It is
+disallowed to do that in IRQ context or with BH disabled. Otherwise, we
+hit this line in vunmap, causing the crash:
+  BUG_ON(in_interrupt());
+
+This patch reenables BH to release the buffer.
+
+Log messages when the bug is hit:
+ kernel BUG at mm/vmalloc.c:2727!
+ invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 6 PID: 1462 Comm: NetworkManager Kdump: loaded Tainted: G          I      --------- ---  5.14.0-119.el9.x86_64 #1
+ Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
+ RIP: 0010:vunmap+0x2e/0x30
+ ...skip...
+ Call Trace:
+  __iommu_dma_free+0x96/0x100
+  efx_nic_free_buffer+0x2b/0x40 [sfc]
+  efx_ef10_try_update_nic_stats_vf+0x14a/0x1c0 [sfc]
+  efx_ef10_update_stats_vf+0x18/0x40 [sfc]
+  efx_start_all+0x15e/0x1d0 [sfc]
+  efx_net_open+0x5a/0xe0 [sfc]
+  __dev_open+0xe7/0x1a0
+  __dev_change_flags+0x1d7/0x240
+  dev_change_flags+0x21/0x60
+  ...skip...
+
+Fixes: d778819609a2 ("sfc: DMA the VF stats only when requested")
+Reported-by: Ma Yuying <yuma@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20220713092116.21238-1-ihuguet@redhat.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c | 2 +-
- net/ipv4/nexthop.c       | 5 +++--
- net/ipv6/route.c         | 2 +-
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sfc/ef10.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index a98350dacbc3..674694d8ac61 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -1829,7 +1829,7 @@ int fib_dump_info(struct sk_buff *skb, u32 portid, u32 seq, int event,
- 			goto nla_put_failure;
- 		if (nexthop_is_blackhole(fi->nh))
- 			rtm->rtm_type = RTN_BLACKHOLE;
--		if (!fi->fib_net->ipv4.sysctl_nexthop_compat_mode)
-+		if (!READ_ONCE(fi->fib_net->ipv4.sysctl_nexthop_compat_mode))
- 			goto offload;
- 	}
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index 186cb28c03bd..8b62ce21aff3 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -1932,7 +1932,10 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
  
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 5dbd4b5505eb..cc8f120149f6 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -1857,7 +1857,7 @@ static void __remove_nexthop_fib(struct net *net, struct nexthop *nh)
- 		/* __ip6_del_rt does a release, so do a hold here */
- 		fib6_info_hold(f6i);
- 		ipv6_stub->ip6_del_rt(net, f6i,
--				      !net->ipv4.sysctl_nexthop_compat_mode);
-+				      !READ_ONCE(net->ipv4.sysctl_nexthop_compat_mode));
- 	}
+ 	efx_update_sw_stats(efx, stats);
+ out:
++	/* releasing a DMA coherent buffer with BH disabled can panic */
++	spin_unlock_bh(&efx->stats_lock);
+ 	efx_nic_free_buffer(efx, &stats_buf);
++	spin_lock_bh(&efx->stats_lock);
+ 	return rc;
  }
- 
-@@ -2362,7 +2362,8 @@ static int insert_nexthop(struct net *net, struct nexthop *new_nh,
- 	if (!rc) {
- 		nh_base_seq_inc(net);
- 		nexthop_notify(RTM_NEWNEXTHOP, new_nh, &cfg->nlinfo);
--		if (replace_notify && net->ipv4.sysctl_nexthop_compat_mode)
-+		if (replace_notify &&
-+		    READ_ONCE(net->ipv4.sysctl_nexthop_compat_mode))
- 			nexthop_replace_notify(net, new_nh, &cfg->nlinfo);
- 	}
- 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 4ca754c360a3..27274fc3619a 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -5756,7 +5756,7 @@ static int rt6_fill_node(struct net *net, struct sk_buff *skb,
- 		if (nexthop_is_blackhole(rt->nh))
- 			rtm->rtm_type = RTN_BLACKHOLE;
- 
--		if (net->ipv4.sysctl_nexthop_compat_mode &&
-+		if (READ_ONCE(net->ipv4.sysctl_nexthop_compat_mode) &&
- 		    rt6_fill_node_nexthop(skb, rt->nh, &nh_flags) < 0)
- 			goto nla_put_failure;
  
 -- 
 2.35.1
