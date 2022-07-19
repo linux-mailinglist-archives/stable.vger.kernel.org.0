@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F353579E00
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF12579BBB
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242400AbiGSM5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40368 "EHLO
+        id S237447AbiGSMbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:31:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242351AbiGSM4Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58DEC9A685;
-        Tue, 19 Jul 2022 05:22:30 -0700 (PDT)
+        with ESMTP id S238410AbiGSM3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72D366BB3;
+        Tue, 19 Jul 2022 05:10:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08004B81A7F;
-        Tue, 19 Jul 2022 12:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 568B9C341C6;
-        Tue, 19 Jul 2022 12:22:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C855A6178A;
+        Tue, 19 Jul 2022 12:10:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94190C341CA;
+        Tue, 19 Jul 2022 12:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233347;
-        bh=IwVwEtCJlMNehkWKAKpAVbfVe1eP3EAOJxfrxWmzl/0=;
+        s=korg; t=1658232651;
+        bh=A64X1RU+bQFq0XR1Htb93ty9wG2o38cb1wA2elF1EpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ztr7NDSOC6zK2sEigxaX/CklQUOBhEkbT++2xAPG9DWz8pooSOEeLefFtNJalEtVS
-         K3wkUhNbNvOXrl3y/oWijTwoPoFrd1JSZupLm+YcS09gCZLcvU5m7jrK4tue8MhRYb
-         wyZzQlxfM5pc+OnvnejNRidgkCxijTcEoGkJBOw8=
+        b=OL2tk1Y7NGs0gh7jcZCjjHUIebtmrwhdlRqvgX3GwwLfciOmopaaGnVFr+ZGN+c3l
+         ddKGNxL46VT1j7j/h9v1JzjnBhJmxZ8HJNCfsrCswMyF2DzAw1E4PmF2GPEGkef+Eq
+         Jc8wzJ6TDroUBe9A8nPTyZp1MCKLHsc/gw7HF8D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Kajetan Puchalski <kajetan.puchalski@arm.com>,
-        Florian Westphal <fw@strlen.de>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 065/231] netfilter: conntrack: fix crash due to confirmed bit load reordering
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        shisiyuan <shisiyuan19870131@gmail.com>
+Subject: [PATCH 5.15 018/167] cgroup: Use separate src/dst nodes when preloading css_sets for migration
 Date:   Tue, 19 Jul 2022 13:52:30 +0200
-Message-Id: <20220719114719.675342376@linuxfoundation.org>
+Message-Id: <20220719114658.510438799@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,190 +53,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 0ed8f619b412b52360ccdfaf997223ccd9319569 ]
+commit 07fd5b6cdf3cc30bfde8fe0f644771688be04447 upstream.
 
-Kajetan Puchalski reports crash on ARM, with backtrace of:
+Each cset (css_set) is pinned by its tasks. When we're moving tasks around
+across csets for a migration, we need to hold the source and destination
+csets to ensure that they don't go away while we're moving tasks about. This
+is done by linking cset->mg_preload_node on either the
+mgctx->preloaded_src_csets or mgctx->preloaded_dst_csets list. Using the
+same cset->mg_preload_node for both the src and dst lists was deemed okay as
+a cset can't be both the source and destination at the same time.
 
-__nf_ct_delete_from_lists
-nf_ct_delete
-early_drop
-__nf_conntrack_alloc
+Unfortunately, this overloading becomes problematic when multiple tasks are
+involved in a migration and some of them are identity noop migrations while
+others are actually moving across cgroups. For example, this can happen with
+the following sequence on cgroup1:
 
-Unlike atomic_inc_not_zero, refcount_inc_not_zero is not a full barrier.
-conntrack uses SLAB_TYPESAFE_BY_RCU, i.e. it is possible that a 'newly'
-allocated object is still in use on another CPU:
+ #1> mkdir -p /sys/fs/cgroup/misc/a/b
+ #2> echo $$ > /sys/fs/cgroup/misc/a/cgroup.procs
+ #3> RUN_A_COMMAND_WHICH_CREATES_MULTIPLE_THREADS &
+ #4> PID=$!
+ #5> echo $PID > /sys/fs/cgroup/misc/a/b/tasks
+ #6> echo $PID > /sys/fs/cgroup/misc/a/cgroup.procs
 
-CPU1						CPU2
-						encounter 'ct' during hlist walk
- delete_from_lists
- refcount drops to 0
- kmem_cache_free(ct);
- __nf_conntrack_alloc() // returns same object
-						refcount_inc_not_zero(ct); /* might fail */
+the process including the group leader back into a. In this final migration,
+non-leader threads would be doing identity migration while the group leader
+is doing an actual one.
 
-						/* If set, ct is public/in the hash table */
-						test_bit(IPS_CONFIRMED_BIT, &ct->status);
+After #3, let's say the whole process was in cset A, and that after #4, the
+leader moves to cset B. Then, during #6, the following happens:
 
-In case CPU1 already set refcount back to 1, refcount_inc_not_zero()
-will succeed.
+ 1. cgroup_migrate_add_src() is called on B for the leader.
 
-The expected possibilities for a CPU that obtained the object 'ct'
-(but no reference so far) are:
+ 2. cgroup_migrate_add_src() is called on A for the other threads.
 
-1. refcount_inc_not_zero() fails.  CPU2 ignores the object and moves to
-   the next entry in the list.  This happens for objects that are about
-   to be free'd, that have been free'd, or that have been reallocated
-   by __nf_conntrack_alloc(), but where the refcount has not been
-   increased back to 1 yet.
+ 3. cgroup_migrate_prepare_dst() is called. It scans the src list.
 
-2. refcount_inc_not_zero() succeeds. CPU2 checks the CONFIRMED bit
-   in ct->status.  If set, the object is public/in the table.
+ 4. It notices that B wants to migrate to A, so it tries to A to the dst
+    list but realizes that its ->mg_preload_node is already busy.
 
-   If not, the object must be skipped; CPU2 calls nf_ct_put() to
-   un-do the refcount increment and moves to the next object.
+ 5. and then it notices A wants to migrate to A as it's an identity
+    migration, it culls it by list_del_init()'ing its ->mg_preload_node and
+    putting references accordingly.
 
-Parallel deletion from the hlists is prevented by a
-'test_and_set_bit(IPS_DYING_BIT, &ct->status);' check, i.e. only one
-cpu will do the unlink, the other one will only drop its reference count.
+ 6. The rest of migration takes place with B on the src list but nothing on
+    the dst list.
 
-Because refcount_inc_not_zero is not a full barrier, CPU2 may try to
-delete an object that is not on any list:
+This means that A isn't held while migration is in progress. If all tasks
+leave A before the migration finishes and the incoming task pins it, the
+cset will be destroyed leading to use-after-free.
 
-1. refcount_inc_not_zero() successful (refcount inited to 1 on other CPU)
-2. CONFIRMED test also successful (load was reordered or zeroing
-   of ct->status not yet visible)
-3. delete_from_lists unlinks entry not on the hlist, because
-   IPS_DYING_BIT is 0 (already cleared).
+This is caused by overloading cset->mg_preload_node for both src and dst
+preload lists. We wanted to exclude the cset from the src list but ended up
+inadvertently excluding it from the dst list too.
 
-2) is already wrong: CPU2 will handle a partially initited object
-that is supposed to be private to CPU1.
+This patch fixes the issue by separating out cset->mg_preload_node into
+->mg_src_preload_node and ->mg_dst_preload_node, so that the src and dst
+preloadings don't interfere with each other.
 
-Add needed barriers when refcount_inc_not_zero() is successful.
-
-It also inserts a smp_wmb() before the refcount is set to 1 during
-allocation.
-
-Because other CPU might still see the object, refcount_set(1)
-"resurrects" it, so we need to make sure that other CPUs will also observe
-the right content.  In particular, the CONFIRMED bit test must only pass
-once the object is fully initialised and either in the hash or about to be
-inserted (with locks held to delay possible unlink from early_drop or
-gc worker).
-
-I did not change flow_offload_alloc(), as far as I can see it should call
-refcount_inc(), not refcount_inc_not_zero(): the ct object is attached to
-the skb so its refcount should be >= 1 in all cases.
-
-v2: prefer smp_acquire__after_ctrl_dep to smp_rmb (Will Deacon).
-v3: keep smp_acquire__after_ctrl_dep close to refcount_inc_not_zero call
-    add comment in nf_conntrack_netlink, no control dependency there
-    due to locks.
-
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/all/Yr7WTfd6AVTQkLjI@e126311.manchester.arm.com/
-Reported-by: Kajetan Puchalski <kajetan.puchalski@arm.com>
-Diagnosed-by: Will Deacon <will@kernel.org>
-Fixes: 719774377622 ("netfilter: conntrack: convert to refcount_t api")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reported-by: shisiyuan <shisiyuan19870131@gmail.com>
+Link: http://lkml.kernel.org/r/1654187688-27411-1-git-send-email-shisiyuan@xiaomi.com
+Link: https://www.spinics.net/lists/cgroups/msg33313.html
+Fixes: f817de98513d ("cgroup: prepare migration path for unified hierarchy")
+Cc: stable@vger.kernel.org # v3.16+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_core.c       | 22 ++++++++++++++++++++++
- net/netfilter/nf_conntrack_netlink.c    |  1 +
- net/netfilter/nf_conntrack_standalone.c |  3 +++
- 3 files changed, 26 insertions(+)
+ include/linux/cgroup-defs.h |    3 ++-
+ kernel/cgroup/cgroup.c      |   37 +++++++++++++++++++++++--------------
+ 2 files changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 9010b6e5a072..5a85735512ce 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -764,6 +764,9 @@ static void nf_ct_gc_expired(struct nf_conn *ct)
- 	if (!refcount_inc_not_zero(&ct->ct_general.use))
+--- a/include/linux/cgroup-defs.h
++++ b/include/linux/cgroup-defs.h
+@@ -264,7 +264,8 @@ struct css_set {
+ 	 * List of csets participating in the on-going migration either as
+ 	 * source or destination.  Protected by cgroup_mutex.
+ 	 */
+-	struct list_head mg_preload_node;
++	struct list_head mg_src_preload_node;
++	struct list_head mg_dst_preload_node;
+ 	struct list_head mg_node;
+ 
+ 	/*
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -764,7 +764,8 @@ struct css_set init_css_set = {
+ 	.task_iters		= LIST_HEAD_INIT(init_css_set.task_iters),
+ 	.threaded_csets		= LIST_HEAD_INIT(init_css_set.threaded_csets),
+ 	.cgrp_links		= LIST_HEAD_INIT(init_css_set.cgrp_links),
+-	.mg_preload_node	= LIST_HEAD_INIT(init_css_set.mg_preload_node),
++	.mg_src_preload_node	= LIST_HEAD_INIT(init_css_set.mg_src_preload_node),
++	.mg_dst_preload_node	= LIST_HEAD_INIT(init_css_set.mg_dst_preload_node),
+ 	.mg_node		= LIST_HEAD_INIT(init_css_set.mg_node),
+ 
+ 	/*
+@@ -1239,7 +1240,8 @@ static struct css_set *find_css_set(stru
+ 	INIT_LIST_HEAD(&cset->threaded_csets);
+ 	INIT_HLIST_NODE(&cset->hlist);
+ 	INIT_LIST_HEAD(&cset->cgrp_links);
+-	INIT_LIST_HEAD(&cset->mg_preload_node);
++	INIT_LIST_HEAD(&cset->mg_src_preload_node);
++	INIT_LIST_HEAD(&cset->mg_dst_preload_node);
+ 	INIT_LIST_HEAD(&cset->mg_node);
+ 
+ 	/* Copy the set of subsystem state objects generated in
+@@ -2596,21 +2598,27 @@ int cgroup_migrate_vet_dst(struct cgroup
+  */
+ void cgroup_migrate_finish(struct cgroup_mgctx *mgctx)
+ {
+-	LIST_HEAD(preloaded);
+ 	struct css_set *cset, *tmp_cset;
+ 
+ 	lockdep_assert_held(&cgroup_mutex);
+ 
+ 	spin_lock_irq(&css_set_lock);
+ 
+-	list_splice_tail_init(&mgctx->preloaded_src_csets, &preloaded);
+-	list_splice_tail_init(&mgctx->preloaded_dst_csets, &preloaded);
++	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_src_csets,
++				 mg_src_preload_node) {
++		cset->mg_src_cgrp = NULL;
++		cset->mg_dst_cgrp = NULL;
++		cset->mg_dst_cset = NULL;
++		list_del_init(&cset->mg_src_preload_node);
++		put_css_set_locked(cset);
++	}
+ 
+-	list_for_each_entry_safe(cset, tmp_cset, &preloaded, mg_preload_node) {
++	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_dst_csets,
++				 mg_dst_preload_node) {
+ 		cset->mg_src_cgrp = NULL;
+ 		cset->mg_dst_cgrp = NULL;
+ 		cset->mg_dst_cset = NULL;
+-		list_del_init(&cset->mg_preload_node);
++		list_del_init(&cset->mg_dst_preload_node);
+ 		put_css_set_locked(cset);
+ 	}
+ 
+@@ -2652,7 +2660,7 @@ void cgroup_migrate_add_src(struct css_s
+ 
+ 	src_cgrp = cset_cgroup_from_root(src_cset, dst_cgrp->root);
+ 
+-	if (!list_empty(&src_cset->mg_preload_node))
++	if (!list_empty(&src_cset->mg_src_preload_node))
  		return;
  
-+	/* load ->status after refcount increase */
-+	smp_acquire__after_ctrl_dep();
-+
- 	if (nf_ct_should_gc(ct))
- 		nf_ct_kill(ct);
+ 	WARN_ON(src_cset->mg_src_cgrp);
+@@ -2663,7 +2671,7 @@ void cgroup_migrate_add_src(struct css_s
+ 	src_cset->mg_src_cgrp = src_cgrp;
+ 	src_cset->mg_dst_cgrp = dst_cgrp;
+ 	get_css_set(src_cset);
+-	list_add_tail(&src_cset->mg_preload_node, &mgctx->preloaded_src_csets);
++	list_add_tail(&src_cset->mg_src_preload_node, &mgctx->preloaded_src_csets);
+ }
  
-@@ -830,6 +833,9 @@ __nf_conntrack_find_get(struct net *net, const struct nf_conntrack_zone *zone,
- 		 */
- 		ct = nf_ct_tuplehash_to_ctrack(h);
- 		if (likely(refcount_inc_not_zero(&ct->ct_general.use))) {
-+			/* re-check key after refcount */
-+			smp_acquire__after_ctrl_dep();
-+
- 			if (likely(nf_ct_key_equal(h, tuple, zone, net)))
- 				goto found;
+ /**
+@@ -2688,7 +2696,7 @@ int cgroup_migrate_prepare_dst(struct cg
  
-@@ -1369,6 +1375,9 @@ static unsigned int early_drop_list(struct net *net,
- 		if (!refcount_inc_not_zero(&tmp->ct_general.use))
+ 	/* look up the dst cset for each src cset and link it to src */
+ 	list_for_each_entry_safe(src_cset, tmp_cset, &mgctx->preloaded_src_csets,
+-				 mg_preload_node) {
++				 mg_src_preload_node) {
+ 		struct css_set *dst_cset;
+ 		struct cgroup_subsys *ss;
+ 		int ssid;
+@@ -2707,7 +2715,7 @@ int cgroup_migrate_prepare_dst(struct cg
+ 		if (src_cset == dst_cset) {
+ 			src_cset->mg_src_cgrp = NULL;
+ 			src_cset->mg_dst_cgrp = NULL;
+-			list_del_init(&src_cset->mg_preload_node);
++			list_del_init(&src_cset->mg_src_preload_node);
+ 			put_css_set(src_cset);
+ 			put_css_set(dst_cset);
  			continue;
+@@ -2715,8 +2723,8 @@ int cgroup_migrate_prepare_dst(struct cg
  
-+		/* load ->ct_net and ->status after refcount increase */
-+		smp_acquire__after_ctrl_dep();
-+
- 		/* kill only if still in same netns -- might have moved due to
- 		 * SLAB_TYPESAFE_BY_RCU rules.
- 		 *
-@@ -1518,6 +1527,9 @@ static void gc_worker(struct work_struct *work)
- 			if (!refcount_inc_not_zero(&tmp->ct_general.use))
- 				continue;
+ 		src_cset->mg_dst_cset = dst_cset;
  
-+			/* load ->status after refcount increase */
-+			smp_acquire__after_ctrl_dep();
-+
- 			if (gc_worker_skip_ct(tmp)) {
- 				nf_ct_put(tmp);
- 				continue;
-@@ -1749,6 +1761,16 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
- 	if (!exp)
- 		__nf_ct_try_assign_helper(ct, tmpl, GFP_ATOMIC);
+-		if (list_empty(&dst_cset->mg_preload_node))
+-			list_add_tail(&dst_cset->mg_preload_node,
++		if (list_empty(&dst_cset->mg_dst_preload_node))
++			list_add_tail(&dst_cset->mg_dst_preload_node,
+ 				      &mgctx->preloaded_dst_csets);
+ 		else
+ 			put_css_set(dst_cset);
+@@ -2962,7 +2970,8 @@ static int cgroup_update_dfl_csses(struc
+ 		goto out_finish;
  
-+	/* Other CPU might have obtained a pointer to this object before it was
-+	 * released.  Because refcount is 0, refcount_inc_not_zero() will fail.
-+	 *
-+	 * After refcount_set(1) it will succeed; ensure that zeroing of
-+	 * ct->status and the correct ct->net pointer are visible; else other
-+	 * core might observe CONFIRMED bit which means the entry is valid and
-+	 * in the hash table, but its not (anymore).
-+	 */
-+	smp_wmb();
-+
- 	/* Now it is inserted into the unconfirmed list, set refcount to 1. */
- 	refcount_set(&ct->ct_general.use, 1);
- 	nf_ct_add_to_unconfirmed_list(ct);
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 2e9c8183e4a2..431e005ff14d 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1203,6 +1203,7 @@ ctnetlink_dump_table(struct sk_buff *skb, struct netlink_callback *cb)
- 					   hnnode) {
- 			ct = nf_ct_tuplehash_to_ctrack(h);
- 			if (nf_ct_is_expired(ct)) {
-+				/* need to defer nf_ct_kill() until lock is released */
- 				if (i < ARRAY_SIZE(nf_ct_evict) &&
- 				    refcount_inc_not_zero(&ct->ct_general.use))
- 					nf_ct_evict[i++] = ct;
-diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index 55aa55b252b2..48812dda273b 100644
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -306,6 +306,9 @@ static int ct_seq_show(struct seq_file *s, void *v)
- 	if (unlikely(!refcount_inc_not_zero(&ct->ct_general.use)))
- 		return 0;
+ 	spin_lock_irq(&css_set_lock);
+-	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets, mg_preload_node) {
++	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets,
++			    mg_src_preload_node) {
+ 		struct task_struct *task, *ntask;
  
-+	/* load ->status after refcount increase */
-+	smp_acquire__after_ctrl_dep();
-+
- 	if (nf_ct_should_gc(ct)) {
- 		nf_ct_kill(ct);
- 		goto release;
--- 
-2.35.1
-
+ 		/* all tasks in src_csets need to be migrated */
 
 
