@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 310D2579A05
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB10579E56
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238297AbiGSMKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49730 "EHLO
+        id S242624AbiGSNBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238535AbiGSMI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:08:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2933345F65;
-        Tue, 19 Jul 2022 05:02:04 -0700 (PDT)
+        with ESMTP id S242919AbiGSM7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA4E4BD06;
+        Tue, 19 Jul 2022 05:25:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2F52B81A2E;
-        Tue, 19 Jul 2022 12:02:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F99CC341C6;
-        Tue, 19 Jul 2022 12:02:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13D58B81B82;
+        Tue, 19 Jul 2022 12:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AF8DC341C6;
+        Tue, 19 Jul 2022 12:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232121;
-        bh=Rc4HPETaYFj2HpNcyYB6BMxEqFOhMqaIm5ZpsV2vAGY=;
+        s=korg; t=1658233515;
+        bh=LNbB8tIV6AgkH04KAZ85y76xz1DHDWBXK4uA1vgSrE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTxwc5edP+N+PQjInZYgk6yZOaWX5W4pgzWxMsX8XjPh6dQwsVcz+XCU57EnM6UXY
-         KgWQ6oKKpwFJfTLPkBHnHYRgOUSe5rbU4zp/XoYeNc2DVBe9iM23mNsZBKwqY0aTHv
-         /qALgKvHcJUkIi0V4IwMAmUPWdsrtw2YKcHo+SIs=
+        b=Y5JddwXX3gNtKscOAmEMCC2B3eg/AysmDtjAhOd66koG5S1rB3b0p+5SslRWpZ1lQ
+         mrSImOgMxDAwndMQ++2kOIDb87zQlf6Yyib+izIAxnwXW5lakDoUsb5TEmM2DmF6sO
+         eXsneFcFXfv/lF8cgwn1ksgv0GXa6wuCiEcJojIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 02/71] ALSA: hda/conexant: Apply quirk for another HP ProDesk 600 G3 model
-Date:   Tue, 19 Jul 2022 13:53:25 +0200
-Message-Id: <20220719114552.698106950@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 121/231] tcp: Fix a data-race around sysctl_tcp_ecn_fallback.
+Date:   Tue, 19 Jul 2022 13:53:26 +0200
+Message-Id: <20220719114724.628158175@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit d16d69bf5a25d91c6d8f3e29711be12551bf56cd upstream.
+[ Upstream commit 12b8d9ca7e678abc48195294494f1815b555d658 ]
 
-There is another HP ProDesk 600 G3 model with the PCI SSID 103c:82b4
-that requires the quirk HP_MIC_NO_PRESENCE. Add the corresponding
-entry to the quirk table.
+While reading sysctl_tcp_ecn_fallback, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220711101744.25189-1-tangmeng@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 492135557dc0 ("tcp: add rfc3168, section 6.1.1.1. fallback")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_conexant.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/sysctl_net_ipv4.c | 2 ++
+ net/ipv4/tcp_output.c      | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -905,6 +905,7 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x103c, 0x82b4, "HP ProDesk 600 G3", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
+diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+index 11add5214713..ffe0264a51b8 100644
+--- a/net/ipv4/sysctl_net_ipv4.c
++++ b/net/ipv4/sysctl_net_ipv4.c
+@@ -689,6 +689,8 @@ static struct ctl_table ipv4_net_table[] = {
+ 		.maxlen		= sizeof(u8),
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dou8vec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
+ 	},
+ 	{
+ 		.procname	= "ip_dynaddr",
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 9eefe7f6370f..34249469e361 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -346,7 +346,7 @@ static void tcp_ecn_send_syn(struct sock *sk, struct sk_buff *skb)
+ 
+ static void tcp_ecn_clear_syn(struct sock *sk, struct sk_buff *skb)
+ {
+-	if (sock_net(sk)->ipv4.sysctl_tcp_ecn_fallback)
++	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_ecn_fallback))
+ 		/* tp->ecn_flags are cleared at a later point in time when
+ 		 * SYN ACK is ultimatively being received.
+ 		 */
+-- 
+2.35.1
+
 
 
