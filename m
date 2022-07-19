@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E12AF579DF3
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B736B579BCB
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242354AbiGSM41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40392 "EHLO
+        id S240293AbiGSMcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:32:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242282AbiGSMzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:55:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6569A5C2;
-        Tue, 19 Jul 2022 05:22:10 -0700 (PDT)
+        with ESMTP id S239026AbiGSMaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:30:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B350D6D9E4;
+        Tue, 19 Jul 2022 05:11:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A999B61632;
-        Tue, 19 Jul 2022 12:22:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B045C341C6;
-        Tue, 19 Jul 2022 12:22:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 737A3B81B31;
+        Tue, 19 Jul 2022 12:11:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA26DC341C6;
+        Tue, 19 Jul 2022 12:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233329;
-        bh=Y5ulbQkpBh1mvGqG++QTnnact+0szAuiE1B9TbrCcZI=;
+        s=korg; t=1658232708;
+        bh=rw7jY2zwDt3Jsu4RiDfcZvwp9AB82wUt80BndqxQa+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0glW1TEmAO5ALk9+uVIfC3YB2D6G3ITLM573cYApwG7eZtePNomfIjgFN0CjgHZNF
-         rBVf31fg7XS9E8CJmewGdkVJOhJPaqicVowm1cUhjKtGx2CjWJOAWrrdnEC7wCdBrB
-         PQC9/7aiMe8ZTGryXfniMT997Gbyvp2moqDfLpGo=
+        b=IH0S12Cv38F5XYiTcY+hA1gL7WxUofE2UQwhl1OJ9hDTKfB80iQuhZQH+XZKRCZAa
+         t66timSJWwtNbcm/1yS6nc7/oMDWL3aZ0cNl9OdaFP1X0TrSqDWrSGlGc3CT6Dn6t8
+         HU2RZT5Hb6nSkVmFMWjTtFPgZeOCDDbjFDVVIFWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Yan <tom.ty89@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 085/231] netfilter: nf_log: incorrect offset to network header
+Subject: [PATCH 5.15 038/167] net/mlx5e: Fix capability check for updating vnic env counters
 Date:   Tue, 19 Jul 2022 13:52:50 +0200
-Message-Id: <20220719114721.974291914@linuxfoundation.org>
+Message-Id: <20220719114700.370664064@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 7a847c00eeba9744353ecdfad253143b9115678a ]
+[ Upstream commit 452133dd580811f184e76b1402983182ee425298 ]
 
-NFPROTO_ARP is expecting to find the ARP header at the network offset.
+The existing capability check for vnic env counters only checks for
+receive steering discards, although we need the counters update for the
+exposed internal queue oob counter as well. This could result in the
+latter counter not being updated correctly when the receive steering
+discards counter is not supported.
+Fix that by checking whether any counter is supported instead of only
+the steering counter capability.
 
-In the particular case of ARP, HTYPE= field shows the initial bytes of
-the ethernet header destination MAC address.
-
- netdev out: IN= OUT=bridge0 MACSRC=c2:76:e5:71:e1:de MACDST=36:b0:4a:e2:72:ea MACPROTO=0806 ARP HTYPE=14000 PTYPE=0x4ae2 OPCODE=49782
-
-NFPROTO_NETDEV egress hook is also expecting to find the IP headers at
-the network offset.
-
-Fixes: 35b9395104d5 ("netfilter: add generic ARP packet logger")
-Reported-by: Tom Yan <tom.ty89@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 0cfafd4b4ddf ("net/mlx5e: Add device out of buffer counter")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_log_syslog.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_stats.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_log_syslog.c b/net/netfilter/nf_log_syslog.c
-index 13234641cdb3..7000e069bc07 100644
---- a/net/netfilter/nf_log_syslog.c
-+++ b/net/netfilter/nf_log_syslog.c
-@@ -61,7 +61,7 @@ dump_arp_packet(struct nf_log_buf *m,
- 	unsigned int logflags;
- 	struct arphdr _arph;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+index e1dd17019030..5a5c6eda29d2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+@@ -614,7 +614,7 @@ static MLX5E_DECLARE_STATS_GRP_OP_UPDATE_STATS(vnic_env)
+ 	u32 in[MLX5_ST_SZ_DW(query_vnic_env_in)] = {};
+ 	struct mlx5_core_dev *mdev = priv->mdev;
  
--	ah = skb_header_pointer(skb, 0, sizeof(_arph), &_arph);
-+	ah = skb_header_pointer(skb, nhoff, sizeof(_arph), &_arph);
- 	if (!ah) {
- 		nf_log_buf_add(m, "TRUNCATED");
- 		return;
-@@ -90,7 +90,7 @@ dump_arp_packet(struct nf_log_buf *m,
- 	    ah->ar_pln != sizeof(__be32))
+-	if (!MLX5_CAP_GEN(priv->mdev, nic_receive_steering_discard))
++	if (!mlx5e_stats_grp_vnic_env_num_stats(priv))
  		return;
  
--	ap = skb_header_pointer(skb, sizeof(_arph), sizeof(_arpp), &_arpp);
-+	ap = skb_header_pointer(skb, nhoff + sizeof(_arph), sizeof(_arpp), &_arpp);
- 	if (!ap) {
- 		nf_log_buf_add(m, " INCOMPLETE [%zu bytes]",
- 			       skb->len - sizeof(_arph));
-@@ -144,7 +144,7 @@ static void nf_log_arp_packet(struct net *net, u_int8_t pf,
- 
- 	nf_log_dump_packet_common(m, pf, hooknum, skb, in, out, loginfo,
- 				  prefix);
--	dump_arp_packet(m, loginfo, skb, 0);
-+	dump_arp_packet(m, loginfo, skb, skb_network_offset(skb));
- 
- 	nf_log_buf_close(m);
- }
-@@ -829,7 +829,7 @@ static void nf_log_ip_packet(struct net *net, u_int8_t pf,
- 	if (in)
- 		dump_ipv4_mac_header(m, loginfo, skb);
- 
--	dump_ipv4_packet(net, m, loginfo, skb, 0);
-+	dump_ipv4_packet(net, m, loginfo, skb, skb_network_offset(skb));
- 
- 	nf_log_buf_close(m);
- }
+ 	MLX5_SET(query_vnic_env_in, in, opcode, MLX5_CMD_OP_QUERY_VNIC_ENV);
 -- 
 2.35.1
 
