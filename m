@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8FF579CCF
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF413579A5F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241260AbiGSMnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:43:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53414 "EHLO
+        id S239020AbiGSMOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:14:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241285AbiGSMnG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1214880515;
-        Tue, 19 Jul 2022 05:16:42 -0700 (PDT)
+        with ESMTP id S238798AbiGSMNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:13:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C830760FF;
+        Tue, 19 Jul 2022 05:04:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90E9DB81B1A;
-        Tue, 19 Jul 2022 12:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA38DC341C6;
-        Tue, 19 Jul 2022 12:16:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 318D461732;
+        Tue, 19 Jul 2022 12:04:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D70EC341C6;
+        Tue, 19 Jul 2022 12:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232996;
-        bh=0N/hoijFdzvwhqEgcwFM/mHqoHJkBI+g+D5gj5j8tWs=;
+        s=korg; t=1658232253;
+        bh=6nPWF2mFHyLLOLlwlror3SKJTBcLQQVTHBzTqHmHZtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yS33C/wy/Uvq1VB5P2vSbS/GKXZdS9w2qziQkqbHsJVG0cHTTulstPqFdqPhrVI7n
-         /aBBcJuvRC2tMnAn03osuJlsmNwLKEUS8YWB7j87RWf/vNml/ZiXaR5esB3gLYe7kZ
-         /VoOBByMivnXextZhZUyhVkOmY6DH9C+AJJ7i764=
+        b=LAclvhSW/qZVU/PNkIbXEmfoEP0DroKYeIzsXg18p00KXq9x5x66aahZBZamyAw1v
+         sROE47mxEoL7zQd6AxdSpQ2L19Pxe8lGLAEZoPvdJXw0rxbfOO3/j2R6gLZP1uPWdD
+         Mpb+uqHDBN76ro7Mtj8YRUCdZg4mTAG77n50DaVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 137/167] ASoC: rt7*-sdw: harden jack_detect_handler
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.4 66/71] usb: dwc3: gadget: Fix event pending check
 Date:   Tue, 19 Jul 2022 13:54:29 +0200
-Message-Id: <20220719114709.773722083@linuxfoundation.org>
+Message-Id: <20220719114558.955191403@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +51,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 0484271ab0ce50649329fa9dc23c50853c5b26a4 ]
+commit 7441b273388b9a59d8387a03ffbbca9d5af6348c upstream.
 
-Realtek headset codec drivers typically check if the card is
-instantiated before proceeding with the jack detection.
+The DWC3_EVENT_PENDING flag is used to protect against invalid call to
+top-half interrupt handler, which can occur when there's a delay in
+software detection of the interrupt line deassertion.
 
-The rt700, rt711 and rt711-sdca are however missing a check on the
-card pointer, which can lead to NULL dereferences encountered in
-driver bind/unbind tests.
+However, the clearing of this flag was done prior to unmasking the
+interrupt line, creating opportunity where the top-half handler can
+come. This breaks the serialization and creates a race between the
+top-half and bottom-half handler, resulting in losing synchronization
+between the controller and the driver when processing events.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220606203752.144159-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix this, make sure the clearing of the DWC3_EVENT_PENDING is done at
+the end of the bottom-half handler.
+
+Fixes: d325a1de49d6 ("usb: dwc3: gadget: Prevent losing events in event cache")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/8670aaf1cf52e7d1e6df2a827af2d77263b93b75.1656380429.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt700.c      | 2 +-
- sound/soc/codecs/rt711-sdca.c | 2 +-
- sound/soc/codecs/rt711.c      | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt700.c b/sound/soc/codecs/rt700.c
-index 614a40247679..c70fe8b06e6d 100644
---- a/sound/soc/codecs/rt700.c
-+++ b/sound/soc/codecs/rt700.c
-@@ -162,7 +162,7 @@ static void rt700_jack_detect_handler(struct work_struct *work)
- 	if (!rt700->hs_jack)
- 		return;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3535,7 +3535,6 @@ static irqreturn_t dwc3_process_event_bu
+ 	}
  
--	if (!rt700->component->card->instantiated)
-+	if (!rt700->component->card || !rt700->component->card->instantiated)
- 		return;
+ 	evt->count = 0;
+-	evt->flags &= ~DWC3_EVENT_PENDING;
+ 	ret = IRQ_HANDLED;
  
- 	reg = RT700_VERB_GET_PIN_SENSE | RT700_HP_OUT;
-diff --git a/sound/soc/codecs/rt711-sdca.c b/sound/soc/codecs/rt711-sdca.c
-index 66555cb5d1e4..2950cde029f7 100644
---- a/sound/soc/codecs/rt711-sdca.c
-+++ b/sound/soc/codecs/rt711-sdca.c
-@@ -294,7 +294,7 @@ static void rt711_sdca_jack_detect_handler(struct work_struct *work)
- 	if (!rt711->hs_jack)
- 		return;
+ 	/* Unmask interrupt */
+@@ -3548,6 +3547,9 @@ static irqreturn_t dwc3_process_event_bu
+ 		dwc3_writel(dwc->regs, DWC3_DEV_IMOD(0), dwc->imod_interval);
+ 	}
  
--	if (!rt711->component->card->instantiated)
-+	if (!rt711->component->card || !rt711->component->card->instantiated)
- 		return;
++	/* Keep the clearing of DWC3_EVENT_PENDING at the end */
++	evt->flags &= ~DWC3_EVENT_PENDING;
++
+ 	return ret;
+ }
  
- 	/* SDW_SCP_SDCA_INT_SDCA_0 is used for jack detection */
-diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
-index 6e9b532a6271..344bfbc5683d 100644
---- a/sound/soc/codecs/rt711.c
-+++ b/sound/soc/codecs/rt711.c
-@@ -242,7 +242,7 @@ static void rt711_jack_detect_handler(struct work_struct *work)
- 	if (!rt711->hs_jack)
- 		return;
- 
--	if (!rt711->component->card->instantiated)
-+	if (!rt711->component->card || !rt711->component->card->instantiated)
- 		return;
- 
- 	reg = RT711_VERB_GET_PIN_SENSE | RT711_HP_OUT;
--- 
-2.35.1
-
 
 
