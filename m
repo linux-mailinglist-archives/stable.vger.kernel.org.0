@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D16579A9E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE306579BEA
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239939AbiGSMPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
+        id S240537AbiGSMdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:33:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239045AbiGSMOD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:03 -0400
+        with ESMTP id S229895AbiGSMdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:33:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816CCDF13;
-        Tue, 19 Jul 2022 05:05:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12FAD74352;
+        Tue, 19 Jul 2022 05:12:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABCBAB81B34;
-        Tue, 19 Jul 2022 12:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07150C341C6;
-        Tue, 19 Jul 2022 12:05:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1F39B81B2E;
+        Tue, 19 Jul 2022 12:12:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B2E0C341C6;
+        Tue, 19 Jul 2022 12:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232305;
-        bh=XIm1RDUKTEYzVPpNcWAkSKsc29TR4NM5H29PrGSnlME=;
+        s=korg; t=1658232753;
+        bh=hp4iin0PTP+2zTw2MAqvOW+ekXvrgDUOAATJ+9LIhGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WcX/mfg6e/gYv/UeFNuQX44xgQxC0sehH6I87KeI1zyClEQ8VjMBJKaVj4W985nPd
-         PuVnqc49N4FISO0eYxBbaINpIS1qGpwOLS92ctSLVOxyZCO0eq9cXoYkeh+iPYYpa2
-         7WK/68GUCF5Mp45L9KCaU77lHmXg/O5dZGC8SyYY=
+        b=lSKhiI3QQR9+ciljRJXO8iEL274lC+8HEwJwxIBUFSd3FaeClqAXfCDjgZRdlbegE
+         3ibMuyYut88AXOEQktWDm11GxD+YVh5tBZkphzlApYKSjJC31uL02jckkIKtJVX4+d
+         BG6pgmMvsPJcxbnOGgE6lMr9KG3ejwBU65vhRMPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Edwin Brossette <edwin.brossette@6wind.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.10 012/112] ip: fix dflt addr selection for connected nexthop
-Date:   Tue, 19 Jul 2022 13:53:05 +0200
-Message-Id: <20220719114627.180500158@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 054/167] sysctl: Fix data races in proc_douintvec_minmax().
+Date:   Tue, 19 Jul 2022 13:53:06 +0200
+Message-Id: <20220719114701.818311053@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 747c14307214b55dbd8250e1ab44cad8305756f1 upstream.
+[ Upstream commit 2d3b559df3ed39258737789aae2ae7973d205bc1 ]
 
-When a nexthop is added, without a gw address, the default scope was set
-to 'host'. Thus, when a source address is selected, 127.0.0.1 may be chosen
-but rejected when the route is used.
+A sysctl variable is accessed concurrently, and there is always a chance
+of data-race.  So, all readers and writers need some basic protection to
+avoid load/store-tearing.
 
-When using a route without a nexthop id, the scope can be configured in the
-route, thus the problem doesn't exist.
+This patch changes proc_douintvec_minmax() to use READ_ONCE() and
+WRITE_ONCE() internally to fix data-races on the sysctl side.  For now,
+proc_douintvec_minmax() itself is tolerant to a data-race, but we still
+need to add annotations on the other subsystem's side.
 
-To explain more deeply: when a user creates a nexthop, it cannot specify
-the scope. To create it, the function nh_create_ipv4() calls fib_check_nh()
-with scope set to 0. fib_check_nh() calls fib_check_nh_nongw() wich was
-setting scope to 'host'. Then, nh_create_ipv4() calls
-fib_info_update_nhc_saddr() with scope set to 'host'. The src addr is
-chosen before the route is inserted.
-
-When a 'standard' route (ie without a reference to a nexthop) is added,
-fib_create_info() calls fib_info_update_nhc_saddr() with the scope set by
-the user. iproute2 set the scope to 'link' by default.
-
-Here is a way to reproduce the problem:
-ip netns add foo
-ip -n foo link set lo up
-ip netns add bar
-ip -n bar link set lo up
-sleep 1
-
-ip -n foo link add name eth0 type dummy
-ip -n foo link set eth0 up
-ip -n foo address add 192.168.0.1/24 dev eth0
-
-ip -n foo link add name veth0 type veth peer name veth1 netns bar
-ip -n foo link set veth0 up
-ip -n bar link set veth1 up
-
-ip -n bar address add 192.168.1.1/32 dev veth1
-ip -n bar route add default dev veth1
-
-ip -n foo nexthop add id 1 dev veth0
-ip -n foo route add 192.168.1.1 nhid 1
-
-Try to get/use the route:
-> $ ip -n foo route get 192.168.1.1
-> RTNETLINK answers: Invalid argument
-> $ ip netns exec foo ping -c1 192.168.1.1
-> ping: connect: Invalid argument
-
-Try without nexthop group (iproute2 sets scope to 'link' by dflt):
-ip -n foo route del 192.168.1.1
-ip -n foo route add 192.168.1.1 dev veth0
-
-Try to get/use the route:
-> $ ip -n foo route get 192.168.1.1
-> 192.168.1.1 dev veth0 src 192.168.0.1 uid 0
->     cache
-> $ ip netns exec foo ping -c1 192.168.1.1
-> PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
-> 64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.039 ms
->
-> --- 192.168.1.1 ping statistics ---
-> 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-> rtt min/avg/max/mdev = 0.039/0.039/0.039/0.000 ms
-
-CC: stable@vger.kernel.org
-Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
-Reported-by: Edwin Brossette <edwin.brossette@6wind.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Link: https://lore.kernel.org/r/20220713114853.29406-1-nicolas.dichtel@6wind.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 61d9b56a8920 ("sysctl: add unsigned int range support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c |    2 +-
+ kernel/sysctl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -1229,7 +1229,7 @@ static int fib_check_nh_nongw(struct net
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index f5134435fb9c..bdb2f17b723f 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1054,7 +1054,7 @@ static int do_proc_douintvec_minmax_conv(unsigned long *lvalp,
+ 		    (param->max && *param->max < tmp))
+ 			return -ERANGE;
  
- 	nh->fib_nh_dev = in_dev->dev;
- 	dev_hold(nh->fib_nh_dev);
--	nh->fib_nh_scope = RT_SCOPE_HOST;
-+	nh->fib_nh_scope = RT_SCOPE_LINK;
- 	if (!netif_carrier_ok(nh->fib_nh_dev))
- 		nh->fib_nh_flags |= RTNH_F_LINKDOWN;
- 	err = 0;
+-		*valp = tmp;
++		WRITE_ONCE(*valp, tmp);
+ 	}
+ 
+ 	return 0;
+-- 
+2.35.1
+
 
 
