@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F885579C0A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17FB579AB8
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237901AbiGSMfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:35:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
+        id S239179AbiGSMRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241191AbiGSMex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:34:53 -0400
+        with ESMTP id S239195AbiGSMQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:16:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133764505C;
-        Tue, 19 Jul 2022 05:13:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B49558FB;
+        Tue, 19 Jul 2022 05:06:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E6861826;
-        Tue, 19 Jul 2022 12:13:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84860C341CB;
-        Tue, 19 Jul 2022 12:13:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56C246171F;
+        Tue, 19 Jul 2022 12:06:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B37C341C6;
+        Tue, 19 Jul 2022 12:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232819;
-        bh=j7YTvMf/MkcVpUjLTGrJIDolAUr7q6yQhHElIIQcXbw=;
+        s=korg; t=1658232380;
+        bh=K3+3I8AuxXsfpmIxT07yrpNeLwvQNN67D7m8sUQncCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2b3WX7bShEhlCkKQd4JDkoZZNaFFcYq9xv8w5rQo2/fV3gd13hhmzj0Ksg3EkzpvN
-         23kTaBA4FLvuNM+I943DXBeB4GFNMWgkTBW+IUFpNlPvoWlhWCGwW1NFsqgGN190Fc
-         C8w8wJhoHhy4AnzvyGVtTWNRyQ/41eSv1xdwSKME=
+        b=ziiJW6yoB68ezjtiXTqVK4qN4fVk2bS71yra6+tVJOUxl22WIWZqYIyBXTgVdSkDM
+         6R+ktqdWsqY5OivF86FHtjNYdkWT1fSQE8nE9FCQKooWZ+FSEaqcq+1NyFIseNQmOu
+         xJ/EfWZnbQyGaZtJB1wASlVu5ZL2puHzFXP/mLzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/167] drm/i915/gt: Serialize TLB invalidates with GT resets
-Date:   Tue, 19 Jul 2022 13:53:29 +0200
-Message-Id: <20220719114703.990956888@linuxfoundation.org>
+Subject: [PATCH 5.10 037/112] ASoC: tas2764: Correct playback volume range
+Date:   Tue, 19 Jul 2022 13:53:30 +0200
+Message-Id: <20220719114629.834912558@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,71 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit a1c5a7bf79c1faa5633b918b5c0666545e84c4d1 ]
+[ Upstream commit 3e99e5697e1f7120b5abc755e8a560b22612d6ed ]
 
-Avoid trying to invalidate the TLB in the middle of performing an
-engine reset, as this may result in the reset timing out. Currently,
-the TLB invalidate is only serialised by its own mutex, forgoing the
-uncore lock, but we can take the uncore->lock as well to serialise
-the mmio access, thereby serialising with the GDRST.
+DVC value 0xc8 is -100dB and 0xc9 is mute; this needs to map to
+-100.5dB as far as the dB scale is concerned. Fix that and enable
+the mute flag, so alsamixer correctly shows the control as
+<0 dB .. -100 dB, mute>.
 
-Tested on a NUC5i7RYB, BIOS RYBDWi35.86A.0380.2019.0517.1530 with
-i915 selftest/hangcheck.
-
-Cc: stable@vger.kernel.org  # v4.4 and upper
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Reported-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1e59a7c45dd919a530256b9ac721ac6ea86c0677.1657639152.git.mchehab@kernel.org
-(cherry picked from commit 33da97894758737895e90c909f16786052680ef4)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220630075135.2221-3-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ sound/soc/codecs/tas2764.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index e1e1d17d49fd..3a76000d15bf 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -970,6 +970,20 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	mutex_lock(&gt->tlb_invalidate_lock);
- 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index b93e593788f2..33d7ce78aced 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -536,7 +536,7 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
+ }
  
-+	spin_lock_irq(&uncore->lock); /* serialise invalidate with GT reset */
-+
-+	for_each_engine(engine, gt, id) {
-+		struct reg_and_bit rb;
-+
-+		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
-+		if (!i915_mmio_reg_offset(rb.reg))
-+			continue;
-+
-+		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-+	}
-+
-+	spin_unlock_irq(&uncore->lock);
-+
- 	for_each_engine(engine, gt, id) {
- 		/*
- 		 * HW architecture suggest typical invalidation time at 40us,
-@@ -984,7 +998,6 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		if (!i915_mmio_reg_offset(rb.reg))
- 			continue;
+ static DECLARE_TLV_DB_SCALE(tas2764_digital_tlv, 1100, 50, 0);
+-static DECLARE_TLV_DB_SCALE(tas2764_playback_volume, -10000, 50, 0);
++static DECLARE_TLV_DB_SCALE(tas2764_playback_volume, -10050, 50, 1);
  
--		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
- 		if (__intel_wait_for_register_fw(uncore,
- 						 rb.reg, rb.bit, 0,
- 						 timeout_us, timeout_ms,
+ static const struct snd_kcontrol_new tas2764_snd_controls[] = {
+ 	SOC_SINGLE_TLV("Speaker Volume", TAS2764_DVC, 0,
 -- 
 2.35.1
 
