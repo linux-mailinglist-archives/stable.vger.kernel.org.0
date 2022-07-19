@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A66BC579C01
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F24579E55
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240507AbiGSMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:35:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59580 "EHLO
+        id S242628AbiGSNBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241041AbiGSMej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:34:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB7A378233;
-        Tue, 19 Jul 2022 05:13:35 -0700 (PDT)
+        with ESMTP id S242912AbiGSM7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542824A81E;
+        Tue, 19 Jul 2022 05:25:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65299B81B2C;
-        Tue, 19 Jul 2022 12:13:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA744C341C6;
-        Tue, 19 Jul 2022 12:13:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C556618E6;
+        Tue, 19 Jul 2022 12:25:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C822C341C6;
+        Tue, 19 Jul 2022 12:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232814;
-        bh=fvg2bkj8z5Ppk4ktr8qjTgz1iKiQ/89YzGS0rKplh3I=;
+        s=korg; t=1658233518;
+        bh=7dSLYIHIm3EYBlEfEPcwTq3M191ou+GChuS+y1uPKGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILihPOfB+TXX7/J+HO9it0Px5wmq/iYb1NUOhJPIcJbwErKmo/THsGk4CGfu3ZdXa
-         5BbZX8ZMVkn+QMWoQWiWTgfAIHDiR1nnU19LhmRnTtGOIo9UwpXy5gXV9e4yJdcVTh
-         zYUlViyZ3MkgWpfF2gMwneAUFGobj1oxClc05zwc=
+        b=k95yboQir4yB29lW9ZP35grHOuvFHCbOTGElpdvHYf+qSpW1S7wtmHGL8XB5Wyxs5
+         6ZGlwUhGiug0sTbOPyldWLURToMGR5YRJrvRlulvNUwZwmMR5+b7yZhGD/+vWB/9Yk
+         rVONtc5iopmXEsh6KY5kmJFxtcfmIiRNijxQCmAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruce Chang <yu.bruce.chang@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Ramalingam C <ramalingam.c@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 075/167] drm/i915/dg2: Add Wa_22011100796
+Subject: [PATCH 5.18 122/231] ipv4: Fix data-races around sysctl_ip_dynaddr.
 Date:   Tue, 19 Jul 2022 13:53:27 +0200
-Message-Id: <20220719114703.791187066@linuxfoundation.org>
+Message-Id: <20220719114724.709039768@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bruce Chang <yu.bruce.chang@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 154cfae6158141b18d65abb0db679bb51a8294e7 ]
+[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
 
-Whenever Full soft reset is required, reset all individual engines
-first, and then do a full soft reset.
+While reading sysctl_ip_dynaddr, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Signed-off-by: Bruce Chang <yu.bruce.chang@intel.com>
-cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Ramalingam C <ramalingam.c@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220128185209.18077-5-ramalingam.c@intel.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_reset.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ Documentation/networking/ip-sysctl.rst | 2 +-
+ net/ipv4/af_inet.c                     | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
-index 91200c43951f..b6697c1d260a 100644
---- a/drivers/gpu/drm/i915/gt/intel_reset.c
-+++ b/drivers/gpu/drm/i915/gt/intel_reset.c
-@@ -623,6 +623,15 @@ static int gen8_reset_engines(struct intel_gt *gt,
- 		 */
- 	}
+diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
+index 8ffed7135fc1..8899b474edbf 100644
+--- a/Documentation/networking/ip-sysctl.rst
++++ b/Documentation/networking/ip-sysctl.rst
+@@ -1179,7 +1179,7 @@ ip_autobind_reuse - BOOLEAN
+ 	option should only be set by experts.
+ 	Default: 0
  
-+	/*
-+	 * Wa_22011100796:dg2, whenever Full soft reset is required,
-+	 * reset all individual engines firstly, and then do a full soft reset.
-+	 *
-+	 * This is best effort, so ignore any error from the initial reset.
-+	 */
-+	if (IS_DG2(gt->i915) && engine_mask == ALL_ENGINES)
-+		gen11_reset_engines(gt, gt->info.engine_mask, 0);
-+
- 	if (GRAPHICS_VER(gt->i915) >= 11)
- 		ret = gen11_reset_engines(gt, engine_mask, retry);
- 	else
+-ip_dynaddr - BOOLEAN
++ip_dynaddr - INTEGER
+ 	If set non-zero, enables support for dynamic addresses.
+ 	If set to a non-zero value larger than 1, a kernel log
+ 	message will be printed when dynamic address rewriting
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 72fde2888ad2..98bc180563d1 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1247,7 +1247,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
+ 	if (new_saddr == old_saddr)
+ 		return 0;
+ 
+-	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
++	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
+ 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
+ 			__func__, &old_saddr, &new_saddr);
+ 	}
+@@ -1302,7 +1302,7 @@ int inet_sk_rebuild_header(struct sock *sk)
+ 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
+ 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
+ 		 */
+-		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
++		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
+ 		    sk->sk_state != TCP_SYN_SENT ||
+ 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
+ 		    (err = inet_sk_reselect_saddr(sk)) != 0)
 -- 
 2.35.1
 
