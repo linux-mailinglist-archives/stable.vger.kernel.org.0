@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65477579A9F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A85A579E77
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239949AbiGSMPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38816 "EHLO
+        id S239214AbiGSNBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239133AbiGSMOQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:16 -0400
+        with ESMTP id S242498AbiGSM6t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4610245F75;
-        Tue, 19 Jul 2022 05:05:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F865FAC1;
+        Tue, 19 Jul 2022 05:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD755B81B13;
-        Tue, 19 Jul 2022 12:05:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC87C341C6;
-        Tue, 19 Jul 2022 12:05:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18CFCB81B1A;
+        Tue, 19 Jul 2022 12:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BD50C341C6;
+        Tue, 19 Jul 2022 12:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232319;
-        bh=allqpcWgtmop4MK52CIWPpf37JWtx4r+5C0yxrJXd/4=;
+        s=korg; t=1658233425;
+        bh=HKGprwcnT1YdPLJuQxKd7WT80DyoJdHRFOt6AchiGk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gciAvmYzCvQFXKO5GRfYbBOZf7L3BT3Yg8kjamlijcbX7J81NzWVzjx6sT7XNLE7s
-         nIUnqrmHMmX1MLnVMFwxXdQbskpFnlp9hQIYhlB5Be+jGXPSGhK1wzWC//q7QOke+Z
-         HOENcINkXJ0AiQhIjHRKU79usc4buBFdyBbzcsi4=
+        b=a3iK/VgCvswVxYSm3MAnwSggpAM//E1QTbIDRktbw9yGgWrKA52RRFLD+UhCUjkiU
+         HfLYRiJ2xrWDpvgbVP0Un/vL4nxBgbBhPNilYXRdjwPZjm22WFUK2SjFWDqsIqVAsA
+         pVZJzO/kHQtFk/R/7qxo5ZM5ONrf+ImkpR/rob3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 003/112] ALSA: hda/realtek: Fix headset mic for Acer SF313-51
-Date:   Tue, 19 Jul 2022 13:52:56 +0200
-Message-Id: <20220719114626.433626419@linuxfoundation.org>
+        stable@vger.kernel.org, van fantasy <g1042620637@gmail.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 092/231] mptcp: fix subflow traversal at disconnect time
+Date:   Tue, 19 Jul 2022 13:52:57 +0200
+Message-Id: <20220719114722.468349573@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 5f3fe25e70559fa3b096ab17e13316c93ddb7020 upstream.
+[ Upstream commit 5c835bb142d4013c2ab24bff5ae9f6709a39cbcf ]
 
-The issue on Acer SWIFT SF313-51 is that headset microphone
-doesn't work. The following quirk fixed headset microphone issue.
-Note that the fixup of SF314-54/55 (ALC256_FIXUP_ACER_HEADSET_MIC)
-was not successful on my SF313-51.
+At disconnect time the MPTCP protocol traverse the subflows
+list closing each of them. In some circumstances - MPJ subflow,
+passive MPTCP socket, the latter operation can remove the
+subflow from the list, invalidating the current iterator.
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220711081527.6254-1-tangmeng@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Address the issue using the safe list traversing helper
+variant.
+
+Reported-by: van fantasy <g1042620637@gmail.com>
+Fixes: b29fcfb54cd7 ("mptcp: full disconnect implementation")
+Tested-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/mptcp/protocol.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8633,6 +8633,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x129c, "Acer SWIFT SF314-55", ALC256_FIXUP_ACER_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1025, 0x129d, "Acer SWIFT SF313-51", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x1300, "Acer SWIFT SF314-56", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x1308, "Acer Aspire Z24-890", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2840,12 +2840,12 @@ static void mptcp_copy_inaddrs(struct so
+ 
+ static int mptcp_disconnect(struct sock *sk, int flags)
+ {
+-	struct mptcp_subflow_context *subflow;
++	struct mptcp_subflow_context *subflow, *tmp;
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 
+ 	inet_sk_state_store(sk, TCP_CLOSE);
+ 
+-	mptcp_for_each_subflow(msk, subflow) {
++	list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node) {
+ 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+ 
+ 		__mptcp_close_ssk(sk, ssk, subflow, MPTCP_CF_FASTCLOSE);
 
 
