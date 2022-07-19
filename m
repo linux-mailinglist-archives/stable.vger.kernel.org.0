@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66497579D5D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F9E579D62
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241880AbiGSMuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:50:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52196 "EHLO
+        id S241923AbiGSMvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242225AbiGSMtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:55 -0400
+        with ESMTP id S242252AbiGSMt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C91CE43315;
-        Tue, 19 Jul 2022 05:19:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31BE59254;
+        Tue, 19 Jul 2022 05:19:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1502EB81B10;
-        Tue, 19 Jul 2022 12:19:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 753D7C341C6;
-        Tue, 19 Jul 2022 12:19:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 228CFB81B2C;
+        Tue, 19 Jul 2022 12:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B642C341C6;
+        Tue, 19 Jul 2022 12:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233190;
-        bh=svGjCciLe2V3mMCFmTerpL7i6k7+OeAHHrb161NsqsQ=;
+        s=korg; t=1658233193;
+        bh=yHoAhGSzQVhcwIArIP2AxbzqpTlGQtXQw1uz9/g2c+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h6r78PNyQytGLOGvwQpIOqmNmkejbnP0tABapufkYHKhAvRa2UPKflXajJCZU+SZ
-         jzMH2a0Taje1ufQVZzbSt8MHtF2AzTWDxSHzKxIUnJ4VslhA7VJQdAkfLE2e6C7v+j
-         5gxLh/8aCCaTe0m55X9rgOu0T/g2/S4MNcqOYz3A=
+        b=MhgpnETywlEDY7VqMtEZhzvS8iDEH8HVXUGwDLui7CH1vdcULevJlmjG3memq2Ld7
+         fJuywl3HkFzEHchT7Ib3Rpa6X7jAlOEUWpsBStEtdjqytNrIpLEYuWx8G9YiPJErX8
+         PM9kJz9HKOnj1YiYdrMCRFMb1ftEeav7NlSIXfXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Daire McNamara <daire.mcnamara@microchip.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
+        stable@vger.kernel.org,
+        Anastasios Vacharakis <vacharakis@o2mail.de>,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 038/231] riscv: dts: microchip: hook up the mpfs l2cache
-Date:   Tue, 19 Jul 2022 13:52:03 +0200
-Message-Id: <20220719114717.386407986@linuxfoundation.org>
+Subject: [PATCH 5.18 039/231] spi: amd: Limit max transfer and message size
+Date:   Tue, 19 Jul 2022 13:52:04 +0200
+Message-Id: <20220719114717.498118965@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,61 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-[ Upstream commit efa310ba00716d7a872bdc5fa1f5545edc9efd69 ]
+[ Upstream commit 6ece49c56965544262523dae4a071ace3db63507 ]
 
-The initial PolarFire SoC devicetree must have been forked off from
-the fu540 one prior to the addition of l2cache controller support being
-added there. When the controller node was added to mpfs.dtsi, it was
-not hooked up to the CPUs & thus sysfs reports an incorrect cache
-configuration. Hook it up.
+Enabling the SPI CS35L41 audio codec driver for Steam Deck [1]
+revealed a problem with the current AMD SPI controller driver
+implementation, consisting of an unrecoverable system hang.
 
-Fixes: 0fa6107eca41 ("RISC-V: Initial DTS for Microchip ICICLE board")
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+The issue can be prevented if we ensure the max transfer size
+and the max message size do not exceed the FIFO buffer size.
+
+According to the implementation of the downstream driver, the
+AMD SPI controller is not able to handle more than 70 bytes per
+transfer, which corresponds to the size of the FIFO buffer.
+
+Hence, let's fix this by setting the SPI limits mentioned above.
+
+[1] https://lore.kernel.org/r/20220621213819.262537-1-cristian.ciocaltea@collabora.com
+
+Reported-by: Anastasios Vacharakis <vacharakis@o2mail.de>
+Fixes: bbb336f39efc ("spi: spi-amd: Add AMD SPI controller driver support")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Link: https://lore.kernel.org/r/20220706100626.1234731-2-cristian.ciocaltea@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/spi/spi-amd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-index f44fce1fe080..2f75e39d2fdd 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-@@ -51,6 +51,7 @@ cpu1: cpu@1 {
- 			riscv,isa = "rv64imafdc";
- 			clocks = <&clkcfg CLK_CPU>;
- 			tlb-split;
-+			next-level-cache = <&cctrllr>;
- 			status = "okay";
+diff --git a/drivers/spi/spi-amd.c b/drivers/spi/spi-amd.c
+index cba6a4486c24..efdcbe6c4c26 100644
+--- a/drivers/spi/spi-amd.c
++++ b/drivers/spi/spi-amd.c
+@@ -33,6 +33,7 @@
+ #define AMD_SPI_RX_COUNT_REG	0x4B
+ #define AMD_SPI_STATUS_REG	0x4C
  
- 			cpu1_intc: interrupt-controller {
-@@ -78,6 +79,7 @@ cpu2: cpu@2 {
- 			riscv,isa = "rv64imafdc";
- 			clocks = <&clkcfg CLK_CPU>;
- 			tlb-split;
-+			next-level-cache = <&cctrllr>;
- 			status = "okay";
++#define AMD_SPI_FIFO_SIZE	70
+ #define AMD_SPI_MEM_SIZE	200
  
- 			cpu2_intc: interrupt-controller {
-@@ -105,6 +107,7 @@ cpu3: cpu@3 {
- 			riscv,isa = "rv64imafdc";
- 			clocks = <&clkcfg CLK_CPU>;
- 			tlb-split;
-+			next-level-cache = <&cctrllr>;
- 			status = "okay";
+ /* M_CMD OP codes for SPI */
+@@ -270,6 +271,11 @@ static int amd_spi_master_transfer(struct spi_master *master,
+ 	return 0;
+ }
  
- 			cpu3_intc: interrupt-controller {
-@@ -132,6 +135,7 @@ cpu4: cpu@4 {
- 			riscv,isa = "rv64imafdc";
- 			clocks = <&clkcfg CLK_CPU>;
- 			tlb-split;
-+			next-level-cache = <&cctrllr>;
- 			status = "okay";
- 			cpu4_intc: interrupt-controller {
- 				#interrupt-cells = <1>;
++static size_t amd_spi_max_transfer_size(struct spi_device *spi)
++{
++	return AMD_SPI_FIFO_SIZE;
++}
++
+ static int amd_spi_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -302,6 +308,8 @@ static int amd_spi_probe(struct platform_device *pdev)
+ 	master->flags = SPI_MASTER_HALF_DUPLEX;
+ 	master->setup = amd_spi_master_setup;
+ 	master->transfer_one_message = amd_spi_master_transfer;
++	master->max_transfer_size = amd_spi_max_transfer_size;
++	master->max_message_size = amd_spi_max_transfer_size;
+ 
+ 	/* Register the controller with SPI framework */
+ 	err = devm_spi_register_master(dev, master);
 -- 
 2.35.1
 
