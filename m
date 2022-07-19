@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C11579C1E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BA5579E09
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240789AbiGSMgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:36:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
+        id S242369AbiGSM5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240210AbiGSMfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:35:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043E77A52D;
-        Tue, 19 Jul 2022 05:13:58 -0700 (PDT)
+        with ESMTP id S242150AbiGSM4k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913399A6AA;
+        Tue, 19 Jul 2022 05:22:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10F63B81B2E;
-        Tue, 19 Jul 2022 12:13:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745D8C341C6;
-        Tue, 19 Jul 2022 12:13:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB79B81A7F;
+        Tue, 19 Jul 2022 12:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A6BC341C6;
+        Tue, 19 Jul 2022 12:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232799;
-        bh=Mkvf0EX9t/n0RX1AyTZNR8hPmODfZOits7KU9Qsew+E=;
+        s=korg; t=1658233362;
+        bh=RNgEKpLAZW9CrGtWagK/54Wuvr9HSc17s7AkNEZdXzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXbocjIN//zUUUeGVBOFjnCHpnaCLolKB3PMwjoP5D+L+zcEGy5M/FiDJ/PSVpCGo
-         6GT2+Lzhp+oewfyh1CSMCp+nZ9ZNe6GNHB9+0quJ38AR452JJH/Xy5kLEjNTgLvD+F
-         OmsKYyrhCuFIPFPAXPZSsDGHjLPO5TlmLOFXCmfI=
+        b=aSTpyEyczu5MF7JRYia4F08qu3JpjcQlGdDt25BfjTt5ypmNyITT06/NOb6q5gKa9
+         M0nfCLvUt4FArbju4IxRLL+nXG7DOOSyKXNTaTIpEtnXO0sO8od+6MmSW9Em9OAUs0
+         TzSV/uBKA6nafeyrvBKfmWHbfbj/bFu1rdjUgKLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/167] net: stmmac: dwc-qos: Disable split header for Tegra194
-Date:   Tue, 19 Jul 2022 13:53:01 +0200
-Message-Id: <20220719114701.360777010@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.18 097/231] ice: handle E822 generic device ID in PLDM header
+Date:   Tue, 19 Jul 2022 13:53:02 +0200
+Message-Id: <20220719114722.891365903@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
 
-[ Upstream commit 029c1c2059e9c4b38f97a06204cdecd10cfbeb8a ]
+[ Upstream commit f52d166819a4d8e0d5cca07d8a8dd6397c96dcf1 ]
 
-There is a long-standing issue with the Synopsys DWC Ethernet driver
-for Tegra194 where random system crashes have been observed [0]. The
-problem occurs when the split header feature is enabled in the stmmac
-driver. In the bad case, a larger than expected buffer length is
-received and causes the calculation of the total buffer length to
-overflow. This results in a very large buffer length that causes the
-kernel to crash. Why this larger buffer length is received is not clear,
-however, the feedback from the NVIDIA design team is that the split
-header feature is not supported for Tegra194. Therefore, disable split
-header support for Tegra194 to prevent these random crashes from
-occurring.
+The driver currently presumes that the record data in the PLDM header
+of the firmware image will match the device ID of the running device.
+This is true for E810 devices. It appears that for E822 devices that
+this is not guaranteed to be true.
 
-[0] https://lore.kernel.org/linux-tegra/b0b17697-f23e-8fa5-3757-604a86f3a095@nvidia.com/
+Fix this by adding a check for the generic E822 device.
 
-Fixes: 67afd6d1cfdf ("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20220706083913.13750-1-jonathanh@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d69ea414c9b4 ("ice: implement device flash update via devlink")
+Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/ice/ice_devids.h   |  1 +
+ .../net/ethernet/intel/ice/ice_fw_update.c    | 96 ++++++++++++++++++-
+ drivers/net/ethernet/intel/ice/ice_main.c     |  1 +
+ 3 files changed, 96 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-index bc91fd867dcd..358fc26f8d1f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-@@ -361,6 +361,7 @@ static int tegra_eqos_probe(struct platform_device *pdev,
- 	data->fix_mac_speed = tegra_eqos_fix_speed;
- 	data->init = tegra_eqos_init;
- 	data->bsp_priv = eqos;
-+	data->sph_disable = 1;
+diff --git a/drivers/net/ethernet/intel/ice/ice_devids.h b/drivers/net/ethernet/intel/ice/ice_devids.h
+index 61dd2f18dee8..b41bc3dc1745 100644
+--- a/drivers/net/ethernet/intel/ice/ice_devids.h
++++ b/drivers/net/ethernet/intel/ice/ice_devids.h
+@@ -5,6 +5,7 @@
+ #define _ICE_DEVIDS_H_
  
- 	err = tegra_eqos_init(pdev, eqos);
- 	if (err < 0)
+ /* Device IDs */
++#define ICE_DEV_ID_E822_SI_DFLT         0x1888
+ /* Intel(R) Ethernet Connection E823-L for backplane */
+ #define ICE_DEV_ID_E823L_BACKPLANE	0x124C
+ /* Intel(R) Ethernet Connection E823-L for SFP */
+diff --git a/drivers/net/ethernet/intel/ice/ice_fw_update.c b/drivers/net/ethernet/intel/ice/ice_fw_update.c
+index 665a344fb9c0..3dc5662d62a6 100644
+--- a/drivers/net/ethernet/intel/ice/ice_fw_update.c
++++ b/drivers/net/ethernet/intel/ice/ice_fw_update.c
+@@ -736,7 +736,87 @@ static int ice_finalize_update(struct pldmfw *context)
+ 	return 0;
+ }
+ 
+-static const struct pldmfw_ops ice_fwu_ops = {
++struct ice_pldm_pci_record_id {
++	u32 vendor;
++	u32 device;
++	u32 subsystem_vendor;
++	u32 subsystem_device;
++};
++
++/**
++ * ice_op_pci_match_record - Check if a PCI device matches the record
++ * @context: PLDM fw update structure
++ * @record: list of records extracted from the PLDM image
++ *
++ * Determine if the PCI device associated with this device matches the record
++ * data provided.
++ *
++ * Searches the descriptor TLVs and extracts the relevant descriptor data into
++ * a pldm_pci_record_id. This is then compared against the PCI device ID
++ * information.
++ *
++ * Returns: true if the device matches the record, false otherwise.
++ */
++static bool
++ice_op_pci_match_record(struct pldmfw *context, struct pldmfw_record *record)
++{
++	struct pci_dev *pdev = to_pci_dev(context->dev);
++	struct ice_pldm_pci_record_id id = {
++		.vendor = PCI_ANY_ID,
++		.device = PCI_ANY_ID,
++		.subsystem_vendor = PCI_ANY_ID,
++		.subsystem_device = PCI_ANY_ID,
++	};
++	struct pldmfw_desc_tlv *desc;
++
++	list_for_each_entry(desc, &record->descs, entry) {
++		u16 value;
++		int *ptr;
++
++		switch (desc->type) {
++		case PLDM_DESC_ID_PCI_VENDOR_ID:
++			ptr = &id.vendor;
++			break;
++		case PLDM_DESC_ID_PCI_DEVICE_ID:
++			ptr = &id.device;
++			break;
++		case PLDM_DESC_ID_PCI_SUBVENDOR_ID:
++			ptr = &id.subsystem_vendor;
++			break;
++		case PLDM_DESC_ID_PCI_SUBDEV_ID:
++			ptr = &id.subsystem_device;
++			break;
++		default:
++			/* Skip unrelated TLVs */
++			continue;
++		}
++
++		value = get_unaligned_le16(desc->data);
++		/* A value of zero for one of the descriptors is sometimes
++		 * used when the record should ignore this field when matching
++		 * device. For example if the record applies to any subsystem
++		 * device or vendor.
++		 */
++		if (value)
++			*ptr = value;
++		else
++			*ptr = PCI_ANY_ID;
++	}
++
++	/* the E822 device can have a generic device ID so check for that */
++	if ((id.vendor == PCI_ANY_ID || id.vendor == pdev->vendor) &&
++	    (id.device == PCI_ANY_ID || id.device == pdev->device ||
++	    id.device == ICE_DEV_ID_E822_SI_DFLT) &&
++	    (id.subsystem_vendor == PCI_ANY_ID ||
++	    id.subsystem_vendor == pdev->subsystem_vendor) &&
++	    (id.subsystem_device == PCI_ANY_ID ||
++	    id.subsystem_device == pdev->subsystem_device))
++		return true;
++
++	return false;
++}
++
++static const struct pldmfw_ops ice_fwu_ops_e810 = {
+ 	.match_record = &pldmfw_op_pci_match_record,
+ 	.send_package_data = &ice_send_package_data,
+ 	.send_component_table = &ice_send_component_table,
+@@ -744,6 +824,14 @@ static const struct pldmfw_ops ice_fwu_ops = {
+ 	.finalize_update = &ice_finalize_update,
+ };
+ 
++static const struct pldmfw_ops ice_fwu_ops_e822 = {
++	.match_record = &ice_op_pci_match_record,
++	.send_package_data = &ice_send_package_data,
++	.send_component_table = &ice_send_component_table,
++	.flash_component = &ice_flash_component,
++	.finalize_update = &ice_finalize_update,
++};
++
+ /**
+  * ice_get_pending_updates - Check if the component has a pending update
+  * @pf: the PF driver structure
+@@ -921,7 +1009,11 @@ int ice_devlink_flash_update(struct devlink *devlink,
+ 
+ 	memset(&priv, 0, sizeof(priv));
+ 
+-	priv.context.ops = &ice_fwu_ops;
++	/* the E822 device needs a slightly different ops */
++	if (hw->mac_type == ICE_MAC_GENERIC)
++		priv.context.ops = &ice_fwu_ops_e822;
++	else
++		priv.context.ops = &ice_fwu_ops_e810;
+ 	priv.context.dev = dev;
+ 	priv.extack = extack;
+ 	priv.pf = pf;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index d069b19f9bf7..efb076f71e38 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -5397,6 +5397,7 @@ static const struct pci_device_id ice_pci_tbl[] = {
+ 	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E823L_10G_BASE_T), 0 },
+ 	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E823L_1GBE), 0 },
+ 	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E823L_QSFP), 0 },
++	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E822_SI_DFLT), 0 },
+ 	/* required last entry */
+ 	{ 0, }
+ };
 -- 
 2.35.1
 
