@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC6E579D17
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A81E579D05
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239071AbiGSMpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239340AbiGSMpV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Jul 2022 08:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33086 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241572AbiGSMoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:08 -0400
+        with ESMTP id S241603AbiGSMoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086E383F08;
-        Tue, 19 Jul 2022 05:17:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7587A84ED3;
+        Tue, 19 Jul 2022 05:17:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CC39B81B37;
-        Tue, 19 Jul 2022 12:17:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3DCC36AE5;
-        Tue, 19 Jul 2022 12:17:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 243A5B81B1A;
+        Tue, 19 Jul 2022 12:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C0DC341C6;
+        Tue, 19 Jul 2022 12:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233031;
-        bh=V8Bnn0Qdmea87DKi19dp6Ps/3Mkn7B5N1/5lffCMd6U=;
+        s=korg; t=1658233033;
+        bh=Z0MLB5sErD4u7jQkthnxO4/0hpaebS009ioAE/xLd9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGy3EjwPWLuH2L9p7LuvZiVZzL+FdeNv8eXLq6pHeBF+zYR5AfZl/BUX04hEYygp2
-         g1wOMrTmWdEaVcsxnub/a4PRmkpYxkBse8hiIreE0GC9oJdDPDi+RhvmfPIgbrUTaA
-         QQxz3S8WNhn32iRgAcV6qPGRmSG1uLXm86P95G/A=
+        b=h/qvezOH6iZdT+qzwEreSEJE44u9dwQpaDnpqIihaJ2Ckp/X2tb6IWRB0teenmFcp
+         FxmU33BrcRZz+EDtobndl6ZHaZhsp8O6hdItReVeg/jtfM8+Ab15/EAgFMvvl/jnI3
+         UIXkHGppRReeRtoRHa7WTm+seepQKeKAtDmKVMn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 150/167] soc: ixp4xx/npe: Fix unused match warning
-Date:   Tue, 19 Jul 2022 13:54:42 +0200
-Message-Id: <20220719114710.954356208@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 151/167] ARM: dts: stm32: use the correct clock source for CEC on stm32mp151
+Date:   Tue, 19 Jul 2022 13:54:43 +0200
+Message-Id: <20220719114711.071166055@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
 References: <20220719114656.750574879@linuxfoundation.org>
@@ -52,43 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
 
-[ Upstream commit 620f83b8326ce9706b1118334f0257ae028ce045 ]
+[ Upstream commit 78ece8cce1ba0c3f3e5a7c6c1b914b3794f04c44 ]
 
-The kernel test robot found this inconsistency:
+The peripheral clock of CEC is not LSE but CEC.
 
-  drivers/soc/ixp4xx/ixp4xx-npe.c:737:34: warning:
-  'ixp4xx_npe_of_match' defined but not used [-Wunused-const-variable=]
-     737 | static const struct of_device_id ixp4xx_npe_of_match[] = {
-
-This is because the match is enclosed in the of_match_ptr()
-which compiles into NULL when OF is disabled and this
-is unnecessary.
-
-Fix it by dropping of_match_ptr() around the match.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20220626074315.61209-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ixp4xx/ixp4xx-npe.c | 2 +-
+ arch/arm/boot/dts/stm32mp151.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/ixp4xx/ixp4xx-npe.c b/drivers/soc/ixp4xx/ixp4xx-npe.c
-index f490c4ca51f5..a0159805d061 100644
---- a/drivers/soc/ixp4xx/ixp4xx-npe.c
-+++ b/drivers/soc/ixp4xx/ixp4xx-npe.c
-@@ -743,7 +743,7 @@ static const struct of_device_id ixp4xx_npe_of_match[] = {
- static struct platform_driver ixp4xx_npe_driver = {
- 	.driver = {
- 		.name           = "ixp4xx-npe",
--		.of_match_table = of_match_ptr(ixp4xx_npe_of_match),
-+		.of_match_table = ixp4xx_npe_of_match,
- 	},
- 	.probe = ixp4xx_npe_probe,
- 	.remove = ixp4xx_npe_remove,
+diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
+index a9b65b3bfda5..e0d483318798 100644
+--- a/arch/arm/boot/dts/stm32mp151.dtsi
++++ b/arch/arm/boot/dts/stm32mp151.dtsi
+@@ -553,7 +553,7 @@
+ 			compatible = "st,stm32-cec";
+ 			reg = <0x40016000 0x400>;
+ 			interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&rcc CEC_K>, <&clk_lse>;
++			clocks = <&rcc CEC_K>, <&rcc CEC>;
+ 			clock-names = "cec", "hdmi-cec";
+ 			status = "disabled";
+ 		};
 -- 
 2.35.1
 
