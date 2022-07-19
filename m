@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 944AC579CF2
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C9D579F45
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241492AbiGSMqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:46:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33086 "EHLO
+        id S243263AbiGSNMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:12:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241629AbiGSMpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:45:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3A58AB04;
-        Tue, 19 Jul 2022 05:18:15 -0700 (PDT)
+        with ESMTP id S237689AbiGSNMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC2E8C3CE;
+        Tue, 19 Jul 2022 05:29:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3984061746;
-        Tue, 19 Jul 2022 12:18:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B03FC341CE;
-        Tue, 19 Jul 2022 12:17:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EA060C8C;
+        Tue, 19 Jul 2022 12:29:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5503C341C6;
+        Tue, 19 Jul 2022 12:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233079;
-        bh=EzMbJ/79Gfem+Qi5Q99AdsP/OjJm7cgbuH+Ln4CrI84=;
+        s=korg; t=1658233769;
+        bh=RErdYp/saWbXBtDS7TGY/5ALVxq4blsMtCQT7X3SQkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W09wMSeJg9gK2fXsG88iE71N6C2mODGtqOqL7jkLxceD5hbf8l2ZMUp+wEwUqvziD
-         Oa+4G3gaMC/y7m1c/Fy4/gR7KrX4giLWM4Dh7QOPN74HOfbDpH6VRAWaemJc3ciQQ2
-         H3DARJS1/18WUMd/9NAy0wQ5xg8o4Szul5xHh/bc=
+        b=Apyxeo45QD/cTZoV46j7yO2Zy4ytjXnD5+0nrySeGNR9MDqJiLuOtJGX99TtK5Qsq
+         U2GZ0KDnVCyZuarsOeHBvMQA1cDnoKxOUoH5z87sL5CBqyQ/LjD49p4WAuPkypMRKu
+         jGncisNTCdqSdw5XGn4wjWIbbLIYKP8f/iZkZLOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.15 166/167] serial: 8250: Fix PM usage_count for console handover
-Date:   Tue, 19 Jul 2022 13:54:58 +0200
-Message-Id: <20220719114712.518528832@linuxfoundation.org>
+        stable@vger.kernel.org, Egor Vorontsov <sdoregor@sdore.me>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 214/231] ALSA: usb-audio: Add quirk for Fiero SC-01
+Date:   Tue, 19 Jul 2022 13:54:59 +0200
+Message-Id: <20220719114731.837203827@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +52,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Egor Vorontsov <sdoregor@sdore.me>
 
-commit f9b11229b79c0fb2100b5bb4628a101b1d37fbf6 upstream.
+[ Upstream commit 4fb7c24f69c48fdc02ea7858dbd5a60ff08bf7e5 ]
 
-When console is enabled, univ8250_console_setup() calls
-serial8250_console_setup() before .dev is set to uart_port. Therefore,
-it will not call pm_runtime_get_sync(). Later, when the actual driver
-is going to take over univ8250_console_exit() is called. As .dev is
-already set, serial8250_console_exit() makes pm_runtime_put_sync() call
-with usage count being zero triggering PM usage count warning
-(extra debug for univ8250_console_setup(), univ8250_console_exit(), and
-serial8250_register_ports()):
+Fiero SC-01 is a USB sound card with two mono inputs and a single
+stereo output. The inputs are composed into a single stereo stream.
 
-[    0.068987] univ8250_console_setup ttyS0 nodev
-[    0.499670] printk: console [ttyS0] enabled
-[    0.717955] printk: console [ttyS0] printing thread started
-[    1.960163] serial8250_register_ports assigned dev for ttyS0
-[    1.976830] printk: console [ttyS0] disabled
-[    1.976888] printk: console [ttyS0] printing thread stopped
-[    1.977073] univ8250_console_exit ttyS0 usage:0
-[    1.977075] serial8250 serial8250: Runtime PM usage count underflow!
-[    1.977429] dw-apb-uart.6: ttyS0 at MMIO 0x4010006000 (irq = 33, base_baud = 115200) is a 16550A
-[    1.977812] univ8250_console_setup ttyS0 usage:2
-[    1.978167] printk: console [ttyS0] printing thread started
-[    1.978203] printk: console [ttyS0] enabled
+The device uses a vendor-provided driver on Windows and does not work
+at all without it. The driver mostly provides ASIO functionality, but
+also alters the way the sound card is queried for sample rates and
+clocks.
 
-To fix the issue, call pm_runtime_get_sync() in
-serial8250_register_ports() as soon as .dev is set for an uart_port
-if it has console enabled.
+ALSA queries those failing with an EPIPE (same as Windows 10 does).
+Presumably, the vendor-provided driver does not query it at all, simply
+matching by VID:PID. Thus, I consider this a buggy firmware and adhere
+to a set of fixed endpoint quirks instead.
 
-This problem became apparent only recently because 82586a721595 ("PM:
-runtime: Avoid device usage count underflows") added the warning
-printout. I confirmed this problem also occurs with v5.18 (w/o the
-warning printout, obviously).
+The soundcard has an internal clock. Implicit feedback mode is required
+for the playback.
 
-Fixes: bedb404e91bb ("serial: 8250_port: Don't use power management for kernel console")
-Cc: stable <stable@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/b4f428e9-491f-daf2-2232-819928dc276e@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I have updated my device to v1.1.0 from a Windows 10 VM using a vendor-
+provided binary prior to the development, hoping for it to just begin
+working. The device provides no obvious way to downgrade the firmware,
+and regardless, there's no binary available for v1.0.0 anyway.
+
+Thus, I will be getting another unit to extend the patch with support
+for that. Expected to be a simple copy-paste of the existing one,
+though.
+
+There were no previous reports of that device in context of Linux
+anywhere. Other issues have been reported though, but that's out of the
+scope.
+
+Signed-off-by: Egor Vorontsov <sdoregor@sdore.me>
+Link: https://lore.kernel.org/r/20220627100041.2861494-1-sdoregor@sdore.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c |    4 ++++
- drivers/tty/serial/serial_core.c    |    5 -----
- include/linux/serial_core.h         |    5 +++++
- 3 files changed, 9 insertions(+), 5 deletions(-)
+ sound/usb/quirks-table.h |   68 +++++++++++++++++++++++++++++++++++++++++++++++
+ sound/usb/quirks.c       |    2 +
+ 2 files changed, 70 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -23,6 +23,7 @@
- #include <linux/sysrq.h>
- #include <linux/delay.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/tty.h>
- #include <linux/ratelimit.h>
- #include <linux/tty_flip.h>
-@@ -561,6 +562,9 @@ serial8250_register_ports(struct uart_dr
- 
- 		up->port.dev = dev;
- 
-+		if (uart_console_enabled(&up->port))
-+			pm_runtime_get_sync(up->port.dev);
-+
- 		serial8250_apply_quirks(up);
- 		uart_add_one_port(drv, &up->port);
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -4167,6 +4167,74 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 		}
  	}
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1912,11 +1912,6 @@ static int uart_proc_show(struct seq_fil
- }
- #endif
- 
--static inline bool uart_console_enabled(struct uart_port *port)
--{
--	return uart_console(port) && (port->cons->flags & CON_ENABLED);
--}
--
- static void uart_port_spin_lock_init(struct uart_port *port)
- {
- 	spin_lock_init(&port->lock);
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -388,6 +388,11 @@ static const bool earlycon_acpi_spcr_ena
- static inline int setup_earlycon(char *buf) { return 0; }
- #endif
- 
-+static inline bool uart_console_enabled(struct uart_port *port)
+ },
 +{
-+	return uart_console(port) && (port->cons->flags & CON_ENABLED);
-+}
-+
- struct uart_port *uart_get_console(struct uart_port *ports, int nr,
- 				   struct console *c);
- int uart_parse_earlycon(char *p, unsigned char *iotype, resource_size_t *addr,
++	/*
++	 * Fiero SC-01 (firmware v1.1.0)
++	 */
++	USB_DEVICE(0x2b53, 0x0031),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "Fiero",
++		.product_name = "SC-01",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			/* Playback */
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S32_LE,
++					.channels = 2,
++					.fmt_bits = 24,
++					.iface = 1,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x01,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						   USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_48000 |
++						 SNDRV_PCM_RATE_96000,
++					.rate_min = 48000,
++					.rate_max = 96000,
++					.nr_rates = 2,
++					.rate_table = (unsigned int[]) { 48000, 96000 },
++					.clock = 0x29
++				}
++			},
++			/* Capture */
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S32_LE,
++					.channels = 2,
++					.fmt_bits = 24,
++					.iface = 2,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						   USB_ENDPOINT_SYNC_ASYNC |
++						   USB_ENDPOINT_USAGE_IMPLICIT_FB,
++					.rates = SNDRV_PCM_RATE_48000 |
++						 SNDRV_PCM_RATE_96000,
++					.rate_min = 48000,
++					.rate_max = 96000,
++					.nr_rates = 2,
++					.rate_table = (unsigned int[]) { 48000, 96000 },
++					.clock = 0x29
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
+ 
+ #undef USB_DEVICE_VENDOR_SPEC
+ #undef USB_AUDIO_DEVICE
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1915,6 +1915,8 @@ static const struct usb_audio_quirk_flag
+ 		   QUIRK_FLAG_ALIGN_TRANSFER),
+ 	DEVICE_FLG(0x1224, 0x2a25, /* Jieli Technology USB PHY 2.0 */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
++	DEVICE_FLG(0x2b53, 0x0031, /* Fiero SC-01 (firmware v1.1.0) */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 
+ 	/* Vendor matches */
+ 	VENDOR_FLG(0x045e, /* MS Lifecam */
 
 
