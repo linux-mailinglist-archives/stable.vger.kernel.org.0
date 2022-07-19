@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07A8C5798DA
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:55:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F08E257995E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236057AbiGSLzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54278 "EHLO
+        id S237964AbiGSMCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:02:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236115AbiGSLzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:55:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18E0237F0;
-        Tue, 19 Jul 2022 04:55:43 -0700 (PDT)
+        with ESMTP id S237891AbiGSMBU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:01:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4674045F51;
+        Tue, 19 Jul 2022 04:58:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 587AB615C9;
-        Tue, 19 Jul 2022 11:55:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF145C341C6;
-        Tue, 19 Jul 2022 11:55:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DBB9ECE1BDE;
+        Tue, 19 Jul 2022 11:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C03C4C341C6;
+        Tue, 19 Jul 2022 11:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231742;
-        bh=P7uujoagZVXY2+acqi8cFz5hWUXidjPWFFNbDMUaMHw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=DSJ+GPkurSgI7EuVIJN9g+hOb1SwWxLk7JmdjgCsv3mcq/1+nbiuI0MfwEwNaP4y8
-         uNiigBDHFQ1rou0DZ5TT5wannsiwbNG/Ey5+hyjfXrJPRNNaXBrTGQgGSG6Ad+x98Q
-         /QTm06barjDofLCxBY6AxTOAu/PKOAwrVWx5EMvo=
+        s=korg; t=1658231910;
+        bh=YppTL7lZyK/8Xub0dvfH2aOxcuSTkXtqCNfpV++wGP0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=N9uuSSM8LjuRnRGbHBxm7WR51BZl5MDOCyG1vyrF2cJlMME0e/4+ZrJOm5YLoUGAy
+         0wjgNCW+Dn52PHKrLAyPonGqlYwRR3sbCdYjE6v+6SrlpGpSO1yBhTKyVMSGO8ofDI
+         UCRu/OlnQZiNlrNYLPvwSmat03j6tO3j09MsUOMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/28] 4.9.324-rc1 review
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        shisiyuan <shisiyuan19870131@gmail.com>
+Subject: [PATCH 4.14 07/43] cgroup: Use separate src/dst nodes when preloading css_sets for migration
 Date:   Tue, 19 Jul 2022 13:53:38 +0200
-Message-Id: <20220719114455.701304968@linuxfoundation.org>
+Message-Id: <20220719114522.727899896@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-MIME-Version: 1.0
+In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
+References: <20220719114521.868169025@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.324-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.324-rc1
-X-KernelTest-Deadline: 2022-07-21T11:44+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -61,148 +53,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.324 release.
-There are 28 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Tejun Heo <tj@kernel.org>
 
-Responses should be made by Thu, 21 Jul 2022 11:43:40 +0000.
-Anything received after that time might be too late.
+commit 07fd5b6cdf3cc30bfde8fe0f644771688be04447 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.324-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+Each cset (css_set) is pinned by its tasks. When we're moving tasks around
+across csets for a migration, we need to hold the source and destination
+csets to ensure that they don't go away while we're moving tasks about. This
+is done by linking cset->mg_preload_node on either the
+mgctx->preloaded_src_csets or mgctx->preloaded_dst_csets list. Using the
+same cset->mg_preload_node for both the src and dst lists was deemed okay as
+a cset can't be both the source and destination at the same time.
 
-thanks,
+Unfortunately, this overloading becomes problematic when multiple tasks are
+involved in a migration and some of them are identity noop migrations while
+others are actually moving across cgroups. For example, this can happen with
+the following sequence on cgroup1:
 
-greg k-h
+ #1> mkdir -p /sys/fs/cgroup/misc/a/b
+ #2> echo $$ > /sys/fs/cgroup/misc/a/cgroup.procs
+ #3> RUN_A_COMMAND_WHICH_CREATES_MULTIPLE_THREADS &
+ #4> PID=$!
+ #5> echo $PID > /sys/fs/cgroup/misc/a/b/tasks
+ #6> echo $PID > /sys/fs/cgroup/misc/a/cgroup.procs
 
--------------
-Pseudo-Shortlog of commits:
+the process including the group leader back into a. In this final migration,
+non-leader threads would be doing identity migration while the group leader
+is doing an actual one.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.324-rc1
+After #3, let's say the whole process was in cset A, and that after #4, the
+leader moves to cset B. Then, during #6, the following happens:
 
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: m_can: m_can_tx_handler(): fix use after free of skb
+ 1. cgroup_migrate_add_src() is called on B for the leader.
 
-Rik van Riel <riel@surriel.com>
-    mm: invalidate hwpoison page cache page in fault path
+ 2. cgroup_migrate_add_src() is called on A for the other threads.
 
-Yi Yang <yiyang13@huawei.com>
-    serial: 8250: fix return error code in serial8250_request_std_resource()
+ 3. cgroup_migrate_prepare_dst() is called. It scans the src list.
 
-Chanho Park <chanho61.park@samsung.com>
-    tty: serial: samsung_tty: set dma burst_size to 1
+ 4. It notices that B wants to migrate to A, so it tries to A to the dst
+    list but realizes that its ->mg_preload_node is already busy.
 
-Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-    usb: dwc3: gadget: Fix event pending check
+ 5. and then it notices A wants to migrate to A as it's an identity
+    migration, it culls it by list_del_init()'ing its ->mg_preload_node and
+    putting references accordingly.
 
-Lucien Buchmann <lucien.buchmann@gmx.net>
-    USB: serial: ftdi_sio: add Belimo device ids
+ 6. The rest of migration takes place with B on the src list but nothing on
+    the dst list.
 
-Linus Torvalds <torvalds@linux-foundation.org>
-    signal handling: don't use BUG_ON() for debugging
+This means that A isn't held while migration is in progress. If all tasks
+leave A before the migration finishes and the incoming task pins it, the
+cset will be destroyed leading to use-after-free.
 
-Juergen Gross <jgross@suse.com>
-    x86: Clear .brk area at early boot
+This is caused by overloading cset->mg_preload_node for both src and dst
+preload lists. We wanted to exclude the cset from the src list but ended up
+inadvertently excluding it from the dst list too.
 
-Charles Keepax <ckeepax@opensource.cirrus.com>
-    ASoC: wm5110: Fix DRE control
+This patch fixes the issue by separating out cset->mg_preload_node into
+->mg_src_preload_node and ->mg_dst_preload_node, so that the src and dst
+preloadings don't interfere with each other.
 
-Mark Brown <broonie@kernel.org>
-    ASoC: ops: Fix off by one in range control validation
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reported-by: shisiyuan <shisiyuan19870131@gmail.com>
+Link: http://lkml.kernel.org/r/1654187688-27411-1-git-send-email-shisiyuan@xiaomi.com
+Link: https://www.spinics.net/lists/cgroups/msg33313.html
+Fixes: f817de98513d ("cgroup: prepare migration path for unified hierarchy")
+Cc: stable@vger.kernel.org # v3.16+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/linux/cgroup-defs.h |    3 ++-
+ kernel/cgroup/cgroup.c      |   37 +++++++++++++++++++++++--------------
+ 2 files changed, 25 insertions(+), 15 deletions(-)
 
-Michael Walle <michael@walle.cc>
-    NFC: nxp-nci: don't print header length mismatch on i2c error
-
-Hangyu Hua <hbh25y@gmail.com>
-    net: tipc: fix possible refcount leak in tipc_sk_create()
-
-Liang He <windhl@126.com>
-    cpufreq: pmac32-cpufreq: Fix refcount leak bug
-
-Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-    virtio_mmio: Restore guest page size on resume
-
-Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-    virtio_mmio: Add missing PM calls to freeze/restore
-
-Íñigo Huguet <ihuguet@redhat.com>
-    sfc: fix kernel panic when creating VF
-
-Íñigo Huguet <ihuguet@redhat.com>
-    sfc: fix use after free when disabling sriov
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    ipv4: Fix data-races around sysctl_ip_dynaddr.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    icmp: Fix data-races around sysctl.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    cipso: Fix data-races around sysctl.
-
-Ard Biesheuvel <ardb@kernel.org>
-    ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
-
-Doug Berger <opendmb@gmail.com>
-    net: dsa: bcm_sf2: force pause link settings
-
-Ryusuke Konishi <konishi.ryusuke@gmail.com>
-    nilfs2: fix incorrect masking of permission flags for symlinks
-
-Dmitry Osipenko <dmitry.osipenko@collabora.com>
-    ARM: 9213/1: Print message about disabled Spectre workarounds only once
-
-Steven Rostedt (Google) <rostedt@goodmis.org>
-    net: sock: tracing: Fix sock_exceed_buf_limit not to dereference stale pointer
-
-Juergen Gross <jgross@suse.com>
-    xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
-
-Meng Tang <tangmeng@uniontech.com>
-    ALSA: hda - Add fixup for Dell Latitidue E5430
-
-James Morse <james.morse@arm.com>
-    arm64: entry: Restore tramp_map_kernel ISB
-
-
--------------
-
-Diffstat:
-
- Documentation/networking/ip-sysctl.txt |  4 ++--
- Makefile                               |  4 ++--
- arch/arm/mm/proc-v7-bugs.c             |  9 ++++-----
- arch/arm64/kernel/entry.S              |  1 +
- arch/x86/kernel/head64.c               |  2 ++
- drivers/cpufreq/pmac32-cpufreq.c       |  4 ++++
- drivers/net/can/m_can/m_can.c          |  5 +++--
- drivers/net/dsa/bcm_sf2.c              | 19 +++++++++++++++++++
- drivers/net/ethernet/sfc/ef10.c        |  3 +++
- drivers/net/ethernet/sfc/ef10_sriov.c  | 10 +++++++---
- drivers/net/xen-netback/rx.c           |  1 +
- drivers/nfc/nxp-nci/i2c.c              |  8 ++++++--
- drivers/tty/serial/8250/8250_port.c    |  4 +++-
- drivers/tty/serial/samsung.c           |  5 ++---
- drivers/usb/dwc3/gadget.c              |  4 +++-
- drivers/usb/serial/ftdi_sio.c          |  3 +++
- drivers/usb/serial/ftdi_sio_ids.h      |  6 ++++++
- drivers/virtio/virtio_mmio.c           | 26 ++++++++++++++++++++++++++
- fs/nilfs2/nilfs.h                      |  3 +++
- include/trace/events/sock.h            |  6 ++++--
- kernel/signal.c                        |  8 ++++----
- mm/memory.c                            |  9 +++++++--
- net/ipv4/af_inet.c                     |  4 ++--
- net/ipv4/cipso_ipv4.c                  | 12 +++++++-----
- net/ipv4/icmp.c                        |  5 +++--
- net/tipc/socket.c                      |  1 +
- sound/pci/hda/patch_realtek.c          |  1 +
- sound/soc/codecs/wm5110.c              |  8 ++++++--
- sound/soc/soc-ops.c                    |  4 ++--
- 29 files changed, 137 insertions(+), 42 deletions(-)
+--- a/include/linux/cgroup-defs.h
++++ b/include/linux/cgroup-defs.h
+@@ -235,7 +235,8 @@ struct css_set {
+ 	 * List of csets participating in the on-going migration either as
+ 	 * source or destination.  Protected by cgroup_mutex.
+ 	 */
+-	struct list_head mg_preload_node;
++	struct list_head mg_src_preload_node;
++	struct list_head mg_dst_preload_node;
+ 	struct list_head mg_node;
+ 
+ 	/*
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -647,7 +647,8 @@ struct css_set init_css_set = {
+ 	.task_iters		= LIST_HEAD_INIT(init_css_set.task_iters),
+ 	.threaded_csets		= LIST_HEAD_INIT(init_css_set.threaded_csets),
+ 	.cgrp_links		= LIST_HEAD_INIT(init_css_set.cgrp_links),
+-	.mg_preload_node	= LIST_HEAD_INIT(init_css_set.mg_preload_node),
++	.mg_src_preload_node	= LIST_HEAD_INIT(init_css_set.mg_src_preload_node),
++	.mg_dst_preload_node	= LIST_HEAD_INIT(init_css_set.mg_dst_preload_node),
+ 	.mg_node		= LIST_HEAD_INIT(init_css_set.mg_node),
+ };
+ 
+@@ -1113,7 +1114,8 @@ static struct css_set *find_css_set(stru
+ 	INIT_LIST_HEAD(&cset->threaded_csets);
+ 	INIT_HLIST_NODE(&cset->hlist);
+ 	INIT_LIST_HEAD(&cset->cgrp_links);
+-	INIT_LIST_HEAD(&cset->mg_preload_node);
++	INIT_LIST_HEAD(&cset->mg_src_preload_node);
++	INIT_LIST_HEAD(&cset->mg_dst_preload_node);
+ 	INIT_LIST_HEAD(&cset->mg_node);
+ 
+ 	/* Copy the set of subsystem state objects generated in
+@@ -2399,21 +2401,27 @@ int cgroup_migrate_vet_dst(struct cgroup
+  */
+ void cgroup_migrate_finish(struct cgroup_mgctx *mgctx)
+ {
+-	LIST_HEAD(preloaded);
+ 	struct css_set *cset, *tmp_cset;
+ 
+ 	lockdep_assert_held(&cgroup_mutex);
+ 
+ 	spin_lock_irq(&css_set_lock);
+ 
+-	list_splice_tail_init(&mgctx->preloaded_src_csets, &preloaded);
+-	list_splice_tail_init(&mgctx->preloaded_dst_csets, &preloaded);
++	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_src_csets,
++				 mg_src_preload_node) {
++		cset->mg_src_cgrp = NULL;
++		cset->mg_dst_cgrp = NULL;
++		cset->mg_dst_cset = NULL;
++		list_del_init(&cset->mg_src_preload_node);
++		put_css_set_locked(cset);
++	}
+ 
+-	list_for_each_entry_safe(cset, tmp_cset, &preloaded, mg_preload_node) {
++	list_for_each_entry_safe(cset, tmp_cset, &mgctx->preloaded_dst_csets,
++				 mg_dst_preload_node) {
+ 		cset->mg_src_cgrp = NULL;
+ 		cset->mg_dst_cgrp = NULL;
+ 		cset->mg_dst_cset = NULL;
+-		list_del_init(&cset->mg_preload_node);
++		list_del_init(&cset->mg_dst_preload_node);
+ 		put_css_set_locked(cset);
+ 	}
+ 
+@@ -2455,7 +2463,7 @@ void cgroup_migrate_add_src(struct css_s
+ 
+ 	src_cgrp = cset_cgroup_from_root(src_cset, dst_cgrp->root);
+ 
+-	if (!list_empty(&src_cset->mg_preload_node))
++	if (!list_empty(&src_cset->mg_src_preload_node))
+ 		return;
+ 
+ 	WARN_ON(src_cset->mg_src_cgrp);
+@@ -2466,7 +2474,7 @@ void cgroup_migrate_add_src(struct css_s
+ 	src_cset->mg_src_cgrp = src_cgrp;
+ 	src_cset->mg_dst_cgrp = dst_cgrp;
+ 	get_css_set(src_cset);
+-	list_add_tail(&src_cset->mg_preload_node, &mgctx->preloaded_src_csets);
++	list_add_tail(&src_cset->mg_src_preload_node, &mgctx->preloaded_src_csets);
+ }
+ 
+ /**
+@@ -2491,7 +2499,7 @@ int cgroup_migrate_prepare_dst(struct cg
+ 
+ 	/* look up the dst cset for each src cset and link it to src */
+ 	list_for_each_entry_safe(src_cset, tmp_cset, &mgctx->preloaded_src_csets,
+-				 mg_preload_node) {
++				 mg_src_preload_node) {
+ 		struct css_set *dst_cset;
+ 		struct cgroup_subsys *ss;
+ 		int ssid;
+@@ -2510,7 +2518,7 @@ int cgroup_migrate_prepare_dst(struct cg
+ 		if (src_cset == dst_cset) {
+ 			src_cset->mg_src_cgrp = NULL;
+ 			src_cset->mg_dst_cgrp = NULL;
+-			list_del_init(&src_cset->mg_preload_node);
++			list_del_init(&src_cset->mg_src_preload_node);
+ 			put_css_set(src_cset);
+ 			put_css_set(dst_cset);
+ 			continue;
+@@ -2518,8 +2526,8 @@ int cgroup_migrate_prepare_dst(struct cg
+ 
+ 		src_cset->mg_dst_cset = dst_cset;
+ 
+-		if (list_empty(&dst_cset->mg_preload_node))
+-			list_add_tail(&dst_cset->mg_preload_node,
++		if (list_empty(&dst_cset->mg_dst_preload_node))
++			list_add_tail(&dst_cset->mg_dst_preload_node,
+ 				      &mgctx->preloaded_dst_csets);
+ 		else
+ 			put_css_set(dst_cset);
+@@ -2753,7 +2761,8 @@ static int cgroup_update_dfl_csses(struc
+ 		goto out_finish;
+ 
+ 	spin_lock_irq(&css_set_lock);
+-	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets, mg_preload_node) {
++	list_for_each_entry(src_cset, &mgctx.preloaded_src_csets,
++			    mg_src_preload_node) {
+ 		struct task_struct *task, *ntask;
+ 
+ 		/* all tasks in src_csets need to be migrated */
 
 
