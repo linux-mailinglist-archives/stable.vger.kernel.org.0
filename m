@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AA4D579D50
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B88B1579D4E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241700AbiGSMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:50:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51286 "EHLO
+        id S241771AbiGSMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241847AbiGSMtP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDF357242;
-        Tue, 19 Jul 2022 05:19:26 -0700 (PDT)
+        with ESMTP id S241890AbiGSMtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCC857262;
+        Tue, 19 Jul 2022 05:19:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAB1F61772;
-        Tue, 19 Jul 2022 12:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7C0C341C6;
-        Tue, 19 Jul 2022 12:19:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AA67B81B1A;
+        Tue, 19 Jul 2022 12:19:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B56C341C6;
+        Tue, 19 Jul 2022 12:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233165;
-        bh=fWLVeCCoW64f3SORlNiUVtRzyubquhGPlJxz8Kjpo+s=;
+        s=korg; t=1658233168;
+        bh=tDk3be72/UF4Ume5NsKASOFXAKCgogPYwNFyRZ70KOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KXgQMN+AG0+NA/gHe7lFgBjJPGTjxcgLrCSXuo0N/IZWKHroininz9ovKtOVpt1P8
-         pAqHx4MgH4PECTHuzU32Wg86yeLZzdR3AdJ3SVFeqJkuAAeb8TZZguD1C/ZL29dP16
-         ndizdPTGYKt7mzHDlY3tQfmi24rcDF24wQYZEkFY=
+        b=xG0DA5JFcLyMFSxav++3lofmEJPLAAsb/T7R4sGSwTEIYLU/pvwMFBDqn51xy/eCm
+         fhHzU9GUi//4bwa1xEXip8+eEfPtet9KcTW/mRo7ZPzfWi6tX+GzyyZGX1/EaKqdN5
+         VKoiUePsStbgklTXwu6pkUPexwmICbMDF7xfqjdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 5.18 004/231] gpio: sim: fix the chip_name configfs item
-Date:   Tue, 19 Jul 2022 13:51:29 +0200
-Message-Id: <20220719114714.564175103@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 5.18 005/231] tty: serial: samsung_tty: set dma burst_size to 1
+Date:   Tue, 19 Jul 2022 13:51:30 +0200
+Message-Id: <20220719114714.634827047@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -53,77 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <brgl@bgdev.pl>
+From: Chanho Park <chanho61.park@samsung.com>
 
-commit 7329b071729645e243b6207e76bca2f4951c991b upstream.
+commit f7e35e4bf1e8dc2c8cbd5e0955dc1bd58558dae0 upstream.
 
-The chip_name configs attribute always displays the device name of the
-first GPIO bank because the logic of the relevant function is simply
-wrong.
+The src_maxburst and dst_maxburst have been changed to 1 but the settings
+of the UCON register aren't changed yet. They should be changed as well
+according to the dmaengine slave config.
 
-Fix it by correctly comparing the bank's swnode against the GPIO
-device's children.
-
-Fixes: cb8c474e79be ("gpio: sim: new testing module")
-Cc: stable@vger.kernel.org
-Reported-by: Kent Gibson <warthog618@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Kent Gibson <warthog618@gmail.com>
-Tested-by: Kent Gibson <warthog618@gmail.com>
+Fixes: aa2f80e752c7 ("serial: samsung: fix maxburst parameter for DMA transactions")
+Cc: stable <stable@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220627065113.139520-1-chanho61.park@samsung.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-sim.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/tty/serial/samsung_tty.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-sim.c b/drivers/gpio/gpio-sim.c
-index 98109839102f..1020c2feb249 100644
---- a/drivers/gpio/gpio-sim.c
-+++ b/drivers/gpio/gpio-sim.c
-@@ -991,28 +991,22 @@ static struct configfs_attribute *gpio_sim_device_config_attrs[] = {
- };
+--- a/drivers/tty/serial/samsung_tty.c
++++ b/drivers/tty/serial/samsung_tty.c
+@@ -377,8 +377,7 @@ static void enable_tx_dma(struct s3c24xx
+ 	/* Enable tx dma mode */
+ 	ucon = rd_regl(port, S3C2410_UCON);
+ 	ucon &= ~(S3C64XX_UCON_TXBURST_MASK | S3C64XX_UCON_TXMODE_MASK);
+-	ucon |= (dma_get_cache_alignment() >= 16) ?
+-		S3C64XX_UCON_TXBURST_16 : S3C64XX_UCON_TXBURST_1;
++	ucon |= S3C64XX_UCON_TXBURST_1;
+ 	ucon |= S3C64XX_UCON_TXMODE_DMA;
+ 	wr_regl(port,  S3C2410_UCON, ucon);
  
- struct gpio_sim_chip_name_ctx {
--	struct gpio_sim_device *dev;
-+	struct fwnode_handle *swnode;
- 	char *page;
- };
- 
- static int gpio_sim_emit_chip_name(struct device *dev, void *data)
- {
- 	struct gpio_sim_chip_name_ctx *ctx = data;
--	struct fwnode_handle *swnode;
--	struct gpio_sim_bank *bank;
- 
- 	/* This would be the sysfs device exported in /sys/class/gpio. */
- 	if (dev->class)
- 		return 0;
- 
--	swnode = dev_fwnode(dev);
-+	if (device_match_fwnode(dev, ctx->swnode))
-+		return sprintf(ctx->page, "%s\n", dev_name(dev));
- 
--	list_for_each_entry(bank, &ctx->dev->bank_list, siblings) {
--		if (bank->swnode == swnode)
--			return sprintf(ctx->page, "%s\n", dev_name(dev));
--	}
--
--	return -ENODATA;
-+	return 0;
- }
- 
- static ssize_t gpio_sim_bank_config_chip_name_show(struct config_item *item,
-@@ -1020,7 +1014,7 @@ static ssize_t gpio_sim_bank_config_chip_name_show(struct config_item *item,
- {
- 	struct gpio_sim_bank *bank = to_gpio_sim_bank(item);
- 	struct gpio_sim_device *dev = gpio_sim_bank_get_device(bank);
--	struct gpio_sim_chip_name_ctx ctx = { dev, page };
-+	struct gpio_sim_chip_name_ctx ctx = { bank->swnode, page };
- 	int ret;
- 
- 	mutex_lock(&dev->lock);
--- 
-2.37.1
-
+@@ -674,7 +673,7 @@ static void enable_rx_dma(struct s3c24xx
+ 			S3C64XX_UCON_DMASUS_EN |
+ 			S3C64XX_UCON_TIMEOUT_EN |
+ 			S3C64XX_UCON_RXMODE_MASK);
+-	ucon |= S3C64XX_UCON_RXBURST_16 |
++	ucon |= S3C64XX_UCON_RXBURST_1 |
+ 			0xf << S3C64XX_UCON_TIMEOUT_SHIFT |
+ 			S3C64XX_UCON_EMPTYINT_EN |
+ 			S3C64XX_UCON_TIMEOUT_EN |
 
 
