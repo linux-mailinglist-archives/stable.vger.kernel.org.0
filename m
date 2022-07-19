@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BA5579E09
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 688FE579C2B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242369AbiGSM5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40646 "EHLO
+        id S240752AbiGSMgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:36:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242150AbiGSM4k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:40 -0400
+        with ESMTP id S238347AbiGSMgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 913399A6AA;
-        Tue, 19 Jul 2022 05:22:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E3F1EAFB;
+        Tue, 19 Jul 2022 05:14:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB79B81A7F;
-        Tue, 19 Jul 2022 12:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A6BC341C6;
-        Tue, 19 Jul 2022 12:22:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13B6BB81B37;
+        Tue, 19 Jul 2022 12:13:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BB3C341C6;
+        Tue, 19 Jul 2022 12:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233362;
-        bh=RNgEKpLAZW9CrGtWagK/54Wuvr9HSc17s7AkNEZdXzA=;
+        s=korg; t=1658232802;
+        bh=EuBfvooEShle36Ymb8/NN7rUAZS38Mpq4oSHSzKHNew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSTpyEyczu5MF7JRYia4F08qu3JpjcQlGdDt25BfjTt5ypmNyITT06/NOb6q5gKa9
-         M0nfCLvUt4FArbju4IxRLL+nXG7DOOSyKXNTaTIpEtnXO0sO8od+6MmSW9Em9OAUs0
-         TzSV/uBKA6nafeyrvBKfmWHbfbj/bFu1rdjUgKLA=
+        b=gCn9sPY68SwzIGk+0WUOzNO8wgS6YXgI+A4QR9TX9M/D4liwpChr9gmqS4oqmwqLc
+         SnqKocrZ+jSw/xeBpTQgR9zvkoRB30tkc8s0K2fUePtQXNzxf8barrWRTCM+vkFU6R
+         5n2VIcbNJdfpOn2ce0IZRsl0xxKxM90cgrcIHOag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.18 097/231] ice: handle E822 generic device ID in PLDM header
+        stable@vger.kernel.org, Siddharth Vadapalli <s-vadapalli@ti.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 050/167] net: ethernet: ti: am65-cpsw: Fix devlink port register sequence
 Date:   Tue, 19 Jul 2022 13:53:02 +0200
-Message-Id: <20220719114722.891365903@linuxfoundation.org>
+Message-Id: <20220719114701.456218440@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,173 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+From: Siddharth Vadapalli <s-vadapalli@ti.com>
 
-[ Upstream commit f52d166819a4d8e0d5cca07d8a8dd6397c96dcf1 ]
+[ Upstream commit 0680e20af5fbf41df8a11b11bd9a7c25b2ca0746 ]
 
-The driver currently presumes that the record data in the PLDM header
-of the firmware image will match the device ID of the running device.
-This is true for E810 devices. It appears that for E822 devices that
-this is not guaranteed to be true.
+Renaming interfaces using udevd depends on the interface being registered
+before its netdev is registered. Otherwise, udevd reads an empty
+phys_port_name value, resulting in the interface not being renamed.
 
-Fix this by adding a check for the generic E822 device.
+Fix this by registering the interface before registering its netdev
+by invoking am65_cpsw_nuss_register_devlink() before invoking
+register_netdev() for the interface.
 
-Fixes: d69ea414c9b4 ("ice: implement device flash update via devlink")
-Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Move the function call to devlink_port_type_eth_set(), invoking it after
+register_netdev() is invoked, to ensure that netlink notification for the
+port state change is generated after the netdev is completely initialized.
+
+Fixes: 58356eb31d60 ("net: ti: am65-cpsw-nuss: Add devlink support")
+Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
+Link: https://lore.kernel.org/r/20220706070208.12207-1-s-vadapalli@ti.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_devids.h   |  1 +
- .../net/ethernet/intel/ice/ice_fw_update.c    | 96 ++++++++++++++++++-
- drivers/net/ethernet/intel/ice/ice_main.c     |  1 +
- 3 files changed, 96 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_devids.h b/drivers/net/ethernet/intel/ice/ice_devids.h
-index 61dd2f18dee8..b41bc3dc1745 100644
---- a/drivers/net/ethernet/intel/ice/ice_devids.h
-+++ b/drivers/net/ethernet/intel/ice/ice_devids.h
-@@ -5,6 +5,7 @@
- #define _ICE_DEVIDS_H_
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index ea9d073e87fa..901571c2626a 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -2467,7 +2467,6 @@ static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
+ 				port->port_id, ret);
+ 			goto dl_port_unreg;
+ 		}
+-		devlink_port_type_eth_set(dl_port, port->ndev);
+ 	}
  
- /* Device IDs */
-+#define ICE_DEV_ID_E822_SI_DFLT         0x1888
- /* Intel(R) Ethernet Connection E823-L for backplane */
- #define ICE_DEV_ID_E823L_BACKPLANE	0x124C
- /* Intel(R) Ethernet Connection E823-L for SFP */
-diff --git a/drivers/net/ethernet/intel/ice/ice_fw_update.c b/drivers/net/ethernet/intel/ice/ice_fw_update.c
-index 665a344fb9c0..3dc5662d62a6 100644
---- a/drivers/net/ethernet/intel/ice/ice_fw_update.c
-+++ b/drivers/net/ethernet/intel/ice/ice_fw_update.c
-@@ -736,7 +736,87 @@ static int ice_finalize_update(struct pldmfw *context)
+ 	return ret;
+@@ -2514,6 +2513,7 @@ static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
+ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
+ {
+ 	struct device *dev = common->dev;
++	struct devlink_port *dl_port;
+ 	struct am65_cpsw_port *port;
+ 	int ret = 0, i;
+ 
+@@ -2530,6 +2530,10 @@ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
+ 		return ret;
+ 	}
+ 
++	ret = am65_cpsw_nuss_register_devlink(common);
++	if (ret)
++		return ret;
++
+ 	for (i = 0; i < common->port_num; i++) {
+ 		port = &common->ports[i];
+ 
+@@ -2542,25 +2546,24 @@ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
+ 				i, ret);
+ 			goto err_cleanup_ndev;
+ 		}
++
++		dl_port = &port->devlink_port;
++		devlink_port_type_eth_set(dl_port, port->ndev);
+ 	}
+ 
+ 	ret = am65_cpsw_register_notifiers(common);
+ 	if (ret)
+ 		goto err_cleanup_ndev;
+ 
+-	ret = am65_cpsw_nuss_register_devlink(common);
+-	if (ret)
+-		goto clean_unregister_notifiers;
+-
+ 	/* can't auto unregister ndev using devm_add_action() due to
+ 	 * devres release sequence in DD core for DMA
+ 	 */
+ 
  	return 0;
+-clean_unregister_notifiers:
+-	am65_cpsw_unregister_notifiers(common);
++
+ err_cleanup_ndev:
+ 	am65_cpsw_nuss_cleanup_ndev(common);
++	am65_cpsw_unregister_devlink(common);
+ 
+ 	return ret;
  }
- 
--static const struct pldmfw_ops ice_fwu_ops = {
-+struct ice_pldm_pci_record_id {
-+	u32 vendor;
-+	u32 device;
-+	u32 subsystem_vendor;
-+	u32 subsystem_device;
-+};
-+
-+/**
-+ * ice_op_pci_match_record - Check if a PCI device matches the record
-+ * @context: PLDM fw update structure
-+ * @record: list of records extracted from the PLDM image
-+ *
-+ * Determine if the PCI device associated with this device matches the record
-+ * data provided.
-+ *
-+ * Searches the descriptor TLVs and extracts the relevant descriptor data into
-+ * a pldm_pci_record_id. This is then compared against the PCI device ID
-+ * information.
-+ *
-+ * Returns: true if the device matches the record, false otherwise.
-+ */
-+static bool
-+ice_op_pci_match_record(struct pldmfw *context, struct pldmfw_record *record)
-+{
-+	struct pci_dev *pdev = to_pci_dev(context->dev);
-+	struct ice_pldm_pci_record_id id = {
-+		.vendor = PCI_ANY_ID,
-+		.device = PCI_ANY_ID,
-+		.subsystem_vendor = PCI_ANY_ID,
-+		.subsystem_device = PCI_ANY_ID,
-+	};
-+	struct pldmfw_desc_tlv *desc;
-+
-+	list_for_each_entry(desc, &record->descs, entry) {
-+		u16 value;
-+		int *ptr;
-+
-+		switch (desc->type) {
-+		case PLDM_DESC_ID_PCI_VENDOR_ID:
-+			ptr = &id.vendor;
-+			break;
-+		case PLDM_DESC_ID_PCI_DEVICE_ID:
-+			ptr = &id.device;
-+			break;
-+		case PLDM_DESC_ID_PCI_SUBVENDOR_ID:
-+			ptr = &id.subsystem_vendor;
-+			break;
-+		case PLDM_DESC_ID_PCI_SUBDEV_ID:
-+			ptr = &id.subsystem_device;
-+			break;
-+		default:
-+			/* Skip unrelated TLVs */
-+			continue;
-+		}
-+
-+		value = get_unaligned_le16(desc->data);
-+		/* A value of zero for one of the descriptors is sometimes
-+		 * used when the record should ignore this field when matching
-+		 * device. For example if the record applies to any subsystem
-+		 * device or vendor.
-+		 */
-+		if (value)
-+			*ptr = value;
-+		else
-+			*ptr = PCI_ANY_ID;
-+	}
-+
-+	/* the E822 device can have a generic device ID so check for that */
-+	if ((id.vendor == PCI_ANY_ID || id.vendor == pdev->vendor) &&
-+	    (id.device == PCI_ANY_ID || id.device == pdev->device ||
-+	    id.device == ICE_DEV_ID_E822_SI_DFLT) &&
-+	    (id.subsystem_vendor == PCI_ANY_ID ||
-+	    id.subsystem_vendor == pdev->subsystem_vendor) &&
-+	    (id.subsystem_device == PCI_ANY_ID ||
-+	    id.subsystem_device == pdev->subsystem_device))
-+		return true;
-+
-+	return false;
-+}
-+
-+static const struct pldmfw_ops ice_fwu_ops_e810 = {
- 	.match_record = &pldmfw_op_pci_match_record,
- 	.send_package_data = &ice_send_package_data,
- 	.send_component_table = &ice_send_component_table,
-@@ -744,6 +824,14 @@ static const struct pldmfw_ops ice_fwu_ops = {
- 	.finalize_update = &ice_finalize_update,
- };
- 
-+static const struct pldmfw_ops ice_fwu_ops_e822 = {
-+	.match_record = &ice_op_pci_match_record,
-+	.send_package_data = &ice_send_package_data,
-+	.send_component_table = &ice_send_component_table,
-+	.flash_component = &ice_flash_component,
-+	.finalize_update = &ice_finalize_update,
-+};
-+
- /**
-  * ice_get_pending_updates - Check if the component has a pending update
-  * @pf: the PF driver structure
-@@ -921,7 +1009,11 @@ int ice_devlink_flash_update(struct devlink *devlink,
- 
- 	memset(&priv, 0, sizeof(priv));
- 
--	priv.context.ops = &ice_fwu_ops;
-+	/* the E822 device needs a slightly different ops */
-+	if (hw->mac_type == ICE_MAC_GENERIC)
-+		priv.context.ops = &ice_fwu_ops_e822;
-+	else
-+		priv.context.ops = &ice_fwu_ops_e810;
- 	priv.context.dev = dev;
- 	priv.extack = extack;
- 	priv.pf = pf;
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index d069b19f9bf7..efb076f71e38 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5397,6 +5397,7 @@ static const struct pci_device_id ice_pci_tbl[] = {
- 	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E823L_10G_BASE_T), 0 },
- 	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E823L_1GBE), 0 },
- 	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E823L_QSFP), 0 },
-+	{ PCI_VDEVICE(INTEL, ICE_DEV_ID_E822_SI_DFLT), 0 },
- 	/* required last entry */
- 	{ 0, }
- };
 -- 
 2.35.1
 
