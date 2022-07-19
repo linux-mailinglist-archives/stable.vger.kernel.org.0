@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4620C579D61
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66497579D5D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241917AbiGSMu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:50:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
+        id S241880AbiGSMuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242244AbiGSMt5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:57 -0400
+        with ESMTP id S242225AbiGSMtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8CB57258;
-        Tue, 19 Jul 2022 05:19:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C91CE43315;
+        Tue, 19 Jul 2022 05:19:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 638F9B81B2D;
-        Tue, 19 Jul 2022 12:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB51C341C6;
-        Tue, 19 Jul 2022 12:19:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1502EB81B10;
+        Tue, 19 Jul 2022 12:19:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 753D7C341C6;
+        Tue, 19 Jul 2022 12:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233188;
-        bh=8HMYi2EllsBRqBevCrSHuIbvxXPKyVJozZ70rU+aggg=;
+        s=korg; t=1658233190;
+        bh=svGjCciLe2V3mMCFmTerpL7i6k7+OeAHHrb161NsqsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CyQIA/tDZRxACrlt7fNh+PMuzbfvFhOW4KJyGICzMHnfKzaauaJhUCMCLUI0+uyJt
-         DHwkPcDgz6vos1UC/ZfyZPQijQH/0UaLX41Hp58nmpwha7LEtEZlFCuL8gU42xU+Wc
-         U9gVkB/tApm5iKBFD8CfRFVl9u9chF4hTkMV9g0c=
+        b=1h6r78PNyQytGLOGvwQpIOqmNmkejbnP0tABapufkYHKhAvRa2UPKflXajJCZU+SZ
+         jzMH2a0Taje1ufQVZzbSt8MHtF2AzTWDxSHzKxIUnJ4VslhA7VJQdAkfLE2e6C7v+j
+         5gxLh/8aCCaTe0m55X9rgOu0T/g2/S4MNcqOYz3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kris Bahnsen <kris@embeddedTS.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Daire McNamara <daire.mcnamara@microchip.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 037/231] ARM: dts: imx6qdl-ts7970: Fix ngpio typo and count
-Date:   Tue, 19 Jul 2022 13:52:02 +0200
-Message-Id: <20220719114717.277066323@linuxfoundation.org>
+Subject: [PATCH 5.18 038/231] riscv: dts: microchip: hook up the mpfs l2cache
+Date:   Tue, 19 Jul 2022 13:52:03 +0200
+Message-Id: <20220719114717.386407986@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,37 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kris Bahnsen <kris@embeddedTS.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit e95ea0f687e679fcb0a3a67d0755b81ee7d60db0 ]
+[ Upstream commit efa310ba00716d7a872bdc5fa1f5545edc9efd69 ]
 
-Device-tree incorrectly used "ngpio" which caused the driver to
-fallback to 32 ngpios.
+The initial PolarFire SoC devicetree must have been forked off from
+the fu540 one prior to the addition of l2cache controller support being
+added there. When the controller node was added to mpfs.dtsi, it was
+not hooked up to the CPUs & thus sysfs reports an incorrect cache
+configuration. Hook it up.
 
-This platform has 62 GPIO registers.
-
-Fixes: 9ff8e9fccef9 ("ARM: dts: TS-7970: add basic device tree")
-Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 0fa6107eca41 ("RISC-V: Initial DTS for Microchip ICICLE board")
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-ts7970.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
-index fded07f370b3..d6ba4b2a60f6 100644
---- a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
-@@ -226,7 +226,7 @@ gpio8: gpio@28 {
- 		reg = <0x28>;
- 		#gpio-cells = <2>;
- 		gpio-controller;
--		ngpio = <32>;
-+		ngpios = <62>;
- 	};
+diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
+index f44fce1fe080..2f75e39d2fdd 100644
+--- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
++++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
+@@ -51,6 +51,7 @@ cpu1: cpu@1 {
+ 			riscv,isa = "rv64imafdc";
+ 			clocks = <&clkcfg CLK_CPU>;
+ 			tlb-split;
++			next-level-cache = <&cctrllr>;
+ 			status = "okay";
  
- 	sgtl5000: codec@a {
+ 			cpu1_intc: interrupt-controller {
+@@ -78,6 +79,7 @@ cpu2: cpu@2 {
+ 			riscv,isa = "rv64imafdc";
+ 			clocks = <&clkcfg CLK_CPU>;
+ 			tlb-split;
++			next-level-cache = <&cctrllr>;
+ 			status = "okay";
+ 
+ 			cpu2_intc: interrupt-controller {
+@@ -105,6 +107,7 @@ cpu3: cpu@3 {
+ 			riscv,isa = "rv64imafdc";
+ 			clocks = <&clkcfg CLK_CPU>;
+ 			tlb-split;
++			next-level-cache = <&cctrllr>;
+ 			status = "okay";
+ 
+ 			cpu3_intc: interrupt-controller {
+@@ -132,6 +135,7 @@ cpu4: cpu@4 {
+ 			riscv,isa = "rv64imafdc";
+ 			clocks = <&clkcfg CLK_CPU>;
+ 			tlb-split;
++			next-level-cache = <&cctrllr>;
+ 			status = "okay";
+ 			cpu4_intc: interrupt-controller {
+ 				#interrupt-cells = <1>;
 -- 
 2.35.1
 
