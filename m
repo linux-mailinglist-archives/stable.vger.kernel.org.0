@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB4F579C30
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF52B579A6E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239768AbiGSMhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
+        id S239099AbiGSMQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:16:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240774AbiGSMgY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 357CB24944;
-        Tue, 19 Jul 2022 05:14:11 -0700 (PDT)
+        with ESMTP id S239171AbiGSMPd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BDA455084;
+        Tue, 19 Jul 2022 05:06:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 850AECE1BE5;
-        Tue, 19 Jul 2022 12:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2A1C341C6;
-        Tue, 19 Jul 2022 12:14:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 907BDB81B13;
+        Tue, 19 Jul 2022 12:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC414C341C6;
+        Tue, 19 Jul 2022 12:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232842;
-        bh=Y5ulbQkpBh1mvGqG++QTnnact+0szAuiE1B9TbrCcZI=;
+        s=korg; t=1658232348;
+        bh=fOlF4eY+hzJn4YXVxFeaaXj09DXc9UVTfIYTLEV6CfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SO8MlbvvCIYG5mAB/6/mnwab+OXZt0ykPdjID+Yx1LHIQju1wthnXCbmyraPku6Iy
-         9vJ4AhnJk5WYt34VEoxA1Wi+HTCFQcbqRZw9YdgMl8OVyJTD0pK6YlmZ0lIuhi7zNt
-         RjcTyUOPyy83tLapUYHAEz5NHN04DeWB8gLHWJYQ=
+        b=fiJprmg0diloWLFCvj6hzV0RoU4UeWbARVMLPKm5rzHz3CCkNamX7739zY3kjb7zH
+         wMdP9m3G2gUuBhRooDzE7zA3BfR4x5m7Y3AHMk+soHgsJxUBRhXLM3s/Ze1XzpnDAq
+         hJk300JADvrENZXFasQJtRc+pd6X+ukD9NPYbPak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Yan <tom.ty89@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/167] netfilter: nf_log: incorrect offset to network header
-Date:   Tue, 19 Jul 2022 13:53:19 +0200
-Message-Id: <20220719114703.008907738@linuxfoundation.org>
+Subject: [PATCH 5.10 027/112] ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
+Date:   Tue, 19 Jul 2022 13:53:20 +0200
+Message-Id: <20220719114628.659718650@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 7a847c00eeba9744353ecdfad253143b9115678a ]
+[ Upstream commit 0609e200246bfd3b7516091c491bec4308349055 ]
 
-NFPROTO_ARP is expecting to find the ARP header at the network offset.
+Jon reports that the Spectre-BHB init code is filling up the kernel log
+with spurious notifications about which mitigation has been enabled,
+every time any CPU comes out of a low power state.
 
-In the particular case of ARP, HTYPE= field shows the initial bytes of
-the ethernet header destination MAC address.
+Given that Spectre-BHB mitigations are system wide, only a single
+mitigation can be enabled, and we already print an error if two types of
+CPUs coexist in a single system that require different Spectre-BHB
+mitigations.
 
- netdev out: IN= OUT=bridge0 MACSRC=c2:76:e5:71:e1:de MACDST=36:b0:4a:e2:72:ea MACPROTO=0806 ARP HTYPE=14000 PTYPE=0x4ae2 OPCODE=49782
+This means that the pr_info() that describes the selected mitigation
+does not need to be emitted for each CPU anyway, and so we can simply
+emit it only once.
 
-NFPROTO_NETDEV egress hook is also expecting to find the IP headers at
-the network offset.
+In order to clarify the above in the log message, update it to describe
+that the selected mitigation will be enabled on all CPUs, including ones
+that are unaffected. If another CPU comes up later that is affected and
+requires a different mitigation, we report an error as before.
 
-Fixes: 35b9395104d5 ("netfilter: add generic ARP packet logger")
-Reported-by: Tom Yan <tom.ty89@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_log_syslog.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/mm/proc-v7-bugs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_log_syslog.c b/net/netfilter/nf_log_syslog.c
-index 13234641cdb3..7000e069bc07 100644
---- a/net/netfilter/nf_log_syslog.c
-+++ b/net/netfilter/nf_log_syslog.c
-@@ -61,7 +61,7 @@ dump_arp_packet(struct nf_log_buf *m,
- 	unsigned int logflags;
- 	struct arphdr _arph;
+diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
+index f9730eba0632..8bc7a2d6d6c7 100644
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -208,10 +208,10 @@ static int spectre_bhb_install_workaround(int method)
+ 			return SPECTRE_VULNERABLE;
  
--	ah = skb_header_pointer(skb, 0, sizeof(_arph), &_arph);
-+	ah = skb_header_pointer(skb, nhoff, sizeof(_arph), &_arph);
- 	if (!ah) {
- 		nf_log_buf_add(m, "TRUNCATED");
- 		return;
-@@ -90,7 +90,7 @@ dump_arp_packet(struct nf_log_buf *m,
- 	    ah->ar_pln != sizeof(__be32))
- 		return;
+ 		spectre_bhb_method = method;
+-	}
  
--	ap = skb_header_pointer(skb, sizeof(_arph), sizeof(_arpp), &_arpp);
-+	ap = skb_header_pointer(skb, nhoff + sizeof(_arph), sizeof(_arpp), &_arpp);
- 	if (!ap) {
- 		nf_log_buf_add(m, " INCOMPLETE [%zu bytes]",
- 			       skb->len - sizeof(_arph));
-@@ -144,7 +144,7 @@ static void nf_log_arp_packet(struct net *net, u_int8_t pf,
+-	pr_info("CPU%u: Spectre BHB: using %s workaround\n",
+-		smp_processor_id(), spectre_bhb_method_name(method));
++		pr_info("CPU%u: Spectre BHB: enabling %s workaround for all CPUs\n",
++			smp_processor_id(), spectre_bhb_method_name(method));
++	}
  
- 	nf_log_dump_packet_common(m, pf, hooknum, skb, in, out, loginfo,
- 				  prefix);
--	dump_arp_packet(m, loginfo, skb, 0);
-+	dump_arp_packet(m, loginfo, skb, skb_network_offset(skb));
- 
- 	nf_log_buf_close(m);
- }
-@@ -829,7 +829,7 @@ static void nf_log_ip_packet(struct net *net, u_int8_t pf,
- 	if (in)
- 		dump_ipv4_mac_header(m, loginfo, skb);
- 
--	dump_ipv4_packet(net, m, loginfo, skb, 0);
-+	dump_ipv4_packet(net, m, loginfo, skb, skb_network_offset(skb));
- 
- 	nf_log_buf_close(m);
+ 	return SPECTRE_MITIGATED;
  }
 -- 
 2.35.1
