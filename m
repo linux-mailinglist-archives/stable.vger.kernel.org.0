@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0CAB579D68
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 692FA579D4B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241585AbiGSMvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:51:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50144 "EHLO
+        id S241675AbiGSMuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241820AbiGSMtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:13 -0400
+        with ESMTP id S241784AbiGSMs6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:48:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D2F8E4C4;
-        Tue, 19 Jul 2022 05:19:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB1A18D5F1;
+        Tue, 19 Jul 2022 05:19:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C265FB81B2C;
-        Tue, 19 Jul 2022 12:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36D8FC341C6;
-        Tue, 19 Jul 2022 12:19:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BABE5B81B2B;
+        Tue, 19 Jul 2022 12:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19251C341C6;
+        Tue, 19 Jul 2022 12:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233142;
-        bh=jEJjkXU1tVZ1qD7RUItAtcWKI2zzxzGOkAyfFQV1Cag=;
+        s=korg; t=1658233145;
+        bh=kPJAsjLpGBb2Q5ipTE7OnPID7nGe121aKEl9He9CuPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJkOeTelecJNFbH9Nm/SGDrkJa7ldjEihmCjGRA12ir0z5nd2ookeD+NRPPCkgHLF
-         7T1tKSJqm8gE5N2T4PVxbrZ7WztmxdMbU+W3CDdm/VzwHjiEelil6u3VQxrFObbGXo
-         OeMoNi4WBgr1CgI8izPIcREYaTAg697zvX63erdg=
+        b=DZBm0kqa4WrlaFDxbiXbCkbwBrs1/58h1p+uKM34pZc2tUD2DdZLi67vvJXGys30A
+         iSwWKkXAugmlNyUMGyx4TKLv2VXJiroIO3EQaByrxwgtEik/6UwB4WJQyxFpUZBjhn
+         E0gNL+oYNPP0pNfeTNPXjetlQVbAa2R8/qBBPlbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 5.18 020/231] tracing/histograms: Fix memory leak problem
-Date:   Tue, 19 Jul 2022 13:51:45 +0200
-Message-Id: <20220719114715.705287437@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 021/231] net: sock: tracing: Fix sock_exceed_buf_limit not to dereference stale pointer
+Date:   Tue, 19 Jul 2022 13:51:46 +0200
+Message-Id: <20220719114715.780724059@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,80 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 7edc3945bdce9c39198a10d6129377a5c53559c2 upstream.
+commit 820b8963adaea34a87abbecb906d1f54c0aabfb7 upstream.
 
-This reverts commit 46bbe5c671e06f070428b9be142cc4ee5cedebac.
+The trace event sock_exceed_buf_limit saves the prot->sysctl_mem pointer
+and then dereferences it in the TP_printk() portion. This is unsafe as the
+TP_printk() portion is executed at the time the buffer is read. That is,
+it can be seconds, minutes, days, months, even years later. If the proto
+is freed, then this dereference will can also lead to a kernel crash.
 
-As commit 46bbe5c671e0 ("tracing: fix double free") said, the
-"double free" problem reported by clang static analyzer is:
-  > In parse_var_defs() if there is a problem allocating
-  > var_defs.expr, the earlier var_defs.name is freed.
-  > This free is duplicated by free_var_defs() which frees
-  > the rest of the list.
+Instead, save the sysctl_mem array into the ring buffer and have the
+TP_printk() reference that instead. This is the proper and safe way to
+read pointers in trace events.
 
-However, if there is a problem allocating N-th var_defs.expr:
-  + in parse_var_defs(), the freed 'earlier var_defs.name' is
-    actually the N-th var_defs.name;
-  + then in free_var_defs(), the names from 0th to (N-1)-th are freed;
-
-                        IF ALLOCATING PROBLEM HAPPENED HERE!!! -+
-                                                                 \
-                                                                  |
-          0th           1th                 (N-1)-th      N-th    V
-          +-------------+-------------+-----+-------------+-----------
-var_defs: | name | expr | name | expr | ... | name | expr | name | ///
-          +-------------+-------------+-----+-------------+-----------
-
-These two frees don't act on same name, so there was no "double free"
-problem before. Conversely, after that commit, we get a "memory leak"
-problem because the above "N-th var_defs.name" is not freed.
-
-If enable CONFIG_DEBUG_KMEMLEAK and inject a fault at where the N-th
-var_defs.expr allocated, then execute on shell like:
-  $ echo 'hist:key=call_site:val=$v1,$v2:v1=bytes_req,v2=bytes_alloc' > \
-/sys/kernel/debug/tracing/events/kmem/kmalloc/trigger
-
-Then kmemleak reports:
-  unreferenced object 0xffff8fb100ef3518 (size 8):
-    comm "bash", pid 196, jiffies 4295681690 (age 28.538s)
-    hex dump (first 8 bytes):
-      76 31 00 00 b1 8f ff ff                          v1......
-    backtrace:
-      [<0000000038fe4895>] kstrdup+0x2d/0x60
-      [<00000000c99c049a>] event_hist_trigger_parse+0x206f/0x20e0
-      [<00000000ae70d2cc>] trigger_process_regex+0xc0/0x110
-      [<0000000066737a4c>] event_trigger_write+0x75/0xd0
-      [<000000007341e40c>] vfs_write+0xbb/0x2a0
-      [<0000000087fde4c2>] ksys_write+0x59/0xd0
-      [<00000000581e9cdf>] do_syscall_64+0x3a/0x80
-      [<00000000cf3b065c>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Link: https://lkml.kernel.org/r/20220711014731.69520-1-zhengyejian1@huawei.com
+Link: https://lore.kernel.org/all/20220706052130.16368-12-kuniyu@amazon.com/
 
 Cc: stable@vger.kernel.org
-Fixes: 46bbe5c671e0 ("tracing: fix double free")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Fixes: 3847ce32aea9f ("core: add tracepoints for queueing skb to rcvbuf")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Acked-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/trace/events/sock.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -4429,6 +4429,8 @@ static int parse_var_defs(struct hist_tr
+--- a/include/trace/events/sock.h
++++ b/include/trace/events/sock.h
+@@ -98,7 +98,7 @@ TRACE_EVENT(sock_exceed_buf_limit,
  
- 			s = kstrdup(field_str, GFP_KERNEL);
- 			if (!s) {
-+				kfree(hist_data->attrs->var_defs.name[n_vars]);
-+				hist_data->attrs->var_defs.name[n_vars] = NULL;
- 				ret = -ENOMEM;
- 				goto free;
- 			}
+ 	TP_STRUCT__entry(
+ 		__array(char, name, 32)
+-		__field(long *, sysctl_mem)
++		__array(long, sysctl_mem, 3)
+ 		__field(long, allocated)
+ 		__field(int, sysctl_rmem)
+ 		__field(int, rmem_alloc)
+@@ -110,7 +110,9 @@ TRACE_EVENT(sock_exceed_buf_limit,
+ 
+ 	TP_fast_assign(
+ 		strncpy(__entry->name, prot->name, 32);
+-		__entry->sysctl_mem = prot->sysctl_mem;
++		__entry->sysctl_mem[0] = READ_ONCE(prot->sysctl_mem[0]);
++		__entry->sysctl_mem[1] = READ_ONCE(prot->sysctl_mem[1]);
++		__entry->sysctl_mem[2] = READ_ONCE(prot->sysctl_mem[2]);
+ 		__entry->allocated = allocated;
+ 		__entry->sysctl_rmem = sk_get_rmem0(sk, prot);
+ 		__entry->rmem_alloc = atomic_read(&sk->sk_rmem_alloc);
 
 
