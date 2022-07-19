@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD553579A1F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AA875799D4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:07:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238691AbiGSMK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50728 "EHLO
+        id S238258AbiGSMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:07:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239095AbiGSMKK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:10:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB24651A30;
-        Tue, 19 Jul 2022 05:03:15 -0700 (PDT)
+        with ESMTP id S238253AbiGSMGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:06:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2F04D811;
+        Tue, 19 Jul 2022 05:01:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63ED7B81B25;
-        Tue, 19 Jul 2022 12:03:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B734BC341C6;
-        Tue, 19 Jul 2022 12:03:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12BB7616D9;
+        Tue, 19 Jul 2022 12:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0084C341C6;
+        Tue, 19 Jul 2022 12:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232193;
-        bh=ooT52oZsc7rbGbyKNG1QdXiXbev9DbiopPUeTRbdqKc=;
+        s=korg; t=1658232061;
+        bh=86GZffUJNDdRz1Q8/xH57X1zgjufQMhaT9F2jEs4Lh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAwvAFoJGvLAqqbLY4Y2Lu/ZSKiv3wIm8zzcCQkfA4JFqbx2pIDehMhKFfCiILF5l
-         u24tcbawkcT2YjKIPzrZmSmA7yswFk787YF8GN4dAUKZEnDTSkEd6Kk2PR2sdOmrYN
-         NpgeDj8eMZHJCS7Pd0i8oTsKTKfBis6QQeI9C760=
+        b=huqPus7c4kgoG1OCrRwdU9cfi5IogNgWD404QI+FBJii/p4IawL3vEqR/dN4cNNlK
+         y3ZmZswdNmhKzG68iQ90hh1LKFsvLTwsMX7L3Mt8laaVXRIcN3ufKPqtyJpMt/dj5v
+         zdznTbjeoOkE3gL61/IAtTvljigHziA+j0gPnOvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/71] mm: sysctl: fix missing numa_stat when !CONFIG_HUGETLB_PAGE
+Subject: [PATCH 4.19 30/48] cpufreq: pmac32-cpufreq: Fix refcount leak bug
 Date:   Tue, 19 Jul 2022 13:54:07 +0200
-Message-Id: <20220719114556.573182494@linuxfoundation.org>
+Message-Id: <20220719114522.563744024@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 43b5240ca6b33108998810593248186b1e3ae34a ]
+[ Upstream commit ccd7567d4b6cf187fdfa55f003a9e461ee629e36 ]
 
-"numa_stat" should not be included in the scope of CONFIG_HUGETLB_PAGE, if
-CONFIG_HUGETLB_PAGE is not configured even if CONFIG_NUMA is configured,
-"numa_stat" is missed form /proc. Move it out of CONFIG_HUGETLB_PAGE to
-fix it.
+In pmac_cpufreq_init_MacRISC3(), we need to add corresponding
+of_node_put() for the three node pointers whose refcount have
+been incremented by of_find_node_by_name().
 
-Fixes: 4518085e127d ("mm, sysctl: make NUMA stats configurable")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/cpufreq/pmac32-cpufreq.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 0457d36540e3..6f971807bf79 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1443,6 +1443,17 @@ static struct ctl_table vm_table[] = {
- 		.extra1		= SYSCTL_ZERO,
- 		.extra2		= &one_hundred,
- 	},
-+#ifdef CONFIG_NUMA
-+	{
-+		.procname	= "numa_stat",
-+		.data		= &sysctl_vm_numa_stat,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= sysctl_vm_numa_stat_handler,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= SYSCTL_ONE,
-+	},
-+#endif
- #ifdef CONFIG_HUGETLB_PAGE
- 	{
- 		.procname	= "nr_hugepages",
-@@ -1459,15 +1470,6 @@ static struct ctl_table vm_table[] = {
- 		.mode           = 0644,
- 		.proc_handler   = &hugetlb_mempolicy_sysctl_handler,
- 	},
--	{
--		.procname		= "numa_stat",
--		.data			= &sysctl_vm_numa_stat,
--		.maxlen			= sizeof(int),
--		.mode			= 0644,
--		.proc_handler	= sysctl_vm_numa_stat_handler,
--		.extra1			= SYSCTL_ZERO,
--		.extra2			= SYSCTL_ONE,
--	},
- #endif
- 	 {
- 		.procname	= "hugetlb_shm_group",
+diff --git a/drivers/cpufreq/pmac32-cpufreq.c b/drivers/cpufreq/pmac32-cpufreq.c
+index e225edb5c359..ce0dda1a4241 100644
+--- a/drivers/cpufreq/pmac32-cpufreq.c
++++ b/drivers/cpufreq/pmac32-cpufreq.c
+@@ -474,6 +474,10 @@ static int pmac_cpufreq_init_MacRISC3(struct device_node *cpunode)
+ 	if (slew_done_gpio_np)
+ 		slew_done_gpio = read_gpio(slew_done_gpio_np);
+ 
++	of_node_put(volt_gpio_np);
++	of_node_put(freq_gpio_np);
++	of_node_put(slew_done_gpio_np);
++
+ 	/* If we use the frequency GPIOs, calculate the min/max speeds based
+ 	 * on the bus frequencies
+ 	 */
 -- 
 2.35.1
 
