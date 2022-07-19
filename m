@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A461157990A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C7C57991E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237578AbiGSL6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54976 "EHLO
+        id S236479AbiGSL7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:59:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237508AbiGSL5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:57:45 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8922342AF4;
-        Tue, 19 Jul 2022 04:56:56 -0700 (PDT)
+        with ESMTP id S237730AbiGSL7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:59:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1160442AC9;
+        Tue, 19 Jul 2022 04:57:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D4B79CE1BE1;
-        Tue, 19 Jul 2022 11:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9419FC341CA;
-        Tue, 19 Jul 2022 11:56:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8ADF961614;
+        Tue, 19 Jul 2022 11:57:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A192C341C6;
+        Tue, 19 Jul 2022 11:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231812;
-        bh=gO9OnIBWp/SKCtS6azBInl1vCyoNlkWu3sj9EiXLNb8=;
+        s=korg; t=1658231846;
+        bh=bl+wPdldNjUrpJ1jfliUWeOq9nwIuzdGzvaUo00nT/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzsD2w7gzeoWecrUczKKu7NO3hBlGoQD4rQMwZdoQcBazplj66Z5efN0YAJFpeX2H
-         V1WALYQAM34m7cmoWKK+I29auesxuNfeePOwBVXKoP4nRtEftJo9yOZs8Nuwx4C1Pe
-         8SMbNK3ElelOYrQ3HXHVT5R3IEMRLwDYF7+7uj4A=
+        b=Rz6kq8NGq9hAlURcjVXQjZtY98VD1zc0PvWCttdfyvwOdo00a3wlQ3S3c4m4qzDan
+         Hz0tX2fzWOTOEAMenUi1yrLbv+OGh/CaxYn7kw55vtwPQAXk/JOaSqiXuYUEE2X7KL
+         nUj3DCBILJq1f5PZZ9CNWUcqvdUMgHOZwcGf1g2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/28] ipv4: Fix data-races around sysctl_ip_dynaddr.
+Subject: [PATCH 4.14 18/43] icmp: Fix a data-race around sysctl_icmp_ratelimit.
 Date:   Tue, 19 Jul 2022 13:53:49 +0200
-Message-Id: <20220719114457.419620991@linuxfoundation.org>
+Message-Id: <20220719114523.600651403@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
-References: <20220719114455.701304968@linuxfoundation.org>
+In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
+References: <20220719114521.868169025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +55,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
+[ Upstream commit 2a4eb714841f288cf51c7d942d98af6a8c6e4b01 ]
 
-While reading sysctl_ip_dynaddr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+While reading sysctl_icmp_ratelimit, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 2 +-
- net/ipv4/af_inet.c                     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/ipv4/icmp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index 67dfda40b8e6..dfac66c71cb5 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -849,7 +849,7 @@ ip_nonlocal_bind - BOOLEAN
- 	which can be quite useful - but may break some applications.
- 	Default: 0
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 74847996139d..e384926de46f 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -333,7 +333,8 @@ static bool icmpv4_xrlim_allow(struct net *net, struct rtable *rt,
  
--ip_dynaddr - BOOLEAN
-+ip_dynaddr - INTEGER
- 	If set non-zero, enables support for dynamic addresses.
- 	If set to a non-zero value larger than 1, a kernel log
- 	message will be printed when dynamic address rewriting
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 8f2fb14fd4f7..970a498c1166 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1122,7 +1122,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
- 	if (new_saddr == old_saddr)
- 		return 0;
- 
--	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
- 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
- 			__func__, &old_saddr, &new_saddr);
- 	}
-@@ -1177,7 +1177,7 @@ int inet_sk_rebuild_header(struct sock *sk)
- 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
- 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
- 		 */
--		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
-+		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
- 		    sk->sk_state != TCP_SYN_SENT ||
- 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
- 		    (err = inet_sk_reselect_saddr(sk)) != 0)
+ 	vif = l3mdev_master_ifindex(dst->dev);
+ 	peer = inet_getpeer_v4(net->ipv4.peers, fl4->daddr, vif, 1);
+-	rc = inet_peer_xrlim_allow(peer, net->ipv4.sysctl_icmp_ratelimit);
++	rc = inet_peer_xrlim_allow(peer,
++				   READ_ONCE(net->ipv4.sysctl_icmp_ratelimit));
+ 	if (peer)
+ 		inet_putpeer(peer);
+ out:
 -- 
 2.35.1
 
