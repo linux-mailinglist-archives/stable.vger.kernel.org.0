@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4594C579F0A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47EB8579B67
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243071AbiGSNKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:10:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
+        id S240081AbiGSM1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243284AbiGSNJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:09:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C48EC62A73;
-        Tue, 19 Jul 2022 05:28:22 -0700 (PDT)
+        with ESMTP id S239687AbiGSM0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:26:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1BB42610F;
+        Tue, 19 Jul 2022 05:10:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A4F6B81B10;
-        Tue, 19 Jul 2022 12:27:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E602BC341C6;
-        Tue, 19 Jul 2022 12:27:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FEB561632;
+        Tue, 19 Jul 2022 12:09:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6A2C341C6;
+        Tue, 19 Jul 2022 12:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233668;
-        bh=uwPXRMAA96VqSh+TZh2f80g4MkVZh92p9R/dw4aDIT8=;
+        s=korg; t=1658232598;
+        bh=B5R6E+ddq8m5/lQLkLjA5+soKj5kmq3p6rjJ4fQbuHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvfVPqd3W/a3VGH+PbAZ5g/V39Y78nkf20+OSciZAzy1Ermn4wmvO2X5D1N9Yxe6g
-         1hoWC3/Fp8UPit5CJlO1VOUHNRQWLVDQKw9KSbtrEHojRe774hl0Yhl/BsFJYrGIi0
-         ovEbAW03kTb2/6wnGunAGTtL/GoC0yWNj4TTRbiY=
+        b=C8oi1tFaZsfcMzqM8WaIqeb/VSc/xVLltKz1JJ1s/6EB+NaZLF2RKewwMEzutuN6x
+         onrgPhMmDcwi2901krxbBmtgoc2WA64EqBkpxwAO/kw0VanR2bkTqhRC+5gS0NuQ4q
+         1RH6xlJrOHj3ys0KIVqfuIYYo5ik9no+cFsCdCes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 200/231] ASoC: cs35l41: Correct some control names
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 112/112] x86/pat: Fix x86_has_pat_wp()
 Date:   Tue, 19 Jul 2022 13:54:45 +0200
-Message-Id: <20220719114730.857350006@linuxfoundation.org>
+Message-Id: <20220719114638.149194238@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit c6a5f22f9b4fd5f21414be690ce34046d9712f05 ]
+commit 230ec83d4299b30c51a1c133b4f2a669972cc08a upstream.
 
-Various boolean controls on cs35l41 are missing the required "Switch" in
-the name, add these.
+x86_has_pat_wp() is using a wrong test, as it relies on the normal
+PAT configuration used by the kernel. In case the PAT MSR has been
+setup by another entity (e.g. Xen hypervisor) it might return false
+even if the PAT configuration is allowing WP mappings. This due to the
+fact that when running as Xen PV guest the PAT MSR is setup by the
+hypervisor and cannot be changed by the guest. This results in the WP
+related entry to be at a different position when running as Xen PV
+guest compared to the bare metal or fully virtualized case.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220621102041.1713504-3-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The correct way to test for WP support is:
+
+1. Get the PTE protection bits needed to select WP mode by reading
+   __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP] (depending on the PAT MSR
+   setting this might return protection bits for a stronger mode, e.g.
+   UC-)
+2. Translate those bits back into the real cache mode selected by those
+   PTE bits by reading __pte2cachemode_tbl[__pte2cm_idx(prot)]
+3. Test for the cache mode to be _PAGE_CACHE_MODE_WP
+
+Fixes: f88a68facd9a ("x86/mm: Extend early_memremap() support with additional attrs")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org> # 4.14
+Link: https://lore.kernel.org/r/20220503132207.17234-1-jgross@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cs35l41.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/mm/init.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs35l41.c b/sound/soc/codecs/cs35l41.c
-index 6b784a62df0c..20c76a53a508 100644
---- a/sound/soc/codecs/cs35l41.c
-+++ b/sound/soc/codecs/cs35l41.c
-@@ -392,7 +392,7 @@ static const struct snd_kcontrol_new cs35l41_aud_controls[] = {
- 	SOC_SINGLE("HW Noise Gate Enable", CS35L41_NG_CFG, 8, 63, 0),
- 	SOC_SINGLE("HW Noise Gate Delay", CS35L41_NG_CFG, 4, 7, 0),
- 	SOC_SINGLE("HW Noise Gate Threshold", CS35L41_NG_CFG, 0, 7, 0),
--	SOC_SINGLE("Aux Noise Gate CH1 Enable",
-+	SOC_SINGLE("Aux Noise Gate CH1 Switch",
- 		   CS35L41_MIXER_NGATE_CH1_CFG, 16, 1, 0),
- 	SOC_SINGLE("Aux Noise Gate CH1 Entry Delay",
- 		   CS35L41_MIXER_NGATE_CH1_CFG, 8, 15, 0),
-@@ -400,15 +400,15 @@ static const struct snd_kcontrol_new cs35l41_aud_controls[] = {
- 		   CS35L41_MIXER_NGATE_CH1_CFG, 0, 7, 0),
- 	SOC_SINGLE("Aux Noise Gate CH2 Entry Delay",
- 		   CS35L41_MIXER_NGATE_CH2_CFG, 8, 15, 0),
--	SOC_SINGLE("Aux Noise Gate CH2 Enable",
-+	SOC_SINGLE("Aux Noise Gate CH2 Switch",
- 		   CS35L41_MIXER_NGATE_CH2_CFG, 16, 1, 0),
- 	SOC_SINGLE("Aux Noise Gate CH2 Threshold",
- 		   CS35L41_MIXER_NGATE_CH2_CFG, 0, 7, 0),
--	SOC_SINGLE("SCLK Force", CS35L41_SP_FORMAT, CS35L41_SCLK_FRC_SHIFT, 1, 0),
--	SOC_SINGLE("LRCLK Force", CS35L41_SP_FORMAT, CS35L41_LRCLK_FRC_SHIFT, 1, 0),
--	SOC_SINGLE("Invert Class D", CS35L41_AMP_DIG_VOL_CTRL,
-+	SOC_SINGLE("SCLK Force Switch", CS35L41_SP_FORMAT, CS35L41_SCLK_FRC_SHIFT, 1, 0),
-+	SOC_SINGLE("LRCLK Force Switch", CS35L41_SP_FORMAT, CS35L41_LRCLK_FRC_SHIFT, 1, 0),
-+	SOC_SINGLE("Invert Class D Switch", CS35L41_AMP_DIG_VOL_CTRL,
- 		   CS35L41_AMP_INV_PCM_SHIFT, 1, 0),
--	SOC_SINGLE("Amp Gain ZC", CS35L41_AMP_GAIN_CTRL,
-+	SOC_SINGLE("Amp Gain ZC Switch", CS35L41_AMP_GAIN_CTRL,
- 		   CS35L41_AMP_GAIN_ZC_SHIFT, 1, 0),
- 	WM_ADSP2_PRELOAD_SWITCH("DSP1", 1),
- 	WM_ADSP_FW_CONTROL("DSP1", 0),
--- 
-2.35.1
-
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -78,10 +78,20 @@ static uint8_t __pte2cachemode_tbl[8] =
+ 	[__pte2cm_idx(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)] = _PAGE_CACHE_MODE_UC,
+ };
+ 
+-/* Check that the write-protect PAT entry is set for write-protect */
++/*
++ * Check that the write-protect PAT entry is set for write-protect.
++ * To do this without making assumptions how PAT has been set up (Xen has
++ * another layout than the kernel), translate the _PAGE_CACHE_MODE_WP cache
++ * mode via the __cachemode2pte_tbl[] into protection bits (those protection
++ * bits will select a cache mode of WP or better), and then translate the
++ * protection bits back into the cache mode using __pte2cm_idx() and the
++ * __pte2cachemode_tbl[] array. This will return the really used cache mode.
++ */
+ bool x86_has_pat_wp(void)
+ {
+-	return __pte2cachemode_tbl[_PAGE_CACHE_MODE_WP] == _PAGE_CACHE_MODE_WP;
++	uint16_t prot = __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP];
++
++	return __pte2cachemode_tbl[__pte2cm_idx(prot)] == _PAGE_CACHE_MODE_WP;
+ }
+ 
+ enum page_cache_mode pgprot2cachemode(pgprot_t pgprot)
 
 
