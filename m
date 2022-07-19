@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F3E579A89
+	by mail.lfdr.de (Postfix) with ESMTP id 39BAA579A88
 	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239887AbiGSMPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39182 "EHLO
+        id S239884AbiGSMPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239305AbiGSMO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133274B4BE;
-        Tue, 19 Jul 2022 05:05:28 -0700 (PDT)
+        with ESMTP id S239285AbiGSMO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A9EF4BD0A;
+        Tue, 19 Jul 2022 05:05:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 471806165C;
-        Tue, 19 Jul 2022 12:05:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1467BC341C6;
-        Tue, 19 Jul 2022 12:05:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 805B7B81B25;
+        Tue, 19 Jul 2022 12:05:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8C8C341C6;
+        Tue, 19 Jul 2022 12:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232325;
-        bh=BfSC3aFZ9iSx+lS+0pmq96tWuG2ABybDSn/Mp4D7j/M=;
+        s=korg; t=1658232328;
+        bh=T96mdRrNFY0MtDeHNtpKjbzhtLr41WCppSXKwVTd/WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZ4P48r1RynsQumkglZkbHU2UqSpYI33sdR7VaA7W567Q2tjGE6hHkSqMhiBiJ85Z
-         N/Ew+lUobNxt8hUutu/YrYJR2qd9fz5zyIXSjQ1YmTfkgA8cmB+J47xDi5O6uJpBwb
-         rQL0SMZUfZUauRxiJfdXPMUgb6AUGwKYDqmZnAZg=
+        b=bF1hLfjbsiBZ0ANkbmPHwuKaQdwsZVGxH+SyflMqdlWC3E5WqWCHYnu9FLiIfzTkV
+         9iiKAdyFiNj8WNFB/rTS4yJK/1TkjgcYTsRzNsuQR89ojtJivrVJ6Mb4T21oj8K0Tr
+         yOM5KNAM1TSDubYUmuvX0NNUoQjp7iyZAPiroeHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 005/112] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc221
-Date:   Tue, 19 Jul 2022 13:52:58 +0200
-Message-Id: <20220719114626.573913872@linuxfoundation.org>
+Subject: [PATCH 5.10 006/112] ALSA: hda/realtek - Enable the headset-mic on a Xiaomis laptop
+Date:   Tue, 19 Jul 2022 13:52:59 +0200
+Message-Id: <20220719114626.643686843@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
 References: <20220719114626.156073229@linuxfoundation.org>
@@ -54,56 +54,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Meng Tang <tangmeng@uniontech.com>
 
-commit 4ba5c853d7945b3855c3dcb293f7f9f019db641e upstream.
+commit 9b043a8f386485c74c0f8eea2c287d5bdbdf3279 upstream.
 
-On a HP 288 Pro G2 MT (X9W02AV), the front mic could not be detected.
-In order to get it working, the pin configuration needs to be set
-correctly, and the ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE fixup needs
-to be applied.
+The headset on this machine is not defined, after applying the quirk
+ALC256_FIXUP_ASUS_HEADSET_MIC, the headset-mic works well
 
 Signed-off-by: Meng Tang <tangmeng@uniontech.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220713063332.30095-1-tangmeng@uniontech.com
+Link: https://lore.kernel.org/r/20220713094133.9894-1-tangmeng@uniontech.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -6725,6 +6725,7 @@ enum {
- 	ALC298_FIXUP_LENOVO_SPK_VOLUME,
- 	ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER,
- 	ALC269_FIXUP_ATIV_BOOK_8,
-+	ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE,
- 	ALC221_FIXUP_HP_MIC_NO_PRESENCE,
- 	ALC256_FIXUP_ASUS_HEADSET_MODE,
- 	ALC256_FIXUP_ASUS_MIC,
-@@ -7651,6 +7652,16 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_NO_SHUTUP
- 	},
-+	[ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
-+			{ 0x1a, 0x01813030 }, /* use as headphone mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE
-+	},
- 	[ALC221_FIXUP_HP_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -8758,6 +8769,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x2335, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
- 	SND_PCI_QUIRK(0x103c, 0x2336, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
- 	SND_PCI_QUIRK(0x103c, 0x2337, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
-+	SND_PCI_QUIRK(0x103c, 0x2b5e, "HP 288 Pro G2 MT", ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x802e, "HP Z240 SFF", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x802f, "HP Z240", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x8077, "HP", ALC256_FIXUP_HP_HEADSET_MIC),
+@@ -9087,6 +9087,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1d72, 0x1945, "Redmi G", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1947, "RedmiBook Air", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x8086, 0x2074, "Intel NUC 8", ALC233_FIXUP_INTEL_NUC8_DMIC),
+ 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
 
 
