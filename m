@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2565579F4D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46E9579F4F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243416AbiGSNNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56186 "EHLO
+        id S238368AbiGSNNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243418AbiGSNMJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9401967C9E;
-        Tue, 19 Jul 2022 05:29:39 -0700 (PDT)
+        with ESMTP id S234588AbiGSNML (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB1A6675A0;
+        Tue, 19 Jul 2022 05:29:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B144609FB;
-        Tue, 19 Jul 2022 12:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D40B3C341C6;
-        Tue, 19 Jul 2022 12:29:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88891B81B21;
+        Tue, 19 Jul 2022 12:29:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5EDAC341C6;
+        Tue, 19 Jul 2022 12:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233778;
-        bh=CH3O+8rE7gc07cwtk2Pd8nsB1wVExVHVq8mfQlHMR5s=;
+        s=korg; t=1658233781;
+        bh=tfiDlu1VfRW3+lcU9H/kpwY4ufThda3S/J3Uy9Z0RUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPy3huWVFiCBWpnv3lUipLtmwo5v7ivJia8vGvtMYkBW/zbVO2NOdT1WfpszPHC8H
-         tyFVRUNA6C1PTNAd81uKX7JZaJupgnuO/uY/OEjaaw4YppQemrSGJCmGNzyPTXvU6Z
-         ehgv+zBcC4tIG9cljGZzU8vRp5rGgBq4aXuGdahc=
+        b=lzqMprUf9G1Y0OkapC0HHAUfltgYI75SZkjCGzpMjP15oCuu1lzuX6PRnYNEh/1h3
+         GcFtFU5ubxQcee/eLF9FXiIybR/bELaFWxQxfpZqx/SZlECOAza49N381+f7bxKZBl
+         UtxDH8T4K0MBzA3zdUs2Y2DHkq74WD/H/LtIDlAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 217/231] nvme: use struct group for generic command dwords
-Date:   Tue, 19 Jul 2022 13:55:02 +0200
-Message-Id: <20220719114732.046532360@linuxfoundation.org>
+Subject: [PATCH 5.18 218/231] wireguard: selftests: set fake real time in init
+Date:   Tue, 19 Jul 2022 13:55:03 +0200
+Message-Id: <20220719114732.116389583@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,55 +53,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 5c629dc9609dc43492a7bc8060cc6120875bf096 ]
+[ Upstream commit 829be057dbc1e71383b8d7de8edb31dcf07b4aa0 ]
 
-This will allow the trace event to know the full size of the data
-intended to be copied and silence read overflow checks.
+Not all platforms have an RTC, and rather than trying to force one into
+each, it's much easier to just set a fixed time. This is necessary
+because WireGuard's latest handshakes parameter is returned in wallclock
+time, and if the system time isn't set, and the system is really fast,
+then this returns 0, which trips the test.
 
-Reported-by: John Garry <john.garry@huawei.com>
-Suggested-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Turning this on requires setting CONFIG_COMPAT_32BIT_TIME=y, as musl
+doesn't support settimeofday without it.
+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/trace.h | 2 +-
- include/linux/nvme.h      | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ .../testing/selftests/wireguard/qemu/arch/arm.config  |  1 +
+ .../selftests/wireguard/qemu/arch/armeb.config        |  1 +
+ .../testing/selftests/wireguard/qemu/arch/i686.config |  1 +
+ .../testing/selftests/wireguard/qemu/arch/m68k.config |  1 +
+ .../testing/selftests/wireguard/qemu/arch/mips.config |  1 +
+ .../selftests/wireguard/qemu/arch/mipsel.config       |  1 +
+ .../selftests/wireguard/qemu/arch/powerpc.config      |  1 +
+ tools/testing/selftests/wireguard/qemu/init.c         | 11 +++++++++++
+ 8 files changed, 18 insertions(+)
 
-diff --git a/drivers/nvme/host/trace.h b/drivers/nvme/host/trace.h
-index b5f85259461a..37c7f4c89f92 100644
---- a/drivers/nvme/host/trace.h
-+++ b/drivers/nvme/host/trace.h
-@@ -69,7 +69,7 @@ TRACE_EVENT(nvme_setup_cmd,
- 		__entry->metadata = !!blk_integrity_rq(req);
- 		__entry->fctype = cmd->fabrics.fctype;
- 		__assign_disk_name(__entry->disk, req->q->disk);
--		memcpy(__entry->cdw10, &cmd->common.cdw10,
-+		memcpy(__entry->cdw10, &cmd->common.cdws,
- 			sizeof(__entry->cdw10));
- 	    ),
- 	    TP_printk("nvme%d: %sqid=%d, cmdid=%u, nsid=%u, flags=0x%x, meta=0x%x, cmd=(%s %s)",
-diff --git a/include/linux/nvme.h b/include/linux/nvme.h
-index f626a445d1a8..99b1b56f0cd3 100644
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -867,12 +867,14 @@ struct nvme_common_command {
- 	__le32			cdw2[2];
- 	__le64			metadata;
- 	union nvme_data_ptr	dptr;
-+	struct_group(cdws,
- 	__le32			cdw10;
- 	__le32			cdw11;
- 	__le32			cdw12;
- 	__le32			cdw13;
- 	__le32			cdw14;
- 	__le32			cdw15;
-+	);
- };
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/arm.config b/tools/testing/selftests/wireguard/qemu/arch/arm.config
+index fc7959bef9c2..0579c66be83e 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/arm.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/arm.config
+@@ -7,6 +7,7 @@ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ CONFIG_VIRTIO_MENU=y
+ CONFIG_VIRTIO_MMIO=y
+ CONFIG_VIRTIO_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyAMA0 wg.success=vport0p1 panic_on_warn=1"
+ CONFIG_FRAME_WARN=1024
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/armeb.config b/tools/testing/selftests/wireguard/qemu/arch/armeb.config
+index f3066be81c19..2a3307bbe534 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/armeb.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/armeb.config
+@@ -7,6 +7,7 @@ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ CONFIG_VIRTIO_MENU=y
+ CONFIG_VIRTIO_MMIO=y
+ CONFIG_VIRTIO_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyAMA0 wg.success=vport0p1 panic_on_warn=1"
+ CONFIG_CPU_BIG_ENDIAN=y
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/i686.config b/tools/testing/selftests/wireguard/qemu/arch/i686.config
+index 6d90892a85a2..cd864b9be6fb 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/i686.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/i686.config
+@@ -1,6 +1,7 @@
+ CONFIG_ACPI=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0 wg.success=ttyS1 panic_on_warn=1"
+ CONFIG_FRAME_WARN=1024
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/m68k.config b/tools/testing/selftests/wireguard/qemu/arch/m68k.config
+index 82c925e49beb..9639bfe06074 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/m68k.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/m68k.config
+@@ -5,5 +5,6 @@ CONFIG_MAC=y
+ CONFIG_SERIAL_PMACZILOG=y
+ CONFIG_SERIAL_PMACZILOG_TTYS=y
+ CONFIG_SERIAL_PMACZILOG_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_CMDLINE="console=ttyS0 wg.success=ttyS1 panic_on_warn=1"
+ CONFIG_FRAME_WARN=1024
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/mips.config b/tools/testing/selftests/wireguard/qemu/arch/mips.config
+index d7ec63c17b30..2a84402353ab 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/mips.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/mips.config
+@@ -6,6 +6,7 @@ CONFIG_POWER_RESET=y
+ CONFIG_POWER_RESET_SYSCON=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0 wg.success=ttyS1 panic_on_warn=1"
+ CONFIG_FRAME_WARN=1024
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/mipsel.config b/tools/testing/selftests/wireguard/qemu/arch/mipsel.config
+index 18a498293737..56146a101e7e 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/mipsel.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/mipsel.config
+@@ -7,6 +7,7 @@ CONFIG_POWER_RESET=y
+ CONFIG_POWER_RESET_SYSCON=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0 wg.success=ttyS1 panic_on_warn=1"
+ CONFIG_FRAME_WARN=1024
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/powerpc.config b/tools/testing/selftests/wireguard/qemu/arch/powerpc.config
+index 5e04882e8e35..174a9ffe2a36 100644
+--- a/tools/testing/selftests/wireguard/qemu/arch/powerpc.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/powerpc.config
+@@ -4,6 +4,7 @@ CONFIG_PPC_85xx=y
+ CONFIG_PHYS_64BIT=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_COMPAT_32BIT_TIME=y
+ CONFIG_MATH_EMULATION=y
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0 wg.success=ttyS1 panic_on_warn=1"
+diff --git a/tools/testing/selftests/wireguard/qemu/init.c b/tools/testing/selftests/wireguard/qemu/init.c
+index 2a0f48fac925..542c34b00eb0 100644
+--- a/tools/testing/selftests/wireguard/qemu/init.c
++++ b/tools/testing/selftests/wireguard/qemu/init.c
+@@ -11,6 +11,7 @@
+ #include <stdlib.h>
+ #include <stdbool.h>
+ #include <fcntl.h>
++#include <time.h>
+ #include <sys/wait.h>
+ #include <sys/mount.h>
+ #include <sys/stat.h>
+@@ -67,6 +68,15 @@ static void seed_rng(void)
+ 	close(fd);
+ }
  
- struct nvme_rw_command {
++static void set_time(void)
++{
++	if (time(NULL))
++		return;
++	pretty_message("[+] Setting fake time...");
++	if (stime(&(time_t){1433512680}) < 0)
++		panic("settimeofday()");
++}
++
+ static void mount_filesystems(void)
+ {
+ 	pretty_message("[+] Mounting filesystems...");
+@@ -256,6 +266,7 @@ int main(int argc, char *argv[])
+ 	print_banner();
+ 	mount_filesystems();
+ 	seed_rng();
++	set_time();
+ 	kmod_selftests();
+ 	enable_logging();
+ 	clear_leaks();
 -- 
 2.35.1
 
