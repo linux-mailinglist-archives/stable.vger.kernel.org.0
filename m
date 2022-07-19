@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 260B8579AA6
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F777579C27
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237691AbiGSMRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:17:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38818 "EHLO
+        id S240571AbiGSMgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:36:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239777AbiGSMPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:01 -0400
+        with ESMTP id S240745AbiGSMgV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6215B545D3;
-        Tue, 19 Jul 2022 05:05:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BE179ECD;
+        Tue, 19 Jul 2022 05:14:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C7D61748;
-        Tue, 19 Jul 2022 12:05:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D5EC341C6;
-        Tue, 19 Jul 2022 12:05:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8D28616F8;
+        Tue, 19 Jul 2022 12:13:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9475C341C6;
+        Tue, 19 Jul 2022 12:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232331;
-        bh=Xm0MwoDW/hV6tsQcoq3CJwBjGnfYANhsNhn7svWmwSM=;
+        s=korg; t=1658232797;
+        bh=2VpfmzO2i9ibqxokC7JLDiTparlUaunxAFDXgTG+bFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rr3rk3j7d1Q6VkXj8qt2R6X40e+d31mmcauwPBPdUJkW2vvIFrms/5UR6aLrdl3Yf
-         I3mUO88SFp8NNcdnmCrR5vMABDt2YEZibKspP6dBUS3o+FrUkDMUWrTj6eXZMlODAO
-         KgCekK20J3qBsn5/Co8jhN530gNMpTaO4rigo6L0=
+        b=mYPKU9vYqByVQX8UlyXZMy12GSy9zrp1eAM2CU/aVl2gPZuz1kxhVp6yqRpQ27f6F
+         IQJXKHLyxbqSCGQ2eUG2aWhZ+RVCxmmk+747XIc1D6qoH8eIYE+WP7+Qp0xAPa5M+C
+         w/kN2laDYWBSVzmoGF1h/eg7MuWDFXca/lpGi4To=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 007/112] xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
+        stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 048/167] ASoC: Intel: Skylake: Correct the handling of fmt_config flexible array
 Date:   Tue, 19 Jul 2022 13:53:00 +0200
-Message-Id: <20220719114626.723728058@linuxfoundation.org>
+Message-Id: <20220719114701.269629450@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-commit 94e8100678889ab428e68acadf042de723f094b9 upstream.
+[ Upstream commit fc976f5629afb4160ee77798b14a693eac903ffd ]
 
-xenvif_rx_next_skb() is expecting the rx queue not being empty, but
-in case the loop in xenvif_rx_action() is doing multiple iterations,
-the availability of another skb in the rx queue is not being checked.
+The struct nhlt_format's fmt_config is a flexible array, it must not be
+used as normal array.
+When moving to the next nhlt_fmt_cfg we need to take into account the data
+behind the ->config.caps (indicated by ->config.size).
 
-This can lead to crashes:
+The logic of the code also changed: it is no longer saves the _last_
+fmt_cfg for all found rates.
 
-[40072.537261] BUG: unable to handle kernel NULL pointer dereference at 0000000000000080
-[40072.537407] IP: xenvif_rx_skb+0x23/0x590 [xen_netback]
-[40072.537534] PGD 0 P4D 0
-[40072.537644] Oops: 0000 [#1] SMP NOPTI
-[40072.537749] CPU: 0 PID: 12505 Comm: v1-c40247-q2-gu Not tainted 4.12.14-122.121-default #1 SLE12-SP5
-[40072.537867] Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 11/23/2021
-[40072.537999] task: ffff880433b38100 task.stack: ffffc90043d40000
-[40072.538112] RIP: e030:xenvif_rx_skb+0x23/0x590 [xen_netback]
-[40072.538217] RSP: e02b:ffffc90043d43de0 EFLAGS: 00010246
-[40072.538319] RAX: 0000000000000000 RBX: ffffc90043cd7cd0 RCX: 00000000000000f7
-[40072.538430] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffc90043d43df8
-[40072.538531] RBP: 000000000000003f R08: 000077ff80000000 R09: 0000000000000008
-[40072.538644] R10: 0000000000007ff0 R11: 00000000000008f6 R12: ffffc90043ce2708
-[40072.538745] R13: 0000000000000000 R14: ffffc90043d43ed0 R15: ffff88043ea748c0
-[40072.538861] FS: 0000000000000000(0000) GS:ffff880484600000(0000) knlGS:0000000000000000
-[40072.538988] CS: e033 DS: 0000 ES: 0000 CR0: 0000000080050033
-[40072.539088] CR2: 0000000000000080 CR3: 0000000407ac8000 CR4: 0000000000040660
-[40072.539211] Call Trace:
-[40072.539319] xenvif_rx_action+0x71/0x90 [xen_netback]
-[40072.539429] xenvif_kthread_guest_rx+0x14a/0x29c [xen_netback]
-
-Fix that by stopping the loop in case the rx queue becomes empty.
-
-Cc: stable@vger.kernel.org
-Fixes: 98f6d57ced73 ("xen-netback: process guest rx packets in batches")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Link: https://lore.kernel.org/r/20220713135322.19616-1-jgross@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bc2bd45b1f7f3 ("ASoC: Intel: Skylake: Parse nhlt and register clock device")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20220630065638.11183-3-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/rx.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/skylake/skl-nhlt.c | 37 ++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 12 deletions(-)
 
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -495,6 +495,7 @@ void xenvif_rx_action(struct xenvif_queu
- 	queue->rx_copy.completed = &completed_skbs;
+diff --git a/sound/soc/intel/skylake/skl-nhlt.c b/sound/soc/intel/skylake/skl-nhlt.c
+index cb02ec255728..74f60f5dfaef 100644
+--- a/sound/soc/intel/skylake/skl-nhlt.c
++++ b/sound/soc/intel/skylake/skl-nhlt.c
+@@ -213,11 +213,12 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 	if (fmt->fmt_count == 0)
+ 		return;
  
- 	while (xenvif_rx_ring_slots_available(queue) &&
-+	       !skb_queue_empty(&queue->rx_queue) &&
- 	       work_done < RX_BATCH_SIZE) {
- 		xenvif_rx_skb(queue);
- 		work_done++;
++	fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
+ 	for (i = 0; i < fmt->fmt_count; i++) {
++		struct nhlt_fmt_cfg *saved_fmt_cfg = fmt_cfg;
+ 		bool present = false;
+ 
+-		fmt_cfg = &fmt->fmt_config[i];
+-		wav_fmt = &fmt_cfg->fmt_ext;
++		wav_fmt = &saved_fmt_cfg->fmt_ext;
+ 
+ 		channels = wav_fmt->fmt.channels;
+ 		bps = wav_fmt->fmt.bits_per_sample;
+@@ -235,12 +236,18 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 		 * derive the rate.
+ 		 */
+ 		for (j = i; j < fmt->fmt_count; j++) {
+-			fmt_cfg = &fmt->fmt_config[j];
+-			wav_fmt = &fmt_cfg->fmt_ext;
++			struct nhlt_fmt_cfg *tmp_fmt_cfg = fmt_cfg;
++
++			wav_fmt = &tmp_fmt_cfg->fmt_ext;
+ 			if ((fs == wav_fmt->fmt.samples_per_sec) &&
+-			   (bps == wav_fmt->fmt.bits_per_sample))
++			   (bps == wav_fmt->fmt.bits_per_sample)) {
+ 				channels = max_t(u16, channels,
+ 						wav_fmt->fmt.channels);
++				saved_fmt_cfg = tmp_fmt_cfg;
++			}
++			/* Move to the next nhlt_fmt_cfg */
++			tmp_fmt_cfg = (struct nhlt_fmt_cfg *)(tmp_fmt_cfg->config.caps +
++							      tmp_fmt_cfg->config.size);
+ 		}
+ 
+ 		rate = channels * bps * fs;
+@@ -256,8 +263,11 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 
+ 		/* Fill rate and parent for sclk/sclkfs */
+ 		if (!present) {
++			struct nhlt_fmt_cfg *first_fmt_cfg;
++
++			first_fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
+ 			i2s_config_ext = (struct skl_i2s_config_blob_ext *)
+-						fmt->fmt_config[0].config.caps;
++						first_fmt_cfg->config.caps;
+ 
+ 			/* MCLK Divider Source Select */
+ 			if (is_legacy_blob(i2s_config_ext->hdr.sig)) {
+@@ -271,6 +281,9 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 
+ 			parent = skl_get_parent_clk(clk_src);
+ 
++			/* Move to the next nhlt_fmt_cfg */
++			fmt_cfg = (struct nhlt_fmt_cfg *)(fmt_cfg->config.caps +
++							  fmt_cfg->config.size);
+ 			/*
+ 			 * Do not copy the config data if there is no parent
+ 			 * clock available for this clock source select
+@@ -279,9 +292,9 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 				continue;
+ 
+ 			sclk[id].rate_cfg[rate_index].rate = rate;
+-			sclk[id].rate_cfg[rate_index].config = fmt_cfg;
++			sclk[id].rate_cfg[rate_index].config = saved_fmt_cfg;
+ 			sclkfs[id].rate_cfg[rate_index].rate = rate;
+-			sclkfs[id].rate_cfg[rate_index].config = fmt_cfg;
++			sclkfs[id].rate_cfg[rate_index].config = saved_fmt_cfg;
+ 			sclk[id].parent_name = parent->name;
+ 			sclkfs[id].parent_name = parent->name;
+ 
+@@ -295,13 +308,13 @@ static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
+ {
+ 	struct skl_i2s_config_blob_ext *i2s_config_ext;
+ 	struct skl_i2s_config_blob_legacy *i2s_config;
+-	struct nhlt_specific_cfg *fmt_cfg;
++	struct nhlt_fmt_cfg *fmt_cfg;
+ 	struct skl_clk_parent_src *parent;
+ 	u32 clkdiv, div_ratio;
+ 	u8 clk_src;
+ 
+-	fmt_cfg = &fmt->fmt_config[0].config;
+-	i2s_config_ext = (struct skl_i2s_config_blob_ext *)fmt_cfg->caps;
++	fmt_cfg = (struct nhlt_fmt_cfg *)fmt->fmt_config;
++	i2s_config_ext = (struct skl_i2s_config_blob_ext *)fmt_cfg->config.caps;
+ 
+ 	/* MCLK Divider Source Select and divider */
+ 	if (is_legacy_blob(i2s_config_ext->hdr.sig)) {
+@@ -330,7 +343,7 @@ static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
+ 		return;
+ 
+ 	mclk[id].rate_cfg[0].rate = parent->rate/div_ratio;
+-	mclk[id].rate_cfg[0].config = &fmt->fmt_config[0];
++	mclk[id].rate_cfg[0].config = fmt_cfg;
+ 	mclk[id].parent_name = parent->name;
+ }
+ 
+-- 
+2.35.1
+
 
 
