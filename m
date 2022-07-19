@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FE1579AC7
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9269F5799EE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239292AbiGSMSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38154 "EHLO
+        id S238473AbiGSMIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:08:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238655AbiGSMRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:17:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08C9564E8;
-        Tue, 19 Jul 2022 05:06:33 -0700 (PDT)
+        with ESMTP id S238486AbiGSMIX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:08:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE44A4F675;
+        Tue, 19 Jul 2022 05:01:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC3FA61764;
-        Tue, 19 Jul 2022 12:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA9EFC341CA;
-        Tue, 19 Jul 2022 12:06:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1169B81A2E;
+        Tue, 19 Jul 2022 12:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1A6C341CA;
+        Tue, 19 Jul 2022 12:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232392;
-        bh=hqZHr9AFycMkemc5LZ4XJPWtp9VZEGQgL46fSDiJWYU=;
+        s=korg; t=1658232095;
+        bh=ZsRmY19ATdi0iXR4OwxBA0GF5sb5W6FBkrSL8mWejcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gl6RKx86NEWwpYatVjm7nV+WrLMO89wOje3DWdynUZbAybRVGX2pastTb2wBWy25B
-         dH9WzgyEYGRLx91LjFAfzWttIDs1ximdnZnKusP7pdDCa49a4Wb9J/bpzoqYJofP+V
-         X3+63XwG3IsQGTTflqhruTrbkMvkpXR2bBpKMzBo=
+        b=dMEaJpwb8Lv1oIu+LoGWKVS20vgzELdBznMdjm8sim0YhXkJ7XqfveB7j0waLfMYc
+         7r4xJM8RzLVk5KCjHjQplukoIH79y64Uj5kO8swf0xO5xMTSPGi5g6DuvTeLrcPcJp
+         yYa0J2Droji+1SQXaaq8M63dEijvcDtsEkRHZKBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/112] net: stmmac: dwc-qos: Disable split header for Tegra194
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 11/71] ARM: 9214/1: alignment: advance IT state after emulating Thumb instruction
 Date:   Tue, 19 Jul 2022 13:53:34 +0200
-Message-Id: <20220719114630.320761159@linuxfoundation.org>
+Message-Id: <20220719114553.344240228@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 029c1c2059e9c4b38f97a06204cdecd10cfbeb8a ]
+commit e5c46fde75e43c15a29b40e5fc5641727f97ae47 upstream.
 
-There is a long-standing issue with the Synopsys DWC Ethernet driver
-for Tegra194 where random system crashes have been observed [0]. The
-problem occurs when the split header feature is enabled in the stmmac
-driver. In the bad case, a larger than expected buffer length is
-received and causes the calculation of the total buffer length to
-overflow. This results in a very large buffer length that causes the
-kernel to crash. Why this larger buffer length is received is not clear,
-however, the feedback from the NVIDIA design team is that the split
-header feature is not supported for Tegra194. Therefore, disable split
-header support for Tegra194 to prevent these random crashes from
-occurring.
+After emulating a misaligned load or store issued in Thumb mode, we have
+to advance the IT state by hand, or it will get out of sync with the
+actual instruction stream, which means we'll end up applying the wrong
+condition code to subsequent instructions. This might corrupt the
+program state rather catastrophically.
 
-[0] https://lore.kernel.org/linux-tegra/b0b17697-f23e-8fa5-3757-604a86f3a095@nvidia.com/
+So borrow the it_advance() helper from the probing code, and use it on
+CPSR if the emulated instruction is Thumb.
 
-Fixes: 67afd6d1cfdf ("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20220706083913.13750-1-jonathanh@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/include/asm/ptrace.h |   26 ++++++++++++++++++++++++++
+ arch/arm/mm/alignment.c       |    3 +++
+ arch/arm/probes/decode.h      |   26 +-------------------------
+ 3 files changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-index 2342d497348e..fd1b0cc6b5fa 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.c
-@@ -363,6 +363,7 @@ static void *tegra_eqos_probe(struct platform_device *pdev,
- 	data->fix_mac_speed = tegra_eqos_fix_speed;
- 	data->init = tegra_eqos_init;
- 	data->bsp_priv = eqos;
-+	data->sph_disable = 1;
+--- a/arch/arm/include/asm/ptrace.h
++++ b/arch/arm/include/asm/ptrace.h
+@@ -164,5 +164,31 @@ static inline unsigned long user_stack_p
+ 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
+ })
  
- 	err = tegra_eqos_init(pdev, eqos);
- 	if (err < 0)
--- 
-2.35.1
-
++
++/*
++ * Update ITSTATE after normal execution of an IT block instruction.
++ *
++ * The 8 IT state bits are split into two parts in CPSR:
++ *	ITSTATE<1:0> are in CPSR<26:25>
++ *	ITSTATE<7:2> are in CPSR<15:10>
++ */
++static inline unsigned long it_advance(unsigned long cpsr)
++{
++	if ((cpsr & 0x06000400) == 0) {
++		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
++		cpsr &= ~PSR_IT_MASK;
++	} else {
++		/* We need to shift left ITSTATE<4:0> */
++		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
++		unsigned long it = cpsr & mask;
++		it <<= 1;
++		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
++		it &= mask;
++		cpsr &= ~mask;
++		cpsr |= it;
++	}
++	return cpsr;
++}
++
+ #endif /* __ASSEMBLY__ */
+ #endif
+--- a/arch/arm/mm/alignment.c
++++ b/arch/arm/mm/alignment.c
+@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigne
+ 	if (type == TYPE_LDST)
+ 		do_alignment_finish_ldst(addr, instr, regs, offset);
+ 
++	if (thumb_mode(regs))
++		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
++
+ 	return 0;
+ 
+  bad_or_fault:
+--- a/arch/arm/probes/decode.h
++++ b/arch/arm/probes/decode.h
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/stddef.h>
+ #include <asm/probes.h>
++#include <asm/ptrace.h>
+ #include <asm/kprobes.h>
+ 
+ void __init arm_probes_decode_init(void);
+@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
+ #endif
+ 
+ 
+-/*
+- * Update ITSTATE after normal execution of an IT block instruction.
+- *
+- * The 8 IT state bits are split into two parts in CPSR:
+- *	ITSTATE<1:0> are in CPSR<26:25>
+- *	ITSTATE<7:2> are in CPSR<15:10>
+- */
+-static inline unsigned long it_advance(unsigned long cpsr)
+-	{
+-	if ((cpsr & 0x06000400) == 0) {
+-		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
+-		cpsr &= ~PSR_IT_MASK;
+-	} else {
+-		/* We need to shift left ITSTATE<4:0> */
+-		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
+-		unsigned long it = cpsr & mask;
+-		it <<= 1;
+-		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
+-		it &= mask;
+-		cpsr &= ~mask;
+-		cpsr |= it;
+-	}
+-	return cpsr;
+-}
+-
+ static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
+ {
+ 	long cpsr = regs->ARM_cpsr;
 
 
