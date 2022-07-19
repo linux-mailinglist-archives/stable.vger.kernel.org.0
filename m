@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE3557997F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 163C3579ADE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238097AbiGSMDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39062 "EHLO
+        id S235970AbiGSMUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:20:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238020AbiGSMDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:03:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E621943E67;
-        Tue, 19 Jul 2022 04:59:24 -0700 (PDT)
+        with ESMTP id S239579AbiGSMTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:19:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C0258871;
+        Tue, 19 Jul 2022 05:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 051A1CE1BDE;
-        Tue, 19 Jul 2022 11:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15CA6C341C6;
-        Tue, 19 Jul 2022 11:59:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0D81616FD;
+        Tue, 19 Jul 2022 12:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70EDEC341C6;
+        Tue, 19 Jul 2022 12:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231961;
-        bh=tiGaM5KXUycrXNQmqaw/AA2IKcE1A6b05jfiMNIAtTw=;
+        s=korg; t=1658232417;
+        bh=YoR3SsG5TDiknuUKLDadyj3jZcIc9UalePU1JVhKyTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfuWWU6gzaUnuZTILySxd0tAAx1TC/RyOanuDnS4mX8NuhUdKCfLeCKeGAEX+9cA6
-         wapNPiUIf7kF/y8jXokeKRG9hmeKc8tJjiwNUHjn29P4lir1kesTwYJ8traqzgPaNs
-         0euEFwJvtAzYoYBGe7kV/M+O6mjI8a2waWUw4yQM=
+        b=KeeCsNcszjHmz30OtbwDt2zdrf6l3w7j2FazUL2unfdXyug1p3kiBOC23Gn9jHB9t
+         POM0OFmCZeQCnUqHv6OxxndH/jjIAhzGLitT3MaXjnTlLs51kWz6VMPDMuJigzgsHs
+         usSzGQ4B081A8Nl7d+XruAFmAWZIdyjPvAvsiau8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 4.19 05/48] tracing/histograms: Fix memory leak problem
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/112] inetpeer: Fix data-races around sysctl.
 Date:   Tue, 19 Jul 2022 13:53:42 +0200
-Message-Id: <20220719114520.456434279@linuxfoundation.org>
+Message-Id: <20220719114631.227105942@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 7edc3945bdce9c39198a10d6129377a5c53559c2 upstream.
+[ Upstream commit 3d32edf1f3c38d3301f6434e56316f293466d7fb ]
 
-This reverts commit 46bbe5c671e06f070428b9be142cc4ee5cedebac.
+While reading inetpeer sysctl variables, they can be changed
+concurrently.  So, we need to add READ_ONCE() to avoid data-races.
 
-As commit 46bbe5c671e0 ("tracing: fix double free") said, the
-"double free" problem reported by clang static analyzer is:
-  > In parse_var_defs() if there is a problem allocating
-  > var_defs.expr, the earlier var_defs.name is freed.
-  > This free is duplicated by free_var_defs() which frees
-  > the rest of the list.
-
-However, if there is a problem allocating N-th var_defs.expr:
-  + in parse_var_defs(), the freed 'earlier var_defs.name' is
-    actually the N-th var_defs.name;
-  + then in free_var_defs(), the names from 0th to (N-1)-th are freed;
-
-                        IF ALLOCATING PROBLEM HAPPENED HERE!!! -+
-                                                                 \
-                                                                  |
-          0th           1th                 (N-1)-th      N-th    V
-          +-------------+-------------+-----+-------------+-----------
-var_defs: | name | expr | name | expr | ... | name | expr | name | ///
-          +-------------+-------------+-----+-------------+-----------
-
-These two frees don't act on same name, so there was no "double free"
-problem before. Conversely, after that commit, we get a "memory leak"
-problem because the above "N-th var_defs.name" is not freed.
-
-If enable CONFIG_DEBUG_KMEMLEAK and inject a fault at where the N-th
-var_defs.expr allocated, then execute on shell like:
-  $ echo 'hist:key=call_site:val=$v1,$v2:v1=bytes_req,v2=bytes_alloc' > \
-/sys/kernel/debug/tracing/events/kmem/kmalloc/trigger
-
-Then kmemleak reports:
-  unreferenced object 0xffff8fb100ef3518 (size 8):
-    comm "bash", pid 196, jiffies 4295681690 (age 28.538s)
-    hex dump (first 8 bytes):
-      76 31 00 00 b1 8f ff ff                          v1......
-    backtrace:
-      [<0000000038fe4895>] kstrdup+0x2d/0x60
-      [<00000000c99c049a>] event_hist_trigger_parse+0x206f/0x20e0
-      [<00000000ae70d2cc>] trigger_process_regex+0xc0/0x110
-      [<0000000066737a4c>] event_trigger_write+0x75/0xd0
-      [<000000007341e40c>] vfs_write+0xbb/0x2a0
-      [<0000000087fde4c2>] ksys_write+0x59/0xd0
-      [<00000000581e9cdf>] do_syscall_64+0x3a/0x80
-      [<00000000cf3b065c>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Link: https://lkml.kernel.org/r/20220711014731.69520-1-zhengyejian1@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 46bbe5c671e0 ("tracing: fix double free")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/inetpeer.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -4266,6 +4266,8 @@ static int parse_var_defs(struct hist_tr
+diff --git a/net/ipv4/inetpeer.c b/net/ipv4/inetpeer.c
+index ff327a62c9ce..a18668552d33 100644
+--- a/net/ipv4/inetpeer.c
++++ b/net/ipv4/inetpeer.c
+@@ -148,16 +148,20 @@ static void inet_peer_gc(struct inet_peer_base *base,
+ 			 struct inet_peer *gc_stack[],
+ 			 unsigned int gc_cnt)
+ {
++	int peer_threshold, peer_maxttl, peer_minttl;
+ 	struct inet_peer *p;
+ 	__u32 delta, ttl;
+ 	int i;
  
- 			s = kstrdup(field_str, GFP_KERNEL);
- 			if (!s) {
-+				kfree(hist_data->attrs->var_defs.name[n_vars]);
-+				hist_data->attrs->var_defs.name[n_vars] = NULL;
- 				ret = -ENOMEM;
- 				goto free;
- 			}
+-	if (base->total >= inet_peer_threshold)
++	peer_threshold = READ_ONCE(inet_peer_threshold);
++	peer_maxttl = READ_ONCE(inet_peer_maxttl);
++	peer_minttl = READ_ONCE(inet_peer_minttl);
++
++	if (base->total >= peer_threshold)
+ 		ttl = 0; /* be aggressive */
+ 	else
+-		ttl = inet_peer_maxttl
+-				- (inet_peer_maxttl - inet_peer_minttl) / HZ *
+-					base->total / inet_peer_threshold * HZ;
++		ttl = peer_maxttl - (peer_maxttl - peer_minttl) / HZ *
++			base->total / peer_threshold * HZ;
+ 	for (i = 0; i < gc_cnt; i++) {
+ 		p = gc_stack[i];
+ 
+-- 
+2.35.1
+
 
 
