@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A247579BE3
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9801E579AA7
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238526AbiGSMdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
+        id S238914AbiGSMRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240423AbiGSMcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:32:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28CC422E6;
-        Tue, 19 Jul 2022 05:12:28 -0700 (PDT)
+        with ESMTP id S239807AbiGSMPC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:15:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94DDE545EE;
+        Tue, 19 Jul 2022 05:05:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB8786177E;
-        Tue, 19 Jul 2022 12:12:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8005C341C6;
-        Tue, 19 Jul 2022 12:12:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7E0BB81B2C;
+        Tue, 19 Jul 2022 12:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E40C385A2;
+        Tue, 19 Jul 2022 12:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232745;
-        bh=112p4IasrsPbPAFxru+Qf08e6ZUpipmetpaKg9UAZAE=;
+        s=korg; t=1658232316;
+        bh=k2D/k2mRa7JzoJ0cFU4J1L3sv7+ioZYc1rpP0xVW530=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CoVoKgxix31PE+7rXInzaOMubQnRC17yWXgU3SZISDWDe63qzrfvcGYdyUHQU6jGh
-         bMnbkIEh9Mq7YVy3HWUzCg+R4Ylt/bIlWroucR4WjhIUMZ7UhPe/G0+eLkwYiUOz/4
-         IQR6lGa+rFWFHOFqxLOAnV9X4mYEGtJhulHc/Eh8=
+        b=oPW2PKP9WfMRCdmyv3r9Qcbp2f5kB0xo5Yp/wMG2R/jLHGrgF2EuOow/6LOsvZ5ir
+         wEiR3xDcEUIilVOAKRJhwmdAl/MWsR3B9PpjjNuglBvtOE1X8MzWFPD7Zy9d+5GDxn
+         XKpi+Nklm6KUrfGcrVOVmmbwLHZr9Dk0Ty6FlAxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/167] ASoC: tas2764: Add post reset delays
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 002/112] ALSA: hda/conexant: Apply quirk for another HP ProDesk 600 G3 model
 Date:   Tue, 19 Jul 2022 13:52:55 +0200
-Message-Id: <20220719114700.826107203@linuxfoundation.org>
+Message-Id: <20220719114626.371370322@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Meng Tang <tangmeng@uniontech.com>
 
-[ Upstream commit cd10bb89b0d57bca98eb75e0444854a1c129a14e ]
+commit d16d69bf5a25d91c6d8f3e29711be12551bf56cd upstream.
 
-Make sure there is at least 1 ms delay from reset to first command as
-is specified in the datasheet. This is a fix similar to commit
-307f31452078 ("ASoC: tas2770: Insert post reset delay").
+There is another HP ProDesk 600 G3 model with the PCI SSID 103c:82b4
+that requires the quirk HP_MIC_NO_PRESENCE. Add the corresponding
+entry to the quirk table.
 
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220630075135.2221-1-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220711101744.25189-1-tangmeng@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2764.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_conexant.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index 9265af41c235..edc66ff6dc49 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -42,10 +42,12 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
- 		gpiod_set_value_cansleep(tas2764->reset_gpio, 0);
- 		msleep(20);
- 		gpiod_set_value_cansleep(tas2764->reset_gpio, 1);
-+		usleep_range(1000, 2000);
- 	}
- 
- 	snd_soc_component_write(tas2764->component, TAS2764_SW_RST,
- 				TAS2764_RST);
-+	usleep_range(1000, 2000);
- }
- 
- static int tas2764_set_bias_level(struct snd_soc_component *component,
-@@ -107,8 +109,10 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
- 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
- 	int ret;
- 
--	if (tas2764->sdz_gpio)
-+	if (tas2764->sdz_gpio) {
- 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
-+		usleep_range(1000, 2000);
-+	}
- 
- 	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
- 					    TAS2764_PWR_CTRL_MASK,
-@@ -501,8 +505,10 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
- 
- 	tas2764->component = component;
- 
--	if (tas2764->sdz_gpio)
-+	if (tas2764->sdz_gpio) {
- 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
-+		usleep_range(1000, 2000);
-+	}
- 
- 	tas2764_reset(tas2764);
- 
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -937,6 +937,7 @@ static const struct snd_pci_quirk cxt506
+ 	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
+ 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x103c, 0x82b4, "HP ProDesk 600 G3", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
 
 
