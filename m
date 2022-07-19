@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A6DA579997
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C89A579B12
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238012AbiGSMFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39524 "EHLO
+        id S239076AbiGSMY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:24:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238194AbiGSMEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F0345052;
-        Tue, 19 Jul 2022 04:59:59 -0700 (PDT)
+        with ESMTP id S239735AbiGSMYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F9661135;
+        Tue, 19 Jul 2022 05:09:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EE3B61642;
-        Tue, 19 Jul 2022 11:59:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B4EFC341C6;
-        Tue, 19 Jul 2022 11:59:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 295DACE1BE2;
+        Tue, 19 Jul 2022 12:07:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E692CC341C6;
+        Tue, 19 Jul 2022 12:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231998;
-        bh=6zYB5QLYj+w4UY1HiZah5BD/P2P+SYGtIoJZmjY5fYg=;
+        s=korg; t=1658232476;
+        bh=TowrKb8G5TdIC9gGhKJdMt+9W5rjZOZsSfutDb6ykYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRvzuMkL6AaiHLE++ug/uiixOSJD0NQrVbKpg8sOD58/Y39AJvbel+rF9s8qlKHcO
-         SCtx5Q8l1EoFbT2Qsdpolb/4Nl+jSt1kOzBH+zHszgXyL3wYTM7HFueOR5RbbZ67UV
-         XZhHQOLb6UOQvD9CyPlSeFoYsRc+ZqPzsa47+/AM=
+        b=wTNU0yWgFePoSL6JndgnQ4CRRBV31yqlAemdcUaIAMl2Y4y4xUpYp1zVY8iND/Etb
+         MGd4X3jV/MYyUM7e4BIj8oCN2I0WJHQUgegQ6Tu28jzSRx9A//Rn9w4XVtK/CGAgQJ
+         ldOPb0PPm2xoBIYHYoKveLko5NAX8D9m/dz++R18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Edward Cree <ecree.xilinx@gmail.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/48] sfc: fix kernel panic when creating VF
-Date:   Tue, 19 Jul 2022 13:54:03 +0200
-Message-Id: <20220719114522.245290877@linuxfoundation.org>
+Subject: [PATCH 5.10 071/112] sfc: fix kernel panic when creating VF
+Date:   Tue, 19 Jul 2022 13:54:04 +0200
+Message-Id: <20220719114633.349673504@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -101,10 +101,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index 6b0a4dc1ced1..5462827d9cbb 100644
+index fa1a872c4bc8..5b7413305be6 100644
 --- a/drivers/net/ethernet/sfc/ef10.c
 +++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -2059,7 +2059,10 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
+@@ -1916,7 +1916,10 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
  
  	efx_update_sw_stats(efx, stats);
  out:
