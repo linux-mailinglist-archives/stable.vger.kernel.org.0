@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D40DE579A11
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CB35799AE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238537AbiGSMKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
+        id S238090AbiGSMFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:05:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238932AbiGSMJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98E914B0D6;
-        Tue, 19 Jul 2022 05:02:51 -0700 (PDT)
+        with ESMTP id S238146AbiGSMEF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854DD45061;
+        Tue, 19 Jul 2022 04:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A75D616F9;
-        Tue, 19 Jul 2022 12:02:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAE51C341C6;
-        Tue, 19 Jul 2022 12:02:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38EABB81A2E;
+        Tue, 19 Jul 2022 11:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFF6C341C6;
+        Tue, 19 Jul 2022 11:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232170;
-        bh=32cDH5LJ8oO8iHcpk6DSNjGqQgqrVEeIe+MIDkeVerw=;
+        s=korg; t=1658231990;
+        bh=BJnVW9DMZ3+Wr45rya5ls9wYILTenORCBLHoOxaRQ8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZN4i1h5df6NE3VdhrnC6YhxA3aRbbUL+FzTxDKFSGsqvTuYPfOMXE0qaaEXATyqW
-         ap+1xGwrPm5x+lOMpdaXQ5m+bVOE3bXCPJ06lTANv0QXlNOR9e3WaCkudEvwXaV/TS
-         SnvgJDb+mBDSl36arj0UyEUr+S0JRqmScytqqvnM=
+        b=yGxiaExJIf29+p9cTgSPxkcjwZ9ayOB/qHJS23tpWZ7hJDBtAM/EklpgeUJRmj6QH
+         OWSp0w+uxzRmzO7177uPBAXosaTv0yMcXsxJrCalM/xjYMvIU7/IzRG2BYIw5h/NS3
+         fPfk/jw/r4iwR4VizBSuVatzN2ky0FfZRfpqtKL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Andrea Mayer <andrea.mayer@uniroma2.it>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/71] ipv4: Fix data-races around sysctl_ip_dynaddr.
+Subject: [PATCH 4.19 23/48] seg6: fix skb checksum evaluation in SRH encapsulation/insertion
 Date:   Tue, 19 Jul 2022 13:54:00 +0200
-Message-Id: <20220719114555.869977812@linuxfoundation.org>
+Message-Id: <20220719114521.922560725@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Andrea Mayer <andrea.mayer@uniroma2.it>
 
-[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
+[ Upstream commit df8386d13ea280d55beee1b95f61a59234a3798b ]
 
-While reading sysctl_ip_dynaddr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Support for SRH encapsulation and insertion was introduced with
+commit 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and
+injection with lwtunnels"), through the seg6_do_srh_encap() and
+seg6_do_srh_inline() functions, respectively.
+The former encapsulates the packet in an outer IPv6 header along with
+the SRH, while the latter inserts the SRH between the IPv6 header and
+the payload. Then, the headers are initialized/updated according to the
+operating mode (i.e., encap/inline).
+Finally, the skb checksum is calculated to reflect the changes applied
+to the headers.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The IPv6 payload length ('payload_len') is not initialized
+within seg6_do_srh_{inline,encap}() but is deferred in seg6_do_srh(), i.e.
+the caller of seg6_do_srh_{inline,encap}().
+However, this operation invalidates the skb checksum, since the
+'payload_len' is updated only after the checksum is evaluated.
+
+To solve this issue, the initialization of the IPv6 payload length is
+moved from seg6_do_srh() directly into the seg6_do_srh_{inline,encap}()
+functions and before the skb checksum update takes place.
+
+Fixes: 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and injection with lwtunnels")
+Reported-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/all/20220705190727.69d532417be7438b15404ee1@uniroma2.it
+Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 2 +-
- net/ipv4/af_inet.c                     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/ipv6/seg6_iptunnel.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index f60d4159fff4..787a9c077ef1 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -953,7 +953,7 @@ ip_nonlocal_bind - BOOLEAN
- 	which can be quite useful - but may break some applications.
- 	Default: 0
- 
--ip_dynaddr - BOOLEAN
-+ip_dynaddr - INTEGER
- 	If set non-zero, enables support for dynamic addresses.
- 	If set to a non-zero value larger than 1, a kernel log
- 	message will be printed when dynamic address rewriting
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index a7a6b1adb698..9ab73fcc7411 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1215,7 +1215,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
- 	if (new_saddr == old_saddr)
- 		return 0;
- 
--	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
- 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
- 			__func__, &old_saddr, &new_saddr);
+diff --git a/net/ipv6/seg6_iptunnel.c b/net/ipv6/seg6_iptunnel.c
+index 26882fd9323a..2e90672852c8 100644
+--- a/net/ipv6/seg6_iptunnel.c
++++ b/net/ipv6/seg6_iptunnel.c
+@@ -176,6 +176,8 @@ int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh, int proto)
  	}
-@@ -1270,7 +1270,7 @@ int inet_sk_rebuild_header(struct sock *sk)
- 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
- 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
- 		 */
--		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
-+		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
- 		    sk->sk_state != TCP_SYN_SENT ||
- 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
- 		    (err = inet_sk_reselect_saddr(sk)) != 0)
+ #endif
+ 
++	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
++
+ 	skb_postpush_rcsum(skb, hdr, tot_len);
+ 
+ 	return 0;
+@@ -228,6 +230,8 @@ int seg6_do_srh_inline(struct sk_buff *skb, struct ipv6_sr_hdr *osrh)
+ 	}
+ #endif
+ 
++	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
++
+ 	skb_postpush_rcsum(skb, hdr, sizeof(struct ipv6hdr) + hdrlen);
+ 
+ 	return 0;
+@@ -289,7 +293,6 @@ static int seg6_do_srh(struct sk_buff *skb)
+ 		break;
+ 	}
+ 
+-	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
+ 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
+ 
+ 	return 0;
 -- 
 2.35.1
 
