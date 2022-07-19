@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E019F579974
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 502B55799E4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238052AbiGSMDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:03:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39042 "EHLO
+        id S237517AbiGSMIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:08:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238021AbiGSMCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:02:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CED64B0F8;
-        Tue, 19 Jul 2022 04:59:05 -0700 (PDT)
+        with ESMTP id S237808AbiGSMHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:07:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986FE4F19A;
+        Tue, 19 Jul 2022 05:01:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0456661647;
-        Tue, 19 Jul 2022 11:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C516FC341C6;
-        Tue, 19 Jul 2022 11:59:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C00ED616F6;
+        Tue, 19 Jul 2022 12:01:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A44F2C341C6;
+        Tue, 19 Jul 2022 12:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231944;
-        bh=UcDZ58eCiejyh3LpsXs/Q/VB86xvoENvhAWfgMJHGLc=;
+        s=korg; t=1658232084;
+        bh=5IEYN5foefB4K0Dyg0jaz4/QY7YbSg5VpEmxben9s0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiFbUVY6gOc+UxsaF5gJiZwOFL/phgnpSav2iDVZugfDBOI+O/bF5XigyMQM48Ch0
-         tTZFdU51FwqRr8gBR5s9tUF7Kz6wP2+nU83sQRXBFB6ozlyFq8AkpswkOEJdCxeH7V
-         SyqVjpOoFskCnHaPcQ5BDnx0k9aIHlMPlhV02/Ks=
+        b=1mZt2ErMiOtwjETFdDPr0Q1knhwHIAcEfsGw+9S9kSG5nxfWSD21qWyyxwextKbty
+         Gebl0CsNyJj7w7qBwTUJdtjAQ3DUEGt3ytvdNyJfe46BVIZ66pX5qrIOx9rNwCA90X
+         Ov74MkmhVeQPuSqdTvMSYybaDtDN3udX8WB+Gb38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 43/43] can: m_can: m_can_tx_handler(): fix use after free of skb
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 37/48] irqchip: or1k-pic: Undefine mask_ack for level triggered hardware
 Date:   Tue, 19 Jul 2022 13:54:14 +0200
-Message-Id: <20220719114525.587310460@linuxfoundation.org>
+Message-Id: <20220719114523.143796898@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Stafford Horne <shorne@gmail.com>
 
-commit 2e8e79c416aae1de224c0f1860f2e3350fa171f8 upstream.
+[ Upstream commit 8520501346ed8d1c4a6dfa751cb57328a9c843f1 ]
 
-can_put_echo_skb() will clone skb then free the skb. Move the
-can_put_echo_skb() for the m_can version 3.0.x directly before the
-start of the xmit in hardware, similar to the 3.1.x branch.
+The mask_ack operation clears the interrupt by writing to the PICSR
+register.  This we don't want for level triggered interrupt because
+it does not actually clear the interrupt on the source hardware.
 
-Fixes: 80646733f11c ("can: m_can: update to support CAN FD features")
-Link: https://lore.kernel.org/all/20220317081305.739554-1-mkl@pengutronix.de
-Cc: stable@vger.kernel.org
-Reported-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was causing issues in qemu with multi core setups where
+interrupts would continue to fire even though they had been cleared in
+PICSR.
+
+Just remove the mask_ack operation.
+
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-or1k-pic.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1420,8 +1420,6 @@ static netdev_tx_t m_can_start_xmit(stru
- 					 M_CAN_FIFO_DATA(i / 4),
- 					 *(u32 *)(cf->data + i));
- 
--		can_put_echo_skb(skb, dev, 0);
--
- 		if (priv->can.ctrlmode & CAN_CTRLMODE_FD) {
- 			cccr = m_can_read(priv, M_CAN_CCCR);
- 			cccr &= ~(CCCR_CMR_MASK << CCCR_CMR_SHIFT);
-@@ -1438,6 +1436,9 @@ static netdev_tx_t m_can_start_xmit(stru
- 			m_can_write(priv, M_CAN_CCCR, cccr);
- 		}
- 		m_can_write(priv, M_CAN_TXBTIE, 0x1);
-+
-+		can_put_echo_skb(skb, dev, 0);
-+
- 		m_can_write(priv, M_CAN_TXBAR, 0x1);
- 		/* End of xmit function for version 3.0.x */
- 	} else {
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index dd9d5d12fea2..05931fdedbb9 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -70,7 +70,6 @@ static struct or1k_pic_dev or1k_pic_level = {
+ 		.name = "or1k-PIC-level",
+ 		.irq_unmask = or1k_pic_unmask,
+ 		.irq_mask = or1k_pic_mask,
+-		.irq_mask_ack = or1k_pic_mask_ack,
+ 	},
+ 	.handle = handle_level_irq,
+ 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
+-- 
+2.35.1
+
 
 
