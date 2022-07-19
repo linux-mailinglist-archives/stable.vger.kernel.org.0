@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 815B1579961
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF345579962
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:02:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237910AbiGSMCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:02:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38076 "EHLO
+        id S237918AbiGSMCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:02:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237868AbiGSMBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:01:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82A44A80F;
-        Tue, 19 Jul 2022 04:58:38 -0700 (PDT)
+        with ESMTP id S237920AbiGSMBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:01:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494064331A;
+        Tue, 19 Jul 2022 04:58:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 614DCB81A2E;
-        Tue, 19 Jul 2022 11:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4CC6C341CA;
-        Tue, 19 Jul 2022 11:58:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEDAA61640;
+        Tue, 19 Jul 2022 11:58:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC96C341CA;
+        Tue, 19 Jul 2022 11:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231916;
-        bh=VkbUFaDmG9Xa9DmLLAlbDfm/hVHUrMmPVbAO0A7Ct6M=;
+        s=korg; t=1658231918;
+        bh=yO7cXLAxMONxPcse2MF3SOWUyJi9k0jjmONBy+J6g8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfIAeuZyKJ9Uzc/IRXGjSegS67f9Om2Y75St7WaDkV7axfmbKoxkDRO4G60LGEfi8
-         kITgKFcZplfElbmUnhYelrMm0OaRK3wQFfvuupiJPs9s4sXJRubi2smY5BE54QqOV+
-         B0N7ldXzzA19DutXToY+j3sdT7ZFUZZxgBY4e+uk=
+        b=f9sH05ZnIcALOeZpweIeq3wBfQH677LvddXuvqx+ZhubMVQVfnEYcGTgvqj2aJycJ
+         rxAnS7mjtNvEmlAB3gE4r5vWQCGDlz0RzsFshrjyCUvoRvk/OzwFAQAna9ueC6qXWt
+         RuWS3XYvpuD30lUxkXaKSLvmkW3B6lH4oKX47/wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 09/43] net: dsa: bcm_sf2: force pause link settings
-Date:   Tue, 19 Jul 2022 13:53:40 +0200
-Message-Id: <20220719114522.863731509@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 10/43] xhci: bail out early if driver cant accress host in resume
+Date:   Tue, 19 Jul 2022 13:53:41 +0200
+Message-Id: <20220719114522.949172508@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
 References: <20220719114521.868169025@linuxfoundation.org>
@@ -53,63 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
+commit 72ae194704da212e2ec312ab182a96799d070755 upstream.
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+Bail out early if the xHC host needs to be reset at resume
+but driver can't access xHC PCI registers.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+If xhci driver already fails to reset the controller then there
+is no point in attempting to free, re-initialize, re-allocate and
+re-start the host. If failure to access the host is detected later,
+failing the resume, xhci interrupts will be double freed
+when remove is called.
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200312144517.1593-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/usb/host/xhci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -625,7 +625,9 @@ static void bcm_sf2_sw_adjust_link(struc
- 	struct bcm_sf2_priv *priv = bcm_sf2_to_priv(ds);
- 	struct ethtool_eee *p = &priv->port_sts[port].eee;
- 	u32 id_mode_dis = 0, port_mode;
-+	u16 lcl_adv = 0, rmt_adv = 0;
- 	const char *str = NULL;
-+	u8 flowctrl = 0;
- 	u32 reg, offset;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1111,8 +1111,10 @@ int xhci_resume(struct xhci_hcd *xhci, b
  
- 	if (priv->type == BCM7445_DEVICE_ID)
-@@ -697,10 +699,27 @@ force_link:
- 		break;
- 	}
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+-		xhci_reset(xhci);
++		retval = xhci_reset(xhci);
+ 		spin_unlock_irq(&xhci->lock);
++		if (retval)
++			return retval;
+ 		xhci_cleanup_msix(xhci);
  
-+	if (phydev->duplex == DUPLEX_FULL &&
-+	    phydev->autoneg == AUTONEG_ENABLE) {
-+		if (phydev->pause)
-+			rmt_adv = LPA_PAUSE_CAP;
-+		if (phydev->asym_pause)
-+			rmt_adv |= LPA_PAUSE_ASYM;
-+		if (phydev->advertising & ADVERTISED_Pause)
-+			lcl_adv = ADVERTISE_PAUSE_CAP;
-+		if (phydev->advertising & ADVERTISED_Asym_Pause)
-+			lcl_adv |= ADVERTISE_PAUSE_ASYM;
-+		flowctrl = mii_resolve_flowctrl_fdx(lcl_adv, rmt_adv);
-+	}
-+
- 	if (phydev->link)
- 		reg |= LINK_STS;
- 	if (phydev->duplex == DUPLEX_FULL)
- 		reg |= DUPLX_MODE;
-+	if (flowctrl & FLOW_CTRL_TX)
-+		reg |= TXFLOW_CNTL;
-+	if (flowctrl & FLOW_CTRL_RX)
-+		reg |= RXFLOW_CNTL;
- 
- 	core_writel(priv, reg, offset);
- 
+ 		xhci_dbg(xhci, "// Disabling event ring interrupts\n");
 
 
