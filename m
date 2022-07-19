@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DC157999F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61BB5579E52
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238053AbiGSMFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38108 "EHLO
+        id S242618AbiGSNBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238295AbiGSMEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C52420F66;
-        Tue, 19 Jul 2022 05:00:14 -0700 (PDT)
+        with ESMTP id S242806AbiGSM7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBB363CD;
+        Tue, 19 Jul 2022 05:25:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79B856163C;
-        Tue, 19 Jul 2022 12:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B76BC341C6;
-        Tue, 19 Jul 2022 12:00:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C60F0B81B21;
+        Tue, 19 Jul 2022 12:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B822C341D8;
+        Tue, 19 Jul 2022 12:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232012;
-        bh=Qq1egKqaN2guD+MLaTNP3WxiufugS4HznBle4H2PDEA=;
+        s=korg; t=1658233506;
+        bh=8eWx/eELbvZZCIShRKaxQ1ohRxKtl/umDcePQo0ppBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JaRZDlG8l9aQ2ZbSKTO6IE3QHFjgFWIUqIMHnJoRLPwp/zNaXGa7n12EYnLZPYGlX
-         oEnANF1LgSv+WI/WpdDfCRTDXFxVP2Vkfk6C6ind41/r4dbswcf+f/O07c5W5jcoLL
-         aUqJJQVra7flMF4fEvjLmj+8vxljNxEjJ2GbzSiU=
+        b=z2yRs+lok2gKHp6N5s02bP4UyOa8f7vDuAGlRQ/TXyxqelZm2r6llllPJW0UGZe0A
+         UmaW0KpfcH68JfUxWYXhN8ttVk6Lnb5iDkDaZ1n1al4OvJpK9un4aUz313S7ojmNWQ
+         h3jy5+zbiPBALYpibYasyungjrcZwYKk2peiqWHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/48] ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
+Subject: [PATCH 5.18 144/231] mm: sysctl: fix missing numa_stat when !CONFIG_HUGETLB_PAGE
 Date:   Tue, 19 Jul 2022 13:53:49 +0200
-Message-Id: <20220719114520.982991373@linuxfoundation.org>
+Message-Id: <20220719114726.478705779@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 0609e200246bfd3b7516091c491bec4308349055 ]
+[ Upstream commit 43b5240ca6b33108998810593248186b1e3ae34a ]
 
-Jon reports that the Spectre-BHB init code is filling up the kernel log
-with spurious notifications about which mitigation has been enabled,
-every time any CPU comes out of a low power state.
+"numa_stat" should not be included in the scope of CONFIG_HUGETLB_PAGE, if
+CONFIG_HUGETLB_PAGE is not configured even if CONFIG_NUMA is configured,
+"numa_stat" is missed form /proc. Move it out of CONFIG_HUGETLB_PAGE to
+fix it.
 
-Given that Spectre-BHB mitigations are system wide, only a single
-mitigation can be enabled, and we already print an error if two types of
-CPUs coexist in a single system that require different Spectre-BHB
-mitigations.
-
-This means that the pr_info() that describes the selected mitigation
-does not need to be emitted for each CPU anyway, and so we can simply
-emit it only once.
-
-In order to clarify the above in the log message, update it to describe
-that the selected mitigation will be enabled on all CPUs, including ones
-that are unaffected. If another CPU comes up later that is affected and
-requires a different mitigation, we report an error as before.
-
-Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 4518085e127d ("mm, sysctl: make NUMA stats configurable")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-v7-bugs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sysctl.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
-index 40fb2900038e..e53f824a2583 100644
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -222,10 +222,10 @@ static int spectre_bhb_install_workaround(int method)
- 			return SPECTRE_VULNERABLE;
- 
- 		spectre_bhb_method = method;
--	}
- 
--	pr_info("CPU%u: Spectre BHB: using %s workaround\n",
--		smp_processor_id(), spectre_bhb_method_name(method));
-+		pr_info("CPU%u: Spectre BHB: enabling %s workaround for all CPUs\n",
-+			smp_processor_id(), spectre_bhb_method_name(method));
-+	}
- 
- 	return SPECTRE_MITIGATED;
- }
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index f165ea67dd33..c42ba2d669dc 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -2466,6 +2466,17 @@ static struct ctl_table vm_table[] = {
+ 		.extra1		= SYSCTL_ZERO,
+ 		.extra2		= SYSCTL_TWO_HUNDRED,
+ 	},
++#ifdef CONFIG_NUMA
++	{
++		.procname	= "numa_stat",
++		.data		= &sysctl_vm_numa_stat,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= sysctl_vm_numa_stat_handler,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
++#endif
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	{
+ 		.procname	= "nr_hugepages",
+@@ -2482,15 +2493,6 @@ static struct ctl_table vm_table[] = {
+ 		.mode           = 0644,
+ 		.proc_handler   = &hugetlb_mempolicy_sysctl_handler,
+ 	},
+-	{
+-		.procname		= "numa_stat",
+-		.data			= &sysctl_vm_numa_stat,
+-		.maxlen			= sizeof(int),
+-		.mode			= 0644,
+-		.proc_handler	= sysctl_vm_numa_stat_handler,
+-		.extra1			= SYSCTL_ZERO,
+-		.extra2			= SYSCTL_ONE,
+-	},
+ #endif
+ 	 {
+ 		.procname	= "hugetlb_shm_group",
 -- 
 2.35.1
 
