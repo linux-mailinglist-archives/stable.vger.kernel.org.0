@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 493D6579904
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E95579943
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237582AbiGSL5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55288 "EHLO
+        id S229784AbiGSMBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:01:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237523AbiGSL5T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:57:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6404422C4;
-        Tue, 19 Jul 2022 04:56:42 -0700 (PDT)
+        with ESMTP id S237686AbiGSL6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:58:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B995C422E9;
+        Tue, 19 Jul 2022 04:57:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B92261658;
-        Tue, 19 Jul 2022 11:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A7C0C341CA;
-        Tue, 19 Jul 2022 11:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 779D8B81B2B;
+        Tue, 19 Jul 2022 11:57:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACCDFC341C6;
+        Tue, 19 Jul 2022 11:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231800;
-        bh=tNFsWT8r4Tv5ckavuaA5jHy/y482DqnuFr8g7YAfZy4=;
+        s=korg; t=1658231835;
+        bh=Mks+Xm8o2vp8NRXfZWPWNfWitehtpVo26NqiYS4TcX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ChRl3SbHKcLwrg9pLRXqn5awapfEZLVEz7l0uhUAxSaWtjpsxMXrHbb2K24weXbCd
-         3Q3FiqQeCXnEZ/pH5Pi6paSpyKxdWOspi63ArJeFf/9ph3+p86f0muphE/Hf7gIVS0
-         16leWfwHuE0Elx2R7JCeIEwAm2Gy7guvCzGI2/rU=
+        b=FDq/m/A5WsTwBrSPxFz+sFwjHnwocl2ErrmRFsIzRNN5v+Mthts2ogVk5/j/L+Yge
+         hMXV7GH14DXLKx7BnKqEN6hiQOp6TSWQ3gsUEM8G4Foo/xisCDtyHXgvHIUvr+qtEQ
+         BGLqBqUHoqy6bWtEoQbAlfmtmEUbn81oDTL/K/J0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 07/28] net: dsa: bcm_sf2: force pause link settings
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 14/43] net: Fix data-races around sysctl_mem.
 Date:   Tue, 19 Jul 2022 13:53:45 +0200
-Message-Id: <20220719114457.169545594@linuxfoundation.org>
+Message-Id: <20220719114523.268104601@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
-References: <20220719114455.701304968@linuxfoundation.org>
+In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
+References: <20220719114521.868169025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 7c97bc0128b2eecc703106112679a69d446d1a12 upstream.
+[ Upstream commit 310731e2f1611d1d13aae237abcf8e66d33345d5 ]
 
-The pause settings reported by the PHY should also be applied to the GMII port
-status override otherwise the switch will not generate pause frames towards the
-link partner despite the advertisement saying otherwise.
+While reading .sysctl_mem, it can be changed concurrently.
+So, we need to add READ_ONCE() to avoid data-races.
 
-Fixes: 246d7f773c13 ("net: dsa: add Broadcom SF2 switch driver")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220623030204.1966851-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ include/net/sock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -600,7 +600,9 @@ static void bcm_sf2_sw_adjust_link(struc
- 	struct bcm_sf2_priv *priv = bcm_sf2_to_priv(ds);
- 	struct ethtool_eee *p = &priv->port_sts[port].eee;
- 	u32 id_mode_dis = 0, port_mode;
-+	u16 lcl_adv = 0, rmt_adv = 0;
- 	const char *str = NULL;
-+	u8 flowctrl = 0;
- 	u32 reg;
+diff --git a/include/net/sock.h b/include/net/sock.h
+index f729ccfe756a..dfeaa8deba96 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1340,7 +1340,7 @@ void __sk_mem_reclaim(struct sock *sk, int amount);
+ /* sysctl_mem values are in pages, we convert them in SK_MEM_QUANTUM units */
+ static inline long sk_prot_mem_limits(const struct sock *sk, int index)
+ {
+-	long val = sk->sk_prot->sysctl_mem[index];
++	long val = READ_ONCE(sk->sk_prot->sysctl_mem[index]);
  
- 	switch (phydev->interface) {
-@@ -667,10 +669,27 @@ force_link:
- 		break;
- 	}
- 
-+	if (phydev->duplex == DUPLEX_FULL &&
-+	    phydev->autoneg == AUTONEG_ENABLE) {
-+		if (phydev->pause)
-+			rmt_adv = LPA_PAUSE_CAP;
-+		if (phydev->asym_pause)
-+			rmt_adv |= LPA_PAUSE_ASYM;
-+		if (phydev->advertising & ADVERTISED_Pause)
-+			lcl_adv = ADVERTISE_PAUSE_CAP;
-+		if (phydev->advertising & ADVERTISED_Asym_Pause)
-+			lcl_adv |= ADVERTISE_PAUSE_ASYM;
-+		flowctrl = mii_resolve_flowctrl_fdx(lcl_adv, rmt_adv);
-+	}
-+
- 	if (phydev->link)
- 		reg |= LINK_STS;
- 	if (phydev->duplex == DUPLEX_FULL)
- 		reg |= DUPLX_MODE;
-+	if (flowctrl & FLOW_CTRL_TX)
-+		reg |= TXFLOW_CNTL;
-+	if (flowctrl & FLOW_CTRL_RX)
-+		reg |= RXFLOW_CNTL;
- 
- 	core_writel(priv, reg, CORE_STS_OVERRIDE_GMIIP_PORT(port));
- 
+ #if PAGE_SIZE > SK_MEM_QUANTUM
+ 	val <<= PAGE_SHIFT - SK_MEM_QUANTUM_SHIFT;
+-- 
+2.35.1
+
 
 
