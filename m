@@ -2,146 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 688FE579C2B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7C2579A8C
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240752AbiGSMgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:36:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
+        id S238647AbiGSMPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238347AbiGSMgW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:36:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E3F1EAFB;
-        Tue, 19 Jul 2022 05:14:11 -0700 (PDT)
+        with ESMTP id S239505AbiGSMOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C9152E77;
+        Tue, 19 Jul 2022 05:05:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13B6BB81B37;
-        Tue, 19 Jul 2022 12:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BB3C341C6;
-        Tue, 19 Jul 2022 12:13:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21367B81A8F;
+        Tue, 19 Jul 2022 12:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71BFFC341C6;
+        Tue, 19 Jul 2022 12:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232802;
-        bh=EuBfvooEShle36Ymb8/NN7rUAZS38Mpq4oSHSzKHNew=;
+        s=korg; t=1658232336;
+        bh=YMDBGYootgjGAwFHAuKAVkJi74f5AYifSu57aZ2Fmkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCn9sPY68SwzIGk+0WUOzNO8wgS6YXgI+A4QR9TX9M/D4liwpChr9gmqS4oqmwqLc
-         SnqKocrZ+jSw/xeBpTQgR9zvkoRB30tkc8s0K2fUePtQXNzxf8barrWRTCM+vkFU6R
-         5n2VIcbNJdfpOn2ce0IZRsl0xxKxM90cgrcIHOag=
+        b=V5mxilaX/5A1KtNbGomZZOA63Timi1VLxuVxSp6f94GYpqD+kIy+MyBo856DDIcvP
+         YXxYHAR/9jKUk575F16wqSZ7w8Gbl0ZFqGLkBdmEtc/beMI6jKO9yAGoOBwDy4i8lv
+         OklqVw/vGN325Q3fwx4rOcPuNCH1zVcmqd3TXXBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siddharth Vadapalli <s-vadapalli@ti.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/167] net: ethernet: ti: am65-cpsw: Fix devlink port register sequence
+        stable@vger.kernel.org, James Gowans <jgowans@amazon.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "=?UTF-8?q?Jan=20H . =20Sch=C3=B6nherr?=" <jschoenh@amazon.de>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 009/112] mm: split huge PUD on wp_huge_pud fallback
 Date:   Tue, 19 Jul 2022 13:53:02 +0200
-Message-Id: <20220719114701.456218440@linuxfoundation.org>
+Message-Id: <20220719114626.879484109@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Vadapalli <s-vadapalli@ti.com>
+From: Gowans, James <jgowans@amazon.com>
 
-[ Upstream commit 0680e20af5fbf41df8a11b11bd9a7c25b2ca0746 ]
+commit 14c99d65941538aa33edd8dc7b1bbbb593c324a2 upstream.
 
-Renaming interfaces using udevd depends on the interface being registered
-before its netdev is registered. Otherwise, udevd reads an empty
-phys_port_name value, resulting in the interface not being renamed.
+Currently the implementation will split the PUD when a fallback is taken
+inside the create_huge_pud function.  This isn't where it should be done:
+the splitting should be done in wp_huge_pud, just like it's done for PMDs.
+Reason being that if a callback is taken during create, there is no PUD
+yet so nothing to split, whereas if a fallback is taken when encountering
+a write protection fault there is something to split.
 
-Fix this by registering the interface before registering its netdev
-by invoking am65_cpsw_nuss_register_devlink() before invoking
-register_netdev() for the interface.
+It looks like this was the original intention with the commit where the
+splitting was introduced, but somehow it got moved to the wrong place
+between v1 and v2 of the patch series.  Rebase mistake perhaps.
 
-Move the function call to devlink_port_type_eth_set(), invoking it after
-register_netdev() is invoked, to ensure that netlink notification for the
-port state change is generated after the netdev is completely initialized.
-
-Fixes: 58356eb31d60 ("net: ti: am65-cpsw-nuss: Add devlink support")
-Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Link: https://lore.kernel.org/r/20220706070208.12207-1-s-vadapalli@ti.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/6f48d622eb8bce1ae5dd75327b0b73894a2ec407.camel@amazon.com
+Fixes: 327e9fd48972 ("mm: Split huge pages on write-notify or COW")
+Signed-off-by: James Gowans <jgowans@amazon.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Jan H. Schönherr <jschoenh@amazon.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ mm/memory.c |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index ea9d073e87fa..901571c2626a 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -2467,7 +2467,6 @@ static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
- 				port->port_id, ret);
- 			goto dl_port_unreg;
- 		}
--		devlink_port_type_eth_set(dl_port, port->ndev);
- 	}
- 
- 	return ret;
-@@ -2514,6 +2513,7 @@ static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
- static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
- {
- 	struct device *dev = common->dev;
-+	struct devlink_port *dl_port;
- 	struct am65_cpsw_port *port;
- 	int ret = 0, i;
- 
-@@ -2530,6 +2530,10 @@ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
- 		return ret;
- 	}
- 
-+	ret = am65_cpsw_nuss_register_devlink(common);
-+	if (ret)
-+		return ret;
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4369,6 +4369,19 @@ static vm_fault_t create_huge_pud(struct
+ 	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
+ 	/* No support for anonymous transparent PUD pages yet */
+ 	if (vma_is_anonymous(vmf->vma))
++		return VM_FAULT_FALLBACK;
++	if (vmf->vma->vm_ops->huge_fault)
++		return vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PUD);
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
++	return VM_FAULT_FALLBACK;
++}
 +
- 	for (i = 0; i < common->port_num; i++) {
- 		port = &common->ports[i];
- 
-@@ -2542,25 +2546,24 @@ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
- 				i, ret);
- 			goto err_cleanup_ndev;
- 		}
-+
-+		dl_port = &port->devlink_port;
-+		devlink_port_type_eth_set(dl_port, port->ndev);
- 	}
- 
- 	ret = am65_cpsw_register_notifiers(common);
- 	if (ret)
- 		goto err_cleanup_ndev;
- 
--	ret = am65_cpsw_nuss_register_devlink(common);
--	if (ret)
--		goto clean_unregister_notifiers;
++static vm_fault_t wp_huge_pud(struct vm_fault *vmf, pud_t orig_pud)
++{
++#if defined(CONFIG_TRANSPARENT_HUGEPAGE) &&			\
++	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
++	/* No support for anonymous transparent PUD pages yet */
++	if (vma_is_anonymous(vmf->vma))
+ 		goto split;
+ 	if (vmf->vma->vm_ops->huge_fault) {
+ 		vm_fault_t ret = vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PUD);
+@@ -4379,19 +4392,7 @@ static vm_fault_t create_huge_pud(struct
+ split:
+ 	/* COW or write-notify not handled on PUD level: split pud.*/
+ 	__split_huge_pud(vmf->vma, vmf->pud, vmf->address);
+-#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+-	return VM_FAULT_FALLBACK;
+-}
 -
- 	/* can't auto unregister ndev using devm_add_action() due to
- 	 * devres release sequence in DD core for DMA
- 	 */
- 
- 	return 0;
--clean_unregister_notifiers:
--	am65_cpsw_unregister_notifiers(common);
-+
- err_cleanup_ndev:
- 	am65_cpsw_nuss_cleanup_ndev(common);
-+	am65_cpsw_unregister_devlink(common);
- 
- 	return ret;
+-static vm_fault_t wp_huge_pud(struct vm_fault *vmf, pud_t orig_pud)
+-{
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-	/* No support for anonymous transparent PUD pages yet */
+-	if (vma_is_anonymous(vmf->vma))
+-		return VM_FAULT_FALLBACK;
+-	if (vmf->vma->vm_ops->huge_fault)
+-		return vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PUD);
+-#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE && CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
+ 	return VM_FAULT_FALLBACK;
  }
--- 
-2.35.1
-
+ 
 
 
