@@ -2,167 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4006857979B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 12:25:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEA8D57986B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235371AbiGSKZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 06:25:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49540 "EHLO
+        id S237115AbiGSL1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:27:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233909AbiGSKZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 06:25:39 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAB965FB;
-        Tue, 19 Jul 2022 03:25:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1658226338; x=1689762338;
-  h=date:from:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=o4UkXWVncsf5NlHgJbAtNT6K7mnE/rm+QaA7Sbcg8tQ=;
-  b=LPQkGTDw46RRtLWeE/PbBQ3zj1PV92d57h69jjlGtCyDx3G7N7ZDHWqe
-   9O6XKIyfOTmYRRMrOhvPSCP78DR7X9eldUl7FpOpZtishuaXbFJqCW0ZU
-   4SFTZmCnsy+Dzsye6IQvde6gWV3uceEwF9WnOjpK7Jl99UsEXkZ/8WfHl
-   JMAtR4g2Q741l+nL4nqu3gY71+m4PWTm6eu//ewXnkjd5AoEk+L8/KfEG
-   UWAvKl8tue+cm1g4DHAAf0l/rIBZhHgvkzmwl5lCmYLiZ7R3gXHQ8OIDE
-   ddS/uG2PuyDA/EGZhQNLAsNs0qWUdiP+3gc4V1mF+9q/qMieDougWjJcd
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10412"; a="266856253"
-X-IronPort-AV: E=Sophos;i="5.92,283,1650956400"; 
-   d="scan'208";a="266856253"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2022 03:25:38 -0700
-X-IronPort-AV: E=Sophos;i="5.92,283,1650956400"; 
-   d="scan'208";a="655700133"
-Received: from gegelmee-mobl1.ger.corp.intel.com ([10.252.42.45])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2022 03:25:36 -0700
-Date:   Tue, 19 Jul 2022 13:25:34 +0300 (EEST)
-From:   =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     Shenwei Wang <shenwei.wang@nxp.com>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-serial <linux-serial@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH V2 1/1] serial: fsl_lpuart: zero out parity bit in CS7
- mode
-In-Reply-To: <20220714185858.615373-1-shenwei.wang@nxp.com>
-Message-ID: <bf982c0-403c-1677-b8a-5098f7e85b82@linux.intel.com>
-References: <20220714185858.615373-1-shenwei.wang@nxp.com>
+        with ESMTP id S236801AbiGSL1K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:27:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F7A340BD5;
+        Tue, 19 Jul 2022 04:27:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15803B81B0F;
+        Tue, 19 Jul 2022 11:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171E8C341C6;
+        Tue, 19 Jul 2022 11:27:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658230020;
+        bh=0e5caRh/O6xZWbchcZURz8uAai9+ssg5tyfnNLgTryA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ynN2LM/bbmw7CFbLNn5vVrrb3YcmVViIWVx4AGayvVwHIjTqTOq5nn8Jd/1LyPdtu
+         DXoqnC+qx4yXhFQcNNTR+W5C1/RXTRruUFFJshu5xNmmNAvw7l81tJH8q0c/drKI0z
+         +eNpRUab2VZ+RNLVVrWCQU1Ptc8DFlo65Ab4nkMA=
+Date:   Tue, 19 Jul 2022 13:26:57 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Baokun Li <libaokun1@huawei.com>
+Cc:     stable@vger.kernel.org, linux-ext4@vger.kernel.org, tytso@mit.edu,
+        adilger.kernel@dilger.ca, jack@suse.cz, ritesh.list@gmail.com,
+        lczerner@redhat.com, enwlinux@gmail.com,
+        linux-kernel@vger.kernel.org, yi.zhang@huawei.com,
+        yebin10@huawei.com, yukuai3@huawei.com,
+        Hulk Robot <hulkci@huawei.com>
+Subject: Re: [PATCH 4.19] ext4: fix race condition between
+ ext4_ioctl_setflags and ext4_fiemap
+Message-ID: <YtaVAWMlxrQNcS34@kroah.com>
+References: <20220715023928.2701166-1-libaokun1@huawei.com>
+ <YtF1XygwvIo2Dwae@kroah.com>
+ <425ab528-7d9a-975a-7f4c-5f903cedd8bc@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <425ab528-7d9a-975a-7f4c-5f903cedd8bc@huawei.com>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 14 Jul 2022, Shenwei Wang wrote:
+On Sat, Jul 16, 2022 at 10:33:30AM +0800, Baokun Li wrote:
+> 在 2022/7/15 22:10, Greg KH 写道:
+> > On Fri, Jul 15, 2022 at 10:39:28AM +0800, Baokun Li wrote:
+> > > This patch and problem analysis is based on v4.19 LTS.
+> > > The d3b6f23f7167("ext4: move ext4_fiemap to use iomap framework") patch
+> > > is incorporated in v5.7-rc1. This patch avoids this problem by switching
+> > > to iomap in ext4_fiemap.
+> > > 
+> > > Hulk Robot reported a BUG on stable 4.19.252:
+> > > ==================================================================
+> > > kernel BUG at fs/ext4/extents_status.c:762!
+> > > invalid opcode: 0000 [#1] SMP KASAN PTI
+> > > CPU: 7 PID: 2845 Comm: syz-executor Not tainted 4.19.252 #46
+> > > RIP: 0010:ext4_es_cache_extent+0x30e/0x370
+> > > [...]
+> > > Call Trace:
+> > >   ext4_cache_extents+0x238/0x2f0
+> > >   ext4_find_extent+0x785/0xa40
+> > >   ext4_fiemap+0x36d/0xe90
+> > >   do_vfs_ioctl+0x6af/0x1200
+> > > [...]
+> > > ==================================================================
+> > > 
+> > > Above issue may happen as follows:
+> > > -------------------------------------
+> > >             cpu1		    cpu2
+> > > _____________________|_____________________
+> > > do_vfs_ioctl
+> > >   ext4_ioctl
+> > >    ext4_ioctl_setflags
+> > >     ext4_ind_migrate
+> > >                          do_vfs_ioctl
+> > >                           ioctl_fiemap
+> > >                            ext4_fiemap
+> > >                             ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)
+> > >                             ext4_fill_fiemap_extents
+> > >      down_write(&EXT4_I(inode)->i_data_sem);
+> > >      ext4_ext_check_inode
+> > >      ext4_clear_inode_flag(inode, EXT4_INODE_EXTENTS)
+> > >      memset(ei->i_data, 0, sizeof(ei->i_data))
+> > >      up_write(&EXT4_I(inode)->i_data_sem);
+> > >                              down_read(&EXT4_I(inode)->i_data_sem);
+> > >                              ext4_find_extent
+> > >                               ext4_cache_extents
+> > >                                ext4_es_cache_extent
+> > >                                 BUG_ON(end < lblk)
+> > > 
+> > > We can easily reproduce this problem with the syzkaller testcase:
+> > > ```
+> > > 02:37:07 executing program 3:
+> > > r0 = openat(0xffffffffffffff9c, &(0x7f0000000040)='./file0\x00', 0x26e1, 0x0)
+> > > ioctl$FS_IOC_FSSETXATTR(r0, 0x40086602, &(0x7f0000000080)={0x17e})
+> > > mkdirat(0xffffffffffffff9c, &(0x7f00000000c0)='./file1\x00', 0x1ff)
+> > > r1 = openat(0xffffffffffffff9c, &(0x7f0000000100)='./file1\x00', 0x0, 0x0)
+> > > ioctl$FS_IOC_FIEMAP(r1, 0xc020660b, &(0x7f0000000180)={0x0, 0x1, 0x0, 0xef3, 0x6, []}) (async, rerun: 32)
+> > > ioctl$FS_IOC_FSSETXATTR(r1, 0x40086602, &(0x7f0000000140)={0x17e}) (rerun: 32)
+> > > ```
+> > > 
+> > > To solve this issue, we use __generic_block_fiemap() instead of
+> > > generic_block_fiemap() and add inode_lock_shared to avoid race condition.
+> > > 
+> > > Reported-by: Hulk Robot <hulkci@huawei.com>
+> > > Signed-off-by: Baokun Li <libaokun1@huawei.com>
+> > > ---
+> > >   fs/ext4/extents.c | 15 +++++++++++----
+> > >   1 file changed, 11 insertions(+), 4 deletions(-)
+> > What is the git commit id of this change in Linus's tree?
+> > 
+> > If it is not in Linus's tree, why not?
+> > 
+> > confused,
+> > 
+> > greg k-h
+> > .
+> 
+> This patch does not exist in the Linus' tree.
+> 
+> This problem persists until the patch d3b6f23f7167("ext4: move ext4_fiemap
+> to use iomap framework") is incorporated in v5.7-rc1.
 
-> The LPUART hardware doesn't zero out the parity bit on the received
-> characters. This behavior won't impact the use cases of CS8 because
-> the parity bit is the 9th bit which is not currently used by software.
-> But the parity bit for CS7 must be zeroed out by software in order to
-> get the correct raw data.
+Then why not ask for that change to be added instead?
 
-This problem only occurs with the lpuart32 variant? Or should the other 
-functions be changed as well?
+thanks,
 
--- 
- i.
-
-
-> Signed-off-by: Shenwei Wang <shenwei.wang@nxp.com>
-> ---
-> changes in v2
-> - remove the "inline" keyword from the function of lpuart_tty_insert_flip_string;
-> 
-> changes in v1
-> - fix the code indent and whitespace issue;
-> 
->  drivers/tty/serial/fsl_lpuart.c | 26 ++++++++++++++++++++++++--
->  1 file changed, 24 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-> index fc7d235a1e270..afa0f941c862f 100644
-> --- a/drivers/tty/serial/fsl_lpuart.c
-> +++ b/drivers/tty/serial/fsl_lpuart.c
-> @@ -274,6 +274,8 @@ struct lpuart_port {
->  	int			rx_dma_rng_buf_len;
->  	unsigned int		dma_tx_nents;
->  	wait_queue_head_t	dma_wait;
-> +	bool			is_cs7; /* Set to true when character size is 7 */
-> +					/* and the parity is enabled		*/
->  };
-> 
->  struct lpuart_soc_data {
-> @@ -1022,6 +1024,9 @@ static void lpuart32_rxint(struct lpuart_port *sport)
->  				flg = TTY_OVERRUN;
->  		}
-> 
-> +		if (sport->is_cs7)
-> +			rx &= 0x7F;
-> +
->  		if (tty_insert_flip_char(port, rx, flg) == 0)
->  			sport->port.icount.buf_overrun++;
->  	}
-> @@ -1107,6 +1112,17 @@ static void lpuart_handle_sysrq(struct lpuart_port *sport)
->  	}
->  }
-> 
-> +static int lpuart_tty_insert_flip_string(struct tty_port *port,
-> +	unsigned char *chars, size_t size, bool is_cs7)
-> +{
-> +	int i;
-> +
-> +	if (is_cs7)
-> +		for (i = 0; i < size; i++)
-> +			chars[i] &= 0x7F;
-> +	return tty_insert_flip_string(port, chars, size);
-> +}
-> +
->  static void lpuart_copy_rx_to_tty(struct lpuart_port *sport)
->  {
->  	struct tty_port *port = &sport->port.state->port;
-> @@ -1217,7 +1233,8 @@ static void lpuart_copy_rx_to_tty(struct lpuart_port *sport)
->  	if (ring->head < ring->tail) {
->  		count = sport->rx_sgl.length - ring->tail;
-> 
-> -		copied = tty_insert_flip_string(port, ring->buf + ring->tail, count);
-> +		copied = lpuart_tty_insert_flip_string(port, ring->buf + ring->tail,
-> +					count, sport->is_cs7);
->  		if (copied != count)
->  			sport->port.icount.buf_overrun++;
->  		ring->tail = 0;
-> @@ -1227,7 +1244,8 @@ static void lpuart_copy_rx_to_tty(struct lpuart_port *sport)
->  	/* Finally we read data from tail to head */
->  	if (ring->tail < ring->head) {
->  		count = ring->head - ring->tail;
-> -		copied = tty_insert_flip_string(port, ring->buf + ring->tail, count);
-> +		copied = lpuart_tty_insert_flip_string(port, ring->buf + ring->tail,
-> +					count, sport->is_cs7);
->  		if (copied != count)
->  			sport->port.icount.buf_overrun++;
->  		/* Wrap ring->head if needed */
-> @@ -2066,6 +2084,7 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
->  	ctrl = old_ctrl = lpuart32_read(&sport->port, UARTCTRL);
->  	bd = lpuart32_read(&sport->port, UARTBAUD);
->  	modem = lpuart32_read(&sport->port, UARTMODIR);
-> +	sport->is_cs7 = false;
->  	/*
->  	 * only support CS8 and CS7, and for CS7 must enable PE.
->  	 * supported mode:
-> @@ -2184,6 +2203,9 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
->  	lpuart32_write(&sport->port, ctrl, UARTCTRL);
->  	/* restore control register */
-> 
-> +	if ((ctrl & (UARTCTRL_PE | UARTCTRL_M)) == UARTCTRL_PE)
-> +		sport->is_cs7 = true;
-> +
->  	if (old && sport->lpuart_dma_rx_use) {
->  		if (!lpuart_start_rx_dma(sport))
->  			rx_dma_timer_init(sport);
-> --
-> 2.25.1
-> 
+greg k-h
