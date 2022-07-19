@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C89A579B12
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FD0579A16
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239076AbiGSMY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41002 "EHLO
+        id S238576AbiGSMKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:10:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239735AbiGSMYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F9661135;
-        Tue, 19 Jul 2022 05:09:02 -0700 (PDT)
+        with ESMTP id S239006AbiGSMJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720F64B490;
+        Tue, 19 Jul 2022 05:03:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 295DACE1BE2;
-        Tue, 19 Jul 2022 12:07:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E692CC341C6;
-        Tue, 19 Jul 2022 12:07:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01A8DB81B1A;
+        Tue, 19 Jul 2022 12:03:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58525C341C6;
+        Tue, 19 Jul 2022 12:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232476;
-        bh=TowrKb8G5TdIC9gGhKJdMt+9W5rjZOZsSfutDb6ykYE=;
+        s=korg; t=1658232181;
+        bh=nMsubhdoTkGiqDrKOeabGkoifRMZSppsWnIiitMOLPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTNU0yWgFePoSL6JndgnQ4CRRBV31yqlAemdcUaIAMl2Y4y4xUpYp1zVY8iND/Etb
-         MGd4X3jV/MYyUM7e4BIj8oCN2I0WJHQUgegQ6Tu28jzSRx9A//Rn9w4XVtK/CGAgQJ
-         ldOPb0PPm2xoBIYHYoKveLko5NAX8D9m/dz++R18=
+        b=WP5wnbjldyJUp3uT5+Mp5YPqWRk5+McvAJuser84CpFkVH+0HTzXe4OuTn3ti5eZ/
+         oddlmuHOksjpa8ITBAfegu00EygIniyY3PvolP8wGn1pKYvZheeuQxNA09OqIYqhFr
+         EpMnkNtdM7KdeD7KE8gVLGGkp/zWxaCOppWzm1GY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ma Yuying <yuma@redhat.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Edward Cree <ecree.xilinx@gmail.com>,
+        stable@vger.kernel.org, Andrea Mayer <andrea.mayer@uniroma2.it>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/112] sfc: fix kernel panic when creating VF
+Subject: [PATCH 5.4 41/71] seg6: fix skb checksum in SRv6 End.B6 and End.B6.Encaps behaviors
 Date:   Tue, 19 Jul 2022 13:54:04 +0200
-Message-Id: <20220719114633.349673504@linuxfoundation.org>
+Message-Id: <20220719114556.269234550@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Andrea Mayer <andrea.mayer@uniroma2.it>
 
-[ Upstream commit ada74c5539eba06cf8b47d068f92e0b3963a9a6e ]
+[ Upstream commit f048880fc77058d864aff5c674af7918b30f312a ]
 
-When creating VFs a kernel panic can happen when calling to
-efx_ef10_try_update_nic_stats_vf.
+The SRv6 End.B6 and End.B6.Encaps behaviors rely on functions
+seg6_do_srh_{encap,inline}() to, respectively: i) encapsulate the
+packet within an outer IPv6 header with the specified Segment Routing
+Header (SRH); ii) insert the specified SRH directly after the IPv6
+header of the packet.
 
-When releasing a DMA coherent buffer, sometimes, I don't know in what
-specific circumstances, it has to unmap memory with vunmap. It is
-disallowed to do that in IRQ context or with BH disabled. Otherwise, we
-hit this line in vunmap, causing the crash:
-  BUG_ON(in_interrupt());
+This patch removes the initialization of the IPv6 header payload length
+from the input_action_end_b6{_encap}() functions, as it is now handled
+properly by seg6_do_srh_{encap,inline}() to avoid corruption of the skb
+checksum.
 
-This patch reenables BH to release the buffer.
-
-Log messages when the bug is hit:
- kernel BUG at mm/vmalloc.c:2727!
- invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 6 PID: 1462 Comm: NetworkManager Kdump: loaded Tainted: G          I      --------- ---  5.14.0-119.el9.x86_64 #1
- Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
- RIP: 0010:vunmap+0x2e/0x30
- ...skip...
- Call Trace:
-  __iommu_dma_free+0x96/0x100
-  efx_nic_free_buffer+0x2b/0x40 [sfc]
-  efx_ef10_try_update_nic_stats_vf+0x14a/0x1c0 [sfc]
-  efx_ef10_update_stats_vf+0x18/0x40 [sfc]
-  efx_start_all+0x15e/0x1d0 [sfc]
-  efx_net_open+0x5a/0xe0 [sfc]
-  __dev_open+0xe7/0x1a0
-  __dev_change_flags+0x1d7/0x240
-  dev_change_flags+0x21/0x60
-  ...skip...
-
-Fixes: d778819609a2 ("sfc: DMA the VF stats only when requested")
-Reported-by: Ma Yuying <yuma@redhat.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20220713092116.21238-1-ihuguet@redhat.com
+Fixes: 140f04c33bbc ("ipv6: sr: implement several seg6local actions")
+Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv6/seg6_local.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index fa1a872c4bc8..5b7413305be6 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -1916,7 +1916,10 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
+diff --git a/net/ipv6/seg6_local.c b/net/ipv6/seg6_local.c
+index 802eebf8ac4b..ef5b5cee2201 100644
+--- a/net/ipv6/seg6_local.c
++++ b/net/ipv6/seg6_local.c
+@@ -421,7 +421,6 @@ static int input_action_end_b6(struct sk_buff *skb, struct seg6_local_lwt *slwt)
+ 	if (err)
+ 		goto drop;
  
- 	efx_update_sw_stats(efx, stats);
- out:
-+	/* releasing a DMA coherent buffer with BH disabled can panic */
-+	spin_unlock_bh(&efx->stats_lock);
- 	efx_nic_free_buffer(efx, &stats_buf);
-+	spin_lock_bh(&efx->stats_lock);
- 	return rc;
- }
+-	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
+ 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
  
+ 	seg6_lookup_nexthop(skb, NULL, 0);
+@@ -453,7 +452,6 @@ static int input_action_end_b6_encap(struct sk_buff *skb,
+ 	if (err)
+ 		goto drop;
+ 
+-	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
+ 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
+ 
+ 	seg6_lookup_nexthop(skb, NULL, 0);
 -- 
 2.35.1
 
