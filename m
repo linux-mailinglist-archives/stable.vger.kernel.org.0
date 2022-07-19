@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A93D579B32
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88305579991
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239721AbiGSMZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:25:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40122 "EHLO
+        id S237747AbiGSMEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:04:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240327AbiGSMYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF284AD5B;
-        Tue, 19 Jul 2022 05:09:43 -0700 (PDT)
+        with ESMTP id S238001AbiGSMDb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:03:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1431947BB7;
+        Tue, 19 Jul 2022 04:59:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED5EA6177E;
-        Tue, 19 Jul 2022 12:09:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F44C341CA;
-        Tue, 19 Jul 2022 12:09:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7651161642;
+        Tue, 19 Jul 2022 11:59:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4355FC341CE;
+        Tue, 19 Jul 2022 11:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232548;
-        bh=1jbgUH0Mel0TYxpjgWUOesjGNI5LW/zvQ0Etj2CkzhU=;
+        s=korg; t=1658231975;
+        bh=O2H9Ba9eis0RpkWMOZw2TmNsUO9mVzCObVdZoy0q4yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJFeM2ZMdxNF8PRFXaQOP/b1mOQ+iNxGzvlebNsM0hXod7P/Dd09QEk6oSw9kj1At
-         0Q4+NYg18PYDqKH+KNt42urF5us2QXWY7IOrg9/rEEQgt1mMwW+WYigoLLHS8xiZS6
-         +lzmLseGA2Kx7OU82Ut+MRbnjA+vkaHy23r/CR74=
+        b=il62pTHZxJRZ17U9qo914mU+uoZogccrF+lVShRj0opU0cXb7Z9LRCb/y3P3yXio5
+         2N6wV/MpyCFZ2CtlfldDL+CF6Vjr40QJM+9GhqpqvZBTpwDvUm7+Axa+8BCpK2CgoT
+         epI0Nr6oqxQG0c8LA0J4nS77sYaQEEx/bQD8kIcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/112] ipv4: Fix data-races around sysctl_ip_dynaddr.
+Subject: [PATCH 4.19 18/48] ARM: dts: sunxi: Fix SPI NOR campatible on Orange Pi Zero
 Date:   Tue, 19 Jul 2022 13:53:55 +0200
-Message-Id: <20220719114632.518016482@linuxfoundation.org>
+Message-Id: <20220719114521.442773000@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Michal Suchanek <msuchanek@suse.de>
 
-[ Upstream commit e49e4aff7ec19b2d0d0957ee30e93dade57dab9e ]
+[ Upstream commit 884b66976a7279ee889ba885fe364244d50b79e7 ]
 
-While reading sysctl_ip_dynaddr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+The device tree should include generic "jedec,spi-nor" compatible, and a
+manufacturer-specific one.
+The macronix part is what is shipped on the boards that come with a
+flash chip.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 45857ae95478 ("ARM: dts: orange-pi-zero: add node for SPI NOR")
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220708174529.3360-1-msuchanek@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.rst | 2 +-
- net/ipv4/af_inet.c                     | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
-index 73de75906b24..0b1f3235aa77 100644
---- a/Documentation/networking/ip-sysctl.rst
-+++ b/Documentation/networking/ip-sysctl.rst
-@@ -1080,7 +1080,7 @@ ip_autobind_reuse - BOOLEAN
- 	option should only be set by experts.
- 	Default: 0
- 
--ip_dynaddr - BOOLEAN
-+ip_dynaddr - INTEGER
- 	If set non-zero, enables support for dynamic addresses.
- 	If set to a non-zero value larger than 1, a kernel log
- 	message will be printed when dynamic address rewriting
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 742218594741..e77283069c7b 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1245,7 +1245,7 @@ static int inet_sk_reselect_saddr(struct sock *sk)
- 	if (new_saddr == old_saddr)
- 		return 0;
- 
--	if (sock_net(sk)->ipv4.sysctl_ip_dynaddr > 1) {
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) > 1) {
- 		pr_info("%s(): shifting inet->saddr from %pI4 to %pI4\n",
- 			__func__, &old_saddr, &new_saddr);
- 	}
-@@ -1300,7 +1300,7 @@ int inet_sk_rebuild_header(struct sock *sk)
- 		 * Other protocols have to map its equivalent state to TCP_SYN_SENT.
- 		 * DCCP maps its DCCP_REQUESTING state to TCP_SYN_SENT. -acme
- 		 */
--		if (!sock_net(sk)->ipv4.sysctl_ip_dynaddr ||
-+		if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_ip_dynaddr) ||
- 		    sk->sk_state != TCP_SYN_SENT ||
- 		    (sk->sk_userlocks & SOCK_BINDADDR_LOCK) ||
- 		    (err = inet_sk_reselect_saddr(sk)) != 0)
+diff --git a/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts b/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts
+index 84cd9c061227..afc94dbc0752 100644
+--- a/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts
++++ b/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts
+@@ -170,7 +170,7 @@ &spi0 {
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "mxicy,mx25l1606e", "winbond,w25q128";
++		compatible = "mxicy,mx25l1606e", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <40000000>;
+ 	};
 -- 
 2.35.1
 
