@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72532579A66
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E713E579CD0
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239954AbiGSMPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35904 "EHLO
+        id S241325AbiGSMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239363AbiGSMOf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432974BD37;
-        Tue, 19 Jul 2022 05:05:33 -0700 (PDT)
+        with ESMTP id S237992AbiGSMnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3248051F;
+        Tue, 19 Jul 2022 05:16:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F38A26163C;
-        Tue, 19 Jul 2022 12:04:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7729C341C6;
-        Tue, 19 Jul 2022 12:04:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB07461835;
+        Tue, 19 Jul 2022 12:16:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDAAEC341C6;
+        Tue, 19 Jul 2022 12:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232256;
-        bh=c/XJfOkUlOLnla1L5ZnZ0LWSnYa8/tqSGzjKTzuArC0=;
+        s=korg; t=1658232999;
+        bh=xBPwjux9Bz7aWd1/UgILLOUdNPSQvAaFFU4PMe+ej7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pvs9EKt8KAr7JE+ASTjd0ZSbBOf0fz//ow9vpdJm+QgYYJ6Jo/TmeBVpWu7eE4SSt
-         oFYOL+8wnsnriEXuf0j2Nn1V0cOpAocaq+RZh9CeaCqHuOPk65sIe8mf1kqmudOePD
-         mcNc4cQYDQPj2IA7AoQEMmnV0bv2hkPi9PGs/i5g=
+        b=x33v2dY3sYQ3yznBNoGNkYZYD+iQ2Td+paARRlPvSrOZhm0kXT8aFjjZFv9vcOqGM
+         qL7l24v5b/1xJpO0BGvqJ2ZptcaUb6lzYWoO4ADNl/4YY9SheuEc1/Kablqp2Yaray
+         RTcdKNf72Yw0W/IxzneE5g/egHH8EmmSIxL6pRgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Chanho Park <chanho61.park@samsung.com>
-Subject: [PATCH 5.4 67/71] tty: serial: samsung_tty: set dma burst_size to 1
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 138/167] ASoC: codecs: rt700/rt711/rt711-sdca: initialize workqueues in probe
 Date:   Tue, 19 Jul 2022 13:54:30 +0200
-Message-Id: <20220719114559.104582791@linuxfoundation.org>
+Message-Id: <20220719114709.860475784@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +56,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanho Park <chanho61.park@samsung.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit f7e35e4bf1e8dc2c8cbd5e0955dc1bd58558dae0 upstream.
+[ Upstream commit ba98d7d8b60ba410aa03834f6aa48fd3b2e68478 ]
 
-The src_maxburst and dst_maxburst have been changed to 1 but the settings
-of the UCON register aren't changed yet. They should be changed as well
-according to the dmaengine slave config.
+The workqueues are initialized in the io_init functions, which isn't
+quite right. In some tests, this leads to warnings throw from
+__queue_delayed_work()
 
-Fixes: aa2f80e752c7 ("serial: samsung: fix maxburst parameter for DMA transactions")
-Cc: stable <stable@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20220627065113.139520-1-chanho61.park@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARN_ON_FUNCTION_MISMATCH(timer->function, delayed_work_timer_fn);
+
+Move all the initializations to the probe functions.
+
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220606203752.144159-7-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/samsung.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/codecs/rt700.c      |   12 +++++-------
+ sound/soc/codecs/rt711-sdca.c |   10 +++-------
+ sound/soc/codecs/rt711.c      |   12 +++++-------
+ 3 files changed, 13 insertions(+), 21 deletions(-)
 
---- a/drivers/tty/serial/samsung.c
-+++ b/drivers/tty/serial/samsung.c
-@@ -238,8 +238,7 @@ static void enable_tx_dma(struct s3c24xx
- 	/* Enable tx dma mode */
- 	ucon = rd_regl(port, S3C2410_UCON);
- 	ucon &= ~(S3C64XX_UCON_TXBURST_MASK | S3C64XX_UCON_TXMODE_MASK);
--	ucon |= (dma_get_cache_alignment() >= 16) ?
--		S3C64XX_UCON_TXBURST_16 : S3C64XX_UCON_TXBURST_1;
-+	ucon |= S3C64XX_UCON_TXBURST_1;
- 	ucon |= S3C64XX_UCON_TXMODE_DMA;
- 	wr_regl(port,  S3C2410_UCON, ucon);
+--- a/sound/soc/codecs/rt700.c
++++ b/sound/soc/codecs/rt700.c
+@@ -1124,6 +1124,11 @@ int rt700_init(struct device *dev, struc
  
-@@ -512,7 +511,7 @@ static void enable_rx_dma(struct s3c24xx
- 			S3C64XX_UCON_DMASUS_EN |
- 			S3C64XX_UCON_TIMEOUT_EN |
- 			S3C64XX_UCON_RXMODE_MASK);
--	ucon |= S3C64XX_UCON_RXBURST_16 |
-+	ucon |= S3C64XX_UCON_RXBURST_1 |
- 			0xf << S3C64XX_UCON_TIMEOUT_SHIFT |
- 			S3C64XX_UCON_EMPTYINT_EN |
- 			S3C64XX_UCON_TIMEOUT_EN |
+ 	mutex_init(&rt700->disable_irq_lock);
+ 
++	INIT_DELAYED_WORK(&rt700->jack_detect_work,
++			  rt700_jack_detect_handler);
++	INIT_DELAYED_WORK(&rt700->jack_btn_check_work,
++			  rt700_btn_check_handler);
++
+ 	/*
+ 	 * Mark hw_init to false
+ 	 * HW init will be performed when device reports present
+@@ -1218,13 +1223,6 @@ int rt700_io_init(struct device *dev, st
+ 	/* Finish Initial Settings, set power to D3 */
+ 	regmap_write(rt700->regmap, RT700_SET_AUDIO_POWER_STATE, AC_PWRST_D3);
+ 
+-	if (!rt700->first_hw_init) {
+-		INIT_DELAYED_WORK(&rt700->jack_detect_work,
+-			rt700_jack_detect_handler);
+-		INIT_DELAYED_WORK(&rt700->jack_btn_check_work,
+-			rt700_btn_check_handler);
+-	}
+-
+ 	/*
+ 	 * if set_jack callback occurred early than io_init,
+ 	 * we set up the jack detection function now
+--- a/sound/soc/codecs/rt711-sdca.c
++++ b/sound/soc/codecs/rt711-sdca.c
+@@ -1417,6 +1417,9 @@ int rt711_sdca_init(struct device *dev,
+ 	mutex_init(&rt711->calibrate_mutex);
+ 	mutex_init(&rt711->disable_irq_lock);
+ 
++	INIT_DELAYED_WORK(&rt711->jack_detect_work, rt711_sdca_jack_detect_handler);
++	INIT_DELAYED_WORK(&rt711->jack_btn_check_work, rt711_sdca_btn_check_handler);
++
+ 	/*
+ 	 * Mark hw_init to false
+ 	 * HW init will be performed when device reports present
+@@ -1548,13 +1551,6 @@ int rt711_sdca_io_init(struct device *de
+ 	rt711_sdca_index_update_bits(rt711, RT711_VENDOR_HDA_CTL,
+ 		RT711_PUSH_BTN_INT_CTL0, 0x20, 0x00);
+ 
+-	if (!rt711->first_hw_init) {
+-		INIT_DELAYED_WORK(&rt711->jack_detect_work,
+-			rt711_sdca_jack_detect_handler);
+-		INIT_DELAYED_WORK(&rt711->jack_btn_check_work,
+-			rt711_sdca_btn_check_handler);
+-	}
+-
+ 	/* calibration */
+ 	ret = rt711_sdca_calibration(rt711);
+ 	if (ret < 0)
+--- a/sound/soc/codecs/rt711.c
++++ b/sound/soc/codecs/rt711.c
+@@ -1202,6 +1202,10 @@ int rt711_init(struct device *dev, struc
+ 	mutex_init(&rt711->calibrate_mutex);
+ 	mutex_init(&rt711->disable_irq_lock);
+ 
++	INIT_DELAYED_WORK(&rt711->jack_detect_work, rt711_jack_detect_handler);
++	INIT_DELAYED_WORK(&rt711->jack_btn_check_work, rt711_btn_check_handler);
++	INIT_WORK(&rt711->calibration_work, rt711_calibration_work);
++
+ 	/*
+ 	 * Mark hw_init to false
+ 	 * HW init will be performed when device reports present
+@@ -1309,14 +1313,8 @@ int rt711_io_init(struct device *dev, st
+ 
+ 	if (rt711->first_hw_init)
+ 		rt711_calibration(rt711);
+-	else {
+-		INIT_DELAYED_WORK(&rt711->jack_detect_work,
+-			rt711_jack_detect_handler);
+-		INIT_DELAYED_WORK(&rt711->jack_btn_check_work,
+-			rt711_btn_check_handler);
+-		INIT_WORK(&rt711->calibration_work, rt711_calibration_work);
++	else
+ 		schedule_work(&rt711->calibration_work);
+-	}
+ 
+ 	/*
+ 	 * if set_jack callback occurred early than io_init,
 
 
