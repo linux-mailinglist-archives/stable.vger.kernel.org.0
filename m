@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23FEC5799DA
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:07:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ADFB579CDA
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238424AbiGSMHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:07:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51850 "EHLO
+        id S241438AbiGSMnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237578AbiGSMHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:07:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719724E84F;
-        Tue, 19 Jul 2022 05:01:11 -0700 (PDT)
+        with ESMTP id S241504AbiGSMnU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BE3820CF;
+        Tue, 19 Jul 2022 05:16:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88F9A61642;
-        Tue, 19 Jul 2022 12:01:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D23DC341CA;
-        Tue, 19 Jul 2022 12:01:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 723AD6177F;
+        Tue, 19 Jul 2022 12:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506F8C341C6;
+        Tue, 19 Jul 2022 12:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232069;
-        bh=08xxHGUudMtdS1OarUIzc4kUHpP8gjuUZlzB8ABPe2E=;
+        s=korg; t=1658233010;
+        bh=aArpVS4VNheVFDiOhTep3qwKK7+LFJJviBSs/dkrB5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGGnmzMhK2rgj0FXoGKZ4XgS3u0Hn+SOH6hVPy72YF97qWS6cglWagIEDRmOkOWD3
-         FjOQPJ0HQEt2zqGdFKUR3Fw7bxT6Acahp/rEbwKk4mseNFSx37Rh4vBTCTNdgY1y+e
-         UfJvFlOUFBhTT2o4/jmzRe3N4YAvjgeVNBeh5QgA=
+        b=kQOfxJwcgOAOn4mLWU0nI4RYf8ShUIZd51CEg536nriggji2cJQcUYgPa+CxSroxw
+         4iojT38HxInoTbDMjAIyGY4wKWIUrDJ0Gc2/15nNibXpftrzWDpzSzautqC/kRyeaz
+         S+nZc0SSAgrgyEjRXMRqMGDjDnS/4mkcF578jRx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/48] net: tipc: fix possible refcount leak in tipc_sk_create()
-Date:   Tue, 19 Jul 2022 13:54:09 +0200
-Message-Id: <20220719114522.749383754@linuxfoundation.org>
+Subject: [PATCH 5.15 118/167] virtio_mmio: Restore guest page size on resume
+Date:   Tue, 19 Jul 2022 13:54:10 +0200
+Message-Id: <20220719114707.992732444@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit 00aff3590fc0a73bddd3b743863c14e76fd35c0c ]
+[ Upstream commit e0c2ce8217955537dd5434baeba061f209797119 ]
 
-Free sk in case tipc_sk_insert() fails.
+Virtio devices might lose their state when the VMM is restarted
+after a suspend to disk (hibernation) cycle. This means that the
+guest page size register must be restored for the virtio_mmio legacy
+interface, since otherwise the virtio queues are not functional.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is particularly problematic for QEMU that currently still defaults
+to using the legacy interface for virtio_mmio. Write the guest page
+size register again in virtio_mmio_restore() to make legacy virtio_mmio
+devices work correctly after hibernation.
+
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Message-Id: <20220621110621.3638025-3-stephan.gerhold@kernkonzept.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/virtio/virtio_mmio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 6c18b4565ab5..8266452c143b 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -453,6 +453,7 @@ static int tipc_sk_create(struct net *net, struct socket *sock,
- 	sock_init_data(sock, sk);
- 	tipc_set_sk_state(sk, TIPC_OPEN);
- 	if (tipc_sk_insert(tsk)) {
-+		sk_free(sk);
- 		pr_warn("Socket create failed; port number exhausted\n");
- 		return -EINVAL;
- 	}
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 7522832529dd..fe696aafaed8 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -556,6 +556,9 @@ static int virtio_mmio_restore(struct device *dev)
+ {
+ 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
+ 
++	if (vm_dev->version == 1)
++		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
++
+ 	return virtio_device_restore(&vm_dev->vdev);
+ }
+ 
 -- 
 2.35.1
 
