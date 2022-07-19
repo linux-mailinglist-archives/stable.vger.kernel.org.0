@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2852657997B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E608A579E60
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238076AbiGSMDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:03:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38882 "EHLO
+        id S243324AbiGSNA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:00:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237684AbiGSMCx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:02:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFE9419B9;
-        Tue, 19 Jul 2022 04:59:13 -0700 (PDT)
+        with ESMTP id S242702AbiGSM71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C05749B6A;
+        Tue, 19 Jul 2022 05:24:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A82F61642;
-        Tue, 19 Jul 2022 11:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D12BC341C6;
-        Tue, 19 Jul 2022 11:59:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 840E6B81B25;
+        Tue, 19 Jul 2022 12:24:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D837C341CF;
+        Tue, 19 Jul 2022 12:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231952;
-        bh=7hG0PSxrVxuVd3VAegAi1N4Yy2ClZZbFC8rM5gscrqo=;
+        s=korg; t=1658233472;
+        bh=ds/jYxyr9dNl95S3HVk6w7DZ/o5Nsle7cc9jjK4Z3SM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L29ZJ/vYuwacIXFg+nqS0ZSTkrS1Diso7eSzcga5OVu8ER3Sn7neYpPMaW2h7mOcl
-         3mphKnd2a/n95BOiHS5dE0R320CNIa5zcsx1ZbqaJmaPdgaxtXlV0HbBLvINIy9MPG
-         Qw734/Foy96xN6xDhbiLtlhlPD3B/01wcZruYvMg=
+        b=hb4S3UwuUX/sCHsZc0re79/EUdskvdM3MOvC1kdAU2zB3S3tZcVbF/t93iqJ21DOn
+         o87RR6TYu1KDYMAH8TErqmvZYlB/LsfknKS9jXswqobWq4/M5exxR57k6DngyEKLUe
+         q5J0vummavTe/m1KcwceTdCJzR7/DgHrSWJ17ASM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 02/48] ALSA: hda/conexant: Apply quirk for another HP ProDesk 600 G3 model
+        stable@vger.kernel.org, Yanghang Liu <yanghliu@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 134/231] sfc: fix use after free when disabling sriov
 Date:   Tue, 19 Jul 2022 13:53:39 +0200
-Message-Id: <20220719114520.201175748@linuxfoundation.org>
+Message-Id: <20220719114725.712936540@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-commit d16d69bf5a25d91c6d8f3e29711be12551bf56cd upstream.
+[ Upstream commit ebe41da5d47ac0fff877e57bd14c54dccf168827 ]
 
-There is another HP ProDesk 600 G3 model with the PCI SSID 103c:82b4
-that requires the quirk HP_MIC_NO_PRESENCE. Add the corresponding
-entry to the quirk table.
+Use after free is detected by kfence when disabling sriov. What was read
+after being freed was vf->pci_dev: it was freed from pci_disable_sriov
+and later read in efx_ef10_sriov_free_vf_vports, called from
+efx_ef10_sriov_free_vf_vswitching.
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220711101744.25189-1-tangmeng@uniontech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Set the pointer to NULL at release time to not trying to read it later.
+
+Reproducer and dmesg log (note that kfence doesn't detect it every time):
+$ echo 1 > /sys/class/net/enp65s0f0np0/device/sriov_numvfs
+$ echo 0 > /sys/class/net/enp65s0f0np0/device/sriov_numvfs
+
+ BUG: KFENCE: use-after-free read in efx_ef10_sriov_free_vf_vswitching+0x82/0x170 [sfc]
+
+ Use-after-free read at 0x00000000ff3c1ba5 (in kfence-#224):
+  efx_ef10_sriov_free_vf_vswitching+0x82/0x170 [sfc]
+  efx_ef10_pci_sriov_disable+0x38/0x70 [sfc]
+  efx_pci_sriov_configure+0x24/0x40 [sfc]
+  sriov_numvfs_store+0xfe/0x140
+  kernfs_fop_write_iter+0x11c/0x1b0
+  new_sync_write+0x11f/0x1b0
+  vfs_write+0x1eb/0x280
+  ksys_write+0x5f/0xe0
+  do_syscall_64+0x5c/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ kfence-#224: 0x00000000edb8ef95-0x00000000671f5ce1, size=2792, cache=kmalloc-4k
+
+ allocated by task 6771 on cpu 10 at 3137.860196s:
+  pci_alloc_dev+0x21/0x60
+  pci_iov_add_virtfn+0x2a2/0x320
+  sriov_enable+0x212/0x3e0
+  efx_ef10_sriov_configure+0x67/0x80 [sfc]
+  efx_pci_sriov_configure+0x24/0x40 [sfc]
+  sriov_numvfs_store+0xba/0x140
+  kernfs_fop_write_iter+0x11c/0x1b0
+  new_sync_write+0x11f/0x1b0
+  vfs_write+0x1eb/0x280
+  ksys_write+0x5f/0xe0
+  do_syscall_64+0x5c/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ freed by task 6771 on cpu 12 at 3170.991309s:
+  device_release+0x34/0x90
+  kobject_cleanup+0x3a/0x130
+  pci_iov_remove_virtfn+0xd9/0x120
+  sriov_disable+0x30/0xe0
+  efx_ef10_pci_sriov_disable+0x57/0x70 [sfc]
+  efx_pci_sriov_configure+0x24/0x40 [sfc]
+  sriov_numvfs_store+0xfe/0x140
+  kernfs_fop_write_iter+0x11c/0x1b0
+  new_sync_write+0x11f/0x1b0
+  vfs_write+0x1eb/0x280
+  ksys_write+0x5f/0xe0
+  do_syscall_64+0x5c/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 3c5eb87605e85 ("sfc: create vports for VFs and assign random MAC addresses")
+Reported-by: Yanghang Liu <yanghliu@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20220712062642.6915-1-ihuguet@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_conexant.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/sfc/ef10_sriov.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -918,6 +918,7 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x103c, 0x82b4, "HP ProDesk 600 G3", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
+diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
+index 7f5aa4a8c451..92550c7e85ce 100644
+--- a/drivers/net/ethernet/sfc/ef10_sriov.c
++++ b/drivers/net/ethernet/sfc/ef10_sriov.c
+@@ -408,8 +408,9 @@ static int efx_ef10_pci_sriov_enable(struct efx_nic *efx, int num_vfs)
+ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
+ {
+ 	struct pci_dev *dev = efx->pci_dev;
++	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+ 	unsigned int vfs_assigned = pci_vfs_assigned(dev);
+-	int rc = 0;
++	int i, rc = 0;
+ 
+ 	if (vfs_assigned && !force) {
+ 		netif_info(efx, drv, efx->net_dev, "VFs are assigned to guests; "
+@@ -417,10 +418,13 @@ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
+ 		return -EBUSY;
+ 	}
+ 
+-	if (!vfs_assigned)
++	if (!vfs_assigned) {
++		for (i = 0; i < efx->vf_count; i++)
++			nic_data->vf[i].pci_dev = NULL;
+ 		pci_disable_sriov(dev);
+-	else
++	} else {
+ 		rc = -EBUSY;
++	}
+ 
+ 	efx_ef10_sriov_free_vf_vswitching(efx);
+ 	efx->vf_count = 0;
+-- 
+2.35.1
+
 
 
