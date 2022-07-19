@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F4E579A0B
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914C0579ACD
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238509AbiGSMK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
+        id S232757AbiGSMUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:20:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238730AbiGSMJf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:35 -0400
+        with ESMTP id S239415AbiGSMS0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:18:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAA6D4AD71;
-        Tue, 19 Jul 2022 05:02:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D7F57239;
+        Tue, 19 Jul 2022 05:06:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 385C8B81B2C;
-        Tue, 19 Jul 2022 12:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9021CC341C6;
-        Tue, 19 Jul 2022 12:02:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91AD3B81B82;
+        Tue, 19 Jul 2022 12:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F39E5C341C6;
+        Tue, 19 Jul 2022 12:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232152;
-        bh=ZDXPKBUPv2wTUrmCOEs1oxrnvtOR2oVUdyzjiJmeFXQ=;
+        s=korg; t=1658232386;
+        bh=XGiKy/R4KCoFi8zxtIeFEjyru5bsAbCtOkKNelcBf34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GosjMXPSTlm6GjiRuBHHT0C7Ng+o8XYMYuiosCrXmDChoeP70yL+AaJYQC457sT3/
-         f5TNNewS5DAUfvDaCfgWh7an+xUbG0KQPmJcdY+dXdicy4FLi1Pqj8ApFlQhAt8gqR
-         mylUZdYI6WyejvZKMcnrxNHATG6CrTWHs2PlmMoY=
+        b=nBHJJ+4VsjCCHNVnqXzNSH1NuyS1bon6CZA3KNsvtdNZe/QBsewHpvoqUcKVAUa71
+         wbm/emz6uolhK3TObV/5rroSdCvfsxM2xzc7BtC17WlEbGBH9z3NKmog74ShohrkfU
+         91czaE70ZGhFO2oXON2vbF/tTKFzmeDwfrSK3tAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Edwin Brossette <edwin.brossette@6wind.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.4 09/71] ip: fix dflt addr selection for connected nexthop
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 039/112] ASoC: Intel: Skylake: Correct the ssp rate discovery in skl_get_ssp_clks()
 Date:   Tue, 19 Jul 2022 13:53:32 +0200
-Message-Id: <20220719114553.164733174@linuxfoundation.org>
+Message-Id: <20220719114630.091756834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-commit 747c14307214b55dbd8250e1ab44cad8305756f1 upstream.
+[ Upstream commit 219af251bd1694bce1f627d238347d2eaf13de61 ]
 
-When a nexthop is added, without a gw address, the default scope was set
-to 'host'. Thus, when a source address is selected, 127.0.0.1 may be chosen
-but rejected when the route is used.
+The present flag is only set once when one rate has been found to be saved.
+This will effectively going to ignore any rate discovered at later time and
+based on the code, this is not the intention.
 
-When using a route without a nexthop id, the scope can be configured in the
-route, thus the problem doesn't exist.
-
-To explain more deeply: when a user creates a nexthop, it cannot specify
-the scope. To create it, the function nh_create_ipv4() calls fib_check_nh()
-with scope set to 0. fib_check_nh() calls fib_check_nh_nongw() wich was
-setting scope to 'host'. Then, nh_create_ipv4() calls
-fib_info_update_nhc_saddr() with scope set to 'host'. The src addr is
-chosen before the route is inserted.
-
-When a 'standard' route (ie without a reference to a nexthop) is added,
-fib_create_info() calls fib_info_update_nhc_saddr() with the scope set by
-the user. iproute2 set the scope to 'link' by default.
-
-Here is a way to reproduce the problem:
-ip netns add foo
-ip -n foo link set lo up
-ip netns add bar
-ip -n bar link set lo up
-sleep 1
-
-ip -n foo link add name eth0 type dummy
-ip -n foo link set eth0 up
-ip -n foo address add 192.168.0.1/24 dev eth0
-
-ip -n foo link add name veth0 type veth peer name veth1 netns bar
-ip -n foo link set veth0 up
-ip -n bar link set veth1 up
-
-ip -n bar address add 192.168.1.1/32 dev veth1
-ip -n bar route add default dev veth1
-
-ip -n foo nexthop add id 1 dev veth0
-ip -n foo route add 192.168.1.1 nhid 1
-
-Try to get/use the route:
-> $ ip -n foo route get 192.168.1.1
-> RTNETLINK answers: Invalid argument
-> $ ip netns exec foo ping -c1 192.168.1.1
-> ping: connect: Invalid argument
-
-Try without nexthop group (iproute2 sets scope to 'link' by dflt):
-ip -n foo route del 192.168.1.1
-ip -n foo route add 192.168.1.1 dev veth0
-
-Try to get/use the route:
-> $ ip -n foo route get 192.168.1.1
-> 192.168.1.1 dev veth0 src 192.168.0.1 uid 0
->     cache
-> $ ip netns exec foo ping -c1 192.168.1.1
-> PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
-> 64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.039 ms
->
-> --- 192.168.1.1 ping statistics ---
-> 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-> rtt min/avg/max/mdev = 0.039/0.039/0.039/0.000 ms
-
-CC: stable@vger.kernel.org
-Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
-Reported-by: Edwin Brossette <edwin.brossette@6wind.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Link: https://lore.kernel.org/r/20220713114853.29406-1-nicolas.dichtel@6wind.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bc2bd45b1f7f3 ("ASoC: Intel: Skylake: Parse nhlt and register clock device")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20220630065638.11183-2-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/skylake/skl-nhlt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -1217,7 +1217,7 @@ static int fib_check_nh_nongw(struct net
+diff --git a/sound/soc/intel/skylake/skl-nhlt.c b/sound/soc/intel/skylake/skl-nhlt.c
+index 87c891c46291..c668e10baade 100644
+--- a/sound/soc/intel/skylake/skl-nhlt.c
++++ b/sound/soc/intel/skylake/skl-nhlt.c
+@@ -201,7 +201,6 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 	struct nhlt_fmt_cfg *fmt_cfg;
+ 	struct wav_fmt_ext *wav_fmt;
+ 	unsigned long rate;
+-	bool present = false;
+ 	int rate_index = 0;
+ 	u16 channels, bps;
+ 	u8 clk_src;
+@@ -215,6 +214,8 @@ static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+ 		return;
  
- 	nh->fib_nh_dev = in_dev->dev;
- 	dev_hold(nh->fib_nh_dev);
--	nh->fib_nh_scope = RT_SCOPE_HOST;
-+	nh->fib_nh_scope = RT_SCOPE_LINK;
- 	if (!netif_carrier_ok(nh->fib_nh_dev))
- 		nh->fib_nh_flags |= RTNH_F_LINKDOWN;
- 	err = 0;
+ 	for (i = 0; i < fmt->fmt_count; i++) {
++		bool present = false;
++
+ 		fmt_cfg = &fmt->fmt_config[i];
+ 		wav_fmt = &fmt_cfg->fmt_ext;
+ 
+-- 
+2.35.1
+
 
 
