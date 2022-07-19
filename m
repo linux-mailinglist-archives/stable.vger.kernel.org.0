@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26371579D87
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02758579D88
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242021AbiGSMwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:52:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50382 "EHLO
+        id S242025AbiGSMwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:52:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241919AbiGSMu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:50:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8098AB86E;
-        Tue, 19 Jul 2022 05:20:12 -0700 (PDT)
+        with ESMTP id S241935AbiGSMvF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:51:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF82140B3;
+        Tue, 19 Jul 2022 05:20:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03F7B6177D;
-        Tue, 19 Jul 2022 12:20:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1573C341C6;
-        Tue, 19 Jul 2022 12:20:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41BB6B81B10;
+        Tue, 19 Jul 2022 12:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D91BC341C6;
+        Tue, 19 Jul 2022 12:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233211;
-        bh=JHvkOaikfq7lVP2FgXzAZJuffmnjOBt/h6hBSSmaQ9Q=;
+        s=korg; t=1658233214;
+        bh=a1+ZBTpT+ZdrHS3GrZhyAj3P83hhhru4zCKtcV/i6r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0wZdZ70LdKJ0eW2aKtBqfbHkmoGmoyYQh2Ic9gVvzGTbk9bMR/+GAPf5q3F2MQeZ
-         lyb0NQ+hOxxvmd16slkbxj01tusbA7KAaAJSmUX0ju4eARvcPNKXqT/nW3Iz0pLwd0
-         BZeYi8TFyjdcsTcj6svG9rIjatFGoUg+QGFwLN+0=
+        b=LZo90M7ryW3Otkr2IUPgkRJi0QVmAppNRfqYOqL2kvqjLd2EdgXjFLNIBgIx1nh+O
+         z/y9seixzxgaE7TJpwVYMPFxxnkR/alRO/PXYcJw2EpeEG2BhxdxeNUPreBobnheGt
+         exms2waqciVaKaWceS+GGYi6kWaGyBH1fCGetigg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Oz Shlomo <ozsh@nvidia.com>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 045/231] net/mlx5e: CT: Use own workqueue instead of mlx5e priv
-Date:   Tue, 19 Jul 2022 13:52:10 +0200
-Message-Id: <20220719114718.092751571@linuxfoundation.org>
+Subject: [PATCH 5.18 046/231] net/mlx5e: Fix capability check for updating vnic env counters
+Date:   Tue, 19 Jul 2022 13:52:11 +0200
+Message-Id: <20220719114718.171333236@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,103 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 6c4e8fa03fde7e5b304594294e397a9ba92feaf6 ]
+[ Upstream commit 452133dd580811f184e76b1402983182ee425298 ]
 
-Allocate a ct priv workqueue instead of using mlx5e priv one
-so flushing will only be of related CT entries.
-Also move flushing of the workqueue before rhashtable destroy
-otherwise entries won't be valid.
+The existing capability check for vnic env counters only checks for
+receive steering discards, although we need the counters update for the
+exposed internal queue oob counter as well. This could result in the
+latter counter not being updated correctly when the receive steering
+discards counter is not supported.
+Fix that by checking whether any counter is supported instead of only
+the steering counter capability.
 
-Fixes: b069e14fff46 ("net/mlx5e: CT: Fix queued up restore put() executing after relevant ft release")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Oz Shlomo <ozsh@nvidia.com>
+Fixes: 0cfafd4b4ddf ("net/mlx5e: Add device out of buffer counter")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/en/tc_ct.c    | 20 +++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_stats.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-index 1ff7a07bcd06..fbcce63e5b80 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-@@ -66,6 +66,7 @@ struct mlx5_tc_ct_priv {
- 	struct mlx5_ct_fs *fs;
- 	struct mlx5_ct_fs_ops *fs_ops;
- 	spinlock_t ht_lock; /* protects ft entries */
-+	struct workqueue_struct *wq;
- };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+index bdc870f9c2f3..4429c848d4c4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+@@ -688,7 +688,7 @@ static MLX5E_DECLARE_STATS_GRP_OP_UPDATE_STATS(vnic_env)
+ 	u32 in[MLX5_ST_SZ_DW(query_vnic_env_in)] = {};
+ 	struct mlx5_core_dev *mdev = priv->mdev;
  
- struct mlx5_ct_flow {
-@@ -927,14 +928,11 @@ static void mlx5_tc_ct_entry_del_work(struct work_struct *work)
- static void
- __mlx5_tc_ct_entry_put(struct mlx5_ct_entry *entry)
- {
--	struct mlx5e_priv *priv;
--
- 	if (!refcount_dec_and_test(&entry->refcnt))
+-	if (!MLX5_CAP_GEN(priv->mdev, nic_receive_steering_discard))
++	if (!mlx5e_stats_grp_vnic_env_num_stats(priv))
  		return;
  
--	priv = netdev_priv(entry->ct_priv->netdev);
- 	INIT_WORK(&entry->work, mlx5_tc_ct_entry_del_work);
--	queue_work(priv->wq, &entry->work);
-+	queue_work(entry->ct_priv->wq, &entry->work);
- }
- 
- static struct mlx5_ct_counter *
-@@ -1744,19 +1742,16 @@ mlx5_tc_ct_flush_ft_entry(void *ptr, void *arg)
- static void
- mlx5_tc_ct_del_ft_cb(struct mlx5_tc_ct_priv *ct_priv, struct mlx5_ct_ft *ft)
- {
--	struct mlx5e_priv *priv;
--
- 	if (!refcount_dec_and_test(&ft->refcount))
- 		return;
- 
-+	flush_workqueue(ct_priv->wq);
- 	nf_flow_table_offload_del_cb(ft->nf_ft,
- 				     mlx5_tc_ct_block_flow_offload, ft);
- 	rhashtable_remove_fast(&ct_priv->zone_ht, &ft->node, zone_params);
- 	rhashtable_free_and_destroy(&ft->ct_entries_ht,
- 				    mlx5_tc_ct_flush_ft_entry,
- 				    ct_priv);
--	priv = netdev_priv(ct_priv->netdev);
--	flush_workqueue(priv->wq);
- 	mlx5_tc_ct_free_pre_ct_tables(ft);
- 	mapping_remove(ct_priv->zone_mapping, ft->zone_restore_id);
- 	kfree(ft);
-@@ -2139,6 +2134,12 @@ mlx5_tc_ct_init(struct mlx5e_priv *priv, struct mlx5_fs_chains *chains,
- 	if (rhashtable_init(&ct_priv->ct_tuples_nat_ht, &tuples_nat_ht_params))
- 		goto err_ct_tuples_nat_ht;
- 
-+	ct_priv->wq = alloc_ordered_workqueue("mlx5e_ct_priv_wq", 0);
-+	if (!ct_priv->wq) {
-+		err = -ENOMEM;
-+		goto err_wq;
-+	}
-+
- 	err = mlx5_tc_ct_fs_init(ct_priv);
- 	if (err)
- 		goto err_init_fs;
-@@ -2146,6 +2147,8 @@ mlx5_tc_ct_init(struct mlx5e_priv *priv, struct mlx5_fs_chains *chains,
- 	return ct_priv;
- 
- err_init_fs:
-+	destroy_workqueue(ct_priv->wq);
-+err_wq:
- 	rhashtable_destroy(&ct_priv->ct_tuples_nat_ht);
- err_ct_tuples_nat_ht:
- 	rhashtable_destroy(&ct_priv->ct_tuples_ht);
-@@ -2175,6 +2178,7 @@ mlx5_tc_ct_clean(struct mlx5_tc_ct_priv *ct_priv)
- 	if (!ct_priv)
- 		return;
- 
-+	destroy_workqueue(ct_priv->wq);
- 	chains = ct_priv->chains;
- 
- 	ct_priv->fs_ops->destroy(ct_priv->fs);
+ 	MLX5_SET(query_vnic_env_in, in, opcode, MLX5_CMD_OP_QUERY_VNIC_ENV);
 -- 
 2.35.1
 
