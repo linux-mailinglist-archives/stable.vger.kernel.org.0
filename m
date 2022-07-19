@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3E95579943
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB80579907
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229784AbiGSMBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55256 "EHLO
+        id S237597AbiGSL55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:57:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237686AbiGSL6g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:58:36 -0400
+        with ESMTP id S237599AbiGSL51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:57:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B995C422E9;
-        Tue, 19 Jul 2022 04:57:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1129C422DD;
+        Tue, 19 Jul 2022 04:56:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 779D8B81B2B;
-        Tue, 19 Jul 2022 11:57:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACCDFC341C6;
-        Tue, 19 Jul 2022 11:57:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4D2AB81A8F;
+        Tue, 19 Jul 2022 11:56:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 174AFC341C6;
+        Tue, 19 Jul 2022 11:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231835;
-        bh=Mks+Xm8o2vp8NRXfZWPWNfWitehtpVo26NqiYS4TcX4=;
+        s=korg; t=1658231803;
+        bh=+8CzF90KkgZMMGOcGho4vUISVftHoe5+9nZIO+iktok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDq/m/A5WsTwBrSPxFz+sFwjHnwocl2ErrmRFsIzRNN5v+Mthts2ogVk5/j/L+Yge
-         hMXV7GH14DXLKx7BnKqEN6hiQOp6TSWQ3gsUEM8G4Foo/xisCDtyHXgvHIUvr+qtEQ
-         BGLqBqUHoqy6bWtEoQbAlfmtmEUbn81oDTL/K/J0=
+        b=cA06JDtfRq+KOlJnq0wZYTSSvAOH6moyXAw84qsqLEzkmtcf/L+A6zWJaTfrT6a3i
+         CArFZV0Ih2Zn1hYU+GW4PUPrfx62g+FxVO7OQZhrm0lA/CJD7O0PYZUMZjEA6+PuFz
+         BcjUhG172UmXmNSvltJwNdAeaRKvnHxKmBBN3q/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/43] net: Fix data-races around sysctl_mem.
-Date:   Tue, 19 Jul 2022 13:53:45 +0200
-Message-Id: <20220719114523.268104601@linuxfoundation.org>
+Subject: [PATCH 4.9 08/28] ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
+Date:   Tue, 19 Jul 2022 13:53:46 +0200
+Message-Id: <20220719114457.233333191@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 310731e2f1611d1d13aae237abcf8e66d33345d5 ]
+[ Upstream commit 0609e200246bfd3b7516091c491bec4308349055 ]
 
-While reading .sysctl_mem, it can be changed concurrently.
-So, we need to add READ_ONCE() to avoid data-races.
+Jon reports that the Spectre-BHB init code is filling up the kernel log
+with spurious notifications about which mitigation has been enabled,
+every time any CPU comes out of a low power state.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Given that Spectre-BHB mitigations are system wide, only a single
+mitigation can be enabled, and we already print an error if two types of
+CPUs coexist in a single system that require different Spectre-BHB
+mitigations.
+
+This means that the pr_info() that describes the selected mitigation
+does not need to be emitted for each CPU anyway, and so we can simply
+emit it only once.
+
+In order to clarify the above in the log message, update it to describe
+that the selected mitigation will be enabled on all CPUs, including ones
+that are unaffected. If another CPU comes up later that is affected and
+requires a different mitigation, we report an error as before.
+
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mm/proc-v7-bugs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index f729ccfe756a..dfeaa8deba96 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1340,7 +1340,7 @@ void __sk_mem_reclaim(struct sock *sk, int amount);
- /* sysctl_mem values are in pages, we convert them in SK_MEM_QUANTUM units */
- static inline long sk_prot_mem_limits(const struct sock *sk, int index)
- {
--	long val = sk->sk_prot->sysctl_mem[index];
-+	long val = READ_ONCE(sk->sk_prot->sysctl_mem[index]);
+diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
+index 35c4660e638a..4af4195eed76 100644
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -217,10 +217,10 @@ static int spectre_bhb_install_workaround(int method)
+ 			return SPECTRE_VULNERABLE;
  
- #if PAGE_SIZE > SK_MEM_QUANTUM
- 	val <<= PAGE_SHIFT - SK_MEM_QUANTUM_SHIFT;
+ 		spectre_bhb_method = method;
+-	}
+ 
+-	pr_info("CPU%u: Spectre BHB: using %s workaround\n",
+-		smp_processor_id(), spectre_bhb_method_name(method));
++		pr_info("CPU%u: Spectre BHB: enabling %s workaround for all CPUs\n",
++			smp_processor_id(), spectre_bhb_method_name(method));
++	}
+ 
+ 	return SPECTRE_MITIGATED;
+ }
 -- 
 2.35.1
 
