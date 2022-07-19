@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F36579C41
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADF3D579E53
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240898AbiGSMhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:37:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47758 "EHLO
+        id S242620AbiGSNBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240779AbiGSMhH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:37:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F9127165;
-        Tue, 19 Jul 2022 05:14:22 -0700 (PDT)
+        with ESMTP id S242837AbiGSM7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A6F1E3D1;
+        Tue, 19 Jul 2022 05:25:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10A8DB81B21;
-        Tue, 19 Jul 2022 12:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 765AAC341C6;
-        Tue, 19 Jul 2022 12:14:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09CE4B81B25;
+        Tue, 19 Jul 2022 12:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AD8C341D8;
+        Tue, 19 Jul 2022 12:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232859;
-        bh=JriZhhJjPKNaYLWd2CCG/ku0GwfO97kleLtUwigctRE=;
+        s=korg; t=1658233509;
+        bh=cZgTHkVtlok+T5XHfZpzvaVm/8OrIF2Ls//nqAw6xA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tY2yGBelRiyxMiuhIj1LKjj7Vf2hjbrEtoq6FnnLJIp/yn1phVd/ZEdzvLNqCQa6r
-         OEgSt0I/PLgGOj8SSNJL8hZibnMG+y8NxmyBiSXJ8Rb+0QpambkK4zhlVVurwdMVTK
-         otCY+BiSWl+ll6ZjVpb7RbPeUItnQtMSkTMYZfhY=
+        b=odjdd8c7beappH1ntOHKo1ZLqCm0IZ4NYRJWHHalnVlRygIT46HGXoXbXFO5KhjiK
+         gNNpKBAFmTY7mhxZalCeqOWasPo01iXHMDiKyDwATvojWJj5mr5ZII+PliY1K1Xwd9
+         N8TP+OUTqy5o5mlfCU9QfMZzxamTrrFiDcnJsp/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@fieldses.org>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/167] lockd: set fl_owner when unlocking files
-Date:   Tue, 19 Jul 2022 13:53:23 +0200
-Message-Id: <20220719114703.370955571@linuxfoundation.org>
+Subject: [PATCH 5.18 119/231] raw: Fix a data-race around sysctl_raw_l3mdev_accept.
+Date:   Tue, 19 Jul 2022 13:53:24 +0200
+Message-Id: <20220719114724.471593392@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit aec158242b87a43d83322e99bc71ab4428e5ab79 ]
+[ Upstream commit 1dace014928e6e385363032d359a04dee9158af0 ]
 
-Unlocking a POSIX lock on an inode with vfs_lock_file only works if
-the owner matches. Ensure we set it in the request.
+While reading sysctl_raw_l3mdev_accept, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Cc: J. Bruce Fields <bfields@fieldses.org>
-Fixes: 7f024fcd5c97 ("Keep read and write fds with each nlm_file")
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 6897445fb194 ("net: provide a sysctl raw_l3mdev_accept for raw socket lookup with VRFs")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/lockd/svcsubs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/net/raw.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/lockd/svcsubs.c b/fs/lockd/svcsubs.c
-index 0a22a2faf552..b2f277727469 100644
---- a/fs/lockd/svcsubs.c
-+++ b/fs/lockd/svcsubs.c
-@@ -176,7 +176,7 @@ nlm_delete_file(struct nlm_file *file)
- 	}
- }
- 
--static int nlm_unlock_files(struct nlm_file *file)
-+static int nlm_unlock_files(struct nlm_file *file, fl_owner_t owner)
+diff --git a/include/net/raw.h b/include/net/raw.h
+index 8ad8df594853..c51a635671a7 100644
+--- a/include/net/raw.h
++++ b/include/net/raw.h
+@@ -75,7 +75,7 @@ static inline bool raw_sk_bound_dev_eq(struct net *net, int bound_dev_if,
+ 				       int dif, int sdif)
  {
- 	struct file_lock lock;
- 
-@@ -184,6 +184,7 @@ static int nlm_unlock_files(struct nlm_file *file)
- 	lock.fl_type  = F_UNLCK;
- 	lock.fl_start = 0;
- 	lock.fl_end   = OFFSET_MAX;
-+	lock.fl_owner = owner;
- 	if (file->f_file[O_RDONLY] &&
- 	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
- 		goto out_err;
-@@ -225,7 +226,7 @@ nlm_traverse_locks(struct nlm_host *host, struct nlm_file *file,
- 		if (match(lockhost, host)) {
- 
- 			spin_unlock(&flctx->flc_lock);
--			if (nlm_unlock_files(file))
-+			if (nlm_unlock_files(file, fl->fl_owner))
- 				return 1;
- 			goto again;
- 		}
+ #if IS_ENABLED(CONFIG_NET_L3_MASTER_DEV)
+-	return inet_bound_dev_eq(!!net->ipv4.sysctl_raw_l3mdev_accept,
++	return inet_bound_dev_eq(READ_ONCE(net->ipv4.sysctl_raw_l3mdev_accept),
+ 				 bound_dev_if, dif, sdif);
+ #else
+ 	return inet_bound_dev_eq(true, bound_dev_if, dif, sdif);
 -- 
 2.35.1
 
