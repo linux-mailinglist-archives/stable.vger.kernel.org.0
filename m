@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D232579A25
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 910EA579E5B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238310AbiGSMLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:11:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51108 "EHLO
+        id S243289AbiGSNAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238697AbiGSMJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B103050720;
-        Tue, 19 Jul 2022 05:02:32 -0700 (PDT)
+        with ESMTP id S242633AbiGSM7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4246A45F4C;
+        Tue, 19 Jul 2022 05:24:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61965B81B2C;
-        Tue, 19 Jul 2022 12:02:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C232AC341CB;
-        Tue, 19 Jul 2022 12:02:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8D40618E1;
+        Tue, 19 Jul 2022 12:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B36C341DB;
+        Tue, 19 Jul 2022 12:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232150;
-        bh=mxZuWt2vtWjQGJ1QDcwDY+lgkPlt/60LT2793S1hLEU=;
+        s=korg; t=1658233447;
+        bh=WYLhbyzG+PR2L8bSmowbBE5Xtl4RQvgXzIf3PnAW4mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tQaeQOXsOTebm/e1ryvw7tWW+lZvke7JfPknMkX2beb1/MIiDjlSz1KfUjm7amU4
-         POsrnFUB4xq7/kEnqQqwmHNLm9lIhHA96YwQRVIn9kfc9LzumAofKYjji8chUXif0h
-         84EUiY3KPscMvVm7Elj2yNMxA+t1jkZtehNRC0q8=
+        b=pzyZ1jOGxi3WQBRIS6TePEYUQ+eXa/r/S07i1wY4aeqhKiyTTNPq1W4YxkyFmYDu0
+         28zgMNclAMtvaIIXjARnAZ0v1SQq2K+hMVOl5ItB6hvIT6hjACsVQN59Mc4r+ybsTK
+         7+9b7NwYN9KXVeBc8hukYJqNaLn8PAC5JdBHhmkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 08/71] net: sock: tracing: Fix sock_exceed_buf_limit not to dereference stale pointer
+        stable@vger.kernel.org, Coiby Xu <coxu@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 126/231] ima: force signature verification when CONFIG_KEXEC_SIG is configured
 Date:   Tue, 19 Jul 2022 13:53:31 +0200
-Message-Id: <20220719114553.097286833@linuxfoundation.org>
+Message-Id: <20220719114725.050016696@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Coiby Xu <coxu@redhat.com>
 
-commit 820b8963adaea34a87abbecb906d1f54c0aabfb7 upstream.
+[ Upstream commit af16df54b89dee72df253abc5e7b5e8a6d16c11c ]
 
-The trace event sock_exceed_buf_limit saves the prot->sysctl_mem pointer
-and then dereferences it in the TP_printk() portion. This is unsafe as the
-TP_printk() portion is executed at the time the buffer is read. That is,
-it can be seconds, minutes, days, months, even years later. If the proto
-is freed, then this dereference will can also lead to a kernel crash.
+Currently, an unsigned kernel could be kexec'ed when IMA arch specific
+policy is configured unless lockdown is enabled. Enforce kernel
+signature verification check in the kexec_file_load syscall when IMA
+arch specific policy is configured.
 
-Instead, save the sysctl_mem array into the ring buffer and have the
-TP_printk() reference that instead. This is the proper and safe way to
-read pointers in trace events.
-
-Link: https://lore.kernel.org/all/20220706052130.16368-12-kuniyu@amazon.com/
-
-Cc: stable@vger.kernel.org
-Fixes: 3847ce32aea9f ("core: add tracepoints for queueing skb to rcvbuf")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Acked-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 99d5cadfde2b ("kexec_file: split KEXEC_VERIFY_SIG into KEXEC_SIG and KEXEC_SIG_FORCE")
+Reported-and-suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/sock.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/linux/kexec.h            |  6 ++++++
+ kernel/kexec_file.c              | 11 ++++++++++-
+ security/integrity/ima/ima_efi.c |  2 ++
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
---- a/include/trace/events/sock.h
-+++ b/include/trace/events/sock.h
-@@ -97,7 +97,7 @@ TRACE_EVENT(sock_exceed_buf_limit,
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index fcd5035209f1..8d573baaab29 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -452,6 +452,12 @@ static inline int kexec_crash_loaded(void) { return 0; }
+ #define kexec_in_progress false
+ #endif /* CONFIG_KEXEC_CORE */
  
- 	TP_STRUCT__entry(
- 		__array(char, name, 32)
--		__field(long *, sysctl_mem)
-+		__array(long, sysctl_mem, 3)
- 		__field(long, allocated)
- 		__field(int, sysctl_rmem)
- 		__field(int, rmem_alloc)
-@@ -109,7 +109,9 @@ TRACE_EVENT(sock_exceed_buf_limit,
++#ifdef CONFIG_KEXEC_SIG
++void set_kexec_sig_enforced(void);
++#else
++static inline void set_kexec_sig_enforced(void) {}
++#endif
++
+ #endif /* !defined(__ASSEBMLY__) */
  
- 	TP_fast_assign(
- 		strncpy(__entry->name, prot->name, 32);
--		__entry->sysctl_mem = prot->sysctl_mem;
-+		__entry->sysctl_mem[0] = READ_ONCE(prot->sysctl_mem[0]);
-+		__entry->sysctl_mem[1] = READ_ONCE(prot->sysctl_mem[1]);
-+		__entry->sysctl_mem[2] = READ_ONCE(prot->sysctl_mem[2]);
- 		__entry->allocated = allocated;
- 		__entry->sysctl_rmem = sk_get_rmem0(sk, prot);
- 		__entry->rmem_alloc = atomic_read(&sk->sk_rmem_alloc);
+ #endif /* LINUX_KEXEC_H */
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index c108a2a88754..bb0fb63f563c 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -29,6 +29,15 @@
+ #include <linux/vmalloc.h>
+ #include "kexec_internal.h"
+ 
++#ifdef CONFIG_KEXEC_SIG
++static bool sig_enforce = IS_ENABLED(CONFIG_KEXEC_SIG_FORCE);
++
++void set_kexec_sig_enforced(void)
++{
++	sig_enforce = true;
++}
++#endif
++
+ static int kexec_calculate_store_digests(struct kimage *image);
+ 
+ /*
+@@ -159,7 +168,7 @@ kimage_validate_signature(struct kimage *image)
+ 					   image->kernel_buf_len);
+ 	if (ret) {
+ 
+-		if (IS_ENABLED(CONFIG_KEXEC_SIG_FORCE)) {
++		if (sig_enforce) {
+ 			pr_notice("Enforced kernel signature verification failed (%d).\n", ret);
+ 			return ret;
+ 		}
+diff --git a/security/integrity/ima/ima_efi.c b/security/integrity/ima/ima_efi.c
+index 71786d01946f..9db66fe310d4 100644
+--- a/security/integrity/ima/ima_efi.c
++++ b/security/integrity/ima/ima_efi.c
+@@ -67,6 +67,8 @@ const char * const *arch_get_ima_policy(void)
+ 	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) && arch_ima_get_secureboot()) {
+ 		if (IS_ENABLED(CONFIG_MODULE_SIG))
+ 			set_module_sig_enforced();
++		if (IS_ENABLED(CONFIG_KEXEC_SIG))
++			set_kexec_sig_enforced();
+ 		return sb_arch_rules;
+ 	}
+ 	return NULL;
+-- 
+2.35.1
+
 
 
