@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE92579C9C
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD0E579E67
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238388AbiGSMlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:41:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40198 "EHLO
+        id S242664AbiGSNBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240981AbiGSMif (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:38:35 -0400
+        with ESMTP id S243095AbiGSNAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:00:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E140F1021;
-        Tue, 19 Jul 2022 05:15:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B9E61B01;
+        Tue, 19 Jul 2022 05:25:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 997D36178A;
-        Tue, 19 Jul 2022 12:15:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65E65C341C6;
-        Tue, 19 Jul 2022 12:15:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 984F461934;
+        Tue, 19 Jul 2022 12:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6445FC341C6;
+        Tue, 19 Jul 2022 12:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232910;
-        bh=m9gu0DjGRQ96LhVWoEcFTazZwPnxAlfRtFgoOVeM3uo=;
+        s=korg; t=1658233535;
+        bh=20Wvy7dWanmVA15XdUW1kahzz5ehVrK7I4KjMlxaWlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8vGCCRIF4knq2asgdjyu6uBlJRIzoBN9VTe0OHiTIPMRaC20R2jO3IZW9IsSRkJr
-         HdoCrw1lGMHAfHXTzuDnBMaFPvTQmS8rQZjx/89rBtxdOftaHff6KPO2WQSTmbz8/e
-         it5HjAQc+7yQdRHrFVFm8XPgZXk1T6wFBbOHfw1w=
+        b=f/13cvNg05fDQscSYz6LrEmijZopQZbKNlcN/uc6d8Q07YVJ4VzBfEURhUTmkhvTe
+         QmHwHi+cOaIviW9WAkvFi8CN+mEMZwQqqFRgxfhuQqNuA4J4BVnVMXgLpy3yqCiG3U
+         4TeyncgY2jWNn4jonRG+6iUNIYz7W+OWfQlrd+kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/167] net/tls: Check for errors in tls_device_init
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 155/231] tty: extract tty_flip_buffer_commit() from tty_flip_buffer_push()
 Date:   Tue, 19 Jul 2022 13:54:00 +0200
-Message-Id: <20220719114706.905606070@linuxfoundation.org>
+Message-Id: <20220719114727.324996824@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@nvidia.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 3d8c51b25a235e283e37750943bbf356ef187230 ]
+[ Upstream commit 716b10580283fda66f2b88140e3964f8a7f9da89 ]
 
-Add missing error checks in tls_device_init.
+We will need this new helper in the next patch.
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20220714070754.1428-1-tariqt@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: 一只狗 <chennbnbnb@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220707082558.9250-1-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tls.h    | 4 ++--
- net/tls/tls_device.c | 4 ++--
- net/tls/tls_main.c   | 7 ++++++-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/tty/tty_buffer.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/tls.h b/include/net/tls.h
-index 1fffb206f09f..bf3d63a52788 100644
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -707,7 +707,7 @@ int tls_sw_fallback_init(struct sock *sk,
- 			 struct tls_crypto_info *crypto_info);
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index bfa431a8e690..303a26c1b821 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -532,6 +532,15 @@ static void flush_to_ldisc(struct work_struct *work)
  
- #ifdef CONFIG_TLS_DEVICE
--void tls_device_init(void);
-+int tls_device_init(void);
- void tls_device_cleanup(void);
- void tls_device_sk_destruct(struct sock *sk);
- int tls_set_device_offload(struct sock *sk, struct tls_context *ctx);
-@@ -727,7 +727,7 @@ static inline bool tls_is_sk_rx_device_offloaded(struct sock *sk)
- 	return tls_get_ctx(sk)->rx_conf == TLS_HW;
- }
- #else
--static inline void tls_device_init(void) {}
-+static inline int tls_device_init(void) { return 0; }
- static inline void tls_device_cleanup(void) {}
- 
- static inline int
-diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
-index f3e3d009cf1c..4775431cbd38 100644
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -1394,9 +1394,9 @@ static struct notifier_block tls_dev_notifier = {
- 	.notifier_call	= tls_dev_event,
- };
- 
--void __init tls_device_init(void)
-+int __init tls_device_init(void)
- {
--	register_netdevice_notifier(&tls_dev_notifier);
-+	return register_netdevice_notifier(&tls_dev_notifier);
  }
  
- void __exit tls_device_cleanup(void)
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index 62b1c5e32bbd..a947cfb100bd 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -910,7 +910,12 @@ static int __init tls_register(void)
- 	if (err)
- 		return err;
- 
--	tls_device_init();
-+	err = tls_device_init();
-+	if (err) {
-+		unregister_pernet_subsys(&tls_proc_ops);
-+		return err;
-+	}
++static inline void tty_flip_buffer_commit(struct tty_buffer *tail)
++{
++	/*
++	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
++	 * buffer data.
++	 */
++	smp_store_release(&tail->commit, tail->used);
++}
 +
- 	tcp_register_ulp(&tcp_tls_ulp_ops);
+ /**
+  * tty_flip_buffer_push		-	push terminal buffers
+  * @port: tty port to push
+@@ -546,11 +555,7 @@ void tty_flip_buffer_push(struct tty_port *port)
+ {
+ 	struct tty_bufhead *buf = &port->buf;
  
- 	return 0;
+-	/*
+-	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
+-	 * buffer data.
+-	 */
+-	smp_store_release(&buf->tail->commit, buf->tail->used);
++	tty_flip_buffer_commit(buf->tail);
+ 	queue_work(system_unbound_wq, &buf->work);
+ }
+ EXPORT_SYMBOL(tty_flip_buffer_push);
 -- 
 2.35.1
 
