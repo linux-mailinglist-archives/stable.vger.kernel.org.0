@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2553579D27
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60527579F46
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241614AbiGSMri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:47:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37974 "EHLO
+        id S243369AbiGSNMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:12:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241701AbiGSMqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB188AB02;
-        Tue, 19 Jul 2022 05:18:27 -0700 (PDT)
+        with ESMTP id S243368AbiGSNMH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:12:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEFE367589;
+        Tue, 19 Jul 2022 05:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C3E06182A;
-        Tue, 19 Jul 2022 12:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBF2FC341CA;
-        Tue, 19 Jul 2022 12:18:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C5C9B81B10;
+        Tue, 19 Jul 2022 12:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8999C341C6;
+        Tue, 19 Jul 2022 12:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233082;
-        bh=B5R6E+ddq8m5/lQLkLjA5+soKj5kmq3p6rjJ4fQbuHU=;
+        s=korg; t=1658233772;
+        bh=r+Pn/SmVZvoZW00fOdHXa1Z9ZhleyKI8tYjwvnl8F/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/PweP/JoFVLgoeBmOhS744n19CQIjgrti/wD+kzCJTup5mckjpH6yLkoYQOd1WCl
-         ID7CSOGyEbNLa5P5IYLWMCfQ+yamHp+Aal6/dRr+IH5axDUxA2ylYxApmYiit00R89
-         01OvUzrjxrkq7PibKtjjLy9+wiL2MR5x//y5PhYM=
+        b=ZeJwJrnvcax7LkwpoKF4VpoFIUlDGLeOGuxGqJg+O0LH76/Dn6hP61K2PtA8/pD1N
+         7iWAWE+nmfoIEkc6k8txheQS0kq+9AMYbeqNjy4wY2ShFGjN3ZCBy9KZYa7eVFB1XS
+         tOAeNzxSYmGzdmlXPtO/x2asledjuvp1TojU366s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 167/167] x86/pat: Fix x86_has_pat_wp()
-Date:   Tue, 19 Jul 2022 13:54:59 +0200
-Message-Id: <20220719114712.619651806@linuxfoundation.org>
+        stable@vger.kernel.org, Egor Vorontsov <sdoregor@sdore.me>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 215/231] ALSA: usb-audio: Add quirk for Fiero SC-01 (fw v1.0.0)
+Date:   Tue, 19 Jul 2022 13:55:00 +0200
+Message-Id: <20220719114731.907645974@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +52,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Egor Vorontsov <sdoregor@sdore.me>
 
-commit 230ec83d4299b30c51a1c133b4f2a669972cc08a upstream.
+[ Upstream commit 2307a0e1ca0b5c1337b37ac6302f96e017ebac3c ]
 
-x86_has_pat_wp() is using a wrong test, as it relies on the normal
-PAT configuration used by the kernel. In case the PAT MSR has been
-setup by another entity (e.g. Xen hypervisor) it might return false
-even if the PAT configuration is allowing WP mappings. This due to the
-fact that when running as Xen PV guest the PAT MSR is setup by the
-hypervisor and cannot be changed by the guest. This results in the WP
-related entry to be at a different position when running as Xen PV
-guest compared to the bare metal or fully virtualized case.
+The patch applies the same quirks used for SC-01 at firmware v1.1.0 to
+the ones running v1.0.0, with respect to hard-coded sample rates.
 
-The correct way to test for WP support is:
+I got two more units and successfully tested the patch series with both
+firmwares.
 
-1. Get the PTE protection bits needed to select WP mode by reading
-   __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP] (depending on the PAT MSR
-   setting this might return protection bits for a stronger mode, e.g.
-   UC-)
-2. Translate those bits back into the real cache mode selected by those
-   PTE bits by reading __pte2cachemode_tbl[__pte2cm_idx(prot)]
-3. Test for the cache mode to be _PAGE_CACHE_MODE_WP
+The support is now complete (not accounting ASIO).
 
-Fixes: f88a68facd9a ("x86/mm: Extend early_memremap() support with additional attrs")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org> # 4.14
-Link: https://lore.kernel.org/r/20220503132207.17234-1-jgross@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Egor Vorontsov <sdoregor@sdore.me>
+Link: https://lore.kernel.org/r/20220627100041.2861494-2-sdoregor@sdore.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/init.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ sound/usb/quirks-table.h |  132 +++++++++++++++++++++++++++++++++++++++++++++++
+ sound/usb/quirks.c       |    4 +
+ 2 files changed, 136 insertions(+)
 
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -78,10 +78,20 @@ static uint8_t __pte2cachemode_tbl[8] =
- 	[__pte2cm_idx(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)] = _PAGE_CACHE_MODE_UC,
- };
- 
--/* Check that the write-protect PAT entry is set for write-protect */
-+/*
-+ * Check that the write-protect PAT entry is set for write-protect.
-+ * To do this without making assumptions how PAT has been set up (Xen has
-+ * another layout than the kernel), translate the _PAGE_CACHE_MODE_WP cache
-+ * mode via the __cachemode2pte_tbl[] into protection bits (those protection
-+ * bits will select a cache mode of WP or better), and then translate the
-+ * protection bits back into the cache mode using __pte2cm_idx() and the
-+ * __pte2cachemode_tbl[] array. This will return the really used cache mode.
-+ */
- bool x86_has_pat_wp(void)
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -4169,6 +4169,138 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ },
  {
--	return __pte2cachemode_tbl[_PAGE_CACHE_MODE_WP] == _PAGE_CACHE_MODE_WP;
-+	uint16_t prot = __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP];
-+
-+	return __pte2cachemode_tbl[__pte2cm_idx(prot)] == _PAGE_CACHE_MODE_WP;
- }
+ 	/*
++	 * Fiero SC-01 (firmware v1.0.0 @ 48 kHz)
++	 */
++	USB_DEVICE(0x2b53, 0x0023),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "Fiero",
++		.product_name = "SC-01",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			/* Playback */
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S32_LE,
++					.channels = 2,
++					.fmt_bits = 24,
++					.iface = 1,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x01,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						   USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_48000,
++					.rate_min = 48000,
++					.rate_max = 48000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 48000 },
++					.clock = 0x29
++				}
++			},
++			/* Capture */
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S32_LE,
++					.channels = 2,
++					.fmt_bits = 24,
++					.iface = 2,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						   USB_ENDPOINT_SYNC_ASYNC |
++						   USB_ENDPOINT_USAGE_IMPLICIT_FB,
++					.rates = SNDRV_PCM_RATE_48000,
++					.rate_min = 48000,
++					.rate_max = 48000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 48000 },
++					.clock = 0x29
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++{
++	/*
++	 * Fiero SC-01 (firmware v1.0.0 @ 96 kHz)
++	 */
++	USB_DEVICE(0x2b53, 0x0024),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "Fiero",
++		.product_name = "SC-01",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			/* Playback */
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S32_LE,
++					.channels = 2,
++					.fmt_bits = 24,
++					.iface = 1,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x01,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						   USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_96000,
++					.rate_min = 96000,
++					.rate_max = 96000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 96000 },
++					.clock = 0x29
++				}
++			},
++			/* Capture */
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S32_LE,
++					.channels = 2,
++					.fmt_bits = 24,
++					.iface = 2,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						   USB_ENDPOINT_SYNC_ASYNC |
++						   USB_ENDPOINT_USAGE_IMPLICIT_FB,
++					.rates = SNDRV_PCM_RATE_96000,
++					.rate_min = 96000,
++					.rate_max = 96000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 96000 },
++					.clock = 0x29
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++{
++	/*
+ 	 * Fiero SC-01 (firmware v1.1.0)
+ 	 */
+ 	USB_DEVICE(0x2b53, 0x0031),
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1915,6 +1915,10 @@ static const struct usb_audio_quirk_flag
+ 		   QUIRK_FLAG_ALIGN_TRANSFER),
+ 	DEVICE_FLG(0x1224, 0x2a25, /* Jieli Technology USB PHY 2.0 */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
++	DEVICE_FLG(0x2b53, 0x0023, /* Fiero SC-01 (firmware v1.0.0 @ 48 kHz) */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
++	DEVICE_FLG(0x2b53, 0x0024, /* Fiero SC-01 (firmware v1.0.0 @ 96 kHz) */
++		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 	DEVICE_FLG(0x2b53, 0x0031, /* Fiero SC-01 (firmware v1.1.0) */
+ 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
  
- enum page_cache_mode pgprot2cachemode(pgprot_t pgprot)
 
 
