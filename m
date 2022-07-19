@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B55579D06
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA904579A42
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:12:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241257AbiGSMpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:45:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
+        id S238786AbiGSMMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:12:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241612AbiGSMoO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D7884EED;
-        Tue, 19 Jul 2022 05:17:19 -0700 (PDT)
+        with ESMTP id S238792AbiGSMLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:11:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DFB95247E;
+        Tue, 19 Jul 2022 05:03:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 402C661868;
-        Tue, 19 Jul 2022 12:17:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFE4C341C6;
-        Tue, 19 Jul 2022 12:16:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B53A0B817AF;
+        Tue, 19 Jul 2022 12:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8C8C341C6;
+        Tue, 19 Jul 2022 12:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233019;
-        bh=2tvJ+fipO4VZmFYhZ9As3c1NcfOg4s2bZwVEwvLpA6Y=;
+        s=korg; t=1658232210;
+        bh=+Tc7B7eHJsJlCG5mleBaegds+TrWSgEsBX0tpPnlfSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+jStJlUj07UTAWbvfRrYfNctG5ALQwtnRMOdRxubTAkteFjvDnGKzOg3pe8C4Z0+
-         QkBnvNRHViavmSsSNDLXJgQv/2WYZVLlm+yrQdaVnnuN6oIBtIQm24mdkE316c2P/8
-         DjW4l5fKX+9ommOEUJwsQfp9mzs3r43onZBxRZ2w=
+        b=nn/TcH/VZKpxc/Di6gEKP2x9ExHWfF6C9XjDsl5XJq7+u18tPiWyr91rBgnfI5Hp7
+         XQPv1H40MZsQtOOjjSez9EvwYo+hoQEfbx5lfoeq91Luhkvps1DAAajYOziPfXCzjG
+         HmHSbTvvSfc4O7q2UX9WPmztBukTndU0gUl2uThg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/167] cpufreq: pmac32-cpufreq: Fix refcount leak bug
+Subject: [PATCH 5.4 50/71] net: tipc: fix possible refcount leak in tipc_sk_create()
 Date:   Tue, 19 Jul 2022 13:54:13 +0200
-Message-Id: <20220719114708.275995144@linuxfoundation.org>
+Message-Id: <20220719114557.177572163@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit ccd7567d4b6cf187fdfa55f003a9e461ee629e36 ]
+[ Upstream commit 00aff3590fc0a73bddd3b743863c14e76fd35c0c ]
 
-In pmac_cpufreq_init_MacRISC3(), we need to add corresponding
-of_node_put() for the three node pointers whose refcount have
-been incremented by of_find_node_by_name().
+Free sk in case tipc_sk_insert() fails.
 
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/pmac32-cpufreq.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/tipc/socket.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/cpufreq/pmac32-cpufreq.c b/drivers/cpufreq/pmac32-cpufreq.c
-index 4f20c6a9108d..8e41fe9ee870 100644
---- a/drivers/cpufreq/pmac32-cpufreq.c
-+++ b/drivers/cpufreq/pmac32-cpufreq.c
-@@ -470,6 +470,10 @@ static int pmac_cpufreq_init_MacRISC3(struct device_node *cpunode)
- 	if (slew_done_gpio_np)
- 		slew_done_gpio = read_gpio(slew_done_gpio_np);
- 
-+	of_node_put(volt_gpio_np);
-+	of_node_put(freq_gpio_np);
-+	of_node_put(slew_done_gpio_np);
-+
- 	/* If we use the frequency GPIOs, calculate the min/max speeds based
- 	 * on the bus frequencies
- 	 */
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index d543c4556df2..58c4d61d603f 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -455,6 +455,7 @@ static int tipc_sk_create(struct net *net, struct socket *sock,
+ 	sock_init_data(sock, sk);
+ 	tipc_set_sk_state(sk, TIPC_OPEN);
+ 	if (tipc_sk_insert(tsk)) {
++		sk_free(sk);
+ 		pr_warn("Socket create failed; port number exhausted\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.35.1
 
