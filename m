@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9275257999C
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48DBA579E7D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237847AbiGSMFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39846 "EHLO
+        id S242672AbiGSNBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238230AbiGSMEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E34624B;
-        Tue, 19 Jul 2022 05:00:06 -0700 (PDT)
+        with ESMTP id S243221AbiGSNAj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:00:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4368788F25;
+        Tue, 19 Jul 2022 05:25:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A5AAB81A2E;
-        Tue, 19 Jul 2022 12:00:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4F79C341C6;
-        Tue, 19 Jul 2022 12:00:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01A816192E;
+        Tue, 19 Jul 2022 12:25:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C48E5C341C6;
+        Tue, 19 Jul 2022 12:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232004;
-        bh=hpgqN9gPyrD+s6Zv2Qf9lSxoie1Cst3YbDw+RW+CBV8=;
+        s=korg; t=1658233550;
+        bh=iHxXXmstLMpupuDcZJd1p04V9RSVdUvzyRcazmcyTRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/F4RGCZyImEakWivxdfTOGDPqEq6R+H1mpXUQZrh0NGspxILS4cHH0RqZDYvSqB5
-         S0ZHK2NPF0GOSc3b/GvAM9nybwWIIokhoZXMmDnqp+3N+0LfVk4F3ka5f7CBGODXJv
-         km1LZYAQllcz9qLXlZKhtk9lDGFcuIm3mPHoej0I=
+        b=DQ2xQ+mDzzAOg4ixEYgRMmKxPbbr5hbjXlPP6Zhvwok8IEq24hBuGHS7Hs6wsotXN
+         7hqqejNzy0hWip79wfGEZsMGHyWXOjRoMiG2G03YB4h7D3SJLStvfWaekmpIdSB+4k
+         dshyoBdnK09zcum3bFrj9FwHmpx/5iJECHpgtRtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/48] virtio_mmio: Add missing PM calls to freeze/restore
-Date:   Tue, 19 Jul 2022 13:54:04 +0200
-Message-Id: <20220719114522.337428737@linuxfoundation.org>
+        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 160/231] nvme: fix block device naming collision
+Date:   Tue, 19 Jul 2022 13:54:05 +0200
+Message-Id: <20220719114727.693341695@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Israel Rukshin <israelr@nvidia.com>
 
-[ Upstream commit ed7ac37fde33ccd84e4bd2b9363c191f925364c7 ]
+[ Upstream commit 6961b5e02876b3b47f030a1f1ee8fd3e631ac270 ]
 
-Most virtio drivers provide freeze/restore callbacks to finish up
-device usage before suspend and to reinitialize the virtio device after
-resume. However, these callbacks are currently only called when using
-virtio_pci. virtio_mmio does not have any PM ops defined.
+The issue exists when multipath is enabled and the namespace is
+shared, but all the other controller checks at nvme_is_unique_nsid()
+are false. The reason for this issue is that nvme_is_unique_nsid()
+returns false when is called from nvme_mpath_alloc_disk() due to an
+uninitialized value of head->shared. The patch fixes it by setting
+head->shared before nvme_mpath_alloc_disk() is called.
 
-This causes problems for example after suspend to disk (hibernation),
-since the virtio devices might lose their state after the VMM is
-restarted. Calling virtio_device_freeze()/restore() ensures that
-the virtio devices are re-initialized correctly.
-
-Fix this by implementing the dev_pm_ops for virtio_mmio,
-similar to virtio_pci_common.
-
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Message-Id: <20220621110621.3638025-2-stephan.gerhold@kernkonzept.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 5974ea7ce0f9 ("nvme: allow duplicate NSIDs for private namespaces")
+Signed-off-by: Israel Rukshin <israelr@nvidia.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/nvme/host/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index c69c755bf553..79474bd0c52c 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -66,6 +66,7 @@
- #include <linux/list.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/pm.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
- #include <linux/virtio.h>
-@@ -508,6 +509,25 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.bus_name	= vm_bus_name,
- };
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index a2862a56fadc..0fef31c935de 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3726,7 +3726,7 @@ static int nvme_add_ns_cdev(struct nvme_ns *ns)
+ }
  
-+#ifdef CONFIG_PM_SLEEP
-+static int virtio_mmio_freeze(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	return virtio_device_freeze(&vm_dev->vdev);
-+}
-+
-+static int virtio_mmio_restore(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	return virtio_device_restore(&vm_dev->vdev);
-+}
-+
-+static const struct dev_pm_ops virtio_mmio_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
-+};
-+#endif
- 
- static void virtio_mmio_release_dev(struct device *_d)
+ static struct nvme_ns_head *nvme_alloc_ns_head(struct nvme_ctrl *ctrl,
+-		unsigned nsid, struct nvme_ns_ids *ids)
++		unsigned nsid, struct nvme_ns_ids *ids, bool is_shared)
  {
-@@ -761,6 +781,9 @@ static struct platform_driver virtio_mmio_driver = {
- 		.name	= "virtio-mmio",
- 		.of_match_table	= virtio_mmio_match,
- 		.acpi_match_table = ACPI_PTR(virtio_mmio_acpi_match),
-+#ifdef CONFIG_PM_SLEEP
-+		.pm	= &virtio_mmio_pm_ops,
-+#endif
- 	},
- };
+ 	struct nvme_ns_head *head;
+ 	size_t size = sizeof(*head);
+@@ -3750,6 +3750,7 @@ static struct nvme_ns_head *nvme_alloc_ns_head(struct nvme_ctrl *ctrl,
+ 	head->subsys = ctrl->subsys;
+ 	head->ns_id = nsid;
+ 	head->ids = *ids;
++	head->shared = is_shared;
+ 	kref_init(&head->ref);
  
+ 	if (head->ids.csi) {
+@@ -3830,12 +3831,11 @@ static int nvme_init_ns_head(struct nvme_ns *ns, unsigned nsid,
+ 				nsid);
+ 			goto out_unlock;
+ 		}
+-		head = nvme_alloc_ns_head(ctrl, nsid, ids);
++		head = nvme_alloc_ns_head(ctrl, nsid, ids, is_shared);
+ 		if (IS_ERR(head)) {
+ 			ret = PTR_ERR(head);
+ 			goto out_unlock;
+ 		}
+-		head->shared = is_shared;
+ 	} else {
+ 		ret = -EINVAL;
+ 		if (!is_shared || !head->shared) {
 -- 
 2.35.1
 
