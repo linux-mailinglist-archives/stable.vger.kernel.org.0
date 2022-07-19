@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98FC4579CC9
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E868A579E73
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241088AbiGSMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:43:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53466 "EHLO
+        id S242708AbiGSNBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239439AbiGSMmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:42:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25537FE6C;
-        Tue, 19 Jul 2022 05:16:33 -0700 (PDT)
+        with ESMTP id S243316AbiGSNA5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:00:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 843019B574;
+        Tue, 19 Jul 2022 05:25:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACF656182A;
-        Tue, 19 Jul 2022 12:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F01EC341C6;
-        Tue, 19 Jul 2022 12:16:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34644B81B08;
+        Tue, 19 Jul 2022 12:25:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BFF2C341C6;
+        Tue, 19 Jul 2022 12:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232981;
-        bh=vaJUynLGbfCplRsDW60OG5aSx//g6F4tBTnT7pWjYiA=;
+        s=korg; t=1658233555;
+        bh=5R47J+25WoueaSlU5nmfgfSL3DFATGk0c8nOn/Bo6FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kO+/yim9SL6tEQTpC0A2tXMGCm5RP/lCffGci94TV5FAKK/8iyhz+6EfXyKA7MHJ
-         5nrT40WFAWvfkb034MDxGkOczRciRiFrOnSUIAraRVIJnj/oXyFGFYcqUdmBEDJQqZ
-         95da9yVdQQ7mrIrrEai8bbPF7u4xK8qro435roWY=
+        b=RRTqwWnvb0LSZjdejSQviL9ZIvHWthkPtMxh7iTyKMi63DtB4AUJ4ORqByiyCulaq
+         Q+oN7Nuc7T9zvKNNMHnuxwAYVmWFj7yp7z16OrUnRvtdu7LUwSQv1q2D/jxpJmwEPi
+         TXdXgpV5woAYxrL11U4A6EPzlGJ9D3Na4bS2oVq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/167] vdpa/mlx5: Initialize CVQ vringh only once
+Subject: [PATCH 5.18 162/231] powerpc/xive/spapr: correct bitmap allocation size
 Date:   Tue, 19 Jul 2022 13:54:07 +0200
-Message-Id: <20220719114707.667896153@linuxfoundation.org>
+Message-Id: <20220719114727.835342808@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit ace9252446ec615cd79a5f77d90edb25c0b9d024 ]
+[ Upstream commit 19fc5bb93c6bbdce8292b4d7eed04e2fa118d2fe ]
 
-Currently, CVQ vringh is initialized inside setup_virtqueues() which is
-called every time a memory update is done. This is undesirable since it
-resets all the context of the vring, including the available and used
-indices.
+kasan detects access beyond the end of the xibm->bitmap allocation:
 
-Move the initialization to mlx5_vdpa_set_status() when
-VIRTIO_CONFIG_S_DRIVER_OK is set.
+BUG: KASAN: slab-out-of-bounds in _find_first_zero_bit+0x40/0x140
+Read of size 8 at addr c00000001d1d0118 by task swapper/0/1
 
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Message-Id: <20220613075958.511064-2-elic@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Eugenio Pérez <eperezma@redhat.com>
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-rc2-00001-g90df023b36dd #28
+Call Trace:
+[c00000001d98f770] [c0000000012baab8] dump_stack_lvl+0xac/0x108 (unreliable)
+[c00000001d98f7b0] [c00000000068faac] print_report+0x37c/0x710
+[c00000001d98f880] [c0000000006902c0] kasan_report+0x110/0x354
+[c00000001d98f950] [c000000000692324] __asan_load8+0xa4/0xe0
+[c00000001d98f970] [c0000000011c6ed0] _find_first_zero_bit+0x40/0x140
+[c00000001d98f9b0] [c0000000000dbfbc] xive_spapr_get_ipi+0xcc/0x260
+[c00000001d98fa70] [c0000000000d6d28] xive_setup_cpu_ipi+0x1e8/0x450
+[c00000001d98fb30] [c000000004032a20] pSeries_smp_probe+0x5c/0x118
+[c00000001d98fb60] [c000000004018b44] smp_prepare_cpus+0x944/0x9ac
+[c00000001d98fc90] [c000000004009f9c] kernel_init_freeable+0x2d4/0x640
+[c00000001d98fd90] [c0000000000131e8] kernel_init+0x28/0x1d0
+[c00000001d98fe10] [c00000000000cd54] ret_from_kernel_thread+0x5c/0x64
+
+Allocated by task 0:
+ kasan_save_stack+0x34/0x70
+ __kasan_kmalloc+0xb4/0xf0
+ __kmalloc+0x268/0x540
+ xive_spapr_init+0x4d0/0x77c
+ pseries_init_irq+0x40/0x27c
+ init_IRQ+0x44/0x84
+ start_kernel+0x2a4/0x538
+ start_here_common+0x1c/0x20
+
+The buggy address belongs to the object at c00000001d1d0118
+ which belongs to the cache kmalloc-8 of size 8
+The buggy address is located 0 bytes inside of
+ 8-byte region [c00000001d1d0118, c00000001d1d0120)
+
+The buggy address belongs to the physical page:
+page:c00c000000074740 refcount:1 mapcount:0 mapping:0000000000000000 index:0xc00000001d1d0558 pfn:0x1d1d
+flags: 0x7ffff000000200(slab|node=0|zone=0|lastcpupid=0x7ffff)
+raw: 007ffff000000200 c00000001d0003c8 c00000001d0003c8 c00000001d010480
+raw: c00000001d1d0558 0000000001e1000a 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ c00000001d1d0000: fc 00 fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ c00000001d1d0080: fc fc 00 fc fc fc fc fc fc fc fc fc fc fc fc fc
+>c00000001d1d0100: fc fc fc 02 fc fc fc fc fc fc fc fc fc fc fc fc
+                            ^
+ c00000001d1d0180: fc fc fc fc 04 fc fc fc fc fc fc fc fc fc fc fc
+ c00000001d1d0200: fc fc fc fc fc 04 fc fc fc fc fc fc fc fc fc fc
+
+This happens because the allocation uses the wrong unit (bits) when it
+should pass (BITS_TO_LONGS(count) * sizeof(long)) or equivalent. With small
+numbers of bits, the allocated object can be smaller than sizeof(long),
+which results in invalid accesses.
+
+Use bitmap_zalloc() to allocate and initialize the irq bitmap, paired with
+bitmap_free() for consistency.
+
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220623182509.3985625-1-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ arch/powerpc/sysdev/xive/spapr.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 467a349dc26c..e748c00789f0 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1898,7 +1898,6 @@ static int verify_driver_features(struct mlx5_vdpa_dev *mvdev, u64 features)
- static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
- {
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
--	struct mlx5_control_vq *cvq = &mvdev->cvq;
- 	int err;
- 	int i;
+diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
+index 503f544d28e2..b0d36e430dbc 100644
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -13,6 +13,7 @@
+ #include <linux/of.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
++#include <linux/bitmap.h>
+ #include <linux/cpumask.h>
+ #include <linux/mm.h>
+ #include <linux/delay.h>
+@@ -55,7 +56,7 @@ static int __init xive_irq_bitmap_add(int base, int count)
+ 	spin_lock_init(&xibm->lock);
+ 	xibm->base = base;
+ 	xibm->count = count;
+-	xibm->bitmap = kzalloc(xibm->count, GFP_KERNEL);
++	xibm->bitmap = bitmap_zalloc(xibm->count, GFP_KERNEL);
+ 	if (!xibm->bitmap) {
+ 		kfree(xibm);
+ 		return -ENOMEM;
+@@ -73,7 +74,7 @@ static void xive_irq_bitmap_remove_all(void)
  
-@@ -1908,16 +1907,6 @@ static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
- 			goto err_vq;
+ 	list_for_each_entry_safe(xibm, tmp, &xive_irq_bitmaps, list) {
+ 		list_del(&xibm->list);
+-		kfree(xibm->bitmap);
++		bitmap_free(xibm->bitmap);
+ 		kfree(xibm);
  	}
- 
--	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)) {
--		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
--					MLX5_CVQ_MAX_ENT, false,
--					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
--					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
--					(struct vring_used *)(uintptr_t)cvq->device_addr);
--		if (err)
--			goto err_vq;
--	}
--
- 	return 0;
- 
- err_vq:
-@@ -2184,6 +2173,21 @@ static void clear_vqs_ready(struct mlx5_vdpa_net *ndev)
- 	ndev->mvdev.cvq.ready = false;
  }
- 
-+static int setup_cvq_vring(struct mlx5_vdpa_dev *mvdev)
-+{
-+	struct mlx5_control_vq *cvq = &mvdev->cvq;
-+	int err = 0;
-+
-+	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ))
-+		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
-+					MLX5_CVQ_MAX_ENT, false,
-+					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
-+					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
-+					(struct vring_used *)(uintptr_t)cvq->device_addr);
-+
-+	return err;
-+}
-+
- static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
- {
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-@@ -2194,6 +2198,11 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
- 
- 	if ((status ^ ndev->mvdev.status) & VIRTIO_CONFIG_S_DRIVER_OK) {
- 		if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
-+			err = setup_cvq_vring(mvdev);
-+			if (err) {
-+				mlx5_vdpa_warn(mvdev, "failed to setup control VQ vring\n");
-+				goto err_setup;
-+			}
- 			err = setup_driver(mvdev);
- 			if (err) {
- 				mlx5_vdpa_warn(mvdev, "failed to setup driver\n");
 -- 
 2.35.1
 
