@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D707579DDC
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 656FD579B94
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242285AbiGSMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40364 "EHLO
+        id S240318AbiGSMaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242601AbiGSMyu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:54:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120C79822F;
-        Tue, 19 Jul 2022 05:21:56 -0700 (PDT)
+        with ESMTP id S240789AbiGSM35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9D76D2DB;
+        Tue, 19 Jul 2022 05:11:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08BD1618E6;
-        Tue, 19 Jul 2022 12:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0AC1C341C6;
-        Tue, 19 Jul 2022 12:21:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2799617BE;
+        Tue, 19 Jul 2022 12:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3345C341CB;
+        Tue, 19 Jul 2022 12:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233315;
-        bh=tbzCGK8HdhiXa0efr//XBECwdh6zNeE4FnnWpvSfh5w=;
+        s=korg; t=1658232694;
+        bh=fOlF4eY+hzJn4YXVxFeaaXj09DXc9UVTfIYTLEV6CfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdZ/5Ex0VKr6dWVVbdqzWtswjlnFuJSxiVnEzM7KxPvxaLSOYxL5mOdxHceslr/fV
-         tPhZJdbBWEoll7LyXVru/cfzyuIgMgqKrQYjeDwx+OyL+qIsPGWDlWEnW8IRWobSYp
-         AO9bLuNFs3m5zgCthvxJkyqCFCQ0qW3eot4VAkpI=
+        b=0dBa4TvEnIS7YDYRfEhMHcl8aWYT2j3LAdXMjqMSBt5vVayO58uF+3r9JGpXAL2UY
+         /7AT5eH1WUJkZjKIE/HSxfl5skrReNWxHQO81WWqHS670TKSSWWr7O1slEc9Wdaxar
+         X5M+CE8ZOd4gtIyW+lPEZCbo8y+c4mmCuPBBzGuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 080/231] ipv4: Fix a data-race around sysctl_fib_sync_mem.
+Subject: [PATCH 5.15 033/167] ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
 Date:   Tue, 19 Jul 2022 13:52:45 +0200
-Message-Id: <20220719114721.604623907@linuxfoundation.org>
+Message-Id: <20220719114659.952561474@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 73318c4b7dbd0e781aaababff17376b2894745c0 ]
+[ Upstream commit 0609e200246bfd3b7516091c491bec4308349055 ]
 
-While reading sysctl_fib_sync_mem, it can be changed concurrently.
-So, we need to add READ_ONCE() to avoid a data-race.
+Jon reports that the Spectre-BHB init code is filling up the kernel log
+with spurious notifications about which mitigation has been enabled,
+every time any CPU comes out of a low power state.
 
-Fixes: 9ab948a91b2c ("ipv4: Allow amount of dirty memory from fib resizing to be controllable")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Given that Spectre-BHB mitigations are system wide, only a single
+mitigation can be enabled, and we already print an error if two types of
+CPUs coexist in a single system that require different Spectre-BHB
+mitigations.
+
+This means that the pr_info() that describes the selected mitigation
+does not need to be emitted for each CPU anyway, and so we can simply
+emit it only once.
+
+In order to clarify the above in the log message, update it to describe
+that the selected mitigation will be enabled on all CPUs, including ones
+that are unaffected. If another CPU comes up later that is affected and
+requires a different mitigation, we report an error as before.
+
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_trie.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mm/proc-v7-bugs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
-index fb0e49c36c2e..43a496272227 100644
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -498,7 +498,7 @@ static void tnode_free(struct key_vector *tn)
- 		tn = container_of(head, struct tnode, rcu)->kv;
- 	}
+diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
+index f9730eba0632..8bc7a2d6d6c7 100644
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -208,10 +208,10 @@ static int spectre_bhb_install_workaround(int method)
+ 			return SPECTRE_VULNERABLE;
  
--	if (tnode_free_size >= sysctl_fib_sync_mem) {
-+	if (tnode_free_size >= READ_ONCE(sysctl_fib_sync_mem)) {
- 		tnode_free_size = 0;
- 		synchronize_rcu();
- 	}
+ 		spectre_bhb_method = method;
+-	}
+ 
+-	pr_info("CPU%u: Spectre BHB: using %s workaround\n",
+-		smp_processor_id(), spectre_bhb_method_name(method));
++		pr_info("CPU%u: Spectre BHB: enabling %s workaround for all CPUs\n",
++			smp_processor_id(), spectre_bhb_method_name(method));
++	}
+ 
+ 	return SPECTRE_MITIGATED;
+ }
 -- 
 2.35.1
 
