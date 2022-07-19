@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ADFB579CDA
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C911579EB3
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241438AbiGSMnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
+        id S242695AbiGSNFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:05:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241504AbiGSMnU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:43:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BE3820CF;
-        Tue, 19 Jul 2022 05:16:51 -0700 (PDT)
+        with ESMTP id S242544AbiGSNDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:03:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4926D509DF;
+        Tue, 19 Jul 2022 05:26:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 723AD6177F;
-        Tue, 19 Jul 2022 12:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506F8C341C6;
-        Tue, 19 Jul 2022 12:16:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 734EAB81B89;
+        Tue, 19 Jul 2022 12:26:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D630EC341CA;
+        Tue, 19 Jul 2022 12:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233010;
-        bh=aArpVS4VNheVFDiOhTep3qwKK7+LFJJviBSs/dkrB5s=;
+        s=korg; t=1658233567;
+        bh=2s+Qy8PAT+eFTqzOukEbXvmcPXQSWYaLsQ5kNH32U4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQOfxJwcgOAOn4mLWU0nI4RYf8ShUIZd51CEg536nriggji2cJQcUYgPa+CxSroxw
-         4iojT38HxInoTbDMjAIyGY4wKWIUrDJ0Gc2/15nNibXpftrzWDpzSzautqC/kRyeaz
-         S+nZc0SSAgrgyEjRXMRqMGDjDnS/4mkcF578jRx0=
+        b=IfFSc+Dgwvy/P0LR4DK6ukpO1FiIo7MyabNPKcSnrjv50kZu48LA3kOTcY8uD4pxW
+         z+Dn8VrEVC8taPqwvvYf2971bxs/V5K1s4Oo4kzkf3AQCfVpgBefhlqWthNJR0T68D
+         f0WAOSFd/3HNo2cSDzxdbJERpgkJWhjIRKP3xlFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Gayatri Kammela <gayatri.kammela@linux.intel.com>,
+        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/167] virtio_mmio: Restore guest page size on resume
+Subject: [PATCH 5.18 165/231] platform/x86: intel/pmc: Add Alder Lake N support to PMC core driver
 Date:   Tue, 19 Jul 2022 13:54:10 +0200
-Message-Id: <20220719114707.992732444@linuxfoundation.org>
+Message-Id: <20220719114728.045273325@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Gayatri Kammela <gayatri.kammela@linux.intel.com>
 
-[ Upstream commit e0c2ce8217955537dd5434baeba061f209797119 ]
+[ Upstream commit d63eae6747eb8b3192e89712f6553c6aa162f872 ]
 
-Virtio devices might lose their state when the VMM is restarted
-after a suspend to disk (hibernation) cycle. This means that the
-guest page size register must be restored for the virtio_mmio legacy
-interface, since otherwise the virtio queues are not functional.
+Add Alder Lake N (ADL-N) to the list of the platforms that Intel's
+PMC core driver supports. Alder Lake N reuses all the TigerLake PCH IPs.
 
-This is particularly problematic for QEMU that currently still defaults
-to using the legacy interface for virtio_mmio. Write the guest page
-size register again in virtio_mmio_restore() to make legacy virtio_mmio
-devices work correctly after hibernation.
-
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Message-Id: <20220621110621.3638025-3-stephan.gerhold@kernkonzept.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: David E. Box <david.e.box@linux.intel.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@linux.intel.com>
+Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
+Link: https://lore.kernel.org/r/20220615002751.3371730-1-gayatri.kammela@linux.intel.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/intel/pmc/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 7522832529dd..fe696aafaed8 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -556,6 +556,9 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
- 
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
+diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
+index 8ee15a7252c7..c3ec5dc88bbf 100644
+--- a/drivers/platform/x86/intel/pmc/core.c
++++ b/drivers/platform/x86/intel/pmc/core.c
+@@ -1911,6 +1911,7 @@ static const struct x86_cpu_id intel_pmc_core_ids[] = {
+ 	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_L,	&icl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ROCKETLAKE,		&tgl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&tgl_reg_map),
++	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_N,		&tgl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_reg_map),
+ 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_P,        &tgl_reg_map),
+ 	{}
 -- 
 2.35.1
 
