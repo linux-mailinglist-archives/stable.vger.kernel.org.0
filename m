@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E08EA579EFB
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02575579D1D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243104AbiGSNIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42012 "EHLO
+        id S239429AbiGSMrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:47:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243160AbiGSNId (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:08:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF1ABB8D8;
-        Tue, 19 Jul 2022 05:28:01 -0700 (PDT)
+        with ESMTP id S241584AbiGSMqj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7D78B4BA;
+        Tue, 19 Jul 2022 05:18:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 846F46090A;
-        Tue, 19 Jul 2022 12:27:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F05DC341C6;
-        Tue, 19 Jul 2022 12:27:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 990216183D;
+        Tue, 19 Jul 2022 12:18:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8F5C341C6;
+        Tue, 19 Jul 2022 12:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233650;
-        bh=dt8pDqk8iKTyANiXWzkfAhvww3xMsxUF+gbazu59Dis=;
+        s=korg; t=1658233102;
+        bh=GfEQxJNjjHPalvfvVNCj9R5BmsifevUz1PfOtOY//7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYdPlMl3NM4aPqqM+nXWqZZzgnq1O9/ytPJzFt45I573QufAP0dVFZHOqLNufAkk9
-         z06gbpFzpLnA7bVTAoKIlhovlpvd5Sn5JCazKR3Zc6wwdfFNEqrbJZ5sTuTkk6ZA9p
-         s9x8WYfXQcVgUXxl/Np22pKh9HJzZJ9rXms9iKww=
+        b=IDVrPObOmA3cgOCm0z7d60SFTQZsJY5Ie2qig7M7tcD6xtiI4XDzag7aj5i7fSsbl
+         ebSw08jQPmf4VanLoQplXR7Da8fSds+0a5X3l7RQehlMiHElS5/UVIW0jSYBv3eqBc
+         mmSz9Urd7gvFeww7pkTf+yWJQSjjGviHVnEy6lAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 195/231] ASoC: wcd9335: Fix spurious event generation
-Date:   Tue, 19 Jul 2022 13:54:40 +0200
-Message-Id: <20220719114730.508351043@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 149/167] x86: Clear .brk area at early boot
+Date:   Tue, 19 Jul 2022 13:54:41 +0200
+Message-Id: <20220719114710.861804071@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit a7786cbae4b2732815da98efa39df96746b5bd0d ]
+[ Upstream commit 38fa5479b41376dc9d7f57e71c83514285a25ca0 ]
 
-The slimbus mux put operation unconditionally reports a change in value
-which means that spurious events are generated. Fix this by exiting early
-in that case.
+The .brk section has the same properties as .bss: it is an alloc-only
+section and should be cleared before being used.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220603124609.4024666-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Not doing so is especially a problem for Xen PV guests, as the
+hypervisor will validate page tables (check for writable page tables
+and hypervisor private bits) before accepting them to be used.
+
+Make sure .brk is initially zero by letting clear_bss() clear the brk
+area, too.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220630071441.28576-3-jgross@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/head64.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 12be043ee9a3..aa685980a97b 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -1287,6 +1287,9 @@ static int slim_rx_mux_put(struct snd_kcontrol *kc,
- 	struct snd_soc_dapm_update *update = NULL;
- 	u32 port_id = w->shift;
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index de01903c3735..5036104d5470 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -418,6 +418,8 @@ static void __init clear_bss(void)
+ {
+ 	memset(__bss_start, 0,
+ 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
++	memset(__brk_base, 0,
++	       (unsigned long) __brk_limit - (unsigned long) __brk_base);
+ }
  
-+	if (wcd->rx_port_value[port_id] == ucontrol->value.enumerated.item[0])
-+		return 0;
-+
- 	wcd->rx_port_value[port_id] = ucontrol->value.enumerated.item[0];
- 
- 	/* Remove channel from any list it's in before adding it to a new one */
+ static unsigned long get_cmd_line_ptr(void)
 -- 
 2.35.1
 
