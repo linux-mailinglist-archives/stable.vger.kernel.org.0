@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1375579C1F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4CC579E5F
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239250AbiGSMgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:36:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
+        id S243305AbiGSNA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:00:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240305AbiGSMfN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:35:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCDD7AB11;
-        Tue, 19 Jul 2022 05:14:01 -0700 (PDT)
+        with ESMTP id S242662AbiGSM7X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DD349B66;
+        Tue, 19 Jul 2022 05:24:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70CC3B81B32;
-        Tue, 19 Jul 2022 12:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF17DC341C6;
-        Tue, 19 Jul 2022 12:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A5261921;
+        Tue, 19 Jul 2022 12:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD314C341D5;
+        Tue, 19 Jul 2022 12:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232834;
-        bh=PH0I0FrJz8Iu1ZppSIcZbT/GPSH/t/4UMdyeC++/lI0=;
+        s=korg; t=1658233456;
+        bh=rO+12WaTA7CEK346tI4sccEoEMeXEJJq6yWPr6caLSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOqY+hTCPcb6HijPlHfB8Kyyzzu5ONRhA68ctXJiHrG83iVG06TiMbcVLxGfMFLDz
-         F57PEERp5B3RPwipsO1Mkp0X4EIwBrjFEy7+ezuwMbFbApI0rprRgy2rco9yXwOvIC
-         Zrgs1lvtqGqtCdHtYAcRa8K/A3XeWaUbNw7Txpyo=
+        b=B5v/E3FpdbmQOMcKgUTmbBm2jzgS9rxQzN328ijse26cQMyMWv9KHFcQLf/rIQDdN
+         IZ6eKBxjErScUz2ktug/b5u6vXtw/YcwOC+C9BH+JsY9EWPRwKffMNyTMvQHhV7RgX
+         DcvmX1acreUNKvC0P1BtRTJtl1l05LCaeUQ0OuEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/167] sysctl: Fix data-races in proc_dou8vec_minmax().
+Subject: [PATCH 5.18 129/231] drm/amdkfd: correct the MEC atomic support firmware checking for GC 10.3.7
 Date:   Tue, 19 Jul 2022 13:53:34 +0200
-Message-Id: <20220719114704.502067143@linuxfoundation.org>
+Message-Id: <20220719114725.304038043@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Prike Liang <Prike.Liang@amd.com>
 
-[ Upstream commit 7dee5d7747a69aa2be41f04c6a7ecfe3ac8cdf18 ]
+[ Upstream commit c0044865480a162146b9dfe7783e73a08e97b2b9 ]
 
-A sysctl variable is accessed concurrently, and there is always a chance
-of data-race.  So, all readers and writers need some basic protection to
-avoid load/store-tearing.
+On the GC 10.3.7 platform the initial MEC release version #3 can support
+atomic operation,so need correct and set its MEC atomic support version to #3.
 
-This patch changes proc_dou8vec_minmax() to use READ_ONCE() and
-WRITE_ONCE() internally to fix data-races on the sysctl side.  For now,
-proc_dou8vec_minmax() itself is tolerant to a data-race, but we still
-need to add annotations on the other subsystem's side.
-
-Fixes: cb9444130662 ("sysctl: add proc_dou8vec_minmax()")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.18.x
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 5be8108a9a45..357900d0cef9 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1138,13 +1138,13 @@ int proc_dou8vec_minmax(struct ctl_table *table, int write,
- 
- 	tmp.maxlen = sizeof(val);
- 	tmp.data = &val;
--	val = *data;
-+	val = READ_ONCE(*data);
- 	res = do_proc_douintvec(&tmp, write, buffer, lenp, ppos,
- 				do_proc_douintvec_minmax_conv, &param);
- 	if (res)
- 		return res;
- 	if (write)
--		*data = val;
-+		WRITE_ONCE(*data, val);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(proc_dou8vec_minmax);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 651498bfecc8..2059c3138410 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -158,6 +158,8 @@ static void kfd_device_info_init(struct kfd_dev *kfd,
+ 			/* Navi2x+, Navi1x+ */
+ 			if (gc_version == IP_VERSION(10, 3, 6))
+ 				kfd->device_info.no_atomic_fw_version = 14;
++			else if (gc_version == IP_VERSION(10, 3, 7))
++				kfd->device_info.no_atomic_fw_version = 3;
+ 			else if (gc_version >= IP_VERSION(10, 3, 0))
+ 				kfd->device_info.no_atomic_fw_version = 92;
+ 			else if (gc_version >= IP_VERSION(10, 1, 1))
 -- 
 2.35.1
 
