@@ -2,73 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ECB757A5F8
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 20:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BCA57A604
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 20:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229496AbiGSSCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 14:02:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60622 "EHLO
+        id S232315AbiGSSDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 14:03:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232554AbiGSSCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 14:02:21 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CEB52DDA
-        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 11:02:20 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id e28so26139945lfj.4
-        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 11:02:20 -0700 (PDT)
+        with ESMTP id S239796AbiGSSDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 14:03:44 -0400
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D4AD57227;
+        Tue, 19 Jul 2022 11:03:44 -0700 (PDT)
+Received: by mail-io1-xd31.google.com with SMTP id h145so12461596iof.9;
+        Tue, 19 Jul 2022 11:03:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=MRmj8l99c2O7PdiyVn26Tftqaot1uHzMd7MQVDOANP4=;
-        b=F7ZDck+3GLig5jkUnBBV1NDp7BukS+CejNGbJzkT/BR7H1mZlb2A+DZ0aHdybnBpOH
-         BOOKz8jcBsG9Iz6rR+CN116mMGiBLahYMQ51Tem+JPDJjYtFXrydNuk1cs9Nps1uwXZh
-         Bp0GeHJVBc27ACZIqGTPwb69aIpyy6OD0NOApvmljTBBIr8EoJImskG6JAm8CmidXP3J
-         ZUH+kZOWm8ZLK/3RM5kTJDvu2P37xkLSFSN1HA1TbcNszEhurX1XwYrs+wPPRQ2BVhvs
-         Djrn8LZ9+G2mnbtQGThLYIVZBfSQZ3+ASxC+jBiHuS8rbHzaOFmhSZf4VUquwuolgxeM
-         vyNg==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=fPFFe5wctLeTDhb0gLdCJgELQgOsbugIuLTUZPTp1bA=;
+        b=p+MaZnvhMqpzyLmpxQ2pmhFgNvd+cPnc/JFkL6mPhyxR2vi4jPsQH1dypW+VHqTpF+
+         fgCdq+5mmHjOpOVH8ZrNpOGCoNwd1rWwsNjiSpUHtqcdpZlj8Mu4ooYhePzYicS38QGV
+         olTp4c6PpPngYKzh1EWEOOmDptInqR9vs5A25kEZu+wVJdMQsMnQ1URnXPjp/0LGMUz2
+         FNRRjWeMuCx6UjIuCeVpXYGFsaL3mhCvE6G2EYxLAuVgLLl+GkbGd85W7RSTqFYBzeij
+         WA9T0J/bvfu6HcPM+RWZRXfPlP6Q18fpxgKBVt9l/322kv39NSojfeFuIHGG0EK9GDSg
+         SMyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=MRmj8l99c2O7PdiyVn26Tftqaot1uHzMd7MQVDOANP4=;
-        b=VRT0Z1ovIztE5ZcUYgfNVTTd1Cs9ZGz1OenX0M+rVecIa4l3UyONCbsLM3kB9gY/xd
-         RWvIJ4OkldDNu7iUbKn50Z8gx/e2uI75y8EzmmIyCkeBw4kD9FiynqnCqVVSU6UdHrVq
-         QXG0/gVcE73wcqQNddWiBf+XbpMRlo2hZ8mZc8X48lmHE8bDUp088iAVLJuAUMxD5ptZ
-         LnOfizvzh/WuSGf+LUpiRlgRdjbE83ywn+oXJMSR6JmiONsPegscTVG0OYsC9F6F0Ync
-         IZnW1PDXJl1ZcLm/s1JSr14D7z+JAl2kmZNCHXMvlRPp7lgUqYPOlc8iE8pj1ZyFtYuS
-         nU2A==
-X-Gm-Message-State: AJIora87HAOSiBQ/fZCUmQuXMGmZJx6Vn32v+kVh4z1GlC7H/kah4HJ1
-        FLHItU5hplt9OS+pQHRgxMSdHjtX4rFW/dO5njM=
-X-Google-Smtp-Source: AGRyM1tKwNAsmUjxFhYyOqz/SnuEi5e2PEQVukPtpWuSa4cniOAnm6wM9jkG2kviJp5RxqiDUUbwxXjz0EYQNfLSu0M=
-X-Received: by 2002:a05:6512:3da2:b0:48a:1b79:6d5a with SMTP id
- k34-20020a0565123da200b0048a1b796d5amr14994931lfv.471.1658253738501; Tue, 19
- Jul 2022 11:02:18 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=fPFFe5wctLeTDhb0gLdCJgELQgOsbugIuLTUZPTp1bA=;
+        b=UVaU4MS1vDlD13MF1oMf9Me7ur6fm4h88jk3KWAhZ95kMn2LA0N31bytP8mgOYHrQP
+         +WySxH2pNxusS39Cc3hGx0vFCcak/7azhExDN46lKUWYRdp0hDjG1etdKNGLw5TnytkD
+         hnjfh2flWtHj8ihg0Esq5ZxEWN69ZbX5dBF9rF3IAUtbD9QH8VjyiVMHABAYsTSzxoBn
+         tqPOLmrda76w+1Df1sdMmUGrUR+rBKGMFuOx1ZAC1ybtJ8xIo+k8Kb07zzMvAmu0zWuU
+         6suBGrACNqMhgAmQPNp9yHUUIlnpm5Eksxd1VX+gYujZaAXVu6xI2MayHQyn3hybLDp9
+         DCKQ==
+X-Gm-Message-State: AJIora8OZ5VYHjS2Ut/XfN9El70z1EEgQCA3rj6wn2vzWOtzFvH+CJUl
+        wr6R918m61REdcXbDMv6Cw0=
+X-Google-Smtp-Source: AGRyM1s88nd19RIkPv+KH3rbuBZREMEKj+2iuX6YpFnTzr8fsECStsYXQUt4+cy12Ja+AdXFF72i5A==
+X-Received: by 2002:a02:ad12:0:b0:33f:4663:e784 with SMTP id s18-20020a02ad12000000b0033f4663e784mr18211597jan.29.1658253823519;
+        Tue, 19 Jul 2022 11:03:43 -0700 (PDT)
+Received: from ?IPV6:2601:282:800:dc80:a884:659b:a795:3b16? ([2601:282:800:dc80:a884:659b:a795:3b16])
+        by smtp.googlemail.com with ESMTPSA id n2-20020a056e0208e200b002dcdbb4f7b7sm3616146ilt.24.2022.07.19.11.03.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Jul 2022 11:03:43 -0700 (PDT)
+Message-ID: <c66afab7-732c-c68e-cc53-7425d92df42b@gmail.com>
+Date:   Tue, 19 Jul 2022 12:03:42 -0600
 MIME-Version: 1.0
-Received: by 2002:ab3:6f82:0:b0:1d7:9235:94da with HTTP; Tue, 19 Jul 2022
- 11:02:16 -0700 (PDT)
-Reply-To: royandersonCCB@outlook.com
-From:   ROY ANDERSON <hk1113058@gmail.com>
-Date:   Tue, 19 Jul 2022 14:02:16 -0400
-Message-ID: <CAO3=PdpOmvNbNa_F6UWWZMo=6CKzYAryLcbEM+cETMrGbH-Rtg@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH net] mlxsw: spectrum_router: Fix IPv4 nexthop gateway
+ indication
+Content-Language: en-US
+To:     Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        edumazet@google.com, petrm@nvidia.com, amcohen@nvidia.com,
+        nicolas.dichtel@6wind.com, mlxsw@nvidia.com, stable@vger.kernel.org
+References: <20220719122626.2276880-1-idosch@nvidia.com>
+From:   David Ahern <dsahern@gmail.com>
+In-Reply-To: <20220719122626.2276880-1-idosch@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-My name is Roy Anderson. I came across your contact and noticed we can
-be of value to each other. I have a proposal that i want to share with
-you.
-Your prompt response will be appreciated for more details.
-Send reply to email : roy.an.erson@outlook.com
-Sincerely,
-Roy Anderson
+On 7/19/22 6:26 AM, Ido Schimmel wrote:
+> mlxsw needs to distinguish nexthops with a gateway from connected
+> nexthops in order to write the former to the adjacency table of the
+> device. The check used to rely on the fact that nexthops with a gateway
+> have a 'link' scope whereas connected nexthops have a 'host' scope. This
+> is no longer correct after commit 747c14307214 ("ip: fix dflt addr
+> selection for connected nexthop").
+> 
+> Fix that by instead checking the address family of the gateway IP. This
+> is a more direct way and also consistent with the IPv6 counterpart in
+> mlxsw_sp_rt6_is_gateway().
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
+> Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+> ---
+> Copied stable since Nicolas' patch has stable copied and I don't want
+> stable trees to have his patch, but not mine. To make it clear how far
+> this patch needs to be backported, I have included the same Fixes tag as
+> him.
+> ---
+>  drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+
+Reviewed-by: David Ahern <dsahern@kernel.org>
+
+
