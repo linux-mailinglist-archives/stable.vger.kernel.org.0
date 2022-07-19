@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 968E4579BB3
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5F4579E01
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236257AbiGSM34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:29:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43324 "EHLO
+        id S242282AbiGSM5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:57:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237838AbiGSM3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4E467157;
-        Tue, 19 Jul 2022 05:10:55 -0700 (PDT)
+        with ESMTP id S242353AbiGSM41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:56:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772925B079;
+        Tue, 19 Jul 2022 05:22:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD175616F8;
-        Tue, 19 Jul 2022 12:10:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 884AEC341C6;
-        Tue, 19 Jul 2022 12:10:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09E636177D;
+        Tue, 19 Jul 2022 12:22:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00D2C341C6;
+        Tue, 19 Jul 2022 12:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232653;
-        bh=qvrK/dgaVvy8Ibcvi3b3/DXHImhH9aiPUqLY+jKaZKA=;
+        s=korg; t=1658233353;
+        bh=XOu0oGKI6SMaLuAB12ayFkZ+0xnv/ip8udQlsI+WW+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TzwcOobmVlPMlJikqVpuf6RNGqoDCH8GaXmIR12V+jKRiUW3vzwFbYv4Nw/bYN7Y
-         T3KkaeHJbnJpFk2MLBn46y5AJi0dbjsQREgqut+ypUBLxVuWm/KC3xjYBx5IC82iJ4
-         e58GJqhNeHUejqfe89+hjBtoAgoW9CSjy5YMdXeA=
+        b=jlAkYs1QpnqoqkDp55apg61H1+tqS9Fq8HqO9Vvw5mZmOFySWcqVi8T/waiKcWFf6
+         kmv/JzGCMqd8uBTm86czKVHxNnWxFXQVT8vN6tSWkyBrnaoS+4dPYwbVMbJLpdcIfc
+         PdJcAzXbD0+A9QgJIEq5uuAw6XdX8jNT8YrcCucc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominique MARTINET <dominique.martinet@atmark-techno.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 019/167] btrfs: return -EAGAIN for NOWAIT dio reads/writes on compressed and inline extents
-Date:   Tue, 19 Jul 2022 13:52:31 +0200
-Message-Id: <20220719114658.606783628@linuxfoundation.org>
+        stable@vger.kernel.org, Siddharth Vadapalli <s-vadapalli@ti.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 067/231] net: ethernet: ti: am65-cpsw: Fix devlink port register sequence
+Date:   Tue, 19 Jul 2022 13:52:32 +0200
+Message-Id: <20220719114719.868009251@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Siddharth Vadapalli <s-vadapalli@ti.com>
 
-commit a4527e1853f8ff6e0b7c2dadad6268bd38427a31 upstream.
+[ Upstream commit 0680e20af5fbf41df8a11b11bd9a7c25b2ca0746 ]
 
-When doing a direct IO read or write, we always return -ENOTBLK when we
-find a compressed extent (or an inline extent) so that we fallback to
-buffered IO. This however is not ideal in case we are in a NOWAIT context
-(io_uring for example), because buffered IO can block and we currently
-have no support for NOWAIT semantics for buffered IO, so if we need to
-fallback to buffered IO we should first signal the caller that we may
-need to block by returning -EAGAIN instead.
+Renaming interfaces using udevd depends on the interface being registered
+before its netdev is registered. Otherwise, udevd reads an empty
+phys_port_name value, resulting in the interface not being renamed.
 
-This behaviour can also result in short reads being returned to user
-space, which although it's not incorrect and user space should be able
-to deal with partial reads, it's somewhat surprising and even some popular
-applications like QEMU (Link tag #1) and MariaDB (Link tag #2) don't
-deal with short reads properly (or at all).
+Fix this by registering the interface before registering its netdev
+by invoking am65_cpsw_nuss_register_devlink() before invoking
+register_netdev() for the interface.
 
-The short read case happens when we try to read from a range that has a
-non-compressed and non-inline extent followed by a compressed extent.
-After having read the first extent, when we find the compressed extent we
-return -ENOTBLK from btrfs_dio_iomap_begin(), which results in iomap to
-treat the request as a short read, returning 0 (success) and waiting for
-previously submitted bios to complete (this happens at
-fs/iomap/direct-io.c:__iomap_dio_rw()). After that, and while at
-btrfs_file_read_iter(), we call filemap_read() to use buffered IO to
-read the remaining data, and pass it the number of bytes we were able to
-read with direct IO. Than at filemap_read() if we get a page fault error
-when accessing the read buffer, we return a partial read instead of an
--EFAULT error, because the number of bytes previously read is greater
-than zero.
+Move the function call to devlink_port_type_eth_set(), invoking it after
+register_netdev() is invoked, to ensure that netlink notification for the
+port state change is generated after the netdev is completely initialized.
 
-So fix this by returning -EAGAIN for NOWAIT direct IO when we find a
-compressed or an inline extent.
-
-Reported-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
-Link: https://lore.kernel.org/linux-btrfs/YrrFGO4A1jS0GI0G@atmark-techno.com/
-Link: https://jira.mariadb.org/browse/MDEV-27900?focusedCommentId=216582&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-216582
-Tested-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 58356eb31d60 ("net: ti: am65-cpsw-nuss: Add devlink support")
+Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
+Link: https://lore.kernel.org/r/20220706070208.12207-1-s-vadapalli@ti.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -7957,7 +7957,19 @@ static int btrfs_dio_iomap_begin(struct
- 	if (test_bit(EXTENT_FLAG_COMPRESSED, &em->flags) ||
- 	    em->block_start == EXTENT_MAP_INLINE) {
- 		free_extent_map(em);
--		ret = -ENOTBLK;
-+		/*
-+		 * If we are in a NOWAIT context, return -EAGAIN in order to
-+		 * fallback to buffered IO. This is not only because we can
-+		 * block with buffered IO (no support for NOWAIT semantics at
-+		 * the moment) but also to avoid returning short reads to user
-+		 * space - this happens if we were able to read some data from
-+		 * previous non-compressed extents and then when we fallback to
-+		 * buffered IO, at btrfs_file_read_iter() by calling
-+		 * filemap_read(), we fail to fault in pages for the read buffer,
-+		 * in which case filemap_read() returns a short read (the number
-+		 * of bytes previously read is > 0, so it does not return -EFAULT).
-+		 */
-+		ret = (flags & IOMAP_NOWAIT) ? -EAGAIN : -ENOTBLK;
- 		goto unlock_err;
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 6d978dbf708f..298953053407 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -2475,7 +2475,6 @@ static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
+ 				port->port_id, ret);
+ 			goto dl_port_unreg;
+ 		}
+-		devlink_port_type_eth_set(dl_port, port->ndev);
+ 	}
+ 	devlink_register(common->devlink);
+ 	return ret;
+@@ -2519,6 +2518,7 @@ static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
+ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
+ {
+ 	struct device *dev = common->dev;
++	struct devlink_port *dl_port;
+ 	struct am65_cpsw_port *port;
+ 	int ret = 0, i;
+ 
+@@ -2535,6 +2535,10 @@ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
+ 		return ret;
  	}
  
++	ret = am65_cpsw_nuss_register_devlink(common);
++	if (ret)
++		return ret;
++
+ 	for (i = 0; i < common->port_num; i++) {
+ 		port = &common->ports[i];
+ 
+@@ -2547,25 +2551,24 @@ static int am65_cpsw_nuss_register_ndevs(struct am65_cpsw_common *common)
+ 				i, ret);
+ 			goto err_cleanup_ndev;
+ 		}
++
++		dl_port = &port->devlink_port;
++		devlink_port_type_eth_set(dl_port, port->ndev);
+ 	}
+ 
+ 	ret = am65_cpsw_register_notifiers(common);
+ 	if (ret)
+ 		goto err_cleanup_ndev;
+ 
+-	ret = am65_cpsw_nuss_register_devlink(common);
+-	if (ret)
+-		goto clean_unregister_notifiers;
+-
+ 	/* can't auto unregister ndev using devm_add_action() due to
+ 	 * devres release sequence in DD core for DMA
+ 	 */
+ 
+ 	return 0;
+-clean_unregister_notifiers:
+-	am65_cpsw_unregister_notifiers(common);
++
+ err_cleanup_ndev:
+ 	am65_cpsw_nuss_cleanup_ndev(common);
++	am65_cpsw_unregister_devlink(common);
+ 
+ 	return ret;
+ }
+-- 
+2.35.1
+
 
 
