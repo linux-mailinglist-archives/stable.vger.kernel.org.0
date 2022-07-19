@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 343E7579B9E
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D707579DDC
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235477AbiGSMao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:30:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45678 "EHLO
+        id S242285AbiGSMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:55:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240866AbiGSMaE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:30:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCC46D54C;
-        Tue, 19 Jul 2022 05:11:42 -0700 (PDT)
+        with ESMTP id S242601AbiGSMyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:54:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120C79822F;
+        Tue, 19 Jul 2022 05:21:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AEF3B81B37;
-        Tue, 19 Jul 2022 12:11:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEACCC341C6;
-        Tue, 19 Jul 2022 12:11:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08BD1618E6;
+        Tue, 19 Jul 2022 12:21:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0AC1C341C6;
+        Tue, 19 Jul 2022 12:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232691;
-        bh=5JisgN0ujQbm7P/KToV789LWlkwNuqdhCX08242VV+E=;
+        s=korg; t=1658233315;
+        bh=tbzCGK8HdhiXa0efr//XBECwdh6zNeE4FnnWpvSfh5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgdxNaBiY5ped1t05iTuK8AtTPWKmHFiqPG6gYyzh6xKdijwVFzSSJZNT0FB1PUaD
-         TPWcMwD6uRToBLgan7q/lG0qmNF8Ru5/470SjavS0v/IQkovf2z0t5eC2gsW3+AZJd
-         hyOfoQP6ruu1tQ7jr8hPqgG9OqF0uMwuyldzdWOo=
+        b=AdZ/5Ex0VKr6dWVVbdqzWtswjlnFuJSxiVnEzM7KxPvxaLSOYxL5mOdxHceslr/fV
+         tPhZJdbBWEoll7LyXVru/cfzyuIgMgqKrQYjeDwx+OyL+qIsPGWDlWEnW8IRWobSYp
+         AO9bLuNFs3m5zgCthvxJkyqCFCQ0qW3eot4VAkpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anastasios Vacharakis <vacharakis@o2mail.de>,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/167] spi: amd: Limit max transfer and message size
-Date:   Tue, 19 Jul 2022 13:52:44 +0200
-Message-Id: <20220719114659.861525597@linuxfoundation.org>
+Subject: [PATCH 5.18 080/231] ipv4: Fix a data-race around sysctl_fib_sync_mem.
+Date:   Tue, 19 Jul 2022 13:52:45 +0200
+Message-Id: <20220719114721.604623907@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 6ece49c56965544262523dae4a071ace3db63507 ]
+[ Upstream commit 73318c4b7dbd0e781aaababff17376b2894745c0 ]
 
-Enabling the SPI CS35L41 audio codec driver for Steam Deck [1]
-revealed a problem with the current AMD SPI controller driver
-implementation, consisting of an unrecoverable system hang.
+While reading sysctl_fib_sync_mem, it can be changed concurrently.
+So, we need to add READ_ONCE() to avoid a data-race.
 
-The issue can be prevented if we ensure the max transfer size
-and the max message size do not exceed the FIFO buffer size.
-
-According to the implementation of the downstream driver, the
-AMD SPI controller is not able to handle more than 70 bytes per
-transfer, which corresponds to the size of the FIFO buffer.
-
-Hence, let's fix this by setting the SPI limits mentioned above.
-
-[1] https://lore.kernel.org/r/20220621213819.262537-1-cristian.ciocaltea@collabora.com
-
-Reported-by: Anastasios Vacharakis <vacharakis@o2mail.de>
-Fixes: bbb336f39efc ("spi: spi-amd: Add AMD SPI controller driver support")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Link: https://lore.kernel.org/r/20220706100626.1234731-2-cristian.ciocaltea@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9ab948a91b2c ("ipv4: Allow amount of dirty memory from fib resizing to be controllable")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-amd.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/ipv4/fib_trie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-amd.c b/drivers/spi/spi-amd.c
-index 3cf76096a76d..39dbe9903da2 100644
---- a/drivers/spi/spi-amd.c
-+++ b/drivers/spi/spi-amd.c
-@@ -28,6 +28,7 @@
- #define AMD_SPI_RX_COUNT_REG	0x4B
- #define AMD_SPI_STATUS_REG	0x4C
+diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
+index fb0e49c36c2e..43a496272227 100644
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -498,7 +498,7 @@ static void tnode_free(struct key_vector *tn)
+ 		tn = container_of(head, struct tnode, rcu)->kv;
+ 	}
  
-+#define AMD_SPI_FIFO_SIZE	70
- #define AMD_SPI_MEM_SIZE	200
- 
- /* M_CMD OP codes for SPI */
-@@ -245,6 +246,11 @@ static int amd_spi_master_transfer(struct spi_master *master,
- 	return 0;
- }
- 
-+static size_t amd_spi_max_transfer_size(struct spi_device *spi)
-+{
-+	return AMD_SPI_FIFO_SIZE;
-+}
-+
- static int amd_spi_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -275,6 +281,8 @@ static int amd_spi_probe(struct platform_device *pdev)
- 	master->flags = SPI_MASTER_HALF_DUPLEX;
- 	master->setup = amd_spi_master_setup;
- 	master->transfer_one_message = amd_spi_master_transfer;
-+	master->max_transfer_size = amd_spi_max_transfer_size;
-+	master->max_message_size = amd_spi_max_transfer_size;
- 
- 	/* Register the controller with SPI framework */
- 	err = devm_spi_register_master(dev, master);
+-	if (tnode_free_size >= sysctl_fib_sync_mem) {
++	if (tnode_free_size >= READ_ONCE(sysctl_fib_sync_mem)) {
+ 		tnode_free_size = 0;
+ 		synchronize_rcu();
+ 	}
 -- 
 2.35.1
 
