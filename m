@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DE20579E23
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5CE579BF4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242515AbiGSM6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:58:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37012 "EHLO
+        id S237799AbiGSMfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:35:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242456AbiGSM5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:57:31 -0400
+        with ESMTP id S237680AbiGSMdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:33:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3C89B19C;
-        Tue, 19 Jul 2022 05:23:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DD774DCB;
+        Tue, 19 Jul 2022 05:12:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE3FE618F1;
-        Tue, 19 Jul 2022 12:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98D9AC341C6;
-        Tue, 19 Jul 2022 12:23:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29E0B617D7;
+        Tue, 19 Jul 2022 12:12:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE751C341C6;
+        Tue, 19 Jul 2022 12:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233388;
-        bh=sbrNjhLCvn5a2AkRbEaXHTgvzEtiaBNNhza+/u7Y8Kg=;
+        s=korg; t=1658232768;
+        bh=iGY6+4NQhgxeOQ6cZCMCN2ShvVFXM5f2V4BRGzzkiAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgtmaZ5/INc7RtnfAi3VnHEsCBP1/0J417923tlVDlDGRZNsjzHsrfPEa79pddu97
-         2XDxLPhbPAPUJhE7108dzzkTI7PgAGjsuYCy11pL8XR5qH+vIoYGf8gCUoqTiUxfyL
-         V/aK/zOkFj+WAH872/VKPtJ3NrElJYMbd0ZnQJTY=
+        b=xMTJdSF14IAZmf75tkqFsK2EnnaNTbo/geDJ7ehBWc4/gRVB6s//YwVnGtB4lPSH+
+         y4iTsDZL5OIX/UxHDNSVmxEjLYeK4WYtkQxIJBRPSNuXCOtoOE6TBsDTGjP4QZXmVK
+         7XR6cfWIsCQFreHgVm9s/9Jd+8eKj59AjYhdSIQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 106/231] bnxt_en: Fix bnxt_reinit_after_abort() code path
+Subject: [PATCH 5.15 059/167] net: Fix data-races around sysctl_mem.
 Date:   Tue, 19 Jul 2022 13:53:11 +0200
-Message-Id: <20220719114723.549336840@linuxfoundation.org>
+Message-Id: <20220719114702.270186209@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 4279414bff8af9898e8c53ae6c5bc17f68ad67b7 ]
+[ Upstream commit 310731e2f1611d1d13aae237abcf8e66d33345d5 ]
 
-bnxt_reinit_after_abort() is called during ifup when a previous
-FW reset sequence has aborted or a previous ifup has failed after
-detecting FW reset.  In all cases, it is safe to assume that a
-previous FW reset has completed and the driver may not have fully
-reinitialized.
+While reading .sysctl_mem, it can be changed concurrently.
+So, we need to add READ_ONCE() to avoid data-races.
 
-Prior to this patch, it is assumed that the
-FUNC_DRV_IF_CHANGE_RESP_FLAGS_HOT_FW_RESET_DONE flag will always be
-set by the firmware in bnxt_hwrm_if_change().  This may not be true if
-the driver has already attempted to register with the firmware.  The
-firmware may not set the RESET_DONE flag again after the driver has
-registered, assuming that the driver has seen the flag already.
-
-Fix it to always go through the FW reset initialization path if
-the BNXT_STATE_FW_RESET_DET flag is set.  This flag is always set
-by the driver after successfully going through bnxt_reinit_after_abort().
-
-Fixes: 6882c36cf82e ("bnxt_en: attempt to reinitialize after aborted reset")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/sock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index ee6686a111bd..1ceccaed2da0 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -9916,7 +9916,8 @@ static int bnxt_hwrm_if_change(struct bnxt *bp, bool up)
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 7d49196a3880..96f51d4b1649 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1484,7 +1484,7 @@ void __sk_mem_reclaim(struct sock *sk, int amount);
+ /* sysctl_mem values are in pages, we convert them in SK_MEM_QUANTUM units */
+ static inline long sk_prot_mem_limits(const struct sock *sk, int index)
+ {
+-	long val = sk->sk_prot->sysctl_mem[index];
++	long val = READ_ONCE(sk->sk_prot->sysctl_mem[index]);
  
- 	if (flags & FUNC_DRV_IF_CHANGE_RESP_FLAGS_RESC_CHANGE)
- 		resc_reinit = true;
--	if (flags & FUNC_DRV_IF_CHANGE_RESP_FLAGS_HOT_FW_RESET_DONE)
-+	if (flags & FUNC_DRV_IF_CHANGE_RESP_FLAGS_HOT_FW_RESET_DONE ||
-+	    test_bit(BNXT_STATE_FW_RESET_DET, &bp->state))
- 		fw_reset = true;
- 	else
- 		bnxt_remap_fw_health_regs(bp);
+ #if PAGE_SIZE > SK_MEM_QUANTUM
+ 	val <<= PAGE_SHIFT - SK_MEM_QUANTUM_SHIFT;
 -- 
 2.35.1
 
