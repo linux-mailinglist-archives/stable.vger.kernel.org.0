@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BF67579D55
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16DFE579D2E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241783AbiGSMuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:50:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
+        id S241744AbiGSMsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:48:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242009AbiGSMtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:33 -0400
+        with ESMTP id S237982AbiGSMqt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48EEE57E0A;
-        Tue, 19 Jul 2022 05:19:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6A48BABA;
+        Tue, 19 Jul 2022 05:18:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A2561772;
-        Tue, 19 Jul 2022 12:19:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83D5C341C6;
-        Tue, 19 Jul 2022 12:19:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F271617D6;
+        Tue, 19 Jul 2022 12:18:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3417C341C6;
+        Tue, 19 Jul 2022 12:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233179;
-        bh=ZtuTMOXdGKSBN/V/+9/N8POc6UZtNU7FV97Ie2c+9aw=;
+        s=korg; t=1658233111;
+        bh=xOYMziX2QG4wm2a/EwKtOEu7/+/i9JFOR3PM4c+yByU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOY72UHanwdFx09UarZvYyIQhhc2dwaMiCFNAGybkWyfOq3Ni7optrHEJZz7RGGzi
-         wLXSu6R550kZ262+TQfQvsk8vhSQy/4fK3FjUciZWAje7gIhIzRB/Dbvw+ZzzKPHwv
-         zTh+uFjAqrEGdn3HQQ7O9UnovcZJ7XtTXiYv7dWw=
+        b=pIzCJNJqwdB1NGExuPoneqmhY+gLesAK4UNfMZ8aCYl/tswqidiHimoj/1PpLC5zm
+         x9RN4i45g9MO2VtjPxLIbmP2ovtqEzY5lC8BYcl4SVwOpo2IX9RgyoqlKBBAJ4U2FJ
+         fEx7HRmgcQui0QtiSY5JMuC1rtr23OA4bm4I2ylY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 009/231] ALSA: hda/realtek: Fix headset mic for Acer SF313-51
-Date:   Tue, 19 Jul 2022 13:51:34 +0200
-Message-Id: <20220719114714.914212537@linuxfoundation.org>
+Subject: [PATCH 5.18 010/231] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc671
+Date:   Tue, 19 Jul 2022 13:51:35 +0200
+Message-Id: <20220719114714.983953157@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,16 +54,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Meng Tang <tangmeng@uniontech.com>
 
-commit 5f3fe25e70559fa3b096ab17e13316c93ddb7020 upstream.
+commit dbe75d314748e08fc6e4576d153d8a69621ee5ca upstream.
 
-The issue on Acer SWIFT SF313-51 is that headset microphone
-doesn't work. The following quirk fixed headset microphone issue.
-Note that the fixup of SF314-54/55 (ALC256_FIXUP_ACER_HEADSET_MIC)
-was not successful on my SF313-51.
+On a HP 288 Pro G6, the front mic could not be detected.In order to
+get it working, the pin configuration needs to be set correctly, and
+the ALC671_FIXUP_HP_HEADSET_MIC2 fixup needs to be applied.
 
 Signed-off-by: Meng Tang <tangmeng@uniontech.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220711081527.6254-1-tangmeng@uniontech.com
+Link: https://lore.kernel.org/r/20220712092222.21738-1-tangmeng@uniontech.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -72,13 +71,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8938,6 +8938,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1025, 0x1290, "Acer Veriton Z4860G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x1291, "Acer Veriton Z4660G", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x129c, "Acer SWIFT SF314-55", ALC256_FIXUP_ACER_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1025, 0x129d, "Acer SWIFT SF313-51", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x1300, "Acer SWIFT SF314-56", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1025, 0x1308, "Acer Aspire Z24-890", ALC286_FIXUP_ACER_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
+@@ -11271,6 +11271,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
+ 	SND_PCI_QUIRK(0x103c, 0x8719, "HP", ALC897_FIXUP_HP_HSMIC_VERB),
+ 	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
++	SND_PCI_QUIRK(0x103c, 0x877e, "HP 288 Pro G6", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x103c, 0x885f, "HP 288 Pro G8", ALC671_FIXUP_HP_HEADSET_MIC2),
+ 	SND_PCI_QUIRK(0x1043, 0x1080, "Asus UX501VW", ALC668_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1043, 0x11cd, "Asus N550", ALC662_FIXUP_ASUS_Nx50),
 
 
