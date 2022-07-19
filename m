@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A63C05799F8
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573E357997D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236204AbiGSMKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51600 "EHLO
+        id S237961AbiGSMDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:03:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238521AbiGSMIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:08:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B6345F63;
-        Tue, 19 Jul 2022 05:01:52 -0700 (PDT)
+        with ESMTP id S238012AbiGSMC7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:02:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C99642ACF;
+        Tue, 19 Jul 2022 04:59:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCE8FB81A8F;
-        Tue, 19 Jul 2022 12:01:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28CC0C341C6;
-        Tue, 19 Jul 2022 12:01:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68AF66163C;
+        Tue, 19 Jul 2022 11:59:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3612CC341C6;
+        Tue, 19 Jul 2022 11:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232109;
-        bh=Z1JtSfxrx09o6ta6fOCcZnqAzuj3UPKp2mD7YWnzRFI=;
+        s=korg; t=1658231955;
+        bh=yzWGUrZOP7NfqVeg/Dm48ITr0jNxhaDDxRjL4zHgwvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z9IfqoiAHH3fPvC3DUSEL65ceQzRkO8d5mYxkwlniNbY94/6gs1NIQXPTUf9uYmcv
-         hnNSEi+NApCn7xUWEmX601wp/4Mx+ukisg9CR4EZebvQ0/HtAuK0LxtfxLIqEmy0jh
-         b2Xy+14AoYpXSg0LEukh2vnPijSJNmSXLPKAvkYM=
+        b=IIYiqBhOtPbPFEmaqyfW91YxpF2bQ62o7GoE/GnZTBX1CgGkkJcBYj19vvKL/Mhoe
+         cxF/RtZ2S8pxgYZ46vTAm+FMM7Irjdb0RDd3pFq/NA6vh9fan/Jiil2AnSn/dr9H5g
+         DtK0A3PGR4qNGZwo7r/GixCX5OklK7slEILJfFmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Guozihua (Scott)" <guozihua@huawei.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.4 16/71] Revert "evm: Fix memleak in init_desc"
-Date:   Tue, 19 Jul 2022 13:53:39 +0200
-Message-Id: <20220719114553.824287941@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 03/48] ALSA: hda/realtek - Fix headset mic problem for a HP machine with alc221
+Date:   Tue, 19 Jul 2022 13:53:40 +0200
+Message-Id: <20220719114520.329055196@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Meng Tang <tangmeng@uniontech.com>
 
-commit 51dd64bb99e4478fc5280171acd8e1b529eadaf7 upstream.
+commit 4ba5c853d7945b3855c3dcb293f7f9f019db641e upstream.
 
-This reverts commit ccf11dbaa07b328fa469415c362d33459c140a37.
+On a HP 288 Pro G2 MT (X9W02AV), the front mic could not be detected.
+In order to get it working, the pin configuration needs to be set
+correctly, and the ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE fixup needs
+to be applied.
 
-Commit ccf11dbaa07b ("evm: Fix memleak in init_desc") said there is
-memleak in init_desc. That may be incorrect, as we can see, tmp_tfm is
-saved in one of the two global variables hmac_tfm or evm_tfm[hash_algo],
-then if init_desc is called next time, there is no need to alloc tfm
-again, so in the error path of kmalloc desc or crypto_shash_init(desc),
-It is not a problem without freeing tmp_tfm.
-
-And also that commit did not reset the global variable to NULL after
-freeing tmp_tfm and this makes *tfm a dangling pointer which may cause a
-UAF issue.
-
-Reported-by: Guozihua (Scott) <guozihua@huawei.com>
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220713063332.30095-1-tangmeng@uniontech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/evm/evm_crypto.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -75,7 +75,7 @@ static struct shash_desc *init_desc(char
- {
- 	long rc;
- 	const char *algo;
--	struct crypto_shash **tfm, *tmp_tfm = NULL;
-+	struct crypto_shash **tfm, *tmp_tfm;
- 	struct shash_desc *desc;
- 
- 	if (type == EVM_XATTR_HMAC) {
-@@ -120,16 +120,13 @@ unlock:
- alloc:
- 	desc = kmalloc(sizeof(*desc) + crypto_shash_descsize(*tfm),
- 			GFP_KERNEL);
--	if (!desc) {
--		crypto_free_shash(tmp_tfm);
-+	if (!desc)
- 		return ERR_PTR(-ENOMEM);
--	}
- 
- 	desc->tfm = *tfm;
- 
- 	rc = crypto_shash_init(desc);
- 	if (rc) {
--		crypto_free_shash(tmp_tfm);
- 		kfree(desc);
- 		return ERR_PTR(rc);
- 	}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5844,6 +5844,7 @@ enum {
+ 	ALC298_FIXUP_LENOVO_SPK_VOLUME,
+ 	ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER,
+ 	ALC269_FIXUP_ATIV_BOOK_8,
++	ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE,
+ 	ALC221_FIXUP_HP_MIC_NO_PRESENCE,
+ 	ALC256_FIXUP_ASUS_HEADSET_MODE,
+ 	ALC256_FIXUP_ASUS_MIC,
+@@ -6642,6 +6643,16 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_NO_SHUTUP
+ 	},
++	[ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ 0x1a, 0x01813030 }, /* use as headphone mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE
++	},
+ 	[ALC221_FIXUP_HP_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -7136,6 +7147,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x2335, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
+ 	SND_PCI_QUIRK(0x103c, 0x2336, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
+ 	SND_PCI_QUIRK(0x103c, 0x2337, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC1),
++	SND_PCI_QUIRK(0x103c, 0x2b5e, "HP 288 Pro G2 MT", ALC221_FIXUP_HP_288PRO_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x802e, "HP Z240 SFF", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x802f, "HP Z240", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x820d, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
 
 
