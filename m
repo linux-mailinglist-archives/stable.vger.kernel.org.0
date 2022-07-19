@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF08657991A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560935798DB
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:55:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237697AbiGSL6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 07:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
+        id S233699AbiGSLzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237530AbiGSL6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:58:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 864EE4333B;
-        Tue, 19 Jul 2022 04:57:07 -0700 (PDT)
+        with ESMTP id S236046AbiGSLzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:55:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911E82126B;
+        Tue, 19 Jul 2022 04:55:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1CC5615AC;
-        Tue, 19 Jul 2022 11:57:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2AA3C341C6;
-        Tue, 19 Jul 2022 11:57:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2846261604;
+        Tue, 19 Jul 2022 11:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08285C341C6;
+        Tue, 19 Jul 2022 11:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231826;
-        bh=Ngq6XT5KILSGZYCIKyZdb2wfHQ37stdoyQM51xzmYZE=;
+        s=korg; t=1658231745;
+        bh=WF+JF/DvnZSZ5LUxV1QMZaljY2ecx2pyfyAY8MPY1/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zg8xMDGZfX6vkIj6Ez3KURf1IjVuXHph8Lq9GBkBX/zXWgshdedYF1T9EHnK5KgLi
-         MM8bHoepjUPBl5CA2F3/yqQurqoP1IXzA1A9AqWPiMFovDl4Bj3rnmLy5dwKJrWIc5
-         WOBOvr//1lbXwix/8JejgD7kk8eBOhVQW0BPYwyY=
+        b=hieiSK2O3dWCybMwycNfluaGn0YM++k39xrWQCajZSJ6izJT/UWVY6WjoTCxHA8/r
+         PpOlEkMSzZ8svVE2qAouhp1DkUMJRx76sb1B5VqPa4o9onf84blZMGE7dnB1UJuaBx
+         Kcu3SxUeACrqwULwgjGK5OXdaa+ZAZegd86P+3gA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Pavan Kondeti <quic_pkondeti@quicinc.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 11/43] xhci: make xhci_handshake timeout for xhci_reset() adjustable
+        stable@vger.kernel.org,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 04/28] net: sock: tracing: Fix sock_exceed_buf_limit not to dereference stale pointer
 Date:   Tue, 19 Jul 2022 13:53:42 +0200
-Message-Id: <20220719114523.024157797@linuxfoundation.org>
+Message-Id: <20220719114456.983007516@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,179 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 14073ce951b5919da450022c050772902f24f054 upstream.
+commit 820b8963adaea34a87abbecb906d1f54c0aabfb7 upstream.
 
-xhci_reset() timeout was increased from 250ms to 10 seconds in order to
-give Renesas 720201 xHC enough time to get ready in probe.
+The trace event sock_exceed_buf_limit saves the prot->sysctl_mem pointer
+and then dereferences it in the TP_printk() portion. This is unsafe as the
+TP_printk() portion is executed at the time the buffer is read. That is,
+it can be seconds, minutes, days, months, even years later. If the proto
+is freed, then this dereference will can also lead to a kernel crash.
 
-xhci_reset() is called with interrupts disabled in other places, and
-waiting for 10 seconds there is not acceptable.
+Instead, save the sysctl_mem array into the ring buffer and have the
+TP_printk() reference that instead. This is the proper and safe way to
+read pointers in trace events.
 
-Add a timeout parameter to xhci_reset(), and adjust it back to 250ms
-when called from xhci_stop() or xhci_shutdown() where interrupts are
-disabled, and successful reset isn't that critical.
-This solves issues when deactivating host mode on platforms like SM8450.
+Link: https://lore.kernel.org/all/20220706052130.16368-12-kuniyu@amazon.com/
 
-For now don't change the timeout if xHC is reset in xhci_resume().
-No issues are reported for it, and we need the reset to succeed.
-Locking around that reset needs to be revisited later.
-
-Additionally change the signed integer timeout parameter in
-xhci_handshake() to a u64 to match the timeout value we pass to
-readl_poll_timeout_atomic()
-
-Fixes: 22ceac191211 ("xhci: Increase reset timeout for Renesas 720201 host.")
 Cc: stable@vger.kernel.org
-Reported-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reported-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
-Tested-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220303110903.1662404-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: 3847ce32aea9f ("core: add tracepoints for queueing skb to rcvbuf")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Acked-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |    2 +-
- drivers/usb/host/xhci-mem.c |    2 +-
- drivers/usb/host/xhci.c     |   20 +++++++++-----------
- drivers/usb/host/xhci.h     |    7 +++++--
- 4 files changed, 16 insertions(+), 15 deletions(-)
+ include/trace/events/sock.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -683,7 +683,7 @@ static int xhci_exit_test_mode(struct xh
- 	}
- 	pm_runtime_allow(xhci_to_hcd(xhci)->self.controller);
- 	xhci->test_mode = 0;
--	return xhci_reset(xhci);
-+	return xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- }
+--- a/include/trace/events/sock.h
++++ b/include/trace/events/sock.h
+@@ -37,7 +37,7 @@ TRACE_EVENT(sock_exceed_buf_limit,
  
- void xhci_set_link_state(struct xhci_hcd *xhci, __le32 __iomem **port_array,
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -2574,7 +2574,7 @@ int xhci_mem_init(struct xhci_hcd *xhci,
+ 	TP_STRUCT__entry(
+ 		__array(char, name, 32)
+-		__field(long *, sysctl_mem)
++		__array(long, sysctl_mem, 3)
+ 		__field(long, allocated)
+ 		__field(int, sysctl_rmem)
+ 		__field(int, rmem_alloc)
+@@ -45,7 +45,9 @@ TRACE_EVENT(sock_exceed_buf_limit,
  
- fail:
- 	xhci_halt(xhci);
--	xhci_reset(xhci);
-+	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- 	xhci_mem_cleanup(xhci);
- 	return -ENOMEM;
- }
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -76,7 +76,7 @@ static bool td_on_ring(struct xhci_td *t
-  * handshake done).  There are two failure modes:  "usec" have passed (major
-  * hardware flakeout), or the register reads as all-ones (hardware removed).
-  */
--int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
-+int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
- {
- 	u32	result;
- 	int	ret;
-@@ -84,7 +84,7 @@ int xhci_handshake(void __iomem *ptr, u3
- 	ret = readl_poll_timeout_atomic(ptr, result,
- 					(result & mask) == done ||
- 					result == U32_MAX,
--					1, usec);
-+					1, timeout_us);
- 	if (result == U32_MAX)		/* card removed */
- 		return -ENODEV;
- 
-@@ -173,7 +173,7 @@ int xhci_start(struct xhci_hcd *xhci)
-  * Transactions will be terminated immediately, and operational registers
-  * will be set to their defaults.
-  */
--int xhci_reset(struct xhci_hcd *xhci)
-+int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
- {
- 	u32 command;
- 	u32 state;
-@@ -206,8 +206,7 @@ int xhci_reset(struct xhci_hcd *xhci)
- 	if (xhci->quirks & XHCI_INTEL_HOST)
- 		udelay(1000);
- 
--	ret = xhci_handshake(&xhci->op_regs->command,
--			CMD_RESET, 0, 10 * 1000 * 1000);
-+	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
- 	if (ret)
- 		return ret;
- 
-@@ -220,8 +219,7 @@ int xhci_reset(struct xhci_hcd *xhci)
- 	 * xHCI cannot write to any doorbells or operational registers other
- 	 * than status until the "Controller Not Ready" flag is cleared.
- 	 */
--	ret = xhci_handshake(&xhci->op_regs->status,
--			STS_CNR, 0, 10 * 1000 * 1000);
-+	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
- 
- 	for (i = 0; i < 2; i++) {
- 		xhci->bus_state[i].port_c_suspend = 0;
-@@ -675,7 +673,7 @@ static void xhci_stop(struct usb_hcd *hc
- 	xhci->xhc_state |= XHCI_STATE_HALTED;
- 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
- 	xhci_halt(xhci);
--	xhci_reset(xhci);
-+	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- 	spin_unlock_irq(&xhci->lock);
- 
- 	xhci_cleanup_msix(xhci);
-@@ -739,7 +737,7 @@ void xhci_shutdown(struct usb_hcd *hcd)
- 	xhci_halt(xhci);
- 	/* Workaround for spurious wakeups at shutdown with HSW */
- 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
--		xhci_reset(xhci);
-+		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
- 	spin_unlock_irq(&xhci->lock);
- 
- 	xhci_cleanup_msix(xhci);
-@@ -1111,7 +1109,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 
- 		xhci_dbg(xhci, "Stop HCD\n");
- 		xhci_halt(xhci);
--		retval = xhci_reset(xhci);
-+		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
- 		spin_unlock_irq(&xhci->lock);
- 		if (retval)
- 			return retval;
-@@ -4990,7 +4988,7 @@ int xhci_gen_setup(struct usb_hcd *hcd,
- 
- 	xhci_dbg(xhci, "Resetting HCD\n");
- 	/* Reset the internal HC memory state and registers. */
--	retval = xhci_reset(xhci);
-+	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
- 	if (retval)
- 		return retval;
- 	xhci_dbg(xhci, "Reset complete\n");
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -236,6 +236,9 @@ struct xhci_op_regs {
- #define CMD_ETE		(1 << 14)
- /* bits 15:31 are reserved (and should be preserved on writes). */
- 
-+#define XHCI_RESET_LONG_USEC		(10 * 1000 * 1000)
-+#define XHCI_RESET_SHORT_USEC		(250 * 1000)
-+
- /* IMAN - Interrupt Management Register */
- #define IMAN_IE		(1 << 1)
- #define IMAN_IP		(1 << 0)
-@@ -2016,11 +2019,11 @@ void xhci_free_command(struct xhci_hcd *
- 
- /* xHCI host controller glue */
- typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
--int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec);
-+int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us);
- void xhci_quiesce(struct xhci_hcd *xhci);
- int xhci_halt(struct xhci_hcd *xhci);
- int xhci_start(struct xhci_hcd *xhci);
--int xhci_reset(struct xhci_hcd *xhci);
-+int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us);
- int xhci_run(struct usb_hcd *hcd);
- int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
- void xhci_shutdown(struct usb_hcd *hcd);
+ 	TP_fast_assign(
+ 		strncpy(__entry->name, prot->name, 32);
+-		__entry->sysctl_mem = prot->sysctl_mem;
++		__entry->sysctl_mem[0] = READ_ONCE(prot->sysctl_mem[0]);
++		__entry->sysctl_mem[1] = READ_ONCE(prot->sysctl_mem[1]);
++		__entry->sysctl_mem[2] = READ_ONCE(prot->sysctl_mem[2]);
+ 		__entry->allocated = allocated;
+ 		__entry->sysctl_rmem = prot->sysctl_rmem[0];
+ 		__entry->rmem_alloc = atomic_read(&sk->sk_rmem_alloc);
 
 
