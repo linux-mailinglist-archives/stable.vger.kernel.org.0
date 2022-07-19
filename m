@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB235579E44
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A247579BE3
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242238AbiGSM7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:59:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38412 "EHLO
+        id S238526AbiGSMdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:33:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242477AbiGSM6e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:58:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866F95F10C;
-        Tue, 19 Jul 2022 05:23:42 -0700 (PDT)
+        with ESMTP id S240423AbiGSMcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:32:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28CC422E6;
+        Tue, 19 Jul 2022 05:12:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D12EB81B10;
-        Tue, 19 Jul 2022 12:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809A1C385A5;
-        Tue, 19 Jul 2022 12:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB8786177E;
+        Tue, 19 Jul 2022 12:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8005C341C6;
+        Tue, 19 Jul 2022 12:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233419;
-        bh=T750x+VhZsZMYNY0oaiE3SyflqHPJnBA4N1zMOZhvHE=;
+        s=korg; t=1658232745;
+        bh=112p4IasrsPbPAFxru+Qf08e6ZUpipmetpaKg9UAZAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmTzwA0AQROWGfBZf5MFxBx9p3DgS914CRwWu6TdBZXXgQNmtIBivMXGvciQqEr1a
-         b5bwqd44u0OGMzaxWTieeIrXHoGiQj+DdRUJO0JN6O18Ii/j6smB29IsbXSGT5YBXS
-         vkPccuBuPUNdGVZfWPsFARZ7Nimw2Zn8zlryRBWg=
+        b=CoVoKgxix31PE+7rXInzaOMubQnRC17yWXgU3SZISDWDe63qzrfvcGYdyUHQU6jGh
+         bMnbkIEh9Mq7YVy3HWUzCg+R4Ylt/bIlWroucR4WjhIUMZ7UhPe/G0+eLkwYiUOz/4
+         IQR6lGa+rFWFHOFqxLOAnV9X4mYEGtJhulHc/Eh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrzej Hajda <andrzej.hajda@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 090/231] drm/i915/gvt: IS_ERR() vs NULL bug in intel_gvt_update_reg_whitelist()
+Subject: [PATCH 5.15 043/167] ASoC: tas2764: Add post reset delays
 Date:   Tue, 19 Jul 2022 13:52:55 +0200
-Message-Id: <20220719114722.325130692@linuxfoundation.org>
+Message-Id: <20220719114700.826107203@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit e87197fbd137c888fd6c871c72fe7e89445dd015 ]
+[ Upstream commit cd10bb89b0d57bca98eb75e0444854a1c129a14e ]
 
-The shmem_pin_map() function returns NULL, it doesn't return error
-pointers.
+Make sure there is at least 1 ms delay from reset to first command as
+is specified in the datasheet. This is a fix similar to commit
+307f31452078 ("ASoC: tas2770: Insert post reset delay").
 
-Fixes: 97ea656521c8 ("drm/i915/gvt: Parse default state to update reg whitelist")
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/Ysftoia2BPUyqVcD@kili
-Acked-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20220630075135.2221-1-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/cmd_parser.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/tas2764.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/cmd_parser.c b/drivers/gpu/drm/i915/gvt/cmd_parser.c
-index 2459213b6c87..f49c1e8b8df7 100644
---- a/drivers/gpu/drm/i915/gvt/cmd_parser.c
-+++ b/drivers/gpu/drm/i915/gvt/cmd_parser.c
-@@ -3117,9 +3117,9 @@ void intel_gvt_update_reg_whitelist(struct intel_vgpu *vgpu)
- 			continue;
+diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
+index 9265af41c235..edc66ff6dc49 100644
+--- a/sound/soc/codecs/tas2764.c
++++ b/sound/soc/codecs/tas2764.c
+@@ -42,10 +42,12 @@ static void tas2764_reset(struct tas2764_priv *tas2764)
+ 		gpiod_set_value_cansleep(tas2764->reset_gpio, 0);
+ 		msleep(20);
+ 		gpiod_set_value_cansleep(tas2764->reset_gpio, 1);
++		usleep_range(1000, 2000);
+ 	}
  
- 		vaddr = shmem_pin_map(engine->default_state);
--		if (IS_ERR(vaddr)) {
--			gvt_err("failed to map %s->default state, err:%zd\n",
--				engine->name, PTR_ERR(vaddr));
-+		if (!vaddr) {
-+			gvt_err("failed to map %s->default state\n",
-+				engine->name);
- 			return;
- 		}
+ 	snd_soc_component_write(tas2764->component, TAS2764_SW_RST,
+ 				TAS2764_RST);
++	usleep_range(1000, 2000);
+ }
+ 
+ static int tas2764_set_bias_level(struct snd_soc_component *component,
+@@ -107,8 +109,10 @@ static int tas2764_codec_resume(struct snd_soc_component *component)
+ 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
+ 	int ret;
+ 
+-	if (tas2764->sdz_gpio)
++	if (tas2764->sdz_gpio) {
+ 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
++		usleep_range(1000, 2000);
++	}
+ 
+ 	ret = snd_soc_component_update_bits(component, TAS2764_PWR_CTRL,
+ 					    TAS2764_PWR_CTRL_MASK,
+@@ -501,8 +505,10 @@ static int tas2764_codec_probe(struct snd_soc_component *component)
+ 
+ 	tas2764->component = component;
+ 
+-	if (tas2764->sdz_gpio)
++	if (tas2764->sdz_gpio) {
+ 		gpiod_set_value_cansleep(tas2764->sdz_gpio, 1);
++		usleep_range(1000, 2000);
++	}
+ 
+ 	tas2764_reset(tas2764);
  
 -- 
 2.35.1
