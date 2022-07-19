@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C30A75799AB
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4592579A49
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238093AbiGSMFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38682 "EHLO
+        id S238673AbiGSMMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238460AbiGSMEl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:04:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D47934D173;
-        Tue, 19 Jul 2022 05:00:36 -0700 (PDT)
+        with ESMTP id S238843AbiGSMMB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:12:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F8C474EA;
+        Tue, 19 Jul 2022 05:03:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 296D461655;
-        Tue, 19 Jul 2022 12:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5961C341C6;
-        Tue, 19 Jul 2022 12:00:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F0F0B81B31;
+        Tue, 19 Jul 2022 12:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ED24C341C6;
+        Tue, 19 Jul 2022 12:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232035;
-        bh=unMjRxV9B57/SVaAiTiFqUzSDFDTbSuXiPtR/Jf1iHs=;
+        s=korg; t=1658232219;
+        bh=mYgorTCKW9dcyIfBO3uoP1zk+o/ZbssEvug0p5OqzbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trc2HGd080FFcVabFIRX0tdmN+6p4nFFaCK3Ts3S4WkjcaJrncWIXPSSKcZerySpQ
-         xaM6GgfhzZT331tLW27GUvEJlMyqysVUnlJNRB0gZZGk3eK4kKg9RsnY6FTflrtyuV
-         Q74UiQoy7pZJfXNWxxcTF+U4RGX3s1pSkXWKyTHM=
+        b=AukUUfFkQYYFd9U5o35WNMCdV6axMWiM0Ctz98c7XQVObN6ZJM+ZEtXo5OpxxL3QF
+         9+gdufdS8tsAArX3DWnxdtLBThtducDRKqq8m4DiffzZttvuEgV4KezPyhCN1dv53r
+         E5iWBkU1QxgiVInf752wOTABwOQGOghy4TjqEMmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/48] ARM: dts: stm32: use the correct clock source for CEC on stm32mp151
+Subject: [PATCH 5.4 53/71] net: sfp: fix memory leak in sfp_probe()
 Date:   Tue, 19 Jul 2022 13:54:16 +0200
-Message-Id: <20220719114523.296524674@linuxfoundation.org>
+Message-Id: <20220719114557.474104305@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
+References: <20220719114552.477018590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 78ece8cce1ba0c3f3e5a7c6c1b914b3794f04c44 ]
+[ Upstream commit 0a18d802d65cf662644fd1d369c86d84a5630652 ]
 
-The peripheral clock of CEC is not LSE but CEC.
+sfp_probe() allocates a memory chunk from sfp with sfp_alloc(). When
+devm_add_action() fails, sfp is not freed, which leads to a memory leak.
 
-Signed-off-by: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+We should use devm_add_action_or_reset() instead of devm_add_action().
+
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20220629075550.2152003-1-niejianglei2021@163.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp157c.dtsi | 2 +-
+ drivers/net/phy/sfp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp157c.dtsi b/arch/arm/boot/dts/stm32mp157c.dtsi
-index 4278a4b22860..7c5b2727ba2e 100644
---- a/arch/arm/boot/dts/stm32mp157c.dtsi
-+++ b/arch/arm/boot/dts/stm32mp157c.dtsi
-@@ -413,7 +413,7 @@
- 			compatible = "st,stm32-cec";
- 			reg = <0x40016000 0x400>;
- 			interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&rcc CEC_K>, <&clk_lse>;
-+			clocks = <&rcc CEC_K>, <&rcc CEC>;
- 			clock-names = "cec", "hdmi-cec";
- 			status = "disabled";
- 		};
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index 5657c604602e..beaa00342a13 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1878,7 +1878,7 @@ static int sfp_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, sfp);
+ 
+-	err = devm_add_action(sfp->dev, sfp_cleanup, sfp);
++	err = devm_add_action_or_reset(sfp->dev, sfp_cleanup, sfp);
+ 	if (err < 0)
+ 		return err;
+ 
 -- 
 2.35.1
 
