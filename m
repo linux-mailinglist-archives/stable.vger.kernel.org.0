@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E28579A15
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD541579E6C
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238568AbiGSMKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:10:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51108 "EHLO
+        id S242431AbiGSNBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238977AbiGSMJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:09:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315154B0F6;
-        Tue, 19 Jul 2022 05:03:00 -0700 (PDT)
+        with ESMTP id S243181AbiGSNAf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:00:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B96761DBC;
+        Tue, 19 Jul 2022 05:25:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 840E1615F4;
-        Tue, 19 Jul 2022 12:02:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77825C341C6;
-        Tue, 19 Jul 2022 12:02:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7E60B81B38;
+        Tue, 19 Jul 2022 12:25:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F4EC341CA;
+        Tue, 19 Jul 2022 12:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232178;
-        bh=+X7vwntOv5W94BZJ8s5XyCGg+kTvjqwFTcKxvAeT5DU=;
+        s=korg; t=1658233544;
+        bh=chF6hNHxYwr7S/4cPwX/yypxTGcy93JoJmDViWNqhYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVJPgeFicaghVT9PuVWj/gH5C/31bULCIEdxuZWUHidVNtX3zqy8tipFC+UMtROqB
-         xLw+NEjtz3faOFPcg36LNLyMVtcHK3/33BrzN7pN8oIkR3MGt/hDD8U2WK65aNpe1b
-         KVW6soycuARupfthXbn3qoFgkh6nGfPe525jIci8=
+        b=YAlbJG5pD9aN+WSYd+L+Q8yuMv10H3ncO3q5mB6by3QQ3X015Za13QEiOHFPaCmM2
+         6n1jhZWMowKecQRWXffihyHCa2eiUk1NJ7IlbjrpMApRm6yUWN2aOkw1nGM0dwLnW3
+         7usj5pcZuRaahBt0DgkFBLTAKfqLO5EhNFlMgjXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Andrea Mayer <andrea.mayer@uniroma2.it>,
+        stable@vger.kernel.org, Kashyap Desai <kashyap.desai@broadcom.com>,
+        sumit.saxena@broadcom.com, chandrakanth.patil@broadcom.com,
+        linux-block@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Guangwu Zhang <guazhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/71] seg6: fix skb checksum evaluation in SRH encapsulation/insertion
+Subject: [PATCH 5.18 158/231] scsi: megaraid: Clear READ queue maps nr_queues
 Date:   Tue, 19 Jul 2022 13:54:03 +0200
-Message-Id: <20220719114556.158303217@linuxfoundation.org>
+Message-Id: <20220719114727.553269401@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114552.477018590@linuxfoundation.org>
-References: <20220719114552.477018590@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Mayer <andrea.mayer@uniroma2.it>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit df8386d13ea280d55beee1b95f61a59234a3798b ]
+[ Upstream commit 8312cd3a7b835ae3033a679e5f0014a40e7891c5 ]
 
-Support for SRH encapsulation and insertion was introduced with
-commit 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and
-injection with lwtunnels"), through the seg6_do_srh_encap() and
-seg6_do_srh_inline() functions, respectively.
-The former encapsulates the packet in an outer IPv6 header along with
-the SRH, while the latter inserts the SRH between the IPv6 header and
-the payload. Then, the headers are initialized/updated according to the
-operating mode (i.e., encap/inline).
-Finally, the skb checksum is calculated to reflect the changes applied
-to the headers.
+The megaraid SCSI driver sets set->nr_maps as 3 if poll_queues is > 0, and
+blk-mq actually initializes each map's nr_queues as nr_hw_queues.
+Consequently the driver has to clear READ queue map's nr_queues, otherwise
+the queue map becomes broken if poll_queues is set as non-zero.
 
-The IPv6 payload length ('payload_len') is not initialized
-within seg6_do_srh_{inline,encap}() but is deferred in seg6_do_srh(), i.e.
-the caller of seg6_do_srh_{inline,encap}().
-However, this operation invalidates the skb checksum, since the
-'payload_len' is updated only after the checksum is evaluated.
-
-To solve this issue, the initialization of the IPv6 payload length is
-moved from seg6_do_srh() directly into the seg6_do_srh_{inline,encap}()
-functions and before the skb checksum update takes place.
-
-Fixes: 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and injection with lwtunnels")
-Reported-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/all/20220705190727.69d532417be7438b15404ee1@uniroma2.it
-Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/20220706125942.528533-1-ming.lei@redhat.com
+Fixes: 9e4bec5b2a23 ("scsi: megaraid_sas: mq_poll support")
+Cc: Kashyap Desai <kashyap.desai@broadcom.com>
+Cc: sumit.saxena@broadcom.com
+Cc: chandrakanth.patil@broadcom.com
+Cc: linux-block@vger.kernel.org
+Cc: Hannes Reinecke <hare@suse.de>
+Reported-by: Guangwu Zhang <guazhang@redhat.com>
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6_iptunnel.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv6/seg6_iptunnel.c b/net/ipv6/seg6_iptunnel.c
-index 6954db1fd26e..b626e0b62a54 100644
---- a/net/ipv6/seg6_iptunnel.c
-+++ b/net/ipv6/seg6_iptunnel.c
-@@ -171,6 +171,8 @@ int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh, int proto)
- 	}
- #endif
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index db6793608447..f5deb0e561a9 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -3195,6 +3195,9 @@ static int megasas_map_queues(struct Scsi_Host *shost)
+ 	qoff += map->nr_queues;
+ 	offset += map->nr_queues;
  
-+	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
++	/* we never use READ queue, so can't cheat blk-mq */
++	shost->tag_set.map[HCTX_TYPE_READ].nr_queues = 0;
 +
- 	skb_postpush_rcsum(skb, hdr, tot_len);
- 
- 	return 0;
-@@ -223,6 +225,8 @@ int seg6_do_srh_inline(struct sk_buff *skb, struct ipv6_sr_hdr *osrh)
- 	}
- #endif
- 
-+	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
-+
- 	skb_postpush_rcsum(skb, hdr, sizeof(struct ipv6hdr) + hdrlen);
- 
- 	return 0;
-@@ -284,7 +288,6 @@ static int seg6_do_srh(struct sk_buff *skb)
- 		break;
- 	}
- 
--	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
- 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
- 
- 	return 0;
+ 	/* Setup Poll hctx */
+ 	map = &shost->tag_set.map[HCTX_TYPE_POLL];
+ 	map->nr_queues = instance->iopoll_q_count;
 -- 
 2.35.1
 
