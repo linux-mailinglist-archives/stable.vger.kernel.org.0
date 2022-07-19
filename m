@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0AED579D31
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:48:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D631579D48
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241729AbiGSMsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:48:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
+        id S241642AbiGSMuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241725AbiGSMrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:47:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DC48C17A;
-        Tue, 19 Jul 2022 05:18:39 -0700 (PDT)
+        with ESMTP id S241777AbiGSMss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:48:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628998E1D0;
+        Tue, 19 Jul 2022 05:19:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5853B81B10;
-        Tue, 19 Jul 2022 12:18:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12679C341C6;
-        Tue, 19 Jul 2022 12:18:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92C94617D6;
+        Tue, 19 Jul 2022 12:19:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70778C341C6;
+        Tue, 19 Jul 2022 12:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233108;
-        bh=ZHDS7axaqv3eoGXc0bA8B+TANT3b2ltotVfUt2qyR04=;
+        s=korg; t=1658233139;
+        bh=rcwtNqc+GPYqJXpwkFe1nLuwgUVQoC9tmju2aIdG9LU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHmuEJtVwPrBR5RDco9CnaIOZCaKaNlUUtOhY+3AawVVeABw/eWplNPKz0+wITxuJ
-         hmJ2dekwLzYrEeuA1T1KKp+v2swCEDCt9qAnmYMmIit+lRKlP1cF+yraLZ/LtSyZ45
-         rte8pFh7ya2LLqt6dN/bYGQMn2UcuZx2VA7tf22Y=
+        b=dhyJgwm28rt8AJKVoubWNXPYSdKiwMB1uGI6o1Fg4b2ueFMcWh8UCb2sNXt8oOI8J
+         d1VpBLwdtMyrc//H7LEXEyYeEVvzpTQEWc/SGAdhNfCCv3lu7TWOwuazliUJcho5Nl
+         BE7LjOxXRnfC49yYFa6aTjRFNAVxGW/9tfQKeAmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucien Buchmann <lucien.buchmann@gmx.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.18 001/231] USB: serial: ftdi_sio: add Belimo device ids
-Date:   Tue, 19 Jul 2022 13:51:26 +0200
-Message-Id: <20220719114714.357456591@linuxfoundation.org>
+        stable@vger.kernel.org, Linyu Yuan <quic_linyyuan@quicinc.com>
+Subject: [PATCH 5.18 002/231] usb: typec: add missing uevent when partner support PD
+Date:   Tue, 19 Jul 2022 13:51:27 +0200
+Message-Id: <20220719114714.426482805@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,47 +51,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucien Buchmann <lucien.buchmann@gmx.net>
+From: Linyu Yuan <quic_linyyuan@quicinc.com>
 
-commit 7c239a071d1f04b7137789810807b4108d475c72 upstream.
+commit 6fb9e1d94789e8ee5a258a23bc588693f743fd6c upstream.
 
-Those two product ids are known.
+System like Android allow user control power role from UI, it is possible
+to implement application base on typec uevent to refresh UI, but found
+there is chance that UI show different state from typec attribute file.
 
-Signed-off-by: Lucien Buchmann <lucien.buchmann@gmx.net>
+In typec_set_pwr_opmode(), when partner support PD, there is no uevent
+send to user space which cause the problem.
+
+Fix it by sending uevent notification when change power mode to PD.
+
+Fixes: bdecb33af34f ("usb: typec: API for controlling USB Type-C Multiplexers")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
+Link: https://lore.kernel.org/r/1656662934-10226-1-git-send-email-quic_linyyuan@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
- 2 files changed, 9 insertions(+)
+ drivers/usb/typec/class.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1023,6 +1023,9 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_DISPLAY_PID) },
- 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_LITE_PID) },
- 	{ USB_DEVICE(FTDI_VID, CHETCO_SEASMART_ANALOG_PID) },
-+	/* Belimo Automation devices */
-+	{ USB_DEVICE(FTDI_VID, BELIMO_ZTH_PID) },
-+	{ USB_DEVICE(FTDI_VID, BELIMO_ZIP_PID) },
- 	/* ICP DAS I-756xU devices */
- 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7560U_PID) },
- 	{ USB_DEVICE(ICPDAS_VID, ICPDAS_I7561U_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1569,6 +1569,12 @@
- #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
- 
- /*
-+ * Belimo Automation
-+ */
-+#define BELIMO_ZTH_PID			0x8050
-+#define BELIMO_ZIP_PID			0xC811
-+
-+/*
-  * Unjo AB
-  */
- #define UNJO_VID			0x22B7
+--- a/drivers/usb/typec/class.c
++++ b/drivers/usb/typec/class.c
+@@ -1718,6 +1718,7 @@ void typec_set_pwr_opmode(struct typec_p
+ 			partner->usb_pd = 1;
+ 			sysfs_notify(&partner_dev->kobj, NULL,
+ 				     "supports_usb_power_delivery");
++			kobject_uevent(&partner_dev->kobj, KOBJ_CHANGE);
+ 		}
+ 		put_device(partner_dev);
+ 	}
 
 
