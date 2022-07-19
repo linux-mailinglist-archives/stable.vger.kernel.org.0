@@ -2,90 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A3D579ADD
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 931DB579E7E
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237159AbiGSMUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:20:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54866 "EHLO
+        id S242647AbiGSNBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239777AbiGSMTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:19:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03562599EB;
-        Tue, 19 Jul 2022 05:07:16 -0700 (PDT)
+        with ESMTP id S242779AbiGSM7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:59:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC632623;
+        Tue, 19 Jul 2022 05:25:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C927061632;
-        Tue, 19 Jul 2022 12:07:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCE1C341C6;
-        Tue, 19 Jul 2022 12:07:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 24549CE1BCF;
+        Tue, 19 Jul 2022 12:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25814C341D1;
+        Tue, 19 Jul 2022 12:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232435;
-        bh=fr9eRr9LYNLPJAml2G3Qm16Rayd/ibjXZQcpvaqCjY4=;
+        s=korg; t=1658233503;
+        bh=w88KjV2nHe48toTaqFwb8rbs7fnFyPWkrIu4x3ktmtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uh6ftRtIkW1gweEDdffsR69ezdlsI1d+GltAOZl1JsNhdURv1RvtAgkGoOdYScNS3
-         C5hCJ+6gs6aGkLqvIhFfbYbOfGd5LC1kw7vvZIwottXXrOglN6a22MlyBlolKqTJTq
-         L/rMTugJnVWPAj4WwJ3rAUuqdJW57bjJLHeddU2A=
+        b=EGoGvaTkCyToWCaH/WfiVlNTz1ERcVBYYVxxqE+H2iRj4IUq7la1gOLzh3AOUffe2
+         byi14/CnVpzNdeiAJvPvJGHbzR/6Tit6tpK9GlLLwNPE6bZQoFoSKT09N7WGdeRd+5
+         5VEf25j5d4k8ukb4ukK4ifDbNlaEu+jxnHbeKF6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/112] ARM: dts: sunxi: Fix SPI NOR campatible on Orange Pi Zero
+Subject: [PATCH 5.18 143/231] net/tls: Check for errors in tls_device_init
 Date:   Tue, 19 Jul 2022 13:53:48 +0200
-Message-Id: <20220719114631.759520981@linuxfoundation.org>
+Message-Id: <20220719114726.401044856@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit 884b66976a7279ee889ba885fe364244d50b79e7 ]
+[ Upstream commit 3d8c51b25a235e283e37750943bbf356ef187230 ]
 
-The device tree should include generic "jedec,spi-nor" compatible, and a
-manufacturer-specific one.
-The macronix part is what is shipped on the boards that come with a
-flash chip.
+Add missing error checks in tls_device_init.
 
-Fixes: 45857ae95478 ("ARM: dts: orange-pi-zero: add node for SPI NOR")
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220708174529.3360-1-msuchanek@suse.de
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Link: https://lore.kernel.org/r/20220714070754.1428-1-tariqt@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/tls.h    | 4 ++--
+ net/tls/tls_device.c | 4 ++--
+ net/tls/tls_main.c   | 7 ++++++-
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts b/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts
-index f19ed981da9d..3706216ffb40 100644
---- a/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts
-+++ b/arch/arm/boot/dts/sun8i-h2-plus-orangepi-zero.dts
-@@ -169,7 +169,7 @@ &spi0 {
- 	flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "mxicy,mx25l1606e", "winbond,w25q128";
-+		compatible = "mxicy,mx25l1606e", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <40000000>;
- 	};
+diff --git a/include/net/tls.h b/include/net/tls.h
+index b6968a5b5538..e8764d3da41a 100644
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -708,7 +708,7 @@ int tls_sw_fallback_init(struct sock *sk,
+ 			 struct tls_crypto_info *crypto_info);
+ 
+ #ifdef CONFIG_TLS_DEVICE
+-void tls_device_init(void);
++int tls_device_init(void);
+ void tls_device_cleanup(void);
+ void tls_device_sk_destruct(struct sock *sk);
+ int tls_set_device_offload(struct sock *sk, struct tls_context *ctx);
+@@ -728,7 +728,7 @@ static inline bool tls_is_sk_rx_device_offloaded(struct sock *sk)
+ 	return tls_get_ctx(sk)->rx_conf == TLS_HW;
+ }
+ #else
+-static inline void tls_device_init(void) {}
++static inline int tls_device_init(void) { return 0; }
+ static inline void tls_device_cleanup(void) {}
+ 
+ static inline int
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 3919fe2c58c5..3a61bb594544 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -1394,9 +1394,9 @@ static struct notifier_block tls_dev_notifier = {
+ 	.notifier_call	= tls_dev_event,
+ };
+ 
+-void __init tls_device_init(void)
++int __init tls_device_init(void)
+ {
+-	register_netdevice_notifier(&tls_dev_notifier);
++	return register_netdevice_notifier(&tls_dev_notifier);
+ }
+ 
+ void __exit tls_device_cleanup(void)
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index 5c9697840ef7..13058b0ee4cd 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -993,7 +993,12 @@ static int __init tls_register(void)
+ 	if (err)
+ 		return err;
+ 
+-	tls_device_init();
++	err = tls_device_init();
++	if (err) {
++		unregister_pernet_subsys(&tls_proc_ops);
++		return err;
++	}
++
+ 	tcp_register_ulp(&tcp_tls_ulp_ops);
+ 
+ 	return 0;
 -- 
 2.35.1
 
