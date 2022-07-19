@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A06579AD2
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956CA579C1A
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235583AbiGSMU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54672 "EHLO
+        id S240715AbiGSMgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:36:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239273AbiGSMSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:18:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788714D4F7;
-        Tue, 19 Jul 2022 05:06:48 -0700 (PDT)
+        with ESMTP id S241303AbiGSMfF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:35:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F9B7A51C;
+        Tue, 19 Jul 2022 05:13:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42AE7B81B36;
-        Tue, 19 Jul 2022 12:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D05C341C6;
-        Tue, 19 Jul 2022 12:06:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C479861790;
+        Tue, 19 Jul 2022 12:13:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B35C341C6;
+        Tue, 19 Jul 2022 12:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232394;
-        bh=a/sAmAYMs3H7B9lRQaCSEPbIAzVS79fHzsO5WLh7RgY=;
+        s=korg; t=1658232837;
+        bh=vYI47gbvRwa4D61yUM/4ccDc9QQ84z1qHI8IlgKOg+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMDclzabAErfBHTFnyLW9wel+GeOlXLzpMijluw+Asp04xaXLxDpaFTHve/yQC5ks
-         YutpP7CpcRBgEPmC3jX6y+TARd62CHQY3i/B9CiZ5xnpBEbbNIxxlEzMtkKq+6l1W2
-         zvcyqypDWZfGQMg7uqnN2vOdAusEmhyudhadsif8=
+        b=xfcybNWt3bdlYB0DRCNjRLlHn8EBH/eMJYF2lwELAwBkiQVYM2rrHpaAtJAaKWrjg
+         iqGkI8+bQm7A2AmV/NEc5FTlQTG1L+Az3Yry7IRp8w63dXsbz9K4I6nuQCq6roBDV8
+         uAvfkLrhxX/v6s2tQfgILWT4Zalx76P3rsWtcClI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/112] sysctl: Fix data races in proc_dointvec().
+Subject: [PATCH 5.15 083/167] sysctl: Fix data-races in proc_dointvec_ms_jiffies().
 Date:   Tue, 19 Jul 2022 13:53:35 +0200
-Message-Id: <20220719114630.454008327@linuxfoundation.org>
+Message-Id: <20220719114704.606994643@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 1f1be04b4d48a2475ea1aab46a99221bfc5c0968 ]
+[ Upstream commit 7d1025e559782b58824b36cb8ad547a69f2e4b31 ]
 
 A sysctl variable is accessed concurrently, and there is always a chance
 of data-race.  So, all readers and writers need some basic protection to
 avoid load/store-tearing.
 
-This patch changes proc_dointvec() to use READ_ONCE() and WRITE_ONCE()
-internally to fix data-races on the sysctl side.  For now, proc_dointvec()
-itself is tolerant to a data-race, but we still need to add annotations on
-the other subsystem's side.
+This patch changes proc_dointvec_ms_jiffies() to use READ_ONCE() and
+WRITE_ONCE() internally to fix data-races on the sysctl side.  For now,
+proc_dointvec_ms_jiffies() itself is tolerant to a data-race, but we still
+need to add annotations on the other subsystem's side.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sysctl.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 8832440a4938..81657b13bd53 100644
+index 357900d0cef9..79cbfd0fa3be 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -557,14 +557,14 @@ static int do_proc_dointvec_conv(bool *negp, unsigned long *lvalp,
- 		if (*negp) {
- 			if (*lvalp > (unsigned long) INT_MAX + 1)
- 				return -EINVAL;
--			*valp = -*lvalp;
-+			WRITE_ONCE(*valp, -*lvalp);
- 		} else {
- 			if (*lvalp > (unsigned long) INT_MAX)
- 				return -EINVAL;
--			*valp = *lvalp;
-+			WRITE_ONCE(*valp, *lvalp);
- 		}
+@@ -1415,9 +1415,9 @@ static int do_proc_dointvec_ms_jiffies_conv(bool *negp, unsigned long *lvalp,
+ 
+ 		if (jif > INT_MAX)
+ 			return 1;
+-		*valp = (int)jif;
++		WRITE_ONCE(*valp, (int)jif);
  	} else {
 -		int val = *valp;
 +		int val = READ_ONCE(*valp);
+ 		unsigned long lval;
  		if (val < 0) {
  			*negp = true;
- 			*lvalp = -(unsigned long)val;
+@@ -1485,8 +1485,8 @@ int proc_dointvec_userhz_jiffies(struct ctl_table *table, int write,
+  * @ppos: the current position in the file
+  *
+  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
+- * values from/to the user buffer, treated as an ASCII string. 
+- * The values read are assumed to be in 1/1000 seconds, and 
++ * values from/to the user buffer, treated as an ASCII string.
++ * The values read are assumed to be in 1/1000 seconds, and
+  * are converted into jiffies.
+  *
+  * Returns 0 on success.
 -- 
 2.35.1
 
