@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F98B579EE8
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DDC2579B29
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238242AbiGSNHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:07:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
+        id S239677AbiGSMZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:25:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243037AbiGSNHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:07:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6A9B9A15;
-        Tue, 19 Jul 2022 05:27:23 -0700 (PDT)
+        with ESMTP id S240296AbiGSMYu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30303501A0;
+        Tue, 19 Jul 2022 05:09:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B376E6020F;
-        Tue, 19 Jul 2022 12:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94551C341CB;
-        Tue, 19 Jul 2022 12:27:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 196C9B81B8F;
+        Tue, 19 Jul 2022 12:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 588AFC36AEC;
+        Tue, 19 Jul 2022 12:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233642;
-        bh=Nu25KeaHG2mnQyV9qxyD+sSs3aEncDCtP3ul7XyJKUg=;
+        s=korg; t=1658232572;
+        bh=ty8/fZeb9Wx787jet+Mgv0EXSgg6yqyH9tM+PhjSJpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2MK59tKZPlru2QYjxAmc6XuA6V1aCf8JZpjUAAwLk+OwZibIoyfloTQOsG05R7xW
-         p6WVIcVBraaBKLgBQsh+rdgVh+1FKfepEVejOt09zzRVGqTyMIza9vjfcm/rxHQeXB
-         j7/7bRWbesoEPv2mqbJs6SY5RNdN/sQBvwY4wfM4=
+        b=0kJnl3dphZpLBQgVSfDQ/Y7W49bYD6hm93gGdOajy1V3S78hgTpzd/84RDUWBmBnT
+         cfuVrZjozItVEYKFCA/NWd/EVynMlnpaVp33iYy7RRdJXSmFN5uxwnn3zlm5wT2NdI
+         B82u4rrhbhpZsy5lzKRVootHjYp+jonKrgOWMTYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 192/231] ASoC: SOF: Intel: hda-loader: Make sure that the fw load sequence is followed
+        stable@vger.kernel.org, Linyu Yuan <quic_linyyuan@quicinc.com>
+Subject: [PATCH 5.10 104/112] usb: typec: add missing uevent when partner support PD
 Date:   Tue, 19 Jul 2022 13:54:37 +0200
-Message-Id: <20220719114730.293222807@linuxfoundation.org>
+Message-Id: <20220719114637.073790008@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +51,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Linyu Yuan <quic_linyyuan@quicinc.com>
 
-[ Upstream commit c31691e0d126ec5d60d2b6b03f699c11b613b219 ]
+commit 6fb9e1d94789e8ee5a258a23bc588693f743fd6c upstream.
 
-The hda_dsp_enable_core() is powering up _and_ unstall the core in one
-call while the first step of the firmware loading  must not unstall the
-core.
-The core can be unstalled only after the set cpb_cfp and the configuration
-of the IPC register for the ROM_CONTROL message.
+System like Android allow user control power role from UI, it is possible
+to implement application base on typec uevent to refresh UI, but found
+there is chance that UI show different state from typec attribute file.
 
-Complements: 2a68ff846164 ("ASoC: SOF: Intel: hda: Revisit IMR boot sequence")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20220609085949.29062-3-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In typec_set_pwr_opmode(), when partner support PD, there is no uevent
+send to user space which cause the problem.
+
+Fix it by sending uevent notification when change power mode to PD.
+
+Fixes: bdecb33af34f ("usb: typec: API for controlling USB Type-C Multiplexers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
+Link: https://lore.kernel.org/r/1656662934-10226-1-git-send-email-quic_linyyuan@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/hda-loader.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/class.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
-index 2ac5d9d0719b..9f624a84182b 100644
---- a/sound/soc/sof/intel/hda-loader.c
-+++ b/sound/soc/sof/intel/hda-loader.c
-@@ -112,7 +112,7 @@ static int cl_dsp_init(struct snd_sof_dev *sdev, int stream_tag)
- 	int ret;
- 
- 	/* step 1: power up corex */
--	ret = hda_dsp_enable_core(sdev, chip->host_managed_cores_mask);
-+	ret = hda_dsp_core_power_up(sdev, chip->host_managed_cores_mask);
- 	if (ret < 0) {
- 		if (hda->boot_iteration == HDA_FW_BOOT_ATTEMPTS)
- 			dev_err(sdev->dev, "error: dsp core 0/1 power up failed\n");
--- 
-2.35.1
-
+--- a/drivers/usb/typec/class.c
++++ b/drivers/usb/typec/class.c
+@@ -1444,6 +1444,7 @@ void typec_set_pwr_opmode(struct typec_p
+ 			partner->usb_pd = 1;
+ 			sysfs_notify(&partner_dev->kobj, NULL,
+ 				     "supports_usb_power_delivery");
++			kobject_uevent(&partner_dev->kobj, KOBJ_CHANGE);
+ 		}
+ 		put_device(partner_dev);
+ 	}
 
 
