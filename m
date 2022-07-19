@@ -2,133 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5431579418
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 09:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1057579472
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 09:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236346AbiGSHYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 03:24:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51002 "EHLO
+        id S233441AbiGSHpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 03:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236305AbiGSHYr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 03:24:47 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A0432DB3;
-        Tue, 19 Jul 2022 00:24:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1658215486; x=1689751486;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=75p9fUuRHTBFN8wmS9uUr2gQdmoiH7o4N5Yd87DQGtA=;
-  b=RX3meGFYye/8fmYZaeCNzKCs6BgLdheWZ+sLelsH/02EVoEfantHD2wY
-   V2LVcsSKjM97+HJTU+yTJpeP6Utexw/1s6cNQYgS6EPTxEUI/LastsTDp
-   O+JD0xdXIT3hqdfnotuCUpCXuV2lNWUpcPAAmT5ju7DiVM1UkmXpO0/Ma
-   1ez3okocF9XcYuDxf9EIPFCMb1NnNxRzWkhKS01U82JdO6pRhidQR1KBp
-   eG8nU9HI/MYkUNG7s/MmW6KqvRQCf3YjSSeDA8U7J6A+nsUtONTBeaCy1
-   1GCuEUrrFBqmcWUjiK25eFviH+NRoQErHnZJbQNsN9BVo9B+bIOFA7hZP
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10412"; a="286433075"
-X-IronPort-AV: E=Sophos;i="5.92,283,1650956400"; 
-   d="scan'208";a="286433075"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2022 00:24:46 -0700
-X-IronPort-AV: E=Sophos;i="5.92,283,1650956400"; 
-   d="scan'208";a="601493430"
-Received: from ssherida-mobl.ger.corp.intel.com (HELO [10.213.201.170]) ([10.213.201.170])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jul 2022 00:24:41 -0700
-Message-ID: <7ed6b275-e0d3-12b7-cdbe-c43994e92b47@linux.intel.com>
-Date:   Tue, 19 Jul 2022 08:24:40 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
- invalidations on idle engines
-Content-Language: en-US
-To:     David Laight <David.Laight@ACULAB.COM>,
+        with ESMTP id S230193AbiGSHpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 03:45:15 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6BC4C6417
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 00:45:13 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-195-w4wS7Z9kPLWuciSaR4LFhw-1; Tue, 19 Jul 2022 08:45:10 +0100
+X-MC-Unique: w4wS7Z9kPLWuciSaR4LFhw-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.36; Tue, 19 Jul 2022 08:45:08 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.036; Tue, 19 Jul 2022 08:45:08 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Tvrtko Ursulin' <tvrtko.ursulin@linux.intel.com>,
         'Mauro Carvalho Chehab' <mauro.chehab@linux.intel.com>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
         David Airlie <airlied@linux.ie>,
         "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
         Chris Wilson <chris.p.wilson@intel.com>,
         Matthew Auld <matthew.auld@intel.com>,
         Dave Airlie <airlied@redhat.com>,
-        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        =?utf-8?B?VGhvbWFzIEhlbGxzdHLDtm0=?= 
         <thomas.hellstrom@linux.intel.com>,
         Lucas De Marchi <lucas.demarchi@intel.com>,
         "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
+ invalidations on idle engines
+Thread-Topic: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
+ invalidations on idle engines
+Thread-Index: AQHYmrY8zdEzbxnvNkSYe57Mev6je62ERXnQgAD1jgCAABUfUA==
+Date:   Tue, 19 Jul 2022 07:45:08 +0000
+Message-ID: <0259b5ae72c44d9b8dd12c3431c0c36f@AcuMS.aculab.com>
 References: <cover.1657800199.git.mchehab@kernel.org>
  <c014a1d743fa46a6b57f02bffb7badf438136442.1657800199.git.mchehab@kernel.org>
  <76318fe1-37dc-8a1e-317e-76333995b8ca@linux.intel.com>
  <20220718165341.30ee6e31@maurocar-mobl2>
  <b244f88e85a44485be9038c622fa13b1@AcuMS.aculab.com>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <b244f88e85a44485be9038c622fa13b1@AcuMS.aculab.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        NICE_REPLY_A,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+ <7ed6b275-e0d3-12b7-cdbe-c43994e92b47@linux.intel.com>
+In-Reply-To: <7ed6b275-e0d3-12b7-cdbe-c43994e92b47@linux.intel.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+RnJvbTogVHZydGtvIFVyc3VsaW4NCj4gU2VudDogMTkgSnVseSAyMDIyIDA4OjI1DQouLi4NCj4g
+PiBJdCdzIG5vdCBvbmx5IHRoZSBUTEIgZmx1c2hlcyB0aGF0IGNhdXNlIGdyaWVmLg0KPiA+DQo+
+ID4gVGhlcmUgaXMgYSBsb29wIHRoYXQgZm9yY2VzIGEgd3JpdGUtYmFjayBvZiBhbGwgdGhlIGZy
+YW1lIGJ1ZmZlciBwYWdlcy4NCj4gPiBXaXRoIGEgbGFyZ2UgZGlzcGxheSBhbmQgc29tZSBjcHUg
+KGxpa2UgbXkgSXZ5IGJyaWRnZSBvbmUpIHRoYXQNCj4gPiB0YWtlcyBsb25nIGVub3VnaCB3aXRo
+IHByZS1lbXB0aW9uIGRpc2FibGVkIHRoYXQgd2FrZXVwIG9mIFJUIHByb2Nlc3Nlcw0KPiA+IChh
+bmQgYW55IHBpbm5lZCB0byB0aGUgY3B1KSB0YWtlcyBmYXIgbG9uZ2VyIHRoYW4gb25lIG1pZ2h0
+IGhhdmUNCj4gPiB3aXNoZWQgZm9yLg0KPiA+DQo+ID4gU2luY2Ugc29tZSBYIHNlcnZlcnMgcmVx
+dWVzdCBhIGZsdXNoIGV2ZXJ5IGZldyBzZWNvbmRzIHRoaXMgbWFrZXMNCj4gPiB0aGUgc3lzdGVt
+IHVudXNhYmxlIGZvciBzb21lIHdvcmtsb2Fkcy4NCj4gDQo+IE9rIFRMQiBpbnZhbGlkYXRpb25z
+IGFzIGRpc2N1c3NlZCBpbiB0aGlzIHBhdGNoIGRvZXMgbm90IGFwcGx5IHRvDQo+IEl2eWJyaWRn
+ZS4gQnV0IHdoYXQgaXMgdGhlIHdyaXRlIGJhY2sgbG9vcCB5b3UgbWVudGlvbiB3aGljaCBpcyBj
+YXVzaW5nDQo+IHlvdSBncmllZj8gV2hhdCBzaXplIGZyYW1lIGJ1ZmZlcnMgYXJlIHdlIHRhbGtp
+bmcgYWJvdXQgaGVyZT8gSWYgdGhleQ0KPiBkb24ndCBmaXQgaW4gdGhlIG1hcHBhYmxlIGFyZWEg
+cmVjZW50bHkgd2UgbWVyZ2VkIGEgcGF0Y2gqIHdoaWNoDQo+IGltcHJvdmVzIHRoaW5ncyBpbiB0
+aGF0IHNpdHVhdGlvbiBidXQgbm90IHN1cmUgeW91IGFyZSBoaXR0aW5nIGV4YWN0bHkgdGhhdC4N
+Cg0KSSBmb3VuZCB0aGUgb2xkIGVtYWlsOg0KDQpXaGF0IEkndmUgZm91bmQgaXMgdGhhdCB0aGUg
+SW50ZWwgaTkxNSBncmFwaGljcyBkcml2ZXIgdXNlcyB0aGUgJ2V2ZW50c191bmJvdW5kJw0Ka2Vy
+bmVsIHdvcmtlciB0aHJlYWQgdG8gcGVyaW9kaWNhbGx5IGV4ZWN1dGUgZHJtX2NmbHVzaF9zZygp
+Lg0KKHNlZSBodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgvYmxvYi9tYXN0ZXIvZHJp
+dmVycy9ncHUvZHJtL2RybV9jYWNoZS5jKQ0KDQpJJ20gZ3Vlc3NpbmcgdGhpcyBpcyB0byBlbnN1
+cmUgdGhhdCBhbnkgd3JpdGVzIHRvIGdyYXBoaWNzIG1lbW9yeSBiZWNvbWUNCnZpc2libGUgaXMg
+YSBzZW1pLXRpbWVseSBtYW5uZXIuDQoNClRoaXMgbG9vcCB0YWtlcyBhYm91dCAxdXMgcGVyIGl0
+ZXJhdGlvbiBzcGxpdCBmYWlybHkgZXZlbmx5IGJldHdlZW4gd2hhdGV2ZXIgaXMgaW4NCmZvcl9l
+YWNoX3NnX3BhZ2UoKSBhbmQgZHJtX2NmbHVzaF9wYWdlKCkuDQpXaXRoIGEgMjU2MHgxNDQwIGRp
+c3BsYXkgdGhlIGxvb3AgY291bnQgaXMgMzYwMCAoNCBieXRlcy9waXhlbCkgYW5kIHRoZSB3aG9s
+ZQ0KZnVuY3Rpb24gdGFrZXMgYXJvdW5kIDMuM21zLg0KDQpJSVJDIHRoZSBmaXJzdCBmZXcgcGFn
+ZSBmbHVzaGVzIGFyZSBxdWljayAoSSBiZXQgdGhleSBnbyBpbnRvIGEgZmlmbykNCmFuZCB0aGVu
+IHRoZXkgYWxsIGdldCBzbG93Lg0KVGhlIGZsdXNoZXMgYXJlIGFjdHVhbGx5IHJlcXVlc3RlZCBm
+cm9tIHVzZXJzcGFjZS4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lk
+ZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0K
+UmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
 
-Hi David,
-
-On 18/07/2022 16:50, David Laight wrote:
-> From: Mauro Carvalho Chehab
->> Sent: 18 July 2022 15:54
->>
->> On Mon, 18 Jul 2022 14:16:10 +0100
->> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
->>
->>> On 14/07/2022 13:06, Mauro Carvalho Chehab wrote:
->>>> From: Chris Wilson <chris.p.wilson@intel.com>
->>>>
->>>> Check if the device is powered down prior to any engine activity,
->>>> as, on such cases, all the TLBs were already invalidated, so an
->>>> explicit TLB invalidation is not needed, thus reducing the
->>>> performance regression impact due to it.
->>>>
->>>> This becomes more significant with GuC, as it can only do so when
->>>> the connection to the GuC is awake.
->>>>
->>>> Cc: stable@vger.kernel.org
->>>> Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
->>>
->>> Patch itself looks fine but I don't think we closed on the issue of
->>> stable/fixes on this patch?
->>
->> No, because TLB cache invalidation takes time and causes time outs, which
->> in turn affects applications and produce Kernel warnings.
-> 
-> It's not only the TLB flushes that cause grief.
-> 
-> There is a loop that forces a write-back of all the frame buffer pages.
-> With a large display and some cpu (like my Ivy bridge one) that
-> takes long enough with pre-emption disabled that wakeup of RT processes
-> (and any pinned to the cpu) takes far longer than one might have
-> wished for.
-> 
-> Since some X servers request a flush every few seconds this makes
-> the system unusable for some workloads.
-
-Ok TLB invalidations as discussed in this patch does not apply to 
-Ivybridge. But what is the write back loop you mention which is causing 
-you grief? What size frame buffers are we talking about here? If they 
-don't fit in the mappable area recently we merged a patch* which 
-improves things in that situation but not sure you are hitting exactly that.
-
-Regards,
-
-Tvrtko
-
-*) 230523ba24bd ("drm/i915/gem: Don't evict unmappable VMAs when pinning 
-with PIN_MAPPABLE (v2)")
