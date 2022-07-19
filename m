@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 611D857998A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E75579B1B
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237884AbiGSME4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:04:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
+        id S239373AbiGSMZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:25:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238099AbiGSMDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:03:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E1A4BD0A;
-        Tue, 19 Jul 2022 04:59:41 -0700 (PDT)
+        with ESMTP id S239925AbiGSMYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:24:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 102DC61B1E;
+        Tue, 19 Jul 2022 05:09:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA9C6B81A2E;
-        Tue, 19 Jul 2022 11:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 247CDC341D0;
-        Tue, 19 Jul 2022 11:59:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFC1E61632;
+        Tue, 19 Jul 2022 12:09:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 899D7C341CE;
+        Tue, 19 Jul 2022 12:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231978;
-        bh=JIJUzDb0o+rJbqzCQAWSd05bBePyhZTphlerFNhxAdQ=;
+        s=korg; t=1658232554;
+        bh=YwRFyBy7QOPPp2kPstqZecqGS1HzSXF8dbmCJJwpdOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3hgLC61NT8aCCJaqq7xfbbwclW1LPji/5e4R1fnOC6+2gVBJdUKGbyhVvMnKFveb
-         zWrmSK2m7SFVrM6UKl0tgcSVWzqWFLKF5XYfDvYTR58W3xs4zuadCNG/9oJJJCwnAo
-         eP9ac1OGI0+lhk1+PYA2RtMMQ+qUwfoZpUGeScfI=
+        b=STeiOMS+RPaERL1E4+PltavjnYnXcrXvKOmgQxY7+5kXH8DdW0IE5cErrVcYC2LAm
+         iviM3PAluYSOeafnYXnV+bLPvBuzYNHjHKb2oH87t0Yyim6+pKbrDzW8a/AgnPZLr4
+         yhFKS00ypkqGR1Qqdu0FgzsU8mYsfv+7d0mw/AmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/48] icmp: Fix a data-race around sysctl_icmp_ratelimit.
-Date:   Tue, 19 Jul 2022 13:53:56 +0200
-Message-Id: <20220719114521.589392013@linuxfoundation.org>
+Subject: [PATCH 5.10 064/112] net: ftgmac100: Hold reference returned by of_get_child_by_name()
+Date:   Tue, 19 Jul 2022 13:53:57 +0200
+Message-Id: <20220719114632.679850919@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
-References: <20220719114518.915546280@linuxfoundation.org>
+In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
+References: <20220719114626.156073229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 2a4eb714841f288cf51c7d942d98af6a8c6e4b01 ]
+[ Upstream commit 49b9f431ff0d845a36be0b3ede35ec324f2e5fee ]
 
-While reading sysctl_icmp_ratelimit, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+In ftgmac100_probe(), we should hold the refernece returned by
+of_get_child_by_name() and use it to call of_node_put() for
+reference balance.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Fixes: 39bfab8844a0 ("net: ftgmac100: Add support for DT phy-handle property")
+Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/icmp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/faraday/ftgmac100.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index 953cc70851cf..eb29da8971e1 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -333,7 +333,8 @@ static bool icmpv4_xrlim_allow(struct net *net, struct rtable *rt,
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index eea4bd3116e8..969af4dd6405 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1747,6 +1747,19 @@ static int ftgmac100_setup_clk(struct ftgmac100 *priv)
+ 	return rc;
+ }
  
- 	vif = l3mdev_master_ifindex(dst->dev);
- 	peer = inet_getpeer_v4(net->ipv4.peers, fl4->daddr, vif, 1);
--	rc = inet_peer_xrlim_allow(peer, net->ipv4.sysctl_icmp_ratelimit);
-+	rc = inet_peer_xrlim_allow(peer,
-+				   READ_ONCE(net->ipv4.sysctl_icmp_ratelimit));
- 	if (peer)
- 		inet_putpeer(peer);
- out:
++static bool ftgmac100_has_child_node(struct device_node *np, const char *name)
++{
++	struct device_node *child_np = of_get_child_by_name(np, name);
++	bool ret = false;
++
++	if (child_np) {
++		ret = true;
++		of_node_put(child_np);
++	}
++
++	return ret;
++}
++
+ static int ftgmac100_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+@@ -1860,7 +1873,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
+ 
+ 		/* Display what we found */
+ 		phy_attached_info(phy);
+-	} else if (np && !of_get_child_by_name(np, "mdio")) {
++	} else if (np && !ftgmac100_has_child_node(np, "mdio")) {
+ 		/* Support legacy ASPEED devicetree descriptions that decribe a
+ 		 * MAC with an embedded MDIO controller but have no "mdio"
+ 		 * child node. Automatically scan the MDIO bus for available
 -- 
 2.35.1
 
