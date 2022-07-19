@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A57CB579D9F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D85C579BAC
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242059AbiGSMxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:53:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
+        id S240834AbiGSM37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242002AbiGSMw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:52:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96809904CF;
-        Tue, 19 Jul 2022 05:20:44 -0700 (PDT)
+        with ESMTP id S240494AbiGSM3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EC3691CB;
+        Tue, 19 Jul 2022 05:11:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93653618D1;
-        Tue, 19 Jul 2022 12:20:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C83DC341CA;
-        Tue, 19 Jul 2022 12:20:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44AC6B81B82;
+        Tue, 19 Jul 2022 12:11:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964F7C341CF;
+        Tue, 19 Jul 2022 12:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233242;
-        bh=ZG3776QSZuja70voJ1g0ymRaEyAfYER6qQIvzhPcQ40=;
+        s=korg; t=1658232674;
+        bh=Xm0MwoDW/hV6tsQcoq3CJwBjGnfYANhsNhn7svWmwSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TSzyhA2/h4nhmqOKArABMeuis4nv/yQaqlX3BbfpeqwP6ERmDiRzUxiVS6hr8FxF0
-         hdpPARw1qc18wsD/HmFtDOPxCEhGp3WEpNZ8nwrQqxuVQrE4oa4S6cXyuuhM1jS4iD
-         e5zyGN+i7WQcjICdbmoHOLHSythi7Ms6IymskUXI=
+        b=fTKqVGnyofBZNQ5wHyQIeMDaJELnjyetFKgGTPwV23U2ReUAfr4kbrbxlc8rSClgp
+         kBoOUc8byOJei/BOuAldeZYGVLH6+mOxRi5H9KY4Q/jcVF+9MpJZz6a5bERJybO+EQ
+         IUZzPadJzizd8dqg+8su+0FbqiRvMbjpTAyBLSgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 055/231] ASoC: tas2764: Fix and extend FSYNC polarity handling
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>, Paul Durrant <paul@xen.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 008/167] xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
 Date:   Tue, 19 Jul 2022 13:52:20 +0200
-Message-Id: <20220719114718.833333062@linuxfoundation.org>
+Message-Id: <20220719114657.512129756@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,132 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit d1a10f1b48202e2d183cce144c218a211e98d906 ]
+commit 94e8100678889ab428e68acadf042de723f094b9 upstream.
 
-Fix setting of FSYNC polarity in case of LEFT_J and DSP_A/B formats.
-Do NOT set the SCFG field as was previously done, because that is not
-correct and is also in conflict with the "ASI1 Source" control which
-sets the same SCFG field!
+xenvif_rx_next_skb() is expecting the rx queue not being empty, but
+in case the loop in xenvif_rx_action() is doing multiple iterations,
+the availability of another skb in the rx queue is not being checked.
 
-Also add support for explicit polarity inversion.
+This can lead to crashes:
 
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20220630075135.2221-2-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[40072.537261] BUG: unable to handle kernel NULL pointer dereference at 0000000000000080
+[40072.537407] IP: xenvif_rx_skb+0x23/0x590 [xen_netback]
+[40072.537534] PGD 0 P4D 0
+[40072.537644] Oops: 0000 [#1] SMP NOPTI
+[40072.537749] CPU: 0 PID: 12505 Comm: v1-c40247-q2-gu Not tainted 4.12.14-122.121-default #1 SLE12-SP5
+[40072.537867] Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 11/23/2021
+[40072.537999] task: ffff880433b38100 task.stack: ffffc90043d40000
+[40072.538112] RIP: e030:xenvif_rx_skb+0x23/0x590 [xen_netback]
+[40072.538217] RSP: e02b:ffffc90043d43de0 EFLAGS: 00010246
+[40072.538319] RAX: 0000000000000000 RBX: ffffc90043cd7cd0 RCX: 00000000000000f7
+[40072.538430] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffc90043d43df8
+[40072.538531] RBP: 000000000000003f R08: 000077ff80000000 R09: 0000000000000008
+[40072.538644] R10: 0000000000007ff0 R11: 00000000000008f6 R12: ffffc90043ce2708
+[40072.538745] R13: 0000000000000000 R14: ffffc90043d43ed0 R15: ffff88043ea748c0
+[40072.538861] FS: 0000000000000000(0000) GS:ffff880484600000(0000) knlGS:0000000000000000
+[40072.538988] CS: e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+[40072.539088] CR2: 0000000000000080 CR3: 0000000407ac8000 CR4: 0000000000040660
+[40072.539211] Call Trace:
+[40072.539319] xenvif_rx_action+0x71/0x90 [xen_netback]
+[40072.539429] xenvif_kthread_guest_rx+0x14a/0x29c [xen_netback]
+
+Fix that by stopping the loop in case the rx queue becomes empty.
+
+Cc: stable@vger.kernel.org
+Fixes: 98f6d57ced73 ("xen-netback: process guest rx packets in batches")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Link: https://lore.kernel.org/r/20220713135322.19616-1-jgross@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2764.c | 30 +++++++++++++++++-------------
- sound/soc/codecs/tas2764.h |  6 ++----
- 2 files changed, 19 insertions(+), 17 deletions(-)
+ drivers/net/xen-netback/rx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index edc66ff6dc49..46c815650b2c 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -135,7 +135,8 @@ static const char * const tas2764_ASI1_src[] = {
- };
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -495,6 +495,7 @@ void xenvif_rx_action(struct xenvif_queu
+ 	queue->rx_copy.completed = &completed_skbs;
  
- static SOC_ENUM_SINGLE_DECL(
--	tas2764_ASI1_src_enum, TAS2764_TDM_CFG2, 4, tas2764_ASI1_src);
-+	tas2764_ASI1_src_enum, TAS2764_TDM_CFG2, TAS2764_TDM_CFG2_SCFG_SHIFT,
-+	tas2764_ASI1_src);
- 
- static const struct snd_kcontrol_new tas2764_asi1_mux =
- 	SOC_DAPM_ENUM("ASI1 Source", tas2764_ASI1_src_enum);
-@@ -333,20 +334,22 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- {
- 	struct snd_soc_component *component = dai->component;
- 	struct tas2764_priv *tas2764 = snd_soc_component_get_drvdata(component);
--	u8 tdm_rx_start_slot = 0, asi_cfg_1 = 0;
--	int iface;
-+	u8 tdm_rx_start_slot = 0, asi_cfg_0 = 0, asi_cfg_1 = 0;
- 	int ret;
- 
- 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
-+	case SND_SOC_DAIFMT_NB_IF:
-+		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
-+		fallthrough;
- 	case SND_SOC_DAIFMT_NB_NF:
- 		asi_cfg_1 = TAS2764_TDM_CFG1_RX_RISING;
- 		break;
-+	case SND_SOC_DAIFMT_IB_IF:
-+		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
-+		fallthrough;
- 	case SND_SOC_DAIFMT_IB_NF:
- 		asi_cfg_1 = TAS2764_TDM_CFG1_RX_FALLING;
- 		break;
--	default:
--		dev_err(tas2764->dev, "ASI format Inverse is not found\n");
--		return -EINVAL;
- 	}
- 
- 	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
-@@ -357,13 +360,13 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
-+		asi_cfg_0 ^= TAS2764_TDM_CFG0_FRAME_START;
-+		fallthrough;
- 	case SND_SOC_DAIFMT_DSP_A:
--		iface = TAS2764_TDM_CFG2_SCFG_I2S;
- 		tdm_rx_start_slot = 1;
- 		break;
- 	case SND_SOC_DAIFMT_DSP_B:
- 	case SND_SOC_DAIFMT_LEFT_J:
--		iface = TAS2764_TDM_CFG2_SCFG_LEFT_J;
- 		tdm_rx_start_slot = 0;
- 		break;
- 	default:
-@@ -372,14 +375,15 @@ static int tas2764_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
- 		return -EINVAL;
- 	}
- 
--	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
--					    TAS2764_TDM_CFG1_MASK,
--					    (tdm_rx_start_slot << TAS2764_TDM_CFG1_51_SHIFT));
-+	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG0,
-+					    TAS2764_TDM_CFG0_FRAME_START,
-+					    asi_cfg_0);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG2,
--					    TAS2764_TDM_CFG2_SCFG_MASK, iface);
-+	ret = snd_soc_component_update_bits(component, TAS2764_TDM_CFG1,
-+					    TAS2764_TDM_CFG1_MASK,
-+					    (tdm_rx_start_slot << TAS2764_TDM_CFG1_51_SHIFT));
- 	if (ret < 0)
- 		return ret;
- 
-diff --git a/sound/soc/codecs/tas2764.h b/sound/soc/codecs/tas2764.h
-index 67d6fd903c42..f015f22a083b 100644
---- a/sound/soc/codecs/tas2764.h
-+++ b/sound/soc/codecs/tas2764.h
-@@ -47,6 +47,7 @@
- #define TAS2764_TDM_CFG0_MASK		GENMASK(3, 1)
- #define TAS2764_TDM_CFG0_44_1_48KHZ	BIT(3)
- #define TAS2764_TDM_CFG0_88_2_96KHZ	(BIT(3) | BIT(1))
-+#define TAS2764_TDM_CFG0_FRAME_START	BIT(0)
- 
- /* TDM Configuration Reg1 */
- #define TAS2764_TDM_CFG1		TAS2764_REG(0X0, 0x09)
-@@ -66,10 +67,7 @@
- #define TAS2764_TDM_CFG2_RXS_16BITS	0x0
- #define TAS2764_TDM_CFG2_RXS_24BITS	BIT(0)
- #define TAS2764_TDM_CFG2_RXS_32BITS	BIT(1)
--#define TAS2764_TDM_CFG2_SCFG_MASK	GENMASK(5, 4)
--#define TAS2764_TDM_CFG2_SCFG_I2S	0x0
--#define TAS2764_TDM_CFG2_SCFG_LEFT_J	BIT(4)
--#define TAS2764_TDM_CFG2_SCFG_RIGHT_J	BIT(5)
-+#define TAS2764_TDM_CFG2_SCFG_SHIFT	4
- 
- /* TDM Configuration Reg3 */
- #define TAS2764_TDM_CFG3		TAS2764_REG(0X0, 0x0c)
--- 
-2.35.1
-
+ 	while (xenvif_rx_ring_slots_available(queue) &&
++	       !skb_queue_empty(&queue->rx_queue) &&
+ 	       work_done < RX_BATCH_SIZE) {
+ 		xenvif_rx_skb(queue);
+ 		work_done++;
 
 
