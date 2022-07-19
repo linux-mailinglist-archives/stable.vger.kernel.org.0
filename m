@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C76D579DBB
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:54:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4620C579D61
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241964AbiGSMyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:54:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38354 "EHLO
+        id S241917AbiGSMu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:50:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242139AbiGSMxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:53:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC71C93683;
-        Tue, 19 Jul 2022 05:21:10 -0700 (PDT)
+        with ESMTP id S242244AbiGSMt5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:49:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8CB57258;
+        Tue, 19 Jul 2022 05:19:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6BDC61632;
-        Tue, 19 Jul 2022 12:21:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B0AC36AE2;
-        Tue, 19 Jul 2022 12:21:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 638F9B81B2D;
+        Tue, 19 Jul 2022 12:19:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB51C341C6;
+        Tue, 19 Jul 2022 12:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233269;
-        bh=XqUar53X0WCUploVd2601cBTpJUGeQ7FOY/0679aZwc=;
+        s=korg; t=1658233188;
+        bh=8HMYi2EllsBRqBevCrSHuIbvxXPKyVJozZ70rU+aggg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DM9Me7CEye8Rg99MCNNyog+UQZNISqY+1HIOPtMwqAdo5nvlteKTRudx2UxvsEaiO
-         htarHBHTDO/BZ6zPJ3E0roqkaX+VTBiuuPdmXM3iEIdIdul4kRjdT16YIeAam5YIYZ
-         8bvFDFazNP2H1Hxphh/7NQYgs7313vp6ybB9qNG0=
+        b=CyQIA/tDZRxACrlt7fNh+PMuzbfvFhOW4KJyGICzMHnfKzaauaJhUCMCLUI0+uyJt
+         DHwkPcDgz6vos1UC/ZfyZPQijQH/0UaLX41Hp58nmpwha7LEtEZlFCuL8gU42xU+Wc
+         U9gVkB/tApm5iKBFD8CfRFVl9u9chF4hTkMV9g0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Anderson <sean.anderson@seco.com>,
-        Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org, Kris Bahnsen <kris@embeddedTS.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 036/231] arm64: dts: ls1028a: Update SFP node to include clock
-Date:   Tue, 19 Jul 2022 13:52:01 +0200
-Message-Id: <20220719114717.191147860@linuxfoundation.org>
+Subject: [PATCH 5.18 037/231] ARM: dts: imx6qdl-ts7970: Fix ngpio typo and count
+Date:   Tue, 19 Jul 2022 13:52:02 +0200
+Message-Id: <20220719114717.277066323@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -54,39 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Kris Bahnsen <kris@embeddedTS.com>
 
-[ Upstream commit 3c12e9da3098a30fc82dea01768d355c28e3692d ]
+[ Upstream commit e95ea0f687e679fcb0a3a67d0755b81ee7d60db0 ]
 
-The clocks property is now mandatory. Add it to avoid warning message.
+Device-tree incorrectly used "ngpio" which caused the driver to
+fallback to 32 ngpios.
 
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Fixes: eba5bea8f37f ("arm64: dts: ls1028a: add efuse node")
+This platform has 62 GPIO registers.
+
+Fixes: 9ff8e9fccef9 ("ARM: dts: TS-7970: add basic device tree")
+Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-ts7970.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index 088271d49139..59b289b52a28 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -224,9 +224,12 @@ rst: syscon@1e60000 {
- 			little-endian;
- 		};
+diff --git a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
+index fded07f370b3..d6ba4b2a60f6 100644
+--- a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
+@@ -226,7 +226,7 @@ gpio8: gpio@28 {
+ 		reg = <0x28>;
+ 		#gpio-cells = <2>;
+ 		gpio-controller;
+-		ngpio = <32>;
++		ngpios = <62>;
+ 	};
  
--		efuse@1e80000 {
-+		sfp: efuse@1e80000 {
- 			compatible = "fsl,ls1028a-sfp";
- 			reg = <0x0 0x1e80000 0x0 0x10000>;
-+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
-+					    QORIQ_CLK_PLL_DIV(4)>;
-+			clock-names = "sfp";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 
+ 	sgtl5000: codec@a {
 -- 
 2.35.1
 
