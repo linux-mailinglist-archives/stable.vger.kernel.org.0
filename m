@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E376C57996C
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:02:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B8E5799DC
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237824AbiGSMCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38990 "EHLO
+        id S238100AbiGSMHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237853AbiGSMB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:01:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB6854AD71;
-        Tue, 19 Jul 2022 04:58:52 -0700 (PDT)
+        with ESMTP id S238124AbiGSMHc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:07:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8CD4F185;
+        Tue, 19 Jul 2022 05:01:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89BCDB81A2E;
-        Tue, 19 Jul 2022 11:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA26C341C6;
-        Tue, 19 Jul 2022 11:58:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BD3F616D9;
+        Tue, 19 Jul 2022 12:01:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B8A3C36AE3;
+        Tue, 19 Jul 2022 12:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231930;
-        bh=AuBuzGhApDy8fArqUJwljo8Tnm+BNRAQ/o6uRm5qtt0=;
+        s=korg; t=1658232072;
+        bh=BYSkDoMCvQ3W7YygOuNe7+8nknrwvwOUQjK6Bbp4nJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDJgLnniGSz/Tcmv9j0rhpQsHFcTl+4Jz4R71zqg9OxG0pIFLCDoR9kw5+vDiPwi6
-         2ZC9cnxvCsWqa2f8JQ8w/zh6yvdVCp8BWMhPcpg4sXQxbk8dbfASkR5M8rWu0IVx/e
-         th4Ha5AQm/u1i5oCffmmqDrvbSPWzBQlc7WYNucA=
+        b=XDn4BpPpDG+Q5LZzfPo6TkoM/lWlOrY+CPv8Blu8Z6nswy2Xv+yfPx+eh55Vy92dM
+         P+5DRHpdVEm6xjcb2o5cBiUJKWl6WleUp9kapfUV9qgUYfqEjvmKwY+krj6cnq4Q6C
+         cFM/izTbgHAM0nhT+5+zwVPMHgNmiUe9oCMi89mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 4.14 39/43] usb: dwc3: gadget: Fix event pending check
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 33/48] NFC: nxp-nci: dont print header length mismatch on i2c error
 Date:   Tue, 19 Jul 2022 13:54:10 +0200
-Message-Id: <20220719114525.278681956@linuxfoundation.org>
+Message-Id: <20220719114522.829212724@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,51 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Michael Walle <michael@walle.cc>
 
-commit 7441b273388b9a59d8387a03ffbbca9d5af6348c upstream.
+[ Upstream commit 9577fc5fdc8b07b891709af6453545db405e24ad ]
 
-The DWC3_EVENT_PENDING flag is used to protect against invalid call to
-top-half interrupt handler, which can occur when there's a delay in
-software detection of the interrupt line deassertion.
+Don't print a misleading header length mismatch error if the i2c call
+returns an error. Instead just return the error code without any error
+message.
 
-However, the clearing of this flag was done prior to unmasking the
-interrupt line, creating opportunity where the top-half handler can
-come. This breaks the serialization and creates a race between the
-top-half and bottom-half handler, resulting in losing synchronization
-between the controller and the driver when processing events.
-
-To fix this, make sure the clearing of the DWC3_EVENT_PENDING is done at
-the end of the bottom-half handler.
-
-Fixes: d325a1de49d6 ("usb: dwc3: gadget: Prevent losing events in event cache")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/8670aaf1cf52e7d1e6df2a827af2d77263b93b75.1656380429.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/nfc/nxp-nci/i2c.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3130,7 +3130,6 @@ static irqreturn_t dwc3_process_event_bu
- 	}
+--- a/drivers/nfc/nxp-nci/i2c.c
++++ b/drivers/nfc/nxp-nci/i2c.c
+@@ -138,7 +138,9 @@ static int nxp_nci_i2c_fw_read(struct nx
+ 	skb_put_data(*skb, &header, NXP_NCI_FW_HDR_LEN);
  
- 	evt->count = 0;
--	evt->flags &= ~DWC3_EVENT_PENDING;
- 	ret = IRQ_HANDLED;
+ 	r = i2c_master_recv(client, skb_put(*skb, frame_len), frame_len);
+-	if (r != frame_len) {
++	if (r < 0) {
++		goto fw_read_exit_free_skb;
++	} else if (r != frame_len) {
+ 		nfc_err(&client->dev,
+ 			"Invalid frame length: %u (expected %zu)\n",
+ 			r, frame_len);
+@@ -182,7 +184,9 @@ static int nxp_nci_i2c_nci_read(struct n
+ 		return 0;
  
- 	/* Unmask interrupt */
-@@ -3143,6 +3142,9 @@ static irqreturn_t dwc3_process_event_bu
- 		dwc3_writel(dwc->regs, DWC3_DEV_IMOD(0), dwc->imod_interval);
- 	}
- 
-+	/* Keep the clearing of DWC3_EVENT_PENDING at the end */
-+	evt->flags &= ~DWC3_EVENT_PENDING;
-+
- 	return ret;
- }
- 
+ 	r = i2c_master_recv(client, skb_put(*skb, header.plen), header.plen);
+-	if (r != header.plen) {
++	if (r < 0) {
++		goto nci_read_exit_free_skb;
++	} else if (r != header.plen) {
+ 		nfc_err(&client->dev,
+ 			"Invalid frame payload length: %u (expected %u)\n",
+ 			r, header.plen);
 
 
