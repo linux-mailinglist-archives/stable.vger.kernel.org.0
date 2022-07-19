@@ -2,105 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8D657A6EC
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 21:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CF4457A700
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 21:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbiGSTHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 15:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58868 "EHLO
+        id S239095AbiGSTOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 15:14:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230035AbiGSTHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 15:07:46 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8174F45048;
-        Tue, 19 Jul 2022 12:07:42 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id f65so14312971pgc.12;
-        Tue, 19 Jul 2022 12:07:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=gH0BuCq6HoPHC1pgL5wqDtOmN+mBvEBTY1SpqMIIaSA=;
-        b=TrxuMUNXFyYg7FnaWymyPObOFpQWc6fcYOspgozLql8SuqgPCDjWga4ZB07zFHQBKD
-         1A9WpQF02SN0Dl7CGlN6dm7jg/96arw6K7WIENh7G6cbsB5Du83eowtgtpWoIWEqLOAn
-         vIyniH8BnynKG1ivLwl2uBU8wf+3gMRbsLx5N8jOPuQ0H8MDUKdWQg+AozUf0WUTkvE7
-         8pdResZU5iXYYMRiXv4Ou99eN//cAW5Q6tCJug2Fom+hSY3xcFbK+q23fmrtBP1EPDgN
-         blmCDRwnFtqDAwJqGD7HiryPgckJeAiuOTmb4rLDz3MA2EJ94lOybyMmQkumMatLKMQe
-         Vd5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=gH0BuCq6HoPHC1pgL5wqDtOmN+mBvEBTY1SpqMIIaSA=;
-        b=uNSE3rEsgymjROArps92ksc8SQv8e6iQlCvQSnRozYz4FdeN8TjFoZZxy1Uda53h8b
-         5KhkT9wCTEJDZ66M6c2vglXpwzaFfuIxk/sfG63xqSDfPwAWdNz1IcALNp7B+MXJ/05s
-         AFXRwOTlUAjiSNc+KhxEbbYCvMcDyvEz+22Tma/8TNNNCFzcIlJhncfXJAR9ALNlHJWE
-         4qs7esK60Hgu5Gb5E+LDCBaUWr+FvalplF8fY0zq764m4L+VifXjyO3THGZOR8sYqxhl
-         XVTEA2/AaCt8cZVY9AIeQJk3qMe+iuuqKoYLryrhaq6brvgSxxStI+ZAcWSa+cvsu3qg
-         FmBw==
-X-Gm-Message-State: AJIora9rQ0/o674QndHZDDTAA1K/5okoYiREew0XVUJvpBUuhIjQKYva
-        +vhmIlCNdhKXp1qtWyyipVE=
-X-Google-Smtp-Source: AGRyM1vb3qjtI7WqBQv/fwc/DJdnlJreaQay2HLgSd0IgBdVVvbtIy9lr+g3haspM4owafe9Fj9UrA==
-X-Received: by 2002:a65:4645:0:b0:419:9286:4c63 with SMTP id k5-20020a654645000000b0041992864c63mr29187166pgr.582.1658257661861;
-        Tue, 19 Jul 2022 12:07:41 -0700 (PDT)
-Received: from [192.168.1.106] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id u23-20020a1709026e1700b0016d01c133e1sm2394971plk.248.2022.07.19.12.07.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Jul 2022 12:07:41 -0700 (PDT)
-Message-ID: <9df8cc41-bf0d-7aab-1a05-7d9632de9e0b@gmail.com>
-Date:   Tue, 19 Jul 2022 12:07:34 -0700
+        with ESMTP id S239545AbiGSTOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 15:14:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA9855089;
+        Tue, 19 Jul 2022 12:14:38 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAF47B81CE0;
+        Tue, 19 Jul 2022 19:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A807C341C6;
+        Tue, 19 Jul 2022 19:14:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658258075;
+        bh=kj+j4LdZbURAimMqvavoqpdo7V8TFhnzwjnOiiEINwM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GRG2xSrX3lgNWKZaLuW+av+pMlA+IJxf6K09GiMJEKLPc4kCcie861TE4BwLiggbv
+         6AzpObcIKOpAmVyg1PVbUCmlAWus157LPTHLb4JZv4w2Pf92vlXi9uyirjxkf/rdq7
+         6YErMM9GI2r42nKuuuTz4LiWCA7hrWQ4MOPOrcsE=
+Date:   Tue, 19 Jul 2022 21:14:32 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     Baokun Li <libaokun1@huawei.com>, stable@vger.kernel.org,
+        linux-ext4@vger.kernel.org, adilger.kernel@dilger.ca, jack@suse.cz,
+        ritesh.list@gmail.com, lczerner@redhat.com, enwlinux@gmail.com,
+        linux-kernel@vger.kernel.org, yi.zhang@huawei.com,
+        yebin10@huawei.com, yukuai3@huawei.com,
+        Hulk Robot <hulkci@huawei.com>
+Subject: Re: [PATCH 4.19] ext4: fix race condition between
+ ext4_ioctl_setflags and ext4_fiemap
+Message-ID: <YtcCmILbA9mTh4Au@kroah.com>
+References: <20220715023928.2701166-1-libaokun1@huawei.com>
+ <YtF1XygwvIo2Dwae@kroah.com>
+ <425ab528-7d9a-975a-7f4c-5f903cedd8bc@huawei.com>
+ <YtaVAWMlxrQNcS34@kroah.com>
+ <ffb13c36-521e-0e06-8fd6-30b0fec727da@huawei.com>
+ <YtairkXvrX6IZfrR@kroah.com>
+ <Ytb+ji56S/de/5Rm@mit.edu>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.0.2
-Subject: Re: [PATCH 5.15 000/167] 5.15.56-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220719114656.750574879@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Ytb+ji56S/de/5Rm@mit.edu>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jul 19, 2022 at 02:57:18PM -0400, Theodore Ts'o wrote:
+> P.S.  If we go down this path, Greg K-H may also insist on getting the
+> bug fix to the 5.4 LTS kernel, so that a bug isn't just fixed in 4.19
+> LTS but not 5.4 LTS.  In which case, the same requirement of running
+> "-c ext4/all -g auto" and showing that there are no test regressions
+> is going to be a requirement for 5.4 LTS as well.
 
+Yes, if this issue is also in 5.4 or any newer kernels, it HAS to be
+fixed there at the same time, or before, as we can not have anyone
+upgrading from an older kernel to a newer one and having a regression.
 
-On 7/19/2022 4:52 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.56 release.
-> There are 167 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 21 Jul 2022 11:43:40 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.56-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+thanks,
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels and built tested 
-with BMIPS_GENERIC (bmips_stb_defconfig):
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+greg k-h
