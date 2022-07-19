@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6497C579A82
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38493579A86
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239861AbiGSMPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:15:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39518 "EHLO
+        id S239877AbiGSMPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239073AbiGSMOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:09 -0400
+        with ESMTP id S239211AbiGSMOW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:14:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CEF022525;
-        Tue, 19 Jul 2022 05:05:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806D1422DD;
+        Tue, 19 Jul 2022 05:05:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A5CEB81B37;
-        Tue, 19 Jul 2022 12:05:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6F4C341C6;
-        Tue, 19 Jul 2022 12:05:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 396C0B81B81;
+        Tue, 19 Jul 2022 12:05:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F4AAC385A2;
+        Tue, 19 Jul 2022 12:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232308;
-        bh=PEuV/4o35jeAEzG8xHkh/SJRBVMvdGbRaqzCgxIJ/OY=;
+        s=korg; t=1658232311;
+        bh=ZsRmY19ATdi0iXR4OwxBA0GF5sb5W6FBkrSL8mWejcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rX208p3nVzmwrZCDUttMTvt3CBvq9abY5klgfESDsDlFsLGJ+YcdnM4C+0I8tmnhD
-         MaolGPbqN67yQvlQ1Y7f2YD1m2FFhsoaoWQhtTWJ0oRX07uBaBAOFv/I4PQVk18yHH
-         noQ+xcMVwaSo/OJaJB+iPipgmFDMPHDeHVHyGxTE=
+        b=hR3ACKGRvhSptQktSOqrX/HNgufo4NQwVao7CsiWOyWoElO03BRrWxIvQlQVHSK1+
+         rn3SXJZCwvvZDuXItdFJpSUHTHsJNwz/HqzzGjUBf8lRbUMRW3o5z7UBqhj9LopHXE
+         zWC5TENKjNSR7UjiotHq2mpHYGacN2mpMyETNZDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 013/112] ARM: 9213/1: Print message about disabled Spectre workarounds only once
-Date:   Tue, 19 Jul 2022 13:53:06 +0200
-Message-Id: <20220719114627.264546619@linuxfoundation.org>
+Subject: [PATCH 5.10 014/112] ARM: 9214/1: alignment: advance IT state after emulating Thumb instruction
+Date:   Tue, 19 Jul 2022 13:53:07 +0200
+Message-Id: <20220719114627.362247984@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
 References: <20220719114626.156073229@linuxfoundation.org>
@@ -53,33 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit e4ced82deb5fb17222fb82e092c3f8311955b585 upstream.
+commit e5c46fde75e43c15a29b40e5fc5641727f97ae47 upstream.
 
-Print the message about disabled Spectre workarounds only once. The
-message is printed each time CPU goes out from idling state on NVIDIA
-Tegra boards, causing storm in KMSG that makes system unusable.
+After emulating a misaligned load or store issued in Thumb mode, we have
+to advance the IT state by hand, or it will get out of sync with the
+actual instruction stream, which means we'll end up applying the wrong
+condition code to subsequent instructions. This might corrupt the
+program state rather catastrophically.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+So borrow the it_advance() helper from the probing code, and use it on
+CPSR if the emulated instruction is Thumb.
+
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-v7-bugs.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/include/asm/ptrace.h |   26 ++++++++++++++++++++++++++
+ arch/arm/mm/alignment.c       |    3 +++
+ arch/arm/probes/decode.h      |   26 +-------------------------
+ 3 files changed, 30 insertions(+), 25 deletions(-)
 
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -108,8 +108,7 @@ static unsigned int spectre_v2_install_w
- #else
- static unsigned int spectre_v2_install_workaround(unsigned int method)
- {
--	pr_info("CPU%u: Spectre V2: workarounds disabled by configuration\n",
--		smp_processor_id());
-+	pr_info_once("Spectre V2: workarounds disabled by configuration\n");
+--- a/arch/arm/include/asm/ptrace.h
++++ b/arch/arm/include/asm/ptrace.h
+@@ -164,5 +164,31 @@ static inline unsigned long user_stack_p
+ 		((current_stack_pointer | (THREAD_SIZE - 1)) - 7) - 1;	\
+ })
  
- 	return SPECTRE_VULNERABLE;
- }
++
++/*
++ * Update ITSTATE after normal execution of an IT block instruction.
++ *
++ * The 8 IT state bits are split into two parts in CPSR:
++ *	ITSTATE<1:0> are in CPSR<26:25>
++ *	ITSTATE<7:2> are in CPSR<15:10>
++ */
++static inline unsigned long it_advance(unsigned long cpsr)
++{
++	if ((cpsr & 0x06000400) == 0) {
++		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
++		cpsr &= ~PSR_IT_MASK;
++	} else {
++		/* We need to shift left ITSTATE<4:0> */
++		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
++		unsigned long it = cpsr & mask;
++		it <<= 1;
++		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
++		it &= mask;
++		cpsr &= ~mask;
++		cpsr |= it;
++	}
++	return cpsr;
++}
++
+ #endif /* __ASSEMBLY__ */
+ #endif
+--- a/arch/arm/mm/alignment.c
++++ b/arch/arm/mm/alignment.c
+@@ -935,6 +935,9 @@ do_alignment(unsigned long addr, unsigne
+ 	if (type == TYPE_LDST)
+ 		do_alignment_finish_ldst(addr, instr, regs, offset);
+ 
++	if (thumb_mode(regs))
++		regs->ARM_cpsr = it_advance(regs->ARM_cpsr);
++
+ 	return 0;
+ 
+  bad_or_fault:
+--- a/arch/arm/probes/decode.h
++++ b/arch/arm/probes/decode.h
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/stddef.h>
+ #include <asm/probes.h>
++#include <asm/ptrace.h>
+ #include <asm/kprobes.h>
+ 
+ void __init arm_probes_decode_init(void);
+@@ -35,31 +36,6 @@ void __init find_str_pc_offset(void);
+ #endif
+ 
+ 
+-/*
+- * Update ITSTATE after normal execution of an IT block instruction.
+- *
+- * The 8 IT state bits are split into two parts in CPSR:
+- *	ITSTATE<1:0> are in CPSR<26:25>
+- *	ITSTATE<7:2> are in CPSR<15:10>
+- */
+-static inline unsigned long it_advance(unsigned long cpsr)
+-	{
+-	if ((cpsr & 0x06000400) == 0) {
+-		/* ITSTATE<2:0> == 0 means end of IT block, so clear IT state */
+-		cpsr &= ~PSR_IT_MASK;
+-	} else {
+-		/* We need to shift left ITSTATE<4:0> */
+-		const unsigned long mask = 0x06001c00;  /* Mask ITSTATE<4:0> */
+-		unsigned long it = cpsr & mask;
+-		it <<= 1;
+-		it |= it >> (27 - 10);  /* Carry ITSTATE<2> to correct place */
+-		it &= mask;
+-		cpsr &= ~mask;
+-		cpsr |= it;
+-	}
+-	return cpsr;
+-}
+-
+ static inline void __kprobes bx_write_pc(long pcv, struct pt_regs *regs)
+ {
+ 	long cpsr = regs->ARM_cpsr;
 
 
