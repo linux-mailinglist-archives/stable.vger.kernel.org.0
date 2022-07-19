@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76265579CC5
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8545799D7
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241400AbiGSMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51646 "EHLO
+        id S238373AbiGSMHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:07:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241266AbiGSMlp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:41:45 -0400
+        with ESMTP id S238374AbiGSMGp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:06:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD4C7E00C;
-        Tue, 19 Jul 2022 05:16:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FFCF4E608;
+        Tue, 19 Jul 2022 05:01:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AC63B81B2E;
-        Tue, 19 Jul 2022 12:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B47E0C341C6;
-        Tue, 19 Jul 2022 12:16:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A04CB81B2C;
+        Tue, 19 Jul 2022 12:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B02B5C341C6;
+        Tue, 19 Jul 2022 12:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232979;
-        bh=I/S6MXKj+pJExOorvIiThOlDOL37GW0RHtgnBej/vcs=;
+        s=korg; t=1658232064;
+        bh=/yrqfbRHLXgoUsJxyTlMWBqWwlFgWKUfcpZ8NX38z74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZcpssql5OSZoMR13WRaYkPCtQfDCgkvA25JPJJl3HC8l+o2J04Y8tUaOhQ9Z2CL0
-         5SIYglFqAZ6CSPo6FFJm4YrkkhKoMN6bWRg0UAca7Hs2sdWLNEalx40Y2gvD8ZSQnS
-         AwK+W9220v1Eoer5ZQHios/2ctqhYeB6e6MiVXNI=
+        b=elyxIlc4x5o7qBqXJmbW/2WOKW0QQh69eeIycVzRoJWh67OFTGUICXvVF1eSThXFz
+         aiIljCqAa1oVbo/JQbLVbCbj66o2HkuS1Fl5cI9VVnLgXEFeZOtNCXs0OM4BtoDhqO
+         vIZMYdvYE4vFn5zpY+3ULAr7mmyRayAmTIxh691c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 132/167] pinctrl: aspeed: Fix potential NULL dereference in aspeed_pinmux_set_mux()
-Date:   Tue, 19 Jul 2022 13:54:24 +0200
-Message-Id: <20220719114709.337233262@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 48/48] can: m_can: m_can_tx_handler(): fix use after free of skb
+Date:   Tue, 19 Jul 2022 13:54:25 +0200
+Message-Id: <20220719114524.075476331@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114518.915546280@linuxfoundation.org>
+References: <20220719114518.915546280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 84a85d3fef2e75b1fe9fc2af6f5267122555a1ed ]
+commit 2e8e79c416aae1de224c0f1860f2e3350fa171f8 upstream.
 
-pdesc could be null but still dereference pdesc->name and it will lead to
-a null pointer access. So we move a null check before dereference.
+can_put_echo_skb() will clone skb then free the skb. Move the
+can_put_echo_skb() for the m_can version 3.0.x directly before the
+start of the xmit in hardware, similar to the 3.1.x branch.
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Link: https://lore.kernel.org/r/1650508019-22554-1-git-send-email-baihaowen@meizu.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 80646733f11c ("can: m_can: update to support CAN FD features")
+Link: https://lore.kernel.org/all/20220317081305.739554-1-mkl@pengutronix.de
+Cc: stable@vger.kernel.org
+Reported-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/aspeed/pinctrl-aspeed.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/m_can/m_can.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed.c b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-index c94e24aadf92..83d47ff1cea8 100644
---- a/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-+++ b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-@@ -236,11 +236,11 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
- 		const struct aspeed_sig_expr **funcs;
- 		const struct aspeed_sig_expr ***prios;
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1438,8 +1438,6 @@ static netdev_tx_t m_can_start_xmit(stru
+ 					 M_CAN_FIFO_DATA(i / 4),
+ 					 *(u32 *)(cf->data + i));
  
--		pr_debug("Muxing pin %s for %s\n", pdesc->name, pfunc->name);
+-		can_put_echo_skb(skb, dev, 0);
 -
- 		if (!pdesc)
- 			return -EINVAL;
- 
-+		pr_debug("Muxing pin %s for %s\n", pdesc->name, pfunc->name);
+ 		if (priv->can.ctrlmode & CAN_CTRLMODE_FD) {
+ 			cccr = m_can_read(priv, M_CAN_CCCR);
+ 			cccr &= ~(CCCR_CMR_MASK << CCCR_CMR_SHIFT);
+@@ -1456,6 +1454,9 @@ static netdev_tx_t m_can_start_xmit(stru
+ 			m_can_write(priv, M_CAN_CCCR, cccr);
+ 		}
+ 		m_can_write(priv, M_CAN_TXBTIE, 0x1);
 +
- 		prios = pdesc->prios;
- 
- 		if (!prios)
--- 
-2.35.1
-
++		can_put_echo_skb(skb, dev, 0);
++
+ 		m_can_write(priv, M_CAN_TXBAR, 0x1);
+ 		/* End of xmit function for version 3.0.x */
+ 	} else {
 
 
