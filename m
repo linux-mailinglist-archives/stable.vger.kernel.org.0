@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C06CD579951
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084345798FC
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237833AbiGSMBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:01:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
+        id S235963AbiGSL5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:57:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237832AbiGSMAz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:00:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB53C49B4B;
-        Tue, 19 Jul 2022 04:58:16 -0700 (PDT)
+        with ESMTP id S237528AbiGSL4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:56:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A136A42AC5;
+        Tue, 19 Jul 2022 04:56:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4654961654;
-        Tue, 19 Jul 2022 11:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39833C36AF2;
-        Tue, 19 Jul 2022 11:58:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 551BAB81B25;
+        Tue, 19 Jul 2022 11:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FD53C341C6;
+        Tue, 19 Jul 2022 11:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231895;
-        bh=sN7vWqDvnCjutFF1izI4mZX9UdD/N9GNfdT2bXLPyGo=;
+        s=korg; t=1658231789;
+        bh=VLVde4WyU3r9G4I6zy3LLwY24OSGIE0AYQEeL+lw+FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7v/1bm6YvAe0AhbfT0bSixR4Bw7meN3Oqi4yh9dyFG8evPrFUByjiLgJck5ZkQT+
-         YcwAm7KlVMXW/B8u8Y3TATMkZzg+4n7qUkU6M0FNB+oE4t3hamwSR5fbS77klz2ql6
-         bGOoY1T82KLrfy+yQQ6JgteTj2WPWsoJrAtt4+8k=
+        b=BDEhM7sMcN39pWhs7bKJeNJ5QePUsvN5+pPEK9XSsF+Y+9NtXbsHOq6XDOT+xp11w
+         TfGzODgoZQ5R0YOj+qdYNtkrKwwHdXIAVuE63JXZQL0z/p5siSJXgTcbO9R8bWAcsz
+         BFVi/9L/19N3iExLNSrZZ+nH9bVgRJfMNPtHufvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 33/43] ASoC: ops: Fix off by one in range control validation
+        stable@vger.kernel.org, Yi Yang <yiyang13@huawei.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 4.9 26/28] serial: 8250: fix return error code in serial8250_request_std_resource()
 Date:   Tue, 19 Jul 2022 13:54:04 +0200
-Message-Id: <20220719114524.880999953@linuxfoundation.org>
+Message-Id: <20220719114458.550479689@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Yi Yang <yiyang13@huawei.com>
 
-[ Upstream commit 5871321fb4558c55bf9567052b618ff0be6b975e ]
+commit 6e690d54cfa802f939cefbd2fa2c91bd0b8bd1b6 upstream.
 
-We currently report that range controls accept a range of 0..(max-min) but
-accept writes in the range 0..(max-min+1). Remove that extra +1.
+If port->mapbase = NULL in serial8250_request_std_resource() , it need
+return a error code instead of 0. If uart_set_info() fail to request new
+regions by serial8250_request_std_resource() but the return value of
+serial8250_request_std_resource() is 0, The system incorrectly considers
+that the resource application is successful and does not attempt to
+restore the old setting. A null pointer reference is triggered when the
+port resource is later invoked.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220604105246.4055214-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yi Yang <yiyang13@huawei.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220628083515.64138-1-yiyang13@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-ops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
-index 0848aec1bd24..81c9ecfa7c7f 100644
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -535,7 +535,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
- 		return -EINVAL;
- 	if (mc->platform_max && tmp > mc->platform_max)
- 		return -EINVAL;
--	if (tmp > mc->max - mc->min + 1)
-+	if (tmp > mc->max - mc->min)
- 		return -EINVAL;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2789,8 +2789,10 @@ static int serial8250_request_std_resour
+ 	case UPIO_MEM32BE:
+ 	case UPIO_MEM16:
+ 	case UPIO_MEM:
+-		if (!port->mapbase)
++		if (!port->mapbase) {
++			ret = -EINVAL;
+ 			break;
++		}
  
- 	if (invert)
-@@ -556,7 +556,7 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
- 			return -EINVAL;
- 		if (mc->platform_max && tmp > mc->platform_max)
- 			return -EINVAL;
--		if (tmp > mc->max - mc->min + 1)
-+		if (tmp > mc->max - mc->min)
- 			return -EINVAL;
- 
- 		if (invert)
--- 
-2.35.1
-
+ 		if (!request_mem_region(port->mapbase, size, "serial")) {
+ 			ret = -EBUSY;
 
 
