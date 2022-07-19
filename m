@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A44F1579EBD
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA81579C8C
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242864AbiGSNFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:05:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41786 "EHLO
+        id S241242AbiGSMkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:40:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243078AbiGSNEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:04:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BA09DEC9;
-        Tue, 19 Jul 2022 05:26:36 -0700 (PDT)
+        with ESMTP id S241484AbiGSMjn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:39:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A1F054CAF;
+        Tue, 19 Jul 2022 05:16:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F84BB81B84;
-        Tue, 19 Jul 2022 12:26:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A969C341C6;
-        Tue, 19 Jul 2022 12:26:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F9B861632;
+        Tue, 19 Jul 2022 12:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E29EC341C6;
+        Tue, 19 Jul 2022 12:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233589;
-        bh=D6px515p4fHfGMRWHucS0aS5PelcoJ9T+x0su67Ml0U=;
+        s=korg; t=1658232961;
+        bh=tHbmYTk29C+tyConO9otde+kD25xesrNCWFelZW3mIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RP/EUcR4gID/Qz1kRVArBN//fG1XHTcSMh1Tfr6duaNeP8JTvJsA9RHCKmQhXbU4k
-         uHVoOXxa8zHyhLs3sfisONzOPjBwQc1qmUUee/rUUqGle5Y2z0FAXAMl/b0u6V1tlr
-         UE9NCyotM798o3iM07KfLczo0fCBcYb+OCanBpzM=
+        b=LEOpchFjggvX7aenx1PAcZmx1TqKu9zlJ6+muGWmcZKxeUzdLFfZeMjiSzW9yqmhZ
+         V97gPgmTYaihreg8/hxFfcRxUU60YANs5Bqumij/H0ZctpJWSrb4G0jqf3QriSq/4U
+         UxEZLbQ4FbEE8AlUXHCBbgo0JVmiphCUizX9cXrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Pearson <markpearson@lenovo.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 173/231] platform/x86: thinkpad_acpi: do not use PSC mode on Intel platforms
+Subject: [PATCH 5.15 126/167] net: tipc: fix possible refcount leak in tipc_sk_create()
 Date:   Tue, 19 Jul 2022 13:54:18 +0200
-Message-Id: <20220719114728.711222569@linuxfoundation.org>
+Message-Id: <20220719114708.795466119@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <markpearson@lenovo.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit bce6243f767f7da88aa4674d5d678f9f156eaba9 ]
+[ Upstream commit 00aff3590fc0a73bddd3b743863c14e76fd35c0c ]
 
-PSC platform profile mode is only supported on Linux for AMD platforms.
+Free sk in case tipc_sk_insert() fails.
 
-Some older Intel platforms (e.g T490) are advertising it's capability
-as Windows uses it - but on Linux we should only be using MMC profile
-for Intel systems.
-
-Add a check to prevent it being enabled incorrectly.
-
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
-Link: https://lore.kernel.org/r/20220627181449.3537-1-markpearson@lenovo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/tipc/socket.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -10541,6 +10541,11 @@ static int tpacpi_dytc_profile_init(stru
- 				dytc_mmc_get_available = true;
- 		}
- 	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) { /* PSC MODE */
-+		/* Support for this only works on AMD platforms */
-+		if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD) {
-+			dbg_printk(TPACPI_DBG_INIT, "PSC not support on Intel platforms\n");
-+			return -ENODEV;
-+		}
- 		pr_debug("PSC is supported\n");
- 	} else {
- 		dbg_printk(TPACPI_DBG_INIT, "No DYTC support available\n");
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 17f8c523e33b..43509c7e90fc 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -502,6 +502,7 @@ static int tipc_sk_create(struct net *net, struct socket *sock,
+ 	sock_init_data(sock, sk);
+ 	tipc_set_sk_state(sk, TIPC_OPEN);
+ 	if (tipc_sk_insert(tsk)) {
++		sk_free(sk);
+ 		pr_warn("Socket create failed; port number exhausted\n");
+ 		return -EINVAL;
+ 	}
+-- 
+2.35.1
+
 
 
