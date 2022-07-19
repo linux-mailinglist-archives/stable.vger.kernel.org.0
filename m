@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49DFF579ADB
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E98579C04
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237695AbiGSMUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54682 "EHLO
+        id S240521AbiGSMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239924AbiGSMUC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:20:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632A95926E;
-        Tue, 19 Jul 2022 05:07:22 -0700 (PDT)
+        with ESMTP id S241081AbiGSMep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:34:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045B578DC2;
+        Tue, 19 Jul 2022 05:13:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53546B81B1A;
-        Tue, 19 Jul 2022 12:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBBEC341C6;
-        Tue, 19 Jul 2022 12:07:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E785E61790;
+        Tue, 19 Jul 2022 12:12:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E56C341C6;
+        Tue, 19 Jul 2022 12:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232438;
-        bh=LImAdXCTNx1YClH8FEaycD4Q8yoRVyjvoe4rawmcKfo=;
+        s=korg; t=1658232774;
+        bh=JMzByYwmqt8aRAvGvxSwJj3owa5cmGDyxPmX35MHwYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kzWar6ocDn1rs6p6Q75jKoV0rwoD9NggWDr86NOFKnybZmbEhutzrDgynG3FK3YM
-         rtAeuL2UZlpftL2B4gzpYUIXyeffhqAHyOCoFuWafiXmtWRQ0z72Y305b/nnmBlJlF
-         +6rA0xur8Rl+f9rq30G5hI4Nipmuho8g6JH7xLWI=
+        b=fyjutX8H+joDAuQu/+6W59cKKS8Een6MwoxaI1cSR202W4h01+z8cqySyD01HBbvm
+         apL2uBexH3lE5AceCpGi5yd1pgDOandZ6I6lDfAL8xFGZ8cIcLHGJXjOiQTF92QP2c
+         WeGBiHVSYnkoqcNQDENRGc9ziZI6cPgXdAr5qn9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ansgar=20L=C3=B6=C3=9Fer?= 
-        <ansgar.loesser@tu-darmstadt.de>,
-        Dave Chinner <dchinner@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 020/112] fs/remap: constrain dedupe of EOF blocks
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 061/167] icmp: Fix data-races around sysctl.
 Date:   Tue, 19 Jul 2022 13:53:13 +0200
-Message-Id: <20220719114627.940205141@linuxfoundation.org>
+Message-Id: <20220719114702.459194709@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114626.156073229@linuxfoundation.org>
-References: <20220719114626.156073229@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 5750676b64a561f7ec920d7c6ba130fc9c7378f3 upstream.
+[ Upstream commit 48d7ee321ea5182c6a70782aa186422a70e67e22 ]
 
-If dedupe of an EOF block is not constrainted to match against only
-other EOF blocks with the same EOF offset into the block, it can
-match against any other block that has the same matching initial
-bytes in it, even if the bytes beyond EOF in the source file do
-not match.
+While reading icmp sysctl variables, they can be changed concurrently.
+So, we need to add READ_ONCE() to avoid data-races.
 
-Fix this by constraining the EOF block matching to only match
-against other EOF blocks that have identical EOF offsets and data.
-This allows "whole file dedupe" to continue to work without allowing
-eof blocks to randomly match against partial full blocks with the
-same data.
-
-Reported-by: Ansgar Lößer <ansgar.loesser@tu-darmstadt.de>
-Fixes: 1383a7ed6749 ("vfs: check file ranges before cloning files")
-Link: https://lore.kernel.org/linux-fsdevel/a7c93559-4ba1-df2f-7a85-55a143696405@tu-darmstadt.de/
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/remap_range.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/icmp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/remap_range.c
-+++ b/fs/remap_range.c
-@@ -71,7 +71,8 @@ static int generic_remap_checks(struct f
- 	 * Otherwise, make sure the count is also block-aligned, having
- 	 * already confirmed the starting offsets' block alignment.
- 	 */
--	if (pos_in + count == size_in) {
-+	if (pos_in + count == size_in &&
-+	    (!(remap_flags & REMAP_FILE_DEDUP) || pos_out + count == size_out)) {
- 		bcount = ALIGN(size_in, bs) - pos_in;
- 	} else {
- 		if (!IS_ALIGNED(count, bs))
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index b7e277d8a84d..b5766b62ca97 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -261,11 +261,12 @@ bool icmp_global_allow(void)
+ 	spin_lock(&icmp_global.lock);
+ 	delta = min_t(u32, now - icmp_global.stamp, HZ);
+ 	if (delta >= HZ / 50) {
+-		incr = sysctl_icmp_msgs_per_sec * delta / HZ ;
++		incr = READ_ONCE(sysctl_icmp_msgs_per_sec) * delta / HZ;
+ 		if (incr)
+ 			WRITE_ONCE(icmp_global.stamp, now);
+ 	}
+-	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
++	credit = min_t(u32, icmp_global.credit + incr,
++		       READ_ONCE(sysctl_icmp_msgs_burst));
+ 	if (credit) {
+ 		/* We want to use a credit of one in average, but need to randomize
+ 		 * it for security reasons.
+-- 
+2.35.1
+
 
 
