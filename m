@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E99579D20
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D55DA579EEE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241493AbiGSMrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:47:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38478 "EHLO
+        id S243081AbiGSNIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:08:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239317AbiGSMqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A9E8BA85;
-        Tue, 19 Jul 2022 05:18:28 -0700 (PDT)
+        with ESMTP id S243002AbiGSNHi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:07:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B17E1408D;
+        Tue, 19 Jul 2022 05:27:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5398861746;
-        Tue, 19 Jul 2022 12:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44502C341C6;
-        Tue, 19 Jul 2022 12:18:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1015FCE1BE1;
+        Tue, 19 Jul 2022 12:27:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0799CC341C6;
+        Tue, 19 Jul 2022 12:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233105;
-        bh=RUUKpFFgLZU5wPepFLY7h5IaUmNL/AXE1xUV7qaneFM=;
+        s=korg; t=1658233627;
+        bh=RSnp9C2IndBNx40Bwal1Q5B/rLmbGmA+LVLBOoQj7bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzXDM5lZjA8/wxh/dsVhHcoubTpAH+nY/PiksvhnOqF0MLeWJ7EFWheUUTdUG6oE9
-         MZacW5BgZr/CpXQm9wKt9pZU2BvsXkZtR1nqNEt9eFpHSJK3jcremhxRvnRl76jmvY
-         A4ZEruvS7fAaTcnk16aISYwBo7/ZHpmbHE9PEuPc=
+        b=kJnCEEB/NtalAfwQq5kwbRcm9Ms5lEmTN/seQCr9rMfQjVkgX01rLVSCW4twv4JkD
+         fi0BCUhGl+bFh+5RzECa08ID4SLrDavI8plDsGfWSjQCjXOXSAaN0+u2NEQGSFslq3
+         pv0ZQzyj+kdd8cLnN3bCWf4wawQft9eMt7XDlAH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 140/167] ASoC: wcd938x: Fix event generation for some controls
+Subject: [PATCH 5.18 187/231] ASoC: Intel: sof_sdw: handle errors on card registration
 Date:   Tue, 19 Jul 2022 13:54:32 +0200
-Message-Id: <20220719114710.032619335@linuxfoundation.org>
+Message-Id: <20220719114729.927181646@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +56,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 10e7ff0047921e32b919ecee7be706dd33c107f8 ]
+[ Upstream commit fe154c4ff376bc31041c6441958a08243df09c99 ]
 
-Currently wcd938x_*_put() unconditionally report that the value of the
-control changed, resulting in spurious events being generated. Return 0 in
-that case instead as we should. There is still an issue in the compander
-control which is a bit more complex.
+If the card registration fails, typically because of deferred probes,
+the device properties added for headset codecs are not removed, which
+leads to kernel oopses in driver bind/unbind tests.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20220603122526.3914942-1-broonie@kernel.org
+We already clean-up the device properties when the card is removed,
+this code can be moved as a helper and called upon card registration
+errors.
+
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220606203752.144159-4-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd938x.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/soc/intel/boards/sof_sdw.c | 51 ++++++++++++++++++--------------
+ 1 file changed, 29 insertions(+), 22 deletions(-)
 
-diff --git a/sound/soc/codecs/wcd938x.c b/sound/soc/codecs/wcd938x.c
-index 4480c118ed5d..8cdc45e669f2 100644
---- a/sound/soc/codecs/wcd938x.c
-+++ b/sound/soc/codecs/wcd938x.c
-@@ -2517,6 +2517,9 @@ static int wcd938x_tx_mode_put(struct snd_kcontrol *kcontrol,
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	int path = e->shift_l;
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 1f00679b4240..ad826ad82d51 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -1398,6 +1398,33 @@ static struct snd_soc_card card_sof_sdw = {
+ 	.late_probe = sof_sdw_card_late_probe,
+ };
  
-+	if (wcd938x->tx_mode[path] == ucontrol->value.enumerated.item[0])
-+		return 0;
++static void mc_dailink_exit_loop(struct snd_soc_card *card)
++{
++	struct snd_soc_dai_link *link;
++	int ret;
++	int i, j;
 +
- 	wcd938x->tx_mode[path] = ucontrol->value.enumerated.item[0];
- 
- 	return 1;
-@@ -2539,6 +2542,9 @@ static int wcd938x_rx_hph_mode_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
- 
-+	if (wcd938x->hph_mode == ucontrol->value.enumerated.item[0])
-+		return 0;
++	for (i = 0; i < ARRAY_SIZE(codec_info_list); i++) {
++		if (!codec_info_list[i].exit)
++			continue;
++		/*
++		 * We don't need to call .exit function if there is no matched
++		 * dai link found.
++		 */
++		for_each_card_prelinks(card, j, link) {
++			if (!strcmp(link->codecs[0].dai_name,
++				    codec_info_list[i].dai_name)) {
++				ret = codec_info_list[i].exit(card, link);
++				if (ret)
++					dev_warn(card->dev,
++						 "codec exit failed %d\n",
++						 ret);
++				break;
++			}
++		}
++	}
++}
 +
- 	wcd938x->hph_mode = ucontrol->value.enumerated.item[0];
+ static int mc_probe(struct platform_device *pdev)
+ {
+ 	struct snd_soc_card *card = &card_sof_sdw;
+@@ -1462,6 +1489,7 @@ static int mc_probe(struct platform_device *pdev)
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+ 	if (ret) {
+ 		dev_err(card->dev, "snd_soc_register_card failed %d\n", ret);
++		mc_dailink_exit_loop(card);
+ 		return ret;
+ 	}
  
- 	return 1;
-@@ -2630,6 +2636,9 @@ static int wcd938x_ldoh_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+@@ -1473,29 +1501,8 @@ static int mc_probe(struct platform_device *pdev)
+ static int mc_remove(struct platform_device *pdev)
+ {
+ 	struct snd_soc_card *card = platform_get_drvdata(pdev);
+-	struct snd_soc_dai_link *link;
+-	int ret;
+-	int i, j;
  
-+	if (wcd938x->ldoh == ucontrol->value.integer.value[0])
-+		return 0;
-+
- 	wcd938x->ldoh = ucontrol->value.integer.value[0];
+-	for (i = 0; i < ARRAY_SIZE(codec_info_list); i++) {
+-		if (!codec_info_list[i].exit)
+-			continue;
+-		/*
+-		 * We don't need to call .exit function if there is no matched
+-		 * dai link found.
+-		 */
+-		for_each_card_prelinks(card, j, link) {
+-			if (!strcmp(link->codecs[0].dai_name,
+-				    codec_info_list[i].dai_name)) {
+-				ret = codec_info_list[i].exit(card, link);
+-				if (ret)
+-					dev_warn(&pdev->dev,
+-						 "codec exit failed %d\n",
+-						 ret);
+-				break;
+-			}
+-		}
+-	}
++	mc_dailink_exit_loop(card);
  
- 	return 1;
-@@ -2652,6 +2661,9 @@ static int wcd938x_bcs_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
- 
-+	if (wcd938x->bcs_dis == ucontrol->value.integer.value[0])
-+		return 0;
-+
- 	wcd938x->bcs_dis = ucontrol->value.integer.value[0];
- 
- 	return 1;
+ 	return 0;
+ }
 -- 
 2.35.1
 
