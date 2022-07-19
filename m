@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E3F579EFC
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 751E7579D16
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243065AbiGSNIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43080 "EHLO
+        id S237991AbiGSMrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243189AbiGSNId (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:08:33 -0400
+        with ESMTP id S242013AbiGSMo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:44:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B90ABB8DA;
-        Tue, 19 Jul 2022 05:28:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C6A87C1A;
+        Tue, 19 Jul 2022 05:17:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2AE5B81B8D;
-        Tue, 19 Jul 2022 12:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F693C341C6;
-        Tue, 19 Jul 2022 12:27:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 035F7B81B82;
+        Tue, 19 Jul 2022 12:17:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EFBEC341C6;
+        Tue, 19 Jul 2022 12:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233679;
-        bh=Nw9GIA0IvSM+nBcMCdX3mSHyRJJF5jJYhfuCJ1FOG6M=;
+        s=korg; t=1658233050;
+        bh=fHBYmqcIiLMomw61JKDjJgzcDQQWoa5ofC83PhIIq4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0AACTXQgh6AfZWGhj5yvbTbIMk3A49tz4GRMtVL22EQs/j8Ui/nA/5ix8toD/hGB
-         dWb++7bdEst85FnwJcL7/n6+IhouFH7l55yz2I1m0qy+RUIPkIDcrXzGnZC9uvgqwL
-         20GTzaigYWdWFZuIvOtnlt4/dbpC7z/xOh1UwddQ=
+        b=ZSIJTHUCpEMqPKTBqDs+lTiNSLEr9NnLVcSVNrlQg9n/0ONjaY85IEB6efW79witK
+         ydzsUblNxHFAfG0LS3JmJGB8HbCgtCKmcZe4JjgeurdWpGYSQZ8whDTVuKUS1VmxV6
+         BmVAwPDGupboOO3/H+/vw9muAIk3/CLvzRsnItnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 204/231] ASoC: cs47l15: Fix event generation for low power mux control
+Subject: [PATCH 5.15 157/167] signal handling: dont use BUG_ON() for debugging
 Date:   Tue, 19 Jul 2022 13:54:49 +0200
-Message-Id: <20220719114731.136622723@linuxfoundation.org>
+Message-Id: <20220719114711.690583853@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
-References: <20220719114714.247441733@linuxfoundation.org>
+In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
+References: <20220719114656.750574879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 7f103af4a10f375b9b346b4d0b730f6a66b8c451 ]
+[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
 
-cs47l15_in1_adc_put always returns zero regardless of if the control
-value was updated. This results in missing notifications to user-space
-of the control change. Update the handling to return 1 when the value is
-changed.
+These are indeed "should not happen" situations, but it turns out recent
+changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
+exists, is pending more testing), and the BUG_ON() makes it
+unnecessarily hard to actually debug for no good reason.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220623105120.1981154-3-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+It's been that way for a long time, but let's make it clear: BUG_ON() is
+not good for debugging, and should never be used in situations where you
+could just say "this shouldn't happen, but we can continue".
+
+Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
+continue running.  Instead of making the system basically unusuable
+because you crashed the machine while potentially holding some very core
+locks (eg this function is commonly called while holding 'tasklist_lock'
+for writing).
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs47l15.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/signal.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/cs47l15.c b/sound/soc/codecs/cs47l15.c
-index 391fd7da331f..1c7d52bef893 100644
---- a/sound/soc/codecs/cs47l15.c
-+++ b/sound/soc/codecs/cs47l15.c
-@@ -122,6 +122,9 @@ static int cs47l15_in1_adc_put(struct snd_kcontrol *kcontrol,
- 		snd_soc_kcontrol_component(kcontrol);
- 	struct cs47l15 *cs47l15 = snd_soc_component_get_drvdata(component);
+diff --git a/kernel/signal.c b/kernel/signal.c
+index d831f0aec56e..c7dbb19219b9 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2027,12 +2027,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
+ 	bool autoreap = false;
+ 	u64 utime, stime;
  
-+	if (!!ucontrol->value.integer.value[0] == cs47l15->in1_lp_mode)
-+		return 0;
-+
- 	switch (ucontrol->value.integer.value[0]) {
- 	case 0:
- 		/* Set IN1 to normal mode */
-@@ -150,7 +153,7 @@ static int cs47l15_in1_adc_put(struct snd_kcontrol *kcontrol,
- 		break;
- 	}
+-	BUG_ON(sig == -1);
++	WARN_ON_ONCE(sig == -1);
  
--	return 0;
-+	return 1;
- }
+- 	/* do_notify_parent_cldstop should have been called instead.  */
+- 	BUG_ON(task_is_stopped_or_traced(tsk));
++	/* do_notify_parent_cldstop should have been called instead.  */
++	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
  
- static const struct snd_kcontrol_new cs47l15_snd_controls[] = {
+-	BUG_ON(!tsk->ptrace &&
++	WARN_ON_ONCE(!tsk->ptrace &&
+ 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
+ 
+ 	/* Wake up all pidfd waiters */
 -- 
 2.35.1
 
