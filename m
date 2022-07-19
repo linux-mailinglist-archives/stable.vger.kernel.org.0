@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1CD579BB2
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD0AA579BBE
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbiGSMbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55524 "EHLO
+        id S239170AbiGSMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 08:31:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240642AbiGSM3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:48 -0400
+        with ESMTP id S240686AbiGSM3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:29:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0017E691F9;
-        Tue, 19 Jul 2022 05:11:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 369CF6C103;
+        Tue, 19 Jul 2022 05:11:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD62BB81B32;
-        Tue, 19 Jul 2022 12:11:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B8E3C341CF;
-        Tue, 19 Jul 2022 12:11:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8189B81B31;
+        Tue, 19 Jul 2022 12:11:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BF0C341C6;
+        Tue, 19 Jul 2022 12:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658232685;
-        bh=HpRZwYpGGp11YRHRT9z7MzDiIt7YNlvkO80tr+oVew8=;
+        s=korg; t=1658232688;
+        bh=8HMYi2EllsBRqBevCrSHuIbvxXPKyVJozZ70rU+aggg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e9qZniKmRC3UzYZlLKzgd4Njv09lWr5yR0eY7ynWvYqcjwG2k1qQhm0rmnIbY9lqY
-         A1+jpwdobmbHyyC91OaLSddQfZOCsUVKVQD+jxu/VmJp03a4USktFJmenaWG9q2l3u
-         gCh9EZh9Zy4gwSmYZVxTrRFcS0IWdP+MqIWUvhRA=
+        b=lJxycMR6Ie6j2d6AZNRYe3LXA0ptZzF6wWT6WA8KzKxSB7mOzHRk+dKSKbE1G7nEP
+         s8lbH9MJWtbVIe8I4aZGvZ4ibXWtTTuiNOby2DQNBmSFrHRh3ycHNn/TcUsxU6xKGy
+         N/q6c7u5qgI7ot+9uin8PIpGWM4PvUghU0/Cy6qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Kris Bahnsen <kris@embeddedTS.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 030/167] reset: Fix devm bulk optional exclusive control getter
-Date:   Tue, 19 Jul 2022 13:52:42 +0200
-Message-Id: <20220719114659.674929709@linuxfoundation.org>
+Subject: [PATCH 5.15 031/167] ARM: dts: imx6qdl-ts7970: Fix ngpio typo and count
+Date:   Tue, 19 Jul 2022 13:52:43 +0200
+Message-Id: <20220719114659.767894782@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
 References: <20220719114656.750574879@linuxfoundation.org>
@@ -55,45 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Kris Bahnsen <kris@embeddedTS.com>
 
-[ Upstream commit a57f68ddc8865d59a19783080cc52fb4a11dc209 ]
+[ Upstream commit e95ea0f687e679fcb0a3a67d0755b81ee7d60db0 ]
 
-Most likely due to copy-paste mistake the device managed version of the
-denoted reset control getter has been implemented with invalid semantic,
-which can be immediately spotted by having "WARN_ON(shared && acquired)"
-warning in the system log as soon as the method is called. Anyway let's
-fix it by altering the boolean arguments passed to the
-__devm_reset_control_bulk_get() method from
-- shared = true, optional = false, acquired = true
-to
-+ shared = false, optional = true, acquired = true
-That's what they were supposed to be in the first place (see the non-devm
-version of the same method: reset_control_bulk_get_optional_exclusive()).
+Device-tree incorrectly used "ngpio" which caused the driver to
+fallback to 32 ngpios.
 
-Fixes: 48d71395896d ("reset: Add reset_control_bulk API")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220624141853.7417-2-Sergey.Semin@baikalelectronics.ru
+This platform has 62 GPIO registers.
+
+Fixes: 9ff8e9fccef9 ("ARM: dts: TS-7970: add basic device tree")
+Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/reset.h | 2 +-
+ arch/arm/boot/dts/imx6qdl-ts7970.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/reset.h b/include/linux/reset.h
-index db0e6115a2f6..7bb583737528 100644
---- a/include/linux/reset.h
-+++ b/include/linux/reset.h
-@@ -711,7 +711,7 @@ static inline int __must_check
- devm_reset_control_bulk_get_optional_exclusive(struct device *dev, int num_rstcs,
- 					       struct reset_control_bulk_data *rstcs)
- {
--	return __devm_reset_control_bulk_get(dev, num_rstcs, rstcs, true, false, true);
-+	return __devm_reset_control_bulk_get(dev, num_rstcs, rstcs, false, true, true);
- }
+diff --git a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
+index fded07f370b3..d6ba4b2a60f6 100644
+--- a/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-ts7970.dtsi
+@@ -226,7 +226,7 @@ gpio8: gpio@28 {
+ 		reg = <0x28>;
+ 		#gpio-cells = <2>;
+ 		gpio-controller;
+-		ngpio = <32>;
++		ngpios = <62>;
+ 	};
  
- /**
+ 	sgtl5000: codec@a {
 -- 
 2.35.1
 
