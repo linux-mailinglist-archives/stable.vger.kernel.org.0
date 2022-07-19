@@ -2,110 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1057579472
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 09:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB54657951D
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 10:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233441AbiGSHpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 03:45:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36922 "EHLO
+        id S235595AbiGSISb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 04:18:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230193AbiGSHpP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 03:45:15 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6BC4C6417
-        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 00:45:13 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-195-w4wS7Z9kPLWuciSaR4LFhw-1; Tue, 19 Jul 2022 08:45:10 +0100
-X-MC-Unique: w4wS7Z9kPLWuciSaR4LFhw-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.36; Tue, 19 Jul 2022 08:45:08 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.036; Tue, 19 Jul 2022 08:45:08 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Tvrtko Ursulin' <tvrtko.ursulin@linux.intel.com>,
-        'Mauro Carvalho Chehab' <mauro.chehab@linux.intel.com>
-CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        =?utf-8?B?VGhvbWFzIEhlbGxzdHLDtm0=?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
- invalidations on idle engines
-Thread-Topic: [Intel-gfx] [PATCH v2 01/21] drm/i915/gt: Ignore TLB
- invalidations on idle engines
-Thread-Index: AQHYmrY8zdEzbxnvNkSYe57Mev6je62ERXnQgAD1jgCAABUfUA==
-Date:   Tue, 19 Jul 2022 07:45:08 +0000
-Message-ID: <0259b5ae72c44d9b8dd12c3431c0c36f@AcuMS.aculab.com>
-References: <cover.1657800199.git.mchehab@kernel.org>
- <c014a1d743fa46a6b57f02bffb7badf438136442.1657800199.git.mchehab@kernel.org>
- <76318fe1-37dc-8a1e-317e-76333995b8ca@linux.intel.com>
- <20220718165341.30ee6e31@maurocar-mobl2>
- <b244f88e85a44485be9038c622fa13b1@AcuMS.aculab.com>
- <7ed6b275-e0d3-12b7-cdbe-c43994e92b47@linux.intel.com>
-In-Reply-To: <7ed6b275-e0d3-12b7-cdbe-c43994e92b47@linux.intel.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S234967AbiGSISb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 04:18:31 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1EA24970
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 01:18:28 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id m13so8375838edc.5
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 01:18:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+6Uf0Dm9fe+7VSifZ9Ol7H5+Xj84H1cTaayjgqmX5aY=;
+        b=GRyyiqzYsZz3gGr34FdtwUF3KHGpKrKgwXc74ZXGDpxt0YZvKWw0V8TUpZS/pc/8q8
+         gbtbm/BSkgp8OZHq3cPFc+S9YiIMO2gKmM1RNHat6RNZEh1P2P8c/EDFsK9BIs1koUAG
+         SNWy0135Rb3TrqbJVhGVgOUe6fURUDmq/jDgCuPy27dRrbuUgI8cDr7sR2er/HxQ9ain
+         srQhkruujkhRajuAveSbNfyfewcnLNRmGdMbNQ3p6YPig+/Dapi0b1hT4QUk8zFX6NcQ
+         gsewmgHhDIyoGJCGPQhZSmH8pTDvI74g6TmK3pU+cBndk6rGpfw7xi+kjaCNv8rd1DA6
+         Itnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+6Uf0Dm9fe+7VSifZ9Ol7H5+Xj84H1cTaayjgqmX5aY=;
+        b=ijAZlYrphqJ1Te8uyz4N+k68mPqR4HXTOp4awkLOXB8y12ileMdcj3dcTo1nlYaj9t
+         MPTU6JaI3Qgssr9lY3wkoR53DB8NXdG/c5fsgMjlj+lM2xFtrbNrKZflqmck3jrkdVks
+         ptBQ0tXKwubSKfLdFydSmR8fb2xyms8TLsUHxvJpOJ5hib0M86syLShB+HIAUP8w3CwL
+         J+3n5f6nuoPkEKt3peAjmNJ0AlFONg0sePwcLoUkpRCrLHN7rgJ10blxwisZ57GS+GPq
+         n75B93NNiEW/z67wI78i/KVGZHytJaKTuvYO2KxYjrCJl3bQX3T3t/e9htRWSq4WfHkP
+         NYTg==
+X-Gm-Message-State: AJIora/v8ml5+DPg7Avu7acMaBhmWJ59R1uuTpFgHxBYJB4b1BEu7FbZ
+        OZFO1dNJasZL9QJMQUk6LbKs/kj5eb8=
+X-Google-Smtp-Source: AGRyM1tqqhwjyDDEbp+9GJfHsLjyGI+cJbbIVXNg1ZYTYVkb8eua3NKS5sMFiXlR4JNlOWh6bg2QHQ==
+X-Received: by 2002:a05:6402:495:b0:43a:a211:4c86 with SMTP id k21-20020a056402049500b0043aa2114c86mr42260606edv.294.1658218706523;
+        Tue, 19 Jul 2022 01:18:26 -0700 (PDT)
+Received: from labdl-itc-sw06.tmt.telital.com (static-82-85-31-68.clienti.tiscali.it. [82.85.31.68])
+        by smtp.gmail.com with ESMTPSA id w13-20020aa7cb4d000000b0043a5004e714sm10008075edt.64.2022.07.19.01.18.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jul 2022 01:18:25 -0700 (PDT)
+From:   Fabio Porcedda <fabio.porcedda@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: [PATCH 5.15 0/2] Backport support for Telit FN980 v1 and FN990
+Date:   Tue, 19 Jul 2022 10:18:13 +0200
+Message-Id: <20220719081815.466080-1-fabio.porcedda@gmail.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogVHZydGtvIFVyc3VsaW4NCj4gU2VudDogMTkgSnVseSAyMDIyIDA4OjI1DQouLi4NCj4g
-PiBJdCdzIG5vdCBvbmx5IHRoZSBUTEIgZmx1c2hlcyB0aGF0IGNhdXNlIGdyaWVmLg0KPiA+DQo+
-ID4gVGhlcmUgaXMgYSBsb29wIHRoYXQgZm9yY2VzIGEgd3JpdGUtYmFjayBvZiBhbGwgdGhlIGZy
-YW1lIGJ1ZmZlciBwYWdlcy4NCj4gPiBXaXRoIGEgbGFyZ2UgZGlzcGxheSBhbmQgc29tZSBjcHUg
-KGxpa2UgbXkgSXZ5IGJyaWRnZSBvbmUpIHRoYXQNCj4gPiB0YWtlcyBsb25nIGVub3VnaCB3aXRo
-IHByZS1lbXB0aW9uIGRpc2FibGVkIHRoYXQgd2FrZXVwIG9mIFJUIHByb2Nlc3Nlcw0KPiA+IChh
-bmQgYW55IHBpbm5lZCB0byB0aGUgY3B1KSB0YWtlcyBmYXIgbG9uZ2VyIHRoYW4gb25lIG1pZ2h0
-IGhhdmUNCj4gPiB3aXNoZWQgZm9yLg0KPiA+DQo+ID4gU2luY2Ugc29tZSBYIHNlcnZlcnMgcmVx
-dWVzdCBhIGZsdXNoIGV2ZXJ5IGZldyBzZWNvbmRzIHRoaXMgbWFrZXMNCj4gPiB0aGUgc3lzdGVt
-IHVudXNhYmxlIGZvciBzb21lIHdvcmtsb2Fkcy4NCj4gDQo+IE9rIFRMQiBpbnZhbGlkYXRpb25z
-IGFzIGRpc2N1c3NlZCBpbiB0aGlzIHBhdGNoIGRvZXMgbm90IGFwcGx5IHRvDQo+IEl2eWJyaWRn
-ZS4gQnV0IHdoYXQgaXMgdGhlIHdyaXRlIGJhY2sgbG9vcCB5b3UgbWVudGlvbiB3aGljaCBpcyBj
-YXVzaW5nDQo+IHlvdSBncmllZj8gV2hhdCBzaXplIGZyYW1lIGJ1ZmZlcnMgYXJlIHdlIHRhbGtp
-bmcgYWJvdXQgaGVyZT8gSWYgdGhleQ0KPiBkb24ndCBmaXQgaW4gdGhlIG1hcHBhYmxlIGFyZWEg
-cmVjZW50bHkgd2UgbWVyZ2VkIGEgcGF0Y2gqIHdoaWNoDQo+IGltcHJvdmVzIHRoaW5ncyBpbiB0
-aGF0IHNpdHVhdGlvbiBidXQgbm90IHN1cmUgeW91IGFyZSBoaXR0aW5nIGV4YWN0bHkgdGhhdC4N
-Cg0KSSBmb3VuZCB0aGUgb2xkIGVtYWlsOg0KDQpXaGF0IEkndmUgZm91bmQgaXMgdGhhdCB0aGUg
-SW50ZWwgaTkxNSBncmFwaGljcyBkcml2ZXIgdXNlcyB0aGUgJ2V2ZW50c191bmJvdW5kJw0Ka2Vy
-bmVsIHdvcmtlciB0aHJlYWQgdG8gcGVyaW9kaWNhbGx5IGV4ZWN1dGUgZHJtX2NmbHVzaF9zZygp
-Lg0KKHNlZSBodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgvYmxvYi9tYXN0ZXIvZHJp
-dmVycy9ncHUvZHJtL2RybV9jYWNoZS5jKQ0KDQpJJ20gZ3Vlc3NpbmcgdGhpcyBpcyB0byBlbnN1
-cmUgdGhhdCBhbnkgd3JpdGVzIHRvIGdyYXBoaWNzIG1lbW9yeSBiZWNvbWUNCnZpc2libGUgaXMg
-YSBzZW1pLXRpbWVseSBtYW5uZXIuDQoNClRoaXMgbG9vcCB0YWtlcyBhYm91dCAxdXMgcGVyIGl0
-ZXJhdGlvbiBzcGxpdCBmYWlybHkgZXZlbmx5IGJldHdlZW4gd2hhdGV2ZXIgaXMgaW4NCmZvcl9l
-YWNoX3NnX3BhZ2UoKSBhbmQgZHJtX2NmbHVzaF9wYWdlKCkuDQpXaXRoIGEgMjU2MHgxNDQwIGRp
-c3BsYXkgdGhlIGxvb3AgY291bnQgaXMgMzYwMCAoNCBieXRlcy9waXhlbCkgYW5kIHRoZSB3aG9s
-ZQ0KZnVuY3Rpb24gdGFrZXMgYXJvdW5kIDMuM21zLg0KDQpJSVJDIHRoZSBmaXJzdCBmZXcgcGFn
-ZSBmbHVzaGVzIGFyZSBxdWljayAoSSBiZXQgdGhleSBnbyBpbnRvIGEgZmlmbykNCmFuZCB0aGVu
-IHRoZXkgYWxsIGdldCBzbG93Lg0KVGhlIGZsdXNoZXMgYXJlIGFjdHVhbGx5IHJlcXVlc3RlZCBm
-cm9tIHVzZXJzcGFjZS4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lk
-ZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0K
-UmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+Hi,
+these two patches are the backport for 5.15.y of the following commits:
+
+commit a96ef8b504efb2ad445dfb6d54f9488c3ddf23d2
+    bus: mhi: host: pci_generic: add Telit FN980 v1 hardware revisio
+
+commit 77fc41204734042861210b9d05338c9b8360affb
+    bus: mhi: host: pci_generic: add Telit FN990
+
+Backported because the orinal commits don't apply because of conflicts.
+
+Tested on version 5.15.55.
+
+Daniele Palmas (2):
+  bus: mhi: host: pci_generic: add Telit FN980 v1 hardware revision
+  bus: mhi: host: pci_generic: add Telit FN990
+
+ drivers/bus/mhi/pci_generic.c | 79 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+
+-- 
+2.37.1
 
