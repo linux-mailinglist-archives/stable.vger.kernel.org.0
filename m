@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3F4579F1A
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B48579F23
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243301AbiGSNKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:10:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56240 "EHLO
+        id S243219AbiGSNLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:11:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243747AbiGSNKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:10:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB088BE9C9;
-        Tue, 19 Jul 2022 05:29:02 -0700 (PDT)
+        with ESMTP id S243224AbiGSNK2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:10:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB8C65541;
+        Tue, 19 Jul 2022 05:29:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF1FDB81B36;
-        Tue, 19 Jul 2022 12:28:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C0DFC341E1;
-        Tue, 19 Jul 2022 12:28:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4F5FBCE1B7D;
+        Tue, 19 Jul 2022 12:28:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F985C341D1;
+        Tue, 19 Jul 2022 12:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233725;
-        bh=nQi9RB25GGm8P7PTykvb/Fc9tZW70hCSsCObgN3eCgg=;
+        s=korg; t=1658233728;
+        bh=6egDnfLx31jfxdqK3K+JaWDNB/se+vJa4Ry3gxod+sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oaapAl8ZySOcjGAYh1FY6tyqQndHp6clpZUhDlULqFnQB9w6WlE3rRyxG9WJsesp
-         kylmNqoFsHJNfSicJnx/3Xb3awh3eo5iffs4BGfCGJ+uOTMeC74Vx/3MaYVqAztLA1
-         J2jEZktc/EfkrQKbWa3W4Gc3ZD9hF8+CQZ3VClbI=
+        b=0fn3ByTBxrcyZe3cIXWLpu2riu9pOx3Suh+1EI06WJ5oz6ZHfDNN8xzmxXh9fJfL5
+         s/zsizzPu2gBGRQsvly4nq2CqwgtuPR4PENklwgQWy7FROV2Odb5yp/T4zZVsFuXqR
+         mCU0tW+1TiCBE8UHevtX0PeqFlgwjUk6oshxztg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 220/231] signal handling: dont use BUG_ON() for debugging
-Date:   Tue, 19 Jul 2022 13:55:05 +0200
-Message-Id: <20220719114732.255929029@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Ben Greening <bgreening@gmail.com>
+Subject: [PATCH 5.18 221/231] ACPI: video: Fix acpi_video_handles_brightness_key_presses()
+Date:   Tue, 19 Jul 2022 13:55:06 +0200
+Message-Id: <20220719114732.326909106@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -53,49 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a382f8fee42ca10c9bfce0d2352d4153f931f5dc ]
+[ Upstream commit 5ad26161a371e4aa2d2553286f0cac580987a493 ]
 
-These are indeed "should not happen" situations, but it turns out recent
-changes made the 'task_is_stopped_or_trace()' case trigger (fix for that
-exists, is pending more testing), and the BUG_ON() makes it
-unnecessarily hard to actually debug for no good reason.
+Commit 3a0cf7ab8df3 ("ACPI: video: Change how we determine if brightness
+key-presses are handled") made acpi_video_handles_brightness_key_presses()
+report false when none of the ACPI Video Devices support backlight control.
 
-It's been that way for a long time, but let's make it clear: BUG_ON() is
-not good for debugging, and should never be used in situations where you
-could just say "this shouldn't happen, but we can continue".
+But it turns out that at least on a Dell Inspiron N4010 there is no ACPI
+backlight control, yet brightness hotkeys are still reported through
+the ACPI Video Bus; and since acpi_video_handles_brightness_key_presses()
+now returns false, brightness keypresses are now reported twice.
 
-Use WARN_ON_ONCE() instead to make sure it gets logged, and then just
-continue running.  Instead of making the system basically unusuable
-because you crashed the machine while potentially holding some very core
-locks (eg this function is commonly called while holding 'tasklist_lock'
-for writing).
+To fix this rename the has_backlight flag to may_report_brightness_keys and
+also set it the first time a brightness key press event is received.
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Depending on the delivery of the other ACPI (WMI) event vs the ACPI Video
+Bus event this means that the first brightness key press might still get
+reported twice, but all further keypresses will be filtered as before.
+
+Note that this relies on other drivers reporting brightness key events
+calling acpi_video_handles_brightness_key_presses() when delivering
+the events (rather then once during driver probe). This is already
+required and documented in include/acpi/video.h:
+
+/*
+ * Note: The value returned by acpi_video_handles_brightness_key_presses()
+ * may change over time and should not be cached.
+ */
+
+Fixes: 3a0cf7ab8df3 ("ACPI: video: Change how we determine if brightness key-presses are handled")
+Link: https://lore.kernel.org/regressions/CALF=6jEe5G8+r1Wo0vvz4GjNQQhdkLT5p8uCHn6ZXhg4nsOWow@mail.gmail.com/
+Reported-and-tested-by: Ben Greening <bgreening@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20220713211101.85547-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/acpi_video.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2031,12 +2031,12 @@ bool do_notify_parent(struct task_struct
- 	bool autoreap = false;
- 	u64 utime, stime;
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -73,7 +73,7 @@ module_param(device_id_scheme, bool, 044
+ static int only_lcd = -1;
+ module_param(only_lcd, int, 0444);
  
--	BUG_ON(sig == -1);
-+	WARN_ON_ONCE(sig == -1);
+-static bool has_backlight;
++static bool may_report_brightness_keys;
+ static int register_count;
+ static DEFINE_MUTEX(register_count_mutex);
+ static DEFINE_MUTEX(video_list_lock);
+@@ -1224,7 +1224,7 @@ acpi_video_bus_get_one_device(struct acp
+ 	acpi_video_device_find_cap(data);
  
-- 	/* do_notify_parent_cldstop should have been called instead.  */
-- 	BUG_ON(task_is_stopped_or_traced(tsk));
-+	/* do_notify_parent_cldstop should have been called instead.  */
-+	WARN_ON_ONCE(task_is_stopped_or_traced(tsk));
+ 	if (data->cap._BCM && data->cap._BCL)
+-		has_backlight = true;
++		may_report_brightness_keys = true;
  
--	BUG_ON(!tsk->ptrace &&
-+	WARN_ON_ONCE(!tsk->ptrace &&
- 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
+ 	mutex_lock(&video->device_list_lock);
+ 	list_add_tail(&data->entry, &video->video_device_list);
+@@ -1693,6 +1693,9 @@ static void acpi_video_device_notify(acp
+ 		break;
+ 	}
  
- 	/* Wake up all pidfd waiters */
++	if (keycode)
++		may_report_brightness_keys = true;
++
+ 	acpi_notifier_call_chain(device, event, 0);
+ 
+ 	if (keycode && (report_key_events & REPORT_BRIGHTNESS_KEY_EVENTS)) {
+@@ -2254,7 +2257,7 @@ void acpi_video_unregister(void)
+ 	if (register_count) {
+ 		acpi_bus_unregister_driver(&acpi_video_bus);
+ 		register_count = 0;
+-		has_backlight = false;
++		may_report_brightness_keys = false;
+ 	}
+ 	mutex_unlock(&register_count_mutex);
+ }
+@@ -2276,7 +2279,7 @@ void acpi_video_unregister_backlight(voi
+ 
+ bool acpi_video_handles_brightness_key_presses(void)
+ {
+-	return has_backlight &&
++	return may_report_brightness_keys &&
+ 	       (report_key_events & REPORT_BRIGHTNESS_KEY_EVENTS);
+ }
+ EXPORT_SYMBOL(acpi_video_handles_brightness_key_presses);
 
 
