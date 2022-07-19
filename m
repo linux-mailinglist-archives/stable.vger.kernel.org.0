@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 595E9579F39
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:12:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35546579F42
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243276AbiGSNMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 09:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54918 "EHLO
+        id S237124AbiGSNMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243381AbiGSNLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:11:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E49F51A33;
-        Tue, 19 Jul 2022 05:29:19 -0700 (PDT)
+        with ESMTP id S243400AbiGSNLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:11:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27C7C67150;
+        Tue, 19 Jul 2022 05:29:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FC3760693;
-        Tue, 19 Jul 2022 12:29:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A4DC341C6;
-        Tue, 19 Jul 2022 12:29:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3D43B81B21;
+        Tue, 19 Jul 2022 12:29:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 433F8C341C6;
+        Tue, 19 Jul 2022 12:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233757;
-        bh=nEJuKUP5wKVEzPwcC7gagL5tqUtbfcGdK91R5O8E0zM=;
+        s=korg; t=1658233760;
+        bh=Fm0XoAuR/C5k+pGRAD6n+2LWPADIxJcnFfg1OhMEkMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tVAyJweBsPFWPTFYXhMrst3CxsF5HhKAb3B7OYtITChrG1KEQM7hrT3gA5Zuf8dD
-         Ph2ttowz5TWX6b+4GGKhX/cvcJQ8xHRZiEMiRlE/pg7JkKLxzUzla/kL29jhjHlHTA
-         AOBV+4mEK7PC5MHd28nn0Ho0jVpB93N8ho/U+VA8=
+        b=q5BY67Eme6ztho3/FDCXv0SS4R4raHi4uvQ4sdpASZ12A1Xj4jkQxdHNtwaCsSICO
+         qg4YnoaUB689/xjUsYOamI0tztOUBoSfHsSFl12gN7WL61bn4j/LmCR9P+LH85cxWH
+         d4IHw3yiC5M1fE68/V34ygt6rgA8nvigK4vGNwNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.18 230/231] serial: mvebu-uart: correctly report configured baudrate value
-Date:   Tue, 19 Jul 2022 13:55:15 +0200
-Message-Id: <20220719114732.969474264@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.18 231/231] x86/pat: Fix x86_has_pat_wp()
+Date:   Tue, 19 Jul 2022 13:55:16 +0200
+Message-Id: <20220719114733.038516713@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
 References: <20220719114714.247441733@linuxfoundation.org>
@@ -53,91 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 4f532c1e25319e42996ec18a1f473fd50c8e575d upstream.
+commit 230ec83d4299b30c51a1c133b4f2a669972cc08a upstream.
 
-Functions tty_termios_encode_baud_rate() and uart_update_timeout() should
-be called with the baudrate value which was set to hardware. Linux then
-report exact values via ioctl(TCGETS2) to userspace.
+x86_has_pat_wp() is using a wrong test, as it relies on the normal
+PAT configuration used by the kernel. In case the PAT MSR has been
+setup by another entity (e.g. Xen hypervisor) it might return false
+even if the PAT configuration is allowing WP mappings. This due to the
+fact that when running as Xen PV guest the PAT MSR is setup by the
+hypervisor and cannot be changed by the guest. This results in the WP
+related entry to be at a different position when running as Xen PV
+guest compared to the bare metal or fully virtualized case.
 
-Change mvebu_uart_baud_rate_set() function to return baudrate value which
-was set to hardware and propagate this value to above mentioned functions.
+The correct way to test for WP support is:
 
-With this change userspace would see precise value in termios c_ospeed
-field.
+1. Get the PTE protection bits needed to select WP mode by reading
+   __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP] (depending on the PAT MSR
+   setting this might return protection bits for a stronger mode, e.g.
+   UC-)
+2. Translate those bits back into the real cache mode selected by those
+   PTE bits by reading __pte2cachemode_tbl[__pte2cm_idx(prot)]
+3. Test for the cache mode to be _PAGE_CACHE_MODE_WP
 
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220628100922.10717-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f88a68facd9a ("x86/mm: Extend early_memremap() support with additional attrs")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org> # 4.14
+Link: https://lore.kernel.org/r/20220503132207.17234-1-jgross@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/mvebu-uart.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ arch/x86/mm/init.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -470,14 +470,14 @@ static void mvebu_uart_shutdown(struct u
- 	}
- }
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -77,10 +77,20 @@ static uint8_t __pte2cachemode_tbl[8] =
+ 	[__pte2cm_idx(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)] = _PAGE_CACHE_MODE_UC,
+ };
  
--static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
-+static unsigned int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
+-/* Check that the write-protect PAT entry is set for write-protect */
++/*
++ * Check that the write-protect PAT entry is set for write-protect.
++ * To do this without making assumptions how PAT has been set up (Xen has
++ * another layout than the kernel), translate the _PAGE_CACHE_MODE_WP cache
++ * mode via the __cachemode2pte_tbl[] into protection bits (those protection
++ * bits will select a cache mode of WP or better), and then translate the
++ * protection bits back into the cache mode using __pte2cm_idx() and the
++ * __pte2cachemode_tbl[] array. This will return the really used cache mode.
++ */
+ bool x86_has_pat_wp(void)
  {
- 	unsigned int d_divisor, m_divisor;
- 	unsigned long flags;
- 	u32 brdv, osamp;
- 
- 	if (!port->uartclk)
--		return -EOPNOTSUPP;
-+		return 0;
- 
- 	/*
- 	 * The baudrate is derived from the UART clock thanks to divisors:
-@@ -548,7 +548,7 @@ static int mvebu_uart_baud_rate_set(stru
- 			(m_divisor << 16) | (m_divisor << 24);
- 	writel(osamp, port->membase + UART_OSAMP);
- 
--	return 0;
-+	return DIV_ROUND_CLOSEST(port->uartclk, d_divisor * m_divisor);
+-	return __pte2cachemode_tbl[_PAGE_CACHE_MODE_WP] == _PAGE_CACHE_MODE_WP;
++	uint16_t prot = __cachemode2pte_tbl[_PAGE_CACHE_MODE_WP];
++
++	return __pte2cachemode_tbl[__pte2cm_idx(prot)] == _PAGE_CACHE_MODE_WP;
  }
  
- static void mvebu_uart_set_termios(struct uart_port *port,
-@@ -587,15 +587,11 @@ static void mvebu_uart_set_termios(struc
- 	max_baud = port->uartclk / 80;
- 
- 	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
--	if (mvebu_uart_baud_rate_set(port, baud)) {
--		/* No clock available, baudrate cannot be changed */
--		if (old)
--			baud = uart_get_baud_rate(port, old, NULL,
--						  min_baud, max_baud);
--	} else {
--		tty_termios_encode_baud_rate(termios, baud, baud);
--		uart_update_timeout(port, termios->c_cflag, baud);
--	}
-+	baud = mvebu_uart_baud_rate_set(port, baud);
-+
-+	/* In case baudrate cannot be changed, report previous old value */
-+	if (baud == 0 && old)
-+		baud = tty_termios_baud_rate(old);
- 
- 	/* Only the following flag changes are supported */
- 	if (old) {
-@@ -606,6 +602,11 @@ static void mvebu_uart_set_termios(struc
- 		termios->c_cflag |= CS8;
- 	}
- 
-+	if (baud != 0) {
-+		tty_termios_encode_baud_rate(termios, baud, baud);
-+		uart_update_timeout(port, termios->c_cflag, baud);
-+	}
-+
- 	spin_unlock_irqrestore(&port->lock, flags);
- }
- 
+ enum page_cache_mode pgprot2cachemode(pgprot_t pgprot)
 
 
