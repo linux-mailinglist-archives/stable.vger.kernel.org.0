@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BDD657992F
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9F15798E5
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 13:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237668AbiGSMAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:00:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
+        id S237480AbiGSL4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 07:56:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237674AbiGSL72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:59:28 -0400
+        with ESMTP id S237079AbiGSL4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 07:56:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C7B45077;
-        Tue, 19 Jul 2022 04:57:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02059422E1;
+        Tue, 19 Jul 2022 04:56:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59B28B81B29;
-        Tue, 19 Jul 2022 11:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5E1C341C6;
-        Tue, 19 Jul 2022 11:57:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF4AB81B29;
+        Tue, 19 Jul 2022 11:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC554C341C6;
+        Tue, 19 Jul 2022 11:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658231861;
-        bh=AEjRY8Z/6UqJYMXdaNDbjO4FfX6+wnbZE1T5tQK1gyA=;
+        s=korg; t=1658231757;
+        bh=BN3QKHWBFOVmDNAdkhEZg41UokDP2Y1qURVWKR6ME3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVaInKxZrPVujxP0sxxgzcYcEgMjnzNEKJQ21Ph6npkfhvjI3Jlj77aHPQUlOzN0+
-         6GgdnIRxk0C8tov+1EsVMkFCHe9O7T7VfBl2xzzwj5c2iAjtiQGic+kpGeo+Wl/8vO
-         O0ilPfiNuHZK5BlxyLpM/GDQdqdZ0A5rYI4TtHpQ=
+        b=dm3sV1KwyGeeOkVOe25kflfQ+dlXk3iO89o2nUt/snwxRn/T2h19ag+wYmgzBxDA8
+         5fpVFgkeURMKzkHkhYx/0+d/iNopm46njlupqkZXtkmaNir3Tva24VZ3U06e0I/y6Z
+         EB+UCi4WgQZZMDcdI6i/DN41NChxqJgOV625d4hY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Andrea Mayer <andrea.mayer@uniroma2.it>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/43] seg6: fix skb checksum evaluation in SRH encapsulation/insertion
-Date:   Tue, 19 Jul 2022 13:53:53 +0200
-Message-Id: <20220719114523.938172623@linuxfoundation.org>
+Subject: [PATCH 4.9 16/28] cpufreq: pmac32-cpufreq: Fix refcount leak bug
+Date:   Tue, 19 Jul 2022 13:53:54 +0200
+Message-Id: <20220719114457.778624491@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114521.868169025@linuxfoundation.org>
-References: <20220719114521.868169025@linuxfoundation.org>
+In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
+References: <20220719114455.701304968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Mayer <andrea.mayer@uniroma2.it>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit df8386d13ea280d55beee1b95f61a59234a3798b ]
+[ Upstream commit ccd7567d4b6cf187fdfa55f003a9e461ee629e36 ]
 
-Support for SRH encapsulation and insertion was introduced with
-commit 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and
-injection with lwtunnels"), through the seg6_do_srh_encap() and
-seg6_do_srh_inline() functions, respectively.
-The former encapsulates the packet in an outer IPv6 header along with
-the SRH, while the latter inserts the SRH between the IPv6 header and
-the payload. Then, the headers are initialized/updated according to the
-operating mode (i.e., encap/inline).
-Finally, the skb checksum is calculated to reflect the changes applied
-to the headers.
+In pmac_cpufreq_init_MacRISC3(), we need to add corresponding
+of_node_put() for the three node pointers whose refcount have
+been incremented by of_find_node_by_name().
 
-The IPv6 payload length ('payload_len') is not initialized
-within seg6_do_srh_{inline,encap}() but is deferred in seg6_do_srh(), i.e.
-the caller of seg6_do_srh_{inline,encap}().
-However, this operation invalidates the skb checksum, since the
-'payload_len' is updated only after the checksum is evaluated.
-
-To solve this issue, the initialization of the IPv6 payload length is
-moved from seg6_do_srh() directly into the seg6_do_srh_{inline,encap}()
-functions and before the skb checksum update takes place.
-
-Fixes: 6c8702c60b88 ("ipv6: sr: add support for SRH encapsulation and injection with lwtunnels")
-Reported-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/all/20220705190727.69d532417be7438b15404ee1@uniroma2.it
-Signed-off-by: Andrea Mayer <andrea.mayer@uniroma2.it>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/seg6_iptunnel.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/cpufreq/pmac32-cpufreq.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/ipv6/seg6_iptunnel.c b/net/ipv6/seg6_iptunnel.c
-index 1d641e21f23f..3f43a4688602 100644
---- a/net/ipv6/seg6_iptunnel.c
-+++ b/net/ipv6/seg6_iptunnel.c
-@@ -156,6 +156,8 @@ int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh, int proto)
- 	}
- #endif
+diff --git a/drivers/cpufreq/pmac32-cpufreq.c b/drivers/cpufreq/pmac32-cpufreq.c
+index 641f8021855a..62e86f7ca04a 100644
+--- a/drivers/cpufreq/pmac32-cpufreq.c
++++ b/drivers/cpufreq/pmac32-cpufreq.c
+@@ -473,6 +473,10 @@ static int pmac_cpufreq_init_MacRISC3(struct device_node *cpunode)
+ 	if (slew_done_gpio_np)
+ 		slew_done_gpio = read_gpio(slew_done_gpio_np);
  
-+	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
++	of_node_put(volt_gpio_np);
++	of_node_put(freq_gpio_np);
++	of_node_put(slew_done_gpio_np);
 +
- 	skb_postpush_rcsum(skb, hdr, tot_len);
- 
- 	return 0;
-@@ -208,6 +210,8 @@ int seg6_do_srh_inline(struct sk_buff *skb, struct ipv6_sr_hdr *osrh)
- 	}
- #endif
- 
-+	hdr->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
-+
- 	skb_postpush_rcsum(skb, hdr, sizeof(struct ipv6hdr) + hdrlen);
- 
- 	return 0;
-@@ -269,7 +273,6 @@ static int seg6_do_srh(struct sk_buff *skb)
- 		break;
- 	}
- 
--	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
- 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
- 
- 	return 0;
+ 	/* If we use the frequency GPIOs, calculate the min/max speeds based
+ 	 * on the bus frequencies
+ 	 */
 -- 
 2.35.1
 
