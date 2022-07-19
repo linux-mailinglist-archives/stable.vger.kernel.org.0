@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02575579D1D
-	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 14:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E75579EF4
+	for <lists+stable@lfdr.de>; Tue, 19 Jul 2022 15:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239429AbiGSMrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 08:47:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
+        id S243138AbiGSNIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 09:08:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241584AbiGSMqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 08:46:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7D78B4BA;
-        Tue, 19 Jul 2022 05:18:28 -0700 (PDT)
+        with ESMTP id S243126AbiGSNH5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 09:07:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F0C863CB;
+        Tue, 19 Jul 2022 05:27:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 990216183D;
-        Tue, 19 Jul 2022 12:18:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8F5C341C6;
-        Tue, 19 Jul 2022 12:18:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA8D7B81B29;
+        Tue, 19 Jul 2022 12:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26398C341C6;
+        Tue, 19 Jul 2022 12:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658233102;
-        bh=GfEQxJNjjHPalvfvVNCj9R5BmsifevUz1PfOtOY//7E=;
+        s=korg; t=1658233653;
+        bh=OuR2fE51Nw9KFMYwaWsMlNUb5eNbAno7VLPZUKUduTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDVrPObOmA3cgOCm0z7d60SFTQZsJY5Ie2qig7M7tcD6xtiI4XDzag7aj5i7fSsbl
-         ebSw08jQPmf4VanLoQplXR7Da8fSds+0a5X3l7RQehlMiHElS5/UVIW0jSYBv3eqBc
-         mmSz9Urd7gvFeww7pkTf+yWJQSjjGviHVnEy6lAQ=
+        b=FqTfZxofvrzCyy1Mv4xumjyyRTh+4APYr8QxtEiFWTwqJ9MP+Ml3l5LuDa4GTiMJ6
+         HKaWLT6Pi3VAR5iowlkF1fdq7ZoO/sENwYkzjrL85jF7V5978EYCx8fTUppDSGeUQI
+         ATms5e1kp6dVRS+vixRMDxdC1/o9Ye4mKwMAdCow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/167] x86: Clear .brk area at early boot
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 196/231] ASoC: wcd938x: Fix event generation for some controls
 Date:   Tue, 19 Jul 2022 13:54:41 +0200
-Message-Id: <20220719114710.861804071@linuxfoundation.org>
+Message-Id: <20220719114730.577806095@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-References: <20220719114656.750574879@linuxfoundation.org>
+In-Reply-To: <20220719114714.247441733@linuxfoundation.org>
+References: <20220719114714.247441733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 38fa5479b41376dc9d7f57e71c83514285a25ca0 ]
+[ Upstream commit 10e7ff0047921e32b919ecee7be706dd33c107f8 ]
 
-The .brk section has the same properties as .bss: it is an alloc-only
-section and should be cleared before being used.
+Currently wcd938x_*_put() unconditionally report that the value of the
+control changed, resulting in spurious events being generated. Return 0 in
+that case instead as we should. There is still an issue in the compander
+control which is a bit more complex.
 
-Not doing so is especially a problem for Xen PV guests, as the
-hypervisor will validate page tables (check for writable page tables
-and hypervisor private bits) before accepting them to be used.
-
-Make sure .brk is initially zero by letting clear_bss() clear the brk
-area, too.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220630071441.28576-3-jgross@suse.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20220603122526.3914942-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/head64.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/wcd938x.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index de01903c3735..5036104d5470 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -418,6 +418,8 @@ static void __init clear_bss(void)
- {
- 	memset(__bss_start, 0,
- 	       (unsigned long) __bss_stop - (unsigned long) __bss_start);
-+	memset(__brk_base, 0,
-+	       (unsigned long) __brk_limit - (unsigned long) __brk_base);
- }
+diff --git a/sound/soc/codecs/wcd938x.c b/sound/soc/codecs/wcd938x.c
+index 898b2887fa63..088cfda767cc 100644
+--- a/sound/soc/codecs/wcd938x.c
++++ b/sound/soc/codecs/wcd938x.c
+@@ -2519,6 +2519,9 @@ static int wcd938x_tx_mode_put(struct snd_kcontrol *kcontrol,
+ 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
+ 	int path = e->shift_l;
  
- static unsigned long get_cmd_line_ptr(void)
++	if (wcd938x->tx_mode[path] == ucontrol->value.enumerated.item[0])
++		return 0;
++
+ 	wcd938x->tx_mode[path] = ucontrol->value.enumerated.item[0];
+ 
+ 	return 1;
+@@ -2541,6 +2544,9 @@ static int wcd938x_rx_hph_mode_put(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+ 
++	if (wcd938x->hph_mode == ucontrol->value.enumerated.item[0])
++		return 0;
++
+ 	wcd938x->hph_mode = ucontrol->value.enumerated.item[0];
+ 
+ 	return 1;
+@@ -2632,6 +2638,9 @@ static int wcd938x_ldoh_put(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+ 
++	if (wcd938x->ldoh == ucontrol->value.integer.value[0])
++		return 0;
++
+ 	wcd938x->ldoh = ucontrol->value.integer.value[0];
+ 
+ 	return 1;
+@@ -2654,6 +2663,9 @@ static int wcd938x_bcs_put(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+ 
++	if (wcd938x->bcs_dis == ucontrol->value.integer.value[0])
++		return 0;
++
+ 	wcd938x->bcs_dis = ucontrol->value.integer.value[0];
+ 
+ 	return 1;
 -- 
 2.35.1
 
