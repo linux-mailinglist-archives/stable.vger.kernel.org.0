@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B279D57AC90
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 629B857AC7B
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241453AbiGTBVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:21:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
+        id S241493AbiGTBVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:21:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241461AbiGTBT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045876E8BA;
-        Tue, 19 Jul 2022 18:15:59 -0700 (PDT)
+        with ESMTP id S241362AbiGTBT5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:19:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32B7769F03;
+        Tue, 19 Jul 2022 18:16:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85DE4B81DE7;
-        Wed, 20 Jul 2022 01:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710C6C341C6;
-        Wed, 20 Jul 2022 01:15:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E940B617EC;
+        Wed, 20 Jul 2022 01:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEAA9C341C6;
+        Wed, 20 Jul 2022 01:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279755;
-        bh=126Ofm7CF9n4z2qKqJ/p9uGQH8wKFQ1e6LK6+Ln2y14=;
+        s=k20201202; t=1658279760;
+        bh=1U3MoXaHg97XVksfWF7PC+ecrd9t1aS1+YbqjhckeKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZfeFRqo27Jym2aEqanCTGoYB+a+uHDVn6zwiHWSATouesKp0p3IFy7bxottkuQ/A
-         fnZGvqUbgrMx+J4PEau7MxeATmDRA1kZh7sV2ed/mXudCedzCdzSYvTmBvWk6dhCvn
-         91XxZECvwTUHRKa6QW8V8LUMGrHCJz2QzLqfv6sIxoPsmL8C79ebnSKt8Yq+vSwv9s
-         uiHqnhra4GrlsTzfrPEQytlSwCwkMg/52dQNI84peKNFRyzMNb9uUgEdts1qs0zchR
-         k5lTg1y+eeSEJwK9SP0gien9w1rcsnmBf8chM93hF9JxTZ53db7GQv7FEDZPkXoJB3
-         GVpOMN7CyAwnQ==
+        b=U50hLjrW6bppgmzK3AAzW2sp96fqkK5rCfLsBfzQUA4dICJjdf0XzgnnT+lu/95Q7
+         FsSg9Kp2VLtzjKnmhAeB8GvDRCnbC6OuBlf4dDRC5BnwbXziDZ0avGz4bn48IqYcAB
+         g2CYN3h52sQ+6NDLsJprJVlC9TALK+SdU4jAYUoJ7hRqvXR5nSiBdv0n9p2G06QNxe
+         ZzwzMzeL/4EacNJLDD3BgBFCxrzqItiOS9LDrgIQBjr5JwXvsthw23ZB8NdR1PT8ED
+         VCvkpYJv/EAeR/uo28lS91Pv7lPcvGTTluf3S6F8rOHFNRnyFX1CwGjhsuKHw1Jzob
+         A+I02Th8Y69gA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 34/42] scsi: target: Fix WRITE_SAME No Data Buffer crash
-Date:   Tue, 19 Jul 2022 21:13:42 -0400
-Message-Id: <20220720011350.1024134-34-sashal@kernel.org>
+Cc:     Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Edward Tran <edward.tran@oracle.com>,
+        Awais Tanveer <awais.tanveer@oracle.com>,
+        Ankur Arora <ankur.a.arora@oracle.com>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, peterz@infradead.org,
+        jpoimboe@kernel.org, thomas.lendacky@amd.com
+Subject: [PATCH AUTOSEL 5.15 35/42] x86/kexec: Disable RET on kexec
+Date:   Tue, 19 Jul 2022 21:13:43 -0400
+Message-Id: <20220720011350.1024134-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -57,78 +61,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-[ Upstream commit ccd3f449052449a917a3e577d8ba0368f43b8f29 ]
+[ Upstream commit 697977d8415d61f3acbc4ee6d564c9dcf0309507 ]
 
-In newer version of the SBC specs, we have a NDOB bit that indicates there
-is no data buffer that gets written out. If this bit is set using commands
-like "sg_write_same --ndob" we will crash in target_core_iblock/file's
-execute_write_same handlers when we go to access the se_cmd->t_data_sg
-because its NULL.
+All the invocations unroll to __x86_return_thunk and this file
+must be PIC independent.
 
-This patch adds a check for the NDOB bit in the common WRITE SAME code
-because we don't support it. And, it adds a check for zero SG elements in
-each handler in case the initiator tries to send a normal WRITE SAME with
-no data buffer.
+This fixes kexec on 64-bit AMD boxes.
 
-Link: https://lore.kernel.org/r/20220628022325.14627-2-michael.christie@oracle.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  [ bp: Fix 32-bit build. ]
+
+Reported-by: Edward Tran <edward.tran@oracle.com>
+Reported-by: Awais Tanveer <awais.tanveer@oracle.com>
+Suggested-by: Ankur Arora <ankur.a.arora@oracle.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_file.c   | 3 +++
- drivers/target/target_core_iblock.c | 4 ++++
- drivers/target/target_core_sbc.c    | 6 ++++++
- 3 files changed, 13 insertions(+)
+ arch/x86/kernel/relocate_kernel_32.S | 25 +++++++++++++++++++------
+ arch/x86/kernel/relocate_kernel_64.S | 23 +++++++++++++++++------
+ 2 files changed, 36 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/target/target_core_file.c b/drivers/target/target_core_file.c
-index ef4a8e189fba..64138b32b5a2 100644
---- a/drivers/target/target_core_file.c
-+++ b/drivers/target/target_core_file.c
-@@ -447,6 +447,9 @@ fd_execute_write_same(struct se_cmd *cmd)
- 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- 	}
+diff --git a/arch/x86/kernel/relocate_kernel_32.S b/arch/x86/kernel/relocate_kernel_32.S
+index fcc8a7699103..c7c4b1917336 100644
+--- a/arch/x86/kernel/relocate_kernel_32.S
++++ b/arch/x86/kernel/relocate_kernel_32.S
+@@ -7,10 +7,12 @@
+ #include <linux/linkage.h>
+ #include <asm/page_types.h>
+ #include <asm/kexec.h>
++#include <asm/nospec-branch.h>
+ #include <asm/processor-flags.h>
  
-+	if (!cmd->t_data_nents)
-+		return TCM_INVALID_CDB_FIELD;
-+
- 	if (cmd->t_data_nents > 1 ||
- 	    cmd->t_data_sg[0].length != cmd->se_dev->dev_attrib.block_size) {
- 		pr_err("WRITE_SAME: Illegal SGL t_data_nents: %u length: %u"
-diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
-index 4069a1edcfa3..1555f6cf55a1 100644
---- a/drivers/target/target_core_iblock.c
-+++ b/drivers/target/target_core_iblock.c
-@@ -496,6 +496,10 @@ iblock_execute_write_same(struct se_cmd *cmd)
- 		       " backends not supported\n");
- 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- 	}
-+
-+	if (!cmd->t_data_nents)
-+		return TCM_INVALID_CDB_FIELD;
-+
- 	sg = &cmd->t_data_sg[0];
+ /*
+- * Must be relocatable PIC code callable as a C function
++ * Must be relocatable PIC code callable as a C function, in particular
++ * there must be a plain RET and not jump to return thunk.
+  */
  
- 	if (cmd->t_data_nents > 1 ||
-diff --git a/drivers/target/target_core_sbc.c b/drivers/target/target_core_sbc.c
-index ca1b2312d6e7..f6132836eb38 100644
---- a/drivers/target/target_core_sbc.c
-+++ b/drivers/target/target_core_sbc.c
-@@ -312,6 +312,12 @@ sbc_setup_write_same(struct se_cmd *cmd, unsigned char flags, struct sbc_ops *op
- 		pr_warn("WRITE SAME with ANCHOR not supported\n");
- 		return TCM_INVALID_CDB_FIELD;
- 	}
-+
-+	if (flags & 0x01) {
-+		pr_warn("WRITE SAME with NDOB not supported\n");
-+		return TCM_INVALID_CDB_FIELD;
-+	}
-+
- 	/*
- 	 * Special case for WRITE_SAME w/ UNMAP=1 that ends up getting
- 	 * translated into block discard requests within backend code.
+ #define PTR(x) (x << 2)
+@@ -91,7 +93,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
+ 	movl    %edi, %eax
+ 	addl    $(identity_mapped - relocate_kernel), %eax
+ 	pushl   %eax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(relocate_kernel)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+@@ -159,12 +163,15 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	xorl    %edx, %edx
+ 	xorl    %esi, %esi
+ 	xorl    %ebp, %ebp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ 1:
+ 	popl	%edx
+ 	movl	CP_PA_SWAP_PAGE(%edi), %esp
+ 	addl	$PAGE_SIZE, %esp
+ 2:
++	ANNOTATE_RETPOLINE_SAFE
+ 	call	*%edx
+ 
+ 	/* get the re-entry point of the peer system */
+@@ -190,7 +197,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	movl	%edi, %eax
+ 	addl	$(virtual_mapped - relocate_kernel), %eax
+ 	pushl	%eax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(identity_mapped)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+@@ -208,7 +217,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+ 	popl	%edi
+ 	popl	%esi
+ 	popl	%ebx
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(virtual_mapped)
+ 
+ 	/* Do the copies */
+@@ -271,7 +282,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+ 	popl	%edi
+ 	popl	%ebx
+ 	popl	%ebp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(swap_pages)
+ 
+ 	.globl kexec_control_code_size
+diff --git a/arch/x86/kernel/relocate_kernel_64.S b/arch/x86/kernel/relocate_kernel_64.S
+index 5019091af059..8a9cea950e39 100644
+--- a/arch/x86/kernel/relocate_kernel_64.S
++++ b/arch/x86/kernel/relocate_kernel_64.S
+@@ -13,7 +13,8 @@
+ #include <asm/unwind_hints.h>
+ 
+ /*
+- * Must be relocatable PIC code callable as a C function
++ * Must be relocatable PIC code callable as a C function, in particular
++ * there must be a plain RET and not jump to return thunk.
+  */
+ 
+ #define PTR(x) (x << 3)
+@@ -104,7 +105,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
+ 	/* jump to identity mapped page */
+ 	addq	$(identity_mapped - relocate_kernel), %r8
+ 	pushq	%r8
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(relocate_kernel)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+@@ -191,7 +194,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	xorl	%r14d, %r14d
+ 	xorl	%r15d, %r15d
+ 
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ 
+ 1:
+ 	popq	%rdx
+@@ -210,7 +215,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	call	swap_pages
+ 	movq	$virtual_mapped, %rax
+ 	pushq	%rax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(identity_mapped)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+@@ -231,7 +238,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+ 	popq	%r12
+ 	popq	%rbp
+ 	popq	%rbx
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(virtual_mapped)
+ 
+ 	/* Do the copies */
+@@ -288,7 +297,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+ 	lea	PAGE_SIZE(%rax), %rsi
+ 	jmp	0b
+ 3:
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(swap_pages)
+ 
+ 	.globl kexec_control_code_size
 -- 
 2.35.1
 
