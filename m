@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9BB57AC4B
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A940C57AC47
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241512AbiGTBT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:19:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45562 "EHLO
+        id S241618AbiGTBU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241787AbiGTBTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:19:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 894356D9FD;
-        Tue, 19 Jul 2022 18:15:52 -0700 (PDT)
+        with ESMTP id S241879AbiGTBTq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:19:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF9D6E2FE;
+        Tue, 19 Jul 2022 18:15:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 822AC6176B;
-        Wed, 20 Jul 2022 01:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8354BC341CA;
-        Wed, 20 Jul 2022 01:15:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4328EB81DD6;
+        Wed, 20 Jul 2022 01:15:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D32CAC341CA;
+        Wed, 20 Jul 2022 01:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279750;
-        bh=NV2ynk2YaJoTDPoyAUDPJqIw4qadRJfcBh0URspxv/k=;
+        s=k20201202; t=1658279753;
+        bh=4j684ydNnDY2FnLOno8VZSN1YwtwifMKEKDHjbqAIUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5p9sLX6/7bFYlFcSLKBQmv5bk9pjsotoEyfZ+Ya6q5VDF8EcQjWivRljWT/0PKHQ
-         8mAAVj0y9cmUf+bLRvFN/sFWdPbNpXFOjxNA3luobPZ3nYRvgXvYMbJvG+z1RIgE3w
-         K6Pzvor68lkjPODXoJ/uxL2A8KYElRZxr0bCD+1+idNx8YfmzZsCzN6lw3riBmkEqm
-         dCFzpj6MVaVs9dlSc70HXku07N3O+/g9/bETjq+EjTXZvZEe478IaLiKFDGZs/TXkM
-         UL/xYjZuX2JdoIG15zxoZNLgNhjL4ZjxgaZXZGZwLO08yWGHjaHJdYloMQEvMG+GpC
-         b46DicRhdUKHg==
+        b=Ait0Ohibllvcf9d9B/YR4t7DcFPnzXzgiEsKGNrXoqw82+JJmk8wVYo9fJZNqnhtu
+         i06ZTyHhgm+jqRQbjUz0yrKX9lA+JsSIObhkR8RBv/JCajH7fCvGE0QaPUbpcEVDrG
+         QsPp1+dlPf5Mfr/FxvzKRKyTh46rJW6eU5bfs34JmVE0+9ZjXTyNR1l0K10GzbJlqg
+         T7DjRWwAVwv5lLEqx8TNBmKmtWwpqAKjm64bFVLKM0DLIu9CEbQToAvR9DqYZoAFAs
+         kcanBceLVzWicOJ/PT6vJ/TovvfugSlL1CwBIpCpQi02xyqenSbriVhaht2gb2bgIL
+         ipMH/QZOxRs3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, james.schulman@cirrus.com,
-        david.rhodes@cirrus.com, tanureal@opensource.cirrus.com,
-        rf@opensource.cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org,
-        patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 5.15 32/42] ASoC: cs47l92: Fix event generation for OUT1 demux
-Date:   Tue, 19 Jul 2022 21:13:40 -0400
-Message-Id: <20220720011350.1024134-32-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 33/42] ASoC: arizona: Update arizona_aif_cfg_changed to use RX_BCLK_RATE
+Date:   Tue, 19 Jul 2022 21:13:41 -0400
+Message-Id: <20220720011350.1024134-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -61,42 +59,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 870d72ab9228575b2f005c9a23ea08787e0f63e6 ]
+[ Upstream commit f99e930655f411453170a5f332e12c2d2748822e ]
 
-cs47l92_put_demux returns the value of snd_soc_dapm_mux_update_power,
-which returns a 1 if a path was found for the kcontrol. This is
-obviously different to the expected return a 1 if the control
-was updated value. This results in spurious notifications to
-user-space. Update the handling to only return a 1 when the value is
-changed.
+Currently the function arizona_aif_cfg_changed uses the TX_BCLK_RATE,
+however this register is not used on wm8998. This was not noticed as
+previously snd_soc_component_read did not print an error message.
+However, now the log gets filled with error messages, further more the
+test for if the LRCLK changed will return spurious results.
+
+Update the code to use the RX_BCLK_RATE register, the LRCLK parameters
+are written to both registers and the RX_BCLK_RATE register is used
+across all Arizona devices.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220628153409.3266932-3-ckeepax@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20220628153409.3266932-4-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs47l92.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/codecs/arizona.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs47l92.c b/sound/soc/codecs/cs47l92.c
-index 1a0280416d92..ad6f41741372 100644
---- a/sound/soc/codecs/cs47l92.c
-+++ b/sound/soc/codecs/cs47l92.c
-@@ -119,7 +119,13 @@ static int cs47l92_put_demux(struct snd_kcontrol *kcontrol,
- end:
- 	snd_soc_dapm_mutex_unlock(dapm);
+diff --git a/sound/soc/codecs/arizona.c b/sound/soc/codecs/arizona.c
+index e32871b3f68a..7434aeeda292 100644
+--- a/sound/soc/codecs/arizona.c
++++ b/sound/soc/codecs/arizona.c
+@@ -1760,8 +1760,8 @@ static bool arizona_aif_cfg_changed(struct snd_soc_component *component,
+ 	if (bclk != (val & ARIZONA_AIF1_BCLK_FREQ_MASK))
+ 		return true;
  
--	return snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
-+	ret = snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
-+	if (ret < 0) {
-+		dev_err(madera->dev, "Failed to update demux power state: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return change;
- }
+-	val = snd_soc_component_read(component, base + ARIZONA_AIF_TX_BCLK_RATE);
+-	if (lrclk != (val & ARIZONA_AIF1TX_BCPF_MASK))
++	val = snd_soc_component_read(component, base + ARIZONA_AIF_RX_BCLK_RATE);
++	if (lrclk != (val & ARIZONA_AIF1RX_BCPF_MASK))
+ 		return true;
  
- static SOC_ENUM_SINGLE_DECL(cs47l92_outdemux_enum,
+ 	val = snd_soc_component_read(component, base + ARIZONA_AIF_FRAME_CTRL_1);
 -- 
 2.35.1
 
