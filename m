@@ -2,182 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 350A057B4B7
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 12:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7979457B4BF
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 12:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231364AbiGTKr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 06:47:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58612 "EHLO
+        id S232700AbiGTKuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 06:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232467AbiGTKr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 06:47:26 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2474666AF1
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 03:47:25 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id z23so32334884eju.8
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 03:47:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=G1h5HG2+vqxnIBWwGhwq1fT3aCH3eVF1Bq0cjh5HIgE=;
-        b=zm/Eu/bRB49zto7IXIpBzZc/wNdhHXkpCNptxd4i0dV/dMsEZjNM7TmXULN/B7Y6WK
-         hN+mw0lq7bHVE7ARXuJ3IxpV5zdVCgDecD15u1HD3vXpECAozUKutVQWmRCf7Novg0RM
-         4rRU8Ki+koHu6QySH4mDGV/WtDfZ3e4hobAARwbdEAdhLoYnNM7SbU1A3VMgH43oTSsw
-         oQhoXlfokv0W1Kr7aIVqv5Zo7Njh4QhlBGot0AkGqXtfyo2R+8LrQ5dbo1A3vnEwwcp6
-         llJKelauM/q4tHF3M0fbWd4GoiLGL4CVTn18Q8icFrfkao1iZm4JmtlLixnPUeXjIbfW
-         cBcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=G1h5HG2+vqxnIBWwGhwq1fT3aCH3eVF1Bq0cjh5HIgE=;
-        b=zitUQ0Wj3KC9Hrp1AgbHEoxQ827TPJsFN6j6dpGHgVvLCGrcwo1UfSd/X65DIpHDy+
-         3Amd2abmRXg2z8hvFzjic8tDm/K77bRHIhwqwFDHnphRvMiALt/FRqXiE2W+8Ai6bkoW
-         rdCCs0mJE2hnYRTq3Aco/aa/pa60ZYct4WwkDWPWeuthC4aM6ikB7IxzrruOhsuAS2VQ
-         DtAIyiTj8BOUG0/Wqqs4zaVAQl0didPBUaUo1icY4Sc/z/MVL5Bgn2QZvFAci/42lBkO
-         K6xYftEt2WzTr1kqTbvGD8DCTgSlkZ6LA8uYnjZgOyu5/UDOVDZYzjW74tXIaDoZzxRc
-         NB/A==
-X-Gm-Message-State: AJIora95ZFMrh4uFipDSD41QI2ue3Cc0vI95UDEjxokTyzLrESYggnJu
-        SYBt1MI30eLReqvT5JyLFACIgyDTSu16Yffban8lZQ==
-X-Google-Smtp-Source: AGRyM1vQOJ04dwFoJLdJJ7c7BF//QAtWpw78JGEBaGUDuYnD+imzVesCidpq2AJk33vGE5WOR9ZNWld7OnbgKKt+YmE=
-X-Received: by 2002:a17:907:7604:b0:72b:4ad5:b21c with SMTP id
- jx4-20020a170907760400b0072b4ad5b21cmr34040885ejc.412.1658314043586; Wed, 20
- Jul 2022 03:47:23 -0700 (PDT)
+        with ESMTP id S231944AbiGTKuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 06:50:18 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DCD51B783;
+        Wed, 20 Jul 2022 03:50:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1658314215; x=1689850215;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=eg1H8HXl4bo5sbqv6QtUBh6VCLBJoEPGZh2Ov9xgfkE=;
+  b=Snetx5rZhbN3ktjGfihdKgSB8m1fITtWDAAz4RLHHx1DzU0I1CpyEXEx
+   Bs8LU38X0y2xVTuKeXKCKTPbafJarg0pOzh+1wUUWDH2XupyWnNHtPTtF
+   7WgJogVp+QYdX10kLLHYmPXDKYdH5LnOEJteg5wXTtWjmrK7pd3DDRxxP
+   dRpbjmea0x94DRWotADA4CewrZAoaPnztKlXISnfuOQl28LTxUEFf0G2f
+   fz0hg+B6wqvVHMzWQ9Ow1RPadK3FE4gJ78u9/2qT0Ypi3Nk0hBoj1lSr8
+   Cpt6eIRMiHIjIMbucXqBa6zXAK2vA/WoTuG42xvNJVBwtQfvjdbndU/FR
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10413"; a="286753524"
+X-IronPort-AV: E=Sophos;i="5.92,286,1650956400"; 
+   d="scan'208";a="286753524"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2022 03:50:04 -0700
+X-IronPort-AV: E=Sophos;i="5.92,286,1650956400"; 
+   d="scan'208";a="630727631"
+Received: from spmccann-mobl.ger.corp.intel.com (HELO [10.213.200.99]) ([10.213.200.99])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2022 03:50:00 -0700
+Message-ID: <6b064764-6d4c-bbbb-f8b0-8a125a59a4a0@linux.intel.com>
+Date:   Wed, 20 Jul 2022 11:49:59 +0100
 MIME-Version: 1.0
-References: <20220719114455.701304968@linuxfoundation.org>
-In-Reply-To: <20220719114455.701304968@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 20 Jul 2022 16:17:12 +0530
-Message-ID: <CA+G9fYtvRzyk+7J51d9rLSJDc0Nq1uS6ehQEz=g=k1bhdhrqPw@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/28] 4.9.324-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [Intel-gfx] [PATCH v2 06/21] drm/i915/gt: Batch TLB invalidations
+Content-Language: en-US
+To:     Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Chris Wilson <chris.p.wilson@intel.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        intel-gfx@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-media@vger.kernel.org,
+        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+References: <cover.1657800199.git.mchehab@kernel.org>
+ <9f535a97f32320a213a619a30c961ba44b595453.1657800199.git.mchehab@kernel.org>
+ <605ab738-42df-c8fe-efb3-654d5792d3cc@linux.intel.com>
+ <20220720091304.14b5186b@maurocar-mobl2>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+In-Reply-To: <20220720091304.14b5186b@maurocar-mobl2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
+        NICE_REPLY_A,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 19 Jul 2022 at 17:25, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.324 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 21 Jul 2022 11:43:40 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.324-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On 20/07/2022 08:13, Mauro Carvalho Chehab wrote:
+> On Mon, 18 Jul 2022 14:52:05 +0100
+> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
+> 
+>>
+>> On 14/07/2022 13:06, Mauro Carvalho Chehab wrote:
+>>> From: Chris Wilson <chris.p.wilson@intel.com>
+>>>
+>>> Invalidate TLB in patch, in order to reduce performance regressions.
+>>
+>> "in batches"?
+> 
+> Yeah. Will fix it.
+> 
+>>> diff --git a/drivers/gpu/drm/i915/gt/intel_ppgtt.c b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+>>> index d8b94d638559..2da6c82a8bd2 100644
+>>> --- a/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+>>> +++ b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+>>> @@ -206,8 +206,12 @@ void ppgtt_bind_vma(struct i915_address_space *vm,
+>>>    void ppgtt_unbind_vma(struct i915_address_space *vm,
+>>>    		      struct i915_vma_resource *vma_res)
+>>>    {
+>>> -	if (vma_res->allocated)
+>>> -		vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+>>> +	if (!vma_res->allocated)
+>>> +		return;
+>>> +
+>>> +	vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+>>> +	if (vma_res->tlb)
+>>> +		vma_invalidate_tlb(vm, *vma_res->tlb);
+>>
+>> The patch is about more than batching? If there is a security hole in
+>> this area (unbind) with the current code?
+> 
+> No, I don't think there's a security hole. The rationale for this is
+> not due to it.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+In this case obvious question is why are these changes in the patch 
+which declares itself to be about batching invalidations? Because...
 
-## Build
-* kernel: 4.9.324-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.9.y
-* git commit: fc1589ab23915836383ec0460240b055fa41d304
-* git describe: v4.9.323-29-gfc1589ab2391
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
-23-29-gfc1589ab2391
+> Since commit 2f6b90da9192 ("drm/i915: Use vma resources for async unbinding"),
+> VMA unbind can happen either sync or async.
+> 
+> So, the logic needs to do TLB invalidate on two places. After this
+> patch, the code at __i915_vma_evict is:
+> 
+> 	struct dma_fence *__i915_vma_evict(struct i915_vma *vma, bool async)
+> 	{
+> ...
+> 		if (async)
+> 			unbind_fence = i915_vma_resource_unbind(vma_res,
+> 								&vma->obj->mm.tlb);
+> 		else
+> 			unbind_fence = i915_vma_resource_unbind(vma_res, NULL);
+> 
+> 		vma->resource = NULL;
+> 
+> 		atomic_and(~(I915_VMA_BIND_MASK | I915_VMA_ERROR | I915_VMA_GGTT_WRITE),
+> 			   &vma->flags);
+> 
+> 		i915_vma_detach(vma);
+> 
+> 		if (!async) {
+> 			if (unbind_fence) {
+> 				dma_fence_wait(unbind_fence, false);
+> 				dma_fence_put(unbind_fence);
+> 				unbind_fence = NULL;
+> 			}
+> 			vma_invalidate_tlb(vma->vm, vma->obj->mm.tlb);
+> 		}
+> ...
+> 
+> So, basically, if !async, __i915_vma_evict() will do TLB cache invalidation.
+> 
+> However, when async is used, the actual page release will happen later,
+> at this function:
+> 
+> 	void ppgtt_unbind_vma(struct i915_address_space *vm,
+> 			      struct i915_vma_resource *vma_res)
+> 	{
+> 		if (!vma_res->allocated)
+> 			return;
+> 
+> 		vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+> 		if (vma_res->tlb)
+> 			vma_invalidate_tlb(vm, *vma_res->tlb);
+> 	}
 
-## Test Regressions (compared to v4.9.323)
-No test regressions found.
+.. frankly I don't follow since I don't see any page release happening 
+in here. Just PTE clearing.
 
-## Metric Regressions (compared to v4.9.323)
-No metric regressions found.
+I am explaining why it looks to me that the patch is doing two things. 
+Implementing batching _and_ adding invalidation points at VMA unbind 
+sites, while so far we had it at backing store release only. Maybe I am 
+wrong and perhaps I am too slow to pick up on the explanation here.
 
-## Test Fixes (compared to v4.9.323)
-No test fixes found.
+So if the patch is doing two things please split it up.
 
-## Metric Fixes (compared to v4.9.323)
-No metric fixes found.
+I am further confused by the invalidation call site in evict and in 
+unbind - why there can't be one logical site since the logical sequence 
+is evict -> unbind.
 
-## Test result summary
-total: 99983, pass: 88018, fail: 339, skip: 10469, xfail: 1157
+Regards,
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 254 total, 249 passed, 5 failed
-* arm64: 50 total, 43 passed, 7 failed
-* i386: 26 total, 25 passed, 1 failed
-* mips: 30 total, 30 passed, 0 failed
-* parisc: 12 total, 0 passed, 12 failed
-* powerpc: 36 total, 16 passed, 20 failed
-* s390: 12 total, 9 passed, 3 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 45 total, 44 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Tvrtko
