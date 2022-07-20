@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A1A57AD2E
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BD157ACCC
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242085AbiGTB1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239828AbiGTB1K (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Jul 2022 21:27:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241484AbiGTB01 (ORCPT
+        with ESMTP id S242084AbiGTB01 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:26:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 747E4675BC;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FAD67587;
         Tue, 19 Jul 2022 18:18:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B89BB81DD5;
-        Wed, 20 Jul 2022 01:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 492A9C341CA;
-        Wed, 20 Jul 2022 01:18:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD1CD617B4;
+        Wed, 20 Jul 2022 01:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7871C385A9;
+        Wed, 20 Jul 2022 01:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279882;
-        bh=uu7vnYi8PJIY7zBawiIxqCRbREqySd+/W6278X2ObXw=;
+        s=k20201202; t=1658279884;
+        bh=7IZTApLTynglbD7aV1nvNHgpHlfeAnDxZGwzIB+MTSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KciV1cKqb3j+ixlGJOW4dqfnDs/U4vbdJJZf3waDTQBM0aEACJ6LS1wKv9ey/L2zN
-         wKGc8inOWuJJZ7BV//0BnwWkMC0AHcbCtYtkoJx5/PAzpIlVzbLVPFBsSfI9wn/AVH
-         0MT6aDt97bOtnAW1X51e8+X33JAXr+9U57J4GQ8qKZB5xNSgdzpInzS19L/PAk4kXk
-         HdFp07j/SJIwoEJ/qZseQlBEa0LS/DHflhmxLvQRM2Y1sVbswihsMUF89qTOkXLUEE
-         fVM5bMsA53iiAJdKOvOVf0FM8XmypZIVCzvOQ0cG/aIQa/yvtQ/o/wD51Ra6BQnpRy
-         g7KV9LI+mbKbA==
+        b=obvAygvF3OPRWA46JJydGQIHx4GscMo0JdEJUSdMFXoouhVI1Q2yRvi/BHvI7btg5
+         pH5NDKen1nf7fiPWS+kKTz92NQgwAVDGoJAdYDNs67yOMAltkoILqP9j5MEIUu0Qlm
+         N5ghAQsAGBRdOA+So3vHmpBBb65NqAn5Vxycb8rJa/dUGvFSd8gQEb9RUOPmjlUm5l
+         pA2QTXTpFEhsNgL8M9N+5h0whrc99VBGHC2a/MxS1YXG/Wsbcvmsp0PBgyDhDnd846
+         mrB5BOuHbfL3523293SilJzHfncbtAKdhDcWk9N4QWnXNkX7kECNtkbZK7ayePADwn
+         lLm787sYgRJ4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 11/16] ASoC: wm8998: Fix event generation for input mux
-Date:   Tue, 19 Jul 2022 21:17:25 -0400
-Message-Id: <20220720011730.1025099-11-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, rf@opensource.cirrus.com,
+        james.schulman@cirrus.com, david.rhodes@cirrus.com,
+        tanureal@opensource.cirrus.com, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org,
+        patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 5.4 12/16] ASoC: cs47l92: Fix event generation for OUT1 demux
+Date:   Tue, 19 Jul 2022 21:17:26 -0400
+Message-Id: <20220720011730.1025099-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011730.1025099-1-sashal@kernel.org>
 References: <20220720011730.1025099-1-sashal@kernel.org>
@@ -59,9 +61,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 15b2e5d10ccf32a1a1ae7c636511e2f51320fdb5 ]
+[ Upstream commit 870d72ab9228575b2f005c9a23ea08787e0f63e6 ]
 
-wm8998_inmux_put returns the value of snd_soc_dapm_mux_update_power,
+cs47l92_put_demux returns the value of snd_soc_dapm_mux_update_power,
 which returns a 1 if a path was found for the kcontrol. This is
 obviously different to the expected return a 1 if the control
 was updated value. This results in spurious notifications to
@@ -69,53 +71,32 @@ user-space. Update the handling to only return a 1 when the value is
 changed.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220628153409.3266932-2-ckeepax@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20220628153409.3266932-3-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8998.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ sound/soc/codecs/cs47l92.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
-index 817ccddd6344..55b08eae9604 100644
---- a/sound/soc/codecs/wm8998.c
-+++ b/sound/soc/codecs/wm8998.c
-@@ -108,6 +108,7 @@ static int wm8998_inmux_put(struct snd_kcontrol *kcontrol,
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	unsigned int mode_reg, mode_index;
- 	unsigned int mux, inmode, src_val, mode_val;
-+	int change, ret;
+diff --git a/sound/soc/codecs/cs47l92.c b/sound/soc/codecs/cs47l92.c
+index d50f75f3b3e4..cb7d02c3f11b 100644
+--- a/sound/soc/codecs/cs47l92.c
++++ b/sound/soc/codecs/cs47l92.c
+@@ -119,7 +119,13 @@ static int cs47l92_put_demux(struct snd_kcontrol *kcontrol,
+ end:
+ 	snd_soc_dapm_mutex_unlock(dapm);
  
- 	mux = ucontrol->value.enumerated.item[0];
- 	if (mux > 1)
-@@ -137,14 +138,20 @@ static int wm8998_inmux_put(struct snd_kcontrol *kcontrol,
- 	snd_soc_component_update_bits(component, mode_reg,
- 				      ARIZONA_IN1_MODE_MASK, mode_val);
- 
--	snd_soc_component_update_bits(component, e->reg,
--				      ARIZONA_IN1L_SRC_MASK |
--				      ARIZONA_IN1L_SRC_SE_MASK,
--				      src_val);
-+	change = snd_soc_component_update_bits(component, e->reg,
-+					       ARIZONA_IN1L_SRC_MASK |
-+					       ARIZONA_IN1L_SRC_SE_MASK,
-+					       src_val);
- 
--	return snd_soc_dapm_mux_update_power(dapm, kcontrol,
--					     ucontrol->value.enumerated.item[0],
--					     e, NULL);
-+	ret = snd_soc_dapm_mux_update_power(dapm, kcontrol,
-+					    ucontrol->value.enumerated.item[0],
-+					    e, NULL);
+-	return snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
++	ret = snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
 +	if (ret < 0) {
-+		dev_err(arizona->dev, "Failed to update demux power state: %d\n", ret);
++		dev_err(madera->dev, "Failed to update demux power state: %d\n", ret);
 +		return ret;
 +	}
 +
 +	return change;
  }
  
- static const char * const wm8998_inmux_texts[] = {
+ static SOC_ENUM_SINGLE_DECL(cs47l92_outdemux_enum,
 -- 
 2.35.1
 
