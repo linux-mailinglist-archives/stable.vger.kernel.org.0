@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA06857AC02
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC7557AC10
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239514AbiGTBQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:16:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
+        id S241052AbiGTBRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:17:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240232AbiGTBQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:16:02 -0400
+        with ESMTP id S241132AbiGTBQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:16:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CE666BB2;
-        Tue, 19 Jul 2022 18:13:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078F36714F;
+        Tue, 19 Jul 2022 18:13:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C937A61730;
-        Wed, 20 Jul 2022 01:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B2FC341CA;
-        Wed, 20 Jul 2022 01:13:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CDCE6172E;
+        Wed, 20 Jul 2022 01:13:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84AC5C341C6;
+        Wed, 20 Jul 2022 01:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279629;
-        bh=Egh1VQkfVR4hJgKeZ5W7DzXJ/JKfm5QXE9/VNfb2h8g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXqDN+8Ml6sK3TicEaLcu23QfIgsaBen0PZqbba2+SMWJXgT+KjcoueWrd1h2c9Q8
-         ezWyyhEthufd9rdhjsFXlhReHPYF43tqTGccnBRG1vYJporUjbpIoVci18iICq+dze
-         81+OD0FpfiX/NiR2HxAtEngylRByIoylZmqROrCTZAj/temzXo+eSeqHChcXE3qmt+
-         B1pH+I1v3nUyyEgZj39G4aDA9AyTz0aKG+Bwj1szD+6Y6UI22wxDyuEAWjKldm+FM5
-         HKHIPHQQ4A2dB4j57Ijln2xOobsSYfHbItcL7AfjkGTSzjkW8x1wyw6o9C22aEE9Or
-         X/f6Z1jW2l0bg==
+        s=k20201202; t=1658279633;
+        bh=HknqFPjSCc5JfdKYaORi1g6JqArL7Yr58MkFT15ATao=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rQmOLnM7/0LEzSTetJGYC2nSY8BIebFC/tKutCwSO4DsHLg8IuV6+VOcLObITHkpH
+         vTHtXwyuxAkszIz0EmZw0N4sGrKHM0hFztNs9qyrW1f4wi4dlFImxH96s8PdFh39Cq
+         iqIGmlD3n1c4FmaQ0BLmRudy1BnDEH3xYuBWrfW1sgfZK3x5dkVuuxUxK9b9umZA7E
+         iA/w4wLzLkSlA0JGYDssRi3z2va3q/rIQtCjsRw129D5l1Jmki6v8SRaGCfjJZv7pV
+         eATM9JI6h+vF20OdssunKGqNza9ryGnLxklKige4oT4kttu85aRtHRczoOqYSUj94/
+         2FRngC+cgCYGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, keescook@chromium.org,
-        akpm@linux-foundation.org, jpoimboe@kernel.org, elver@google.com,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.18 54/54] ubsan: disable UBSAN_DIV_ZERO for clang
-Date:   Tue, 19 Jul 2022 21:10:31 -0400
-Message-Id: <20220720011031.1023305-54-sashal@kernel.org>
+Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Guozihua <guozihua@huawei.com>, Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, dmitry.kasatkin@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/42] Revert "evm: Fix memleak in init_desc"
+Date:   Tue, 19 Jul 2022 21:13:09 -0400
+Message-Id: <20220720011350.1024134-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
-References: <20220720011031.1023305-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,53 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit e5d523f1ae8f2cef01f8e071aeee432654166708 ]
+[ Upstream commit 51dd64bb99e4478fc5280171acd8e1b529eadaf7 ]
 
-Building with UBSAN_DIV_ZERO with clang produces numerous fallthrough
-warnings from objtool.
+This reverts commit ccf11dbaa07b328fa469415c362d33459c140a37.
 
-In the case of uncheck division, UBSAN_DIV_ZERO may introduce new
-control flow to check for division by zero.
+Commit ccf11dbaa07b ("evm: Fix memleak in init_desc") said there is
+memleak in init_desc. That may be incorrect, as we can see, tmp_tfm is
+saved in one of the two global variables hmac_tfm or evm_tfm[hash_algo],
+then if init_desc is called next time, there is no need to alloc tfm
+again, so in the error path of kmalloc desc or crypto_shash_init(desc),
+It is not a problem without freeing tmp_tfm.
 
-Because the result of the division is undefined, LLVM may optimize the
-control flow such that after the call to __ubsan_handle_divrem_overflow
-doesn't matter.  If panic_on_warn was set,
-__ubsan_handle_divrem_overflow would panic.
+And also that commit did not reset the global variable to NULL after
+freeing tmp_tfm and this makes *tfm a dangling pointer which may cause a
+UAF issue.
 
-The problem is is that panic_on_warn is run time configurable.  If it's
-disabled, then we cannot guarantee that we will be able to recover
-safely.  Disable this config for clang until we can come up with a
-solution in LLVM.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1657
-Link: https://github.com/llvm/llvm-project/issues/56289
-Link: https://lore.kernel.org/lkml/CAHk-=wj1qhf7y3VNACEexyp5EbkNpdcu_542k-xZpzmYLOjiCg@mail.gmail.com/
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Guozihua (Scott) <guozihua@huawei.com>
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.ubsan | 3 +++
- 1 file changed, 3 insertions(+)
+ security/integrity/evm/evm_crypto.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/lib/Kconfig.ubsan b/lib/Kconfig.ubsan
-index f3c57ed51838..1846e5e70f0b 100644
---- a/lib/Kconfig.ubsan
-+++ b/lib/Kconfig.ubsan
-@@ -84,6 +84,9 @@ config UBSAN_SHIFT
- config UBSAN_DIV_ZERO
- 	bool "Perform checking for integer divide-by-zero"
- 	depends on $(cc-option,-fsanitize=integer-divide-by-zero)
-+	# https://github.com/ClangBuiltLinux/linux/issues/1657
-+	# https://github.com/llvm/llvm-project/issues/56289
-+	depends on !CC_IS_CLANG
- 	help
- 	  This option enables -fsanitize=integer-divide-by-zero which checks
- 	  for integer division by zero. This is effectively redundant with the
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 0450d79afdc8..b862f0f919bf 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -75,7 +75,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
+ {
+ 	long rc;
+ 	const char *algo;
+-	struct crypto_shash **tfm, *tmp_tfm = NULL;
++	struct crypto_shash **tfm, *tmp_tfm;
+ 	struct shash_desc *desc;
+ 
+ 	if (type == EVM_XATTR_HMAC) {
+@@ -120,16 +120,13 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
+ alloc:
+ 	desc = kmalloc(sizeof(*desc) + crypto_shash_descsize(*tfm),
+ 			GFP_KERNEL);
+-	if (!desc) {
+-		crypto_free_shash(tmp_tfm);
++	if (!desc)
+ 		return ERR_PTR(-ENOMEM);
+-	}
+ 
+ 	desc->tfm = *tfm;
+ 
+ 	rc = crypto_shash_init(desc);
+ 	if (rc) {
+-		crypto_free_shash(tmp_tfm);
+ 		kfree(desc);
+ 		return ERR_PTR(rc);
+ 	}
 -- 
 2.35.1
 
