@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 054FC57ABB5
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E238C57ABA7
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240841AbiGTBNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
+        id S240860AbiGTBNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240629AbiGTBNK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:13:10 -0400
+        with ESMTP id S240771AbiGTBNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:13:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3393965D67;
-        Tue, 19 Jul 2022 18:12:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01CDD66B9F;
+        Tue, 19 Jul 2022 18:12:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4DA6B81DE2;
-        Wed, 20 Jul 2022 01:12:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F0BC341C6;
-        Wed, 20 Jul 2022 01:12:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B27FCB81DE8;
+        Wed, 20 Jul 2022 01:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D73BC341CE;
+        Wed, 20 Jul 2022 01:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279540;
-        bh=se13wqNAU03fkusB034b6xASwBWff55lqW/hoGYd2K0=;
+        s=k20201202; t=1658279542;
+        bh=wuSGpDUo/9f9sjPcaCG+Z+ueiLLYwAIpjnKkdH1iGys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDkHxyizi2wjo7VeaiktZ9F4/H5R+EtJyJpf3OZonarB8LCuxq7TUAKLcYWH8bBJc
-         OKr2VNbXY5iMk1EZj+WxHiIGlf/ZaJYTMKsIJHvZsPp38BJTwkNYmdTRoT3LGt515T
-         EsIp55XnFPVSJvMDz11y0qNip2IWUJ4YeQAbtPCeOSH9q8jHxvsbM4KMaTjHMpf7JS
-         QzWbrR8sNFNBtT8Sbauy1zz1Jif6SC7D+VNpNsVdARlwNQLdkxidSJvS9whwyG/Giz
-         wh3pJoTI/NdYhUmSJUB8qN7aZVwM72RA8+y8C6ysW+22EfJ2Bxvgn2BNCk2hb0lqzi
-         c3YlsDqUfbqvw==
+        b=pgJosKZH+kszX3O/z123xb4Hm05hAcfV81bfmr/xsSZlfuAscOgtWup0tN9m8jI2u
+         dYxiAUHMkChC7SCnTYREHCRHguz9S6RIN0FqYCO6ajl+YJUE5UbUgAucaltxsRGVl+
+         ZG6IHR4Jd3ihtpzeAvu/sDwoKK5sjuD5vrfSoLkt3nuKPHHnBDkwLz8tprnLtiXVRh
+         8CdF9c2NbMHHQsAUaZ+JfD9wSr6I7CbjHvYc69HpJ9Svw3DVR10UjkEI6sjoL0n4JG
+         nV4k6oiZUS4auNPfvhtNmT8EO2DoVjBFfq1wRCyKFsGRMIleC/muFpu3Uc48585y5N
+         dgImxK35Cglnw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Josh Poimboeuf <jpoimboe@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        luto@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        pawan.kumar.gupta@linux.intel.com
-Subject: [PATCH AUTOSEL 5.18 24/54] x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n
-Date:   Tue, 19 Jul 2022 21:10:01 -0400
-Message-Id: <20220720011031.1023305-24-sashal@kernel.org>
+        seanjc@google.com, pbonzini@redhat.com, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 25/54] KVM: VMX: Flatten __vmx_vcpu_run()
+Date:   Tue, 19 Jul 2022 21:10:02 -0400
+Message-Id: <20220720011031.1023305-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -60,81 +60,196 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-[ Upstream commit b2620facef4889fefcbf2e87284f34dcd4189bce ]
+[ Upstream commit 8bd200d23ec42d66ccd517a72dd0b9cc6132d2fd ]
 
-If a kernel is built with CONFIG_RETPOLINE=n, but the user still wants
-to mitigate Spectre v2 using IBRS or eIBRS, the RSB filling will be
-silently disabled.
-
-There's nothing retpoline-specific about RSB buffer filling.  Remove the
-CONFIG_RETPOLINE guards around it.
+Move the vmx_vm{enter,exit}() functionality into __vmx_vcpu_run().  This
+will make it easier to do the spec_ctrl handling before the first RET.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/entry_32.S            | 2 --
- arch/x86/entry/entry_64.S            | 2 --
- arch/x86/include/asm/nospec-branch.h | 2 --
- 3 files changed, 6 deletions(-)
+ arch/x86/kvm/vmx/vmenter.S | 119 ++++++++++++++-----------------------
+ 1 file changed, 46 insertions(+), 73 deletions(-)
 
-diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-index 887420844066..e309e7156038 100644
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -698,7 +698,6 @@ SYM_CODE_START(__switch_to_asm)
- 	movl	%ebx, PER_CPU_VAR(__stack_chk_guard)
+diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+index 435c187927c4..c83163fb2e9c 100644
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -30,68 +30,6 @@
+ 
+ .section .noinstr.text, "ax"
+ 
+-/**
+- * vmx_vmenter - VM-Enter the current loaded VMCS
+- *
+- * %RFLAGS.ZF:	!VMCS.LAUNCHED, i.e. controls VMLAUNCH vs. VMRESUME
+- *
+- * Returns:
+- *	%RFLAGS.CF is set on VM-Fail Invalid
+- *	%RFLAGS.ZF is set on VM-Fail Valid
+- *	%RFLAGS.{CF,ZF} are cleared on VM-Success, i.e. VM-Exit
+- *
+- * Note that VMRESUME/VMLAUNCH fall-through and return directly if
+- * they VM-Fail, whereas a successful VM-Enter + VM-Exit will jump
+- * to vmx_vmexit.
+- */
+-SYM_FUNC_START_LOCAL(vmx_vmenter)
+-	/* EFLAGS.ZF is set if VMCS.LAUNCHED == 0 */
+-	je 2f
+-
+-1:	vmresume
+-	RET
+-
+-2:	vmlaunch
+-	RET
+-
+-3:	cmpb $0, kvm_rebooting
+-	je 4f
+-	RET
+-4:	ud2
+-
+-	_ASM_EXTABLE(1b, 3b)
+-	_ASM_EXTABLE(2b, 3b)
+-
+-SYM_FUNC_END(vmx_vmenter)
+-
+-/**
+- * vmx_vmexit - Handle a VMX VM-Exit
+- *
+- * Returns:
+- *	%RFLAGS.{CF,ZF} are cleared on VM-Success, i.e. VM-Exit
+- *
+- * This is vmx_vmenter's partner in crime.  On a VM-Exit, control will jump
+- * here after hardware loads the host's state, i.e. this is the destination
+- * referred to by VMCS.HOST_RIP.
+- */
+-SYM_FUNC_START(vmx_vmexit)
+-#ifdef CONFIG_RETPOLINE
+-	ALTERNATIVE "jmp .Lvmexit_skip_rsb", "", X86_FEATURE_RETPOLINE
+-	/* Preserve guest's RAX, it's used to stuff the RSB. */
+-	push %_ASM_AX
+-
+-	/* IMPORTANT: Stuff the RSB immediately after VM-Exit, before RET! */
+-	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
+-
+-	/* Clear RFLAGS.CF and RFLAGS.ZF to preserve VM-Exit, i.e. !VM-Fail. */
+-	or $1, %_ASM_AX
+-
+-	pop %_ASM_AX
+-.Lvmexit_skip_rsb:
+-#endif
+-	RET
+-SYM_FUNC_END(vmx_vmexit)
+-
+ /**
+  * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
+  * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
+@@ -124,8 +62,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	/* Copy @launched to BL, _ASM_ARG3 is volatile. */
+ 	mov %_ASM_ARG3B, %bl
+ 
+-	/* Adjust RSP to account for the CALL to vmx_vmenter(). */
+-	lea -WORD_SIZE(%_ASM_SP), %_ASM_ARG2
++	lea (%_ASM_SP), %_ASM_ARG2
+ 	call vmx_update_host_rsp
+ 
+ 	/* Load @regs to RAX. */
+@@ -154,11 +91,37 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	/* Load guest RAX.  This kills the @regs pointer! */
+ 	mov VCPU_RAX(%_ASM_AX), %_ASM_AX
+ 
+-	/* Enter guest mode */
+-	call vmx_vmenter
++	/* Check EFLAGS.ZF from 'testb' above */
++	je .Lvmlaunch
++
++	/*
++	 * After a successful VMRESUME/VMLAUNCH, control flow "magically"
++	 * resumes below at 'vmx_vmexit' due to the VMCS HOST_RIP setting.
++	 * So this isn't a typical function and objtool needs to be told to
++	 * save the unwind state here and restore it below.
++	 */
++	UNWIND_HINT_SAVE
++
++/*
++ * If VMRESUME/VMLAUNCH and corresponding vmexit succeed, execution resumes at
++ * the 'vmx_vmexit' label below.
++ */
++.Lvmresume:
++	vmresume
++	jmp .Lvmfail
++
++.Lvmlaunch:
++	vmlaunch
++	jmp .Lvmfail
++
++	_ASM_EXTABLE(.Lvmresume, .Lfixup)
++	_ASM_EXTABLE(.Lvmlaunch, .Lfixup)
+ 
+-	/* Jump on VM-Fail. */
+-	jbe 2f
++SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL)
++
++	/* Restore unwind state from before the VMRESUME/VMLAUNCH. */
++	UNWIND_HINT_RESTORE
++	ENDBR
+ 
+ 	/* Temporarily save guest's RAX. */
+ 	push %_ASM_AX
+@@ -185,9 +148,13 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	mov %r15, VCPU_R15(%_ASM_AX)
  #endif
  
--#ifdef CONFIG_RETPOLINE
++	/* IMPORTANT: RSB must be stuffed before the first return. */
++	FILL_RETURN_BUFFER %_ASM_BX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
++
+ 	/* Clear RAX to indicate VM-Exit (as opposed to VM-Fail). */
+ 	xor %eax, %eax
+ 
++.Lclear_regs:
  	/*
- 	 * When switching from a shallower to a deeper call stack
- 	 * the RSB may either underflow or use entries populated
-@@ -707,7 +706,6 @@ SYM_CODE_START(__switch_to_asm)
- 	 * speculative execution to prevent attack.
+ 	 * Clear all general purpose registers except RSP and RAX to prevent
+ 	 * speculative use of the guest's values, even those that are reloaded
+@@ -197,7 +164,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	 * free.  RSP and RAX are exempt as RSP is restored by hardware during
+ 	 * VM-Exit and RAX is explicitly loaded with 0 or 1 to return VM-Fail.
  	 */
- 	FILL_RETURN_BUFFER %ebx, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
--#endif
+-1:	xor %ecx, %ecx
++	xor %ecx, %ecx
+ 	xor %edx, %edx
+ 	xor %ebx, %ebx
+ 	xor %ebp, %ebp
+@@ -216,8 +183,8 @@ SYM_FUNC_START(__vmx_vcpu_run)
  
- 	/* Restore flags or the incoming task to restore AC state. */
- 	popfl
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index d8376e5fe1af..024367c81b7e 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -245,7 +245,6 @@ SYM_FUNC_START(__switch_to_asm)
- 	movq	%rbx, PER_CPU_VAR(fixed_percpu_data) + stack_canary_offset
- #endif
+ 	/* "POP" @regs. */
+ 	add $WORD_SIZE, %_ASM_SP
+-	pop %_ASM_BX
  
--#ifdef CONFIG_RETPOLINE
- 	/*
- 	 * When switching from a shallower to a deeper call stack
- 	 * the RSB may either underflow or use entries populated
-@@ -254,7 +253,6 @@ SYM_FUNC_START(__switch_to_asm)
- 	 * speculative execution to prevent attack.
- 	 */
- 	FILL_RETURN_BUFFER %r12, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
--#endif
++	pop %_ASM_BX
+ #ifdef CONFIG_X86_64
+ 	pop %r12
+ 	pop %r13
+@@ -230,9 +197,15 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	pop %_ASM_BP
+ 	RET
  
- 	/* restore callee-saved registers */
- 	popq	%r15
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index a790109f9337..257d24a67a81 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -111,11 +111,9 @@
-   * monstrosity above, manually.
-   */
- .macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
--#ifdef CONFIG_RETPOLINE
- 	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
- 	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
- .Lskip_rsb_\@:
--#endif
- .endm
+-	/* VM-Fail.  Out-of-line to avoid a taken Jcc after VM-Exit. */
+-2:	mov $1, %eax
+-	jmp 1b
++.Lfixup:
++	cmpb $0, kvm_rebooting
++	jne .Lvmfail
++	ud2
++.Lvmfail:
++	/* VM-Fail: set return value to 1 */
++	mov $1, %eax
++	jmp .Lclear_regs
++
+ SYM_FUNC_END(__vmx_vcpu_run)
  
- #else /* __ASSEMBLY__ */
+ 
 -- 
 2.35.1
 
