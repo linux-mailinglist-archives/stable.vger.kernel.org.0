@@ -2,55 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C2A57B449
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 12:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2FD57B466
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 12:20:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229379AbiGTKKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 06:10:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60550 "EHLO
+        id S231665AbiGTKUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 06:20:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231133AbiGTKKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 06:10:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD20BC2E;
-        Wed, 20 Jul 2022 03:10:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231325AbiGTKUt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 06:20:49 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB527DB9;
+        Wed, 20 Jul 2022 03:20:47 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 140CA61B94;
-        Wed, 20 Jul 2022 10:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6BB53C341C7;
-        Wed, 20 Jul 2022 10:10:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658311813;
-        bh=G5lcsN93lE1Lx2+6TicW+95uG/NcAeaab3JZC3ihO/8=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=BfhU6z0yYPnB7amQDZ/YrXuvjkp9QCfqExo1O3ctYBN2JLXNRc7bUQ8n0w5aRreV4
-         LBQcoCcZDdbccOeAjVlLJetTuDNptreo0doe0C62iCCVLv1zXTfJCBTahT4fTnzjNy
-         7Hrdc2vnfBrpkx5MUYjeiYXMp15AE+U7LBA9dkHVvagur2KFTPxyXb2YRIr24RA4De
-         1I1RucmzNhjAVknCw4PGtIYeLOf3QkKrfrGH0WP9RIhgSPq/0GV8TuicX9hmX3WZA8
-         k0ZA/xFvVEmZ7IquydBO+62RnCXKMyjGf5ybTjbpXoqCy0ux2djxngcfvgHkvRuhUd
-         bN57kj+qPu1Pw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 55A8ED9DDDD;
-        Wed, 20 Jul 2022 10:10:13 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 9EF632088D;
+        Wed, 20 Jul 2022 10:20:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1658312446; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0yRNLFALfo3JzdiLRUOet7Bysw0ehkydRnEvlaNcyKw=;
+        b=VrgDuenn+USESylfDRGe9sEEG2ADxGr5s+H8S4rAIeBwr2PWEL9K5F3DezqiuxXa+/kXD5
+        xY44XBmB2trNe18evZwBgMjdLIMKIVZ+s27M4pHw6IyHfCdXB1hMU4uHimNLyVXh830cp6
+        ZE9hZjtF1dGC6PTXCVhst89kzVrHOZo=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 678AF13AAD;
+        Wed, 20 Jul 2022 10:20:46 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id dz+MFv7W12LcJgAAMHmgww
+        (envelope-from <nborisov@suse.com>); Wed, 20 Jul 2022 10:20:46 +0000
+Message-ID: <6dd5918a-4d6b-f118-d233-56a865ac0683@suse.com>
+Date:   Wed, 20 Jul 2022 13:20:45 +0300
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2 1/3] btrfs: enhance unsupported compat RO flags
+ handling
+Content-Language: en-US
+To:     Qu Wenruo <wqu@suse.com>, linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <cover.1658293417.git.wqu@suse.com>
+ <937879049c71370b6a1ca192b67fbcf2989d5915.1658293417.git.wqu@suse.com>
+From:   Nikolay Borisov <nborisov@suse.com>
+In-Reply-To: <937879049c71370b6a1ca192b67fbcf2989d5915.1658293417.git.wqu@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] mlxsw: spectrum_router: Fix IPv4 nexthop gateway
- indication
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <165831181334.8290.14977545532597749218.git-patchwork-notify@kernel.org>
-Date:   Wed, 20 Jul 2022 10:10:13 +0000
-References: <20220719122626.2276880-1-idosch@nvidia.com>
-In-Reply-To: <20220719122626.2276880-1-idosch@nvidia.com>
-To:     Ido Schimmel <idosch@nvidia.com>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com, edumazet@google.com, petrm@nvidia.com,
-        amcohen@nvidia.com, nicolas.dichtel@6wind.com, dsahern@gmail.com,
-        mlxsw@nvidia.com, stable@vger.kernel.org
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,28 +64,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
 
-This patch was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
 
-On Tue, 19 Jul 2022 15:26:26 +0300 you wrote:
-> mlxsw needs to distinguish nexthops with a gateway from connected
-> nexthops in order to write the former to the adjacency table of the
-> device. The check used to rely on the fact that nexthops with a gateway
-> have a 'link' scope whereas connected nexthops have a 'host' scope. This
-> is no longer correct after commit 747c14307214 ("ip: fix dflt addr
-> selection for connected nexthop").
+On 20.07.22 г. 8:06 ч., Qu Wenruo wrote:
+> Currently there are two corner cases not handling compat RO flags
+> correctly:
 > 
-> [...]
+> - Remount
+>    We can still mount the fs RO with compat RO flags, then remount it RW.
+>    We should not allow any write into a fs with unsupported RO flags.
+> 
+> - Still try to search block group items
+>    In fact, behavior/on-disk format change to extent tree should not
+>    need a full incompat flag.
+> 
+>    And since we can ensure fs with unsupported RO flags never got any
+>    writes (with above case fixed), then we can even skip block group
+>    items search at mount time.
+> 
+> This patch will enhance the unsupported RO compat flags by:
+> 
+> - Reject RW remount if there is unsupported RO compat flags
+> 
+> - Go dummy block group items directly for unsupported RO compat flags
+>    In fact, only changes to chunk/subvolume/root/csum trees should go
+>    incompat flags.
+> 
+> The latter part should allow future change to extent tree to be compat
+> RO flags.
+> 
+> Thus this patch also needs to be backported to all stable trees.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Qu Wenruo <wqu@suse.com>
 
-Here is the summary with links:
-  - [net] mlxsw: spectrum_router: Fix IPv4 nexthop gateway indication
-    https://git.kernel.org/netdev/net/c/e5ec6a251338
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
