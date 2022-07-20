@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E01957AB65
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 121C557AB6D
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240434AbiGTBLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:11:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33244 "EHLO
+        id S240367AbiGTBLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239996AbiGTBLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB5965547;
-        Tue, 19 Jul 2022 18:10:59 -0700 (PDT)
+        with ESMTP id S240351AbiGTBLT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8586558C;
+        Tue, 19 Jul 2022 18:11:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C093BB81DE5;
-        Wed, 20 Jul 2022 01:10:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ADF1C341CA;
-        Wed, 20 Jul 2022 01:10:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA549B81DE2;
+        Wed, 20 Jul 2022 01:11:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B58C341C6;
+        Wed, 20 Jul 2022 01:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279456;
-        bh=U/20YFqLlMrRrkc22gSkRRPl4lFXe6nf5l7fumi5Vww=;
+        s=k20201202; t=1658279464;
+        bh=ZB3sLtJi2bq+5oVixTSj5XdWcn+LKdOBYFQ03ymCOwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfYT3JLYBQnrFZ4SKIaMUHE7Qg7r/BWGpmOE3a+5QmP43YxW/7HjC9LUNlZONvo0q
-         soqrIkVhmIkp3JMKBkU4i1YZeVkjor6yWzVHOsCxgg1odDJ3e6PFOK13AiDfVjXY4H
-         wmOwXShWuh4aDv/efodnHQUKnBlDnuM3vK2L/GnhWNAT15X5h5gcaKMPUuCIdGx1I5
-         ffwGjZG1b+EnwMuOEOmdDqQltupEihjp9Vy5u3ENm2bpixAS2PmR/CYYa+eXtWWCMn
-         4emss/gfTmmfYqHoQuNlJxghIQwN5xInxHHuSPO8SSvf6pJWVlD6MRlMIl27Rss5WV
-         vcU+8cuJJ6epQ==
+        b=oOMbGbjzdq5WLW4gnUg0w9x+MSsfuKLMKmRqjpsll96fK8jf3w/I2zu7M3tsFENsF
+         77NTe3+4543c5N7/mWmDlLeXj5mwadaq7CUsJYnOcvBKsCTvMKi//nQIkWBfrRfpdH
+         bSz7qG5yWPH711ChlGreYQIZ5XEOtCUvBNYgCsp6Yvn5dxC0GTiukMllg06ANGWHFC
+         b1ffPc4aLlMK94tVgDVulWsrkosmdfZNO2XTLGY1Xw3kFuQ6MGurW6HndcCTBABdkK
+         MEcHwy6fjcS8QjZwy4t6H7/XXppwdvH4oaOHFGiILeBr9Q9mt/JvIzQA0OXBLqAGL2
+         0eljjl13lsQxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, nathan@kernel.org,
-        pawan.kumar.gupta@linux.intel.com, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.18 07/54] x86/retpoline: Use -mfunction-return
-Date:   Tue, 19 Jul 2022 21:09:44 -0400
-Message-Id: <20220720011031.1023305-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, fenghua.yu@intel.com,
+        tony.luck@intel.com, joe.lawrence@redhat.com, elver@google.com,
+        mbenes@suse.cz, mpatocka@redhat.com
+Subject: [PATCH AUTOSEL 5.18 08/54] x86,objtool: Create .return_sites
+Date:   Tue, 19 Jul 2022 21:09:45 -0400
+Message-Id: <20220720011031.1023305-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -62,81 +60,206 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 0b53c374b9eff2255a386f1f1cfb9a928e52a5ae ]
+[ Upstream commit d9e9d2300681d68a775c28de6aa6e5290ae17796 ]
 
-Utilize -mfunction-return=thunk-extern when available to have the
-compiler replace RET instructions with direct JMPs to the symbol
-__x86_return_thunk. This does not affect assembler (.S) sources, only C
-sources.
-
--mfunction-return=thunk-extern has been available since gcc 7.3 and
-clang 15.
+Find all the return-thunk sites and record them in a .return_sites
+section such that the kernel can undo this.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile                    |  2 ++
- arch/x86/include/asm/nospec-branch.h |  2 ++
- arch/x86/lib/retpoline.S             | 13 +++++++++++++
- 3 files changed, 17 insertions(+)
+ tools/objtool/arch/x86/decode.c         |  5 ++
+ tools/objtool/check.c                   | 74 +++++++++++++++++++++++++
+ tools/objtool/include/objtool/arch.h    |  1 +
+ tools/objtool/include/objtool/elf.h     |  1 +
+ tools/objtool/include/objtool/objtool.h |  1 +
+ tools/objtool/objtool.c                 |  1 +
+ 6 files changed, 83 insertions(+)
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 63d50f65b828..ca3c0de24bc3 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -15,11 +15,13 @@ endif
- ifdef CONFIG_CC_IS_GCC
- RETPOLINE_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-extern -mindirect-branch-register)
- RETPOLINE_CFLAGS	+= $(call cc-option,-mindirect-branch-cs-prefix)
-+RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
- RETPOLINE_VDSO_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-inline -mindirect-branch-register)
- endif
- ifdef CONFIG_CC_IS_CLANG
- RETPOLINE_CFLAGS	:= -mretpoline-external-thunk
- RETPOLINE_VDSO_CFLAGS	:= -mretpoline
-+RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
- endif
- export RETPOLINE_CFLAGS
- export RETPOLINE_VDSO_CFLAGS
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 5728539a3e77..829c9f827a96 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -123,6 +123,8 @@
- typedef u8 retpoline_thunk_t[RETPOLINE_THUNK_SIZE];
- extern retpoline_thunk_t __x86_indirect_thunk_array[];
+diff --git a/tools/objtool/arch/x86/decode.c b/tools/objtool/arch/x86/decode.c
+index 943cb41cddf7..1ecf50bbd554 100644
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -787,3 +787,8 @@ bool arch_is_retpoline(struct symbol *sym)
+ {
+ 	return !strncmp(sym->name, "__x86_indirect_", 15);
+ }
++
++bool arch_is_rethunk(struct symbol *sym)
++{
++	return !strcmp(sym->name, "__x86_return_thunk");
++}
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index f66e4ac0af94..3b3bfe94537a 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -747,6 +747,52 @@ static int create_retpoline_sites_sections(struct objtool_file *file)
+ 	return 0;
+ }
  
-+extern void __x86_return_thunk(void);
++static int create_return_sites_sections(struct objtool_file *file)
++{
++	struct instruction *insn;
++	struct section *sec;
++	int idx;
 +
- #ifdef CONFIG_RETPOLINE
++	sec = find_section_by_name(file->elf, ".return_sites");
++	if (sec) {
++		WARN("file already has .return_sites, skipping");
++		return 0;
++	}
++
++	idx = 0;
++	list_for_each_entry(insn, &file->return_thunk_list, call_node)
++		idx++;
++
++	if (!idx)
++		return 0;
++
++	sec = elf_create_section(file->elf, ".return_sites", 0,
++				 sizeof(int), idx);
++	if (!sec) {
++		WARN("elf_create_section: .return_sites");
++		return -1;
++	}
++
++	idx = 0;
++	list_for_each_entry(insn, &file->return_thunk_list, call_node) {
++
++		int *site = (int *)sec->data->d_buf + idx;
++		*site = 0;
++
++		if (elf_add_reloc_to_insn(file->elf, sec,
++					  idx * sizeof(int),
++					  R_X86_64_PC32,
++					  insn->sec, insn->offset)) {
++			WARN("elf_add_reloc_to_insn: .return_sites");
++			return -1;
++		}
++
++		idx++;
++	}
++
++	return 0;
++}
++
+ static int create_ibt_endbr_seal_sections(struct objtool_file *file)
+ {
+ 	struct instruction *insn;
+@@ -1081,6 +1127,11 @@ __weak bool arch_is_retpoline(struct symbol *sym)
+ 	return false;
+ }
  
- #define GEN(reg) \
-diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
-index 2cdd62499d54..4467c21215f4 100644
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -67,3 +67,16 @@ SYM_CODE_END(__x86_indirect_thunk_array)
- #define GEN(reg) EXPORT_THUNK(reg)
- #include <asm/GEN-for-each-reg.h>
- #undef GEN
++__weak bool arch_is_rethunk(struct symbol *sym)
++{
++	return false;
++}
 +
-+/*
-+ * This function name is magical and is used by -mfunction-return=thunk-extern
-+ * for the compiler to generate JMPs to it.
-+ */
-+SYM_CODE_START(__x86_return_thunk)
-+	UNWIND_HINT_EMPTY
-+	ANNOTATE_NOENDBR
-+	ret
-+	int3
-+SYM_CODE_END(__x86_return_thunk)
+ #define NEGATIVE_RELOC	((void *)-1L)
+ 
+ static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *insn)
+@@ -1248,6 +1299,18 @@ static void add_retpoline_call(struct objtool_file *file, struct instruction *in
+ 	annotate_call_site(file, insn, false);
+ }
+ 
++static void add_return_call(struct objtool_file *file, struct instruction *insn)
++{
++	/*
++	 * Return thunk tail calls are really just returns in disguise,
++	 * so convert them accordingly.
++	 */
++	insn->type = INSN_RETURN;
++	insn->retpoline_safe = true;
 +
-+__EXPORT_THUNK(__x86_return_thunk)
++	list_add_tail(&insn->call_node, &file->return_thunk_list);
++}
++
+ static bool same_function(struct instruction *insn1, struct instruction *insn2)
+ {
+ 	return insn1->func->pfunc == insn2->func->pfunc;
+@@ -1300,6 +1363,9 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		} else if (reloc->sym->retpoline_thunk) {
+ 			add_retpoline_call(file, insn);
+ 			continue;
++		} else if (reloc->sym->return_thunk) {
++			add_return_call(file, insn);
++			continue;
+ 		} else if (insn->func) {
+ 			/*
+ 			 * External sibling call or internal sibling call with
+@@ -2182,6 +2248,9 @@ static int classify_symbols(struct objtool_file *file)
+ 			if (arch_is_retpoline(func))
+ 				func->retpoline_thunk = true;
+ 
++			if (arch_is_rethunk(func))
++				func->return_thunk = true;
++
+ 			if (!strcmp(func->name, "__fentry__"))
+ 				func->fentry = true;
+ 
+@@ -3935,6 +4004,11 @@ int check(struct objtool_file *file)
+ 		if (ret < 0)
+ 			goto out;
+ 		warnings += ret;
++
++		ret = create_return_sites_sections(file);
++		if (ret < 0)
++			goto out;
++		warnings += ret;
+ 	}
+ 
+ 	if (mcount) {
+diff --git a/tools/objtool/include/objtool/arch.h b/tools/objtool/include/objtool/arch.h
+index 9b19cc304195..beb2f3aa94ff 100644
+--- a/tools/objtool/include/objtool/arch.h
++++ b/tools/objtool/include/objtool/arch.h
+@@ -89,6 +89,7 @@ const char *arch_ret_insn(int len);
+ int arch_decode_hint_reg(u8 sp_reg, int *base);
+ 
+ bool arch_is_retpoline(struct symbol *sym);
++bool arch_is_rethunk(struct symbol *sym);
+ 
+ int arch_rewrite_retpolines(struct objtool_file *file);
+ 
+diff --git a/tools/objtool/include/objtool/elf.h b/tools/objtool/include/objtool/elf.h
+index 82e57eb4b4c5..94a618e2a79e 100644
+--- a/tools/objtool/include/objtool/elf.h
++++ b/tools/objtool/include/objtool/elf.h
+@@ -57,6 +57,7 @@ struct symbol {
+ 	u8 uaccess_safe      : 1;
+ 	u8 static_call_tramp : 1;
+ 	u8 retpoline_thunk   : 1;
++	u8 return_thunk      : 1;
+ 	u8 fentry            : 1;
+ 	u8 profiling_func    : 1;
+ 	struct list_head pv_target;
+diff --git a/tools/objtool/include/objtool/objtool.h b/tools/objtool/include/objtool/objtool.h
+index a6e72d916807..7f2d1b095333 100644
+--- a/tools/objtool/include/objtool/objtool.h
++++ b/tools/objtool/include/objtool/objtool.h
+@@ -24,6 +24,7 @@ struct objtool_file {
+ 	struct list_head insn_list;
+ 	DECLARE_HASHTABLE(insn_hash, 20);
+ 	struct list_head retpoline_call_list;
++	struct list_head return_thunk_list;
+ 	struct list_head static_call_list;
+ 	struct list_head mcount_loc_list;
+ 	struct list_head endbr_list;
+diff --git a/tools/objtool/objtool.c b/tools/objtool/objtool.c
+index 843ff3c2f28e..983687345d35 100644
+--- a/tools/objtool/objtool.c
++++ b/tools/objtool/objtool.c
+@@ -126,6 +126,7 @@ struct objtool_file *objtool_open_read(const char *_objname)
+ 	INIT_LIST_HEAD(&file.insn_list);
+ 	hash_init(file.insn_hash);
+ 	INIT_LIST_HEAD(&file.retpoline_call_list);
++	INIT_LIST_HEAD(&file.return_thunk_list);
+ 	INIT_LIST_HEAD(&file.static_call_list);
+ 	INIT_LIST_HEAD(&file.mcount_loc_list);
+ 	INIT_LIST_HEAD(&file.endbr_list);
 -- 
 2.35.1
 
