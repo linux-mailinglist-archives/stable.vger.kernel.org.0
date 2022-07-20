@@ -2,185 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC40F57B3A6
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 11:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B101B57B3F8
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 11:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229876AbiGTJUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 05:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49626 "EHLO
+        id S237573AbiGTJgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 05:36:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbiGTJUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 05:20:15 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0168658F
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 02:20:12 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id k30so22947131edk.8
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 02:20:12 -0700 (PDT)
+        with ESMTP id S232322AbiGTJgo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 05:36:44 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D87664C1
+        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 02:36:35 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id t3-20020a17090a3b4300b001f21eb7e8b0so917624pjf.1
+        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 02:36:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=O2r9z+0U5AsjCxNa2HdHqFngARMmBB8Z9POgFg+P13I=;
-        b=f0UOaGtGTCkFlY/00QapnpK8E7KfxUNb8JEWYsiqJn5COOj44+DiftxxaLUtzwoIcP
-         WFtA5Scp9Yu9gD36UID3q2l/k4jsn2GxwvwzQ/yrCLNsyGFqbjWrFeqn5BdRTP+TD/u1
-         d2UuQfXsiWXwDY060ny+aI/baI2ZXw5M245BylBQQ0TyhOGGRXEJZBNNG5Zm/FLxIGfq
-         7sgESxU8Z6tFO90H4asylV4rqjDyb6inxocGXubGs6GKN2EoyDj4UweYI4nAwQrRsp4v
-         8TOb9Yh+JXlV6JbBqXVJOe2qvihenas/Dw43GNVt/8McdH8fsUB4JkpLCQHEMIcyxNt3
-         WDPw==
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=oXKrqXNoQbGqXRKsJ331SBJ7YG/0WKRR7aaK+WgaUgE=;
+        b=joNrTJHxlVPnJRGb4f5KBM5NAjHQOSGvKdfYEBNnHb8bcv1/Cdl6rj5AtCz2mXeGsc
+         +zeKQDsw5+SGysz+Zn8WbGnYPEOF9wEd8xMZr60qGCNCFk7lUkxLi7bF7xKlvFVr6lam
+         3TXrUBnFuLI3eDmOUseVnQV+2f8rBmyqjlHAN1ZLBPXNqC0UPGcEyqSjDfQRad2lcj70
+         31HL/lKNDBycUOE5opjsi7vGRYVlh6XQHrM52h6Pnn0TGM9joWEB2HY/it4SzmjknpuI
+         xKjTJE8SF8n4ik1FteRU7FclP6t3uzinZkzJsc2YGJs1pqgMLWtGZ/U03nKtca6ZhOFm
+         SLQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=O2r9z+0U5AsjCxNa2HdHqFngARMmBB8Z9POgFg+P13I=;
-        b=Omqjd6XJlONE3sDnoen19rwdF/1oHJQiAMmgt6FcbzrgZBlZx1M1d+HI0iAgRWuQkp
-         nNWyggKz4ulPPXPsFSfCy9Gd3DPLbZpzSsJRGF3oX+/gqeF7Ca9ArBx5brLuL4Luw8HD
-         pYRlI0Nngxqu26mVmbvAUZtHW1KqkwFVKsWalwKfMkZ5L8Ihp4C4LoEpqmlV7ZT/iWxV
-         iAuYkxAEfsPJoXJTB15xKoa2KwZvCHJf4MWLmEdneyEQx/2h2BhUwQU0FMPBxqlWBR5z
-         sVXb4SRohZ5YBuh7hCNjyNOA8QST0oW2eluuMFRqJ/UxzYwv5Kg6LSLhzmXh2+GnPyQg
-         G/7A==
-X-Gm-Message-State: AJIora9M9JeOVuK1PM7Zc+9qLIumOLFbWRH4a/T2LhIdc5qpIJ6px8bc
-        sh2RpzfXvRLjgjPO6XZiX1r6Q/g9gCPCsYF73JcrOA==
-X-Google-Smtp-Source: AGRyM1uQ+Yzb+l1WvKL8FeRQbaeWtLAC03zjwV6uEYGBdb/fRWwzFsS/c5OxywP1OFCE1GYGRthalDiUnl40djHAkBk=
-X-Received: by 2002:aa7:d5d7:0:b0:43a:6eda:464a with SMTP id
- d23-20020aa7d5d7000000b0043a6eda464amr49724122eds.193.1658308811167; Wed, 20
- Jul 2022 02:20:11 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=oXKrqXNoQbGqXRKsJ331SBJ7YG/0WKRR7aaK+WgaUgE=;
+        b=t1SUoGXVYVklBkuOSqJPpriml8eYyU8aa/Qnn2yywSii5u1vG2iMX/YNzuCLw7VN5E
+         qKzk6q49h4XV4vXNAlXng8H5mtKynptnKerwrnjM/HyFSbzrmemxepc+PiGkzwHyt5tP
+         mjPOtm2s2P7USK/pyJ7ricRfMecdrv8kJ2VotSt/ed5T/Zc6LDxal2V5K7F4Ktz7pmig
+         nPs5bd+3R7munSWIlViIlFTgF2QGkJbOwZdEoiIEtXsQlxANTfiC9b0+nkkBvu1dIIRO
+         jZvhVPz/ffLZJw8ha4HOHClh+rL175q9NH1FGvXjrON2e8LR027fuz6zHFB+axUGOMqF
+         9EMw==
+X-Gm-Message-State: AJIora91LTvEPcjndvHPc3QC16dNeDPKgMRzk6xiA6nJH3wu0rAjhn6O
+        nWFz8N8buF3YBT9si45F+gVXFg==
+X-Google-Smtp-Source: AGRyM1vJd0HvTrmLBpXtrQNAYeXvkixWEGjOk8pk9/gZVY4S2kx0V2mdBKCX5F7RInlezFy6V4SvJg==
+X-Received: by 2002:a17:90b:3ec2:b0:1f0:3e9e:4f1d with SMTP id rm2-20020a17090b3ec200b001f03e9e4f1dmr4476777pjb.172.1658309794699;
+        Wed, 20 Jul 2022 02:36:34 -0700 (PDT)
+Received: from C02GD5ZHMD6R.bytedance.net ([61.120.150.77])
+        by smtp.gmail.com with ESMTPSA id w15-20020a63c10f000000b004114cc062f0sm11355811pgf.65.2022.07.20.02.36.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Jul 2022 02:36:34 -0700 (PDT)
+From:   Jinke Han <hanjinke.666@bytedance.com>
+X-Google-Original-From: Jinke Han <hnajinke.666@bytedance>
+To:     axboe@kernel.dk, tj@kernel.org
+Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        cgroups@vger.kernel.org, Jinke Han <hanjinke.666@bytedance.com>,
+        Muchun Song <songmuchun@bytedance.com>, stable@vger.kernel.org
+Subject: [PATCH v4] block: don't allow the same type rq_qos add more than once
+Date:   Wed, 20 Jul 2022 17:36:16 +0800
+Message-Id: <20220720093616.70584-1-hanjinke.666@bytedance.com>
+X-Mailer: git-send-email 2.32.0 (Apple Git-132)
+In-Reply-To: <20220719165313.51887-1-hanjinke.666@bytedance.com>
+References: <20220719165313.51887-1-hanjinke.666@bytedance.com>
 MIME-Version: 1.0
-References: <20220719114656.750574879@linuxfoundation.org>
-In-Reply-To: <20220719114656.750574879@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 20 Jul 2022 14:49:59 +0530
-Message-ID: <CA+G9fYt0YHSETSiPCFpsjR5U_z+UH+KZXAviXSdu2Ns8C=J0+A@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/167] 5.15.56-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 19 Jul 2022 at 17:41, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.15.56 release.
-> There are 167 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 21 Jul 2022 11:43:40 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.15.56-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Jinke Han <hanjinke.666@bytedance.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+In our test of iocost, we encountered some list add/del corruptions of
+inner_walk list in ioc_timer_fn.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The reason can be described as follow:
+cpu 0						cpu 1
+ioc_qos_write					ioc_qos_write
 
-## Build
-* kernel: 5.15.56-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.15.y
-* git commit: 91c6070d5cedab812864b5440077d94efc003953
-* git describe: v5.15.55-168-g91c6070d5ced
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
-.55-168-g91c6070d5ced
+ioc = q_to_ioc(bdev_get_queue(bdev));
+if (!ioc) {
+        ioc = kzalloc();			ioc = q_to_ioc(bdev_get_queue(bdev));
+						if (!ioc) {
+							ioc = kzalloc();
+							...
+							rq_qos_add(q, rqos);
+						}
+        ...
+        rq_qos_add(q, rqos);
+        ...
+}
 
-## Test Regressions (compared to v5.15.55)
-No test regressions found.
+When the io.cost.qos file is written by two cpus concurrently, rq_qos may
+be added to one disk twice. In that case, there will be two iocs enabled
+and running on one disk. They own different iocgs on their active list.
+In the ioc_timer_fn function, because of the iocgs from two iocs have the
+same root iocg, the root iocg's walk_list may be overwritten by each
+other and this leads to list add/del corruptions in building or destroying
+the inner_walk list.
 
-## Metric Regressions (compared to v5.15.55)
-No metric regressions found.
+And so far, the blk-rq-qos framework works in case that one instance for
+one type rq_qos per queue by default. This patch make this explicit and
+also fix the crash above.
 
-## Test Fixes (compared to v5.15.55)
-No test fixes found.
+Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+---
+Changes in v2
+-use goto pattern in iocost and rename the ebusy label
+Changes in v3
+-use goto in all places
+Changes in v4
+-correct some spell errors and resolve conflict with next kernel
 
-## Metric Fixes (compared to v5.15.55)
-No metric fixes found.
+ block/blk-iocost.c    | 20 +++++++++++++-------
+ block/blk-iolatency.c | 18 +++++++++++-------
+ block/blk-rq-qos.h    | 11 ++++++++++-
+ block/blk-wbt.c       | 12 +++++++++++-
+ 4 files changed, 45 insertions(+), 16 deletions(-)
 
-## Test result summary
-total: 139212, pass: 125349, fail: 352, skip: 12676, xfail: 835
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index b7082f2aed9c..7936e5f5821c 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -2886,15 +2886,21 @@ static int blk_iocost_init(struct request_queue *q)
+ 	 * called before policy activation completion, can't assume that the
+ 	 * target bio has an iocg associated and need to test for NULL iocg.
+ 	 */
+-	rq_qos_add(q, rqos);
++	ret = rq_qos_add(q, rqos);
++	if (ret)
++		goto err_free_ioc;
++
+ 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
+-	if (ret) {
+-		rq_qos_del(q, rqos);
+-		free_percpu(ioc->pcpu_stat);
+-		kfree(ioc);
+-		return ret;
+-	}
++	if (ret)
++		goto err_del_qos;
+ 	return 0;
++
++err_del_qos:
++	rq_qos_del(q, rqos);
++err_free_ioc:
++	free_percpu(ioc->pcpu_stat);
++	kfree(ioc);
++	return ret;
+ }
+ 
+ static struct blkcg_policy_data *ioc_cpd_alloc(gfp_t gfp)
+diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
+index 79745c6d8e15..e285152345a2 100644
+--- a/block/blk-iolatency.c
++++ b/block/blk-iolatency.c
+@@ -771,19 +771,23 @@ int blk_iolatency_init(struct request_queue *q)
+ 	rqos->ops = &blkcg_iolatency_ops;
+ 	rqos->q = q;
+ 
+-	rq_qos_add(q, rqos);
+-
++	ret = rq_qos_add(q, rqos);
++	if (ret)
++		goto err_free;
+ 	ret = blkcg_activate_policy(q, &blkcg_policy_iolatency);
+-	if (ret) {
+-		rq_qos_del(q, rqos);
+-		kfree(blkiolat);
+-		return ret;
+-	}
++	if (ret)
++		goto err_qos_del;
+ 
+ 	timer_setup(&blkiolat->timer, blkiolatency_timer_fn, 0);
+ 	INIT_WORK(&blkiolat->enable_work, blkiolatency_enable_work_fn);
+ 
+ 	return 0;
++
++err_qos_del:
++	rq_qos_del(q, rqos);
++err_free:
++	kfree(blkiolat);
++	return ret;
+ }
+ 
+ static void iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
+diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
+index 0e46052b018a..08b856570ad1 100644
+--- a/block/blk-rq-qos.h
++++ b/block/blk-rq-qos.h
+@@ -86,7 +86,7 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
+ 	init_waitqueue_head(&rq_wait->wait);
+ }
+ 
+-static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
++static inline int rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ {
+ 	/*
+ 	 * No IO can be in-flight when adding rqos, so freeze queue, which
+@@ -98,6 +98,8 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ 	blk_mq_freeze_queue(q);
+ 
+ 	spin_lock_irq(&q->queue_lock);
++	if (rq_qos_id(q, rqos->id))
++		goto ebusy;
+ 	rqos->next = q->rq_qos;
+ 	q->rq_qos = rqos;
+ 	spin_unlock_irq(&q->queue_lock);
+@@ -109,6 +111,13 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ 		blk_mq_debugfs_register_rqos(rqos);
+ 		mutex_unlock(&q->debugfs_mutex);
+ 	}
++
++	return 0;
++ebusy:
++	spin_unlock_irq(&q->queue_lock);
++	blk_mq_unfreeze_queue(q);
++	return -EBUSY;
++
+ }
+ 
+ static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index f2e4bf1dca47..a9982000b667 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -820,6 +820,7 @@ int wbt_init(struct request_queue *q)
+ {
+ 	struct rq_wb *rwb;
+ 	int i;
++	int ret;
+ 
+ 	rwb = kzalloc(sizeof(*rwb), GFP_KERNEL);
+ 	if (!rwb)
+@@ -846,7 +847,10 @@ int wbt_init(struct request_queue *q)
+ 	/*
+ 	 * Assign rwb and add the stats callback.
+ 	 */
+-	rq_qos_add(q, &rwb->rqos);
++	ret = rq_qos_add(q, &rwb->rqos);
++	if (ret)
++		goto err_free;
++
+ 	blk_stat_add_callback(q, rwb->cb);
+ 
+ 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
+@@ -855,4 +859,10 @@ int wbt_init(struct request_queue *q)
+ 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+ 
+ 	return 0;
++
++err_free:
++	blk_stat_free_callback(rwb->cb);
++	kfree(rwb);
++	return ret;
++
+ }
+-- 
+2.20.1
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 308 total, 308 passed, 0 failed
-* arm64: 62 total, 60 passed, 2 failed
-* i386: 52 total, 50 passed, 2 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 54 total, 54 passed, 0 failed
-* riscv: 22 total, 22 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 56 total, 54 passed, 2 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
