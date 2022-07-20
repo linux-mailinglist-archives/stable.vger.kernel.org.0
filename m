@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E790357ABED
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380E857ABFE
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240720AbiGTBQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:16:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
+        id S241098AbiGTBQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:16:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241075AbiGTBPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:15:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A528469F2D;
+        with ESMTP id S240729AbiGTBPq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:15:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A522069F2C;
         Tue, 19 Jul 2022 18:13:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94FAAB81DEA;
-        Wed, 20 Jul 2022 01:13:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C782CC341C6;
-        Wed, 20 Jul 2022 01:13:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3ADDCB81DEE;
+        Wed, 20 Jul 2022 01:13:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C69C36AEA;
+        Wed, 20 Jul 2022 01:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279621;
-        bh=hfXrYoJbZy3WFQVhswLlOQu9fJJYWOb3Bffj/Ux6OhU=;
+        s=k20201202; t=1658279622;
+        bh=C6tQ27qV4Qx+2IM8ABcYwxQD1nTvbJT0lYfXpBKnbvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npSDVP3/yIbq1ATdwxzSiyU7ay90Vg8/YnGMiQPl7Z6n7Bty25iw+9ic91ymcDFxG
-         Rabylkt9NoDcU2uqZ+S4RzuR0HYS9fGHuJwoiR0zLSN6hcve9B/TzWauO9SjUu0oK7
-         BOBiM//UGaIV1s0v5Lrv74dip208pcRqg/O4cftNWFovRnWVjzZ5tyDxyhioVB0xGR
-         cUNg4ZcVRwTHqyrIYw3/KDemND7t10pbOMPdFYFJiD/An86PnIzlCspFnhUag2s5uE
-         xalx5+pea9aGE8MEXBD5a+lgAWlvV6Q1xAvrt0oJ5aybwHGWhVOCc/3XHMSOTj6qn4
-         zTo4oyuD+1ADQ==
+        b=iUQSOhQp9ch/Kf+3khRr2kXpTI1qc/led9MR6U1cdTsU5uQ6upvxmV9DRMMjYOrdz
+         ZqvqqDjdItSaLaQsxxUIBlfz9A5oQ0bEp3xZXfMtAwwsh1ncedVSo8vrp1t8P5Z3Hu
+         oVUa8Rv+3BTGzec+1YbSPvlekd9fkWYLiZdZtsrQQZ9FBvV8a7ptcvWh5VeouDGgK5
+         JXUt2/jjRGjzCH3XJsp/r2oCJJN7px8kl933qodfjiNhGJmffwIQZDe2hxmIGTtdRG
+         aw1toZenoxdclJpEI5Oq1eyDLlg6llShA5SLAVYKkO38AK7zV/peg1us7WENMQ24dj
+         A1eocuy0MNT+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Po-Wen Kao <powen.kao@mediatek.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
+Cc:     Changyuan Lyu <changyuanl@google.com>,
+        Igor Pylypiv <ipylypiv@google.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        matthias.bgg@gmail.com, beanhuo@micron.com, avri.altman@wdc.com,
-        daejun7.park@samsung.com, adrian.hunter@intel.com,
-        linux-scsi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 50/54] scsi: ufs: core: Fix missing clk change notification on host reset
-Date:   Tue, 19 Jul 2022 21:10:27 -0400
-Message-Id: <20220720011031.1023305-50-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
+        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 51/54] scsi: pm80xx: Fix 'Unknown' max/min linkrate
+Date:   Tue, 19 Jul 2022 21:10:28 -0400
+Message-Id: <20220720011031.1023305-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -61,40 +58,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Wen Kao <powen.kao@mediatek.com>
+From: Changyuan Lyu <changyuanl@google.com>
 
-[ Upstream commit 52a518019ca187227b786f8b8ee20869a97f3af4 ]
+[ Upstream commit e78276cadb669d3e55cffe66bd166ff3c8572e38 ]
 
-In ufshcd_host_reset_and_restore(), ufshcd_set_clk_freq() is called to
-scale clock rate. However, this did not call vops->clk_scale_notify() to
-inform platform driver of clock change.
+Currently, the data flow of the max/min linkrate in the driver is
 
-Call ufshcd_scale_clks() instead so that clock change can be properly
-handled.
+ * in pm8001_get_lrate_mode():
+   hardcoded value ==> struct sas_phy
 
-Link: https://lore.kernel.org/r/20220711144224.17916-2-powen.kao@mediatek.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Po-Wen Kao <powen.kao@mediatek.com>
+ * in pm8001_bytes_dmaed():
+   struct pm8001_phy ==> struct sas_phy
+
+ * in pm8001_phy_control():
+   libsas data ==> struct pm8001_phy
+
+Since pm8001_bytes_dmaed() follows pm8001_get_lrate_mode(), and the fields
+in struct pm8001_phy are not initialized, sysfs
+`/sys/class/sas_phy/phy-*/maximum_linkrate` always shows `Unknown`.
+
+To fix the issue, change the dataflow to the following:
+
+ * in pm8001_phy_init():
+   initial value ==> struct pm8001_phy
+
+ * in pm8001_get_lrate_mode():
+   struct pm8001_phy ==> struct sas_phy
+
+ * in pm8001_phy_control():
+   libsas data ==> struct pm8001_phy
+
+For negotiated linkrate, the current dataflow is:
+
+ * in pm8001_get_lrate_mode():
+   iomb data ==> struct asd_sas_phy ==> struct sas_phy
+
+ * in pm8001_bytes_dmaed():
+   struct asd_sas_phy ==> struct sas_phy
+
+Since pm8001_bytes_dmaed() follows pm8001_get_lrate_mode(), the assignment
+statements in pm8001_bytes_dmaed() are unnecessary and cleaned up.
+
+Link: https://lore.kernel.org/r/20220707175210.528858-1-changyuanl@google.com
+Reviewed-by: Igor Pylypiv <ipylypiv@google.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Changyuan Lyu <changyuanl@google.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/pm8001/pm8001_hwi.c  | 19 +++----------------
+ drivers/scsi/pm8001/pm8001_init.c |  2 ++
+ 2 files changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 4c9eb4be449c..be7b03a90cb3 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -7235,7 +7235,7 @@ static int ufshcd_host_reset_and_restore(struct ufs_hba *hba)
- 	hba->silence_err_logs = false;
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index f7466a895d3b..991eb01bb1e0 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3145,15 +3145,6 @@ void pm8001_bytes_dmaed(struct pm8001_hba_info *pm8001_ha, int i)
+ 	if (!phy->phy_attached)
+ 		return;
  
- 	/* scale up clocks to max frequency before full reinitialization */
--	ufshcd_set_clk_freq(hba, true);
-+	ufshcd_scale_clks(hba, true);
+-	if (sas_phy->phy) {
+-		struct sas_phy *sphy = sas_phy->phy;
+-		sphy->negotiated_linkrate = sas_phy->linkrate;
+-		sphy->minimum_linkrate = phy->minimum_linkrate;
+-		sphy->minimum_linkrate_hw = SAS_LINK_RATE_1_5_GBPS;
+-		sphy->maximum_linkrate = phy->maximum_linkrate;
+-		sphy->maximum_linkrate_hw = phy->maximum_linkrate;
+-	}
+-
+ 	if (phy->phy_type & PORT_TYPE_SAS) {
+ 		struct sas_identify_frame *id;
+ 		id = (struct sas_identify_frame *)phy->frame_rcvd;
+@@ -3177,26 +3168,22 @@ void pm8001_get_lrate_mode(struct pm8001_phy *phy, u8 link_rate)
+ 	switch (link_rate) {
+ 	case PHY_SPEED_120:
+ 		phy->sas_phy.linkrate = SAS_LINK_RATE_12_0_GBPS;
+-		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_12_0_GBPS;
+ 		break;
+ 	case PHY_SPEED_60:
+ 		phy->sas_phy.linkrate = SAS_LINK_RATE_6_0_GBPS;
+-		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_6_0_GBPS;
+ 		break;
+ 	case PHY_SPEED_30:
+ 		phy->sas_phy.linkrate = SAS_LINK_RATE_3_0_GBPS;
+-		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_3_0_GBPS;
+ 		break;
+ 	case PHY_SPEED_15:
+ 		phy->sas_phy.linkrate = SAS_LINK_RATE_1_5_GBPS;
+-		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_1_5_GBPS;
+ 		break;
+ 	}
+ 	sas_phy->negotiated_linkrate = phy->sas_phy.linkrate;
+-	sas_phy->maximum_linkrate_hw = SAS_LINK_RATE_6_0_GBPS;
++	sas_phy->maximum_linkrate_hw = phy->maximum_linkrate;
+ 	sas_phy->minimum_linkrate_hw = SAS_LINK_RATE_1_5_GBPS;
+-	sas_phy->maximum_linkrate = SAS_LINK_RATE_6_0_GBPS;
+-	sas_phy->minimum_linkrate = SAS_LINK_RATE_1_5_GBPS;
++	sas_phy->maximum_linkrate = phy->maximum_linkrate;
++	sas_phy->minimum_linkrate = phy->minimum_linkrate;
+ }
  
- 	err = ufshcd_hba_enable(hba);
- 
+ /**
+diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
+index 9b04f1a6a67d..01f2f41928eb 100644
+--- a/drivers/scsi/pm8001/pm8001_init.c
++++ b/drivers/scsi/pm8001/pm8001_init.c
+@@ -143,6 +143,8 @@ static void pm8001_phy_init(struct pm8001_hba_info *pm8001_ha, int phy_id)
+ 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
+ 	phy->phy_state = PHY_LINK_DISABLE;
+ 	phy->pm8001_ha = pm8001_ha;
++	phy->minimum_linkrate = SAS_LINK_RATE_1_5_GBPS;
++	phy->maximum_linkrate = SAS_LINK_RATE_6_0_GBPS;
+ 	sas_phy->enabled = (phy_id < pm8001_ha->chip->n_phy) ? 1 : 0;
+ 	sas_phy->class = SAS;
+ 	sas_phy->iproto = SAS_PROTOCOL_ALL;
 -- 
 2.35.1
 
