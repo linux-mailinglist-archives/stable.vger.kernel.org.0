@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F05157ABD5
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501C257ABE6
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241269AbiGTBRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:17:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45814 "EHLO
+        id S241262AbiGTBRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:17:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241264AbiGTBRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:17:17 -0400
+        with ESMTP id S241274AbiGTBRS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:17:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8125F6B27C;
-        Tue, 19 Jul 2022 18:14:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D2965546;
+        Tue, 19 Jul 2022 18:14:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E1EC6176E;
-        Wed, 20 Jul 2022 01:14:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36ECDC341D0;
-        Wed, 20 Jul 2022 01:14:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41CA46176A;
+        Wed, 20 Jul 2022 01:14:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F35E2C341CA;
+        Wed, 20 Jul 2022 01:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279648;
-        bh=WXdrFZOXceROsZm8n4HSd8OiAlCYb1jd9+1Sqz04V6o=;
+        s=k20201202; t=1658279649;
+        bh=fjlWKDNRFQ32bHV3uG8bQ7pYj+M5ALfv21vd27AQdRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtXeSkJBl+eu8EruuleZ3sgkBr06/CRvmKu4cyZbq2ilW29Fg6JyIMsRZ3joIXsgV
-         ygizXJlwWPxajPoaRK48HlC5M2ObT0Jk4AB+Vp1G4X9ldu24ENZw5mpOMmufGEkjVd
-         bC2/UQ0VBDP+mcEmy9Gmja75txiaJc9bPXMU+am+2TkbJ8PsxwzGY+4FLim15hd+9X
-         x+hS5VYYR00ydCQ0u1a6Ak1SAw7Kgw9N5UwfqSOvv84gvMLePigp17pO3PhzeGWI+O
-         Tz42NjuaqUCYvO8i5/6CkMD2QKkqNgQh5tLIEqgCIdyXvOPITYVRItqWG56zHUpfbf
-         RUa2ciuccnWAw==
+        b=CpBUfG+TwXTd6DbDaX2s6gtUPgeeAsC1jHvHOhdObfERhVkMAW7e6EOts5BF+YrLf
+         x1qN6jygp4dOMtF5E0QAKppdS/fUQjQhYu5VfmUP0SzLzlvRqNWjrpf9nYDZLXYP1g
+         +e7KtnC/z0ptZYKv1Jh+WXdl83KF6tLyzK0X4731hSpyiQpL7XB6boixuJ4cboei9i
+         7TWv17EWFG5/NvcGCceg2OoBarJKMI3A/vhQ9sMAniP/aYxFB3AUpWiZdP5HqGxyjv
+         f6Alh07UsX98h7QuENPJWS1A54lIby3TqBz6zdChlB5vZr+YJRicsiFoeOQEUFxwF+
+         TtX777pJv1BnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kim Phillips <kim.phillips@amd.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, dave.hansen@linux.intel.com,
-        luto@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, x86@kernel.org
-Subject: [PATCH AUTOSEL 5.15 07/42] x86/sev: Avoid using __x86_return_thunk
-Date:   Tue, 19 Jul 2022 21:13:15 -0400
-Message-Id: <20220720011350.1024134-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 08/42] objtool: Treat .text.__x86.* as noinstr
+Date:   Tue, 19 Jul 2022 21:13:16 -0400
+Message-Id: <20220720011350.1024134-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -59,49 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 0ee9073000e8791f8b134a8ded31bcc767f7f232 ]
+[ Upstream commit 951ddecf435659553ed15a9214e153a3af43a9a1 ]
 
-Specifically, it's because __enc_copy() encrypts the kernel after
-being relocated outside the kernel in sme_encrypt_execute(), and the
-RET macro's jmp offset isn't amended prior to execution.
+Needed because zen_untrain_ret() will be called from noinstr code.
 
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Also makes sense since the thunks MUST NOT contain instrumentation nor
+be poked with dynamic instrumentation.
+
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/mem_encrypt_boot.S | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/objtool/check.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/mem_encrypt_boot.S b/arch/x86/mm/mem_encrypt_boot.S
-index 3d1dba05fce4..d94dea450fa6 100644
---- a/arch/x86/mm/mem_encrypt_boot.S
-+++ b/arch/x86/mm/mem_encrypt_boot.S
-@@ -65,7 +65,9 @@ SYM_FUNC_START(sme_encrypt_execute)
- 	movq	%rbp, %rsp		/* Restore original stack pointer */
- 	pop	%rbp
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 8b3435af989a..d87b493544e1 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -291,7 +291,8 @@ static int decode_instructions(struct objtool_file *file)
+ 			sec->text = true;
  
--	RET
-+	/* Offset to __x86_return_thunk would be wrong here */
-+	ret
-+	int3
- SYM_FUNC_END(sme_encrypt_execute)
+ 		if (!strcmp(sec->name, ".noinstr.text") ||
+-		    !strcmp(sec->name, ".entry.text"))
++		    !strcmp(sec->name, ".entry.text") ||
++		    !strncmp(sec->name, ".text.__x86.", 12))
+ 			sec->noinstr = true;
  
- SYM_FUNC_START(__enc_copy)
-@@ -151,6 +153,8 @@ SYM_FUNC_START(__enc_copy)
- 	pop	%r12
- 	pop	%r15
- 
--	RET
-+	/* Offset to __x86_return_thunk would be wrong here */
-+	ret
-+	int3
- .L__enc_copy_end:
- SYM_FUNC_END(__enc_copy)
+ 		for (offset = 0; offset < sec->sh.sh_size; offset += insn->len) {
 -- 
 2.35.1
 
