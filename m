@@ -2,97 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BFC157B6BA
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 14:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4189257B7FE
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 15:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbiGTMsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 08:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
+        id S229446AbiGTN56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 09:57:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235145AbiGTMsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 08:48:12 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC82E2A96B
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 05:48:11 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id x24-20020a17090ab01800b001f21556cf48so1939992pjq.4
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 05:48:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=gGzhbksNlmAjolVQXQdc9eTCDYUNBeJ75ClnIeGoBhQ=;
-        b=p4DVtuHsUlq3ow05vMOkgjy2v8TGkBw9yNnqN0k3Aez87VPlF/SrkPj5HMP+WMIMpa
-         1+LFW6tYsXVIOkCzmONzXA0EAFKIUfZBghG1PRzbdUdJgZdSfZM0lrAnItaIv60JDGgj
-         xJEQcJzCh/SPy5GP65S0ddQkj8BvR1BXbgNJCb0dW7q2UKWomROZPbtuHxe3H7k2Z4/L
-         XuGRDG4muhkTbtCGccalZ+DbKsgLVdEcN42mdmMOEJhkUVp+aEBPcGM/qXl2D9gOm0jq
-         ZHvp+oeLZ/yvVXWXqo2yIZyWXYZJ2yoJR5AKPD5C8fev28ydJjva7QdpjqDzOKSXCAAY
-         AjqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=gGzhbksNlmAjolVQXQdc9eTCDYUNBeJ75ClnIeGoBhQ=;
-        b=thlUIFX8Q1+YM/e4XUtRfMPib/QdybaifLwj2x1BDk+vLGpLI1JfXDMSM2JmZUvljw
-         TkX27+C/yZvXvHEOie4whVh8Ckhc5ingBo71kJrZ7kB168dOKgZWXBPy5VE/dddn88EY
-         JGd1+7A93gOJ5UAlXK0/Euya1h7K6OBulJRm8O1DV9wv90iQe/F/m7qQTNL3SuYcziAK
-         H/JHdgwru3oqwWqww8aPCMsVFSku9IZQLE5Xoze2AEKYtqTRt6e26WmtApKkX9uQqsjF
-         EdzOLEEZGaNsO9rVUKA3A9lcSgiJrACoXtVKmlhyU2lrHusfJGAB5sKBqCI4MytaG7qy
-         OjMw==
-X-Gm-Message-State: AJIora9H4mC78rH5VIsd6eHUCBUd22aBl1wtbWo31dMdgocNf+N+naMm
-        ii0lDQ3kJbiSmhuS2l0o257no4M4J+RZMg==
-X-Google-Smtp-Source: AGRyM1sWwt7u1rTQL3JPhU9/TDBVwmyvsCTLPJg5D9wKXKP4XmGv+Ftymq6kH5fEnfwVfjO7Yh9vkw==
-X-Received: by 2002:a17:902:eb8e:b0:16c:29dc:f1f3 with SMTP id q14-20020a170902eb8e00b0016c29dcf1f3mr38949744plg.22.1658321291126;
-        Wed, 20 Jul 2022 05:48:11 -0700 (PDT)
-Received: from [192.168.1.100] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id u14-20020a654c0e000000b0040d0a57be02sm11875401pgq.31.2022.07.20.05.48.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Jul 2022 05:48:10 -0700 (PDT)
-Message-ID: <17dba691-2a2b-4b20-40c3-ec77282179b0@kernel.dk>
-Date:   Wed, 20 Jul 2022 06:48:09 -0600
+        with ESMTP id S231520AbiGTN5w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 09:57:52 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09CC02E6AE;
+        Wed, 20 Jul 2022 06:57:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=/V/i02J0VSRwEin3lvenpGuASuy6JoHCfCbef3bNo8k=; b=AJbBnkbb3Kn1TkfXCR8F78pR67
+        dCBZGTOXmz1AK+Qv7hPVwD2CwqZlMbLWf1oNXN0QJYk2Kgztj5R9yWrnRMVK1DZxFMIOfuQb8z9CZ
+        nx+Sf9zSC/W6vpjR99ssCoPnJNmjSA87DIfBPGvNDdtPNV89hGB+YYbcVB8Ul8eZr3PM2VVRTCpyH
+        R2e+bixWFQJsN+9k2nP5n0aHLtngYIHvbFsBWeKdcxwdBQEiTX72kKq0szg+6OeXFvaJKklo1DWfW
+        8q0evvqxehyTCnafLMCvG2FWzjrqFvKxUm9x0UCInyef7HIFVnswl8K2kbwr03kZGUbRG8Wqn6xYS
+        /NtRKm/w==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=worktop.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oEACp-00EVuU-Ql; Wed, 20 Jul 2022 13:57:39 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 6DC13980BBE; Wed, 20 Jul 2022 15:57:37 +0200 (CEST)
+Date:   Wed, 20 Jul 2022 15:57:37 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     kan.liang@linux.intel.com
+Cc:     mingo@redhat.com, acme@kernel.org, vincent.weaver@maine.edu,
+        linux-kernel@vger.kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, pawan.kumar.gupta@linux.intel.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] perf/x86/intel/lbr: Fix unchecked MSR access error on HSW
+Message-ID: <YtgJ0SObKBvRozBi@worktop.programming.kicks-ass.net>
+References: <20220714182630.342107-1-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v5.10 1/1] io_uring: Use original task for req identity in
- io_identity_cow()
-Content-Language: en-US
-To:     Lee Jones <lee@kernel.org>
-Cc:     stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20220719115251.441526-1-lee@kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20220719115251.441526-1-lee@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: *
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220714182630.342107-1-kan.liang@linux.intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/19/22 5:52 AM, Lee Jones wrote:
-> This issue is conceptually identical to the one fixed in 29f077d07051
-> ("io_uring: always use original task when preparing req identity"), so
-> rather than reinvent the wheel, I'm shamelessly quoting the commit
-> message from that patch - thanks Jens:
+On Thu, Jul 14, 2022 at 11:26:30AM -0700, kan.liang@linux.intel.com wrote:
+> From: Kan Liang <kan.liang@linux.intel.com>
 > 
->  "If the ring is setup with IORING_SETUP_IOPOLL and we have more than
->   one task doing submissions on a ring, we can up in a situation where
->   we assign the context from the current task rather than the request
->   originator.
+> The fuzzer triggers the below trace.
 > 
->   Always use req->task rather than assume it's the same as current.
+> [ 7763.384369] unchecked MSR access error: WRMSR to 0x689
+> (tried to write 0x1fffffff8101349e) at rIP: 0xffffffff810704a4
+> (native_write_msr+0x4/0x20)
+> [ 7763.397420] Call Trace:
+> [ 7763.399881]  <TASK>
+> [ 7763.401994]  intel_pmu_lbr_restore+0x9a/0x1f0
+> [ 7763.406363]  intel_pmu_lbr_sched_task+0x91/0x1c0
+> [ 7763.410992]  __perf_event_task_sched_in+0x1cd/0x240
 > 
->   No upstream patch exists for this issue, as only older kernels with
->   the non-native workers have this problem."
+> On a machine with the LBR format LBR_FORMAT_EIP_FLAGS2, when the TSX is
+> disabled, a TSX quirk is required to access LBR from registers.
+> The lbr_from_signext_quirk_needed() is introduced to determine whether
+> the TSX quirk should be applied. However, the
+> lbr_from_signext_quirk_needed() is invoked before the
+> intel_pmu_lbr_init(), which parses the LBR format information. Without
+> the correct LBR format information, the TSX quirk never be applied.
+> 
+> Move the lbr_from_signext_quirk_needed() into the intel_pmu_lbr_init().
+> Checking x86_pmu.lbr_has_tsx in the lbr_from_signext_quirk_needed() is
+> not required anymore.
+> 
+> Both LBR_FORMAT_EIP_FLAGS2 and LBR_FORMAT_INFO have LBR_TSX flag, but
+> only the LBR_FORMAT_EIP_FLAGS2 requirs the quirk. Update the comments
+> accordingly.
+> 
+> Fixes: 1ac7fd8159a8 ("perf/x86/intel/lbr: Support LBR format V7")
+> Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 
-Greg, can you pick this one up for 5.10-stable? Thanks!
-
--- 
-Jens Axboe
-
+Thanks!
