@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B2957AC36
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C63557AC6D
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241296AbiGTBXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241398AbiGTBXO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Jul 2022 21:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45938 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241721AbiGTBTa (ORCPT
+        with ESMTP id S241720AbiGTBTa (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:19:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DFC6D9C0;
-        Tue, 19 Jul 2022 18:15:43 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41529691F8;
+        Tue, 19 Jul 2022 18:15:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A005B81DE2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A12C6172E;
+        Wed, 20 Jul 2022 01:15:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBCAC341CB;
         Wed, 20 Jul 2022 01:15:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86838C341CB;
-        Wed, 20 Jul 2022 01:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279739;
-        bh=JRE4eCEHL7qHZzSMJ0Aj8TxGJBqLd3iO3wdnG87vjeU=;
+        s=k20201202; t=1658279743;
+        bh=xwqQwlX7XMzhwZjDOpafQbywxNNxJ+MX2kfIncl+xMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y52Chdi5AYqO+xzUuIdDlOEuk84sRYJTymSXrQcWoCONzFbZobQ6DWFzLniwYcGTL
-         5/T5yOVYvjZU1/qmXmkaFcq/tgKwQypjzPFyCxtJgOTzJhj5ANh72BDNkAaKyt7CeK
-         t0Jn7xliRJQCHD2TGCSCl5JQHtmSBlU5EFuDNTVN/dEs0iRRDV9xCXOIvnYLmvaa7w
-         0lt0fhgGXAqesOQW/19lt8lfvp2j4yBOwT9vZu4h/n2RDp18N9Hey/FZ8a3QmqywWI
-         lEzZxuQc2LqpEmlcfCaQoWs//SaQYafrIW9xmN2VY3KKPNNuyTm+Muk7BuQ44mn/LK
-         t37GXl1FKwbfA==
+        b=TUR9jHxShY8vOiieYYR0r94nluEfsBmrd27wyj9TuqbGQfQauYgJffbkMIgo0HMZR
+         gX4wytS+npNk7PQtrcYiKfkyG/drty7so9pcYDDRmMe9tdth+Hmkj0nlD75iXQTzIs
+         6gBFxh04nm3dMP1fhRFVN+0v8fPMxeGdYw6DUTjXr6+IaVvN3b3OuXdEtKv64HVD3D
+         yTVv+8bsn6sxAWbTjW0a5Kq/L8KVHhlzNqPWQW4FzzkxSw//n7+J00HWWmzLU0jaze
+         OFyaRH4/Rizj13xpNe3v3xGKP5gqaBY7AND3ZcIYShY7YiP9LnVRSX9OZvpkm6xsQ7
+         ikkRgJ3VBOk9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Owens <daowens01@gmail.com>,
-        David Owens <dowens@precisionplanting.com>,
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, peter.ujfalusi@gmail.com,
-        jarkko.nikula@bitmer.com, lgirdwood@gmail.com, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 28/42] ASoC: ti: omap-mcbsp: duplicate sysfs error
-Date:   Tue, 19 Jul 2022 21:13:36 -0400
-Message-Id: <20220720011350.1024134-28-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, steve@sk2.org, zheyuma97@gmail.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 29/42] ASoC: tlv320adcx140: Fix tx_mask check
+Date:   Tue, 19 Jul 2022 21:13:37 -0400
+Message-Id: <20220720011350.1024134-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -59,124 +57,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Owens <daowens01@gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit f0d96937d31c4615a6418e4bed5cee50a952040e ]
+[ Upstream commit 7d90c8e6396ba245da16bedd789df6d669375408 ]
 
-Convert to managed versions of sysfs and clk allocation to simplify
-unbinding and error handling in probe.  Managed sysfs node
-creation specifically addresses the following error seen the second time
-probe is attempted after sdma_pcm_platform_register() previously requsted
-probe deferral:
+The tx_mask check doesn't reflect what the driver and the chip support.
 
-sysfs: cannot create duplicate filename '/devices/platform/68000000.ocp/49022000.mcbsp/max_tx_thres'
+The check currently checks for exactly two slots being enabled. The
+tlv320adcx140 supports anything between one and eight channels, so relax
+the check accordingly.
 
-Signed-off-by: David Owens <dowens@precisionplanting.com>
-Link: https://lore.kernel.org/r/20220620183744.3176557-1-dowens@precisionplanting.com
+The tlv320adcx140 supports arbitrary tx_mask settings, but the driver
+currently only supports adjacent slots beginning with the first slot,
+so extend the check to check that the first slot is being used and that
+there are no holes in the tx_mask.
+
+Leave a comment to make it's the driver that limits the tx_mask
+settings, not the chip itself.
+
+While at it remove the set-but-unused struct adcx140p_priv::tdm_delay
+field.
+
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20220624105716.2579539-1-s.hauer@pengutronix.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/omap-mcbsp-priv.h |  2 --
- sound/soc/ti/omap-mcbsp-st.c   | 14 ++------------
- sound/soc/ti/omap-mcbsp.c      | 19 ++-----------------
- 3 files changed, 4 insertions(+), 31 deletions(-)
+ sound/soc/codecs/tlv320adcx140.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/ti/omap-mcbsp-priv.h b/sound/soc/ti/omap-mcbsp-priv.h
-index 7865cda4bf0a..da519ea1f303 100644
---- a/sound/soc/ti/omap-mcbsp-priv.h
-+++ b/sound/soc/ti/omap-mcbsp-priv.h
-@@ -316,8 +316,6 @@ static inline int omap_mcbsp_read(struct omap_mcbsp *mcbsp, u16 reg,
+diff --git a/sound/soc/codecs/tlv320adcx140.c b/sound/soc/codecs/tlv320adcx140.c
+index 32b120d624b2..bf18fcfcaeb9 100644
+--- a/sound/soc/codecs/tlv320adcx140.c
++++ b/sound/soc/codecs/tlv320adcx140.c
+@@ -33,7 +33,6 @@ struct adcx140_priv {
+ 	bool micbias_vg;
  
- /* Sidetone specific API */
- int omap_mcbsp_st_init(struct platform_device *pdev);
--void omap_mcbsp_st_cleanup(struct platform_device *pdev);
--
- int omap_mcbsp_st_start(struct omap_mcbsp *mcbsp);
- int omap_mcbsp_st_stop(struct omap_mcbsp *mcbsp);
+ 	unsigned int dai_fmt;
+-	unsigned int tdm_delay;
+ 	unsigned int slot_width;
+ };
  
-diff --git a/sound/soc/ti/omap-mcbsp-st.c b/sound/soc/ti/omap-mcbsp-st.c
-index 0bc7d26c660a..7e8179cae92e 100644
---- a/sound/soc/ti/omap-mcbsp-st.c
-+++ b/sound/soc/ti/omap-mcbsp-st.c
-@@ -347,7 +347,7 @@ int omap_mcbsp_st_init(struct platform_device *pdev)
- 	if (!st_data)
- 		return -ENOMEM;
- 
--	st_data->mcbsp_iclk = clk_get(mcbsp->dev, "ick");
-+	st_data->mcbsp_iclk = devm_clk_get(mcbsp->dev, "ick");
- 	if (IS_ERR(st_data->mcbsp_iclk)) {
- 		dev_warn(mcbsp->dev,
- 			 "Failed to get ick, sidetone might be broken\n");
-@@ -359,7 +359,7 @@ int omap_mcbsp_st_init(struct platform_device *pdev)
- 	if (!st_data->io_base_st)
- 		return -ENOMEM;
- 
--	ret = sysfs_create_group(&mcbsp->dev->kobj, &sidetone_attr_group);
-+	ret = devm_device_add_group(mcbsp->dev, &sidetone_attr_group);
- 	if (ret)
- 		return ret;
- 
-@@ -368,16 +368,6 @@ int omap_mcbsp_st_init(struct platform_device *pdev)
- 	return 0;
- }
- 
--void omap_mcbsp_st_cleanup(struct platform_device *pdev)
--{
--	struct omap_mcbsp *mcbsp = platform_get_drvdata(pdev);
--
--	if (mcbsp->st_data) {
--		sysfs_remove_group(&mcbsp->dev->kobj, &sidetone_attr_group);
--		clk_put(mcbsp->st_data->mcbsp_iclk);
--	}
--}
--
- static int omap_mcbsp_st_info_volsw(struct snd_kcontrol *kcontrol,
- 				    struct snd_ctl_elem_info *uinfo)
+@@ -792,12 +791,13 @@ static int adcx140_set_dai_tdm_slot(struct snd_soc_dai *codec_dai,
  {
-diff --git a/sound/soc/ti/omap-mcbsp.c b/sound/soc/ti/omap-mcbsp.c
-index 4479d74f0a45..9933b33c80ca 100644
---- a/sound/soc/ti/omap-mcbsp.c
-+++ b/sound/soc/ti/omap-mcbsp.c
-@@ -702,8 +702,7 @@ static int omap_mcbsp_init(struct platform_device *pdev)
- 		mcbsp->max_tx_thres = max_thres(mcbsp) - 0x10;
- 		mcbsp->max_rx_thres = max_thres(mcbsp) - 0x10;
+ 	struct snd_soc_component *component = codec_dai->component;
+ 	struct adcx140_priv *adcx140 = snd_soc_component_get_drvdata(component);
+-	unsigned int lsb;
  
--		ret = sysfs_create_group(&mcbsp->dev->kobj,
--					 &additional_attr_group);
-+		ret = devm_device_add_group(mcbsp->dev, &additional_attr_group);
- 		if (ret) {
- 			dev_err(mcbsp->dev,
- 				"Unable to create additional controls\n");
-@@ -711,16 +710,7 @@ static int omap_mcbsp_init(struct platform_device *pdev)
- 		}
+-	/* TDM based on DSP mode requires slots to be adjacent */
+-	lsb = __ffs(tx_mask);
+-	if ((lsb + 1) != __fls(tx_mask)) {
+-		dev_err(component->dev, "Invalid mask, slots must be adjacent\n");
++	/*
++	 * The chip itself supports arbitrary masks, but the driver currently
++	 * only supports adjacent slots beginning at the first slot.
++	 */
++	if (tx_mask != GENMASK(__fls(tx_mask), 0)) {
++		dev_err(component->dev, "Only lower adjacent slots are supported\n");
+ 		return -EINVAL;
  	}
  
--	ret = omap_mcbsp_st_init(pdev);
--	if (ret)
--		goto err_st;
--
--	return 0;
--
--err_st:
--	if (mcbsp->pdata->buffer_size)
--		sysfs_remove_group(&mcbsp->dev->kobj, &additional_attr_group);
--	return ret;
-+	return omap_mcbsp_st_init(pdev);
- }
+@@ -812,7 +812,6 @@ static int adcx140_set_dai_tdm_slot(struct snd_soc_dai *codec_dai,
+ 		return -EINVAL;
+ 	}
  
- /*
-@@ -1431,11 +1421,6 @@ static int asoc_mcbsp_remove(struct platform_device *pdev)
- 	if (cpu_latency_qos_request_active(&mcbsp->pm_qos_req))
- 		cpu_latency_qos_remove_request(&mcbsp->pm_qos_req);
+-	adcx140->tdm_delay = lsb;
+ 	adcx140->slot_width = slot_width;
  
--	if (mcbsp->pdata->buffer_size)
--		sysfs_remove_group(&mcbsp->dev->kobj, &additional_attr_group);
--
--	omap_mcbsp_st_cleanup(pdev);
--
  	return 0;
- }
- 
 -- 
 2.35.1
 
