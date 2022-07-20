@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E8C57ACA2
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC1357ACA1
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235087AbiGTBYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58172 "EHLO
+        id S241837AbiGTBX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:23:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241691AbiGTBXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:23:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABC671BD3;
-        Tue, 19 Jul 2022 18:17:05 -0700 (PDT)
+        with ESMTP id S241509AbiGTBWy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:22:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16AF72BDF;
+        Tue, 19 Jul 2022 18:17:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFAF06176B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F412B61826;
+        Wed, 20 Jul 2022 01:17:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3413C385A5;
         Wed, 20 Jul 2022 01:17:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10FE5C341CF;
-        Wed, 20 Jul 2022 01:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279824;
-        bh=A5NFtvWb2evrSfDZEiMFR1HpaxU2coNuc1Yos5cA4Jk=;
+        s=k20201202; t=1658279825;
+        bh=VnAtwP2dbkUMJssyEpS6H6yb1MO4/KalN81L05cqzso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAxxzGSwbZix1oLHY+a5Zf/9p5ppL2bSMHGIe/FHY+E+QGgYjM9WqYT/JhnLffn5j
-         efd4vVcVnu1PMqoSDgBG/YUfs1VHMBCkk7uMVxwF7PZ+PrCIg4/EiMcut82Kdo2Z8E
-         rcxhjGrTz/fL8UJ9wLAmsbdp5aaPPI4EhVgTlj1L5Yu+c6bIp4NYNG9YyKsATBcLcC
-         zmocIMey00tlG58vRjEnEHLdFNNx+XPxoGGmb9UhXaoOTHLpqFtpSE9f9A5bKS6wQx
-         rXAm+MtT3e9eOAJekPsVLUheCLPR2KXMPJ2ZNhZZu0zno4YiLtlr4fcNuFM6J7MbQD
-         umV3dchY0Mt0A==
+        b=u2ocMwPWOXEVOY9xOORFE+24wSYPZrIFqr2YcW6sA4BiFSNGCko7XrEm1UN7/57U+
+         rEPCgYGWtracV98VPLs5ei63QgS656tPRvcoLbk/nGwr6EpuGmgrWjwAh60QR65dqW
+         vkYKJkqEJID8Zig3ZqQ6AgOFW/uE2cRBPgUnEA5dEFUlLGw5YFcz4+NJPBRPizKTvr
+         Y5DKQk3EQzKGGXChldacFU7sQA9hv6JVYTujmxQY1/juYhBxa/KQ7ibZRGUNM04VQ4
+         d0OqqCGiUSc1tXWp3mIrMyOg1PySZou65lqbBtjB0Bu1MGD0LcsO6J2LhNCsRUi3o2
+         heunrb2wzVifw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 13/25] drm: panel-orientation-quirks: Add quirk for the Lenovo Yoga Tablet 2 830
-Date:   Tue, 19 Jul 2022 21:16:04 -0400
-Message-Id: <20220720011616.1024753-13-sashal@kernel.org>
+Cc:     Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Tommy Pettersson <ptp@lysator.liu.se>,
+        Ciprian Craciun <ciprian.craciun@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-nilfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/25] nilfs2: fix incorrect masking of permission flags for symlinks
+Date:   Tue, 19 Jul 2022 21:16:05 -0400
+Message-Id: <20220720011616.1024753-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011616.1024753-1-sashal@kernel.org>
 References: <20220720011616.1024753-1-sashal@kernel.org>
@@ -58,47 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 144248515246e52a3706de1ee928af29a63794b8 ]
+[ Upstream commit 5924e6ec1585445f251ea92713eb15beb732622a ]
 
-The Lenovo Yoga Tablet 2 830F / 830L use a panel which has been mounted
-90 degrees rotated. Add a quirk for this.
+The permission flags of newly created symlinks are wrongly dropped on
+nilfs2 with the current umask value even though symlinks should have 777
+(rwxrwxrwx) permissions:
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220623112710.15693-1-hdegoede@redhat.com
+ $ umask
+ 0022
+ $ touch file && ln -s file symlink; ls -l file symlink
+ -rw-r--r--. 1 root root 0 Jun 23 16:29 file
+ lrwxr-xr-x. 1 root root 4 Jun 23 16:29 symlink -> file
+
+This fixes the bug by inserting a missing check that excludes
+symlinks.
+
+Link: https://lkml.kernel.org/r/1655974441-5612-1-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: Tommy Pettersson <ptp@lysator.liu.se>
+Reported-by: Ciprian Craciun <ciprian.craciun@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ fs/nilfs2/nilfs.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index f5ab891731d0..ad75e7712ebb 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -266,6 +266,21 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Lenovo Yoga Tablet 2 830F / 830L */
-+		.matches = {
-+		 /*
-+		  * Note this also matches the Lenovo Yoga Tablet 2 1050F/L
-+		  * since that uses the same mainboard. The resolution match
-+		  * will limit this to only matching on the 830F/L. Neither has
-+		  * any external video outputs so those are not a concern.
-+		  */
-+		 DMI_MATCH(DMI_SYS_VENDOR, "Intel Corp."),
-+		 DMI_MATCH(DMI_PRODUCT_NAME, "VALLEYVIEW C0 PLATFORM"),
-+		 DMI_MATCH(DMI_BOARD_NAME, "BYT-T FFD8"),
-+		 /* Partial match on beginning of BIOS version */
-+		 DMI_MATCH(DMI_BIOS_VERSION, "BLADE_21"),
-+		},
-+		.driver_data = (void *)&lcd1200x1920_rightside_up,
- 	}, {	/* OneGX1 Pro */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SYSTEM_MANUFACTURER"),
+diff --git a/fs/nilfs2/nilfs.h b/fs/nilfs2/nilfs.h
+index 9ca165bc97d2..ace27a89fbb0 100644
+--- a/fs/nilfs2/nilfs.h
++++ b/fs/nilfs2/nilfs.h
+@@ -198,6 +198,9 @@ static inline int nilfs_acl_chmod(struct inode *inode)
+ 
+ static inline int nilfs_init_acl(struct inode *inode, struct inode *dir)
+ {
++	if (S_ISLNK(inode->i_mode))
++		return 0;
++
+ 	inode->i_mode &= ~current_umask();
+ 	return 0;
+ }
 -- 
 2.35.1
 
