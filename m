@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE74257AC4E
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:23:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D65057AC77
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241731AbiGTBVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58190 "EHLO
+        id S241438AbiGTBWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241615AbiGTBVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:21:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF926F7C1;
-        Tue, 19 Jul 2022 18:16:14 -0700 (PDT)
+        with ESMTP id S240841AbiGTBVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:21:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18E56F7EE;
+        Tue, 19 Jul 2022 18:16:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18B876181A;
-        Wed, 20 Jul 2022 01:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3912BC341CE;
-        Wed, 20 Jul 2022 01:16:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9BE6B81DF8;
+        Wed, 20 Jul 2022 01:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E620C385A2;
+        Wed, 20 Jul 2022 01:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279772;
-        bh=7YPurJGw/YBroYyPsBbT77yytn44duy+DR2rMXvb6G4=;
+        s=k20201202; t=1658279775;
+        bh=3q1KGC79xM4M51k9jnVzklERtP8wwcR0fIXjBe2Pv7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnSkJ6uy51f/L51iWTdT8vW6ijYFAhYAaX5k0H6AUhrY0dEsYIaZmZFws2TF1ec4E
-         od3OoN7ON5gZvQ+C/ngXZZrfZWM1xa3XUnjre38LOD6fwEL2ibvWnSh/MQQjacMvfC
-         NQOLz8MQS7HFWfMEtEO9BSup2ibdbdVtcusQVlL1BEs4bDvnzgBuHqvvUKRGVVW3cR
-         2PwGXbtOPPrXSRXP86tm0st7d0greAsQ9PhzYpT/YERLzP8XcMqYlOKo4sef5SPomy
-         uDiP+0olZbnTyAj2GdAqt+7TONV6XLWV10R2mrHMvGhetP9ycsNfx5SURQwCEkIYtM
-         +rB78+HEdC5xQ==
+        b=MvgEivpyEA12jXHfc+sCevBla2f58XppaanSgS4Luhj01yl05KTyXWgMB0O0Pdd3l
+         WdT6FPlFtID7sPgH6fIvE+eXp3uOnQ47O95zViUodiiFSvGc2t463dwlUXP4sSZ6NC
+         tTP8OdM+vNKl/mIuBcVJhg4qcI2y/+F/YvEdNcOveEayZ8c36X/gUQiBRShnKiH3gM
+         ehzqBWSYMCpCrqjL+fmw2nYD0L4U7n5hUSSGT1Fm+Wo5PEgiVUwU5UIP3Cmhur94qc
+         zvpz6z9fhckhz4hRvkq3THlb52j85fqHYS+UKoG0XN5NdKCLyHvUlgNaLIEfHYeHCA
+         m6nd3nweQx6Cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, seanjc@google.com,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 41/42] KVM: nVMX: Always enable TSC scaling for L2 when it was enabled for L1
-Date:   Tue, 19 Jul 2022 21:13:49 -0400
-Message-Id: <20220720011350.1024134-41-sashal@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, akpm@linux-foundation.org,
+        elver@google.com, jpoimboe@kernel.org, keescook@chromium.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 42/42] ubsan: disable UBSAN_DIV_ZERO for clang
+Date:   Tue, 19 Jul 2022 21:13:50 -0400
+Message-Id: <20220720011350.1024134-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -58,44 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 99482726452bdf8be9325199022b17fa6d7d58fe ]
+[ Upstream commit e5d523f1ae8f2cef01f8e071aeee432654166708 ]
 
-Windows 10/11 guests with Hyper-V role (WSL2) enabled are observed to
-hang upon boot or shortly after when a non-default TSC frequency was
-set for L1. The issue is observed on a host where TSC scaling is
-supported. The problem appears to be that Windows doesn't use TSC
-frequency for its guests even when the feature is advertised and KVM
-filters SECONDARY_EXEC_TSC_SCALING out when creating L2 controls from
-L1's. This leads to L2 running with the default frequency (matching
-host's) while L1 is running with an altered one.
+Building with UBSAN_DIV_ZERO with clang produces numerous fallthrough
+warnings from objtool.
 
-Keep SECONDARY_EXEC_TSC_SCALING in secondary exec controls for L2 when
-it was set for L1. TSC_MULTIPLIER is already correctly computed and
-written by prepare_vmcs02().
+In the case of uncheck division, UBSAN_DIV_ZERO may introduce new
+control flow to check for division by zero.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220712135009.952805-1-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Because the result of the division is undefined, LLVM may optimize the
+control flow such that after the call to __ubsan_handle_divrem_overflow
+doesn't matter.  If panic_on_warn was set,
+__ubsan_handle_divrem_overflow would panic.
+
+The problem is is that panic_on_warn is run time configurable.  If it's
+disabled, then we cannot guarantee that we will be able to recover
+safely.  Disable this config for clang until we can come up with a
+solution in LLVM.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1657
+Link: https://github.com/llvm/llvm-project/issues/56289
+Link: https://lore.kernel.org/lkml/CAHk-=wj1qhf7y3VNACEexyp5EbkNpdcu_542k-xZpzmYLOjiCg@mail.gmail.com/
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 1 -
- 1 file changed, 1 deletion(-)
+ lib/Kconfig.ubsan | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 5f91aa62bdca..f80016ce5063 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2269,7 +2269,6 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs0
- 				  SECONDARY_EXEC_VIRTUAL_INTR_DELIVERY |
- 				  SECONDARY_EXEC_APIC_REGISTER_VIRT |
- 				  SECONDARY_EXEC_ENABLE_VMFUNC |
--				  SECONDARY_EXEC_TSC_SCALING |
- 				  SECONDARY_EXEC_DESC);
- 
- 		if (nested_cpu_has(vmcs12,
+diff --git a/lib/Kconfig.ubsan b/lib/Kconfig.ubsan
+index 236c5cefc4cc..641ac2d0477c 100644
+--- a/lib/Kconfig.ubsan
++++ b/lib/Kconfig.ubsan
+@@ -96,6 +96,9 @@ config UBSAN_SHIFT
+ config UBSAN_DIV_ZERO
+ 	bool "Perform checking for integer divide-by-zero"
+ 	depends on $(cc-option,-fsanitize=integer-divide-by-zero)
++	# https://github.com/ClangBuiltLinux/linux/issues/1657
++	# https://github.com/llvm/llvm-project/issues/56289
++	depends on !CC_IS_CLANG
+ 	help
+ 	  This option enables -fsanitize=integer-divide-by-zero which checks
+ 	  for integer division by zero. This is effectively redundant with the
 -- 
 2.35.1
 
