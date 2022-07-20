@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580D857AC0A
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76AD857AC12
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240995AbiGTBPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:15:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
+        id S241039AbiGTBPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:15:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241001AbiGTBPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:15:19 -0400
+        with ESMTP id S241069AbiGTBPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:15:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D52E691F5;
-        Tue, 19 Jul 2022 18:13:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 027A866AF4;
+        Tue, 19 Jul 2022 18:13:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6FF361769;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D7AF6176B;
+        Wed, 20 Jul 2022 01:13:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E8CC341CB;
         Wed, 20 Jul 2022 01:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F18AFC341CA;
-        Wed, 20 Jul 2022 01:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279604;
-        bh=H6+CHYRVq143W7sez+eI90XwcYLzJ7SJBwXBuJodYv8=;
+        s=k20201202; t=1658279605;
+        bh=fMqbzR7SId/DUvXvSKD+EqoQ7LAoMoNeLcQjc59Z3/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMm+7z0xAi+zQevlsNVKelfiNNlNvxn8tFHKIa/pHKvZx0JluXN032fUurVxGCDGH
-         vVa6eYlOmMrP/LuDlwvtwCE+S/JHdbvjzPWttyg9dhaHiO7/qqLPedYhCBIvG/j+tI
-         YGsPePG+frqYksCha6grmnrbaoEQWYDziaj6NksNnwYEcUeI1NwBN64bA6wM84F04x
-         t7T3T0aGH+VJrmJRw/QiBFfZn1me/j0bGhotDMHaQnhf2XAbdMwHRsVnhXrto5XYk5
-         4mPKc35dfFq8JYN8iZAchcG3FTxvBOxq+wbuvcUXEjJLSl4ussyhgBJQ8jsGgl8Bb4
-         h7auRsB4rwabw==
+        b=Mm11sIwAiCgqSXllfxSOdXH1Uem6eIsyAPhgBVnKPkJrVyN0W1KQ9tJD3kjmS56Gd
+         vJbH+34DOqieDXS1onfGjlEUQH37U0xvECmlf4pqJoax1KYoxFrGtoEYXG+T867RuS
+         ZQxed778YBQ7/5XeLS+mOaknxeploAgd6zAqS921m9Ie+z95WzSw77vsWvUq0rprKe
+         XxmzGEVbtoY1v5WCn246m3Nwxkju9RSZNAl1CSM/B8hK1qGufnmvHN6jWkLaoWXxBx
+         THI+/vreu6hPhQSNyjFSgpVR1nivY21R63CyKSpa1I+M7Ez6h9ThNozdEBKp3lcp+d
+         ZoykiY7MTpTkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianglei Nie <niejianglei2021@163.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+Cc:     Oder Chiou <oder_chiou@realtek.com>,
+        Sameer Pujar <spujar@nvidia.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, bgoswami@quicinc.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        pierre-louis.bossart@linux.intel.com, dan.carpenter@oracle.com,
-        linmq006@gmail.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 43/54] ASoC: qdsp6: fix potential memory leak in q6apm_get_audioreach_graph()
-Date:   Tue, 19 Jul 2022 21:10:20 -0400
-Message-Id: <20220720011031.1023305-43-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 44/54] ASoC: rt5640: Fix the wrong state of JD1 and JD2
+Date:   Tue, 19 Jul 2022 21:10:21 -0400
+Message-Id: <20220720011031.1023305-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -59,38 +57,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Oder Chiou <oder_chiou@realtek.com>
 
-[ Upstream commit df5b4aca7248dc5a5cae93f162eae0decf972e48 ]
+[ Upstream commit 051dade346957d5b68ad986f497835805fa7a9dd ]
 
-q6apm_get_audioreach_graph() allocates a memory chunk for graph->graph
-with audioreach_alloc_graph_pkt(). When idr_alloc() fails, graph->graph
-is not released, which will lead to a memory leak.
+The patch fixes the wrong state of JD1 and JD2 while the bst1 or bst2 is
+power on in the HDA JD using.
 
-We can release the graph->graph with kfree() when idr_alloc() fails to
-fix the memory leak.
-
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220629182520.2164409-1-niejianglei2021@163.com
+Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
+Reported-by: Sameer Pujar <spujar@nvidia.com>
+Link: https://lore.kernel.org/r/20220705101134.16792-1-oder_chiou@realtek.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6apm.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/rt5640.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6apm.c b/sound/soc/qcom/qdsp6/q6apm.c
-index f424d7aa389a..794019286c70 100644
---- a/sound/soc/qcom/qdsp6/q6apm.c
-+++ b/sound/soc/qcom/qdsp6/q6apm.c
-@@ -75,6 +75,7 @@ static struct audioreach_graph *q6apm_get_audioreach_graph(struct q6apm *apm, ui
- 	id = idr_alloc(&apm->graph_idr, graph, graph_id, graph_id + 1, GFP_KERNEL);
- 	if (id < 0) {
- 		dev_err(apm->dev, "Unable to allocate graph id (%d)\n", graph_id);
-+		kfree(graph->graph);
- 		kfree(graph);
- 		mutex_unlock(&apm->lock);
- 		return ERR_PTR(id);
+diff --git a/sound/soc/codecs/rt5640.c b/sound/soc/codecs/rt5640.c
+index 3559d9ecfa07..188c8f401a47 100644
+--- a/sound/soc/codecs/rt5640.c
++++ b/sound/soc/codecs/rt5640.c
+@@ -1984,7 +1984,12 @@ static int rt5640_set_bias_level(struct snd_soc_component *component,
+ 		snd_soc_component_write(component, RT5640_PWR_DIG2, 0x0000);
+ 		snd_soc_component_write(component, RT5640_PWR_VOL, 0x0000);
+ 		snd_soc_component_write(component, RT5640_PWR_MIXER, 0x0000);
+-		snd_soc_component_write(component, RT5640_PWR_ANLG1, 0x0000);
++		if (rt5640->jd_src == RT5640_JD_SRC_HDA_HEADER)
++			snd_soc_component_write(component, RT5640_PWR_ANLG1,
++				0x0018);
++		else
++			snd_soc_component_write(component, RT5640_PWR_ANLG1,
++				0x0000);
+ 		snd_soc_component_write(component, RT5640_PWR_ANLG2, 0x0000);
+ 		break;
+ 
+@@ -2393,9 +2398,15 @@ static void rt5640_jack_work(struct work_struct *work)
+ static irqreturn_t rt5640_irq(int irq, void *data)
+ {
+ 	struct rt5640_priv *rt5640 = data;
++	int delay = 0;
++
++	if (rt5640->jd_src == RT5640_JD_SRC_HDA_HEADER) {
++		cancel_delayed_work_sync(&rt5640->jack_work);
++		delay = 100;
++	}
+ 
+ 	if (rt5640->jack)
+-		queue_delayed_work(system_long_wq, &rt5640->jack_work, 0);
++		queue_delayed_work(system_long_wq, &rt5640->jack_work, delay);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -2580,6 +2591,12 @@ static void rt5640_enable_hda_jack_detect(
+ 
+ 	snd_soc_component_update_bits(component, RT5640_DUMMY1, 0x400, 0x0);
+ 
++	snd_soc_component_update_bits(component, RT5640_PWR_ANLG1,
++		RT5640_PWR_VREF2, RT5640_PWR_VREF2);
++	usleep_range(10000, 15000);
++	snd_soc_component_update_bits(component, RT5640_PWR_ANLG1,
++		RT5640_PWR_FV2, RT5640_PWR_FV2);
++
+ 	rt5640->jack = jack;
+ 
+ 	ret = request_irq(rt5640->irq, rt5640_irq,
+@@ -2696,16 +2713,13 @@ static int rt5640_probe(struct snd_soc_component *component)
+ 
+ 	if (device_property_read_u32(component->dev,
+ 				     "realtek,jack-detect-source", &val) == 0) {
+-		if (val <= RT5640_JD_SRC_GPIO4) {
++		if (val <= RT5640_JD_SRC_GPIO4)
+ 			rt5640->jd_src = val << RT5640_JD_SFT;
+-		} else if (val == RT5640_JD_SRC_HDA_HEADER) {
++		else if (val == RT5640_JD_SRC_HDA_HEADER)
+ 			rt5640->jd_src = RT5640_JD_SRC_HDA_HEADER;
+-			snd_soc_component_update_bits(component, RT5640_DUMMY1,
+-				0x0300, 0x0);
+-		} else {
++		else
+ 			dev_warn(component->dev, "Warning: Invalid jack-detect-source value: %d, leaving jack-detect disabled\n",
+ 				 val);
+-		}
+ 	}
+ 
+ 	if (!device_property_read_bool(component->dev, "realtek,jack-detect-not-inverted"))
 -- 
 2.35.1
 
