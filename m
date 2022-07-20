@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9852F57ABBE
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 054FC57ABB5
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240232AbiGTBNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240841AbiGTBNg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Jul 2022 21:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33446 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240846AbiGTBNJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:13:09 -0400
+        with ESMTP id S240629AbiGTBNK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:13:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 690F865D59;
-        Tue, 19 Jul 2022 18:12:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3393965D67;
+        Tue, 19 Jul 2022 18:12:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD4A8B81DE3;
-        Wed, 20 Jul 2022 01:12:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C5CC36AE2;
-        Wed, 20 Jul 2022 01:12:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4DA6B81DE2;
+        Wed, 20 Jul 2022 01:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F0BC341C6;
+        Wed, 20 Jul 2022 01:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279536;
-        bh=ylmR+9d8LHpo1uGXM8eN7Io3UrBnzpxUGGQoCmk6a2g=;
+        s=k20201202; t=1658279540;
+        bh=se13wqNAU03fkusB034b6xASwBWff55lqW/hoGYd2K0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPFtnJG7dhdbp9OhoXrPoPt6l3XF8UapROTnMRdenBZAdbpKkunQf6ybasT4+oPLn
-         SSi77kg9bdsFoQpW4xYHLWAxvAjhZTVpcdHrNySh04KOyQ7PibIk47gAltMU5BM8Au
-         YPOHvupVfmFIElBJzK/RlMHjxt8fmp/ysFMFETryXoZDFUJR73cNPXESzOxbG9oHiR
-         +/55M+z0pKAzpgTXtvvbLWYKAWTB5pCVc0gK9CgsaWxS56pQs/k8wV1MXeXXA/ceRr
-         8ORvwPtTQHlEHucbvLxb4/vo+/41V9DkWkLd3cdMyc2PkfmCj5EnDBBEEL2D3Jlqy9
-         7Z1RGy30cyOiQ==
+        b=PDkHxyizi2wjo7VeaiktZ9F4/H5R+EtJyJpf3OZonarB8LCuxq7TUAKLcYWH8bBJc
+         OKr2VNbXY5iMk1EZj+WxHiIGlf/ZaJYTMKsIJHvZsPp38BJTwkNYmdTRoT3LGt515T
+         EsIp55XnFPVSJvMDz11y0qNip2IWUJ4YeQAbtPCeOSH9q8jHxvsbM4KMaTjHMpf7JS
+         QzWbrR8sNFNBtT8Sbauy1zz1Jif6SC7D+VNpNsVdARlwNQLdkxidSJvS9whwyG/Giz
+         wh3pJoTI/NdYhUmSJUB8qN7aZVwM72RA8+y8C6ysW+22EfJ2Bxvgn2BNCk2hb0lqzi
+         c3YlsDqUfbqvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andrew Cooper <Andrew.Cooper3@citrix.com>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, puwen@hygon.cn, pawan.kumar.gupta@linux.intel.com,
-        adrian.hunter@intel.com, alexander.shishkin@linux.intel.com,
-        ricardo.neri-calderon@linux.intel.com, brijesh.singh@amd.com,
-        ray.huang@amd.com, tony.luck@intel.com, kim.phillips@amd.com,
-        thomas.lendacky@amd.com, mario.limonciello@amd.com,
-        andrew.cooper3@citrix.com, jane.malalane@citrix.com
-Subject: [PATCH AUTOSEL 5.18 23/54] x86/cpu/amd: Add Spectral Chicken
-Date:   Tue, 19 Jul 2022 21:10:00 -0400
-Message-Id: <20220720011031.1023305-23-sashal@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
+        luto@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        pawan.kumar.gupta@linux.intel.com
+Subject: [PATCH AUTOSEL 5.18 24/54] x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n
+Date:   Tue, 19 Jul 2022 21:10:01 -0400
+Message-Id: <20220720011031.1023305-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -64,115 +58,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-[ Upstream commit d7caac991feeef1b871ee6988fd2c9725df09039 ]
+[ Upstream commit b2620facef4889fefcbf2e87284f34dcd4189bce ]
 
-Zen2 uarchs have an undocumented, unnamed, MSR that contains a chicken
-bit for some speculation behaviour. It needs setting.
+If a kernel is built with CONFIG_RETPOLINE=n, but the user still wants
+to mitigate Spectre v2 using IBRS or eIBRS, the RSB filling will be
+silently disabled.
 
-Note: very belatedly AMD released naming; it's now officially called
-      MSR_AMD64_DE_CFG2 and MSR_AMD64_DE_CFG2_SUPPRESS_NOBR_PRED_BIT
-      but shall remain the SPECTRAL CHICKEN.
+There's nothing retpoline-specific about RSB buffer filling.  Remove the
+CONFIG_RETPOLINE guards around it.
 
-Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/msr-index.h |  3 +++
- arch/x86/kernel/cpu/amd.c        | 23 ++++++++++++++++++++++-
- arch/x86/kernel/cpu/cpu.h        |  2 ++
- arch/x86/kernel/cpu/hygon.c      |  6 ++++++
- 4 files changed, 33 insertions(+), 1 deletion(-)
+ arch/x86/entry/entry_32.S            | 2 --
+ arch/x86/entry/entry_64.S            | 2 --
+ arch/x86/include/asm/nospec-branch.h | 2 --
+ 3 files changed, 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index bd283cdd963a..0ff05c7882b2 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -553,6 +553,9 @@
- /* Fam 17h MSRs */
- #define MSR_F17H_IRPERF			0xc00000e9
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 887420844066..e309e7156038 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -698,7 +698,6 @@ SYM_CODE_START(__switch_to_asm)
+ 	movl	%ebx, PER_CPU_VAR(__stack_chk_guard)
+ #endif
  
-+#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
-+#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
-+
- /* Fam 16h MSRs */
- #define MSR_F16H_L2I_PERF_CTL		0xc0010230
- #define MSR_F16H_L2I_PERF_CTR		0xc0010231
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 0c0b09796ced..8cf0659c0521 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -862,6 +862,26 @@ static void init_amd_bd(struct cpuinfo_x86 *c)
- 	clear_rdrand_cpuid_bit(c);
- }
+-#ifdef CONFIG_RETPOLINE
+ 	/*
+ 	 * When switching from a shallower to a deeper call stack
+ 	 * the RSB may either underflow or use entries populated
+@@ -707,7 +706,6 @@ SYM_CODE_START(__switch_to_asm)
+ 	 * speculative execution to prevent attack.
+ 	 */
+ 	FILL_RETURN_BUFFER %ebx, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
+-#endif
  
-+void init_spectral_chicken(struct cpuinfo_x86 *c)
-+{
-+	u64 value;
-+
-+	/*
-+	 * On Zen2 we offer this chicken (bit) on the altar of Speculation.
-+	 *
-+	 * This suppresses speculation from the middle of a basic block, i.e. it
-+	 * suppresses non-branch predictions.
-+	 *
-+	 * We use STIBP as a heuristic to filter out Zen2 from the rest of F17H
-+	 */
-+	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && cpu_has(c, X86_FEATURE_AMD_STIBP)) {
-+		if (!rdmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, &value)) {
-+			value |= MSR_ZEN2_SPECTRAL_CHICKEN_BIT;
-+			wrmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, value);
-+		}
-+	}
-+}
-+
- static void init_amd_zn(struct cpuinfo_x86 *c)
- {
- 	set_cpu_cap(c, X86_FEATURE_ZEN);
-@@ -907,7 +927,8 @@ static void init_amd(struct cpuinfo_x86 *c)
- 	case 0x12: init_amd_ln(c); break;
- 	case 0x15: init_amd_bd(c); break;
- 	case 0x16: init_amd_jg(c); break;
--	case 0x17: fallthrough;
-+	case 0x17: init_spectral_chicken(c);
-+		   fallthrough;
- 	case 0x19: init_amd_zn(c); break;
- 	}
+ 	/* Restore flags or the incoming task to restore AC state. */
+ 	popfl
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index d8376e5fe1af..024367c81b7e 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -245,7 +245,6 @@ SYM_FUNC_START(__switch_to_asm)
+ 	movq	%rbx, PER_CPU_VAR(fixed_percpu_data) + stack_canary_offset
+ #endif
  
-diff --git a/arch/x86/kernel/cpu/cpu.h b/arch/x86/kernel/cpu/cpu.h
-index 2a8e584fc991..7c9b5893c30a 100644
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -61,6 +61,8 @@ static inline void tsx_init(void) { }
- static inline void tsx_ap_init(void) { }
- #endif /* CONFIG_CPU_SUP_INTEL */
+-#ifdef CONFIG_RETPOLINE
+ 	/*
+ 	 * When switching from a shallower to a deeper call stack
+ 	 * the RSB may either underflow or use entries populated
+@@ -254,7 +253,6 @@ SYM_FUNC_START(__switch_to_asm)
+ 	 * speculative execution to prevent attack.
+ 	 */
+ 	FILL_RETURN_BUFFER %r12, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
+-#endif
  
-+extern void init_spectral_chicken(struct cpuinfo_x86 *c);
-+
- extern void get_cpu_cap(struct cpuinfo_x86 *c);
- extern void get_cpu_address_sizes(struct cpuinfo_x86 *c);
- extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
-diff --git a/arch/x86/kernel/cpu/hygon.c b/arch/x86/kernel/cpu/hygon.c
-index 3fcdda4c1e11..21fd425088fe 100644
---- a/arch/x86/kernel/cpu/hygon.c
-+++ b/arch/x86/kernel/cpu/hygon.c
-@@ -302,6 +302,12 @@ static void init_hygon(struct cpuinfo_x86 *c)
- 	/* get apicid instead of initial apic id from cpuid */
- 	c->apicid = hard_smp_processor_id();
+ 	/* restore callee-saved registers */
+ 	popq	%r15
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index a790109f9337..257d24a67a81 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -111,11 +111,9 @@
+   * monstrosity above, manually.
+   */
+ .macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
+-#ifdef CONFIG_RETPOLINE
+ 	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+ 	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+ .Lskip_rsb_\@:
+-#endif
+ .endm
  
-+	/*
-+	 * XXX someone from Hygon needs to confirm this DTRT
-+	 *
-+	init_spectral_chicken(c);
-+	 */
-+
- 	set_cpu_cap(c, X86_FEATURE_ZEN);
- 	set_cpu_cap(c, X86_FEATURE_CPB);
- 
+ #else /* __ASSEMBLY__ */
 -- 
 2.35.1
 
