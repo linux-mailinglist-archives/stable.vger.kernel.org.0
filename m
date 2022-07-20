@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F84557AB71
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1D157AB8E
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240381AbiGTBLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:11:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33718 "EHLO
+        id S239811AbiGTBL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:11:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240477AbiGTBLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F36AD655AD;
-        Tue, 19 Jul 2022 18:11:15 -0700 (PDT)
+        with ESMTP id S240594AbiGTBL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E9C61DB8;
+        Tue, 19 Jul 2022 18:11:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE0E7B81DE0;
-        Wed, 20 Jul 2022 01:11:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D70C3C36AE2;
-        Wed, 20 Jul 2022 01:11:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A001661733;
+        Wed, 20 Jul 2022 01:11:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD842C341C6;
+        Wed, 20 Jul 2022 01:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279472;
-        bh=64ye752KjtJKz8pAKHODdp82tyr6OxIyyuEdjn1QRsk=;
+        s=k20201202; t=1658279482;
+        bh=tHlUV90+bjIcs59UagZJey4/epVWrE40Ltj4LgzFwD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQME5PZ4Sc/JZbNBNVd9oNJ+/K/QRTluQCE+oF4K/LlD2SzG4FxqqZII3M2wf6MEq
-         Z8bZXQjBoPD7yu1Tfk/DBjoiSmtT/zV72Wj+bc+aiE+F3GTKXm6GSqehiS5S36HZJ9
-         fSdIzz8M2dODbci5ghvCcENbHNfewjPAWiw2qumtT4l8A908IMvVqAdygTqtZu8Phk
-         epMwpOPf1ZsHtOjU1dKdG2xBagZyDHd5YaZ7v+eXQwGp50a4HvQ4KqPBxVyIxywCuV
-         PVJwFJmnqe3shcm0VD1c4wU0eOhQka9v7OKslT2d+I7PEJUjzVpTLEIrihW9D3c8BN
-         Znm4g7TFgJlRA==
+        b=AONUWOtje4PNxlfZTGG/urCIXJOgnBNftmNFnTRFL/fSHN/cOJSnxz/JZC+krZsOF
+         w/VKkPe2fn9Rl/FEz/JXm5bxH/mwrCj+kSrhteAjgfkfF7o2uaPs8MJa7of+AoqVoG
+         z5Cp07Q7C2hxwbdbs7OLfobCFRrmrYKBCMg3nu2eK7Vw6HGQjtd0CRI3fd+r7Ivd8/
+         +b3BaxNJto87sZxbRX7Nil1ItohRf128xlkrQwckdL5LJhVQrkLPzLALpqq8lFl6p5
+         PoTVrio/lBpJWi8B3fgZNN2T6uEEmd+uHkOJuMO1xAxDk9MKwh1ZubCxSA/0tO9BNR
+         htRYKuzyzbQ6g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
+Cc:     Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.18 12/54] objtool: Treat .text.__x86.* as noinstr
-Date:   Tue, 19 Jul 2022 21:09:49 -0400
-Message-Id: <20220720011031.1023305-12-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, gregkh@linuxfoundation.org, babu.moger@amd.com,
+        chang.seok.bae@intel.com, pawan.kumar.gupta@linux.intel.com,
+        jmattson@google.com, sblbir@amazon.com, keescook@chromium.org,
+        tony.luck@intel.com, jane.malalane@citrix.com,
+        bigeasy@linutronix.de
+Subject: [PATCH AUTOSEL 5.18 13/54] x86/bugs: Report AMD retbleed vulnerability
+Date:   Tue, 19 Jul 2022 21:09:50 -0400
+Message-Id: <20220720011031.1023305-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -56,38 +64,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Alexandre Chartre <alexandre.chartre@oracle.com>
 
-[ Upstream commit 951ddecf435659553ed15a9214e153a3af43a9a1 ]
+[ Upstream commit 6b80b59b3555706508008f1f127b5412c89c7fd8 ]
 
-Needed because zen_untrain_ret() will be called from noinstr code.
+Report that AMD x86 CPUs are vulnerable to the RETBleed (Arbitrary
+Speculative Code Execution with Return Instructions) attack.
 
-Also makes sense since the thunks MUST NOT contain instrumentation nor
-be poked with dynamic instrumentation.
+  [peterz: add hygon]
+  [kim: invert parity; fam15h]
 
+Co-developed-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/cpufeatures.h |  1 +
+ arch/x86/kernel/cpu/bugs.c         | 13 +++++++++++++
+ arch/x86/kernel/cpu/common.c       | 19 +++++++++++++++++++
+ drivers/base/cpu.c                 |  8 ++++++++
+ include/linux/cpu.h                |  2 ++
+ 5 files changed, 43 insertions(+)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 3b3bfe94537a..204519704f3b 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -374,7 +374,8 @@ static int decode_instructions(struct objtool_file *file)
- 			sec->text = true;
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 81706f467df8..26337822255e 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -448,5 +448,6 @@
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
+ #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
++#define X86_BUG_RETBLEED		X86_BUG(26) /* CPU is affected by RETBleed */
  
- 		if (!strcmp(sec->name, ".noinstr.text") ||
--		    !strcmp(sec->name, ".entry.text"))
-+		    !strcmp(sec->name, ".entry.text") ||
-+		    !strncmp(sec->name, ".text.__x86.", 12))
- 			sec->noinstr = true;
+ #endif /* _ASM_X86_CPUFEATURES_H */
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index a8a9f6406331..425ff2f32669 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1987,6 +1987,11 @@ static ssize_t srbds_show_state(char *buf)
+ 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
+ }
  
- 		for (offset = 0; offset < sec->sh.sh_size; offset += insn->len) {
++static ssize_t retbleed_show_state(char *buf)
++{
++	return sprintf(buf, "Vulnerable\n");
++}
++
+ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
+ 			       char *buf, unsigned int bug)
+ {
+@@ -2032,6 +2037,9 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
+ 	case X86_BUG_MMIO_STALE_DATA:
+ 		return mmio_stale_data_show_state(buf);
+ 
++	case X86_BUG_RETBLEED:
++		return retbleed_show_state(buf);
++
+ 	default:
+ 		break;
+ 	}
+@@ -2088,4 +2096,9 @@ ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *at
+ {
+ 	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
+ }
++
++ssize_t cpu_show_retbleed(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	return cpu_show_common(dev, attr, buf, X86_BUG_RETBLEED);
++}
+ #endif
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index af5d0c188f7b..796cc55313f4 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1231,16 +1231,27 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 	{}
+ };
+ 
++#define VULNBL(vendor, family, model, blacklist)	\
++	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, blacklist)
++
+ #define VULNBL_INTEL_STEPPINGS(model, steppings, issues)		   \
+ 	X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(INTEL, 6,		   \
+ 					    INTEL_FAM6_##model, steppings, \
+ 					    X86_FEATURE_ANY, issues)
+ 
++#define VULNBL_AMD(family, blacklist)		\
++	VULNBL(AMD, family, X86_MODEL_ANY, blacklist)
++
++#define VULNBL_HYGON(family, blacklist)		\
++	VULNBL(HYGON, family, X86_MODEL_ANY, blacklist)
++
+ #define SRBDS		BIT(0)
+ /* CPU is affected by X86_BUG_MMIO_STALE_DATA */
+ #define MMIO		BIT(1)
+ /* CPU is affected by Shared Buffers Data Sampling (SBDS), a variant of X86_BUG_MMIO_STALE_DATA */
+ #define MMIO_SBDS	BIT(2)
++/* CPU is affected by RETbleed, speculating where you would not expect it */
++#define RETBLEED	BIT(3)
+ 
+ static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
+ 	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
+@@ -1273,6 +1284,11 @@ static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_D,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPINGS(0x0, 0x0),	MMIO | MMIO_SBDS),
++
++	VULNBL_AMD(0x15, RETBLEED),
++	VULNBL_AMD(0x16, RETBLEED),
++	VULNBL_AMD(0x17, RETBLEED),
++	VULNBL_HYGON(0x18, RETBLEED),
+ 	{}
+ };
+ 
+@@ -1374,6 +1390,9 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ 	    !arch_cap_mmio_immune(ia32_cap))
+ 		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
+ 
++	if (cpu_matches(cpu_vuln_blacklist, RETBLEED))
++		setup_force_cpu_bug(X86_BUG_RETBLEED);
++
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
+ 
+diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
+index a97776ea9d99..4c98849577d4 100644
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -570,6 +570,12 @@ ssize_t __weak cpu_show_mmio_stale_data(struct device *dev,
+ 	return sysfs_emit(buf, "Not affected\n");
+ }
+ 
++ssize_t __weak cpu_show_retbleed(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "Not affected\n");
++}
++
+ static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
+ static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
+ static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
+@@ -580,6 +586,7 @@ static DEVICE_ATTR(tsx_async_abort, 0444, cpu_show_tsx_async_abort, NULL);
+ static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
+ static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
+ static DEVICE_ATTR(mmio_stale_data, 0444, cpu_show_mmio_stale_data, NULL);
++static DEVICE_ATTR(retbleed, 0444, cpu_show_retbleed, NULL);
+ 
+ static struct attribute *cpu_root_vulnerabilities_attrs[] = {
+ 	&dev_attr_meltdown.attr,
+@@ -592,6 +599,7 @@ static struct attribute *cpu_root_vulnerabilities_attrs[] = {
+ 	&dev_attr_itlb_multihit.attr,
+ 	&dev_attr_srbds.attr,
+ 	&dev_attr_mmio_stale_data.attr,
++	&dev_attr_retbleed.attr,
+ 	NULL
+ };
+ 
+diff --git a/include/linux/cpu.h b/include/linux/cpu.h
+index 2c7477354744..314802f98b9d 100644
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -68,6 +68,8 @@ extern ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr,
+ extern ssize_t cpu_show_mmio_stale_data(struct device *dev,
+ 					struct device_attribute *attr,
+ 					char *buf);
++extern ssize_t cpu_show_retbleed(struct device *dev,
++				 struct device_attribute *attr, char *buf);
+ 
+ extern __printf(4, 5)
+ struct device *cpu_device_create(struct device *parent, void *drvdata,
 -- 
 2.35.1
 
