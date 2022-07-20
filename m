@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B86057AB88
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DC157AB8C
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240722AbiGTBND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33714 "EHLO
+        id S240746AbiGTBNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240782AbiGTBM3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:12:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39356556B;
-        Tue, 19 Jul 2022 18:12:05 -0700 (PDT)
+        with ESMTP id S240789AbiGTBMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:12:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD59265D4A;
+        Tue, 19 Jul 2022 18:12:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F571B81DE6;
-        Wed, 20 Jul 2022 01:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98CD9C341C6;
-        Wed, 20 Jul 2022 01:12:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E21FB81DE0;
+        Wed, 20 Jul 2022 01:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15B0C341D1;
+        Wed, 20 Jul 2022 01:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279523;
-        bh=VoMl3IiXADXOrzYUU30d8G4boCKSZdvtXjRJJHHaY44=;
+        s=k20201202; t=1658279525;
+        bh=c9nhF8SJnbgT1PcdEw9BhinCExmguSEsqIqZEydceYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDcie2KO3OBwvTT5O2M6l0j6f99DtbItqm2N3h8YB/Me2Xcsc4j83RP1GoDGwj2+6
-         996/g2aEZyU/RDVPXWHAqY/bE1z+B9P7/vTCiL+rBlMw75lgevexKtO9bav68aAxPs
-         uZNh/k32ik3JWvRKKpinpUbo7MYP9Xgp7bvW3pOtqPxOOcFneLyo6ZKsGp7BxM4oGA
-         M7g094X8ECOWxiyfjKXNBtoPwk7dY6j13mbIVBAjBMuGgiy8p37HE9AQnnX36IQhKD
-         oiChHPykcF/xJToKcZxD6+lxZNtJ+h+FQaVg+AIAfAC7Y1cfXLN/RBT/WlYVYrm7WF
-         9dOlq8GtfsnEw==
+        b=D3cR5F6y+stgqYnzhXPjbUzIQhCS5sZXrXN4QVNkuR7VlyfyV/5YA9/Q7emGkuSJI
+         eyJcQ8TuaKGeFLk8/qUpYzovHxJ/F4tBcF7sPHtRw+witDUi8Ve3QiVrf0llTLc7kv
+         PlQ9prkBWq87sUzL5uWuS+gFMrP84HcSxYT2DD9i1HTSTcMIatlYXy9tk5ctziLAJs
+         Mdm8kFKq4qfrpUq1Q0EIMxE1JvdpOaMcdpoAtpQUtINBsFGxENOwUC9dkdD2WrbNhK
+         GWq7gvObl89raDRtsHCxkX2+HbYpf4cmerLw3LjF24BdNcyVR/kD09i9hg6aso02OG
+         RulKTONQgHJug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, luto@kernel.org, jgross@suse.com,
-        pawan.kumar.gupta@linux.intel.com, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.18 20/54] objtool: Update Retpoline validation
-Date:   Tue, 19 Jul 2022 21:09:57 -0400
-Message-Id: <20220720011031.1023305-20-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jgross@suse.com,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.18 21/54] x86/xen: Rename SYS* entry points
+Date:   Tue, 19 Jul 2022 21:09:58 -0400
+Message-Id: <20220720011031.1023305-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -61,10 +61,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 9bb2ec608a209018080ca262f771e6a9ff203b6f ]
+[ Upstream commit b75b7f8ef1148be1b9321ffc2f6c19238904b438 ]
 
-Update retpoline validation with the new CONFIG_RETPOLINE requirement of
-not having bare naked RET instructions.
+Native SYS{CALL,ENTER} entry points are called
+entry_SYS{CALL,ENTER}_{64,compat}, make sure the Xen versions are
+named consistently.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
@@ -72,105 +73,126 @@ Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nospec-branch.h |  6 ++++++
- arch/x86/mm/mem_encrypt_boot.S       |  2 ++
- arch/x86/xen/xen-head.S              |  1 +
- tools/objtool/check.c                | 19 +++++++++++++------
- 4 files changed, 22 insertions(+), 6 deletions(-)
+ arch/x86/xen/setup.c   |  6 +++---
+ arch/x86/xen/xen-asm.S | 20 ++++++++++----------
+ arch/x86/xen/xen-ops.h |  6 +++---
+ 3 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 92290b4f1c96..a790109f9337 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -75,6 +75,12 @@
- 	.popsection
- .endm
+diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
+index 81aa46f770c5..cfa99e8f054b 100644
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -918,7 +918,7 @@ void xen_enable_sysenter(void)
+ 	if (!boot_cpu_has(sysenter_feature))
+ 		return;
  
-+/*
-+ * (ab)use RETPOLINE_SAFE on RET to annotate away 'bare' RET instructions
-+ * vs RETBleed validation.
-+ */
-+#define ANNOTATE_UNRET_SAFE ANNOTATE_RETPOLINE_SAFE
-+
- /*
-  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
-  * indirect jmp/call which may be susceptible to the Spectre variant 2
-diff --git a/arch/x86/mm/mem_encrypt_boot.S b/arch/x86/mm/mem_encrypt_boot.S
-index d94dea450fa6..9de3d900bc92 100644
---- a/arch/x86/mm/mem_encrypt_boot.S
-+++ b/arch/x86/mm/mem_encrypt_boot.S
-@@ -66,6 +66,7 @@ SYM_FUNC_START(sme_encrypt_execute)
- 	pop	%rbp
+-	ret = register_callback(CALLBACKTYPE_sysenter, xen_sysenter_target);
++	ret = register_callback(CALLBACKTYPE_sysenter, xen_entry_SYSENTER_compat);
+ 	if(ret != 0)
+ 		setup_clear_cpu_cap(sysenter_feature);
+ }
+@@ -927,7 +927,7 @@ void xen_enable_syscall(void)
+ {
+ 	int ret;
  
- 	/* Offset to __x86_return_thunk would be wrong here */
-+	ANNOTATE_UNRET_SAFE
- 	ret
- 	int3
- SYM_FUNC_END(sme_encrypt_execute)
-@@ -154,6 +155,7 @@ SYM_FUNC_START(__enc_copy)
- 	pop	%r15
+-	ret = register_callback(CALLBACKTYPE_syscall, xen_syscall_target);
++	ret = register_callback(CALLBACKTYPE_syscall, xen_entry_SYSCALL_64);
+ 	if (ret != 0) {
+ 		printk(KERN_ERR "Failed to set syscall callback: %d\n", ret);
+ 		/* Pretty fatal; 64-bit userspace has no other
+@@ -936,7 +936,7 @@ void xen_enable_syscall(void)
  
- 	/* Offset to __x86_return_thunk would be wrong here */
-+	ANNOTATE_UNRET_SAFE
- 	ret
- 	int3
- .L__enc_copy_end:
-diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
-index 3a2cd93bf059..fa884fc73e07 100644
---- a/arch/x86/xen/xen-head.S
-+++ b/arch/x86/xen/xen-head.S
-@@ -26,6 +26,7 @@ SYM_CODE_START(hypercall_page)
- 	.rept (PAGE_SIZE / 32)
- 		UNWIND_HINT_FUNC
- 		ANNOTATE_NOENDBR
-+		ANNOTATE_UNRET_SAFE
- 		ret
- 		/*
- 		 * Xen will write the hypercall page, and sort out ENDBR.
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 204519704f3b..2daa0dce199b 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2097,8 +2097,9 @@ static int read_retpoline_hints(struct objtool_file *file)
- 		}
- 
- 		if (insn->type != INSN_JUMP_DYNAMIC &&
--		    insn->type != INSN_CALL_DYNAMIC) {
--			WARN_FUNC("retpoline_safe hint not an indirect jump/call",
-+		    insn->type != INSN_CALL_DYNAMIC &&
-+		    insn->type != INSN_RETURN) {
-+			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret",
- 				  insn->sec, insn->offset);
- 			return -1;
- 		}
-@@ -3631,7 +3632,8 @@ static int validate_retpoline(struct objtool_file *file)
- 
- 	for_each_insn(file, insn) {
- 		if (insn->type != INSN_JUMP_DYNAMIC &&
--		    insn->type != INSN_CALL_DYNAMIC)
-+		    insn->type != INSN_CALL_DYNAMIC &&
-+		    insn->type != INSN_RETURN)
- 			continue;
- 
- 		if (insn->retpoline_safe)
-@@ -3646,9 +3648,14 @@ static int validate_retpoline(struct objtool_file *file)
- 		if (!strcmp(insn->sec->name, ".init.text") && !module)
- 			continue;
- 
--		WARN_FUNC("indirect %s found in RETPOLINE build",
--			  insn->sec, insn->offset,
--			  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
-+		if (insn->type == INSN_RETURN) {
-+			WARN_FUNC("'naked' return found in RETPOLINE build",
-+				  insn->sec, insn->offset);
-+		} else {
-+			WARN_FUNC("indirect %s found in RETPOLINE build",
-+				  insn->sec, insn->offset,
-+				  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
-+		}
- 
- 		warnings++;
+ 	if (boot_cpu_has(X86_FEATURE_SYSCALL32)) {
+ 		ret = register_callback(CALLBACKTYPE_syscall32,
+-					xen_syscall32_target);
++					xen_entry_SYSCALL_compat);
+ 		if (ret != 0)
+ 			setup_clear_cpu_cap(X86_FEATURE_SYSCALL32);
  	}
+diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
+index caa9bc2fa100..6bf9d45b9178 100644
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -234,7 +234,7 @@ SYM_CODE_END(xenpv_restore_regs_and_return_to_usermode)
+  */
+ 
+ /* Normal 64-bit system call target */
+-SYM_CODE_START(xen_syscall_target)
++SYM_CODE_START(xen_entry_SYSCALL_64)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	popq %rcx
+@@ -249,12 +249,12 @@ SYM_CODE_START(xen_syscall_target)
+ 	movq $__USER_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_64_after_hwframe
+-SYM_CODE_END(xen_syscall_target)
++SYM_CODE_END(xen_entry_SYSCALL_64)
+ 
+ #ifdef CONFIG_IA32_EMULATION
+ 
+ /* 32-bit compat syscall target */
+-SYM_CODE_START(xen_syscall32_target)
++SYM_CODE_START(xen_entry_SYSCALL_compat)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	popq %rcx
+@@ -269,10 +269,10 @@ SYM_CODE_START(xen_syscall32_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_compat_after_hwframe
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ /* 32-bit compat sysenter target */
+-SYM_CODE_START(xen_sysenter_target)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	/*
+@@ -291,19 +291,19 @@ SYM_CODE_START(xen_sysenter_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSENTER_compat_after_hwframe
+-SYM_CODE_END(xen_sysenter_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
+ 
+ #else /* !CONFIG_IA32_EMULATION */
+ 
+-SYM_CODE_START(xen_syscall32_target)
+-SYM_CODE_START(xen_sysenter_target)
++SYM_CODE_START(xen_entry_SYSCALL_compat)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
+ 	UNWIND_HINT_EMPTY
+ 	ENDBR
+ 	lea 16(%rsp), %rsp	/* strip %rcx, %r11 */
+ 	mov $-ENOSYS, %rax
+ 	pushq $0
+ 	jmp hypercall_iret
+-SYM_CODE_END(xen_sysenter_target)
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ #endif	/* CONFIG_IA32_EMULATION */
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index fd0fec6e92f4..9a8bb972193d 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -10,10 +10,10 @@
+ /* These are code, but not functions.  Defined in entry.S */
+ extern const char xen_failsafe_callback[];
+ 
+-void xen_sysenter_target(void);
++void xen_entry_SYSENTER_compat(void);
+ #ifdef CONFIG_X86_64
+-void xen_syscall_target(void);
+-void xen_syscall32_target(void);
++void xen_entry_SYSCALL_64(void);
++void xen_entry_SYSCALL_compat(void);
+ #endif
+ 
+ extern void *xen_initial_gdt;
 -- 
 2.35.1
 
