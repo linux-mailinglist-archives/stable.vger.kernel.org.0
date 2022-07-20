@@ -2,109 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73EAC57AC7E
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5422957AC56
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:24:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241284AbiGTBSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:18:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45592 "EHLO
+        id S241774AbiGTBWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241398AbiGTBSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:18:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CDA476C122
-        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 18:14:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658279693;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=55yHQ44rkH6DdWsZLM6+Nkqv8+VaygTgHAkn6qqUXbI=;
-        b=cbBkW2Vvb7F/xksYuyVhniC+NIx8z179lJmBpifzy+46Yt5z3U382dZZaIZKbXloShecwW
-        tbC2l0HdjU+Pon4uq3+rkqtC0jTYuNqszu39MAwPCz84v/fR2pu9b4X3V99icNI/oCTr+n
-        spmR/iOA3/eai1m4P7I+vklGZ97mbAw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-210-fQMOATj8M1K3KKndC_ZIUQ-1; Tue, 19 Jul 2022 21:14:51 -0400
-X-MC-Unique: fQMOATj8M1K3KKndC_ZIUQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S241703AbiGTBVn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:21:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E91206FA0E;
+        Tue, 19 Jul 2022 18:16:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C37A98037B7
-        for <stable@vger.kernel.org>; Wed, 20 Jul 2022 01:14:50 +0000 (UTC)
-Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9E73640D0160;
-        Wed, 20 Jul 2022 01:14:50 +0000 (UTC)
-From:   Alexander Aring <aahringo@redhat.com>
-To:     teigland@redhat.com
-Cc:     cluster-devel@redhat.com, stable@vger.kernel.org,
-        aahringo@redhat.com
-Subject: [PATCH dlm/next ] fs: dlm: handle -EBUSY as first
-Date:   Tue, 19 Jul 2022 21:14:45 -0400
-Message-Id: <20220720011445.2928575-1-aahringo@redhat.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5BCFB81DE8;
+        Wed, 20 Jul 2022 01:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF22C341CA;
+        Wed, 20 Jul 2022 01:16:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1658279779;
+        bh=WP6r6LQNJO2+9pHuPQRmTbKrAoo3ff+tZkivkVuHCjY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=it6b/flguRzXz16kLQg48EuKJ2BcbkcuUTNIWhFwdiufquknzBc2m1ZngWl17/GlS
+         64jPOlTyWTvKi+C4eXcBJ76mkc7nOT7HUlhityh7Tm0WZG1Gz0aJ4W1bdxfOiGMQsx
+         YW9YyIRYJUoPx3gPsvyGRm8dLJLBHcx/kfbhUvpMxVtCz6iupYF3GPtvyJHl7DyR3e
+         euvEFtRrAg7kUwzANAeC//mVmNiDZtcSctBotLa2EeB+QLy1hfH1jCUrzqwLCrnX+s
+         mQgirpccFhesxJiLGQ1IO7FYFJRE+dqQQrd+8D4O8d9DRiVM0y0NDM5KO8q7brOPtV
+         ZKUKh8OWqnlCg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Guozihua <guozihua@huawei.com>, Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, dmitry.kasatkin@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/25] Revert "evm: Fix memleak in init_desc"
+Date:   Tue, 19 Jul 2022 21:15:52 -0400
+Message-Id: <20220720011616.1024753-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case of lock args validation we should at first check on -EBUSY then
-on -EINVAL. The -EINVAL conditions checks against lkb state variables
-which are not stable in case something is in -EBUSY lkb condition state
-e.g. lkb->lkb_grmode. This patch checks at first if -EBUSY condition is
-not met, then it's will check on -EINVAL condition.
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
+[ Upstream commit 51dd64bb99e4478fc5280171acd8e1b529eadaf7 ]
+
+This reverts commit ccf11dbaa07b328fa469415c362d33459c140a37.
+
+Commit ccf11dbaa07b ("evm: Fix memleak in init_desc") said there is
+memleak in init_desc. That may be incorrect, as we can see, tmp_tfm is
+saved in one of the two global variables hmac_tfm or evm_tfm[hash_algo],
+then if init_desc is called next time, there is no need to alloc tfm
+again, so in the error path of kmalloc desc or crypto_shash_init(desc),
+It is not a problem without freeing tmp_tfm.
+
+And also that commit did not reset the global variable to NULL after
+freeing tmp_tfm and this makes *tfm a dangling pointer which may cause a
+UAF issue.
+
+Reported-by: Guozihua (Scott) <guozihua@huawei.com>
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lock.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ security/integrity/evm/evm_crypto.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
-index dac7eb75dba9..c23413da40f5 100644
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -2864,17 +2864,9 @@ static int set_unlock_args(uint32_t flags, void *astarg, struct dlm_args *args)
- static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
- 			      struct dlm_args *args)
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index a6dd47eb086d..168c3b78ac47 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -73,7 +73,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
  {
--	int rv = -EINVAL;
-+	int rv = -EBUSY;
+ 	long rc;
+ 	const char *algo;
+-	struct crypto_shash **tfm, *tmp_tfm = NULL;
++	struct crypto_shash **tfm, *tmp_tfm;
+ 	struct shash_desc *desc;
  
- 	if (args->flags & DLM_LKF_CONVERT) {
--		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
--			goto out;
--
--		if (args->flags & DLM_LKF_QUECVT &&
--		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
--			goto out;
--
--		rv = -EBUSY;
- 		if (lkb->lkb_status != DLM_LKSTS_GRANTED)
- 			goto out;
+ 	if (type == EVM_XATTR_HMAC) {
+@@ -118,16 +118,13 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
+ alloc:
+ 	desc = kmalloc(sizeof(*desc) + crypto_shash_descsize(*tfm),
+ 			GFP_KERNEL);
+-	if (!desc) {
+-		crypto_free_shash(tmp_tfm);
++	if (!desc)
+ 		return ERR_PTR(-ENOMEM);
+-	}
  
-@@ -2884,6 +2876,14 @@ static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
+ 	desc->tfm = *tfm;
  
- 		if (is_overlap(lkb))
- 			goto out;
-+
-+		rv = -EINVAL;
-+		if (lkb->lkb_flags & DLM_IFL_MSTCPY)
-+			goto out;
-+
-+		if (args->flags & DLM_LKF_QUECVT &&
-+		    !__quecvt_compat_matrix[lkb->lkb_grmode+1][args->mode+1])
-+			goto out;
+ 	rc = crypto_shash_init(desc);
+ 	if (rc) {
+-		crypto_free_shash(tmp_tfm);
+ 		kfree(desc);
+ 		return ERR_PTR(rc);
  	}
- 
- 	lkb->lkb_exflags = args->flags;
 -- 
-2.31.1
+2.35.1
 
