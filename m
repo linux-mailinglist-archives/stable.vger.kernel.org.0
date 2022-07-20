@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7586757AD04
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 291AB57ACEF
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242012AbiGTBZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:25:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33128 "EHLO
+        id S242007AbiGTBZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242355AbiGTBZB (ORCPT
+        with ESMTP id S242354AbiGTBZB (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:25:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FA3743E7;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44C2743EC;
         Tue, 19 Jul 2022 18:17:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 491EBB81DE8;
-        Wed, 20 Jul 2022 01:17:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36181C341CF;
-        Wed, 20 Jul 2022 01:17:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B263616F6;
+        Wed, 20 Jul 2022 01:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94BF0C341C6;
+        Wed, 20 Jul 2022 01:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279871;
-        bh=Kk7CPGSkQNjIj6H6wgCu5cYgRak7ASsoA+q7xDg2i5M=;
+        s=k20201202; t=1658279872;
+        bh=csDc6vGOsv3hNnFMLo10fyPonQpYIkuELcqoUiBKk3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WArgf8PVAf+BgPU4QbHi/cHuc9AYTR/NrQ3e8KMumk7QYULnlpCAfonH766BHw3Af
-         U35ygyZtxH7RKDCyEds82pHgGwYan9su340NXgwqua/GgTQRCLKqJq53dYlgzpjjiZ
-         HUhjbkN3Rcur4KxfwhpouLWSv1R3PNb7z1QBfZCM/Q4Xh3YlEm/rQN/3ba2MzHKIkF
-         GwBtLYa7DNxjaeUUT6MvKc5+yGkVVZLgw2LqcW3eJ1K/t31KxzDrUwfCvqec1BVS26
-         AleCGprkAaJVANxfPGg1IRzywJ8f9fUAvikSSB/FjCzfnrUM1oexn2lR784WzDVd8i
-         efHfhjSs+Y86A==
+        b=iq9HW4xgxFaRe0UNTLjJj86ZSL2H4jKAU92wIA0+arbwOt4FjIRypuuYSdPkfyOas
+         2zO7rTQgN9E/uNndpavU3Okk2CtmYw0p2rUoqTkalOENFNf0+atCKylw9GcJ0ete7i
+         tNYaxDXazGyLgaPCxgzS9GWgxBduqwLNGoa57VLd09JI4jePyF3QJfZJU1qvu6vDBt
+         iOmPcUN0Hu3QsrQ5GqAW1bbwfqvdlYUmJnlaDUOq8NC/eUhXQoQBGZz7nlBrkZKhqy
+         Ewwck6lFGomm4Z5f1JkXCjqg3UDaqnSFeT7mzCIW5QPm0PzKx4JhMuBXF2D1Q7V6Lv
+         u+aapAfJcWhFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, pawan.kumar.gupta@linux.intel.com,
-        kim.phillips@amd.com, alexandre.chartre@oracle.com,
-        sblbir@amazon.com, chang.seok.bae@intel.com, keescook@chromium.org,
-        ebiederm@xmission.com, zhengqi.arch@bytedance.com
-Subject: [PATCH AUTOSEL 5.4 05/16] x86/bugs: Optimize SPEC_CTRL MSR writes
-Date:   Tue, 19 Jul 2022 21:17:19 -0400
-Message-Id: <20220720011730.1025099-5-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/16] wifi: mac80211: do not wake queues on a vif that is being stopped
+Date:   Tue, 19 Jul 2022 21:17:20 -0400
+Message-Id: <20220720011730.1025099-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011730.1025099-1-sashal@kernel.org>
 References: <20220720011730.1025099-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,114 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit c779bc1a9002fa474175b80e72b85c9bf628abb0 ]
+[ Upstream commit f856373e2f31ffd340e47e2b00027bd4070f74b3 ]
 
-When changing SPEC_CTRL for user control, the WRMSR can be delayed
-until return-to-user when KERNEL_IBRS has been enabled.
+When a vif is being removed and sdata->bss is cleared, __ieee80211_wake_txqs
+can still be called on it, which crashes as soon as sdata->bss is being
+dereferenced.
+To fix this properly, check for SDATA_STATE_RUNNING before waking queues,
+and take the fq lock when setting it (to ensure that __ieee80211_wake_txqs
+observes the change when running on a different CPU)
 
-This avoids an MSR write during context switch.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Acked-by: Toke Høiland-Jørgensen <toke@kernel.org>
+Link: https://lore.kernel.org/r/20220531190824.60019-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nospec-branch.h |  2 +-
- arch/x86/kernel/cpu/bugs.c           | 18 ++++++++++++------
- arch/x86/kernel/process.c            |  2 +-
- 3 files changed, 14 insertions(+), 8 deletions(-)
+ net/mac80211/iface.c | 2 ++
+ net/mac80211/util.c  | 3 +++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 5ebb05b19065..a142e5471dda 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -281,7 +281,7 @@ static inline void indirect_branch_prediction_barrier(void)
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index ddc001ad9055..48bda8aaa90a 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -803,7 +803,9 @@ static void ieee80211_do_stop(struct ieee80211_sub_if_data *sdata,
+ 	bool cancel_scan;
+ 	struct cfg80211_nan_func *func;
  
- /* The Intel SPEC CTRL MSR base value cache */
- extern u64 x86_spec_ctrl_base;
--extern void write_spec_ctrl_current(u64 val);
-+extern void write_spec_ctrl_current(u64 val, bool force);
++	spin_lock_bh(&local->fq.lock);
+ 	clear_bit(SDATA_STATE_RUNNING, &sdata->state);
++	spin_unlock_bh(&local->fq.lock);
  
- /*
-  * With retpoline, we must use IBRS to restrict branch prediction
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 8a09559095fb..d5d098715a14 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -60,13 +60,19 @@ static DEFINE_MUTEX(spec_ctrl_mutex);
-  * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
-  * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
-  */
--void write_spec_ctrl_current(u64 val)
-+void write_spec_ctrl_current(u64 val, bool force)
- {
- 	if (this_cpu_read(x86_spec_ctrl_current) == val)
- 		return;
+ 	cancel_scan = rcu_access_pointer(local->scan_sdata) == sdata;
+ 	if (cancel_scan)
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index c1c117fdf318..8ae0186091b6 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -250,6 +250,9 @@ static void __ieee80211_wake_txqs(struct ieee80211_sub_if_data *sdata, int ac)
+ 	local_bh_disable();
+ 	spin_lock(&fq->lock);
  
- 	this_cpu_write(x86_spec_ctrl_current, val);
--	wrmsrl(MSR_IA32_SPEC_CTRL, val);
++	if (!test_bit(SDATA_STATE_RUNNING, &sdata->state))
++		goto out;
 +
-+	/*
-+	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
-+	 * forced the update can be delayed until that time.
-+	 */
-+	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
-+		wrmsrl(MSR_IA32_SPEC_CTRL, val);
- }
+ 	if (sdata->vif.type == NL80211_IFTYPE_AP)
+ 		ps = &sdata->bss->ps;
  
- /*
-@@ -1120,7 +1126,7 @@ static void __init spectre_v2_select_mitigation(void)
- 	if (spectre_v2_in_eibrs_mode(mode)) {
- 		/* Force it so VMEXIT will restore correctly */
- 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
--		write_spec_ctrl_current(x86_spec_ctrl_base);
-+		write_spec_ctrl_current(x86_spec_ctrl_base, true);
- 	}
- 
- 	switch (mode) {
-@@ -1175,7 +1181,7 @@ static void __init spectre_v2_select_mitigation(void)
- 
- static void update_stibp_msr(void * __unused)
- {
--	write_spec_ctrl_current(x86_spec_ctrl_base);
-+	write_spec_ctrl_current(x86_spec_ctrl_base, true);
- }
- 
- /* Update x86_spec_ctrl_base in case SMT state changed. */
-@@ -1418,7 +1424,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
- 			x86_amd_ssb_disable();
- 		} else {
- 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
--			write_spec_ctrl_current(x86_spec_ctrl_base);
-+			write_spec_ctrl_current(x86_spec_ctrl_base, true);
- 		}
- 	}
- 
-@@ -1635,7 +1641,7 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
- void x86_spec_ctrl_setup_ap(void)
- {
- 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
--		write_spec_ctrl_current(x86_spec_ctrl_base);
-+		write_spec_ctrl_current(x86_spec_ctrl_base, true);
- 
- 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
- 		x86_amd_ssb_disable();
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index 5d69c4c73d5a..655c482b6554 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -449,7 +449,7 @@ static __always_inline void __speculation_ctrl_update(unsigned long tifp,
- 	}
- 
- 	if (updmsr)
--		write_spec_ctrl_current(msr);
-+		write_spec_ctrl_current(msr, false);
- }
- 
- static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 -- 
 2.35.1
 
