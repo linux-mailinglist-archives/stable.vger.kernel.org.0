@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FCA57ACDF
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 860FD57ACD5
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:32:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241455AbiGTBZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:25:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59774 "EHLO
+        id S241718AbiGTBZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:25:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241890AbiGTBYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:24:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C8B72ED3;
-        Tue, 19 Jul 2022 18:17:12 -0700 (PDT)
+        with ESMTP id S238560AbiGTBYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:24:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E9F77358F;
+        Tue, 19 Jul 2022 18:17:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CD1B617EC;
-        Wed, 20 Jul 2022 01:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686A7C341CF;
-        Wed, 20 Jul 2022 01:17:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 43813CE1E85;
+        Wed, 20 Jul 2022 01:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E715C385A2;
+        Wed, 20 Jul 2022 01:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279830;
-        bh=ZG+gMsUPVdEL10aO5moy8ZGDHq+g3Tiknm4eYBCBvEI=;
+        s=k20201202; t=1658279833;
+        bh=uEx/lQnt88bfKacdxJLtZ8QwRBOFjoshJkYSRoTXmew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxXIWhEiwNC9FBko9TNmiYaVbejDzX0nyfMqBu9BoAu4rUkSMDUB2n5m/gBtYg6nz
-         cJTPW3XRoWJH9L11Rg42ja3zJfyL2c2H4hwJabh2M1aV7KtKKe+iNrpNEAPlwYZDpo
-         cBfNOMw0bevskEBG2tff47JJGqLAp8kECCrdCCh+Dpy0DsISYVZyAbHyj/ayMbZu+O
-         e/DgdMc/Z5fXVvyP8//fkTkldyAWtE+xbQuRqQx82vdrWkujmY51Ok8SWCKJzEOzBS
-         eMpZLdIFSwm3rr2xMQy09TEgbH6eqLFuBDBJdtui1O2keYOdO71zAGIf5PGqmA/tEn
-         IAnSjDuMWNcUg==
+        b=B4QMqPo450KRZWBvclH9YehdYCpQs1JlMUwyVAsV1gMNomJEX/7TDSDsgCoZJxaV6
+         aVKBCfwhwZgY1DPQAHfLlmdqqQPq16/llH4AYuhp70iWDDFLm3Lb5bbafCDkS+GoED
+         aVwJ5Fbg1id6Bu549iA7bI6MXqQN3hAStQPHzLzKGBknD6BZUWiUM92BvDvpxnbJl0
+         CldnzzkqryonWMh7qmBsv8F9qNcsGOUAShfcYcfafZtwaEW8aLkhFZd5VAVxxPX4k7
+         srB9QmStjgnZnMgxgePjSS4eRBFJ1iT/SI1S4EnSPJh15xK1sAm8Ywn3DkJzgBV2nb
+         miBUcKTJjsKPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, steve@sk2.org, zheyuma97@gmail.com,
+        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 16/25] ASoC: tlv320adcx140: Fix tx_mask check
-Date:   Tue, 19 Jul 2022 21:16:07 -0400
-Message-Id: <20220720011616.1024753-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 17/25] ASoC: wm8998: Fix event generation for input mux
+Date:   Tue, 19 Jul 2022 21:16:08 -0400
+Message-Id: <20220720011616.1024753-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011616.1024753-1-sashal@kernel.org>
 References: <20220720011616.1024753-1-sashal@kernel.org>
@@ -57,74 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 7d90c8e6396ba245da16bedd789df6d669375408 ]
+[ Upstream commit 15b2e5d10ccf32a1a1ae7c636511e2f51320fdb5 ]
 
-The tx_mask check doesn't reflect what the driver and the chip support.
+wm8998_inmux_put returns the value of snd_soc_dapm_mux_update_power,
+which returns a 1 if a path was found for the kcontrol. This is
+obviously different to the expected return a 1 if the control
+was updated value. This results in spurious notifications to
+user-space. Update the handling to only return a 1 when the value is
+changed.
 
-The check currently checks for exactly two slots being enabled. The
-tlv320adcx140 supports anything between one and eight channels, so relax
-the check accordingly.
-
-The tlv320adcx140 supports arbitrary tx_mask settings, but the driver
-currently only supports adjacent slots beginning with the first slot,
-so extend the check to check that the first slot is being used and that
-there are no holes in the tx_mask.
-
-Leave a comment to make it's the driver that limits the tx_mask
-settings, not the chip itself.
-
-While at it remove the set-but-unused struct adcx140p_priv::tdm_delay
-field.
-
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20220624105716.2579539-1-s.hauer@pengutronix.de
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220628153409.3266932-2-ckeepax@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tlv320adcx140.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ sound/soc/codecs/wm8998.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/tlv320adcx140.c b/sound/soc/codecs/tlv320adcx140.c
-index 53a80246aee1..5579a9053364 100644
---- a/sound/soc/codecs/tlv320adcx140.c
-+++ b/sound/soc/codecs/tlv320adcx140.c
-@@ -33,7 +33,6 @@ struct adcx140_priv {
- 	bool micbias_vg;
+diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
+index 5413254295b7..2491212579f1 100644
+--- a/sound/soc/codecs/wm8998.c
++++ b/sound/soc/codecs/wm8998.c
+@@ -108,6 +108,7 @@ static int wm8998_inmux_put(struct snd_kcontrol *kcontrol,
+ 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
+ 	unsigned int mode_reg, mode_index;
+ 	unsigned int mux, inmode, src_val, mode_val;
++	int change, ret;
  
- 	unsigned int dai_fmt;
--	unsigned int tdm_delay;
- 	unsigned int slot_width;
- };
+ 	mux = ucontrol->value.enumerated.item[0];
+ 	if (mux > 1)
+@@ -137,14 +138,20 @@ static int wm8998_inmux_put(struct snd_kcontrol *kcontrol,
+ 	snd_soc_component_update_bits(component, mode_reg,
+ 				      ARIZONA_IN1_MODE_MASK, mode_val);
  
-@@ -792,12 +791,13 @@ static int adcx140_set_dai_tdm_slot(struct snd_soc_dai *codec_dai,
- {
- 	struct snd_soc_component *component = codec_dai->component;
- 	struct adcx140_priv *adcx140 = snd_soc_component_get_drvdata(component);
--	unsigned int lsb;
+-	snd_soc_component_update_bits(component, e->reg,
+-				      ARIZONA_IN1L_SRC_MASK |
+-				      ARIZONA_IN1L_SRC_SE_MASK,
+-				      src_val);
++	change = snd_soc_component_update_bits(component, e->reg,
++					       ARIZONA_IN1L_SRC_MASK |
++					       ARIZONA_IN1L_SRC_SE_MASK,
++					       src_val);
  
--	/* TDM based on DSP mode requires slots to be adjacent */
--	lsb = __ffs(tx_mask);
--	if ((lsb + 1) != __fls(tx_mask)) {
--		dev_err(component->dev, "Invalid mask, slots must be adjacent\n");
-+	/*
-+	 * The chip itself supports arbitrary masks, but the driver currently
-+	 * only supports adjacent slots beginning at the first slot.
-+	 */
-+	if (tx_mask != GENMASK(__fls(tx_mask), 0)) {
-+		dev_err(component->dev, "Only lower adjacent slots are supported\n");
- 		return -EINVAL;
- 	}
+-	return snd_soc_dapm_mux_update_power(dapm, kcontrol,
+-					     ucontrol->value.enumerated.item[0],
+-					     e, NULL);
++	ret = snd_soc_dapm_mux_update_power(dapm, kcontrol,
++					    ucontrol->value.enumerated.item[0],
++					    e, NULL);
++	if (ret < 0) {
++		dev_err(arizona->dev, "Failed to update demux power state: %d\n", ret);
++		return ret;
++	}
++
++	return change;
+ }
  
-@@ -812,7 +812,6 @@ static int adcx140_set_dai_tdm_slot(struct snd_soc_dai *codec_dai,
- 		return -EINVAL;
- 	}
- 
--	adcx140->tdm_delay = lsb;
- 	adcx140->slot_width = slot_width;
- 
- 	return 0;
+ static const char * const wm8998_inmux_texts[] = {
 -- 
 2.35.1
 
