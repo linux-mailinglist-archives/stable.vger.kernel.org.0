@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9F357AC09
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CCB57AC16
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241002AbiGTBSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:18:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
+        id S241224AbiGTBSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:18:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241247AbiGTBRl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:17:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BAB66B778;
-        Tue, 19 Jul 2022 18:14:34 -0700 (PDT)
+        with ESMTP id S241279AbiGTBSC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:18:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352406BC11;
+        Tue, 19 Jul 2022 18:14:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B74CFB81DE2;
-        Wed, 20 Jul 2022 01:14:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F46EC341CF;
-        Wed, 20 Jul 2022 01:14:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C621D61729;
+        Wed, 20 Jul 2022 01:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75441C341C6;
+        Wed, 20 Jul 2022 01:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279671;
-        bh=MDKVOauRHGJ/D/oj1cTxiUs775+YxuzscTSEc584fhE=;
+        s=k20201202; t=1658279678;
+        bh=IISIANWDxivM5hhc2Da4M62Gt/B08GhPlGKcDxu5DQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+l9CFYXKqo0aT9gP9fjlIlfMsI/0jeURnC6Ns7bO0XnBuc/NA9bX9rdh0SkEnCkK
-         v1635mNINv8fH82pJfU7yMTM76rJIK1PhHAqPp/QgKG2BVSLg9I9Tyo1WLL978JT1Z
-         gEFvndMCHgVJzOLUb07zVVj8491NOGhdETvS2/CTrru8Guydk7rkrpK5oV9Mmu0ZWt
-         vcnDFIbVPbPFW8eSyP+KcCdguH6bPYlJbKYt9+Q6OZ/mHzZKK1sdeSus9tbjI3EyAV
-         KKuaDx0+jAMMM7a2wBrpae+kdafPaqdGTeie4YFyO0lTCMAvjKCzCIF2OjFLue3ZWB
-         ZP8A6vQvG6x8w==
+        b=u3dIe+FwpJt9DsUSkjuDlF2Q/WRTrvSivoe6vfJkclaxh8pvVBpkljREqlivD5AhJ
+         V4crI86/FkKJaXWefS4C5Dsh6Pdw571bI5HuqXp9C3lCi7DzSI986NVNUZ1xLjuDFL
+         fFKcfgW2jr3kgDLSV6ky+JKJ+nzAjv34ggdO/DYDQr8sIedfLd0HXX9ipprmHM5bAW
+         pEM8sjE/l9HmhBjCgqvzpImfGth9BjOi21fszpCXEwmcEjyvQj9FMCBgC4ovLeuJFa
+         URaHVPg0deFGpUAyakDrTxa1W8SHHs0ztyLFbvnbdU5N/yGoJgSRIQxTNi4Po1c7fj
+         SjnbTwN0CtH+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kim Phillips <kim.phillips@amd.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        corbet@lwn.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, paulmck@kernel.org,
-        keescook@chromium.org, akpm@linux-foundation.org,
-        rdunlap@infradead.org, damien.lemoal@opensource.wdc.com,
-        jpoimboe@kernel.org, pawan.kumar.gupta@linux.intel.com,
-        alexandre.chartre@oracle.com, sblbir@amazon.com,
-        linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 11/42] x86/bugs: Enable STIBP for JMP2RET
-Date:   Tue, 19 Jul 2022 21:13:19 -0400
-Message-Id: <20220720011350.1024134-11-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, pawan.kumar.gupta@linux.intel.com,
+        sblbir@amazon.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, chang.seok.bae@intel.com,
+        ebiederm@xmission.com, zhengqi.arch@bytedance.com
+Subject: [PATCH AUTOSEL 5.15 12/42] x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
+Date:   Tue, 19 Jul 2022 21:13:20 -0400
+Message-Id: <20220720011350.1024134-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -63,146 +61,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit e8ec1b6e08a2102d8755ccb06fa26d540f26a2fa ]
+[ Upstream commit caa0ff24d5d0e02abce5e65c3d2b7f20a6617be5 ]
 
-For untrained return thunks to be fully effective, STIBP must be enabled
-or SMT disabled.
+Due to TIF_SSBD and TIF_SPEC_IB the actual IA32_SPEC_CTRL value can
+differ from x86_spec_ctrl_base. As such, keep a per-CPU value
+reflecting the current task's MSR content.
 
-Co-developed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+  [jpoimboe: rename]
+
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/kernel-parameters.txt         | 16 +++--
- arch/x86/kernel/cpu/bugs.c                    | 58 +++++++++++++++----
- 2 files changed, 57 insertions(+), 17 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |  1 +
+ arch/x86/kernel/cpu/bugs.c           | 28 +++++++++++++++++++++++-----
+ arch/x86/kernel/process.c            |  2 +-
+ 3 files changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 961843aa8403..998420529fbc 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4972,11 +4972,17 @@
- 			Speculative Code Execution with Return Instructions)
- 			vulnerability.
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 9783c6b08886..cd2010ecf32b 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -222,6 +222,7 @@ static inline void indirect_branch_prediction_barrier(void)
  
--			off         - unconditionally disable
--			auto        - automatically select a migitation
--			unret       - force enable untrained return thunks,
--				      only effective on AMD Zen {1,2}
--				      based systems.
-+			off          - no mitigation
-+			auto         - automatically select a migitation
-+			auto,nosmt   - automatically select a mitigation,
-+				       disabling SMT if necessary for
-+				       the full mitigation (only on Zen1
-+				       and older without STIBP).
-+			unret        - force enable untrained return thunks,
-+				       only effective on AMD f15h-f17h
-+				       based systems.
-+			unret,nosmt  - like unret, will disable SMT when STIBP
-+			               is not available.
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++extern void write_spec_ctrl_current(u64 val);
  
- 			Selecting 'auto' will choose a mitigation method at run
- 			time according to the CPU.
+ /*
+  * With retpoline, we must use IBRS to restrict branch prediction
 diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 3e01a88f7d5d..27bb40a718ae 100644
+index 27bb40a718ae..eae8ff8067fa 100644
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -776,19 +776,34 @@ static enum retbleed_mitigation retbleed_mitigation __ro_after_init =
- static enum retbleed_mitigation_cmd retbleed_cmd __ro_after_init =
- 	RETBLEED_CMD_AUTO;
+@@ -49,11 +49,29 @@ static void __init mmio_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
+ static void __init l1d_flush_select_mitigation(void);
  
-+static int __ro_after_init retbleed_nosmt = false;
+-/* The base value of the SPEC_CTRL MSR that always has to be preserved. */
++/* The base value of the SPEC_CTRL MSR without task-specific bits set */
+ u64 x86_spec_ctrl_base;
+ EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
 +
- static int __init retbleed_parse_cmdline(char *str)
++/* The current value of the SPEC_CTRL MSR with task-specific bits set */
++DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
++EXPORT_SYMBOL_GPL(x86_spec_ctrl_current);
++
+ static DEFINE_MUTEX(spec_ctrl_mutex);
+ 
++/*
++ * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
++ * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
++ */
++void write_spec_ctrl_current(u64 val)
++{
++	if (this_cpu_read(x86_spec_ctrl_current) == val)
++		return;
++
++	this_cpu_write(x86_spec_ctrl_current, val);
++	wrmsrl(MSR_IA32_SPEC_CTRL, val);
++}
++
+ /*
+  * The vendor and possibly platform specific bits which can be modified in
+  * x86_spec_ctrl_base.
+@@ -1272,7 +1290,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 	}
+ 
+ 	switch (mode) {
+@@ -1327,7 +1345,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 
+ static void update_stibp_msr(void * __unused)
  {
- 	if (!str)
- 		return -EINVAL;
- 
--	if (!strcmp(str, "off"))
--		retbleed_cmd = RETBLEED_CMD_OFF;
--	else if (!strcmp(str, "auto"))
--		retbleed_cmd = RETBLEED_CMD_AUTO;
--	else if (!strcmp(str, "unret"))
--		retbleed_cmd = RETBLEED_CMD_UNRET;
--	else
--		pr_err("Unknown retbleed option (%s). Defaulting to 'auto'\n", str);
-+	while (str) {
-+		char *next = strchr(str, ',');
-+		if (next) {
-+			*next = 0;
-+			next++;
-+		}
-+
-+		if (!strcmp(str, "off")) {
-+			retbleed_cmd = RETBLEED_CMD_OFF;
-+		} else if (!strcmp(str, "auto")) {
-+			retbleed_cmd = RETBLEED_CMD_AUTO;
-+		} else if (!strcmp(str, "unret")) {
-+			retbleed_cmd = RETBLEED_CMD_UNRET;
-+		} else if (!strcmp(str, "nosmt")) {
-+			retbleed_nosmt = true;
-+		} else {
-+			pr_err("Ignoring unknown retbleed option (%s).", str);
-+		}
-+
-+		str = next;
-+	}
- 
- 	return 0;
+-	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++	write_spec_ctrl_current(x86_spec_ctrl_base);
  }
-@@ -834,6 +849,10 @@ static void __init retbleed_select_mitigation(void)
- 		setup_force_cpu_cap(X86_FEATURE_RETHUNK);
- 		setup_force_cpu_cap(X86_FEATURE_UNRET);
  
-+		if (!boot_cpu_has(X86_FEATURE_STIBP) &&
-+		    (retbleed_nosmt || cpu_mitigations_auto_nosmt()))
-+			cpu_smt_disable(false);
-+
- 		if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
- 		    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
- 			pr_err(RETBLEED_UNTRAIN_MSG);
-@@ -1080,6 +1099,13 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
- 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1570,7 +1588,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++			write_spec_ctrl_current(x86_spec_ctrl_base);
+ 		}
+ 	}
  
-+	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
-+		if (mode != SPECTRE_V2_USER_STRICT &&
-+		    mode != SPECTRE_V2_USER_STRICT_PREFERRED)
-+			pr_info("Selecting STIBP always-on mode to complement retbleed mitigation'\n");
-+		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
-+	}
-+
- 	spectre_v2_user_stibp = mode;
- 
- set_mode:
-@@ -2090,10 +2116,18 @@ static ssize_t srbds_show_state(char *buf)
- 
- static ssize_t retbleed_show_state(char *buf)
+@@ -1821,7 +1839,7 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
+ void x86_spec_ctrl_setup_ap(void)
  {
--	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET &&
--	    (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
--	     boot_cpu_data.x86_vendor != X86_VENDOR_HYGON))
--		return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
-+	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
-+	    if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
-+		boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
-+		    return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
-+
-+	    return sprintf(buf, "%s; SMT %s\n",
-+			   retbleed_strings[retbleed_mitigation],
-+			   !sched_smt_active() ? "disabled" :
-+			   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+			   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ?
-+			   "enabled with STIBP protection" : "vulnerable");
-+	}
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base);
  
- 	return sprintf(buf, "%s\n", retbleed_strings[retbleed_mitigation]);
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index f2f733bcb2b9..752776298735 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -584,7 +584,7 @@ static __always_inline void __speculation_ctrl_update(unsigned long tifp,
+ 	}
+ 
+ 	if (updmsr)
+-		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
++		write_spec_ctrl_current(msr);
  }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 -- 
 2.35.1
 
