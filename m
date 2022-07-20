@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5CB57AB5E
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0515357AB70
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240075AbiGTBLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32846 "EHLO
+        id S238691AbiGTBLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:11:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239771AbiGTBKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:10:52 -0400
+        with ESMTP id S240185AbiGTBLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4634BD18;
-        Tue, 19 Jul 2022 18:10:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3E7545DD;
+        Tue, 19 Jul 2022 18:10:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B086C6171C;
-        Wed, 20 Jul 2022 01:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E04B6C341C6;
-        Wed, 20 Jul 2022 01:10:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E295C61732;
+        Wed, 20 Jul 2022 01:10:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D114C341C6;
+        Wed, 20 Jul 2022 01:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279448;
-        bh=geJPDdQ7ApT76PWUo/eMmnGiDSRWmu9OjCz9xBHRNgk=;
+        s=k20201202; t=1658279451;
+        bh=j9iKzw3Ez6OxwOZqbsC/qV42DywUvZICssT6cBlTxK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKOlTufDyZHOyqD0D1ykcFS4vjr0srp9gzN+3UCIco4vU7eymqY6sxDaR/xWcrTli
-         MGKQ4CRKXUM791bmxzV882lcPwhNCJ6Wy/LGRisdYuOHxTos2W8Std7y6b4Mbp4/Ri
-         U4Q0bS6WZ/z1Jt63j8a+cTBEma1cRXVcsRulj+0Z45QeyeAt4RbUw+7L6yEwVPEzNT
-         L+Rvjv0aDezVDWet11rZK8u80dz8aWsNrRSRUja3wmMlV8Rvui9xVcXxmaitUswhYd
-         Up9wlxn9/HA9hYyy8FBofIOP0gvCN2Z3VzNk9QySpHpOr4eKjSDKwW1MRZ2v+DuekX
-         wbpdtLD4RIlmQ==
+        b=t8WWOlF7cYv2rGXpebtao5QNJQFWs4+9RfW+dBmGIJaRwkos02kPpJFhAxdW01iBZ
+         7srJeYChcMoYIdizmc96oCKmLXH+hwC7U4wtnCWFNiB23uzv2HkvD4EE9ZdmqvogDH
+         lyepYLnI4ZBDjfE6n/WgQv3LgJngyYIl/rDsB6u4BX+ecONCy7WstXd8m1kVAtkRkc
+         7TzSBvv0bhb/qmLzH7fkM1Tshu7xAoTymEaa1E1DA7HgLvDLDnKbj0umu7ayDLGjYR
+         yDUXucADtPQyG68KRvQQ/KFvMFVYIqrHQBZQqK8n/a5kx4wzKQH8xFtiQs9RQnFNny
+         KyKRqLfhw9gcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
@@ -38,15 +38,10 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, davem@davemloft.net, yoshfuji@linux-ipv6.org,
-        dsahern@kernel.org, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, tony.luck@intel.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com, fenghua.yu@intel.com,
-        pawan.kumar.gupta@linux.intel.com, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 05/54] x86/retpoline: Cleanup some #ifdefery
-Date:   Tue, 19 Jul 2022 21:09:42 -0400
-Message-Id: <20220720011031.1023305-5-sashal@kernel.org>
+        x86@kernel.org, ndesaulniers@google.com
+Subject: [PATCH AUTOSEL 5.18 06/54] x86/retpoline: Swizzle retpoline thunk
+Date:   Tue, 19 Jul 2022 21:09:43 -0400
+Message-Id: <20220720011031.1023305-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -65,10 +60,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 369ae6ffc41a3c1137cab697635a84d0cc7cdcea ]
+[ Upstream commit 00e1533325fd1fb5459229fe37f235462649f668 ]
 
-On it's own not much of a cleanup but it prepares for more/similar
-code.
+Put the actual retpoline thunk as the original code so that it can
+become more complicated. Specifically, it allows RET to be a JMP,
+which can't be .altinstr_replacement since that doesn't do relocations
+(except for the very first instruction).
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
@@ -77,87 +74,26 @@ Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/disabled-features.h | 9 ++++++++-
- arch/x86/include/asm/nospec-branch.h     | 7 +++----
- arch/x86/net/bpf_jit_comp.c              | 7 +++----
- 3 files changed, 14 insertions(+), 9 deletions(-)
+ arch/x86/lib/retpoline.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/disabled-features.h b/arch/x86/include/asm/disabled-features.h
-index 1231d63f836d..f5db93822fc1 100644
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -56,6 +56,13 @@
- # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
- #endif
+diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
+index b2b2366885a2..2cdd62499d54 100644
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -33,9 +33,9 @@ SYM_INNER_LABEL(__x86_indirect_thunk_\reg, SYM_L_GLOBAL)
+ 	UNWIND_HINT_EMPTY
+ 	ANNOTATE_NOENDBR
  
-+#ifdef CONFIG_RETPOLINE
-+# define DISABLE_RETPOLINE	0
-+#else
-+# define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
-+				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
-+#endif
-+
- #ifdef CONFIG_INTEL_IOMMU_SVM
- # define DISABLE_ENQCMD		0
- #else
-@@ -82,7 +89,7 @@
- #define DISABLED_MASK8	0
- #define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
- #define DISABLED_MASK10	0
--#define DISABLED_MASK11	0
-+#define DISABLED_MASK11	(DISABLE_RETPOLINE)
- #define DISABLED_MASK12	0
- #define DISABLED_MASK13	0
- #define DISABLED_MASK14	0
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index da251a5645b0..5728539a3e77 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -120,17 +120,16 @@
- 	_ASM_PTR " 999b\n\t"					\
- 	".popsection\n\t"
+-	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+-		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE
++	ALTERNATIVE_2 __stringify(RETPOLINE \reg), \
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE, \
++		      __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), ALT_NOT(X86_FEATURE_RETPOLINE)
  
--#ifdef CONFIG_RETPOLINE
--
- typedef u8 retpoline_thunk_t[RETPOLINE_THUNK_SIZE];
-+extern retpoline_thunk_t __x86_indirect_thunk_array[];
-+
-+#ifdef CONFIG_RETPOLINE
+ .endm
  
- #define GEN(reg) \
- 	extern retpoline_thunk_t __x86_indirect_thunk_ ## reg;
- #include <asm/GEN-for-each-reg.h>
- #undef GEN
- 
--extern retpoline_thunk_t __x86_indirect_thunk_array[];
--
- #ifdef CONFIG_X86_64
- 
- /*
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 4c71fa04e784..2ad01c75863e 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -407,16 +407,15 @@ static void emit_indirect_jump(u8 **pprog, int reg, u8 *ip)
- {
- 	u8 *prog = *pprog;
- 
--#ifdef CONFIG_RETPOLINE
- 	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
- 		EMIT_LFENCE();
- 		EMIT2(0xFF, 0xE0 + reg);
- 	} else if (cpu_feature_enabled(X86_FEATURE_RETPOLINE)) {
- 		OPTIMIZER_HIDE_VAR(reg);
- 		emit_jump(&prog, &__x86_indirect_thunk_array[reg], ip);
--	} else
--#endif
--	EMIT2(0xFF, 0xE0 + reg);
-+	} else {
-+		EMIT2(0xFF, 0xE0 + reg);
-+	}
- 
- 	*pprog = prog;
- }
 -- 
 2.35.1
 
