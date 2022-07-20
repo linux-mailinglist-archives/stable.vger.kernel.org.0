@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4983457ACE9
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF2257AD2A
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242221AbiGTB2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
+        id S242188AbiGTB2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242027AbiGTB1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:27:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4087876473;
-        Tue, 19 Jul 2022 18:18:33 -0700 (PDT)
+        with ESMTP id S242072AbiGTB1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:27:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 185A96BC14;
+        Tue, 19 Jul 2022 18:18:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64C87B81DEA;
-        Wed, 20 Jul 2022 01:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42D94C341C6;
-        Wed, 20 Jul 2022 01:18:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8ACF4B81DF8;
+        Wed, 20 Jul 2022 01:18:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 320D4C341C6;
+        Wed, 20 Jul 2022 01:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279910;
-        bh=yvYYLK8GTpvd0DLQXvYV+6tSNlBZQRy5OKk9R12S89Q=;
+        s=k20201202; t=1658279913;
+        bh=OowdkDdPCbBdsFIG64cEnTlLcbowu5gdmdnAQAbTwzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=noxgCKL2mllNuRxMoCis/H7toQ0RwSU/YGfJdPabFMYmTfX4sWLAdU71ROrGz5Njs
-         3n7qCx1NfYprtCcfaJjAJNyooH0GXHAgCUFxbVibUWUzdzjHzKzPd1FCTkfLk12kdB
-         IJhTxPZ1jEg9l0LY16Cs3vyE0idP0Sh+zb9ACuJMOLDNBuwmqqj4/UtGhDCRZrgPiJ
-         J2VqErt4mrgck6s6zTcj2r9MVG6sK+ZdPjDqeDBMFnsE/x+O+tcMXdjTUw7AOsA51Y
-         fv9M6PGc+ZPZu4Hj2nkbUkNF0Zqvwxx18swrEIP6mD/0LT5kmwzV4bv1fXVnOuWSe3
-         lUhNF9PHlHsXg==
+        b=lxS65wNltcMbpDXMjVJL0PWmDwwe2nTwqEAo55OyFJe/LVpMxcueno4waJF3s9Tb8
+         Ddp/XvsrrA52mk/GHdc97JDMolifD1kmWUY68CM0U3hX5qQ1APtZy61usy4QYwYVQz
+         LiQu846lw90Ydg2Isxy7U8WiRgq0EfbFBYgOKupyTyRBRkMq6uZax1dPlyRNlDaO9O
+         CR77mI1B3nIPI8uT/ACiJYaPXSuTVRVCt/HX+S0lqGC6OiHl//lRl0Jq2TFsZd+9QC
+         dqRv0qfaDPMuO5dtXy3vgGm5QNTgpxEvRAga1R8F4bKcemWq7IZx8WXXOH9Jo2BV1H
+         ey/XECVpSekRw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Tommy Pettersson <ptp@lysator.liu.se>,
-        Ciprian Craciun <ciprian.craciun@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-nilfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/8] nilfs2: fix incorrect masking of permission flags for symlinks
-Date:   Tue, 19 Jul 2022 21:18:07 -0400
-Message-Id: <20220720011810.1025308-5-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 6/8] ASoC: wm8998: Fix event generation for input mux
+Date:   Tue, 19 Jul 2022 21:18:08 -0400
+Message-Id: <20220720011810.1025308-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011810.1025308-1-sashal@kernel.org>
 References: <20220720011810.1025308-1-sashal@kernel.org>
@@ -57,48 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 5924e6ec1585445f251ea92713eb15beb732622a ]
+[ Upstream commit 15b2e5d10ccf32a1a1ae7c636511e2f51320fdb5 ]
 
-The permission flags of newly created symlinks are wrongly dropped on
-nilfs2 with the current umask value even though symlinks should have 777
-(rwxrwxrwx) permissions:
+wm8998_inmux_put returns the value of snd_soc_dapm_mux_update_power,
+which returns a 1 if a path was found for the kcontrol. This is
+obviously different to the expected return a 1 if the control
+was updated value. This results in spurious notifications to
+user-space. Update the handling to only return a 1 when the value is
+changed.
 
- $ umask
- 0022
- $ touch file && ln -s file symlink; ls -l file symlink
- -rw-r--r--. 1 root root 0 Jun 23 16:29 file
- lrwxr-xr-x. 1 root root 4 Jun 23 16:29 symlink -> file
-
-This fixes the bug by inserting a missing check that excludes
-symlinks.
-
-Link: https://lkml.kernel.org/r/1655974441-5612-1-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: Tommy Pettersson <ptp@lysator.liu.se>
-Reported-by: Ciprian Craciun <ciprian.craciun@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220628153409.3266932-2-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/nilfs.h | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/wm8998.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/fs/nilfs2/nilfs.h b/fs/nilfs2/nilfs.h
-index 8699bdc9e391..cca30f0f965c 100644
---- a/fs/nilfs2/nilfs.h
-+++ b/fs/nilfs2/nilfs.h
-@@ -198,6 +198,9 @@ static inline int nilfs_acl_chmod(struct inode *inode)
+diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
+index 17dc5780ab68..3b278435b0aa 100644
+--- a/sound/soc/codecs/wm8998.c
++++ b/sound/soc/codecs/wm8998.c
+@@ -111,6 +111,7 @@ static int wm8998_inmux_put(struct snd_kcontrol *kcontrol,
+ 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
+ 	unsigned int mode_reg, mode_index;
+ 	unsigned int mux, inmode, src_val, mode_val;
++	int change, ret;
  
- static inline int nilfs_init_acl(struct inode *inode, struct inode *dir)
- {
-+	if (S_ISLNK(inode->i_mode))
-+		return 0;
+ 	mux = ucontrol->value.enumerated.item[0];
+ 	if (mux > 1)
+@@ -140,14 +141,20 @@ static int wm8998_inmux_put(struct snd_kcontrol *kcontrol,
+ 	snd_soc_component_update_bits(component, mode_reg,
+ 				      ARIZONA_IN1_MODE_MASK, mode_val);
+ 
+-	snd_soc_component_update_bits(component, e->reg,
+-				      ARIZONA_IN1L_SRC_MASK |
+-				      ARIZONA_IN1L_SRC_SE_MASK,
+-				      src_val);
++	change = snd_soc_component_update_bits(component, e->reg,
++					       ARIZONA_IN1L_SRC_MASK |
++					       ARIZONA_IN1L_SRC_SE_MASK,
++					       src_val);
+ 
+-	return snd_soc_dapm_mux_update_power(dapm, kcontrol,
+-					     ucontrol->value.enumerated.item[0],
+-					     e, NULL);
++	ret = snd_soc_dapm_mux_update_power(dapm, kcontrol,
++					    ucontrol->value.enumerated.item[0],
++					    e, NULL);
++	if (ret < 0) {
++		dev_err(arizona->dev, "Failed to update demux power state: %d\n", ret);
++		return ret;
++	}
 +
- 	inode->i_mode &= ~current_umask();
- 	return 0;
++	return change;
  }
+ 
+ static const char * const wm8998_inmux_texts[] = {
 -- 
 2.35.1
 
