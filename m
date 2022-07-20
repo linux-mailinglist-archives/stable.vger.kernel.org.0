@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73DA757AB69
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FFD457AB60
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239664AbiGTBLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:11:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
+        id S239936AbiGTBLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:11:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239881AbiGTBLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:21 -0400
+        with ESMTP id S240391AbiGTBLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4AE062490;
-        Tue, 19 Jul 2022 18:11:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E5D64E04;
+        Tue, 19 Jul 2022 18:11:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 404406173B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 059FF616F0;
+        Wed, 20 Jul 2022 01:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23634C385A9;
         Wed, 20 Jul 2022 01:11:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E889C36AE2;
-        Wed, 20 Jul 2022 01:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279469;
-        bh=hkb1+h6mYCHA06BuFWT4pmqFqndTQpvrGQ6vTfHFoZ0=;
+        s=k20201202; t=1658279471;
+        bh=WXdrFZOXceROsZm8n4HSd8OiAlCYb1jd9+1Sqz04V6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RW5t9R9sPd+IZg7AtuhO49fUMeYL9S4NMWSrt8kkF/UdoKgk+T2dSL3+xzfMBE2Xe
-         f9aiHmR7Vn4TPj577gP8Bi04eQlCjPyHBLCeLE3Ij55UFZmK2bHt+LgvtpImsGh3F3
-         cyfe+GCHEYEtjBSEpcei4rabHsw9LheMQtgCqeGZUvEhoW8XiFi6vpirtl3TYRfOuj
-         adRuWSpnqyJYGovuB/XcamvGCSQpe3JuiKnU5QU0U3A5VT/LeLRny7fnqrvcrQAoT5
-         wyJHVFcUmjNRbg+yPneizeqerHoD6vfXayCINrNXROASViHcxuoxhEvx7r8XMIn4oY
-         6p4FLDKxxxkaA==
+        b=bbreMiBrX6RI1SyL2EYbwHz2CmkbBVJtYLNUhlOb5jw68p66oROnsdfK2LdwULy36
+         KoopZbIOl+uGR7luHJNG761B6aTdxVj2HssyhAyCScFDhmImaMbcOYGDUxHsgQWWyK
+         mGreUOpMe1fmTwxufDNp/w4fzf6e5y3Gk31s/d3p4AaqOM+JmJ9jkFnxEipHzLdVHP
+         ZGZLMLV3X6o948mSYkvwRgQIdIEy2KPraiLejFERlD2mDdwpTyRKuobHhT+zntg076
+         qvsVXhzhbPUjFpkYxFJ7z1bVRYHRJMkRucoKvmDgkLRFHG/dDJ8MCIRSS0CmEEQEfK
+         Nkz6NjN8J61Fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
+Cc:     Kim Phillips <kim.phillips@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, luto@kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org
-Subject: [PATCH AUTOSEL 5.18 10/54] x86/vsyscall_emu/64: Don't use RET in vsyscall emulation
-Date:   Tue, 19 Jul 2022 21:09:47 -0400
-Message-Id: <20220720011031.1023305-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, dave.hansen@linux.intel.com,
+        luto@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, x86@kernel.org
+Subject: [PATCH AUTOSEL 5.18 11/54] x86/sev: Avoid using __x86_return_thunk
+Date:   Tue, 19 Jul 2022 21:09:48 -0400
+Message-Id: <20220720011031.1023305-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -58,49 +59,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit 15583e514eb16744b80be85dea0774ece153177d ]
+[ Upstream commit 0ee9073000e8791f8b134a8ded31bcc767f7f232 ]
 
-This is userspace code and doesn't play by the normal kernel rules.
+Specifically, it's because __enc_copy() encrypts the kernel after
+being relocated outside the kernel in sme_encrypt_execute(), and the
+RET macro's jmp offset isn't amended prior to execution.
 
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/vsyscall/vsyscall_emu_64.S | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/mm/mem_encrypt_boot.S | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/entry/vsyscall/vsyscall_emu_64.S b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-index 15e35159ebb6..ef2dd1827243 100644
---- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-+++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-@@ -19,17 +19,20 @@ __vsyscall_page:
+diff --git a/arch/x86/mm/mem_encrypt_boot.S b/arch/x86/mm/mem_encrypt_boot.S
+index 3d1dba05fce4..d94dea450fa6 100644
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -65,7 +65,9 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	movq	%rbp, %rsp		/* Restore original stack pointer */
+ 	pop	%rbp
  
- 	mov $__NR_gettimeofday, %rax
- 	syscall
 -	RET
++	/* Offset to __x86_return_thunk would be wrong here */
 +	ret
 +	int3
+ SYM_FUNC_END(sme_encrypt_execute)
  
- 	.balign 1024, 0xcc
- 	mov $__NR_time, %rax
- 	syscall
+ SYM_FUNC_START(__enc_copy)
+@@ -151,6 +153,8 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r12
+ 	pop	%r15
+ 
 -	RET
++	/* Offset to __x86_return_thunk would be wrong here */
 +	ret
 +	int3
- 
- 	.balign 1024, 0xcc
- 	mov $__NR_getcpu, %rax
- 	syscall
--	RET
-+	ret
-+	int3
- 
- 	.balign 4096, 0xcc
- 
+ .L__enc_copy_end:
+ SYM_FUNC_END(__enc_copy)
 -- 
 2.35.1
 
