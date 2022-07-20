@@ -2,65 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A14557B0A3
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 07:59:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B5F57B0AA
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 08:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230016AbiGTF7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 01:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37252 "EHLO
+        id S238060AbiGTGAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 02:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229797AbiGTF7d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 01:59:33 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806A4564C3
-        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 22:59:32 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id ez10so31109742ejc.13
-        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 22:59:32 -0700 (PDT)
+        with ESMTP id S238202AbiGTGAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 02:00:50 -0400
+Received: from mail-oa1-x2d.google.com (mail-oa1-x2d.google.com [IPv6:2001:4860:4864:20::2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E19295C340
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 23:00:44 -0700 (PDT)
+Received: by mail-oa1-x2d.google.com with SMTP id 586e51a60fabf-f2a4c51c45so34863578fac.9
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 23:00:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DEA1wCpNVn+GVcWZ4ILSg2xt/uw3C54gsVcanp/T6XE=;
-        b=HOwwvAChKFxpEZgav0TgWO30Xfwwv4A4aRF0qwnfz5PRPV3EfD8PAVfukmwnM/rbUL
-         5O2d1ktslAEddq1VugH0MTWlDMnt+c6TOek0+wh5F3yls9RNQd9bn8bTrx7/whCHkUaQ
-         c3ePvTSxDEaJyzg70uWPHY9emFHoUlISOFT1gmtJJg0aggpYmAX+VRD2oGJuZbn4ZJaY
-         K2+ydx2jPAISGY/ACUCW+tXqFpMD8INvxygzzPlDdvuhGbM1grr9xdso0gD0bdvWKBS4
-         a/3xXr6kGphiLn2zq/x5wqy/neIT7zAFzj03abl/YftkRl+8Qt5sDIvyQA5UBVlh0JwA
-         WBZQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=GdWiTqPNpRvrIn/Cn1CxOA73dPIXQQ7hC8GlLECuAKk=;
+        b=C1F8GZi//ietuhNpm/thbGg0wgeMK39yhvDEndF3jHlwAPNOTH0Ftq1JvqfyOkc3xJ
+         kOrn51JHI1J61ogN3EoGAxdg8mLEExovUIs91yPoH2IgXyIaPHKvtDgwrAVkVkrdMEQA
+         5lnMuVsO5SxbM3qSxvsm87gLxiw5EYHCudC47Cub8YSWuEu9WKfTnUjs4KLd5NICAJZ8
+         LOMbquCBF6kLST77rhMas9pAwpariBwGoYjWgsJ/ABJx0fa+xDagU0sEmebKyRZUC4+k
+         KAYw6hTUtGfNdT8LdXVdK7Dde3uoFMa+4lFkpizUolvgAYwEYlNHFIclyVQHl4eRZKyr
+         24iA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DEA1wCpNVn+GVcWZ4ILSg2xt/uw3C54gsVcanp/T6XE=;
-        b=vrViFwaQVuXzXhAwnbl7OuhOOKLl9jZJ823jkZ96ysSW8Us/vaZI72+UZywjEbKbT5
-         E3fFaBz0luWGWhVdE5umNudynnxEQX9pCD7KLmmJfOUsArEutj6BjA8MN0ozL3glR9ZD
-         AYcQkfVC4W1m5eG9Zj8UQXtnkFEmRo9t58od+jjyAUWNHITgUOk2PqQPffWU/9bBCLMO
-         gDKUwaFNDpJ2WqPAi216jOFLvGstz3piNZtk135IpgYhnrv5QLiGBbZ4IXRVozP4kygN
-         72Tmz130Pmy35gfYkECYCk1vaL0SXtnDjy+wOos0Zq3/Xd7yWLxXUw4rxbc0B7nyIHaV
-         ubdQ==
-X-Gm-Message-State: AJIora/JjrlMLSamhlhDsQd6KStnaijqeuHaT2Q3vqR5tyMM5FnvCZYq
-        ceQvCp+bSzH2XJHf8+fjakk8z4oDao0=
-X-Google-Smtp-Source: AGRyM1u53rmqetU8p7ynupye3jFdZmmMYCCYPzl6ZO1fIWEhEJpu0Z78wDeGmYNDuTRjgvwHn8LBGQ==
-X-Received: by 2002:a17:907:728c:b0:72b:995f:78d with SMTP id dt12-20020a170907728c00b0072b995f078dmr33969925ejc.348.1658296770755;
-        Tue, 19 Jul 2022 22:59:30 -0700 (PDT)
-Received: from labdl-itc-sw06.tmt.telital.com (static-82-85-31-68.clienti.tiscali.it. [82.85.31.68])
-        by smtp.gmail.com with ESMTPSA id u2-20020aa7db82000000b0043a253973aasm11556666edt.10.2022.07.19.22.59.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jul 2022 22:59:30 -0700 (PDT)
-From:   Fabio Porcedda <fabio.porcedda@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Daniele Palmas <dnlplm@gmail.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH v4 5.18 2/2] bus: mhi: host: pci_generic: add Telit FN990
-Date:   Wed, 20 Jul 2022 07:59:24 +0200
-Message-Id: <20220720055924.543750-3-fabio.porcedda@gmail.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220720055924.543750-1-fabio.porcedda@gmail.com>
-References: <20220720055924.543750-1-fabio.porcedda@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=GdWiTqPNpRvrIn/Cn1CxOA73dPIXQQ7hC8GlLECuAKk=;
+        b=Vt56o1D/GfTwPNvlSU+R4lu139Uvl7qh0QqP3dmHpznN/9Y3TiqGYvHjh+TF3t/Bp9
+         t+sZK1bo6s3kccziMlMfvVZpEjU5l/JZZ97NVAs5LjYfOp3x3GTfioskXWmzZfuPRzlA
+         QsswnVotMNe3S1pG5XTD/V1NXXHzH4IEH+4aIhCx80Uci4XNiWrT5GmbT7udK3ZbASpk
+         c6GbSWXsnzxI6H1OMO/JZPLp5AEt/0mjH3izu6Ng5olK583OFmQODemo2w02Hpmq49uw
+         P23+8EYQU5guyHU/M+PVa/DjRcqoEeXQLpCHzLrH1QUpZjYwuHEFFQHz4hmY28rSkQxi
+         MQdA==
+X-Gm-Message-State: AJIora/6lKVfUCzMa3IkdhFLZ25hZpVDcWJc6HkW9toyI/FDIYZvTgS+
+        ZmRDzb90xhq67yb5UyG4yEs52Rkl8IEMIliZrg87W4nH
+X-Google-Smtp-Source: AGRyM1spNfWCLo1SZ++RT7SPwlag4vAXVw6/GE1UfeUydbfjdoMF8SCdpDkB9hjIiDL9DfesjoSVhjromPhTd6LUuys=
+X-Received: by 2002:a05:6870:6195:b0:100:ee8a:ce86 with SMTP id
+ a21-20020a056870619500b00100ee8ace86mr1669737oah.40.1658296843660; Tue, 19
+ Jul 2022 23:00:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220720054341.542391-1-fabio.porcedda@gmail.com>
+In-Reply-To: <20220720054341.542391-1-fabio.porcedda@gmail.com>
+From:   Fabio Porcedda <fabio.porcedda@gmail.com>
+Date:   Wed, 20 Jul 2022 08:00:32 +0200
+Message-ID: <CAHkwnC9hajcQba_z=NBf-=yPUEEQJ0GTOf9kBWrfZ6H0SCqA8A@mail.gmail.com>
+Subject: Re: [PATCH v3 5.18 0/2] Backport support for Telit FN980 v1 and FN990
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
@@ -71,82 +62,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+Il giorno mer 20 lug 2022 alle ore 07:43 Fabio Porcedda
+<fabio.porcedda@gmail.com> ha scritto:
+>
+> Hi,
+> these two patches are the backport for 5.18.y of the following commits:
+>
+> commit a96ef8b504efb2ad445dfb6d54f9488c3ddf23d2
+>     bus: mhi: host: pci_generic: add Telit FN980 v1 hardware revisio
+>
+> commit 77fc41204734042861210b9d05338c9b8360affb
+>     bus: mhi: host: pci_generic: add Telit FN990
+>
+> The cherry-pick of the original commits don't apply because the commit
+> 89ad19bea649 (bus: mhi: host: pci_generic: Sort mhi_pci_id_table based
+> on the PID, 2022-04-11) was not cherry-picked. Another solution is to
+> cherry-pick those three commits all togheter.
 
-Add Telit FN990:
+Superseded by v4.
 
-01:00.0 Unassigned class [ff00]: Qualcomm Device 0308
-        Subsystem: Device 1c5d:2010
-
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Link: https://lore.kernel.org/r/20220502112036.443618-1-dnlplm@gmail.com
-[mani: Added "host" to the subject]
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
----
- drivers/bus/mhi/host/pci_generic.c | 41 ++++++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
-
-diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 6b27295f566f..de1e934a4f7e 100644
---- a/drivers/bus/mhi/host/pci_generic.c
-+++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -481,6 +481,44 @@ static const struct mhi_pci_dev_info mhi_telit_fn980_hw_v1_info = {
- 	.sideband_wake = false,
- };
- 
-+static const struct mhi_channel_config mhi_telit_fn990_channels[] = {
-+	MHI_CHANNEL_CONFIG_UL_SBL(2, "SAHARA", 32, 0),
-+	MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),
-+	MHI_CHANNEL_CONFIG_UL(4, "DIAG", 64, 1),
-+	MHI_CHANNEL_CONFIG_DL(5, "DIAG", 64, 1),
-+	MHI_CHANNEL_CONFIG_UL(12, "MBIM", 32, 0),
-+	MHI_CHANNEL_CONFIG_DL(13, "MBIM", 32, 0),
-+	MHI_CHANNEL_CONFIG_UL(32, "DUN", 32, 0),
-+	MHI_CHANNEL_CONFIG_DL(33, "DUN", 32, 0),
-+	MHI_CHANNEL_CONFIG_HW_UL(100, "IP_HW0_MBIM", 128, 2),
-+	MHI_CHANNEL_CONFIG_HW_DL(101, "IP_HW0_MBIM", 128, 3),
-+};
-+
-+static struct mhi_event_config mhi_telit_fn990_events[] = {
-+	MHI_EVENT_CONFIG_CTRL(0, 128),
-+	MHI_EVENT_CONFIG_DATA(1, 128),
-+	MHI_EVENT_CONFIG_HW_DATA(2, 1024, 100),
-+	MHI_EVENT_CONFIG_HW_DATA(3, 2048, 101)
-+};
-+
-+static const struct mhi_controller_config modem_telit_fn990_config = {
-+	.max_channels = 128,
-+	.timeout_ms = 20000,
-+	.num_channels = ARRAY_SIZE(mhi_telit_fn990_channels),
-+	.ch_cfg = mhi_telit_fn990_channels,
-+	.num_events = ARRAY_SIZE(mhi_telit_fn990_events),
-+	.event_cfg = mhi_telit_fn990_events,
-+};
-+
-+static const struct mhi_pci_dev_info mhi_telit_fn990_info = {
-+	.name = "telit-fn990",
-+	.config = &modem_telit_fn990_config,
-+	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
-+	.mru_default = 32768,
-+};
-+
- static const struct pci_device_id mhi_pci_id_table[] = {
- 	/* EM919x (sdx55), use the same vid:pid as qcom-sdx55m */
- 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0306, 0x18d7, 0x0200),
-@@ -492,6 +530,9 @@ static const struct pci_device_id mhi_pci_id_table[] = {
- 		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx55_info },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_QCOM, 0x0304),
- 		.driver_data = (kernel_ulong_t) &mhi_qcom_sdx24_info },
-+	/* Telit FN990 */
-+	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_QCOM, 0x0308, 0x1c5d, 0x2010),
-+		.driver_data = (kernel_ulong_t) &mhi_telit_fn990_info },
- 	{ PCI_DEVICE(0x1eac, 0x1001), /* EM120R-GL (sdx24) */
- 		.driver_data = (kernel_ulong_t) &mhi_quectel_em1xx_info },
- 	{ PCI_DEVICE(0x1eac, 0x1002), /* EM160R-GL (sdx24) */
+Best regards
 -- 
-2.37.1
-
+Fabio Porcedda
