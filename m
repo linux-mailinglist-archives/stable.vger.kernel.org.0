@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380E857ABFE
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC7657ABDA
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241098AbiGTBQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
+        id S241177AbiGTBQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:16:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240729AbiGTBPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:15:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A522069F2C;
-        Tue, 19 Jul 2022 18:13:45 -0700 (PDT)
+        with ESMTP id S239226AbiGTBP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:15:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA966A9C7;
+        Tue, 19 Jul 2022 18:13:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ADDCB81DEE;
-        Wed, 20 Jul 2022 01:13:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C69C36AEA;
-        Wed, 20 Jul 2022 01:13:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EB392CE1D21;
+        Wed, 20 Jul 2022 01:13:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D36C36AE5;
+        Wed, 20 Jul 2022 01:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279622;
-        bh=C6tQ27qV4Qx+2IM8ABcYwxQD1nTvbJT0lYfXpBKnbvY=;
+        s=k20201202; t=1658279624;
+        bh=fnNrFofyWZEJTf+HkLXZkVV+hU5gRZDvYEyZWD6kC/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUQSOhQp9ch/Kf+3khRr2kXpTI1qc/led9MR6U1cdTsU5uQ6upvxmV9DRMMjYOrdz
-         ZqvqqDjdItSaLaQsxxUIBlfz9A5oQ0bEp3xZXfMtAwwsh1ncedVSo8vrp1t8P5Z3Hu
-         oVUa8Rv+3BTGzec+1YbSPvlekd9fkWYLiZdZtsrQQZ9FBvV8a7ptcvWh5VeouDGgK5
-         JXUt2/jjRGjzCH3XJsp/r2oCJJN7px8kl933qodfjiNhGJmffwIQZDe2hxmIGTtdRG
-         aw1toZenoxdclJpEI5Oq1eyDLlg6llShA5SLAVYKkO38AK7zV/peg1us7WENMQ24dj
-         A1eocuy0MNT+w==
+        b=AsAJEE1kkAlaIbEmHb1AZRs81yARzt2bi+P4LkhZ4VAawpMzLyNr/+YltCvBkBxHp
+         Aliuw+jFm/kn/ba6RibPa+HnWDF4jsQE9kZAgZLq7oq/AEvzrIGJKOo5lCpfR+GH+Y
+         7+UIIWwFpXijfNk6bdVxNNezrpMqkbe8ktByMAY4OuiCSE/rGKPtsUbwn6uWFRAntg
+         2PO5ZYRn+tyX1g7PyVudYFX4BxA/x+EdijoQH6Yj0TFCKCH880+6wwjn+ltHiSIgmt
+         6cWQFm0ey4rxOntfw8EdS/U0b/SW0DVE2xvIVcZ27fQIQJfbZyVcBBTV1WRvhhwgTt
+         LEROHvDN8m0og==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Changyuan Lyu <changyuanl@google.com>,
         Igor Pylypiv <ipylypiv@google.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
         jejb@linux.ibm.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 51/54] scsi: pm80xx: Fix 'Unknown' max/min linkrate
-Date:   Tue, 19 Jul 2022 21:10:28 -0400
-Message-Id: <20220720011031.1023305-51-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 52/54] scsi: pm80xx: Set stopped phy's linkrate to Disabled
+Date:   Tue, 19 Jul 2022 21:10:29 -0400
+Message-Id: <20220720011031.1023305-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -60,119 +59,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Changyuan Lyu <changyuanl@google.com>
 
-[ Upstream commit e78276cadb669d3e55cffe66bd166ff3c8572e38 ]
+[ Upstream commit 355bf2e036c954317ddc4a9618b4f7e38ea5a970 ]
 
-Currently, the data flow of the max/min linkrate in the driver is
+Negotiated link rate needs to be updated to 'Disabled' when phy is stopped.
 
- * in pm8001_get_lrate_mode():
-   hardcoded value ==> struct sas_phy
-
- * in pm8001_bytes_dmaed():
-   struct pm8001_phy ==> struct sas_phy
-
- * in pm8001_phy_control():
-   libsas data ==> struct pm8001_phy
-
-Since pm8001_bytes_dmaed() follows pm8001_get_lrate_mode(), and the fields
-in struct pm8001_phy are not initialized, sysfs
-`/sys/class/sas_phy/phy-*/maximum_linkrate` always shows `Unknown`.
-
-To fix the issue, change the dataflow to the following:
-
- * in pm8001_phy_init():
-   initial value ==> struct pm8001_phy
-
- * in pm8001_get_lrate_mode():
-   struct pm8001_phy ==> struct sas_phy
-
- * in pm8001_phy_control():
-   libsas data ==> struct pm8001_phy
-
-For negotiated linkrate, the current dataflow is:
-
- * in pm8001_get_lrate_mode():
-   iomb data ==> struct asd_sas_phy ==> struct sas_phy
-
- * in pm8001_bytes_dmaed():
-   struct asd_sas_phy ==> struct sas_phy
-
-Since pm8001_bytes_dmaed() follows pm8001_get_lrate_mode(), the assignment
-statements in pm8001_bytes_dmaed() are unnecessary and cleaned up.
-
-Link: https://lore.kernel.org/r/20220707175210.528858-1-changyuanl@google.com
+Link: https://lore.kernel.org/r/20220708205026.969161-1-changyuanl@google.com
 Reviewed-by: Igor Pylypiv <ipylypiv@google.com>
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
 Signed-off-by: Changyuan Lyu <changyuanl@google.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c  | 19 +++----------------
- drivers/scsi/pm8001/pm8001_init.c |  2 ++
- 2 files changed, 5 insertions(+), 16 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index f7466a895d3b..991eb01bb1e0 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -3145,15 +3145,6 @@ void pm8001_bytes_dmaed(struct pm8001_hba_info *pm8001_ha, int i)
- 	if (!phy->phy_attached)
- 		return;
- 
--	if (sas_phy->phy) {
--		struct sas_phy *sphy = sas_phy->phy;
--		sphy->negotiated_linkrate = sas_phy->linkrate;
--		sphy->minimum_linkrate = phy->minimum_linkrate;
--		sphy->minimum_linkrate_hw = SAS_LINK_RATE_1_5_GBPS;
--		sphy->maximum_linkrate = phy->maximum_linkrate;
--		sphy->maximum_linkrate_hw = phy->maximum_linkrate;
--	}
--
- 	if (phy->phy_type & PORT_TYPE_SAS) {
- 		struct sas_identify_frame *id;
- 		id = (struct sas_identify_frame *)phy->frame_rcvd;
-@@ -3177,26 +3168,22 @@ void pm8001_get_lrate_mode(struct pm8001_phy *phy, u8 link_rate)
- 	switch (link_rate) {
- 	case PHY_SPEED_120:
- 		phy->sas_phy.linkrate = SAS_LINK_RATE_12_0_GBPS;
--		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_12_0_GBPS;
- 		break;
- 	case PHY_SPEED_60:
- 		phy->sas_phy.linkrate = SAS_LINK_RATE_6_0_GBPS;
--		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_6_0_GBPS;
- 		break;
- 	case PHY_SPEED_30:
- 		phy->sas_phy.linkrate = SAS_LINK_RATE_3_0_GBPS;
--		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_3_0_GBPS;
- 		break;
- 	case PHY_SPEED_15:
- 		phy->sas_phy.linkrate = SAS_LINK_RATE_1_5_GBPS;
--		phy->sas_phy.phy->negotiated_linkrate = SAS_LINK_RATE_1_5_GBPS;
- 		break;
- 	}
- 	sas_phy->negotiated_linkrate = phy->sas_phy.linkrate;
--	sas_phy->maximum_linkrate_hw = SAS_LINK_RATE_6_0_GBPS;
-+	sas_phy->maximum_linkrate_hw = phy->maximum_linkrate;
- 	sas_phy->minimum_linkrate_hw = SAS_LINK_RATE_1_5_GBPS;
--	sas_phy->maximum_linkrate = SAS_LINK_RATE_6_0_GBPS;
--	sas_phy->minimum_linkrate = SAS_LINK_RATE_1_5_GBPS;
-+	sas_phy->maximum_linkrate = phy->maximum_linkrate;
-+	sas_phy->minimum_linkrate = phy->minimum_linkrate;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 01c5e8ff4cc5..303cd05fec50 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -3723,8 +3723,12 @@ static int mpi_phy_stop_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 	pm8001_dbg(pm8001_ha, MSG, "phy:0x%x status:0x%x\n",
+ 		   phyid, status);
+ 	if (status == PHY_STOP_SUCCESS ||
+-		status == PHY_STOP_ERR_DEVICE_ATTACHED)
++		status == PHY_STOP_ERR_DEVICE_ATTACHED) {
+ 		phy->phy_state = PHY_LINK_DISABLE;
++		phy->sas_phy.phy->negotiated_linkrate = SAS_PHY_DISABLED;
++		phy->sas_phy.linkrate = SAS_PHY_DISABLED;
++	}
++
+ 	return 0;
  }
  
- /**
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 9b04f1a6a67d..01f2f41928eb 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -143,6 +143,8 @@ static void pm8001_phy_init(struct pm8001_hba_info *pm8001_ha, int phy_id)
- 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
- 	phy->phy_state = PHY_LINK_DISABLE;
- 	phy->pm8001_ha = pm8001_ha;
-+	phy->minimum_linkrate = SAS_LINK_RATE_1_5_GBPS;
-+	phy->maximum_linkrate = SAS_LINK_RATE_6_0_GBPS;
- 	sas_phy->enabled = (phy_id < pm8001_ha->chip->n_phy) ? 1 : 0;
- 	sas_phy->class = SAS;
- 	sas_phy->iproto = SAS_PROTOCOL_ALL;
 -- 
 2.35.1
 
