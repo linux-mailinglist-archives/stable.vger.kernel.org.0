@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 121C557AB6D
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C5E557AB61
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240367AbiGTBLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:11:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33420 "EHLO
+        id S240673AbiGTBLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240351AbiGTBLT (ORCPT
+        with ESMTP id S240619AbiGTBLT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:11:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8586558C;
-        Tue, 19 Jul 2022 18:11:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6870265591;
+        Tue, 19 Jul 2022 18:11:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA549B81DE2;
-        Wed, 20 Jul 2022 01:11:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B58C341C6;
-        Wed, 20 Jul 2022 01:11:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2B08B81DEA;
+        Wed, 20 Jul 2022 01:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11BCCC385A5;
+        Wed, 20 Jul 2022 01:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279464;
-        bh=ZB3sLtJi2bq+5oVixTSj5XdWcn+LKdOBYFQ03ymCOwQ=;
+        s=k20201202; t=1658279466;
+        bh=99oYuSj1M8WEb4HdX2609nGaiPr3UQnE0ldIVJt3eB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOMbGbjzdq5WLW4gnUg0w9x+MSsfuKLMKmRqjpsll96fK8jf3w/I2zu7M3tsFENsF
-         77NTe3+4543c5N7/mWmDlLeXj5mwadaq7CUsJYnOcvBKsCTvMKi//nQIkWBfrRfpdH
-         bSz7qG5yWPH711ChlGreYQIZ5XEOtCUvBNYgCsp6Yvn5dxC0GTiukMllg06ANGWHFC
-         b1ffPc4aLlMK94tVgDVulWsrkosmdfZNO2XTLGY1Xw3kFuQ6MGurW6HndcCTBABdkK
-         MEcHwy6fjcS8QjZwy4t6H7/XXppwdvH4oaOHFGiILeBr9Q9mt/JvIzQA0OXBLqAGL2
-         0eljjl13lsQxw==
+        b=LdXEci4SiePms7IHOojt0stIe4faGHOrVQwDFSOI2amsxlOtvqCNtcVNc3CBsVZWW
+         5qrd30NerpTeh0617iDQVH4Pj8cOmZfW71VVzNSh/b8ZwPgoxumFmE3Ux8z5yd752+
+         sZfZEP3prnhEiiH8mPIeIi2NGO786zWiz1NoiTJDa8XHERg2E+Uwo6I7hY8oKamGXy
+         ZRNGxC8QyEb8N009jBy+PuCxk+4UcEvNrLHGZyHo7mqP/4XYDtutjUh7IlVEmL88Dy
+         VwTO5rgyUK5e+bXHQyptuL0YJvdJ9dWlpj/WLtqWoiVKgY/Ka3MEOFh4IFvMVbzxGa
+         MsaIf2eVa07gQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, fenghua.yu@intel.com,
-        tony.luck@intel.com, joe.lawrence@redhat.com, elver@google.com,
-        mbenes@suse.cz, mpatocka@redhat.com
-Subject: [PATCH AUTOSEL 5.18 08/54] x86,objtool: Create .return_sites
-Date:   Tue, 19 Jul 2022 21:09:45 -0400
-Message-Id: <20220720011031.1023305-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, seanjc@google.com,
+        pbonzini@redhat.com, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 09/54] x86/kvm: Fix SETcc emulation for return thunks
+Date:   Tue, 19 Jul 2022 21:09:46 -0400
+Message-Id: <20220720011031.1023305-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011031.1023305-1-sashal@kernel.org>
 References: <20220720011031.1023305-1-sashal@kernel.org>
@@ -60,10 +61,23 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit d9e9d2300681d68a775c28de6aa6e5290ae17796 ]
+[ Upstream commit af2e140f34208a5dfb6b7a8ad2d56bda88f0524d ]
 
-Find all the return-thunk sites and record them in a .return_sites
-section such that the kernel can undo this.
+Prepare the SETcc fastop stuff for when RET can be larger still.
+
+The tricky bit here is that the expressions should not only be
+constant C expressions, but also absolute GAS expressions. This means
+no ?: and 'true' is ~0.
+
+Also ensure em_setcc() has the same alignment as the actual FOP_SETCC()
+ops, this ensures there cannot be an alignment hole between em_setcc()
+and the first op.
+
+Additionally, add a .skip directive to the FOP_SETCC() macro to fill
+any remaining space with INT3 traps; however the primary purpose of
+this directive is to generate AS warnings when the remaining space
+goes negative. Which is a very good indication the alignment magic
+went side-ways.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
@@ -71,195 +85,69 @@ Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/arch/x86/decode.c         |  5 ++
- tools/objtool/check.c                   | 74 +++++++++++++++++++++++++
- tools/objtool/include/objtool/arch.h    |  1 +
- tools/objtool/include/objtool/elf.h     |  1 +
- tools/objtool/include/objtool/objtool.h |  1 +
- tools/objtool/objtool.c                 |  1 +
- 6 files changed, 83 insertions(+)
+ arch/x86/kvm/emulate.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/tools/objtool/arch/x86/decode.c b/tools/objtool/arch/x86/decode.c
-index 943cb41cddf7..1ecf50bbd554 100644
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -787,3 +787,8 @@ bool arch_is_retpoline(struct symbol *sym)
- {
- 	return !strncmp(sym->name, "__x86_indirect_", 15);
- }
-+
-+bool arch_is_rethunk(struct symbol *sym)
-+{
-+	return !strcmp(sym->name, "__x86_return_thunk");
-+}
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index f66e4ac0af94..3b3bfe94537a 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -747,6 +747,52 @@ static int create_retpoline_sites_sections(struct objtool_file *file)
- 	return 0;
- }
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 89b11e7dca8a..b01437015f99 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -325,13 +325,15 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ #define FOP_RET(name) \
+ 	__FOP_RET(#name)
  
-+static int create_return_sites_sections(struct objtool_file *file)
-+{
-+	struct instruction *insn;
-+	struct section *sec;
-+	int idx;
-+
-+	sec = find_section_by_name(file->elf, ".return_sites");
-+	if (sec) {
-+		WARN("file already has .return_sites, skipping");
-+		return 0;
-+	}
-+
-+	idx = 0;
-+	list_for_each_entry(insn, &file->return_thunk_list, call_node)
-+		idx++;
-+
-+	if (!idx)
-+		return 0;
-+
-+	sec = elf_create_section(file->elf, ".return_sites", 0,
-+				 sizeof(int), idx);
-+	if (!sec) {
-+		WARN("elf_create_section: .return_sites");
-+		return -1;
-+	}
-+
-+	idx = 0;
-+	list_for_each_entry(insn, &file->return_thunk_list, call_node) {
-+
-+		int *site = (int *)sec->data->d_buf + idx;
-+		*site = 0;
-+
-+		if (elf_add_reloc_to_insn(file->elf, sec,
-+					  idx * sizeof(int),
-+					  R_X86_64_PC32,
-+					  insn->sec, insn->offset)) {
-+			WARN("elf_add_reloc_to_insn: .return_sites");
-+			return -1;
-+		}
-+
-+		idx++;
-+	}
-+
-+	return 0;
-+}
-+
- static int create_ibt_endbr_seal_sections(struct objtool_file *file)
- {
- 	struct instruction *insn;
-@@ -1081,6 +1127,11 @@ __weak bool arch_is_retpoline(struct symbol *sym)
- 	return false;
- }
+-#define FOP_START(op) \
++#define __FOP_START(op, align) \
+ 	extern void em_##op(struct fastop *fake); \
+ 	asm(".pushsection .text, \"ax\" \n\t" \
+ 	    ".global em_" #op " \n\t" \
+-	    ".align " __stringify(FASTOP_SIZE) " \n\t" \
++	    ".align " __stringify(align) " \n\t" \
+ 	    "em_" #op ":\n\t"
  
-+__weak bool arch_is_rethunk(struct symbol *sym)
-+{
-+	return false;
-+}
++#define FOP_START(op) __FOP_START(op, FASTOP_SIZE)
 +
- #define NEGATIVE_RELOC	((void *)-1L)
+ #define FOP_END \
+ 	    ".popsection")
  
- static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *insn)
-@@ -1248,6 +1299,18 @@ static void add_retpoline_call(struct objtool_file *file, struct instruction *in
- 	annotate_call_site(file, insn, false);
- }
+@@ -435,16 +437,15 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ /*
+  * Depending on .config the SETcc functions look like:
+  *
+- * ENDBR       [4 bytes; CONFIG_X86_KERNEL_IBT]
+- * SETcc %al   [3 bytes]
+- * RET         [1 byte]
+- * INT3        [1 byte; CONFIG_SLS]
+- *
+- * Which gives possible sizes 4, 5, 8 or 9.  When rounded up to the
+- * next power-of-two alignment they become 4, 8 or 16 resp.
++ * ENDBR			[4 bytes; CONFIG_X86_KERNEL_IBT]
++ * SETcc %al			[3 bytes]
++ * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETPOLINE]
++ * INT3				[1 byte; CONFIG_SLS]
+  */
+-#define SETCC_LENGTH	(ENDBR_INSN_SIZE + 4 + IS_ENABLED(CONFIG_SLS))
+-#define SETCC_ALIGN	(4 << IS_ENABLED(CONFIG_SLS) << HAS_KERNEL_IBT)
++#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETPOLINE)) + \
++			 IS_ENABLED(CONFIG_SLS))
++#define SETCC_LENGTH	(ENDBR_INSN_SIZE + 3 + RET_LENGTH)
++#define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
+ static_assert(SETCC_LENGTH <= SETCC_ALIGN);
  
-+static void add_return_call(struct objtool_file *file, struct instruction *insn)
-+{
-+	/*
-+	 * Return thunk tail calls are really just returns in disguise,
-+	 * so convert them accordingly.
-+	 */
-+	insn->type = INSN_RETURN;
-+	insn->retpoline_safe = true;
-+
-+	list_add_tail(&insn->call_node, &file->return_thunk_list);
-+}
-+
- static bool same_function(struct instruction *insn1, struct instruction *insn2)
- {
- 	return insn1->func->pfunc == insn2->func->pfunc;
-@@ -1300,6 +1363,9 @@ static int add_jump_destinations(struct objtool_file *file)
- 		} else if (reloc->sym->retpoline_thunk) {
- 			add_retpoline_call(file, insn);
- 			continue;
-+		} else if (reloc->sym->return_thunk) {
-+			add_return_call(file, insn);
-+			continue;
- 		} else if (insn->func) {
- 			/*
- 			 * External sibling call or internal sibling call with
-@@ -2182,6 +2248,9 @@ static int classify_symbols(struct objtool_file *file)
- 			if (arch_is_retpoline(func))
- 				func->retpoline_thunk = true;
+ #define FOP_SETCC(op) \
+@@ -453,9 +454,10 @@ static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+ 	#op ": \n\t" \
+ 	ASM_ENDBR \
+ 	#op " %al \n\t" \
+-	__FOP_RET(#op)
++	__FOP_RET(#op) \
++	".skip " __stringify(SETCC_ALIGN) " - (.-" #op "), 0xcc \n\t"
  
-+			if (arch_is_rethunk(func))
-+				func->return_thunk = true;
-+
- 			if (!strcmp(func->name, "__fentry__"))
- 				func->fentry = true;
- 
-@@ -3935,6 +4004,11 @@ int check(struct objtool_file *file)
- 		if (ret < 0)
- 			goto out;
- 		warnings += ret;
-+
-+		ret = create_return_sites_sections(file);
-+		if (ret < 0)
-+			goto out;
-+		warnings += ret;
- 	}
- 
- 	if (mcount) {
-diff --git a/tools/objtool/include/objtool/arch.h b/tools/objtool/include/objtool/arch.h
-index 9b19cc304195..beb2f3aa94ff 100644
---- a/tools/objtool/include/objtool/arch.h
-+++ b/tools/objtool/include/objtool/arch.h
-@@ -89,6 +89,7 @@ const char *arch_ret_insn(int len);
- int arch_decode_hint_reg(u8 sp_reg, int *base);
- 
- bool arch_is_retpoline(struct symbol *sym);
-+bool arch_is_rethunk(struct symbol *sym);
- 
- int arch_rewrite_retpolines(struct objtool_file *file);
- 
-diff --git a/tools/objtool/include/objtool/elf.h b/tools/objtool/include/objtool/elf.h
-index 82e57eb4b4c5..94a618e2a79e 100644
---- a/tools/objtool/include/objtool/elf.h
-+++ b/tools/objtool/include/objtool/elf.h
-@@ -57,6 +57,7 @@ struct symbol {
- 	u8 uaccess_safe      : 1;
- 	u8 static_call_tramp : 1;
- 	u8 retpoline_thunk   : 1;
-+	u8 return_thunk      : 1;
- 	u8 fentry            : 1;
- 	u8 profiling_func    : 1;
- 	struct list_head pv_target;
-diff --git a/tools/objtool/include/objtool/objtool.h b/tools/objtool/include/objtool/objtool.h
-index a6e72d916807..7f2d1b095333 100644
---- a/tools/objtool/include/objtool/objtool.h
-+++ b/tools/objtool/include/objtool/objtool.h
-@@ -24,6 +24,7 @@ struct objtool_file {
- 	struct list_head insn_list;
- 	DECLARE_HASHTABLE(insn_hash, 20);
- 	struct list_head retpoline_call_list;
-+	struct list_head return_thunk_list;
- 	struct list_head static_call_list;
- 	struct list_head mcount_loc_list;
- 	struct list_head endbr_list;
-diff --git a/tools/objtool/objtool.c b/tools/objtool/objtool.c
-index 843ff3c2f28e..983687345d35 100644
---- a/tools/objtool/objtool.c
-+++ b/tools/objtool/objtool.c
-@@ -126,6 +126,7 @@ struct objtool_file *objtool_open_read(const char *_objname)
- 	INIT_LIST_HEAD(&file.insn_list);
- 	hash_init(file.insn_hash);
- 	INIT_LIST_HEAD(&file.retpoline_call_list);
-+	INIT_LIST_HEAD(&file.return_thunk_list);
- 	INIT_LIST_HEAD(&file.static_call_list);
- 	INIT_LIST_HEAD(&file.mcount_loc_list);
- 	INIT_LIST_HEAD(&file.endbr_list);
+-FOP_START(setcc)
++__FOP_START(setcc, SETCC_ALIGN)
+ FOP_SETCC(seto)
+ FOP_SETCC(setno)
+ FOP_SETCC(setc)
 -- 
 2.35.1
 
