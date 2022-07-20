@@ -2,84 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B666257BE53
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 21:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5F157BEC7
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 21:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229885AbiGTTV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 15:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56480 "EHLO
+        id S232763AbiGTTny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 15:43:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbiGTTVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 15:21:25 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5293313D1F;
-        Wed, 20 Jul 2022 12:21:23 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id e15so22259289wro.5;
-        Wed, 20 Jul 2022 12:21:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Pba4QV+WDlzTnMlWTveIRFdhe+8O4jwO+FIoxf/iMRQ=;
-        b=K6/DVHdPticHrv3jCWtIj2BapqRP3uF8GYSfm12e7xSUMzoKgsMV51zpC4DV3Riuow
-         0HYpqe2W/mDGhA5TC7T1PWsUL6AGMQN5kNDHFqVA3eDpL6ouczora+b5TcA//cbZmurE
-         mJeeKmmISoWCXHtrYYk6Z5pux8oU5NvYtZ9iD5gDSZ4xGggmpGwk5HU8fpney8J3h88L
-         DHU68uIz5TDNmCtlfhxcDYEunZhoIocRdQS9ATaOlW9zn94sX/OqsFARuYjJEWAimSos
-         3IpCv96AFt21OIdNmnyL+yUfryx4QKUye1UV1vhmzuhSQv3QJ6qj5TJIQUHiHj+s5qgc
-         18+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Pba4QV+WDlzTnMlWTveIRFdhe+8O4jwO+FIoxf/iMRQ=;
-        b=A/95ImZNPVV/uSAg8dXf0TR+LWY6/YJhW1qrbqhMR/A/3ZgRXTz3pMK1DuEkVjEvey
-         f8lHGPjMA/5BcKTyBkb9p/FgL8CtLqpBMgTTUB7TPspNSc6ExpGFnPX+ESfXfNT2pe5h
-         cm0BzY1Pn9Q/hTgBzNvD1h4YISjJYOyZIGMLar7ZqoYGGcv8pNHhc0G4FpNibw4d/ZAK
-         Lce4Q6tIXFgK+Uc37IEM0l6sy6ldpsNs4goXSIaTnxtYIEvt5LPVDuv1OsI7APEFGeHe
-         +jtZEu/XjhaQE97RiOEjeNQy1C7uFVRUsgEmLQM9IJ6FDOaK3WsuZQXKuxaqsMVK4EIk
-         ux5Q==
-X-Gm-Message-State: AJIora/kP0fYbulg3U6kSxLFEqCj93v8WjU7Db5TrUcMuu0ZAJYI8siK
-        T/kR+XrWNzkfzxj5oleKdAYXApDc7QCp7Fqm
-X-Google-Smtp-Source: AGRyM1uLOgnKXZMHCumB7qyLZW7GisJxZ81IMG3yvrEQ8OJV0MtLnu23rAmH5wRc3knjXga+LevNxg==
-X-Received: by 2002:a05:6000:1f0b:b0:21d:6dae:7d04 with SMTP id bv11-20020a0560001f0b00b0021d6dae7d04mr31987220wrb.414.1658344881418;
-        Wed, 20 Jul 2022 12:21:21 -0700 (PDT)
-Received: from X1C7EK5 (joshua.media.unisi.it. [192.167.124.137])
-        by smtp.gmail.com with ESMTPSA id ay1-20020a05600c1e0100b003a03ae64f57sm3530678wmb.8.2022.07.20.12.21.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Jul 2022 12:21:20 -0700 (PDT)
-Date:   Wed, 20 Jul 2022 21:21:18 +0200
-From:   Ettore Chimenti <ek5.chimenti@gmail.com>
-To:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Hector Martin <marcan@marcan.st>, Jean Delvare <jdelvare@suse.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Marco Sogli <marco.sogli@seco.com>
-Subject: Re: [PATCH v3] i2c: i801: Safely share SMBus with BIOS/ACPI
-Message-ID: <20220720192118.x6ayiar7zmavhauu@X1C7EK5>
-References: <20210626054113.246309-1-marcan@marcan.st>
+        with ESMTP id S229733AbiGTTnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 15:43:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73549691F0;
+        Wed, 20 Jul 2022 12:43:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E715261AC3;
+        Wed, 20 Jul 2022 19:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7995C3411E;
+        Wed, 20 Jul 2022 19:43:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658346231;
+        bh=qQam1ROdrxitInCeW3g4Wlq0zse5g0rhSdwht3K49qw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IL9JRYx00JE0+Mc92Kt8SWx7ACHmFoN7GAjoEvApOYhJ+BFJiTcpRYSz1SOYq1R3+
+         6sgFpQx3N3YX2DnzES3PmHAU0/IXybUZwjjmvkgt1Ukzp9vUpDTc6RvfXxvAnVPooA
+         ZgfC4DoRwLprIFAnJEMU7R6W8aI05P0XrVGt3J0w=
+Date:   Wed, 20 Jul 2022 21:43:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Viktor =?iso-8859-1?Q?J=E4gersk=FCpper?= 
+        <viktor_jaegerskuepper@freenet.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 000/231] 5.18.13-rc1 review
+Message-ID: <Ytha8yjbJ3c3QNVu@kroah.com>
+References: <20220719114714.247441733@linuxfoundation.org>
+ <9038467b-5ada-9384-84b9-e7db11782d43@freenet.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20210626054113.246309-1-marcan@marcan.st>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9038467b-5ada-9384-84b9-e7db11782d43@freenet.de>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tested on a SECO SBC-B68 and a UDOO X86.
-The BIOS AML code queries the Embedded Controller over SMBus, 
-respecting the hardware semaphore implementation.
+On Wed, Jul 20, 2022 at 06:05:55PM +0200, Viktor Jägersküpper wrote:
+> Greg Kroah-Hartman:
+> > This is the start of the stable review cycle for the 5.18.13 release.
+> > There are 231 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> Hi Greg,
+> 
+> I noticed that there are several patches in the list which are also part of your
+> retbleed-5.18 queue. If I am not mistaken, these are:
+> 
+> [PATCH 5.18 145/231] x86/kvm: Fix SETcc emulation for return thunks
+> [PATCH 5.18 146/231] x86/sev: Avoid using __x86_return_thunk
+> [PATCH 5.18 147/231] x86/bugs: Report AMD retbleed vulnerability
+> [PATCH 5.18 148/231] objtool: Update Retpoline validation
+> [PATCH 5.18 149/231] x86/xen: Rename SYS* entry points
+> [PATCH 5.18 150/231] x86/cpu/amd: Add Spectral Chicken
+> 
+> I'm wondering if this is intended or if it would be better to release a stable
+> kernel with all the retbleed patches later because of the problems that came up
+> with these patches so far. I'm just a user, so I can't say anything about the
+> technical side, and I don't know how the patches were selected.
 
-I get this line on kernel log and everything works as expected.
-[    7.270172] i801_smbus 0000:00:1f.3: SMBus controller is shared with ACPI AML. This seems safe so far.
+Yes, sorry, I need to drop those and then add them only as part of the
+retbleed stuff.
 
-Tested with continous use of i2c-tools (i2cdump) with temperature reads
-in thermal_zone (that triggers AML code).
+thanks,
 
-Tested-by: Ettore Chimenti <ek5.chimenti@gmail.com>
+greg k-h
