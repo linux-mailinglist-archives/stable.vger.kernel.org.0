@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BD857ABDD
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C59157ABEB
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 03:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241175AbiGTBR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Jul 2022 21:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45414 "EHLO
+        id S241246AbiGTBRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Jul 2022 21:17:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241205AbiGTBQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:16:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003F16B24B;
-        Tue, 19 Jul 2022 18:14:01 -0700 (PDT)
+        with ESMTP id S241247AbiGTBRP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Jul 2022 21:17:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56BA4B0CD;
+        Tue, 19 Jul 2022 18:14:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DD076176A;
-        Wed, 20 Jul 2022 01:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF5B2C341C6;
-        Wed, 20 Jul 2022 01:13:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D74F7B81DE4;
+        Wed, 20 Jul 2022 01:14:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75571C341CB;
+        Wed, 20 Jul 2022 01:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658279640;
-        bh=QVBZJvnFjCBRxlIPHLFPsqWYyo8q9TFx7z3+OXtijtU=;
+        s=k20201202; t=1658279643;
+        bh=nM8PtzPOJ+0hjcwU/v1RXurMGse6tyaGKiEUxBk+jXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGvcc5pfbrkOFIiRtudoBPATkkii5n0XqpDjecGjfXwPyv/EopG3RAiT01kmMIO4b
-         JvnSQ/yKZQbaG3ftsNaNrFr4ly3CtcduPMjDHcSpclfOG0xv+CUGFN6KNj878QSB7h
-         fxUDHugf+5Vpk+cfnB9SXom6z+mWHDrGGfeT2ree6d2YE/Us2Ud9VQ7GaQ63DhsCzx
-         vKiejPj9sIYM2pHSTDP8C9Cvhsuvystu+WwOZce/R0p1DLKahMhmxPhtUxAk+7azRL
-         uUuRnirwYi9TIhPvOi+kaQlxIHmppOd+FabPBQiqB6Srv9OJ6b2MUBr7/IjpQMIDs2
-         jixwKcZz6C/0w==
+        b=GpUiFay8wzGa42in5v7La9SX1TT47m6iVZMZebTkXajjYk7RRcD+YZRVekfDZYMAE
+         aLVYcRobdZbONfn1iI84HwpRMjZIXWnguVegEu/kxdu0pGF93lKfbjysOXWAJcWjLP
+         ZcgAeh6y52cwXazHrqrltTQXL49NA32UbfvdTtZM46igFphn+iOgH8RZaIqgVAXGE+
+         4OIfV8chJ2kJBnZVp9uDA2/tf4m2Wv7/BuNNfPnQbrNKj0mLyWDPF+VjpSGva6D2lM
+         ZYgaT2KM/1tNVgziyLP3rU86uveWoA8xey4SifQsvZ653uqTXF4febXlt/lkQt91Do
+         zKny/0jSE92zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
@@ -38,12 +38,10 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, chang.seok.bae@intel.com,
-        pawan.kumar.gupta@linux.intel.com, babu.moger@amd.com,
-        jmattson@google.com, sandipan.das@amd.com
-Subject: [PATCH AUTOSEL 5.15 04/42] x86/cpufeatures: Move RETPOLINE flags to word 11
-Date:   Tue, 19 Jul 2022 21:13:12 -0400
-Message-Id: <20220720011350.1024134-4-sashal@kernel.org>
+        x86@kernel.org, ndesaulniers@google.com
+Subject: [PATCH AUTOSEL 5.15 05/42] x86/retpoline: Swizzle retpoline thunk
+Date:   Tue, 19 Jul 2022 21:13:13 -0400
+Message-Id: <20220720011350.1024134-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220720011350.1024134-1-sashal@kernel.org>
 References: <20220720011350.1024134-1-sashal@kernel.org>
@@ -62,47 +60,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit a883d624aed463c84c22596006e5a96f5b44db31 ]
+[ Upstream commit 00e1533325fd1fb5459229fe37f235462649f668 ]
 
-In order to extend the RETPOLINE features to 4, move them to word 11
-where there is still room. This mostly keeps DISABLE_RETPOLINE
-simple.
+Put the actual retpoline thunk as the original code so that it can
+become more complicated. Specifically, it allows RET to be a JMP,
+which can't be .altinstr_replacement since that doesn't do relocations
+(except for the very first instruction).
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/lib/retpoline.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index b258efa8bf43..57dc9f822e8b 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -203,8 +203,8 @@
- #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
- /* FREE!                                ( 7*32+10) */
- #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
--#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
--#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
-+/* FREE!				( 7*32+12) */
-+/* FREE!				( 7*32+13) */
- #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
- #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
- #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
-@@ -294,6 +294,10 @@
- #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
- #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
- #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
-+/* FREE!				(11*32+10) */
-+/* FREE!				(11*32+11) */
-+#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
-+#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
+diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
+index 9556ff5f4773..43082df303eb 100644
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -32,9 +32,9 @@
  
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+ SYM_FUNC_START(__x86_indirect_thunk_\reg)
+ 
+-	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+-		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE
++	ALTERNATIVE_2 __stringify(RETPOLINE \reg), \
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE, \
++		      __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), ALT_NOT(X86_FEATURE_RETPOLINE)
+ 
+ SYM_FUNC_END(__x86_indirect_thunk_\reg)
+ 
 -- 
 2.35.1
 
