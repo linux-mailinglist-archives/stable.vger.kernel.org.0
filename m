@@ -2,140 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C5357B034
-	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 07:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4F657B077
+	for <lists+stable@lfdr.de>; Wed, 20 Jul 2022 07:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiGTFHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Jul 2022 01:07:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36012 "EHLO
+        id S231432AbiGTFoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Jul 2022 01:44:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229797AbiGTFHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 01:07:23 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53EEA66AC9;
-        Tue, 19 Jul 2022 22:07:22 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id E4C5133A5D;
-        Wed, 20 Jul 2022 05:07:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1658293640; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=s+eM8UHwmXM10Vj/0IbGAU5ziFvJD3sOIa9Yrfc7ubs=;
-        b=sGUkCeCPSQ6tr1WowhkuQOoMxXvWBkWLdSATQCh4I/8AA7P1TZBZwPqG5T2V9GR6T9jijJ
-        LpL/ICAY1cCASgYfOTKXjuKKnYJgQkOMN29N8aXoxRnTHYoRcL5kF48WTSq2Cq2PxeNX/g
-        dneqvNieiiDbsvUrKw3sk9rGe+LOruM=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0B4DF13AA1;
-        Wed, 20 Jul 2022 05:07:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 2BZxMYeN12KLIwAAMHmgww
-        (envelope-from <wqu@suse.com>); Wed, 20 Jul 2022 05:07:19 +0000
-From:   Qu Wenruo <wqu@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v2 1/3] btrfs: enhance unsupported compat RO flags handling
-Date:   Wed, 20 Jul 2022 13:06:59 +0800
-Message-Id: <937879049c71370b6a1ca192b67fbcf2989d5915.1658293417.git.wqu@suse.com>
-X-Mailer: git-send-email 2.37.0
-In-Reply-To: <cover.1658293417.git.wqu@suse.com>
-References: <cover.1658293417.git.wqu@suse.com>
+        with ESMTP id S229470AbiGTFn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Jul 2022 01:43:59 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C624B6C114
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 22:43:58 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id os14so31132990ejb.4
+        for <stable@vger.kernel.org>; Tue, 19 Jul 2022 22:43:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dbyswNwIjdAqkYgJsBmWX4vhM+Drfb0+RLc9y4Y7d4U=;
+        b=ATRQyWwrL/262JK7axSJbKWvHJPj7MwZM3y5om5qv4mXL0i0aAg+gc7Y8rKdPoaKIc
+         Ig/wfWnX1DpB3bFTmaTU/D9nW4NBnJEXjhh9gF3WcnKOC7Wtasf5BWJNG6vZjAe7DnFI
+         d2yb6TF8vDv8Mz/UchSyWet+aPUWVks2UA2GDsWYTxayGXhnpotUfXXRT1pPl5lvTUW6
+         nFgftBdK5XLsN7YR7yIyL5YJ927Up7fI8vyZRtS8+tzluEFBri8fRDTaSQzob6c4KxzV
+         Qp7eCp9UolhgEgb/WIQaZGtA3pnl5vPK3CXW61QCRhbcEO1ICGs8ZuNpriIhnUmkKDY0
+         vkzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dbyswNwIjdAqkYgJsBmWX4vhM+Drfb0+RLc9y4Y7d4U=;
+        b=dC4jHnFRVHBXVzfjjfFu/mmZozM2nCKUZwfw6oFT6k5e6dEClBcpGoF0p/vWSM9BYm
+         ED9PG+AqloTPa5wE8o+ksjxwChuHkt1fFWHIlMKCCfX5Ii6Qyp1WxUZfsK2z7T/jZ/Z0
+         W1CfKLh198lLYC8diV2dRPR6R3xqqVkmIGUC2xIi8ihKd64bOiO/CWx9z79fbf7QKi2g
+         opv9AGaHe0vUVXFvikebLADVPW0xJMSna1BXbBP2glVeyI8nlHnLVN56vRYLRw8HKVVV
+         pje+AXxQQrO4AWKwm14h1W9aHSmZAzXSADA2vv2GhzyH5Fas7ZUGANClqIJ9WBjks0Ym
+         kbpA==
+X-Gm-Message-State: AJIora/KxpjEd+6CPhFVu2WjXGMNWuJ9xpWwxhCmpd3tRj/C60dHA7Cv
+        MXJii+MuSiU7tWTQfg2koDH3XUMxwxY=
+X-Google-Smtp-Source: AGRyM1tGKmM5KgAuER+Q5fb4nEXezfbTezzrXwR5v9rg3lRMxsmNfsWUD3LOIzycdeMVY6zhlvG2Zw==
+X-Received: by 2002:a17:906:98c9:b0:72b:40de:9afe with SMTP id zd9-20020a17090698c900b0072b40de9afemr34580786ejb.620.1658295836994;
+        Tue, 19 Jul 2022 22:43:56 -0700 (PDT)
+Received: from labdl-itc-sw06.tmt.telital.com (static-82-85-31-68.clienti.tiscali.it. [82.85.31.68])
+        by smtp.gmail.com with ESMTPSA id dy20-20020a05640231f400b0043ba1798785sm1776144edb.57.2022.07.19.22.43.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jul 2022 22:43:56 -0700 (PDT)
+From:   Fabio Porcedda <fabio.porcedda@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: [PATCH v3 5.18 0/2] Backport support for Telit FN980 v1 and FN990
+Date:   Wed, 20 Jul 2022 07:43:39 +0200
+Message-Id: <20220720054341.542391-1-fabio.porcedda@gmail.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently there are two corner cases not handling compat RO flags
-correctly:
+Hi,
+these two patches are the backport for 5.18.y of the following commits:
 
-- Remount
-  We can still mount the fs RO with compat RO flags, then remount it RW.
-  We should not allow any write into a fs with unsupported RO flags.
+commit a96ef8b504efb2ad445dfb6d54f9488c3ddf23d2
+    bus: mhi: host: pci_generic: add Telit FN980 v1 hardware revisio
 
-- Still try to search block group items
-  In fact, behavior/on-disk format change to extent tree should not
-  need a full incompat flag.
+commit 77fc41204734042861210b9d05338c9b8360affb
+    bus: mhi: host: pci_generic: add Telit FN990
 
-  And since we can ensure fs with unsupported RO flags never got any
-  writes (with above case fixed), then we can even skip block group
-  items search at mount time.
+The cherry-pick of the original commits don't apply because the commit
+89ad19bea649 (bus: mhi: host: pci_generic: Sort mhi_pci_id_table based
+on the PID, 2022-04-11) was not cherry-picked. Another solution is to
+cherry-pick those three commits all togheter.
 
-This patch will enhance the unsupported RO compat flags by:
+Thanks!
 
-- Reject RW remount if there is unsupported RO compat flags
+v3:
+- fixed typo in the cover letter 3.18.y -> 5.18.y
+v2:
+- fixed my email
 
-- Go dummy block group items directly for unsupported RO compat flags
-  In fact, only changes to chunk/subvolume/root/csum trees should go
-  incompat flags.
+Daniele Palmas (2):
+  bus: mhi: host: pci_generic: add Telit FN980 v1 hardware revision
+  bus: mhi: host: pci_generic: add Telit FN990
 
-The latter part should allow future change to extent tree to be compat
-RO flags.
+ drivers/bus/mhi/pci_generic.c | 79 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
 
-Thus this patch also needs to be backported to all stable trees.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Qu Wenruo <wqu@suse.com>
----
- fs/btrfs/block-group.c | 11 ++++++++++-
- fs/btrfs/super.c       |  9 +++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index c9475219c70c..88d23d6760f0 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2206,7 +2206,16 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
- 	int need_clear = 0;
- 	u64 cache_gen;
- 
--	if (!root)
-+	/*
-+	 * Either no extent root (with ibadroots rescue option) or we have
-+	 * unsupporter RO options. The fs can never be mounted RW, so no
-+	 * need to waste time search block group items.
-+	 *
-+	 * This also allows new extent tree related changes to be RO compat,
-+	 * no need for a full incompat flag.
-+	 */
-+	if (!root || (btrfs_super_compat_ro_flags(info->super_copy) &
-+		      ~BTRFS_FEATURE_COMPAT_RO_SUPP))
- 		return fill_dummy_bgs(info);
- 
- 	key.objectid = 0;
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 4c7089b1681b..7d3213e67fb5 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2110,6 +2110,15 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
- 			ret = -EINVAL;
- 			goto restore;
- 		}
-+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+		    ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
-+			btrfs_err(fs_info,
-+		"can not remount read-write due to unsupported optional flags 0x%llx",
-+				btrfs_super_compat_ro_flags(fs_info->super_copy) &
-+				~BTRFS_FEATURE_COMPAT_RO_SUPP);
-+			ret = -EINVAL;
-+			goto restore;
-+		}
- 		if (fs_info->fs_devices->rw_devices == 0) {
- 			ret = -EACCES;
- 			goto restore;
 -- 
-2.37.0
+2.37.1
 
