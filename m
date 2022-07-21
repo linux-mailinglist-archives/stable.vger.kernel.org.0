@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B237757D64B
+	by mail.lfdr.de (Postfix) with ESMTP id 145C657D649
 	for <lists+stable@lfdr.de>; Thu, 21 Jul 2022 23:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233828AbiGUVx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jul 2022 17:53:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37596 "EHLO
+        id S229539AbiGUVxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jul 2022 17:53:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233916AbiGUVxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jul 2022 17:53:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 636E892846
+        with ESMTP id S233766AbiGUVxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jul 2022 17:53:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4795E8F507
         for <stable@vger.kernel.org>; Thu, 21 Jul 2022 14:53:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1658440432;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=IUfAq6zGEfHyLcp/TKUpOtwfJo5pu7OT1SEaV7e3QOI=;
-        b=a8e0cqcdj6AzLjxL44kLKggrzc31rerPdZnPT0bNR7DE6FlxUw/lk8v3CjbTg2+kBsEbF/
-        RDV0HSYG/GdoFXtDg7GIwK1TqsR6YeQzoZ7P3a/1LnXxkom1Lo/bvT/Z6PPBHjLRIdkdtt
-        AHk+zGJfFK6aNbC7+8i+z2cRJ4S04rY=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cUZPffc2iGWAkRDa4SlYxAuEhSJ5M3HLG7UhtiIHZEo=;
+        b=BVS3NKR0gmLDkRJWJ5gI6gw7IBZB7MDEDvvffzYlCOjB2sV9eGBT0bgb/RPC20S8iwbG8q
+        axJN0QgGHLRoiGQstxv8aR8/nmeqEgU9fq8IIk63fdWtGNHpIfuvOr2CV+3TJ7VPi+6M9u
+        Tu6UdH2A8mIkIOnwXUDzNwqmfdmFnPg=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-22-uA_yy5bEMdCog63xzBGg6A-1; Thu, 21 Jul 2022 17:53:50 -0400
-X-MC-Unique: uA_yy5bEMdCog63xzBGg6A-1
+ us-mta-235-LmpnNLfUNFab6ES9ls-wUA-1; Thu, 21 Jul 2022 17:53:50 -0400
+X-MC-Unique: LmpnNLfUNFab6ES9ls-wUA-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 69BA2185A7B2
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 95FBE280EE28
         for <stable@vger.kernel.org>; Thu, 21 Jul 2022 21:53:50 +0000 (UTC)
 Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 415B02026D64;
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 722C22026D64;
         Thu, 21 Jul 2022 21:53:50 +0000 (UTC)
 From:   Alexander Aring <aahringo@redhat.com>
 To:     teigland@redhat.com
 Cc:     cluster-devel@redhat.com, stable@vger.kernel.org,
         aahringo@redhat.com
-Subject: [PATCH dlm/next 0/3] fs: dlm: some callback fixes
-Date:   Thu, 21 Jul 2022 17:53:37 -0400
-Message-Id: <20220721215340.936838-1-aahringo@redhat.com>
+Subject: [PATCH dlm/next 1/3] fs: dlm: fix race between test_bit() and queue_work()
+Date:   Thu, 21 Jul 2022 17:53:38 -0400
+Message-Id: <20220721215340.936838-2-aahringo@redhat.com>
+In-Reply-To: <20220721215340.936838-1-aahringo@redhat.com>
+References: <20220721215340.936838-1-aahringo@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,25 +58,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+This patch will fix a race by surround ls_cb_mutex in set_bit() and the
+test_bit() and it's conditional code blocks for LSFL_CB_DELAY.
 
-I currently look a little bit deeper into the callback handling of dlm
-and I think we have some issues there. Especially with the refcounting
-and queue_work() per lkb. I have some local branches which does more
-some rework and moving away from the lkb_callbacks[] array per lkb and
-using a queue for handling callbacks. However those are issues which I
-currently found for now and should be fixed.
+The function dlm_callback_stop() has the idea to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can be still queue_work() around after the workqueue was flushed.
+To avoid queue_work() after set_bit() we surround both by ls_cb_mutex
+lock.
 
-- Alex
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+---
+ fs/dlm/ast.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Alexander Aring (3):
-  fs: dlm: fix race between test_bit() and queue_work()
-  fs: dlm: avoid double list_add() for lkb->lkb_cb_list
-  fs: dlm: fix refcount handling for dlm_add_cb()
-
- fs/dlm/ast.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
-
+diff --git a/fs/dlm/ast.c b/fs/dlm/ast.c
+index 19ef136f9e4f..a44cc42b6317 100644
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -200,13 +200,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uint32_t flags, int mode, int status,
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
+ 
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
+ 	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -288,7 +288,9 @@ void dlm_callback_stop(struct dlm_ls *ls)
+ 
+ void dlm_callback_suspend(struct dlm_ls *ls)
+ {
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
+ 
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 -- 
 2.31.1
 
