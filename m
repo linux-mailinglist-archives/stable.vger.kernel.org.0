@@ -2,224 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF3557D3C9
-	for <lists+stable@lfdr.de>; Thu, 21 Jul 2022 21:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1D857D3A8
+	for <lists+stable@lfdr.de>; Thu, 21 Jul 2022 20:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbiGUTDY convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 21 Jul 2022 15:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
+        id S233284AbiGUS4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jul 2022 14:56:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231364AbiGUTDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jul 2022 15:03:21 -0400
-X-Greylist: delayed 902 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Jul 2022 12:03:16 PDT
-Received: from sctee1.zsr.sk (sctee1.zsr.sk [217.12.63.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF9008CE97
-        for <stable@vger.kernel.org>; Thu, 21 Jul 2022 12:03:16 -0700 (PDT)
-Received: from SBAEMBX1.intra.zsr.sk (10.17.102.161) by sctee1.zsr.sk
- (217.12.63.67) with Microsoft SMTP Server (TLS) id 15.0.1497.36; Thu, 21 Jul
- 2022 20:48:09 +0200
-Received: from SCTEMBX1.intra.zsr.sk (10.224.64.221) by SBAEMBX1.intra.zsr.sk
- (10.17.102.161) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Thu, 21 Jul
- 2022 20:48:10 +0200
-Received: from SCTEMBX1.intra.zsr.sk ([fe80::4807:2f49:90bc:6b45]) by
- SCTEMBX1.intra.zsr.sk ([fe80::4807:2f49:90bc:6b45%12]) with mapi id
- 15.00.1497.033; Thu, 21 Jul 2022 20:48:10 +0200
-From:   =?iso-8859-2?Q?Fialka_=A5ubom=EDr?= <Fialka.Lubomir@zsr.sk>
-To:     "1@hotmail.com" <1@hotmail.com>
-Subject: proyecto  
-Thread-Topic: proyecto  
-Thread-Index: AQHYnTIrJ10OJVdQjUOA7xBZfETGcA==
-Date:   Thu, 21 Jul 2022 18:48:09 +0000
-Message-ID: <1658429222150.36806@zsr.sk>
-Accept-Language: sk-SK, en-US
-Content-Language: sk-SK
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.17.102.224]
-x-kse-serverinfo: SBAEMBX1.intra.zsr.sk, 9
-x-kse-antivirus-interceptor-info: scan successful
-x-kse-antivirus-info: Clean, bases: 7/21/2022 5:02:00 PM
-x-kse-attachment-filter-triggered-rules: Clean
-x-kse-attachment-filter-triggered-filters: Clean
-x-kse-bulkmessagesfiltering-scan-result: protection disabled
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S233251AbiGUS4B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jul 2022 14:56:01 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0160488F2A;
+        Thu, 21 Jul 2022 11:55:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1658429758;
+        bh=bsUMZaftZOZZ6dyjR0D9oZKDcxxJEJJ2jeYm5vBBg1o=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=F+NUvT6aFho8Bp8MX9IUm4+W0tTMVS9+B4WIEmI+Mt1xSHsJcLF/zFZaG9S7LyrjK
+         WS0SeduP7pFIU/o4Qx2cEjCmI+GYupiBAQVSmCB6Qk0By38mQzagdCpZMJ0VWvemEs
+         j4hg/jgzxBkUZxTX9Nx4NajqTmJ5cN03wd6yJxRU=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.35.23]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1M9nxn-1oB2xn19CH-005qPv; Thu, 21
+ Jul 2022 20:55:58 +0200
+Message-ID: <27364f72-bb70-a72c-cde2-f64d76d1d2dd@gmx.de>
+Date:   Thu, 21 Jul 2022 20:55:57 +0200
 MIME-Version: 1.0
-X-KSE-AntiSpam-Outbound-Interceptor-Info: scan successful
-X-KSE-AntiSpam-Version: 5.9.20, Database issued on: 07/21/2022 18:16:31
-X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
-X-KSE-AntiSpam-Method: none
-X-KSE-AntiSpam-Rate: 0
-X-KSE-AntiSpam-Info: Lua profiles 171871 [Jul 21 2022]
-X-KSE-AntiSpam-Info: Version: 5.9.20.0
-X-KSE-AntiSpam-Info: Envelope from: Fialka.Lubomir@zsr.sk
-X-KSE-AntiSpam-Info: LuaCore: 493 493 c80a237886b75a8eec705b487193915475443854
-X-KSE-AntiSpam-Info: {Tracking_uf_ne_domains}
-X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
-X-KSE-AntiSpam-Info: www.instagram.com:5.0.1,7.1.1;www.linkedin.com:5.0.1,7.1.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;zsr.sk:7.1.1;www.facebook.com:5.0.1,7.1.1
-X-KSE-AntiSpam-Info: Rate: 0
-X-KSE-AntiSpam-Info: Status: not_detected
-X-KSE-AntiSpam-Info: Method: none
-X-KSE-AntiSpam-Info: Auth:dkim=none
-X-KSE-Antiphishing-Info: Clean
-X-KSE-Antiphishing-ScanningType: Heuristic
-X-KSE-Antiphishing-Method: None
-X-KSE-Antiphishing-Bases: 07/21/2022 18:19:00
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: re: [PATCH 5.18 000/227] 5.18.13-rc3 review
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:IGcXsH2EoOb9cziWUB7dz7KQzo/EhqUHnkT5rMSss/TJodDMn2B
+ gghK2b7/xUnaQ9NiZ+oRnZ+IqXtK9uzdPso4nyAjHNE6nEuXhJnN5iyvKRsOwZGd9fdtaMN
+ wuEciG+cAj+5L2E60jMkAFK+H3t0Jcorlfn3ZxL++Wou4iKvR6HZaM5zBqw5epuX/uu/n2B
+ aerAXLKg5s7wgB9I3+iig==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:tjCWQ4Ppf9I=:+JKcGs3Ei0qVmYwJ/CkoPJ
+ pjGyn0fsgNceqgtH55hET4i7MWtm/JrdeTxYR+ZrFtQujcjuEncjj9ozcE5R6aWUIh+Cnzr+T
+ yJzDyut3nd0M4PAZBG+MqIn9QBXx/pVqAAbsx/4h/CfU0KFRqF5IeK6qOuz00zNO5t40e4sqr
+ pA60KBuI//buNiIbY5gLNYhyAngCbXlPXkohy6+ho7y8H7T8ouUF+J1xwTedfPwpa/Cq6ELxY
+ RDhEWSo1g/RN38ab835mCHKq6yDz98RcFiNAhAmChMeCZl8SRlAt5ODqOX32G6b1j/LrZhRFm
+ 2xKyM7BEI+tRiQPriOWnxCqzSTBQMXd9YHGoFQ8wVnK4xltarG9Kj2RB2HNRqbKdodTewgqT0
+ MxYTVhQmZbuxZHTzCQ0wea1824xlaXWX1ZLRCqxHmsRakVcaWAWOpms9be5LKlkuBihhX0noi
+ PxPnlg6Gboe54khr/G2qa17m8QB4BWR2lSNFoB72JhXM6AMZKBpgRFfLA8jK6gY/PWsaW+q1W
+ rcEQPoVrhKa61mndEGFGSl9WNKbyp0PSa+C+oFWs6HxRl2+go74wPBJBkxeF5777u473W4+Es
+ UHevYB30hOfYS/sEDu7DsNcsvtn5oBkMcUMpc/tvrBtXLk6NrbrE4geG7D89hEWzJDO4LrOyg
+ wO95zKWFEDxTrO3FX/m+vE4mUuJwu4lRANb0Sg8sNkU1KfjVxfi39ELhB+EB8BhMdLXeTcXUU
+ cAFh0TemG1EI2by5zXUjeXVoi0tWaNHnXXX4UKUleAy+RpRFZS1kLxVQgIZk29X0g6zoUhytg
+ cfC9KmlTRlkEUurc2J41PbRj9wpcEYhFIFgb/F/wmxZDlIvzwoNgzZTDlMQ+xx60MzvmpZdj8
+ G4sYom1SXW8l5qcVJykI9RgsBgkIFcKz22gjVbr1LEWgE5x70kBB35tc4gQHwAJRUnRGSJDd5
+ fkoCrHM0yZAb3YcK/s774CObhVGoc//gXj3zgNVKz4zoS1ULX5SbdWuoQ6ZBYLa+zZxo3haeA
+ Cf21HiZpGM86dekpHW376pJQMTnAHrDacZQ5nwIq2shgy7cq4yXt4h85PQSMp1haUdp3mDwqj
+ 4YyiejpNutywaXBzuHjPvgwEtuqJvaJyPbH
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day, i have an urgent discussion with you. contact my private e-mail below
+hallo Greg
 
-E-mail:  tilife27@gmail.com
+5.18.13-rc3
 
-for more info.
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 36)
 
+NO "'naked' return" errors anymore !
 
-?
+regarding "heat errors": get some "pool & pivo" and have a break
+;-)
 
+Thanks
 
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-==============================================================
-
-Dobrý deò,
-
-prosíme o zaslanie úpravy rozpoètu na úhradu cestovných príkazov z dôvodu nedostatku finanèných prostriedkov.
-
-Ïakujeme.
-
-S pozdravom
-
-[cid:image007.png@01D89AB0.CC001A30]
-
-?Mgr. Mária Hudáková
-Sekcia ekonomiky
-Odbor financovania a rozpoètu
-
-+421 2 209 25 699
-maria.hudakova@vlada.gov.sk
-www.vlada.gov.sk
-
-[cid:image003.png@01D89AB0.BF34A690]<https://www.facebook.com/UradVladySR/>
-
-
-[cid:image004.png@01D89AB0.BF34A690]<http://www.instagram.com/uradvladysr>
-
-Úrad vlády Slovenskej republiky
-?Námestie slobody 1
-813 70 Bratislava
-
-[cid:image005.png@01D89AB0.BF34A690]
-
-
-[cid:image006.png@01D89AB0.BF34A690]<http://www.linkedin.com/company/uvsr>
-
-
-
-[eco.jpg]       Pred vytlaèením tohto mailu zvá¾te prosím vplyv na ¾ivotné prostredie. Ïakujeme.
-
-
-
-?
 
