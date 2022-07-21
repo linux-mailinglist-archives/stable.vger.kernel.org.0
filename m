@@ -2,64 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1D857D3A8
-	for <lists+stable@lfdr.de>; Thu, 21 Jul 2022 20:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B588757D3D0
+	for <lists+stable@lfdr.de>; Thu, 21 Jul 2022 21:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233284AbiGUS4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Jul 2022 14:56:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41850 "EHLO
+        id S232488AbiGUTIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Jul 2022 15:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233251AbiGUS4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Jul 2022 14:56:01 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0160488F2A;
-        Thu, 21 Jul 2022 11:55:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1658429758;
-        bh=bsUMZaftZOZZ6dyjR0D9oZKDcxxJEJJ2jeYm5vBBg1o=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=F+NUvT6aFho8Bp8MX9IUm4+W0tTMVS9+B4WIEmI+Mt1xSHsJcLF/zFZaG9S7LyrjK
-         WS0SeduP7pFIU/o4Qx2cEjCmI+GYupiBAQVSmCB6Qk0By38mQzagdCpZMJ0VWvemEs
-         j4hg/jgzxBkUZxTX9Nx4NajqTmJ5cN03wd6yJxRU=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.35.23]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M9nxn-1oB2xn19CH-005qPv; Thu, 21
- Jul 2022 20:55:58 +0200
-Message-ID: <27364f72-bb70-a72c-cde2-f64d76d1d2dd@gmx.de>
-Date:   Thu, 21 Jul 2022 20:55:57 +0200
+        with ESMTP id S229436AbiGUTIl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Jul 2022 15:08:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81A9E87F7A;
+        Thu, 21 Jul 2022 12:08:38 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36CA2B8263F;
+        Thu, 21 Jul 2022 19:08:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62797C3411E;
+        Thu, 21 Jul 2022 19:08:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658430515;
+        bh=jAABsnsUu936rsygMzUfR1bXnqLT/fnxnueSIeH0GF0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=i4B+98c9I1krtjXrVyck/f38Bu1BxW96c7UHXVpnoJR/WwwV32Np/xd+0wqasSCQf
+         FatMqrd5At7ak32zBSrb8wuo0GmCdvbYQGgQpXO6fLLsHMlXfsY6JWv75b/oVR3dw6
+         LYxhi2PjiwPXHX51y4+8E0HOjSyJZoEwshB0/Fl4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.324
+Date:   Thu, 21 Jul 2022 21:08:07 +0200
+Message-Id: <1658430488197171@kroah.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Subject: re: [PATCH 5.18 000/227] 5.18.13-rc3 review
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:IGcXsH2EoOb9cziWUB7dz7KQzo/EhqUHnkT5rMSss/TJodDMn2B
- gghK2b7/xUnaQ9NiZ+oRnZ+IqXtK9uzdPso4nyAjHNE6nEuXhJnN5iyvKRsOwZGd9fdtaMN
- wuEciG+cAj+5L2E60jMkAFK+H3t0Jcorlfn3ZxL++Wou4iKvR6HZaM5zBqw5epuX/uu/n2B
- aerAXLKg5s7wgB9I3+iig==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:tjCWQ4Ppf9I=:+JKcGs3Ei0qVmYwJ/CkoPJ
- pjGyn0fsgNceqgtH55hET4i7MWtm/JrdeTxYR+ZrFtQujcjuEncjj9ozcE5R6aWUIh+Cnzr+T
- yJzDyut3nd0M4PAZBG+MqIn9QBXx/pVqAAbsx/4h/CfU0KFRqF5IeK6qOuz00zNO5t40e4sqr
- pA60KBuI//buNiIbY5gLNYhyAngCbXlPXkohy6+ho7y8H7T8ouUF+J1xwTedfPwpa/Cq6ELxY
- RDhEWSo1g/RN38ab835mCHKq6yDz98RcFiNAhAmChMeCZl8SRlAt5ODqOX32G6b1j/LrZhRFm
- 2xKyM7BEI+tRiQPriOWnxCqzSTBQMXd9YHGoFQ8wVnK4xltarG9Kj2RB2HNRqbKdodTewgqT0
- MxYTVhQmZbuxZHTzCQ0wea1824xlaXWX1ZLRCqxHmsRakVcaWAWOpms9be5LKlkuBihhX0noi
- PxPnlg6Gboe54khr/G2qa17m8QB4BWR2lSNFoB72JhXM6AMZKBpgRFfLA8jK6gY/PWsaW+q1W
- rcEQPoVrhKa61mndEGFGSl9WNKbyp0PSa+C+oFWs6HxRl2+go74wPBJBkxeF5777u473W4+Es
- UHevYB30hOfYS/sEDu7DsNcsvtn5oBkMcUMpc/tvrBtXLk6NrbrE4geG7D89hEWzJDO4LrOyg
- wO95zKWFEDxTrO3FX/m+vE4mUuJwu4lRANb0Sg8sNkU1KfjVxfi39ELhB+EB8BhMdLXeTcXUU
- cAFh0TemG1EI2by5zXUjeXVoi0tWaNHnXXX4UKUleAy+RpRFZS1kLxVQgIZk29X0g6zoUhytg
- cfC9KmlTRlkEUurc2J41PbRj9wpcEYhFIFgb/F/wmxZDlIvzwoNgzZTDlMQ+xx60MzvmpZdj8
- G4sYom1SXW8l5qcVJykI9RgsBgkIFcKz22gjVbr1LEWgE5x70kBB35tc4gQHwAJRUnRGSJDd5
- fkoCrHM0yZAb3YcK/s774CObhVGoc//gXj3zgNVKz4zoS1ULX5SbdWuoQ6ZBYLa+zZxo3haeA
- Cf21HiZpGM86dekpHW376pJQMTnAHrDacZQ5nwIq2shgy7cq4yXt4h85PQSMp1haUdp3mDwqj
- 4YyiejpNutywaXBzuHjPvgwEtuqJvaJyPbH
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,20 +49,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
+I'm announcing the release of the 4.9.324 kernel.
 
-5.18.13-rc3
+All users of the 4.9 kernel series must upgrade.
 
-compiles, boots and runs here on x86_64
-(Intel i5-11400, Fedora 36)
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-NO "'naked' return" errors anymore !
+thanks,
 
-regarding "heat errors": get some "pool & pivo" and have a break
-;-)
+greg k-h
 
-Thanks
+------------
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
+ Documentation/networking/ip-sysctl.txt |    4 ++--
+ Makefile                               |    2 +-
+ arch/arm/mm/proc-v7-bugs.c             |    9 ++++-----
+ arch/arm64/kernel/entry.S              |    1 +
+ arch/x86/kernel/head64.c               |    2 ++
+ drivers/cpufreq/pmac32-cpufreq.c       |    4 ++++
+ drivers/net/can/m_can/m_can.c          |    5 +++--
+ drivers/net/dsa/bcm_sf2.c              |   19 +++++++++++++++++++
+ drivers/net/ethernet/sfc/ef10.c        |    3 +++
+ drivers/net/ethernet/sfc/ef10_sriov.c  |   10 +++++++---
+ drivers/net/xen-netback/rx.c           |    1 +
+ drivers/nfc/nxp-nci/i2c.c              |    8 ++++++--
+ drivers/tty/serial/8250/8250_port.c    |    4 +++-
+ drivers/tty/serial/samsung.c           |    5 ++---
+ drivers/usb/dwc3/gadget.c              |    4 +++-
+ drivers/usb/serial/ftdi_sio.c          |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h      |    6 ++++++
+ drivers/virtio/virtio_mmio.c           |   26 ++++++++++++++++++++++++++
+ fs/nilfs2/nilfs.h                      |    3 +++
+ include/trace/events/sock.h            |    6 ++++--
+ kernel/signal.c                        |    8 ++++----
+ mm/memory.c                            |    9 +++++++--
+ net/ipv4/af_inet.c                     |    4 ++--
+ net/ipv4/cipso_ipv4.c                  |   12 +++++++-----
+ net/ipv4/icmp.c                        |    5 +++--
+ net/tipc/socket.c                      |    1 +
+ sound/pci/hda/patch_realtek.c          |    1 +
+ sound/soc/codecs/wm5110.c              |    8 ++++++--
+ sound/soc/soc-ops.c                    |    4 ++--
+ 29 files changed, 136 insertions(+), 41 deletions(-)
 
+Ard Biesheuvel (1):
+      ARM: 9209/1: Spectre-BHB: avoid pr_info() every time a CPU comes out of idle
+
+Chanho Park (1):
+      tty: serial: samsung_tty: set dma burst_size to 1
+
+Charles Keepax (1):
+      ASoC: wm5110: Fix DRE control
+
+Dmitry Osipenko (1):
+      ARM: 9213/1: Print message about disabled Spectre workarounds only once
+
+Doug Berger (1):
+      net: dsa: bcm_sf2: force pause link settings
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.324
+
+Hangyu Hua (1):
+      net: tipc: fix possible refcount leak in tipc_sk_create()
+
+James Morse (1):
+      arm64: entry: Restore tramp_map_kernel ISB
+
+Juergen Gross (2):
+      xen/netback: avoid entering xenvif_rx_next_skb() with an empty rx queue
+      x86: Clear .brk area at early boot
+
+Kuniyuki Iwashima (3):
+      cipso: Fix data-races around sysctl.
+      icmp: Fix data-races around sysctl.
+      ipv4: Fix data-races around sysctl_ip_dynaddr.
+
+Liang He (1):
+      cpufreq: pmac32-cpufreq: Fix refcount leak bug
+
+Linus Torvalds (1):
+      signal handling: don't use BUG_ON() for debugging
+
+Lucien Buchmann (1):
+      USB: serial: ftdi_sio: add Belimo device ids
+
+Marc Kleine-Budde (1):
+      can: m_can: m_can_tx_handler(): fix use after free of skb
+
+Mark Brown (1):
+      ASoC: ops: Fix off by one in range control validation
+
+Meng Tang (1):
+      ALSA: hda - Add fixup for Dell Latitidue E5430
+
+Michael Walle (1):
+      NFC: nxp-nci: don't print header length mismatch on i2c error
+
+Rik van Riel (1):
+      mm: invalidate hwpoison page cache page in fault path
+
+Ryusuke Konishi (1):
+      nilfs2: fix incorrect masking of permission flags for symlinks
+
+Stephan Gerhold (2):
+      virtio_mmio: Add missing PM calls to freeze/restore
+      virtio_mmio: Restore guest page size on resume
+
+Steven Rostedt (Google) (1):
+      net: sock: tracing: Fix sock_exceed_buf_limit not to dereference stale pointer
+
+Thinh Nguyen (1):
+      usb: dwc3: gadget: Fix event pending check
+
+Yi Yang (1):
+      serial: 8250: fix return error code in serial8250_request_std_resource()
+
+Íñigo Huguet (2):
+      sfc: fix use after free when disabling sriov
+      sfc: fix kernel panic when creating VF
 
