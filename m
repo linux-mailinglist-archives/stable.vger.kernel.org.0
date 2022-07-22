@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FD257DE54
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373F457DDB2
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233321AbiGVJOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:14:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40782 "EHLO
+        id S235765AbiGVJQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:16:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235358AbiGVJNY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:13:24 -0400
+        with ESMTP id S235700AbiGVJQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:16:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D15A6FB8;
-        Fri, 22 Jul 2022 02:10:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA3EB5061;
+        Fri, 22 Jul 2022 02:11:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55C7BB827B2;
-        Fri, 22 Jul 2022 09:10:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1BE7C341C6;
-        Fri, 22 Jul 2022 09:10:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E50E4B827BB;
+        Fri, 22 Jul 2022 09:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35765C341C7;
+        Fri, 22 Jul 2022 09:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481038;
-        bh=c9yoiIGBzS/zwzxTB2DHe55fa18IRAshceLdoeEK5uk=;
+        s=korg; t=1658481109;
+        bh=orDIqBgTdhhvzFsrUHo0CXdWlM3KJKdhdtyb6E5H8kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JviwZAc0jgeaAxnAAVYK98/OoXJEUef3rYTIJmZqVBnrYGYrAWcQtwc4BqwKp7SzP
-         2/NLx5USwMI6oFhmhlqYdLT/fxTTxNaLbhHR4YKMGXMh2W6YSz89J9/uzR1eVPMOs6
-         ApklIWPJ9nz7HurpTzbnCKiU5nA7TSfAmY2qF1sA=
+        b=qU0SRvc0dI5C+csAqxPx5ttiqBu1T67EvaOddZvviGbRL+ecsdQesVaISAuTgTv99
+         B2KBK2svdIMlZsG3icZxQhuxFJzwvJTP+zTAHUzkpl8RbYO+K7IiBPn7KnNok+aDPb
+         tL5lKrdPjlmvZEv9GM6uDOpaL1Tz+MSFlkBhrthI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 55/70] x86/retbleed: Add fine grained Kconfig knobs
-Date:   Fri, 22 Jul 2022 11:07:50 +0200
-Message-Id: <20220722090653.839400903@linuxfoundation.org>
+Subject: [PATCH 5.18 56/70] x86/bugs: Add Cannon lake to RETBleed affected CPU list
+Date:   Fri, 22 Jul 2022 11:07:51 +0200
+Message-Id: <20220722090653.907406768@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
 References: <20220722090650.665513668@linuxfoundation.org>
@@ -54,587 +54,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit f43b9876e857c739d407bc56df288b0ebe1a9164 upstream.
+commit f54d45372c6ac9c993451de5e51312485f7d10bc upstream.
 
-Do fine-grained Kconfig for all the various retbleed parts.
+Cannon lake is also affected by RETBleed, add it to the list.
 
-NOTE: if your compiler doesn't support return thunks this will
-silently 'upgrade' your mitigation to IBPB, you might not like this.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Fixes: 6ad0ad2bf8a6 ("x86/bugs: Report Intel retbleed vulnerability")
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: there is no CONFIG_OBJTOOL]
-[cascardo: objtool calling and option parsing has changed]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig                         |  106 +++++++++++++++++++++++--------
- arch/x86/Makefile                        |    8 +-
- arch/x86/entry/calling.h                 |    4 +
- arch/x86/include/asm/disabled-features.h |   18 ++++-
- arch/x86/include/asm/linkage.h           |    4 -
- arch/x86/include/asm/nospec-branch.h     |   10 ++
- arch/x86/include/asm/static_call.h       |    2 
- arch/x86/kernel/alternative.c            |    5 +
- arch/x86/kernel/cpu/amd.c                |    2 
- arch/x86/kernel/cpu/bugs.c               |   42 +++++++-----
- arch/x86/kernel/static_call.c            |    2 
- arch/x86/kvm/emulate.c                   |    4 -
- arch/x86/lib/retpoline.S                 |    4 +
- scripts/Makefile.build                   |    1 
- scripts/link-vmlinux.sh                  |    2 
- security/Kconfig                         |   11 ---
- tools/objtool/builtin-check.c            |    3 
- tools/objtool/check.c                    |    9 ++
- tools/objtool/include/objtool/builtin.h  |    2 
- 19 files changed, 170 insertions(+), 69 deletions(-)
+ arch/x86/kernel/cpu/common.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -457,30 +457,6 @@ config GOLDFISH
- 	def_bool y
- 	depends on X86_GOLDFISH
- 
--config RETPOLINE
--	bool "Avoid speculative indirect branches in kernel"
--	default y
--	help
--	  Compile kernel with the retpoline compiler options to guard against
--	  kernel-to-user data leaks by avoiding speculative indirect
--	  branches. Requires a compiler with -mindirect-branch=thunk-extern
--	  support for full protection. The kernel may run slower.
--
--config CC_HAS_SLS
--	def_bool $(cc-option,-mharden-sls=all)
--
--config CC_HAS_RETURN_THUNK
--	def_bool $(cc-option,-mfunction-return=thunk-extern)
--
--config SLS
--	bool "Mitigate Straight-Line-Speculation"
--	depends on CC_HAS_SLS && X86_64
--	default n
--	help
--	  Compile the kernel with straight-line-speculation options to guard
--	  against straight line speculation. The kernel image might be slightly
--	  larger.
--
- config X86_CPU_RESCTRL
- 	bool "x86 CPU resource control support"
- 	depends on X86 && (CPU_SUP_INTEL || CPU_SUP_AMD)
-@@ -2452,6 +2428,88 @@ source "kernel/livepatch/Kconfig"
- 
- endmenu
- 
-+config CC_HAS_SLS
-+	def_bool $(cc-option,-mharden-sls=all)
-+
-+config CC_HAS_RETURN_THUNK
-+	def_bool $(cc-option,-mfunction-return=thunk-extern)
-+
-+menuconfig SPECULATION_MITIGATIONS
-+	bool "Mitigations for speculative execution vulnerabilities"
-+	default y
-+	help
-+	  Say Y here to enable options which enable mitigations for
-+	  speculative execution hardware vulnerabilities.
-+
-+	  If you say N, all mitigations will be disabled. You really
-+	  should know what you are doing to say so.
-+
-+if SPECULATION_MITIGATIONS
-+
-+config PAGE_TABLE_ISOLATION
-+	bool "Remove the kernel mapping in user mode"
-+	default y
-+	depends on (X86_64 || X86_PAE)
-+	help
-+	  This feature reduces the number of hardware side channels by
-+	  ensuring that the majority of kernel addresses are not mapped
-+	  into userspace.
-+
-+	  See Documentation/x86/pti.rst for more details.
-+
-+config RETPOLINE
-+	bool "Avoid speculative indirect branches in kernel"
-+	default y
-+	help
-+	  Compile kernel with the retpoline compiler options to guard against
-+	  kernel-to-user data leaks by avoiding speculative indirect
-+	  branches. Requires a compiler with -mindirect-branch=thunk-extern
-+	  support for full protection. The kernel may run slower.
-+
-+config RETHUNK
-+	bool "Enable return-thunks"
-+	depends on RETPOLINE && CC_HAS_RETURN_THUNK
-+	default y
-+	help
-+	  Compile the kernel with the return-thunks compiler option to guard
-+	  against kernel-to-user data leaks by avoiding return speculation.
-+	  Requires a compiler with -mfunction-return=thunk-extern
-+	  support for full protection. The kernel may run slower.
-+
-+config CPU_UNRET_ENTRY
-+	bool "Enable UNRET on kernel entry"
-+	depends on CPU_SUP_AMD && RETHUNK
-+	default y
-+	help
-+	  Compile the kernel with support for the retbleed=unret mitigation.
-+
-+config CPU_IBPB_ENTRY
-+	bool "Enable IBPB on kernel entry"
-+	depends on CPU_SUP_AMD
-+	default y
-+	help
-+	  Compile the kernel with support for the retbleed=ibpb mitigation.
-+
-+config CPU_IBRS_ENTRY
-+	bool "Enable IBRS on kernel entry"
-+	depends on CPU_SUP_INTEL
-+	default y
-+	help
-+	  Compile the kernel with support for the spectre_v2=ibrs mitigation.
-+	  This mitigates both spectre_v2 and retbleed at great cost to
-+	  performance.
-+
-+config SLS
-+	bool "Mitigate Straight-Line-Speculation"
-+	depends on CC_HAS_SLS && X86_64
-+	default n
-+	help
-+	  Compile the kernel with straight-line-speculation options to guard
-+	  against straight line speculation. The kernel image might be slightly
-+	  larger.
-+
-+endif
-+
- config ARCH_HAS_ADD_PAGES
- 	def_bool y
- 	depends on ARCH_ENABLE_MEMORY_HOTPLUG
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -15,14 +15,18 @@ endif
- ifdef CONFIG_CC_IS_GCC
- RETPOLINE_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-extern -mindirect-branch-register)
- RETPOLINE_CFLAGS	+= $(call cc-option,-mindirect-branch-cs-prefix)
--RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
- RETPOLINE_VDSO_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-inline -mindirect-branch-register)
- endif
- ifdef CONFIG_CC_IS_CLANG
- RETPOLINE_CFLAGS	:= -mretpoline-external-thunk
- RETPOLINE_VDSO_CFLAGS	:= -mretpoline
--RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
- endif
-+
-+ifdef CONFIG_RETHUNK
-+RETHUNK_CFLAGS		:= -mfunction-return=thunk-extern
-+RETPOLINE_CFLAGS	+= $(RETHUNK_CFLAGS)
-+endif
-+
- export RETPOLINE_CFLAGS
- export RETPOLINE_VDSO_CFLAGS
- 
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -296,6 +296,7 @@ For 32-bit we have the following convent
-  * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
-  */
- .macro IBRS_ENTER save_reg
-+#ifdef CONFIG_CPU_IBRS_ENTRY
- 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
- 	movl	$MSR_IA32_SPEC_CTRL, %ecx
- 
-@@ -316,6 +317,7 @@ For 32-bit we have the following convent
- 	shr	$32, %rdx
- 	wrmsr
- .Lend_\@:
-+#endif
- .endm
- 
- /*
-@@ -323,6 +325,7 @@ For 32-bit we have the following convent
-  * regs. Must be called after the last RET.
-  */
- .macro IBRS_EXIT save_reg
-+#ifdef CONFIG_CPU_IBRS_ENTRY
- 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
- 	movl	$MSR_IA32_SPEC_CTRL, %ecx
- 
-@@ -337,6 +340,7 @@ For 32-bit we have the following convent
- 	shr	$32, %rdx
- 	wrmsr
- .Lend_\@:
-+#endif
- .endm
- 
- /*
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -60,9 +60,19 @@
- # define DISABLE_RETPOLINE	0
- #else
- # define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
--				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)) | \
--				 (1 << (X86_FEATURE_RETHUNK & 31)) | \
--				 (1 << (X86_FEATURE_UNRET & 31)))
-+				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
-+#endif
-+
-+#ifdef CONFIG_RETHUNK
-+# define DISABLE_RETHUNK	0
-+#else
-+# define DISABLE_RETHUNK	(1 << (X86_FEATURE_RETHUNK & 31))
-+#endif
-+
-+#ifdef CONFIG_CPU_UNRET_ENTRY
-+# define DISABLE_UNRET		0
-+#else
-+# define DISABLE_UNRET		(1 << (X86_FEATURE_UNRET & 31))
- #endif
- 
- #ifdef CONFIG_INTEL_IOMMU_SVM
-@@ -91,7 +101,7 @@
- #define DISABLED_MASK8	0
- #define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
- #define DISABLED_MASK10	0
--#define DISABLED_MASK11	(DISABLE_RETPOLINE)
-+#define DISABLED_MASK11	(DISABLE_RETPOLINE|DISABLE_RETHUNK|DISABLE_UNRET)
- #define DISABLED_MASK12	0
- #define DISABLED_MASK13	0
- #define DISABLED_MASK14	0
---- a/arch/x86/include/asm/linkage.h
-+++ b/arch/x86/include/asm/linkage.h
-@@ -19,7 +19,7 @@
- #define __ALIGN_STR	__stringify(__ALIGN)
- #endif
- 
--#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
-+#if defined(CONFIG_RETHUNK) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
- #define RET	jmp __x86_return_thunk
- #else /* CONFIG_RETPOLINE */
- #ifdef CONFIG_SLS
-@@ -31,7 +31,7 @@
- 
- #else /* __ASSEMBLY__ */
- 
--#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
-+#if defined(CONFIG_RETHUNK) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
- #define ASM_RET	"jmp __x86_return_thunk\n\t"
- #else /* CONFIG_RETPOLINE */
- #ifdef CONFIG_SLS
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -127,6 +127,12 @@
- .Lskip_rsb_\@:
- .endm
- 
-+#ifdef CONFIG_CPU_UNRET_ENTRY
-+#define CALL_ZEN_UNTRAIN_RET	"call zen_untrain_ret"
-+#else
-+#define CALL_ZEN_UNTRAIN_RET	""
-+#endif
-+
- /*
-  * Mitigate RETBleed for AMD/Hygon Zen uarch. Requires KERNEL CR3 because the
-  * return thunk isn't mapped into the userspace tables (then again, AMD
-@@ -139,10 +145,10 @@
-  * where we have a stack but before any RET instruction.
-  */
- .macro UNTRAIN_RET
--#ifdef CONFIG_RETPOLINE
-+#if defined(CONFIG_CPU_UNRET_ENTRY) || defined(CONFIG_CPU_IBPB_ENTRY)
- 	ANNOTATE_UNRET_END
- 	ALTERNATIVE_2 "",						\
--	              "call zen_untrain_ret", X86_FEATURE_UNRET,	\
-+	              CALL_ZEN_UNTRAIN_RET, X86_FEATURE_UNRET,		\
- 		      "call entry_ibpb", X86_FEATURE_ENTRY_IBPB
- #endif
- .endm
---- a/arch/x86/include/asm/static_call.h
-+++ b/arch/x86/include/asm/static_call.h
-@@ -46,7 +46,7 @@
- #define ARCH_DEFINE_STATIC_CALL_TRAMP(name, func)			\
- 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, ".byte 0xe9; .long " #func " - (. + 4)")
- 
--#ifdef CONFIG_RETPOLINE
-+#ifdef CONFIG_RETHUNK
- #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
- 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "jmp __x86_return_thunk")
- #else
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -508,6 +508,7 @@ void __init_or_module noinline apply_ret
- 	}
- }
- 
-+#ifdef CONFIG_RETHUNK
- /*
-  * Rewrite the compiler generated return thunk tail-calls.
-  *
-@@ -569,6 +570,10 @@ void __init_or_module noinline apply_ret
- 		}
- 	}
- }
-+#else
-+void __init_or_module noinline apply_returns(s32 *start, s32 *end) { }
-+#endif /* CONFIG_RETHUNK */
-+
- #else /* !RETPOLINES || !CONFIG_STACK_VALIDATION */
- 
- void __init_or_module noinline apply_retpolines(s32 *start, s32 *end) { }
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -864,6 +864,7 @@ static void init_amd_bd(struct cpuinfo_x
- 
- void init_spectral_chicken(struct cpuinfo_x86 *c)
- {
-+#ifdef CONFIG_CPU_UNRET_ENTRY
- 	u64 value;
- 
- 	/*
-@@ -880,6 +881,7 @@ void init_spectral_chicken(struct cpuinf
- 			wrmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, value);
- 		}
- 	}
-+#endif
- }
- 
- static void init_amd_zn(struct cpuinfo_x86 *c)
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -835,7 +835,6 @@ static int __init retbleed_parse_cmdline
- early_param("retbleed", retbleed_parse_cmdline);
- 
- #define RETBLEED_UNTRAIN_MSG "WARNING: BTB untrained return thunk mitigation is only effective on AMD/Hygon!\n"
--#define RETBLEED_COMPILER_MSG "WARNING: kernel not compiled with RETPOLINE or -mfunction-return capable compiler; falling back to IBPB!\n"
- #define RETBLEED_INTEL_MSG "WARNING: Spectre v2 mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible!\n"
- 
- static void __init retbleed_select_mitigation(void)
-@@ -850,18 +849,33 @@ static void __init retbleed_select_mitig
- 		return;
- 
- 	case RETBLEED_CMD_UNRET:
--		retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
-+		if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY)) {
-+			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
-+		} else {
-+			pr_err("WARNING: kernel not compiled with CPU_UNRET_ENTRY.\n");
-+			goto do_cmd_auto;
-+		}
- 		break;
- 
- 	case RETBLEED_CMD_IBPB:
--		retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
-+		if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
-+			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
-+		} else {
-+			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
-+			goto do_cmd_auto;
-+		}
- 		break;
- 
-+do_cmd_auto:
- 	case RETBLEED_CMD_AUTO:
- 	default:
- 		if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
--		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
--			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
-+		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
-+			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
-+				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
-+			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY))
-+				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
-+		}
- 
- 		/*
- 		 * The Intel mitigation (IBRS or eIBRS) was already selected in
-@@ -874,14 +888,6 @@ static void __init retbleed_select_mitig
- 
- 	switch (retbleed_mitigation) {
- 	case RETBLEED_MITIGATION_UNRET:
--
--		if (!IS_ENABLED(CONFIG_RETPOLINE) ||
--		    !IS_ENABLED(CONFIG_CC_HAS_RETURN_THUNK)) {
--			pr_err(RETBLEED_COMPILER_MSG);
--			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
--			goto retbleed_force_ibpb;
--		}
--
- 		setup_force_cpu_cap(X86_FEATURE_RETHUNK);
- 		setup_force_cpu_cap(X86_FEATURE_UNRET);
- 
-@@ -893,7 +899,6 @@ static void __init retbleed_select_mitig
- 		break;
- 
- 	case RETBLEED_MITIGATION_IBPB:
--retbleed_force_ibpb:
- 		setup_force_cpu_cap(X86_FEATURE_ENTRY_IBPB);
- 		mitigate_smt = true;
- 		break;
-@@ -1264,6 +1269,12 @@ static enum spectre_v2_mitigation_cmd __
- 		return SPECTRE_V2_CMD_AUTO;
- 	}
- 
-+	if (cmd == SPECTRE_V2_CMD_IBRS && !IS_ENABLED(CONFIG_CPU_IBRS_ENTRY)) {
-+		pr_err("%s selected but not compiled in. Switching to AUTO select\n",
-+		       mitigation_options[i].option);
-+		return SPECTRE_V2_CMD_AUTO;
-+	}
-+
- 	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_data.x86_vendor != X86_VENDOR_INTEL) {
- 		pr_err("%s selected but not Intel CPU. Switching to AUTO select\n",
- 		       mitigation_options[i].option);
-@@ -1321,7 +1332,8 @@ static void __init spectre_v2_select_mit
- 			break;
- 		}
- 
--		if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
-+		if (IS_ENABLED(CONFIG_CPU_IBRS_ENTRY) &&
-+		    boot_cpu_has_bug(X86_BUG_RETBLEED) &&
- 		    retbleed_cmd != RETBLEED_CMD_OFF &&
- 		    boot_cpu_has(X86_FEATURE_IBRS) &&
- 		    boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -126,7 +126,7 @@ void arch_static_call_transform(void *si
- }
- EXPORT_SYMBOL_GPL(arch_static_call_transform);
- 
--#ifdef CONFIG_RETPOLINE
-+#ifdef CONFIG_RETHUNK
- /*
-  * This is called by apply_returns() to fix up static call trampolines,
-  * specifically ARCH_DEFINE_STATIC_CALL_NULL_TRAMP which is recorded as
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -439,10 +439,10 @@ static int fastop(struct x86_emulate_ctx
-  *
-  * ENDBR			[4 bytes; CONFIG_X86_KERNEL_IBT]
-  * SETcc %al			[3 bytes]
-- * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETPOLINE]
-+ * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETHUNK]
-  * INT3				[1 byte; CONFIG_SLS]
-  */
--#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETPOLINE)) + \
-+#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETHUNK)) + \
- 			 IS_ENABLED(CONFIG_SLS))
- #define SETCC_LENGTH	(ENDBR_INSN_SIZE + 3 + RET_LENGTH)
- #define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
---- a/arch/x86/lib/retpoline.S
-+++ b/arch/x86/lib/retpoline.S
-@@ -72,6 +72,8 @@ SYM_CODE_END(__x86_indirect_thunk_array)
-  * This function name is magical and is used by -mfunction-return=thunk-extern
-  * for the compiler to generate JMPs to it.
-  */
-+#ifdef CONFIG_RETHUNK
-+
- 	.section .text.__x86.return_thunk
- 
- /*
-@@ -136,3 +138,5 @@ SYM_FUNC_END(zen_untrain_ret)
- __EXPORT_THUNK(zen_untrain_ret)
- 
- EXPORT_SYMBOL(__x86_return_thunk)
-+
-+#endif /* CONFIG_RETHUNK */
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -233,6 +233,7 @@ objtool_args =								\
- 	$(if $(CONFIG_FRAME_POINTER),, --no-fp)				\
- 	$(if $(CONFIG_GCOV_KERNEL), --no-unreachable)			\
- 	$(if $(CONFIG_RETPOLINE), --retpoline)				\
-+	$(if $(CONFIG_RETHUNK), --rethunk)				\
- 	$(if $(CONFIG_X86_SMAP), --uaccess)				\
- 	$(if $(CONFIG_FTRACE_MCOUNT_USE_OBJTOOL), --mcount)		\
- 	$(if $(CONFIG_SLS), --sls)
---- a/scripts/link-vmlinux.sh
-+++ b/scripts/link-vmlinux.sh
-@@ -130,7 +130,7 @@ objtool_link()
- 
- 	if is_enabled CONFIG_VMLINUX_VALIDATION; then
- 		objtoolopt="${objtoolopt} --noinstr"
--		if is_enabled CONFIG_RETPOLINE; then
-+		if is_enabled CONFIG_CPU_UNRET_ENTRY; then
- 			objtoolopt="${objtoolopt} --unret"
- 		fi
- 	fi
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -54,17 +54,6 @@ config SECURITY_NETWORK
- 	  implement socket and networking access controls.
- 	  If you are unsure how to answer this question, answer N.
- 
--config PAGE_TABLE_ISOLATION
--	bool "Remove the kernel mapping in user mode"
--	default y
--	depends on (X86_64 || X86_PAE) && !UML
--	help
--	  This feature reduces the number of hardware side channels by
--	  ensuring that the majority of kernel addresses are not mapped
--	  into userspace.
--
--	  See Documentation/x86/pti.rst for more details.
--
- config SECURITY_INFINIBAND
- 	bool "Infiniband Security Hooks"
- 	depends on SECURITY && INFINIBAND
---- a/tools/objtool/builtin-check.c
-+++ b/tools/objtool/builtin-check.c
-@@ -21,7 +21,7 @@
- 
- bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
-      lto, vmlinux, mcount, noinstr, backup, sls, dryrun,
--     ibt, unret;
-+     ibt, unret, rethunk;
- 
- static const char * const check_usage[] = {
- 	"objtool check [<options>] file.o",
-@@ -37,6 +37,7 @@ const struct option check_options[] = {
- 	OPT_BOOLEAN('f', "no-fp", &no_fp, "Skip frame pointer validation"),
- 	OPT_BOOLEAN('u', "no-unreachable", &no_unreachable, "Skip 'unreachable instruction' warnings"),
- 	OPT_BOOLEAN('r', "retpoline", &retpoline, "Validate retpoline assumptions"),
-+	OPT_BOOLEAN(0,   "rethunk", &rethunk, "validate and annotate rethunk usage"),
- 	OPT_BOOLEAN(0,   "unret", &unret, "validate entry unret placement"),
- 	OPT_BOOLEAN('m', "module", &module, "Indicates the object will be part of a kernel module"),
- 	OPT_BOOLEAN('b', "backtrace", &backtrace, "unwind on error"),
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -3854,8 +3854,11 @@ static int validate_retpoline(struct obj
- 			continue;
- 
- 		if (insn->type == INSN_RETURN) {
--			WARN_FUNC("'naked' return found in RETPOLINE build",
--				  insn->sec, insn->offset);
-+			if (rethunk) {
-+				WARN_FUNC("'naked' return found in RETHUNK build",
-+					  insn->sec, insn->offset);
-+			} else
-+				continue;
- 		} else {
- 			WARN_FUNC("indirect %s found in RETPOLINE build",
- 				  insn->sec, insn->offset,
-@@ -4228,7 +4231,9 @@ int check(struct objtool_file *file)
- 		if (ret < 0)
- 			goto out;
- 		warnings += ret;
-+	}
- 
-+	if (rethunk) {
- 		ret = create_return_sites_sections(file);
- 		if (ret < 0)
- 			goto out;
---- a/tools/objtool/include/objtool/builtin.h
-+++ b/tools/objtool/include/objtool/builtin.h
-@@ -10,7 +10,7 @@
- extern const struct option check_options[];
- extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
- 	    lto, vmlinux, mcount, noinstr, backup, sls, dryrun,
--	    ibt, unret;
-+	    ibt, unret, rethunk;
- 
- extern int cmd_parse_options(int argc, const char **argv, const char * const usage[]);
- 
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1268,6 +1268,7 @@ static const struct x86_cpu_id cpu_vuln_
+ 	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(CANNONLAKE_L,	X86_STEPPING_ANY,		RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
+ 	VULNBL_INTEL_STEPPINGS(ICELAKE_D,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPING_ANY,		MMIO),
 
 
