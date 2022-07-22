@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0E057DBD7
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 10:11:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4230957DBDA
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 10:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbiGVIL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 04:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34510 "EHLO
+        id S233913AbiGVILk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 04:11:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230367AbiGVIL2 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 22 Jul 2022 04:11:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B969CE0B
-        for <Stable@vger.kernel.org>; Fri, 22 Jul 2022 01:11:27 -0700 (PDT)
+        with ESMTP id S230367AbiGVILj (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 22 Jul 2022 04:11:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A939CE04
+        for <Stable@vger.kernel.org>; Fri, 22 Jul 2022 01:11:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56BCF6170B
-        for <Stable@vger.kernel.org>; Fri, 22 Jul 2022 08:11:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551F5C341C6;
-        Fri, 22 Jul 2022 08:11:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E1F9B827AA
+        for <Stable@vger.kernel.org>; Fri, 22 Jul 2022 08:11:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D86C341C7;
+        Fri, 22 Jul 2022 08:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658477486;
-        bh=GqyjTSiOdBXKdv6q1v9OJGSr6MYsAgIyC0heMCuf7Do=;
+        s=korg; t=1658477496;
+        bh=ub6Ybq+J1HHd+Id/SNV47hyRFcAobu7y/r//CDHf6N4=;
         h=Subject:To:From:Date:From;
-        b=cSJJ3MeZ7MyR4SXht3ezNuuYM0hQtIiDV8c1CnBjuOdM4qgMDZuiwhUsB7E4q5yUB
-         xIynrr2G9BrVI822Y6aohTw7gqHoDSs9NCoaiLBYY1Cv+6f2/2mpw8q2A+JePE7ErB
-         pEth593GbEO04gstMdNXvxtHYxOxTH2dsjhKxxVA=
-Subject: patch "iio: fix iio_format_avail_range() printing for none IIO_VAL_INT" added to char-misc-testing
-To:     fawzi.khaber@tdk.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, jean-baptiste.maneyrol@tdk.com
+        b=Ia/6+1t0hzhVWkI4wZV3bcJaDDXK4c7ufJAa1bZoCPboIAvSfPxWee2R+CITz+/3A
+         l3HDF73XdJi34y0phsiwHfa6TvfTwcAYfK9TREat60EGk3uz/Fn1jPrwjbAOt5DIT/
+         idLw1Fk3ee7P74aJPjx4iE+8kuX8gtou1o7/y6a4=
+Subject: patch "iio: light: isl29028: Fix the warning in isl29028_remove()" added to char-misc-testing
+To:     zheyuma97@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 22 Jul 2022 10:03:33 +0200
-Message-ID: <165847701312691@kroah.com>
+Date:   Fri, 22 Jul 2022 10:03:35 +0200
+Message-ID: <165847701594252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: fix iio_format_avail_range() printing for none IIO_VAL_INT
+    iio: light: isl29028: Fix the warning in isl29028_remove()
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,57 +64,52 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 5e1f91850365de55ca74945866c002fda8f00331 Mon Sep 17 00:00:00 2001
-From: Fawzi Khaber <fawzi.khaber@tdk.com>
-Date: Mon, 18 Jul 2022 15:07:06 +0200
-Subject: iio: fix iio_format_avail_range() printing for none IIO_VAL_INT
+From 06674fc7c003b9d0aa1d37fef7ab2c24802cc6ad Mon Sep 17 00:00:00 2001
+From: Zheyu Ma <zheyuma97@gmail.com>
+Date: Sun, 17 Jul 2022 08:42:41 +0800
+Subject: iio: light: isl29028: Fix the warning in isl29028_remove()
 
-iio_format_avail_range() should print range as follow [min, step, max], so
-the function was previously calling iio_format_list() with length = 3,
-length variable refers to the array size of values not the number of
-elements. In case of non IIO_VAL_INT values each element has integer part
-and decimal part. With length = 3 this would cause premature end of loop
-and result in printing only one element.
+The driver use the non-managed form of the register function in
+isl29028_remove(). To keep the release order as mirroring the ordering
+in probe, the driver should use non-managed form in probe, too.
 
-Signed-off-by: Fawzi Khaber <fawzi.khaber@tdk.com>
-Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Fixes: eda20ba1e25e ("iio: core: Consolidate iio_format_avail_{list,range}()")
-Link: https://lore.kernel.org/r/20220718130706.32571-1-jmaneyrol@invensense.com
+The following log reveals it:
+
+[   32.374955] isl29028 0-0010: remove
+[   32.376861] general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN PTI
+[   32.377676] KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
+[   32.379432] RIP: 0010:kernfs_find_and_get_ns+0x28/0xe0
+[   32.385461] Call Trace:
+[   32.385807]  sysfs_unmerge_group+0x59/0x110
+[   32.386110]  dpm_sysfs_remove+0x58/0xc0
+[   32.386391]  device_del+0x296/0xe50
+[   32.386959]  cdev_device_del+0x1d/0xd0
+[   32.387231]  devm_iio_device_unreg+0x27/0xb0
+[   32.387542]  devres_release_group+0x319/0x3d0
+[   32.388162]  i2c_device_remove+0x93/0x1f0
+
+Fixes: 2db5054ac28d ("staging: iio: isl29028: add runtime power management support")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220717004241.2281028-1-zheyuma97@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/industrialio-core.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/iio/light/isl29028.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index 358b909298c0..0f4dbda3b9d3 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -812,7 +812,23 @@ static ssize_t iio_format_avail_list(char *buf, const int *vals,
+diff --git a/drivers/iio/light/isl29028.c b/drivers/iio/light/isl29028.c
+index 4dde9707a52d..ff5996d77818 100644
+--- a/drivers/iio/light/isl29028.c
++++ b/drivers/iio/light/isl29028.c
+@@ -625,7 +625,7 @@ static int isl29028_probe(struct i2c_client *client,
+ 					 ISL29028_POWER_OFF_DELAY_MS);
+ 	pm_runtime_use_autosuspend(&client->dev);
  
- static ssize_t iio_format_avail_range(char *buf, const int *vals, int type)
- {
--	return iio_format_list(buf, vals, type, 3, "[", "]");
-+	int length;
-+
-+	/*
-+	 * length refers to the array size , not the number of elements.
-+	 * The purpose is to print the range [min , step ,max] so length should
-+	 * be 3 in case of int, and 6 for other types.
-+	 */
-+	switch (type) {
-+	case IIO_VAL_INT:
-+		length = 3;
-+		break;
-+	default:
-+		length = 6;
-+		break;
-+	}
-+
-+	return iio_format_list(buf, vals, type, length, "[", "]");
- }
- 
- static ssize_t iio_read_channel_info_avail(struct device *dev,
+-	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
++	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev,
+ 			"%s(): iio registration failed with error %d\n",
 -- 
 2.37.1
 
