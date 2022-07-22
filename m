@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 535FC57DE0B
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A354157DDDB
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235472AbiGVJN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:13:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38950 "EHLO
+        id S235430AbiGVJNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234865AbiGVJMm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:12:42 -0400
+        with ESMTP id S234656AbiGVJM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:12:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AB23C8ED;
-        Fri, 22 Jul 2022 02:10:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824BA52FF8;
+        Fri, 22 Jul 2022 02:10:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5CF861F4D;
-        Fri, 22 Jul 2022 09:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CEDC341C6;
-        Fri, 22 Jul 2022 09:10:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D193F61EE6;
+        Fri, 22 Jul 2022 09:10:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE76C341C7;
+        Fri, 22 Jul 2022 09:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481023;
-        bh=XYlx/CGlMFklOfXxJVZihlVrGPOesdPtbd4itWoo9GI=;
+        s=korg; t=1658481026;
+        bh=dJqb4hv5d6AnIaSUEISTwbLeEMxQgHl5YFw+VO9KgA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5zQKoMkjsQnPwbYBGnxKjEvKXRojVmF+gklvOqC6Rp+p0G2arg63mHyDEUxslaMG
-         Qkc8IPXzHm5/suSnzjOBYiQQtEXCMcL1y9gEXvY4tYInd8Dr32hgFaLlm5m1CbD4sS
-         HIdGA0QA2S9h3BgHX/pU0A7Kjt9AoHgUbfAo1inI=
+        b=L/I+YrbE6dPREfwK+4ThE55g2OslMV0KoQEVu1NYTRZYcD1MdEa7+FhLsW1bygDuv
+         ZnWYEeC16c0abl8IT1jN7UpvPD93MCHqhE4VsDFh7vf8anZsFrR/8zkI/79NCVSITD
+         1NyUwyZcYVauRGOWhiHWaJAs0dhxuehLR8IIxO3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 50/70] KVM: VMX: Fix IBRS handling after vmexit
-Date:   Fri, 22 Jul 2022 11:07:45 +0200
-Message-Id: <20220722090653.521629173@linuxfoundation.org>
+Subject: [PATCH 5.18 51/70] x86/speculation: Fill RSB on vmexit for IBRS
+Date:   Fri, 22 Jul 2022 11:07:46 +0200
+Message-Id: <20220722090653.577882661@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
 References: <20220722090650.665513668@linuxfoundation.org>
@@ -56,10 +56,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit bea7e31a5caccb6fe8ed989c065072354f0ecb52 upstream.
+commit 9756bba28470722dacb79ffce554336dd1f6a6cd upstream.
 
-For legacy IBRS to work, the IBRS bit needs to be always re-written
-after vmexit, even if it's already on.
+Prevent RSB underflow/poisoning attacks with RSB.  While at it, add a
+bunch of comments to attempt to document the current state of tribal
+knowledge about RSB attacks and what exactly is being mitigated.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -67,25 +68,120 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/cpufeatures.h |    2 -
+ arch/x86/kernel/cpu/bugs.c         |   63 ++++++++++++++++++++++++++++++++++---
+ arch/x86/kvm/vmx/vmenter.S         |    6 +--
+ 3 files changed, 62 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6845,8 +6845,13 @@ void noinstr vmx_spec_ctrl_restore_host(
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -204,7 +204,7 @@
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+ #define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
+-/* FREE!				( 7*32+13) */
++#define X86_FEATURE_RSB_VMEXIT		( 7*32+13) /* "" Fill RSB on VM-Exit */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1394,17 +1394,70 @@ static void __init spectre_v2_select_mit
+ 	pr_info("%s\n", spectre_v2_strings[mode]);
  
  	/*
- 	 * If the guest/host SPEC_CTRL values differ, restore the host value.
+-	 * If spectre v2 protection has been enabled, unconditionally fill
+-	 * RSB during a context switch; this protects against two independent
+-	 * issues:
++	 * If Spectre v2 protection has been enabled, fill the RSB during a
++	 * context switch.  In general there are two types of RSB attacks
++	 * across context switches, for which the CALLs/RETs may be unbalanced.
+ 	 *
+-	 *	- RSB underflow (and switch to BTB) on Skylake+
+-	 *	- SpectreRSB variant of spectre v2 on X86_BUG_SPECTRE_V2 CPUs
++	 * 1) RSB underflow
 +	 *
-+	 * For legacy IBRS, the IBRS bit always needs to be written after
-+	 * transitioning from a less privileged predictor mode, regardless of
-+	 * whether the guest/host values differ.
++	 *    Some Intel parts have "bottomless RSB".  When the RSB is empty,
++	 *    speculated return targets may come from the branch predictor,
++	 *    which could have a user-poisoned BTB or BHB entry.
++	 *
++	 *    AMD has it even worse: *all* returns are speculated from the BTB,
++	 *    regardless of the state of the RSB.
++	 *
++	 *    When IBRS or eIBRS is enabled, the "user -> kernel" attack
++	 *    scenario is mitigated by the IBRS branch prediction isolation
++	 *    properties, so the RSB buffer filling wouldn't be necessary to
++	 *    protect against this type of attack.
++	 *
++	 *    The "user -> user" attack scenario is mitigated by RSB filling.
++	 *
++	 * 2) Poisoned RSB entry
++	 *
++	 *    If the 'next' in-kernel return stack is shorter than 'prev',
++	 *    'next' could be tricked into speculating with a user-poisoned RSB
++	 *    entry.
++	 *
++	 *    The "user -> kernel" attack scenario is mitigated by SMEP and
++	 *    eIBRS.
++	 *
++	 *    The "user -> user" scenario, also known as SpectreBHB, requires
++	 *    RSB clearing.
++	 *
++	 * So to mitigate all cases, unconditionally fill RSB on context
++	 * switches.
++	 *
++	 * FIXME: Is this pointless for retbleed-affected AMD?
  	 */
--	if (vmx->spec_ctrl != hostval)
-+	if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) ||
-+	    vmx->spec_ctrl != hostval)
- 		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
+ 	setup_force_cpu_cap(X86_FEATURE_RSB_CTXSW);
+ 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
  
- 	barrier_nospec();
+ 	/*
++	 * Similar to context switches, there are two types of RSB attacks
++	 * after vmexit:
++	 *
++	 * 1) RSB underflow
++	 *
++	 * 2) Poisoned RSB entry
++	 *
++	 * When retpoline is enabled, both are mitigated by filling/clearing
++	 * the RSB.
++	 *
++	 * When IBRS is enabled, while #1 would be mitigated by the IBRS branch
++	 * prediction isolation protections, RSB still needs to be cleared
++	 * because of #2.  Note that SMEP provides no protection here, unlike
++	 * user-space-poisoned RSB entries.
++	 *
++	 * eIBRS, on the other hand, has RSB-poisoning protections, so it
++	 * doesn't need RSB clearing after vmexit.
++	 */
++	if (boot_cpu_has(X86_FEATURE_RETPOLINE) ||
++	    boot_cpu_has(X86_FEATURE_KERNEL_IBRS))
++		setup_force_cpu_cap(X86_FEATURE_RSB_VMEXIT);
++
++	/*
+ 	 * Retpoline protects the kernel, but doesn't protect firmware.  IBRS
+ 	 * and Enhanced IBRS protect firmware too, so enable IBRS around
+ 	 * firmware calls only when IBRS / Enhanced IBRS aren't otherwise
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -194,15 +194,15 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	 * IMPORTANT: RSB filling and SPEC_CTRL handling must be done before
+ 	 * the first unbalanced RET after vmexit!
+ 	 *
+-	 * For retpoline, RSB filling is needed to prevent poisoned RSB entries
+-	 * and (in some cases) RSB underflow.
++	 * For retpoline or IBRS, RSB filling is needed to prevent poisoned RSB
++	 * entries and (in some cases) RSB underflow.
+ 	 *
+ 	 * eIBRS has its own protection against poisoned RSB, so it doesn't
+ 	 * need the RSB filling sequence.  But it does need to be enabled
+ 	 * before the first unbalanced RET.
+          */
+ 
+-	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
++	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_VMEXIT
+ 
+ 	pop %_ASM_ARG2	/* @flags */
+ 	pop %_ASM_ARG1	/* @vmx */
 
 
