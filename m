@@ -2,134 +2,383 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E83EE57DD04
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 10:59:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D938757DD40
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229682AbiGVI7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 04:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57948 "EHLO
+        id S234942AbiGVJIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbiGVI7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 04:59:43 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7953A9FE39
-        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 01:59:42 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id n10-20020a17090a670a00b001f22ebae50aso3648749pjj.3
-        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 01:59:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=wzX8hW4QsumbdLlX33l7i9HwHQE3xlyRyoAixRF7C/M=;
-        b=RHtg7+jyJ2GjYFAreP7ihAlW6pR7wYYPBRqwzDlvjAJtLqMQxuSdGHDkZpdm6802Nm
-         tHMVJ5t2v/jnBDv1kECVLGHG90ZorqFAJL6uO1MoXizSgCmjyavNxwB2HSm4sNHqLhtv
-         /CZeyEoRsxzpPuMFYAmjW6te54O7194apIFvlm6xcltRDE0vHx5xTgjw+F7c0IklMG8a
-         hUXtn95JQ08/qiv1JgefqQJlACCO17BExXooTuiISw0IgUjOdRW/aTV9oFGEg+NwiCvR
-         w2niEyTQ2XZEkwhX/pCmqQpPysCZHtau5V+S49yQgtUHpJ8+chMd0m9x4RTbor9Jo2Fj
-         hqVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=wzX8hW4QsumbdLlX33l7i9HwHQE3xlyRyoAixRF7C/M=;
-        b=M/mlYrb7KkLEXs64RZzfCdcXj8AhXMPPBQDCg+wQGmOEVXQWHeUaPHxkNRDH51bx6Y
-         LcUB/L2BQNERqO0L4GOXvauhD6SGZX0xW+DYKVwlTrtuRGTd9G8I/mUq1D87Prwwjw8z
-         wiW+FI+U8dym1JvgmacyDzPSR9IQtpuyCCCGpKnZhZkSmfpTKatVjFwl9ejO2zXzhBgQ
-         bQQQuM7EHfJM9wrFL4j1QvtSt+o+qaysX2caxs78+A/4LQzdWL5RHV98pmHygt8kXelY
-         9jUvxKxPQ/2dJbKgAgUGvHWRqg/3wT0EQamNOtG9PNG/nydrY9MGjOJ1ig0y6mElG7Vy
-         vLXQ==
-X-Gm-Message-State: AJIora+G0Tc2oUPcEaIHhOl1SL/NsN+NW47A0miUeL0oBn96GQKD6yVo
-        OCt5Zempu8hbZvrpryGl+3Uzys5EKT+lURGi
-X-Google-Smtp-Source: AGRyM1vpsv2k4O9BIJV4nX7zg20VGJVGyUV2bMwgIi6BYwUAgmAooyMTUtnJrKa0N907VgH3wdbMvg==
-X-Received: by 2002:a17:902:e841:b0:16c:3053:c7e6 with SMTP id t1-20020a170902e84100b0016c3053c7e6mr2372237plg.163.1658480381732;
-        Fri, 22 Jul 2022 01:59:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y14-20020a17090a644e00b001f217ec21efsm4989512pjm.13.2022.07.22.01.59.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jul 2022 01:59:41 -0700 (PDT)
-Message-ID: <62da66fd.1c69fb81.ccc34.83b2@mx.google.com>
-Date:   Fri, 22 Jul 2022 01:59:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S234595AbiGVJIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:08:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E87F1820FD;
+        Fri, 22 Jul 2022 02:08:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1F98B827BC;
+        Fri, 22 Jul 2022 09:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5200C341C6;
+        Fri, 22 Jul 2022 09:08:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658480917;
+        bh=18rEMBpzi6zCSncP24mZKJB352vo/J6cwdVM9MybYSg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=h8+FGnmnxcRMw3AdDDYVc03bwTGghjJwC7lFUc1DdSI/G+vL3gENPV5v5BuI40fhq
+         0Gor3zOi++DaLGYpEiL6q9jaSOS/bsCYjyPi96w7GVgcw8sETW5TeW8DCjoKgQoxCK
+         W9rmvO6sVG9CKDfLgd52bFhpdAzDWIVYNeWz2LnM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.18 00/70] 5.18.14-rc1 review
+Date:   Fri, 22 Jul 2022 11:06:55 +0200
+Message-Id: <20220722090650.665513668@linuxfoundation.org>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.12-227-ga1ea64ad5b42
-Subject: stable-rc/queue/5.18 baseline: 156 runs,
- 1 regressions (v5.18.12-227-ga1ea64ad5b42)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.14-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.18.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.18.14-rc1
+X-KernelTest-Deadline: 2022-07-24T09:06+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 156 runs, 1 regressions (v5.18.12-227-ga1ea6=
-4ad5b42)
+This is the start of the stable review cycle for the 5.18.14 release.
+There are 70 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Regressions Summary
--------------------
+Responses should be made by Sun, 24 Jul 2022 09:06:00 +0000.
+Anything received after that time might be too late.
 
-platform           | arch | lab             | compiler | defconfig         =
- | regressions
--------------------+------+-----------------+----------+-------------------=
--+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig=
- | 1          =
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.14-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.18.14-rc1
+
+Peter Zijlstra <peterz@infradead.org>
+    um: Add missing apply_returns()
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/bugs: Remove apostrophe typo
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    tools headers cpufeatures: Sync with the kernel sources
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    tools arch x86: Sync the msr-index.h copy with the kernel sources
+
+Paolo Bonzini <pbonzini@redhat.com>
+    KVM: emulate: do not adjust size of fastop and setcc subroutines
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    x86/kvm: fix FASTOP_SIZE when return thunks are enabled
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    efi/x86: use naked RET on mixed mode call wrapper
+
+Nathan Chancellor <nathan@kernel.org>
+    x86/speculation: Use DECLARE_PER_CPU for x86_spec_ctrl_current
+
+Jiri Slaby <jirislaby@kernel.org>
+    x86/asm/32: Fix ANNOTATE_UNRET_SAFE use on 32-bit
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/static_call: Serialize __static_call_fixup() properly
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation: Disable RRSBA behavior
+
+Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+    x86/kexec: Disable RET on kexec
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    x86/bugs: Do not enable IBPB-on-entry when IBPB is not supported
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/entry: Move PUSH_AND_CLEAR_REGS() back into error_entry
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Add Cannon lake to RETBleed affected CPU list
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/retbleed: Add fine grained Kconfig knobs
+
+Andrew Cooper <andrew.cooper3@citrix.com>
+    x86/cpu/amd: Enumerate BTC_NO
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/common: Stamp out the stepping madness
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Prevent RSB underflow before vmenter
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fill RSB on vmexit for IBRS
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Fix IBRS handling after vmexit
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Convert launched argument to flags
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Flatten __vmx_vcpu_run()
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    objtool: Re-add UNWIND_HINT_{SAVE_RESTORE}
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Remove x86_spec_ctrl_mask
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Use cached host SPEC_CTRL value for guest entry/exit
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fix SPEC_CTRL write on SMT state change
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fix firmware entry SPEC_CTRL handling
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/cpu/amd: Add Spectral Chicken
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    objtool: Add entry UNRET validation
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/bugs: Do IBPB fallback check only once
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Add retbleed=ibpb
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/xen: Add UNTRAIN_RET
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/xen: Rename SYS* entry points
+
+Peter Zijlstra <peterz@infradead.org>
+    objtool: Update Retpoline validation
+
+Peter Zijlstra <peterz@infradead.org>
+    intel_idle: Disable IBRS during long idle
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Report Intel retbleed vulnerability
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Split spectre_v2_select_mitigation() and spectre_v2_user_select_mitigation()
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Optimize SPEC_CTRL MSR writes
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    x86/entry: Add kernel IBRS implementation
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/bugs: Enable STIBP for JMP2RET
+
+Alexandre Chartre <alexandre.chartre@oracle.com>
+    x86/bugs: Add AMD retbleed= boot parameter
+
+Alexandre Chartre <alexandre.chartre@oracle.com>
+    x86/bugs: Report AMD retbleed vulnerability
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    x86: Add magic AMD return-thunk
+
+Peter Zijlstra <peterz@infradead.org>
+    objtool: Treat .text.__x86.* as noinstr
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/entry: Avoid very early RET
+
+Peter Zijlstra <peterz@infradead.org>
+    x86: Use return-thunk in asm code
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/sev: Avoid using __x86_return_thunk
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/vsyscall_emu/64: Don't use RET in vsyscall emulation
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/kvm: Fix SETcc emulation for return thunks
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bpf: Use alternative RET encoding
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/ftrace: Use alternative RET encoding
+
+Peter Zijlstra <peterz@infradead.org>
+    x86,static_call: Use alternative RET encoding
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    objtool: skip non-text sections when adding return-thunk sites
+
+Peter Zijlstra <peterz@infradead.org>
+    x86,objtool: Create .return_sites
+
+Peter Zijlstra <peterz@infradead.org>
+    x86: Undo return-thunk damage
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/retpoline: Use -mfunction-return
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/retpoline: Swizzle retpoline thunk
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/retpoline: Cleanup some #ifdefery
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/cpufeatures: Move RETPOLINE flags to word 11
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/kvm/vmx: Make noinstr clean
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/entry: Remove skip_r11rcx
+
+Lai Jiangshan <jiangshan.ljs@antgroup.com>
+    x86/entry: Don't call error_entry() for XENPV
+
+Lai Jiangshan <jiangshan.ljs@antgroup.com>
+    x86/entry: Move PUSH_AND_CLEAR_REGS out of error_entry()
+
+Lai Jiangshan <jiangshan.ljs@antgroup.com>
+    x86/entry: Switch the stack after error_entry() returns
+
+Lai Jiangshan <jiangshan.ljs@antgroup.com>
+    x86/traps: Use pt_regs directly in fixup_bad_iret()
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.12-227-ga1ea64ad5b42/plan/baseline/
+-------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.12-227-ga1ea64ad5b42
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a1ea64ad5b4282c6565feb7444ffda06aa5a9f44 =
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt |  25 ++
+ Makefile                                        |   4 +-
+ arch/um/kernel/um_arch.c                        |   4 +
+ arch/x86/Kconfig                                | 103 +++--
+ arch/x86/Makefile                               |   6 +
+ arch/x86/entry/Makefile                         |   2 +-
+ arch/x86/entry/calling.h                        |  72 +++-
+ arch/x86/entry/entry.S                          |  22 ++
+ arch/x86/entry/entry_32.S                       |   2 -
+ arch/x86/entry/entry_64.S                       |  88 ++++-
+ arch/x86/entry/entry_64_compat.S                |  21 +-
+ arch/x86/entry/vdso/Makefile                    |   1 +
+ arch/x86/entry/vsyscall/vsyscall_emu_64.S       |   9 +-
+ arch/x86/include/asm/alternative.h              |   1 +
+ arch/x86/include/asm/cpufeatures.h              |  12 +-
+ arch/x86/include/asm/disabled-features.h        |  21 +-
+ arch/x86/include/asm/linkage.h                  |   8 +
+ arch/x86/include/asm/msr-index.h                |  13 +
+ arch/x86/include/asm/nospec-branch.h            |  69 +++-
+ arch/x86/include/asm/static_call.h              |  19 +-
+ arch/x86/include/asm/traps.h                    |   2 +-
+ arch/x86/include/asm/unwind_hints.h             |  14 +-
+ arch/x86/kernel/alternative.c                   |  69 ++++
+ arch/x86/kernel/asm-offsets.c                   |   6 +
+ arch/x86/kernel/cpu/amd.c                       |  46 ++-
+ arch/x86/kernel/cpu/bugs.c                      | 475 ++++++++++++++++++++----
+ arch/x86/kernel/cpu/common.c                    |  61 +--
+ arch/x86/kernel/cpu/cpu.h                       |   2 +
+ arch/x86/kernel/cpu/hygon.c                     |   6 +
+ arch/x86/kernel/cpu/scattered.c                 |   1 +
+ arch/x86/kernel/ftrace.c                        |   7 +-
+ arch/x86/kernel/head_32.S                       |   1 +
+ arch/x86/kernel/head_64.S                       |   5 +
+ arch/x86/kernel/module.c                        |   8 +-
+ arch/x86/kernel/process.c                       |   2 +-
+ arch/x86/kernel/relocate_kernel_32.S            |  25 +-
+ arch/x86/kernel/relocate_kernel_64.S            |  23 +-
+ arch/x86/kernel/static_call.c                   |  51 ++-
+ arch/x86/kernel/traps.c                         |  19 +-
+ arch/x86/kernel/vmlinux.lds.S                   |   9 +-
+ arch/x86/kvm/emulate.c                          |  35 +-
+ arch/x86/kvm/svm/vmenter.S                      |  18 +
+ arch/x86/kvm/vmx/capabilities.h                 |   4 +-
+ arch/x86/kvm/vmx/nested.c                       |   2 +-
+ arch/x86/kvm/vmx/run_flags.h                    |   8 +
+ arch/x86/kvm/vmx/vmenter.S                      | 194 ++++++----
+ arch/x86/kvm/vmx/vmx.c                          |  84 +++--
+ arch/x86/kvm/vmx/vmx.h                          |  10 +-
+ arch/x86/kvm/vmx/vmx_ops.h                      |   2 +-
+ arch/x86/kvm/x86.c                              |   4 +-
+ arch/x86/lib/memmove_64.S                       |   7 +-
+ arch/x86/lib/retpoline.S                        |  79 +++-
+ arch/x86/mm/mem_encrypt_boot.S                  |  10 +-
+ arch/x86/net/bpf_jit_comp.c                     |  26 +-
+ arch/x86/platform/efi/efi_thunk_64.S            |   5 +-
+ arch/x86/xen/setup.c                            |   6 +-
+ arch/x86/xen/xen-asm.S                          |  30 +-
+ arch/x86/xen/xen-head.S                         |   1 +
+ arch/x86/xen/xen-ops.h                          |   6 +-
+ drivers/base/cpu.c                              |   8 +
+ drivers/idle/intel_idle.c                       |  44 ++-
+ include/linux/cpu.h                             |   2 +
+ include/linux/kvm_host.h                        |   2 +-
+ include/linux/objtool.h                         |   9 +-
+ scripts/Makefile.build                          |   1 +
+ scripts/link-vmlinux.sh                         |   3 +
+ security/Kconfig                                |  11 -
+ tools/arch/x86/include/asm/cpufeatures.h        |  12 +-
+ tools/arch/x86/include/asm/disabled-features.h  |  21 +-
+ tools/arch/x86/include/asm/msr-index.h          |  13 +
+ tools/include/linux/objtool.h                   |   9 +-
+ tools/objtool/arch/x86/decode.c                 |   5 +
+ tools/objtool/builtin-check.c                   |   4 +-
+ tools/objtool/check.c                           | 331 ++++++++++++++++-
+ tools/objtool/include/objtool/arch.h            |   1 +
+ tools/objtool/include/objtool/builtin.h         |   2 +-
+ tools/objtool/include/objtool/check.h           |  24 +-
+ tools/objtool/include/objtool/elf.h             |   1 +
+ tools/objtool/include/objtool/objtool.h         |   1 +
+ tools/objtool/objtool.c                         |   1 +
+ 80 files changed, 1937 insertions(+), 433 deletions(-)
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab             | compiler | defconfig         =
- | regressions
--------------------+------+-----------------+----------+-------------------=
--+------------
-imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62da370120f66558e6daf0a9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.12-=
-227-ga1ea64ad5b42/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.12-=
-227-ga1ea64ad5b42/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220716.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62da370120f66558e6daf=
-0aa
-        failing since 16 days (last pass: v5.18.9-96-g91cfa3d0b94d, first f=
-ail: v5.18.9-102-ga6b8287ea0b9) =
-
- =20
