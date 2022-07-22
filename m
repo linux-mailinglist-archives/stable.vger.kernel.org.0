@@ -2,101 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB5A57E129
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 14:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4C957E154
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 14:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233210AbiGVMAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 08:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
+        id S232242AbiGVMOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 08:14:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230151AbiGVMAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 08:00:18 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B171B7EA;
-        Fri, 22 Jul 2022 05:00:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1658491215; x=1690027215;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=nRBWTIjqR+EBo83QXnR7YxxBrSXGYH7OV2uGt4ob61E=;
-  b=UK5tnF1bJF4MAafHTS53h023yyOiDai9Td1R19AwJYX8KoKZnl4YsSBv
-   yNMF5LKIX4uAPkJfCoi2k8tmmvitqVH0eOO4r97J/spCFZFVQQjrnab5T
-   M4g7/sb7BUCixn44w1yDsVVUGLhbwlOlHjHGC4CH+VGqP2kd32qjdcUo6
-   +7eqzQCD9nZ/I1l/PBkl3PZh6kpELhJpOr3hjWR+9uoUjVHqcW38bAuYX
-   uwvoeApFqWUkqICPqotiz20l4T3Br85xI4uw5QLiC654ABI73t3uheOVK
-   6/spCJrBVEoYMG7+1vPWMrO7tktfl9PQkLDYpglMQPLgL4AcPdlEJBACP
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10415"; a="288470404"
-X-IronPort-AV: E=Sophos;i="5.93,185,1654585200"; 
-   d="scan'208";a="288470404"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jul 2022 05:00:14 -0700
-X-IronPort-AV: E=Sophos;i="5.93,185,1654585200"; 
-   d="scan'208";a="657189243"
-Received: from dstoll-mobl.ger.corp.intel.com (HELO intel.com) ([10.252.44.132])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jul 2022 05:00:10 -0700
-Date:   Fri, 22 Jul 2022 14:00:09 +0200
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Chris Wilson <chris.p.wilson@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Fei Yang <fei.yang@intel.com>,
-        Thomas =?iso-8859-15?Q?Hellstr=F6m?= 
-        <thomas.hellstrom@linux.intel.com>
-Subject: Re: [PATCH v2 05/21] drm/i915/gt: Skip TLB invalidations once wedged
-Message-ID: <YtqRSXXiON8Oed96@alfio.lan>
-References: <cover.1657800199.git.mchehab@kernel.org>
- <f20bd21c94610dae59824b8040e5a9400de6f963.1657800199.git.mchehab@kernel.org>
+        with ESMTP id S229704AbiGVMOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 08:14:36 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFE31CFD9;
+        Fri, 22 Jul 2022 05:14:35 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id c6so4416206pla.6;
+        Fri, 22 Jul 2022 05:14:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=1TcMtG/0Pi4d2uvmmtxytn3Hxkw0t0arvpnvwaTI1FQ=;
+        b=TVe5e6ZC/dOVICF+hNs6Jeck9+bfXPD566YFbs1yPgbiC+TSB9+u56qQJEoAezGPRf
+         JrtNIbhS0wOt7lqPVLIsxB/1mR850zwOus+JCzaeH8K05pJ7EIU+V2CMMhyTisN4foqM
+         v10HlC0JJMKlQ2d1bP8AqMEfbZsJQp5qh/grK9uSTO+lfEHTNURxMz0GX+u+ZUzQINfZ
+         /z3v27Bmx0mbMTNaNjblpxr8LDC6n8vdKbnm/KJGY8zuMPbn9NrkDT1q08itDAmRIZfI
+         tw2bjVDxheMsHVK1aAS5323TsUdPSn4X7nwP88zY4+yC3EmqGxljkynpycQ3NWDA0yOA
+         ITtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=1TcMtG/0Pi4d2uvmmtxytn3Hxkw0t0arvpnvwaTI1FQ=;
+        b=MR2fAE0z9F3skmYd5TJfhyVMf8n2gUZYkILS3W3OiaRPh0XUHLLO4bGqGgHCn+NbxO
+         WbNOmFUgkHdTncIPYxFcCHRKRF3nFgJcHMLIoyME0JmUyIu7C7BanMHfwUiNRY6F8Esu
+         jKJ+ukQzKBAycFCJocwoTJkmTYBTVt5MP459rxQ6gOCvdH8fp9MdUp4ZzvgNoI6zMhko
+         mRCpt8PVC8UKn/AnZdDt6n9L0h23OiL0Y9g4cPVjLwCPmI0rF9C+vrkw4tlu2/Lv/glJ
+         viUXJoOi/yCF8Aq8ClLxAwuRx+PwxD3IdvmjttYHwzZtxsMIcMZcmmv20e27/BJpjnMn
+         54gw==
+X-Gm-Message-State: AJIora84cXwKHb9vDMjZ++ZmVxQWxfKx8SqbVHa/saBuazmEIH8s5EZR
+        QLXjnQKcYwlGUPy9pIofWe4=
+X-Google-Smtp-Source: AGRyM1vGzDgfwKdmSRBb8Rq7gEohZq9ZFvNEGG5SrGtOboM+1Sksy29AK8Il4weHpL4H28H+mb56IA==
+X-Received: by 2002:a17:902:cec2:b0:16c:3deb:a062 with SMTP id d2-20020a170902cec200b0016c3deba062mr85897plg.136.1658492075054;
+        Fri, 22 Jul 2022 05:14:35 -0700 (PDT)
+Received: from debian.me (subs02-180-214-232-16.three.co.id. [180.214.232.16])
+        by smtp.gmail.com with ESMTPSA id a125-20020a624d83000000b0052b66304d54sm3782762pfb.74.2022.07.22.05.14.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Jul 2022 05:14:34 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id 65735103B80; Fri, 22 Jul 2022 19:14:30 +0700 (WIB)
+Date:   Fri, 22 Jul 2022 19:14:30 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.15 00/89] 5.15.57-rc1 review
+Message-ID: <YtqUpmnFeZ1ySHS+@debian.me>
+References: <20220722091133.320803732@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <f20bd21c94610dae59824b8040e5a9400de6f963.1657800199.git.mchehab@kernel.org>
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mauro,
-
-On Thu, Jul 14, 2022 at 01:06:10PM +0100, Mauro Carvalho Chehab wrote:
-> From: Chris Wilson <chris.p.wilson@intel.com>
+On Fri, Jul 22, 2022 at 11:10:34AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.57 release.
+> There are 89 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Skip all further TLB invalidations once the device is wedged and
-> had been reset, as, on such cases, it can no longer process instructions
-> on the GPU and the user no longer has access to the TLB's in each engine.
-> 
-> That helps to reduce the performance regression introduced by TLB
-> invalidate logic.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-> Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-> Cc: Fei Yang <fei.yang@intel.com>
-> Cc: Andi Shyti <andi.shyti@linux.intel.com>
-> Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
-I haven't read any concern from Tvrtko here, in any case:
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0)
+and powerpc (ps3_defconfig, GCC 12.1.0).
 
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-thanks,
-Andi
+-- 
+An old man doll... just what I always wanted! - Clara
