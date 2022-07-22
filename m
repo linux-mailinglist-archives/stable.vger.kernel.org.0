@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 366A757DDD4
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C22A57DE4B
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236224AbiGVJ3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47688 "EHLO
+        id S236471AbiGVJ3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:29:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236146AbiGVJ26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:28:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E76CE515;
-        Fri, 22 Jul 2022 02:18:08 -0700 (PDT)
+        with ESMTP id S236573AbiGVJ3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:29:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D978AB07;
+        Fri, 22 Jul 2022 02:18:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72B32B827C5;
-        Fri, 22 Jul 2022 09:18:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB6E0C341C6;
-        Fri, 22 Jul 2022 09:18:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEE36B827B6;
+        Fri, 22 Jul 2022 09:18:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B7CCC341C6;
+        Fri, 22 Jul 2022 09:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481485;
-        bh=/9dcsr870ov51eEEK1dkzhiiBqllUNp5Vnz/i1/93Tw=;
+        s=korg; t=1658481491;
+        bh=It7+EfFDX7uP8+qPOwbZaYOMkQpPuN9b64uP7DeKj4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avy/PcbMw+zAnbKKrGVFtoGVvN/d5P1hxLgUY+WNw/GbPUcyRj6sC9N2OMcjfvH2q
-         HTX8BbEPlDaBJl3WOpM5QLr5r5UCqtTMLarOhMNyO/xpl2RyKo5/cxAEPbwWFQDPVl
-         pDFyTEhUQS7CP2dAmMrgKmsX4DWdMnZ68Re21ojY=
+        b=1OytqhLyBoFNaipcnm6eHHAJspx4lWUODMH9L9Xe1o+aHHqHCpYmNlKK+hUWtTd1Z
+         o2sbkvKaEVGlPe4yc1v206mlcnIruqISbzIBIT9sOO1J2l8H6M1Ci6CWDJ81VzMGnh
+         fMblg/P1uglIao252ZQA67LQNVW0IM6UzGDS2ZAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 84/89] KVM: emulate: do not adjust size of fastop and setcc subroutines
-Date:   Fri, 22 Jul 2022 11:11:58 +0200
-Message-Id: <20220722091138.039360409@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Borislav Petkov <bp@suse.de>, Ian Rogers <irogers@google.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 85/89] tools arch x86: Sync the msr-index.h copy with the kernel sources
+Date:   Fri, 22 Jul 2022 11:11:59 +0200
+Message-Id: <20220722091138.095525783@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -53,68 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 79629181607e801c0b41b8790ac4ee2eb5d7bc3e upstream.
+commit 91d248c3b903b46a58cbc7e8d38d684d3e4007c2 upstream.
 
-Instead of doing complicated calculations to find the size of the subroutines
-(which are even more complicated because they need to be stringified into
-an asm statement), just hardcode to 16.
+To pick up the changes from these csets:
 
-It is less dense for a few combinations of IBT/SLS/retbleed, but it has
-the advantage of being really simple.
+  4ad3278df6fe2b08 ("x86/speculation: Disable RRSBA behavior")
+  d7caac991feeef1b ("x86/cpu/amd: Add Spectral Chicken")
 
-Cc: stable@vger.kernel.org # 5.15.x: 84e7051c0bc1: x86/kvm: fix FASTOP_SIZE when return thunks are enabled
-Cc: stable@vger.kernel.org
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+That cause no changes to tooling:
+
+  $ tools/perf/trace/beauty/tracepoints/x86_msr.sh > before
+  $ cp arch/x86/include/asm/msr-index.h tools/arch/x86/include/asm/msr-index.h
+  $ tools/perf/trace/beauty/tracepoints/x86_msr.sh > after
+  $ diff -u before after
+  $
+
+Just silences this perf build warning:
+
+  Warning: Kernel ABI header at 'tools/arch/x86/include/asm/msr-index.h' differs from latest version at 'arch/x86/include/asm/msr-index.h'
+  diff -u tools/arch/x86/include/asm/msr-index.h arch/x86/include/asm/msr-index.h
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/lkml/YtQTm9wsB3hxQWvy@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ tools/arch/x86/include/asm/msr-index.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -187,13 +187,6 @@
- #define X8(x...) X4(x), X4(x)
- #define X16(x...) X8(x), X8(x)
+--- a/tools/arch/x86/include/asm/msr-index.h
++++ b/tools/arch/x86/include/asm/msr-index.h
+@@ -93,6 +93,7 @@
+ #define MSR_IA32_ARCH_CAPABILITIES	0x0000010a
+ #define ARCH_CAP_RDCL_NO		BIT(0)	/* Not susceptible to Meltdown */
+ #define ARCH_CAP_IBRS_ALL		BIT(1)	/* Enhanced IBRS support */
++#define ARCH_CAP_RSBA			BIT(2)	/* RET may use alternative branch predictors */
+ #define ARCH_CAP_SKIP_VMENTRY_L1DFLUSH	BIT(3)	/* Skip L1D flush on vmentry */
+ #define ARCH_CAP_SSB_NO			BIT(4)	/*
+ 						 * Not susceptible to Speculative Store Bypass
+@@ -523,6 +524,9 @@
+ /* Fam 17h MSRs */
+ #define MSR_F17H_IRPERF			0xc00000e9
  
--#define NR_FASTOP	(ilog2(sizeof(ulong)) + 1)
--#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETHUNK)) + \
--			 IS_ENABLED(CONFIG_SLS))
--#define FASTOP_LENGTH	(ENDBR_INSN_SIZE + 7 + RET_LENGTH)
--#define FASTOP_SIZE	(8 << ((FASTOP_LENGTH > 8) & 1) << ((FASTOP_LENGTH > 16) & 1))
--static_assert(FASTOP_LENGTH <= FASTOP_SIZE);
--
- struct opcode {
- 	u64 flags : 56;
- 	u64 intercept : 8;
-@@ -307,9 +300,15 @@ static void invalidate_registers(struct
-  * Moreover, they are all exactly FASTOP_SIZE bytes long, so functions for
-  * different operand sizes can be reached by calculation, rather than a jump
-  * table (which would be bigger than the code).
-+ *
-+ * The 16 byte alignment, considering 5 bytes for the RET thunk, 3 for ENDBR
-+ * and 1 for the straight line speculation INT3, leaves 7 bytes for the
-+ * body of the function.  Currently none is larger than 4.
-  */
- static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
- 
-+#define FASTOP_SIZE	16
++#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
++#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
 +
- #define __FOP_FUNC(name) \
- 	".align " __stringify(FASTOP_SIZE) " \n\t" \
- 	".type " name ", @function \n\t" \
-@@ -441,9 +440,7 @@ static int fastop(struct x86_emulate_ctx
-  * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETHUNK]
-  * INT3				[1 byte; CONFIG_SLS]
-  */
--#define SETCC_LENGTH	(3 + RET_LENGTH)
--#define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
--static_assert(SETCC_LENGTH <= SETCC_ALIGN);
-+#define SETCC_ALIGN	16
- 
- #define FOP_SETCC(op) \
- 	".align " __stringify(SETCC_ALIGN) " \n\t" \
+ /* Fam 16h MSRs */
+ #define MSR_F16H_L2I_PERF_CTL		0xc0010230
+ #define MSR_F16H_L2I_PERF_CTR		0xc0010231
 
 
