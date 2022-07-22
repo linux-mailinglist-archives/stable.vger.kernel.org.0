@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9047157DDE6
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C80C057DE6A
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236457AbiGVJ3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50178 "EHLO
+        id S236453AbiGVJ2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236644AbiGVJ3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:29:14 -0400
+        with ESMTP id S236537AbiGVJ21 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:28:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0157AB853F;
-        Fri, 22 Jul 2022 02:18:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E0CCB77A;
+        Fri, 22 Jul 2022 02:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ACD961FE2;
-        Fri, 22 Jul 2022 09:18:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF71AC341C7;
-        Fri, 22 Jul 2022 09:18:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D72461FFB;
+        Fri, 22 Jul 2022 09:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF3CC341C6;
+        Fri, 22 Jul 2022 09:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481507;
-        bh=L3M/deO4bPjfzCEmweW+RhMFW4+Va2mUNei6jUUYjGw=;
+        s=korg; t=1658481461;
+        bh=HU0qyOGRgWKQDSN9xC4YQb7XWWeEPr1jwM7dKnZIpfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tNRhe3azqWofMWrqBv0ChHA+mYCRoEYZEAq6EmFFC3/KFl1PWjuCwD7yC90Y2/JE
-         QK9gciqTTTmQUJdZ3B1RzrtgAH4BVHAyCkhqU/9A8bX1dTlaZJcH29XPBgrxs6CxQr
-         n8UwDKNCQi5slMYWpx9zEDFz0DPpdbHGm3ug1ZN8=
+        b=mMOH6myrvyg+v3CMpjHJTQvlg3NXKWiUeQx60XAbQsHENb+s2i0ZA8Q/Af+QaPt2V
+         bN7UyeFzhljcmAgzsYlTKkicvWmDLEmSMqVO8joXeVAWNA7Kwi40fbV8+MrgnwNySc
+         1IgyL37DigHrtyY9wi5VHSNlysYmttj5Uqgs3DBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 88/89] um: Add missing apply_returns()
-Date:   Fri, 22 Jul 2022 11:12:02 +0200
-Message-Id: <20220722091138.260588567@linuxfoundation.org>
+        Borislav Petkov <bp@suse.de>,
+        Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.15 89/89] x86: Use -mindirect-branch-cs-prefix for RETPOLINE builds
+Date:   Fri, 22 Jul 2022 11:12:03 +0200
+Message-Id: <20220722091138.317453358@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -55,33 +57,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 564d998106397394b6aad260f219b882b3347e62 upstream.
+commit 68cf4f2a72ef8786e6b7af6fd9a89f27ac0f520d upstream.
 
-Implement apply_returns() stub for UM, just like all the other patching
-routines.
+In order to further enable commit:
 
-Fixes: 15e67227c49a ("x86: Undo return-thunk damage")
-Reported-by: Randy Dunlap <rdunlap@infradead.org)
+  bbe2df3f6b6d ("x86/alternative: Try inline spectre_v2=retpoline,amd")
+
+add the new GCC flag -mindirect-branch-cs-prefix:
+
+  https://gcc.gnu.org/g:2196a681d7810ad8b227bf983f38ba716620545e
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102952
+  https://bugs.llvm.org/show_bug.cgi?id=52323
+
+to RETPOLINE=y builds. This should allow fully inlining retpoline,amd
+for GCC builds.
+
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/Ys%2Ft45l%2FgarIrD0u@worktop.programming.kicks-ass.net
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lkml.kernel.org/r/20211119165630.276205624@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/kernel/um_arch.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -425,6 +425,10 @@ void apply_retpolines(s32 *start, s32 *e
- {
- }
+--- a/Makefile
++++ b/Makefile
+@@ -687,6 +687,7 @@ endif
  
-+void apply_returns(s32 *start, s32 *end)
-+{
-+}
-+
- void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
- {
- }
+ ifdef CONFIG_CC_IS_GCC
+ RETPOLINE_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-extern -mindirect-branch-register)
++RETPOLINE_CFLAGS	+= $(call cc-option,-mindirect-branch-cs-prefix)
+ RETPOLINE_VDSO_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-inline -mindirect-branch-register)
+ endif
+ ifdef CONFIG_CC_IS_CLANG
 
 
