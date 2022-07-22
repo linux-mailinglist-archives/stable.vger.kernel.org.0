@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B6657DD4B
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00D257DD45
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233937AbiGVJIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:08:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36666 "EHLO
+        id S233608AbiGVJIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:08:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229739AbiGVJId (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:08:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C8F8689F;
-        Fri, 22 Jul 2022 02:08:32 -0700 (PDT)
+        with ESMTP id S234398AbiGVJIk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:08:40 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C935782FBA;
+        Fri, 22 Jul 2022 02:08:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 241A461EE6;
-        Fri, 22 Jul 2022 09:08:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29EDDC341CA;
-        Fri, 22 Jul 2022 09:08:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0D0CCCE28A0;
+        Fri, 22 Jul 2022 09:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20587C341C7;
+        Fri, 22 Jul 2022 09:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658480911;
-        bh=qqWg9TmVl5kjzwSnuur/Yg3DUz+GXfIgrCetqSVj4tQ=;
+        s=korg; t=1658480914;
+        bh=cl1JzN7F0eth4JOetCv10eNt1GVlMIXPFGGABdD1LSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nD05SitULp2ABpIxMZ6MHLK6Yd4FRbSProUA1lXu2XBgzCy8EBI5JdoZz3v5zUwtP
-         MddddVdK+8TYPpl6K4O/J9Cpvw+bkWd6KjXzKLS4C9Bt/I+6SoA178GCWpCxCrejkk
-         RNcIQ4zNR4pwRT2zEWvwxcnsI2WJtijr2YRfi+uM=
+        b=XQZQAszlnfSaWKvv/0BBNnFSxHi6y/FmA7PgxpIlGoJHVAcAODiMjE3UcLOXHTQDj
+         JrJhFmaQSN+OmoEmgq/4dfk5f6TkIZ++cDfw7hxixjbBZ5b50HHmBD++h6b/Q3CnpB
+         D5fEwyDXoXUdVC8kveVIGyLKnZDRt2ztwKBFCDRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 06/70] x86/kvm/vmx: Make noinstr clean
-Date:   Fri, 22 Jul 2022 11:07:01 +0200
-Message-Id: <20220722090651.078681282@linuxfoundation.org>
+Subject: [PATCH 5.18 07/70] x86/cpufeatures: Move RETPOLINE flags to word 11
+Date:   Fri, 22 Jul 2022 11:07:02 +0200
+Message-Id: <20220722090651.133646315@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
 References: <20220722090650.665513668@linuxfoundation.org>
@@ -56,72 +57,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 742ab6df974ae8384a2dd213db1a3a06cf6d8936 upstream.
+commit a883d624aed463c84c22596006e5a96f5b44db31 upstream.
 
-The recent mmio_stale_data fixes broke the noinstr constraints:
-
-  vmlinux.o: warning: objtool: vmx_vcpu_enter_exit+0x15b: call to wrmsrl.constprop.0() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: vmx_vcpu_enter_exit+0x1bf: call to kvm_arch_has_assigned_device() leaves .noinstr.text section
-
-make it all happy again.
+In order to extend the RETPOLINE features to 4, move them to word 11
+where there is still room. This mostly keeps DISABLE_RETPOLINE
+simple.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c   |    6 +++---
- arch/x86/kvm/x86.c       |    4 ++--
- include/linux/kvm_host.h |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/cpufeatures.h |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -383,9 +383,9 @@ static __always_inline void vmx_disable_
- 	if (!vmx->disable_fb_clear)
- 		return;
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -203,8 +203,8 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
++/* FREE!				( 7*32+12) */
++/* FREE!				( 7*32+13) */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+@@ -295,6 +295,10 @@
+ #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
+ #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
+ #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
++/* FREE!				(11*32+10) */
++/* FREE!				(11*32+11) */
++#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
  
--	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	msr = __rdmsr(MSR_IA32_MCU_OPT_CTRL);
- 	msr |= FB_CLEAR_DIS;
--	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
-+	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
- 	/* Cache the MSR value to avoid reading it later */
- 	vmx->msr_ia32_mcu_opt_ctrl = msr;
- }
-@@ -396,7 +396,7 @@ static __always_inline void vmx_enable_f
- 		return;
- 
- 	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
--	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
-+	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
- }
- 
- static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -12533,9 +12533,9 @@ void kvm_arch_end_assignment(struct kvm
- }
- EXPORT_SYMBOL_GPL(kvm_arch_end_assignment);
- 
--bool kvm_arch_has_assigned_device(struct kvm *kvm)
-+bool noinstr kvm_arch_has_assigned_device(struct kvm *kvm)
- {
--	return atomic_read(&kvm->arch.assigned_device_count);
-+	return arch_atomic_read(&kvm->arch.assigned_device_count);
- }
- EXPORT_SYMBOL_GPL(kvm_arch_has_assigned_device);
- 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1511,7 +1511,7 @@ static inline void kvm_arch_end_assignme
- {
- }
- 
--static inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
-+static __always_inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
- {
- 	return false;
- }
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
 
 
