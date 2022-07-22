@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D0F957DE4F
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE21F57DDC2
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236211AbiGVJT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
+        id S235856AbiGVJUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:20:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235815AbiGVJSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:18:39 -0400
+        with ESMTP id S235870AbiGVJT5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:19:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08685B9A2E;
-        Fri, 22 Jul 2022 02:13:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B2EBB5D7;
+        Fri, 22 Jul 2022 02:13:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E71B61F4F;
-        Fri, 22 Jul 2022 09:13:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 918CBC341C7;
-        Fri, 22 Jul 2022 09:13:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C64E61F63;
+        Fri, 22 Jul 2022 09:13:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7718EC341C6;
+        Fri, 22 Jul 2022 09:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481184;
-        bh=+24eNmj7JBW2Luyx+OMFPP6OZKm+EOiinyIhDs6ctw8=;
+        s=korg; t=1658481217;
+        bh=WBiwT2yc/NGkHe0muEFiSHX5dPep+wgeR6ZmXIblcp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmjFwnmLxStpn/Ve4gBAP09B09qLjsAnV35KFQce9LA4lV5wDEpm6GjqgYEgPz+t1
-         9PKS8c4vcpKjn+pJMQjdvbAIrx0l/oia8hkRBOzyAafa6svDH6b+1FBIqFLh1dtLth
-         PN33Vno/cU+fXJ6SkZxZQn89lWNNrE2XlnPiu0SE=
+        b=Hb/nxUdAK1Tn8XDu2/2uutuvA6X3UT+hex+JcBrla4wGD0i/C2P5TDpeTJ/YtbLan
+         0vtZ3Uh9lzrj+6odofrPTt59JnRcrFym0kEd5Nje3NXr/KLzKGk4n86RfqpNzJO1JG
+         BrbyzcpDsveIEBrxiiK0gWzsE4chaK0hBobpjCsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 16/89] x86/alternative: Handle Jcc __x86_indirect_thunk_\reg
-Date:   Fri, 22 Jul 2022 11:10:50 +0200
-Message-Id: <20220722091134.281850401@linuxfoundation.org>
+Subject: [PATCH 5.15 17/89] x86/alternative: Try inline spectre_v2=retpoline,amd
+Date:   Fri, 22 Jul 2022 11:10:51 +0200
+Message-Id: <20220722091134.336521073@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -58,94 +58,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 2f0cbb2a8e5bbf101e9de118fc0eb168111a5e1e upstream.
+commit bbe2df3f6b6da7848398d55b1311d58a16ec21e4 upstream.
 
-Handle the rare cases where the compiler (clang) does an indirect
-conditional tail-call using:
+Try and replace retpoline thunk calls with:
 
-  Jcc __x86_indirect_thunk_\reg
+  LFENCE
+  CALL    *%\reg
 
-For the !RETPOLINE case this can be rewritten to fit the original (6
-byte) instruction like:
+for spectre_v2=retpoline,amd.
 
-  Jncc.d8	1f
-  JMP		*%\reg
-  NOP
+Specifically, the sequence above is 5 bytes for the low 8 registers,
+but 6 bytes for the high 8 registers. This means that unless the
+compilers prefix stuff the call with higher registers this replacement
+will fail.
+
+Luckily GCC strongly favours RAX for the indirect calls and most (95%+
+for defconfig-x86_64) will be converted. OTOH clang strongly favours
+R11 and almost nothing gets converted.
+
+Note: it will also generate a correct replacement for the Jcc.d32
+case, except unless the compilers start to prefix stuff that, it'll
+never fit. Specifically:
+
+  Jncc.d8 1f
+  LFENCE
+  JMP     *%\reg
 1:
+
+is 7-8 bytes long, where the original instruction in unpadded form is
+only 6 bytes.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Borislav Petkov <bp@suse.de>
 Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120310.296470217@infradead.org
+Link: https://lore.kernel.org/r/20211026120310.359986601@infradead.org
+[cascardo: RETPOLINE_AMD was renamed to RETPOLINE_LFENCE]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |   40 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ arch/x86/kernel/alternative.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
 --- a/arch/x86/kernel/alternative.c
 +++ b/arch/x86/kernel/alternative.c
-@@ -393,7 +393,8 @@ static int emit_indirect(int op, int reg
+@@ -389,6 +389,7 @@ static int emit_indirect(int op, int reg
+  *
+  *   CALL *%\reg
+  *
++ * It also tries to inline spectre_v2=retpoline,amd when size permits.
+  */
  static int patch_retpoline(void *addr, struct insn *insn, u8 *bytes)
  {
- 	retpoline_thunk_t *target;
--	int reg, i = 0;
-+	int reg, ret, i = 0;
-+	u8 op, cc;
+@@ -405,7 +406,8 @@ static int patch_retpoline(void *addr, s
+ 	/* If anyone ever does: CALL/JMP *%rsp, we're in deep trouble. */
+ 	BUG_ON(reg == 4);
  
- 	target = addr + insn->length + insn->immediate.value;
- 	reg = target - __x86_indirect_thunk_array;
-@@ -407,9 +408,36 @@ static int patch_retpoline(void *addr, s
- 	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE))
+-	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE))
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE) &&
++	    !cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE))
  		return -1;
  
--	i = emit_indirect(insn->opcode.bytes[0], reg, bytes);
--	if (i < 0)
--		return i;
-+	op = insn->opcode.bytes[0];
-+
+ 	op = insn->opcode.bytes[0];
+@@ -418,8 +420,9 @@ static int patch_retpoline(void *addr, s
+ 	 * into:
+ 	 *
+ 	 *   Jncc.d8 1f
++	 *   [ LFENCE ]
+ 	 *   JMP *%\reg
+-	 *   NOP
++	 *   [ NOP ]
+ 	 * 1:
+ 	 */
+ 	/* Jcc.d32 second opcode byte is in the range: 0x80-0x8f */
+@@ -434,6 +437,15 @@ static int patch_retpoline(void *addr, s
+ 		op = JMP32_INSN_OPCODE;
+ 	}
+ 
 +	/*
-+	 * Convert:
-+	 *
-+	 *   Jcc.d32 __x86_indirect_thunk_\reg
-+	 *
-+	 * into:
-+	 *
-+	 *   Jncc.d8 1f
-+	 *   JMP *%\reg
-+	 *   NOP
-+	 * 1:
++	 * For RETPOLINE_AMD: prepend the indirect CALL/JMP with an LFENCE.
 +	 */
-+	/* Jcc.d32 second opcode byte is in the range: 0x80-0x8f */
-+	if (op == 0x0f && (insn->opcode.bytes[1] & 0xf0) == 0x80) {
-+		cc = insn->opcode.bytes[1] & 0xf;
-+		cc ^= 1; /* invert condition */
-+
-+		bytes[i++] = 0x70 + cc;        /* Jcc.d8 */
-+		bytes[i++] = insn->length - 2; /* sizeof(Jcc.d8) == 2 */
-+
-+		/* Continue as if: JMP.d32 __x86_indirect_thunk_\reg */
-+		op = JMP32_INSN_OPCODE;
++	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
++		bytes[i++] = 0x0f;
++		bytes[i++] = 0xae;
++		bytes[i++] = 0xe8; /* LFENCE */
 +	}
 +
-+	ret = emit_indirect(op, reg, bytes + i);
-+	if (ret < 0)
-+		return ret;
-+	i += ret;
- 
- 	for (; i < insn->length;)
- 		bytes[i++] = BYTES_NOP1;
-@@ -443,6 +471,10 @@ void __init_or_module noinline apply_ret
- 		case JMP32_INSN_OPCODE:
- 			break;
- 
-+		case 0x0f: /* escape */
-+			if (op2 >= 0x80 && op2 <= 0x8f)
-+				break;
-+			fallthrough;
- 		default:
- 			WARN_ON_ONCE(1);
- 			continue;
+ 	ret = emit_indirect(op, reg, bytes + i);
+ 	if (ret < 0)
+ 		return ret;
 
 
