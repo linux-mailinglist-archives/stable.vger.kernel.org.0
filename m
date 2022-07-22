@@ -2,66 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C23557E1C5
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 14:58:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3F757E2B8
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 15:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229936AbiGVM6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 08:58:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
+        id S235418AbiGVN7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 09:59:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229704AbiGVM6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 08:58:52 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67896167CC;
-        Fri, 22 Jul 2022 05:58:51 -0700 (PDT)
-Received: from mail-oi1-f179.google.com ([209.85.167.179]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MNtjq-1nqicT2rdY-00OCVl; Fri, 22 Jul 2022 14:58:49 +0200
-Received: by mail-oi1-f179.google.com with SMTP id w188so1292623oiw.8;
-        Fri, 22 Jul 2022 05:58:49 -0700 (PDT)
-X-Gm-Message-State: AJIora9yIDxJvpjATVbEeKy58WGa+QmZVbGgwNK9klOtkOfY+VQ76LJv
-        DAVyhRYqgsBXkqXjS0ppFh5SnLDwTnRusyMUVDw=
-X-Google-Smtp-Source: AGRyM1vgw6SMBzhXYQK4zFqvbgayuF+UD0cn5QvmGtwr/W9iKKc0A57ydVQhGfGSxW4IOot10smtGip40ZPGAg9nWu8=
-X-Received: by 2002:a05:6808:1b28:b0:33a:9495:d7b with SMTP id
- bx40-20020a0568081b2800b0033a94950d7bmr93476oib.155.1658494728333; Fri, 22
- Jul 2022 05:58:48 -0700 (PDT)
+        with ESMTP id S235292AbiGVN6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 09:58:51 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CC4792869;
+        Fri, 22 Jul 2022 06:58:43 -0700 (PDT)
+Received: from cwcc.thunk.org (pool-173-48-118-63.bstnma.fios.verizon.net [173.48.118.63])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 26MDwR84016700
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Jul 2022 09:58:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1658498309; bh=7n681hZd+dwrHFbW5+woRzLcfpQI3pxHEssya9/He1U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=AKyxFvEBnZqeN4JyETkpWdhOS3+uv/c2N2pWZBXPKYloPTW2sQbn8iJUNZeLN0r1E
+         1MDb5trwcLkiB80P+6dsI/skKLyNuwMHARZFr/ouTOh+P8cmSwNRJwxH1US0C2R86d
+         TCgbWI72sjO3HdJeWKmC4pGYkfrHX8BRR+gKRJSq+AsGUKu9gyOmksJfkY/wdAbd1T
+         RZ1NZrP/Awdgvmy+EgnhkBFPZr6tJkkONtrnAJGCghKjglhQmD3yVT2m0nPwPUTwMR
+         c4zD7iJOUVShbRhH/bIpe8/uApMiqLlQzFPkRaKEns+4PppuYhdMXYqM8A4djTM183
+         usFxghWp9mTLA==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 6B2BB15C3F00; Fri, 22 Jul 2022 09:58:27 -0400 (EDT)
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Jan Kara <jack@suse.cz>
+Cc:     "Theodore Ts'o" <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+        Ritesh Harjani <ritesh.list@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 01/10] mbcache: Don't reclaim used entries
+Date:   Fri, 22 Jul 2022 09:58:14 -0400
+Message-Id: <165849767595.303416.835565204310722952.b4-ty@mit.edu>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20220712105436.32204-1-jack@suse.cz>
+References: <20220712104519.29887-1-jack@suse.cz> <20220712105436.32204-1-jack@suse.cz>
 MIME-Version: 1.0
-References: <202207220652.CGm6UUjK-lkp@intel.com>
-In-Reply-To: <202207220652.CGm6UUjK-lkp@intel.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Fri, 22 Jul 2022 14:58:32 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a0vZrXxNp3YhrxFjFunHgxSZBKD9Y4darSODgeFAukCeQ@mail.gmail.com>
-Message-ID: <CAK8P3a0vZrXxNp3YhrxFjFunHgxSZBKD9Y4darSODgeFAukCeQ@mail.gmail.com>
-Subject: Re: [linux-stable-rc:linux-5.10.y 644/7104] synclink.c:undefined
- reference to `free_dma'
-To:     kernel test robot <lkp@intel.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, kbuild-all@lists.01.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:q605q68iw4haOp75pTRK1QONrdL9dhffuO1kv/Htp6+/KNo8zpp
- hV8D7UCZR5lVpzIkJ3oIQ4Fh7EyiIZdMT16yDiQtmoZHhCIsP5ugZIsphIhk4NP4FQAxG4y
- JqLGrZFAm62VkQGHEghH/23Gn0I7rfvKL75DE5f3TtfDBSKkTh9d6KHLerqsxluhNdwmbFB
- KdRjH24Op3SU/307j62hg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:qcEw5IcqaEA=:KeYX1A+x3Xo+b6NNDixIBD
- 5/bTVuHUlezBy+pSZeierVUW8fmLqh0hXPAzJa2ZeJ9l23Lgy/WobI9mptIlgBd0pY368hzOm
- IPAGKYcBPgBuCHNSYnT+8RtarmOjF67DBHARm0uGbdjAeC33UtJXjEgzbf9jZjELN6YCZEgnP
- jA3BBxtMZArVdV3aRWHVaRKfZBEHWv04sKE814Ybnq+grydUnQmyxkLFsKsPS1XOWuS/xFNSP
- MRcX4ahXarcvbrTlo4hMVnAh/xysBq8DzaD+8YCZ28/2JDX4qd4OOwvjHiZtHZQ528w5mCEh9
- Xt4j6jX0tW/pKkM1wcyswfQW037x/Yi0N1+JyhzoYcOBXSFdo4It+8Ql7xMvR+lvSkLhz1OaD
- au808t32ryARVThMWZgMjlwHCbd7KhjP7EUFkh0M8N/Tuov6FtEVnHjSiEbu2Si7Gn5yRPkx+
- o484UVd37wCpNV+t6DWTMfEeD7IT+H3816ogkNCAWUb47qc4VF/1s6qSJjkB+Kgx1nTsLvmiL
- JNzY6ce97+kfdVxPcRkb3xmrvTjhlsJZYYmAk8oHsYYqAM6zO5vgSeRGanJ0oZ55HEcBZ98Y4
- zOGxfh8+bmEYF752cwQBPAoAZvMpwaFpqtriTL83EZhxj5yK0EVO3ftr8PRGi0QfdaIKCwDH8
- L/1lCWb8PiIjh79lVF2qKnbA4AQU16eEhQqvYPUskgpRswWrQuWDbJBpc5xFnGqYNVPW1zvCV
- uGtX+9H+RH6NmxsQtTOR1APELHUmf1VF68NoGROSWz0rDmYIaGqHVVRndOhGFin7+KNIy+MJi
- zGutbvtGAea7wzzzy4HJs0oQwBwjkM4fYSAlHJAVU6bEvEmQkhDkNW89JmTZUo6JyqaNzhZn8
- eh5Ll1defagq93/U3ovA==
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,44 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Tue, 12 Jul 2022 12:54:20 +0200, Jan Kara wrote:
+> Do not reclaim entries that are currently used by somebody from a
+> shrinker. Firstly, these entries are likely useful. Secondly, we will
+> need to keep such entries to protect pending increment of xattr block
+> refcount.
+> 
 
-I looked at this report for 5.10.y:
+Applied, thanks!  (Some slight adjustments were needed to resolve a
+merge conflict.)
 
-On Fri, Jul 22, 2022 at 12:20 AM kernel test robot <lkp@intel.com> wrote:
->
-> Hi Arnd,
->
-> FYI, the error/warning still remains.
->
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> head:   7748091a31277b35d55bffa6fecda439d8526366
-> commit: 87ae522e467e17a13b796e2cb595f9c3943e4d5e [644/7104] m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch
-> config: m68k-randconfig-r011-20220721 (https://download.01.org/0day-ci/archive/20220722/202207220652.CGm6UUjK-lkp@intel.com/config)
-> compiler: m68k-linux-gcc (GCC) 12.1.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=87ae522e467e17a13b796e2cb595f9c3943e4d5e
->         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->         git fetch --no-tags linux-stable-rc linux-5.10.y
->         git checkout 87ae522e467e17a13b796e2cb595f9c3943e4d5e
->         # save the config file
->         mkdir build_dir && cp config build_dir/.config
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash
->
-> If you fix the issue, kindly add following tag where applicable
-> Reported-by: kernel test robot <lkp@intel.com>
->
-> All errors (new ones prefixed by >>):
->
->    m68k-linux-ld: section .rodata VMA [0000000000002000,00000000005fa837] overlaps section .text VMA [0000000000000400,0000000000ffa6bf]
->    m68k-linux-ld: drivers/tty/synclink.o: in function `mgsl_release_resources':
-> >> synclink.c:(.text+0xd1a): undefined reference to `free_dma'
+[01/10] mbcache: Don't reclaim used entries
+        commit: ee595bcf21a86af4cff673000e2728d61c7c0e7b
+[02/10] mbcache: Add functions to delete entry if unused
+        commit: ad3923aa44185f5f65e17764fe5c30501c6dfd22
+[03/10] ext4: Remove EA inode entry from mbcache on inode eviction
+        commit: 428dc374a6cb6c0cbbf6fe8984b667ef78dc7d75
+[04/10] ext4: Unindent codeblock in ext4_xattr_block_set()
+        commit: d52086dcf26a6284b08b5544210a7475b4837d52
+[05/10] ext4: Fix race when reusing xattr blocks
+        commit: 132991ed28822cfb4be41ac72195f00fc0baf3c8
+[06/10] ext2: Factor our freeing of xattr block reference
+        commit: c30e78a5f165244985aa346bdd460d459094470e
+[07/10] ext2: Unindent codeblock in ext2_xattr_set()
+        commit: 0e85fb030d13e427deca44a95aabb2475614f8d2
+[08/10] ext2: Avoid deleting xattr block that is being reused
+        commit: 44ce98e77ab4583b17ff4f501c2076eec3b759d7
+[09/10] mbcache: Remove mb_cache_entry_delete()
+        commit: c3671ffa0919f2d433576c99c4e211cd367afda0
+[10/10] mbcache: Automatically delete entries from cache on freeing
+        commit: b51539a7d04fb7d05b28ab9387364ccde88b6b6d
 
-This can be addressed by either backporting f95a387cdeb3 ("m68k: coldfire: drop
-ISA_DMA_API support") or by reverting the 87ae522e467e ("m68knommu: only
-set CONFIG_ISA_DMA_API for ColdFire sub-arch"), which is not actually needed
-on 5.10.
-
-          Arnd
+Best regards,
+-- 
+Theodore Ts'o <tytso@mit.edu>
