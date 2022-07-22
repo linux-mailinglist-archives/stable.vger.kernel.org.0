@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE21F57DDC2
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B2857DDB0
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235856AbiGVJUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:20:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35350 "EHLO
+        id S235885AbiGVJUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:20:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235870AbiGVJT5 (ORCPT
+        with ESMTP id S235886AbiGVJT5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:19:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B2EBB5D7;
-        Fri, 22 Jul 2022 02:13:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C73BB5EC;
+        Fri, 22 Jul 2022 02:13:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C64E61F63;
-        Fri, 22 Jul 2022 09:13:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7718EC341C6;
-        Fri, 22 Jul 2022 09:13:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AEC461F6A;
+        Fri, 22 Jul 2022 09:13:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59055C341C6;
+        Fri, 22 Jul 2022 09:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481217;
-        bh=WBiwT2yc/NGkHe0muEFiSHX5dPep+wgeR6ZmXIblcp0=;
+        s=korg; t=1658481220;
+        bh=20+x+E4fn2Zd1ZHDJTs7z8JQMSMIXBb4N5Np79R9lsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hb/nxUdAK1Tn8XDu2/2uutuvA6X3UT+hex+JcBrla4wGD0i/C2P5TDpeTJ/YtbLan
-         0vtZ3Uh9lzrj+6odofrPTt59JnRcrFym0kEd5Nje3NXr/KLzKGk4n86RfqpNzJO1JG
-         BrbyzcpDsveIEBrxiiK0gWzsE4chaK0hBobpjCsw=
+        b=LTU23ykcC8bkhbIbru2Au5u9KUXzj6/qn11s3C/QFsqc8ZuLqvNakc/kuj8esfb2P
+         3ybQGnB9lMzqqQyvm3ilbevww4q8kt+/n9q3n8v4aMJvr3sO/I8GDegWxENa8wbfUB
+         wilAo/0zZE+hrwzRu9n8B33B/O91DTfKhJN9GNkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 17/89] x86/alternative: Try inline spectre_v2=retpoline,amd
-Date:   Fri, 22 Jul 2022 11:10:51 +0200
-Message-Id: <20220722091134.336521073@linuxfoundation.org>
+Subject: [PATCH 5.15 18/89] x86/alternative: Add debug prints to apply_retpolines()
+Date:   Fri, 22 Jul 2022 11:10:52 +0200
+Message-Id: <20220722091134.391153170@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -58,94 +58,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit bbe2df3f6b6da7848398d55b1311d58a16ec21e4 upstream.
+commit d4b5a5c993009ffeb5febe3b701da3faab6adb96 upstream.
 
-Try and replace retpoline thunk calls with:
+Make sure we can see the text changes when booting with
+'debug-alternative'.
 
-  LFENCE
-  CALL    *%\reg
+Example output:
 
-for spectre_v2=retpoline,amd.
-
-Specifically, the sequence above is 5 bytes for the low 8 registers,
-but 6 bytes for the high 8 registers. This means that unless the
-compilers prefix stuff the call with higher registers this replacement
-will fail.
-
-Luckily GCC strongly favours RAX for the indirect calls and most (95%+
-for defconfig-x86_64) will be converted. OTOH clang strongly favours
-R11 and almost nothing gets converted.
-
-Note: it will also generate a correct replacement for the Jcc.d32
-case, except unless the compilers start to prefix stuff that, it'll
-never fit. Specifically:
-
-  Jncc.d8 1f
-  LFENCE
-  JMP     *%\reg
-1:
-
-is 7-8 bytes long, where the original instruction in unpadded form is
-only 6 bytes.
+ [ ] SMP alternatives: retpoline at: __traceiter_initcall_level+0x1f/0x30 (ffffffff8100066f) len: 5 to: __x86_indirect_thunk_rax+0x0/0x20
+ [ ] SMP alternatives: ffffffff82603e58: [2:5) optimized NOPs: ff d0 0f 1f 00
+ [ ] SMP alternatives: ffffffff8100066f: orig: e8 cc 30 00 01
+ [ ] SMP alternatives: ffffffff8100066f: repl: ff d0 0f 1f 00
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Borislav Petkov <bp@suse.de>
 Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120310.359986601@infradead.org
-[cascardo: RETPOLINE_AMD was renamed to RETPOLINE_LFENCE]
+Link: https://lore.kernel.org/r/20211026120310.422273830@infradead.org
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/x86/kernel/alternative.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
 --- a/arch/x86/kernel/alternative.c
 +++ b/arch/x86/kernel/alternative.c
-@@ -389,6 +389,7 @@ static int emit_indirect(int op, int reg
-  *
-  *   CALL *%\reg
-  *
-+ * It also tries to inline spectre_v2=retpoline,amd when size permits.
-  */
- static int patch_retpoline(void *addr, struct insn *insn, u8 *bytes)
- {
-@@ -405,7 +406,8 @@ static int patch_retpoline(void *addr, s
- 	/* If anyone ever does: CALL/JMP *%rsp, we're in deep trouble. */
- 	BUG_ON(reg == 4);
+@@ -492,9 +492,15 @@ void __init_or_module noinline apply_ret
+ 			continue;
+ 		}
  
--	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE))
-+	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE) &&
-+	    !cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE))
- 		return -1;
- 
- 	op = insn->opcode.bytes[0];
-@@ -418,8 +420,9 @@ static int patch_retpoline(void *addr, s
- 	 * into:
- 	 *
- 	 *   Jncc.d8 1f
-+	 *   [ LFENCE ]
- 	 *   JMP *%\reg
--	 *   NOP
-+	 *   [ NOP ]
- 	 * 1:
- 	 */
- 	/* Jcc.d32 second opcode byte is in the range: 0x80-0x8f */
-@@ -434,6 +437,15 @@ static int patch_retpoline(void *addr, s
- 		op = JMP32_INSN_OPCODE;
- 	}
- 
-+	/*
-+	 * For RETPOLINE_AMD: prepend the indirect CALL/JMP with an LFENCE.
-+	 */
-+	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
-+		bytes[i++] = 0x0f;
-+		bytes[i++] = 0xae;
-+		bytes[i++] = 0xe8; /* LFENCE */
-+	}
++		DPRINTK("retpoline at: %pS (%px) len: %d to: %pS",
++			addr, addr, insn.length,
++			addr + insn.length + insn.immediate.value);
 +
- 	ret = emit_indirect(op, reg, bytes + i);
- 	if (ret < 0)
- 		return ret;
+ 		len = patch_retpoline(addr, &insn, bytes);
+ 		if (len == insn.length) {
+ 			optimize_nops(bytes, len);
++			DUMP_BYTES(((u8*)addr),  len, "%px: orig: ", addr);
++			DUMP_BYTES(((u8*)bytes), len, "%px: repl: ", addr);
+ 			text_poke_early(addr, bytes, len);
+ 		}
+ 	}
 
 
