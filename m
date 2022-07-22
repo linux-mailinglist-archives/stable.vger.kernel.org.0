@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F20D957DB23
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 09:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0E057DBD7
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 10:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234151AbiGVHV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 03:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
+        id S230429AbiGVIL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 04:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234363AbiGVHV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 03:21:27 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E272018E;
-        Fri, 22 Jul 2022 00:21:24 -0700 (PDT)
-Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Lq14q2Tw2zjX5P;
-        Fri, 22 Jul 2022 15:18:35 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by dggpeml500021.china.huawei.com
- (7.185.36.21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Fri, 22 Jul
- 2022 15:21:21 +0800
-From:   Baokun Li <libaokun1@huawei.com>
-To:     <stable@vger.kernel.org>, <linux-ext4@vger.kernel.org>
-CC:     <gregkh@linuxfoundation.org>, <tytso@mit.edu>,
-        <adilger.kernel@dilger.ca>, <jack@suse.cz>,
-        <ritesh.list@gmail.com>, <lczerner@redhat.com>,
-        <enwlinux@gmail.com>, <linux-kernel@vger.kernel.org>,
-        <yi.zhang@huawei.com>, <yebin10@huawei.com>, <yukuai3@huawei.com>,
-        <libaokun1@huawei.com>, Hulk Robot <hulkci@huawei.com>
-Subject: [PATCH 5.4] ext4: fix race condition between ext4_ioctl_setflags and ext4_fiemap
-Date:   Fri, 22 Jul 2022 15:33:34 +0800
-Message-ID: <20220722073334.1893924-1-libaokun1@huawei.com>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S230367AbiGVIL2 (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 22 Jul 2022 04:11:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B969CE0B
+        for <Stable@vger.kernel.org>; Fri, 22 Jul 2022 01:11:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56BCF6170B
+        for <Stable@vger.kernel.org>; Fri, 22 Jul 2022 08:11:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551F5C341C6;
+        Fri, 22 Jul 2022 08:11:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658477486;
+        bh=GqyjTSiOdBXKdv6q1v9OJGSr6MYsAgIyC0heMCuf7Do=;
+        h=Subject:To:From:Date:From;
+        b=cSJJ3MeZ7MyR4SXht3ezNuuYM0hQtIiDV8c1CnBjuOdM4qgMDZuiwhUsB7E4q5yUB
+         xIynrr2G9BrVI822Y6aohTw7gqHoDSs9NCoaiLBYY1Cv+6f2/2mpw8q2A+JePE7ErB
+         pEth593GbEO04gstMdNXvxtHYxOxTH2dsjhKxxVA=
+Subject: patch "iio: fix iio_format_avail_range() printing for none IIO_VAL_INT" added to char-misc-testing
+To:     fawzi.khaber@tdk.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, jean-baptiste.maneyrol@tdk.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 22 Jul 2022 10:03:33 +0200
+Message-ID: <165847701312691@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpeml500021.china.huawei.com (7.185.36.21)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,109 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch and problem analysis is based on v4.19 LTS.
-The d3b6f23f7167("ext4: move ext4_fiemap to use iomap framework") patch
-is incorporated in v5.7-rc1. This patch avoids this problem by switching
-to iomap in ext4_fiemap.
 
-Hulk Robot reported a BUG on stable 4.19.252:
-==================================================================
-kernel BUG at fs/ext4/extents_status.c:762!
-invalid opcode: 0000 [#1] SMP KASAN PTI
-CPU: 7 PID: 2845 Comm: syz-executor Not tainted 4.19.252 #46
-RIP: 0010:ext4_es_cache_extent+0x30e/0x370
-[...]
-Call Trace:
- ext4_cache_extents+0x238/0x2f0
- ext4_find_extent+0x785/0xa40
- ext4_fiemap+0x36d/0xe90
- do_vfs_ioctl+0x6af/0x1200
-[...]
-==================================================================
+This is a note to let you know that I've just added the patch titled
 
-Above issue may happen as follows:
--------------------------------------
-           cpu1		    cpu2
-_____________________|_____________________
-do_vfs_ioctl
- ext4_ioctl
-  ext4_ioctl_setflags
-   ext4_ind_migrate
-                        do_vfs_ioctl
-                         ioctl_fiemap
-                          ext4_fiemap
-                           ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)
-                           ext4_fill_fiemap_extents
-    down_write(&EXT4_I(inode)->i_data_sem);
-    ext4_ext_check_inode
-    ext4_clear_inode_flag(inode, EXT4_INODE_EXTENTS)
-    memset(ei->i_data, 0, sizeof(ei->i_data))
-    up_write(&EXT4_I(inode)->i_data_sem);
-                            down_read(&EXT4_I(inode)->i_data_sem);
-                            ext4_find_extent
-                             ext4_cache_extents
-                              ext4_es_cache_extent
-                               BUG_ON(end < lblk)
+    iio: fix iio_format_avail_range() printing for none IIO_VAL_INT
 
-We can easily reproduce this problem with the syzkaller testcase:
-```
-02:37:07 executing program 3:
-r0 = openat(0xffffffffffffff9c, &(0x7f0000000040)='./file0\x00', 0x26e1, 0x0)
-ioctl$FS_IOC_FSSETXATTR(r0, 0x40086602, &(0x7f0000000080)={0x17e})
-mkdirat(0xffffffffffffff9c, &(0x7f00000000c0)='./file1\x00', 0x1ff)
-r1 = openat(0xffffffffffffff9c, &(0x7f0000000100)='./file1\x00', 0x0, 0x0)
-ioctl$FS_IOC_FIEMAP(r1, 0xc020660b, &(0x7f0000000180)={0x0, 0x1, 0x0, 0xef3, 0x6, []}) (async, rerun: 32)
-ioctl$FS_IOC_FSSETXATTR(r1, 0x40086602, &(0x7f0000000140)={0x17e}) (rerun: 32)
-```
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
-To solve this issue, we use __generic_block_fiemap() instead of
-generic_block_fiemap() and add inode_lock_shared to avoid race condition.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 5e1f91850365de55ca74945866c002fda8f00331 Mon Sep 17 00:00:00 2001
+From: Fawzi Khaber <fawzi.khaber@tdk.com>
+Date: Mon, 18 Jul 2022 15:07:06 +0200
+Subject: iio: fix iio_format_avail_range() printing for none IIO_VAL_INT
+
+iio_format_avail_range() should print range as follow [min, step, max], so
+the function was previously calling iio_format_list() with length = 3,
+length variable refers to the array size of values not the number of
+elements. In case of non IIO_VAL_INT values each element has integer part
+and decimal part. With length = 3 this would cause premature end of loop
+and result in printing only one element.
+
+Signed-off-by: Fawzi Khaber <fawzi.khaber@tdk.com>
+Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
+Fixes: eda20ba1e25e ("iio: core: Consolidate iio_format_avail_{list,range}()")
+Link: https://lore.kernel.org/r/20220718130706.32571-1-jmaneyrol@invensense.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- fs/ext4/extents.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/iio/industrialio-core.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index f1bbce4350c4..50f956bda34c 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -5175,16 +5175,21 @@ static int _ext4_fiemap(struct inode *inode,
- 		fieinfo->fi_flags &= ~FIEMAP_FLAG_CACHE;
- 	}
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index 358b909298c0..0f4dbda3b9d3 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -812,7 +812,23 @@ static ssize_t iio_format_avail_list(char *buf, const int *vals,
  
-+	inode_lock_shared(inode);
- 	/* fallback to generic here if not in extents fmt */
- 	if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)) &&
--	    fill == ext4_fill_fiemap_extents)
--		return generic_block_fiemap(inode, fieinfo, start, len,
-+	    fill == ext4_fill_fiemap_extents) {
-+		error = __generic_block_fiemap(inode, fieinfo, start, len,
- 			ext4_get_block);
-+		goto out_unlock;
+ static ssize_t iio_format_avail_range(char *buf, const int *vals, int type)
+ {
+-	return iio_format_list(buf, vals, type, 3, "[", "]");
++	int length;
++
++	/*
++	 * length refers to the array size , not the number of elements.
++	 * The purpose is to print the range [min , step ,max] so length should
++	 * be 3 in case of int, and 6 for other types.
++	 */
++	switch (type) {
++	case IIO_VAL_INT:
++		length = 3;
++		break;
++	default:
++		length = 6;
++		break;
 +	}
- 
- 	if (fill == ext4_fill_es_cache_info)
- 		ext4_fiemap_flags &= FIEMAP_FLAG_XATTR;
--	if (fiemap_check_flags(fieinfo, ext4_fiemap_flags))
--		return -EBADR;
-+	if (fiemap_check_flags(fieinfo, ext4_fiemap_flags)) {
-+		error = -EBADR;
-+		goto out_unlock;
-+	}
- 
- 	if (fieinfo->fi_flags & FIEMAP_FLAG_XATTR) {
- 		error = ext4_xattr_fiemap(inode, fieinfo);
-@@ -5204,6 +5209,8 @@ static int _ext4_fiemap(struct inode *inode,
- 		 */
- 		error = fill(inode, start_blk, len_blks, fieinfo);
- 	}
-+out_unlock:
-+	inode_unlock_shared(inode);
- 	return error;
++
++	return iio_format_list(buf, vals, type, length, "[", "]");
  }
  
+ static ssize_t iio_read_channel_info_avail(struct device *dev,
 -- 
-2.31.1
+2.37.1
+
 
