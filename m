@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C0557DD5C
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7ECB57DE47
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235240AbiGVJKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
+        id S235016AbiGVJLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:11:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235252AbiGVJKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:10:02 -0400
+        with ESMTP id S234918AbiGVJKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:10:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE2EA6FB0;
-        Fri, 22 Jul 2022 02:09:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B968A8770;
+        Fri, 22 Jul 2022 02:09:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4B50B827C8;
-        Fri, 22 Jul 2022 09:09:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2493AC341C6;
-        Fri, 22 Jul 2022 09:09:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE678B827BC;
+        Fri, 22 Jul 2022 09:09:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D68C341C6;
+        Fri, 22 Jul 2022 09:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658480951;
-        bh=YviMuseI7ZZnS9AUuLIn0isWO6Kg2NnspcB5yQa98XU=;
+        s=korg; t=1658480957;
+        bh=VAnIXSRsOfe2239lyb31FghfiOJmX7EvGpAqs0uN16g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpBmd5CRF71o2aaVs0gwNPwcXogNS4ygiDk95+rAv0W/bQqoOakU7qsTL49fjr9Bh
-         0rFb+JbfPor0xdZydmGjv+xy1oysSLUlMS8tGO3X7yahvwS4lp0Q1bqPTaws4LOwnn
-         Ka/9Ago4UVwMutlwN2ZymyXYIJ+ZKD/U5rmSFAy8=
+        b=QacCXRfqqrFVUbwQTFwP8OMpJ1tYrmHX23qHINICKiQYpB/aepbedw44hAj9ujuK6
+         XA1XUsWf0tkHWQgLP8Ip0XUe2TJ5FGf3kvbBug7DjLOxlZhDGkm3hhyOk3FA9DoWUY
+         Zfm+bF0TG5JJntZCVepxKrSbAmZQTpCZyha3864g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 27/70] x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
-Date:   Fri, 22 Jul 2022 11:07:22 +0200
-Message-Id: <20220722090652.240706009@linuxfoundation.org>
+Subject: [PATCH 5.18 28/70] x86/entry: Add kernel IBRS implementation
+Date:   Fri, 22 Jul 2022 11:07:23 +0200
+Message-Id: <20220722090652.296083691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
 References: <20220722090650.665513668@linuxfoundation.org>
@@ -55,118 +55,352 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit caa0ff24d5d0e02abce5e65c3d2b7f20a6617be5 upstream.
+commit 2dbb887e875b1de3ca8f40ddf26bcfe55798c609 upstream.
 
-Due to TIF_SSBD and TIF_SPEC_IB the actual IA32_SPEC_CTRL value can
-differ from x86_spec_ctrl_base. As such, keep a per-CPU value
-reflecting the current task's MSR content.
+Implement Kernel IBRS - currently the only known option to mitigate RSB
+underflow speculation issues on Skylake hardware.
 
-  [jpoimboe: rename]
+Note: since IBRS_ENTER requires fuller context established than
+UNTRAIN_RET, it must be placed after it. However, since UNTRAIN_RET
+itself implies a RET, it must come after IBRS_ENTER. This means
+IBRS_ENTER needs to also move UNTRAIN_RET.
+
+Note 2: KERNEL_IBRS is sub-optimal for XenPV.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+[cascardo: conflict at arch/x86/entry/entry_64_compat.S]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    1 +
- arch/x86/kernel/cpu/bugs.c           |   28 +++++++++++++++++++++++-----
- arch/x86/kernel/process.c            |    2 +-
- 3 files changed, 25 insertions(+), 6 deletions(-)
+ arch/x86/entry/calling.h           |   58 +++++++++++++++++++++++++++++++++++++
+ arch/x86/entry/entry_64.S          |   44 ++++++++++++++++++++++++----
+ arch/x86/entry/entry_64_compat.S   |   17 ++++++++--
+ arch/x86/include/asm/cpufeatures.h |    2 -
+ 4 files changed, 111 insertions(+), 10 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -253,6 +253,7 @@ static inline void indirect_branch_predi
- 
- /* The Intel SPEC CTRL MSR base value cache */
- extern u64 x86_spec_ctrl_base;
-+extern void write_spec_ctrl_current(u64 val);
- 
- /*
-  * With retpoline, we must use IBRS to restrict branch prediction
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -49,12 +49,30 @@ static void __init mmio_select_mitigatio
- static void __init srbds_select_mitigation(void);
- static void __init l1d_flush_select_mitigation(void);
- 
--/* The base value of the SPEC_CTRL MSR that always has to be preserved. */
-+/* The base value of the SPEC_CTRL MSR without task-specific bits set */
- u64 x86_spec_ctrl_base;
- EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
-+
-+/* The current value of the SPEC_CTRL MSR with task-specific bits set */
-+DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
-+EXPORT_SYMBOL_GPL(x86_spec_ctrl_current);
-+
- static DEFINE_MUTEX(spec_ctrl_mutex);
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -7,6 +7,8 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/processor-flags.h>
+ #include <asm/ptrace-abi.h>
++#include <asm/msr.h>
++#include <asm/nospec-branch.h>
  
  /*
-+ * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
-+ * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
+ 
+@@ -282,6 +284,62 @@ For 32-bit we have the following convent
+ #endif
+ 
+ /*
++ * IBRS kernel mitigation for Spectre_v2.
++ *
++ * Assumes full context is established (PUSH_REGS, CR3 and GS) and it clobbers
++ * the regs it uses (AX, CX, DX). Must be called before the first RET
++ * instruction (NOTE! UNTRAIN_RET includes a RET instruction)
++ *
++ * The optional argument is used to save/restore the current value,
++ * which is used on the paranoid paths.
++ *
++ * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
 + */
-+void write_spec_ctrl_current(u64 val)
-+{
-+	if (this_cpu_read(x86_spec_ctrl_current) == val)
-+		return;
++.macro IBRS_ENTER save_reg
++	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
++	movl	$MSR_IA32_SPEC_CTRL, %ecx
 +
-+	this_cpu_write(x86_spec_ctrl_current, val);
-+	wrmsrl(MSR_IA32_SPEC_CTRL, val);
-+}
++.ifnb \save_reg
++	rdmsr
++	shl	$32, %rdx
++	or	%rdx, %rax
++	mov	%rax, \save_reg
++	test	$SPEC_CTRL_IBRS, %eax
++	jz	.Ldo_wrmsr_\@
++	lfence
++	jmp	.Lend_\@
++.Ldo_wrmsr_\@:
++.endif
++
++	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
++	movl	%edx, %eax
++	shr	$32, %rdx
++	wrmsr
++.Lend_\@:
++.endm
 +
 +/*
-  * The vendor and possibly platform specific bits which can be modified in
-  * x86_spec_ctrl_base.
++ * Similar to IBRS_ENTER, requires KERNEL GS,CR3 and clobbers (AX, CX, DX)
++ * regs. Must be called after the last RET.
++ */
++.macro IBRS_EXIT save_reg
++	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
++	movl	$MSR_IA32_SPEC_CTRL, %ecx
++
++.ifnb \save_reg
++	mov	\save_reg, %rdx
++.else
++	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
++	andl	$(~SPEC_CTRL_IBRS), %edx
++.endif
++
++	movl	%edx, %eax
++	shr	$32, %rdx
++	wrmsr
++.Lend_\@:
++.endm
++
++/*
+  * Mitigate Spectre v1 for conditional swapgs code paths.
+  *
+  * FENCE_SWAPGS_USER_ENTRY is used in the user entry swapgs code path, to
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -96,7 +96,6 @@ SYM_CODE_START(entry_SYSCALL_64)
+ 
+ SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)
+ 	ANNOTATE_NOENDBR
+-	UNTRAIN_RET
+ 
+ 	/* Construct struct pt_regs on stack */
+ 	pushq	$__USER_DS				/* pt_regs->ss */
+@@ -113,6 +112,11 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
+ 	movq	%rsp, %rdi
+ 	/* Sign extend the lower 32bit as syscall numbers are treated as int */
+ 	movslq	%eax, %rsi
++
++	/* clobbers %rax, make sure it is after saving the syscall nr */
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	call	do_syscall_64		/* returns with IRQs disabled */
+ 
+ 	/*
+@@ -192,6 +196,7 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_h
+ 	 * perf profiles. Nothing jumps here.
+ 	 */
+ syscall_return_via_sysret:
++	IBRS_EXIT
+ 	POP_REGS pop_rdi=0
+ 
+ 	/*
+@@ -596,6 +601,7 @@ __irqentry_text_end:
+ 
+ SYM_CODE_START_LOCAL(common_interrupt_return)
+ SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
++	IBRS_EXIT
+ #ifdef CONFIG_DEBUG_ENTRY
+ 	/* Assert that pt_regs indicates user mode. */
+ 	testb	$3, CS(%rsp)
+@@ -882,6 +888,9 @@ SYM_CODE_END(xen_failsafe_callback)
+  *              1 -> no SWAPGS on exit
+  *
+  *     Y        GSBASE value at entry, must be restored in paranoid_exit
++ *
++ * R14 - old CR3
++ * R15 - old SPEC_CTRL
   */
-@@ -1272,7 +1290,7 @@ static void __init spectre_v2_select_mit
- 	if (spectre_v2_in_eibrs_mode(mode)) {
- 		/* Force it so VMEXIT will restore correctly */
- 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
--		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
-+		write_spec_ctrl_current(x86_spec_ctrl_base);
- 	}
+ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	UNWIND_HINT_FUNC
+@@ -905,7 +914,6 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	 * be retrieved from a kernel internal table.
+ 	 */
+ 	SAVE_AND_SWITCH_TO_KERNEL_CR3 scratch_reg=%rax save_reg=%r14
+-	UNTRAIN_RET
  
- 	switch (mode) {
-@@ -1327,7 +1345,7 @@ static void __init spectre_v2_select_mit
+ 	/*
+ 	 * Handling GSBASE depends on the availability of FSGSBASE.
+@@ -927,7 +935,7 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	 * is needed here.
+ 	 */
+ 	SAVE_AND_SET_GSBASE scratch_reg=%rax save_reg=%rbx
+-	RET
++	jmp .Lparanoid_gsbase_done
  
- static void update_stibp_msr(void * __unused)
- {
--	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
-+	write_spec_ctrl_current(x86_spec_ctrl_base);
- }
+ .Lparanoid_entry_checkgs:
+ 	/* EBX = 1 -> kernel GSBASE active, no restore required */
+@@ -946,8 +954,16 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	xorl	%ebx, %ebx
+ 	swapgs
+ .Lparanoid_kernel_gsbase:
+-
+ 	FENCE_SWAPGS_KERNEL_ENTRY
++.Lparanoid_gsbase_done:
++
++	/*
++	 * Once we have CR3 and %GS setup save and set SPEC_CTRL. Just like
++	 * CR3 above, keep the old value in a callee saved register.
++	 */
++	IBRS_ENTER save_reg=%r15
++	UNTRAIN_RET
++
+ 	RET
+ SYM_CODE_END(paranoid_entry)
  
- /* Update x86_spec_ctrl_base in case SMT state changed. */
-@@ -1570,7 +1588,7 @@ static enum ssb_mitigation __init __ssb_
- 			x86_amd_ssb_disable();
- 		} else {
- 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
--			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
-+			write_spec_ctrl_current(x86_spec_ctrl_base);
- 		}
- 	}
+@@ -969,9 +985,19 @@ SYM_CODE_END(paranoid_entry)
+  *              1 -> no SWAPGS on exit
+  *
+  *     Y        User space GSBASE, must be restored unconditionally
++ *
++ * R14 - old CR3
++ * R15 - old SPEC_CTRL
+  */
+ SYM_CODE_START_LOCAL(paranoid_exit)
+ 	UNWIND_HINT_REGS
++
++	/*
++	 * Must restore IBRS state before both CR3 and %GS since we need access
++	 * to the per-CPU x86_spec_ctrl_shadow variable.
++	 */
++	IBRS_EXIT save_reg=%r15
++
+ 	/*
+ 	 * The order of operations is important. RESTORE_CR3 requires
+ 	 * kernel GSBASE.
+@@ -1016,10 +1042,12 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	/* We have user CR3.  Change to kernel CR3. */
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
++	IBRS_ENTER
+ 	UNTRAIN_RET
  
-@@ -1821,7 +1839,7 @@ int arch_prctl_spec_ctrl_get(struct task
- void x86_spec_ctrl_setup_ap(void)
- {
- 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
--		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
-+		write_spec_ctrl_current(x86_spec_ctrl_base);
+ 	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
+ .Lerror_entry_from_usermode_after_swapgs:
++
+ 	/* Put us onto the real thread stack. */
+ 	call	sync_regs
+ 	RET
+@@ -1069,6 +1097,7 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	SWAPGS
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
++	IBRS_ENTER
+ 	UNTRAIN_RET
  
- 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
- 		x86_amd_ssb_disable();
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -600,7 +600,7 @@ static __always_inline void __speculatio
- 	}
+ 	/*
+@@ -1165,7 +1194,6 @@ SYM_CODE_START(asm_exc_nmi)
+ 	movq	%rsp, %rdx
+ 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+ 	UNWIND_HINT_IRET_REGS base=%rdx offset=8
+-	UNTRAIN_RET
+ 	pushq	5*8(%rdx)	/* pt_regs->ss */
+ 	pushq	4*8(%rdx)	/* pt_regs->rsp */
+ 	pushq	3*8(%rdx)	/* pt_regs->flags */
+@@ -1176,6 +1204,9 @@ SYM_CODE_START(asm_exc_nmi)
+ 	PUSH_AND_CLEAR_REGS rdx=(%rdx)
+ 	ENCODE_FRAME_POINTER
  
- 	if (updmsr)
--		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
-+		write_spec_ctrl_current(msr);
- }
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	/*
+ 	 * At this point we no longer need to worry about stack damage
+ 	 * due to nesting -- we're on the normal thread stack and we're
+@@ -1400,6 +1431,9 @@ end_repeat_nmi:
+ 	movq	$-1, %rsi
+ 	call	exc_nmi
  
- static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
++	/* Always restore stashed SPEC_CTRL value (see paranoid_entry) */
++	IBRS_EXIT save_reg=%r15
++
+ 	/* Always restore stashed CR3 value (see paranoid_entry) */
+ 	RESTORE_CR3 scratch_reg=%r15 save_reg=%r14
+ 
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -4,7 +4,6 @@
+  *
+  * Copyright 2000-2002 Andi Kleen, SuSE Labs.
+  */
+-#include "calling.h"
+ #include <asm/asm-offsets.h>
+ #include <asm/current.h>
+ #include <asm/errno.h>
+@@ -18,6 +17,8 @@
+ #include <linux/linkage.h>
+ #include <linux/err.h>
+ 
++#include "calling.h"
++
+ 	.section .entry.text, "ax"
+ 
+ /*
+@@ -73,7 +74,6 @@ SYM_CODE_START(entry_SYSENTER_compat)
+ 	pushq	$__USER32_CS		/* pt_regs->cs */
+ 	pushq	$0			/* pt_regs->ip = 0 (placeholder) */
+ SYM_INNER_LABEL(entry_SYSENTER_compat_after_hwframe, SYM_L_GLOBAL)
+-	UNTRAIN_RET
+ 
+ 	/*
+ 	 * User tracing code (ptrace or signal handlers) might assume that
+@@ -115,6 +115,9 @@ SYM_INNER_LABEL(entry_SYSENTER_compat_af
+ 
+ 	cld
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	/*
+ 	 * SYSENTER doesn't filter flags, so we need to clear NT and AC
+ 	 * ourselves.  To save a few cycles, we can check whether
+@@ -217,7 +220,6 @@ SYM_CODE_START(entry_SYSCALL_compat)
+ 
+ SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
+ 	ANNOTATE_NOENDBR
+-	UNTRAIN_RET
+ 
+ 	/* Construct struct pt_regs on stack */
+ 	pushq	$__USER32_DS		/* pt_regs->ss */
+@@ -259,6 +261,9 @@ SYM_INNER_LABEL(entry_SYSCALL_compat_aft
+ 
+ 	UNWIND_HINT_REGS
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	movq	%rsp, %rdi
+ 	call	do_fast_syscall_32
+ 	/* XEN PV guests always use IRET path */
+@@ -273,6 +278,8 @@ sysret32_from_system_call:
+ 	 */
+ 	STACKLEAK_ERASE
+ 
++	IBRS_EXIT
++
+ 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
+ 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
+ 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
+@@ -385,7 +392,6 @@ SYM_CODE_START(entry_INT80_compat)
+ 	pushq	(%rdi)			/* pt_regs->di */
+ .Lint80_keep_stack:
+ 
+-	UNTRAIN_RET
+ 	pushq	%rsi			/* pt_regs->si */
+ 	xorl	%esi, %esi		/* nospec   si */
+ 	pushq	%rdx			/* pt_regs->dx */
+@@ -418,6 +424,9 @@ SYM_CODE_START(entry_INT80_compat)
+ 
+ 	cld
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	movq	%rsp, %rdi
+ 	call	do_int80_syscall_32
+ 	jmp	swapgs_restore_regs_and_return_to_usermode
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -203,7 +203,7 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-/* FREE!				( 7*32+12) */
++#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
+ /* FREE!				( 7*32+13) */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
 
 
