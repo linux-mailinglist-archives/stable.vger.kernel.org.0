@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B00D257DD45
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8083157DDE0
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233608AbiGVJIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:08:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
+        id S234311AbiGVJMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:12:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234398AbiGVJIk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:08:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C935782FBA;
-        Fri, 22 Jul 2022 02:08:38 -0700 (PDT)
+        with ESMTP id S234853AbiGVJLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:11:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39823A9BB4;
+        Fri, 22 Jul 2022 02:09:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0D0CCCE28A0;
-        Fri, 22 Jul 2022 09:08:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20587C341C7;
-        Fri, 22 Jul 2022 09:08:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BA8361EBB;
+        Fri, 22 Jul 2022 09:09:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C20DC341C6;
+        Fri, 22 Jul 2022 09:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658480914;
-        bh=cl1JzN7F0eth4JOetCv10eNt1GVlMIXPFGGABdD1LSM=;
+        s=korg; t=1658480984;
+        bh=8XmEH2KkaR85M0+HGzx6p/eDV1VjnMNBHree5pGpxsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQZQAszlnfSaWKvv/0BBNnFSxHi6y/FmA7PgxpIlGoJHVAcAODiMjE3UcLOXHTQDj
-         JrJhFmaQSN+OmoEmgq/4dfk5f6TkIZ++cDfw7hxixjbBZ5b50HHmBD++h6b/Q3CnpB
-         D5fEwyDXoXUdVC8kveVIGyLKnZDRt2ztwKBFCDRc=
+        b=hgzxY4iSR1PHFGysS5Yh0sNhhefu2kNSkVp9RoZxfr6NufNK/hKNYfET5xt82UYuQ
+         jhE7QbVV7O6nwO+WjaQdxBic9oHQpiCFyd605L0GISVs8RaDz78ittzzmieNdvsRRu
+         HP7Lz2X0DE7PyEZxDM8/E4HrbVJyLS6/2M9yDyEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 07/70] x86/cpufeatures: Move RETPOLINE flags to word 11
-Date:   Fri, 22 Jul 2022 11:07:02 +0200
-Message-Id: <20220722090651.133646315@linuxfoundation.org>
+Subject: [PATCH 5.18 08/70] x86/retpoline: Cleanup some #ifdefery
+Date:   Fri, 22 Jul 2022 11:07:03 +0200
+Message-Id: <20220722090651.188747502@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
 References: <20220722090650.665513668@linuxfoundation.org>
@@ -57,45 +57,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit a883d624aed463c84c22596006e5a96f5b44db31 upstream.
+commit 369ae6ffc41a3c1137cab697635a84d0cc7cdcea upstream.
 
-In order to extend the RETPOLINE features to 4, move them to word 11
-where there is still room. This mostly keeps DISABLE_RETPOLINE
-simple.
+On it's own not much of a cleanup but it prepares for more/similar
+code.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/disabled-features.h |    9 ++++++++-
+ arch/x86/include/asm/nospec-branch.h     |    7 +++----
+ arch/x86/net/bpf_jit_comp.c              |    7 +++----
+ 3 files changed, 14 insertions(+), 9 deletions(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -203,8 +203,8 @@
- #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
- /* FREE!                                ( 7*32+10) */
- #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
--#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
--#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
-+/* FREE!				( 7*32+12) */
-+/* FREE!				( 7*32+13) */
- #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
- #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
- #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
-@@ -295,6 +295,10 @@
- #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
- #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
- #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
-+/* FREE!				(11*32+10) */
-+/* FREE!				(11*32+11) */
-+#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
-+#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
+--- a/arch/x86/include/asm/disabled-features.h
++++ b/arch/x86/include/asm/disabled-features.h
+@@ -56,6 +56,13 @@
+ # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+ #endif
  
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
++#ifdef CONFIG_RETPOLINE
++# define DISABLE_RETPOLINE	0
++#else
++# define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
++				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
++#endif
++
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ # define DISABLE_ENQCMD		0
+ #else
+@@ -82,7 +89,7 @@
+ #define DISABLED_MASK8	0
+ #define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
+ #define DISABLED_MASK10	0
+-#define DISABLED_MASK11	0
++#define DISABLED_MASK11	(DISABLE_RETPOLINE)
+ #define DISABLED_MASK12	0
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -120,17 +120,16 @@
+ 	_ASM_PTR " 999b\n\t"					\
+ 	".popsection\n\t"
+ 
+-#ifdef CONFIG_RETPOLINE
+-
+ typedef u8 retpoline_thunk_t[RETPOLINE_THUNK_SIZE];
++extern retpoline_thunk_t __x86_indirect_thunk_array[];
++
++#ifdef CONFIG_RETPOLINE
+ 
+ #define GEN(reg) \
+ 	extern retpoline_thunk_t __x86_indirect_thunk_ ## reg;
+ #include <asm/GEN-for-each-reg.h>
+ #undef GEN
+ 
+-extern retpoline_thunk_t __x86_indirect_thunk_array[];
+-
+ #ifdef CONFIG_X86_64
+ 
+ /*
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -407,16 +407,15 @@ static void emit_indirect_jump(u8 **ppro
+ {
+ 	u8 *prog = *pprog;
+ 
+-#ifdef CONFIG_RETPOLINE
+ 	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
+ 		EMIT_LFENCE();
+ 		EMIT2(0xFF, 0xE0 + reg);
+ 	} else if (cpu_feature_enabled(X86_FEATURE_RETPOLINE)) {
+ 		OPTIMIZER_HIDE_VAR(reg);
+ 		emit_jump(&prog, &__x86_indirect_thunk_array[reg], ip);
+-	} else
+-#endif
+-	EMIT2(0xFF, 0xE0 + reg);
++	} else {
++		EMIT2(0xFF, 0xE0 + reg);
++	}
+ 
+ 	*pprog = prog;
+ }
 
 
