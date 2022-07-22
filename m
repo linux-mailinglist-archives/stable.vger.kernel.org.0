@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1D057DE06
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBE9957DD8E
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236034AbiGVJVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S236226AbiGVJXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:23:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236097AbiGVJVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:21:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3444DBDA3E;
-        Fri, 22 Jul 2022 02:14:06 -0700 (PDT)
+        with ESMTP id S236039AbiGVJWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:22:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 282B6BF9B7;
+        Fri, 22 Jul 2022 02:14:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 958B5B827B7;
-        Fri, 22 Jul 2022 09:14:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 016D9C341C6;
-        Fri, 22 Jul 2022 09:14:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7120A61FDF;
+        Fri, 22 Jul 2022 09:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B489C341C6;
+        Fri, 22 Jul 2022 09:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481244;
-        bh=CFdEholKIcIh8FP/B1CNlCU+W/FG+YpGdXpUqd9CToc=;
+        s=korg; t=1658481276;
+        bh=6H9Lyl9oIAdqchAN6Gj+v6lW5keext/SAPl2qXlkcwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmdF57Xp6Ljx7eKkAflbbPSMYKK7OVRCrQZ/RN6IxqsCLMfwQ+hI4+CKlWFBqqcKU
-         Eqg6hcN3DcpeBu97I5q7hAJzhBCFfvc1kN2CgyAX1bQXKrRCoyT+TDwxcX6LT3Yi+I
-         ZC3ufMXbNKSQ3238Zn5V/9mQASoBGHzEBf2G0NT0=
+        b=cCYlOHweN81SlxJ5jCx7BDZPXztZne6n2EA4B5NKt9nOdzW0aak06E0C0ONVyFqtM
+         459EG6tc/U1c632ogRHiAm/FgKF9vsQ8m60zg76CpAQfdw9hzYbGttsHgjg+DsPkhu
+         OoYirLo4G595GGtCXK5Xb6L6n2v3hIuLRsVhYPzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 36/89] x86/vsyscall_emu/64: Dont use RET in vsyscall emulation
-Date:   Fri, 22 Jul 2022 11:11:10 +0200
-Message-Id: <20220722091135.382471100@linuxfoundation.org>
+Subject: [PATCH 5.15 37/89] x86/sev: Avoid using __x86_return_thunk
+Date:   Fri, 22 Jul 2022 11:11:11 +0200
+Message-Id: <20220722091135.437412058@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -55,12 +55,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 15583e514eb16744b80be85dea0774ece153177d upstream.
+commit 0ee9073000e8791f8b134a8ded31bcc767f7f232 upstream.
 
-This is userspace code and doesn't play by the normal kernel rules.
+Specifically, it's because __enc_copy() encrypts the kernel after
+being relocated outside the kernel in sme_encrypt_execute(), and the
+RET macro's jmp offset isn't amended prior to execution.
 
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
@@ -68,34 +71,31 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/vsyscall/vsyscall_emu_64.S |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/mm/mem_encrypt_boot.S |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-+++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
-@@ -19,17 +19,20 @@ __vsyscall_page:
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -65,7 +65,9 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	movq	%rbp, %rsp		/* Restore original stack pointer */
+ 	pop	%rbp
  
- 	mov $__NR_gettimeofday, %rax
- 	syscall
 -	RET
++	/* Offset to __x86_return_thunk would be wrong here */
 +	ret
 +	int3
+ SYM_FUNC_END(sme_encrypt_execute)
  
- 	.balign 1024, 0xcc
- 	mov $__NR_time, %rax
- 	syscall
+ SYM_FUNC_START(__enc_copy)
+@@ -151,6 +153,8 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r12
+ 	pop	%r15
+ 
 -	RET
++	/* Offset to __x86_return_thunk would be wrong here */
 +	ret
 +	int3
- 
- 	.balign 1024, 0xcc
- 	mov $__NR_getcpu, %rax
- 	syscall
--	RET
-+	ret
-+	int3
- 
- 	.balign 4096, 0xcc
- 
+ .L__enc_copy_end:
+ SYM_FUNC_END(__enc_copy)
 
 
