@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA6457DDC8
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A595C57DE5B
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235770AbiGVJSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:18:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S235888AbiGVJSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:18:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235815AbiGVJSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:18:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AAEB8535;
-        Fri, 22 Jul 2022 02:12:51 -0700 (PDT)
+        with ESMTP id S235819AbiGVJSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:18:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15A6B87AF;
+        Fri, 22 Jul 2022 02:12:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A224B827C6;
-        Fri, 22 Jul 2022 09:12:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84073C341C6;
-        Fri, 22 Jul 2022 09:12:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E82561F65;
+        Fri, 22 Jul 2022 09:12:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A085C341C6;
+        Fri, 22 Jul 2022 09:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481168;
-        bh=6/pAjNrYduXQcYk5rPNhzoaKv6P80lxhDM57Mcardm0=;
+        s=korg; t=1658481172;
+        bh=WK8DbHid5KLbLdiibt9WMsu16ETa4CTZT9zNegHjyDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXzABp/FozirzeEp71E0Cl1UEVU/tZaXdS/Erlgcq+BNaQ5F8lWxf9K7z3Y1w2BjP
-         LB0g8OPrru/EUtIFB+btdoRBpB7lYABtQzd3wd9RlnTjKPoTdfXpbm1V4xZEuTfe5Z
-         +qiOzbmp/nCdqx/82PAdX73E5+iOmfCvwBzsRKyI=
+        b=NuvVGmg2R14P3UwH3O0cMV7ALRHSRkvUrv1IraJ94Fjr0e5sJvz0LbAK1uc7carg1
+         FPnH/B1grgJxnF0BR9RkjfFnDm2r/abgS5oXH7sIQh3VLCVnS/E3iDB27bM+HZgKgt
+         ovO+XHxMAwNhQ7BpIMOaTRsuc+UFy/mTOhTA8atc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 06/89] objtool: Explicitly avoid self modifying code in .altinstr_replacement
-Date:   Fri, 22 Jul 2022 11:10:40 +0200
-Message-Id: <20220722091133.729844654@linuxfoundation.org>
+Subject: [PATCH 5.15 07/89] objtool: Shrink struct instruction
+Date:   Fri, 22 Jul 2022 11:10:41 +0200
+Message-Id: <20220722091133.784963422@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -58,110 +58,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit dd003edeffa3cb87bc9862582004f405d77d7670 upstream.
+commit c509331b41b7365e17396c246e8c5797bccc8074 upstream.
 
-Assume ALTERNATIVE()s know what they're doing and do not change, or
-cause to change, instructions in .altinstr_replacement sections.
+Any one instruction can only ever call a single function, therefore
+insn->mcount_loc_node is superfluous and can use insn->call_node.
+
+This shrinks struct instruction, which is by far the most numerous
+structure objtool creates.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Borislav Petkov <bp@suse.de>
 Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Tested-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/r/20211026120309.722511775@infradead.org
-[cascardo: context adjustment]
+Link: https://lore.kernel.org/r/20211026120309.785456706@infradead.org
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c |   43 ++++++++++++++++++++++++++++++++-----------
- 1 file changed, 32 insertions(+), 11 deletions(-)
+ tools/objtool/check.c                 |    6 +++---
+ tools/objtool/include/objtool/check.h |    1 -
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
 --- a/tools/objtool/check.c
 +++ b/tools/objtool/check.c
-@@ -840,18 +840,27 @@ static void remove_insn_ops(struct instr
- 	}
- }
+@@ -551,7 +551,7 @@ static int create_mcount_loc_sections(st
+ 		return 0;
  
--static void add_call_dest(struct objtool_file *file, struct instruction *insn,
--			  struct symbol *dest, bool sibling)
-+static void annotate_call_site(struct objtool_file *file,
-+			       struct instruction *insn, bool sibling)
- {
- 	struct reloc *reloc = insn_reloc(file, insn);
-+	struct symbol *sym = insn->call_dest;
+ 	idx = 0;
+-	list_for_each_entry(insn, &file->mcount_loc_list, mcount_loc_node)
++	list_for_each_entry(insn, &file->mcount_loc_list, call_node)
+ 		idx++;
  
--	insn->call_dest = dest;
--	if (!dest)
-+	if (!sym)
-+		sym = reloc->sym;
-+
-+	/*
-+	 * Alternative replacement code is just template code which is
-+	 * sometimes copied to the original instruction. For now, don't
-+	 * annotate it. (In the future we might consider annotating the
-+	 * original instruction if/when it ever makes sense to do so.)
-+	 */
-+	if (!strcmp(insn->sec->name, ".altinstr_replacement"))
- 		return;
+ 	sec = elf_create_section(file->elf, "__mcount_loc", 0, sizeof(unsigned long), idx);
+@@ -559,7 +559,7 @@ static int create_mcount_loc_sections(st
+ 		return -1;
  
--	if (insn->call_dest->static_call_tramp) {
--		list_add_tail(&insn->call_node,
--			      &file->static_call_list);
-+	if (sym->static_call_tramp) {
-+		list_add_tail(&insn->call_node, &file->static_call_list);
-+		return;
- 	}
+ 	idx = 0;
+-	list_for_each_entry(insn, &file->mcount_loc_list, mcount_loc_node) {
++	list_for_each_entry(insn, &file->mcount_loc_list, call_node) {
  
- 	/*
-@@ -859,7 +868,7 @@ static void add_call_dest(struct objtool
- 	 * so they need a little help, NOP out any KCOV calls from noinstr
- 	 * text.
- 	 */
--	if (insn->sec->noinstr && insn->call_dest->kcov) {
-+	if (insn->sec->noinstr && sym->kcov) {
- 		if (reloc) {
- 			reloc->type = R_NONE;
- 			elf_write_reloc(file->elf, reloc);
-@@ -881,9 +890,11 @@ static void add_call_dest(struct objtool
- 			 */
- 			insn->retpoline_safe = true;
- 		}
-+
-+		return;
- 	}
- 
--	if (mcount && insn->call_dest->fentry) {
-+	if (mcount && sym->fentry) {
- 		if (sibling)
- 			WARN_FUNC("Tail call to __fentry__ !?!?", insn->sec, insn->offset);
- 
-@@ -898,9 +909,17 @@ static void add_call_dest(struct objtool
+ 		loc = (unsigned long *)sec->data->d_buf + idx;
+ 		memset(loc, 0, sizeof(unsigned long));
+@@ -909,7 +909,7 @@ static void annotate_call_site(struct ob
  
  		insn->type = INSN_NOP;
  
--		list_add_tail(&insn->mcount_loc_node,
--			      &file->mcount_loc_list);
-+		list_add_tail(&insn->mcount_loc_node, &file->mcount_loc_list);
-+		return;
+-		list_add_tail(&insn->mcount_loc_node, &file->mcount_loc_list);
++		list_add_tail(&insn->call_node, &file->mcount_loc_list);
+ 		return;
  	}
-+}
-+
-+static void add_call_dest(struct objtool_file *file, struct instruction *insn,
-+			  struct symbol *dest, bool sibling)
-+{
-+	insn->call_dest = dest;
-+	if (!dest)
-+		return;
- 
- 	/*
- 	 * Whatever stack impact regular CALLs have, should be undone
-@@ -910,6 +929,8 @@ static void add_call_dest(struct objtool
- 	 * are converted to JUMP, see read_intra_function_calls().
- 	 */
- 	remove_insn_ops(insn);
-+
-+	annotate_call_site(file, insn, sibling);
  }
- 
- /*
+--- a/tools/objtool/include/objtool/check.h
++++ b/tools/objtool/include/objtool/check.h
+@@ -40,7 +40,6 @@ struct instruction {
+ 	struct list_head list;
+ 	struct hlist_node hash;
+ 	struct list_head call_node;
+-	struct list_head mcount_loc_node;
+ 	struct section *sec;
+ 	unsigned long offset;
+ 	unsigned int len;
 
 
