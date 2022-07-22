@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C22A57DE4B
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4DD57DE99
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236471AbiGVJ3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:29:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
+        id S236374AbiGVJ3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236573AbiGVJ3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:29:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D978AB07;
-        Fri, 22 Jul 2022 02:18:14 -0700 (PDT)
+        with ESMTP id S236596AbiGVJ3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:29:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C82B8530;
+        Fri, 22 Jul 2022 02:18:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEE36B827B6;
-        Fri, 22 Jul 2022 09:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B7CCC341C6;
-        Fri, 22 Jul 2022 09:18:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 455E761FE2;
+        Fri, 22 Jul 2022 09:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2150C341C6;
+        Fri, 22 Jul 2022 09:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481491;
-        bh=It7+EfFDX7uP8+qPOwbZaYOMkQpPuN9b64uP7DeKj4Y=;
+        s=korg; t=1658481498;
+        bh=30apzh/p6OoWMVHC0Z9yghFfWdVeSS1JLGY0Yz0XWL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1OytqhLyBoFNaipcnm6eHHAJspx4lWUODMH9L9Xe1o+aHHqHCpYmNlKK+hUWtTd1Z
-         o2sbkvKaEVGlPe4yc1v206mlcnIruqISbzIBIT9sOO1J2l8H6M1Ci6CWDJ81VzMGnh
-         fMblg/P1uglIao252ZQA67LQNVW0IM6UzGDS2ZAQ=
+        b=q+YPlqqqfEOnPbS7LY4Z/F8lxcwWgGZhPkWflhmUf23hD8pyS0CtJOFgHK7GhsVIC
+         Lmnj7O0EGVIUZfr8WgQ3z58+GU56j6xcGkYjlfE5K8AYBqbZfH7tKffxVBkDQJ87w2
+         Nbf0K2C2wmLBK2qk0fX1g/z9EXdPkMPEqbTxGFzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,10 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>, Ian Rogers <irogers@google.com>,
         Jiri Olsa <jolsa@kernel.org>,
         Namhyung Kim <namhyung@kernel.org>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 85/89] tools arch x86: Sync the msr-index.h copy with the kernel sources
-Date:   Fri, 22 Jul 2022 11:11:59 +0200
-Message-Id: <20220722091138.095525783@linuxfoundation.org>
+Subject: [PATCH 5.15 86/89] tools headers cpufeatures: Sync with the kernel sources
+Date:   Fri, 22 Jul 2022 11:12:00 +0200
+Message-Id: <20220722091138.150333432@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -59,59 +57,128 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 91d248c3b903b46a58cbc7e8d38d684d3e4007c2 upstream.
+commit f098addbdb44c8a565367f5162f3ab170ed9404a upstream.
 
-To pick up the changes from these csets:
+To pick the changes from:
 
-  4ad3278df6fe2b08 ("x86/speculation: Disable RRSBA behavior")
-  d7caac991feeef1b ("x86/cpu/amd: Add Spectral Chicken")
+  f43b9876e857c739 ("x86/retbleed: Add fine grained Kconfig knobs")
+  a149180fbcf336e9 ("x86: Add magic AMD return-thunk")
+  15e67227c49a5783 ("x86: Undo return-thunk damage")
+  369ae6ffc41a3c11 ("x86/retpoline: Cleanup some #ifdefery")
+  4ad3278df6fe2b08 x86/speculation: Disable RRSBA behavior
+  26aae8ccbc197223 x86/cpu/amd: Enumerate BTC_NO
+  9756bba28470722d x86/speculation: Fill RSB on vmexit for IBRS
+  3ebc170068885b6f x86/bugs: Add retbleed=ibpb
+  2dbb887e875b1de3 x86/entry: Add kernel IBRS implementation
+  6b80b59b35557065 x86/bugs: Report AMD retbleed vulnerability
+  a149180fbcf336e9 x86: Add magic AMD return-thunk
+  15e67227c49a5783 x86: Undo return-thunk damage
+  a883d624aed463c8 x86/cpufeatures: Move RETPOLINE flags to word 11
+  51802186158c74a0 x86/speculation/mmio: Enumerate Processor MMIO Stale Data bug
 
-That cause no changes to tooling:
+This only causes these perf files to be rebuilt:
 
-  $ tools/perf/trace/beauty/tracepoints/x86_msr.sh > before
-  $ cp arch/x86/include/asm/msr-index.h tools/arch/x86/include/asm/msr-index.h
-  $ tools/perf/trace/beauty/tracepoints/x86_msr.sh > after
-  $ diff -u before after
-  $
+  CC       /tmp/build/perf/bench/mem-memcpy-x86-64-asm.o
+  CC       /tmp/build/perf/bench/mem-memset-x86-64-asm.o
 
-Just silences this perf build warning:
+And addresses this perf build warning:
 
-  Warning: Kernel ABI header at 'tools/arch/x86/include/asm/msr-index.h' differs from latest version at 'arch/x86/include/asm/msr-index.h'
-  diff -u tools/arch/x86/include/asm/msr-index.h arch/x86/include/asm/msr-index.h
+  Warning: Kernel ABI header at 'tools/arch/x86/include/asm/cpufeatures.h' differs from latest version at 'arch/x86/include/asm/cpufeatures.h'
+  diff -u tools/arch/x86/include/asm/cpufeatures.h arch/x86/include/asm/cpufeatures.h
+  Warning: Kernel ABI header at 'tools/arch/x86/include/asm/disabled-features.h' differs from latest version at 'arch/x86/include/asm/disabled-features.h'
+  diff -u tools/arch/x86/include/asm/disabled-features.h arch/x86/include/asm/disabled-features.h
 
 Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Borislav Petkov <bp@suse.de>
 Cc: Ian Rogers <irogers@google.com>
 Cc: Jiri Olsa <jolsa@kernel.org>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/lkml/YtQTm9wsB3hxQWvy@kernel.org
+Cc: Peter Zijlstra <peterz@infradead.org
+Link: https://lore.kernel.org/lkml/YtQM40VmiLTkPND2@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/arch/x86/include/asm/msr-index.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/arch/x86/include/asm/cpufeatures.h       |   12 ++++++++++--
+ tools/arch/x86/include/asm/disabled-features.h |   21 ++++++++++++++++++++-
+ 2 files changed, 30 insertions(+), 3 deletions(-)
 
---- a/tools/arch/x86/include/asm/msr-index.h
-+++ b/tools/arch/x86/include/asm/msr-index.h
-@@ -93,6 +93,7 @@
- #define MSR_IA32_ARCH_CAPABILITIES	0x0000010a
- #define ARCH_CAP_RDCL_NO		BIT(0)	/* Not susceptible to Meltdown */
- #define ARCH_CAP_IBRS_ALL		BIT(1)	/* Enhanced IBRS support */
-+#define ARCH_CAP_RSBA			BIT(2)	/* RET may use alternative branch predictors */
- #define ARCH_CAP_SKIP_VMENTRY_L1DFLUSH	BIT(3)	/* Skip L1D flush on vmentry */
- #define ARCH_CAP_SSB_NO			BIT(4)	/*
- 						 * Not susceptible to Speculative Store Bypass
-@@ -523,6 +524,9 @@
- /* Fam 17h MSRs */
- #define MSR_F17H_IRPERF			0xc00000e9
+--- a/tools/arch/x86/include/asm/cpufeatures.h
++++ b/tools/arch/x86/include/asm/cpufeatures.h
+@@ -203,8 +203,8 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCEs for Spectre variant 2 */
++#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
++#define X86_FEATURE_RSB_VMEXIT		( 7*32+13) /* "" Fill RSB on VM-Exit */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+@@ -294,6 +294,12 @@
+ #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
+ #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
+ #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
++#define X86_FEATURE_ENTRY_IBPB		(11*32+10) /* "" Issue an IBPB on kernel entry */
++#define X86_FEATURE_RRSBA_CTRL		(11*32+11) /* "" RET prediction control */
++#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
++#define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
++#define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
  
-+#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
-+#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+@@ -313,6 +319,7 @@
+ #define X86_FEATURE_AMD_SSBD		(13*32+24) /* "" Speculative Store Bypass Disable */
+ #define X86_FEATURE_VIRT_SSBD		(13*32+25) /* Virtualized Speculative Store Bypass Disable */
+ #define X86_FEATURE_AMD_SSB_NO		(13*32+26) /* "" Speculative Store Bypass is fixed in hardware. */
++#define X86_FEATURE_BTC_NO		(13*32+29) /* "" Not vulnerable to Branch Type Confusion */
+ 
+ /* Thermal and Power Management Leaf, CPUID level 0x00000006 (EAX), word 14 */
+ #define X86_FEATURE_DTHERM		(14*32+ 0) /* Digital Thermal Sensor */
+@@ -437,5 +444,6 @@
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
+ #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
++#define X86_BUG_RETBLEED		X86_BUG(26) /* CPU is affected by RETBleed */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+--- a/tools/arch/x86/include/asm/disabled-features.h
++++ b/tools/arch/x86/include/asm/disabled-features.h
+@@ -56,6 +56,25 @@
+ # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+ #endif
+ 
++#ifdef CONFIG_RETPOLINE
++# define DISABLE_RETPOLINE	0
++#else
++# define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
++				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
++#endif
 +
- /* Fam 16h MSRs */
- #define MSR_F16H_L2I_PERF_CTL		0xc0010230
- #define MSR_F16H_L2I_PERF_CTR		0xc0010231
++#ifdef CONFIG_RETHUNK
++# define DISABLE_RETHUNK	0
++#else
++# define DISABLE_RETHUNK	(1 << (X86_FEATURE_RETHUNK & 31))
++#endif
++
++#ifdef CONFIG_CPU_UNRET_ENTRY
++# define DISABLE_UNRET		0
++#else
++# define DISABLE_UNRET		(1 << (X86_FEATURE_UNRET & 31))
++#endif
++
+ /* Force disable because it's broken beyond repair */
+ #define DISABLE_ENQCMD		(1 << (X86_FEATURE_ENQCMD & 31))
+ 
+@@ -79,7 +98,7 @@
+ #define DISABLED_MASK8	0
+ #define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
+ #define DISABLED_MASK10	0
+-#define DISABLED_MASK11	0
++#define DISABLED_MASK11	(DISABLE_RETPOLINE|DISABLE_RETHUNK|DISABLE_UNRET)
+ #define DISABLED_MASK12	0
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
 
 
