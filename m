@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BDE57DE9E
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAED057DDF8
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235393AbiGVJNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:13:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39712 "EHLO
+        id S234685AbiGVJNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:13:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234638AbiGVJMR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:12:17 -0400
+        with ESMTP id S235310AbiGVJMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:12:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849011163;
-        Fri, 22 Jul 2022 02:10:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4E6EE35;
+        Fri, 22 Jul 2022 02:10:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BB9161EE6;
-        Fri, 22 Jul 2022 09:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12362C341C6;
-        Fri, 22 Jul 2022 09:10:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F195A61EE6;
+        Fri, 22 Jul 2022 09:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02631C341C6;
+        Fri, 22 Jul 2022 09:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481008;
-        bh=HytcfT2UpPGDmTSPalV+ComyLV1EIZVjO8X2fhichWg=;
+        s=korg; t=1658481011;
+        bh=hKif5yS2hCZmOhkKLIEKst3fhfJEMePZImI+D7FABds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x76GApCbamZMkKbmv5Bjgv2UQo8WA1S4bW0Lzn0rtS3qWZJLd9gc3f4M9v+f7l1LV
-         mBgwR1Iw+zoUt7PGMelJbOPcdNGI4rGhA38Izo6bkxtdAgdKHUvu6Lu+dVNCh/OEge
-         ltBBq0rSirGUL/tpbvMeMeuUmyycdlV3W5QWlaks=
+        b=wKcuduo7E/rtWavzQxe4RbxEElzWrHV+ra15PVu6bOEPpFx2L/oTv4+oTJgdK63Do
+         SdZLyq0cqg1WLfabZwUJeGag6hZnIt1t9wicB2Cp3lbjt/T7N9bZirfHlY71eHYQ4N
+         ut6XvuvccKoGfSv+L/84NLRoXoHysGOkjcVJjlB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.18 46/70] objtool: Re-add UNWIND_HINT_{SAVE_RESTORE}
-Date:   Fri, 22 Jul 2022 11:07:41 +0200
-Message-Id: <20220722090653.296580147@linuxfoundation.org>
+Subject: [PATCH 5.18 47/70] KVM: VMX: Flatten __vmx_vcpu_run()
+Date:   Fri, 22 Jul 2022 11:07:42 +0200
+Message-Id: <20220722090653.351715255@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
 References: <20220722090650.665513668@linuxfoundation.org>
@@ -56,14 +56,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 8faea26e611189e933ea2281975ff4dc7c1106b6 upstream.
+commit 8bd200d23ec42d66ccd517a72dd0b9cc6132d2fd upstream.
 
-Commit
-
-  c536ed2fffd5 ("objtool: Remove SAVE/RESTORE hints")
-
-removed the save/restore unwind hints because they were no longer
-needed. Now they're going to be needed again so re-add them.
+Move the vmx_vm{enter,exit}() functionality into __vmx_vcpu_run().  This
+will make it easier to do the spec_ctrl handling before the first RET.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -71,188 +67,183 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/unwind_hints.h   |   12 ++++++++--
- include/linux/objtool.h               |    6 +++--
- tools/include/linux/objtool.h         |    6 +++--
- tools/objtool/check.c                 |   40 ++++++++++++++++++++++++++++++++++
- tools/objtool/include/objtool/check.h |   19 ++++++++--------
- 5 files changed, 68 insertions(+), 15 deletions(-)
+ arch/x86/kvm/vmx/vmenter.S |  119 +++++++++++++++++----------------------------
+ 1 file changed, 46 insertions(+), 73 deletions(-)
 
---- a/arch/x86/include/asm/unwind_hints.h
-+++ b/arch/x86/include/asm/unwind_hints.h
-@@ -8,11 +8,11 @@
- #ifdef __ASSEMBLY__
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -31,68 +31,6 @@
+ .section .noinstr.text, "ax"
  
- .macro UNWIND_HINT_EMPTY
--	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_CALL end=1
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_CALL end=1
- .endm
+ /**
+- * vmx_vmenter - VM-Enter the current loaded VMCS
+- *
+- * %RFLAGS.ZF:	!VMCS.LAUNCHED, i.e. controls VMLAUNCH vs. VMRESUME
+- *
+- * Returns:
+- *	%RFLAGS.CF is set on VM-Fail Invalid
+- *	%RFLAGS.ZF is set on VM-Fail Valid
+- *	%RFLAGS.{CF,ZF} are cleared on VM-Success, i.e. VM-Exit
+- *
+- * Note that VMRESUME/VMLAUNCH fall-through and return directly if
+- * they VM-Fail, whereas a successful VM-Enter + VM-Exit will jump
+- * to vmx_vmexit.
+- */
+-SYM_FUNC_START_LOCAL(vmx_vmenter)
+-	/* EFLAGS.ZF is set if VMCS.LAUNCHED == 0 */
+-	je 2f
+-
+-1:	vmresume
+-	RET
+-
+-2:	vmlaunch
+-	RET
+-
+-3:	cmpb $0, kvm_rebooting
+-	je 4f
+-	RET
+-4:	ud2
+-
+-	_ASM_EXTABLE(1b, 3b)
+-	_ASM_EXTABLE(2b, 3b)
+-
+-SYM_FUNC_END(vmx_vmenter)
+-
+-/**
+- * vmx_vmexit - Handle a VMX VM-Exit
+- *
+- * Returns:
+- *	%RFLAGS.{CF,ZF} are cleared on VM-Success, i.e. VM-Exit
+- *
+- * This is vmx_vmenter's partner in crime.  On a VM-Exit, control will jump
+- * here after hardware loads the host's state, i.e. this is the destination
+- * referred to by VMCS.HOST_RIP.
+- */
+-SYM_FUNC_START(vmx_vmexit)
+-#ifdef CONFIG_RETPOLINE
+-	ALTERNATIVE "jmp .Lvmexit_skip_rsb", "", X86_FEATURE_RETPOLINE
+-	/* Preserve guest's RAX, it's used to stuff the RSB. */
+-	push %_ASM_AX
+-
+-	/* IMPORTANT: Stuff the RSB immediately after VM-Exit, before RET! */
+-	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
+-
+-	/* Clear RFLAGS.CF and RFLAGS.ZF to preserve VM-Exit, i.e. !VM-Fail. */
+-	or $1, %_ASM_AX
+-
+-	pop %_ASM_AX
+-.Lvmexit_skip_rsb:
+-#endif
+-	RET
+-SYM_FUNC_END(vmx_vmexit)
+-
+-/**
+  * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
+  * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
+  * @regs:	unsigned long * (to guest registers)
+@@ -124,8 +62,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	/* Copy @launched to BL, _ASM_ARG3 is volatile. */
+ 	mov %_ASM_ARG3B, %bl
  
- .macro UNWIND_HINT_ENTRY
--	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_ENTRY end=1
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_ENTRY end=1
- .endm
+-	/* Adjust RSP to account for the CALL to vmx_vmenter(). */
+-	lea -WORD_SIZE(%_ASM_SP), %_ASM_ARG2
++	lea (%_ASM_SP), %_ASM_ARG2
+ 	call vmx_update_host_rsp
  
- .macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 partial=0
-@@ -56,6 +56,14 @@
- 	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=8 type=UNWIND_HINT_TYPE_FUNC
- .endm
+ 	/* Load @regs to RAX. */
+@@ -154,11 +91,37 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	/* Load guest RAX.  This kills the @regs pointer! */
+ 	mov VCPU_RAX(%_ASM_AX), %_ASM_AX
  
-+.macro UNWIND_HINT_SAVE
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_SAVE
-+.endm
+-	/* Enter guest mode */
+-	call vmx_vmenter
++	/* Check EFLAGS.ZF from 'testb' above */
++	je .Lvmlaunch
+ 
+-	/* Jump on VM-Fail. */
+-	jbe 2f
++	/*
++	 * After a successful VMRESUME/VMLAUNCH, control flow "magically"
++	 * resumes below at 'vmx_vmexit' due to the VMCS HOST_RIP setting.
++	 * So this isn't a typical function and objtool needs to be told to
++	 * save the unwind state here and restore it below.
++	 */
++	UNWIND_HINT_SAVE
 +
-+.macro UNWIND_HINT_RESTORE
-+	UNWIND_HINT type=UNWIND_HINT_TYPE_RESTORE
-+.endm
++/*
++ * If VMRESUME/VMLAUNCH and corresponding vmexit succeed, execution resumes at
++ * the 'vmx_vmexit' label below.
++ */
++.Lvmresume:
++	vmresume
++	jmp .Lvmfail
 +
- #else
- 
- #define UNWIND_HINT_FUNC \
---- a/include/linux/objtool.h
-+++ b/include/linux/objtool.h
-@@ -40,6 +40,8 @@ struct unwind_hint {
- #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
- #define UNWIND_HINT_TYPE_FUNC		3
- #define UNWIND_HINT_TYPE_ENTRY		4
-+#define UNWIND_HINT_TYPE_SAVE		5
-+#define UNWIND_HINT_TYPE_RESTORE	6
- 
- #ifdef CONFIG_STACK_VALIDATION
- 
-@@ -125,7 +127,7 @@ struct unwind_hint {
-  * the debuginfo as necessary.  It will also warn if it sees any
-  * inconsistencies.
-  */
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .Lunwind_hint_ip_\@:
- 	.pushsection .discard.unwind_hints
- 		/* struct unwind_hint */
-@@ -178,7 +180,7 @@ struct unwind_hint {
- #define ASM_REACHABLE
- #else
- #define ANNOTATE_INTRA_FUNCTION_CALL
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .endm
- .macro STACK_FRAME_NON_STANDARD func:req
- .endm
---- a/tools/include/linux/objtool.h
-+++ b/tools/include/linux/objtool.h
-@@ -40,6 +40,8 @@ struct unwind_hint {
- #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
- #define UNWIND_HINT_TYPE_FUNC		3
- #define UNWIND_HINT_TYPE_ENTRY		4
-+#define UNWIND_HINT_TYPE_SAVE		5
-+#define UNWIND_HINT_TYPE_RESTORE	6
- 
- #ifdef CONFIG_STACK_VALIDATION
- 
-@@ -125,7 +127,7 @@ struct unwind_hint {
-  * the debuginfo as necessary.  It will also warn if it sees any
-  * inconsistencies.
-  */
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .Lunwind_hint_ip_\@:
- 	.pushsection .discard.unwind_hints
- 		/* struct unwind_hint */
-@@ -178,7 +180,7 @@ struct unwind_hint {
- #define ASM_REACHABLE
- #else
- #define ANNOTATE_INTRA_FUNCTION_CALL
--.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
-+.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
- .endm
- .macro STACK_FRAME_NON_STANDARD func:req
- .endm
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2031,6 +2031,17 @@ static int read_unwind_hints(struct objt
- 
- 		insn->hint = true;
- 
-+		if (hint->type == UNWIND_HINT_TYPE_SAVE) {
-+			insn->hint = false;
-+			insn->save = true;
-+			continue;
-+		}
++.Lvmlaunch:
++	vmlaunch
++	jmp .Lvmfail
 +
-+		if (hint->type == UNWIND_HINT_TYPE_RESTORE) {
-+			insn->restore = true;
-+			continue;
-+		}
++	_ASM_EXTABLE(.Lvmresume, .Lfixup)
++	_ASM_EXTABLE(.Lvmlaunch, .Lfixup)
 +
- 		if (hint->type == UNWIND_HINT_TYPE_REGS_PARTIAL) {
- 			struct symbol *sym = find_symbol_by_offset(insn->sec, insn->offset);
++SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL)
++
++	/* Restore unwind state from before the VMRESUME/VMLAUNCH. */
++	UNWIND_HINT_RESTORE
++	ENDBR
  
-@@ -3436,6 +3447,35 @@ static int validate_branch(struct objtoo
- 			state.instr += insn->instr;
+ 	/* Temporarily save guest's RAX. */
+ 	push %_ASM_AX
+@@ -185,9 +148,13 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	mov %r15, VCPU_R15(%_ASM_AX)
+ #endif
  
- 		if (insn->hint) {
-+			if (insn->restore) {
-+				struct instruction *save_insn, *i;
++	/* IMPORTANT: RSB must be stuffed before the first return. */
++	FILL_RETURN_BUFFER %_ASM_BX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
 +
-+				i = insn;
-+				save_insn = NULL;
-+
-+				sym_for_each_insn_continue_reverse(file, func, i) {
-+					if (i->save) {
-+						save_insn = i;
-+						break;
-+					}
-+				}
-+
-+				if (!save_insn) {
-+					WARN_FUNC("no corresponding CFI save for CFI restore",
-+						  sec, insn->offset);
-+					return 1;
-+				}
-+
-+				if (!save_insn->visited) {
-+					WARN_FUNC("objtool isn't smart enough to handle this CFI save/restore combo",
-+						  sec, insn->offset);
-+					return 1;
-+				}
-+
-+				insn->cfi = save_insn->cfi;
-+				nr_cfi_reused++;
-+			}
-+
- 			state.cfi = *insn->cfi;
- 		} else {
- 			/* XXX track if we actually changed state.cfi */
---- a/tools/objtool/include/objtool/check.h
-+++ b/tools/objtool/include/objtool/check.h
-@@ -46,18 +46,19 @@ struct instruction {
- 	enum insn_type type;
- 	unsigned long immediate;
+ 	/* Clear RAX to indicate VM-Exit (as opposed to VM-Fail). */
+ 	xor %eax, %eax
  
--	u8 dead_end	: 1,
--	   ignore	: 1,
--	   ignore_alts	: 1,
--	   hint		: 1,
--	   retpoline_safe : 1,
--	   noendbr	: 1,
--	   entry	: 1;
--		/* 1 bit hole */
-+	u16 dead_end		: 1,
-+	   ignore		: 1,
-+	   ignore_alts		: 1,
-+	   hint			: 1,
-+	   save			: 1,
-+	   restore		: 1,
-+	   retpoline_safe	: 1,
-+	   noendbr		: 1,
-+	   entry		: 1;
-+		/* 7 bit hole */
++.Lclear_regs:
+ 	/*
+ 	 * Clear all general purpose registers except RSP and RAX to prevent
+ 	 * speculative use of the guest's values, even those that are reloaded
+@@ -197,7 +164,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	 * free.  RSP and RAX are exempt as RSP is restored by hardware during
+ 	 * VM-Exit and RAX is explicitly loaded with 0 or 1 to return VM-Fail.
+ 	 */
+-1:	xor %ecx, %ecx
++	xor %ecx, %ecx
+ 	xor %edx, %edx
+ 	xor %ebx, %ebx
+ 	xor %ebp, %ebp
+@@ -216,8 +183,8 @@ SYM_FUNC_START(__vmx_vcpu_run)
  
- 	s8 instr;
- 	u8 visited;
--	/* u8 hole */
+ 	/* "POP" @regs. */
+ 	add $WORD_SIZE, %_ASM_SP
+-	pop %_ASM_BX
  
- 	struct alt_group *alt_group;
- 	struct symbol *call_dest;
++	pop %_ASM_BX
+ #ifdef CONFIG_X86_64
+ 	pop %r12
+ 	pop %r13
+@@ -230,9 +197,15 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	pop %_ASM_BP
+ 	RET
+ 
+-	/* VM-Fail.  Out-of-line to avoid a taken Jcc after VM-Exit. */
+-2:	mov $1, %eax
+-	jmp 1b
++.Lfixup:
++	cmpb $0, kvm_rebooting
++	jne .Lvmfail
++	ud2
++.Lvmfail:
++	/* VM-Fail: set return value to 1 */
++	mov $1, %eax
++	jmp .Lclear_regs
++
+ SYM_FUNC_END(__vmx_vcpu_run)
+ 
+ 
 
 
