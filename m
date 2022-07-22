@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CAFD57DDCF
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB11E57DE4C
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 11:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235844AbiGVJSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 05:18:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
+        id S235683AbiGVJST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 05:18:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235821AbiGVJRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:17:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE2BB852F;
-        Fri, 22 Jul 2022 02:12:38 -0700 (PDT)
+        with ESMTP id S235603AbiGVJRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 05:17:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB3EA0B93;
+        Fri, 22 Jul 2022 02:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F283461F65;
-        Fri, 22 Jul 2022 09:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0630CC341C6;
-        Fri, 22 Jul 2022 09:12:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F257B827B6;
+        Fri, 22 Jul 2022 09:12:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8ADC341CA;
+        Fri, 22 Jul 2022 09:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658481157;
-        bh=1DCPxPvjrPP4RCFt/kmt9VosaPKCE1ukz5C8TaZI250=;
+        s=korg; t=1658481160;
+        bh=YvCCv6eVb0NnonWUapO+9jBOvrlJBiS1ajCBCiUvIjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xREj9Lnct+c387AfA4H6fBtOnoxgruQ6mKjQwAWi7srZcXvBOvKx3LOLaT9FD7YEY
-         /0oTkEwjFNDnadMpR+nRUPILtFY7XvKT0PWSrEOqMiK9bZBwwyn2EpxxqkE1CmiS0R
-         NVO2XEyImHtNyoH09XTmpzVWyzEapGkM1/DIdV74=
+        b=Un/x3LIEQv15xQMITwstqA1CMWPFSrWRQu6b1JTlvou7mwlehn8gmsoI/KXuchtGV
+         b5J9ZGbhMxKNp144pJjM9xlpWAN4E9KhwsYjmvTzfK5E/+1dLOT0cobv7cxatqdDG1
+         2rdDeoUe6LCNnsTFAw3SAtjuuZFgy73yvYHHHswg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lai Jiangshan <jiangshan.ljs@antgroup.com>,
-        Borislav Petkov <bp@suse.de>,
+        Borislav Petkov <bp@suse.de>, Juergen Gross <jgross@suse.com>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.15 02/89] x86/entry: Switch the stack after error_entry() returns
-Date:   Fri, 22 Jul 2022 11:10:36 +0200
-Message-Id: <20220722091133.500016168@linuxfoundation.org>
+Subject: [PATCH 5.15 03/89] x86/entry: Move PUSH_AND_CLEAR_REGS out of error_entry()
+Date:   Fri, 22 Jul 2022 11:10:37 +0200
+Message-Id: <20220722091133.555153955@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722091133.320803732@linuxfoundation.org>
 References: <20220722091133.320803732@linuxfoundation.org>
@@ -55,79 +55,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 
-commit 520a7e80c96d655fbe4650d9cc985bd9d0443389 upstream.
+commit ee774dac0da1543376a69fd90840af6aa86879b3 upstream.
 
-error_entry() calls fixup_bad_iret() before sync_regs() if it is a fault
-from a bad IRET, to copy pt_regs to the kernel stack. It switches to the
-kernel stack directly after sync_regs().
+The macro idtentry() (through idtentry_body()) calls error_entry()
+unconditionally even on XENPV. But XENPV needs to only push and clear
+regs.
 
-But error_entry() itself is also a function call, so it has to stash
-the address it is going to return to, in %r12 which is unnecessarily
-complicated.
+PUSH_AND_CLEAR_REGS in error_entry() makes the stack not return to its
+original place when the function returns, which means it is not possible
+to convert it to a C function.
 
-Move the stack switching after error_entry() and get rid of the need to
-handle the return address.
+Carve out PUSH_AND_CLEAR_REGS out of error_entry() and into a separate
+function and call it before error_entry() in order to avoid calling
+error_entry() on XENPV.
+
+It will also allow for error_entry() to be converted to C code that can
+use inlined sync_regs() and save a function call.
 
   [ bp: Massage commit message. ]
 
 Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220503032107.680190-3-jiangshanlai@gmail.com
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220503032107.680190-4-jiangshanlai@gmail.com
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64.S |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ arch/x86/entry/entry_64.S |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 --- a/arch/x86/entry/entry_64.S
 +++ b/arch/x86/entry/entry_64.S
-@@ -323,6 +323,8 @@ SYM_CODE_END(ret_from_fork)
+@@ -315,6 +315,14 @@ SYM_CODE_END(ret_from_fork)
+ #endif
+ .endm
+ 
++/* Save all registers in pt_regs */
++SYM_CODE_START_LOCAL(push_and_clear_regs)
++	UNWIND_HINT_FUNC
++	PUSH_AND_CLEAR_REGS save_ret=1
++	ENCODE_FRAME_POINTER 8
++	RET
++SYM_CODE_END(push_and_clear_regs)
++
+ /**
+  * idtentry_body - Macro to emit code calling the C function
+  * @cfunc:		C function to be called
+@@ -322,6 +330,9 @@ SYM_CODE_END(ret_from_fork)
+  */
  .macro idtentry_body cfunc has_error_code:req
  
++	call push_and_clear_regs
++	UNWIND_HINT_REGS
++
  	call	error_entry
-+	movq	%rax, %rsp			/* switch to the task stack if from userspace */
-+	ENCODE_FRAME_POINTER
- 	UNWIND_HINT_REGS
+ 	movq	%rax, %rsp			/* switch to the task stack if from userspace */
+ 	ENCODE_FRAME_POINTER
+@@ -965,13 +976,11 @@ SYM_CODE_START_LOCAL(paranoid_exit)
+ SYM_CODE_END(paranoid_exit)
  
- 	movq	%rsp, %rdi			/* pt_regs pointer into 1st argument*/
-@@ -982,14 +984,10 @@ SYM_CODE_START_LOCAL(error_entry)
- 	/* We have user CR3.  Change to kernel CR3. */
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
- 
-+	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
- .Lerror_entry_from_usermode_after_swapgs:
- 	/* Put us onto the real thread stack. */
--	popq	%r12				/* save return addr in %12 */
--	movq	%rsp, %rdi			/* arg0 = pt_regs pointer */
- 	call	sync_regs
--	movq	%rax, %rsp			/* switch stack */
--	ENCODE_FRAME_POINTER
--	pushq	%r12
- 	RET
- 
- 	/*
-@@ -1021,6 +1019,7 @@ SYM_CODE_START_LOCAL(error_entry)
- 	 */
- .Lerror_entry_done_lfence:
- 	FENCE_SWAPGS_KERNEL_ENTRY
-+	leaq	8(%rsp), %rax			/* return pt_regs pointer */
- 	RET
- 
- .Lbstep_iret:
-@@ -1041,12 +1040,9 @@ SYM_CODE_START_LOCAL(error_entry)
- 	 * Pretend that the exception came from user mode: set up pt_regs
- 	 * as if we faulted immediately after IRET.
- 	 */
--	popq	%r12				/* save return addr in %12 */
--	movq	%rsp, %rdi			/* arg0 = pt_regs pointer */
-+	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
- 	call	fixup_bad_iret
--	mov	%rax, %rsp
--	ENCODE_FRAME_POINTER
--	pushq	%r12
-+	mov	%rax, %rdi
- 	jmp	.Lerror_entry_from_usermode_after_swapgs
- SYM_CODE_END(error_entry)
+ /*
+- * Save all registers in pt_regs, and switch GS if needed.
++ * Switch GS and CR3 if needed.
+  */
+ SYM_CODE_START_LOCAL(error_entry)
+ 	UNWIND_HINT_FUNC
+ 	cld
+-	PUSH_AND_CLEAR_REGS save_ret=1
+-	ENCODE_FRAME_POINTER 8
+ 	testb	$3, CS+8(%rsp)
+ 	jz	.Lerror_kernelspace
  
 
 
