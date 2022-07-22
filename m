@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F41D57E8E1
-	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 23:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF4157E8FD
+	for <lists+stable@lfdr.de>; Fri, 22 Jul 2022 23:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235642AbiGVV3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 17:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34332 "EHLO
+        id S236108AbiGVVnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 17:43:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230482AbiGVV3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 17:29:48 -0400
+        with ESMTP id S229986AbiGVVnq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 17:43:46 -0400
 Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB518A876B
-        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 14:29:45 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id e16so5450619pfm.11
-        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 14:29:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF19B8791
+        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 14:43:41 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id b133so5501170pfb.6
+        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 14:43:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=wbfJX3DvczplKtyTQOB/kEX/XywUSRYoUMHTYPwrHuc=;
-        b=p+pB9i5sFxH/I1lO9X7L34RyLkblI6mRaeoEvJeyUfRAHrRYOtTY52xc8EWkDtG3/u
-         MbzSQfhhetcP+0z1R7LMt6tKJR8qV5DZFCHLllEAX4RsEBmbxVA/4W+YVrz4wv+3Xk1K
-         9/MKYGTYKU95Yh0qur39q6s/lhkfk8Fzwu5HuQWDu1lZ0Ash1PUvG91jxtUokM1JedGx
-         d8LmfRkRDgG08bPnvPZwdThtkKOCEeV5YHZ4zd7DTfDiGPkv8z+rxM7XNQATg6nc8XAW
-         mCQSVnwVPUCTeOInsS6RbJDCkukTb8N5CzXLPHuafZnt3vL9XLpPVQoBCQtzxSYKYRPX
-         QwNg==
+        bh=Og8/UbSP72sWXDdHCkmbn7rcyld7XtRoLpiZVjzWSI0=;
+        b=hmsURYQ+sYlMSsTpo8yVOWTohdVViT+pQB2PP3iQkggXXdB/+FkEkleMnVupW8MNUd
+         Rj3kuVa45PvaPEI+1lo44a8rgvZxvUV0z74Tu2gxTyhu9+occbyybIPEry9fJsL4vcit
+         dioDhs3uRlTHDzJmyP6CCntSMnmPEcOfTtm85AlMJ2aLX3lmD3++mMT2QjfhgfDdITwt
+         ebhR+KANCTw+ob3MEr2Ks1Hbua4CYbZZs2tTxn+t6b7MFUN0wg8bfbcZJbShHkKAsEdY
+         9nsLNVt0sjdgWs+4kcvtoh1OjWG18Thl3EO60Ze4ZrJzO2zEv+uzwQFDLGRrbLDjdWPA
+         Dr3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=wbfJX3DvczplKtyTQOB/kEX/XywUSRYoUMHTYPwrHuc=;
-        b=Lfjff5JpRbmXvYmjF6EL1XCgDilmQeCLx0LEFeourJRwv5JeLouT0hzlo0YFfDpq13
-         CWF0LYUPmazH/DoR3fkhNQsmH3rqZ2reKPQOUcrCNDdFfu37cJec3VLlWh22Z91Z21wS
-         KK7fvMZsKcMJMmcmKJ1w6ZiZbXSG1Ip8usoyMvI1nPBsiUCxoFc80ZiCaQPcWxn34wQO
-         V5DVCKv/cmpFnc9/stMkY625V1aFiA4wTk7wNSOHlPJq/kep6Lo/sp9E+cxafChCzQjn
-         +lNDd0YyMrkRea2ssXIOnpSefoJ1gChzIpsJmra2/1sv+l3JkdI7HO5ETbPOlTvS9MMN
-         vLwQ==
-X-Gm-Message-State: AJIora9u4GvHbeT4dpOG82mHWYi4zlxQ5CusEVgY76u90B4wz5Bdj2Mi
-        0m9UkYRElZPN11Kkx6R4X+RXqqPHUdHlIFo/
-X-Google-Smtp-Source: AGRyM1um3VFF3b9KfZEiv2xqkbBsyYOunzPmaC6uwMcw8fj4dNdd1/wU4ph470/ttwTSSxZ7SCAq7g==
-X-Received: by 2002:a63:5c22:0:b0:41a:56e8:27d with SMTP id q34-20020a635c22000000b0041a56e8027dmr1465032pgb.22.1658525384585;
-        Fri, 22 Jul 2022 14:29:44 -0700 (PDT)
+        bh=Og8/UbSP72sWXDdHCkmbn7rcyld7XtRoLpiZVjzWSI0=;
+        b=2a2WjI5qOihwD+w+YqJe0/8mt1jPWXkSRAVpWEzKkTXnLTaVT3L/oikvl8ZQ+nRPz6
+         CDVj3Yl7B547hDZ9VyWgtdH1qwy2xwUpE/BPyD6X+j/Q/GhmegTyuVDbXuQ3kXxi+hEy
+         KaL3vVZgKTn/XWufcQuxQeJcAQNdeacfCs7kpgK5hyLlwzw2n8XK+kxsXLweH45ez8cN
+         Fczw8U3++0U4xWF1wXGIpsVfq++JbilUob4MorQt22/VQXGVGv3cLlHaz0d+R8thtWD8
+         MUAGX1OOgVImCI1XDjvhzJN5XJ5e+ifJJVpGZRZYXq877n3qfJd8B0AYogqN9JlMN9hz
+         Lzvg==
+X-Gm-Message-State: AJIora9OrrUv8gyJlsoaMkSh5QvIJY4FwoD/n9XNc6iMnUPxJLnJ6cOJ
+        CWuEHPUJ/Krf5gOwc01HrHcwPM/YFtUItDjY
+X-Google-Smtp-Source: AGRyM1trqhy2vFWogk7h5sR7IcL7QeFHv4U2HF7gEQFjSezIWK94bciSPXuvEFt7g50u29i2On5TgQ==
+X-Received: by 2002:a63:8848:0:b0:412:a9d9:d405 with SMTP id l69-20020a638848000000b00412a9d9d405mr1447452pgd.384.1658526220353;
+        Fri, 22 Jul 2022 14:43:40 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y16-20020aa79e10000000b0052850947cf8sm4482593pfq.171.2022.07.22.14.29.43
+        by smtp.gmail.com with ESMTPSA id n26-20020aa7985a000000b0051bada81bc7sm2181399pfq.161.2022.07.22.14.43.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jul 2022 14:29:43 -0700 (PDT)
-Message-ID: <62db16c7.1c69fb81.4f573.7969@mx.google.com>
-Date:   Fri, 22 Jul 2022 14:29:43 -0700 (PDT)
+        Fri, 22 Jul 2022 14:43:39 -0700 (PDT)
+Message-ID: <62db1a0b.1c69fb81.6b771.3b38@mx.google.com>
+Date:   Fri, 22 Jul 2022 14:43:39 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
+X-Kernelci-Branch: linux-5.15.y
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.15.56-89-g47b6f2de2df4e
-Subject: stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed,
- 14 errors, 5 warnings (v5.15.56-89-g47b6f2de2df4e)
+X-Kernelci-Kernel: v5.15.56-90-g377c0f983cd9
+Subject: stable-rc/linux-5.15.y build: 180 builds: 4 failed, 176 passed,
+ 14 errors, 5 warnings (v5.15.56-90-g377c0f983cd9)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 build: 180 builds: 4 failed, 176 passed, 14 errors, 5 =
-warnings (v5.15.56-89-g47b6f2de2df4e)
+stable-rc/linux-5.15.y build: 180 builds: 4 failed, 176 passed, 14 errors, =
+5 warnings (v5.15.56-90-g377c0f983cd9)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-5/kernel/v5.15.56-89-g47b6f2de2df4e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.15.=
+y/kernel/v5.15.56-90-g377c0f983cd9/
 
 Tree: stable-rc
-Branch: queue/5.15
-Git Describe: v5.15.56-89-g47b6f2de2df4e
-Git Commit: 47b6f2de2df4e9194a8cb66f1080e53be6691891
+Branch: linux-5.15.y
+Git Describe: v5.15.56-90-g377c0f983cd9
+Git Commit: 377c0f983cd943f563003e5be4947692afba815c
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -171,8 +171,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -181,8 +181,8 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1054,13 +1054,13 @@ nown, fallback to ''
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
