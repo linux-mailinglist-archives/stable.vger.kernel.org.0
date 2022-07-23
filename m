@@ -2,99 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E727757EFF9
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EFCA57EFFD
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238452AbiGWPIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 11:08:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57654 "EHLO
+        id S237704AbiGWPPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 11:15:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237394AbiGWPIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:08:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E591A814;
-        Sat, 23 Jul 2022 08:08:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FBC260B7B;
-        Sat, 23 Jul 2022 15:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76267C341D7;
-        Sat, 23 Jul 2022 15:08:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658588909;
-        bh=JKFXmQp5waJvFePZ5Eo1ghy1swS0GuRdJRrA5CrHhB8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gMnH8+cYonPoPu/Bj4xhVhPDtAJoQgfLu438n8dLWQ/V7Ma37f80AUOMkf9mYiceL
-         sXoluEwd7HymFvaW5Ts4ZJctCgW0yWqZ1EmC7ne02X86HJGkr7YIOKV1baHWPypGVu
-         9k2EYNp1g4jKBL8UYrtDARYEYquVdSCKBgHjGwfo=
-Date:   Sat, 23 Jul 2022 17:08:27 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [linux-stable-rc:linux-5.10.y 644/7104] synclink.c:undefined
- reference to `free_dma'
-Message-ID: <YtwO6yaYaf5Eu1Md@kroah.com>
-References: <202207220652.CGm6UUjK-lkp@intel.com>
- <CAK8P3a0vZrXxNp3YhrxFjFunHgxSZBKD9Y4darSODgeFAukCeQ@mail.gmail.com>
+        with ESMTP id S237409AbiGWPPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:15:43 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB59EE1C
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:15:41 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id bh13so6686985pgb.4
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:15:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+gWKQkSK/a830O4dbsi+e738872yAl2gHA1/JgLZRfc=;
+        b=6daUM+SR4iV+Kce985sVy2X8hMJwT6GLAZp5JvVXWglTcTB80mPBVbDcPFgAXYoK6g
+         PDacsI/uJNBpQ8QqEBofB4A83i6vJHk8uZ/ecz3GiEj8k5QwyZCSQVk33YrzT+fYrtLV
+         yxCXuW+8UTLy3T6P4XCWkYppH3BAwh/O+MymajqUV9RfLtbHq3SC1zphf6mNL5vlNS42
+         E57rbXTo8z8zNMnWL70P0IwhcubMoJ04HphSjZwORKuqcQyv5mx/bzeS13r0hovC4gcT
+         c9Cp30xAc0AVTUvDGVeRYypIPVfW+s+ACwxA5fa6NU1s7MqHEjaXm8qPbaYK2zWUEbwL
+         UMZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+gWKQkSK/a830O4dbsi+e738872yAl2gHA1/JgLZRfc=;
+        b=sO8ZhtC4AFwTHno3IC4P+VB6VGQ9z/s4yDMsHYaL+TKCZApfJ9iSA8PSP3J+K6E4of
+         k/Dwa8p4/OoxPezF4u3kphJo0Q41Jn35FsnvXl4UBd0Itp84u64BU9cp949f0Dx6P/Ri
+         c8OlmMfVxifuJBdDR2QtfP6l5XQi/3j122hcKbCIaL3DVDWU0rDJ45ZnLo/PvkpFDAZb
+         UddLa6yvu4sgDueEgwM7AXl8bSr2Fjl0/8dvOb2mpyyYic0kA5iknuBZtix1C309NXCJ
+         g3sApGIRqsRDwquX/9Rn04Bd/x9nddsBOq4fImU8vCK25drle+F7RB9nIwQj3iCihR9a
+         wFpw==
+X-Gm-Message-State: AJIora+M83tL+CjdvglD9oK6xOFWiw5+KxfRaBAxe5GvlGgynSLFMksD
+        2uMpLQUzvc+oRVoQND0EVv2xBB6A7JG5te8q
+X-Google-Smtp-Source: AGRyM1tHtXoAziJHMCslvbSjPH/PyxBZL6rWCIpaQ3uy6yFFLIB6irFt3sxTWHo3sK5nqwMmxcFgCw==
+X-Received: by 2002:a63:2ac2:0:b0:419:8145:639b with SMTP id q185-20020a632ac2000000b004198145639bmr4278323pgq.42.1658589340816;
+        Sat, 23 Jul 2022 08:15:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j4-20020a17090276c400b0016d3935eff0sm4498145plt.176.2022.07.23.08.15.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 Jul 2022 08:15:40 -0700 (PDT)
+Message-ID: <62dc109c.1c69fb81.2b617.6e1d@mx.google.com>
+Date:   Sat, 23 Jul 2022 08:15:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a0vZrXxNp3YhrxFjFunHgxSZBKD9Y4darSODgeFAukCeQ@mail.gmail.com>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.56-89-gda767b441272
+Subject: stable-rc/queue/5.15 baseline: 117 runs,
+ 1 regressions (v5.15.56-89-gda767b441272)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 22, 2022 at 02:58:32PM +0200, Arnd Bergmann wrote:
-> Hi Greg,
-> 
-> I looked at this report for 5.10.y:
-> 
-> On Fri, Jul 22, 2022 at 12:20 AM kernel test robot <lkp@intel.com> wrote:
-> >
-> > Hi Arnd,
-> >
-> > FYI, the error/warning still remains.
-> >
-> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > head:   7748091a31277b35d55bffa6fecda439d8526366
-> > commit: 87ae522e467e17a13b796e2cb595f9c3943e4d5e [644/7104] m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch
-> > config: m68k-randconfig-r011-20220721 (https://download.01.org/0day-ci/archive/20220722/202207220652.CGm6UUjK-lkp@intel.com/config)
-> > compiler: m68k-linux-gcc (GCC) 12.1.0
-> > reproduce (this is a W=1 build):
-> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> >         chmod +x ~/bin/make.cross
-> >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=87ae522e467e17a13b796e2cb595f9c3943e4d5e
-> >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >         git fetch --no-tags linux-stable-rc linux-5.10.y
-> >         git checkout 87ae522e467e17a13b796e2cb595f9c3943e4d5e
-> >         # save the config file
-> >         mkdir build_dir && cp config build_dir/.config
-> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash
-> >
-> > If you fix the issue, kindly add following tag where applicable
-> > Reported-by: kernel test robot <lkp@intel.com>
-> >
-> > All errors (new ones prefixed by >>):
-> >
-> >    m68k-linux-ld: section .rodata VMA [0000000000002000,00000000005fa837] overlaps section .text VMA [0000000000000400,0000000000ffa6bf]
-> >    m68k-linux-ld: drivers/tty/synclink.o: in function `mgsl_release_resources':
-> > >> synclink.c:(.text+0xd1a): undefined reference to `free_dma'
-> 
-> This can be addressed by either backporting f95a387cdeb3 ("m68k: coldfire: drop
-> ISA_DMA_API support") or by reverting the 87ae522e467e ("m68knommu: only
-> set CONFIG_ISA_DMA_API for ColdFire sub-arch"), which is not actually needed
-> on 5.10.
+stable-rc/queue/5.15 baseline: 117 runs, 1 regressions (v5.15.56-89-gda767b=
+441272)
 
-I've now reverted it, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.56-89-gda767b441272/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.56-89-gda767b441272
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      da767b441272e9b57fbcbe24a3af231b136c8469 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbdfbca7ba9d9fdbdaf05c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.56-=
+89-gda767b441272/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
+e-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.56-=
+89-gda767b441272/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
+e-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbdfbca7ba9d9fdbdaf=
+05d
+        failing since 114 days (last pass: v5.15.31-2-g57d4301e22c2, first =
+fail: v5.15.31-3-g4ae45332eb9c) =
+
+ =20
