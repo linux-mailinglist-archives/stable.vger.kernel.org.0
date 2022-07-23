@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A40757ED7C
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 11:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B73257ED80
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 11:58:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237374AbiGWJ6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 05:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46868 "EHLO
+        id S237642AbiGWJ61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 05:58:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237484AbiGWJ53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:57:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95AB474FE;
-        Sat, 23 Jul 2022 02:57:10 -0700 (PDT)
+        with ESMTP id S237492AbiGWJ5c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:57:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0011CB18;
+        Sat, 23 Jul 2022 02:57:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45C2F611CD;
-        Sat, 23 Jul 2022 09:57:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F13C341C0;
-        Sat, 23 Jul 2022 09:57:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCFAAB82C1F;
+        Sat, 23 Jul 2022 09:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A363C341C0;
+        Sat, 23 Jul 2022 09:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570229;
-        bh=HAUe1xX18R+K6PokYOpqGZLlTgYNlzycxBTgy03jkzE=;
+        s=korg; t=1658570232;
+        bh=2RZAygbDaVQjxYKpwYLxrZgZ1eBMkhJLQtxtddsgiTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kDIjm3FZ/UJWR32918tVyC86Cpsmq4vEud0zga1FPc28SI+TboLqQnoflhFzLT+uP
-         Z4EriJ06UoXkFWdbgHwdZi2NkqnST+cP7kKTnhTqeq99zsVAGyVuW3JtQgikrcJEpv
-         zsIBgclv7HqOamJTZ3nABfpOcnrtlOSo9s9V7W4M=
+        b=w2NQHdpiKs2fKOEg1Q54fGDO8p6KHCRVakkqpFuDD/OubBT8MQvqeXqNVUkmTO3do
+         tkThRk4jB1BDbhU5NRwG/GE5FXAzJxkoAgyNmUptfsrl5Yc7Sak7JADDg7ufNx4nIR
+         2p7K/Q4M6u8ZSFyh3OGn6g8bU+UBQnVJv2keYfMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
         Borislav Petkov <bp@suse.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 013/148] x86/alternative: Support ALTERNATIVE_TERNARY
-Date:   Sat, 23 Jul 2022 11:53:45 +0200
-Message-Id: <20220723095228.112228206@linuxfoundation.org>
+Subject: [PATCH 5.10 014/148] x86/alternative: Use ALTERNATIVE_TERNARY() in _static_cpu_has()
+Date:   Sat, 23 Jul 2022 11:53:46 +0200
+Message-Id: <20220723095228.363904048@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -56,65 +55,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit e208b3c4a9748b2c17aa09ba663b5096ccf82dce upstream.
+commit 2fe2a2c7a97c9bc32acc79154b75e754280f7867 upstream.
 
-Add ALTERNATIVE_TERNARY support for replacing an initial instruction
-with either of two instructions depending on a feature:
-
-  ALTERNATIVE_TERNARY "default_instr", FEATURE_NR,
-                      "feature_on_instr", "feature_off_instr"
-
-which will start with "default_instr" and at patch time will,
-depending on FEATURE_NR being set or not, patch that with either
-"feature_on_instr" or "feature_off_instr".
-
- [ bp: Add comment ontop. ]
+_static_cpu_has() contains a completely open coded version of
+ALTERNATIVE_TERNARY(). Replace that with the macro instead.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210311142319.4723-7-jgross@suse.com
+Link: https://lkml.kernel.org/r/20210311142319.4723-8-jgross@suse.com
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/alternative.h |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/include/asm/cpufeature.h |   41 ++++++++------------------------------
+ 1 file changed, 9 insertions(+), 32 deletions(-)
 
---- a/arch/x86/include/asm/alternative.h
-+++ b/arch/x86/include/asm/alternative.h
-@@ -179,6 +179,11 @@ static inline int alternatives_text_rese
- 	ALTINSTR_REPLACEMENT(newinstr2, feature2, 2)			\
- 	".popsection\n"
+--- a/arch/x86/include/asm/cpufeature.h
++++ b/arch/x86/include/asm/cpufeature.h
+@@ -8,6 +8,7 @@
  
-+/* If @feature is set, patch in @newinstr_yes, otherwise @newinstr_no. */
-+#define ALTERNATIVE_TERNARY(oldinstr, feature, newinstr_yes, newinstr_no) \
-+	ALTERNATIVE_2(oldinstr, newinstr_no, X86_FEATURE_ALWAYS,	\
-+		      newinstr_yes, feature)
-+
- #define ALTERNATIVE_3(oldinsn, newinsn1, feat1, newinsn2, feat2, newinsn3, feat3) \
- 	OLDINSTR_3(oldinsn, 1, 2, 3)						\
- 	".pushsection .altinstructions,\"a\"\n"					\
-@@ -210,6 +215,9 @@ static inline int alternatives_text_rese
- #define alternative_2(oldinstr, newinstr1, feature1, newinstr2, feature2) \
- 	asm_inline volatile(ALTERNATIVE_2(oldinstr, newinstr1, feature1, newinstr2, feature2) ::: "memory")
+ #include <asm/asm.h>
+ #include <linux/bitops.h>
++#include <asm/alternative.h>
  
-+#define alternative_ternary(oldinstr, feature, newinstr_yes, newinstr_no) \
-+	asm_inline volatile(ALTERNATIVE_TERNARY(oldinstr, feature, newinstr_yes, newinstr_no) ::: "memory")
-+
- /*
-  * Alternative inline assembly with input.
-  *
-@@ -380,6 +388,11 @@ static inline int alternatives_text_rese
- 	.popsection
- .endm
- 
-+/* If @feature is set, patch in @newinstr_yes, otherwise @newinstr_no. */
-+#define ALTERNATIVE_TERNARY(oldinstr, feature, newinstr_yes, newinstr_no) \
-+	ALTERNATIVE_2 oldinstr, newinstr_no, X86_FEATURE_ALWAYS,	\
-+	newinstr_yes, feature
-+
- #endif /* __ASSEMBLY__ */
- 
- #endif /* _ASM_X86_ALTERNATIVE_H */
+ enum cpuid_leafs
+ {
+@@ -172,39 +173,15 @@ extern void clear_cpu_cap(struct cpuinfo
+  */
+ static __always_inline bool _static_cpu_has(u16 bit)
+ {
+-	asm_volatile_goto("1: jmp 6f\n"
+-		 "2:\n"
+-		 ".skip -(((5f-4f) - (2b-1b)) > 0) * "
+-			 "((5f-4f) - (2b-1b)),0x90\n"
+-		 "3:\n"
+-		 ".section .altinstructions,\"a\"\n"
+-		 " .long 1b - .\n"		/* src offset */
+-		 " .long 4f - .\n"		/* repl offset */
+-		 " .word %P[always]\n"		/* always replace */
+-		 " .byte 3b - 1b\n"		/* src len */
+-		 " .byte 5f - 4f\n"		/* repl len */
+-		 " .byte 3b - 2b\n"		/* pad len */
+-		 ".previous\n"
+-		 ".section .altinstr_replacement,\"ax\"\n"
+-		 "4: jmp %l[t_no]\n"
+-		 "5:\n"
+-		 ".previous\n"
+-		 ".section .altinstructions,\"a\"\n"
+-		 " .long 1b - .\n"		/* src offset */
+-		 " .long 0\n"			/* no replacement */
+-		 " .word %P[feature]\n"		/* feature bit */
+-		 " .byte 3b - 1b\n"		/* src len */
+-		 " .byte 0\n"			/* repl len */
+-		 " .byte 0\n"			/* pad len */
+-		 ".previous\n"
+-		 ".section .altinstr_aux,\"ax\"\n"
+-		 "6:\n"
+-		 " testb %[bitnum],%[cap_byte]\n"
+-		 " jnz %l[t_yes]\n"
+-		 " jmp %l[t_no]\n"
+-		 ".previous\n"
++	asm_volatile_goto(
++		ALTERNATIVE_TERNARY("jmp 6f", %P[feature], "", "jmp %l[t_no]")
++		".section .altinstr_aux,\"ax\"\n"
++		"6:\n"
++		" testb %[bitnum],%[cap_byte]\n"
++		" jnz %l[t_yes]\n"
++		" jmp %l[t_no]\n"
++		".previous\n"
+ 		 : : [feature]  "i" (bit),
+-		     [always]   "i" (X86_FEATURE_ALWAYS),
+ 		     [bitnum]   "i" (1 << (bit & 7)),
+ 		     [cap_byte] "m" (((const char *)boot_cpu_data.x86_capability)[bit >> 3])
+ 		 : : t_yes, t_no);
 
 
