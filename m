@@ -2,159 +2,429 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3998657F020
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D619457F021
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230422AbiGWPiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 11:38:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45462 "EHLO
+        id S230469AbiGWPjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 11:39:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiGWPiC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:38:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA0B1DA6A
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:38:01 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62CDBB80D09
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 15:38:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C433DC341C0;
-        Sat, 23 Jul 2022 15:37:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658590679;
-        bh=n9LiKGFtD6bOQzI9JYMFBPtNYJM3udZlxcjcvSNp1Ls=;
-        h=Subject:To:Cc:From:Date:From;
-        b=dOCJCTpekFdoD3R6wlpM9tzBiY9q1930L4m5rg8HNZrK6VOmMISrm+v8EpSNVyan5
-         4ncjEOzKfgwwTkrTq6ckZMFeZsXX0gnvZ5T3n8zBTGeUFmhWl2OISwY+CZlLM7TU3q
-         zMbHQd9tq6tOhP1+GcXRPi6nyPwGd7HsJ7nRR2eE=
-Subject: FAILED: patch "[PATCH] ip: Fix data-races around sysctl_ip_default_ttl." failed to apply to 4.14-stable tree
-To:     kuniyu@amazon.com, davem@davemloft.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 Jul 2022 17:37:40 +0200
-Message-ID: <16585906603239@kroah.com>
+        with ESMTP id S229478AbiGWPjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:39:54 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F8E31DA6A
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:39:53 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id p6-20020a17090a680600b001f2267a1c84so8906059pjj.5
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:39:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qO9zKsC+oiK5HLpZU9ZYHdHDnRCB/UYT/BEcPw6x2EY=;
+        b=AJ+KU2xyE3qJiBgGbmwkUfL9wW6VN/0CY2g4B+Zzac7pUHywziUv2l4HHy8OpbT4D2
+         oAEOCAmGKvZKpEheVLvibKinuLe6J1/5jz0M9sgUeAVgqWJGDm/qFWsyYgOtTXB51V2I
+         pmxES1TWatzfhg82L4foOaLgAImWSW7Yudvws+y/4L4QGBT7QT7kwogtoLWJZTslPmPy
+         5TSYDW/6BzxstNa+0YaiY9DfBgQz1OwGwMXn+4domtjozmgSTGHezonhSzH2OtgbdmNt
+         uOX+BCk70cAf+9mFf0/TAXN0DWtCWWyz0oa9LPNFWi2QWyRPGKuw4qnHfETm0q/J+GlZ
+         mgzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qO9zKsC+oiK5HLpZU9ZYHdHDnRCB/UYT/BEcPw6x2EY=;
+        b=gElqdF5JNOCdwgcag7gDg4c9/Wn2pRVtGUPnPgJeRc2D1zpTwH3xgkkayGYzReTb1k
+         KBIe0JjqK2d2LyEM6JDZfGwQ9S+GE7+jcVKvYhpfIM4ZQYNMXJq8x3aqJpmdb0+NXvk1
+         Bq1QX6QmynaqokS9uzNVN2S6kSy5wVN2u4IfEsWQisf1WxFGrcaiVLxyuaxBo1s8wFSJ
+         TL6yW16udPeJ46Qk7DKddquzinl32SDnrKi5vK77JhvIIzGF3ExmqOlpkAxQT85tfXDR
+         VGQX3gDHqkn73jHGntxXC/WT2mzyc5FFliIyZumMwJTJ3z2P6gyf/uNQgRpiYDxTajo9
+         V/uQ==
+X-Gm-Message-State: AJIora/QaXWcOtoNoBXqYJ4oKazG5e39kNm8Y1rmWEcUHu7kX2cbn1wj
+        cEYAN5Bs87CGbItEe99bAGNnXcH04nmJ70cf
+X-Google-Smtp-Source: AGRyM1sG/FB5BcLjDGhVwCzifIZudFtL7q9P1NvkEpd7MilSwhWV1mjTqI6q8096JSEpq6hgPLbCsQ==
+X-Received: by 2002:a17:902:f681:b0:16c:1fcd:eff7 with SMTP id l1-20020a170902f68100b0016c1fcdeff7mr4684837plg.86.1658590792218;
+        Sat, 23 Jul 2022 08:39:52 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y65-20020a62ce44000000b00525b61fc3f8sm6138364pfg.40.2022.07.23.08.39.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 Jul 2022 08:39:51 -0700 (PDT)
+Message-ID: <62dc1647.1c69fb81.d1f58.9440@mx.google.com>
+Date:   Sat, 23 Jul 2022 08:39:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.132-149-g00d1152b11625
+Subject: stable-rc/linux-5.10.y baseline: 157 runs,
+ 9 regressions (v5.10.132-149-g00d1152b11625)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.10.y baseline: 157 runs, 9 regressions (v5.10.132-149-g00=
+d1152b11625)
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+at91sam9g20ek              | arm   | lab-broonie  | gcc-10   | multi_v5_def=
+config | 1          =
 
-greg k-h
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
 
------------------- original commit in Linus's tree ------------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
 
-From 8281b7ec5c56b71cb2cc5a1728b41607be66959c Mon Sep 17 00:00:00 2001
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-Date: Wed, 13 Jul 2022 13:51:51 -0700
-Subject: [PATCH] ip: Fix data-races around sysctl_ip_default_ttl.
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
 
-While reading sysctl_ip_default_ttl, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/action.c b/drivers/net/ethernet/netronome/nfp/flower/action.c
-index 0147de405365..ffb6f6d05a07 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/action.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/action.c
-@@ -474,7 +474,7 @@ nfp_fl_set_tun(struct nfp_app *app, struct nfp_fl_set_tun *set_tun,
- 			set_tun->ttl = ip4_dst_hoplimit(&rt->dst);
- 			ip_rt_put(rt);
- 		} else {
--			set_tun->ttl = net->ipv4.sysctl_ip_default_ttl;
-+			set_tun->ttl = READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
- 		}
- 	}
- 
-diff --git a/include/net/route.h b/include/net/route.h
-index 991a3985712d..bbcf2aba149f 100644
---- a/include/net/route.h
-+++ b/include/net/route.h
-@@ -373,7 +373,7 @@ static inline int ip4_dst_hoplimit(const struct dst_entry *dst)
- 	struct net *net = dev_net(dst->dev);
- 
- 	if (hoplimit == 0)
--		hoplimit = net->ipv4.sysctl_ip_default_ttl;
-+		hoplimit = READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
- 	return hoplimit;
- }
- 
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index 445a9ecaefa1..d497d525dea3 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -1606,7 +1606,7 @@ static int do_ip_getsockopt(struct sock *sk, int level, int optname,
- 	{
- 		struct net *net = sock_net(sk);
- 		val = (inet->uc_ttl == -1 ?
--		       net->ipv4.sysctl_ip_default_ttl :
-+		       READ_ONCE(net->ipv4.sysctl_ip_default_ttl) :
- 		       inet->uc_ttl);
- 		break;
- 	}
-diff --git a/net/ipv4/netfilter/nf_reject_ipv4.c b/net/ipv4/netfilter/nf_reject_ipv4.c
-index 918c61fda0f3..d640adcaf1b1 100644
---- a/net/ipv4/netfilter/nf_reject_ipv4.c
-+++ b/net/ipv4/netfilter/nf_reject_ipv4.c
-@@ -62,7 +62,7 @@ struct sk_buff *nf_reject_skb_v4_tcp_reset(struct net *net,
- 
- 	skb_reserve(nskb, LL_MAX_HEADER);
- 	niph = nf_reject_iphdr_put(nskb, oldskb, IPPROTO_TCP,
--				   net->ipv4.sysctl_ip_default_ttl);
-+				   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
- 	nf_reject_ip_tcphdr_put(nskb, oldskb, oth);
- 	niph->tot_len = htons(nskb->len);
- 	ip_send_check(niph);
-@@ -117,7 +117,7 @@ struct sk_buff *nf_reject_skb_v4_unreach(struct net *net,
- 
- 	skb_reserve(nskb, LL_MAX_HEADER);
- 	niph = nf_reject_iphdr_put(nskb, oldskb, IPPROTO_ICMP,
--				   net->ipv4.sysctl_ip_default_ttl);
-+				   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
- 
- 	skb_reset_transport_header(nskb);
- 	icmph = skb_put_zero(nskb, sizeof(struct icmphdr));
-diff --git a/net/ipv4/proc.c b/net/ipv4/proc.c
-index 28836071f0a6..0088a4c64d77 100644
---- a/net/ipv4/proc.c
-+++ b/net/ipv4/proc.c
-@@ -387,7 +387,7 @@ static int snmp_seq_show_ipstats(struct seq_file *seq, void *v)
- 
- 	seq_printf(seq, "\nIp: %d %d",
- 		   IPV4_DEVCONF_ALL(net, FORWARDING) ? 1 : 2,
--		   net->ipv4.sysctl_ip_default_ttl);
-+		   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
- 
- 	BUILD_BUG_ON(offsetof(struct ipstats_mib, mibs) != 0);
- 	snmp_get_cpu_field64_batch(buff64, snmp4_ipstats_list,
-diff --git a/net/netfilter/nf_synproxy_core.c b/net/netfilter/nf_synproxy_core.c
-index e479dd0561c5..16915f8eef2b 100644
---- a/net/netfilter/nf_synproxy_core.c
-+++ b/net/netfilter/nf_synproxy_core.c
-@@ -405,7 +405,7 @@ synproxy_build_ip(struct net *net, struct sk_buff *skb, __be32 saddr,
- 	iph->tos	= 0;
- 	iph->id		= 0;
- 	iph->frag_off	= htons(IP_DF);
--	iph->ttl	= net->ipv4.sysctl_ip_default_ttl;
-+	iph->ttl	= READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
- 	iph->protocol	= IPPROTO_TCP;
- 	iph->check	= 0;
- 	iph->saddr	= saddr;
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
 
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.132-149-g00d1152b11625/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.132-149-g00d1152b11625
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      00d1152b116251d5f40936f24f9ef31f52eba544 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+at91sam9g20ek              | arm   | lab-broonie  | gcc-10   | multi_v5_def=
+config | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe0d5e9c8f0f3abdaf0da
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at=
+91sam9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at=
+91sam9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe0d5e9c8f0f3abdaf=
+0db
+        new failure (last pass: v5.10.131-113-g024476cf51e8) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe37463242eb50fdaf07b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe37463242eb50fdaf=
+07c
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe403b0270b7f69daf065
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe403b0270b7f69daf=
+066
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe37563242eb50fdaf081
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe37563242eb50fdaf=
+082
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe51b68cb594989daf073
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe51b68cb594989daf=
+074
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe371ffe194ee80daf0b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe371ffe194ee80daf=
+0b2
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe3b4ca2ac27215daf069
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe3b4ca2ac27215daf=
+06a
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe370b5faf11ba9daf075
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe370b5faf11ba9daf=
+076
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+       | regressions
+---------------------------+-------+--------------+----------+-------------=
+-------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+       | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62dbe3b33bcc3bcb26daf059
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+32-149-g00d1152b11625/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm6=
+4-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220716.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62dbe3b33bcc3bcb26daf=
+05a
+        failing since 74 days (last pass: v5.10.113-130-g0412f4bd3360, firs=
+t fail: v5.10.113-187-g3dca4fac0d16) =
+
+ =20
