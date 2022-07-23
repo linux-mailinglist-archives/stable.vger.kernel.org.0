@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E7757EE4F
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DE6057EE4A
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238997AbiGWKKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:10:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40598 "EHLO
+        id S238835AbiGWKJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:09:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239163AbiGWKJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:09:21 -0400
+        with ESMTP id S238940AbiGWKJH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:09:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E715FCBD09;
-        Sat, 23 Jul 2022 03:02:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543F6CA76F;
+        Sat, 23 Jul 2022 03:02:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BE0B611BD;
-        Sat, 23 Jul 2022 10:02:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B1A3C341C0;
-        Sat, 23 Jul 2022 10:02:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9016611CD;
+        Sat, 23 Jul 2022 10:01:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC407C341CB;
+        Sat, 23 Jul 2022 10:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570533;
-        bh=N3qLSRnfhNQQ+z7m0DDtKuNmKRtrSS1K8O0XNISvmOc=;
+        s=korg; t=1658570504;
+        bh=GIEThlDtnvK8qlEc+Re+qg9RuqDWS0iY9Tzeocl1874=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+2szLaPqLGpxa/ObTAdxq0Utrw84gQIMXBouoqOT4CKMeVhjjHE7VPgJoSrQR5zz
-         MZ+pmC/1KtHjIj45Nnv8fASJhJzrbpKDxKQ+avXFINrvp78bmGlAp0KD50b3vKIb64
-         sO0GWeUuppoo7pmj8rZYjFRgCuBSW+lt8TSaWE0A=
+        b=aJ/+9fcuCA2hUmytcae3HT4nrIgZxc8oo9zX8dv4y5bPpMwBP+TZwKxdNn2MUI4qT
+         eBrWdApWdUklTfliQYiOlFy99dzvlD2ri1OrnGln2/uv9x7EIKp9paHgpomHTkdFlr
+         eKQt3ai+xewfJ8e4dltprmj2F5P6JJSM3MkpKUSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 119/148] KVM: VMX: Convert launched argument to flags
-Date:   Sat, 23 Jul 2022 11:55:31 +0200
-Message-Id: <20220723095257.638599760@linuxfoundation.org>
+Subject: [PATCH 5.10 120/148] KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS
+Date:   Sat, 23 Jul 2022 11:55:32 +0200
+Message-Id: <20220723095257.919600394@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -57,19 +57,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit bb06650634d3552c0f8557e9d16aa1a408040e28 upstream.
+commit fc02735b14fff8c6678b521d324ade27b1a3d4cf upstream.
 
-Convert __vmx_vcpu_run()'s 'launched' argument to 'flags', in
-preparation for doing SPEC_CTRL handling immediately after vmexit, which
-will need another flag.
+On eIBRS systems, the returns in the vmexit return path from
+__vmx_vcpu_run() to vmx_vcpu_run() are exposed to RSB poisoning attacks.
 
-This is much easier than adding a fourth argument, because this code
-supports both 32-bit and 64-bit, and the fourth argument on 32-bit would
-have to be pushed on the stack.
-
-Note that __vmx_vcpu_run_flags() is called outside of the noinstr
-critical section because it will soon start calling potentially
-traceable functions.
+Fix that by moving the post-vmexit spec_ctrl handling to immediately
+after the vmexit.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -78,148 +72,224 @@ Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c    |    2 +-
- arch/x86/kvm/vmx/run_flags.h |    7 +++++++
- arch/x86/kvm/vmx/vmenter.S   |    9 +++++----
- arch/x86/kvm/vmx/vmx.c       |   17 ++++++++++++++---
- arch/x86/kvm/vmx/vmx.h       |    5 ++++-
- 5 files changed, 31 insertions(+), 9 deletions(-)
- create mode 100644 arch/x86/kvm/vmx/run_flags.h
+ arch/x86/include/asm/nospec-branch.h |    1 
+ arch/x86/kernel/cpu/bugs.c           |    4 ++
+ arch/x86/kvm/vmx/run_flags.h         |    1 
+ arch/x86/kvm/vmx/vmenter.S           |   49 +++++++++++++++++++++++++++--------
+ arch/x86/kvm/vmx/vmx.c               |   48 ++++++++++++++++++++--------------
+ arch/x86/kvm/vmx/vmx.h               |    1 
+ 6 files changed, 73 insertions(+), 31 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3077,7 +3077,7 @@ static int nested_vmx_check_vmentry_hw(s
- 	}
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -275,6 +275,7 @@ static inline void indirect_branch_predi
  
- 	vm_fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
--				 vmx->loaded_vmcs->launched);
-+				 __vmx_vcpu_run_flags(vmx));
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++extern u64 x86_spec_ctrl_current;
+ extern void write_spec_ctrl_current(u64 val, bool force);
+ extern u64 spec_ctrl_current(void);
  
- 	if (vmx->msr_autoload.host.nr)
- 		vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, vmx->msr_autoload.host.nr);
---- /dev/null
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -186,6 +186,10 @@ void __init check_bugs(void)
+ #endif
+ }
+ 
++/*
++ * NOTE: For VMX, this function is not called in the vmexit path.
++ * It uses vmx_spec_ctrl_restore_host() instead.
++ */
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ {
+--- a/arch/x86/kvm/vmx/run_flags.h
 +++ b/arch/x86/kvm/vmx/run_flags.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __KVM_X86_VMX_RUN_FLAGS_H
-+#define __KVM_X86_VMX_RUN_FLAGS_H
-+
-+#define VMX_RUN_VMRESUME	(1 << 0)
-+
-+#endif /* __KVM_X86_VMX_RUN_FLAGS_H */
+@@ -3,5 +3,6 @@
+ #define __KVM_X86_VMX_RUN_FLAGS_H
+ 
+ #define VMX_RUN_VMRESUME	(1 << 0)
++#define VMX_RUN_SAVE_SPEC_CTRL	(1 << 1)
+ 
+ #endif /* __KVM_X86_VMX_RUN_FLAGS_H */
 --- a/arch/x86/kvm/vmx/vmenter.S
 +++ b/arch/x86/kvm/vmx/vmenter.S
-@@ -5,6 +5,7 @@
- #include <asm/kvm_vcpu_regs.h>
- #include <asm/nospec-branch.h>
- #include <asm/segment.h>
-+#include "run_flags.h"
+@@ -33,9 +33,10 @@
  
- #define WORD_SIZE (BITS_PER_LONG / 8)
- 
-@@ -34,7 +35,7 @@
+ /**
   * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
-  * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
+- * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
++ * @vmx:	struct vcpu_vmx *
   * @regs:	unsigned long * (to guest registers)
-- * @launched:	%true if the VMCS has been launched
-+ * @flags:	VMX_RUN_VMRESUME: use VMRESUME instead of VMLAUNCH
+- * @flags:	VMX_RUN_VMRESUME: use VMRESUME instead of VMLAUNCH
++ * @flags:	VMX_RUN_VMRESUME:	use VMRESUME instead of VMLAUNCH
++ *		VMX_RUN_SAVE_SPEC_CTRL: save guest SPEC_CTRL into vmx->spec_ctrl
   *
   * Returns:
   *	0 on VM-Exit, 1 on VM-Fail
-@@ -59,7 +60,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	 */
- 	push %_ASM_ARG2
+@@ -54,6 +55,12 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ #endif
+ 	push %_ASM_BX
  
--	/* Copy @launched to BL, _ASM_ARG3 is volatile. */
-+	/* Copy @flags to BL, _ASM_ARG3 is volatile. */
- 	mov %_ASM_ARG3B, %bl
- 
- 	lea (%_ASM_SP), %_ASM_ARG2
-@@ -69,7 +70,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	mov (%_ASM_SP), %_ASM_AX
- 
- 	/* Check if vmlaunch or vmresume is needed */
--	testb %bl, %bl
-+	testb $VMX_RUN_VMRESUME, %bl
- 
- 	/* Load guest registers.  Don't clobber flags. */
- 	mov VCPU_RCX(%_ASM_AX), %_ASM_CX
-@@ -92,7 +93,7 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 	mov VCPU_RAX(%_ASM_AX), %_ASM_AX
- 
- 	/* Check EFLAGS.ZF from 'testb' above */
--	je .Lvmlaunch
-+	jz .Lvmlaunch
- 
++	/* Save @vmx for SPEC_CTRL handling */
++	push %_ASM_ARG1
++
++	/* Save @flags for SPEC_CTRL handling */
++	push %_ASM_ARG3
++
  	/*
- 	 * After a successful VMRESUME/VMLAUNCH, control flow "magically"
+ 	 * Save @regs, _ASM_ARG2 may be modified by vmx_update_host_rsp() and
+ 	 * @regs is needed after VM-Exit to save the guest's register values.
+@@ -148,25 +155,23 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	mov %r15, VCPU_R15(%_ASM_AX)
+ #endif
+ 
+-	/* IMPORTANT: RSB must be stuffed before the first return. */
+-	FILL_RETURN_BUFFER %_ASM_BX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
+-
+-	/* Clear RAX to indicate VM-Exit (as opposed to VM-Fail). */
+-	xor %eax, %eax
++	/* Clear return value to indicate VM-Exit (as opposed to VM-Fail). */
++	xor %ebx, %ebx
+ 
+ .Lclear_regs:
+ 	/*
+-	 * Clear all general purpose registers except RSP and RAX to prevent
++	 * Clear all general purpose registers except RSP and RBX to prevent
+ 	 * speculative use of the guest's values, even those that are reloaded
+ 	 * via the stack.  In theory, an L1 cache miss when restoring registers
+ 	 * could lead to speculative execution with the guest's values.
+ 	 * Zeroing XORs are dirt cheap, i.e. the extra paranoia is essentially
+ 	 * free.  RSP and RAX are exempt as RSP is restored by hardware during
+-	 * VM-Exit and RAX is explicitly loaded with 0 or 1 to return VM-Fail.
++	 * VM-Exit and RBX is explicitly loaded with 0 or 1 to hold the return
++	 * value.
+ 	 */
++	xor %eax, %eax
+ 	xor %ecx, %ecx
+ 	xor %edx, %edx
+-	xor %ebx, %ebx
+ 	xor %ebp, %ebp
+ 	xor %esi, %esi
+ 	xor %edi, %edi
+@@ -184,6 +189,28 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	/* "POP" @regs. */
+ 	add $WORD_SIZE, %_ASM_SP
+ 
++	/*
++	 * IMPORTANT: RSB filling and SPEC_CTRL handling must be done before
++	 * the first unbalanced RET after vmexit!
++	 *
++	 * For retpoline, RSB filling is needed to prevent poisoned RSB entries
++	 * and (in some cases) RSB underflow.
++	 *
++	 * eIBRS has its own protection against poisoned RSB, so it doesn't
++	 * need the RSB filling sequence.  But it does need to be enabled
++	 * before the first unbalanced RET.
++         */
++
++	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
++
++	pop %_ASM_ARG2	/* @flags */
++	pop %_ASM_ARG1	/* @vmx */
++
++	call vmx_spec_ctrl_restore_host
++
++	/* Put return value in AX */
++	mov %_ASM_BX, %_ASM_AX
++
+ 	pop %_ASM_BX
+ #ifdef CONFIG_X86_64
+ 	pop %r12
+@@ -203,7 +230,7 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL
+ 	ud2
+ .Lvmfail:
+ 	/* VM-Fail: set return value to 1 */
+-	mov $1, %eax
++	mov $1, %_ASM_BX
+ 	jmp .Lclear_regs
+ 
+ SYM_FUNC_END(__vmx_vcpu_run)
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -936,6 +936,16 @@ static bool msr_write_intercepted(struct
- 	return true;
+@@ -943,6 +943,14 @@ unsigned int __vmx_vcpu_run_flags(struct
+ 	if (vmx->loaded_vmcs->launched)
+ 		flags |= VMX_RUN_VMRESUME;
+ 
++	/*
++	 * If writes to the SPEC_CTRL MSR aren't intercepted, the guest is free
++	 * to change it directly without causing a vmexit.  In that case read
++	 * it after vmexit and store it in vmx->spec_ctrl.
++	 */
++	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
++		flags |= VMX_RUN_SAVE_SPEC_CTRL;
++
+ 	return flags;
  }
  
-+unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
+@@ -6685,6 +6693,26 @@ void noinstr vmx_update_host_rsp(struct
+ 	}
+ }
+ 
++void noinstr vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx,
++					unsigned int flags)
 +{
-+	unsigned int flags = 0;
++	u64 hostval = this_cpu_read(x86_spec_ctrl_current);
 +
-+	if (vmx->loaded_vmcs->launched)
-+		flags |= VMX_RUN_VMRESUME;
++	if (!cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL))
++		return;
 +
-+	return flags;
++	if (flags & VMX_RUN_SAVE_SPEC_CTRL)
++		vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
++
++	/*
++	 * If the guest/host SPEC_CTRL values differ, restore the host value.
++	 */
++	if (vmx->spec_ctrl != hostval)
++		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
++
++	barrier_nospec();
 +}
 +
- static void clear_atomic_switch_msr_special(struct vcpu_vmx *vmx,
- 		unsigned long entry, unsigned long exit)
+ static fastpath_t vmx_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
  {
-@@ -6688,7 +6698,8 @@ static fastpath_t vmx_exit_handlers_fast
- }
- 
- static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
--					struct vcpu_vmx *vmx)
-+					struct vcpu_vmx *vmx,
-+					unsigned long flags)
- {
- 	/*
- 	 * VMENTER enables interrupts (host state), but the kernel state is
-@@ -6725,7 +6736,7 @@ static noinstr void vmx_vcpu_enter_exit(
- 		native_write_cr2(vcpu->arch.cr2);
- 
- 	vmx->fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
--				   vmx->loaded_vmcs->launched);
-+				   flags);
- 
- 	vcpu->arch.cr2 = native_read_cr2();
- 
-@@ -6824,7 +6835,7 @@ reenter_guest:
- 	x86_spec_ctrl_set_guest(vmx->spec_ctrl, 0);
- 
+ 	switch (to_vmx(vcpu)->exit_reason.basic) {
+@@ -6837,26 +6865,6 @@ reenter_guest:
  	/* The actual VMENTER/EXIT is in the .noinstr.text section. */
--	vmx_vcpu_enter_exit(vcpu, vmx);
-+	vmx_vcpu_enter_exit(vcpu, vmx, __vmx_vcpu_run_flags(vmx));
+ 	vmx_vcpu_enter_exit(vcpu, vmx, __vmx_vcpu_run_flags(vmx));
  
- 	/*
- 	 * We do not use IBRS in the kernel. If this vCPU has used the
+-	/*
+-	 * We do not use IBRS in the kernel. If this vCPU has used the
+-	 * SPEC_CTRL MSR it may have left it on; save the value and
+-	 * turn it off. This is much more efficient than blindly adding
+-	 * it to the atomic save/restore list. Especially as the former
+-	 * (Saving guest MSRs on vmexit) doesn't even exist in KVM.
+-	 *
+-	 * For non-nested case:
+-	 * If the L01 MSR bitmap does not intercept the MSR, then we need to
+-	 * save it.
+-	 *
+-	 * For nested case:
+-	 * If the L02 MSR bitmap does not intercept the MSR, then we need to
+-	 * save it.
+-	 */
+-	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
+-		vmx->spec_ctrl = native_read_msr(MSR_IA32_SPEC_CTRL);
+-
+-	x86_spec_ctrl_restore_host(vmx->spec_ctrl, 0);
+-
+ 	/* All fields are clean at this point */
+ 	if (static_branch_unlikely(&enable_evmcs))
+ 		current_evmcs->hv_clean_fields |=
 --- a/arch/x86/kvm/vmx/vmx.h
 +++ b/arch/x86/kvm/vmx/vmx.h
-@@ -13,6 +13,7 @@
- #include "vmcs.h"
- #include "vmx_ops.h"
- #include "cpuid.h"
-+#include "run_flags.h"
- 
- extern const u32 vmx_msr_index[];
- 
-@@ -365,7 +366,9 @@ void vmx_set_virtual_apic_mode(struct kv
+@@ -366,6 +366,7 @@ void vmx_set_virtual_apic_mode(struct kv
  struct vmx_uret_msr *vmx_find_uret_msr(struct vcpu_vmx *vmx, u32 msr);
  void pt_update_intercept_for_msr(struct kvm_vcpu *vcpu);
  void vmx_update_host_rsp(struct vcpu_vmx *vmx, unsigned long host_rsp);
--bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs, bool launched);
-+unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx);
-+bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs,
-+		    unsigned int flags);
- int vmx_find_loadstore_msr_slot(struct vmx_msrs *m, u32 msr);
- void vmx_ept_load_pdptrs(struct kvm_vcpu *vcpu);
- 
++void vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx, unsigned int flags);
+ unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx);
+ bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs,
+ 		    unsigned int flags);
 
 
