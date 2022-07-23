@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AABF757F01D
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D0457F01E
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229760AbiGWPhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 11:37:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45382 "EHLO
+        id S229925AbiGWPh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 11:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiGWPhx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:37:53 -0400
+        with ESMTP id S229478AbiGWPh4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:37:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986171DA6A
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:37:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9E61DA6A
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:37:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4622AB80D0C
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 15:37:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECA2C341C0;
-        Sat, 23 Jul 2022 15:37:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53184B80D09
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 15:37:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33E7C341C0;
+        Sat, 23 Jul 2022 15:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658590670;
-        bh=K3V3HLHqEaDSEwxaRhwYAHuPkzVH1cNGfspodn3KLlw=;
+        s=korg; t=1658590673;
+        bh=6dkuciq4xz3pTP9Y/lf1OEP7ypLsnn5R0D8+8d+eNSM=;
         h=Subject:To:Cc:From:Date:From;
-        b=Iwkzd3umfLY35eCw8OMuY7prV/3akr5ue6f+t02sRFydatGekEk87I3G4J3PVsBPh
-         5XZS2rM6hfqN8pXuGLPZj8MKf4XQGRZeKEGInavn+I1n7AQg6vKUx3+dalaYQA+0Vt
-         oh/AiiKHo1N0H2QpIbSc3/d2ubwg7CDEvgtgY/dc=
-Subject: FAILED: patch "[PATCH] ip: Fix data-races around sysctl_ip_default_ttl." failed to apply to 4.19-stable tree
+        b=gZf6jP3u606ysHE7RHjYgdysS4p6VB0UBij5XhGp0yiemcSt7lB4PN9Q7cfmW9YU0
+         s8F/Fw/bRA19boYflVrXseERlkpT3Xc1G0lwGNPkLNa1QqsNxHblST3phaX34p6gWp
+         zV57k2g/UPqqES45bypeLioCZh7/VMXCzUH21rTQ=
+Subject: FAILED: patch "[PATCH] ip: Fix data-races around sysctl_ip_default_ttl." failed to apply to 4.9-stable tree
 To:     kuniyu@amazon.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 23 Jul 2022 17:37:39 +0200
-Message-ID: <165859065912334@kroah.com>
+Message-ID: <16585906592561@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
