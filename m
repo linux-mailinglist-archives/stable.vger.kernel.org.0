@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69DD857EE18
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E63457EE1A
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234683AbiGWKHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:07:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57210 "EHLO
+        id S238430AbiGWKHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238600AbiGWKGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:06:44 -0400
+        with ESMTP id S238447AbiGWKGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:06:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63B076EA6;
-        Sat, 23 Jul 2022 03:01:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFF67754C;
+        Sat, 23 Jul 2022 03:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E33DB82C1F;
-        Sat, 23 Jul 2022 10:00:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A58BEC341C0;
-        Sat, 23 Jul 2022 10:00:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3088CB82C1B;
+        Sat, 23 Jul 2022 10:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C0BCC341C0;
+        Sat, 23 Jul 2022 10:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570439;
-        bh=5hXOOZIyVXu5H3P4QzuLuk/qpBj2HGskshf6QCS+reA=;
+        s=korg; t=1658570441;
+        bh=uKk+3Op0t3ZhHfR38XvrZeuKdiesDxkqpIqWRpOsNHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IFbTBqFvTbyflYgf7FRH/ZLrIXVed9FP0qRuLx2ddztts104oBYduVFrqcjkPZ1+R
-         opNX7rHZU8g7UlT1amj0pg5dH/f8UCn1mFkBZWutVY1yZzvdS9ZO3cCXdk9OuPSzh2
-         4V68rT8cHeUMMzJ2xMrdbfhhAQrwcq6/T43K9LdM=
+        b=mE3zeWyeRQ8EHoaMX8HGYXHdP76ca8y5FBKy2NDopNZAH8Z9Ht/eX3na4HfjvHncg
+         GHyZ5hkM0hMZwKNTIAv3EDCCcqS+twZIE+MTniMFB/NPB1+qpkuCJj5AbSSyQ4wHyH
+         +3CcPjmc2eajJQE7n3tWvF3NsJvVX19ndOkT9VSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 087/148] x86,static_call: Use alternative RET encoding
-Date:   Sat, 23 Jul 2022 11:54:59 +0200
-Message-Id: <20220723095248.801393697@linuxfoundation.org>
+Subject: [PATCH 5.10 088/148] x86/ftrace: Use alternative RET encoding
+Date:   Sat, 23 Jul 2022 11:55:00 +0200
+Message-Id: <20220723095249.100961896@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -58,182 +58,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit ee88d363d15617ff50ac24fab0ffec11113b2aeb upstream.
+commit 1f001e9da6bbf482311e45e48f53c2bd2179e59c upstream.
 
-In addition to teaching static_call about the new way to spell 'RET',
-there is an added complication in that static_call() is allowed to
-rewrite text before it is known which particular spelling is required.
-
-In order to deal with this; have a static_call specific fixup in the
-apply_return() 'alternative' patching routine that will rewrite the
-static_call trampoline to match the definite sequence.
-
-This in turn creates the problem of uniquely identifying static call
-trampolines. Currently trampolines are 8 bytes, the first 5 being the
-jmp.d32/ret sequence and the final 3 a byte sequence that spells out
-'SCT'.
-
-This sequence is used in __static_call_validate() to ensure it is
-patching a trampoline and not a random other jmp.d32. That is,
-false-positives shouldn't be plenty, but aren't a big concern.
-
-OTOH the new __static_call_fixup() must not have false-positives, and
-'SCT' decodes to the somewhat weird but semi plausible sequence:
-
-  push %rbx
-  rex.XB push %r12
-
-Additionally, there are SLS concerns with immediate jumps. Combined it
-seems like a good moment to change the signature to a single 3 byte
-trap instruction that is unique to this usage and will not ever get
-generated by accident.
-
-As such, change the signature to: '0x0f, 0xb9, 0xcc', which decodes
-to:
-
-  ud1 %esp, %ecx
+Use the return thunk in ftrace trampolines, if needed.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: skip validation as introduced by 2105a92748e8 ("static_call,x86: Robustify trampoline patching")]
+[cascardo: still copy return from ftrace_stub]
+[cascardo: use memcpy(text_gen_insn) as there is no __text_gen_insn]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-[bwh: Backported to 5.10: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/static_call.h |   17 ++++++++++++++++
- arch/x86/kernel/alternative.c      |   12 +++++++----
- arch/x86/kernel/static_call.c      |   38 ++++++++++++++++++++++++++++++++++++-
- 3 files changed, 62 insertions(+), 5 deletions(-)
+ arch/x86/kernel/ftrace.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/static_call.h
-+++ b/arch/x86/include/asm/static_call.h
-@@ -21,6 +21,16 @@
-  * relative displacement across sections.
-  */
- 
-+/*
-+ * The trampoline is 8 bytes and of the general form:
-+ *
-+ *   jmp.d32 \func
-+ *   ud1 %esp, %ecx
-+ *
-+ * That trailing #UD provides both a speculation stop and serves as a unique
-+ * 3 byte signature identifying static call trampolines. Also see tramp_ud[]
-+ * and __static_call_fixup().
-+ */
- #define __ARCH_DEFINE_STATIC_CALL_TRAMP(name, insns)			\
- 	asm(".pushsection .static_call.text, \"ax\"		\n"	\
- 	    ".align 4						\n"	\
-@@ -34,8 +44,13 @@
- #define ARCH_DEFINE_STATIC_CALL_TRAMP(name, func)			\
- 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, ".byte 0xe9; .long " #func " - (. + 4)")
- 
-+#ifdef CONFIG_RETPOLINE
-+#define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
-+	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "jmp __x86_return_thunk")
-+#else
- #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
- 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; int3; nop; nop; nop")
-+#endif
- 
- 
- #define ARCH_ADD_TRAMP_KEY(name)					\
-@@ -44,4 +59,6 @@
- 	    ".long " STATIC_CALL_KEY_STR(name) " - .		\n"	\
- 	    ".popsection					\n")
- 
-+extern bool __static_call_fixup(void *tramp, u8 op, void *dest);
-+
- #endif /* _ASM_STATIC_CALL_H */
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -693,18 +693,22 @@ void __init_or_module noinline apply_ret
- 	s32 *s;
- 
- 	for (s = start; s < end; s++) {
--		void *addr = (void *)s + *s;
-+		void *dest = NULL, *addr = (void *)s + *s;
- 		struct insn insn;
- 		int len, ret;
- 		u8 bytes[16];
--		u8 op1;
-+		u8 op;
- 
- 		ret = insn_decode_kernel(&insn, addr);
- 		if (WARN_ON_ONCE(ret < 0))
- 			continue;
- 
--		op1 = insn.opcode.bytes[0];
--		if (WARN_ON_ONCE(op1 != JMP32_INSN_OPCODE))
-+		op = insn.opcode.bytes[0];
-+		if (op == JMP32_INSN_OPCODE)
-+			dest = addr + insn.length + insn.immediate.value;
-+
-+		if (__static_call_fixup(addr, op, dest) ||
-+		    WARN_ON_ONCE(dest != &__x86_return_thunk))
- 			continue;
- 
- 		DPRINTK("return thunk at: %pS (%px) len: %d to: %pS",
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -11,6 +11,13 @@ enum insn_type {
- 	RET = 3,  /* tramp / site cond-tail-call */
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -308,7 +308,7 @@ union ftrace_op_code_union {
+ 	} __attribute__((packed));
  };
  
-+/*
-+ * ud1 %esp, %ecx - a 3 byte #UD that is unique to trampolines, chosen such
-+ * that there is no false-positive trampoline identification while also being a
-+ * speculation stop.
-+ */
-+static const u8 tramp_ud[] = { 0x0f, 0xb9, 0xcc };
-+
- static const u8 retinsn[] = { RET_INSN_OPCODE, 0xcc, 0xcc, 0xcc, 0xcc };
+-#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
++#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
  
- static void __ref __static_call_transform(void *insn, enum insn_type type, void *func)
-@@ -32,7 +39,10 @@ static void __ref __static_call_transfor
- 		break;
+ static unsigned long
+ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+@@ -367,7 +367,10 @@ create_trampoline(struct ftrace_ops *ops
  
- 	case RET:
--		code = &retinsn;
-+		if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
-+			code = text_gen_insn(JMP32_INSN_OPCODE, insn, &__x86_return_thunk);
-+		else
-+			code = &retinsn;
- 		break;
- 	}
+ 	/* The trampoline ends with ret(q) */
+ 	retq = (unsigned long)ftrace_stub;
+-	ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
++	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
++		memcpy(ip, text_gen_insn(JMP32_INSN_OPCODE, ip, &__x86_return_thunk), JMP32_INSN_SIZE);
++	else
++		ret = copy_from_kernel_nofault(ip, (void *)retq, RET_SIZE);
+ 	if (WARN_ON(ret < 0))
+ 		goto fail;
  
-@@ -97,3 +107,29 @@ void arch_static_call_transform(void *si
- 	mutex_unlock(&text_mutex);
- }
- EXPORT_SYMBOL_GPL(arch_static_call_transform);
-+
-+#ifdef CONFIG_RETPOLINE
-+/*
-+ * This is called by apply_returns() to fix up static call trampolines,
-+ * specifically ARCH_DEFINE_STATIC_CALL_NULL_TRAMP which is recorded as
-+ * having a return trampoline.
-+ *
-+ * The problem is that static_call() is available before determining
-+ * X86_FEATURE_RETHUNK and, by implication, running alternatives.
-+ *
-+ * This means that __static_call_transform() above can have overwritten the
-+ * return trampoline and we now need to fix things up to be consistent.
-+ */
-+bool __static_call_fixup(void *tramp, u8 op, void *dest)
-+{
-+	if (memcmp(tramp+5, tramp_ud, 3)) {
-+		/* Not a trampoline site, not our problem. */
-+		return false;
-+	}
-+
-+	if (op == RET_INSN_OPCODE || dest == &__x86_return_thunk)
-+		__static_call_transform(tramp, RET, NULL);
-+
-+	return true;
-+}
-+#endif
 
 
