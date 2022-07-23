@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D24457EBC0
+	by mail.lfdr.de (Postfix) with ESMTP id E4E2B57EBC2
 	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 05:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235004AbiGWDob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 23:44:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48998 "EHLO
+        id S232859AbiGWDoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 23:44:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232859AbiGWDoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 23:44:30 -0400
+        with ESMTP id S229469AbiGWDob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 23:44:31 -0400
 Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0CC7A525
-        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 20:44:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A58796A8
+        for <stable@vger.kernel.org>; Fri, 22 Jul 2022 20:44:30 -0700 (PDT)
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6D1545C00AB;
-        Fri, 22 Jul 2022 23:44:28 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id BBBD15C0110;
+        Fri, 22 Jul 2022 23:44:29 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Fri, 22 Jul 2022 23:44:28 -0400
+  by compute3.internal (MEProxy); Fri, 22 Jul 2022 23:44:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
         :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1658547868; x=1658634268; bh=Du7er5SQVhxuW3kUx1splIMx/vSJydk7q3s
-        MOCxCorg=; b=BCfGo0YGXpJJWQLnZlFcCYNqz0PW4gLDxZ0brfHPJ1WKGupvT9O
-        Lgyzb0mQhjsxfvSUk4M2XagIVT60vPH+OA0sxRBdk5aRk4e4KVuMBW7POIcQEX5N
-        YRawmPVgPl0vFLttyk1tTpr6LvkXsvVajtMSqwGAKguuavNcRVNX7nrO7Tzk1hdd
-        24sve1DGEYVmm4UgVG2agglRFSIU8dMSYhFKDsGU7gU8yg0jwDVVdwJTGJO7oWKj
-        GUj6k8xDrNFPZCdkUK+AcPMvBmT9PPKncpGt5rOShan3hRqIrMaTSfV30+WjZnpb
-        NcSIy3tD8SmSV8al98x24Ya5NxIyfC4PapQ==
+        1658547869; x=1658634269; bh=zetN2Gdm7SQF49L9d/RaHd27ZFZZJEqIZva
+        4v9uU+Uo=; b=WdkjChwxrvlfemtCy+k8/LlCUSTcWbbPu7lJgsih+BAixvKhuH7
+        4JHWJsFBa9X929jnbwN84wsTwWd/7kkK1yFmp9GInuuk8K4Ot0xSOw8lmkhByc3s
+        6f32V5an7x2f7AEXfgvlsV43LLYH5Wsi6shrT71O05uzyyg3mTQgF70hRWdxF/up
+        nMKSR8xCGb+We4tWs0E4zl7a/2lHGE/SXeME+IZmY39ORV8oBzZuaLXs0hO6h2Du
+        QJwdczqlmS01z9+9BllO0buWCrZhbWlax7e6TV3hTlMzoOH0+E7mawIqEbsQ/Piv
+        WyIjHwcnXgOVHEf8JKBonVyUoCHG9IZ9/Gw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
         :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
         :message-id:mime-version:references:reply-to:sender:subject
         :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; t=1658547868; x=1658634268; bh=Du7er5SQVhxuW
-        3kUx1splIMx/vSJydk7q3sMOCxCorg=; b=JQZZ/tAL35rpY/iPYzDQl8unwVHG+
-        bEdFAwYP50vYxfBAmfg7+BrlEMt11rNQ0aYIEcdkr9jUtfoXjfTTjE97GRRfws+N
-        wysZ55j2rPOxYwLFpRNpRUn965fq8R5gIsF9dEr1UZWnIHup5w8Z5npB90I0ypxq
-        slkSjPiXWwYXRu+AE7XKHLG/4bmXPgpP0Yk1OhGn8xDr3x69Qhdg6VrCVml8Pn9Z
-        D+xFc23ouETZHFdqbebiKcjpuOUunS/N6LoSCFNf5uXqlIq21tV4eJgq5dr1EN2a
-        SVVeJ7F8H0oIDxhOyueLqRPdS1XYKMAW3e/BGZLjt3wzWvw5LdJFRWJIA==
-X-ME-Sender: <xms:nG7bYrk2XT-mo5Zg39yuqoUYsBuVT7soHiUknX5CX8N6DlcFsGRCeQ>
-    <xme:nG7bYu2eXOJeUB59l0TFHqo279aaC5GVQyuoayKlfZRnVt2mApQnIHvr46WsiEGSW
-    oZNKpNwENAHbuw>
-X-ME-Received: <xmr:nG7bYhrxFJheyRdgZAucXQaC0CdIfzuaOX13p9eK2ML5dEiKRye1o83r_CvrhV-2HT7lR5cXBhGA>
+        :x-sasl-enc; s=fm3; t=1658547869; x=1658634269; bh=zetN2Gdm7SQF4
+        9L9d/RaHd27ZFZZJEqIZva4v9uU+Uo=; b=MXr/yLrlk0Yd3w8l6zkGqUFCBb99n
+        QKdhJAjm5DP27t8994iPVdFhjYnAuctrPQ0Hoe4CC7xX7CoAzRNNVa3VRk+WtOtX
+        jb0e7IAdbCLcDckMqUGNB3sOUKAFzdjqdQ8wWZo/ft1QPluAFioaGBM6qXyvc0vF
+        Te3b6avTwX5qNmb3YkRvddUpRZwBjQNCDcHdk7QgQNNx+nGSYlMYkJRvjEhkOSAt
+        E35uE4yL4duH69ooN0RPaqL9dg6f92ARYcqAWlWNrfgCG8ZdrXCbK5FjeBRKHBA5
+        X1sU/+KcVs3VjIWzh7BhaEdPUKYpK8wrEVRoI+GfW/EXtstzrTgHTF0eA==
+X-ME-Sender: <xms:nW7bYu9a4kus90GP6BrAP0nkSzrJvF6AJF0ZllvGe2g7G8fiZir7Kg>
+    <xme:nW7bYuuNXQvAnWNN0i32pCAuPugzsZ7qNL5wGJB335wtw6ZRyZalY2YAJUFLX-bdG
+    UWs0jJPObt_uUQ>
+X-ME-Received: <xmr:nW7bYkDnWnpa9X6ZMGyruSl8ADwzg7nnYNqzX2eP_Bk0FKXWffg4yeHz5y22jY95BOtItTeTSSy5>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvddtfedgjeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
@@ -55,13 +55,13 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvddtfedgjeeiucetufdoteggod
     gffhhfffjeetkeelueefffetfffhtdduheetnecuvehluhhsthgvrhfuihiivgeptdenuc
     frrghrrghmpehmrghilhhfrhhomhepuggvmhhisehinhhvihhsihgslhgvthhhihhnghhs
     lhgrsgdrtghomh
-X-ME-Proxy: <xmx:nG7bYjlwY6a6vMRSRXzKnVPEmieBArCDUHFxBK1xc01nzHlXwemiTw>
-    <xmx:nG7bYp3C-U3fiOLyTNeHQhh-OYaoeqR02NziXN2yeGwCE5P0jDCx_w>
-    <xmx:nG7bYiuH06dMv7aPKN1dsufcmqB17wk1p4K8bVQJYWMpAns_IuhOvw>
-    <xmx:nG7bYkS1mWXFKtVbH16m7Rw5X7T4mEZaRt2X8avaQpB2jEqSm8-HtQ>
+X-ME-Proxy: <xmx:nW7bYmdiW7hOcgPNLJpYuLTbXOvJPIt-dUVKV2Ie0XditYvz_ek_nA>
+    <xmx:nW7bYjM0id4Ge6gAw3CfTJWL_8UK-uuO1-P-25biG8pgvtVX49--OQ>
+    <xmx:nW7bYgmoO9_FU1g-aR4NXanIOpC52eRFvern9oDIW4vRBhQfEZTwug>
+    <xmx:nW7bYoqyTLWhq5nRVY_9zz7tEsePFRivklGsjjg95rjzued_-Ln1ZQ>
 Feedback-ID: iac594737:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 22 Jul 2022 23:44:27 -0400 (EDT)
+ 22 Jul 2022 23:44:29 -0400 (EDT)
 From:   Demi Marie Obenour <demi@invisiblethingslab.com>
 To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Juergen Gross <jgross@suse.com>,
@@ -69,9 +69,9 @@ To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Demi Marie Obenour <demi@invisiblethingslab.com>,
         xen-devel@lists.xenproject.org, stable@vger.kernel.org
-Subject: [PATCH 4.14] Ignore failure to unmap -1
-Date:   Fri, 22 Jul 2022 23:44:12 -0400
-Message-Id: <20220723034415.1560-3-demi@invisiblethingslab.com>
+Subject: [PATCH 4.19] Ignore failure to unmap -1
+Date:   Fri, 22 Jul 2022 23:44:13 -0400
+Message-Id: <20220723034415.1560-4-demi@invisiblethingslab.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723034415.1560-1-demi@invisiblethingslab.com>
 References: <20220723034415.1560-1-demi@invisiblethingslab.com>
@@ -103,16 +103,16 @@ unmapping can legitimately fail.
 Suggested-by: Juergen Gross <jgross@suse.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Fixes: 2fe26a9a7048 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Fixes: 73e9e72247b9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
 ---
  drivers/xen/gntdev.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 2827015604fbaa45f0ca60c342bbf71ce4132dec..799173755b785e2f3e2483855f75af1eba8e9373 100644
+index 492084814f55d8ed46d2d656db75b28a91dd7f06..27d955c5d9f9076266f77b9fedfa1a6a2ba08f56 100644
 --- a/drivers/xen/gntdev.c
 +++ b/drivers/xen/gntdev.c
-@@ -393,7 +393,8 @@ static void __unmap_grant_pages_done(int result,
+@@ -416,7 +416,8 @@ static void __unmap_grant_pages_done(int result,
  	unsigned int offset = data->unmap_ops - map->unmap_ops;
  
  	for (i = 0; i < data->count; i++) {
