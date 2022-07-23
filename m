@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C8D57EE68
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:10:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 926E257EE99
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239168AbiGWKKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:10:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40598 "EHLO
+        id S239543AbiGWKNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239599AbiGWKJq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:09:46 -0400
+        with ESMTP id S239265AbiGWKNS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:13:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03582CE534;
-        Sat, 23 Jul 2022 03:03:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C118C59A;
+        Sat, 23 Jul 2022 03:03:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D29DD61263;
-        Sat, 23 Jul 2022 10:03:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB503C341C0;
-        Sat, 23 Jul 2022 10:03:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C94C5611CD;
+        Sat, 23 Jul 2022 10:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5669C341C0;
+        Sat, 23 Jul 2022 10:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570582;
-        bh=vZOb0znR5b2+sXNreQRuTLxggurukIZ1dLOaYUIDq9o=;
+        s=korg; t=1658570611;
+        bh=Q1TD7F9ns2LiP9OwYh3h/gmbzL6OmOLlOkUZovjoCiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mTHOoyiJcvqBeOzBy1wsd2LpjjIztLOtODOKg4jAILZVUzAHtXQCNrzWtdpPl0Oh
-         mBuFdV5E98SdqrOjFseFJBVpJcK1i9Sv/lvi4oQ9lAi/AJR2Y9NePTdgk6v0IpgGlb
-         PNiiIi0gP/5N0yfX9reNxnupqniZ++5aws/22a8g=
+        b=xFpX/iLmmynZhwDeReVxBl3gVtlrYK8rAYt6x81vW8zQUj0aLG+HT84aS/lzSeOcD
+         NlmPVp6HRsFduQnmsBzqtFxUAzs+kXemxig9GreHgPNf8txPaLItb9XXZ8kJ7WWfuO
+         w4ztiFZyd/BOiwuNBtTZO/LuXssnWkJBqM9b8f9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Juergen Gross <jgross@suse.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Borislav Petkov <bp@suse.de>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 147/148] tools arch: Update arch/x86/lib/mem{cpy,set}_64.S copies used in perf bench mem memcpy - again
-Date:   Sat, 23 Jul 2022 11:55:59 +0200
-Message-Id: <20220723095305.473622561@linuxfoundation.org>
+Subject: [PATCH 5.10 148/148] tools headers: Remove broken definition of __LITTLE_ENDIAN
+Date:   Sat, 23 Jul 2022 11:56:00 +0200
+Message-Id: <20220723095305.747384732@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -55,81 +56,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit fb24e308b6310541e70d11a3f19dc40742974b95 upstream.
+commit fa2c02e5798c17c89cbb3135940086ebe07e5c9f upstream.
 
-To bring in the change made in this cset:
+The linux/kconfig.h file was copied from the kernel but the line where
+with the generated/autoconf.h include from where the CONFIG_ entries
+would come from was deleted, as tools/ build system don't create that
+file, so we ended up always defining just __LITTLE_ENDIAN as
+CONFIG_CPU_BIG_ENDIAN was nowhere to be found.
 
- 5e21a3ecad1500e3 ("x86/alternative: Merge include files")
+This in turn ended up breaking the build in some systems where
+__LITTLE_ENDIAN was already defined, such as the androind NDK.
 
-This just silences these perf tools build warnings, no change in the tools:
+So just ditch that block that depends on the CONFIG_CPU_BIG_ENDIAN
+define.
 
-  Warning: Kernel ABI header at 'tools/arch/x86/lib/memcpy_64.S' differs from latest version at 'arch/x86/lib/memcpy_64.S'
-  diff -u tools/arch/x86/lib/memcpy_64.S arch/x86/lib/memcpy_64.S
-  Warning: Kernel ABI header at 'tools/arch/x86/lib/memset_64.S' differs from latest version at 'arch/x86/lib/memset_64.S'
-  diff -u tools/arch/x86/lib/memset_64.S arch/x86/lib/memset_64.S
+The kconfig.h file was copied just to get IS_ENABLED() and a
+'make -C tools/all' doesn't breaks with this removal.
 
+Fixes: 93281c4a96572a34 ("x86/insn: Add an insn_decode() API")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Borislav Petkov <bp@suse.de>
-Cc: Juergen Gross <jgross@suse.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/YO8hK7lqJcIWuBzx@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/arch/x86/lib/memcpy_64.S                         | 2 +-
- tools/arch/x86/lib/memset_64.S                         | 2 +-
- tools/include/asm/{alternative-asm.h => alternative.h} | 0
- tools/arch/x86/lib/memcpy_64.S      |    2 +-
- tools/arch/x86/lib/memset_64.S      |    2 +-
- tools/include/asm/alternative-asm.h |   10 ----------
- tools/include/asm/alternative.h     |   10 ++++++++++
- 4 files changed, 12 insertions(+), 12 deletions(-)
- rename tools/include/asm/{alternative-asm.h => alternative.h} (100%)
+ tools/include/linux/kconfig.h |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/tools/arch/x86/lib/memcpy_64.S
-+++ b/tools/arch/x86/lib/memcpy_64.S
-@@ -4,7 +4,7 @@
- #include <linux/linkage.h>
- #include <asm/errno.h>
- #include <asm/cpufeatures.h>
--#include <asm/alternative-asm.h>
-+#include <asm/alternative.h>
- #include <asm/export.h>
+--- a/tools/include/linux/kconfig.h
++++ b/tools/include/linux/kconfig.h
+@@ -4,12 +4,6 @@
  
- .pushsection .noinstr.text, "ax"
---- a/tools/arch/x86/lib/memset_64.S
-+++ b/tools/arch/x86/lib/memset_64.S
-@@ -3,7 +3,7 @@
+ /* CONFIG_CC_VERSION_TEXT (Do not delete this comment. See help in Kconfig) */
  
- #include <linux/linkage.h>
- #include <asm/cpufeatures.h>
--#include <asm/alternative-asm.h>
-+#include <asm/alternative.h>
- #include <asm/export.h>
- 
- /*
---- a/tools/include/asm/alternative-asm.h
-+++ /dev/null
-@@ -1,10 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _TOOLS_ASM_ALTERNATIVE_ASM_H
--#define _TOOLS_ASM_ALTERNATIVE_ASM_H
--
--/* Just disable it so we can build arch/x86/lib/memcpy_64.S for perf bench: */
--
--#define altinstruction_entry #
--#define ALTERNATIVE_2 #
--
+-#ifdef CONFIG_CPU_BIG_ENDIAN
+-#define __BIG_ENDIAN 4321
+-#else
+-#define __LITTLE_ENDIAN 1234
 -#endif
---- /dev/null
-+++ b/tools/include/asm/alternative.h
-@@ -0,0 +1,10 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _TOOLS_ASM_ALTERNATIVE_ASM_H
-+#define _TOOLS_ASM_ALTERNATIVE_ASM_H
-+
-+/* Just disable it so we can build arch/x86/lib/memcpy_64.S for perf bench: */
-+
-+#define altinstruction_entry #
-+#define ALTERNATIVE_2 #
-+
-+#endif
+-
+ #define __ARG_PLACEHOLDER_1 0,
+ #define __take_second_arg(__ignored, val, ...) val
+ 
 
 
