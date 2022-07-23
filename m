@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCB257ED7A
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 11:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A40757ED7C
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 11:58:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbiGWJ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 05:58:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46172 "EHLO
+        id S237374AbiGWJ6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 05:58:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237421AbiGWJ52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:57:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422C74B49A;
-        Sat, 23 Jul 2022 02:57:09 -0700 (PDT)
+        with ESMTP id S237484AbiGWJ53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:57:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95AB474FE;
+        Sat, 23 Jul 2022 02:57:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AADF6B82C1B;
-        Sat, 23 Jul 2022 09:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17B8CC341C0;
-        Sat, 23 Jul 2022 09:57:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45C2F611CD;
+        Sat, 23 Jul 2022 09:57:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F13C341C0;
+        Sat, 23 Jul 2022 09:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570226;
-        bh=edXK0hiq1Nl4cx9AKafrgyyFNZRfcBMbs6qOf68SPA8=;
+        s=korg; t=1658570229;
+        bh=HAUe1xX18R+K6PokYOpqGZLlTgYNlzycxBTgy03jkzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJWz7MbzcVIe9MGiBbrekmDt7qJ5TC7CZU8lUQaGEgy/zw5v3qNy8SZhP1HFplWn8
-         ta7xQWQQLN3K9SCuw2EoMoiuZQ7g9XSaRdEPcZCcgxEP7M0YQOUVywRf5yIc9fhAxE
-         zqufgsafPrfb7YZfYD3aSfZCzoL/UflY+LRVN/4A=
+        b=kDIjm3FZ/UJWR32918tVyC86Cpsmq4vEud0zga1FPc28SI+TboLqQnoflhFzLT+uP
+         Z4EriJ06UoXkFWdbgHwdZi2NkqnST+cP7kKTnhTqeq99zsVAGyVuW3JtQgikrcJEpv
+         zsIBgclv7HqOamJTZ3nABfpOcnrtlOSo9s9V7W4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
         Borislav Petkov <bp@suse.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 012/148] x86/alternative: Support not-feature
-Date:   Sat, 23 Jul 2022 11:53:44 +0200
-Message-Id: <20220723095227.812296055@linuxfoundation.org>
+Subject: [PATCH 5.10 013/148] x86/alternative: Support ALTERNATIVE_TERNARY
+Date:   Sat, 23 Jul 2022 11:53:45 +0200
+Message-Id: <20220723095228.112228206@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -55,89 +56,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit dda7bb76484978316bb412a353789ebc5901de36 upstream.
+commit e208b3c4a9748b2c17aa09ba663b5096ccf82dce upstream.
 
-Add support for alternative patching for the case a feature is not
-present on the current CPU. For users of ALTERNATIVE() and friends, an
-inverted feature is specified by applying the ALT_NOT() macro to it,
-e.g.:
+Add ALTERNATIVE_TERNARY support for replacing an initial instruction
+with either of two instructions depending on a feature:
 
-  ALTERNATIVE(old, new, ALT_NOT(feature));
+  ALTERNATIVE_TERNARY "default_instr", FEATURE_NR,
+                      "feature_on_instr", "feature_off_instr"
 
-Committer note:
+which will start with "default_instr" and at patch time will,
+depending on FEATURE_NR being set or not, patch that with either
+"feature_on_instr" or "feature_off_instr".
 
-The decision to encode the NOT-bit in the feature bit itself is because
-a future change which would make objtool generate such alternative
-calls, would keep the code in objtool itself fairly simple.
-
-Also, this allows for the alternative macros to support the NOT feature
-without having to change them.
-
-Finally, the u16 cpuid member encoding the X86_FEATURE_ flags is not an
-ABI so if more bits are needed, cpuid itself can be enlarged or a flags
-field can be added to struct alt_instr after having considered the size
-growth in either cases.
+ [ bp: Add comment ontop. ]
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210311142319.4723-6-jgross@suse.com
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210311142319.4723-7-jgross@suse.com
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/alternative.h |    3 +++
- arch/x86/kernel/alternative.c      |   20 +++++++++++++++-----
- 2 files changed, 18 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/alternative.h |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 --- a/arch/x86/include/asm/alternative.h
 +++ b/arch/x86/include/asm/alternative.h
-@@ -6,6 +6,9 @@
- #include <linux/stringify.h>
- #include <asm/asm.h>
+@@ -179,6 +179,11 @@ static inline int alternatives_text_rese
+ 	ALTINSTR_REPLACEMENT(newinstr2, feature2, 2)			\
+ 	".popsection\n"
  
-+#define ALTINSTR_FLAG_INV	(1 << 15)
-+#define ALT_NOT(feat)		((feat) | ALTINSTR_FLAG_INV)
++/* If @feature is set, patch in @newinstr_yes, otherwise @newinstr_no. */
++#define ALTERNATIVE_TERNARY(oldinstr, feature, newinstr_yes, newinstr_no) \
++	ALTERNATIVE_2(oldinstr, newinstr_no, X86_FEATURE_ALWAYS,	\
++		      newinstr_yes, feature)
 +
- #ifndef __ASSEMBLY__
+ #define ALTERNATIVE_3(oldinsn, newinsn1, feat1, newinsn2, feat2, newinsn3, feat3) \
+ 	OLDINSTR_3(oldinsn, 1, 2, 3)						\
+ 	".pushsection .altinstructions,\"a\"\n"					\
+@@ -210,6 +215,9 @@ static inline int alternatives_text_rese
+ #define alternative_2(oldinstr, newinstr1, feature1, newinstr2, feature2) \
+ 	asm_inline volatile(ALTERNATIVE_2(oldinstr, newinstr1, feature1, newinstr2, feature2) ::: "memory")
  
- #include <linux/stddef.h>
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -388,21 +388,31 @@ void __init_or_module noinline apply_alt
- 	 */
- 	for (a = start; a < end; a++) {
- 		int insn_buff_sz = 0;
-+		/* Mask away "NOT" flag bit for feature to test. */
-+		u16 feature = a->cpuid & ~ALTINSTR_FLAG_INV;
- 
- 		instr = (u8 *)&a->instr_offset + a->instr_offset;
- 		replacement = (u8 *)&a->repl_offset + a->repl_offset;
- 		BUG_ON(a->instrlen > sizeof(insn_buff));
--		BUG_ON(a->cpuid >= (NCAPINTS + NBUGINTS) * 32);
--		if (!boot_cpu_has(a->cpuid)) {
-+		BUG_ON(feature >= (NCAPINTS + NBUGINTS) * 32);
++#define alternative_ternary(oldinstr, feature, newinstr_yes, newinstr_no) \
++	asm_inline volatile(ALTERNATIVE_TERNARY(oldinstr, feature, newinstr_yes, newinstr_no) ::: "memory")
 +
-+		/*
-+		 * Patch if either:
-+		 * - feature is present
-+		 * - feature not present but ALTINSTR_FLAG_INV is set to mean,
-+		 *   patch if feature is *NOT* present.
-+		 */
-+		if (!boot_cpu_has(feature) == !(a->cpuid & ALTINSTR_FLAG_INV)) {
- 			if (a->padlen > 1)
- 				optimize_nops(a, instr);
+ /*
+  * Alternative inline assembly with input.
+  *
+@@ -380,6 +388,11 @@ static inline int alternatives_text_rese
+ 	.popsection
+ .endm
  
- 			continue;
- 		}
++/* If @feature is set, patch in @newinstr_yes, otherwise @newinstr_no. */
++#define ALTERNATIVE_TERNARY(oldinstr, feature, newinstr_yes, newinstr_no) \
++	ALTERNATIVE_2 oldinstr, newinstr_no, X86_FEATURE_ALWAYS,	\
++	newinstr_yes, feature
++
+ #endif /* __ASSEMBLY__ */
  
--		DPRINTK("feat: %d*32+%d, old: (%pS (%px) len: %d), repl: (%px, len: %d), pad: %d",
--			a->cpuid >> 5,
--			a->cpuid & 0x1f,
-+		DPRINTK("feat: %s%d*32+%d, old: (%pS (%px) len: %d), repl: (%px, len: %d), pad: %d",
-+			(a->cpuid & ALTINSTR_FLAG_INV) ? "!" : "",
-+			feature >> 5,
-+			feature & 0x1f,
- 			instr, instr, a->instrlen,
- 			replacement, a->replacementlen, a->padlen);
- 
+ #endif /* _ASM_X86_ALTERNATIVE_H */
 
 
