@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C5A957EDE5
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B4957EDE3
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238098AbiGWKEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:04:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57892 "EHLO
+        id S238027AbiGWKEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238263AbiGWKD5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:03:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE3FB90DA6;
-        Sat, 23 Jul 2022 02:59:46 -0700 (PDT)
+        with ESMTP id S238240AbiGWKEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:04:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 350709368D;
+        Sat, 23 Jul 2022 02:59:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC9F56116A;
-        Sat, 23 Jul 2022 09:59:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0547DC341C0;
-        Sat, 23 Jul 2022 09:59:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7B65B82C1B;
+        Sat, 23 Jul 2022 09:59:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB24C341C0;
+        Sat, 23 Jul 2022 09:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570384;
-        bh=eyipu8EB/64Q0rbW76zZlxYKVV59IRLRSGQ+HpDrRTQ=;
+        s=korg; t=1658570387;
+        bh=NTrzfJvQ19VyAP61TafzQNav55FmjRegdN7rwksTswA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1VvcImO06aIjOLhtfvi7oR2M4KlHN5Oa5Yj7yPiwyqeXxHvcfQw891m3+v4wpfxf
-         rxaDttjjxSVu0H4p66VASAoGXLWHRG6lxaRRYr8uUuxtH5srru4EYbYi0WalUllJeI
-         YAdPyBU3s7cqytMmcEMnpa9OjYpcEJoMmFX698DE=
+        b=U4SJ6ZB7pfTJHLGWUkDWwIVKCb3oz6+r+jzqw2wZvQkpPl7PCBcRvfZWk4+uQNxE7
+         l5aIoQPW8CjWVEyI78X10b/UMj5cn10rP4fzZzpLKoW/SdIIoRHVWSCxPDVkneX06l
+         5C15pTWmo+jU60rYq39RKGe7sr1GA5Dgsyx1K06k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Jamie Heilman <jamie@audible.transient.net>,
+        Borislav Petkov <bp@suse.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 067/148] tools arch: Update arch/x86/lib/mem{cpy,set}_64.S copies used in perf bench mem memcpy
-Date:   Sat, 23 Jul 2022 11:54:39 +0200
-Message-Id: <20220723095243.011444614@linuxfoundation.org>
+Subject: [PATCH 5.10 068/148] kvm/emulate: Fix SETcc emulation function offsets with SLS
+Date:   Sat, 23 Jul 2022 11:54:40 +0200
+Message-Id: <20220723095243.324774965@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -55,120 +57,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 35cb8c713a496e8c114eed5e2a5a30b359876df2 upstream.
+commit fe83f5eae432ccc8e90082d6ed506d5233547473 upstream.
 
-To bring in the change made in this cset:
+The commit in Fixes started adding INT3 after RETs as a mitigation
+against straight-line speculation.
 
-  f94909ceb1ed4bfd ("x86: Prepare asm files for straight-line-speculation")
+The fastop SETcc implementation in kvm's insn emulator uses macro magic
+to generate all possible SETcc functions and to jump to them when
+emulating the respective instruction.
 
-It silences these perf tools build warnings, no change in the tools:
+However, it hardcodes the size and alignment of those functions to 4: a
+three-byte SETcc insn and a single-byte RET. BUT, with SLS, there's an
+INT3 that gets slapped after the RET, which brings the whole scheme out
+of alignment:
 
-  Warning: Kernel ABI header at 'tools/arch/x86/lib/memcpy_64.S' differs from latest version at 'arch/x86/lib/memcpy_64.S'
-  diff -u tools/arch/x86/lib/memcpy_64.S arch/x86/lib/memcpy_64.S
-  Warning: Kernel ABI header at 'tools/arch/x86/lib/memset_64.S' differs from latest version at 'arch/x86/lib/memset_64.S'
-  diff -u tools/arch/x86/lib/memset_64.S arch/x86/lib/memset_64.S
+  15:   0f 90 c0                seto   %al
+  18:   c3                      ret
+  19:   cc                      int3
+  1a:   0f 1f 00                nopl   (%rax)
+  1d:   0f 91 c0                setno  %al
+  20:   c3                      ret
+  21:   cc                      int3
+  22:   0f 1f 00                nopl   (%rax)
+  25:   0f 92 c0                setb   %al
+  28:   c3                      ret
+  29:   cc                      int3
 
-The code generated was checked before and after using 'objdump -d /tmp/build/perf/bench/mem-memcpy-x86-64-asm.o',
-no changes.
+and this explodes like this:
 
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+  int3: 0000 [#1] PREEMPT SMP PTI
+  CPU: 0 PID: 2435 Comm: qemu-system-x86 Not tainted 5.17.0-rc8-sls #1
+  Hardware name: Dell Inc. Precision WorkStation T3400  /0TP412, BIOS A14 04/30/2012
+  RIP: 0010:setc+0x5/0x8 [kvm]
+  Code: 00 00 0f 1f 00 0f b6 05 43 24 06 00 c3 cc 0f 1f 80 00 00 00 00 0f 90 c0 c3 cc 0f \
+	  1f 00 0f 91 c0 c3 cc 0f 1f 00 0f 92 c0 c3 cc <0f> 1f 00 0f 93 c0 c3 cc 0f 1f 00 \
+	  0f 94 c0 c3 cc 0f 1f 00 0f 95 c0
+  Call Trace:
+   <TASK>
+   ? x86_emulate_insn [kvm]
+   ? x86_emulate_instruction [kvm]
+   ? vmx_handle_exit [kvm_intel]
+   ? kvm_arch_vcpu_ioctl_run [kvm]
+   ? kvm_vcpu_ioctl [kvm]
+   ? __x64_sys_ioctl
+   ? do_syscall_64
+   ? entry_SYSCALL_64_after_hwframe
+   </TASK>
+
+Raise the alignment value when SLS is enabled and use a macro for that
+instead of hard-coding naked numbers.
+
+Fixes: e463a09af2f0 ("x86: Add straight-line-speculation mitigation")
+Reported-by: Jamie Heilman <jamie@audible.transient.net>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Jamie Heilman <jamie@audible.transient.net>
+Link: https://lore.kernel.org/r/YjGzJwjrvxg5YZ0Z@audible.transient.net
+[Add a comment and a bit of safety checking, since this is going to be changed
+ again for IBT support. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/arch/x86/lib/memcpy_64.S |   12 ++++++------
- tools/arch/x86/lib/memset_64.S |    6 +++---
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/kvm/emulate.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/tools/arch/x86/lib/memcpy_64.S
-+++ b/tools/arch/x86/lib/memcpy_64.S
-@@ -39,7 +39,7 @@ SYM_FUNC_START_WEAK(memcpy)
- 	rep movsq
- 	movl %edx, %ecx
- 	rep movsb
--	ret
-+	RET
- SYM_FUNC_END(memcpy)
- SYM_FUNC_END_ALIAS(__memcpy)
- EXPORT_SYMBOL(memcpy)
-@@ -53,7 +53,7 @@ SYM_FUNC_START_LOCAL(memcpy_erms)
- 	movq %rdi, %rax
- 	movq %rdx, %rcx
- 	rep movsb
--	ret
-+	RET
- SYM_FUNC_END(memcpy_erms)
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -428,8 +428,23 @@ static int fastop(struct x86_emulate_ctx
+ 	FOP_END
  
- SYM_FUNC_START_LOCAL(memcpy_orig)
-@@ -137,7 +137,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
- 	movq %r9,	1*8(%rdi)
- 	movq %r10,	-2*8(%rdi, %rdx)
- 	movq %r11,	-1*8(%rdi, %rdx)
--	retq
-+	RET
- 	.p2align 4
- .Lless_16bytes:
- 	cmpl $8,	%edx
-@@ -149,7 +149,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
- 	movq -1*8(%rsi, %rdx),	%r9
- 	movq %r8,	0*8(%rdi)
- 	movq %r9,	-1*8(%rdi, %rdx)
--	retq
-+	RET
- 	.p2align 4
- .Lless_8bytes:
- 	cmpl $4,	%edx
-@@ -162,7 +162,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
- 	movl -4(%rsi, %rdx), %r8d
- 	movl %ecx, (%rdi)
- 	movl %r8d, -4(%rdi, %rdx)
--	retq
-+	RET
- 	.p2align 4
- .Lless_3bytes:
- 	subl $1, %edx
-@@ -180,7 +180,7 @@ SYM_FUNC_START_LOCAL(memcpy_orig)
- 	movb %cl, (%rdi)
+ /* Special case for SETcc - 1 instruction per cc */
++
++/*
++ * Depending on .config the SETcc functions look like:
++ *
++ * SETcc %al   [3 bytes]
++ * RET         [1 byte]
++ * INT3        [1 byte; CONFIG_SLS]
++ *
++ * Which gives possible sizes 4 or 5.  When rounded up to the
++ * next power-of-two alignment they become 4 or 8.
++ */
++#define SETCC_LENGTH	(4 + IS_ENABLED(CONFIG_SLS))
++#define SETCC_ALIGN	(4 << IS_ENABLED(CONFIG_SLS))
++static_assert(SETCC_LENGTH <= SETCC_ALIGN);
++
+ #define FOP_SETCC(op) \
+-	".align 4 \n\t" \
++	".align " __stringify(SETCC_ALIGN) " \n\t" \
+ 	".type " #op ", @function \n\t" \
+ 	#op ": \n\t" \
+ 	#op " %al \n\t" \
+@@ -1055,7 +1070,7 @@ static int em_bsr_c(struct x86_emulate_c
+ static __always_inline u8 test_cc(unsigned int condition, unsigned long flags)
+ {
+ 	u8 rc;
+-	void (*fop)(void) = (void *)em_setcc + 4 * (condition & 0xf);
++	void (*fop)(void) = (void *)em_setcc + SETCC_ALIGN * (condition & 0xf);
  
- .Lend:
--	retq
-+	RET
- SYM_FUNC_END(memcpy_orig)
- 
- .popsection
---- a/tools/arch/x86/lib/memset_64.S
-+++ b/tools/arch/x86/lib/memset_64.S
-@@ -40,7 +40,7 @@ SYM_FUNC_START(__memset)
- 	movl %edx,%ecx
- 	rep stosb
- 	movq %r9,%rax
--	ret
-+	RET
- SYM_FUNC_END(__memset)
- SYM_FUNC_END_ALIAS(memset)
- EXPORT_SYMBOL(memset)
-@@ -63,7 +63,7 @@ SYM_FUNC_START_LOCAL(memset_erms)
- 	movq %rdx,%rcx
- 	rep stosb
- 	movq %r9,%rax
--	ret
-+	RET
- SYM_FUNC_END(memset_erms)
- 
- SYM_FUNC_START_LOCAL(memset_orig)
-@@ -125,7 +125,7 @@ SYM_FUNC_START_LOCAL(memset_orig)
- 
- .Lende:
- 	movq	%r10,%rax
--	ret
-+	RET
- 
- .Lbad_alignment:
- 	cmpq $7,%rdx
+ 	flags = (flags & EFLAGS_MASK) | X86_EFLAGS_IF;
+ 	asm("push %[flags]; popf; " CALL_NOSPEC
 
 
