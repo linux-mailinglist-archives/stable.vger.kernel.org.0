@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A25157EDAF
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECBE57EDB2
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237836AbiGWKBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46868 "EHLO
+        id S237874AbiGWKBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:01:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237838AbiGWKAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:00:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F76E76E85;
-        Sat, 23 Jul 2022 02:58:19 -0700 (PDT)
+        with ESMTP id S237777AbiGWKAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:00:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13BAC77A75;
+        Sat, 23 Jul 2022 02:58:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA52E611CD;
-        Sat, 23 Jul 2022 09:58:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E20C341CA;
-        Sat, 23 Jul 2022 09:58:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B2D5B82C1A;
+        Sat, 23 Jul 2022 09:58:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0A3DC341C0;
+        Sat, 23 Jul 2022 09:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570298;
-        bh=OPAVYdq/Nb9TUWPRrzva7ewq9dIjGGbmoWDHPMaNNOQ=;
+        s=korg; t=1658570301;
+        bh=AAi8L56AzRyySQ+Kplk53X8AoGVDe7CwzbFO9ViCi28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2DfzOs+JrKeusYswmHCCga+9HJDJ41zIxYDcNx1mYN9OFVDrk1vfp2X51aZIgZu/
-         KpbIIjKFaAoVls0tJomRDSoAZQ2vCKZRbgzCsnTaCtiIAaMKehZpcGAf1Gk4QcsZRu
-         puWU3IvU7eFxcsVHZhLMwiGPrhc6eBAtq/+7lqP0=
+        b=bfhNoVtt1BBjBuiWhgvB/L6lzVZ2Kz7OR2KT9efPT58vsC5KS4rmBj6Q2M+L5N5Od
+         Yq8PiZvYMjxCEtc+mGZL8BgihBEaHDyMqKvqL8rjiPbIEZd9Znh0ELuB0l2qYhqvm9
+         9i68vozD8knXZp5Vpf7pu+oDKaEjzz8Nu7Su//QU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
+        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 037/148] objtool: Fix .symtab_shndx handling for elf_create_undef_symbol()
-Date:   Sat, 23 Jul 2022 11:54:09 +0200
-Message-Id: <20220723095234.704707161@linuxfoundation.org>
+Subject: [PATCH 5.10 038/148] objtool: Only rewrite unconditional retpoline thunk calls
+Date:   Sat, 23 Jul 2022 11:54:10 +0200
+Message-Id: <20220723095235.007621512@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -56,71 +56,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 584fd3b31889852d0d6f3dd1e3d8e9619b660d2c upstream.
+commit 2d49b721dc18c113d5221f4cf5a6104eb66cb7f2 upstream.
 
-When an ELF object uses extended symbol section indexes (IOW it has a
-.symtab_shndx section), these must be kept in sync with the regular
-symbol table (.symtab).
+It turns out that the compilers generate conditional branches to the
+retpoline thunks like:
 
-So for every new symbol we emit, make sure to also emit a
-.symtab_shndx value to keep the arrays of equal size.
+  5d5:   0f 85 00 00 00 00       jne    5db <cpuidle_reflect+0x22>
+	5d7: R_X86_64_PLT32     __x86_indirect_thunk_r11-0x4
 
-Note: since we're writing an UNDEF symbol, most GElf_Sym fields will
-be 0 and we can repurpose one (st_size) to host the 0 for the xshndx
-value.
+while the rewrite can only handle JMP/CALL to the thunks. The result
+is the alternative wrecking the code. Make sure to skip writing the
+alternatives for conditional branches.
 
-Fixes: 2f2f7e47f052 ("objtool: Add elf_create_undef_symbol()")
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Suggested-by: Fangrui Song <maskray@google.com>
+Fixes: 9bc0bb50727c ("objtool/x86: Rewrite retpoline thunk calls")
+Reported-by: Lukasz Majczak <lma@semihalf.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lkml.kernel.org/r/YL3q1qFO9QIRL/BA@hirez.programming.kicks-ass.net
+Tested-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/elf.c |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ tools/objtool/arch/x86/decode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -768,7 +768,7 @@ static int elf_add_string(struct elf *el
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -674,6 +674,10 @@ int arch_rewrite_retpolines(struct objto
  
- struct symbol *elf_create_undef_symbol(struct elf *elf, const char *name)
- {
--	struct section *symtab;
-+	struct section *symtab, *symtab_shndx;
- 	struct symbol *sym;
- 	Elf_Data *data;
- 	Elf_Scn *s;
-@@ -819,6 +819,29 @@ struct symbol *elf_create_undef_symbol(s
- 	symtab->len += data->d_size;
- 	symtab->changed = true;
+ 	list_for_each_entry(insn, &file->retpoline_call_list, call_node) {
  
-+	symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
-+	if (symtab_shndx) {
-+		s = elf_getscn(elf->elf, symtab_shndx->idx);
-+		if (!s) {
-+			WARN_ELF("elf_getscn");
-+			return NULL;
-+		}
++		if (insn->type != INSN_JUMP_DYNAMIC &&
++		    insn->type != INSN_CALL_DYNAMIC)
++			continue;
 +
-+		data = elf_newdata(s);
-+		if (!data) {
-+			WARN_ELF("elf_newdata");
-+			return NULL;
-+		}
-+
-+		data->d_buf = &sym->sym.st_size; /* conveniently 0 */
-+		data->d_size = sizeof(Elf32_Word);
-+		data->d_align = 4;
-+		data->d_type = ELF_T_WORD;
-+
-+		symtab_shndx->len += 4;
-+		symtab_shndx->changed = true;
-+	}
-+
- 	sym->sec = find_section_by_index(elf, 0);
+ 		if (!strcmp(insn->sec->name, ".text.__x86.indirect_thunk"))
+ 			continue;
  
- 	elf_add_symbol(elf, sym);
 
 
