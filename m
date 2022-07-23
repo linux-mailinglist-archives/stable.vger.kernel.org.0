@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B02457EF41
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 15:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0586D57EF47
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 15:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234800AbiGWNnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 09:43:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
+        id S236223AbiGWNqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 09:46:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiGWNnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 09:43:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5995641D
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 06:43:48 -0700 (PDT)
+        with ESMTP id S233071AbiGWNqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 09:46:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D7752DC8
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 06:46:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 05183CE08C1
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 13:43:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88C1C341C0;
-        Sat, 23 Jul 2022 13:43:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB74FB8015A
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 13:46:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F2BC341C0;
+        Sat, 23 Jul 2022 13:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658583823;
-        bh=v4mBJ/l15X1yzCbIDuay6BvzFcDtizrwHhe5UTZ2Ko8=;
+        s=korg; t=1658583980;
+        bh=KZO8TSHeF7gYsK1OpfSQNy1ab8SMPGFIaYXIZ+qNsbo=;
         h=Subject:To:Cc:From:Date:From;
-        b=mBVravBV4lO823AC8um77trIvFPW4vt+yzMIaF+4WnFI0/S9Fo/bvespyxFx6QxS+
-         l5+oyRBTezIV4YjI4WJ90iYhx/3iTjb9cLPl2yXdjxEa7Mql3f8GAt898IdW6Op4CP
-         QzQpTss11ExbleXHuc5+DLAXUXFEKt+LLIoxNOgw=
-Subject: FAILED: patch "[PATCH] mtd: rawnand: gpmi: Set WAIT_FOR_READY timeout based on" failed to apply to 5.4-stable tree
-To:     s.hauer@pengutronix.de, han.xu@nxp.com, richard@nod.at,
-        tomasz.mon@camlingroup.com
+        b=zy6MCKWhs6168rAxAFjnfGZnafEI9QvPfWREZHp/9FmmzBG6aQ105BW4OFdnqznJh
+         ZTeGp3s465Y3onGUf+BS6KR6Lfg9iCgWdDz85DFh730TecamTKlrLWoHaERv1xgl5V
+         WlUeieNSvEkOg2u+OkOg2vcp5jWfrqfxua2odavQ=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: Protect the amdgpu_bo_list list with a mutex v2" failed to apply to 5.15-stable tree
+To:     luben.tuikov@amd.com, Alexander.Deucher@amd.com,
+        Andrey.Grodzovsky@amd.com, Vitaly.Prosyak@amd.com,
+        alexander.deucher@amd.com, christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 Jul 2022 15:43:36 +0200
-Message-ID: <165858381623360@kroah.com>
+Date:   Sat, 23 Jul 2022 15:46:17 +0200
+Message-ID: <165858397778188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,70 +60,128 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0fddf9ad06fd9f439f137139861556671673e31c Mon Sep 17 00:00:00 2001
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Date: Fri, 1 Jul 2022 13:03:41 +0200
-Subject: [PATCH] mtd: rawnand: gpmi: Set WAIT_FOR_READY timeout based on
- program/erase times
+From 90af0ca047f3049c4b46e902f432ad6ef1e2ded6 Mon Sep 17 00:00:00 2001
+From: Luben Tuikov <luben.tuikov@amd.com>
+Date: Wed, 20 Jul 2022 15:04:18 -0400
+Subject: [PATCH] drm/amdgpu: Protect the amdgpu_bo_list list with a mutex v2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-06781a5026350 Fixes the calculation of the DEVICE_BUSY_TIMEOUT register
-value from busy_timeout_cycles. busy_timeout_cycles is calculated wrong
-though: It is calculated based on the maximum page read time, but the
-timeout is also used for page write and block erase operations which
-require orders of magnitude bigger timeouts.
+Protect the struct amdgpu_bo_list with a mutex. This is used during command
+submission in order to avoid buffer object corruption as recorded in
+the link below.
 
-Fix this by calculating busy_timeout_cycles from the maximum of
-tBERS_max and tPROG_max.
+v2 (chk): Keep the mutex looked for the whole CS to avoid using the
+	  list from multiple CS threads at the same time.
 
-This is for now the easiest and most obvious way to fix the driver.
-There's room for improvements though: The NAND_OP_WAITRDY_INSTR tells us
-the desired timeout for the current operation, so we could program the
-timeout dynamically for each operation instead of setting a fixed
-timeout. Also we could wire up the interrupt handler to actually detect
-and forward timeouts occurred when waiting for the chip being ready.
-
-As a sidenote I verified that the change in 06781a5026350 is really
-correct. I wired up the interrupt handler in my tree and measured the
-time between starting the operation and the timeout interrupt handler
-coming in. The time increases 41us with each step in the timeout
-register which corresponds to 4096 clock cycles with the 99MHz clock
-that I have.
-
-Fixes: 06781a5026350 ("mtd: rawnand: gpmi: Fix setting busy timeout setting")
-Fixes: b1206122069aa ("mtd: rawniand: gpmi: use core timings instead of an empirical derivation")
+Suggested-by: Christian König <christian.koenig@amd.com>
+Cc: Alex Deucher <Alexander.Deucher@amd.com>
+Cc: Andrey Grodzovsky <Andrey.Grodzovsky@amd.com>
+Cc: Vitaly Prosyak <Vitaly.Prosyak@amd.com>
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2048
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Tested-by: Luben Tuikov <luben.tuikov@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Acked-by: Han Xu <han.xu@nxp.com>
-Tested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
 
-diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-index 889e40329956..93da23682d86 100644
---- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-+++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -850,9 +850,10 @@ static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
- 	unsigned int tRP_ps;
- 	bool use_half_period;
- 	int sample_delay_ps, sample_delay_factor;
--	u16 busy_timeout_cycles;
-+	unsigned int busy_timeout_cycles;
- 	u8 wrn_dly_sel;
- 	unsigned long clk_rate, min_rate;
-+	u64 busy_timeout_ps;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
+index 714178f1b6c6..2168163aad2d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
+@@ -40,7 +40,7 @@ static void amdgpu_bo_list_free_rcu(struct rcu_head *rcu)
+ {
+ 	struct amdgpu_bo_list *list = container_of(rcu, struct amdgpu_bo_list,
+ 						   rhead);
+-
++	mutex_destroy(&list->bo_list_mutex);
+ 	kvfree(list);
+ }
  
- 	if (sdr->tRC_min >= 30000) {
- 		/* ONFI non-EDO modes [0-3] */
-@@ -885,7 +886,8 @@ static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
- 	addr_setup_cycles = TO_CYCLES(sdr->tALS_min, period_ps);
- 	data_setup_cycles = TO_CYCLES(sdr->tDS_min, period_ps);
- 	data_hold_cycles = TO_CYCLES(sdr->tDH_min, period_ps);
--	busy_timeout_cycles = TO_CYCLES(sdr->tWB_max + sdr->tR_max, period_ps);
-+	busy_timeout_ps = max(sdr->tBERS_max, sdr->tPROG_max);
-+	busy_timeout_cycles = TO_CYCLES(busy_timeout_ps, period_ps);
+@@ -136,6 +136,7 @@ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
  
- 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
- 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
+ 	trace_amdgpu_cs_bo_status(list->num_entries, total_size);
+ 
++	mutex_init(&list->bo_list_mutex);
+ 	*result = list;
+ 	return 0;
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
+index 529d52a204cf..9caea1688fc3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
+@@ -47,6 +47,10 @@ struct amdgpu_bo_list {
+ 	struct amdgpu_bo *oa_obj;
+ 	unsigned first_userptr;
+ 	unsigned num_entries;
++
++	/* Protect access during command submission.
++	 */
++	struct mutex bo_list_mutex;
+ };
+ 
+ int amdgpu_bo_list_get(struct amdgpu_fpriv *fpriv, int id,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+index b28af04b0c3e..d8f1335bc68f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -519,6 +519,8 @@ static int amdgpu_cs_parser_bos(struct amdgpu_cs_parser *p,
+ 			return r;
+ 	}
+ 
++	mutex_lock(&p->bo_list->bo_list_mutex);
++
+ 	/* One for TTM and one for the CS job */
+ 	amdgpu_bo_list_for_each_entry(e, p->bo_list)
+ 		e->tv.num_shared = 2;
+@@ -651,6 +653,7 @@ static int amdgpu_cs_parser_bos(struct amdgpu_cs_parser *p,
+ 			kvfree(e->user_pages);
+ 			e->user_pages = NULL;
+ 		}
++		mutex_unlock(&p->bo_list->bo_list_mutex);
+ 	}
+ 	return r;
+ }
+@@ -690,9 +693,11 @@ static void amdgpu_cs_parser_fini(struct amdgpu_cs_parser *parser, int error,
+ {
+ 	unsigned i;
+ 
+-	if (error && backoff)
++	if (error && backoff) {
+ 		ttm_eu_backoff_reservation(&parser->ticket,
+ 					   &parser->validated);
++		mutex_unlock(&parser->bo_list->bo_list_mutex);
++	}
+ 
+ 	for (i = 0; i < parser->num_post_deps; i++) {
+ 		drm_syncobj_put(parser->post_deps[i].syncobj);
+@@ -832,12 +837,16 @@ static int amdgpu_cs_vm_handling(struct amdgpu_cs_parser *p)
+ 			continue;
+ 
+ 		r = amdgpu_vm_bo_update(adev, bo_va, false);
+-		if (r)
++		if (r) {
++			mutex_unlock(&p->bo_list->bo_list_mutex);
+ 			return r;
++		}
+ 
+ 		r = amdgpu_sync_fence(&p->job->sync, bo_va->last_pt_update);
+-		if (r)
++		if (r) {
++			mutex_unlock(&p->bo_list->bo_list_mutex);
+ 			return r;
++		}
+ 	}
+ 
+ 	r = amdgpu_vm_handle_moved(adev, vm);
+@@ -1278,6 +1287,7 @@ static int amdgpu_cs_submit(struct amdgpu_cs_parser *p,
+ 
+ 	ttm_eu_fence_buffer_objects(&p->ticket, &p->validated, p->fence);
+ 	mutex_unlock(&p->adev->notifier_lock);
++	mutex_unlock(&p->bo_list->bo_list_mutex);
+ 
+ 	return 0;
+ 
 
