@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A890F57EE35
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55BE757EE1C
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238801AbiGWKId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:08:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
+        id S238195AbiGWKHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:07:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238806AbiGWKIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:08:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624A3C5D63;
-        Sat, 23 Jul 2022 03:01:40 -0700 (PDT)
+        with ESMTP id S238468AbiGWKGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:06:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 752B4C1DF8;
+        Sat, 23 Jul 2022 03:01:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BABD6B82C1D;
-        Sat, 23 Jul 2022 10:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B057C341C0;
-        Sat, 23 Jul 2022 10:01:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2994B611CD;
+        Sat, 23 Jul 2022 10:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38962C341C0;
+        Sat, 23 Jul 2022 10:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570498;
-        bh=7NjT53egA3ATlJ9aTxXrE1cWTZ5hf+G2pbGremAuhQQ=;
+        s=korg; t=1658570464;
+        bh=r1KYi8CpJ9PMhlMf7z/gAKIbGBUAcbhymfilRfURaEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mziMBHQtaz31usY0NRquPJzbU6eCKzLPX9SSTY/Kkuf/8bVSfZJxMcBTxSlprvoJ2
-         t4tTgwMMIVaXicoCJb6RhhAMIKgNttvrcWjFGyi6en9ZF6febj0xYraEaE9REkIono
-         +YuPdMVt1EkfmyFjCB/77g2ZV5mcgHYGiz+fM+Gk=
+        b=XJoNDOcLEL/l7cqg3wVpN+kDbmHAGLrBBHXyA/pat/dqvG/E87ZloIcm8A0DW4EB/
+         69d9rNl1CMVErdpidJ206Y40eOfwxXldc+hCQJneDDai8HEp4Hw0+/WKZqoi9T63OO
+         W+vRAq/nuUOV2MPGqC2hDSz4yzbtw6eZdKxrDKoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Kim Phillips <kim.phillips@amd.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 097/148] x86/bugs: Add AMD retbleed= boot parameter
-Date:   Sat, 23 Jul 2022 11:55:09 +0200
-Message-Id: <20220723095251.551421670@linuxfoundation.org>
+Subject: [PATCH 5.10 098/148] x86/bugs: Enable STIBP for JMP2RET
+Date:   Sat, 23 Jul 2022 11:55:10 +0200
+Message-Id: <20220723095251.864209452@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -57,208 +56,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Chartre <alexandre.chartre@oracle.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 7fbf47c7ce50b38a64576b150e7011ae73d54669 upstream.
+commit e8ec1b6e08a2102d8755ccb06fa26d540f26a2fa upstream.
 
-Add the "retbleed=<value>" boot parameter to select a mitigation for
-RETBleed. Possible values are "off", "auto" and "unret"
-(JMP2RET mitigation). The default value is "auto".
+For untrained return thunks to be fully effective, STIBP must be enabled
+or SMT disabled.
 
-Currently, "retbleed=auto" will select the unret mitigation on
-AMD and Hygon and no mitigation on Intel (JMP2RET is not effective on
-Intel).
-
-  [peterz: rebase; add hygon]
-  [jpoimboe: cleanups]
-
-Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
+Co-developed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |   15 +++
- arch/x86/Kconfig                                |    3 
- arch/x86/kernel/cpu/bugs.c                      |  108 +++++++++++++++++++++++-
- 3 files changed, 125 insertions(+), 1 deletion(-)
+ Documentation/admin-guide/kernel-parameters.txt |   16 ++++--
+ arch/x86/kernel/cpu/bugs.c                      |   58 +++++++++++++++++++-----
+ 2 files changed, 57 insertions(+), 17 deletions(-)
 
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4656,6 +4656,21 @@
+@@ -4660,11 +4660,17 @@
+ 			Speculative Code Execution with Return Instructions)
+ 			vulnerability.
  
- 	retain_initrd	[RAM] Keep initrd memory after extraction
+-			off         - unconditionally disable
+-			auto        - automatically select a migitation
+-			unret       - force enable untrained return thunks,
+-				      only effective on AMD Zen {1,2}
+-				      based systems.
++			off          - no mitigation
++			auto         - automatically select a migitation
++			auto,nosmt   - automatically select a mitigation,
++				       disabling SMT if necessary for
++				       the full mitigation (only on Zen1
++				       and older without STIBP).
++			unret        - force enable untrained return thunks,
++				       only effective on AMD f15h-f17h
++				       based systems.
++			unret,nosmt  - like unret, will disable SMT when STIBP
++			               is not available.
  
-+	retbleed=	[X86] Control mitigation of RETBleed (Arbitrary
-+			Speculative Code Execution with Return Instructions)
-+			vulnerability.
-+
-+			off         - unconditionally disable
-+			auto        - automatically select a migitation
-+			unret       - force enable untrained return thunks,
-+				      only effective on AMD Zen {1,2}
-+				      based systems.
-+
-+			Selecting 'auto' will choose a mitigation method at run
-+			time according to the CPU.
-+
-+			Not specifying this option is equivalent to retbleed=auto.
-+
- 	rfkill.default_state=
- 		0	"airplane mode".  All wifi, bluetooth, wimax, gps, fm,
- 			etc. communication is blocked by default.
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -465,6 +465,9 @@ config RETPOLINE
- config CC_HAS_SLS
- 	def_bool $(cc-option,-mharden-sls=all)
- 
-+config CC_HAS_RETURN_THUNK
-+	def_bool $(cc-option,-mfunction-return=thunk-extern)
-+
- config SLS
- 	bool "Mitigate Straight-Line-Speculation"
- 	depends on CC_HAS_SLS && X86_64
+ 			Selecting 'auto' will choose a mitigation method at run
+ 			time according to the CPU.
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -37,6 +37,7 @@
- #include "cpu.h"
+@@ -739,19 +739,34 @@ static enum retbleed_mitigation retbleed
+ static enum retbleed_mitigation_cmd retbleed_cmd __ro_after_init =
+ 	RETBLEED_CMD_AUTO;
  
- static void __init spectre_v1_select_mitigation(void);
-+static void __init retbleed_select_mitigation(void);
- static void __init spectre_v2_select_mitigation(void);
- static void __init ssb_select_mitigation(void);
- static void __init l1tf_select_mitigation(void);
-@@ -112,6 +113,12 @@ void __init check_bugs(void)
++static int __ro_after_init retbleed_nosmt = false;
++
+ static int __init retbleed_parse_cmdline(char *str)
+ {
+ 	if (!str)
+ 		return -EINVAL;
  
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
-+	retbleed_select_mitigation();
-+	/*
-+	 * spectre_v2_select_mitigation() relies on the state set by
-+	 * retbleed_select_mitigation(); specifically the STIBP selection is
-+	 * forced for UNRET.
-+	 */
- 	spectre_v2_select_mitigation();
- 	ssb_select_mitigation();
- 	l1tf_select_mitigation();
-@@ -709,6 +716,100 @@ static int __init nospectre_v1_cmdline(c
- early_param("nospectre_v1", nospectre_v1_cmdline);
- 
- #undef pr_fmt
-+#define pr_fmt(fmt)     "RETBleed: " fmt
-+
-+enum retbleed_mitigation {
-+	RETBLEED_MITIGATION_NONE,
-+	RETBLEED_MITIGATION_UNRET,
-+};
-+
-+enum retbleed_mitigation_cmd {
-+	RETBLEED_CMD_OFF,
-+	RETBLEED_CMD_AUTO,
-+	RETBLEED_CMD_UNRET,
-+};
-+
-+const char * const retbleed_strings[] = {
-+	[RETBLEED_MITIGATION_NONE]	= "Vulnerable",
-+	[RETBLEED_MITIGATION_UNRET]	= "Mitigation: untrained return thunk",
-+};
-+
-+static enum retbleed_mitigation retbleed_mitigation __ro_after_init =
-+	RETBLEED_MITIGATION_NONE;
-+static enum retbleed_mitigation_cmd retbleed_cmd __ro_after_init =
-+	RETBLEED_CMD_AUTO;
-+
-+static int __init retbleed_parse_cmdline(char *str)
-+{
-+	if (!str)
-+		return -EINVAL;
-+
-+	if (!strcmp(str, "off"))
-+		retbleed_cmd = RETBLEED_CMD_OFF;
-+	else if (!strcmp(str, "auto"))
-+		retbleed_cmd = RETBLEED_CMD_AUTO;
-+	else if (!strcmp(str, "unret"))
-+		retbleed_cmd = RETBLEED_CMD_UNRET;
-+	else
-+		pr_err("Unknown retbleed option (%s). Defaulting to 'auto'\n", str);
-+
-+	return 0;
-+}
-+early_param("retbleed", retbleed_parse_cmdline);
-+
-+#define RETBLEED_UNTRAIN_MSG "WARNING: BTB untrained return thunk mitigation is only effective on AMD/Hygon!\n"
-+#define RETBLEED_COMPILER_MSG "WARNING: kernel not compiled with RETPOLINE or -mfunction-return capable compiler!\n"
-+
-+static void __init retbleed_select_mitigation(void)
-+{
-+	if (!boot_cpu_has_bug(X86_BUG_RETBLEED) || cpu_mitigations_off())
-+		return;
-+
-+	switch (retbleed_cmd) {
-+	case RETBLEED_CMD_OFF:
-+		return;
-+
-+	case RETBLEED_CMD_UNRET:
-+		retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
-+		break;
-+
-+	case RETBLEED_CMD_AUTO:
-+	default:
-+		if (!boot_cpu_has_bug(X86_BUG_RETBLEED))
-+			break;
-+
-+		if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
-+		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
-+			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
-+		break;
-+	}
-+
-+	switch (retbleed_mitigation) {
-+	case RETBLEED_MITIGATION_UNRET:
-+
-+		if (!IS_ENABLED(CONFIG_RETPOLINE) ||
-+		    !IS_ENABLED(CONFIG_CC_HAS_RETURN_THUNK)) {
-+			pr_err(RETBLEED_COMPILER_MSG);
-+			retbleed_mitigation = RETBLEED_MITIGATION_NONE;
-+			break;
+-	if (!strcmp(str, "off"))
+-		retbleed_cmd = RETBLEED_CMD_OFF;
+-	else if (!strcmp(str, "auto"))
+-		retbleed_cmd = RETBLEED_CMD_AUTO;
+-	else if (!strcmp(str, "unret"))
+-		retbleed_cmd = RETBLEED_CMD_UNRET;
+-	else
+-		pr_err("Unknown retbleed option (%s). Defaulting to 'auto'\n", str);
++	while (str) {
++		char *next = strchr(str, ',');
++		if (next) {
++			*next = 0;
++			next++;
 +		}
 +
-+		setup_force_cpu_cap(X86_FEATURE_RETHUNK);
-+		setup_force_cpu_cap(X86_FEATURE_UNRET);
++		if (!strcmp(str, "off")) {
++			retbleed_cmd = RETBLEED_CMD_OFF;
++		} else if (!strcmp(str, "auto")) {
++			retbleed_cmd = RETBLEED_CMD_AUTO;
++		} else if (!strcmp(str, "unret")) {
++			retbleed_cmd = RETBLEED_CMD_UNRET;
++		} else if (!strcmp(str, "nosmt")) {
++			retbleed_nosmt = true;
++		} else {
++			pr_err("Ignoring unknown retbleed option (%s).", str);
++		}
 +
-+		if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
-+		    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
-+			pr_err(RETBLEED_UNTRAIN_MSG);
-+		break;
++		str = next;
++	}
+ 
+ 	return 0;
+ }
+@@ -797,6 +812,10 @@ static void __init retbleed_select_mitig
+ 		setup_force_cpu_cap(X86_FEATURE_RETHUNK);
+ 		setup_force_cpu_cap(X86_FEATURE_UNRET);
+ 
++		if (!boot_cpu_has(X86_FEATURE_STIBP) &&
++		    (retbleed_nosmt || cpu_mitigations_auto_nosmt()))
++			cpu_smt_disable(false);
 +
-+	default:
-+		break;
+ 		if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
+ 		    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
+ 			pr_err(RETBLEED_UNTRAIN_MSG);
+@@ -1043,6 +1062,13 @@ spectre_v2_user_select_mitigation(enum s
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ 
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++		if (mode != SPECTRE_V2_USER_STRICT &&
++		    mode != SPECTRE_V2_USER_STRICT_PREFERRED)
++			pr_info("Selecting STIBP always-on mode to complement retbleed mitigation'\n");
++		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
 +	}
 +
-+	pr_info("%s\n", retbleed_strings[retbleed_mitigation]);
-+}
-+
-+#undef pr_fmt
- #define pr_fmt(fmt)     "Spectre V2 : " fmt
+ 	spectre_v2_user_stibp = mode;
  
- static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
-@@ -1919,7 +2020,12 @@ static ssize_t srbds_show_state(char *bu
+ set_mode:
+@@ -2020,10 +2046,18 @@ static ssize_t srbds_show_state(char *bu
  
  static ssize_t retbleed_show_state(char *buf)
  {
--	return sprintf(buf, "Vulnerable\n");
-+	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET &&
-+	    (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
-+	     boot_cpu_data.x86_vendor != X86_VENDOR_HYGON))
-+		return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
+-	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET &&
+-	    (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
+-	     boot_cpu_data.x86_vendor != X86_VENDOR_HYGON))
+-		return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++	    if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
++		boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
++		    return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
 +
-+	return sprintf(buf, "%s\n", retbleed_strings[retbleed_mitigation]);
- }
++	    return sprintf(buf, "%s; SMT %s\n",
++			   retbleed_strings[retbleed_mitigation],
++			   !sched_smt_active() ? "disabled" :
++			   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
++			   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ?
++			   "enabled with STIBP protection" : "vulnerable");
++	}
  
- static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
+ 	return sprintf(buf, "%s\n", retbleed_strings[retbleed_mitigation]);
+ }
 
 
