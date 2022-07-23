@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 845B657EE21
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5D457EE27
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238481AbiGWKHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:07:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57880 "EHLO
+        id S238589AbiGWKHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:07:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238494AbiGWKG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:06:56 -0400
+        with ESMTP id S238529AbiGWKG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:06:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E70C3805;
-        Sat, 23 Jul 2022 03:01:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820DFC3825;
+        Sat, 23 Jul 2022 03:01:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BA2361260;
-        Sat, 23 Jul 2022 10:00:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 296EAC341C0;
-        Sat, 23 Jul 2022 10:00:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2440F611D4;
+        Sat, 23 Jul 2022 10:00:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05896C341C0;
+        Sat, 23 Jul 2022 10:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570447;
-        bh=9U0r2uHXT1NBk+EpHeWfpqK2tFsMJfPQcA+s6ZHAngc=;
+        s=korg; t=1658570450;
+        bh=I1nVtJhBaBbQvFmmxP+Ixri0tvBlRaN4Uz+xRtIocyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwRK+LbnMO2woH1uu9U+bGqmWSUcNZZ0Nxsr2ALIBm+pfYvolJhW4BkuuJZEpDgLV
-         5fIZyNcKmbWbG6oEVBOtEBE7XT0e03TNGYNfwkdEsC0kX9+GambvNfSfHW13ovfiRM
-         g1ioFS+fvFX62DZMKJys8vAPITFjsVZkGqfJXrw8=
+        b=PzdVgff7I6wmrXz3Yk18MY2u32PPwfr6fboP2pV78y0CtBLBxzZAhCWmHV8g0cH/p
+         db9h8Bh2gayPkjBICoz6XxkvEiZp8eGi1ecT/K37kW28zDA+sWr8we8gdawqLTkjS+
+         RfIW4vA6rUZXTmhM/SH295ZMJlis6sm7FGkxPFjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 090/148] x86/kvm: Fix SETcc emulation for return thunks
-Date:   Sat, 23 Jul 2022 11:55:02 +0200
-Message-Id: <20220723095249.632470153@linuxfoundation.org>
+Subject: [PATCH 5.10 091/148] x86/vsyscall_emu/64: Dont use RET in vsyscall emulation
+Date:   Sat, 23 Jul 2022 11:55:03 +0200
+Message-Id: <20220723095249.907083729@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -58,97 +58,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit af2e140f34208a5dfb6b7a8ad2d56bda88f0524d upstream.
+commit 15583e514eb16744b80be85dea0774ece153177d upstream.
 
-Prepare the SETcc fastop stuff for when RET can be larger still.
-
-The tricky bit here is that the expressions should not only be
-constant C expressions, but also absolute GAS expressions. This means
-no ?: and 'true' is ~0.
-
-Also ensure em_setcc() has the same alignment as the actual FOP_SETCC()
-ops, this ensures there cannot be an alignment hole between em_setcc()
-and the first op.
-
-Additionally, add a .skip directive to the FOP_SETCC() macro to fill
-any remaining space with INT3 traps; however the primary purpose of
-this directive is to generate AS warnings when the remaining space
-goes negative. Which is a very good indication the alignment magic
-went side-ways.
+This is userspace code and doesn't play by the normal kernel rules.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: ignore ENDBR when computing SETCC_LENGTH]
-[cascardo: conflict fixup]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ arch/x86/entry/vsyscall/vsyscall_emu_64.S |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -322,13 +322,15 @@ static int fastop(struct x86_emulate_ctx
- #define FOP_RET(name) \
- 	__FOP_RET(#name)
+--- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
++++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
+@@ -19,17 +19,20 @@ __vsyscall_page:
  
--#define FOP_START(op) \
-+#define __FOP_START(op, align) \
- 	extern void em_##op(struct fastop *fake); \
- 	asm(".pushsection .text, \"ax\" \n\t" \
- 	    ".global em_" #op " \n\t" \
--	    ".align " __stringify(FASTOP_SIZE) " \n\t" \
-+	    ".align " __stringify(align) " \n\t" \
- 	    "em_" #op ":\n\t"
+ 	mov $__NR_gettimeofday, %rax
+ 	syscall
+-	RET
++	ret
++	int3
  
-+#define FOP_START(op) __FOP_START(op, FASTOP_SIZE)
-+
- #define FOP_END \
- 	    ".popsection")
+ 	.balign 1024, 0xcc
+ 	mov $__NR_time, %rax
+ 	syscall
+-	RET
++	ret
++	int3
  
-@@ -432,15 +434,14 @@ static int fastop(struct x86_emulate_ctx
- /*
-  * Depending on .config the SETcc functions look like:
-  *
-- * SETcc %al   [3 bytes]
-- * RET         [1 byte]
-- * INT3        [1 byte; CONFIG_SLS]
-- *
-- * Which gives possible sizes 4 or 5.  When rounded up to the
-- * next power-of-two alignment they become 4 or 8.
-+ * SETcc %al			[3 bytes]
-+ * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETPOLINE]
-+ * INT3				[1 byte; CONFIG_SLS]
-  */
--#define SETCC_LENGTH	(4 + IS_ENABLED(CONFIG_SLS))
--#define SETCC_ALIGN	(4 << IS_ENABLED(CONFIG_SLS))
-+#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETPOLINE)) + \
-+			 IS_ENABLED(CONFIG_SLS))
-+#define SETCC_LENGTH	(3 + RET_LENGTH)
-+#define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
- static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+ 	.balign 1024, 0xcc
+ 	mov $__NR_getcpu, %rax
+ 	syscall
+-	RET
++	ret
++	int3
  
- #define FOP_SETCC(op) \
-@@ -448,14 +449,15 @@ static_assert(SETCC_LENGTH <= SETCC_ALIG
- 	".type " #op ", @function \n\t" \
- 	#op ": \n\t" \
- 	#op " %al \n\t" \
--	__FOP_RET(#op)
-+	__FOP_RET(#op) \
-+	".skip " __stringify(SETCC_ALIGN) " - (.-" #op "), 0xcc \n\t"
+ 	.balign 4096, 0xcc
  
- asm(".pushsection .fixup, \"ax\"\n"
-     ".global kvm_fastop_exception \n"
-     "kvm_fastop_exception: xor %esi, %esi; " ASM_RET
-     ".popsection");
- 
--FOP_START(setcc)
-+__FOP_START(setcc, SETCC_ALIGN)
- FOP_SETCC(seto)
- FOP_SETCC(setno)
- FOP_SETCC(setc)
 
 
