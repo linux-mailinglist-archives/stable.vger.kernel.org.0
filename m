@@ -2,90 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D200157EB2C
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 04:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC81157EBBC
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 05:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbiGWCCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Jul 2022 22:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49868 "EHLO
+        id S230015AbiGWDoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Jul 2022 23:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229825AbiGWCCu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 22:02:50 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3169893686;
-        Fri, 22 Jul 2022 19:02:48 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id q41-20020a17090a1b2c00b001f2043c727aso5593699pjq.1;
-        Fri, 22 Jul 2022 19:02:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=ek1SzPkAXS42Q3/IOFn5jB3zoKWDZtzhhUuRvVoEm30=;
-        b=Gd+mk2zFqv5iyshofxPowfW57ze/ypL272p/04zo4zRoWqd5+pYNRkYXRGvUwR1Aps
-         4ak+P8rvaAF5VW8wKxYCwoGq0pk7fAnyWp1zNEltd1oGLc0ghra4tLEx7Qen9GoQvzGz
-         f5NAWW2t15RScKZEbExVYZTgWa+Lb+esZFk8A0liRmncuHMtnN6bt0AO9HDPNELI/zWU
-         pur+TqxsZS0Uiq0NhQW//5TbRade9H+vyG2riLaz0hVzM6m+mt1iK0wbhF646uQKNn8D
-         L0j8F1+MK2s3JNWmQ3A+LA0L5PPYNllwnz/dCLIShMOethCXv4oXtgJ3iqgAZPexCWQD
-         klww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=ek1SzPkAXS42Q3/IOFn5jB3zoKWDZtzhhUuRvVoEm30=;
-        b=Wa5oZZ4+gxHHRPAH78/8uZf1Yav+diP4dRSJP0C7J1y3h8K9tGNxuxNRcvNvuUaDSx
-         ggzTec/oTUKuH47w3Q74g2Bod55cTgilc/r1iGSGqDHFSUGMyCnN7WaoUwthBFvLFIp8
-         tft+SGl3DTh8/tPwPem/72qTFhfyjl65JVNJSrQHI6E7iYtlT9fq5ybzwfIWNZzXOOEK
-         P0vJ+QxgfNO7WGMnSg2zX2hccyVhfSoGvkc1SzI0XKuaUOSitLWbeEN22tHlIp+FFQc0
-         8t7HzJK43R5EDF7Vq/ZEzmbzt5gy0xBLMqNkc2Kk1/MYOlpibonTmxqzAEW+f8chF3Aw
-         NKhA==
-X-Gm-Message-State: AJIora8T2/OsM9ft21oNIJWaFLwYJbVoJrhg28DoUEJLgRIjgr0jwrqd
-        bJV0gTisGbAfBMwetOuFolE=
-X-Google-Smtp-Source: AGRyM1uderMRoC/wD4wwPZ5KskePnbaIuldIaxrQa4fcRbY+N38PrtddF3hqjlkIJCHaApuPyppE7g==
-X-Received: by 2002:a17:90a:4402:b0:1f2:3507:5f96 with SMTP id s2-20020a17090a440200b001f235075f96mr2611599pjg.22.1658541767473;
-        Fri, 22 Jul 2022 19:02:47 -0700 (PDT)
-Received: from debian.me (subs09a-223-255-225-70.three.co.id. [223.255.225.70])
-        by smtp.gmail.com with ESMTPSA id x20-20020aa79574000000b0052ac5e304d0sm4674355pfq.179.2022.07.22.19.02.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jul 2022 19:02:47 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 774E91048EE; Sat, 23 Jul 2022 09:02:43 +0700 (WIB)
-Date:   Sat, 23 Jul 2022 09:02:42 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 00/70] 5.18.14-rc1 review
-Message-ID: <YttWwtesMEUs3BOZ@debian.me>
-References: <20220722090650.665513668@linuxfoundation.org>
+        with ESMTP id S229513AbiGWDo2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Jul 2022 23:44:28 -0400
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05A2796A8;
+        Fri, 22 Jul 2022 20:44:27 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9CA275C0090;
+        Fri, 22 Jul 2022 23:44:24 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Fri, 22 Jul 2022 23:44:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        invisiblethingslab.com; h=cc:cc:content-transfer-encoding:date
+        :date:from:from:in-reply-to:message-id:mime-version:reply-to
+        :sender:subject:subject:to:to; s=fm3; t=1658547864; x=
+        1658634264; bh=Q+2bcuYbqNaeJUyXlpoGM3BHR0EjVdzO4fH/v0jEPL4=; b=7
+        t1JRyzTo/cUpqOGjclWdhpSnggdWsoxx/jZXJ8VkWT8hDZgObyUSmHMsJ2rQceMA
+        IbsozmiGBQ3OowrBrhrm/UH+cqJQhlYZ5C+FkbxjvZPEf20El5Ez4DkJ7ASqqrdF
+        Qm5TWOplLbMpM47m7uuTiQpgMa03O4S1wcjQztwPfT/d8pHPWqb0hXKpMkIa4EHa
+        idR00dVzu09I6/vjFlHxpQyCbqbqVSwZn3mmNOZjlYY5MZQHi4wAz11G/2viordE
+        Q4PlxgOK8cnhwgLTgp5Uk7V2r7JyRFp8+IbrU8lTHTEBeT8galyYO+n6QgDuAsPv
+        7srhaCpCFGUTsg3RwIfFA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+        1658547864; x=1658634264; bh=Q+2bcuYbqNaeJUyXlpoGM3BHR0EjVdzO4fH
+        /v0jEPL4=; b=C/uvxx0mgnbPf8amBWXIyKazG/mgZB/TuRDW8v+FCezAN0hkTf8
+        iTSiozTjbTDY0H23jRMmUi8ztfOEMhcs4QKabgc67MM4cFFlS9yhJZwxQ7WsWz9W
+        XqsrHOSl3eQM0RVG11QRuEKW/XROGXbYbxmm81uJU/R8rPn4MDh2Nj2BBY16sGUz
+        DRg3KyI6+HJ4R1EebfS2jPTUJbTEtkqZWoma1I/AHdGEqO2uEQo0aF7rzQJsqPFu
+        oCDgsH80JdQ01oipnF80Uqx826dMRaIbuPHMLDIUQt6GU52kycspkpQBMOMWZzEj
+        WP/Y4cUcwldoY05nrgdzgiRfikAv3KMGimA==
+X-ME-Sender: <xms:mG7bYp0SSDu1O2epo5qXdYmI4DKLiMHovg0lHbC_BxYy7pIzvQqVtw>
+    <xme:mG7bYgEXG5VedUng4CiJ81W1FWyvtBJn-CQUsTD7gPT1IqA3KVZVaniEU6Sus0EpP
+    -l_3W9c1iRHo5g>
+X-ME-Received: <xmr:mG7bYp4JgN3PkCn81nH5t1U0kJ5B19zFe-zfWjqX9tw1o3mkpBTx-hseiFi1tQxpjGlugumJ5If4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvddtfedgjeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepffgvmhhiucfo
+    rghrihgvucfqsggvnhhouhhruceouggvmhhisehinhhvihhsihgslhgvthhhihhnghhslh
+    grsgdrtghomheqnecuggftrfgrthhtvghrnhepvdefgeekvdekgfffgeekhfeijedtffek
+    hefhleehfeejueetgfelgefgtdevieelnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepuggvmhhisehinhhvihhsihgslhgvthhhihhnghhslhgr
+    sgdrtghomh
+X-ME-Proxy: <xmx:mG7bYm14s34XpN5xQtob085psFFMqeXquNUXASotu8SZZtvcQJvN7A>
+    <xmx:mG7bYsH4W_eU5AA4Yo361li6oWJgGkvbgIAwhfzwyIKKHc2DXXXGJA>
+    <xmx:mG7bYn_seCTnEjhtxtPGahg_cuIIWz2M6LHOoWriiQBfAu3WvFegPg>
+    <xmx:mG7bYhMOojthcQuq6c4_QxZxdXgyuzAovJPmAI6Y9AMCf33Pda7JxQ>
+Feedback-ID: iac594737:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 22 Jul 2022 23:44:23 -0400 (EDT)
+From:   Demi Marie Obenour <demi@invisiblethingslab.com>
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Demi Marie Obenour <demi@invisiblethingslab.com>,
+        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Backport of 166d38632316 ("xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE")
+Date:   Fri, 22 Jul 2022 23:44:10 -0400
+Message-Id: <20220723034415.1560-1-demi@invisiblethingslab.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220722090650.665513668@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 22, 2022 at 11:06:55AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.14 release.
-> There are 70 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0)
-and powerpc (ps3_defconfig, GCC 12.1.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
+This series backports upstream commit 166d3863231667c4f64dee72b77d1102cdfad11f
+to all supported stable kernel trees.
 -- 
-An old man doll... just what I always wanted! - Clara
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+Invisible Things Lab
