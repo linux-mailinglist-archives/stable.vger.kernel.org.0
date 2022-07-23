@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E1857ED6B
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 11:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A7357ED6D
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 11:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237494AbiGWJ5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 05:57:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46056 "EHLO
+        id S237510AbiGWJ5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 05:57:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237385AbiGWJ4s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:56:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E8A3A4AA;
-        Sat, 23 Jul 2022 02:56:44 -0700 (PDT)
+        with ESMTP id S237398AbiGWJ4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:56:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E4E23B948;
+        Sat, 23 Jul 2022 02:56:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F01906116A;
-        Sat, 23 Jul 2022 09:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07BE0C341C7;
-        Sat, 23 Jul 2022 09:56:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D42486116A;
+        Sat, 23 Jul 2022 09:56:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E021EC341C0;
+        Sat, 23 Jul 2022 09:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570203;
-        bh=KOPBfmIxu9SkTNKcXX0nwvznMmnj5WtPQ0BxdN1yLmw=;
+        s=korg; t=1658570206;
+        bh=+THqdilnftkwgLT3AbiDopT9tOjoWmndlCmioZBsvV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHpz6UKalOirJcTPZZ48QuK+UTUOz/XG1hHLq8Hix8GcE1MTqX5lj6A1T37FuRDo8
-         46R1mUJSu6ZqmeQoVRGX5QvNdHSJU6qozanGkhnEthwF8FxEBNYPneETW5FhGRsqpo
-         YzcYuFpn5N31NHxPJv9Ttd+HahXYJi6sPwDDyhJU=
+        b=jHkhlYg0LF9+r1saA9g6jbJCJYzFtqt+DyUx0jCiPvIS9Jkv8ohuUYZpsSU+wNbHg
+         yoYwwFL5dMKpnJubWPMgV0BHdZLa/4gbTTohBVIvoamrj6BSOlWDvqMV8PIE9C6Uk8
+         E9IxZ9OiXUBw8y0QOv24mxwlU+/AHOXqIrqU/JgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 007/148] objtool: Assume only ELF functions do sibling calls
-Date:   Sat, 23 Jul 2022 11:53:39 +0200
-Message-Id: <20220723095226.474288186@linuxfoundation.org>
+Subject: [PATCH 5.10 008/148] objtool: Combine UNWIND_HINT_RET_OFFSET and UNWIND_HINT_FUNC
+Date:   Sat, 23 Jul 2022 11:53:40 +0200
+Message-Id: <20220723095226.748134676@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -54,119 +54,237 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit ecf11ba4d066fe527586c6edd6ca68457ca55cf4 upstream.
+commit b735bd3e68824316655252a931a3353a6ebc036f upstream.
 
-There's an inconsistency in how sibling calls are detected in
-non-function asm code, depending on the scope of the object.  If the
-target code is external to the object, objtool considers it a sibling
-call.  If the target code is internal but not a function, objtool
-*doesn't* consider it a sibling call.
+The ORC metadata generated for UNWIND_HINT_FUNC isn't actually very
+func-like.  With certain usages it can cause stack state mismatches
+because it doesn't set the return address (CFI_RA).
 
-This can cause some inconsistencies between per-object and vmlinux.o
-validation.
+Also, users of UNWIND_HINT_RET_OFFSET no longer need to set a custom
+return stack offset.  Instead they just need to specify a func-like
+situation, so the current ret_offset code is hacky for no good reason.
 
-Instead, assume only ELF functions can do sibling calls.  This generally
-matches existing reality, and makes sibling call validation consistent
-between vmlinux.o and per-object.
+Solve both problems by simplifying the RET_OFFSET handling and
+converting it into a more useful UNWIND_HINT_FUNC.
+
+If we end up needing the old 'ret_offset' functionality again in the
+future, we should be able to support it pretty easily with the addition
+of a custom 'sp_offset' in UNWIND_HINT_FUNC.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/0e9ab6f3628cc7bf3bde7aa6762d54d7df19ad78.1611263461.git.jpoimboe@redhat.com
+Link: https://lore.kernel.org/r/db9d1f5d79dddfbb3725ef6d8ec3477ad199948d.1611263462.git.jpoimboe@redhat.com
+[bwh: Backported to 5.10:
+ - Don't use bswap_if_needed() since we don't have any of the other fixes
+   for mixed-endian cross-compilation
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c |   36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+ arch/x86/include/asm/unwind_hints.h |   13 +-----------
+ arch/x86/kernel/ftrace_64.S         |    2 -
+ arch/x86/lib/retpoline.S            |    2 -
+ include/linux/objtool.h             |    5 +++-
+ tools/include/linux/objtool.h       |    5 +++-
+ tools/objtool/arch/x86/decode.c     |    4 +--
+ tools/objtool/check.c               |   37 ++++++++++++++----------------------
+ tools/objtool/check.h               |    1 
+ 8 files changed, 29 insertions(+), 40 deletions(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -109,15 +109,20 @@ static struct instruction *prev_insn_sam
+--- a/arch/x86/include/asm/unwind_hints.h
++++ b/arch/x86/include/asm/unwind_hints.h
+@@ -48,17 +48,8 @@
+ 	UNWIND_HINT_REGS base=\base offset=\offset partial=1
+ .endm
  
- static bool is_sibling_call(struct instruction *insn)
- {
-+	/*
-+	 * Assume only ELF functions can make sibling calls.  This ensures
-+	 * sibling call detection consistency between vmlinux.o and individual
-+	 * objects.
-+	 */
-+	if (!insn->func)
-+		return false;
-+
- 	/* An indirect jump is either a sibling call or a jump to a table. */
- 	if (insn->type == INSN_JUMP_DYNAMIC)
- 		return list_empty(&insn->alts);
- 
--	if (!is_static_jump(insn))
--		return false;
+-.macro UNWIND_HINT_FUNC sp_offset=8
+-	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=\sp_offset type=UNWIND_HINT_TYPE_CALL
+-.endm
 -
- 	/* add_jump_destinations() sets insn->call_dest for sibling calls. */
--	return !!insn->call_dest;
-+	return (is_static_jump(insn) && insn->call_dest);
+-/*
+- * RET_OFFSET: Used on instructions that terminate a function; mostly RETURN
+- * and sibling calls. On these, sp_offset denotes the expected offset from
+- * initial_func_cfi.
+- */
+-.macro UNWIND_HINT_RET_OFFSET sp_offset=8
+-	UNWIND_HINT sp_reg=ORC_REG_SP type=UNWIND_HINT_TYPE_RET_OFFSET sp_offset=\sp_offset
++.macro UNWIND_HINT_FUNC
++	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=8 type=UNWIND_HINT_TYPE_FUNC
+ .endm
+ 
+ #endif /* __ASSEMBLY__ */
+--- a/arch/x86/kernel/ftrace_64.S
++++ b/arch/x86/kernel/ftrace_64.S
+@@ -265,7 +265,7 @@ SYM_INNER_LABEL(ftrace_regs_caller_end,
+ 	restore_mcount_regs 8
+ 	/* Restore flags */
+ 	popfq
+-	UNWIND_HINT_RET_OFFSET
++	UNWIND_HINT_FUNC
+ 	jmp	ftrace_epilogue
+ 
+ SYM_FUNC_END(ftrace_regs_caller)
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -28,7 +28,7 @@ SYM_FUNC_START_NOALIGN(__x86_retpoline_\
+ 	jmp	.Lspec_trap_\@
+ .Ldo_rop_\@:
+ 	mov	%\reg, (%_ASM_SP)
+-	UNWIND_HINT_RET_OFFSET
++	UNWIND_HINT_FUNC
+ 	ret
+ SYM_FUNC_END(__x86_retpoline_\reg)
+ 
+--- a/include/linux/objtool.h
++++ b/include/linux/objtool.h
+@@ -29,11 +29,14 @@ struct unwind_hint {
+  *
+  * UNWIND_HINT_TYPE_REGS_PARTIAL: Used in entry code to indicate that
+  * sp_reg+sp_offset points to the iret return frame.
++ *
++ * UNWIND_HINT_FUNC: Generate the unwind metadata of a callable function.
++ * Useful for code which doesn't have an ELF function annotation.
+  */
+ #define UNWIND_HINT_TYPE_CALL		0
+ #define UNWIND_HINT_TYPE_REGS		1
+ #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
+-#define UNWIND_HINT_TYPE_RET_OFFSET	3
++#define UNWIND_HINT_TYPE_FUNC		3
+ 
+ #ifdef CONFIG_STACK_VALIDATION
+ 
+--- a/tools/include/linux/objtool.h
++++ b/tools/include/linux/objtool.h
+@@ -29,11 +29,14 @@ struct unwind_hint {
+  *
+  * UNWIND_HINT_TYPE_REGS_PARTIAL: Used in entry code to indicate that
+  * sp_reg+sp_offset points to the iret return frame.
++ *
++ * UNWIND_HINT_FUNC: Generate the unwind metadata of a callable function.
++ * Useful for code which doesn't have an ELF function annotation.
+  */
+ #define UNWIND_HINT_TYPE_CALL		0
+ #define UNWIND_HINT_TYPE_REGS		1
+ #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
+-#define UNWIND_HINT_TYPE_RET_OFFSET	3
++#define UNWIND_HINT_TYPE_FUNC		3
+ 
+ #ifdef CONFIG_STACK_VALIDATION
+ 
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -563,8 +563,8 @@ void arch_initial_func_cfi_state(struct
+ 	state->cfa.offset = 8;
+ 
+ 	/* initial RA (return address) */
+-	state->regs[16].base = CFI_CFA;
+-	state->regs[16].offset = -8;
++	state->regs[CFI_RA].base = CFI_CFA;
++	state->regs[CFI_RA].offset = -8;
  }
  
- /*
-@@ -788,7 +793,7 @@ static int add_jump_destinations(struct
- 			continue;
+ const char *arch_nop_insn(int len)
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1423,13 +1423,20 @@ static int add_jump_table_alts(struct ob
+ 	return 0;
+ }
  
- 		reloc = find_reloc_by_dest_range(file->elf, insn->sec,
--					       insn->offset, insn->len);
-+						 insn->offset, insn->len);
- 		if (!reloc) {
- 			dest_sec = insn->sec;
- 			dest_off = arch_jump_destination(insn);
-@@ -808,18 +813,21 @@ static int add_jump_destinations(struct
++static void set_func_state(struct cfi_state *state)
++{
++	state->cfa = initial_func_cfi.cfa;
++	memcpy(&state->regs, &initial_func_cfi.regs,
++	       CFI_NUM_REGS * sizeof(struct cfi_reg));
++	state->stack_size = initial_func_cfi.cfa.offset;
++}
++
+ static int read_unwind_hints(struct objtool_file *file)
+ {
+ 	struct section *sec, *relocsec;
+ 	struct reloc *reloc;
+ 	struct unwind_hint *hint;
+ 	struct instruction *insn;
+-	struct cfi_reg *cfa;
+ 	int i;
  
- 			insn->retpoline_safe = true;
- 			continue;
--		} else if (reloc->sym->sec->idx) {
--			dest_sec = reloc->sym->sec;
--			dest_off = reloc->sym->sym.st_value +
--				   arch_dest_reloc_offset(reloc->addend);
--		} else {
--			/* external sibling call */
-+		} else if (insn->func) {
-+			/* internal or external sibling call (with reloc) */
- 			insn->call_dest = reloc->sym;
- 			if (insn->call_dest->static_call_tramp) {
- 				list_add_tail(&insn->static_call_node,
- 					      &file->static_call_list);
- 			}
- 			continue;
-+		} else if (reloc->sym->sec->idx) {
-+			dest_sec = reloc->sym->sec;
-+			dest_off = reloc->sym->sym.st_value +
-+				   arch_dest_reloc_offset(reloc->addend);
-+		} else {
-+			/* non-func asm code jumping to another file */
-+			continue;
+ 	sec = find_section_by_name(file->elf, ".discard.unwind_hints");
+@@ -1464,22 +1471,20 @@ static int read_unwind_hints(struct objt
+ 			return -1;
  		}
  
- 		insn->jump_dest = find_insn(file, dest_sec, dest_off);
-@@ -868,7 +876,7 @@ static int add_jump_destinations(struct
- 			} else if (insn->jump_dest->func->pfunc != insn->func->pfunc &&
- 				   insn->jump_dest->offset == insn->jump_dest->func->offset) {
+-		cfa = &insn->cfi.cfa;
++		insn->hint = true;
  
--				/* internal sibling call */
-+				/* internal sibling call (without reloc) */
- 				insn->call_dest = insn->jump_dest->func;
- 				if (insn->call_dest->static_call_tramp) {
- 					list_add_tail(&insn->static_call_node,
-@@ -2570,7 +2578,7 @@ static int validate_branch(struct objtoo
+-		if (hint->type == UNWIND_HINT_TYPE_RET_OFFSET) {
+-			insn->ret_offset = hint->sp_offset;
++		if (hint->type == UNWIND_HINT_TYPE_FUNC) {
++			set_func_state(&insn->cfi);
+ 			continue;
+ 		}
  
- 		case INSN_JUMP_CONDITIONAL:
- 		case INSN_JUMP_UNCONDITIONAL:
--			if (func && is_sibling_call(insn)) {
-+			if (is_sibling_call(insn)) {
- 				ret = validate_sibling_call(insn, &state);
- 				if (ret)
- 					return ret;
-@@ -2592,7 +2600,7 @@ static int validate_branch(struct objtoo
+-		insn->hint = true;
+-
+ 		if (arch_decode_hint_reg(insn, hint->sp_reg)) {
+ 			WARN_FUNC("unsupported unwind_hint sp base reg %d",
+ 				  insn->sec, insn->offset, hint->sp_reg);
+ 			return -1;
+ 		}
  
- 		case INSN_JUMP_DYNAMIC:
- 		case INSN_JUMP_DYNAMIC_CONDITIONAL:
--			if (func && is_sibling_call(insn)) {
-+			if (is_sibling_call(insn)) {
- 				ret = validate_sibling_call(insn, &state);
- 				if (ret)
- 					return ret;
+-		cfa->offset = hint->sp_offset;
++		insn->cfi.cfa.offset = hint->sp_offset;
+ 		insn->cfi.type = hint->type;
+ 		insn->cfi.end = hint->end;
+ 	}
+@@ -1742,27 +1747,18 @@ static bool is_fentry_call(struct instru
+ 
+ static bool has_modified_stack_frame(struct instruction *insn, struct insn_state *state)
+ {
+-	u8 ret_offset = insn->ret_offset;
+ 	struct cfi_state *cfi = &state->cfi;
+ 	int i;
+ 
+ 	if (cfi->cfa.base != initial_func_cfi.cfa.base || cfi->drap)
+ 		return true;
+ 
+-	if (cfi->cfa.offset != initial_func_cfi.cfa.offset + ret_offset)
++	if (cfi->cfa.offset != initial_func_cfi.cfa.offset)
+ 		return true;
+ 
+-	if (cfi->stack_size != initial_func_cfi.cfa.offset + ret_offset)
++	if (cfi->stack_size != initial_func_cfi.cfa.offset)
+ 		return true;
+ 
+-	/*
+-	 * If there is a ret offset hint then don't check registers
+-	 * because a callee-saved register might have been pushed on
+-	 * the stack.
+-	 */
+-	if (ret_offset)
+-		return false;
+-
+ 	for (i = 0; i < CFI_NUM_REGS; i++) {
+ 		if (cfi->regs[i].base != initial_func_cfi.regs[i].base ||
+ 		    cfi->regs[i].offset != initial_func_cfi.regs[i].offset)
+@@ -2863,10 +2859,7 @@ static int validate_section(struct objto
+ 			continue;
+ 
+ 		init_insn_state(&state, sec);
+-		state.cfi.cfa = initial_func_cfi.cfa;
+-		memcpy(&state.cfi.regs, &initial_func_cfi.regs,
+-		       CFI_NUM_REGS * sizeof(struct cfi_reg));
+-		state.cfi.stack_size = initial_func_cfi.cfa.offset;
++		set_func_state(&state.cfi);
+ 
+ 		warnings += validate_symbol(file, sec, func, &state);
+ 	}
+--- a/tools/objtool/check.h
++++ b/tools/objtool/check.h
+@@ -50,7 +50,6 @@ struct instruction {
+ 	bool retpoline_safe;
+ 	s8 instr;
+ 	u8 visited;
+-	u8 ret_offset;
+ 	struct alt_group *alt_group;
+ 	struct symbol *call_dest;
+ 	struct instruction *jump_dest;
 
 
