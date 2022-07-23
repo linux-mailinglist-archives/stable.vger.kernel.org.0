@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE4D57EE31
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A79DD57EE43
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238629AbiGWKIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:08:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42968 "EHLO
+        id S238660AbiGWKJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:09:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238748AbiGWKHv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:07:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86013C5234;
-        Sat, 23 Jul 2022 03:01:34 -0700 (PDT)
+        with ESMTP id S238748AbiGWKIu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:08:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96821C9E7A;
+        Sat, 23 Jul 2022 03:01:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DDB361272;
-        Sat, 23 Jul 2022 10:01:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF5BC341C0;
-        Sat, 23 Jul 2022 10:01:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4312D6116A;
+        Sat, 23 Jul 2022 10:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 526D7C341C0;
+        Sat, 23 Jul 2022 10:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570492;
-        bh=M1JAbX+riJW6E/VEEoTjpyBBCJ7lGmUIn2OY4L/SFy8=;
+        s=korg; t=1658570495;
+        bh=s9BBdXTRzWO6rilbhoZPvTfn8C7dwgczJt4XxU408Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=di9W/rQripDU9eKZYIwauxxxn2PM9Nusc3UO0cULqob2SDwseZXY75iZN3bW7ICXb
-         JDT9TawDnMijbiPFYKYra7DfId1vzMhSs6dBunOUjLa6kuxwS3r6yX/f+WGjaKxa20
-         Csiz7IYOyr+QYXQ7d5lUU4NyUwSj8pjY6thGF/hU=
+        b=N0vlzdrpULs29z6OTQr+6AENsrGvpG29z0KA0Q9NisG0a+m+wuAhRa1mI/asybxd8
+         WEMhVAOg57tkEENHeDyFsTeb8jDhlnkM4+sdbubVhsXAmgSzuWbJ16GXctX0BFfmSP
+         XuOopOHyhlR4g1cvnHC/NmZp+oDGdEezAfHG1TKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 105/148] intel_idle: Disable IBRS during long idle
-Date:   Sat, 23 Jul 2022 11:55:17 +0200
-Message-Id: <20220723095253.758095406@linuxfoundation.org>
+Subject: [PATCH 5.10 106/148] objtool: Update Retpoline validation
+Date:   Sat, 23 Jul 2022 11:55:18 +0200
+Message-Id: <20220723095254.035382699@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -58,181 +58,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit bf5835bcdb9635c97f85120dba9bfa21e111130f upstream.
+commit 9bb2ec608a209018080ca262f771e6a9ff203b6f upstream.
 
-Having IBRS enabled while the SMT sibling is idle unnecessarily slows
-down the running sibling. OTOH, disabling IBRS around idle takes two
-MSR writes, which will increase the idle latency.
+Update retpoline validation with the new CONFIG_RETPOLINE requirement of
+not having bare naked RET instructions.
 
-Therefore, only disable IBRS around deeper idle states. Shallow idle
-states are bounded by the tick in duration, since NOHZ is not allowed
-for them by virtue of their short target residency.
-
-Only do this for mwait-driven idle, since that keeps interrupts disabled
-across idle, which makes disabling IBRS vs IRQ-entry a non-issue.
-
-Note: C6 is a random threshold, most importantly C1 probably shouldn't
-disable IBRS, benchmarking needed.
-
-Suggested-by: Tim Chen <tim.c.chen@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: no CPUIDLE_FLAG_IRQ_ENABLE]
+[cascardo: conflict fixup at arch/x86/xen/xen-head.S]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    1 
- arch/x86/kernel/cpu/bugs.c           |    6 ++++
- drivers/idle/intel_idle.c            |   43 ++++++++++++++++++++++++++++++-----
- 3 files changed, 44 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    6 ++++++
+ arch/x86/mm/mem_encrypt_boot.S       |    2 ++
+ arch/x86/xen/xen-head.S              |    1 +
+ tools/objtool/check.c                |   19 +++++++++++++------
+ 4 files changed, 22 insertions(+), 6 deletions(-)
 
 --- a/arch/x86/include/asm/nospec-branch.h
 +++ b/arch/x86/include/asm/nospec-branch.h
-@@ -256,6 +256,7 @@ static inline void indirect_branch_predi
- /* The Intel SPEC CTRL MSR base value cache */
- extern u64 x86_spec_ctrl_base;
- extern void write_spec_ctrl_current(u64 val, bool force);
-+extern u64 spec_ctrl_current(void);
+@@ -76,6 +76,12 @@
+ .endm
  
  /*
-  * With retpoline, we must use IBRS to restrict branch prediction
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -78,6 +78,12 @@ void write_spec_ctrl_current(u64 val, bo
- 		wrmsrl(MSR_IA32_SPEC_CTRL, val);
- }
- 
-+u64 spec_ctrl_current(void)
-+{
-+	return this_cpu_read(x86_spec_ctrl_current);
-+}
-+EXPORT_SYMBOL_GPL(spec_ctrl_current);
-+
- /*
-  * The vendor and possibly platform specific bits which can be modified in
-  * x86_spec_ctrl_base.
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -47,11 +47,13 @@
- #include <linux/tick.h>
- #include <trace/events/power.h>
- #include <linux/sched.h>
-+#include <linux/sched/smt.h>
- #include <linux/notifier.h>
- #include <linux/cpu.h>
- #include <linux/moduleparam.h>
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
-+#include <asm/nospec-branch.h>
- #include <asm/mwait.h>
- #include <asm/msr.h>
- 
-@@ -94,6 +96,12 @@ static unsigned int mwait_substates __in
- #define CPUIDLE_FLAG_ALWAYS_ENABLE	BIT(15)
- 
- /*
-+ * Disable IBRS across idle (when KERNEL_IBRS), is exclusive vs IRQ_ENABLE
-+ * above.
++ * (ab)use RETPOLINE_SAFE on RET to annotate away 'bare' RET instructions
++ * vs RETBleed validation.
 + */
-+#define CPUIDLE_FLAG_IBRS		BIT(16)
++#define ANNOTATE_UNRET_SAFE ANNOTATE_RETPOLINE_SAFE
 +
 +/*
-  * MWAIT takes an 8-bit "hint" in EAX "suggesting"
-  * the C-state (top nibble) and sub-state (bottom nibble)
-  * 0x00 means "MWAIT(C1)", 0x10 means "MWAIT(C2)" etc.
-@@ -132,6 +140,24 @@ static __cpuidle int intel_idle(struct c
- 	return index;
- }
+  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
+  * indirect jmp/call which may be susceptible to the Spectre variant 2
+  * attack.
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -66,6 +66,7 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	pop	%rbp
  
-+static __cpuidle int intel_idle_ibrs(struct cpuidle_device *dev,
-+				     struct cpuidle_driver *drv, int index)
-+{
-+	bool smt_active = sched_smt_active();
-+	u64 spec_ctrl = spec_ctrl_current();
-+	int ret;
-+
-+	if (smt_active)
-+		wrmsrl(MSR_IA32_SPEC_CTRL, 0);
-+
-+	ret = intel_idle(dev, drv, index);
-+
-+	if (smt_active)
-+		wrmsrl(MSR_IA32_SPEC_CTRL, spec_ctrl);
-+
-+	return ret;
-+}
-+
- /**
-  * intel_idle_s2idle - Ask the processor to enter the given idle state.
-  * @dev: cpuidle device of the target CPU.
-@@ -653,7 +679,7 @@ static struct cpuidle_state skl_cstates[
- 	{
- 		.name = "C6",
- 		.desc = "MWAIT 0x20",
--		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
-+		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 85,
- 		.target_residency = 200,
- 		.enter = &intel_idle,
-@@ -661,7 +687,7 @@ static struct cpuidle_state skl_cstates[
- 	{
- 		.name = "C7s",
- 		.desc = "MWAIT 0x33",
--		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED,
-+		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 124,
- 		.target_residency = 800,
- 		.enter = &intel_idle,
-@@ -669,7 +695,7 @@ static struct cpuidle_state skl_cstates[
- 	{
- 		.name = "C8",
- 		.desc = "MWAIT 0x40",
--		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED,
-+		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 200,
- 		.target_residency = 800,
- 		.enter = &intel_idle,
-@@ -677,7 +703,7 @@ static struct cpuidle_state skl_cstates[
- 	{
- 		.name = "C9",
- 		.desc = "MWAIT 0x50",
--		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED,
-+		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 480,
- 		.target_residency = 5000,
- 		.enter = &intel_idle,
-@@ -685,7 +711,7 @@ static struct cpuidle_state skl_cstates[
- 	{
- 		.name = "C10",
- 		.desc = "MWAIT 0x60",
--		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED,
-+		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 890,
- 		.target_residency = 5000,
- 		.enter = &intel_idle,
-@@ -714,7 +740,7 @@ static struct cpuidle_state skx_cstates[
- 	{
- 		.name = "C6",
- 		.desc = "MWAIT 0x20",
--		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
-+		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
- 		.exit_latency = 133,
- 		.target_residency = 600,
- 		.enter = &intel_idle,
-@@ -1501,6 +1527,11 @@ static void __init intel_idle_init_cstat
- 		/* Structure copy. */
- 		drv->states[drv->state_count] = cpuidle_state_table[cstate];
+ 	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
+ 	ret
+ 	int3
+ SYM_FUNC_END(sme_encrypt_execute)
+@@ -154,6 +155,7 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r15
  
-+		if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) &&
-+		    cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IBRS) {
-+			drv->states[drv->state_count].enter = intel_idle_ibrs;
+ 	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
+ 	ret
+ 	int3
+ .L__enc_copy_end:
+--- a/arch/x86/xen/xen-head.S
++++ b/arch/x86/xen/xen-head.S
+@@ -70,6 +70,7 @@ SYM_CODE_START(hypercall_page)
+ 	.rept (PAGE_SIZE / 32)
+ 		UNWIND_HINT_FUNC
+ 		.skip 31, 0x90
++		ANNOTATE_UNRET_SAFE
+ 		RET
+ 	.endr
+ 
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1799,8 +1799,9 @@ static int read_retpoline_hints(struct o
+ 		}
+ 
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC) {
+-			WARN_FUNC("retpoline_safe hint not an indirect jump/call",
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN) {
++			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret",
+ 				  insn->sec, insn->offset);
+ 			return -1;
+ 		}
+@@ -3051,7 +3052,8 @@ static int validate_retpoline(struct obj
+ 
+ 	for_each_insn(file, insn) {
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC)
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN)
+ 			continue;
+ 
+ 		if (insn->retpoline_safe)
+@@ -3066,9 +3068,14 @@ static int validate_retpoline(struct obj
+ 		if (!strcmp(insn->sec->name, ".init.text") && !module)
+ 			continue;
+ 
+-		WARN_FUNC("indirect %s found in RETPOLINE build",
+-			  insn->sec, insn->offset,
+-			  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		if (insn->type == INSN_RETURN) {
++			WARN_FUNC("'naked' return found in RETPOLINE build",
++				  insn->sec, insn->offset);
++		} else {
++			WARN_FUNC("indirect %s found in RETPOLINE build",
++				  insn->sec, insn->offset,
++				  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
 +		}
-+
- 		if ((disabled_states_mask & BIT(drv->state_count)) ||
- 		    ((icpu->use_acpi || force_use_acpi) &&
- 		     intel_idle_off_by_default(mwait_hint) &&
+ 
+ 		warnings++;
+ 	}
 
 
