@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A60D57EFD7
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 16:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16BF457EFEB
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 16:59:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233203AbiGWOxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 10:53:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48862 "EHLO
+        id S236970AbiGWO7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 10:59:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232670AbiGWOxv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 10:53:51 -0400
+        with ESMTP id S236191AbiGWO7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 10:59:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BB91F629
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 07:53:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5214E14D0A;
+        Sat, 23 Jul 2022 07:59:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1590560B88
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 14:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 168A1C341C0;
-        Sat, 23 Jul 2022 14:53:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E439360BA9;
+        Sat, 23 Jul 2022 14:59:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF125C341C0;
+        Sat, 23 Jul 2022 14:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658588029;
-        bh=ioN5k9Psk69uJ3GttcBGUyDl7Q5JsdIF9Xj0T2KPA+A=;
+        s=korg; t=1658588385;
+        bh=M9jMVR91TD7sPGCXWoiFHEnLMPyC1nFPhYQlehtKTj0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JYCA+x51/kqsQA92xHMuPmv/NvHrOPwTjCvrBirGl8fN3gQhq1swuxr1UfOLLm9za
-         D1zGUZN87CjMYMtrmpB7DUz5vCDBwlTQXZjfyVo2UnOwC+o/zM5e6ezDaMKQOjWyTS
-         b7v/OKjpapkRT/UvivQSFGfr4lIWYKI/kvAfTKQM=
-Date:   Sat, 23 Jul 2022 16:53:46 +0200
+        b=i7yaspiq2062x2uoFJS3DlPxhhbXNmhSyRyrWSs+DbKNseT/oOPPA2tjkmGt1qzSP
+         Vrav+H0vlqdTFzsnhZevG49y+69orIdlp/xECwFXeEfKWaJrCBJFUgtJVmRil+U7PC
+         0iCLS5KfpAE7N/gxh1nTaa9G/9ynEoUbj7lGPibE=
+Date:   Sat, 23 Jul 2022 16:59:42 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Oleksandr Tymoshenko <ovt@google.com>
-Cc:     sidhartha.kumar@oracle.com, stable@vger.kernel.org
-Subject: Re: [PATCH 0/2] Fix vm kselftest build
-Message-ID: <YtwLeqSHaFP7Fl8v@kroah.com>
-References: <20220715231542.2169650-1-ovt@google.com>
- <YtJHOtDQ4swTmxjf@kroah.com>
- <CACGj0Ch1wQnVp0k4EBujncGXW8UGGyprFh2ESeRt_5m2OL4FZg@mail.gmail.com>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     stable@vger.kernel.org, linux-block@vger.kernel.org,
+        dm-devel@redhat.com, Christoph Hellwig <hch@lst.de>,
+        syzbot+4f441e6ca0fcad141421@syzkaller.appspotmail.com,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5.10 1/2] block: split bio_kmalloc from bio_alloc_bioset
+Message-ID: <YtwM3uHugOOdDQZT@kroah.com>
+References: <20220718211226.506362-1-tadeusz.struk@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACGj0Ch1wQnVp0k4EBujncGXW8UGGyprFh2ESeRt_5m2OL4FZg@mail.gmail.com>
+In-Reply-To: <20220718211226.506362-1-tadeusz.struk@linaro.org>
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -50,24 +54,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 16, 2022 at 11:11:02AM -0700, Oleksandr Tymoshenko wrote:
-> On Fri, Jul 15, 2022 at 10:06 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Fri, Jul 15, 2022 at 11:15:40PM +0000, Oleksandr Tymoshenko wrote:
-> > > This patchset reverts duplicates of two backported commits that created
-> > > exact copies of functions added by the original backports.
-> > >
-> > > Oleksandr Tymoshenko (2):
-> > >   Revert "selftest/vm: verify remap destination address in mremap_test"
-> > >   Revert "selftest/vm: verify mmap addr in mremap_test"
-> > >
-> > >  tools/testing/selftests/vm/mremap_test.c | 53 ------------------------
-> > >  1 file changed, 53 deletions(-)
-> >
-> > For what stable tree(s) are you wanting these to be applied to?
+On Mon, Jul 18, 2022 at 02:12:25PM -0700, Tadeusz Struk wrote:
+> From: Christoph Hellwig <hch@lst.de>
 > 
-> 5.15, only this branch is affected
+> From: Christoph Hellwig <hch@lst.de>
+> 
+> Upstream commit: 3175199ab0ac ("block: split bio_kmalloc from bio_alloc_bioset")
+> 
+> This is backport to stable 5.10. It fixes an issue reported by syzbot.
+> Link: https://syzkaller.appspot.com/bug?id=a3416231e37024a75f2b95bd95db0d8ce8132a84
 
-thanks, now queued up.
+Both now queued up, thanks.
 
 greg k-h
