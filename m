@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8773D57EDDD
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B4657EDE6
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238006AbiGWKDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:03:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
+        id S238126AbiGWKEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238105AbiGWKDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:03:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5CC88F0A;
-        Sat, 23 Jul 2022 02:59:28 -0700 (PDT)
+        with ESMTP id S238161AbiGWKD4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 06:03:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323608F530;
+        Sat, 23 Jul 2022 02:59:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 619FDB82C1B;
-        Sat, 23 Jul 2022 09:59:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81151C341C0;
-        Sat, 23 Jul 2022 09:59:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3459DB82C1F;
+        Sat, 23 Jul 2022 09:59:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95ACBC341C0;
+        Sat, 23 Jul 2022 09:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570364;
-        bh=v2jQRb/cwYZnNJNo6P3W1xJ1OpzzWBGK68XPPMII0hA=;
+        s=korg; t=1658570367;
+        bh=efQhmefNJjZgawAawcRoXoGa/B0C/xqSoQnQCU4vV4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2JjE2osv5Vzw8YU+AAwf84S+N/wjxQxQJD7lznZ8SjmQ0kxIJ5mR7GhmFbdp8/vy
-         3C52MhcSO25N91GaqUbJdDOz/JDtG4jaSOXRHbcih1md0ga5ggKxfd/1MWxmN0B/41
-         NVUNhql//TGL1bCmThYbvckmV80nUpHiJIF5gtqs=
+        b=E0o8ov/u46RcHQ2U2htLBO3nEpXSonJxxS+BdF5PC1rPFePYhEtoJ4niLS+g1LjAZ
+         N1/qSoZXyzWoFZzukKBM31Zdb/IPgaFReUVMpFtZ6xn2F8JXy5kh+Fs8Cpzlj49mR2
+         21rSxoSWv2RUzzMrttSLwHuJ3e3Z8PuhNbr2ElTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 071/148] objtool: Fix SLS validation for kcov tail-call replacement
-Date:   Sat, 23 Jul 2022 11:54:43 +0200
-Message-Id: <20220723095244.084751710@linuxfoundation.org>
+Subject: [PATCH 5.10 072/148] objtool: Fix code relocs vs weak symbols
+Date:   Sat, 23 Jul 2022 11:54:44 +0200
+Message-Id: <20220723095244.360855208@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -56,60 +56,356 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7a53f408902d913cd541b4f8ad7dbcd4961f5b82 upstream.
+commit 4abff6d48dbcea8200c7ea35ba70c242d128ebf3 upstream.
 
-Since not all compilers have a function attribute to disable KCOV
-instrumentation, objtool can rewrite KCOV instrumentation in noinstr
-functions as per commit:
+Occasionally objtool driven code patching (think .static_call_sites
+.retpoline_sites etc..) goes sideways and it tries to patch an
+instruction that doesn't match.
 
-  f56dae88a81f ("objtool: Handle __sanitize_cov*() tail calls")
+Much head-scatching and cursing later the problem is as outlined below
+and affects every section that objtool generates for us, very much
+including the ORC data. The below uses .static_call_sites because it's
+convenient for demonstration purposes, but as mentioned the ORC
+sections, .retpoline_sites and __mount_loc are all similarly affected.
 
-However, this has subtle interaction with the SLS validation from
-commit:
+Consider:
 
-  1cc1e4c8aab4 ("objtool: Add straight-line-speculation validation")
+foo-weak.c:
 
-In that when a tail-call instrucion is replaced with a RET an
-additional INT3 instruction is also written, but is not represented in
-the decoded instruction stream.
+  extern void __SCT__foo(void);
 
-This then leads to false positive missing INT3 objtool warnings in
-noinstr code.
+  __attribute__((weak)) void foo(void)
+  {
+	  return __SCT__foo();
+  }
 
-Instead of adding additional struct instruction objects, mark the RET
-instruction with retpoline_safe to suppress the warning (since we know
-there really is an INT3).
+foo.c:
 
-Fixes: 1cc1e4c8aab4 ("objtool: Add straight-line-speculation validation")
+  extern void __SCT__foo(void);
+  extern void my_foo(void);
+
+  void foo(void)
+  {
+	  my_foo();
+	  return __SCT__foo();
+  }
+
+These generate the obvious code
+(gcc -O2 -fcf-protection=none -fno-asynchronous-unwind-tables -c foo*.c):
+
+foo-weak.o:
+0000000000000000 <foo>:
+   0:   e9 00 00 00 00          jmpq   5 <foo+0x5>      1: R_X86_64_PLT32       __SCT__foo-0x4
+
+foo.o:
+0000000000000000 <foo>:
+   0:   48 83 ec 08             sub    $0x8,%rsp
+   4:   e8 00 00 00 00          callq  9 <foo+0x9>      5: R_X86_64_PLT32       my_foo-0x4
+   9:   48 83 c4 08             add    $0x8,%rsp
+   d:   e9 00 00 00 00          jmpq   12 <foo+0x12>    e: R_X86_64_PLT32       __SCT__foo-0x4
+
+Now, when we link these two files together, you get something like
+(ld -r -o foos.o foo-weak.o foo.o):
+
+foos.o:
+0000000000000000 <foo-0x10>:
+   0:   e9 00 00 00 00          jmpq   5 <foo-0xb>      1: R_X86_64_PLT32       __SCT__foo-0x4
+   5:   66 2e 0f 1f 84 00 00 00 00 00   nopw   %cs:0x0(%rax,%rax,1)
+   f:   90                      nop
+
+0000000000000010 <foo>:
+  10:   48 83 ec 08             sub    $0x8,%rsp
+  14:   e8 00 00 00 00          callq  19 <foo+0x9>     15: R_X86_64_PLT32      my_foo-0x4
+  19:   48 83 c4 08             add    $0x8,%rsp
+  1d:   e9 00 00 00 00          jmpq   22 <foo+0x12>    1e: R_X86_64_PLT32      __SCT__foo-0x4
+
+Noting that ld preserves the weak function text, but strips the symbol
+off of it (hence objdump doing that funny negative offset thing). This
+does lead to 'interesting' unused code issues with objtool when ran on
+linked objects, but that seems to be working (fingers crossed).
+
+So far so good.. Now lets consider the objtool static_call output
+section (readelf output, old binutils):
+
+foo-weak.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x2c8 contains 1 entry:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 .text + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foo.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x310 contains 2 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 .text + d
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foos.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x430 contains 4 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000100000002 R_X86_64_PC32          0000000000000000 .text + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+0000000000000008  0000000100000002 R_X86_64_PC32          0000000000000000 .text + 1d
+000000000000000c  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+So we have two patch sites, one in the dead code of the weak foo and one
+in the real foo. All is well.
+
+*HOWEVER*, when the toolchain strips unused section symbols it
+generates things like this (using new enough binutils):
+
+foo-weak.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x2c8 contains 1 entry:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 foo + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foo.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x310 contains 2 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 foo + d
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foos.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x430 contains 4 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000100000002 R_X86_64_PC32          0000000000000000 foo + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+0000000000000008  0000000100000002 R_X86_64_PC32          0000000000000000 foo + d
+000000000000000c  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+And now we can see how that foos.o .static_call_sites goes side-ways, we
+now have _two_ patch sites in foo. One for the weak symbol at foo+0
+(which is no longer a static_call site!) and one at foo+d which is in
+fact the right location.
+
+This seems to happen when objtool cannot find a section symbol, in which
+case it falls back to any other symbol to key off of, however in this
+case that goes terribly wrong!
+
+As such, teach objtool to create a section symbol when there isn't
+one.
+
+Fixes: 44f6a7c0755d ("objtool: Fix seg fault with Clang non-section symbols")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220323230712.GA8939@worktop.programming.kicks-ass.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20220419203807.655552918@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/objtool/elf.c |  187 +++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 165 insertions(+), 22 deletions(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -961,6 +961,17 @@ static void annotate_call_site(struct ob
- 			               : arch_nop_insn(insn->len));
- 
- 		insn->type = sibling ? INSN_RETURN : INSN_NOP;
-+
-+		if (sibling) {
-+			/*
-+			 * We've replaced the tail-call JMP insn by two new
-+			 * insn: RET; INT3, except we only have a single struct
-+			 * insn here. Mark it retpoline_safe to avoid the SLS
-+			 * warning, instead of adding another insn.
-+			 */
-+			insn->retpoline_safe = true;
-+		}
-+
- 		return;
- 	}
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -537,37 +537,180 @@ int elf_add_reloc(struct elf *elf, struc
+ 	return 0;
  }
+ 
+-int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
+-			  unsigned long offset, unsigned int type,
+-			  struct section *insn_sec, unsigned long insn_off)
++/*
++ * Ensure that any reloc section containing references to @sym is marked
++ * changed such that it will get re-generated in elf_rebuild_reloc_sections()
++ * with the new symbol index.
++ */
++static void elf_dirty_reloc_sym(struct elf *elf, struct symbol *sym)
++{
++	struct section *sec;
++
++	list_for_each_entry(sec, &elf->sections, list) {
++		struct reloc *reloc;
++
++		if (sec->changed)
++			continue;
++
++		list_for_each_entry(reloc, &sec->reloc_list, list) {
++			if (reloc->sym == sym) {
++				sec->changed = true;
++				break;
++			}
++		}
++	}
++}
++
++/*
++ * Move the first global symbol, as per sh_info, into a new, higher symbol
++ * index. This fees up the shndx for a new local symbol.
++ */
++static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
++				  struct section *symtab_shndx)
+ {
++	Elf_Data *data, *shndx_data = NULL;
++	Elf32_Word first_non_local;
+ 	struct symbol *sym;
+-	int addend;
++	Elf_Scn *s;
+ 
+-	if (insn_sec->sym) {
+-		sym = insn_sec->sym;
+-		addend = insn_off;
++	first_non_local = symtab->sh.sh_info;
+ 
+-	} else {
+-		/*
+-		 * The Clang assembler strips section symbols, so we have to
+-		 * reference the function symbol instead:
+-		 */
+-		sym = find_symbol_containing(insn_sec, insn_off);
+-		if (!sym) {
+-			/*
+-			 * Hack alert.  This happens when we need to reference
+-			 * the NOP pad insn immediately after the function.
+-			 */
+-			sym = find_symbol_containing(insn_sec, insn_off - 1);
++	sym = find_symbol_by_index(elf, first_non_local);
++	if (!sym) {
++		WARN("no non-local symbols !?");
++		return first_non_local;
++	}
++
++	s = elf_getscn(elf->elf, symtab->idx);
++	if (!s) {
++		WARN_ELF("elf_getscn");
++		return -1;
++	}
++
++	data = elf_newdata(s);
++	if (!data) {
++		WARN_ELF("elf_newdata");
++		return -1;
++	}
++
++	data->d_buf = &sym->sym;
++	data->d_size = sizeof(sym->sym);
++	data->d_align = 1;
++	data->d_type = ELF_T_SYM;
++
++	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
++	elf_dirty_reloc_sym(elf, sym);
++
++	symtab->sh.sh_info += 1;
++	symtab->sh.sh_size += data->d_size;
++	symtab->changed = true;
++
++	if (symtab_shndx) {
++		s = elf_getscn(elf->elf, symtab_shndx->idx);
++		if (!s) {
++			WARN_ELF("elf_getscn");
++			return -1;
+ 		}
+ 
+-		if (!sym) {
+-			WARN("can't find symbol containing %s+0x%lx", insn_sec->name, insn_off);
++		shndx_data = elf_newdata(s);
++		if (!shndx_data) {
++			WARN_ELF("elf_newshndx_data");
+ 			return -1;
+ 		}
+ 
+-		addend = insn_off - sym->offset;
++		shndx_data->d_buf = &sym->sec->idx;
++		shndx_data->d_size = sizeof(Elf32_Word);
++		shndx_data->d_align = 4;
++		shndx_data->d_type = ELF_T_WORD;
++
++		symtab_shndx->sh.sh_size += 4;
++		symtab_shndx->changed = true;
++	}
++
++	return first_non_local;
++}
++
++static struct symbol *
++elf_create_section_symbol(struct elf *elf, struct section *sec)
++{
++	struct section *symtab, *symtab_shndx;
++	Elf_Data *shndx_data = NULL;
++	struct symbol *sym;
++	Elf32_Word shndx;
++
++	symtab = find_section_by_name(elf, ".symtab");
++	if (symtab) {
++		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
++		if (symtab_shndx)
++			shndx_data = symtab_shndx->data;
++	} else {
++		WARN("no .symtab");
++		return NULL;
++	}
++
++	sym = malloc(sizeof(*sym));
++	if (!sym) {
++		perror("malloc");
++		return NULL;
++	}
++	memset(sym, 0, sizeof(*sym));
++
++	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
++	if (sym->idx < 0) {
++		WARN("elf_move_global_symbol");
++		return NULL;
++	}
++
++	sym->name = sec->name;
++	sym->sec = sec;
++
++	// st_name 0
++	sym->sym.st_info = GELF_ST_INFO(STB_LOCAL, STT_SECTION);
++	// st_other 0
++	// st_value 0
++	// st_size 0
++	shndx = sec->idx;
++	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
++		sym->sym.st_shndx = shndx;
++		if (!shndx_data)
++			shndx = 0;
++	} else {
++		sym->sym.st_shndx = SHN_XINDEX;
++		if (!shndx_data) {
++			WARN("no .symtab_shndx");
++			return NULL;
++		}
++	}
++
++	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
++		WARN_ELF("gelf_update_symshndx");
++		return NULL;
++	}
++
++	elf_add_symbol(elf, sym);
++
++	return sym;
++}
++
++int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
++			  unsigned long offset, unsigned int type,
++			  struct section *insn_sec, unsigned long insn_off)
++{
++	struct symbol *sym = insn_sec->sym;
++	int addend = insn_off;
++
++	if (!sym) {
++		/*
++		 * Due to how weak functions work, we must use section based
++		 * relocations. Symbol based relocations would result in the
++		 * weak and non-weak function annotations being overlaid on the
++		 * non-weak function after linking.
++		 */
++		sym = elf_create_section_symbol(elf, insn_sec);
++		if (!sym)
++			return -1;
++
++		insn_sec->sym = sym;
+ 	}
+ 
+ 	return elf_add_reloc(elf, sec, offset, type, sym, addend);
 
 
