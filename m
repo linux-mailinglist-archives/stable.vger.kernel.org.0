@@ -2,165 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA04D57F0CE
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 19:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B298B57F0DD
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 20:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237240AbiGWRuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 13:50:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55668 "EHLO
+        id S231255AbiGWSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 14:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235743AbiGWRuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 13:50:54 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149C81A3A1
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 10:50:53 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id b133so6966049pfb.6
-        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 10:50:53 -0700 (PDT)
+        with ESMTP id S231610AbiGWSDE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 14:03:04 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C340A1C109
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 11:03:03 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id c20-20020a9d4814000000b0061cecd22af4so1109013otf.12
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 11:03:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dHZSuF9p1P7lXLt6kzThL4gjVn8jEFSjXo2W0GIoqG4=;
-        b=MSmpxKbaIw04Pp8V+WMZP25yCdJs+q23soIeMuJACnbUE9hD3z9/dfv+/Lx5l609M2
-         FaU99fdkrhVyEStfWI2W9qpn6utAHq/d80UkY5dc7G0rpGrrtHF1h4ZUnehJ0e/FA1oU
-         3zSYy9VYxvD9HNEiBnJo/2ECglgHJh4q9dEHy5whUPTfm2lE5F1VX9pAfUTYCx9FMpqD
-         lztakqiyGgcjGb81t3UjVP4h4UlFmP65R7fo+O8nN/6rnf8NiEhZ3Ik+H9XzSqM1euce
-         Uh7TRRHtUW/YOpB+WEt2mI/pxGnYsXHkq8eR30ftwa9pmuEcmy83hOuFNHMaT+Dg4Paf
-         N6AA==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=WRkur15cbv2HIRYMbArrqhaeelLjJmhq/Gio5OxAhMU=;
+        b=vKqum8N5wk9gptsVz7o8RIiAdEXUKXMBQNvEvreDqVM/baoLBDBQJBI65vl3WuSb+I
+         DJKkdkk0RQo6H1sjx/pwRFKPve8lcdtPSw3gxtgSEfhkJOivIwXBnv45rAj+8Qa1dbn/
+         t0fcZMabvbysnT0cxCPMbFtwiO2qmQNVWUtG7ftvdTH4/nHWXrRM0lzuFch76fQ+yBE0
+         JDwSYP831pH2xIpreBPqvRm3MpG7daYRQEeho/+09tNU+3P6vvjA9d6nsl8mV3/AILWV
+         xxi7QV1RnxZle4/pAt6w731MAOSnQIgB5gDAwRFhRzYZgKqiMYnYOIdvqoKnWbXtA5sm
+         aguA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dHZSuF9p1P7lXLt6kzThL4gjVn8jEFSjXo2W0GIoqG4=;
-        b=HXwgepF9hNu1ldTdeApXb4gzj7yEW+MfVh2LzsCdC00+3nUWaZDQV2wc4bmSLFX/27
-         nOtBqYBPTgVyAHsiE8t5iitf3odlk3C/q5qGoBLemPN0NRgiazk3I2CWRq7TXsKRR24U
-         gLuJp/E1pl35L9eJowZRcBPhG9S/VTAJxFItKgaeQrmz772Z7+vfCqo1HSUl6wKZF5sy
-         0Zx/ry3NAJ8vxVUklZYrjwaiJ+vzZoRmqwk/443DJKJwvaAfJy+ooYA/heGGWUMjmjU9
-         W+7S5+3O2P3yXnxngUNlaIZO0YlGUb4rN+amQRC9zYC5k5hVgT4XFTLUBTpgFPZgNV4C
-         S+jQ==
-X-Gm-Message-State: AJIora+HBALPUtJ8WqalTeAKNqX+iWzWiiCCkDeJBTSzIeArjAs0aEml
-        t7+IiGYtCkZlWULsrX00m8kyRvmv2sodlRLQ
-X-Google-Smtp-Source: AGRyM1v6qOeajSWyJIJS/bgiBrc4wVHjO5L20+7cqoa3LAIBjlPqwLAEz8I4t2jP5L9eFbsoK9bRTQ==
-X-Received: by 2002:a63:6c42:0:b0:3fe:465:7a71 with SMTP id h63-20020a636c42000000b003fe04657a71mr4604046pgc.101.1658598652144;
-        Sat, 23 Jul 2022 10:50:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n11-20020a170902d2cb00b0016bdf2220desm5992076plc.263.2022.07.23.10.50.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Jul 2022 10:50:51 -0700 (PDT)
-Message-ID: <62dc34fb.1c69fb81.d81f9.930e@mx.google.com>
-Date:   Sat, 23 Jul 2022 10:50:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=WRkur15cbv2HIRYMbArrqhaeelLjJmhq/Gio5OxAhMU=;
+        b=5EdPMFLaR5d1vpZlPnMoWUpKzSPAPfQ41G18SZxZ4c5UuXHwvGRIcpNsVbst/2uxkp
+         iRiT7CC2sOi8/Jn7Vj+0sBiGb0o5KL4duO/UXih2DJMSiWZBncocYq4V01oWDkZaJJ7+
+         vfIFWU/NXAmXuWwK2WuXV66WhuWO85T/trzLuXuGRQbeCDpcblOAMxoKF37qefEhpKvT
+         uqwkMJVv6ZNEBHh1A+6FmZ1bl+pn6lOuShavFD2P6f5Sg2jtCBBUX/kVIVUXu6gPiFuP
+         oaOf74nTkv7LEERYbaWATg7um39zWvj2JEWWsBw58a6hwhh8FhQ5+cXH5ZecW2xMXkwz
+         9tkA==
+X-Gm-Message-State: AJIora/8y1UPytFJ0Nzsn+Brxv2DM9dF5N7ih6nhTzpSkyz9BZ0F2tJv
+        Pfv+yAsas1JlSg+GlK0VIs8BdQ==
+X-Google-Smtp-Source: AGRyM1vQwRGJ757Q54Are2CStWkmm2lHzMgkZG0ii3Tau5E/b72lokV43KOPWQwORtJM4t/7uWu5Ug==
+X-Received: by 2002:a05:6830:d13:b0:618:b519:5407 with SMTP id bu19-20020a0568300d1300b00618b5195407mr2097718otb.219.1658599383072;
+        Sat, 23 Jul 2022 11:03:03 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.75.211])
+        by smtp.gmail.com with ESMTPSA id n132-20020acaef8a000000b00335cad84fe9sm3062445oih.29.2022.07.23.11.03.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 23 Jul 2022 11:03:01 -0700 (PDT)
+Message-ID: <26338676-278d-3cb3-2622-fa89ea79ada4@linaro.org>
+Date:   Sat, 23 Jul 2022 13:03:00 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.18.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.14
-Subject: stable-rc/linux-5.18.y baseline: 174 runs, 2 regressions (v5.18.14)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 5.10 000/148] 5.10.133-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220723095224.302504400@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.18.y baseline: 174 runs, 2 regressions (v5.18.14)
+Hello!
 
-Regressions Summary
--------------------
+On 23/07/22 04:53, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.133 release.
+> There are 148 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Mon, 25 Jul 2022 09:50:18 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.133-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-kontron-pitx-imx8m           | arm64 | lab-kontron   | gcc-10   | defconfig=
-                  | 1          =
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+## Build
+* kernel: 5.10.133-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: 00d1152b116251d5f40936f24f9ef31f52eba544
+* git describe: v5.10.132-149-g00d1152b1162
+* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.132-149-g00d1152b1162
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.18.y/ker=
-nel/v5.18.14/plan/baseline/
+## No test regressions (compared to v5.10.132)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.18.y
-  Describe: v5.18.14
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9aa5a042881d4a99657f82c774e9e15353ebeb2d =
+## No metric regressions (compared to v5.10.132)
 
+## No test fixes (compared to v5.10.132)
 
+## No metric fixes (compared to v5.10.132)
 
-Test Regressions
----------------- =
+## Test result summary
+total: 138017, pass: 124391, fail: 610, skip: 12308, xfail: 708
 
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 308 total, 308 passed, 0 failed
+* arm64: 62 total, 60 passed, 2 failed
+* i386: 52 total, 50 passed, 2 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 51 total, 51 passed, 0 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 56 total, 54 passed, 2 failed
 
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-kontron-pitx-imx8m           | arm64 | lab-kontron   | gcc-10   | defconfig=
-                  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62dc052965385ef8ebdaf056
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
-4/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
-4/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220716.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62dc052965385ef8ebdaf=
-057
-        new failure (last pass: v5.18.13-71-g4142b06492bc8) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62dc040045aaa1d2a8daf0ae
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
-4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kuk=
-ui-jacuzzi-juniper-sku16.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.18.y/v5.18.1=
-4/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kuk=
-ui-jacuzzi-juniper-sku16.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220716.0/arm64/rootfs.cpio.gz =
-
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
 
 
-  * baseline.login: https://kernelci.org/test/case/id/62dc040045aaa1d2a8daf=
-0af
-        new failure (last pass: v5.18.13-71-g4142b06492bc8) =
+Greetings!
 
- =20
+Daniel Díaz
+daniel.diaz@linaro.org
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
