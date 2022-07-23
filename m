@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3830357EDA0
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3A857EDA2
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 12:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237605AbiGWKAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 06:00:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46780 "EHLO
+        id S237861AbiGWKAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 06:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237543AbiGWJ7X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:59:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A20D46DBE;
-        Sat, 23 Jul 2022 02:57:59 -0700 (PDT)
+        with ESMTP id S237484AbiGWJ7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 05:59:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4586459AF;
+        Sat, 23 Jul 2022 02:58:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBBE5611D2;
-        Sat, 23 Jul 2022 09:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA70BC341C0;
-        Sat, 23 Jul 2022 09:57:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86F4BB82C1B;
+        Sat, 23 Jul 2022 09:58:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82CFC341C0;
+        Sat, 23 Jul 2022 09:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658570278;
-        bh=e0PJ8wVXvSLi9INMnCS5SUkzghqk01lL5LYSFqqqh1w=;
+        s=korg; t=1658570281;
+        bh=6lA7kujKxFk6fxYJsW1W21z8ns4CSf2ZVJFi6YxNeus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pgyvPmZ9fL62VolOlvfBStIPf1vCUnSFX6O2zNYuo8o0Q6Un8o36/IUBXhHyzsU1
-         lA8rm3HP8pSyEJ2w8Y1tsYq3r03mp0q43Y7VvrZ3RJtUg3ULUbk8ekDFP1Et1kch7w
-         GBsOhSiShmaATOgwjs5HZoZcb/fhH3x/A26iCLLI=
+        b=OSIhR5XnlzNgZue0Qg0haEPBvBCZEfS+R6ciY6HUGLaglm7iRYYVXj4sbSlklkSp2
+         hUZWGcWgD+qs0wzxVOzkxLUiEATqQrmQ5a5p9wPoYuwFyf6+Z3oYGkOtVsq99ZlG6E
+         /xVMx7vfWn+YB8q+BEbco4WnCTZ8qhUGXbK7FgCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
         Miroslav Benes <mbenes@suse.cz>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.10 031/148] objtool: Keep track of retpoline call sites
-Date:   Sat, 23 Jul 2022 11:54:03 +0200
-Message-Id: <20220723095233.088016764@linuxfoundation.org>
+Subject: [PATCH 5.10 032/148] objtool: Cache instruction relocs
+Date:   Sat, 23 Jul 2022 11:54:04 +0200
+Message-Id: <20220723095233.354758252@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
 References: <20220723095224.302504400@linuxfoundation.org>
@@ -57,175 +57,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 43d5430ad74ef5156353af7aec352426ec7a8e57 upstream.
+commit 7bd2a600f3e9d27286bbf23c83d599e9cc7cf245 upstream.
 
-Provide infrastructure for architectures to rewrite/augment compiler
-generated retpoline calls. Similar to what we do for static_call()s,
-keep track of the instructions that are retpoline calls.
+Track the reloc of instructions in the new instruction->reloc field
+to avoid having to look them up again later.
 
-Use the same list_head, since a retpoline call cannot also be a
-static_call.
+( Technically x86 instructions can have two relocations, but not jumps
+  and calls, for which we're using this. )
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Link: https://lkml.kernel.org/r/20210326151300.130805730@infradead.org
-[bwh: Backported to 5.10: adjust context]
+Link: https://lkml.kernel.org/r/20210326151300.195441549@infradead.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/arch.h    |    2 ++
- tools/objtool/check.c   |   34 +++++++++++++++++++++++++++++-----
- tools/objtool/check.h   |    2 +-
- tools/objtool/objtool.c |    1 +
- tools/objtool/objtool.h |    1 +
- 5 files changed, 34 insertions(+), 6 deletions(-)
+ tools/objtool/check.c |   28 ++++++++++++++++++++++------
+ tools/objtool/check.h |    1 +
+ 2 files changed, 23 insertions(+), 6 deletions(-)
 
---- a/tools/objtool/arch.h
-+++ b/tools/objtool/arch.h
-@@ -88,4 +88,6 @@ int arch_decode_hint_reg(struct instruct
- 
- bool arch_is_retpoline(struct symbol *sym);
- 
-+int arch_rewrite_retpolines(struct objtool_file *file);
-+
- #endif /* _ARCH_H */
 --- a/tools/objtool/check.c
 +++ b/tools/objtool/check.c
-@@ -451,7 +451,7 @@ static int create_static_call_sections(s
- 		return 0;
- 
- 	idx = 0;
--	list_for_each_entry(insn, &file->static_call_list, static_call_node)
-+	list_for_each_entry(insn, &file->static_call_list, call_node)
- 		idx++;
- 
- 	sec = elf_create_section(file->elf, ".static_call_sites", SHF_WRITE,
-@@ -460,7 +460,7 @@ static int create_static_call_sections(s
- 		return -1;
- 
- 	idx = 0;
--	list_for_each_entry(insn, &file->static_call_list, static_call_node) {
-+	list_for_each_entry(insn, &file->static_call_list, call_node) {
- 
- 		site = (struct static_call_site *)sec->data->d_buf + idx;
- 		memset(site, 0, sizeof(struct static_call_site));
-@@ -786,13 +786,16 @@ static int add_jump_destinations(struct
- 			else
- 				insn->type = INSN_JUMP_DYNAMIC_CONDITIONAL;
- 
-+			list_add_tail(&insn->call_node,
-+				      &file->retpoline_call_list);
-+
- 			insn->retpoline_safe = true;
- 			continue;
- 		} else if (insn->func) {
- 			/* internal or external sibling call (with reloc) */
- 			insn->call_dest = reloc->sym;
- 			if (insn->call_dest->static_call_tramp) {
--				list_add_tail(&insn->static_call_node,
-+				list_add_tail(&insn->call_node,
- 					      &file->static_call_list);
- 			}
- 			continue;
-@@ -854,7 +857,7 @@ static int add_jump_destinations(struct
- 				/* internal sibling call (without reloc) */
- 				insn->call_dest = insn->jump_dest->func;
- 				if (insn->call_dest->static_call_tramp) {
--					list_add_tail(&insn->static_call_node,
-+					list_add_tail(&insn->call_node,
- 						      &file->static_call_list);
- 				}
- 			}
-@@ -938,6 +941,9 @@ static int add_call_destinations(struct
- 			insn->type = INSN_CALL_DYNAMIC;
- 			insn->retpoline_safe = true;
- 
-+			list_add_tail(&insn->call_node,
-+				      &file->retpoline_call_list);
-+
- 			remove_insn_ops(insn);
- 			continue;
- 
-@@ -945,7 +951,7 @@ static int add_call_destinations(struct
- 			insn->call_dest = reloc->sym;
- 
- 		if (insn->call_dest && insn->call_dest->static_call_tramp) {
--			list_add_tail(&insn->static_call_node,
-+			list_add_tail(&insn->call_node,
- 				      &file->static_call_list);
- 		}
- 
-@@ -1655,6 +1661,11 @@ static void mark_rodata(struct objtool_f
- 	file->rodata = found;
+@@ -754,6 +754,25 @@ __weak bool arch_is_retpoline(struct sym
+ 	return false;
  }
  
-+__weak int arch_rewrite_retpolines(struct objtool_file *file)
++#define NEGATIVE_RELOC	((void *)-1L)
++
++static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *insn)
 +{
-+	return 0;
++	if (insn->reloc == NEGATIVE_RELOC)
++		return NULL;
++
++	if (!insn->reloc) {
++		insn->reloc = find_reloc_by_dest_range(file->elf, insn->sec,
++						       insn->offset, insn->len);
++		if (!insn->reloc) {
++			insn->reloc = NEGATIVE_RELOC;
++			return NULL;
++		}
++	}
++
++	return insn->reloc;
 +}
 +
- static int decode_sections(struct objtool_file *file)
- {
- 	int ret;
-@@ -1683,6 +1694,10 @@ static int decode_sections(struct objtoo
- 	if (ret)
- 		return ret;
+ /*
+  * Find the destination instructions for all jumps.
+  */
+@@ -768,8 +787,7 @@ static int add_jump_destinations(struct
+ 		if (!is_static_jump(insn))
+ 			continue;
  
-+	/*
-+	 * Must be before add_special_section_alts() as that depends on
-+	 * jump_dest being set.
-+	 */
- 	ret = add_jump_destinations(file);
- 	if (ret)
- 		return ret;
-@@ -1719,6 +1734,15 @@ static int decode_sections(struct objtoo
- 	if (ret)
- 		return ret;
+-		reloc = find_reloc_by_dest_range(file->elf, insn->sec,
+-						 insn->offset, insn->len);
++		reloc = insn_reloc(file, insn);
+ 		if (!reloc) {
+ 			dest_sec = insn->sec;
+ 			dest_off = arch_jump_destination(insn);
+@@ -901,8 +919,7 @@ static int add_call_destinations(struct
+ 		if (insn->type != INSN_CALL)
+ 			continue;
  
-+	/*
-+	 * Must be after add_special_section_alts(), since this will emit
-+	 * alternatives. Must be after add_{jump,call}_destination(), since
-+	 * those create the call insn lists.
-+	 */
-+	ret = arch_rewrite_retpolines(file);
-+	if (ret)
-+		return ret;
-+
- 	return 0;
- }
+-		reloc = find_reloc_by_dest_range(file->elf, insn->sec,
+-					       insn->offset, insn->len);
++		reloc = insn_reloc(file, insn);
+ 		if (!reloc) {
+ 			dest_off = arch_jump_destination(insn);
+ 			insn->call_dest = find_call_destination(insn->sec, dest_off);
+@@ -1085,8 +1102,7 @@ static int handle_group_alt(struct objto
+ 		 * alternatives code can adjust the relative offsets
+ 		 * accordingly.
+ 		 */
+-		alt_reloc = find_reloc_by_dest_range(file->elf, insn->sec,
+-						   insn->offset, insn->len);
++		alt_reloc = insn_reloc(file, insn);
+ 		if (alt_reloc &&
+ 		    !arch_support_alt_relocation(special_alt, insn, alt_reloc)) {
  
 --- a/tools/objtool/check.h
 +++ b/tools/objtool/check.h
-@@ -39,7 +39,7 @@ struct alt_group {
- struct instruction {
- 	struct list_head list;
- 	struct hlist_node hash;
--	struct list_head static_call_node;
-+	struct list_head call_node;
- 	struct section *sec;
- 	unsigned long offset;
- 	unsigned int len;
---- a/tools/objtool/objtool.c
-+++ b/tools/objtool/objtool.c
-@@ -61,6 +61,7 @@ struct objtool_file *objtool_open_read(c
- 
- 	INIT_LIST_HEAD(&file.insn_list);
- 	hash_init(file.insn_hash);
-+	INIT_LIST_HEAD(&file.retpoline_call_list);
- 	INIT_LIST_HEAD(&file.static_call_list);
- 	file.c_file = !vmlinux && find_section_by_name(file.elf, ".comment");
- 	file.ignore_unreachables = no_unreachable;
---- a/tools/objtool/objtool.h
-+++ b/tools/objtool/objtool.h
-@@ -18,6 +18,7 @@ struct objtool_file {
- 	struct elf *elf;
- 	struct list_head insn_list;
- 	DECLARE_HASHTABLE(insn_hash, 20);
-+	struct list_head retpoline_call_list;
- 	struct list_head static_call_list;
- 	bool ignore_unreachables, c_file, hints, rodata;
- };
+@@ -55,6 +55,7 @@ struct instruction {
+ 	struct instruction *jump_dest;
+ 	struct instruction *first_jump_src;
+ 	struct reloc *jump_table;
++	struct reloc *reloc;
+ 	struct list_head alts;
+ 	struct symbol *func;
+ 	struct list_head stack_ops;
 
 
