@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8AF57F012
-	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CFF57F01C
+	for <lists+stable@lfdr.de>; Sat, 23 Jul 2022 17:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbiGWPZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Jul 2022 11:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39910 "EHLO
+        id S229555AbiGWPhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Jul 2022 11:37:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237283AbiGWPZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:25:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2C66412;
-        Sat, 23 Jul 2022 08:25:21 -0700 (PDT)
+        with ESMTP id S229478AbiGWPhp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Jul 2022 11:37:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0ABF1DA6A
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 08:37:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B51FE60C20;
-        Sat, 23 Jul 2022 15:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B85DFC341C0;
-        Sat, 23 Jul 2022 15:25:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9385DB80D09
+        for <stable@vger.kernel.org>; Sat, 23 Jul 2022 15:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3377AC341C0;
+        Sat, 23 Jul 2022 15:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658589920;
-        bh=tQkEVIN5ISmej2VFxfxzefOD9+NGT3k6YyQxpo504+k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z4smg4CnbhuPItpb61LljlhxzLMuVf5vrVZ33/jghgZH0ey6LQQbTl25XAgF0XdLR
-         dw+pLL1vOcoBNbHmZzisIYt+a32mCRLSFADFPpWRg6Vf1NxXj9zfOFgsUxW8LmHYmv
-         sf3Qdio5uZbwnf/EW7Wp28gJi9jhuZlas5cW8hkA=
-Date:   Sat, 23 Jul 2022 17:25:06 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Leah Rumancik <leah.rumancik@gmail.com>
-Cc:     stable@vger.kernel.org, linux-xfs@vger.kernel.org,
-        amir73il@gmail.com
-Subject: Re: [PATCH 5.15 v2 0/6] xfs stable candidate patches for 5.15.y
- (part 3)
-Message-ID: <YtwS0l617OyO9Hop@kroah.com>
-References: <20220721213610.2794134-1-leah.rumancik@gmail.com>
+        s=korg; t=1658590662;
+        bh=9ZRs5XQ9JSCTdOoUm/n0U75+c47yedI/fnMJDmmPd+Y=;
+        h=Subject:To:Cc:From:Date:From;
+        b=qPuhf2uUCE5TI3xBonqmQ7J0iFivcxFzJvZHQa96qPa0GeiHM5pPwPkSBNbBHwovA
+         4JdmPjcvNDuOaEPuLGJBBUP6zilJLKkcCsxmbxQg6RPnRwtZ/hopTb8TXCnNDKFwuH
+         xEA6V9Gd4BRAUTmKlUD7zkyDs+qWil+e32bKN5vk=
+Subject: FAILED: patch "[PATCH] ip: Fix data-races around sysctl_ip_default_ttl." failed to apply to 5.10-stable tree
+To:     kuniyu@amazon.com, davem@davemloft.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 23 Jul 2022 17:37:38 +0200
+Message-ID: <165859065816933@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220721213610.2794134-1-leah.rumancik@gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -50,19 +46,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 21, 2022 at 02:36:04PM -0700, Leah Rumancik wrote:
-> Hi again,
-> 
-> This set contains fixes from 5.16 to 5.17. The normal testing was run
-> for this set with no regressions found.
-> 
-> Some refactoring patches were included in this set as dependencies:
-> 
-> bf2307b19513 xfs: fold perag loop iteration logic into helper function
->     dependency for f1788b5e5ee25bedf00bb4d25f82b93820d61189
-> f1788b5e5ee2 xfs: rename the next_agno perag iteration variable
->     dependency for 8ed004eb9d07a5d6114db3e97a166707c186262d
 
-All now queued up, thanks.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 8281b7ec5c56b71cb2cc5a1728b41607be66959c Mon Sep 17 00:00:00 2001
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
+Date: Wed, 13 Jul 2022 13:51:51 -0700
+Subject: [PATCH] ip: Fix data-races around sysctl_ip_default_ttl.
+
+While reading sysctl_ip_default_ttl, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/ethernet/netronome/nfp/flower/action.c b/drivers/net/ethernet/netronome/nfp/flower/action.c
+index 0147de405365..ffb6f6d05a07 100644
+--- a/drivers/net/ethernet/netronome/nfp/flower/action.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/action.c
+@@ -474,7 +474,7 @@ nfp_fl_set_tun(struct nfp_app *app, struct nfp_fl_set_tun *set_tun,
+ 			set_tun->ttl = ip4_dst_hoplimit(&rt->dst);
+ 			ip_rt_put(rt);
+ 		} else {
+-			set_tun->ttl = net->ipv4.sysctl_ip_default_ttl;
++			set_tun->ttl = READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
+ 		}
+ 	}
+ 
+diff --git a/include/net/route.h b/include/net/route.h
+index 991a3985712d..bbcf2aba149f 100644
+--- a/include/net/route.h
++++ b/include/net/route.h
+@@ -373,7 +373,7 @@ static inline int ip4_dst_hoplimit(const struct dst_entry *dst)
+ 	struct net *net = dev_net(dst->dev);
+ 
+ 	if (hoplimit == 0)
+-		hoplimit = net->ipv4.sysctl_ip_default_ttl;
++		hoplimit = READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
+ 	return hoplimit;
+ }
+ 
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index 445a9ecaefa1..d497d525dea3 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -1606,7 +1606,7 @@ static int do_ip_getsockopt(struct sock *sk, int level, int optname,
+ 	{
+ 		struct net *net = sock_net(sk);
+ 		val = (inet->uc_ttl == -1 ?
+-		       net->ipv4.sysctl_ip_default_ttl :
++		       READ_ONCE(net->ipv4.sysctl_ip_default_ttl) :
+ 		       inet->uc_ttl);
+ 		break;
+ 	}
+diff --git a/net/ipv4/netfilter/nf_reject_ipv4.c b/net/ipv4/netfilter/nf_reject_ipv4.c
+index 918c61fda0f3..d640adcaf1b1 100644
+--- a/net/ipv4/netfilter/nf_reject_ipv4.c
++++ b/net/ipv4/netfilter/nf_reject_ipv4.c
+@@ -62,7 +62,7 @@ struct sk_buff *nf_reject_skb_v4_tcp_reset(struct net *net,
+ 
+ 	skb_reserve(nskb, LL_MAX_HEADER);
+ 	niph = nf_reject_iphdr_put(nskb, oldskb, IPPROTO_TCP,
+-				   net->ipv4.sysctl_ip_default_ttl);
++				   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
+ 	nf_reject_ip_tcphdr_put(nskb, oldskb, oth);
+ 	niph->tot_len = htons(nskb->len);
+ 	ip_send_check(niph);
+@@ -117,7 +117,7 @@ struct sk_buff *nf_reject_skb_v4_unreach(struct net *net,
+ 
+ 	skb_reserve(nskb, LL_MAX_HEADER);
+ 	niph = nf_reject_iphdr_put(nskb, oldskb, IPPROTO_ICMP,
+-				   net->ipv4.sysctl_ip_default_ttl);
++				   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
+ 
+ 	skb_reset_transport_header(nskb);
+ 	icmph = skb_put_zero(nskb, sizeof(struct icmphdr));
+diff --git a/net/ipv4/proc.c b/net/ipv4/proc.c
+index 28836071f0a6..0088a4c64d77 100644
+--- a/net/ipv4/proc.c
++++ b/net/ipv4/proc.c
+@@ -387,7 +387,7 @@ static int snmp_seq_show_ipstats(struct seq_file *seq, void *v)
+ 
+ 	seq_printf(seq, "\nIp: %d %d",
+ 		   IPV4_DEVCONF_ALL(net, FORWARDING) ? 1 : 2,
+-		   net->ipv4.sysctl_ip_default_ttl);
++		   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
+ 
+ 	BUILD_BUG_ON(offsetof(struct ipstats_mib, mibs) != 0);
+ 	snmp_get_cpu_field64_batch(buff64, snmp4_ipstats_list,
+diff --git a/net/netfilter/nf_synproxy_core.c b/net/netfilter/nf_synproxy_core.c
+index e479dd0561c5..16915f8eef2b 100644
+--- a/net/netfilter/nf_synproxy_core.c
++++ b/net/netfilter/nf_synproxy_core.c
+@@ -405,7 +405,7 @@ synproxy_build_ip(struct net *net, struct sk_buff *skb, __be32 saddr,
+ 	iph->tos	= 0;
+ 	iph->id		= 0;
+ 	iph->frag_off	= htons(IP_DF);
+-	iph->ttl	= net->ipv4.sysctl_ip_default_ttl;
++	iph->ttl	= READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
+ 	iph->protocol	= IPPROTO_TCP;
+ 	iph->check	= 0;
+ 	iph->saddr	= saddr;
+
