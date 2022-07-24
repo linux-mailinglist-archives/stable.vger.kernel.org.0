@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C449C57F5E1
-	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 17:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A074257F5E2
+	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 17:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbiGXPqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jul 2022 11:46:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47354 "EHLO
+        id S232267AbiGXPqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jul 2022 11:46:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229818AbiGXPqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 11:46:01 -0400
+        with ESMTP id S229818AbiGXPqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 11:46:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD5D631B
-        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 08:46:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D559631B
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 08:46:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87186B80D47
-        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 15:45:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97480C3411E;
-        Sun, 24 Jul 2022 15:45:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43518B80D70
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 15:46:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98068C3411E;
+        Sun, 24 Jul 2022 15:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658677558;
-        bh=i630RJ9Bnx8nG2vdBPgjmRFSIkKptsUs2YXIRsifZDw=;
+        s=korg; t=1658677560;
+        bh=s3NIGpCvMOg+adEmPEqMHu1IGC7XiB6+Sk3UDOQD4sY=;
         h=Subject:To:Cc:From:Date:From;
-        b=fwLTvxe5q+3/kl9keoqWFyO3YDDYkDB1X0OeHz1E1vWulZNjqaJwrHbBXrgYoS3Km
-         n+2iOcyscaK/dTX3oLqsuKjVtWNgfTyzbGTN3Q2uAhQCdEp3KcmGxu5RRewGmy3O9T
-         WchppM8GUXVZjcU43PMbqLDX3F1ghaFyRVtAEL2w=
-Subject: FAILED: patch "[PATCH] ipc: Free mq_sysctls if ipc namespace creation failed" failed to apply to 5.15-stable tree
+        b=V8awD0JZWGi1ya7jWdgzalXQ7wjH50PATuRGJM41qlIDMBZZJEqy4yVEIt0YFfm/P
+         QBiM0+PatH07G9wyID0/yQxOLQEaM7/HssA/640nqCQ4k18fZTf6fCMdstRxJHlR1e
+         JoegpaKFaQ7mqicZVDAnM0awtYUFVxMZpm0Xkhu8=
+Subject: FAILED: patch "[PATCH] ipc: Free mq_sysctls if ipc namespace creation failed" failed to apply to 5.10-stable tree
 To:     legion@kernel.org, ebiederm@xmission.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Jul 2022 17:45:51 +0200
-Message-ID: <165867755114991@kroah.com>
+Date:   Sun, 24 Jul 2022 17:45:54 +0200
+Message-ID: <165867755494217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
