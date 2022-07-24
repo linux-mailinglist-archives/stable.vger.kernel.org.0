@@ -2,120 +2,259 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F36957F577
-	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 16:17:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A69F57F58F
+	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 16:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232888AbiGXOR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jul 2022 10:17:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
+        id S232001AbiGXOxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jul 2022 10:53:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232269AbiGXORZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 10:17:25 -0400
+        with ESMTP id S229618AbiGXOxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 10:53:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBEC313D1E;
-        Sun, 24 Jul 2022 07:17:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC477DF3C
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 07:53:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 556C361119;
-        Sun, 24 Jul 2022 14:17:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 355D2C3411E;
-        Sun, 24 Jul 2022 14:17:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658672242;
-        bh=V14su3s0vMymi8OyOA1Ru5I3M66rriYV2936dRUwlYg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LB3gxht1FklKBLDs4wid74ry8qJNf7dQtsd5vutP2Me1sYNsYJp4uS8ZrWsuvP24p
-         0j/h/MnvFxLtQr5lh/cbN3dJH12HmR5vC+qSvj+oXXiu+isOKISv1fTZ8Nxp6PsOyQ
-         t0961D2PYZvzSqQp5Qcj1pSWZ8S77w7IYDfTfoxE=
-Date:   Sun, 24 Jul 2022 16:17:19 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Stephen Boyd <sboyd@kernel.org>
-Cc:     David Collins <quic_collinsd@quicinc.com>,
-        linux-arm-msm@vger.kernel.org,
-        Ankit Gupta <ankgupta@codeaurora.org>,
-        Gilad Avidov <gavidov@codeaurora.org>, stable@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] spmi: trace: fix stack-out-of-bound access in SPMI
- tracing functions
-Message-ID: <Yt1Ub72AbEEIUZ/U@kroah.com>
-References: <20220627235512.2272783-1-quic_collinsd@quicinc.com>
- <20220724065052.DDBC6C3411E@smtp.kernel.org>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C8886111D
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 14:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B76C3411E
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 14:53:28 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="dQm0IykG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1658674406;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+IZd8UTiSqrEXUZ0HN+/9iRrPAqI/0RHgbNVI4cLbMA=;
+        b=dQm0IykGzs7NEsnO7cES4uw7wvwdoYYCBMIp4w/ThgbfXLlWNr3j+h45WdOlHFSIJaPJEo
+        M5ToYaig/VeTbECybOUUktoBwmvsqYbgZ8Y3mBqQKgNKSInIPOBwkaXCh8Gbu1SA88SQ/2
+        d22eUqHtsmcZ6OEWB+AtnTYUJcK5dI8=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6de318c8 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO)
+        for <stable@vger.kernel.org>;
+        Sun, 24 Jul 2022 14:53:26 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Qian Cai <cai@lca.pw>,
+        Lech Perczak <l.perczak@camlintechnologies.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        Petr Mladek <pmladek@suse.com>,
+        John Ogness <john.ogness@linutronix.de>,
+        kernel test robot <oliver.sang@intel.com>
+Subject: [PATCH stable 4.19 4.14 4.9] Revert "Revert "char/random: silence a lockdep splat with printk()""
+Date:   Sun, 24 Jul 2022 16:51:48 +0200
+Message-Id: <20220724145148.664623-1-Jason@zx2c4.com>
+In-Reply-To: <Ytz+lo4zRQYG3JUR@xsang-OptiPlex-9020>
+References: <Ytz+lo4zRQYG3JUR@xsang-OptiPlex-9020>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220724065052.DDBC6C3411E@smtp.kernel.org>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 23, 2022 at 11:50:50PM -0700, Stephen Boyd wrote:
-> Quoting David Collins (2022-06-27 16:55:12)
-> > trace_spmi_write_begin() and trace_spmi_read_end() both call
-> > memcpy() with a length of "len + 1".  This leads to one extra
-> > byte being read beyond the end of the specified buffer.  Fix
-> > this out-of-bound memory access by using a length of "len"
-> > instead.
-> > 
-> > Here is a KASAN log showing the issue:
-> > 
-> > BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_spmi_read_end+0x1d0/0x234
-> > Read of size 2 at addr ffffffc0265b7540 by task thermal@2.0-ser/1314
-> > ...
-> > Call trace:
-> >  dump_backtrace+0x0/0x3e8
-> >  show_stack+0x2c/0x3c
-> >  dump_stack_lvl+0xdc/0x11c
-> >  print_address_description+0x74/0x384
-> >  kasan_report+0x188/0x268
-> >  kasan_check_range+0x270/0x2b0
-> >  memcpy+0x90/0xe8
-> >  trace_event_raw_event_spmi_read_end+0x1d0/0x234
-> >  spmi_read_cmd+0x294/0x3ac
-> >  spmi_ext_register_readl+0x84/0x9c
-> >  regmap_spmi_ext_read+0x144/0x1b0 [regmap_spmi]
-> >  _regmap_raw_read+0x40c/0x754
-> >  regmap_raw_read+0x3a0/0x514
-> >  regmap_bulk_read+0x418/0x494
-> >  adc5_gen3_poll_wait_hs+0xe8/0x1e0 [qcom_spmi_adc5_gen3]
-> >  ...
-> >  __arm64_sys_read+0x4c/0x60
-> >  invoke_syscall+0x80/0x218
-> >  el0_svc_common+0xec/0x1c8
-> >  ...
-> > 
-> > addr ffffffc0265b7540 is located in stack of task thermal@2.0-ser/1314 at offset 32 in frame:
-> >  adc5_gen3_poll_wait_hs+0x0/0x1e0 [qcom_spmi_adc5_gen3]
-> > 
-> > this frame has 1 object:
-> >  [32, 33) 'status'
-> > 
-> > Memory state around the buggy address:
-> >  ffffffc0265b7400: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
-> >  ffffffc0265b7480: 04 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
-> > >ffffffc0265b7500: 00 00 00 00 f1 f1 f1 f1 01 f3 f3 f3 00 00 00 00
-> >                                            ^
-> >  ffffffc0265b7580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> >  ffffffc0265b7600: f1 f1 f1 f1 01 f2 07 f2 f2 f2 01 f3 00 00 00 00
-> > ==================================================================
-> > 
-> > Fixes: a9fce374815d ("spmi: add command tracepoints for SPMI")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: David Collins <quic_collinsd@quicinc.com>
-> > ---
-> 
-> Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-> 
-> Greg, can you pick this up directly? I don't have anything else for this
-> cycle.
+In 2019, Sergey fixed a lockdep splat with 15341b1dd409 ("char/random:
+silence a lockdep splat with printk()"), but that got reverted soon
+after from 4.19 because back then it apparently caused various problems.
+But the issue it was fixing is still there, and more generally, many
+patches turning printk() into printk_deferred() have landed since,
+making me suspect it's okay to try this out again.
 
-Now queued up, thanks.
+This should fix the following deadlock found by the kernel test robot:
 
-greg k-h
+[   18.287691] WARNING: possible circular locking dependency detected
+[   18.287692] 4.19.248-00165-g3d1f971aa81f #1 Not tainted
+[   18.287693] ------------------------------------------------------
+[   18.287712] stop/202 is trying to acquire lock:
+[   18.287713] (ptrval) (console_owner){..-.}, at: console_unlock (??:?)
+[   18.287717]
+[   18.287718] but task is already holding lock:
+[   18.287718] (ptrval) (&(&port->lock)->rlock){-...}, at: pty_write (pty.c:?)
+[   18.287722]
+[   18.287722] which lock already depends on the new lock.
+[   18.287723]
+[   18.287724]
+[   18.287725] the existing dependency chain (in reverse order) is:
+[   18.287725]
+[   18.287726] -> #2 (&(&port->lock)->rlock){-...}:
+[   18.287729] validate_chain+0x84a/0xe00
+[   18.287729] __lock_acquire (lockdep.c:?)
+[   18.287730] lock_acquire (??:?)
+[   18.287731] _raw_spin_lock_irqsave (??:?)
+[   18.287732] tty_port_tty_get (??:?)
+[   18.287733] tty_port_default_wakeup (tty_port.c:?)
+[   18.287734] tty_port_tty_wakeup (??:?)
+[   18.287734] uart_write_wakeup (??:?)
+[   18.287735] serial8250_tx_chars (??:?)
+[   18.287736] serial8250_handle_irq (??:?)
+[   18.287737] serial8250_default_handle_irq (8250_port.c:?)
+[   18.287738] serial8250_interrupt (8250_core.c:?)
+[   18.287738] __handle_irq_event_percpu (??:?)
+[   18.287739] handle_irq_event_percpu (??:?)
+[   18.287740] handle_irq_event (??:?)
+[   18.287741] handle_edge_irq (??:?)
+[   18.287742] handle_irq (??:?)
+[   18.287742] do_IRQ (??:?)
+[   18.287743] common_interrupt (entry_32.o:?)
+[   18.287744] _raw_spin_unlock_irqrestore (??:?)
+[   18.287745] uart_write (serial_core.c:?)
+[   18.287746] process_output_block (n_tty.c:?)
+[   18.287747] n_tty_write (n_tty.c:?)
+[   18.287747] tty_write (tty_io.c:?)
+[   18.287748] __vfs_write (??:?)
+[   18.287749] vfs_write (??:?)
+[   18.287750] ksys_write (??:?)
+[   18.287750] sys_write (??:?)
+[   18.287751] do_fast_syscall_32 (??:?)
+[   18.287752] entry_SYSENTER_32 (??:?)
+[   18.287752]
+[   18.287753] -> #1 (&port_lock_key){-.-.}:
+[   18.287756]
+[   18.287756] -> #0 (console_owner){..-.}:
+[   18.287759] check_prevs_add (lockdep.c:?)
+[   18.287760] validate_chain+0x84a/0xe00
+[   18.287761] __lock_acquire (lockdep.c:?)
+[   18.287761] lock_acquire (??:?)
+[   18.287762] console_unlock (??:?)
+[   18.287763] vprintk_emit (??:?)
+[   18.287764] vprintk_default (??:?)
+[   18.287764] vprintk_func (??:?)
+[   18.287765] printk (??:?)
+[   18.287766] get_random_u32 (??:?)
+[   18.287767] shuffle_freelist (slub.c:?)
+[   18.287767] allocate_slab (slub.c:?)
+[   18.287768] new_slab (slub.c:?)
+[   18.287769] ___slab_alloc+0x6d0/0xb20
+[   18.287770] __slab_alloc+0xd6/0x2e0
+[   18.287770] __kmalloc (??:?)
+[   18.287771] tty_buffer_alloc (tty_buffer.c:?)
+[   18.287772] __tty_buffer_request_room (tty_buffer.c:?)
+[   18.287773] tty_insert_flip_string_fixed_flag (??:?)
+[   18.287774] pty_write (pty.c:?)
+[   18.287775] process_output_block (n_tty.c:?)
+[   18.287776] n_tty_write (n_tty.c:?)
+[   18.287777] tty_write (tty_io.c:?)
+[   18.287778] __vfs_write (??:?)
+[   18.287779] vfs_write (??:?)
+[   18.287780] ksys_write (??:?)
+[   18.287780] sys_write (??:?)
+[   18.287781] do_fast_syscall_32 (??:?)
+[   18.287782] entry_SYSENTER_32 (??:?)
+[   18.287783]
+[   18.287783] other info that might help us debug this:
+[   18.287784]
+[   18.287785] Chain exists of:
+[   18.287785]   console_owner --> &port_lock_key --> &(&port->lock)->rlock
+[   18.287789]
+[   18.287790]  Possible unsafe locking scenario:
+[   18.287790]
+[   18.287791]        CPU0                    CPU1
+[   18.287792]        ----                    ----
+[   18.287792]   lock(&(&port->lock)->rlock);
+[   18.287794]                                lock(&port_lock_key);
+[   18.287814]                                lock(&(&port->lock)->rlock);
+[   18.287815]   lock(console_owner);
+[   18.287817]
+[   18.287818]  *** DEADLOCK ***
+[   18.287818]
+[   18.287819] 6 locks held by stop/202:
+[   18.287820] #0: (ptrval) (&tty->ldisc_sem){++++}, at: ldsem_down_read (??:?)
+[   18.287823] #1: (ptrval) (&tty->atomic_write_lock){+.+.}, at: tty_write_lock (tty_io.c:?)
+[   18.287826] #2: (ptrval) (&o_tty->termios_rwsem/1){++++}, at: n_tty_write (n_tty.c:?)
+[   18.287830] #3: (ptrval) (&ldata->output_lock){+.+.}, at: process_output_block (n_tty.c:?)
+[   18.287834] #4: (ptrval) (&(&port->lock)->rlock){-...}, at: pty_write (pty.c:?)
+[   18.287838] #5: (ptrval) (console_lock){+.+.}, at: console_trylock_spinning (printk.c:?)
+[   18.287841]
+[   18.287842] stack backtrace:
+[   18.287843] CPU: 0 PID: 202 Comm: stop Not tainted 4.19.248-00165-g3d1f971aa81f #1
+[   18.287843] Call Trace:
+[   18.287844] dump_stack (??:?)
+[   18.287845] print_circular_bug.cold+0x78/0x8b
+[   18.287846] check_prev_add+0x66a/0xd20
+[   18.287847] check_prevs_add (lockdep.c:?)
+[   18.287848] validate_chain+0x84a/0xe00
+[   18.287848] __lock_acquire (lockdep.c:?)
+[   18.287849] lock_acquire (??:?)
+[   18.287850] ? console_unlock (??:?)
+[   18.287851] console_unlock (??:?)
+[   18.287851] ? console_unlock (??:?)
+[   18.287852] ? native_save_fl (??:?)
+[   18.287853] vprintk_emit (??:?)
+[   18.287854] vprintk_default (??:?)
+[   18.287855] vprintk_func (??:?)
+[   18.287855] printk (??:?)
+[   18.287856] get_random_u32 (??:?)
+[   18.287857] ? shuffle_freelist (slub.c:?)
+[   18.287858] shuffle_freelist (slub.c:?)
+[   18.287858] ? page_address (??:?)
+[   18.287859] allocate_slab (slub.c:?)
+[   18.287860] new_slab (slub.c:?)
+[   18.287861] ? pvclock_clocksource_read (??:?)
+[   18.287862] ___slab_alloc+0x6d0/0xb20
+[   18.287862] ? kvm_sched_clock_read (kvmclock.c:?)
+[   18.287863] ? __slab_alloc+0xbc/0x2e0
+[   18.287864] ? native_wbinvd (paravirt.c:?)
+[   18.287865] __slab_alloc+0xd6/0x2e0
+[   18.287865] __kmalloc (??:?)
+[   18.287866] ? __lock_acquire (lockdep.c:?)
+[   18.287867] ? tty_buffer_alloc (tty_buffer.c:?)
+[   18.287868] tty_buffer_alloc (tty_buffer.c:?)
+[   18.287869] __tty_buffer_request_room (tty_buffer.c:?)
+[   18.287869] tty_insert_flip_string_fixed_flag (??:?)
+[   18.287870] pty_write (pty.c:?)
+[   18.287871] process_output_block (n_tty.c:?)
+[   18.287872] n_tty_write (n_tty.c:?)
+[   18.287873] ? print_dl_stats (??:?)
+[   18.287874] ? n_tty_ioctl (n_tty.c:?)
+[   18.287874] tty_write (tty_io.c:?)
+[   18.287875] ? n_tty_ioctl (n_tty.c:?)
+[   18.287876] ? tty_write_unlock (tty_io.c:?)
+[   18.287877] __vfs_write (??:?)
+[   18.287877] vfs_write (??:?)
+[   18.287878] ? __fget_light (file.c:?)
+[   18.287879] ksys_write (??:?)
+
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Lech Perczak <l.perczak@camlintechnologies.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: John Ogness <john.ogness@linutronix.de>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/lkml/Ytz+lo4zRQYG3JUR@xsang-OptiPlex-9020
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ drivers/char/random.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index bac4dc501dc4..2be38780a7f7 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -183,8 +183,8 @@ static void __cold process_random_ready_list(void)
+ 
+ #define warn_unseeded_randomness() \
+ 	if (IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) && !crng_ready()) \
+-		pr_notice("%s called from %pS with crng_init=%d\n", \
+-			  __func__, (void *)_RET_IP_, crng_init)
++		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n", \
++				__func__, (void *)_RET_IP_, crng_init)
+ 
+ 
+ /*********************************************************************
+-- 
+2.35.1
+
