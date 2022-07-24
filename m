@@ -2,259 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A69F57F58F
-	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 16:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C7D57F5E0
+	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 17:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbiGXOxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jul 2022 10:53:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49884 "EHLO
+        id S230062AbiGXPpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jul 2022 11:45:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbiGXOxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 10:53:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC477DF3C
-        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 07:53:29 -0700 (PDT)
+        with ESMTP id S229818AbiGXPpy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 11:45:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E1DD81
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 08:45:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C8886111D
-        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 14:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B76C3411E
-        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 14:53:28 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="dQm0IykG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1658674406;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+IZd8UTiSqrEXUZ0HN+/9iRrPAqI/0RHgbNVI4cLbMA=;
-        b=dQm0IykGzs7NEsnO7cES4uw7wvwdoYYCBMIp4w/ThgbfXLlWNr3j+h45WdOlHFSIJaPJEo
-        M5ToYaig/VeTbECybOUUktoBwmvsqYbgZ8Y3mBqQKgNKSInIPOBwkaXCh8Gbu1SA88SQ/2
-        d22eUqHtsmcZ6OEWB+AtnTYUJcK5dI8=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6de318c8 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO)
-        for <stable@vger.kernel.org>;
-        Sun, 24 Jul 2022 14:53:26 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Qian Cai <cai@lca.pw>,
-        Lech Perczak <l.perczak@camlintechnologies.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        Petr Mladek <pmladek@suse.com>,
-        John Ogness <john.ogness@linutronix.de>,
-        kernel test robot <oliver.sang@intel.com>
-Subject: [PATCH stable 4.19 4.14 4.9] Revert "Revert "char/random: silence a lockdep splat with printk()""
-Date:   Sun, 24 Jul 2022 16:51:48 +0200
-Message-Id: <20220724145148.664623-1-Jason@zx2c4.com>
-In-Reply-To: <Ytz+lo4zRQYG3JUR@xsang-OptiPlex-9020>
-References: <Ytz+lo4zRQYG3JUR@xsang-OptiPlex-9020>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B64536116A
+        for <stable@vger.kernel.org>; Sun, 24 Jul 2022 15:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94128C3411E;
+        Sun, 24 Jul 2022 15:45:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658677552;
+        bh=945VZTaRU8+SC+BWz3Bxm4ObtsxOTbrNAk7IpFqVhDs=;
+        h=Subject:To:Cc:From:Date:From;
+        b=xbD4+CWnqmddNv0SpJbzq1wW/EnIKchLBxt2CSWXLXjqP/munH6BEK+ibCfyKnYQS
+         VTl90oVhyTiFgKCLLCL2TshMK3/jEq0qjwbPTr69MQkh6Mt2GGE48gYNndAkI16fJP
+         3c/ltNo62Jl67ftYSLv4UXbz/VVHxlVK58jUjM/8=
+Subject: FAILED: patch "[PATCH] ipc: Free mq_sysctls if ipc namespace creation failed" failed to apply to 5.18-stable tree
+To:     legion@kernel.org, ebiederm@xmission.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 24 Jul 2022 17:45:49 +0200
+Message-ID: <1658677549198173@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In 2019, Sergey fixed a lockdep splat with 15341b1dd409 ("char/random:
-silence a lockdep splat with printk()"), but that got reverted soon
-after from 4.19 because back then it apparently caused various problems.
-But the issue it was fixing is still there, and more generally, many
-patches turning printk() into printk_deferred() have landed since,
-making me suspect it's okay to try this out again.
 
-This should fix the following deadlock found by the kernel test robot:
+The patch below does not apply to the 5.18-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-[   18.287691] WARNING: possible circular locking dependency detected
-[   18.287692] 4.19.248-00165-g3d1f971aa81f #1 Not tainted
-[   18.287693] ------------------------------------------------------
-[   18.287712] stop/202 is trying to acquire lock:
-[   18.287713] (ptrval) (console_owner){..-.}, at: console_unlock (??:?)
-[   18.287717]
-[   18.287718] but task is already holding lock:
-[   18.287718] (ptrval) (&(&port->lock)->rlock){-...}, at: pty_write (pty.c:?)
-[   18.287722]
-[   18.287722] which lock already depends on the new lock.
-[   18.287723]
-[   18.287724]
-[   18.287725] the existing dependency chain (in reverse order) is:
-[   18.287725]
-[   18.287726] -> #2 (&(&port->lock)->rlock){-...}:
-[   18.287729] validate_chain+0x84a/0xe00
-[   18.287729] __lock_acquire (lockdep.c:?)
-[   18.287730] lock_acquire (??:?)
-[   18.287731] _raw_spin_lock_irqsave (??:?)
-[   18.287732] tty_port_tty_get (??:?)
-[   18.287733] tty_port_default_wakeup (tty_port.c:?)
-[   18.287734] tty_port_tty_wakeup (??:?)
-[   18.287734] uart_write_wakeup (??:?)
-[   18.287735] serial8250_tx_chars (??:?)
-[   18.287736] serial8250_handle_irq (??:?)
-[   18.287737] serial8250_default_handle_irq (8250_port.c:?)
-[   18.287738] serial8250_interrupt (8250_core.c:?)
-[   18.287738] __handle_irq_event_percpu (??:?)
-[   18.287739] handle_irq_event_percpu (??:?)
-[   18.287740] handle_irq_event (??:?)
-[   18.287741] handle_edge_irq (??:?)
-[   18.287742] handle_irq (??:?)
-[   18.287742] do_IRQ (??:?)
-[   18.287743] common_interrupt (entry_32.o:?)
-[   18.287744] _raw_spin_unlock_irqrestore (??:?)
-[   18.287745] uart_write (serial_core.c:?)
-[   18.287746] process_output_block (n_tty.c:?)
-[   18.287747] n_tty_write (n_tty.c:?)
-[   18.287747] tty_write (tty_io.c:?)
-[   18.287748] __vfs_write (??:?)
-[   18.287749] vfs_write (??:?)
-[   18.287750] ksys_write (??:?)
-[   18.287750] sys_write (??:?)
-[   18.287751] do_fast_syscall_32 (??:?)
-[   18.287752] entry_SYSENTER_32 (??:?)
-[   18.287752]
-[   18.287753] -> #1 (&port_lock_key){-.-.}:
-[   18.287756]
-[   18.287756] -> #0 (console_owner){..-.}:
-[   18.287759] check_prevs_add (lockdep.c:?)
-[   18.287760] validate_chain+0x84a/0xe00
-[   18.287761] __lock_acquire (lockdep.c:?)
-[   18.287761] lock_acquire (??:?)
-[   18.287762] console_unlock (??:?)
-[   18.287763] vprintk_emit (??:?)
-[   18.287764] vprintk_default (??:?)
-[   18.287764] vprintk_func (??:?)
-[   18.287765] printk (??:?)
-[   18.287766] get_random_u32 (??:?)
-[   18.287767] shuffle_freelist (slub.c:?)
-[   18.287767] allocate_slab (slub.c:?)
-[   18.287768] new_slab (slub.c:?)
-[   18.287769] ___slab_alloc+0x6d0/0xb20
-[   18.287770] __slab_alloc+0xd6/0x2e0
-[   18.287770] __kmalloc (??:?)
-[   18.287771] tty_buffer_alloc (tty_buffer.c:?)
-[   18.287772] __tty_buffer_request_room (tty_buffer.c:?)
-[   18.287773] tty_insert_flip_string_fixed_flag (??:?)
-[   18.287774] pty_write (pty.c:?)
-[   18.287775] process_output_block (n_tty.c:?)
-[   18.287776] n_tty_write (n_tty.c:?)
-[   18.287777] tty_write (tty_io.c:?)
-[   18.287778] __vfs_write (??:?)
-[   18.287779] vfs_write (??:?)
-[   18.287780] ksys_write (??:?)
-[   18.287780] sys_write (??:?)
-[   18.287781] do_fast_syscall_32 (??:?)
-[   18.287782] entry_SYSENTER_32 (??:?)
-[   18.287783]
-[   18.287783] other info that might help us debug this:
-[   18.287784]
-[   18.287785] Chain exists of:
-[   18.287785]   console_owner --> &port_lock_key --> &(&port->lock)->rlock
-[   18.287789]
-[   18.287790]  Possible unsafe locking scenario:
-[   18.287790]
-[   18.287791]        CPU0                    CPU1
-[   18.287792]        ----                    ----
-[   18.287792]   lock(&(&port->lock)->rlock);
-[   18.287794]                                lock(&port_lock_key);
-[   18.287814]                                lock(&(&port->lock)->rlock);
-[   18.287815]   lock(console_owner);
-[   18.287817]
-[   18.287818]  *** DEADLOCK ***
-[   18.287818]
-[   18.287819] 6 locks held by stop/202:
-[   18.287820] #0: (ptrval) (&tty->ldisc_sem){++++}, at: ldsem_down_read (??:?)
-[   18.287823] #1: (ptrval) (&tty->atomic_write_lock){+.+.}, at: tty_write_lock (tty_io.c:?)
-[   18.287826] #2: (ptrval) (&o_tty->termios_rwsem/1){++++}, at: n_tty_write (n_tty.c:?)
-[   18.287830] #3: (ptrval) (&ldata->output_lock){+.+.}, at: process_output_block (n_tty.c:?)
-[   18.287834] #4: (ptrval) (&(&port->lock)->rlock){-...}, at: pty_write (pty.c:?)
-[   18.287838] #5: (ptrval) (console_lock){+.+.}, at: console_trylock_spinning (printk.c:?)
-[   18.287841]
-[   18.287842] stack backtrace:
-[   18.287843] CPU: 0 PID: 202 Comm: stop Not tainted 4.19.248-00165-g3d1f971aa81f #1
-[   18.287843] Call Trace:
-[   18.287844] dump_stack (??:?)
-[   18.287845] print_circular_bug.cold+0x78/0x8b
-[   18.287846] check_prev_add+0x66a/0xd20
-[   18.287847] check_prevs_add (lockdep.c:?)
-[   18.287848] validate_chain+0x84a/0xe00
-[   18.287848] __lock_acquire (lockdep.c:?)
-[   18.287849] lock_acquire (??:?)
-[   18.287850] ? console_unlock (??:?)
-[   18.287851] console_unlock (??:?)
-[   18.287851] ? console_unlock (??:?)
-[   18.287852] ? native_save_fl (??:?)
-[   18.287853] vprintk_emit (??:?)
-[   18.287854] vprintk_default (??:?)
-[   18.287855] vprintk_func (??:?)
-[   18.287855] printk (??:?)
-[   18.287856] get_random_u32 (??:?)
-[   18.287857] ? shuffle_freelist (slub.c:?)
-[   18.287858] shuffle_freelist (slub.c:?)
-[   18.287858] ? page_address (??:?)
-[   18.287859] allocate_slab (slub.c:?)
-[   18.287860] new_slab (slub.c:?)
-[   18.287861] ? pvclock_clocksource_read (??:?)
-[   18.287862] ___slab_alloc+0x6d0/0xb20
-[   18.287862] ? kvm_sched_clock_read (kvmclock.c:?)
-[   18.287863] ? __slab_alloc+0xbc/0x2e0
-[   18.287864] ? native_wbinvd (paravirt.c:?)
-[   18.287865] __slab_alloc+0xd6/0x2e0
-[   18.287865] __kmalloc (??:?)
-[   18.287866] ? __lock_acquire (lockdep.c:?)
-[   18.287867] ? tty_buffer_alloc (tty_buffer.c:?)
-[   18.287868] tty_buffer_alloc (tty_buffer.c:?)
-[   18.287869] __tty_buffer_request_room (tty_buffer.c:?)
-[   18.287869] tty_insert_flip_string_fixed_flag (??:?)
-[   18.287870] pty_write (pty.c:?)
-[   18.287871] process_output_block (n_tty.c:?)
-[   18.287872] n_tty_write (n_tty.c:?)
-[   18.287873] ? print_dl_stats (??:?)
-[   18.287874] ? n_tty_ioctl (n_tty.c:?)
-[   18.287874] tty_write (tty_io.c:?)
-[   18.287875] ? n_tty_ioctl (n_tty.c:?)
-[   18.287876] ? tty_write_unlock (tty_io.c:?)
-[   18.287877] __vfs_write (??:?)
-[   18.287877] vfs_write (??:?)
-[   18.287878] ? __fget_light (file.c:?)
-[   18.287879] ksys_write (??:?)
+thanks,
 
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Lech Perczak <l.perczak@camlintechnologies.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: John Ogness <john.ogness@linutronix.de>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/lkml/Ytz+lo4zRQYG3JUR@xsang-OptiPlex-9020
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/char/random.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+greg k-h
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index bac4dc501dc4..2be38780a7f7 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -183,8 +183,8 @@ static void __cold process_random_ready_list(void)
+------------------ original commit in Linus's tree ------------------
+
+From db7cfc380900bc4243b09623fd72fabe0a8ff23b Mon Sep 17 00:00:00 2001
+From: Alexey Gladkov <legion@kernel.org>
+Date: Wed, 22 Jun 2022 22:07:29 +0200
+Subject: [PATCH] ipc: Free mq_sysctls if ipc namespace creation failed
+
+The problem that Dmitry Vyukov pointed out is that if setup_ipc_sysctls fails,
+mq_sysctls must be freed before return.
+
+executing program
+BUG: memory leak
+unreferenced object 0xffff888112fc9200 (size 512):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    ef d3 60 85 ff ff ff ff 0c 9b d2 12 81 88 ff ff  ..`.............
+    04 00 00 00 a4 01 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814b6eb3>] kmemdup+0x23/0x50 mm/util.c:129
+    [<ffffffff82219a9b>] kmemdup include/linux/fortify-string.h:456 [inline]
+    [<ffffffff82219a9b>] setup_mq_sysctls+0x4b/0x1c0 ipc/mq_sysctl.c:89
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+BUG: memory leak
+unreferenced object 0xffff888112fd5f00 (size 256):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    00 92 fc 12 81 88 ff ff 00 00 00 00 01 00 00 00  ................
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816fea1b>] kmalloc include/linux/slab.h:605 [inline]
+    [<ffffffff816fea1b>] kzalloc include/linux/slab.h:733 [inline]
+    [<ffffffff816fea1b>] __register_sysctl_table+0x7b/0x7f0 fs/proc/proc_sysctl.c:1344
+    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+BUG: memory leak
+unreferenced object 0xffff888112fbba00 (size 256):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    78 ba fb 12 81 88 ff ff 00 00 00 00 01 00 00 00  x...............
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816fef49>] kmalloc include/linux/slab.h:605 [inline]
+    [<ffffffff816fef49>] kzalloc include/linux/slab.h:733 [inline]
+    [<ffffffff816fef49>] new_dir fs/proc/proc_sysctl.c:978 [inline]
+    [<ffffffff816fef49>] get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+    [<ffffffff816fef49>] __register_sysctl_table+0x5a9/0x7f0 fs/proc/proc_sysctl.c:1373
+    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+BUG: memory leak
+unreferenced object 0xffff888112fbb900 (size 256):
+  comm "syz-executor237", pid 3648, jiffies 4294970469 (age 12.270s)
+  hex dump (first 32 bytes):
+    78 b9 fb 12 81 88 ff ff 00 00 00 00 01 00 00 00  x...............
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff816fef49>] kmalloc include/linux/slab.h:605 [inline]
+    [<ffffffff816fef49>] kzalloc include/linux/slab.h:733 [inline]
+    [<ffffffff816fef49>] new_dir fs/proc/proc_sysctl.c:978 [inline]
+    [<ffffffff816fef49>] get_subdir fs/proc/proc_sysctl.c:1022 [inline]
+    [<ffffffff816fef49>] __register_sysctl_table+0x5a9/0x7f0 fs/proc/proc_sysctl.c:1373
+    [<ffffffff82219b7a>] setup_mq_sysctls+0x12a/0x1c0 ipc/mq_sysctl.c:112
+    [<ffffffff822197f2>] create_ipc_ns ipc/namespace.c:63 [inline]
+    [<ffffffff822197f2>] copy_ipcs+0x292/0x390 ipc/namespace.c:91
+    [<ffffffff8127de7c>] create_new_namespaces+0xdc/0x4f0 kernel/nsproxy.c:90
+    [<ffffffff8127e89b>] unshare_nsproxy_namespaces+0x9b/0x120 kernel/nsproxy.c:226
+    [<ffffffff8123f92e>] ksys_unshare+0x2fe/0x600 kernel/fork.c:3165
+    [<ffffffff8123fc42>] __do_sys_unshare kernel/fork.c:3236 [inline]
+    [<ffffffff8123fc42>] __se_sys_unshare kernel/fork.c:3234 [inline]
+    [<ffffffff8123fc42>] __x64_sys_unshare+0x12/0x20 kernel/fork.c:3234
+    [<ffffffff845aab45>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff845aab45>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff8460006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Reported-by: syzbot+b4b0d1b35442afbf6fd2@syzkaller.appspotmail.com
+Signed-off-by: Alexey Gladkov <legion@kernel.org>
+Link: https://lkml.kernel.org/r/000000000000f5004705e1db8bad@google.com
+Link: https://lkml.kernel.org/r/20220622200729.2639663-1-legion@kernel.org
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+
+diff --git a/ipc/namespace.c b/ipc/namespace.c
+index 754f3237194a..e1fcaedba4fa 100644
+--- a/ipc/namespace.c
++++ b/ipc/namespace.c
+@@ -64,7 +64,7 @@ static struct ipc_namespace *create_ipc_ns(struct user_namespace *user_ns,
+ 		goto fail_put;
  
- #define warn_unseeded_randomness() \
- 	if (IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) && !crng_ready()) \
--		pr_notice("%s called from %pS with crng_init=%d\n", \
--			  __func__, (void *)_RET_IP_, crng_init)
-+		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n", \
-+				__func__, (void *)_RET_IP_, crng_init)
+ 	if (!setup_ipc_sysctls(ns))
+-		goto fail_put;
++		goto fail_mq;
  
+ 	sem_init_ns(ns);
+ 	msg_init_ns(ns);
+@@ -72,6 +72,9 @@ static struct ipc_namespace *create_ipc_ns(struct user_namespace *user_ns,
  
- /*********************************************************************
--- 
-2.35.1
+ 	return ns;
+ 
++fail_mq:
++	retire_mq_sysctls(ns);
++
+ fail_put:
+ 	put_user_ns(ns->user_ns);
+ 	ns_free_inum(&ns->ns);
 
