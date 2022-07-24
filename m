@@ -2,94 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA69057F3A1
-	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 09:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C10C657F3EC
+	for <lists+stable@lfdr.de>; Sun, 24 Jul 2022 10:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239109AbiGXHS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Jul 2022 03:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38082 "EHLO
+        id S231578AbiGXIGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Jul 2022 04:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238921AbiGXHS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 03:18:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7C518B20;
-        Sun, 24 Jul 2022 00:18:58 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A29FEB80D2D;
-        Sun, 24 Jul 2022 07:18:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D85E2C341C0;
-        Sun, 24 Jul 2022 07:18:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658647135;
-        bh=cilKIlwRX04/ZKOXRDFJP5xqs9Q3uNUGrabQaZJDLLo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j3WH1Wi1dbsD67j89JBDezOse91s5xYCoDwsT6nHSrW4o7eLNPdwJoMEVL9XYG44E
-         v+peqz/qnKjCwVbrSC6aUeMO3x8XiHy44MncJU6eieR2h4MxGWAsXbaQlWjS1y6Jax
-         uwbP74TrDuvey7rGo+63ttT9Ma+huBfPZD7pTpbo=
-Date:   Sun, 24 Jul 2022 09:18:52 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jianglei Nie <niejianglei2021@163.com>
-Cc:     sj@kernel.org, akpm@linux-foundation.org, damon@lists.linux.dev,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] mm/damon/reclaim: fix potential memory leak in
- damon_reclaim_init()
-Message-ID: <YtzyXCR/OCLYRSPx@kroah.com>
-References: <20220724065224.2555966-1-niejianglei2021@163.com>
+        with ESMTP id S229618AbiGXIGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Jul 2022 04:06:34 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 538B1DF28;
+        Sun, 24 Jul 2022 01:06:33 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id v13so4105868wru.12;
+        Sun, 24 Jul 2022 01:06:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=HRdU5JtuY9ef3rVZKjUZZjPh20tou+CtkwGg5+ahh00=;
+        b=c6WfNPEv00bRY+G76Bisyk/YuLO3xl7eLE/joEw5OhmvD0Cgq12trBU3l5aMdASe7A
+         g19qf3nDXKmRXFlOnWwK5iHyaPUlp6Pr3nF8Lr7SoV87M1F566tWH48QUDmScUUHIgpT
+         tphPuwtrafZLiANVKIdENxb65B1I4Di5p/I3JkHEhA4d1YPItaIKSwQdwjeXJ+mAVYkb
+         r2Ph+FbHUM+d7uRatncBJAfd+prsUhZwLDrSk0V4yVHo7hzX/TnMIh+X/rl+oe8/uM4i
+         8BB8oIJymjCtP0Z25mSKb+ax1JpGCV1DEFlTxktzO+ruBQCKOd00rXnslhJChsdmR3yt
+         9Njw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=HRdU5JtuY9ef3rVZKjUZZjPh20tou+CtkwGg5+ahh00=;
+        b=WcLepLiz6WAw2fquh2ciuX+XWkoTeiTnCRIVaE7oQWnaZ4WA2qK/+01lxf7jmCLVSo
+         2K8TseAOLj7jIt0wocDfxYcvMJkSFd8vg9v/sC5PLWr7yGE5l5fCOnzz/YPsUaz4n5sa
+         WirjW0w/GC1UgdxQjV1MeBsND/3kIEcu6eTetMqURks8OioFhodugnosuMhW0MTIm/H5
+         n+n+3V9UhsDTSK2Imdji59nrDyjQqKSbL9AODs1K+xNpwMf4IA9/48QOwswmdKFLbiH1
+         XOUirtHac+h4z7GPgOctEGHOnPLBGEUmQ4d1hVTI5o4YHj5HAQCh04AzrVyvTGt2V6N/
+         QXQQ==
+X-Gm-Message-State: AJIora+ApSO89gqIjAAGZOOuFxoTB1zczTVjftC8E80Ti2ujw2lodvVM
+        uKhDYQyV5G+9LzcLqp2nVXQ=
+X-Google-Smtp-Source: AGRyM1vpN+Wd+kw63oObUTEuMlgBYqIu9tMJiDj02N4d/FRk2koGW10bLMjoWMiP4xRM8B6JuBVGww==
+X-Received: by 2002:a5d:6082:0:b0:21e:6bae:a4e8 with SMTP id w2-20020a5d6082000000b0021e6baea4e8mr4753761wrt.658.1658649991049;
+        Sun, 24 Jul 2022 01:06:31 -0700 (PDT)
+Received: from debian (host-78-150-47-22.as13285.net. [78.150.47.22])
+        by smtp.gmail.com with ESMTPSA id a21-20020a05600c349500b003a317ee3036sm10735976wmq.2.2022.07.24.01.06.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 24 Jul 2022 01:06:30 -0700 (PDT)
+Date:   Sun, 24 Jul 2022 09:06:28 +0100
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 000/148] 5.10.133-rc1 review
+Message-ID: <Ytz9hLXOuoGSwHMc@debian>
+References: <20220723095224.302504400@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220724065224.2555966-1-niejianglei2021@163.com>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220723095224.302504400@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jul 24, 2022 at 02:52:24PM +0800, Jianglei Nie wrote:
-> damon_reclaim_init() allocates a memory chunk for ctx with
-> damon_new_ctx(). When damon_select_ops() fails, ctx is not released, which
-> will lead to a memory leak.
-> 
-> We should release the ctx with damon_destroy_ctx() when damon_select_ops()
-> fails to fix the memory leak.
-> 
-> Fixes: 4d69c3457821 ("mm/damon/reclaim: use damon_select_ops() instead of damon_{v,p}a_set_operations()")
-> Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-> ---
->  mm/damon/reclaim.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/damon/reclaim.c b/mm/damon/reclaim.c
-> index 4b07c29effe9..0b3c7396cb90 100644
-> --- a/mm/damon/reclaim.c
-> +++ b/mm/damon/reclaim.c
-> @@ -441,8 +441,10 @@ static int __init damon_reclaim_init(void)
->  	if (!ctx)
->  		return -ENOMEM;
->  
-> -	if (damon_select_ops(ctx, DAMON_OPS_PADDR))
-> +	if (damon_select_ops(ctx, DAMON_OPS_PADDR)) {
-> +		damon_destroy_ctx(ctx);
->  		return -EINVAL;
-> +	}
->  
->  	ctx->callback.after_wmarks_check = damon_reclaim_after_wmarks_check;
->  	ctx->callback.after_aggregation = damon_reclaim_after_aggregation;
-> -- 
-> 2.25.1
-> 
+Hi Greg,
 
-<formletter>
+On Sat, Jul 23, 2022 at 11:53:32AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.133 release.
+> There are 148 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Mon, 25 Jul 2022 09:50:18 +0000.
+> Anything received after that time might be too late.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Build test (gcc version 11.3.1 20220706):
+mips: 63 configs -> no failure
+arm: 104 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-</formletter>
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/1556
+[2]. https://openqa.qa.codethink.co.uk/tests/1557
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
