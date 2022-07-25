@@ -2,113 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7671D57FC9D
-	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 11:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EC0757FC7C
+	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 11:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234262AbiGYJkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jul 2022 05:40:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
+        id S229869AbiGYJe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jul 2022 05:34:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234298AbiGYJkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 05:40:14 -0400
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2047.outbound.protection.outlook.com [40.107.101.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A02F5F11
-        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 02:40:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=F+M2/t3hh9RVpLldnrjSQOFol68rhJkpt9+8uP55PzayvpJmPTrjEqN/7WQBJpP/F+/cGwFypdEG3yVf8F68XNGNmTey2Gmfx0JktUR7QGEUs6AU5fdoBzBfeU8dcrCtgOcGIXH8GFZqxrS4lYbQ9Da+862pouOMz9dvor1e/x0cTwCusC+tjBOIp2qk/wFthDEDp5AIDaxPILXIzWoV3LHH7Wm/gHvxUASqRy5ppmUBxiWBiTYDKIMtK1RnD8CNzoYtK32z2wmrcDmAswBXJwxib6o/2/1auyClVE3b6CVXAlTz6MPy2jG+kLgKEoQmS29FfQa5EGN5M4NpDhEQlA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=40ArEgbz0SMOD7TOPvcMGAA8cZs9dBbBHnswNjB/DUU=;
- b=jCe2tgr/kRbEU3kFsJSApcAhYK/FOBuh80B9gnOQ+++gPaNVw1bf+ckbqJU9iSJQKWonKP1B8xesyxaZvxKK7os9S5765s41xtxGDuzXcDFbkhYF6dBFWZ6BN2Y/yNaj372Q3zjbouzuwjSbq5xwEJtxsLzIj8p5jmLHmb0dMfOTprAqui2rAE2jHBIfJDozUbGxBYMNTSwfuICRm/bN360MCgkJpv4COKYbr/IO/ocHqVtxP/H2/Cr0GNK0elmyrIBZ+TyEaZmcD3O54McwfhtZ9wekzCUrHTCvYIaunuo9+s/+KbtdJ5N54kYoezL3TXGrph24Egyn0hWrrfXlIw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=40ArEgbz0SMOD7TOPvcMGAA8cZs9dBbBHnswNjB/DUU=;
- b=YzwtUh61Z5URgcZ0mf/p6YWfsZgjQp6VWg9Md4bLmK0Ygj9oMrJ2HAAXkqPyYLGgGV11UfFuY4ein+GH72HUgSLa0+uR426dJIZJcxBUdLIOfiBQ31YvepPtCGVuAMuHW9wdcG0ClvPx82BxwDu/uwmdP1tyFShzFvFedp9XPpKOreKGrI6eSm1WkP47sH0EpjhrcNx0NrxOlFBdGwCk3ZZQPRltwJDXNLIXliERWBgv7BrE47ljvEN5QKnb7Lk9ov8CSATv83Y7uenLhgk1n+XRtSuQHge0g8L4VBufr+IekipxOGUUR8KHlakKU7WstPyFUiTctglA9gsCxUmvsg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from BYAPR12MB3176.namprd12.prod.outlook.com (2603:10b6:a03:134::26)
- by DM8PR12MB5462.namprd12.prod.outlook.com (2603:10b6:8:24::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5458.18; Mon, 25 Jul
- 2022 09:40:10 +0000
-Received: from BYAPR12MB3176.namprd12.prod.outlook.com
- ([fe80::eca6:a4a7:e2b2:27e7]) by BYAPR12MB3176.namprd12.prod.outlook.com
- ([fe80::eca6:a4a7:e2b2:27e7%5]) with mapi id 15.20.5458.024; Mon, 25 Jul 2022
- 09:40:10 +0000
-References: <20220722225632.4101276-1-rcampbell@nvidia.com>
-User-agent: mu4e 1.6.9; emacs 27.1
-From:   Alistair Popple <apopple@nvidia.com>
-To:     Ralph Campbell <rcampbell@nvidia.com>
-Cc:     linux-mm@kvack.org, Felix Kuehling <felix.kuehling@amd.com>,
-        Philip Yang <Philip.Yang@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] mm/hmm: fault non-owner device private entries
-Date:   Mon, 25 Jul 2022 19:32:46 +1000
-In-reply-to: <20220722225632.4101276-1-rcampbell@nvidia.com>
-Message-ID: <878rohbkeg.fsf@nvdebian.thelocal>
-Content-Type: text/plain
-X-ClientProxiedBy: BY5PR16CA0007.namprd16.prod.outlook.com
- (2603:10b6:a03:1a0::20) To BYAPR12MB3176.namprd12.prod.outlook.com
- (2603:10b6:a03:134::26)
+        with ESMTP id S229803AbiGYJez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 05:34:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C4516586
+        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 02:34:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48DD66127C
+        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 09:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3D0C341C6;
+        Mon, 25 Jul 2022 09:34:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1658741692;
+        bh=22p4LJOBmzjSKl4blGUXX0xrnZSUjVlMxNTo5u7TcE4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=DPN2bad2IC2zkEd16gqmF4ZJ647Z61Kps8edhNcIduEBCwojME/hyf3TB7WgVwvza
+         6vAr82cYMmu27sCPipWsvISlpxA8vMTeEFRGDBZ/eHJgqV5K389mFMehxC6XRLfLsS
+         S0qtZE6zmYsDjL5AupWT6/A1ncKhroYsDlH8u3eo=
+Subject: FAILED: patch "[PATCH] x86/retbleed: Add fine grained Kconfig knobs" failed to apply to 5.18-stable tree
+To:     peterz@infradead.org, bp@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 25 Jul 2022 11:34:47 +0200
+Message-ID: <1658741687241151@kroah.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: bcd8fb8c-740a-4e84-b0ef-08da6e21aa9c
-X-MS-TrafficTypeDiagnostic: DM8PR12MB5462:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: b+vc58IA3mSDwuWEwMYR/Tw8vojoXi7Rxiqw4j+aL5UIHPThdyUUEfLbgYhaadkISeHdpWqJIJKENj/QGsYvAc/OOaKcHxzTM8IgaFTUsVx/buTKJLLMxiOJhvEZjSK1GJUFz94kAdC/NfZHVUx5iYYFvmargnsBE4o7uY5LCZWVzJZmfeAc1GTrOrVHEGGJQHhlsVXmckqM1sMlE25UJBTl+r3wXZO46quBbs/zjbjQ0MsnaIsWtl/+JaHJnSeEvnLo9xGGV/TeB8zWzwT1MeoyDcS1LlVRrRlJN8wAgwtgrCLPJ7TPna5z5BXyz26/hUXQbqOAKYAH6Y2aS1ydVeoljq3sRIkoGmbnsB52P32brAvPDwFV0FZUzyZ4304DKppVb2sXHiuP5OkOBUGiwhuHOdGvoGCM6hTyk5EC1FIbc12mPI4i7LIseAvnVPnne6i3NX0pcIPwAuuLci7HCdijxCY0pOyNLstfo9tULn6e3vh58gWr7dIV3KtdDcyWuDFne2QYp3qRSKXQkVmUIlbo+WD2qwyOJ1FqmjP6tSCggi80mIqCExOslQ9/U9GUUIWNtPUi+k6oQs6gIemnf5ZtBb0I+K95lKQtC4pfeLTnwCtx84bNVkyoj4P2cKMBZBCHFR2INBpi8dOH4iH7GeNk8Xc/in+OVj97RCf1L7liXGr2c2aQTuIciKEFXht9MTeywCh02hAtHwM2KxIQ9CmIb7Osl98zbKokYeYkeNdW7nz9hy2vu7SbFKL0acbE
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB3176.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(136003)(366004)(396003)(376002)(346002)(39860400002)(38100700002)(6636002)(54906003)(316002)(2906002)(186003)(6506007)(6486002)(8936002)(6862004)(5660300002)(478600001)(86362001)(41300700001)(4326008)(66946007)(66556008)(66476007)(6666004)(9686003)(8676002)(26005)(6512007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?z/hArmHS3fhurtBT/RpO+3TGdr2YPn7EMkVc0z1RlaFDgbttVvIDl7gxQWb3?=
- =?us-ascii?Q?9QbATTR1Ok4wpO0AWHtDsYZq+OfwxKV+c2Aq1+rb4mL4Xkjl8oIlBOSk8yQT?=
- =?us-ascii?Q?hGvknB/JLVtPYkADjlqHGNLNnwOvv/Cso+K4MaZWASzfwrRfwHRt66LDQ0mR?=
- =?us-ascii?Q?Pg+YC8CJFLHkhX5U4WCS2pgsHJxgKEC114Co29gurbjMXVwOA3ovHjMPD0MT?=
- =?us-ascii?Q?9pBFNg5moLKLrKqSRF3Q3BoXuWTykWV+PSg8h9n4Vrmwq4F/rj2ymcVRtXe5?=
- =?us-ascii?Q?bUq6oGzPE7fcTYxow55QH5/rMLuBbYL/h/W/C8P0cV3W0m4a1cOK4rG8KlP5?=
- =?us-ascii?Q?Y7ykxaIPvmXUcPAopZL3rJiNsOUG3kZKEYXKWuNAFux5a+3jYo2fzltQaW5s?=
- =?us-ascii?Q?nCwQWxjC51zByrWSBrC7eZAR1FnRpsxzBOoVbi+9FI9XUjxtcB0BbKzio/ur?=
- =?us-ascii?Q?YAgm77XfkII7RAfwo3FunF96szzZOdDkW54l/JfG7Z5ltHKEN2b8kxhkW+PX?=
- =?us-ascii?Q?PkzrPgpuF7qUeSnDh0PyB/L5zC4rXkd6oSsLi418v7tl3RjeOkYcq0232zRm?=
- =?us-ascii?Q?SUxuH3Gj/YXLnhEmQcj6HQ19aFW45+1fIesPRJCGOHmUEggwLgVMQAJLbF6y?=
- =?us-ascii?Q?uYDvsFjGFv6zDccjwXHmp8TaGE+8DUYEy8wYmYY2DzDPYPffZEPV4+cLLWON?=
- =?us-ascii?Q?PPJRbA9NCZWe0ld9Gpn+dypV4OW0x6VodjgaWo0kMy+gOFsA99J03k64xH+g?=
- =?us-ascii?Q?fs+YPeBWaUmJltOZQMOO77obtZtE6PpsWIEvM1v26FmgZtAtEs+X/MF328LV?=
- =?us-ascii?Q?Z8H5zXSij0wwWbpWLTYzjkPNj8vjhPh4Ble7jUoFbAm5J9a6bKs/ZPgijj5w?=
- =?us-ascii?Q?mDgl8obSYLzsoZocoZTi1L46edKKiwatkRKHfOREmUVqvvnRJ5XEAdhhTtPq?=
- =?us-ascii?Q?Ve5BZfRvNyMNYZqI0HRBW3p4zmhrNXy6Mk7X1FMeNN1ULhT/fdajbXeqk+0j?=
- =?us-ascii?Q?ZY/d3UYCHd2479P5S5ZrfvQriqXlcqd6obCNI8Ld1o051sYLpTOUMNcUzd18?=
- =?us-ascii?Q?ASCvychXeLQhQbSyq2bHLgXyy6SOv4Yszh2vSWj/sgridcDJ8ncTj7ky4tpU?=
- =?us-ascii?Q?wtkW2LK8Dqyj8xhSkUKdWR1hw+Zm9gQC3LS8F7Zb5Jm0hI/5Q98IfLvTlyKr?=
- =?us-ascii?Q?U7wMIVWOBX5lnEgAbqAj2gvdqrsAe+r+TsKdLpYxwNeOE8Bvy2zCQIMD80O8?=
- =?us-ascii?Q?tsJNTgnw088erYnY7DtQMN9Xn5iK4KfmjWc/p6s4zAlYWOMwQqzatZsWyV18?=
- =?us-ascii?Q?US1n6SH4P9pa8KPU53q22+e9z+1icw9img2DvX8XxpeSjaz7F8MbKuyjHNEf?=
- =?us-ascii?Q?YhmX3/wkhLchvJcZRDWmjJGlSQOKat/qV2Bs8svhzcKFZDmaN2uzL4YKKUFN?=
- =?us-ascii?Q?rg7EFMnJOUaFcxmEG4FHcRqFARYQ0dwECnT+dcokiB1rwWUcq6erix7ICLsE?=
- =?us-ascii?Q?AcIgOZv1HnHDPkqOYZMXNZudvmR8UOTGYHh+unN1epBinXsDfdNl9HFxgc4d?=
- =?us-ascii?Q?pUbhlN+1KDekpcoT3gTo8YCY8MFXs4y/vqOFi8bj?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bcd8fb8c-740a-4e84-b0ef-08da6e21aa9c
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB3176.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jul 2022 09:40:10.3436
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: d2hh/5VIs9QcKch0iS5HnWEvf5evPtgEcfQ+JVOkPicJYB4fVE0SD+E5h6Ski63Pv0R8pJGjYnlqoyBb1oMLAg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM8PR12MB5462
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -116,47 +47,626 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Ralph Campbell <rcampbell@nvidia.com> writes:
+The patch below does not apply to the 5.18-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> If hmm_range_fault() is called with the HMM_PFN_REQ_FAULT flag and a
-> device private PTE is found, the hmm_range::dev_private_owner page is
-> used to determine if the device private page should not be faulted in.
-> However, if the device private page is not owned by the caller,
-> hmm_range_fault() returns an error instead of calling migrate_to_ram()
-> to fault in the page.
+thanks,
 
-		/*
-		 * Never fault in device private pages, but just report
-		 * the PFN even if not present.
-		 */
+greg k-h
 
-This comment needs updating because it will be possible to fault in
-device private pages now.
+------------------ original commit in Linus's tree ------------------
 
-It also looks a bit strange to be checking for device private entries
-twice - I think it would be clearer if hmm_is_device_private_entry() is
-removed and the ownership check done directly in hmm_vma_handle_pte().
+From f43b9876e857c739d407bc56df288b0ebe1a9164 Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Mon, 27 Jun 2022 22:21:17 +0000
+Subject: [PATCH] x86/retbleed: Add fine grained Kconfig knobs
 
- - Alistair
+Do fine-grained Kconfig for all the various retbleed parts.
 
-> Cc: stable@vger.kernel.org
-> Fixes: 76612d6ce4cc ("mm/hmm: reorganize how !pte_present is handled in hmm_vma_handle_pte()")
-> Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-> Reported-by: Felix Kuehling <felix.kuehling@amd.com>
-> ---
->  mm/hmm.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/mm/hmm.c b/mm/hmm.c
-> index 3fd3242c5e50..7db2b29bdc85 100644
-> --- a/mm/hmm.c
-> +++ b/mm/hmm.c
-> @@ -273,6 +273,9 @@ static int hmm_vma_handle_pte(struct mm_walk *walk, unsigned long addr,
->  		if (!non_swap_entry(entry))
->  			goto fault;
->
-> +		if (is_device_private_entry(entry))
-> +			goto fault;
-> +
->  		if (is_device_exclusive_entry(entry))
->  			goto fault;
+NOTE: if your compiler doesn't support return thunks this will
+silently 'upgrade' your mitigation to IBPB, you might not like this.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index e35eecfb74f2..e58798f636d4 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -462,32 +462,6 @@ config GOLDFISH
+ 	def_bool y
+ 	depends on X86_GOLDFISH
+ 
+-config RETPOLINE
+-	bool "Avoid speculative indirect branches in kernel"
+-	select OBJTOOL if HAVE_OBJTOOL
+-	default y
+-	help
+-	  Compile kernel with the retpoline compiler options to guard against
+-	  kernel-to-user data leaks by avoiding speculative indirect
+-	  branches. Requires a compiler with -mindirect-branch=thunk-extern
+-	  support for full protection. The kernel may run slower.
+-
+-config CC_HAS_SLS
+-	def_bool $(cc-option,-mharden-sls=all)
+-
+-config CC_HAS_RETURN_THUNK
+-	def_bool $(cc-option,-mfunction-return=thunk-extern)
+-
+-config SLS
+-	bool "Mitigate Straight-Line-Speculation"
+-	depends on CC_HAS_SLS && X86_64
+-	select OBJTOOL if HAVE_OBJTOOL
+-	default n
+-	help
+-	  Compile the kernel with straight-line-speculation options to guard
+-	  against straight line speculation. The kernel image might be slightly
+-	  larger.
+-
+ config X86_CPU_RESCTRL
+ 	bool "x86 CPU resource control support"
+ 	depends on X86 && (CPU_SUP_INTEL || CPU_SUP_AMD)
+@@ -2456,6 +2430,91 @@ source "kernel/livepatch/Kconfig"
+ 
+ endmenu
+ 
++config CC_HAS_SLS
++	def_bool $(cc-option,-mharden-sls=all)
++
++config CC_HAS_RETURN_THUNK
++	def_bool $(cc-option,-mfunction-return=thunk-extern)
++
++menuconfig SPECULATION_MITIGATIONS
++	bool "Mitigations for speculative execution vulnerabilities"
++	default y
++	help
++	  Say Y here to enable options which enable mitigations for
++	  speculative execution hardware vulnerabilities.
++
++	  If you say N, all mitigations will be disabled. You really
++	  should know what you are doing to say so.
++
++if SPECULATION_MITIGATIONS
++
++config PAGE_TABLE_ISOLATION
++	bool "Remove the kernel mapping in user mode"
++	default y
++	depends on (X86_64 || X86_PAE)
++	help
++	  This feature reduces the number of hardware side channels by
++	  ensuring that the majority of kernel addresses are not mapped
++	  into userspace.
++
++	  See Documentation/x86/pti.rst for more details.
++
++config RETPOLINE
++	bool "Avoid speculative indirect branches in kernel"
++	select OBJTOOL if HAVE_OBJTOOL
++	default y
++	help
++	  Compile kernel with the retpoline compiler options to guard against
++	  kernel-to-user data leaks by avoiding speculative indirect
++	  branches. Requires a compiler with -mindirect-branch=thunk-extern
++	  support for full protection. The kernel may run slower.
++
++config RETHUNK
++	bool "Enable return-thunks"
++	depends on RETPOLINE && CC_HAS_RETURN_THUNK
++	select OBJTOOL if HAVE_OBJTOOL
++	default y
++	help
++	  Compile the kernel with the return-thunks compiler option to guard
++	  against kernel-to-user data leaks by avoiding return speculation.
++	  Requires a compiler with -mfunction-return=thunk-extern
++	  support for full protection. The kernel may run slower.
++
++config CPU_UNRET_ENTRY
++	bool "Enable UNRET on kernel entry"
++	depends on CPU_SUP_AMD && RETHUNK
++	default y
++	help
++	  Compile the kernel with support for the retbleed=unret mitigation.
++
++config CPU_IBPB_ENTRY
++	bool "Enable IBPB on kernel entry"
++	depends on CPU_SUP_AMD
++	default y
++	help
++	  Compile the kernel with support for the retbleed=ibpb mitigation.
++
++config CPU_IBRS_ENTRY
++	bool "Enable IBRS on kernel entry"
++	depends on CPU_SUP_INTEL
++	default y
++	help
++	  Compile the kernel with support for the spectre_v2=ibrs mitigation.
++	  This mitigates both spectre_v2 and retbleed at great cost to
++	  performance.
++
++config SLS
++	bool "Mitigate Straight-Line-Speculation"
++	depends on CC_HAS_SLS && X86_64
++	select OBJTOOL if HAVE_OBJTOOL
++	default n
++	help
++	  Compile the kernel with straight-line-speculation options to guard
++	  against straight line speculation. The kernel image might be slightly
++	  larger.
++
++endif
++
+ config ARCH_HAS_ADD_PAGES
+ 	def_bool y
+ 	depends on ARCH_ENABLE_MEMORY_HOTPLUG
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 6e16057737e5..1f40dad30d50 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -15,14 +15,18 @@ endif
+ ifdef CONFIG_CC_IS_GCC
+ RETPOLINE_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-extern -mindirect-branch-register)
+ RETPOLINE_CFLAGS	+= $(call cc-option,-mindirect-branch-cs-prefix)
+-RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
+ RETPOLINE_VDSO_CFLAGS	:= $(call cc-option,-mindirect-branch=thunk-inline -mindirect-branch-register)
+ endif
+ ifdef CONFIG_CC_IS_CLANG
+ RETPOLINE_CFLAGS	:= -mretpoline-external-thunk
+ RETPOLINE_VDSO_CFLAGS	:= -mretpoline
+-RETPOLINE_CFLAGS	+= $(call cc-option,-mfunction-return=thunk-extern)
+ endif
++
++ifdef CONFIG_RETHUNK
++RETHUNK_CFLAGS		:= -mfunction-return=thunk-extern
++RETPOLINE_CFLAGS	+= $(RETHUNK_CFLAGS)
++endif
++
+ export RETPOLINE_CFLAGS
+ export RETPOLINE_VDSO_CFLAGS
+ 
+diff --git a/arch/x86/entry/calling.h b/arch/x86/entry/calling.h
+index 074d04e434de..f6907627172b 100644
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -297,6 +297,7 @@ For 32-bit we have the following conventions - kernel is built with
+  * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
+  */
+ .macro IBRS_ENTER save_reg
++#ifdef CONFIG_CPU_IBRS_ENTRY
+ 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
+ 	movl	$MSR_IA32_SPEC_CTRL, %ecx
+ 
+@@ -317,6 +318,7 @@ For 32-bit we have the following conventions - kernel is built with
+ 	shr	$32, %rdx
+ 	wrmsr
+ .Lend_\@:
++#endif
+ .endm
+ 
+ /*
+@@ -324,6 +326,7 @@ For 32-bit we have the following conventions - kernel is built with
+  * regs. Must be called after the last RET.
+  */
+ .macro IBRS_EXIT save_reg
++#ifdef CONFIG_CPU_IBRS_ENTRY
+ 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
+ 	movl	$MSR_IA32_SPEC_CTRL, %ecx
+ 
+@@ -338,6 +341,7 @@ For 32-bit we have the following conventions - kernel is built with
+ 	shr	$32, %rdx
+ 	wrmsr
+ .Lend_\@:
++#endif
+ .endm
+ 
+ /*
+diff --git a/arch/x86/include/asm/disabled-features.h b/arch/x86/include/asm/disabled-features.h
+index db75da511a36..33d2cd04d254 100644
+--- a/arch/x86/include/asm/disabled-features.h
++++ b/arch/x86/include/asm/disabled-features.h
+@@ -54,9 +54,19 @@
+ # define DISABLE_RETPOLINE	0
+ #else
+ # define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
+-				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)) | \
+-				 (1 << (X86_FEATURE_RETHUNK & 31)) | \
+-				 (1 << (X86_FEATURE_UNRET & 31)))
++				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
++#endif
++
++#ifdef CONFIG_RETHUNK
++# define DISABLE_RETHUNK	0
++#else
++# define DISABLE_RETHUNK	(1 << (X86_FEATURE_RETHUNK & 31))
++#endif
++
++#ifdef CONFIG_CPU_UNRET_ENTRY
++# define DISABLE_UNRET		0
++#else
++# define DISABLE_UNRET		(1 << (X86_FEATURE_UNRET & 31))
+ #endif
+ 
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+@@ -91,7 +101,7 @@
+ #define DISABLED_MASK8	(DISABLE_TDX_GUEST)
+ #define DISABLED_MASK9	(DISABLE_SGX)
+ #define DISABLED_MASK10	0
+-#define DISABLED_MASK11	(DISABLE_RETPOLINE)
++#define DISABLED_MASK11	(DISABLE_RETPOLINE|DISABLE_RETHUNK|DISABLE_UNRET)
+ #define DISABLED_MASK12	0
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
+diff --git a/arch/x86/include/asm/linkage.h b/arch/x86/include/asm/linkage.h
+index e3ae331cabb1..73ca20049835 100644
+--- a/arch/x86/include/asm/linkage.h
++++ b/arch/x86/include/asm/linkage.h
+@@ -19,7 +19,7 @@
+ #define __ALIGN_STR	__stringify(__ALIGN)
+ #endif
+ 
+-#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
++#if defined(CONFIG_RETHUNK) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
+ #define RET	jmp __x86_return_thunk
+ #else /* CONFIG_RETPOLINE */
+ #ifdef CONFIG_SLS
+@@ -31,7 +31,7 @@
+ 
+ #else /* __ASSEMBLY__ */
+ 
+-#if defined(CONFIG_RETPOLINE) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
++#if defined(CONFIG_RETHUNK) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
+ #define ASM_RET	"jmp __x86_return_thunk\n\t"
+ #else /* CONFIG_RETPOLINE */
+ #ifdef CONFIG_SLS
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index ccde87e6eabb..bb05ed4f46bd 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -127,6 +127,12 @@
+ .Lskip_rsb_\@:
+ .endm
+ 
++#ifdef CONFIG_CPU_UNRET_ENTRY
++#define CALL_ZEN_UNTRAIN_RET	"call zen_untrain_ret"
++#else
++#define CALL_ZEN_UNTRAIN_RET	""
++#endif
++
+ /*
+  * Mitigate RETBleed for AMD/Hygon Zen uarch. Requires KERNEL CR3 because the
+  * return thunk isn't mapped into the userspace tables (then again, AMD
+@@ -139,10 +145,10 @@
+  * where we have a stack but before any RET instruction.
+  */
+ .macro UNTRAIN_RET
+-#ifdef CONFIG_RETPOLINE
++#if defined(CONFIG_CPU_UNRET_ENTRY) || defined(CONFIG_CPU_IBPB_ENTRY)
+ 	ANNOTATE_UNRET_END
+ 	ALTERNATIVE_2 "",						\
+-	              "call zen_untrain_ret", X86_FEATURE_UNRET,	\
++	              CALL_ZEN_UNTRAIN_RET, X86_FEATURE_UNRET,		\
+ 		      "call entry_ibpb", X86_FEATURE_ENTRY_IBPB
+ #endif
+ .endm
+diff --git a/arch/x86/include/asm/static_call.h b/arch/x86/include/asm/static_call.h
+index 70cc9ccb8029..343b722ccaf2 100644
+--- a/arch/x86/include/asm/static_call.h
++++ b/arch/x86/include/asm/static_call.h
+@@ -46,7 +46,7 @@
+ #define ARCH_DEFINE_STATIC_CALL_TRAMP(name, func)			\
+ 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, ".byte 0xe9; .long " #func " - (. + 4)")
+ 
+-#ifdef CONFIG_RETPOLINE
++#ifdef CONFIG_RETHUNK
+ #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
+ 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "jmp __x86_return_thunk")
+ #else
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index cf447ee18b3c..d6858533e6e5 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -508,6 +508,7 @@ void __init_or_module noinline apply_retpolines(s32 *start, s32 *end)
+ 	}
+ }
+ 
++#ifdef CONFIG_RETHUNK
+ /*
+  * Rewrite the compiler generated return thunk tail-calls.
+  *
+@@ -569,6 +570,10 @@ void __init_or_module noinline apply_returns(s32 *start, s32 *end)
+ 		}
+ 	}
+ }
++#else
++void __init_or_module noinline apply_returns(s32 *start, s32 *end) { }
++#endif /* CONFIG_RETHUNK */
++
+ #else /* !CONFIG_RETPOLINE || !CONFIG_OBJTOOL */
+ 
+ void __init_or_module noinline apply_retpolines(s32 *start, s32 *end) { }
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 9cfd11f7ba11..35d5288394cb 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -864,6 +864,7 @@ static void init_amd_bd(struct cpuinfo_x86 *c)
+ 
+ void init_spectral_chicken(struct cpuinfo_x86 *c)
+ {
++#ifdef CONFIG_CPU_UNRET_ENTRY
+ 	u64 value;
+ 
+ 	/*
+@@ -880,6 +881,7 @@ void init_spectral_chicken(struct cpuinfo_x86 *c)
+ 			wrmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, value);
+ 		}
+ 	}
++#endif
+ }
+ 
+ static void init_amd_zn(struct cpuinfo_x86 *c)
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 182f8b2e8a3c..cf08a1b8f3c7 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -842,7 +842,6 @@ static int __init retbleed_parse_cmdline(char *str)
+ early_param("retbleed", retbleed_parse_cmdline);
+ 
+ #define RETBLEED_UNTRAIN_MSG "WARNING: BTB untrained return thunk mitigation is only effective on AMD/Hygon!\n"
+-#define RETBLEED_COMPILER_MSG "WARNING: kernel not compiled with RETPOLINE or -mfunction-return capable compiler; falling back to IBPB!\n"
+ #define RETBLEED_INTEL_MSG "WARNING: Spectre v2 mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible!\n"
+ 
+ static void __init retbleed_select_mitigation(void)
+@@ -857,18 +856,33 @@ static void __init retbleed_select_mitigation(void)
+ 		return;
+ 
+ 	case RETBLEED_CMD_UNRET:
+-		retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++		if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY)) {
++			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++		} else {
++			pr_err("WARNING: kernel not compiled with CPU_UNRET_ENTRY.\n");
++			goto do_cmd_auto;
++		}
+ 		break;
+ 
+ 	case RETBLEED_CMD_IBPB:
+-		retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
++		if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
++			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
++		} else {
++			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
++			goto do_cmd_auto;
++		}
+ 		break;
+ 
++do_cmd_auto:
+ 	case RETBLEED_CMD_AUTO:
+ 	default:
+ 		if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
+-		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
+-			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
++			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
++				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY))
++				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
++		}
+ 
+ 		/*
+ 		 * The Intel mitigation (IBRS or eIBRS) was already selected in
+@@ -881,14 +895,6 @@ static void __init retbleed_select_mitigation(void)
+ 
+ 	switch (retbleed_mitigation) {
+ 	case RETBLEED_MITIGATION_UNRET:
+-
+-		if (!IS_ENABLED(CONFIG_RETPOLINE) ||
+-		    !IS_ENABLED(CONFIG_CC_HAS_RETURN_THUNK)) {
+-			pr_err(RETBLEED_COMPILER_MSG);
+-			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
+-			goto retbleed_force_ibpb;
+-		}
+-
+ 		setup_force_cpu_cap(X86_FEATURE_RETHUNK);
+ 		setup_force_cpu_cap(X86_FEATURE_UNRET);
+ 
+@@ -900,7 +906,6 @@ static void __init retbleed_select_mitigation(void)
+ 		break;
+ 
+ 	case RETBLEED_MITIGATION_IBPB:
+-retbleed_force_ibpb:
+ 		setup_force_cpu_cap(X86_FEATURE_ENTRY_IBPB);
+ 		mitigate_smt = true;
+ 		break;
+@@ -1271,6 +1276,12 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
+ 
++	if (cmd == SPECTRE_V2_CMD_IBRS && !IS_ENABLED(CONFIG_CPU_IBRS_ENTRY)) {
++		pr_err("%s selected but not compiled in. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
+ 	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_data.x86_vendor != X86_VENDOR_INTEL) {
+ 		pr_err("%s selected but not Intel CPU. Switching to AUTO select\n",
+ 		       mitigation_options[i].option);
+@@ -1328,7 +1339,8 @@ static void __init spectre_v2_select_mitigation(void)
+ 			break;
+ 		}
+ 
+-		if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
++		if (IS_ENABLED(CONFIG_CPU_IBRS_ENTRY) &&
++		    boot_cpu_has_bug(X86_BUG_RETBLEED) &&
+ 		    retbleed_cmd != RETBLEED_CMD_OFF &&
+ 		    boot_cpu_has(X86_FEATURE_IBRS) &&
+ 		    boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
+diff --git a/arch/x86/kernel/static_call.c b/arch/x86/kernel/static_call.c
+index fe21fe778185..be7038a0da4d 100644
+--- a/arch/x86/kernel/static_call.c
++++ b/arch/x86/kernel/static_call.c
+@@ -126,7 +126,7 @@ void arch_static_call_transform(void *site, void *tramp, void *func, bool tail)
+ }
+ EXPORT_SYMBOL_GPL(arch_static_call_transform);
+ 
+-#ifdef CONFIG_RETPOLINE
++#ifdef CONFIG_RETHUNK
+ /*
+  * This is called by apply_returns() to fix up static call trampolines,
+  * specifically ARCH_DEFINE_STATIC_CALL_NULL_TRAMP which is recorded as
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index b01437015f99..db96bf7d1122 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -439,10 +439,10 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+  *
+  * ENDBR			[4 bytes; CONFIG_X86_KERNEL_IBT]
+  * SETcc %al			[3 bytes]
+- * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETPOLINE]
++ * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETHUNK]
+  * INT3				[1 byte; CONFIG_SLS]
+  */
+-#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETPOLINE)) + \
++#define RET_LENGTH	(1 + (4 * IS_ENABLED(CONFIG_RETHUNK)) + \
+ 			 IS_ENABLED(CONFIG_SLS))
+ #define SETCC_LENGTH	(ENDBR_INSN_SIZE + 3 + RET_LENGTH)
+ #define SETCC_ALIGN	(4 << ((SETCC_LENGTH > 4) & 1) << ((SETCC_LENGTH > 8) & 1))
+diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
+index fdd16163b996..073289a55f84 100644
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -72,6 +72,8 @@ SYM_CODE_END(__x86_indirect_thunk_array)
+  * This function name is magical and is used by -mfunction-return=thunk-extern
+  * for the compiler to generate JMPs to it.
+  */
++#ifdef CONFIG_RETHUNK
++
+ 	.section .text.__x86.return_thunk
+ 
+ /*
+@@ -136,3 +138,5 @@ SYM_FUNC_END(zen_untrain_ret)
+ __EXPORT_THUNK(zen_untrain_ret)
+ 
+ EXPORT_SYMBOL(__x86_return_thunk)
++
++#endif /* CONFIG_RETHUNK */
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index d1425778664b..3fb6a99e78c4 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -236,6 +236,7 @@ objtool_args =								\
+ 	$(if $(CONFIG_FTRACE_MCOUNT_USE_OBJTOOL), --mcount)		\
+ 	$(if $(CONFIG_UNWINDER_ORC), --orc)				\
+ 	$(if $(CONFIG_RETPOLINE), --retpoline)				\
++	$(if $(CONFIG_RETHUNK), --rethunk)				\
+ 	$(if $(CONFIG_SLS), --sls)					\
+ 	$(if $(CONFIG_STACK_VALIDATION), --stackval)			\
+ 	$(if $(CONFIG_HAVE_STATIC_CALL_INLINE), --static-call)		\
+diff --git a/scripts/Makefile.vmlinux_o b/scripts/Makefile.vmlinux_o
+index bc67748044a6..84019814f33f 100644
+--- a/scripts/Makefile.vmlinux_o
++++ b/scripts/Makefile.vmlinux_o
+@@ -44,7 +44,7 @@ objtool-enabled := $(or $(delay-objtool),$(CONFIG_NOINSTR_VALIDATION))
+ 
+ objtool_args := \
+ 	$(if $(delay-objtool),$(objtool_args)) \
+-	$(if $(CONFIG_NOINSTR_VALIDATION), --noinstr $(if $(CONFIG_RETPOLINE), --unret)) \
++	$(if $(CONFIG_NOINSTR_VALIDATION), --noinstr $(if $(CONFIG_CPU_UNRET_ENTRY), --unret)) \
+ 	$(if $(CONFIG_GCOV_KERNEL), --no-unreachable) \
+ 	--link
+ 
+diff --git a/security/Kconfig b/security/Kconfig
+index f29e4c656983..e6db09a779b7 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -54,17 +54,6 @@ config SECURITY_NETWORK
+ 	  implement socket and networking access controls.
+ 	  If you are unsure how to answer this question, answer N.
+ 
+-config PAGE_TABLE_ISOLATION
+-	bool "Remove the kernel mapping in user mode"
+-	default y
+-	depends on (X86_64 || X86_PAE) && !UML
+-	help
+-	  This feature reduces the number of hardware side channels by
+-	  ensuring that the majority of kernel addresses are not mapped
+-	  into userspace.
+-
+-	  See Documentation/x86/pti.rst for more details.
+-
+ config SECURITY_INFINIBAND
+ 	bool "Infiniband Security Hooks"
+ 	depends on SECURITY && INFINIBAND
+diff --git a/tools/objtool/builtin-check.c b/tools/objtool/builtin-check.c
+index c063e1ff96b2..24fbe803a0d3 100644
+--- a/tools/objtool/builtin-check.c
++++ b/tools/objtool/builtin-check.c
+@@ -68,6 +68,7 @@ const struct option check_options[] = {
+ 	OPT_BOOLEAN('n', "noinstr", &opts.noinstr, "validate noinstr rules"),
+ 	OPT_BOOLEAN('o', "orc", &opts.orc, "generate ORC metadata"),
+ 	OPT_BOOLEAN('r', "retpoline", &opts.retpoline, "validate and annotate retpoline usage"),
++	OPT_BOOLEAN(0,   "rethunk", &opts.rethunk, "validate and annotate rethunk usage"),
+ 	OPT_BOOLEAN(0,   "unret", &opts.unret, "validate entry unret placement"),
+ 	OPT_BOOLEAN('l', "sls", &opts.sls, "validate straight-line-speculation mitigations"),
+ 	OPT_BOOLEAN('s', "stackval", &opts.stackval, "validate frame pointer rules"),
+@@ -124,6 +125,7 @@ static bool opts_valid(void)
+ 	    opts.noinstr		||
+ 	    opts.orc			||
+ 	    opts.retpoline		||
++	    opts.rethunk		||
+ 	    opts.sls			||
+ 	    opts.stackval		||
+ 	    opts.static_call		||
+@@ -136,6 +138,11 @@ static bool opts_valid(void)
+ 		return true;
+ 	}
+ 
++	if (opts.unret && !opts.rethunk) {
++		ERROR("--unret requires --rethunk");
++		return false;
++	}
++
+ 	if (opts.dump_orc)
+ 		return true;
+ 
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index ddfdd138cc2a..7bebdb8867cd 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -3732,8 +3732,11 @@ static int validate_retpoline(struct objtool_file *file)
+ 			continue;
+ 
+ 		if (insn->type == INSN_RETURN) {
+-			WARN_FUNC("'naked' return found in RETPOLINE build",
+-				  insn->sec, insn->offset);
++			if (opts.rethunk) {
++				WARN_FUNC("'naked' return found in RETHUNK build",
++					  insn->sec, insn->offset);
++			} else
++				continue;
+ 		} else {
+ 			WARN_FUNC("indirect %s found in RETPOLINE build",
+ 				  insn->sec, insn->offset,
+@@ -4264,7 +4267,9 @@ int check(struct objtool_file *file)
+ 		if (ret < 0)
+ 			goto out;
+ 		warnings += ret;
++	}
+ 
++	if (opts.rethunk) {
+ 		ret = create_return_sites_sections(file);
+ 		if (ret < 0)
+ 			goto out;
+diff --git a/tools/objtool/include/objtool/builtin.h b/tools/objtool/include/objtool/builtin.h
+index 0c476b0b40a3..42a52f1a0add 100644
+--- a/tools/objtool/include/objtool/builtin.h
++++ b/tools/objtool/include/objtool/builtin.h
+@@ -19,6 +19,7 @@ struct opts {
+ 	bool noinstr;
+ 	bool orc;
+ 	bool retpoline;
++	bool rethunk;
+ 	bool unret;
+ 	bool sls;
+ 	bool stackval;
+
