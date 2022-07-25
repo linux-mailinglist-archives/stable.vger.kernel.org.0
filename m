@@ -2,118 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1CC580432
-	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 20:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C77F5580436
+	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 20:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236122AbiGYSrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jul 2022 14:47:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
+        id S235972AbiGYSt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jul 2022 14:49:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229753AbiGYSrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 14:47:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 322882B1;
-        Mon, 25 Jul 2022 11:47:41 -0700 (PDT)
+        with ESMTP id S234107AbiGYSt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 14:49:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CB8D4B
+        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 11:49:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C172260ED9;
-        Mon, 25 Jul 2022 18:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21470C341C6;
-        Mon, 25 Jul 2022 18:47:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ADBDB810AA
+        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 18:49:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686B2C341C6;
+        Mon, 25 Jul 2022 18:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1658774860;
-        bh=eBsZ6f+ACMnNJls1sE0EwiTefDO6vWpt3zJ4rcotMZY=;
-        h=Date:To:From:Subject:From;
-        b=2GZJo33TZRkieW41SS+xTGRTpWNUCyMg4ttM7VCgLzSHvuaOHn2FSsS/4AKUGPKid
-         ZbMEyPPeTkdeB1OHFRoGczlSD5KINBn0jBARoneqXftZsTHIzOEx6V7g/+IkqYbRgx
-         a20eWTjLbFFu+NrBauE7Iq27l6d30GkqXoZmIzmY=
-Date:   Mon, 25 Jul 2022 11:47:39 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, shakeelb@google.com,
-        mike.kravetz@oracle.com, keescook@chromium.org,
-        almasrymina@google.com, linmiaohe@huawei.com,
-        akpm@linux-foundation.org
+        s=korg; t=1658774994;
+        bh=yy7PhlLUKJkcq1UG9oO0Tr3lq0L1Ce6BUI/PYbQQgRo=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=EpLK5ir3x2pygWPzrF3kLbN2nReaDv3uYYmQ6nsUBxFdeFzVQtgrYgiwoW6BsNdrf
+         NeRFRqWIi66kG44kByH3ilf/PkuTAIBkFcQxsCIvzyPJYepGv/wdagaSkGgZ1iwpKm
+         5stAXvjSfBT/22EGMUvr/Ff/oer0qL3+Z+YEelng=
+Date:   Mon, 25 Jul 2022 11:49:53 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch added to mm-unstable branch
-Message-Id: <20220725184740.21470C341C6@smtp.kernel.org>
+To:     Ralph Campbell <rcampbell@nvidia.com>
+Cc:     <linux-mm@kvack.org>, Felix Kuehling <felix.kuehling@amd.com>,
+        Philip Yang <Philip.Yang@amd.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm/hmm: fault non-owner device private entries
+Message-Id: <20220725114953.7e53ca4b296e0e753ca7bfda@linux-foundation.org>
+In-Reply-To: <20220722225632.4101276-1-rcampbell@nvidia.com>
+References: <20220722225632.4101276-1-rcampbell@nvidia.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 22 Jul 2022 15:56:32 -0700 Ralph Campbell <rcampbell@nvidia.com> wrote:
 
-The patch titled
-     Subject: hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
-has been added to the -mm mm-unstable branch.  Its filename is
-     hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch
+> If hmm_range_fault() is called with the HMM_PFN_REQ_FAULT flag and a
+> device private PTE is found, the hmm_range::dev_private_owner page is
+> used to determine if the device private page should not be faulted in.
+> However, if the device private page is not owned by the caller,
+> hmm_range_fault() returns an error instead of calling migrate_to_ram()
+> to fault in the page.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch
+Could we please include here a description of the end-user visible
+effects of the bug?
 
-This patch will later appear in the mm-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+> Cc: stable@vger.kernel.org
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Miaohe Lin <linmiaohe@huawei.com>
-Subject: hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
-Date: Sat, 23 Jul 2022 15:38:04 +0800
-
-We forget to set cft->private for numa stat file.  As a result, numa stat
-of hstates[0] is always showed for all hstates.  Encode the hstates index
-into cft->private to fix this issue.
-
-Link: https://lkml.kernel.org/r/20220723073804.53035-1-linmiaohe@huawei.com
-Fixes: f47761999052 ("hugetlb: add hugetlb.*.numa_stat file")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb_cgroup.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/hugetlb_cgroup.c~hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat
-+++ a/mm/hugetlb_cgroup.c
-@@ -772,6 +772,7 @@ static void __init __hugetlb_cgroup_file
- 	/* Add the numa stat file */
- 	cft = &h->cgroup_files_dfl[6];
- 	snprintf(cft->name, MAX_CFTYPE_NAME, "%s.numa_stat", buf);
-+	cft->private = MEMFILE_PRIVATE(idx, 0);
- 	cft->seq_show = hugetlb_cgroup_read_numa_stat;
- 	cft->flags = CFTYPE_NOT_ON_ROOT;
- 
-_
-
-Patches currently in -mm which might be from linmiaohe@huawei.com are
-
-mm-hugetlb-avoid-corrupting-page-mapping-in-hugetlb_mcopy_atomic_pte.patch
-mm-page_alloc-minor-clean-up-for-memmap_init_compound.patch
-mm-mmapc-fix-missing-call-to-vm_unacct_memory-in-mmap_region.patch
-filemap-minor-cleanup-for-filemap_write_and_wait_range.patch
-mm-remove-obsolete-comment-in-do_fault_around.patch
-mm-remove-unneeded-pageanon-check-in-restore_exclusive_pte.patch
-mm-mempolicy-remove-unneeded-out-label.patch
-hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch
-
+Especially when proposing a -stable backport.
