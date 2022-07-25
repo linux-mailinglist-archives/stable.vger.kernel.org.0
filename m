@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3255958075E
-	for <lists+stable@lfdr.de>; Tue, 26 Jul 2022 00:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8446158075F
+	for <lists+stable@lfdr.de>; Tue, 26 Jul 2022 00:29:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237021AbiGYW3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jul 2022 18:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37316 "EHLO
+        id S236648AbiGYW3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jul 2022 18:29:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236939AbiGYW3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 18:29:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED7E925C4B;
-        Mon, 25 Jul 2022 15:28:58 -0700 (PDT)
+        with ESMTP id S236539AbiGYW3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 18:29:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E684925C40;
+        Mon, 25 Jul 2022 15:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 914DEB8112D;
-        Mon, 25 Jul 2022 22:28:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA24C341C6;
-        Mon, 25 Jul 2022 22:28:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B71AB80ECE;
+        Mon, 25 Jul 2022 22:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A55C341C6;
+        Mon, 25 Jul 2022 22:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1658788136;
-        bh=pD274nU3JZXNZUk4SX+nLEB8BBmVU2PkVeeVqOdGs5o=;
+        s=korg; t=1658788172;
+        bh=MAgqhNDnYcdyI4UWI/N0oBdQ7KQ21/cAC5vDXoRtqTU=;
         h=Date:To:From:Subject:From;
-        b=G5ozEJhp2c1aQap5WhUixoTatbDhBpSU3by2Ral5vstoc9AYr2/qrUqGzJZQYPQrs
-         VhMNHEPaX85+7VzKkhPDxr8/WtODghY2PxAUVnruWf5mfGoIzyfdcVHtpg0VhsAoIJ
-         1W6tYMvyo9RkRycgF63C2SAY5EA0cOsxoo9Et6CI=
-Date:   Mon, 25 Jul 2022 15:28:55 -0700
+        b=iMtaF9zwFga4q9TNTW/9cz+Tz+zgPMDqRRJedYNIE5JFkPxorqqcyA91+IMg+A/wu
+         FENEmJP4Rtk98fyxPGnhsVAOfk7BZ/+68lOSFvD6xyZ6iPhHgMxH/BuWVSIOnijV81
+         UGCRN8O6kBJSgW74sGOtGWP2yaHYMg7k5INVAqpk=
+Date:   Mon, 25 Jul 2022 15:29:31 -0700
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
         Philip.Yang@amd.com, jgg@nvidia.com, felix.kuehling@amd.com,
         apopple@nvidia.com, rcampbell@nvidia.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 Subject: + mm-hmm-fault-non-owner-device-private-entries.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220725222856.1EA24C341C6@smtp.kernel.org>
+Message-Id: <20220725222932.39A55C341C6@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -79,6 +79,11 @@ to determine if the device private page should not be faulted in.
 However, if the device private page is not owned by the caller,
 hmm_range_fault() returns an error instead of calling migrate_to_ram() to
 fault in the page.
+
+For example, if a page is migrated to GPU private memory and a RDMA fault
+capable NIC tries to read the migrated page, without this patch it will
+get an error.  With this patch, the page will be migrated back to system
+memory and the NIC will be able to read the data.
 
 Link: https://lkml.kernel.org/r/20220725183615.4118795-2-rcampbell@nvidia.com
 Fixes: 76612d6ce4cc ("mm/hmm: reorganize how !pte_present is handled in hmm_vma_handle_pte()")
