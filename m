@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FA25804DA
+	by mail.lfdr.de (Postfix) with ESMTP id BA4195804DB
 	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 21:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229827AbiGYTxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230017AbiGYTxa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 25 Jul 2022 15:53:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34058 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230017AbiGYTx3 (ORCPT
+        with ESMTP id S229848AbiGYTx3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 15:53:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0E41620BFC
-        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 12:53:27 -0700 (PDT)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 87DAC20BFD
+        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 12:53:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1658778807;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=mvseOZVMYFDtiS4WPxE7FZnLeMyN3ka0gb6XpGOUUzw=;
-        b=SLZd3tYalTlOGz9jlPmZ1gQNuI0mRIuY1WnJ7SFhypr3bdudc5SUDV2NcA8s0/U8uKL4kX
-        YdexFQY+1n/2Wk5/tGrotxO6JhgdN+olyJBov5Pd4fM0PTs3+TRE1ppa5m6lw37s7VJS8m
-        H76GCg2DTTKIIzWb+Rum4ss/YnhtbA4=
+        bh=cUZPffc2iGWAkRDa4SlYxAuEhSJ5M3HLG7UhtiIHZEo=;
+        b=PHPm5Wf+9vvjAbwJWybZs+aJWOb8n4w/uH54qf60ISpaDIu2Yx1UYoz+5IuyGQi9l7mKLA
+        7zJiAEAEmaaHSryiPQCtWNM+BJxWQC8a/yUaef1FoBb+rP2jniRRS+qW2Ssml9FnT4iOGM
+        TAPFPhgCjnSFnwi36cbaqY0TJGMKpIY=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-439-179r-AYyODawJEXSxiF4-g-1; Mon, 25 Jul 2022 15:53:25 -0400
-X-MC-Unique: 179r-AYyODawJEXSxiF4-g-1
+ us-mta-648-kRFgp9EwM9uX2X1_J78yug-1; Mon, 25 Jul 2022 15:53:25 -0400
+X-MC-Unique: kRFgp9EwM9uX2X1_J78yug-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6B909811E76
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9669C85A584
         for <stable@vger.kernel.org>; Mon, 25 Jul 2022 19:53:25 +0000 (UTC)
 Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 48E312026D07;
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 73DAF2026614;
         Mon, 25 Jul 2022 19:53:25 +0000 (UTC)
 From:   Alexander Aring <aahringo@redhat.com>
 To:     teigland@redhat.com
 Cc:     cluster-devel@redhat.com, stable@vger.kernel.org,
         aahringo@redhat.com
-Subject: [PATCHv2 dlm/next 1/2] fs: dlm: fix race in lowcomms
-Date:   Mon, 25 Jul 2022 15:53:21 -0400
-Message-Id: <20220725195322.857226-2-aahringo@redhat.com>
+Subject: [PATCHv2 dlm/next 2/2] fs: dlm: fix race between test_bit() and queue_work()
+Date:   Mon, 25 Jul 2022 15:53:22 -0400
+Message-Id: <20220725195322.857226-3-aahringo@redhat.com>
 In-Reply-To: <20220725195322.857226-1-aahringo@redhat.com>
 References: <20220725195322.857226-1-aahringo@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,87 +58,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch fixes a race between queue_work() in
-_dlm_lowcomms_commit_msg() and srcu_read_unlock(). The queue_work() can
-take the final reference of a dlm_msg and so msg->idx can contain
-garbage which is signaled by the following warning:
+This patch will fix a race by surround ls_cb_mutex in set_bit() and the
+test_bit() and it's conditional code blocks for LSFL_CB_DELAY.
 
-[  676.237050] ------------[ cut here ]------------
-[  676.237052] WARNING: CPU: 0 PID: 1060 at include/linux/srcu.h:189 dlm_lowcomms_commit_msg+0x41/0x50
-[  676.238945] Modules linked in: dlm_locktorture torture rpcsec_gss_krb5 intel_rapl_msr intel_rapl_common iTCO_wdt iTCO_vendor_support qxl kvm_intel drm_ttm_helper vmw_vsock_virtio_transport kvm vmw_vsock_virtio_transport_common ttm irqbypass crc32_pclmul joydev crc32c_intel serio_raw drm_kms_helper vsock virtio_scsi virtio_console virtio_balloon snd_pcm drm syscopyarea sysfillrect sysimgblt snd_timer fb_sys_fops i2c_i801 lpc_ich snd i2c_smbus soundcore pcspkr
-[  676.244227] CPU: 0 PID: 1060 Comm: lock_torture_wr Not tainted 5.19.0-rc3+ #1546
-[  676.245216] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-2.module+el8.7.0+15506+033991b0 04/01/2014
-[  676.246460] RIP: 0010:dlm_lowcomms_commit_msg+0x41/0x50
-[  676.247132] Code: fe ff ff ff 75 24 48 c7 c6 bd 0f 49 bb 48 c7 c7 38 7c 01 bd e8 00 e7 ca ff 89 de 48 c7 c7 60 78 01 bd e8 42 3d cd ff 5b 5d c3 <0f> 0b eb d8 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 55 48
-[  676.249253] RSP: 0018:ffffa401c18ffc68 EFLAGS: 00010282
-[  676.249855] RAX: 0000000000000001 RBX: 00000000ffff8b76 RCX: 0000000000000006
-[  676.250713] RDX: 0000000000000000 RSI: ffffffffbccf3a10 RDI: ffffffffbcc7b62e
-[  676.251610] RBP: ffffa401c18ffc70 R08: 0000000000000001 R09: 0000000000000001
-[  676.252481] R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000005
-[  676.253421] R13: ffff8b76786ec370 R14: ffff8b76786ec370 R15: ffff8b76786ec480
-[  676.254257] FS:  0000000000000000(0000) GS:ffff8b7777800000(0000) knlGS:0000000000000000
-[  676.255239] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  676.255897] CR2: 00005590205d88b8 CR3: 000000017656c003 CR4: 0000000000770ee0
-[  676.256734] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  676.257567] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  676.258397] PKRU: 55555554
-[  676.258729] Call Trace:
-[  676.259063]  <TASK>
-[  676.259354]  dlm_midcomms_commit_mhandle+0xcc/0x110
-[  676.259964]  queue_bast+0x8b/0xb0
-[  676.260423]  grant_pending_locks+0x166/0x1b0
-[  676.261007]  _unlock_lock+0x75/0x90
-[  676.261469]  unlock_lock.isra.57+0x62/0xa0
-[  676.262009]  dlm_unlock+0x21e/0x330
-[  676.262457]  ? lock_torture_stats+0x80/0x80 [dlm_locktorture]
-[  676.263183]  torture_unlock+0x5a/0x90 [dlm_locktorture]
-[  676.263815]  ? preempt_count_sub+0xba/0x100
-[  676.264361]  ? complete+0x1d/0x60
-[  676.264777]  lock_torture_writer+0xb8/0x150 [dlm_locktorture]
-[  676.265555]  kthread+0x10a/0x130
-[  676.266007]  ? kthread_complete_and_exit+0x20/0x20
-[  676.266616]  ret_from_fork+0x22/0x30
-[  676.267097]  </TASK>
-[  676.267381] irq event stamp: 9579855
-[  676.267824] hardirqs last  enabled at (9579863): [<ffffffffbb14e6f8>] __up_console_sem+0x58/0x60
-[  676.268896] hardirqs last disabled at (9579872): [<ffffffffbb14e6dd>] __up_console_sem+0x3d/0x60
-[  676.270008] softirqs last  enabled at (9579798): [<ffffffffbc200349>] __do_softirq+0x349/0x4c7
-[  676.271438] softirqs last disabled at (9579897): [<ffffffffbb0d54c0>] irq_exit_rcu+0xb0/0xf0
-[  676.272796] ---[ end trace 0000000000000000 ]---
+The function dlm_callback_stop() has the idea to stop all callbacks and
+flush all currently queued onces. The set_bit() is not enough because
+there can be still queue_work() around after the workqueue was flushed.
+To avoid queue_work() after set_bit() we surround both by ls_cb_mutex
+lock.
 
-I reproduced this warning with dlm_locktorture test which is currently
-not upstream. However this patch fix the issue by make a additional
-refcount between dlm_lowcomms_new_msg() and dlm_lowcomms_commit_msg().
-In case of the race the kref_put() in dlm_lowcomms_commit_msg() will be
-the final put.
-
+Cc: stable@vger.kernel.org
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
 ---
- fs/dlm/lowcomms.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/dlm/ast.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index a4e84e8d94c8..59f64c596233 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1336,6 +1336,8 @@ struct dlm_msg *dlm_lowcomms_new_msg(int nodeid, int len, gfp_t allocation,
- 		return NULL;
+diff --git a/fs/dlm/ast.c b/fs/dlm/ast.c
+index 19ef136f9e4f..a44cc42b6317 100644
+--- a/fs/dlm/ast.c
++++ b/fs/dlm/ast.c
+@@ -200,13 +200,13 @@ void dlm_add_cb(struct dlm_lkb *lkb, uint32_t flags, int mode, int status,
+ 	if (!prev_seq) {
+ 		kref_get(&lkb->lkb_ref);
+ 
++		mutex_lock(&ls->ls_cb_mutex);
+ 		if (test_bit(LSFL_CB_DELAY, &ls->ls_flags)) {
+-			mutex_lock(&ls->ls_cb_mutex);
+ 			list_add(&lkb->lkb_cb_list, &ls->ls_cb_delay);
+-			mutex_unlock(&ls->ls_cb_mutex);
+ 		} else {
+ 			queue_work(ls->ls_callback_wq, &lkb->lkb_cb_work);
+ 		}
++		mutex_unlock(&ls->ls_cb_mutex);
  	}
+  out:
+ 	mutex_unlock(&lkb->lkb_cb_mutex);
+@@ -288,7 +288,9 @@ void dlm_callback_stop(struct dlm_ls *ls)
  
-+	/* for dlm_lowcomms_commit_msg() */
-+	kref_get(&msg->ref);
- 	/* we assume if successful commit must called */
- 	msg->idx = idx;
- 	return msg;
-@@ -1375,6 +1377,8 @@ void dlm_lowcomms_commit_msg(struct dlm_msg *msg)
+ void dlm_callback_suspend(struct dlm_ls *ls)
  {
- 	_dlm_lowcomms_commit_msg(msg);
- 	srcu_read_unlock(&connections_srcu, msg->idx);
-+	/* because dlm_lowcomms_new_msg() */
-+	kref_put(&msg->ref, dlm_msg_release);
- }
- #endif
++	mutex_lock(&ls->ls_cb_mutex);
+ 	set_bit(LSFL_CB_DELAY, &ls->ls_flags);
++	mutex_unlock(&ls->ls_cb_mutex);
  
+ 	if (ls->ls_callback_wq)
+ 		flush_workqueue(ls->ls_callback_wq);
 -- 
 2.31.1
 
