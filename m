@@ -2,162 +2,268 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D795806E5
-	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 23:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7155806FE
+	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 23:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230313AbiGYVlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jul 2022 17:41:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35804 "EHLO
+        id S232390AbiGYVzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jul 2022 17:55:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229739AbiGYVlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 17:41:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 852CBAE6A
-        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 14:41:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658785282;
+        with ESMTP id S229586AbiGYVzu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 17:55:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100EB2BFE;
+        Mon, 25 Jul 2022 14:55:48 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B64E612D3;
+        Mon, 25 Jul 2022 21:55:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199D2C341C6;
+        Mon, 25 Jul 2022 21:55:46 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="WATRGI5D"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1658786144;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iezcoauBjm3eFRZAxsMkX8ABOzYWxWzYpMePyAltlQQ=;
-        b=G26rB2PVSrEo12Xrqs/ya+PSpEsUtVIhtJGxasmehq8jG5RYGPsN8M5SxDkseNTf74hpNz
-        S+7qbw7qnZeuhnGZ5wkliQ3IBd/7D4IFib2hJFgebEj7IyUqMSLpN2lb0hEQJ4g3rno9g0
-        SJx3yRvXJtjgyilb+gVDEAbQExMBxk8=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-455-6U5YssRKMlGZBpvf9qJmAQ-1; Mon, 25 Jul 2022 17:41:16 -0400
-X-MC-Unique: 6U5YssRKMlGZBpvf9qJmAQ-1
-Received: by mail-qt1-f197.google.com with SMTP id cj19-20020a05622a259300b0031f01f3933cso6290743qtb.18
-        for <stable@vger.kernel.org>; Mon, 25 Jul 2022 14:41:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=iezcoauBjm3eFRZAxsMkX8ABOzYWxWzYpMePyAltlQQ=;
-        b=Ezu6mfaycQxffpI4grgbwpsutaCX7pcBZW1BCWuy73rjBWfoNhRsUQk1Rpc/wZ7Te0
-         x3Aww6LbfaCPXvRg/BBDcacPaliYow62i0zva0cCzbpneU3GIKQbiEmdfSrpRAF6cko4
-         gqhBO/qSKfPA0tJKDIxfg4nHq8ZW7+tpaqE1dNd4OGHqvDGJRt7K64YvA3hBWWtVF84G
-         gjtgjXXSrfzttU2oiX/p0WnWTcoEP8bDKLS/hTMwRLwf8BwT9Z58Xz8eEC5lZZO7bs/p
-         VQbPtF/7Ng9OfFuz0I6NmAhQxR74x8DRxret7JIQR5cf5QqnnobERHFV41vmoar31pZz
-         4/Wg==
-X-Gm-Message-State: AJIora8IJvtYipjlLBRvvUu2NPvcp+3cVZQOUqM9plmYjLMfnpoHF2c3
-        67P6dQaZgrSqFibDNABMomoSeDjBdU2/A0x+xRZjEaBp9LfQKnFwOIWyd1KyhRY2xdaSt6ZAujE
-        Bj0s5IFf2gBvukXxSEUD906U9A0TuaQ6+
-X-Received: by 2002:a0c:f58d:0:b0:474:48e:fc99 with SMTP id k13-20020a0cf58d000000b00474048efc99mr11989863qvm.2.1658785276001;
-        Mon, 25 Jul 2022 14:41:16 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tdPKES8mswmwSbImCkQhQkLdHJX3Dr41zU/flZ02Nfij0DMKLyF6PHlW0qfnXIFlYIrkSJOIjoODIGD3UK3no=
-X-Received: by 2002:a0c:f58d:0:b0:474:48e:fc99 with SMTP id
- k13-20020a0cf58d000000b00474048efc99mr11989848qvm.2.1658785275786; Mon, 25
- Jul 2022 14:41:15 -0700 (PDT)
+         content-transfer-encoding:content-transfer-encoding;
+        bh=stRUjYe7qOoAxYfqwGmeqn/CpjAAsN473pz1JlhISic=;
+        b=WATRGI5DIHs1S0LeTGDdM/tBnZN472HjVEx0V62qgxLf64bnuR+l+PXfIWRNtmxAxphZYI
+        GgccN0qsXa5laNWjvO8/kAYkPu/uuA7eHlwX3E3mcUtATbAZAWjpfIrro7z1oVcudEmTr7
+        9+9+v9hgHGy02xA8pKb9yufIDwWTQ88=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6a3e0373 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Mon, 25 Jul 2022 21:55:44 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-wireless@vger.kernel.org, kvalo@kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+        Gregory Erwin <gregerwin256@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Eric W . Biederman" <ebiederm@xmission.com>
+Subject: [PATCH RESEND v10] ath9k: let sleep be interrupted when unregistering hwrng
+Date:   Mon, 25 Jul 2022 23:55:36 +0200
+Message-Id: <20220725215536.767961-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-References: <20220725195322.857226-1-aahringo@redhat.com> <20220725195322.857226-2-aahringo@redhat.com>
-In-Reply-To: <20220725195322.857226-2-aahringo@redhat.com>
-From:   Alexander Aring <aahringo@redhat.com>
-Date:   Mon, 25 Jul 2022 17:41:04 -0400
-Message-ID: <CAK-6q+joxVt1D854jYRKTRjx_Bm8kPWqH+9Rma2Ke_TbkFEfEw@mail.gmail.com>
-Subject: Re: [PATCHv2 dlm/next 1/2] fs: dlm: fix race in lowcomms
-To:     David Teigland <teigland@redhat.com>
-Cc:     cluster-devel <cluster-devel@redhat.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+There are two deadlock scenarios that need addressing, which cause
+problems when the computer goes to sleep, the interface is set down, and
+hwrng_unregister() is called. When the deadlock is hit, sleep is delayed
+for tens of seconds, causing it to fail. These scenarios are:
 
-On Mon, Jul 25, 2022 at 3:53 PM Alexander Aring <aahringo@redhat.com> wrote=
-:
->
-> This patch fixes a race between queue_work() in
-> _dlm_lowcomms_commit_msg() and srcu_read_unlock(). The queue_work() can
-> take the final reference of a dlm_msg and so msg->idx can contain
-> garbage which is signaled by the following warning:
->
-> [  676.237050] ------------[ cut here ]------------
-> [  676.237052] WARNING: CPU: 0 PID: 1060 at include/linux/srcu.h:189 dlm_=
-lowcomms_commit_msg+0x41/0x50
-> [  676.238945] Modules linked in: dlm_locktorture torture rpcsec_gss_krb5=
- intel_rapl_msr intel_rapl_common iTCO_wdt iTCO_vendor_support qxl kvm_inte=
-l drm_ttm_helper vmw_vsock_virtio_transport kvm vmw_vsock_virtio_transport_=
-common ttm irqbypass crc32_pclmul joydev crc32c_intel serio_raw drm_kms_hel=
-per vsock virtio_scsi virtio_console virtio_balloon snd_pcm drm syscopyarea=
- sysfillrect sysimgblt snd_timer fb_sys_fops i2c_i801 lpc_ich snd i2c_smbus=
- soundcore pcspkr
-> [  676.244227] CPU: 0 PID: 1060 Comm: lock_torture_wr Not tainted 5.19.0-=
-rc3+ #1546
-> [  676.245216] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-2.module+e=
-l8.7.0+15506+033991b0 04/01/2014
-> [  676.246460] RIP: 0010:dlm_lowcomms_commit_msg+0x41/0x50
-> [  676.247132] Code: fe ff ff ff 75 24 48 c7 c6 bd 0f 49 bb 48 c7 c7 38 7=
-c 01 bd e8 00 e7 ca ff 89 de 48 c7 c7 60 78 01 bd e8 42 3d cd ff 5b 5d c3 <=
-0f> 0b eb d8 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 55 48
-> [  676.249253] RSP: 0018:ffffa401c18ffc68 EFLAGS: 00010282
-> [  676.249855] RAX: 0000000000000001 RBX: 00000000ffff8b76 RCX: 000000000=
-0000006
-> [  676.250713] RDX: 0000000000000000 RSI: ffffffffbccf3a10 RDI: ffffffffb=
-cc7b62e
-> [  676.251610] RBP: ffffa401c18ffc70 R08: 0000000000000001 R09: 000000000=
-0000001
-> [  676.252481] R10: 0000000000000001 R11: 0000000000000001 R12: 000000000=
-0000005
-> [  676.253421] R13: ffff8b76786ec370 R14: ffff8b76786ec370 R15: ffff8b767=
-86ec480
-> [  676.254257] FS:  0000000000000000(0000) GS:ffff8b7777800000(0000) knlG=
-S:0000000000000000
-> [  676.255239] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  676.255897] CR2: 00005590205d88b8 CR3: 000000017656c003 CR4: 000000000=
-0770ee0
-> [  676.256734] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 000000000=
-0000000
-> [  676.257567] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 000000000=
-0000400
-> [  676.258397] PKRU: 55555554
-> [  676.258729] Call Trace:
-> [  676.259063]  <TASK>
-> [  676.259354]  dlm_midcomms_commit_mhandle+0xcc/0x110
-> [  676.259964]  queue_bast+0x8b/0xb0
-> [  676.260423]  grant_pending_locks+0x166/0x1b0
-> [  676.261007]  _unlock_lock+0x75/0x90
-> [  676.261469]  unlock_lock.isra.57+0x62/0xa0
-> [  676.262009]  dlm_unlock+0x21e/0x330
-> [  676.262457]  ? lock_torture_stats+0x80/0x80 [dlm_locktorture]
-> [  676.263183]  torture_unlock+0x5a/0x90 [dlm_locktorture]
-> [  676.263815]  ? preempt_count_sub+0xba/0x100
-> [  676.264361]  ? complete+0x1d/0x60
-> [  676.264777]  lock_torture_writer+0xb8/0x150 [dlm_locktorture]
-> [  676.265555]  kthread+0x10a/0x130
-> [  676.266007]  ? kthread_complete_and_exit+0x20/0x20
-> [  676.266616]  ret_from_fork+0x22/0x30
-> [  676.267097]  </TASK>
-> [  676.267381] irq event stamp: 9579855
-> [  676.267824] hardirqs last  enabled at (9579863): [<ffffffffbb14e6f8>] =
-__up_console_sem+0x58/0x60
-> [  676.268896] hardirqs last disabled at (9579872): [<ffffffffbb14e6dd>] =
-__up_console_sem+0x3d/0x60
-> [  676.270008] softirqs last  enabled at (9579798): [<ffffffffbc200349>] =
-__do_softirq+0x349/0x4c7
-> [  676.271438] softirqs last disabled at (9579897): [<ffffffffbb0d54c0>] =
-irq_exit_rcu+0xb0/0xf0
-> [  676.272796] ---[ end trace 0000000000000000 ]---
->
-> I reproduced this warning with dlm_locktorture test which is currently
-> not upstream. However this patch fix the issue by make a additional
-> refcount between dlm_lowcomms_new_msg() and dlm_lowcomms_commit_msg().
-> In case of the race the kref_put() in dlm_lowcomms_commit_msg() will be
-> the final put.
->
-> Signed-off-by: Alexander Aring <aahringo@redhat.com>
+1) The hwrng kthread can't be stopped while it's sleeping, because it
+   uses msleep_interruptible() instead of schedule_timeout_interruptible().
+   The fix is a simple moving to the correct function. At the same time,
+   we should cleanup a common and useless dmesg splat in the same area.
 
-grml, now I forgot in this patch Cc: stable and fixes-tag. Will send v3. So=
-rry.
+2) A normal user thread can't be interrupted by hwrng_unregister() while
+   it's sleeping, because hwrng_unregister() is called from elsewhere.
+   The solution here is to keep track of which thread is currently
+   reading, and asleep, and signal that thread when it's time to
+   unregister. There's a bit of book keeping required to prevent
+   lifetime issues on current.
 
-- Alex
+Cc: stable@vger.kernel.org
+Reported-by: Gregory Erwin <gregerwin256@gmail.com>
+Tested-by: Gregory Erwin <gregerwin256@gmail.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Acked-by: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly dumping into random.c")
+Link: https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsFGTEjs0c00giw@mail.gmail.com/
+Link: https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DVXtent3HA@mail.gmail.com/
+Link: https://bugs.archlinux.org/task/75138
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+Kalle - I'm resending this to you with the various acks collected from
+the long sprawling thread, in hopes that this actually makes it into
+your tree. Please let me know if you *don't* want to take this. -Jason
+
+ drivers/char/hw_random/core.c        | 30 ++++++++++++++++++++++++----
+ drivers/net/wireless/ath/ath9k/rng.c | 19 +++++++-----------
+ include/linux/sched.h                |  1 +
+ include/linux/sched/signal.h         |  2 +-
+ kernel/sched/core.c                  |  6 ++++++
+ 5 files changed, 41 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+index 16f227b995e8..df45c265878e 100644
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -38,6 +38,8 @@ static LIST_HEAD(rng_list);
+ static DEFINE_MUTEX(rng_mutex);
+ /* Protects rng read functions, data_avail, rng_buffer and rng_fillbuf */
+ static DEFINE_MUTEX(reading_mutex);
++/* Keeps track of whoever is wait-reading it currently while holding reading_mutex. */
++static struct task_struct *current_waiting_reader;
+ static int data_avail;
+ static u8 *rng_buffer, *rng_fillbuf;
+ static unsigned short current_quality;
+@@ -208,6 +210,7 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
+ 	int err = 0;
+ 	int bytes_read, len;
+ 	struct hwrng *rng;
++	bool wait;
+ 
+ 	while (size) {
+ 		rng = get_current_rng();
+@@ -225,9 +228,15 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
+ 			goto out_put;
+ 		}
+ 		if (!data_avail) {
++			wait = !(filp->f_flags & O_NONBLOCK);
++			if (wait && cmpxchg(&current_waiting_reader, NULL, current) != NULL) {
++				err = -EINTR;
++				goto out_unlock_reading;
++			}
+ 			bytes_read = rng_get_data(rng, rng_buffer,
+-				rng_buffer_size(),
+-				!(filp->f_flags & O_NONBLOCK));
++				rng_buffer_size(), wait);
++			if (wait && cmpxchg(&current_waiting_reader, current, NULL) != current)
++				synchronize_rcu();
+ 			if (bytes_read < 0) {
+ 				err = bytes_read;
+ 				goto out_unlock_reading;
+@@ -513,8 +522,9 @@ static int hwrng_fillfn(void *unused)
+ 			break;
+ 
+ 		if (rc <= 0) {
+-			pr_warn("hwrng: no data available\n");
+-			msleep_interruptible(10000);
++			if (kthread_should_stop())
++				break;
++			schedule_timeout_interruptible(HZ * 10);
+ 			continue;
+ 		}
+ 
+@@ -608,13 +618,21 @@ int hwrng_register(struct hwrng *rng)
+ }
+ EXPORT_SYMBOL_GPL(hwrng_register);
+ 
++#define UNREGISTERING_READER ((void *)~0UL)
++
+ void hwrng_unregister(struct hwrng *rng)
+ {
+ 	struct hwrng *old_rng, *new_rng;
++	struct task_struct *waiting_reader;
+ 	int err;
+ 
+ 	mutex_lock(&rng_mutex);
+ 
++	rcu_read_lock();
++	waiting_reader = xchg(&current_waiting_reader, UNREGISTERING_READER);
++	if (waiting_reader && waiting_reader != UNREGISTERING_READER)
++		set_notify_signal(waiting_reader);
++	rcu_read_unlock();
+ 	old_rng = current_rng;
+ 	list_del(&rng->list);
+ 	if (current_rng == rng) {
+@@ -640,6 +658,10 @@ void hwrng_unregister(struct hwrng *rng)
+ 	}
+ 
+ 	wait_for_completion(&rng->cleanup_done);
++
++	mutex_lock(&rng_mutex);
++	cmpxchg(&current_waiting_reader, UNREGISTERING_READER, NULL);
++	mutex_unlock(&rng_mutex);
+ }
+ EXPORT_SYMBOL_GPL(hwrng_unregister);
+ 
+diff --git a/drivers/net/wireless/ath/ath9k/rng.c b/drivers/net/wireless/ath/ath9k/rng.c
+index cb5414265a9b..8980dc36509e 100644
+--- a/drivers/net/wireless/ath/ath9k/rng.c
++++ b/drivers/net/wireless/ath/ath9k/rng.c
+@@ -52,18 +52,13 @@ static int ath9k_rng_data_read(struct ath_softc *sc, u32 *buf, u32 buf_size)
+ 	return j << 2;
+ }
+ 
+-static u32 ath9k_rng_delay_get(u32 fail_stats)
++static unsigned long ath9k_rng_delay_get(u32 fail_stats)
+ {
+-	u32 delay;
+-
+ 	if (fail_stats < 100)
+-		delay = 10;
++		return HZ / 100;
+ 	else if (fail_stats < 105)
+-		delay = 1000;
+-	else
+-		delay = 10000;
+-
+-	return delay;
++		return HZ;
++	return HZ * 10;
+ }
+ 
+ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
+@@ -80,10 +75,10 @@ static int ath9k_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
+ 			bytes_read += max & 3UL;
+ 			memzero_explicit(&word, sizeof(word));
+ 		}
+-		if (!wait || !max || likely(bytes_read) || fail_stats > 110)
++		if (!wait || !max || likely(bytes_read) || fail_stats > 110 ||
++		    ((current->flags & PF_KTHREAD) && kthread_should_stop()) ||
++		    schedule_timeout_interruptible(ath9k_rng_delay_get(++fail_stats)))
+ 			break;
+-
+-		msleep_interruptible(ath9k_rng_delay_get(++fail_stats));
+ 	}
+ 
+ 	if (wait && !bytes_read && max)
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index c46f3a63b758..f164098fb614 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1936,6 +1936,7 @@ extern struct task_struct *find_get_task_by_vpid(pid_t nr);
+ 
+ extern int wake_up_state(struct task_struct *tsk, unsigned int state);
+ extern int wake_up_process(struct task_struct *tsk);
++extern int wake_up_task_interruptible(struct task_struct *tsk);
+ extern void wake_up_new_task(struct task_struct *tsk);
+ 
+ #ifdef CONFIG_SMP
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index cafbe03eed01..56a15f35e7b3 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -364,7 +364,7 @@ static inline void clear_notify_signal(void)
+ static inline bool __set_notify_signal(struct task_struct *task)
+ {
+ 	return !test_and_set_tsk_thread_flag(task, TIF_NOTIFY_SIGNAL) &&
+-	       !wake_up_state(task, TASK_INTERRUPTIBLE);
++	       !wake_up_task_interruptible(task);
+ }
+ 
+ /*
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index da0bf6fe9ecd..b178940185d7 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -4280,6 +4280,12 @@ int wake_up_process(struct task_struct *p)
+ }
+ EXPORT_SYMBOL(wake_up_process);
+ 
++int wake_up_task_interruptible(struct task_struct *p)
++{
++	return try_to_wake_up(p, TASK_INTERRUPTIBLE, 0);
++}
++EXPORT_SYMBOL_GPL(wake_up_task_interruptible);
++
+ int wake_up_state(struct task_struct *p, unsigned int state)
+ {
+ 	return try_to_wake_up(p, state, 0);
+-- 
+2.35.1
 
