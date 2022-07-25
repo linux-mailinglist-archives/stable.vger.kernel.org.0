@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC645802C5
+	by mail.lfdr.de (Postfix) with ESMTP id EA9715802C6
 	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 18:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236208AbiGYQeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236186AbiGYQeS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 25 Jul 2022 12:34:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60886 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236206AbiGYQeN (ORCPT
+        with ESMTP id S236207AbiGYQeN (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 12:34:13 -0400
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650B31CFF9
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8D41D0C4
         for <stable@vger.kernel.org>; Mon, 25 Jul 2022 09:34:12 -0700 (PDT)
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26PFs5PG027258;
-        Mon, 25 Jul 2022 16:34:02 GMT
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26PGIwap029461;
+        Mon, 25 Jul 2022 16:34:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding : content-type; s=qcppdkim1;
- bh=50uXhyYr9Jxh85iRBG3AEAwXY6aMtFSsU37NK3sREaU=;
- b=MIXXedbzl5bQr34QBS6QXr3FavnykeuX1RQyM2eUpY8zIZnuPFowEpMfkKq9N/tASZEJ
- 9NYfKWfDSSDTC0B5zhhq5xNghlJH2ifZzPvK1+Y30BNogyJwbJp4ciXdsi6WSGmX+X8x
- 9BrrFs76nulQosoqwaQ2kwDQ4weKQqeY+T9vXmOT7eJ1Zo1XO7AbfMyAvTftOpymxext
- ClIDPWOv4aX7S681LO5nY76pQSyW/e5rWDYvOp7pMMZJN6eSVN+C79C3G1rE4RKxEHfj
- rS1qk8J8fme0NElQTDsM9XA3ptYay6XRfmKCQ6lbFIz0bN3XJArz+OvrITBD6FJ+i3d9 Dw== 
-Received: from nasanppmta01.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3hga9fw40t-1
+ bh=d5HCMdwJTaEbd3UCKenE60B6SJ1dxtECjuJsBtGRTZw=;
+ b=Qfqe5bVSEc6BM8SipszEBmimtKsV00x1r7qEhfzIlucFF3EkQ8k6ROAezG9mUs8dynug
+ wcrnEJMkr+h7RQjMRLkvl9uAlmUUID3gcoOPm9hNU3kysIOGjCYR2wmzA7iAblfHepoE
+ Oth4aaFL3wKttGlkAvRSGoYxz7nCQu3pKXzp7Ii4y1f7ziXKt8Br8xXvLstd02ds6ZNi
+ QOpEx/yLfefBc2o07e8IJKcwLH1j5WwPRliFAFeZk1hA2d0i+zVno4GsOCvC+1SyPc7s
+ rZevfm5gOUADvcWA+MHtc4muK+9XoZl9pDsURhVOqvtAFZuNWHTnHDDilNd9UIKSs8hx lQ== 
+Received: from nasanppmta04.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3hhuvk8jsj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Jul 2022 16:34:02 +0000
+        Mon, 25 Jul 2022 16:34:03 +0000
 Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.47.97.222])
-        by NASANPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 26PGY1QB011100
+        by NASANPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 26PGY231002030
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Jul 2022 16:34:01 GMT
+        Mon, 25 Jul 2022 16:34:02 GMT
 Received: from nalasex01b.na.qualcomm.com (10.47.209.197) by
  nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 25 Jul 2022 09:34:01 -0700
+ 15.2.986.22; Mon, 25 Jul 2022 09:34:02 -0700
 Received: from bldr-qrn-hyperv-vm1.qualcomm.com (10.80.80.8) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 25 Jul 2022 09:34:00 -0700
+ 15.2.986.22; Mon, 25 Jul 2022 09:34:01 -0700
 From:   Carl Vanderlip <quic_carlv@quicinc.com>
 To:     <stable@vger.kernel.org>
 CC:     Jeffrey Hugo <quic_jhugo@quicinc.com>, <kys@microsoft.com>,
@@ -51,9 +51,9 @@ CC:     Jeffrey Hugo <quic_jhugo@quicinc.com>, <kys@microsoft.com>,
         <bhelgaas@google.com>, Michael Kelley <mikelley@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>,
         Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 4.14 2/4] PCI: hv: Fix hv_arch_irq_unmask() for multi-MSI
-Date:   Mon, 25 Jul 2022 16:33:41 +0000
-Message-ID: <20220725163343.13071-3-quic_carlv@quicinc.com>
+Subject: [PATCH 4.14 3/4] PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()
+Date:   Mon, 25 Jul 2022 16:33:42 +0000
+Message-ID: <20220725163343.13071-4-quic_carlv@quicinc.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220725163343.13071-1-quic_carlv@quicinc.com>
 References: <20220725163343.13071-1-quic_carlv@quicinc.com>
@@ -65,19 +65,19 @@ X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: ww-8OdYC_qL0d2rrO-jlVDFK0nOuYTiY
-X-Proofpoint-GUID: ww-8OdYC_qL0d2rrO-jlVDFK0nOuYTiY
+X-Proofpoint-GUID: U83bQdTzS6dWVdUKuj9-kyhGNrIu0FCj
+X-Proofpoint-ORIG-GUID: U83bQdTzS6dWVdUKuj9-kyhGNrIu0FCj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-25_12,2022-07-25_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1015 phishscore=0
- spamscore=0 mlxscore=0 lowpriorityscore=0 malwarescore=0 mlxlogscore=999
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207250067
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+ definitions=2022-07-25_12,2022-07-25_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ malwarescore=0 priorityscore=1501 adultscore=0 spamscore=0 mlxlogscore=999
+ lowpriorityscore=0 impostorscore=0 suspectscore=0 mlxscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207250067
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -86,77 +86,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-commit 455880dfe292a2bdd3b4ad6a107299fce610e64b upstream.
+commit b4b77778ecc5bfbd4e77de1b2fd5c1dd3c655f1f upstream.
 
-In the multi-MSI case, hv_arch_irq_unmask() will only operate on the first
-MSI of the N allocated.  This is because only the first msi_desc is cached
-and it is shared by all the MSIs of the multi-MSI block.  This means that
-hv_arch_irq_unmask() gets the correct address, but the wrong data (always
-0).
+Currently if compose_msi_msg() is called multiple times, it will free any
+previous IRTE allocation, and generate a new allocation.  While nothing
+prevents this from occurring, it is extraneous when Linux could just reuse
+the existing allocation and avoid a bunch of overhead.
 
-This can break MSIs.
+However, when future IRTE allocations operate on blocks of MSIs instead of
+a single line, freeing the allocation will impact all of the lines.  This
+could cause an issue where an allocation of N MSIs occurs, then some of
+the lines are retargeted, and finally the allocation is freed/reallocated.
+The freeing of the allocation removes all of the configuration for the
+entire block, which requires all the lines to be retargeted, which might
+not happen since some lines might already be unmasked/active.
 
-Lets assume MSI0 is vector 34 on CPU0, and MSI1 is vector 33 on CPU0.
-
-hv_arch_irq_unmask() is called on MSI0.  It uses a hypercall to configure
-the MSI address and data (0) to vector 34 of CPU0.  This is correct.  Then
-hv_arch_irq_unmask is called on MSI1.  It uses another hypercall to
-configure the MSI address and data (0) to vector 33 of CPU0.  This is
-wrong, and results in both MSI0 and MSI1 being routed to vector 33.  Linux
-will observe extra instances of MSI1 and no instances of MSI0 despite the
-endpoint device behaving correctly.
-
-For the multi-MSI case, we need unique address and data info for each MSI,
-but the cached msi_desc does not provide that.  However, that information
-can be gotten from the int_desc cached in the chip_data by
-compose_msi_msg().  Fix the multi-MSI case to use that cached information
-instead.  Since hv_set_msi_entry_from_desc() is no longer applicable,
-remove it.
-
-4.14 backport - moved to host/pci-hyperv.c. hv_set_msi_entry_from_desc
-doesn't exist to be removed. int_entry replaces msi_entry for location
-int_desc is written to.
+4.14 backport - driver location change to host/pci-hyperv.c
 
 Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1651068453-29588-1-git-send-email-quic_jhugo@quicinc.com
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1652282582-21595-1-git-send-email-quic_jhugo@quicinc.com
 Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
 ---
- drivers/pci/host/pci-hyperv.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/pci/host/pci-hyperv.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/pci/host/pci-hyperv.c b/drivers/pci/host/pci-hyperv.c
-index eb4531fb9fa2..aa0dc7cd15ef 100644
+index aa0dc7cd15ef..08596484ca1d 100644
 --- a/drivers/pci/host/pci-hyperv.c
 +++ b/drivers/pci/host/pci-hyperv.c
-@@ -938,6 +938,7 @@ static void hv_irq_unmask(struct irq_data *data)
- 	struct msi_desc *msi_desc = irq_data_get_msi_desc(data);
- 	struct irq_cfg *cfg = irqd_cfg(data);
- 	struct retarget_msi_interrupt *params;
-+	struct tran_int_desc *int_desc;
- 	struct hv_pcibus_device *hbus;
- 	struct cpumask *dest;
- 	struct pci_bus *pbus;
-@@ -952,6 +953,7 @@ static void hv_irq_unmask(struct irq_data *data)
- 	pdev = msi_desc_to_pci_dev(msi_desc);
+@@ -1128,6 +1128,15 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	u32 size;
+ 	int ret;
+ 
++	/* Reuse the previous allocation */
++	if (data->chip_data) {
++		int_desc = data->chip_data;
++		msg->address_hi = int_desc->address >> 32;
++		msg->address_lo = int_desc->address & 0xffffffff;
++		msg->data = int_desc->data;
++		return;
++	}
++
+ 	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
+ 	dest = irq_data_get_effective_affinity_mask(data);
  	pbus = pdev->bus;
- 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
-+	int_desc = data->chip_data;
+@@ -1136,13 +1145,6 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	if (!hpdev)
+ 		goto return_null_message;
  
- 	spin_lock_irqsave(&hbus->retarget_msi_interrupt_lock, flags);
- 
-@@ -959,8 +961,8 @@ static void hv_irq_unmask(struct irq_data *data)
- 	memset(params, 0, sizeof(*params));
- 	params->partition_id = HV_PARTITION_ID_SELF;
- 	params->int_entry.source = 1; /* MSI(-X) */
--	params->int_entry.address = msi_desc->msg.address_lo;
--	params->int_entry.data = msi_desc->msg.data;
-+	params->int_entry.address = int_desc->address & 0xffffffff;
-+	params->int_entry.data = int_desc->data;
- 	params->device_id = (hbus->hdev->dev_instance.b[5] << 24) |
- 			   (hbus->hdev->dev_instance.b[4] << 16) |
- 			   (hbus->hdev->dev_instance.b[7] << 8) |
+-	/* Free any previous message that might have already been composed. */
+-	if (data->chip_data) {
+-		int_desc = data->chip_data;
+-		data->chip_data = NULL;
+-		hv_int_desc_free(hpdev, int_desc);
+-	}
+-
+ 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
+ 	if (!int_desc)
+ 		goto drop_reference;
 -- 
 2.25.1
 
