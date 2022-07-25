@@ -2,115 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE1657FE81
-	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 13:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9149E57FE9B
+	for <lists+stable@lfdr.de>; Mon, 25 Jul 2022 13:50:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232646AbiGYLlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Jul 2022 07:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41000 "EHLO
+        id S231714AbiGYLuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Jul 2022 07:50:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229614AbiGYLlq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 07:41:46 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA559AE49;
-        Mon, 25 Jul 2022 04:41:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S230032AbiGYLuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Jul 2022 07:50:05 -0400
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0FF3DF4A;
+        Mon, 25 Jul 2022 04:50:04 -0700 (PDT)
+Received: from quatroqueijos (1.general.cascardo.us.vpn [10.172.70.58])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9ED02CE1197;
-        Mon, 25 Jul 2022 11:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65907C341CE;
-        Mon, 25 Jul 2022 11:41:39 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="OX8iP9XF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1658749296;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=snNmtNpAD+4T2xYJlTy16N746DVx+7vAQcSlY0eqPQ4=;
-        b=OX8iP9XFveAlJues0PzDBzCSpGKd5MZFA3ggJ4bIMbv5qRjzfCdMDRiAxHV2J5Rl4PMPWg
-        hyQqdi2I816VJViagjOPOg9sXOBjKupEtZ9Wp0xhVeq+3DpgxcK3wcrVbQZvCgWyyHYEcb
-        hvDhqxvlMk7SGSCRIlG68fivrzJLoMo=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a5eb5f0c (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 25 Jul 2022 11:41:36 +0000 (UTC)
-Received: by mail-yb1-f179.google.com with SMTP id d124so2105484ybb.5;
-        Mon, 25 Jul 2022 04:41:36 -0700 (PDT)
-X-Gm-Message-State: AJIora+b71Bbq5sKdJVr6xGFP8ewT1sGAe9JBSizN0cxYtmOQv1s1Fm1
-        hjv2/5GMJPZD7QNMLfERpBCltq6CZb7j9ZZumII=
-X-Google-Smtp-Source: AGRyM1uEWMaeH2vYM13zJOE12Ad5anczdXVRTirNiVZun7WozkUU416pIzL0vNTGDpg+YFrRsXbp0oPPFl+U9IsqWsY=
-X-Received: by 2002:a25:cf16:0:b0:671:60e5:e9e2 with SMTP id
- f22-20020a25cf16000000b0067160e5e9e2mr496508ybg.231.1658749294667; Mon, 25
- Jul 2022 04:41:34 -0700 (PDT)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 0C31D3F11C;
+        Mon, 25 Jul 2022 11:49:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1658749802;
+        bh=azjCJStYinlUJkGMIRNeZrFjUm/sCt/hfpBDbAEn+tQ=;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+         Content-Type:In-Reply-To;
+        b=eKDHv04jEAYFHhgugB5OGbPXzYU8hXVTUZzwQUZMuKH6Ik4JJPlj6pBYSCu3CcZGC
+         NKTSpjgl+g8qKa9ir3t0/lG7GikRSRYc/F9arW61g6ZCSBRhFPEOg9c6BtrzlGx+pV
+         W5xzFEPouViUrJNdd5eyjovPVb9e/jUr4LxtsKMeTS37P1bzO73OUlNtX9wznzKVDf
+         G+pR9HJ9uQIBUU4YC23NPGBpqEExLezNTPiss4PqRMiRQmJVV9nG5ndSCoSsf3rz7n
+         ae8Ohbpj8yyFcbXeh1JfO2yBb33u3Q8vDThsa0755EIwtv2nWYRrU+1Z2LqkOSs3xo
+         DDp+8ARn5CehQ==
+Date:   Mon, 25 Jul 2022 08:49:56 -0300
+From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bpetkov@suse.de>
+Subject: Re: [PATCH 5.18 13/70] objtool: skip non-text sections when adding
+ return-thunk sites
+Message-ID: <Yt6DZB7Cmp6xYU/H@quatroqueijos>
+References: <20220722090650.665513668@linuxfoundation.org>
+ <20220722090651.464856922@linuxfoundation.org>
+ <8a4f10b1-70b3-25fe-9ffc-4f24a1531139@kernel.org>
 MIME-Version: 1.0
-References: <CAHmME9qrd25vfRYYvCWtPg+wVC5joEzzJiihCN+L4rqMfTL4Rg@mail.gmail.com>
- <20220719201108.264322-1-Jason@zx2c4.com> <xhsmhfsisgbam.mognet@vschneid.remote.csb>
- <CAHmME9pEvr_F2C9cG4qNSCc91a7YAAquW7Jqczcgn2fr_vA4Ow@mail.gmail.com> <xhsmhbktdfqrp.mognet@vschneid.remote.csb>
-In-Reply-To: <xhsmhbktdfqrp.mognet@vschneid.remote.csb>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Mon, 25 Jul 2022 13:41:23 +0200
-X-Gmail-Original-Message-ID: <CAHmME9rp0kCLKvXWfmRHi=p2PLYRszqQqQWZLHyofJ=9xZCtMA@mail.gmail.com>
-Message-ID: <CAHmME9rp0kCLKvXWfmRHi=p2PLYRszqQqQWZLHyofJ=9xZCtMA@mail.gmail.com>
-Subject: Re: [PATCH v10] ath9k: let sleep be interrupted when unregistering hwrng
-To:     Valentin Schneider <vschneid@redhat.com>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Kalle Valo <kvalo@kernel.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        stable <stable@vger.kernel.org>,
-        Gregory Erwin <gregerwin256@gmail.com>,
-        =?UTF-8?B?VG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2Vu?= <toke@toke.dk>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8a4f10b1-70b3-25fe-9ffc-4f24a1531139@kernel.org>
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Valentin,
+On Mon, Jul 25, 2022 at 07:44:08AM +0200, Jiri Slaby wrote:
+> Hi,
+> 
+> I wonder, why this is needed in stable and not mainline?
+> 
+> Isn't this a different (non-upstream) dup of
+> 951ddecf4356 objtool: Treat .text.__x86.* as noinstr
+> ? (That is included in this release too.)
+> 
 
-On Mon, Jul 25, 2022 at 12:09 PM Valentin Schneider <vschneid@redhat.com> wrote:
-> > maybe at some point I'll look into overhauling all of this so that
-> > none of this will be required anyway. So I think v10 is my final
-> > submission on this.
->
-> I think that's fair, I hope I didn't discourage you too much from
-> contributing in that area.
+That's because RESERVE_BRK adds a function to .discard.text before upstream
+commit a1e2c031ec3949b8c039b739c0b5bf9c30007b00 ("x86/mm: Simplify
+RESERVE_BRK()").
 
-While not strictly necessary because of Eric's ack, since you continue
-to grow this thread that addresses an active bug people are suffering
-from, it might be some very useful signaling if you too would provide
-your Acked-by, so that Kalle picks this up and people's laptops work
-again.
+Picking up that commit alone was frowned upon because it caused some
+problems that were still under investigation.
 
->
-> Just to make sure I'm on the same page as you - is your patch solely for
-> ath9k, or is it supposed to fix other drivers?
+Cascardo.
 
-The intent here is ath9k, but in the process it of course fixes other
-things too, and I'm quite pleased with the multiple-birds-one-stone
-consequence.
-
-> So if ath9k is widely used / a problem for lots of folks, we could just fix
-> that one and leave the others TBD. What do you think?
-
-No, that kind of band aid doesn't really sit well, especially as
-you've proposed struct changes inside hwrng. I'm not going to do that.
-
-As mentioned, v10 is my final submission here. If you'd like to Ack
-it, please go ahead. If not, and if as a consequence Kalle doesn't
-pick up the patch, perhaps you'll develop this yourself moving forward
-and you'll also fix the longstanding problems with hwrng so that I
-don't have to. In case it's not clear to you: I'm no longer interested
-in any aspect of this discussion, I find the current patch
-satisfactory of numerous goals, and I would appreciate this whole
-thing being over. I am no longer available to work further on this
-patch.
-
-Thanks,
-Jason
+> On 22. 07. 22, 11:07, Greg Kroah-Hartman wrote:
+> > From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+> > 
+> > The .discard.text section is added in order to reserve BRK, with a
+> > temporary function just so it can give it a size. This adds a relocation to
+> > the return thunk, which objtool will add to the .return_sites section.
+> > Linking will then fail as there are references to the .discard.text
+> > section.
+> > 
+> > Do not add instructions from non-text sections to the list of return thunk
+> > calls, avoiding the reference to .discard.text.
+> > 
+> > Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+> > Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> >   tools/objtool/check.c |    4 +++-
+> >   1 file changed, 3 insertions(+), 1 deletion(-)
+> > 
+> > --- a/tools/objtool/check.c
+> > +++ b/tools/objtool/check.c
+> > @@ -1308,7 +1308,9 @@ static void add_return_call(struct objto
+> >   	insn->type = INSN_RETURN;
+> >   	insn->retpoline_safe = true;
+> > -	list_add_tail(&insn->call_node, &file->return_thunk_list);
+> > +	/* Skip the non-text sections, specially .discard ones */
+> > +	if (insn->sec->text)
+> > +		list_add_tail(&insn->call_node, &file->return_thunk_list);
+> >   }
+> >   static bool same_function(struct instruction *insn1, struct instruction *insn2)
+> > 
+> > 
+> 
+> thanks,
+> -- 
+> js
+> suse labs
