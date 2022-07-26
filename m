@@ -2,57 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2B85810F8
-	for <lists+stable@lfdr.de>; Tue, 26 Jul 2022 12:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942FC5810FC
+	for <lists+stable@lfdr.de>; Tue, 26 Jul 2022 12:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232849AbiGZKRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jul 2022 06:17:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48804 "EHLO
+        id S238503AbiGZKSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jul 2022 06:18:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238389AbiGZKRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 06:17:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0975225EA6;
-        Tue, 26 Jul 2022 03:17:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 639B7B811C6;
-        Tue, 26 Jul 2022 10:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103FDC341D0;
-        Tue, 26 Jul 2022 10:17:07 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="M7ZoEezg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1658830625;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MpDOk1GScqopQf+kC+V0RbnLSraVH8JVg6WqMIaw9BM=;
-        b=M7ZoEezgN1Sim7p/YL/H/gk7RP9tL5d5+may1OrUFjoIrf8CCNKxY24nUpZS/P5XqkfmfB
-        ranpCy23glhNWo1adUIW5u588K0H4PEofrx3nimpSYbQRlJe5YyudBqmwxGjI3S1csk2WI
-        eH3wf3gfqK8LYgq3HSCO9tudJdXrQeg=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 0d6d35c7 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Tue, 26 Jul 2022 10:17:04 +0000 (UTC)
-Date:   Tue, 26 Jul 2022 12:17:02 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     linux-wireless@vger.kernel.org, kvalo@kernel.org,
-        stable@vger.kernel.org, Gregory Erwin <gregerwin256@gmail.com>,
-        Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        "Eric W . Biederman" <ebiederm@xmission.com>, vschneid@redhat.com
-Subject: Re: [PATCH RESEND v11] hwrng: core - let sleep be interrupted when
- unregistering hwrng
-Message-ID: <Yt+/HvfC+OYRVrr+@zx2c4.com>
-References: <20220725215536.767961-1-Jason@zx2c4.com>
- <Yt+3ic4YYpAsUHMF@gondor.apana.org.au>
+        with ESMTP id S238389AbiGZKSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 06:18:33 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB862F669
+        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 03:18:32 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id b10so13025431pjq.5
+        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 03:18:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MKsyn0Ue9WZKGeW75wQyzeD5Bf7h7LLMHHF7FeQVKno=;
+        b=wWkXsPqyIV8b+1jl5gZ+5DcecfVvxqpoOkPuNU5kRcuydCv5a9dGzbRxkuBJt3JDMt
+         uPfVMNTmJCzjp02bdWRROhFwZJ8lFiLR5uiUgNiB2oVvHjpKFvWx4LhzKJ7t+o9BkLOQ
+         +R9VboKKoLcXjXmW9aN4kbQeZXKR3bgKbEUDQbiMIzWMubsk3MoeWH7bPe1WJVUiAJHA
+         FWeofjheR96JeuWHb3adLeILjcY6qkzFSu3BdnxaBP98fjeidVqZIbHg3pr60/CyJDok
+         vnSglVc/3UAw2VMJipzjcVim2cHPHO+DMiS1LrVsIejUJ3dJIzoHTPvibDoviXlgLaSA
+         7aMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MKsyn0Ue9WZKGeW75wQyzeD5Bf7h7LLMHHF7FeQVKno=;
+        b=NPE0Dh7ZRJtpTZTkqK0Lgr4uB+h+Y7tqOaHHeRON6WVLRsxXwECBd9Ae8tL1imXnsc
+         qNEJa6cYRV6eweFKyxk/FWXijk/+vgsd0yVzbTF/06hdSDXl3Yxz2FQiUGkH87Nx/o8Z
+         Ku8DDY0YUnI0smY2hFMaLiw1wZ6UykqGBC2Kogf/FjyRByvJPttDOsiRzBzKU2ZEmxTl
+         nDTzmVb5CsirL4wnfa0lvT8UH8EU+1KCpwQnq9I/USy//A7jDTfBcirSjxPs1LQwrgzE
+         1TVF6EBg4ciSBnO1lrZucDv+9AblUvOxSzXP6tz+T9HMkKlUM2BoBJB66QVuQZp6esUl
+         JQzw==
+X-Gm-Message-State: AJIora8vFvpzVNdxqz0sEvgKl/SRIVAF5XLjGiLnvDk4RBaWQWuf9Qbc
+        7vvuJKjcXqVCnNuPUrgf23qZv4EbXRZfnTkG
+X-Google-Smtp-Source: AGRyM1vp8nfHKMWGxWRnZLkF6lwzFzCG4RKyl5NxtPaTmhB/LsOKAxdhz5FCTEWWuA1ZkJwPbGiZIg==
+X-Received: by 2002:a17:903:41d0:b0:16d:4841:214e with SMTP id u16-20020a17090341d000b0016d4841214emr15764323ple.13.1658830712129;
+        Tue, 26 Jul 2022 03:18:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w2-20020a1709026f0200b0016be24e3668sm10982328plk.291.2022.07.26.03.18.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Jul 2022 03:18:31 -0700 (PDT)
+Message-ID: <62dfbf77.1c69fb81.3debe.199b@mx.google.com>
+Date:   Tue, 26 Jul 2022 03:18:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Yt+3ic4YYpAsUHMF@gondor.apana.org.au>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.57-176-gda50e215b6b1a
+Subject: stable-rc/queue/5.15 baseline: 149 runs,
+ 2 regressions (v5.15.57-176-gda50e215b6b1a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,161 +70,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Herbert,
+stable-rc/queue/5.15 baseline: 149 runs, 2 regressions (v5.15.57-176-gda50e=
+215b6b1a)
 
-On Tue, Jul 26, 2022 at 05:44:41PM +0800, Herbert Xu wrote:
-> Thanks for all your effort in resolving this issue.
-> 
-> I think Valentin's concern is valid though.  The sleep/wakeup paradigm
-> in this patch-set is slightly unusual.
-> 
-> So what I've done is taken your latest patch, and incorporated
-> Valentin's suggestions on top of it.  I don't think there is an
-> issue with other drivers as neither approach really changes them.
+Regressions Summary
+-------------------
 
-Thanks so much for taking charge of this patch. I really, really
-appreciate it. I'm also glad that we now have a working implementation
-of Valentin's suggestion.
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | multi_v5_defconfig | 1     =
+     =
 
-Just two small notes:
-- I had a hard time testing everything because I don't actually have an
-  ath9k, so I wound up playing with variations on
-  https://xn--4db.cc/vnRj8zQw/diff in case that helps. I assume you've
-  got your own way of testing things, but in case not, maybe that diff
-  is useful.
-- I'll mark this patch as "other tree" in the wireless tree's patchwork
-  now that you're on board so Kalle doesn't have to deal with it.
+imx6sll-evk   | arm  | lab-nxp     | gcc-10   | multi_v7_defconfig | 1     =
+     =
 
-> In between the setting and clearing of current_waiting_reader,
-> a reader that gets a new RNG may fail simply because it detected
-> the value of UNREGITERING_READER.
 
-Yea, I actually didn't consider this a bug, but just "nothing starts
-until everything else is totally done" semantics. Not wanting those
-semantics is understandable. I haven't looked in detail at how you've
-done that safely without locking issues, but if you've tested it, then I
-trust it works. When I was playing around with different things, I
-encountered a number of locking issues, depending on what the last
-locker was - a user space thread, the rng kthread, or something opening
-up a reader afresh. So just be sure the various combinations still work.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.57-176-gda50e215b6b1a/plan/baseline/
 
-Also, I like the encapsulation you did with hwrng_msleep(). That's a
-very clean way of accomplishing what Valentin suggested, a lot cleaner
-than the gunk I had in mind would be required. It also opens up a
-different approach for fixing this, which is what I would have preferred
-from the beginning, but the prereq kernel work hadn't landed yet.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.57-176-gda50e215b6b1a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      da50e215b6b1a70e2b251ce5d6e37068c880340a =
 
-Specifically, Instead of doing all of this task interruption stuff and
-keeping track of readers and using RCU and all that fragile code, we
-can instead just use wait_completion_interruptible_timeout() inside of
-hwrng_msleep(), using a condition variable that's private to the hwrng.
-Then, when it's time for all the readers to quit, we just set the
-condition! Ta-da, no need for keeping track of who's reading, the
-difference between a kthread and a normal thread, and a variety of other
-concerns.
 
-That won't be possible until 5.20, though, and this patch is needed to
-fix earlier kernels, so the intermediate step here is still required.
-But please keep this on the back burner of your mind. The 5.20
-enablement patch for that is here:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git/commit/?h=for-next&id=a7c01fa93aeb03ab76cd3cb2107990dd160498e6
+Test Regressions
+---------------- =
 
-When developing that patch, I had used my little test harness above and
-hwrng to test that it worked as intended. But I hadn't thought of an
-elegant way of plumbing the condition through without changing up tons
-of callsites. However, now you've come up with this hwrng_msleep()
-solution to that. So now all the puzzle pieces are ready for a 5.20 fix
-moving this toward the nicer condition setup.
 
-A few odd unimportant comments below:
 
-> +/* rng_dying without a barrier.  Use this if there is a barrier elsewhere. */
-> +static inline bool __rng_dying(struct hwrng *rng)
-> +{
-> +	return list_empty(&rng->list);
-> +}
-> +
-> +static inline bool rng_dying(struct hwrng *rng)
-> +{
-> +	/*
-> +	 * This barrier pairs with the one in
-> +	 * hwrng_unregister.  This ensures that
-> +	 * we see any attempt to unregister rng.
-> +	 */
-> +	smp_mb();
-> +	return list_empty(&rng->list);
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | multi_v5_defconfig | 1     =
+     =
 
-Unimportant nit: could call __rng_dying() instead so these don't diverge
-by accident.
 
-> +}
-> +
->  static size_t rng_buffer_size(void)
->  {
->  	return SMP_CACHE_BYTES < 32 ? 32 : SMP_CACHE_BYTES;
-> @@ -204,6 +225,7 @@ static inline int rng_get_data(struct hwrng *rng, u8 *buffer, size_t size,
->  static ssize_t rng_dev_read(struct file *filp, char __user *buf,
->  			    size_t size, loff_t *offp)
->  {
-> +	int synch = false;
->  	ssize_t ret = 0;
->  	int err = 0;
->  	int bytes_read, len;
-> @@ -225,9 +247,16 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
->  			goto out_put;
->  		}
->  		if (!data_avail) {
-> +			bool wait = !(filp->f_flags & O_NONBLOCK);
-> +
-> +			if (wait)
-> +				current_waiting_reader = current;
->  			bytes_read = rng_get_data(rng, rng_buffer,
-> -				rng_buffer_size(),
-> -				!(filp->f_flags & O_NONBLOCK));
-> +				rng_buffer_size(), wait);
-> +			if (wait) {
-> +				current_waiting_reader = NULL;
-> +				synch |= rng_dying(rng);
-> +			}
->  			if (bytes_read < 0) {
->  				err = bytes_read;
->  				goto out_unlock_reading;
-> @@ -269,6 +298,9 @@ static ssize_t rng_dev_read(struct file *filp, char __user *buf,
->  		}
->  	}
->  out:
-> +	if (synch)
-> +		synchronize_rcu();
+  Details:     https://kernelci.org/test/plan/id/62df89c847d1c5c767daf063
 
-The synch usage no longer makes sense to me here. In my version,
-synchronize_rcu() would almost never be called. It's only purpose was to
-prevent rng_dev_read() from returning if the critical section inside of
-hwrng_unregister() was in flight. But now it looks like it will be
-called everytime there are no RNGs left? Or maybe I understood how this
-works. Either way, please don't feel that you have to write back an
-explanation; just make sure it has those same sorts of semantics when
-testing.
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.57-=
+176-gda50e215b6b1a/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91s=
+am9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.57-=
+176-gda50e215b6b1a/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91s=
+am9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220718.0/armel/rootfs.cpio.gz =
 
->                 if (rc <= 0) {
-> -                       pr_warn("hwrng: no data available\n");
-> -                       msleep_interruptible(10000);
-> +                       set_current_state(TASK_INTERRUPTIBLE);
-> +                       if (kthread_should_stop())
-> +                               __set_current_state(TASK_RUNNING);
-> +                       schedule_timeout(10 * HZ);
->                         continue;
->                 }
 
-Here you made a change whose utility I don't understand. My original
-hunk was:
 
-+                       if (kthread_should_stop())
-+                               break;
-+                       schedule_timeout_interruptible(HZ * 10);
+  * baseline.login: https://kernelci.org/test/case/id/62df89c847d1c5c767daf=
+064
+        new failure (last pass: v5.15.57-176-g9780829ed8d15) =
 
-Which I think is a bit cleaner, as schedule_timeout_interruptible sets
-the state to INTERRUPTIBLE and such.
+ =
 
-Regards,
-Jason
+
+
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+imx6sll-evk   | arm  | lab-nxp     | gcc-10   | multi_v7_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/62df8c95d4c37f0510daf067
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.57-=
+176-gda50e215b6b1a/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx6sll-e=
+vk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.57-=
+176-gda50e215b6b1a/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx6sll-e=
+vk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220718.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62df8c95d4c37f0510daf=
+068
+        new failure (last pass: v5.15.8-42-g0a07fadfda6d) =
+
+ =20
