@@ -2,145 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C46FF581501
-	for <lists+stable@lfdr.de>; Tue, 26 Jul 2022 16:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37171581530
+	for <lists+stable@lfdr.de>; Tue, 26 Jul 2022 16:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238296AbiGZOU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jul 2022 10:20:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
+        id S238631AbiGZOZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jul 2022 10:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239001AbiGZOUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 10:20:55 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992EB27B10
-        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 07:20:53 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id z18so5580950edb.10
-        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 07:20:53 -0700 (PDT)
+        with ESMTP id S233471AbiGZOZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 10:25:50 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E07755B4
+        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 07:25:49 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id oy13so26487774ejb.1
+        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 07:25:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=E3zT2cWFCHTaCeSnI9tSoNjGmPrhcL5ypVm0hjHFp+Q=;
-        b=WQc/LRVjJts29bgnIWMoj7EnG5c1QoYQK0vP5D5bmhyxMm1I+FTAg1Z4fK6x6bXyQC
-         eXLSLxxwwOuFB1CkzzdQzpz2XbzCv2l83GsTfQwx62eDaxHODI0wFFAXXOX5eggZZU0B
-         vRON2TAbE42XeyDFeQ73COS11Tq0qJzm16ZeoKP3W+Ag2e7dxXx6XW0rona5VD5sSEMv
-         SdvrhxPGHaHii2kFg2N2Yuojf50FGCSQAegtZSwfRsOadE9Vfr6raCszuQYDRVa3R/vn
-         Q+4g8oKr1u8LV0jMDReHpIFLEjod6QGWp0uYUpGBdZUteZT2ErGP3xdtmt0ZR22C/0HT
-         6q8w==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=lLG88JCPgF7Yhflf4FNi4GQedsSNMbwmPtgneUr9Mu0=;
+        b=ZngosOnBAtu3WGSiGyp85KiUS94QKooPbg+9envQ7C4CYfg7DlRsd77skeM7Vk6jZ9
+         U8RmuHSC87Yt0BGno6eCEfwmB/NtZCXQqYrHRsYtckYjBLeuG8hdqlLKNcMS29KwOCBl
+         8XtNChJTeKK3hf2447Cslar5lMZelA8G7aTln78EQaF5ZALyd6pJNMzkif9ohr36yB/a
+         I6v0s8ar8EQ7kNgk3IaAVX1PTtuF9YpsqevU2YTFFtQq1lmoIu7mi03nY4G9FGvi8TWN
+         fLiEMomNCLsFXOePrcPgaKDQumQ+eZOQnFltLBFMTQ7PtQEdmlTecvyhdIq2d/xmXqfO
+         Ny1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=E3zT2cWFCHTaCeSnI9tSoNjGmPrhcL5ypVm0hjHFp+Q=;
-        b=Ev2DhPg4gaO8OVWeo+Cc7jmnrSu7YSltbq+1xZUSeNBvQnNhRIckWgsQaYsOI05Vkq
-         C/VYdPKWA5l/Iz6IIxR3pVqhU23tNzRPT4p/HExwWoS2QhKVp+d9z13vPXQ3zjeAtk77
-         9/QR+MZAGraxxH9Ov6IjyCbusq8PxqMBXncLGp4gKYT9lInYKlJPkOxZoUfMvunL9lFK
-         tpxyiacL6gqP3uH0Onlf9B+6/SR7z8C2ZG5tMFU9p44VytHPAt930OwL5jaOR1ng8x53
-         r0ZHkO09oJuVjeAKxIcqWbeDL63KX2qCXUyOaegRvU299Z9bUNTsP6pDG8AgBEK9TPR4
-         boSg==
-X-Gm-Message-State: AJIora/EPAOZ5KIHrMvTSHnKcknbfhwHPCVK+T/EEnkitehQoiFOXaE8
-        rQGyxeyqcySf6lkR9AE2Hf6E6iATd1VsBhHpyrgD0Q==
-X-Google-Smtp-Source: AGRyM1uPiHz9r78dkOMkMS7A40TQlp0htLCjU+g7vKNWtDQEZFtqP7rw3kimJdOVXxtmSiTxWS2YaUyNOrqrwQoAZr8=
-X-Received: by 2002:aa7:cb87:0:b0:43b:e650:6036 with SMTP id
- r7-20020aa7cb87000000b0043be6506036mr14304550edt.350.1658845251277; Tue, 26
- Jul 2022 07:20:51 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=lLG88JCPgF7Yhflf4FNi4GQedsSNMbwmPtgneUr9Mu0=;
+        b=OMtqrwComHMz9Uw2cOqiBVExSAzkT/q4rOkgIdFn+2NOJoztXY7wOrlBGp/15rSCPf
+         y809/tNTTV0F1pUCBLS1TdzEiddOtWKbP7PnCQyyMbTlHExJSmcKU6AKuIonHvbiOzU4
+         HSuYxXRChBR+44Z+TWrtriawi8TJ9RRTsnIwvfDlQ2xbg0UCl7V1lq7YuDjXsL4rDH7K
+         doSPAaxmKKsyobZlXITbJzrd5Kw8vw/aXJ6AUlcRCWGNh6chp8Zmy+PGChHW/M+Tr2sz
+         Cq/hGEGyGX3Kk2MdX7eA5DoN8ZBxxweOi7lPUM+Mp9l1Orpok5Fm1cnOcMIlcAUAvLqq
+         rW7g==
+X-Gm-Message-State: AJIora9fcB5GoAOC/KkWjx1insYIVZ+SaAf8iCyip745/u/c8iVvh0Qd
+        Ew8Z30sS5cS6I5okLezLR7rLzPxeUsDnUF3mlaE=
+X-Google-Smtp-Source: AGRyM1urjvMSGXaP4saU6R7wrZtpHkXGDKpnu3NOdslbKYcka24Od1IIGWJF/gxAZMC7AU74hT0HhfI6gHnsNBEvXVg=
+X-Received: by 2002:a17:906:a402:b0:72b:8e6e:64ea with SMTP id
+ l2-20020a170906a40200b0072b8e6e64eamr14739069ejz.469.1658845547766; Tue, 26
+ Jul 2022 07:25:47 -0700 (PDT)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 26 Jul 2022 19:50:40 +0530
-Message-ID: <CA+G9fYuTWEUmMWgSC=SoVdf7YN2pochkxPqj2iXH7DUaA6n1=A@mail.gmail.com>
-Subject: stable: queue/5.15: arch/x86/mm/extable.c:200:7: error: duplicate
- case value '12'
-To:     Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-stable <stable@vger.kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
+Received: by 2002:a17:906:241b:0:0:0:0 with HTTP; Tue, 26 Jul 2022 07:25:47
+ -0700 (PDT)
+Reply-To: clmloans9@gmail.com
+From:   MR ANTHONY EDWARD <zayyanusaidu009@gmail.com>
+Date:   Tue, 26 Jul 2022 15:25:47 +0100
+Message-ID: <CADM+8wR5_tzPzmT5Be2cfbbNOxveuhucB-G9_J8vJTTmmEL86g@mail.gmail.com>
+Subject: SICHERES KREDITANGEBOT BEI 2%
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,
+        T_HK_NAME_FM_MR_MRS,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:62d listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [clmloans9[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [zayyanusaidu009[at]gmail.com]
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [zayyanusaidu009[at]gmail.com]
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        *  3.1 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-x86 and i386 clang builds failed due this build warnings / errors on
-stable-rc queue/5.15
+--=20
+Ben=C3=B6tigen Sie ein Gesch=C3=A4ftsdarlehen oder ein Darlehen jeglicher A=
+rt?
+Wenn ja, kontaktieren Sie uns
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-git_ref: queue/5.15
-git_describe: v5.15.56-266-gda50e215b6b1
-git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
-Build:   v5.15.56-266-gda50e215b6b1
-Details: https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_5.15/build/v5.15.56-266-gda50e215b6b1
-
-Steps to reproduce:
--------------------
-tuxmake --runtime podman \
-        --target-arch x86_64 \
-        --toolchain clang-14 \
-        --kconfig
-https://builds.tuxbuild.com/2CT2NoyYwejQUXoBcT1lYTHbhtT/config \
-          LLVM=1 \
-          LLVM_IAS=1
-
-
-Build error log:
------------------
-builds/linux/arch/x86/include/asm/extable_fixup_types.h:49:9: warning:
-'EX_TYPE_DEFAULT_MCE_SAFE' macro redefined [-Wmacro-redefined]
-#define EX_TYPE_DEFAULT_MCE_SAFE        12
-        ^
-arch/x86/include/asm/extable_fixup_types.h:42:9: note: previous
-definition is here
-#define EX_TYPE_DEFAULT_MCE_SAFE        14
-        ^
-arch/x86/include/asm/extable_fixup_types.h:50:9: warning:
-'EX_TYPE_FAULT_MCE_SAFE' macro redefined [-Wmacro-redefined]
-#define EX_TYPE_FAULT_MCE_SAFE          13
-        ^
-arch/x86/include/asm/extable_fixup_types.h:43:9: note: previous
-definition is here
-#define EX_TYPE_FAULT_MCE_SAFE          15
-        ^
-arch/x86/mm/extable.c:200:7: error: duplicate case value '12'
-        case EX_TYPE_WRMSR_IN_MCE:
-             ^
-arch/x86/include/asm/extable_fixup_types.h:40:31: note: expanded from
-macro 'EX_TYPE_WRMSR_IN_MCE'
-#define EX_TYPE_WRMSR_IN_MCE            12
-                                        ^
-arch/x86/mm/extable.c:177:7: note: previous case defined here
-        case EX_TYPE_DEFAULT_MCE_SAFE:
-             ^
-arch/x86/include/asm/extable_fixup_types.h:49:34: note: expanded from
-macro 'EX_TYPE_DEFAULT_MCE_SAFE'
-#define EX_TYPE_DEFAULT_MCE_SAFE        12
-                                        ^
-arch/x86/mm/extable.c:203:7: error: duplicate case value '13'
-        case EX_TYPE_RDMSR_IN_MCE:
-             ^
-arch/x86/include/asm/extable_fixup_types.h:41:31: note: expanded from
-macro 'EX_TYPE_RDMSR_IN_MCE'
-#define EX_TYPE_RDMSR_IN_MCE            13
-                                        ^
-arch/x86/mm/extable.c:180:7: note: previous case defined here
-        case EX_TYPE_FAULT_MCE_SAFE:
-             ^
-arch/x86/include/asm/extable_fixup_types.h:50:33: note: expanded from
-macro 'EX_TYPE_FAULT_MCE_SAFE'
-#define EX_TYPE_FAULT_MCE_SAFE          13
-                                        ^
-2 warnings and 2 errors generated.
-make[3]: *** [scripts/Makefile.build:289: arch/x86/mm/extable.o] Error 1
-
-Build link:
-https://builds.tuxbuild.com/2CT2NoyYwejQUXoBcT1lYTHbhtT/
-
-
-
---
-Linaro LKFT
-https://lkft.linaro.org
+*Vollst=C3=A4ndiger Name:
+* Ben=C3=B6tigte Menge:
+*Leihdauer:
+*Mobiltelefon:
+*Land:
