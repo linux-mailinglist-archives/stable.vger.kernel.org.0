@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9DF5582BC1
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59911582C96
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237880AbiG0QhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
+        id S240494AbiG0QsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:48:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238568AbiG0Qfz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:35:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98184F650;
-        Wed, 27 Jul 2022 09:28:00 -0700 (PDT)
+        with ESMTP id S240426AbiG0Qri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:47:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CB860681;
+        Wed, 27 Jul 2022 09:32:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93F3B619D6;
-        Wed, 27 Jul 2022 16:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B635C433C1;
-        Wed, 27 Jul 2022 16:27:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EABBB821BA;
+        Wed, 27 Jul 2022 16:32:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF53FC43140;
+        Wed, 27 Jul 2022 16:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939280;
-        bh=siGqG7l3TpcM86MFdFURrDC/jDAk8NLgYG+Xpw4GclI=;
+        s=korg; t=1658939526;
+        bh=aHDCADhnQ+avDxQmnvKD7ddWwLgr3eiYoNbq4ql06Vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqMWhJfSoPc4X7EkrPg8rvq8F3fyWLWzsJFvyWPRLix4FC5rQ3uayi9uD1YigDnF5
-         DXk11DQ/QSlIUiY9ETmFUdN2idHuK9NtTmnx+b/JxUTYOKqnCRzN6WmTngPH1izdOf
-         hdGK7vCQ+udwMJXo1kUqq9iiUmpKLn8MPswIH6JY=
+        b=E2PYVq5ie380HImDpGcbFx0QTyr26vZDKwNEXNVLGVsaXMgzoqvAimX/nL4QhqYUg
+         EsO+Q3poEe3irrw4ZYD6uxDHk2TSHV3lyoOJbo/BdhnziwGd5XjKNFTbBgMbPKxRuj
+         WuPCrqm21ptGWpDGsAnhtiB3ozCZ2+Hn4LPAc2zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Subject: [PATCH 5.4 05/87] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
-Date:   Wed, 27 Jul 2022 18:09:58 +0200
-Message-Id: <20220727161009.223111489@linuxfoundation.org>
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Fedor Pchelkin <pchelkin@ispras.ru>
+Subject: [PATCH 5.10 013/105] net: inline rollback_registered()
+Date:   Wed, 27 Jul 2022 18:09:59 +0200
+Message-Id: <20220727161012.595366208@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 166d3863231667c4f64dee72b77d1102cdfad11f upstream.
+From: Jakub Kicinski <kuba@kernel.org>
 
-The error paths of gntdev_mmap() can call unmap_grant_pages() even
-though not all of the pages have been successfully mapped.  This will
-trigger the WARN_ON()s in __unmap_grant_pages_done().  The number of
-warnings can be very large; I have observed thousands of lines of
-warnings in the systemd journal.
+commit 037e56bd965e1bc72c2fa9684ac25b56839a338e upstream.
 
-Avoid this problem by only warning on unmapping failure if the handle
-being unmapped is not INVALID_GRANT_HANDLE.  The handle field of any
-page that was not successfully mapped will be INVALID_GRANT_HANDLE, so
-this catches all cases where unmapping can legitimately fail.
+rollback_registered() is a local helper, it's common for driver
+code to call unregister_netdevice_queue(dev, NULL) when they
+want to unregister netdevices under rtnl_lock. Inline
+rollback_registered() and adjust the only remaining caller.
 
-Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
-Cc: stable@vger.kernel.org
-Suggested-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220710230522.1563-1-demi@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/gntdev.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/dev.c |   17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -413,7 +413,8 @@ static void __unmap_grant_pages_done(int
- 	unsigned int offset = data->unmap_ops - map->unmap_ops;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -9601,15 +9601,6 @@ static void rollback_registered_many(str
+ 	}
+ }
  
- 	for (i = 0; i < data->count; i++) {
--		WARN_ON(map->unmap_ops[offset+i].status);
-+		WARN_ON(map->unmap_ops[offset+i].status &&
-+			map->unmap_ops[offset+i].handle != -1);
- 		pr_debug("unmap handle=%d st=%d\n",
- 			map->unmap_ops[offset+i].handle,
- 			map->unmap_ops[offset+i].status);
+-static void rollback_registered(struct net_device *dev)
+-{
+-	LIST_HEAD(single);
+-
+-	list_add(&dev->unreg_list, &single);
+-	rollback_registered_many(&single);
+-	list_del(&single);
+-}
+-
+ static netdev_features_t netdev_sync_upper_features(struct net_device *lower,
+ 	struct net_device *upper, netdev_features_t features)
+ {
+@@ -10148,7 +10139,7 @@ int register_netdevice(struct net_device
+ 	if (ret) {
+ 		/* Expect explicit free_netdev() on failure */
+ 		dev->needs_free_netdev = false;
+-		rollback_registered(dev);
++		unregister_netdevice_queue(dev, NULL);
+ 		goto out;
+ 	}
+ 	/*
+@@ -10755,7 +10746,11 @@ void unregister_netdevice_queue(struct n
+ 	if (head) {
+ 		list_move_tail(&dev->unreg_list, head);
+ 	} else {
+-		rollback_registered(dev);
++		LIST_HEAD(single);
++
++		list_add(&dev->unreg_list, &single);
++		rollback_registered_many(&single);
++		list_del(&single);
+ 	}
+ }
+ EXPORT_SYMBOL(unregister_netdevice_queue);
 
 
