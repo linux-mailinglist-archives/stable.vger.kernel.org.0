@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95914582CB6
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22EEE582E37
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240364AbiG0Qtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56310 "EHLO
+        id S238089AbiG0RJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:09:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240449AbiG0Qsj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5162561131;
-        Wed, 27 Jul 2022 09:32:33 -0700 (PDT)
+        with ESMTP id S241594AbiG0RJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE7A74350;
+        Wed, 27 Jul 2022 09:40:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6710B821D0;
-        Wed, 27 Jul 2022 16:32:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBECC433D6;
-        Wed, 27 Jul 2022 16:32:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F9DEB8200D;
+        Wed, 27 Jul 2022 16:40:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4AC3C433D6;
+        Wed, 27 Jul 2022 16:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939550;
-        bh=0u1Q4T/coKPKlkRYB8LRz3wU3+rbSCklXjpL4Hkyeds=;
+        s=korg; t=1658940051;
+        bh=LKVDuINe2R8fHUioAcMA427TizSk5+ImKmFLRQAlKzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys3SfmOY2ZvQtjqUamZWdKV5Ai9f1+MyiFzgLiLCVQgg+1LSk9LoQIr8HkEqsmZaQ
-         5mbzv3Wt/0Sf+pjZKxgmQxJ36doXCuTfRH9i2dI1UV1G4kt/MFlB86O9SCt7RRB35e
-         awjfyazj1clVvp84IIPHLaRUD3Q6nRmF8fjQzODA=
+        b=vy/Vp7Mzy4yhIbgeLN4GFyeW2pz5/005rMH9tSW7vycHCLPXAbDTucgIhynajarxf
+         5Sf82cmdmBZMPi7RKWFpHWY+TnwW3OsWD35vwQwora1lwH0L0tkxOuyZtWNCOgReB6
+         /ztREc6zTz8N53Qru/hd65GKy/f4UZZw5FA31sXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, lee@kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH 5.10 005/105] io_uring: Use original task for req identity in io_identity_cow()
-Date:   Wed, 27 Jul 2022 18:09:51 +0200
-Message-Id: <20220727161012.279068616@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/201] igmp: Fix a data-race around sysctl_igmp_max_memberships.
+Date:   Wed, 27 Jul 2022 18:09:52 +0200
+Message-Id: <20220727161031.394982405@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-This issue is conceptually identical to the one fixed in 29f077d07051
-("io_uring: always use original task when preparing req identity"), so
-rather than reinvent the wheel, I'm shamelessly quoting the commit
-message from that patch - thanks Jens:
+[ Upstream commit 6305d821e3b9b5379d348528e5b5faf316383bc2 ]
 
- "If the ring is setup with IORING_SETUP_IOPOLL and we have more than
-  one task doing submissions on a ring, we can up in a situation where
-  we assign the context from the current task rather than the request
-  originator.
+While reading sysctl_igmp_max_memberships, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-  Always use req->task rather than assume it's the same as current.
-
-  No upstream patch exists for this issue, as only older kernels with
-  the non-native workers have this problem."
-
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Pavel Begunkov <asml.silence@gmail.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: io-uring@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Fixes: 5c3462cfd123b ("io_uring: store io_identity in io_uring_task")
-Signed-off-by: Lee Jones <lee@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    2 +-
+ net/ipv4/igmp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1325,7 +1325,7 @@ static void io_req_clean_work(struct io_
-  */
- static bool io_identity_cow(struct io_kiocb *req)
- {
--	struct io_uring_task *tctx = current->io_uring;
-+	struct io_uring_task *tctx = req->task->io_uring;
- 	const struct cred *creds = NULL;
- 	struct io_identity *id;
- 
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index ccfbc0a8f11c..8920ae3751d1 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -2197,7 +2197,7 @@ static int __ip_mc_join_group(struct sock *sk, struct ip_mreqn *imr,
+ 		count++;
+ 	}
+ 	err = -ENOBUFS;
+-	if (count >= net->ipv4.sysctl_igmp_max_memberships)
++	if (count >= READ_ONCE(net->ipv4.sysctl_igmp_max_memberships))
+ 		goto done;
+ 	iml = sock_kmalloc(sk, sizeof(*iml), GFP_KERNEL);
+ 	if (!iml)
+-- 
+2.35.1
+
 
 
