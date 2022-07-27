@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDCA582F80
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2664C582C74
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241932AbiG0R0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:26:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58332 "EHLO
+        id S239356AbiG0Qqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:46:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241961AbiG0RZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:25:29 -0400
+        with ESMTP id S240375AbiG0Qpr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:45:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E31B7D7A5;
-        Wed, 27 Jul 2022 09:46:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D020B5FADC;
+        Wed, 27 Jul 2022 09:31:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1420B821A6;
-        Wed, 27 Jul 2022 16:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D9EAC433B5;
-        Wed, 27 Jul 2022 16:46:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4131BB821BB;
+        Wed, 27 Jul 2022 16:31:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99EB0C433D6;
+        Wed, 27 Jul 2022 16:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940399;
-        bh=GhYgZIgGTDUbTK6LWYbZValzjDD+lImexv1IGjxCoo8=;
+        s=korg; t=1658939492;
+        bh=nUv+h/EUkaR55wIdNw5/QvZ3wmR8Hsx3O2sYlliQHDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcahtjh209Ui9ATS61UTeX1/MCJNXN7Ecs8jgPzXFUohoE27CG/AmmyEXxXKc5p2x
-         cj9BCqZiqp8Q5ZnttlerQEtyaTeMw7DHLvp0qb+/2l9kjmKkDX/NeY+qiHb0CUmwza
-         XXuigjrmwT0g7/SrMGR5dNFj/ViTFBLwvTKPgudY=
+        b=2lIZp4rOsfCOJYUkfXlF2HztJQL01HWtHKNhS29PQojH258rZ6OQEjjXkD2TefhD8
+         P5wPGdUb6g2EgGZJqfcqS+Nn3863MdyoLbiJ25/lolg/BPgvF862MWnfhPjaL4ntgP
+         HlFwl5jqRN2AMCNDxkqzxCjGUGpyeIz9d0/88Km8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Subject: [PATCH 5.18 010/158] drm/scheduler: Dont kill jobs in interrupt context
+        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
+        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 81/87] tty: drivers/tty/, stop using tty_schedule_flip()
 Date:   Wed, 27 Jul 2022 18:11:14 +0200
-Message-Id: <20220727161021.852697362@linuxfoundation.org>
+Message-Id: <20220727161012.352211572@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +52,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 9b04369b060fd4885f728b7a4ab4851ffb1abb64 upstream.
+commit 5f6a85158ccacc3f09744b3aafe8b11ab3b6c6f6 upstream.
 
-Interrupt context can't sleep. Drivers like Panfrost and MSM are taking
-mutex when job is released, and thus, that code can sleep. This results
-into "BUG: scheduling while atomic" if locks are contented while job is
-freed. There is no good reason for releasing scheduler's jobs in IRQ
-context, hence use normal context to fix the trouble.
+Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
+tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
+going to remove the latter (as it is used less), so call the former in
+drivers/tty/.
 
-Cc: stable@vger.kernel.org
-Fixes: 542cff7893a3 ("drm/sched: Avoid lockdep spalt on killing a processes")
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220411221536.283312-1-dmitry.osipenko@collabora.com
+Cc: Vladimir Zapolskiy <vz@mleia.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20211122111648.30379-2-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/scheduler/sched_entity.c |    6 +++---
- include/drm/gpu_scheduler.h              |    4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/tty/cyclades.c          |    6 +++---
+ drivers/tty/goldfish.c          |    2 +-
+ drivers/tty/moxa.c              |    4 ++--
+ drivers/tty/serial/lpc32xx_hs.c |    2 +-
+ drivers/tty/vt/keyboard.c       |    6 +++---
+ drivers/tty/vt/vt.c             |    2 +-
+ 6 files changed, 11 insertions(+), 11 deletions(-)
 
---- a/drivers/gpu/drm/scheduler/sched_entity.c
-+++ b/drivers/gpu/drm/scheduler/sched_entity.c
-@@ -190,7 +190,7 @@ long drm_sched_entity_flush(struct drm_s
- }
- EXPORT_SYMBOL(drm_sched_entity_flush);
+--- a/drivers/tty/cyclades.c
++++ b/drivers/tty/cyclades.c
+@@ -556,7 +556,7 @@ static void cyy_chip_rx(struct cyclades_
+ 		}
+ 		info->idle_stats.recv_idle = jiffies;
+ 	}
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
  
--static void drm_sched_entity_kill_jobs_irq_work(struct irq_work *wrk)
-+static void drm_sched_entity_kill_jobs_work(struct work_struct *wrk)
+ 	/* end of service */
+ 	cyy_writeb(info, CyRIR, save_xir & 0x3f);
+@@ -996,7 +996,7 @@ static void cyz_handle_rx(struct cyclade
+ 		mod_timer(&info->rx_full_timer, jiffies + 1);
+ #endif
+ 	info->idle_stats.recv_idle = jiffies;
+-	tty_schedule_flip(&info->port);
++	tty_flip_buffer_push(&info->port);
+ 
+ 	/* Update rx_get */
+ 	cy_writel(&buf_ctrl->rx_get, new_rx_get);
+@@ -1172,7 +1172,7 @@ static void cyz_handle_cmd(struct cyclad
+ 		if (delta_count)
+ 			wake_up_interruptible(&info->port.delta_msr_wait);
+ 		if (special_count)
+-			tty_schedule_flip(&info->port);
++			tty_flip_buffer_push(&info->port);
+ 	}
+ }
+ 
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -151,7 +151,7 @@ static irqreturn_t goldfish_tty_interrup
+ 	address = (unsigned long)(void *)buf;
+ 	goldfish_tty_rw(qtty, address, count, 0);
+ 
+-	tty_schedule_flip(&qtty->port);
++	tty_flip_buffer_push(&qtty->port);
+ 	return IRQ_HANDLED;
+ }
+ 
+--- a/drivers/tty/moxa.c
++++ b/drivers/tty/moxa.c
+@@ -1385,7 +1385,7 @@ static int moxa_poll_port(struct moxa_po
+ 		if (inited && !tty_throttled(tty) &&
+ 				MoxaPortRxQueue(p) > 0) { /* RX */
+ 			MoxaPortReadData(p);
+-			tty_schedule_flip(&p->port);
++			tty_flip_buffer_push(&p->port);
+ 		}
+ 	} else {
+ 		clear_bit(EMPTYWAIT, &p->statusflags);
+@@ -1410,7 +1410,7 @@ static int moxa_poll_port(struct moxa_po
+ 
+ 	if (tty && (intr & IntrBreak) && !I_IGNBRK(tty)) { /* BREAK */
+ 		tty_insert_flip_char(&p->port, 0, TTY_BREAK);
+-		tty_schedule_flip(&p->port);
++		tty_flip_buffer_push(&p->port);
+ 	}
+ 
+ 	if (intr & IntrLine)
+--- a/drivers/tty/serial/lpc32xx_hs.c
++++ b/drivers/tty/serial/lpc32xx_hs.c
+@@ -345,7 +345,7 @@ static irqreturn_t serial_lpc32xx_interr
+ 		       LPC32XX_HSUART_IIR(port->membase));
+ 		port->icount.overrun++;
+ 		tty_insert_flip_char(tport, 0, TTY_OVERRUN);
+-		tty_schedule_flip(tport);
++		tty_flip_buffer_push(tport);
+ 	}
+ 
+ 	/* Data received? */
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -310,7 +310,7 @@ int kbd_rate(struct kbd_repeat *rpt)
+ static void put_queue(struct vc_data *vc, int ch)
  {
- 	struct drm_sched_job *job = container_of(wrk, typeof(*job), work);
- 
-@@ -207,8 +207,8 @@ static void drm_sched_entity_kill_jobs_c
- 	struct drm_sched_job *job = container_of(cb, struct drm_sched_job,
- 						 finish_cb);
- 
--	init_irq_work(&job->work, drm_sched_entity_kill_jobs_irq_work);
--	irq_work_queue(&job->work);
-+	INIT_WORK(&job->work, drm_sched_entity_kill_jobs_work);
-+	schedule_work(&job->work);
+ 	tty_insert_flip_char(&vc->port, ch, 0);
+-	tty_schedule_flip(&vc->port);
++	tty_flip_buffer_push(&vc->port);
  }
  
- static struct dma_fence *
---- a/include/drm/gpu_scheduler.h
-+++ b/include/drm/gpu_scheduler.h
-@@ -28,7 +28,7 @@
- #include <linux/dma-fence.h>
- #include <linux/completion.h>
- #include <linux/xarray.h>
--#include <linux/irq_work.h>
-+#include <linux/workqueue.h>
+ static void puts_queue(struct vc_data *vc, char *cp)
+@@ -319,7 +319,7 @@ static void puts_queue(struct vc_data *v
+ 		tty_insert_flip_char(&vc->port, *cp, 0);
+ 		cp++;
+ 	}
+-	tty_schedule_flip(&vc->port);
++	tty_flip_buffer_push(&vc->port);
+ }
  
- #define MAX_WAIT_SCHED_ENTITY_Q_EMPTY msecs_to_jiffies(1000)
+ static void applkey(struct vc_data *vc, int key, char mode)
+@@ -564,7 +564,7 @@ static void fn_inc_console(struct vc_dat
+ static void fn_send_intr(struct vc_data *vc)
+ {
+ 	tty_insert_flip_char(&vc->port, 0, TTY_BREAK);
+-	tty_schedule_flip(&vc->port);
++	tty_flip_buffer_push(&vc->port);
+ }
  
-@@ -294,7 +294,7 @@ struct drm_sched_job {
- 	 */
- 	union {
- 		struct dma_fence_cb		finish_cb;
--		struct irq_work 		work;
-+		struct work_struct 		work;
- 	};
+ static void fn_scroll_forw(struct vc_data *vc)
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1837,7 +1837,7 @@ static void respond_string(const char *p
+ 		tty_insert_flip_char(port, *p, 0);
+ 		p++;
+ 	}
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
  
- 	uint64_t			id;
+ static void cursor_report(struct vc_data *vc, struct tty_struct *tty)
 
 
