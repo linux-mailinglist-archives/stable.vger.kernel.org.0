@@ -2,44 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 273ED5826D5
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 14:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC3F58272D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 14:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232101AbiG0MjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 08:39:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53090 "EHLO
+        id S232213AbiG0M46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 08:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231759AbiG0MjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 08:39:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3788637189
-        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 05:39:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7643614F1
-        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 12:39:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAC4C433C1;
-        Wed, 27 Jul 2022 12:39:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658925560;
-        bh=aoBGMR5Ibj07hzfR/EoSrTOGocOqQfGtufjgVDI4/6g=;
-        h=Subject:To:From:Date:From;
-        b=BQAurFkxt/yihB/kq5s3dhAifdBVPZLdoOi1o7qJlsYSa+GSEuphi1z6LSLbY3knJ
-         TYP28UPuou0Vu49bFryORVBMkI5bJQbPQ9nzQfj0xo78ghI/8cC/YTC9gVIrWFdnCZ
-         UK+Jl0WUlHwy6IXucJjN0kw7MV3ueUmfpzedcfMs=
-Subject: patch "usb: typec: ucsi: Acknowledge the GET_ERROR_STATUS command completion" added to usb-testing
-To:     quic_linyyuan@quicinc.com, gregkh@linuxfoundation.org,
-        quic_jackp@quicinc.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Jul 2022 14:39:02 +0200
-Message-ID: <165892554235232@kroah.com>
+        with ESMTP id S232050AbiG0M45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 08:56:57 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB622BB2F;
+        Wed, 27 Jul 2022 05:56:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1658926616; x=1690462616;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=ZZz/K3MC/VTWwgoscj+ukc/J2fLhkf7sdFzroIufZjI=;
+  b=NYf9rincFkxFuBZzdxtcV69CILt9Y5j8aYTNDkdKAyJUk2m5Sm7E/jlC
+   HB12Hwc0se0SISi2jEyiYQQtyBLYRpf5f+OOlrMeDBFt/C+/N44MZpfJQ
+   eKv5sg6iyhv1h1JPoVEGykbRJXUt9nf3pXmb6fUwJmFSCbB4NwI0mC66W
+   /V6wvCyWNnNmkmlLJPcH4+bAaaWz9zYupx/ydSYhgKGeFoFQAbfagXebw
+   ZbGSa87HlWw/2pQewMMb/9ff5kLCh5H5w6DT63JTGvaWUdnO8aFWc8n7g
+   rm8XP9sLS37KG3pGQloP/pHbdfzxZoA0dR2tTJSmM/hpEG5wVtX1DvN8C
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10420"; a="271264048"
+X-IronPort-AV: E=Sophos;i="5.93,195,1654585200"; 
+   d="scan'208";a="271264048"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 05:56:55 -0700
+X-IronPort-AV: E=Sophos;i="5.93,195,1654585200"; 
+   d="scan'208";a="927778582"
+Received: from ncouniha-mobl.ger.corp.intel.com (HELO [10.213.217.229]) ([10.213.217.229])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 05:56:52 -0700
+Message-ID: <d2337b73-ae34-3dd3-afa3-85c77dc2135e@linux.intel.com>
+Date:   Wed, 27 Jul 2022 13:56:50 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [Intel-gfx] [PATCH v2 06/21] drm/i915/gt: Batch TLB invalidations
+Content-Language: en-US
+To:     Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Chris Wilson <chris.p.wilson@intel.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        intel-gfx@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-media@vger.kernel.org,
+        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+References: <cover.1657800199.git.mchehab@kernel.org>
+ <9f535a97f32320a213a619a30c961ba44b595453.1657800199.git.mchehab@kernel.org>
+ <567823d5-57ba-30db-dd64-de609df4d8c5@linux.intel.com>
+ <20220727134836.7f7b5fab@maurocar-mobl2>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+In-Reply-To: <20220727134836.7f7b5fab@maurocar-mobl2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
+        NICE_REPLY_A,SPF_HELO_NONE,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -47,62 +80,109 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+On 27/07/2022 12:48, Mauro Carvalho Chehab wrote:
+> On Wed, 20 Jul 2022 11:49:59 +0100
+> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
+> 
+>> On 20/07/2022 08:13, Mauro Carvalho Chehab wrote:
+>>> On Mon, 18 Jul 2022 14:52:05 +0100
+>>> Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
+>>>    
+>>>>
+>>>> On 14/07/2022 13:06, Mauro Carvalho Chehab wrote:
+>>>>> From: Chris Wilson <chris.p.wilson@intel.com>
+>>>>>
+>>>>> Invalidate TLB in patch, in order to reduce performance regressions.
+>>>>
+>>>> "in batches"?
+>>>
+>>> Yeah. Will fix it.
+> 
+>>> +void vma_invalidate_tlb(struct i915_address_space *vm, u32 tlb)
+>>> +{
+>>> +	/*
+>>> +	 * Before we release the pages that were bound by this vma, we
+>>> +	 * must invalidate all the TLBs that may still have a reference
+>>> +	 * back to our physical address. It only needs to be done once,
+>>> +	 * so after updating the PTE to point away from the pages, record
+>>> +	 * the most recent TLB invalidation seqno, and if we have not yet
+>>> +	 * flushed the TLBs upon release, perform a full invalidation.
+>>> +	 */
+>>> +	WRITE_ONCE(tlb, intel_gt_next_invalidate_tlb_full(vm->gt));
+>>
+>> Shouldn't tlb be a pointer for this to make sense?
+> 
+> Oh, my mistake! Will fix at the next version.
+> 
+>>>    
+>>>>> diff --git a/drivers/gpu/drm/i915/gt/intel_ppgtt.c b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+>>>>> index d8b94d638559..2da6c82a8bd2 100644
+>>>>> --- a/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+>>>>> +++ b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+>>>>> @@ -206,8 +206,12 @@ void ppgtt_bind_vma(struct i915_address_space *vm,
+>>>>>     void ppgtt_unbind_vma(struct i915_address_space *vm,
+>>>>>     		      struct i915_vma_resource *vma_res)
+>>>>>     {
+>>>>> -	if (vma_res->allocated)
+>>>>> -		vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+>>>>> +	if (!vma_res->allocated)
+>>>>> +		return;
+>>>>> +
+>>>>> +	vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+>>>>> +	if (vma_res->tlb)
+>>>>> +		vma_invalidate_tlb(vm, *vma_res->tlb);
+>>>>
+>>>> The patch is about more than batching? If there is a security hole in
+>>>> this area (unbind) with the current code?
+>>>
+>>> No, I don't think there's a security hole. The rationale for this is
+>>> not due to it.
+>>
+>> In this case obvious question is why are these changes in the patch
+>> which declares itself to be about batching invalidations? Because...
+> 
+> Because vma_invalidate_tlb() basically stores a TLB seqno, but the
+> actual invalidation is deferred to when the pages are unset, at
+> __i915_gem_object_unset_pages().
+> 
+> So, what happens is:
+> 
+> - on VMA sync mode, the need to invalidate TLB is marked at
+>    __vma_put_pages(), before VMA unbind;
+> - on async, this is deferred to happen at ppgtt_unbind_vma(), where
+>    it marks the need to invalidate TLBs.
+> 
+> On both cases, __i915_gem_object_unset_pages() is called later,
+> when the driver is ready to unmap the page.
 
-    usb: typec: ucsi: Acknowledge the GET_ERROR_STATUS command completion
+Sorry still not clear to me why is the patch moving marking of the need 
+to invalidate (regardless if it a bit like today, or a seqno like in 
+this patch) from bind to unbind?
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+What if the seqno was stored in i915_vma_bind, where the bit is set 
+today, and all the hunks which touch the unbind and evict would 
+disappear from the patch. What wouldn't work in that case, if anything?
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Regards,
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+Tvrtko
 
-If you have any questions about this process, please let me know.
-
-
-From a7dc438b5e446afcd1b3b6651da28271400722f2 Mon Sep 17 00:00:00 2001
-From: Linyu Yuan <quic_linyyuan@quicinc.com>
-Date: Tue, 26 Jul 2022 14:45:49 +0800
-Subject: usb: typec: ucsi: Acknowledge the GET_ERROR_STATUS command completion
-
-We found PPM will not send any notification after it report error status
-and OPM issue GET_ERROR_STATUS command to read the details about error.
-
-According UCSI spec, PPM may clear the Error Status Data after the OPM
-has acknowledged the command completion.
-
-This change add operation to acknowledge the command completion from PPM.
-
-Fixes: bdc62f2bae8f (usb: typec: ucsi: Simplified registration and I/O API)
-Cc: <stable@vger.kernel.org> # 5.10
-Signed-off-by: Jack Pham <quic_jackp@quicinc.com>
-Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
-Link: https://lore.kernel.org/r/1658817949-4632-1-git-send-email-quic_linyyuan@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/ucsi/ucsi.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
-index cbd862f9f2a1..1aea46493b85 100644
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -76,6 +76,10 @@ static int ucsi_read_error(struct ucsi *ucsi)
- 	if (ret)
- 		return ret;
- 
-+	ret = ucsi_acknowledge_command(ucsi);
-+	if (ret)
-+		return ret;
-+
- 	switch (error) {
- 	case UCSI_ERROR_INCOMPATIBLE_PARTNER:
- 		return -EOPNOTSUPP;
--- 
-2.37.1
-
-
+> 
+>> I am explaining why it looks to me that the patch is doing two things.
+>> Implementing batching _and_ adding invalidation points at VMA unbind
+>> sites, while so far we had it at backing store release only. Maybe I am
+>> wrong and perhaps I am too slow to pick up on the explanation here.
+>>
+>> So if the patch is doing two things please split it up.
+>>
+>> I am further confused by the invalidation call site in evict and in
+>> unbind - why there can't be one logical site since the logical sequence
+>> is evict -> unbind.
+> 
+> The invalidation happens only on one place: __i915_gem_object_unset_pages().
+> 
+> Despite its name, vma_invalidate_tlb() just marks the need of doing TLB
+> invalidation.
+> 
+> Regards,
+> Mauro
