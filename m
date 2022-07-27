@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9F5582B04
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:26:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D68C2582B76
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236229AbiG0Q0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:26:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49168 "EHLO
+        id S237863AbiG0Qdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:33:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236231AbiG0QZe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:25:34 -0400
+        with ESMTP id S237848AbiG0QdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:33:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C9F4E87B;
-        Wed, 27 Jul 2022 09:23:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0418E54ACE;
+        Wed, 27 Jul 2022 09:26:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E282D619AC;
-        Wed, 27 Jul 2022 16:23:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE5FFC433D6;
-        Wed, 27 Jul 2022 16:23:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA2F9619F6;
+        Wed, 27 Jul 2022 16:26:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E302BC433C1;
+        Wed, 27 Jul 2022 16:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939012;
-        bh=IEo2m9o6KKrcSAAzgwAsEjTKgLNYFDTVee/FfJ2LAD4=;
+        s=korg; t=1658939173;
+        bh=J7u/vvB8Zs3W1i9AnlFem8HQrWzcHF81LZifj3tjOak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LX4qJf5NOB34HCXP0JCaaX2jMzKgUm9gZRQK8vI9VTOCoO+L24Lw9/KiYN+hcWrPM
-         JXCmcCzdqYHuf8kYRPjkLD2eECcthOJLeQPF7Ca/EiQRIHMy6t987XSivySexewrTt
-         GeZuICM8UDL2LU7lJ2Qm6t31youwaP2oyW/qKcQA=
+        b=OsNYCgOk7O0DLSisfp5DZlFUboRQtTFXBClEDtL+tikR+Y0QgwAQrWvN01jTA88ns
+         B04520Q2/JbD97EtgdAPYkuRZR7c66a9DEwO8LxTHoZBA57TBMX68kWXMWQZSwU0PM
+         h+8hv9ym/NtzQEZGm9a1l/UYbMl9wHqJrUu1WqoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 20/37] ALSA: memalloc: Align buffer allocations in page size
-Date:   Wed, 27 Jul 2022 18:10:46 +0200
-Message-Id: <20220727161001.642823053@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 38/62] HID: multitouch: simplify the application retrieval
+Date:   Wed, 27 Jul 2022 18:10:47 +0200
+Message-Id: <20220727161005.678048255@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
-References: <20220727161000.822869853@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-commit 5c1733e33c888a3cb7f576564d8ad543d5ad4a9e upstream.
+[ Upstream commit 7ffa13be4945b2f60dfe6c71acbc1fdcfc4629a0 ]
 
-Currently the standard memory allocator (snd_dma_malloc_pages*())
-passes the byte size to allocate as is.  Most of the backends
-allocates real pages, hence the actual allocations are aligned in page
-size.  However, the genalloc doesn't seem assuring the size alignment,
-hence it may result in the access outside the buffer when the whole
-memory pages are exposed via mmap.
+Now that the application is simply stored in struct hid_input, we can
+overwrite it in mt_input_mapping() for the faulty egalax and have a
+simpler suffix processing in mt_input_configured()
 
-For avoiding such inconsistencies, this patch makes the allocation
-size always to be aligned in page size.
-
-Note that, after this change, snd_dma_buffer.bytes field contains the
-aligned size, not the originally requested size.  This value is also
-used for releasing the pages in return.
-
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20201218145625.2045-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/memalloc.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-multitouch.c | 72 ++++++++++++++++--------------------
+ 1 file changed, 32 insertions(+), 40 deletions(-)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -179,6 +179,7 @@ int snd_dma_alloc_pages(int type, struct
- 	if (WARN_ON(!dmab))
- 		return -ENXIO;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index e99286258f62..5509b09f8656 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1332,6 +1332,13 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max,
+ 					      application);
  
-+	size = PAGE_ALIGN(size);
- 	dmab->dev.type = type;
- 	dmab->dev.dev = device;
- 	dmab->bytes = 0;
++	/*
++	 * some egalax touchscreens have "application == DG_TOUCHSCREEN"
++	 * for the stylus. Overwrite the hid_input application
++	 */
++	if (field->physical == HID_DG_STYLUS)
++		hi->application = HID_DG_STYLUS;
++
+ 	/* let hid-core decide for the others */
+ 	return 0;
+ }
+@@ -1520,14 +1527,12 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	char *name;
+ 	const char *suffix = NULL;
+-	unsigned int application = 0;
+ 	struct mt_report_data *rdata;
+ 	struct mt_application *mt_application = NULL;
+ 	struct hid_report *report;
+ 	int ret;
+ 
+ 	list_for_each_entry(report, &hi->reports, hidinput_list) {
+-		application = report->application;
+ 		rdata = mt_find_report_data(td, report);
+ 		if (!rdata) {
+ 			hid_err(hdev, "failed to allocate data for report\n");
+@@ -1542,46 +1547,33 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 			if (ret)
+ 				return ret;
+ 		}
+-
+-		/*
+-		 * some egalax touchscreens have "application == DG_TOUCHSCREEN"
+-		 * for the stylus. Check this first, and then rely on
+-		 * the application field.
+-		 */
+-		if (report->field[0]->physical == HID_DG_STYLUS) {
+-			suffix = "Pen";
+-			/* force BTN_STYLUS to allow tablet matching in udev */
+-			__set_bit(BTN_STYLUS, hi->input->keybit);
+-		}
+ 	}
+ 
+-	if (!suffix) {
+-		switch (application) {
+-		case HID_GD_KEYBOARD:
+-		case HID_GD_KEYPAD:
+-		case HID_GD_MOUSE:
+-		case HID_DG_TOUCHPAD:
+-		case HID_GD_SYSTEM_CONTROL:
+-		case HID_CP_CONSUMER_CONTROL:
+-		case HID_GD_WIRELESS_RADIO_CTLS:
+-		case HID_GD_SYSTEM_MULTIAXIS:
+-			/* already handled by hid core */
+-			break;
+-		case HID_DG_TOUCHSCREEN:
+-			/* we do not set suffix = "Touchscreen" */
+-			hi->input->name = hdev->name;
+-			break;
+-		case HID_DG_STYLUS:
+-			/* force BTN_STYLUS to allow tablet matching in udev */
+-			__set_bit(BTN_STYLUS, hi->input->keybit);
+-			break;
+-		case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
+-			suffix = "Custom Media Keys";
+-			break;
+-		default:
+-			suffix = "UNKNOWN";
+-			break;
+-		}
++	switch (hi->application) {
++	case HID_GD_KEYBOARD:
++	case HID_GD_KEYPAD:
++	case HID_GD_MOUSE:
++	case HID_DG_TOUCHPAD:
++	case HID_GD_SYSTEM_CONTROL:
++	case HID_CP_CONSUMER_CONTROL:
++	case HID_GD_WIRELESS_RADIO_CTLS:
++	case HID_GD_SYSTEM_MULTIAXIS:
++		/* already handled by hid core */
++		break;
++	case HID_DG_TOUCHSCREEN:
++		/* we do not set suffix = "Touchscreen" */
++		hi->input->name = hdev->name;
++		break;
++	case HID_DG_STYLUS:
++		/* force BTN_STYLUS to allow tablet matching in udev */
++		__set_bit(BTN_STYLUS, hi->input->keybit);
++		break;
++	case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
++		suffix = "Custom Media Keys";
++		break;
++	default:
++		suffix = "UNKNOWN";
++		break;
+ 	}
+ 
+ 	if (suffix) {
+-- 
+2.35.1
+
 
 
