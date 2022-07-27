@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB2B582B34
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 264C2582B16
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237931AbiG0Q31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:29:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
+        id S236800AbiG0Q1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236924AbiG0Q1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:27:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7224F65E;
+        with ESMTP id S236700AbiG0Q1C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:27:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E80C4F660;
         Wed, 27 Jul 2022 09:24:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5493AB821B9;
-        Wed, 27 Jul 2022 16:23:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89D85C433D6;
-        Wed, 27 Jul 2022 16:23:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D4A8617F2;
+        Wed, 27 Jul 2022 16:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA2EC433D7;
+        Wed, 27 Jul 2022 16:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939035;
-        bh=YMfKNxtdvzVM8qLd/+CL3RZRZFtcZ64WkllD3RQPKhQ=;
+        s=korg; t=1658939037;
+        bh=YwiXB5APA1WYv8fxecXvZn4EzQvRXPGzGh2MiJmq0JE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCFpBphI/Jws0L+zTAw8Iu1Qr6i7G1Q5pXbzkCi8RtBTQS2sxaIcVZ0x+zZIA/MkW
-         7fja31YEZSiSO8wNIBhdHx7NAuAnAbtntLZgYR9OuQBen8djREln2zKZLNrOr1QetD
-         Z7kAxyQ2bdxa6a0udjjuC2KC2CB4+slQGhCMOGgE=
+        b=BSwMi6R+194ak/cWaokhrX7sxgghAlA16X+ckwnmupXk+g3cxHNVR/vVq9hVIsqFK
+         gGSHe3Be5VB0mttO2LXKOUWD3hzhJ90C5Djo/SFCy4jH9oBy8axUSE+tHpsy2h+STk
+         N2LZsVQt65fcoSbEVuRnCmkS5b34jUqIIyOYLAqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
+        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        William Hubbs <w.d.hubbs@gmail.com>,
+        Chris Brannon <chris@the-brannons.com>,
+        Kirk Reiser <kirk@reisers.ca>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.14 28/37] tty: drivers/tty/, stop using tty_schedule_flip()
-Date:   Wed, 27 Jul 2022 18:10:54 +0200
-Message-Id: <20220727161001.978971195@linuxfoundation.org>
+Subject: [PATCH 4.14 29/37] tty: the rest, stop using tty_schedule_flip()
+Date:   Wed, 27 Jul 2022 18:10:55 +0200
+Message-Id: <20220727161002.019474639@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
 References: <20220727161000.822869853@linuxfoundation.org>
@@ -54,137 +64,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiri Slaby <jslaby@suse.cz>
 
-commit 5f6a85158ccacc3f09744b3aafe8b11ab3b6c6f6 upstream.
+commit b68b914494df4f79b4e9b58953110574af1cb7a2 upstream.
 
 Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
 tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
 going to remove the latter (as it is used less), so call the former in
-drivers/tty/.
+the rest of the users.
 
-Cc: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: William Hubbs <w.d.hubbs@gmail.com>
+Cc: Chris Brannon <chris@the-brannons.com>
+Cc: Kirk Reiser <kirk@reisers.ca>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
 Reviewed-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211122111648.30379-2-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20211122111648.30379-3-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/cyclades.c          |    6 +++---
- drivers/tty/goldfish.c          |    2 +-
- drivers/tty/moxa.c              |    4 ++--
- drivers/tty/serial/lpc32xx_hs.c |    2 +-
- drivers/tty/vt/keyboard.c       |    6 +++---
- drivers/tty/vt/vt.c             |    2 +-
- 6 files changed, 11 insertions(+), 11 deletions(-)
+ arch/alpha/kernel/srmcons.c         |    2 +-
+ drivers/s390/char/keyboard.h        |    4 ++--
+ drivers/staging/speakup/spk_ttyio.c |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/cyclades.c
-+++ b/drivers/tty/cyclades.c
-@@ -556,7 +556,7 @@ static void cyy_chip_rx(struct cyclades_
- 		}
- 		info->idle_stats.recv_idle = jiffies;
- 	}
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
+--- a/arch/alpha/kernel/srmcons.c
++++ b/arch/alpha/kernel/srmcons.c
+@@ -59,7 +59,7 @@ srmcons_do_receive_chars(struct tty_port
+ 	} while((result.bits.status & 1) && (++loops < 10));
  
- 	/* end of service */
- 	cyy_writeb(info, CyRIR, save_xir & 0x3f);
-@@ -998,7 +998,7 @@ static void cyz_handle_rx(struct cyclade
- 				jiffies + 1);
- #endif
- 	info->idle_stats.recv_idle = jiffies;
--	tty_schedule_flip(&info->port);
-+	tty_flip_buffer_push(&info->port);
+ 	if (count)
+-		tty_schedule_flip(port);
++		tty_flip_buffer_push(port);
  
- 	/* Update rx_get */
- 	cy_writel(&buf_ctrl->rx_get, new_rx_get);
-@@ -1174,7 +1174,7 @@ static void cyz_handle_cmd(struct cyclad
- 		if (delta_count)
- 			wake_up_interruptible(&info->port.delta_msr_wait);
- 		if (special_count)
--			tty_schedule_flip(&info->port);
-+			tty_flip_buffer_push(&info->port);
- 	}
+ 	return count;
  }
- 
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -159,7 +159,7 @@ static irqreturn_t goldfish_tty_interrup
- 	address = (unsigned long)(void *)buf;
- 	goldfish_tty_rw(qtty, address, count, 0);
- 
--	tty_schedule_flip(&qtty->port);
-+	tty_flip_buffer_push(&qtty->port);
- 	return IRQ_HANDLED;
- }
- 
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -1397,7 +1397,7 @@ static int moxa_poll_port(struct moxa_po
- 		if (inited && !tty_throttled(tty) &&
- 				MoxaPortRxQueue(p) > 0) { /* RX */
- 			MoxaPortReadData(p);
--			tty_schedule_flip(&p->port);
-+			tty_flip_buffer_push(&p->port);
- 		}
- 	} else {
- 		clear_bit(EMPTYWAIT, &p->statusflags);
-@@ -1422,7 +1422,7 @@ static int moxa_poll_port(struct moxa_po
- 
- 	if (tty && (intr & IntrBreak) && !I_IGNBRK(tty)) { /* BREAK */
- 		tty_insert_flip_char(&p->port, 0, TTY_BREAK);
--		tty_schedule_flip(&p->port);
-+		tty_flip_buffer_push(&p->port);
- 	}
- 
- 	if (intr & IntrLine)
---- a/drivers/tty/serial/lpc32xx_hs.c
-+++ b/drivers/tty/serial/lpc32xx_hs.c
-@@ -350,7 +350,7 @@ static irqreturn_t serial_lpc32xx_interr
- 		       LPC32XX_HSUART_IIR(port->membase));
- 		port->icount.overrun++;
- 		tty_insert_flip_char(tport, 0, TTY_OVERRUN);
--		tty_schedule_flip(tport);
-+		tty_flip_buffer_push(tport);
- 	}
- 
- 	/* Data received? */
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -309,7 +309,7 @@ int kbd_rate(struct kbd_repeat *rpt)
- static void put_queue(struct vc_data *vc, int ch)
+--- a/drivers/s390/char/keyboard.h
++++ b/drivers/s390/char/keyboard.h
+@@ -45,7 +45,7 @@ static inline void
+ kbd_put_queue(struct tty_port *port, int ch)
  {
- 	tty_insert_flip_char(&vc->port, ch, 0);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void puts_queue(struct vc_data *vc, char *cp)
-@@ -318,7 +318,7 @@ static void puts_queue(struct vc_data *v
- 		tty_insert_flip_char(&vc->port, *cp, 0);
- 		cp++;
- 	}
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void applkey(struct vc_data *vc, int key, char mode)
-@@ -563,7 +563,7 @@ static void fn_inc_console(struct vc_dat
- static void fn_send_intr(struct vc_data *vc)
- {
- 	tty_insert_flip_char(&vc->port, 0, TTY_BREAK);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void fn_scroll_forw(struct vc_data *vc)
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1482,7 +1482,7 @@ static void respond_string(const char *p
- 		tty_insert_flip_char(port, *p, 0);
- 		p++;
- 	}
+ 	tty_insert_flip_char(port, ch, 0);
 -	tty_schedule_flip(port);
 +	tty_flip_buffer_push(port);
  }
  
- static void cursor_report(struct vc_data *vc, struct tty_struct *tty)
+ static inline void
+@@ -53,5 +53,5 @@ kbd_puts_queue(struct tty_port *port, ch
+ {
+ 	while (*cp)
+ 		tty_insert_flip_char(port, *cp++, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
+--- a/drivers/staging/speakup/spk_ttyio.c
++++ b/drivers/staging/speakup/spk_ttyio.c
+@@ -87,7 +87,7 @@ static int spk_ttyio_receive_buf2(struct
+ 	}
+ 
+ 	if (!ldisc_data->buf_free)
+-		/* ttyio_in will tty_schedule_flip */
++		/* ttyio_in will tty_flip_buffer_push */
+ 		return 0;
+ 
+ 	/* Make sure the consumer has read buf before we have seen
+@@ -299,7 +299,7 @@ static unsigned char ttyio_in(int timeou
+ 	mb();
+ 	ldisc_data->buf_free = true;
+ 	/* Let TTY push more characters */
+-	tty_schedule_flip(speakup_tty->port);
++	tty_flip_buffer_push(speakup_tty->port);
+ 
+ 	return rv;
+ }
 
 
