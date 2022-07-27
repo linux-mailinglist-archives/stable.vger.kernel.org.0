@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E9C582BD9
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE4D582ED9
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239736AbiG0QjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48604 "EHLO
+        id S241710AbiG0RSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:18:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238309AbiG0Qio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:38:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B96B5A147;
-        Wed, 27 Jul 2022 09:28:38 -0700 (PDT)
+        with ESMTP id S230435AbiG0RRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:17:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D2D78DED;
+        Wed, 27 Jul 2022 09:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFEFE61A27;
-        Wed, 27 Jul 2022 16:28:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD9DCC433D6;
-        Wed, 27 Jul 2022 16:28:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D7D7B821C6;
+        Wed, 27 Jul 2022 16:43:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B570C433D6;
+        Wed, 27 Jul 2022 16:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939300;
-        bh=JJwXE2uuDQBhp8piRLGooJ/OOMu+3+Uj85axSnmkwYM=;
+        s=korg; t=1658940202;
+        bh=OUAQxsIyHhoQKpoTT2pFpB3kZknsg4snkdYeH8FRRwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00NS7EsQwGmhTYE1HSAbqtZmYP+vIt2PSIqsRBrjW18AaN8R76UJmpOSqcW0qAN1V
-         crZsBqYtyLffq6LRyHTbaez0Ma2zDBlQ2R3EW8BsqaUSnUJ517PCl/8UznIBc4U6kD
-         XdEoL1UZrYNyEJwC2Ru4Vg9hgIETHMngH9MqGwzk=
+        b=j/QMINbtrPXhR3jCwIODQer0XYcI1xrUdOT5EWwBmj1FImmNjfuyJ2OR5lVel2QhW
+         hBrgtQG0DTG/Vk7Oizz41aHl4qXeEnsw9XO/8mROePgK5RLnt5orMN4gKp1EuDg6KH
+         l+gk0Hrnck1mQzy0gxYHfxPSEQihbMpzrrzW8AMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/87] tcp: Fix data-races around sysctl_tcp_mtu_probing.
+Subject: [PATCH 5.15 110/201] gpio: pca953x: use the correct range when do regmap sync
 Date:   Wed, 27 Jul 2022 18:10:14 +0200
-Message-Id: <20220727161009.881148835@linuxfoundation.org>
+Message-Id: <20220727161032.319284427@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit f47d00e077e7d61baf69e46dde3210c886360207 ]
+[ Upstream commit 2abc17a93867dc816f0ed9d32021dda8078e7330 ]
 
-While reading sysctl_tcp_mtu_probing, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+regmap will sync a range of registers, here use the correct range
+to make sure the sync do not touch other unexpected registers.
 
-Fixes: 5d424d5a674f ("[TCP]: MTU probing")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Find on pca9557pw on imx8qxp/dxl evk board, this device support
+8 pin, so only need one register(8 bits) to cover all the 8 pins's
+property setting. But when sync the output, we find it actually
+update two registers, output register and the following register.
+
+Fixes: b76574300504 ("gpio: pca953x: Restore registers after suspend/resume cycle")
+Fixes: ec82d1eba346 ("gpio: pca953x: Zap ad-hoc reg_output cache")
+Fixes: 0f25fda840a9 ("gpio: pca953x: Zap ad-hoc reg_direction cache")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- net/ipv4/tcp_timer.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-pca953x.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 739fc69cdcc6..5ac81c4f076d 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1537,7 +1537,7 @@ void tcp_mtup_init(struct sock *sk)
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct net *net = sock_net(sk);
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index f334c8556a22..60b7616dd4aa 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -900,12 +900,12 @@ static int device_pca95xx_init(struct pca953x_chip *chip, u32 invert)
+ 	int ret;
  
--	icsk->icsk_mtup.enabled = net->ipv4.sysctl_tcp_mtu_probing > 1;
-+	icsk->icsk_mtup.enabled = READ_ONCE(net->ipv4.sysctl_tcp_mtu_probing) > 1;
- 	icsk->icsk_mtup.search_high = tp->rx_opt.mss_clamp + sizeof(struct tcphdr) +
- 			       icsk->icsk_af_ops->net_header_len;
- 	icsk->icsk_mtup.search_low = tcp_mss_to_mtu(sk, net->ipv4.sysctl_tcp_base_mss);
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index fa2ae96ecdc4..57fa707e9e98 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -163,7 +163,7 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
- 	int mss;
+ 	ret = regcache_sync_region(chip->regmap, chip->regs->output,
+-				   chip->regs->output + NBANK(chip));
++				   chip->regs->output + NBANK(chip) - 1);
+ 	if (ret)
+ 		goto out;
  
- 	/* Black hole detection */
--	if (!net->ipv4.sysctl_tcp_mtu_probing)
-+	if (!READ_ONCE(net->ipv4.sysctl_tcp_mtu_probing))
- 		return;
+ 	ret = regcache_sync_region(chip->regmap, chip->regs->direction,
+-				   chip->regs->direction + NBANK(chip));
++				   chip->regs->direction + NBANK(chip) - 1);
+ 	if (ret)
+ 		goto out;
  
- 	if (!icsk->icsk_mtup.enabled) {
+@@ -1118,14 +1118,14 @@ static int pca953x_regcache_sync(struct device *dev)
+ 	 * sync these registers first and only then sync the rest.
+ 	 */
+ 	regaddr = pca953x_recalc_addr(chip, chip->regs->direction, 0);
+-	ret = regcache_sync_region(chip->regmap, regaddr, regaddr + NBANK(chip));
++	ret = regcache_sync_region(chip->regmap, regaddr, regaddr + NBANK(chip) - 1);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to sync GPIO dir registers: %d\n", ret);
+ 		return ret;
+ 	}
+ 
+ 	regaddr = pca953x_recalc_addr(chip, chip->regs->output, 0);
+-	ret = regcache_sync_region(chip->regmap, regaddr, regaddr + NBANK(chip));
++	ret = regcache_sync_region(chip->regmap, regaddr, regaddr + NBANK(chip) - 1);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to sync GPIO out registers: %d\n", ret);
+ 		return ret;
+@@ -1135,7 +1135,7 @@ static int pca953x_regcache_sync(struct device *dev)
+ 	if (chip->driver_data & PCA_PCAL) {
+ 		regaddr = pca953x_recalc_addr(chip, PCAL953X_IN_LATCH, 0);
+ 		ret = regcache_sync_region(chip->regmap, regaddr,
+-					   regaddr + NBANK(chip));
++					   regaddr + NBANK(chip) - 1);
+ 		if (ret) {
+ 			dev_err(dev, "Failed to sync INT latch registers: %d\n",
+ 				ret);
+@@ -1144,7 +1144,7 @@ static int pca953x_regcache_sync(struct device *dev)
+ 
+ 		regaddr = pca953x_recalc_addr(chip, PCAL953X_INT_MASK, 0);
+ 		ret = regcache_sync_region(chip->regmap, regaddr,
+-					   regaddr + NBANK(chip));
++					   regaddr + NBANK(chip) - 1);
+ 		if (ret) {
+ 			dev_err(dev, "Failed to sync INT mask registers: %d\n",
+ 				ret);
 -- 
 2.35.1
 
