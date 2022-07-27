@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F314B582CED
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F57582C08
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240789AbiG0QwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:52:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57538 "EHLO
+        id S239081AbiG0QlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:41:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240802AbiG0QwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A5B054ADF;
-        Wed, 27 Jul 2022 09:33:50 -0700 (PDT)
+        with ESMTP id S239083AbiG0Qkt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:40:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E687950719;
+        Wed, 27 Jul 2022 09:29:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0800C61A69;
-        Wed, 27 Jul 2022 16:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FA4EC433D6;
-        Wed, 27 Jul 2022 16:33:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4279061A1E;
+        Wed, 27 Jul 2022 16:29:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B44BC433D6;
+        Wed, 27 Jul 2022 16:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939629;
-        bh=WtF9BKyztuDudarIy8lWa8uBbyXGJ5Wc6Q/lzCzgqR8=;
+        s=korg; t=1658939358;
+        bh=YijPZ68MmYjmvGcAtKwKig+KpthlQqiRwWCwNSrBIk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZErZtmM4+jsqaO01ImfGqmZwVlAfRtPq+eD/FO/vXvh+AtAPUXGBFzDEpCbEpZdxT
-         DNZlXB+DERk4RQGnN5FarN/LW4SNwOo8rxdnaDQhEQNaSHpcHUUKJDr6aRI/KGTkYb
-         CzD9N/0FXmq+f8cXlpH1oagqwnMjHJn+hhaPR9ao=
+        b=ZRoU+TUYClnLQ5qt3Qt8/c9yw6qs6BO5HeidLTWJaOHfbCMARc8BHLqgOUh1pR95b
+         7nGWwHJ+f9aii3QCFyEnTB14ZHigyksFM9gWK//4dgDY2kdi8bw12BhhtZuYB/oANx
+         i+NRYQq9EHRHnvxtdXztCABGavQbFWwZAM5rj/4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.10 021/105] serial: mvebu-uart: correctly report configured baudrate value
+        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 14/87] perf/core: Fix data race between perf_event_set_output() and perf_mmap_close()
 Date:   Wed, 27 Jul 2022 18:10:07 +0200
-Message-Id: <20220727161012.939633672@linuxfoundation.org>
+Message-Id: <20220727161009.585995386@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 4f532c1e25319e42996ec18a1f473fd50c8e575d upstream.
+[ Upstream commit 68e3c69803dada336893640110cb87221bb01dcf ]
 
-Functions tty_termios_encode_baud_rate() and uart_update_timeout() should
-be called with the baudrate value which was set to hardware. Linux then
-report exact values via ioctl(TCGETS2) to userspace.
+Yang Jihing reported a race between perf_event_set_output() and
+perf_mmap_close():
 
-Change mvebu_uart_baud_rate_set() function to return baudrate value which
-was set to hardware and propagate this value to above mentioned functions.
+	CPU1					CPU2
 
-With this change userspace would see precise value in termios c_ospeed
-field.
+	perf_mmap_close(e2)
+	  if (atomic_dec_and_test(&e2->rb->mmap_count)) // 1 - > 0
+	    detach_rest = true
 
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220628100922.10717-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+						ioctl(e1, IOC_SET_OUTPUT, e2)
+						  perf_event_set_output(e1, e2)
+
+	  ...
+	  list_for_each_entry_rcu(e, &e2->rb->event_list, rb_entry)
+	    ring_buffer_attach(e, NULL);
+	    // e1 isn't yet added and
+	    // therefore not detached
+
+						    ring_buffer_attach(e1, e2->rb)
+						      list_add_rcu(&e1->rb_entry,
+								   &e2->rb->event_list)
+
+After this; e1 is attached to an unmapped rb and a subsequent
+perf_mmap() will loop forever more:
+
+	again:
+		mutex_lock(&e->mmap_mutex);
+		if (event->rb) {
+			...
+			if (!atomic_inc_not_zero(&e->rb->mmap_count)) {
+				...
+				mutex_unlock(&e->mmap_mutex);
+				goto again;
+			}
+		}
+
+The loop in perf_mmap_close() holds e2->mmap_mutex, while the attach
+in perf_event_set_output() holds e1->mmap_mutex. As such there is no
+serialization to avoid this race.
+
+Change perf_event_set_output() to take both e1->mmap_mutex and
+e2->mmap_mutex to alleviate that problem. Additionally, have the loop
+in perf_mmap() detach the rb directly, this avoids having to wait for
+the concurrent perf_mmap_close() to get around to doing it to make
+progress.
+
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole")
+Reported-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Yang Jihong <yangjihong1@huawei.com>
+Link: https://lkml.kernel.org/r/YsQ3jm2GR38SW7uD@worktop.programming.kicks-ass.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mvebu-uart.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ kernel/events/core.c | 45 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 14 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -443,13 +443,13 @@ static void mvebu_uart_shutdown(struct u
- 	}
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 8336dcb2bd43..0a54780e0942 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5819,10 +5819,10 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+ 
+ 		if (!atomic_inc_not_zero(&event->rb->mmap_count)) {
+ 			/*
+-			 * Raced against perf_mmap_close() through
+-			 * perf_event_set_output(). Try again, hope for better
+-			 * luck.
++			 * Raced against perf_mmap_close(); remove the
++			 * event and try again.
+ 			 */
++			ring_buffer_attach(event, NULL);
+ 			mutex_unlock(&event->mmap_mutex);
+ 			goto again;
+ 		}
+@@ -10763,14 +10763,25 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
+ 	goto out;
  }
  
--static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
-+static unsigned int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
++static void mutex_lock_double(struct mutex *a, struct mutex *b)
++{
++	if (b < a)
++		swap(a, b);
++
++	mutex_lock(a);
++	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
++}
++
+ static int
+ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
  {
- 	unsigned int d_divisor, m_divisor;
- 	u32 brdv, osamp;
+ 	struct ring_buffer *rb = NULL;
+ 	int ret = -EINVAL;
  
- 	if (!port->uartclk)
--		return -EOPNOTSUPP;
-+		return 0;
+-	if (!output_event)
++	if (!output_event) {
++		mutex_lock(&event->mmap_mutex);
+ 		goto set;
++	}
  
- 	/*
- 	 * The baudrate is derived from the UART clock thanks to two divisors:
-@@ -473,7 +473,7 @@ static int mvebu_uart_baud_rate_set(stru
- 	osamp &= ~OSAMP_DIVISORS_MASK;
- 	writel(osamp, port->membase + UART_OSAMP);
+ 	/* don't allow circular references */
+ 	if (event == output_event)
+@@ -10808,8 +10819,15 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 	    event->pmu != output_event->pmu)
+ 		goto out;
  
--	return 0;
-+	return DIV_ROUND_CLOSEST(port->uartclk, d_divisor * m_divisor);
- }
- 
- static void mvebu_uart_set_termios(struct uart_port *port,
-@@ -510,15 +510,11 @@ static void mvebu_uart_set_termios(struc
- 	max_baud = 230400;
- 
- 	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
--	if (mvebu_uart_baud_rate_set(port, baud)) {
--		/* No clock available, baudrate cannot be changed */
--		if (old)
--			baud = uart_get_baud_rate(port, old, NULL,
--						  min_baud, max_baud);
--	} else {
--		tty_termios_encode_baud_rate(termios, baud, baud);
--		uart_update_timeout(port, termios->c_cflag, baud);
--	}
-+	baud = mvebu_uart_baud_rate_set(port, baud);
++	/*
++	 * Hold both mmap_mutex to serialize against perf_mmap_close().  Since
++	 * output_event is already on rb->event_list, and the list iteration
++	 * restarts after every removal, it is guaranteed this new event is
++	 * observed *OR* if output_event is already removed, it's guaranteed we
++	 * observe !rb->mmap_count.
++	 */
++	mutex_lock_double(&event->mmap_mutex, &output_event->mmap_mutex);
+ set:
+-	mutex_lock(&event->mmap_mutex);
+ 	/* Can't redirect output if we've got an active mmap() */
+ 	if (atomic_read(&event->mmap_count))
+ 		goto unlock;
+@@ -10819,6 +10837,12 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 		rb = ring_buffer_get(output_event);
+ 		if (!rb)
+ 			goto unlock;
 +
-+	/* In case baudrate cannot be changed, report previous old value */
-+	if (baud == 0 && old)
-+		baud = tty_termios_baud_rate(old);
- 
- 	/* Only the following flag changes are supported */
- 	if (old) {
-@@ -529,6 +525,11 @@ static void mvebu_uart_set_termios(struc
- 		termios->c_cflag |= CS8;
++		/* did we race against perf_mmap_close() */
++		if (!atomic_read(&rb->mmap_count)) {
++			ring_buffer_put(rb);
++			goto unlock;
++		}
  	}
  
-+	if (baud != 0) {
-+		tty_termios_encode_baud_rate(termios, baud, baud);
-+		uart_update_timeout(port, termios->c_cflag, baud);
-+	}
-+
- 	spin_unlock_irqrestore(&port->lock, flags);
+ 	ring_buffer_attach(event, rb);
+@@ -10826,20 +10850,13 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 	ret = 0;
+ unlock:
+ 	mutex_unlock(&event->mmap_mutex);
++	if (output_event)
++		mutex_unlock(&output_event->mmap_mutex);
+ 
+ out:
+ 	return ret;
  }
  
+-static void mutex_lock_double(struct mutex *a, struct mutex *b)
+-{
+-	if (b < a)
+-		swap(a, b);
+-
+-	mutex_lock(a);
+-	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
+-}
+-
+ static int perf_event_set_clock(struct perf_event *event, clockid_t clk_id)
+ {
+ 	bool nmi_safe = false;
+-- 
+2.35.1
+
 
 
