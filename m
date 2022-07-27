@@ -2,137 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85AF7582907
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 16:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E065829CC
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 17:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232525AbiG0Ow0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 10:52:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41298 "EHLO
+        id S229472AbiG0PkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 11:40:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232542AbiG0OwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 10:52:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE4F3E758
-        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 07:52:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D23561879
-        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 14:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EC8C433C1;
-        Wed, 27 Jul 2022 14:52:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658933543;
-        bh=jpM3h6DnlQDS6ej75yNn7u1kcscIQvweW2yz0VdOyYw=;
-        h=Subject:To:Cc:From:Date:From;
-        b=q3TYuD0yfFRz5DkQe6+kPK7U4NALizquHEqBQXdTYBfWYBBeM6qHOye2CY46v4d7H
-         wToQYBt6X9uJ6I7OUBnw4lViF4xnNG9qjAhg1UZStOo8KdyZnnGIkXaiE3zJGoss4o
-         sxYLDNXPUQTmmhuGoi7czsDTkjiI2qTichXUuwso=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Add callbacks for DMUB HPD IRQ notifications" failed to apply to 5.15-stable tree
-To:     nicholas.kazlauskas@amd.com, Anson.Jacob@amd.com,
-        Wayne.Lin@amd.com, alexander.deucher@amd.com,
-        daniel.wheeler@amd.com, shenshih@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Jul 2022 16:52:21 +0200
-Message-ID: <1658933541151130@kroah.com>
+        with ESMTP id S229867AbiG0PkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 11:40:10 -0400
+X-Greylist: delayed 423 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 27 Jul 2022 08:40:05 PDT
+Received: from mail.sai.msu.ru (mail.sai.msu.ru [93.180.27.60])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7283DBEB;
+        Wed, 27 Jul 2022 08:40:05 -0700 (PDT)
+Received: from oak.local (unknown [83.167.113.121])
+        by mail.sai.msu.ru (Postfix) with ESMTPSA id 102DD1603C6;
+        Wed, 27 Jul 2022 15:32:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=sai.msu.ru; s=mail;
+        t=1658935979; bh=XqSc/cfsfhBrKEn3XCkL9QnEX/0FNbuSlrJn/D5KsNw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ywKNO55fBkQaWNL1GaF+KhqBCZNM8nnGyMUwdwFMoGUixmPTTuIomlSJfuBfkA4i8
+         yOyQ46K9TO43+dV5rp9Lm7f6KxYUq5jGBVp/1M+kE7P/FfCAJn4rS2+x6w5NFAVSBB
+         JSM6uNyEVbZnQeWHi1DSYB3QFNzJC9zuREomM4PlRazGui8UM0UjNwYtkOYx1pkGQo
+         meqGrrx9LLNzL+611+Jr9DzyJ/zdg59vN+Dl1pOv8VXtEQ30RWkLgPUYSOJ710jhuI
+         TmzO20KG33yoU7nW4GNtP93Bzz0xfmTaTJVonq57Bd5vJOyKnUztqMliNQr3Mu2cN4
+         COqRSwHeY3BkQ==
+From:   "Matwey V. Kornilov" <matwey@sai.msu.ru>
+To:     hdegoede@redhat.com
+Cc:     andriy.shevchenko@linux.intel.com, carlo@endlessm.com,
+        davem@davemloft.net, hkallweit1@gmail.com, js@sig21.net,
+        linux-clk@vger.kernel.org, linux-wireless@vger.kernel.org,
+        matwey.kornilov@gmail.com, mturquette@baylibre.com,
+        netdev@vger.kernel.org, pierre-louis.bossart@linux.intel.com,
+        sboyd@kernel.org, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        paul.gortmaker@windriver.com,
+        "Matwey V. Kornilov" <matwey@sai.msu.ru>, stable@vger.kernel.org
+Subject: [PATCH] platform/x86: pmc_atom: Add DMI quirk for Lex 3I380A/CW boards
+Date:   Wed, 27 Jul 2022 18:32:32 +0300
+Message-Id: <20220727153232.13359-1-matwey@sai.msu.ru>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: 08c744e6-385b-8fcf-ecdf-1292b5869f94@redhat.com
+References: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Lex 3I380A/CW (Atom E3845) motherboards are equipped with dual Intel I211
+based 1Gbps copper ethernet:
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+     http://www.lex.com.tw/products/pdf/3I380A&3I380CW.pdf
 
-thanks,
+This patch is to fix the issue with broken "LAN2" port. Before the
+patch, only one ethernet port is initialized:
 
-greg k-h
+     igb 0000:01:00.0: added PHC on eth0
+     igb 0000:01:00.0: Intel(R) Gigabit Ethernet Network Connection
+     igb 0000:01:00.0: eth0: (PCIe:2.5Gb/s:Width x1) 4c:02:89:10:02:e4
+     igb 0000:01:00.0: eth0: PBA No: FFFFFF-0FF
+     igb 0000:01:00.0: Using MSI-X interrupts. 2 rx queue(s), 2 tx queue(s)
+     igb: probe of 0000:02:00.0 failed with error -2
 
------------------- original commit in Linus's tree ------------------
+With this patch, both ethernet ports are available:
 
-From c40a09e56fa3d17a3d06cec9a24b04364bb18c8f Mon Sep 17 00:00:00 2001
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Date: Thu, 4 Nov 2021 16:52:07 -0400
-Subject: [PATCH] drm/amd/display: Add callbacks for DMUB HPD IRQ notifications
+     igb 0000:01:00.0: added PHC on eth0
+     igb 0000:01:00.0: Intel(R) Gigabit Ethernet Network Connection
+     igb 0000:01:00.0: eth0: (PCIe:2.5Gb/s:Width x1) 4c:02:89:10:02:e4
+     igb 0000:01:00.0: eth0: PBA No: FFFFFF-0FF
+     igb 0000:01:00.0: Using MSI-X interrupts. 2 rx queue(s), 2 tx queue(s)
+     igb 0000:02:00.0: added PHC on eth1
+     igb 0000:02:00.0: Intel(R) Gigabit Ethernet Network Connection
+     igb 0000:02:00.0: eth1: (PCIe:2.5Gb/s:Width x1) 4c:02:89:10:02:e5
+     igb 0000:02:00.0: eth1: PBA No: FFFFFF-0FF
+     igb 0000:02:00.0: Using MSI-X interrupts. 2 rx queue(s), 2 tx queue(s)
 
-[Why]
-We need HPD IRQ notifications (RX, short pulse) to properly handle
-DP MST for DPIA connections.
+The issue was observed at 3I380A board with BIOS version "A4 01/15/2016"
+and 3I380CW board with BIOS version "A3 09/29/2014".
 
-[How]
-A null pointer exception currently occurs when these are received
-so add a check to validate that we have a handler installed for
-the notification.
+Reference: https://lore.kernel.org/netdev/08c744e6-385b-8fcf-ecdf-1292b5869f94@redhat.com/
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+---
+ drivers/platform/x86/pmc_atom.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Extend the HPD handler to also handle HPD IRQ (RX) since the logic is
-the same.
-
-Fixes: e27c41d5b068 ("drm/amd/display: Support for DMUB HPD interrupt handling")
-
-Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
-Reviewed-by: Jude Shih <shenshih@amd.com>
-Acked-by: Anson Jacob <Anson.Jacob@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 6aafcc14b479..a7cf7df4d2f2 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -217,6 +217,7 @@ static const struct drm_format_info *
- amd_get_format_info(const struct drm_mode_fb_cmd2 *cmd);
- 
- static void handle_hpd_irq_helper(struct amdgpu_dm_connector *aconnector);
-+static void handle_hpd_rx_irq(void *param);
- 
- static bool
- is_timing_unchanged_for_freesync(struct drm_crtc_state *old_crtc_state,
-@@ -683,8 +684,12 @@ void dmub_hpd_callback(struct amdgpu_device *adev, struct dmub_notification *not
- 	}
- 	drm_connector_list_iter_end(&iter);
- 
--	if (hpd_aconnector)
--		handle_hpd_irq_helper(hpd_aconnector);
-+	if (hpd_aconnector) {
-+		if (notify->type == DMUB_NOTIFICATION_HPD)
-+			handle_hpd_irq_helper(hpd_aconnector);
-+		else if (notify->type == DMUB_NOTIFICATION_HPD_IRQ)
-+			handle_hpd_rx_irq(hpd_aconnector);
-+	}
- }
- 
- /**
-@@ -760,6 +765,10 @@ static void dm_dmub_outbox1_low_irq(void *interrupt_params)
- 				DRM_ERROR("DM: notify type %d invalid!", notify.type);
- 				continue;
- 			}
-+			if (!dm->dmub_callback[notify.type]) {
-+				DRM_DEBUG_DRIVER("DMUB notification skipped, no handler: type=%d\n", notify.type);
-+				continue;
-+			}
- 			if (dm->dmub_thread_offload[notify.type] == true) {
- 				dmub_hpd_wrk = kzalloc(sizeof(*dmub_hpd_wrk), GFP_ATOMIC);
- 				if (!dmub_hpd_wrk) {
-@@ -1560,6 +1569,10 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 			DRM_ERROR("amdgpu: fail to register dmub hpd callback");
- 			goto error;
- 		}
-+		if (!register_dmub_notify_callback(adev, DMUB_NOTIFICATION_HPD_IRQ, dmub_hpd_callback, true)) {
-+			DRM_ERROR("amdgpu: fail to register dmub hpd callback");
-+			goto error;
-+		}
- #endif /* CONFIG_DRM_AMD_DC_DCN */
- 	}
- 
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index b8b1ed1406de..5dc82667907b 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -388,6 +388,24 @@ static const struct dmi_system_id critclk_systems[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
+ 		},
+ 	},
++	{
++		/* pmc_plt_clk* - are used for ethernet controllers */
++		.ident = "Lex 3I380A",
++		.callback = dmi_callback,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "3I380A"),
++		},
++	},
++	{
++		/* pmc_plt_clk* - are used for ethernet controllers */
++		.ident = "Lex 3I380CW",
++		.callback = dmi_callback,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "3I380CW"),
++		},
++	},
+ 	{
+ 		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
+ 		.ident = "Lex 3I380D",
+-- 
+2.35.3
 
