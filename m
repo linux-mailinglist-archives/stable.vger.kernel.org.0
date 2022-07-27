@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B90582F82
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B80FE582F89
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241961AbiG0R0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51784 "EHLO
+        id S229989AbiG0R1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:27:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242077AbiG0RZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:25:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8727D7B3;
-        Wed, 27 Jul 2022 09:46:43 -0700 (PDT)
+        with ESMTP id S242070AbiG0R06 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:26:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 508FF7E312;
+        Wed, 27 Jul 2022 09:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FF5B60DDB;
-        Wed, 27 Jul 2022 16:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C0DDC433D6;
-        Wed, 27 Jul 2022 16:46:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7547600BE;
+        Wed, 27 Jul 2022 16:46:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C318EC433C1;
+        Wed, 27 Jul 2022 16:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940402;
-        bh=bBnTDkDz7hQo4y2s7JN6+Uc7JMmsoDTjkSc05ifzYHs=;
+        s=korg; t=1658940394;
+        bh=9lAlWYIreBqMVyYbmM7NsAPiX5t/podqVbEtNIGuWOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ye89JMGW7HMtNdMPjyC7EUBWPBt41jUDbFaBwGFvW+ScZzUrjmmt1QbtWCnBDjjM/
-         p5BhtrfDxakSO5FGswxmh5iD3XWLhyFIcDg+lh1Zz8KAcHCc53mxtZWh4628FY8aBv
-         aljKRivY2pKFE9caOpPkWyMRyg9gAdlq/4TTna6U=
+        b=nt29/CD3lMsOaC7XQ01+TL2DCw64rgEuOx4FArQC+mjNUqeC3gyXZWfPQ31doaZ73
+         0/RvGjA2IJujX32jsSgE1raeKZdhcLLzNxwD6mdg3lBjlaP2k65o2IyhCE8hPGkgqR
+         DRjtPLvZVdj8xlCuYqK/T/+uOuaoFuCqMAVD1UAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Alonso <joalonsof@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.18 011/158] net: usb: ax88179_178a needs FLAG_SEND_ZLP
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Baik Song An <bsahn@etri.re.kr>,
+        Hong Yeon Kim <kimhy@etri.re.kr>,
+        Taeung Song <taeung@reallinux.co.kr>, linuxgeek@linuxgeek.io,
+        Wonhyuk Yang <vvghjk1234@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 171/201] tracing: Fix return value of trace_pid_write()
 Date:   Wed, 27 Jul 2022 18:11:15 +0200
-Message-Id: <20220727161021.894847844@linuxfoundation.org>
+Message-Id: <20220727161034.910245226@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,166 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Alonso <joalonsof@gmail.com>
+From: Wonhyuk Yang <vvghjk1234@gmail.com>
 
-commit 36a15e1cb134c0395261ba1940762703f778438c upstream.
+[ Upstream commit b27f266f74fbda4ee36c2b2b04d15992860cf23b ]
 
-The extra byte inserted by usbnet.c when
- (length % dev->maxpacket == 0) is causing problems to device.
+Setting set_event_pid with trailing whitespace lead to endless write
+system calls like below.
 
-This patch sets FLAG_SEND_ZLP to avoid this.
+    $ strace echo "123 " > /sys/kernel/debug/tracing/set_event_pid
+    execve("/usr/bin/echo", ["echo", "123 "], ...) = 0
+    ...
+    write(1, "123 \n", 5)                   = 4
+    write(1, "\n", 1)                       = 0
+    write(1, "\n", 1)                       = 0
+    write(1, "\n", 1)                       = 0
+    write(1, "\n", 1)                       = 0
+    write(1, "\n", 1)                       = 0
+    ....
 
-Tested with: 0b95:1790 ASIX Electronics Corp. AX88179 Gigabit Ethernet
+This is because, the result of trace_get_user's are not returned when it
+read at least one pid. To fix it, update read variable even if
+parser->idx == 0.
 
-Problems observed:
-======================================================================
-1) Using ssh/sshfs. The remote sshd daemon can abort with the message:
-   "message authentication code incorrect"
-   This happens because the tcp message sent is corrupted during the
-   USB "Bulk out". The device calculate the tcp checksum and send a
-   valid tcp message to the remote sshd. Then the encryption detects
-   the error and aborts.
-2) NETDEV WATCHDOG: ... (ax88179_178a): transmit queue 0 timed out
-3) Stop normal work without any log message.
-   The "Bulk in" continue receiving packets normally.
-   The host sends "Bulk out" and the device responds with -ECONNRESET.
-   (The netusb.c code tx_complete ignore -ECONNRESET)
-Under normal conditions these errors take days to happen and in
-intense usage take hours.
+The result of applied patch is below.
 
-A test with ping gives packet loss, showing that something is wrong:
-ping -4 -s 462 {destination}	# 462 = 512 - 42 - 8
-Not all packets fail.
-My guess is that the device tries to find another packet starting
-at the extra byte and will fail or not depending on the next
-bytes (old buffer content).
-======================================================================
+    $ strace echo "123 " > /sys/kernel/debug/tracing/set_event_pid
+    execve("/usr/bin/echo", ["echo", "123 "], ...) = 0
+    ...
+    write(1, "123 \n", 5)                   = 5
+    close(1)                                = 0
 
-Signed-off-by: Jose Alonso <joalonsof@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20220503050546.288911-1-vvghjk1234@gmail.com
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Baik Song An <bsahn@etri.re.kr>
+Cc: Hong Yeon Kim <kimhy@etri.re.kr>
+Cc: Taeung Song <taeung@reallinux.co.kr>
+Cc: linuxgeek@linuxgeek.io
+Cc: stable@vger.kernel.org
+Fixes: 4909010788640 ("tracing: Add set_event_pid directory for future use")
+Signed-off-by: Wonhyuk Yang <vvghjk1234@gmail.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ kernel/trace/trace.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1801,7 +1801,7 @@ static const struct driver_info ax88179_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1814,7 +1814,7 @@ static const struct driver_info ax88178a
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1827,7 +1827,7 @@ static const struct driver_info cypress_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1840,7 +1840,7 @@ static const struct driver_info dlink_du
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1853,7 +1853,7 @@ static const struct driver_info sitecom_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1866,7 +1866,7 @@ static const struct driver_info samsung_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1879,7 +1879,7 @@ static const struct driver_info lenovo_i
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1892,7 +1892,7 @@ static const struct driver_info belkin_i
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
- 	.stop	= ax88179_stop,
--	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1905,7 +1905,7 @@ static const struct driver_info toshiba_
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1918,7 +1918,7 @@ static const struct driver_info mct_info
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
- 	.stop	= ax88179_stop,
--	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1931,7 +1931,7 @@ static const struct driver_info at_umc20
- 	.link_reset = ax88179_link_reset,
- 	.reset  = ax88179_reset,
- 	.stop   = ax88179_stop,
--	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1944,7 +1944,7 @@ static const struct driver_info at_umc20
- 	.link_reset = ax88179_link_reset,
- 	.reset  = ax88179_reset,
- 	.stop   = ax88179_stop,
--	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1957,7 +1957,7 @@ static const struct driver_info at_umc20
- 	.link_reset = ax88179_link_reset,
- 	.reset  = ax88179_reset,
- 	.stop   = ax88179_stop,
--	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index abbe8489faae..d93f9c59f50e 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -711,13 +711,16 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
+ 		pos = 0;
+ 
+ 		ret = trace_get_user(&parser, ubuf, cnt, &pos);
+-		if (ret < 0 || !trace_parser_loaded(&parser))
++		if (ret < 0)
+ 			break;
+ 
+ 		read += ret;
+ 		ubuf += ret;
+ 		cnt -= ret;
+ 
++		if (!trace_parser_loaded(&parser))
++			break;
++
+ 		ret = -EINVAL;
+ 		if (kstrtoul(parser.buffer, 0, &val))
+ 			break;
+@@ -743,7 +746,6 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
+ 	if (!nr_pids) {
+ 		/* Cleared the list of pids */
+ 		trace_pid_list_free(pid_list);
+-		read = ret;
+ 		pid_list = NULL;
+ 	}
+ 
+-- 
+2.35.1
+
 
 
