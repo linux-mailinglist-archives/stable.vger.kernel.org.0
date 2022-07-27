@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 536BD582EC9
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55BD9582B19
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241724AbiG0RQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37862 "EHLO
+        id S237101AbiG0Q1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241701AbiG0RQW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:16:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D29CF5C950;
-        Wed, 27 Jul 2022 09:43:07 -0700 (PDT)
+        with ESMTP id S235595AbiG0Q1P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:27:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A6CE4F1A7;
+        Wed, 27 Jul 2022 09:24:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DD4E601CE;
-        Wed, 27 Jul 2022 16:43:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAB9C433D6;
-        Wed, 27 Jul 2022 16:43:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0F27B821BC;
+        Wed, 27 Jul 2022 16:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F309C433D6;
+        Wed, 27 Jul 2022 16:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940185;
-        bh=SVt23Q0d84gwrhaqA8w8sNWD9r1w9t4co/Eki16M7MI=;
+        s=korg; t=1658939040;
+        bh=IS95Ux7y3Du7rX8+WAHdx5ZWxHFA3ifE1uxa9QhbhDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlTcmQhNBvC+AHzLzg80H6GbQwxRE7bkhyh9v9jWK3LWdzIYtcJSMsq9uemWxpZRB
-         C4N+ck4MdD/Q6htQ1nz30NN5L02Qtyg+6s3ir6jK6R7oiksN7TSuH9gPrncH71s5jG
-         tQQ98FOQsghUHx44HaX5s2QedkS5yLC7rgf6OuxA=
+        b=jMap0XDOHwmhPcRL2i3xkITVKAi9y8LInfZffwN42yNhumCH+IRvskXZYwPjudZ46
+         liFvyN4f1Sepa34yRVaUHhI8GaaL2Yfz2QaVGqKg96cCqe3Inwr56Po0H3jOlWYoWx
+         TJ2O57g+cZsRdv3TH7qcaXVEgTKCB1QTP5MMuaNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>
-Subject: [PATCH 5.15 134/201] KVM: Dont null dereference ops->destroy
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/37] igmp: Fix a data-race around sysctl_igmp_max_memberships.
 Date:   Wed, 27 Jul 2022 18:10:38 +0200
-Message-Id: <20220727161033.348145340@linuxfoundation.org>
+Message-Id: <20220727161001.357244881@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit e8bc2427018826e02add7b0ed0fc625a60390ae5 upstream.
+[ Upstream commit 6305d821e3b9b5379d348528e5b5faf316383bc2 ]
 
-A KVM device cleanup happens in either of two callbacks:
-1) destroy() which is called when the VM is being destroyed;
-2) release() which is called when a device fd is closed.
+While reading sysctl_igmp_max_memberships, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Most KVM devices use 1) but Book3s's interrupt controller KVM devices
-(XICS, XIVE, XIVE-native) use 2) as they need to close and reopen during
-the machine execution. The error handling in kvm_ioctl_create_device()
-assumes destroy() is always defined which leads to NULL dereference as
-discovered by Syzkaller.
-
-This adds a checks for destroy!=NULL and adds a missing release().
-
-This is not changing kvm_destroy_devices() as devices with defined
-release() should have been removed from the KVM devices list by then.
-
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv4/igmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -4172,8 +4172,11 @@ static int kvm_ioctl_create_device(struc
- 		kvm_put_kvm_no_destroy(kvm);
- 		mutex_lock(&kvm->lock);
- 		list_del(&dev->vm_node);
-+		if (ops->release)
-+			ops->release(dev);
- 		mutex_unlock(&kvm->lock);
--		ops->destroy(dev);
-+		if (ops->destroy)
-+			ops->destroy(dev);
- 		return ret;
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 4b3875acc876..fd2c634eeee4 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -2179,7 +2179,7 @@ int ip_mc_join_group(struct sock *sk, struct ip_mreqn *imr)
+ 		count++;
  	}
- 
+ 	err = -ENOBUFS;
+-	if (count >= net->ipv4.sysctl_igmp_max_memberships)
++	if (count >= READ_ONCE(net->ipv4.sysctl_igmp_max_memberships))
+ 		goto done;
+ 	iml = sock_kmalloc(sk, sizeof(*iml), GFP_KERNEL);
+ 	if (!iml)
+-- 
+2.35.1
+
 
 
