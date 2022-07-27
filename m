@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E92582C45
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614E5582B1E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239572AbiG0Qoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
+        id S237014AbiG0Q2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240121AbiG0QoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9239A51A24;
-        Wed, 27 Jul 2022 09:30:41 -0700 (PDT)
+        with ESMTP id S237231AbiG0Q15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:27:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 111AB4D145;
+        Wed, 27 Jul 2022 09:24:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70C56B821C5;
-        Wed, 27 Jul 2022 16:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB8FC433D6;
-        Wed, 27 Jul 2022 16:30:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB16A619F7;
+        Wed, 27 Jul 2022 16:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C2DC433D6;
+        Wed, 27 Jul 2022 16:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939435;
-        bh=AJqytMV64rUASa1fC+FJDWlVKl+qrP5oT4VUCR05xaY=;
+        s=korg; t=1658939057;
+        bh=QUo2IJr0mlTZJeBHDdOH7mrxnr+cRy2Gv24Qedh3/N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPyvm3ySCXJqroclLKKHCyK4KsAcDeryglq7EthZiQhTG03kheqU6PTdf3xBKtGc2
-         D1WkrRUiKfAh8gT3w6IZZgr1iZMP+MuUgQysH2DNGe3/U9WAeVQkW38WyxuP/a7SJb
-         0HIDhrYM3LZb/jEpCeypaeBvu8dWaOgaMi40VFOQ=
+        b=EW/SF7dcASX9+hfj/pTOZHTDBZNoN4vxwzwZ4smAEqhrhmnbe2cbNvvFZ99ceM67X
+         Gz/LOWmoyTyChj6CQf3ysES5+smsRCOhhrOhcfTpWNU2raRDVmPK+M4E5xT5+L6Jgt
+         x+3L+R4hk5RdzoTnkEWhaW7RCw7RBHrDIPOKvyjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 68/87] x86: get rid of small constant size cases in raw_copy_{to,from}_user()
+        Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Carl Vanderlip <quic_carlv@quicinc.com>
+Subject: [PATCH 4.14 35/37] PCI: hv: Fix hv_arch_irq_unmask() for multi-MSI
 Date:   Wed, 27 Jul 2022 18:11:01 +0200
-Message-Id: <20220727161011.803180178@linuxfoundation.org>
+Message-Id: <20220727161002.266508593@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,208 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-[ Upstream commit 4b842e4e25b12951fa10dedb4bc16bc47e3b850c ]
+commit 455880dfe292a2bdd3b4ad6a107299fce610e64b upstream.
 
-Very few call sites where that would be triggered remain, and none
-of those is anywhere near hot enough to bother.
+In the multi-MSI case, hv_arch_irq_unmask() will only operate on the first
+MSI of the N allocated.  This is because only the first msi_desc is cached
+and it is shared by all the MSIs of the multi-MSI block.  This means that
+hv_arch_irq_unmask() gets the correct address, but the wrong data (always
+0).
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can break MSIs.
+
+Lets assume MSI0 is vector 34 on CPU0, and MSI1 is vector 33 on CPU0.
+
+hv_arch_irq_unmask() is called on MSI0.  It uses a hypercall to configure
+the MSI address and data (0) to vector 34 of CPU0.  This is correct.  Then
+hv_arch_irq_unmask is called on MSI1.  It uses another hypercall to
+configure the MSI address and data (0) to vector 33 of CPU0.  This is
+wrong, and results in both MSI0 and MSI1 being routed to vector 33.  Linux
+will observe extra instances of MSI1 and no instances of MSI0 despite the
+endpoint device behaving correctly.
+
+For the multi-MSI case, we need unique address and data info for each MSI,
+but the cached msi_desc does not provide that.  However, that information
+can be gotten from the int_desc cached in the chip_data by
+compose_msi_msg().  Fix the multi-MSI case to use that cached information
+instead.  Since hv_set_msi_entry_from_desc() is no longer applicable,
+remove it.
+
+4.14 backport - moved to host/pci-hyperv.c. hv_set_msi_entry_from_desc
+doesn't exist to be removed. int_entry replaces msi_entry for location
+int_desc is written to.
+
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1651068453-29588-1-git-send-email-quic_jhugo@quicinc.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/uaccess.h    |  12 ----
- arch/x86/include/asm/uaccess_32.h |  27 --------
- arch/x86/include/asm/uaccess_64.h | 108 +-----------------------------
- 3 files changed, 2 insertions(+), 145 deletions(-)
+ drivers/pci/host/pci-hyperv.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 61d93f062a36..a19effb98fdc 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -378,18 +378,6 @@ do {									\
- 		     : "=r" (err), ltype(x)				\
- 		     : "m" (__m(addr)), "i" (errret), "0" (err))
+--- a/drivers/pci/host/pci-hyperv.c
++++ b/drivers/pci/host/pci-hyperv.c
+@@ -938,6 +938,7 @@ static void hv_irq_unmask(struct irq_dat
+ 	struct msi_desc *msi_desc = irq_data_get_msi_desc(data);
+ 	struct irq_cfg *cfg = irqd_cfg(data);
+ 	struct retarget_msi_interrupt *params;
++	struct tran_int_desc *int_desc;
+ 	struct hv_pcibus_device *hbus;
+ 	struct cpumask *dest;
+ 	struct pci_bus *pbus;
+@@ -952,6 +953,7 @@ static void hv_irq_unmask(struct irq_dat
+ 	pdev = msi_desc_to_pci_dev(msi_desc);
+ 	pbus = pdev->bus;
+ 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
++	int_desc = data->chip_data;
  
--#define __get_user_asm_nozero(x, addr, err, itype, rtype, ltype, errret)	\
--	asm volatile("\n"						\
--		     "1:	mov"itype" %2,%"rtype"1\n"		\
--		     "2:\n"						\
--		     ".section .fixup,\"ax\"\n"				\
--		     "3:	mov %3,%0\n"				\
--		     "	jmp 2b\n"					\
--		     ".previous\n"					\
--		     _ASM_EXTABLE_UA(1b, 3b)				\
--		     : "=r" (err), ltype(x)				\
--		     : "m" (__m(addr)), "i" (errret), "0" (err))
--
- /*
-  * This doesn't do __uaccess_begin/end - the exception handling
-  * around it must do that.
-diff --git a/arch/x86/include/asm/uaccess_32.h b/arch/x86/include/asm/uaccess_32.h
-index ba2dc1930630..388a40660c7b 100644
---- a/arch/x86/include/asm/uaccess_32.h
-+++ b/arch/x86/include/asm/uaccess_32.h
-@@ -23,33 +23,6 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
- static __always_inline unsigned long
- raw_copy_from_user(void *to, const void __user *from, unsigned long n)
- {
--	if (__builtin_constant_p(n)) {
--		unsigned long ret;
--
--		switch (n) {
--		case 1:
--			ret = 0;
--			__uaccess_begin_nospec();
--			__get_user_asm_nozero(*(u8 *)to, from, ret,
--					      "b", "b", "=q", 1);
--			__uaccess_end();
--			return ret;
--		case 2:
--			ret = 0;
--			__uaccess_begin_nospec();
--			__get_user_asm_nozero(*(u16 *)to, from, ret,
--					      "w", "w", "=r", 2);
--			__uaccess_end();
--			return ret;
--		case 4:
--			ret = 0;
--			__uaccess_begin_nospec();
--			__get_user_asm_nozero(*(u32 *)to, from, ret,
--					      "l", "k", "=r", 4);
--			__uaccess_end();
--			return ret;
--		}
--	}
- 	return __copy_user_ll(to, (__force const void *)from, n);
- }
+ 	spin_lock_irqsave(&hbus->retarget_msi_interrupt_lock, flags);
  
-diff --git a/arch/x86/include/asm/uaccess_64.h b/arch/x86/include/asm/uaccess_64.h
-index 5cd1caa8bc65..bc10e3dc64fe 100644
---- a/arch/x86/include/asm/uaccess_64.h
-+++ b/arch/x86/include/asm/uaccess_64.h
-@@ -65,117 +65,13 @@ copy_to_user_mcsafe(void *to, const void *from, unsigned len)
- static __always_inline __must_check unsigned long
- raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
- {
--	int ret = 0;
--
--	if (!__builtin_constant_p(size))
--		return copy_user_generic(dst, (__force void *)src, size);
--	switch (size) {
--	case 1:
--		__uaccess_begin_nospec();
--		__get_user_asm_nozero(*(u8 *)dst, (u8 __user *)src,
--			      ret, "b", "b", "=q", 1);
--		__uaccess_end();
--		return ret;
--	case 2:
--		__uaccess_begin_nospec();
--		__get_user_asm_nozero(*(u16 *)dst, (u16 __user *)src,
--			      ret, "w", "w", "=r", 2);
--		__uaccess_end();
--		return ret;
--	case 4:
--		__uaccess_begin_nospec();
--		__get_user_asm_nozero(*(u32 *)dst, (u32 __user *)src,
--			      ret, "l", "k", "=r", 4);
--		__uaccess_end();
--		return ret;
--	case 8:
--		__uaccess_begin_nospec();
--		__get_user_asm_nozero(*(u64 *)dst, (u64 __user *)src,
--			      ret, "q", "", "=r", 8);
--		__uaccess_end();
--		return ret;
--	case 10:
--		__uaccess_begin_nospec();
--		__get_user_asm_nozero(*(u64 *)dst, (u64 __user *)src,
--			       ret, "q", "", "=r", 10);
--		if (likely(!ret))
--			__get_user_asm_nozero(*(u16 *)(8 + (char *)dst),
--				       (u16 __user *)(8 + (char __user *)src),
--				       ret, "w", "w", "=r", 2);
--		__uaccess_end();
--		return ret;
--	case 16:
--		__uaccess_begin_nospec();
--		__get_user_asm_nozero(*(u64 *)dst, (u64 __user *)src,
--			       ret, "q", "", "=r", 16);
--		if (likely(!ret))
--			__get_user_asm_nozero(*(u64 *)(8 + (char *)dst),
--				       (u64 __user *)(8 + (char __user *)src),
--				       ret, "q", "", "=r", 8);
--		__uaccess_end();
--		return ret;
--	default:
--		return copy_user_generic(dst, (__force void *)src, size);
--	}
-+	return copy_user_generic(dst, (__force void *)src, size);
- }
- 
- static __always_inline __must_check unsigned long
- raw_copy_to_user(void __user *dst, const void *src, unsigned long size)
- {
--	int ret = 0;
--
--	if (!__builtin_constant_p(size))
--		return copy_user_generic((__force void *)dst, src, size);
--	switch (size) {
--	case 1:
--		__uaccess_begin();
--		__put_user_asm(*(u8 *)src, (u8 __user *)dst,
--			      ret, "b", "b", "iq", 1);
--		__uaccess_end();
--		return ret;
--	case 2:
--		__uaccess_begin();
--		__put_user_asm(*(u16 *)src, (u16 __user *)dst,
--			      ret, "w", "w", "ir", 2);
--		__uaccess_end();
--		return ret;
--	case 4:
--		__uaccess_begin();
--		__put_user_asm(*(u32 *)src, (u32 __user *)dst,
--			      ret, "l", "k", "ir", 4);
--		__uaccess_end();
--		return ret;
--	case 8:
--		__uaccess_begin();
--		__put_user_asm(*(u64 *)src, (u64 __user *)dst,
--			      ret, "q", "", "er", 8);
--		__uaccess_end();
--		return ret;
--	case 10:
--		__uaccess_begin();
--		__put_user_asm(*(u64 *)src, (u64 __user *)dst,
--			       ret, "q", "", "er", 10);
--		if (likely(!ret)) {
--			asm("":::"memory");
--			__put_user_asm(4[(u16 *)src], 4 + (u16 __user *)dst,
--				       ret, "w", "w", "ir", 2);
--		}
--		__uaccess_end();
--		return ret;
--	case 16:
--		__uaccess_begin();
--		__put_user_asm(*(u64 *)src, (u64 __user *)dst,
--			       ret, "q", "", "er", 16);
--		if (likely(!ret)) {
--			asm("":::"memory");
--			__put_user_asm(1[(u64 *)src], 1 + (u64 __user *)dst,
--				       ret, "q", "", "er", 8);
--		}
--		__uaccess_end();
--		return ret;
--	default:
--		return copy_user_generic((__force void *)dst, src, size);
--	}
-+	return copy_user_generic((__force void *)dst, src, size);
- }
- 
- static __always_inline __must_check
--- 
-2.35.1
-
+@@ -959,8 +961,8 @@ static void hv_irq_unmask(struct irq_dat
+ 	memset(params, 0, sizeof(*params));
+ 	params->partition_id = HV_PARTITION_ID_SELF;
+ 	params->int_entry.source = 1; /* MSI(-X) */
+-	params->int_entry.address = msi_desc->msg.address_lo;
+-	params->int_entry.data = msi_desc->msg.data;
++	params->int_entry.address = int_desc->address & 0xffffffff;
++	params->int_entry.data = int_desc->data;
+ 	params->device_id = (hbus->hdev->dev_instance.b[5] << 24) |
+ 			   (hbus->hdev->dev_instance.b[4] << 16) |
+ 			   (hbus->hdev->dev_instance.b[7] << 8) |
 
 
