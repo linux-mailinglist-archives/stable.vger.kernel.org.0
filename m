@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2380E582E35
+	by mail.lfdr.de (Postfix) with ESMTP id 93CAB582E36
 	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238270AbiG0RJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39000 "EHLO
+        id S233646AbiG0RJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:09:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241494AbiG0RJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D5550070;
-        Wed, 27 Jul 2022 09:40:49 -0700 (PDT)
+        with ESMTP id S241542AbiG0RJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA68250063;
+        Wed, 27 Jul 2022 09:40:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 328F0601CE;
-        Wed, 27 Jul 2022 16:40:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8D2C433C1;
-        Wed, 27 Jul 2022 16:40:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC12360D3D;
+        Wed, 27 Jul 2022 16:40:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0577FC433C1;
+        Wed, 27 Jul 2022 16:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940045;
-        bh=GBLhn2OafOSRHiZdxxixnE1Zh/XffNtLQVF4iym9OZw=;
+        s=korg; t=1658940048;
+        bh=FQxLPzvBoA8moseFHIyvnkKdcTwqNUzEN00yHZI4IG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMg7QcorZUb+Yz1FLB3d/5axaHx3+Ui0JmrBhCx7VS86NIGBuUISwWpJwO2kmtfTe
-         i4Sx8NLIk/SXNyTkUe1QBOqUvGH5mUK2Mq+anbTGLBzsUrgUUSi60AGMb82a3pbTUe
-         UgnVTgWN4ahRE7YfePiKJ/RMvDDMivwFVAnVcdzA=
+        b=dj/t3GzHuKkyITVNY3tDGii28Gpx5iMFMzDF3Wo5vgbATNqjLiY8BmFUDfSEKbzzn
+         +iuTzIWdQ2DHLfy+38+4FxupYV8XoyiekksVYrZ3Mn4GMpZ4G965tgFjd3NlgGgpaH
+         Wf1SljSPptwhFxpvxyz/IWPtO7sl4teY9dOjPmXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 086/201] net/tls: Fix race in TLS device down flow
-Date:   Wed, 27 Jul 2022 18:09:50 +0200
-Message-Id: <20220727161031.305424966@linuxfoundation.org>
+Subject: [PATCH 5.15 087/201] igmp: Fix data-races around sysctl_igmp_llm_reports.
+Date:   Wed, 27 Jul 2022 18:09:51 +0200
+Message-Id: <20220727161031.345518560@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -55,70 +53,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@nvidia.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit f08d8c1bb97c48f24a82afaa2fd8c140f8d3da8b ]
+[ Upstream commit f6da2267e71106474fbc0943dc24928b9cb79119 ]
 
-Socket destruction flow and tls_device_down function sync against each
-other using tls_device_lock and the context refcount, to guarantee the
-device resources are freed via tls_dev_del() by the end of
-tls_device_down.
+While reading sysctl_igmp_llm_reports, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-In the following unfortunate flow, this won't happen:
-- refcount is decreased to zero in tls_device_sk_destruct.
-- tls_device_down starts, skips the context as refcount is zero, going
-  all the way until it flushes the gc work, and returns without freeing
-  the device resources.
-- only then, tls_device_queue_ctx_destruction is called, queues the gc
-  work and frees the context's device resources.
+This test can be packed into a helper, so such changes will be in the
+follow-up series after net is merged into net-next.
 
-Solve it by decreasing the refcount in the socket's destruction flow
-under the tls_device_lock, for perfect synchronization.  This does not
-slow down the common likely destructor flow, in which both the refcount
-is decreased and the spinlock is acquired, anyway.
+  if (ipv4_is_local_multicast(pmc->multiaddr) &&
+      !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: df2cf4a78e48 ("IGMP: Inhibit reports for local multicast groups")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_device.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/ipv4/igmp.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
-index 4775431cbd38..4e33150cfb9e 100644
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -97,13 +97,16 @@ static void tls_device_queue_ctx_destruction(struct tls_context *ctx)
- 	unsigned long flags;
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 930f6c41f519..ccfbc0a8f11c 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -467,7 +467,8 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
  
- 	spin_lock_irqsave(&tls_device_lock, flags);
-+	if (unlikely(!refcount_dec_and_test(&ctx->refcount)))
-+		goto unlock;
-+
- 	list_move_tail(&ctx->list, &tls_device_gc_list);
+ 	if (pmc->multiaddr == IGMP_ALL_HOSTS)
+ 		return skb;
+-	if (ipv4_is_local_multicast(pmc->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(pmc->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return skb;
  
- 	/* schedule_work inside the spinlock
- 	 * to make sure tls_device_down waits for that work.
- 	 */
- 	schedule_work(&tls_device_gc_work);
--
-+unlock:
- 	spin_unlock_irqrestore(&tls_device_lock, flags);
- }
+ 	mtu = READ_ONCE(dev->mtu);
+@@ -593,7 +594,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
+ 			if (pmc->multiaddr == IGMP_ALL_HOSTS)
+ 				continue;
+ 			if (ipv4_is_local_multicast(pmc->multiaddr) &&
+-			     !net->ipv4.sysctl_igmp_llm_reports)
++			    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 				continue;
+ 			spin_lock_bh(&pmc->lock);
+ 			if (pmc->sfcount[MCAST_EXCLUDE])
+@@ -736,7 +737,8 @@ static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,
+ 	if (type == IGMPV3_HOST_MEMBERSHIP_REPORT)
+ 		return igmpv3_send_report(in_dev, pmc);
  
-@@ -194,8 +197,7 @@ void tls_device_sk_destruct(struct sock *sk)
- 		clean_acked_data_disable(inet_csk(sk));
- 	}
+-	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(group) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return 0;
  
--	if (refcount_dec_and_test(&tls_ctx->refcount))
--		tls_device_queue_ctx_destruction(tls_ctx);
-+	tls_device_queue_ctx_destruction(tls_ctx);
- }
- EXPORT_SYMBOL_GPL(tls_device_sk_destruct);
+ 	if (type == IGMP_HOST_LEAVE_MESSAGE)
+@@ -920,7 +922,8 @@ static bool igmp_heard_report(struct in_device *in_dev, __be32 group)
  
+ 	if (group == IGMP_ALL_HOSTS)
+ 		return false;
+-	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(group) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return false;
+ 
+ 	rcu_read_lock();
+@@ -1045,7 +1048,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+ 		if (im->multiaddr == IGMP_ALL_HOSTS)
+ 			continue;
+ 		if (ipv4_is_local_multicast(im->multiaddr) &&
+-		    !net->ipv4.sysctl_igmp_llm_reports)
++		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 			continue;
+ 		spin_lock_bh(&im->lock);
+ 		if (im->tm_running)
+@@ -1296,7 +1299,8 @@ static void __igmp_group_dropped(struct ip_mc_list *im, gfp_t gfp)
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (im->multiaddr == IGMP_ALL_HOSTS)
+ 		return;
+-	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(im->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return;
+ 
+ 	reporter = im->reporter;
+@@ -1338,7 +1342,8 @@ static void igmp_group_added(struct ip_mc_list *im)
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (im->multiaddr == IGMP_ALL_HOSTS)
+ 		return;
+-	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(im->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return;
+ 
+ 	if (in_dev->dead)
+@@ -1642,7 +1647,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
+ 		if (im->multiaddr == IGMP_ALL_HOSTS)
+ 			continue;
+ 		if (ipv4_is_local_multicast(im->multiaddr) &&
+-		    !net->ipv4.sysctl_igmp_llm_reports)
++		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 			continue;
+ 
+ 		/* a failover is happening and switches
 -- 
 2.35.1
 
