@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7612582CAA
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2380E582E35
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240359AbiG0Qtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56246 "EHLO
+        id S238270AbiG0RJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240566AbiG0Qsh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E3152FE3;
-        Wed, 27 Jul 2022 09:32:30 -0700 (PDT)
+        with ESMTP id S241494AbiG0RJH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D5550070;
+        Wed, 27 Jul 2022 09:40:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC388B821C5;
-        Wed, 27 Jul 2022 16:32:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DF31C433C1;
-        Wed, 27 Jul 2022 16:32:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 328F0601CE;
+        Wed, 27 Jul 2022 16:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8D2C433C1;
+        Wed, 27 Jul 2022 16:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939547;
-        bh=WEuoNkNCmbfI/smKjyykrQDNsxLhwS75dQ9qBi0bW1M=;
+        s=korg; t=1658940045;
+        bh=GBLhn2OafOSRHiZdxxixnE1Zh/XffNtLQVF4iym9OZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+5qguhWyH/LjQctOxIUsZ6snleEqLQcJjyWmjQp6L+BuKfZSFIiMsHLRiBzweuF3
-         7Tqqx/WoHpLiZdc7jyb7y9vF9vdl/sabJV8279lH9eYOAB1gtJTuylA5NJRoz5Z9j/
-         Im7VXGG9rbS0z9/Bvu4i+p5zdLx0SdtnAsR06yi0=
+        b=IMg7QcorZUb+Yz1FLB3d/5axaHx3+Ui0JmrBhCx7VS86NIGBuUISwWpJwO2kmtfTe
+         i4Sx8NLIk/SXNyTkUe1QBOqUvGH5mUK2Mq+anbTGLBzsUrgUUSi60AGMb82a3pbTUe
+         UgnVTgWN4ahRE7YfePiKJ/RMvDDMivwFVAnVcdzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Snowberg <eric.snowberg@oracle.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        John Haxby <john.haxby@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 004/105] lockdown: Fix kexec lockdown bypass with ima policy
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 086/201] net/tls: Fix race in TLS device down flow
 Date:   Wed, 27 Jul 2022 18:09:50 +0200
-Message-Id: <20220727161012.228499548@linuxfoundation.org>
+Message-Id: <20220727161031.305424966@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Snowberg <eric.snowberg@oracle.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-commit 543ce63b664e2c2f9533d089a4664b559c3e6b5b upstream.
+[ Upstream commit f08d8c1bb97c48f24a82afaa2fd8c140f8d3da8b ]
 
-The lockdown LSM is primarily used in conjunction with UEFI Secure Boot.
-This LSM may also be used on machines without UEFI.  It can also be
-enabled when UEFI Secure Boot is disabled.  One of lockdown's features
-is to prevent kexec from loading untrusted kernels.  Lockdown can be
-enabled through a bootparam or after the kernel has booted through
-securityfs.
+Socket destruction flow and tls_device_down function sync against each
+other using tls_device_lock and the context refcount, to guarantee the
+device resources are freed via tls_dev_del() by the end of
+tls_device_down.
 
-If IMA appraisal is used with the "ima_appraise=log" boot param,
-lockdown can be defeated with kexec on any machine when Secure Boot is
-disabled or unavailable.  IMA prevents setting "ima_appraise=log" from
-the boot param when Secure Boot is enabled, but this does not cover
-cases where lockdown is used without Secure Boot.
+In the following unfortunate flow, this won't happen:
+- refcount is decreased to zero in tls_device_sk_destruct.
+- tls_device_down starts, skips the context as refcount is zero, going
+  all the way until it flushes the gc work, and returns without freeing
+  the device resources.
+- only then, tls_device_queue_ctx_destruction is called, queues the gc
+  work and frees the context's device resources.
 
-To defeat lockdown, boot without Secure Boot and add ima_appraise=log to
-the kernel command line; then:
+Solve it by decreasing the refcount in the socket's destruction flow
+under the tls_device_lock, for perfect synchronization.  This does not
+slow down the common likely destructor flow, in which both the refcount
+is decreased and the spinlock is acquired, anyway.
 
-  $ echo "integrity" > /sys/kernel/security/lockdown
-  $ echo "appraise func=KEXEC_KERNEL_CHECK appraise_type=imasig" > \
-    /sys/kernel/security/ima/policy
-  $ kexec -ls unsigned-kernel
-
-Add a call to verify ima appraisal is set to "enforce" whenever lockdown
-is enabled.  This fixes CVE-2022-21505.
-
-Cc: stable@vger.kernel.org
-Fixes: 29d3c1c8dfe7 ("kexec: Allow kexec_file() with appropriate IMA policy when locked down")
-Signed-off-by: Eric Snowberg <eric.snowberg@oracle.com>
-Acked-by: Mimi Zohar <zohar@linux.ibm.com>
-Reviewed-by: John Haxby <john.haxby@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/tls/tls_device.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -1805,6 +1805,10 @@ bool ima_appraise_signature(enum kernel_
- 	if (id >= READING_MAX_ID)
- 		return false;
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 4775431cbd38..4e33150cfb9e 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -97,13 +97,16 @@ static void tls_device_queue_ctx_destruction(struct tls_context *ctx)
+ 	unsigned long flags;
  
-+	if (id == READING_KEXEC_IMAGE && !(ima_appraise & IMA_APPRAISE_ENFORCE)
-+	    && security_locked_down(LOCKDOWN_KEXEC))
-+		return false;
+ 	spin_lock_irqsave(&tls_device_lock, flags);
++	if (unlikely(!refcount_dec_and_test(&ctx->refcount)))
++		goto unlock;
 +
- 	func = read_idmap[id] ?: FILE_CHECK;
+ 	list_move_tail(&ctx->list, &tls_device_gc_list);
  
- 	rcu_read_lock();
+ 	/* schedule_work inside the spinlock
+ 	 * to make sure tls_device_down waits for that work.
+ 	 */
+ 	schedule_work(&tls_device_gc_work);
+-
++unlock:
+ 	spin_unlock_irqrestore(&tls_device_lock, flags);
+ }
+ 
+@@ -194,8 +197,7 @@ void tls_device_sk_destruct(struct sock *sk)
+ 		clean_acked_data_disable(inet_csk(sk));
+ 	}
+ 
+-	if (refcount_dec_and_test(&tls_ctx->refcount))
+-		tls_device_queue_ctx_destruction(tls_ctx);
++	tls_device_queue_ctx_destruction(tls_ctx);
+ }
+ EXPORT_SYMBOL_GPL(tls_device_sk_destruct);
+ 
+-- 
+2.35.1
+
 
 
