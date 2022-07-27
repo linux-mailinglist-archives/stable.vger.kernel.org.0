@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D44E8582DD1
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74AA9582DC5
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232708AbiG0RDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
+        id S241310AbiG0RC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241283AbiG0RDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:03:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BECC6D576;
-        Wed, 27 Jul 2022 09:38:35 -0700 (PDT)
+        with ESMTP id S241313AbiG0RCV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:02:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5E95720E;
+        Wed, 27 Jul 2022 09:38:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3743B8200C;
-        Wed, 27 Jul 2022 16:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29269C433C1;
-        Wed, 27 Jul 2022 16:38:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 074A8601BE;
+        Wed, 27 Jul 2022 16:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17DC7C433D6;
+        Wed, 27 Jul 2022 16:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939894;
-        bh=Jut1UrqA484SZyvoDgmLDM1uXbmIRUU2CmoC0FX+9io=;
+        s=korg; t=1658939897;
+        bh=9daQcHA1ca8CTNZjEp82Tejpl/6LJe3wwlznXAHn6+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rlg4T+H7QNleuv+7wI7fnyMPbv42GtE4r8tKKOg0Q88KOcUOrS5UKzxE/ayWpAGyP
-         8xkr8P57bgs0W+d1BmuJVgSjhkIJKAWGM7B+xo9yoYQh6h9y95EkQWxUHARRTRlLt7
-         2K4FfA0NqBq1ArbQ5GO5mq3IpEPMp6F6gQhIjY0I=
+        b=zO9pPOrXHn0xtO4+e2Urx8D79TP6VAVwuuoHjwkuVDIEpTjWbOb9ugtHxk9Df0DHV
+         cTd2dZZpDktPGJxvkxWEbC33FDt+R/0Agdj5+DkuzR8MHLZm/7JtsARXaMhWgn8Wwu
+         FVAn5IqLqor3jmIZxP9VV0RpmD28oKYWrOZ8T4fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/201] RDMA/irdma: Fix sleep from invalid context BUG
-Date:   Wed, 27 Jul 2022 18:08:56 +0200
-Message-Id: <20220727161028.215848380@linuxfoundation.org>
+Subject: [PATCH 5.15 033/201] pinctrl: ralink: rename MT7628(an) functions to MT76X8
+Date:   Wed, 27 Jul 2022 18:08:57 +0200
+Message-Id: <20220727161028.254123565@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -54,111 +55,397 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-[ Upstream commit cc0315564d6eec91c716d314b743321be24c70b3 ]
+[ Upstream commit 150438c86f55989632005b92c94f4aa2ec562ed6 ]
 
-Taking the qos_mutex to process RoCEv2 QP's on netdev events causes a
-kernel splat.
+The functions that include "MT7628(an)" are for MT7628 and MT7688 SoCs.
+Rename them to MT76X8 to refer to both of the SoCs.
 
-Fix this by removing the handling for RoCEv2 in
-irdma_cm_teardown_connections that uses the mutex. This handling is only
-needed for iWARP to avoid having connections established while the link is
-down or having connections remain functional after the IP address is
-removed.
-
-  BUG: sleeping function called from invalid context at kernel/locking/mutex.
-  Call Trace:
-  kernel: dump_stack+0x66/0x90
-  kernel: ___might_sleep.cold.92+0x8d/0x9a
-  kernel: mutex_lock+0x1c/0x40
-  kernel: irdma_cm_teardown_connections+0x28e/0x4d0 [irdma]
-  kernel: ? check_preempt_curr+0x7a/0x90
-  kernel: ? select_idle_sibling+0x22/0x3c0
-  kernel: ? select_task_rq_fair+0x94c/0xc90
-  kernel: ? irdma_exec_cqp_cmd+0xc27/0x17c0 [irdma]
-  kernel: ? __wake_up_common+0x7a/0x190
-  kernel: irdma_if_notify+0x3cc/0x450 [irdma]
-  kernel: ? sched_clock_cpu+0xc/0xb0
-  kernel: irdma_inet6addr_event+0xc6/0x150 [irdma]
-
-Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Reviewed-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20220414173916.5552-2-arinc.unal@arinc9.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/cm.c | 50 --------------------------------
- 1 file changed, 50 deletions(-)
+ drivers/pinctrl/ralink/pinctrl-mt7620.c | 218 ++++++++++++------------
+ 1 file changed, 109 insertions(+), 109 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/cm.c b/drivers/infiniband/hw/irdma/cm.c
-index 632f65e53b63..60d4e9c151ff 100644
---- a/drivers/infiniband/hw/irdma/cm.c
-+++ b/drivers/infiniband/hw/irdma/cm.c
-@@ -4221,10 +4221,6 @@ void irdma_cm_teardown_connections(struct irdma_device *iwdev, u32 *ipaddr,
- 	struct irdma_cm_node *cm_node;
- 	struct list_head teardown_list;
- 	struct ib_qp_attr attr;
--	struct irdma_sc_vsi *vsi = &iwdev->vsi;
--	struct irdma_sc_qp *sc_qp;
--	struct irdma_qp *qp;
--	int i;
+diff --git a/drivers/pinctrl/ralink/pinctrl-mt7620.c b/drivers/pinctrl/ralink/pinctrl-mt7620.c
+index 6853b5b8b0fe..d3f9feec1f74 100644
+--- a/drivers/pinctrl/ralink/pinctrl-mt7620.c
++++ b/drivers/pinctrl/ralink/pinctrl-mt7620.c
+@@ -112,260 +112,260 @@ static struct rt2880_pmx_group mt7620a_pinmux_data[] = {
+ 	{ 0 }
+ };
  
- 	INIT_LIST_HEAD(&teardown_list);
+-static struct rt2880_pmx_func pwm1_grp_mt7628[] = {
++static struct rt2880_pmx_func pwm1_grp_mt76x8[] = {
+ 	FUNC("sdxc d6", 3, 19, 1),
+ 	FUNC("utif", 2, 19, 1),
+ 	FUNC("gpio", 1, 19, 1),
+ 	FUNC("pwm1", 0, 19, 1),
+ };
  
-@@ -4241,52 +4237,6 @@ void irdma_cm_teardown_connections(struct irdma_device *iwdev, u32 *ipaddr,
- 			irdma_cm_disconn(cm_node->iwqp);
- 		irdma_rem_ref_cm_node(cm_node);
- 	}
--	if (!iwdev->roce_mode)
--		return;
+-static struct rt2880_pmx_func pwm0_grp_mt7628[] = {
++static struct rt2880_pmx_func pwm0_grp_mt76x8[] = {
+ 	FUNC("sdxc d7", 3, 18, 1),
+ 	FUNC("utif", 2, 18, 1),
+ 	FUNC("gpio", 1, 18, 1),
+ 	FUNC("pwm0", 0, 18, 1),
+ };
+ 
+-static struct rt2880_pmx_func uart2_grp_mt7628[] = {
++static struct rt2880_pmx_func uart2_grp_mt76x8[] = {
+ 	FUNC("sdxc d5 d4", 3, 20, 2),
+ 	FUNC("pwm", 2, 20, 2),
+ 	FUNC("gpio", 1, 20, 2),
+ 	FUNC("uart2", 0, 20, 2),
+ };
+ 
+-static struct rt2880_pmx_func uart1_grp_mt7628[] = {
++static struct rt2880_pmx_func uart1_grp_mt76x8[] = {
+ 	FUNC("sw_r", 3, 45, 2),
+ 	FUNC("pwm", 2, 45, 2),
+ 	FUNC("gpio", 1, 45, 2),
+ 	FUNC("uart1", 0, 45, 2),
+ };
+ 
+-static struct rt2880_pmx_func i2c_grp_mt7628[] = {
++static struct rt2880_pmx_func i2c_grp_mt76x8[] = {
+ 	FUNC("-", 3, 4, 2),
+ 	FUNC("debug", 2, 4, 2),
+ 	FUNC("gpio", 1, 4, 2),
+ 	FUNC("i2c", 0, 4, 2),
+ };
+ 
+-static struct rt2880_pmx_func refclk_grp_mt7628[] = { FUNC("refclk", 0, 37, 1) };
+-static struct rt2880_pmx_func perst_grp_mt7628[] = { FUNC("perst", 0, 36, 1) };
+-static struct rt2880_pmx_func wdt_grp_mt7628[] = { FUNC("wdt", 0, 38, 1) };
+-static struct rt2880_pmx_func spi_grp_mt7628[] = { FUNC("spi", 0, 7, 4) };
++static struct rt2880_pmx_func refclk_grp_mt76x8[] = { FUNC("refclk", 0, 37, 1) };
++static struct rt2880_pmx_func perst_grp_mt76x8[] = { FUNC("perst", 0, 36, 1) };
++static struct rt2880_pmx_func wdt_grp_mt76x8[] = { FUNC("wdt", 0, 38, 1) };
++static struct rt2880_pmx_func spi_grp_mt76x8[] = { FUNC("spi", 0, 7, 4) };
+ 
+-static struct rt2880_pmx_func sd_mode_grp_mt7628[] = {
++static struct rt2880_pmx_func sd_mode_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 22, 8),
+ 	FUNC("utif", 2, 22, 8),
+ 	FUNC("gpio", 1, 22, 8),
+ 	FUNC("sdxc", 0, 22, 8),
+ };
+ 
+-static struct rt2880_pmx_func uart0_grp_mt7628[] = {
++static struct rt2880_pmx_func uart0_grp_mt76x8[] = {
+ 	FUNC("-", 3, 12, 2),
+ 	FUNC("-", 2, 12, 2),
+ 	FUNC("gpio", 1, 12, 2),
+ 	FUNC("uart0", 0, 12, 2),
+ };
+ 
+-static struct rt2880_pmx_func i2s_grp_mt7628[] = {
++static struct rt2880_pmx_func i2s_grp_mt76x8[] = {
+ 	FUNC("antenna", 3, 0, 4),
+ 	FUNC("pcm", 2, 0, 4),
+ 	FUNC("gpio", 1, 0, 4),
+ 	FUNC("i2s", 0, 0, 4),
+ };
+ 
+-static struct rt2880_pmx_func spi_cs1_grp_mt7628[] = {
++static struct rt2880_pmx_func spi_cs1_grp_mt76x8[] = {
+ 	FUNC("-", 3, 6, 1),
+ 	FUNC("refclk", 2, 6, 1),
+ 	FUNC("gpio", 1, 6, 1),
+ 	FUNC("spi cs1", 0, 6, 1),
+ };
+ 
+-static struct rt2880_pmx_func spis_grp_mt7628[] = {
++static struct rt2880_pmx_func spis_grp_mt76x8[] = {
+ 	FUNC("pwm_uart2", 3, 14, 4),
+ 	FUNC("utif", 2, 14, 4),
+ 	FUNC("gpio", 1, 14, 4),
+ 	FUNC("spis", 0, 14, 4),
+ };
+ 
+-static struct rt2880_pmx_func gpio_grp_mt7628[] = {
++static struct rt2880_pmx_func gpio_grp_mt76x8[] = {
+ 	FUNC("pcie", 3, 11, 1),
+ 	FUNC("refclk", 2, 11, 1),
+ 	FUNC("gpio", 1, 11, 1),
+ 	FUNC("gpio", 0, 11, 1),
+ };
+ 
+-static struct rt2880_pmx_func p4led_kn_grp_mt7628[] = {
++static struct rt2880_pmx_func p4led_kn_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 30, 1),
+ 	FUNC("utif", 2, 30, 1),
+ 	FUNC("gpio", 1, 30, 1),
+ 	FUNC("p4led_kn", 0, 30, 1),
+ };
+ 
+-static struct rt2880_pmx_func p3led_kn_grp_mt7628[] = {
++static struct rt2880_pmx_func p3led_kn_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 31, 1),
+ 	FUNC("utif", 2, 31, 1),
+ 	FUNC("gpio", 1, 31, 1),
+ 	FUNC("p3led_kn", 0, 31, 1),
+ };
+ 
+-static struct rt2880_pmx_func p2led_kn_grp_mt7628[] = {
++static struct rt2880_pmx_func p2led_kn_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 32, 1),
+ 	FUNC("utif", 2, 32, 1),
+ 	FUNC("gpio", 1, 32, 1),
+ 	FUNC("p2led_kn", 0, 32, 1),
+ };
+ 
+-static struct rt2880_pmx_func p1led_kn_grp_mt7628[] = {
++static struct rt2880_pmx_func p1led_kn_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 33, 1),
+ 	FUNC("utif", 2, 33, 1),
+ 	FUNC("gpio", 1, 33, 1),
+ 	FUNC("p1led_kn", 0, 33, 1),
+ };
+ 
+-static struct rt2880_pmx_func p0led_kn_grp_mt7628[] = {
++static struct rt2880_pmx_func p0led_kn_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 34, 1),
+ 	FUNC("rsvd", 2, 34, 1),
+ 	FUNC("gpio", 1, 34, 1),
+ 	FUNC("p0led_kn", 0, 34, 1),
+ };
+ 
+-static struct rt2880_pmx_func wled_kn_grp_mt7628[] = {
++static struct rt2880_pmx_func wled_kn_grp_mt76x8[] = {
+ 	FUNC("rsvd", 3, 35, 1),
+ 	FUNC("rsvd", 2, 35, 1),
+ 	FUNC("gpio", 1, 35, 1),
+ 	FUNC("wled_kn", 0, 35, 1),
+ };
+ 
+-static struct rt2880_pmx_func p4led_an_grp_mt7628[] = {
++static struct rt2880_pmx_func p4led_an_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 39, 1),
+ 	FUNC("utif", 2, 39, 1),
+ 	FUNC("gpio", 1, 39, 1),
+ 	FUNC("p4led_an", 0, 39, 1),
+ };
+ 
+-static struct rt2880_pmx_func p3led_an_grp_mt7628[] = {
++static struct rt2880_pmx_func p3led_an_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 40, 1),
+ 	FUNC("utif", 2, 40, 1),
+ 	FUNC("gpio", 1, 40, 1),
+ 	FUNC("p3led_an", 0, 40, 1),
+ };
+ 
+-static struct rt2880_pmx_func p2led_an_grp_mt7628[] = {
++static struct rt2880_pmx_func p2led_an_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 41, 1),
+ 	FUNC("utif", 2, 41, 1),
+ 	FUNC("gpio", 1, 41, 1),
+ 	FUNC("p2led_an", 0, 41, 1),
+ };
+ 
+-static struct rt2880_pmx_func p1led_an_grp_mt7628[] = {
++static struct rt2880_pmx_func p1led_an_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 42, 1),
+ 	FUNC("utif", 2, 42, 1),
+ 	FUNC("gpio", 1, 42, 1),
+ 	FUNC("p1led_an", 0, 42, 1),
+ };
+ 
+-static struct rt2880_pmx_func p0led_an_grp_mt7628[] = {
++static struct rt2880_pmx_func p0led_an_grp_mt76x8[] = {
+ 	FUNC("jtag", 3, 43, 1),
+ 	FUNC("rsvd", 2, 43, 1),
+ 	FUNC("gpio", 1, 43, 1),
+ 	FUNC("p0led_an", 0, 43, 1),
+ };
+ 
+-static struct rt2880_pmx_func wled_an_grp_mt7628[] = {
++static struct rt2880_pmx_func wled_an_grp_mt76x8[] = {
+ 	FUNC("rsvd", 3, 44, 1),
+ 	FUNC("rsvd", 2, 44, 1),
+ 	FUNC("gpio", 1, 44, 1),
+ 	FUNC("wled_an", 0, 44, 1),
+ };
+ 
+-#define MT7628_GPIO_MODE_MASK		0x3
 -
--	INIT_LIST_HEAD(&teardown_list);
--	for (i = 0; i < IRDMA_MAX_USER_PRIORITY; i++) {
--		mutex_lock(&vsi->qos[i].qos_mutex);
--		list_for_each_safe (list_node, list_core_temp,
--				    &vsi->qos[i].qplist) {
--			u32 qp_ip[4];
+-#define MT7628_GPIO_MODE_P4LED_KN	58
+-#define MT7628_GPIO_MODE_P3LED_KN	56
+-#define MT7628_GPIO_MODE_P2LED_KN	54
+-#define MT7628_GPIO_MODE_P1LED_KN	52
+-#define MT7628_GPIO_MODE_P0LED_KN	50
+-#define MT7628_GPIO_MODE_WLED_KN	48
+-#define MT7628_GPIO_MODE_P4LED_AN	42
+-#define MT7628_GPIO_MODE_P3LED_AN	40
+-#define MT7628_GPIO_MODE_P2LED_AN	38
+-#define MT7628_GPIO_MODE_P1LED_AN	36
+-#define MT7628_GPIO_MODE_P0LED_AN	34
+-#define MT7628_GPIO_MODE_WLED_AN	32
+-#define MT7628_GPIO_MODE_PWM1		30
+-#define MT7628_GPIO_MODE_PWM0		28
+-#define MT7628_GPIO_MODE_UART2		26
+-#define MT7628_GPIO_MODE_UART1		24
+-#define MT7628_GPIO_MODE_I2C		20
+-#define MT7628_GPIO_MODE_REFCLK		18
+-#define MT7628_GPIO_MODE_PERST		16
+-#define MT7628_GPIO_MODE_WDT		14
+-#define MT7628_GPIO_MODE_SPI		12
+-#define MT7628_GPIO_MODE_SDMODE		10
+-#define MT7628_GPIO_MODE_UART0		8
+-#define MT7628_GPIO_MODE_I2S		6
+-#define MT7628_GPIO_MODE_CS1		4
+-#define MT7628_GPIO_MODE_SPIS		2
+-#define MT7628_GPIO_MODE_GPIO		0
 -
--			sc_qp = container_of(list_node, struct irdma_sc_qp,
--					     list);
--			if (sc_qp->qp_uk.qp_type != IRDMA_QP_TYPE_ROCE_RC)
--				continue;
--
--			qp = sc_qp->qp_uk.back_qp;
--			if (!disconnect_all) {
--				if (nfo->ipv4)
--					qp_ip[0] = qp->udp_info.local_ipaddr[3];
--				else
--					memcpy(qp_ip,
--					       &qp->udp_info.local_ipaddr[0],
--					       sizeof(qp_ip));
--			}
--
--			if (disconnect_all ||
--			    (nfo->vlan_id == (qp->udp_info.vlan_tag & VLAN_VID_MASK) &&
--			     !memcmp(qp_ip, ipaddr, nfo->ipv4 ? 4 : 16))) {
--				spin_lock(&iwdev->rf->qptable_lock);
--				if (iwdev->rf->qp_table[sc_qp->qp_uk.qp_id]) {
--					irdma_qp_add_ref(&qp->ibqp);
--					list_add(&qp->teardown_entry,
--						 &teardown_list);
--				}
--				spin_unlock(&iwdev->rf->qptable_lock);
--			}
--		}
--		mutex_unlock(&vsi->qos[i].qos_mutex);
--	}
--
--	list_for_each_safe (list_node, list_core_temp, &teardown_list) {
--		qp = container_of(list_node, struct irdma_qp, teardown_entry);
--		attr.qp_state = IB_QPS_ERR;
--		irdma_modify_qp_roce(&qp->ibqp, &attr, IB_QP_STATE, NULL);
--		irdma_qp_rem_ref(&qp->ibqp);
--	}
+-static struct rt2880_pmx_group mt7628an_pinmux_data[] = {
+-	GRP_G("pwm1", pwm1_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_PWM1),
+-	GRP_G("pwm0", pwm0_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_PWM0),
+-	GRP_G("uart2", uart2_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_UART2),
+-	GRP_G("uart1", uart1_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_UART1),
+-	GRP_G("i2c", i2c_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_I2C),
+-	GRP("refclk", refclk_grp_mt7628, 1, MT7628_GPIO_MODE_REFCLK),
+-	GRP("perst", perst_grp_mt7628, 1, MT7628_GPIO_MODE_PERST),
+-	GRP("wdt", wdt_grp_mt7628, 1, MT7628_GPIO_MODE_WDT),
+-	GRP("spi", spi_grp_mt7628, 1, MT7628_GPIO_MODE_SPI),
+-	GRP_G("sdmode", sd_mode_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_SDMODE),
+-	GRP_G("uart0", uart0_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_UART0),
+-	GRP_G("i2s", i2s_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_I2S),
+-	GRP_G("spi cs1", spi_cs1_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_CS1),
+-	GRP_G("spis", spis_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_SPIS),
+-	GRP_G("gpio", gpio_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_GPIO),
+-	GRP_G("wled_an", wled_an_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_WLED_AN),
+-	GRP_G("p0led_an", p0led_an_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P0LED_AN),
+-	GRP_G("p1led_an", p1led_an_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P1LED_AN),
+-	GRP_G("p2led_an", p2led_an_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P2LED_AN),
+-	GRP_G("p3led_an", p3led_an_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P3LED_AN),
+-	GRP_G("p4led_an", p4led_an_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P4LED_AN),
+-	GRP_G("wled_kn", wled_kn_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_WLED_KN),
+-	GRP_G("p0led_kn", p0led_kn_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P0LED_KN),
+-	GRP_G("p1led_kn", p1led_kn_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P1LED_KN),
+-	GRP_G("p2led_kn", p2led_kn_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P2LED_KN),
+-	GRP_G("p3led_kn", p3led_kn_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P3LED_KN),
+-	GRP_G("p4led_kn", p4led_kn_grp_mt7628, MT7628_GPIO_MODE_MASK,
+-				1, MT7628_GPIO_MODE_P4LED_KN),
++#define MT76X8_GPIO_MODE_MASK		0x3
++
++#define MT76X8_GPIO_MODE_P4LED_KN	58
++#define MT76X8_GPIO_MODE_P3LED_KN	56
++#define MT76X8_GPIO_MODE_P2LED_KN	54
++#define MT76X8_GPIO_MODE_P1LED_KN	52
++#define MT76X8_GPIO_MODE_P0LED_KN	50
++#define MT76X8_GPIO_MODE_WLED_KN	48
++#define MT76X8_GPIO_MODE_P4LED_AN	42
++#define MT76X8_GPIO_MODE_P3LED_AN	40
++#define MT76X8_GPIO_MODE_P2LED_AN	38
++#define MT76X8_GPIO_MODE_P1LED_AN	36
++#define MT76X8_GPIO_MODE_P0LED_AN	34
++#define MT76X8_GPIO_MODE_WLED_AN	32
++#define MT76X8_GPIO_MODE_PWM1		30
++#define MT76X8_GPIO_MODE_PWM0		28
++#define MT76X8_GPIO_MODE_UART2		26
++#define MT76X8_GPIO_MODE_UART1		24
++#define MT76X8_GPIO_MODE_I2C		20
++#define MT76X8_GPIO_MODE_REFCLK		18
++#define MT76X8_GPIO_MODE_PERST		16
++#define MT76X8_GPIO_MODE_WDT		14
++#define MT76X8_GPIO_MODE_SPI		12
++#define MT76X8_GPIO_MODE_SDMODE		10
++#define MT76X8_GPIO_MODE_UART0		8
++#define MT76X8_GPIO_MODE_I2S		6
++#define MT76X8_GPIO_MODE_CS1		4
++#define MT76X8_GPIO_MODE_SPIS		2
++#define MT76X8_GPIO_MODE_GPIO		0
++
++static struct rt2880_pmx_group mt76x8_pinmux_data[] = {
++	GRP_G("pwm1", pwm1_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_PWM1),
++	GRP_G("pwm0", pwm0_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_PWM0),
++	GRP_G("uart2", uart2_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_UART2),
++	GRP_G("uart1", uart1_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_UART1),
++	GRP_G("i2c", i2c_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_I2C),
++	GRP("refclk", refclk_grp_mt76x8, 1, MT76X8_GPIO_MODE_REFCLK),
++	GRP("perst", perst_grp_mt76x8, 1, MT76X8_GPIO_MODE_PERST),
++	GRP("wdt", wdt_grp_mt76x8, 1, MT76X8_GPIO_MODE_WDT),
++	GRP("spi", spi_grp_mt76x8, 1, MT76X8_GPIO_MODE_SPI),
++	GRP_G("sdmode", sd_mode_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_SDMODE),
++	GRP_G("uart0", uart0_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_UART0),
++	GRP_G("i2s", i2s_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_I2S),
++	GRP_G("spi cs1", spi_cs1_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_CS1),
++	GRP_G("spis", spis_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_SPIS),
++	GRP_G("gpio", gpio_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_GPIO),
++	GRP_G("wled_an", wled_an_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_WLED_AN),
++	GRP_G("p0led_an", p0led_an_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P0LED_AN),
++	GRP_G("p1led_an", p1led_an_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P1LED_AN),
++	GRP_G("p2led_an", p2led_an_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P2LED_AN),
++	GRP_G("p3led_an", p3led_an_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P3LED_AN),
++	GRP_G("p4led_an", p4led_an_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P4LED_AN),
++	GRP_G("wled_kn", wled_kn_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_WLED_KN),
++	GRP_G("p0led_kn", p0led_kn_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P0LED_KN),
++	GRP_G("p1led_kn", p1led_kn_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P1LED_KN),
++	GRP_G("p2led_kn", p2led_kn_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P2LED_KN),
++	GRP_G("p3led_kn", p3led_kn_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P3LED_KN),
++	GRP_G("p4led_kn", p4led_kn_grp_mt76x8, MT76X8_GPIO_MODE_MASK,
++				1, MT76X8_GPIO_MODE_P4LED_KN),
+ 	{ 0 }
+ };
+ 
+ static int mt7620_pinmux_probe(struct platform_device *pdev)
+ {
+ 	if (is_mt76x8())
+-		return rt2880_pinmux_init(pdev, mt7628an_pinmux_data);
++		return rt2880_pinmux_init(pdev, mt76x8_pinmux_data);
+ 	else
+ 		return rt2880_pinmux_init(pdev, mt7620a_pinmux_data);
  }
- 
- /**
 -- 
 2.35.1
 
