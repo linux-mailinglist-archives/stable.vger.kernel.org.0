@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 456E9582C51
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B88582EE3
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239956AbiG0Qoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S241760AbiG0RSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:18:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240462AbiG0Qo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2260651A3B;
-        Wed, 27 Jul 2022 09:31:11 -0700 (PDT)
+        with ESMTP id S241757AbiG0RR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:17:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B274D15D;
+        Wed, 27 Jul 2022 09:43:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E34BB821BE;
-        Wed, 27 Jul 2022 16:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF398C433D6;
-        Wed, 27 Jul 2022 16:31:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB468B8200C;
+        Wed, 27 Jul 2022 16:43:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081BDC433D6;
+        Wed, 27 Jul 2022 16:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939468;
-        bh=xDorO/C3ElwiBLmXQmAIT9qsfde0KxyKSDyPqNa8N5s=;
+        s=korg; t=1658940214;
+        bh=xzLNXcz4miuOscNHT52+ulkgeYXs8Noj2UPKsvKI/sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnJpSbq928Qa3d6wmMtYjjFoOYM2/Fdabp3EQzPGn/bfJ6fmbkfqaNnk7jG29LrAz
-         E6GiUtJlnPzs3pIDJCerWmtUrAIlC2MVqw2LtoBQaD7myUZ8DOSnE8y392TyYPa4wS
-         ollHe8Iug/GFG8dWgqtxKWvGqCVot0CjJcBSIhv0=
+        b=pxdYjgHKZ8s8YgmKdXT8Z/SsL4lDHSGwv+EWvf8wMNFN+FdH8ZD83u/FlTHRY3UpH
+         sFtJaLR44fepa2T/VF+VKLbEvWIl8FU8zaededKFyTYjIfjnpE0Y7nu2FwYbPiUI4o
+         zhTp9Jwuu0cEMjOrXxmtdzaRFKAoxOv29inWdkVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 49/87] tcp: Fix a data-race around sysctl_tcp_thin_linear_timeouts.
+        stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.15 138/201] x86/bugs: Warn when "ibrs" mitigation is selected on Enhanced IBRS parts
 Date:   Wed, 27 Jul 2022 18:10:42 +0200
-Message-Id: <20220727161011.044246395@linuxfoundation.org>
+Message-Id: <20220727161033.522685816@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit 7c6f2a86ca590d5187a073d987e9599985fb1c7c ]
+commit eb23b5ef9131e6d65011de349a4d25ef1b3d4314 upstream.
 
-While reading sysctl_tcp_thin_linear_timeouts, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its reader.
+IBRS mitigation for spectre_v2 forces write to MSR_IA32_SPEC_CTRL at
+every kernel entry/exit. On Enhanced IBRS parts setting
+MSR_IA32_SPEC_CTRL[IBRS] only once at boot is sufficient. MSR writes at
+every kernel entry/exit incur unnecessary performance loss.
 
-Fixes: 36e31b0af587 ("net: TCP thin linear timeouts")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When Enhanced IBRS feature is present, print a warning about this
+unnecessary performance loss.
+
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/2a5eaf54583c2bfe0edc4fea64006656256cca17.1657814857.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_timer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index 26da44e196ed..a0107eb02ae4 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -569,7 +569,7 @@ void tcp_retransmit_timer(struct sock *sk)
- 	 * linear-timeout retransmissions into a black hole
- 	 */
- 	if (sk->sk_state == TCP_ESTABLISHED &&
--	    (tp->thin_lto || net->ipv4.sysctl_tcp_thin_linear_timeouts) &&
-+	    (tp->thin_lto || READ_ONCE(net->ipv4.sysctl_tcp_thin_linear_timeouts)) &&
- 	    tcp_stream_is_thin(tp) &&
- 	    icsk->icsk_retransmits <= TCP_THIN_LINEAR_RETRIES) {
- 		icsk->icsk_backoff = 0;
--- 
-2.35.1
-
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -968,6 +968,7 @@ static inline const char *spectre_v2_mod
+ #define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
+ #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
+ #define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
++#define SPECTRE_V2_IBRS_PERF_MSG "WARNING: IBRS mitigation selected on Enhanced IBRS CPU, this may cause unnecessary performance loss\n"
+ 
+ #ifdef CONFIG_BPF_SYSCALL
+ void unpriv_ebpf_notify(int new_state)
+@@ -1408,6 +1409,8 @@ static void __init spectre_v2_select_mit
+ 
+ 	case SPECTRE_V2_IBRS:
+ 		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
++		if (boot_cpu_has(X86_FEATURE_IBRS_ENHANCED))
++			pr_warn(SPECTRE_V2_IBRS_PERF_MSG);
+ 		break;
+ 
+ 	case SPECTRE_V2_LFENCE:
 
 
