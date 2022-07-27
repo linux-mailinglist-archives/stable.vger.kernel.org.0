@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B22582E95
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD55582BE1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:39:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbiG0ROz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:14:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
+        id S238286AbiG0Qj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241583AbiG0RNn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:13:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1CB5B79F;
-        Wed, 27 Jul 2022 09:42:18 -0700 (PDT)
+        with ESMTP id S239130AbiG0Qiy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:38:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D760250062;
+        Wed, 27 Jul 2022 09:28:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1914601CE;
-        Wed, 27 Jul 2022 16:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A880BC433C1;
-        Wed, 27 Jul 2022 16:42:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AC06B821CA;
+        Wed, 27 Jul 2022 16:28:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C879C433C1;
+        Wed, 27 Jul 2022 16:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940133;
-        bh=l1ue5a0jyDSRmPddXPGgCmTdqIau5TtnOYUWQww6OZo=;
+        s=korg; t=1658939319;
+        bh=yp/pb7KUR+K/mKCaiDaXhO7Onv98a9lWavXvVVFNjjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pu33QJ+LBJ1Z6PVTe+RvOZVl8+Dep7Uz+nwWn6HD6yQi0yw9N7I+m738ACwNR/4P0
-         i8ccO6CTlTVeiRSELqmvciQPYUIleuNE16hHffdDxlfcIZ+LtotBc3/N6bf6TAt2gL
-         vUQGTvT/g8YLD7DWnLkt3tRLkPwF8sKdLJqWl3us=
+        b=cv4k2unjbz0d4N0wRDhJuedDQvmM2BsY+I/vTnxsG0vPXYBGw3gnxMo+nksKoxfzS
+         g5DWHvW6iBmzOcHlscSOPmPDEBhhTZT7OKS4nAcy9U/SoQvt2i1kbqBz2tQmQmY4a6
+         t9EwtNIEyDTp4E9a4r3eA94OQXQC5g4XUARxjgzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        stable@vger.kernel.org, Cedric Wassenaar <cedric@bytespeed.nl>,
+        Junxiao Chang <junxiao.chang@intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/201] ipv4: Fix data-races around sysctl_fib_multipath_hash_policy.
+Subject: [PATCH 5.4 28/87] net: stmmac: fix dma queue left shift overflow issue
 Date:   Wed, 27 Jul 2022 18:10:21 +0200
-Message-Id: <20220727161032.626425136@linuxfoundation.org>
+Message-Id: <20220727161010.177774563@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Junxiao Chang <junxiao.chang@intel.com>
 
-[ Upstream commit 7998c12a08c97cc26660532c9f90a34bd7d8da5a ]
+[ Upstream commit 613b065ca32e90209024ec4a6bb5ca887ee70980 ]
 
-While reading sysctl_fib_multipath_hash_policy, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its readers.
+When queue number is > 4, left shift overflows due to 32 bits
+integer variable. Mask calculation is wrong for MTL_RXQ_DMA_MAP1.
 
-Fixes: bf4e0a3db97e ("net: ipv4: add support for ECMP hash policy choice")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+If CONFIG_UBSAN is enabled, kernel dumps below warning:
+[   10.363842] ==================================================================
+[   10.363882] UBSAN: shift-out-of-bounds in /build/linux-intel-iotg-5.15-8e6Tf4/
+linux-intel-iotg-5.15-5.15.0/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c:224:12
+[   10.363929] shift exponent 40 is too large for 32-bit type 'unsigned int'
+[   10.363953] CPU: 1 PID: 599 Comm: NetworkManager Not tainted 5.15.0-1003-intel-iotg
+[   10.363956] Hardware name: ADLINK Technology Inc. LEC-EL/LEC-EL, BIOS 0.15.11 12/22/2021
+[   10.363958] Call Trace:
+[   10.363960]  <TASK>
+[   10.363963]  dump_stack_lvl+0x4a/0x5f
+[   10.363971]  dump_stack+0x10/0x12
+[   10.363974]  ubsan_epilogue+0x9/0x45
+[   10.363976]  __ubsan_handle_shift_out_of_bounds.cold+0x61/0x10e
+[   10.363979]  ? wake_up_klogd+0x4a/0x50
+[   10.363983]  ? vprintk_emit+0x8f/0x240
+[   10.363986]  dwmac4_map_mtl_dma.cold+0x42/0x91 [stmmac]
+[   10.364001]  stmmac_mtl_configuration+0x1ce/0x7a0 [stmmac]
+[   10.364009]  ? dwmac410_dma_init_channel+0x70/0x70 [stmmac]
+[   10.364020]  stmmac_hw_setup.cold+0xf/0xb14 [stmmac]
+[   10.364030]  ? page_pool_alloc_pages+0x4d/0x70
+[   10.364034]  ? stmmac_clear_tx_descriptors+0x6e/0xe0 [stmmac]
+[   10.364042]  stmmac_open+0x39e/0x920 [stmmac]
+[   10.364050]  __dev_open+0xf0/0x1a0
+[   10.364054]  __dev_change_flags+0x188/0x1f0
+[   10.364057]  dev_change_flags+0x26/0x60
+[   10.364059]  do_setlink+0x908/0xc40
+[   10.364062]  ? do_setlink+0xb10/0xc40
+[   10.364064]  ? __nla_validate_parse+0x4c/0x1a0
+[   10.364068]  __rtnl_newlink+0x597/0xa10
+[   10.364072]  ? __nla_reserve+0x41/0x50
+[   10.364074]  ? __kmalloc_node_track_caller+0x1d0/0x4d0
+[   10.364079]  ? pskb_expand_head+0x75/0x310
+[   10.364082]  ? nla_reserve_64bit+0x21/0x40
+[   10.364086]  ? skb_free_head+0x65/0x80
+[   10.364089]  ? security_sock_rcv_skb+0x2c/0x50
+[   10.364094]  ? __cond_resched+0x19/0x30
+[   10.364097]  ? kmem_cache_alloc_trace+0x15a/0x420
+[   10.364100]  rtnl_newlink+0x49/0x70
+
+This change fixes MTL_RXQ_DMA_MAP1 mask issue and channel/queue
+mapping warning.
+
+Fixes: d43042f4da3e ("net: stmmac: mapping mtl rx to dma channel")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216195
+Reported-by: Cedric Wassenaar <cedric@bytespeed.nl>
+Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c | 2 +-
- net/ipv4/route.c                                      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-index d17156c11ef8..6cdf0e232b1c 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -9588,7 +9588,7 @@ static void mlxsw_sp_mp4_hash_init(struct mlxsw_sp *mlxsw_sp,
- 	unsigned long *fields = config->fields;
- 	u32 hash_fields;
- 
--	switch (net->ipv4.sysctl_fib_multipath_hash_policy) {
-+	switch (READ_ONCE(net->ipv4.sysctl_fib_multipath_hash_policy)) {
- 	case 0:
- 		mlxsw_sp_mp4_hash_outer_addr(config);
- 		break;
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 7f08a30256c5..ade6cb309c40 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2048,7 +2048,7 @@ int fib_multipath_hash(const struct net *net, const struct flowi4 *fl4,
- 	struct flow_keys hash_keys;
- 	u32 mhash = 0;
- 
--	switch (net->ipv4.sysctl_fib_multipath_hash_policy) {
-+	switch (READ_ONCE(net->ipv4.sysctl_fib_multipath_hash_policy)) {
- 	case 0:
- 		memset(&hash_keys, 0, sizeof(hash_keys));
- 		hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index 66e60c7e9850..c440b192ec71 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -215,6 +215,9 @@ static void dwmac4_map_mtl_dma(struct mac_device_info *hw, u32 queue, u32 chan)
+ 	if (queue == 0 || queue == 4) {
+ 		value &= ~MTL_RXQ_DMA_Q04MDMACH_MASK;
+ 		value |= MTL_RXQ_DMA_Q04MDMACH(chan);
++	} else if (queue > 4) {
++		value &= ~MTL_RXQ_DMA_QXMDMACH_MASK(queue - 4);
++		value |= MTL_RXQ_DMA_QXMDMACH(chan, queue - 4);
+ 	} else {
+ 		value &= ~MTL_RXQ_DMA_QXMDMACH_MASK(queue);
+ 		value |= MTL_RXQ_DMA_QXMDMACH(chan, queue);
 -- 
 2.35.1
 
