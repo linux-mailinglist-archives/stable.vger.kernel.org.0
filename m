@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C539A582D74
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09F3582FD7
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240871AbiG0Q6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:58:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
+        id S242180AbiG0RaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:30:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240812AbiG0Q5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:57:35 -0400
+        with ESMTP id S242292AbiG0R3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:29:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF1E66AF4;
-        Wed, 27 Jul 2022 09:36:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0E452466;
+        Wed, 27 Jul 2022 09:47:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE038B8200C;
-        Wed, 27 Jul 2022 16:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 244A9C433D6;
-        Wed, 27 Jul 2022 16:36:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CA2BB821BE;
+        Wed, 27 Jul 2022 16:47:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DABAC433B5;
+        Wed, 27 Jul 2022 16:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939788;
-        bh=8ubWmqh3XHqEGO/Zk88/CHKjpD14FPE7JN30pNzglOg=;
+        s=korg; t=1658940451;
+        bh=lBNpbwAz4MluJai4tIGarwcVNMTQu6FMGiQvNRLpuZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFay2UW7HkdVVrD3nJFZtr5ZMKIYZCAkNr6o4no5WtWcnSYz0NJq+w84rU3pZ+8VB
-         6KxAhVm7CiOf53F36ahG2VRlDSioSBqzjbta2JNB35MXRliXU+VRd4DjYgRUl/Cf6W
-         w3+WbEr7EcG7czNIusdy9jdBwsnU8DQZxzizvcg0=
+        b=OZPJas7Xc6Q1PvAd0fM11cDDCVP0138e0v4HrfAg/UOLgbwbWH1Ew3gAXHjLeiXQg
+         +CqxrDgeY1UMSCC81vl93UUxGxKBbgG089+ilNUxpuLV8jQN1zEdPwrpRomOAVSgdd
+         MMfrFvq/2gnvyEt8ePd/2ujaOaC0CFTbREPsWGmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 105/105] block-crypto-fallback: use a bio_set for splitting bios
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 027/158] pinctrl: ralink: Check for null return of devm_kcalloc
 Date:   Wed, 27 Jul 2022 18:11:31 +0200
-Message-Id: <20220727161016.316853329@linuxfoundation.org>
+Message-Id: <20220727161022.566725196@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: William Dean <williamsukatube@gmail.com>
 
-commit 5407334c53e9922c1c3fb28801e489d0b74f2c8d upstream.
+[ Upstream commit c3b821e8e406d5650e587b7ac624ac24e9b780a8 ]
 
-bio_split with a NULL bs argumen used to fall back to kmalloc the
-bio, which does not guarantee forward progress and could to deadlocks.
-Now that the overloading of the NULL bs argument to bio_alloc_bioset
-has been removed it crashes instead.  Fix all that by using a special
-crafted bioset.
+Because of the possible failure of the allocation, data->domains might
+be NULL pointer and will cause the dereference of the NULL pointer
+later.
+Therefore, it might be better to check it and directly return -ENOMEM
+without releasing data manually if fails, because the comment of the
+devm_kmalloc() says "Memory allocated with this function is
+automatically freed on driver detach.".
 
-Fixes: 3175199ab0ac ("block: split bio_kmalloc from bio_alloc_bioset")
-Reported-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a86854d0c599b ("treewide: devm_kzalloc() -> devm_kcalloc()")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Link: https://lore.kernel.org/r/20220710154922.2610876-1-williamsukatube@163.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-crypto-fallback.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/pinctrl/ralink/pinctrl-ralink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/block/blk-crypto-fallback.c
-+++ b/block/blk-crypto-fallback.c
-@@ -80,6 +80,7 @@ static struct blk_crypto_keyslot {
- static struct blk_keyslot_manager blk_crypto_ksm;
- static struct workqueue_struct *blk_crypto_wq;
- static mempool_t *blk_crypto_bounce_page_pool;
-+static struct bio_set crypto_bio_split;
+diff --git a/drivers/pinctrl/ralink/pinctrl-ralink.c b/drivers/pinctrl/ralink/pinctrl-ralink.c
+index 841f23f55c95..3a8268a43d74 100644
+--- a/drivers/pinctrl/ralink/pinctrl-ralink.c
++++ b/drivers/pinctrl/ralink/pinctrl-ralink.c
+@@ -266,6 +266,8 @@ static int ralink_pinmux_pins(struct ralink_priv *p)
+ 						p->func[i]->pin_count,
+ 						sizeof(int),
+ 						GFP_KERNEL);
++		if (!p->func[i]->pins)
++			return -ENOMEM;
+ 		for (j = 0; j < p->func[i]->pin_count; j++)
+ 			p->func[i]->pins[j] = p->func[i]->pin_first + j;
  
- /*
-  * This is the key we set when evicting a keyslot. This *should* be the all 0's
-@@ -222,7 +223,8 @@ static bool blk_crypto_split_bio_if_need
- 	if (num_sectors < bio_sectors(bio)) {
- 		struct bio *split_bio;
- 
--		split_bio = bio_split(bio, num_sectors, GFP_NOIO, NULL);
-+		split_bio = bio_split(bio, num_sectors, GFP_NOIO,
-+				      &crypto_bio_split);
- 		if (!split_bio) {
- 			bio->bi_status = BLK_STS_RESOURCE;
- 			return false;
-@@ -536,9 +538,13 @@ static int blk_crypto_fallback_init(void
- 
- 	prandom_bytes(blank_key, BLK_CRYPTO_MAX_KEY_SIZE);
- 
--	err = blk_ksm_init(&blk_crypto_ksm, blk_crypto_num_keyslots);
-+	err = bioset_init(&crypto_bio_split, 64, 0, 0);
- 	if (err)
- 		goto out;
-+
-+	err = blk_ksm_init(&blk_crypto_ksm, blk_crypto_num_keyslots);
-+	if (err)
-+		goto fail_free_bioset;
- 	err = -ENOMEM;
- 
- 	blk_crypto_ksm.ksm_ll_ops = blk_crypto_ksm_ll_ops;
-@@ -589,6 +595,8 @@ fail_free_wq:
- 	destroy_workqueue(blk_crypto_wq);
- fail_free_ksm:
- 	blk_ksm_destroy(&blk_crypto_ksm);
-+fail_free_bioset:
-+	bioset_exit(&crypto_bio_split);
- out:
- 	return err;
- }
+-- 
+2.35.1
+
 
 
