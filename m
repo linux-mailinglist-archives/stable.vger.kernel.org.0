@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA47A582C23
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:42:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D18582E59
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239200AbiG0Qm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57188 "EHLO
+        id S237943AbiG0RLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:11:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239590AbiG0Qlw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:41:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABDE5B7BE;
-        Wed, 27 Jul 2022 09:29:52 -0700 (PDT)
+        with ESMTP id S238191AbiG0RLT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:11:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAD0374DDB;
+        Wed, 27 Jul 2022 09:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A83D4CE22FE;
-        Wed, 27 Jul 2022 16:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1316C433C1;
-        Wed, 27 Jul 2022 16:29:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90D14601C3;
+        Wed, 27 Jul 2022 16:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DB3C433D7;
+        Wed, 27 Jul 2022 16:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939389;
-        bh=UjxZAk7k9pMqhRRjQXpw7vtqX5SDNcwJryCCR9a2Fd8=;
+        s=korg; t=1658940091;
+        bh=bU2/xVGvLwc56ejQkjV+akjbrJs3moE20KEfmebPPyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hs+Kdlcknb3Jwq0gi4goHR/8COtllEmbNvfMn78Uw7248d4VoD0DqELvW470QA0SG
-         fVZIxaO5+0k6ej87FgijGUyMLGRuOJi3JlvLpkmTMvZ+zsNJMoNAk3gV8Ok4fefKCf
-         wVpkbpTW+V9X3mL5m4RMYAIVZSklZ6TjbIPGCM3A=
+        b=Z6O+Aq1BZK7rj4lFS4YxwN6H2vv0R0u09UQW1joLBAdITJcsM2LElYn5n/CIaS0lc
+         9aoVBQssq1Bx6ON/e1KYwJi4apto6YxxWlPtsuQTPCAdqMzW2vUmjTzZ9PZ6Jeb84q
+         v+QMv4uyzyTs2yO/ojdkw46lq7Ysp2i2YvqAEVKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/87] xfrm: xfrm_policy: fix a possible double xfrm_pols_put() in xfrm_bundle_lookup()
+Subject: [PATCH 5.15 100/201] tcp: Fix data-races around sysctl_tcp_fastopen_blackhole_timeout.
 Date:   Wed, 27 Jul 2022 18:10:04 +0200
-Message-Id: <20220727161009.470491139@linuxfoundation.org>
+Message-Id: <20220727161031.886161020@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit f85daf0e725358be78dfd208dea5fd665d8cb901 ]
+[ Upstream commit 021266ec640c7a4527e6cd4b7349a512b351de1d ]
 
-xfrm_policy_lookup() will call xfrm_pol_hold_rcu() to get a refcount of
-pols[0]. This refcount can be dropped in xfrm_expand_policies() when
-xfrm_expand_policies() return error. pols[0]'s refcount is balanced in
-here. But xfrm_bundle_lookup() will also call xfrm_pols_put() with
-num_pols == 1 to drop this refcount when xfrm_expand_policies() return
-error.
+While reading sysctl_tcp_fastopen_blackhole_timeout, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its readers.
 
-This patch also fix an illegal address access. pols[0] will save a error
-point when xfrm_policy_lookup fails. This lead to xfrm_pols_put to resolve
-an illegal address in xfrm_bundle_lookup's error path.
-
-Fix these by setting num_pols = 0 in xfrm_expand_policies()'s error path.
-
-Fixes: 80c802f3073e ("xfrm: cache bundles instead of policies for outgoing flows")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: cf1ef3f0719b ("net/tcp_fastopen: Disable active side TFO in certain scenarios")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_policy.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_fastopen.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 3ecb77c58c44..28a8cdef8e51 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -2679,8 +2679,10 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
- 		*num_xfrms = 0;
- 		return 0;
- 	}
--	if (IS_ERR(pols[0]))
-+	if (IS_ERR(pols[0])) {
-+		*num_pols = 0;
- 		return PTR_ERR(pols[0]);
-+	}
+diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
+index 936544a4753e..6e0a8ef5e816 100644
+--- a/net/ipv4/tcp_fastopen.c
++++ b/net/ipv4/tcp_fastopen.c
+@@ -495,7 +495,7 @@ void tcp_fastopen_active_disable(struct sock *sk)
+ {
+ 	struct net *net = sock_net(sk);
  
- 	*num_xfrms = pols[0]->xfrm_nr;
+-	if (!sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout)
++	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout))
+ 		return;
  
-@@ -2695,6 +2697,7 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
- 		if (pols[1]) {
- 			if (IS_ERR(pols[1])) {
- 				xfrm_pols_put(pols, *num_pols);
-+				*num_pols = 0;
- 				return PTR_ERR(pols[1]);
- 			}
- 			(*num_pols)++;
+ 	/* Paired with READ_ONCE() in tcp_fastopen_active_should_disable() */
+@@ -516,7 +516,8 @@ void tcp_fastopen_active_disable(struct sock *sk)
+  */
+ bool tcp_fastopen_active_should_disable(struct sock *sk)
+ {
+-	unsigned int tfo_bh_timeout = sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout;
++	unsigned int tfo_bh_timeout =
++		READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout);
+ 	unsigned long timeout;
+ 	int tfo_da_times;
+ 	int multiplier;
 -- 
 2.35.1
 
