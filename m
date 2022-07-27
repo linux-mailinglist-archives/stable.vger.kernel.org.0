@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD625582BCE
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB531582E58
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239120AbiG0QiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:38:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47290 "EHLO
+        id S241559AbiG0RLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:11:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238379AbiG0Qhg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:37:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6F94F6B7;
-        Wed, 27 Jul 2022 09:28:19 -0700 (PDT)
+        with ESMTP id S229580AbiG0RLT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:11:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3811474DCD;
+        Wed, 27 Jul 2022 09:41:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 574AFB821A6;
-        Wed, 27 Jul 2022 16:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEDE6C433D7;
-        Wed, 27 Jul 2022 16:27:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7803AB821D4;
+        Wed, 27 Jul 2022 16:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B199BC433C1;
+        Wed, 27 Jul 2022 16:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939269;
-        bh=WtF9BKyztuDudarIy8lWa8uBbyXGJ5Wc6Q/lzCzgqR8=;
+        s=korg; t=1658940088;
+        bh=0kYquqDGhF8Z1zRpTW2BhTWtRXVOwSnNBp010GmvBlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DS17Fi1yGp4eNpQEp0DI8T0qW6A9qwfw/9nXE6BOuKVyinBMQCI2EOrEXij93JFY9
-         Eds7+shP+wYuUALflsXQjzrVtR8NSCt8+MlCbamXDLZ12uB+YKfDCzw0k7jVvt4BEG
-         QXtf+InspiSUTJ4V1bqxqfi/G12q9BWNIRcHLv2o=
+        b=D1d6s3zmfXxDwQs4GghpmFC214OgxFmxEN0qPc15JEaoYA3JZswzXjoCajywa+H64
+         Ty4tqdygo82ocrYdR5o7DwRUbDM3pw8qn0Whl4ZgtsQbV8W/+9OXwi9EOW3FPL5jJH
+         6zP93/vqa5VDkeo61uFThIpHI5rNUKY2Al7KQ6P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.4 10/87] serial: mvebu-uart: correctly report configured baudrate value
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 099/201] tcp: Fix data-races around sysctl_tcp_fastopen.
 Date:   Wed, 27 Jul 2022 18:10:03 +0200
-Message-Id: <20220727161009.434828786@linuxfoundation.org>
+Message-Id: <20220727161031.855970463@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 4f532c1e25319e42996ec18a1f473fd50c8e575d upstream.
+[ Upstream commit 5a54213318c43f4009ae158347aa6016e3b9b55a ]
 
-Functions tty_termios_encode_baud_rate() and uart_update_timeout() should
-be called with the baudrate value which was set to hardware. Linux then
-report exact values via ioctl(TCGETS2) to userspace.
+While reading sysctl_tcp_fastopen, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Change mvebu_uart_baud_rate_set() function to return baudrate value which
-was set to hardware and propagate this value to above mentioned functions.
-
-With this change userspace would see precise value in termios c_ospeed
-field.
-
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220628100922.10717-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2100c8d2d9db ("net-tcp: Fast Open base")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mvebu-uart.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ net/ipv4/af_inet.c      | 2 +-
+ net/ipv4/tcp.c          | 6 ++++--
+ net/ipv4/tcp_fastopen.c | 4 ++--
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -443,13 +443,13 @@ static void mvebu_uart_shutdown(struct u
- 	}
- }
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 781c595f6880..e4b2ced66261 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -220,7 +220,7 @@ int inet_listen(struct socket *sock, int backlog)
+ 		 * because the socket was in TCP_LISTEN state previously but
+ 		 * was shutdown() rather than close().
+ 		 */
+-		tcp_fastopen = sock_net(sk)->ipv4.sysctl_tcp_fastopen;
++		tcp_fastopen = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen);
+ 		if ((tcp_fastopen & TFO_SERVER_WO_SOCKOPT1) &&
+ 		    (tcp_fastopen & TFO_SERVER_ENABLE) &&
+ 		    !inet_csk(sk)->icsk_accept_queue.fastopenq.max_qlen) {
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index f853f34dfb79..1abdb8712655 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1159,7 +1159,8 @@ static int tcp_sendmsg_fastopen(struct sock *sk, struct msghdr *msg,
+ 	struct sockaddr *uaddr = msg->msg_name;
+ 	int err, flags;
  
--static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
-+static unsigned int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
+-	if (!(sock_net(sk)->ipv4.sysctl_tcp_fastopen & TFO_CLIENT_ENABLE) ||
++	if (!(READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen) &
++	      TFO_CLIENT_ENABLE) ||
+ 	    (uaddr && msg->msg_namelen >= sizeof(uaddr->sa_family) &&
+ 	     uaddr->sa_family == AF_UNSPEC))
+ 		return -EOPNOTSUPP;
+@@ -3626,7 +3627,8 @@ static int do_tcp_setsockopt(struct sock *sk, int level, int optname,
+ 	case TCP_FASTOPEN_CONNECT:
+ 		if (val > 1 || val < 0) {
+ 			err = -EINVAL;
+-		} else if (net->ipv4.sysctl_tcp_fastopen & TFO_CLIENT_ENABLE) {
++		} else if (READ_ONCE(net->ipv4.sysctl_tcp_fastopen) &
++			   TFO_CLIENT_ENABLE) {
+ 			if (sk->sk_state == TCP_CLOSE)
+ 				tp->fastopen_connect = val;
+ 			else
+diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
+index 59412d6354a0..936544a4753e 100644
+--- a/net/ipv4/tcp_fastopen.c
++++ b/net/ipv4/tcp_fastopen.c
+@@ -338,7 +338,7 @@ static bool tcp_fastopen_no_cookie(const struct sock *sk,
+ 				   const struct dst_entry *dst,
+ 				   int flag)
  {
- 	unsigned int d_divisor, m_divisor;
- 	u32 brdv, osamp;
- 
- 	if (!port->uartclk)
--		return -EOPNOTSUPP;
-+		return 0;
- 
- 	/*
- 	 * The baudrate is derived from the UART clock thanks to two divisors:
-@@ -473,7 +473,7 @@ static int mvebu_uart_baud_rate_set(stru
- 	osamp &= ~OSAMP_DIVISORS_MASK;
- 	writel(osamp, port->membase + UART_OSAMP);
- 
--	return 0;
-+	return DIV_ROUND_CLOSEST(port->uartclk, d_divisor * m_divisor);
+-	return (sock_net(sk)->ipv4.sysctl_tcp_fastopen & flag) ||
++	return (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen) & flag) ||
+ 	       tcp_sk(sk)->fastopen_no_cookie ||
+ 	       (dst && dst_metric(dst, RTAX_FASTOPEN_NO_COOKIE));
  }
- 
- static void mvebu_uart_set_termios(struct uart_port *port,
-@@ -510,15 +510,11 @@ static void mvebu_uart_set_termios(struc
- 	max_baud = 230400;
- 
- 	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
--	if (mvebu_uart_baud_rate_set(port, baud)) {
--		/* No clock available, baudrate cannot be changed */
--		if (old)
--			baud = uart_get_baud_rate(port, old, NULL,
--						  min_baud, max_baud);
--	} else {
--		tty_termios_encode_baud_rate(termios, baud, baud);
--		uart_update_timeout(port, termios->c_cflag, baud);
--	}
-+	baud = mvebu_uart_baud_rate_set(port, baud);
-+
-+	/* In case baudrate cannot be changed, report previous old value */
-+	if (baud == 0 && old)
-+		baud = tty_termios_baud_rate(old);
- 
- 	/* Only the following flag changes are supported */
- 	if (old) {
-@@ -529,6 +525,11 @@ static void mvebu_uart_set_termios(struc
- 		termios->c_cflag |= CS8;
- 	}
- 
-+	if (baud != 0) {
-+		tty_termios_encode_baud_rate(termios, baud, baud);
-+		uart_update_timeout(port, termios->c_cflag, baud);
-+	}
-+
- 	spin_unlock_irqrestore(&port->lock, flags);
- }
- 
+@@ -353,7 +353,7 @@ struct sock *tcp_try_fastopen(struct sock *sk, struct sk_buff *skb,
+ 			      const struct dst_entry *dst)
+ {
+ 	bool syn_data = TCP_SKB_CB(skb)->end_seq != TCP_SKB_CB(skb)->seq + 1;
+-	int tcp_fastopen = sock_net(sk)->ipv4.sysctl_tcp_fastopen;
++	int tcp_fastopen = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen);
+ 	struct tcp_fastopen_cookie valid_foc = { .len = -1 };
+ 	struct sock *child;
+ 	int ret = 0;
+-- 
+2.35.1
+
 
 
