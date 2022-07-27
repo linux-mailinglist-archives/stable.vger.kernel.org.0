@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0D2582B5F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CBCD582CD3
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234871AbiG0Qc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:32:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
+        id S240643AbiG0QvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237705AbiG0QcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:32:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198A952FCD;
-        Wed, 27 Jul 2022 09:25:59 -0700 (PDT)
+        with ESMTP id S240611AbiG0Quc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:50:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E7853D30;
+        Wed, 27 Jul 2022 09:33:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DFC02CE2303;
-        Wed, 27 Jul 2022 16:24:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEDC8C433D7;
-        Wed, 27 Jul 2022 16:24:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A563D6199B;
+        Wed, 27 Jul 2022 16:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB340C433D6;
+        Wed, 27 Jul 2022 16:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939094;
-        bh=1HcNia9FqHE2hkx0BFQITQ6ChPd0Zwd2QPUi9++C3qg=;
+        s=korg; t=1658939587;
+        bh=yaSV6YaXkVWsSYs3nCtKgW4rDbNicF7jfexHi3gQe44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jc6LmH8ZIxC4/IxhFnCC3wNvNSrq7dU3pRwRlTZ8LzcOWBXXcSJ2vMNlE5AZGBRxA
-         B+zIny/NWxaVKATlXMIvXZM+hRz483UYtJvcGNu70vsumqc+7627TNLlXfwLReRGL0
-         uFF6Jt4BUKqtKDodcLU3VJDS9lZ7egQo7dU4UCY8=
+        b=iDlDpapTjuhiOSUGVDIwohBFcFp9dHsqJPoQez5MMAmEXEhe6YIxRFId6sHaD3xZN
+         l6jmMGT/tycFZBsJomx1u6QDqF9DkgV1udBavsyy/kIgQdLLDDR8F2NKOl21ZyBlJr
+         9h1vOlvv3TMBwXRX9yr/1UpMPjErGN4FJDNKekRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/62] tcp: Fix data-races around sysctl_tcp_mtu_probing.
+Subject: [PATCH 5.10 034/105] tcp/dccp: Fix a data-race around sysctl_tcp_fwmark_accept.
 Date:   Wed, 27 Jul 2022 18:10:20 +0200
-Message-Id: <20220727161004.610623579@linuxfoundation.org>
+Message-Id: <20220727161013.459164353@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit f47d00e077e7d61baf69e46dde3210c886360207 ]
+[ Upstream commit 1a0008f9df59451d0a17806c1ee1a19857032fa8 ]
 
-While reading sysctl_tcp_mtu_probing, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+While reading sysctl_tcp_fwmark_accept, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 5d424d5a674f ("[TCP]: MTU probing")
+Fixes: 84f39b08d786 ("net: support marking accepting TCP sockets")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- net/ipv4/tcp_timer.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ include/net/inet_sock.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 25dbdb27a571..02a7799c4b72 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1523,7 +1523,7 @@ void tcp_mtup_init(struct sock *sk)
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct net *net = sock_net(sk);
+diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
+index f374946734b9..3c039d4b0e48 100644
+--- a/include/net/inet_sock.h
++++ b/include/net/inet_sock.h
+@@ -107,7 +107,8 @@ static inline struct inet_request_sock *inet_rsk(const struct request_sock *sk)
  
--	icsk->icsk_mtup.enabled = net->ipv4.sysctl_tcp_mtu_probing > 1;
-+	icsk->icsk_mtup.enabled = READ_ONCE(net->ipv4.sysctl_tcp_mtu_probing) > 1;
- 	icsk->icsk_mtup.search_high = tp->rx_opt.mss_clamp + sizeof(struct tcphdr) +
- 			       icsk->icsk_af_ops->net_header_len;
- 	icsk->icsk_mtup.search_low = tcp_mss_to_mtu(sk, net->ipv4.sysctl_tcp_base_mss);
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index d071ed6b8b9a..5d761333ffc4 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -144,7 +144,7 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
- 	int mss;
+ static inline u32 inet_request_mark(const struct sock *sk, struct sk_buff *skb)
+ {
+-	if (!sk->sk_mark && sock_net(sk)->ipv4.sysctl_tcp_fwmark_accept)
++	if (!sk->sk_mark &&
++	    READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fwmark_accept))
+ 		return skb->mark;
  
- 	/* Black hole detection */
--	if (!net->ipv4.sysctl_tcp_mtu_probing)
-+	if (!READ_ONCE(net->ipv4.sysctl_tcp_mtu_probing))
- 		return;
- 
- 	if (!icsk->icsk_mtup.enabled) {
+ 	return sk->sk_mark;
 -- 
 2.35.1
 
