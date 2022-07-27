@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D51B2582C36
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB2B582B34
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239939AbiG0Qnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:43:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
+        id S237931AbiG0Q31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:29:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239761AbiG0QnP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:43:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096365072E;
-        Wed, 27 Jul 2022 09:30:19 -0700 (PDT)
+        with ESMTP id S236924AbiG0Q1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:27:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7224F65E;
+        Wed, 27 Jul 2022 09:24:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8343B821C8;
-        Wed, 27 Jul 2022 16:30:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5751C433D6;
-        Wed, 27 Jul 2022 16:30:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5493AB821B9;
+        Wed, 27 Jul 2022 16:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89D85C433D6;
+        Wed, 27 Jul 2022 16:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939412;
-        bh=4n3VmcxWedC1r5TGuxLLFmXPpspP/C7qwPpncEwq+aU=;
+        s=korg; t=1658939035;
+        bh=YMfKNxtdvzVM8qLd/+CL3RZRZFtcZ64WkllD3RQPKhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=goowL7LZcG0X5Upud81b7xmsz4Jh6owBihXOBhEk9XCpBKJWFkpq57BWCBvjYzv8/
-         fJjA75FF8koyEdhO8LIZI5pALOlp4IvP1FZQx69F+kQPmL9OgRSZ4qd7rIoawiQTdk
-         SysmjncRjiSAwsk3rOkg0683c5mf5FGAl4wYTFCY=
+        b=CCFpBphI/Jws0L+zTAw8Iu1Qr6i7G1Q5pXbzkCi8RtBTQS2sxaIcVZ0x+zZIA/MkW
+         7fja31YEZSiSO8wNIBhdHx7NAuAnAbtntLZgYR9OuQBen8djREln2zKZLNrOr1QetD
+         Z7kAxyQ2bdxa6a0udjjuC2KC2CB4+slQGhCMOGgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Elena Reshetova <elena.reshetova@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 61/87] locking/refcount: Ensure integer operands are treated as signed
+        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
+        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.14 28/37] tty: drivers/tty/, stop using tty_schedule_flip()
 Date:   Wed, 27 Jul 2022 18:10:54 +0200
-Message-Id: <20220727161011.522539778@linuxfoundation.org>
+Message-Id: <20220727161001.978971195@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,125 +52,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 97a1420adf0cdf0cf6f41bab0b2acf658c96b94b ]
+commit 5f6a85158ccacc3f09744b3aafe8b11ab3b6c6f6 upstream.
 
-In preparation for changing the saturation point of REFCOUNT_FULL to
-INT_MIN/2, change the type of integer operands passed into the API
-from 'unsigned int' to 'int' so that we can avoid casting during
-comparisons when we don't want to fall foul of C integral conversion
-rules for signed and unsigned types.
+Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
+tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
+going to remove the latter (as it is used less), so call the former in
+drivers/tty/.
 
-Since the kernel is compiled with '-fno-strict-overflow', we don't need
-to worry about the UB introduced by signed overflow here. Furthermore,
-we're already making heavy use of the atomic_t API, which operates
-exclusively on signed types.
-
-Signed-off-by: Will Deacon <will@kernel.org>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Hanjun Guo <guohanjun@huawei.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Elena Reshetova <elena.reshetova@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191121115902.2551-3-will@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Vladimir Zapolskiy <vz@mleia.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20211122111648.30379-2-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/refcount.h | 14 +++++++-------
- lib/refcount.c           |  6 +++---
- 2 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/tty/cyclades.c          |    6 +++---
+ drivers/tty/goldfish.c          |    2 +-
+ drivers/tty/moxa.c              |    4 ++--
+ drivers/tty/serial/lpc32xx_hs.c |    2 +-
+ drivers/tty/vt/keyboard.c       |    6 +++---
+ drivers/tty/vt/vt.c             |    2 +-
+ 6 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/refcount.h b/include/linux/refcount.h
-index 79f62e8d2256..89066a1471dd 100644
---- a/include/linux/refcount.h
-+++ b/include/linux/refcount.h
-@@ -28,7 +28,7 @@ typedef struct refcount_struct {
-  * @r: the refcount
-  * @n: value to which the refcount will be set
-  */
--static inline void refcount_set(refcount_t *r, unsigned int n)
-+static inline void refcount_set(refcount_t *r, int n)
- {
- 	atomic_set(&r->refs, n);
- }
-@@ -44,13 +44,13 @@ static inline unsigned int refcount_read(const refcount_t *r)
- 	return atomic_read(&r->refs);
- }
+--- a/drivers/tty/cyclades.c
++++ b/drivers/tty/cyclades.c
+@@ -556,7 +556,7 @@ static void cyy_chip_rx(struct cyclades_
+ 		}
+ 		info->idle_stats.recv_idle = jiffies;
+ 	}
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
  
--extern __must_check bool refcount_add_not_zero_checked(unsigned int i, refcount_t *r);
--extern void refcount_add_checked(unsigned int i, refcount_t *r);
-+extern __must_check bool refcount_add_not_zero_checked(int i, refcount_t *r);
-+extern void refcount_add_checked(int i, refcount_t *r);
+ 	/* end of service */
+ 	cyy_writeb(info, CyRIR, save_xir & 0x3f);
+@@ -998,7 +998,7 @@ static void cyz_handle_rx(struct cyclade
+ 				jiffies + 1);
+ #endif
+ 	info->idle_stats.recv_idle = jiffies;
+-	tty_schedule_flip(&info->port);
++	tty_flip_buffer_push(&info->port);
  
- extern __must_check bool refcount_inc_not_zero_checked(refcount_t *r);
- extern void refcount_inc_checked(refcount_t *r);
- 
--extern __must_check bool refcount_sub_and_test_checked(unsigned int i, refcount_t *r);
-+extern __must_check bool refcount_sub_and_test_checked(int i, refcount_t *r);
- 
- extern __must_check bool refcount_dec_and_test_checked(refcount_t *r);
- extern void refcount_dec_checked(refcount_t *r);
-@@ -79,12 +79,12 @@ extern void refcount_dec_checked(refcount_t *r);
- # ifdef CONFIG_ARCH_HAS_REFCOUNT
- #  include <asm/refcount.h>
- # else
--static inline __must_check bool refcount_add_not_zero(unsigned int i, refcount_t *r)
-+static inline __must_check bool refcount_add_not_zero(int i, refcount_t *r)
- {
- 	return atomic_add_unless(&r->refs, i, 0);
+ 	/* Update rx_get */
+ 	cy_writel(&buf_ctrl->rx_get, new_rx_get);
+@@ -1174,7 +1174,7 @@ static void cyz_handle_cmd(struct cyclad
+ 		if (delta_count)
+ 			wake_up_interruptible(&info->port.delta_msr_wait);
+ 		if (special_count)
+-			tty_schedule_flip(&info->port);
++			tty_flip_buffer_push(&info->port);
+ 	}
  }
  
--static inline void refcount_add(unsigned int i, refcount_t *r)
-+static inline void refcount_add(int i, refcount_t *r)
- {
- 	atomic_add(i, &r->refs);
- }
-@@ -99,7 +99,7 @@ static inline void refcount_inc(refcount_t *r)
- 	atomic_inc(&r->refs);
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -159,7 +159,7 @@ static irqreturn_t goldfish_tty_interrup
+ 	address = (unsigned long)(void *)buf;
+ 	goldfish_tty_rw(qtty, address, count, 0);
+ 
+-	tty_schedule_flip(&qtty->port);
++	tty_flip_buffer_push(&qtty->port);
+ 	return IRQ_HANDLED;
  }
  
--static inline __must_check bool refcount_sub_and_test(unsigned int i, refcount_t *r)
-+static inline __must_check bool refcount_sub_and_test(int i, refcount_t *r)
- {
- 	return atomic_sub_and_test(i, &r->refs);
- }
-diff --git a/lib/refcount.c b/lib/refcount.c
-index 48b78a423d7d..719b0bc42ab1 100644
---- a/lib/refcount.c
-+++ b/lib/refcount.c
-@@ -61,7 +61,7 @@
-  *
-  * Return: false if the passed refcount is 0, true otherwise
-  */
--bool refcount_add_not_zero_checked(unsigned int i, refcount_t *r)
-+bool refcount_add_not_zero_checked(int i, refcount_t *r)
- {
- 	unsigned int new, val = atomic_read(&r->refs);
+--- a/drivers/tty/moxa.c
++++ b/drivers/tty/moxa.c
+@@ -1397,7 +1397,7 @@ static int moxa_poll_port(struct moxa_po
+ 		if (inited && !tty_throttled(tty) &&
+ 				MoxaPortRxQueue(p) > 0) { /* RX */
+ 			MoxaPortReadData(p);
+-			tty_schedule_flip(&p->port);
++			tty_flip_buffer_push(&p->port);
+ 		}
+ 	} else {
+ 		clear_bit(EMPTYWAIT, &p->statusflags);
+@@ -1422,7 +1422,7 @@ static int moxa_poll_port(struct moxa_po
  
-@@ -101,7 +101,7 @@ EXPORT_SYMBOL(refcount_add_not_zero_checked);
-  * cases, refcount_inc(), or one of its variants, should instead be used to
-  * increment a reference count.
-  */
--void refcount_add_checked(unsigned int i, refcount_t *r)
-+void refcount_add_checked(int i, refcount_t *r)
- {
- 	WARN_ONCE(!refcount_add_not_zero_checked(i, r), "refcount_t: addition on 0; use-after-free.\n");
- }
-@@ -180,7 +180,7 @@ EXPORT_SYMBOL(refcount_inc_checked);
-  *
-  * Return: true if the resulting refcount is 0, false otherwise
-  */
--bool refcount_sub_and_test_checked(unsigned int i, refcount_t *r)
-+bool refcount_sub_and_test_checked(int i, refcount_t *r)
- {
- 	unsigned int new, val = atomic_read(&r->refs);
+ 	if (tty && (intr & IntrBreak) && !I_IGNBRK(tty)) { /* BREAK */
+ 		tty_insert_flip_char(&p->port, 0, TTY_BREAK);
+-		tty_schedule_flip(&p->port);
++		tty_flip_buffer_push(&p->port);
+ 	}
  
--- 
-2.35.1
-
+ 	if (intr & IntrLine)
+--- a/drivers/tty/serial/lpc32xx_hs.c
++++ b/drivers/tty/serial/lpc32xx_hs.c
+@@ -350,7 +350,7 @@ static irqreturn_t serial_lpc32xx_interr
+ 		       LPC32XX_HSUART_IIR(port->membase));
+ 		port->icount.overrun++;
+ 		tty_insert_flip_char(tport, 0, TTY_OVERRUN);
+-		tty_schedule_flip(tport);
++		tty_flip_buffer_push(tport);
+ 	}
+ 
+ 	/* Data received? */
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -309,7 +309,7 @@ int kbd_rate(struct kbd_repeat *rpt)
+ static void put_queue(struct vc_data *vc, int ch)
+ {
+ 	tty_insert_flip_char(&vc->port, ch, 0);
+-	tty_schedule_flip(&vc->port);
++	tty_flip_buffer_push(&vc->port);
+ }
+ 
+ static void puts_queue(struct vc_data *vc, char *cp)
+@@ -318,7 +318,7 @@ static void puts_queue(struct vc_data *v
+ 		tty_insert_flip_char(&vc->port, *cp, 0);
+ 		cp++;
+ 	}
+-	tty_schedule_flip(&vc->port);
++	tty_flip_buffer_push(&vc->port);
+ }
+ 
+ static void applkey(struct vc_data *vc, int key, char mode)
+@@ -563,7 +563,7 @@ static void fn_inc_console(struct vc_dat
+ static void fn_send_intr(struct vc_data *vc)
+ {
+ 	tty_insert_flip_char(&vc->port, 0, TTY_BREAK);
+-	tty_schedule_flip(&vc->port);
++	tty_flip_buffer_push(&vc->port);
+ }
+ 
+ static void fn_scroll_forw(struct vc_data *vc)
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1482,7 +1482,7 @@ static void respond_string(const char *p
+ 		tty_insert_flip_char(port, *p, 0);
+ 		p++;
+ 	}
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
+ 
+ static void cursor_report(struct vc_data *vc, struct tty_struct *tty)
 
 
