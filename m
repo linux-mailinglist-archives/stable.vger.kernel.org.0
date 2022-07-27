@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA6D582CAC
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A6B582D49
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239958AbiG0Qsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44752 "EHLO
+        id S240994AbiG0QzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240478AbiG0QsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3CD61101;
-        Wed, 27 Jul 2022 09:32:23 -0700 (PDT)
+        with ESMTP id S240878AbiG0Qwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDFC4F195;
+        Wed, 27 Jul 2022 09:35:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D671061A04;
-        Wed, 27 Jul 2022 16:27:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E36A5C433D6;
-        Wed, 27 Jul 2022 16:27:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07CBB61A8E;
+        Wed, 27 Jul 2022 16:35:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D61DC433C1;
+        Wed, 27 Jul 2022 16:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939241;
-        bh=UOpROHzo/X7Rd+9/tzUGSTkx8KnfLTdzuVsBE7Rw9Vs=;
+        s=korg; t=1658939701;
+        bh=N82dgvAglJ4M4Ksvsddt8SaTUuvmWw/6BGAlwdbH6co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YkDQOf/AoF2Tcf+FRzzcKMwnrAiSjMNkrRGA+woMMkLOTSMO7WOkebQpSR3DD+oj1
-         yCGmjzwGDUxZtnaYTJD3P5sNvTUxZ49Wez149gN+kr9jiNmcJf3RO9Q9TwSZwoeun8
-         CFqZYDHzlH2Gl/lBq67A/I9LNIDf62dCW3ueb69o=
+        b=piE3Fj4uWU1vrTqAXC1HYb1pZftTbnm6g5PjyY9vyTe4m8upVJfux/KkrL/jRB/XQ
+         YtA+WhxCNzJ5FTX9NQj8gln4S00dCpAnSlpjaf7Ucg0sRwtoxfWPGRATkQ/YUxQ/9S
+         chjzGdxdV5wgZTq8MSdezNbFeyrIaMoP8jeUXopg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 4.19 50/62] Bluetooth: SCO: Fix sco_send_frame returning skb->len
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 073/105] tcp: Fix a data-race around sysctl_tcp_retrans_collapse.
 Date:   Wed, 27 Jul 2022 18:10:59 +0200
-Message-Id: <20220727161006.082825060@linuxfoundation.org>
+Message-Id: <20220727161014.986231914@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 037ce005af6b8a3e40ee07c6e9266c8997e6a4d6 upstream.
+[ Upstream commit 1a63cb91f0c2fcdeced6d6edee8d1d886583d139 ]
 
-The skb in modified by hci_send_sco which pushes SCO headers thus
-changing skb->len causing sco_sock_sendmsg to fail.
+While reading sysctl_tcp_retrans_collapse, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 0771cbb3b97d ("Bluetooth: SCO: Replace use of memcpy_from_msg with bt_skb_sendmsg")
-Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/ipv4/tcp_output.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -282,16 +282,17 @@ static int sco_connect(struct hci_dev *h
- static int sco_send_frame(struct sock *sk, struct sk_buff *skb)
- {
- 	struct sco_conn *conn = sco_pi(sk)->conn;
-+	int len = skb->len;
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index ef64ee4c902a..9b67c61576e4 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -3100,7 +3100,7 @@ static void tcp_retrans_try_collapse(struct sock *sk, struct sk_buff *to,
+ 	struct sk_buff *skb = to, *tmp;
+ 	bool first = true;
  
- 	/* Check outgoing MTU */
--	if (skb->len > conn->mtu)
-+	if (len > conn->mtu)
- 		return -EINVAL;
- 
--	BT_DBG("sk %p len %d", sk, skb->len);
-+	BT_DBG("sk %p len %d", sk, len);
- 
- 	hci_send_sco(conn->hcon, skb);
- 
--	return skb->len;
-+	return len;
- }
- 
- static void sco_recv_frame(struct sco_conn *conn, struct sk_buff *skb)
-@@ -731,7 +732,8 @@ static int sco_sock_sendmsg(struct socke
- 		err = -ENOTCONN;
- 
- 	release_sock(sk);
--	if (err)
-+
-+	if (err < 0)
- 		kfree_skb(skb);
- 	return err;
- }
+-	if (!sock_net(sk)->ipv4.sysctl_tcp_retrans_collapse)
++	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_retrans_collapse))
+ 		return;
+ 	if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_SYN)
+ 		return;
+-- 
+2.35.1
+
 
 
