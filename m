@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 258C8582ED3
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06644582C1D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233265AbiG0RR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33466 "EHLO
+        id S238863AbiG0QmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:42:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231937AbiG0RRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:17:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EED4BCA;
-        Wed, 27 Jul 2022 09:43:20 -0700 (PDT)
+        with ESMTP id S239631AbiG0Qlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:41:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A5F95B06B;
+        Wed, 27 Jul 2022 09:29:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80C51B821C5;
-        Wed, 27 Jul 2022 16:43:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94C3C433D7;
-        Wed, 27 Jul 2022 16:43:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B9F261A39;
+        Wed, 27 Jul 2022 16:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F1BFC433D6;
+        Wed, 27 Jul 2022 16:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940197;
-        bh=reqS1FC7SNHKb5oM0t/Ti65oP22ffR5nY0X7/alNUK0=;
+        s=korg; t=1658939383;
+        bh=QnJWWJokVEQTlFbsgEPyg0LjyFVVkCoMgMdLQdFzu3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvOevyWHlkigzhZXUQCNVBU8qm+Y2kRnR3HSNnr26IWG7llpescgjpI0uYt5KnzJp
-         F2Q8wx8HZ4DeHDu9zyK+eq68zhI4P5VdLFCVtKYLIQkdjfhpzuNY9MPoEhd1plUwcZ
-         ql+NQjozZNIAHYqxoYSTIGmTnq2yBhy5BM2efJ7s=
+        b=ygqyBzPHabcXOatu9O9p65/2aP8wwRD2W1c66Xe9OYGbSLpkW39LyiAEdTYTfMvYf
+         DxKIUtW4Y6lZonXsNRhxCpifLxn0OXhC5JidLn19QSa6Y//hhPAqv5cdFVdqrPyx7i
+         7Uo62nAg7RrJwVhqJwDM7T8/Y4sNcGaadETrKJg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/201] net: stmmac: remove redunctant disable xPCS EEE call
+Subject: [PATCH 5.4 19/87] ip: Fix a data-race around sysctl_fwmark_reflect.
 Date:   Wed, 27 Jul 2022 18:10:12 +0200
-Message-Id: <20220727161032.236526995@linuxfoundation.org>
+Message-Id: <20220727161009.797981561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit da791bac104a3169b05b54270afe75daacba4641 ]
+[ Upstream commit 85d0b4dbd74b95cc492b1f4e34497d3f894f5d9a ]
 
-Disable is done in stmmac_init_eee() on the event of MAC link down.
-Since setting enable/disable EEE via ethtool will eventually trigger
-a MAC down, removing this redunctant call in stmmac_ethtool.c to avoid
-calling xpcs_config_eee() twice.
+While reading sysctl_fwmark_reflect, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: d4aeaed80b0e ("net: stmmac: trigger PCS EEE to turn off on link down")
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Link: https://lore.kernel.org/r/20220715122402.1017470-1-vee.khee.wong@linux.intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e110861f8609 ("net: add a sysctl to reflect the fwmark on replies")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c | 8 --------
- 1 file changed, 8 deletions(-)
+ include/net/ip.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index 8f563b446d5c..dc31501fec8f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -800,14 +800,6 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
- 		netdev_warn(priv->dev,
- 			    "Setting EEE tx-lpi is not supported\n");
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 21fc0a29a8d4..db841ab388c0 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -381,7 +381,7 @@ void ipfrag_init(void);
+ void ip_static_sysctl_init(void);
  
--	if (priv->hw->xpcs) {
--		ret = xpcs_config_eee(priv->hw->xpcs,
--				      priv->plat->mult_fact_100ns,
--				      edata->eee_enabled);
--		if (ret)
--			return ret;
--	}
--
- 	if (!edata->eee_enabled)
- 		stmmac_disable_eee_mode(priv);
+ #define IP4_REPLY_MARK(net, mark) \
+-	((net)->ipv4.sysctl_fwmark_reflect ? (mark) : 0)
++	(READ_ONCE((net)->ipv4.sysctl_fwmark_reflect) ? (mark) : 0)
  
+ static inline bool ip_is_fragment(const struct iphdr *iph)
+ {
 -- 
 2.35.1
 
