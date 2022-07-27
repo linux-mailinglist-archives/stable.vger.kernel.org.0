@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B4F7582D3A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D41582CB3
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:50:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240628AbiG0QzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:55:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42340 "EHLO
+        id S240489AbiG0Qto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241025AbiG0QyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF394D4F5;
-        Wed, 27 Jul 2022 09:35:21 -0700 (PDT)
+        with ESMTP id S240640AbiG0QtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:49:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDD56172E;
+        Wed, 27 Jul 2022 09:32:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8955CB821BE;
-        Wed, 27 Jul 2022 16:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D4CC433D7;
-        Wed, 27 Jul 2022 16:35:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8393B619C0;
+        Wed, 27 Jul 2022 16:27:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93EB5C433C1;
+        Wed, 27 Jul 2022 16:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939718;
-        bh=ynPbgsGAMTKXNjUBttZV2pJY6xApHpoOT/JCpTj1TIc=;
+        s=korg; t=1658939257;
+        bh=vKTOit1j4oqPUe/wwvhNKAYzkOLY6aMMJK7gUc90wME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1cu6BYWI55RKV8xEluoxyNMDuAVXjMcu/WOJJDMthXHgKg6EQW7bI1na1+BMVFRx
-         cpy/E1xpQUtptNh74XXhb3K5qDmdEer7nQ8DkMXzYQyw0VJFG/qJYwylklN49om3qH
-         3ldJYujysDAiZrYbqL+xvaZEsY35+Vpbbyc0XAEk=
+        b=kKNj9NqnVgOzdkTk724bs/PkD7mCyhvmFYzWCUEQJjupnjHhxKjux84pAyiEHhO3i
+         1VCfLAwELtnNNyHwlGCrckrI4/nEGUd8PEnLtQdIOR5y6/Fm979+W70ObwC0pZdxXp
+         0KW6xfgrHJ6m+pAoLUUGLl2hcXXvU0JkgNMQ1GNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Cheng <wanngchenng@gmail.com>,
-        syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com,
-        David Rientjes <rientjes@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 079/105] mm/mempolicy: fix uninit-value in mpol_rebind_policy()
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.19 56/62] tty: extract tty_flip_buffer_commit() from tty_flip_buffer_push()
 Date:   Wed, 27 Jul 2022 18:11:05 +0200
-Message-Id: <20220727161015.260745649@linuxfoundation.org>
+Message-Id: <20220727161006.333043974@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Cheng <wanngchenng@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 018160ad314d75b1409129b2247b614a9f35894c upstream.
+commit 716b10580283fda66f2b88140e3964f8a7f9da89 upstream.
 
-mpol_set_nodemask()(mm/mempolicy.c) does not set up nodemask when
-pol->mode is MPOL_LOCAL.  Check pol->mode before access
-pol->w.cpuset_mems_allowed in mpol_rebind_policy()(mm/mempolicy.c).
+We will need this new helper in the next patch.
 
-BUG: KMSAN: uninit-value in mpol_rebind_policy mm/mempolicy.c:352 [inline]
-BUG: KMSAN: uninit-value in mpol_rebind_task+0x2ac/0x2c0 mm/mempolicy.c:368
- mpol_rebind_policy mm/mempolicy.c:352 [inline]
- mpol_rebind_task+0x2ac/0x2c0 mm/mempolicy.c:368
- cpuset_change_task_nodemask kernel/cgroup/cpuset.c:1711 [inline]
- cpuset_attach+0x787/0x15e0 kernel/cgroup/cpuset.c:2278
- cgroup_migrate_execute+0x1023/0x1d20 kernel/cgroup/cgroup.c:2515
- cgroup_migrate kernel/cgroup/cgroup.c:2771 [inline]
- cgroup_attach_task+0x540/0x8b0 kernel/cgroup/cgroup.c:2804
- __cgroup1_procs_write+0x5cc/0x7a0 kernel/cgroup/cgroup-v1.c:520
- cgroup1_tasks_write+0x94/0xb0 kernel/cgroup/cgroup-v1.c:539
- cgroup_file_write+0x4c2/0x9e0 kernel/cgroup/cgroup.c:3852
- kernfs_fop_write_iter+0x66a/0x9f0 fs/kernfs/file.c:296
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0x1318/0x2030 fs/read_write.c:590
- ksys_write+0x28b/0x510 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __x64_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- slab_alloc mm/slub.c:3259 [inline]
- kmem_cache_alloc+0x902/0x11c0 mm/slub.c:3264
- mpol_new mm/mempolicy.c:293 [inline]
- do_set_mempolicy+0x421/0xb70 mm/mempolicy.c:853
- kernel_set_mempolicy mm/mempolicy.c:1504 [inline]
- __do_sys_set_mempolicy mm/mempolicy.c:1510 [inline]
- __se_sys_set_mempolicy+0x44c/0xb60 mm/mempolicy.c:1507
- __x64_sys_set_mempolicy+0xd8/0x110 mm/mempolicy.c:1507
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-KMSAN: uninit-value in mpol_rebind_task (2)
-https://syzkaller.appspot.com/bug?id=d6eb90f952c2a5de9ea718a1b873c55cb13b59dc
-
-This patch seems to fix below bug too.
-KMSAN: uninit-value in mpol_rebind_mm (2)
-https://syzkaller.appspot.com/bug?id=f2fecd0d7013f54ec4162f60743a2b28df40926b
-
-The uninit-value is pol->w.cpuset_mems_allowed in mpol_rebind_policy().
-When syzkaller reproducer runs to the beginning of mpol_new(),
-
-	    mpol_new() mm/mempolicy.c
-	  do_mbind() mm/mempolicy.c
-	kernel_mbind() mm/mempolicy.c
-
-`mode` is 1(MPOL_PREFERRED), nodes_empty(*nodes) is `true` and `flags`
-is 0. Then
-
-	mode = MPOL_LOCAL;
-	...
-	policy->mode = mode;
-	policy->flags = flags;
-
-will be executed. So in mpol_set_nodemask(),
-
-	    mpol_set_nodemask() mm/mempolicy.c
-	  do_mbind()
-	kernel_mbind()
-
-pol->mode is 4 (MPOL_LOCAL), that `nodemask` in `pol` is not initialized,
-which will be accessed in mpol_rebind_policy().
-
-Link: https://lkml.kernel.org/r/20220512123428.fq3wofedp6oiotd4@ppc.localdomain
-Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
-Reported-by: <syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com>
-Tested-by: <syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: 一只狗 <chennbnbnb@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220707082558.9250-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mempolicy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/tty_buffer.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -374,7 +374,7 @@ static void mpol_rebind_preferred(struct
-  */
- static void mpol_rebind_policy(struct mempolicy *pol, const nodemask_t *newmask)
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -518,6 +518,15 @@ static void flush_to_ldisc(struct work_s
+ 
+ }
+ 
++static inline void tty_flip_buffer_commit(struct tty_buffer *tail)
++{
++	/*
++	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
++	 * buffer data.
++	 */
++	smp_store_release(&tail->commit, tail->used);
++}
++
+ /**
+  *	tty_flip_buffer_push	-	terminal
+  *	@port: tty port to push
+@@ -533,11 +542,7 @@ void tty_flip_buffer_push(struct tty_por
  {
--	if (!pol)
-+	if (!pol || pol->mode == MPOL_LOCAL)
- 		return;
- 	if (!mpol_store_user_nodemask(pol) && !(pol->flags & MPOL_F_LOCAL) &&
- 	    nodes_equal(pol->w.cpuset_mems_allowed, *newmask))
+ 	struct tty_bufhead *buf = &port->buf;
+ 
+-	/*
+-	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
+-	 * buffer data.
+-	 */
+-	smp_store_release(&buf->tail->commit, buf->tail->used);
++	tty_flip_buffer_commit(buf->tail);
+ 	queue_work(system_unbound_wq, &buf->work);
+ }
+ EXPORT_SYMBOL(tty_flip_buffer_push);
 
 
