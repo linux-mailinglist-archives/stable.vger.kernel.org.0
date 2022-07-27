@@ -2,54 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D53582ABD
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC31582CE8
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235175AbiG0QXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:23:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
+        id S240779AbiG0QwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235536AbiG0QWx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D1084D16E;
-        Wed, 27 Jul 2022 09:22:39 -0700 (PDT)
+        with ESMTP id S240681AbiG0Qvq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:51:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6967624B5;
+        Wed, 27 Jul 2022 09:33:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 290D5B821A6;
-        Wed, 27 Jul 2022 16:22:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5204DC433C1;
-        Wed, 27 Jul 2022 16:22:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22BA261A73;
+        Wed, 27 Jul 2022 16:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A4BC433C1;
+        Wed, 27 Jul 2022 16:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658938956;
-        bh=gaBrScAaCmUC6aNKiBmd9h4bfCdJILFqhKUgDplWUvQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=DCLXmZqe7JtOtz384FV+Wt0KDoGY3OIMYcbbhsDOGkFhiFTgkvKIRMsMgFxYa4MWE
-         oNJmf6EjNCVaVhzqYWKoNgDqdZRsH4pMZowIZurWQMJ5R7jRtbQ/HYSDd0Ernz029a
-         25lQdIwkKrll/9qc/7p6XX88cG38VW2e/5iFFNyo=
+        s=korg; t=1658939615;
+        bh=u8CuO5FjMoSU7M4wPa4zMj9J5tMmegeEh7mn/v6qdUU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dDvzpGKLRgZUhSAkCL8mZebEy0nPenwEUxr74f0FyzCpmK1al5HDzi6yDgZAjbW5t
+         J9b/r/Ehp+0WBgVzR3E8PU0sh6qkeaZgEUjeAoFtYqEOiApWGjNqomGu1zvIprOmRC
+         DHAIMvIFm5gXfzQAEIXJEURWwjtpuzAwqkODQ290=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/26] 4.9.325-rc1 review
+        stable@vger.kernel.org, Cedric Wassenaar <cedric@bytespeed.nl>,
+        Junxiao Chang <junxiao.chang@intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 043/105] net: stmmac: fix dma queue left shift overflow issue
 Date:   Wed, 27 Jul 2022 18:10:29 +0200
-Message-Id: <20220727160959.122591422@linuxfoundation.org>
+Message-Id: <20220727161013.821677571@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-MIME-Version: 1.0
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.325-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.325-rc1
-X-KernelTest-Deadline: 2022-07-29T16:10+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,151 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.325 release.
-There are 26 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Junxiao Chang <junxiao.chang@intel.com>
 
-Responses should be made by Fri, 29 Jul 2022 16:09:50 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 613b065ca32e90209024ec4a6bb5ca887ee70980 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.325-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+When queue number is > 4, left shift overflows due to 32 bits
+integer variable. Mask calculation is wrong for MTL_RXQ_DMA_MAP1.
 
-thanks,
+If CONFIG_UBSAN is enabled, kernel dumps below warning:
+[   10.363842] ==================================================================
+[   10.363882] UBSAN: shift-out-of-bounds in /build/linux-intel-iotg-5.15-8e6Tf4/
+linux-intel-iotg-5.15-5.15.0/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c:224:12
+[   10.363929] shift exponent 40 is too large for 32-bit type 'unsigned int'
+[   10.363953] CPU: 1 PID: 599 Comm: NetworkManager Not tainted 5.15.0-1003-intel-iotg
+[   10.363956] Hardware name: ADLINK Technology Inc. LEC-EL/LEC-EL, BIOS 0.15.11 12/22/2021
+[   10.363958] Call Trace:
+[   10.363960]  <TASK>
+[   10.363963]  dump_stack_lvl+0x4a/0x5f
+[   10.363971]  dump_stack+0x10/0x12
+[   10.363974]  ubsan_epilogue+0x9/0x45
+[   10.363976]  __ubsan_handle_shift_out_of_bounds.cold+0x61/0x10e
+[   10.363979]  ? wake_up_klogd+0x4a/0x50
+[   10.363983]  ? vprintk_emit+0x8f/0x240
+[   10.363986]  dwmac4_map_mtl_dma.cold+0x42/0x91 [stmmac]
+[   10.364001]  stmmac_mtl_configuration+0x1ce/0x7a0 [stmmac]
+[   10.364009]  ? dwmac410_dma_init_channel+0x70/0x70 [stmmac]
+[   10.364020]  stmmac_hw_setup.cold+0xf/0xb14 [stmmac]
+[   10.364030]  ? page_pool_alloc_pages+0x4d/0x70
+[   10.364034]  ? stmmac_clear_tx_descriptors+0x6e/0xe0 [stmmac]
+[   10.364042]  stmmac_open+0x39e/0x920 [stmmac]
+[   10.364050]  __dev_open+0xf0/0x1a0
+[   10.364054]  __dev_change_flags+0x188/0x1f0
+[   10.364057]  dev_change_flags+0x26/0x60
+[   10.364059]  do_setlink+0x908/0xc40
+[   10.364062]  ? do_setlink+0xb10/0xc40
+[   10.364064]  ? __nla_validate_parse+0x4c/0x1a0
+[   10.364068]  __rtnl_newlink+0x597/0xa10
+[   10.364072]  ? __nla_reserve+0x41/0x50
+[   10.364074]  ? __kmalloc_node_track_caller+0x1d0/0x4d0
+[   10.364079]  ? pskb_expand_head+0x75/0x310
+[   10.364082]  ? nla_reserve_64bit+0x21/0x40
+[   10.364086]  ? skb_free_head+0x65/0x80
+[   10.364089]  ? security_sock_rcv_skb+0x2c/0x50
+[   10.364094]  ? __cond_resched+0x19/0x30
+[   10.364097]  ? kmem_cache_alloc_trace+0x15a/0x420
+[   10.364100]  rtnl_newlink+0x49/0x70
 
-greg k-h
+This change fixes MTL_RXQ_DMA_MAP1 mask issue and channel/queue
+mapping warning.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: d43042f4da3e ("net: stmmac: mapping mtl rx to dma channel")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216195
+Reported-by: Cedric Wassenaar <cedric@bytespeed.nl>
+Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.325-rc1
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index 16c538cfaf59..2e71e510e127 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -215,6 +215,9 @@ static void dwmac4_map_mtl_dma(struct mac_device_info *hw, u32 queue, u32 chan)
+ 	if (queue == 0 || queue == 4) {
+ 		value &= ~MTL_RXQ_DMA_Q04MDMACH_MASK;
+ 		value |= MTL_RXQ_DMA_Q04MDMACH(chan);
++	} else if (queue > 4) {
++		value &= ~MTL_RXQ_DMA_QXMDMACH_MASK(queue - 4);
++		value |= MTL_RXQ_DMA_QXMDMACH(chan, queue - 4);
+ 	} else {
+ 		value &= ~MTL_RXQ_DMA_QXMDMACH_MASK(queue);
+ 		value |= MTL_RXQ_DMA_QXMDMACH(chan, queue);
+-- 
+2.35.1
 
-Jose Alonso <joalonsof@gmail.com>
-    net: usb: ax88179_178a needs FLAG_SEND_ZLP
-
-Jiri Slaby <jslaby@suse.cz>
-    tty: use new tty_insert_flip_string_and_push_buffer() in pty_write()
-
-Jiri Slaby <jslaby@suse.cz>
-    tty: extract tty_flip_buffer_commit() from tty_flip_buffer_push()
-
-Jiri Slaby <jslaby@suse.cz>
-    tty: drop tty_schedule_flip()
-
-Jiri Slaby <jslaby@suse.cz>
-    tty: the rest, stop using tty_schedule_flip()
-
-Jiri Slaby <jslaby@suse.cz>
-    tty: drivers/tty/, stop using tty_schedule_flip()
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: memalloc: Align buffer allocations in page size
-
-Eric Dumazet <edumazet@google.com>
-    bpf: Make sure mac_header was set before using it
-
-Wang Cheng <wanngchenng@gmail.com>
-    mm/mempolicy: fix uninit-value in mpol_rebind_policy()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    Revert "Revert "char/random: silence a lockdep splat with printk()""
-
-Hristo Venev <hristo@venev.name>
-    be2net: Fix buffer overflow in be_get_module_eeprom
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_notsent_lowat.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    igmp: Fix a data-race around sysctl_igmp_max_memberships.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    igmp: Fix data-races around sysctl_igmp_llm_reports.
-
-Robert Hancock <robert.hancock@calian.com>
-    i2c: cadence: Change large transfer count reset logic to be unconditional
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_probe_threshold.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp/dccp: Fix a data-race around sysctl_tcp_fwmark_accept.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    ip: Fix a data-race around sysctl_fwmark_reflect.
-
-Peter Zijlstra <peterz@infradead.org>
-    perf/core: Fix data race between perf_event_set_output() and perf_mmap_close()
-
-Miaoqian Lin <linmq006@gmail.com>
-    power/reset: arm-versatile: Fix refcount leak in versatile_reboot_probe
-
-Hangyu Hua <hbh25y@gmail.com>
-    xfrm: xfrm_policy: fix a possible double xfrm_pols_put() in xfrm_bundle_lookup()
-
-Shuah Khan <skhan@linuxfoundation.org>
-    misc: rtsx_usb: set return value in rsp_buf alloc err path
-
-Shuah Khan <skhan@linuxfoundation.org>
-    misc: rtsx_usb: use separate command and response buffers
-
-Shuah Khan <skhan@linuxfoundation.org>
-    misc: rtsx_usb: fix use of dma mapped buffer for usb bulk transfer
-
-Demi Marie Obenour <demi@invisiblethingslab.com>
-    xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
-
-Stephen Smalley <sds@tycho.nsa.gov>
-    security,selinux,smack: kill security_task_wait hook
-
-
--------------
-
-Diffstat:
-
- Makefile                                       |  4 +-
- arch/alpha/kernel/srmcons.c                    |  2 +-
- drivers/char/random.c                          |  4 +-
- drivers/i2c/busses/i2c-cadence.c               | 30 ++----------
- drivers/mfd/rtsx_usb.c                         | 27 +++++++----
- drivers/net/ethernet/emulex/benet/be_cmds.c    | 10 ++--
- drivers/net/ethernet/emulex/benet/be_cmds.h    |  2 +-
- drivers/net/ethernet/emulex/benet/be_ethtool.c | 31 +++++++-----
- drivers/net/usb/ax88179_178a.c                 | 14 +++---
- drivers/power/reset/arm-versatile-reboot.c     |  1 +
- drivers/s390/char/keyboard.h                   |  4 +-
- drivers/tty/cyclades.c                         |  6 +--
- drivers/tty/goldfish.c                         |  2 +-
- drivers/tty/moxa.c                             |  4 +-
- drivers/tty/pty.c                              | 14 +-----
- drivers/tty/serial/lpc32xx_hs.c                |  2 +-
- drivers/tty/tty_buffer.c                       | 66 +++++++++++++++++---------
- drivers/tty/vt/keyboard.c                      |  6 +--
- drivers/tty/vt/vt.c                            |  2 +-
- drivers/xen/gntdev.c                           |  3 +-
- include/linux/lsm_hooks.h                      |  7 ---
- include/linux/mfd/rtsx_usb.h                   |  2 -
- include/linux/security.h                       |  6 ---
- include/linux/tty_flip.h                       |  4 +-
- include/net/inet_sock.h                        |  3 +-
- include/net/ip.h                               |  2 +-
- include/net/tcp.h                              |  2 +-
- kernel/bpf/core.c                              |  8 ++--
- kernel/events/core.c                           | 45 ++++++++++++------
- kernel/exit.c                                  | 19 +-------
- mm/mempolicy.c                                 |  2 +-
- net/ipv4/igmp.c                                | 23 +++++----
- net/ipv4/tcp_output.c                          |  2 +-
- net/xfrm/xfrm_policy.c                         |  5 +-
- security/security.c                            |  6 ---
- security/selinux/hooks.c                       |  6 ---
- security/smack/smack_lsm.c                     | 20 --------
- sound/core/memalloc.c                          |  1 +
- 38 files changed, 189 insertions(+), 208 deletions(-)
 
 
