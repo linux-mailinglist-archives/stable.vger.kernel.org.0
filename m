@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDAC582DC0
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44E8582DD1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233180AbiG0RCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:02:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55646 "EHLO
+        id S232708AbiG0RDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:03:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241071AbiG0RBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:01:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 993A36BC3F;
-        Wed, 27 Jul 2022 09:38:11 -0700 (PDT)
+        with ESMTP id S241283AbiG0RDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:03:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BECC6D576;
+        Wed, 27 Jul 2022 09:38:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4003B601C0;
-        Wed, 27 Jul 2022 16:38:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27189C4347C;
-        Wed, 27 Jul 2022 16:38:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3743B8200C;
+        Wed, 27 Jul 2022 16:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29269C433C1;
+        Wed, 27 Jul 2022 16:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939889;
-        bh=qciahCULP5+MXiyz1Szl9JSLA7bcPoY9oSWj26A68Xs=;
+        s=korg; t=1658939894;
+        bh=Jut1UrqA484SZyvoDgmLDM1uXbmIRUU2CmoC0FX+9io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMSNVCkjX2r/G326sSryVgNeYUc6wkWzf98wPqQtIhcWnPgTIQS0LODgfceY41jJQ
-         orwlpZwyCWAEuTppqhVFBbmpvzlkycYSxb/2+Lmc21q7b/QiXVeeJYLp7ZJdd/8cwH
-         dTgkZ22kFxgxmGGDmF46oz8WXFwF08F4JyKoiMYU=
+        b=Rlg4T+H7QNleuv+7wI7fnyMPbv42GtE4r8tKKOg0Q88KOcUOrS5UKzxE/ayWpAGyP
+         8xkr8P57bgs0W+d1BmuJVgSjhkIJKAWGM7B+xo9yoYQh6h9y95EkQWxUHARRTRlLt7
+         2K4FfA0NqBq1ArbQ5GO5mq3IpEPMp6F6gQhIjY0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Shiraz Saleem <shiraz.saleem@intel.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/201] RDMA/irdma: Do not advertise 1GB page size for x722
-Date:   Wed, 27 Jul 2022 18:08:55 +0200
-Message-Id: <20220727161028.176894618@linuxfoundation.org>
+Subject: [PATCH 5.15 032/201] RDMA/irdma: Fix sleep from invalid context BUG
+Date:   Wed, 27 Jul 2022 18:08:56 +0200
+Message-Id: <20220727161028.215848380@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -56,83 +56,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit 5e8afb8792f3b6ae7ccf700f8c19225382636401 ]
+[ Upstream commit cc0315564d6eec91c716d314b743321be24c70b3 ]
 
-x722 does not support 1GB page size but the irdma driver incorrectly
-advertises 1GB page size support for x722 device to ib_core to compute the
-best page size to use on this MR.  This could lead to incorrect start
-offsets computed by hardware on the MR.
+Taking the qos_mutex to process RoCEv2 QP's on netdev events causes a
+kernel splat.
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Fix this by removing the handling for RoCEv2 in
+irdma_cm_teardown_connections that uses the mutex. This handling is only
+needed for iWARP to avoid having connections established while the link is
+down or having connections remain functional after the IP address is
+removed.
+
+  BUG: sleeping function called from invalid context at kernel/locking/mutex.
+  Call Trace:
+  kernel: dump_stack+0x66/0x90
+  kernel: ___might_sleep.cold.92+0x8d/0x9a
+  kernel: mutex_lock+0x1c/0x40
+  kernel: irdma_cm_teardown_connections+0x28e/0x4d0 [irdma]
+  kernel: ? check_preempt_curr+0x7a/0x90
+  kernel: ? select_idle_sibling+0x22/0x3c0
+  kernel: ? select_task_rq_fair+0x94c/0xc90
+  kernel: ? irdma_exec_cqp_cmd+0xc27/0x17c0 [irdma]
+  kernel: ? __wake_up_common+0x7a/0x190
+  kernel: irdma_if_notify+0x3cc/0x450 [irdma]
+  kernel: ? sched_clock_cpu+0xc/0xb0
+  kernel: irdma_inet6addr_event+0xc6/0x150 [irdma]
+
+Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
 Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
 Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/i40iw_hw.c  | 1 +
- drivers/infiniband/hw/irdma/icrdma_hw.c | 1 +
- drivers/infiniband/hw/irdma/irdma.h     | 1 +
- drivers/infiniband/hw/irdma/verbs.c     | 4 ++--
- 4 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/irdma/cm.c | 50 --------------------------------
+ 1 file changed, 50 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/i40iw_hw.c b/drivers/infiniband/hw/irdma/i40iw_hw.c
-index 64148ad8a604..040d4e2b9767 100644
---- a/drivers/infiniband/hw/irdma/i40iw_hw.c
-+++ b/drivers/infiniband/hw/irdma/i40iw_hw.c
-@@ -202,6 +202,7 @@ void i40iw_init_hw(struct irdma_sc_dev *dev)
- 	dev->hw_attrs.uk_attrs.max_hw_read_sges = I40IW_MAX_SGE_RD;
- 	dev->hw_attrs.max_hw_device_pages = I40IW_MAX_PUSH_PAGE_COUNT;
- 	dev->hw_attrs.uk_attrs.max_hw_inline = I40IW_MAX_INLINE_DATA_SIZE;
-+	dev->hw_attrs.page_size_cap = SZ_4K | SZ_2M;
- 	dev->hw_attrs.max_hw_ird = I40IW_MAX_IRD_SIZE;
- 	dev->hw_attrs.max_hw_ord = I40IW_MAX_ORD_SIZE;
- 	dev->hw_attrs.max_hw_wqes = I40IW_MAX_WQ_ENTRIES;
-diff --git a/drivers/infiniband/hw/irdma/icrdma_hw.c b/drivers/infiniband/hw/irdma/icrdma_hw.c
-index cf53b17510cd..5986fd906308 100644
---- a/drivers/infiniband/hw/irdma/icrdma_hw.c
-+++ b/drivers/infiniband/hw/irdma/icrdma_hw.c
-@@ -139,6 +139,7 @@ void icrdma_init_hw(struct irdma_sc_dev *dev)
- 	dev->cqp_db = dev->hw_regs[IRDMA_CQPDB];
- 	dev->cq_ack_db = dev->hw_regs[IRDMA_CQACK];
- 	dev->irq_ops = &icrdma_irq_ops;
-+	dev->hw_attrs.page_size_cap = SZ_4K | SZ_2M | SZ_1G;
- 	dev->hw_attrs.max_hw_ird = ICRDMA_MAX_IRD_SIZE;
- 	dev->hw_attrs.max_hw_ord = ICRDMA_MAX_ORD_SIZE;
- 	dev->hw_attrs.max_stat_inst = ICRDMA_MAX_STATS_COUNT;
-diff --git a/drivers/infiniband/hw/irdma/irdma.h b/drivers/infiniband/hw/irdma/irdma.h
-index 46c12334c735..4789e85d717b 100644
---- a/drivers/infiniband/hw/irdma/irdma.h
-+++ b/drivers/infiniband/hw/irdma/irdma.h
-@@ -127,6 +127,7 @@ struct irdma_hw_attrs {
- 	u64 max_hw_outbound_msg_size;
- 	u64 max_hw_inbound_msg_size;
- 	u64 max_mr_size;
-+	u64 page_size_cap;
- 	u32 min_hw_qp_id;
- 	u32 min_hw_aeq_size;
- 	u32 max_hw_aeq_size;
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index 8a3ac4257e86..0eef46428691 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -29,7 +29,7 @@ static int irdma_query_device(struct ib_device *ibdev,
- 	props->vendor_part_id = pcidev->device;
+diff --git a/drivers/infiniband/hw/irdma/cm.c b/drivers/infiniband/hw/irdma/cm.c
+index 632f65e53b63..60d4e9c151ff 100644
+--- a/drivers/infiniband/hw/irdma/cm.c
++++ b/drivers/infiniband/hw/irdma/cm.c
+@@ -4221,10 +4221,6 @@ void irdma_cm_teardown_connections(struct irdma_device *iwdev, u32 *ipaddr,
+ 	struct irdma_cm_node *cm_node;
+ 	struct list_head teardown_list;
+ 	struct ib_qp_attr attr;
+-	struct irdma_sc_vsi *vsi = &iwdev->vsi;
+-	struct irdma_sc_qp *sc_qp;
+-	struct irdma_qp *qp;
+-	int i;
  
- 	props->hw_ver = rf->pcidev->revision;
--	props->page_size_cap = SZ_4K | SZ_2M | SZ_1G;
-+	props->page_size_cap = hw_attrs->page_size_cap;
- 	props->max_mr_size = hw_attrs->max_mr_size;
- 	props->max_qp = rf->max_qp - rf->used_qps;
- 	props->max_qp_wr = hw_attrs->max_qp_wr;
-@@ -2776,7 +2776,7 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
+ 	INIT_LIST_HEAD(&teardown_list);
  
- 	if (req.reg_type == IRDMA_MEMREG_TYPE_MEM) {
- 		iwmr->page_size = ib_umem_find_best_pgsz(region,
--							 SZ_4K | SZ_2M | SZ_1G,
-+							 iwdev->rf->sc_dev.hw_attrs.page_size_cap,
- 							 virt);
- 		if (unlikely(!iwmr->page_size)) {
- 			kfree(iwmr);
+@@ -4241,52 +4237,6 @@ void irdma_cm_teardown_connections(struct irdma_device *iwdev, u32 *ipaddr,
+ 			irdma_cm_disconn(cm_node->iwqp);
+ 		irdma_rem_ref_cm_node(cm_node);
+ 	}
+-	if (!iwdev->roce_mode)
+-		return;
+-
+-	INIT_LIST_HEAD(&teardown_list);
+-	for (i = 0; i < IRDMA_MAX_USER_PRIORITY; i++) {
+-		mutex_lock(&vsi->qos[i].qos_mutex);
+-		list_for_each_safe (list_node, list_core_temp,
+-				    &vsi->qos[i].qplist) {
+-			u32 qp_ip[4];
+-
+-			sc_qp = container_of(list_node, struct irdma_sc_qp,
+-					     list);
+-			if (sc_qp->qp_uk.qp_type != IRDMA_QP_TYPE_ROCE_RC)
+-				continue;
+-
+-			qp = sc_qp->qp_uk.back_qp;
+-			if (!disconnect_all) {
+-				if (nfo->ipv4)
+-					qp_ip[0] = qp->udp_info.local_ipaddr[3];
+-				else
+-					memcpy(qp_ip,
+-					       &qp->udp_info.local_ipaddr[0],
+-					       sizeof(qp_ip));
+-			}
+-
+-			if (disconnect_all ||
+-			    (nfo->vlan_id == (qp->udp_info.vlan_tag & VLAN_VID_MASK) &&
+-			     !memcmp(qp_ip, ipaddr, nfo->ipv4 ? 4 : 16))) {
+-				spin_lock(&iwdev->rf->qptable_lock);
+-				if (iwdev->rf->qp_table[sc_qp->qp_uk.qp_id]) {
+-					irdma_qp_add_ref(&qp->ibqp);
+-					list_add(&qp->teardown_entry,
+-						 &teardown_list);
+-				}
+-				spin_unlock(&iwdev->rf->qptable_lock);
+-			}
+-		}
+-		mutex_unlock(&vsi->qos[i].qos_mutex);
+-	}
+-
+-	list_for_each_safe (list_node, list_core_temp, &teardown_list) {
+-		qp = container_of(list_node, struct irdma_qp, teardown_entry);
+-		attr.qp_state = IB_QPS_ERR;
+-		irdma_modify_qp_roce(&qp->ibqp, &attr, IB_QP_STATE, NULL);
+-		irdma_qp_rem_ref(&qp->ibqp);
+-	}
+ }
+ 
+ /**
 -- 
 2.35.1
 
