@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E63AA582F0A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 180F4582FC7
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241789AbiG0RUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33552 "EHLO
+        id S241818AbiG0RaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241974AbiG0RTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:25 -0400
+        with ESMTP id S242421AbiG0R3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:29:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDC411A80F;
-        Wed, 27 Jul 2022 09:44:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E43352DF3;
+        Wed, 27 Jul 2022 09:47:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D01F601C3;
-        Wed, 27 Jul 2022 16:44:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93407C433C1;
-        Wed, 27 Jul 2022 16:44:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6927761556;
+        Wed, 27 Jul 2022 16:47:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7085FC433C1;
+        Wed, 27 Jul 2022 16:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940280;
-        bh=L0zad5tuT0Tpll3f1lgIxg3OEeQjJgTPBhyabtixlR4=;
+        s=korg; t=1658940468;
+        bh=MZS7xM2P/QhUfUhlJ/ZyYiAd7ucFRqtt4/MMoU+Odgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErE0F4jedhdpXdbrkLBFmMdC5wgHje8PzjH8t4AJPqV/UEJrLOhsjqU06S1aqRJfD
-         T36a3nIcXlQENnY/hPFibKZyqpHLjTd2GWPy+0d9vlzr2lcAfeCd+cci+5PDPtTmx7
-         nnSLSgIbbhqnJMfOjniqUDegaGX3BCZ+8NPXH59E=
+        b=pLesKRth8yXu9ox0rZf4LulVDyhFZhmdfDV8rNTP5XPBfZGqyDsXjCx1+kJc0H56S
+         B+vI5SNaFN0nickEmLd4NCk5PxyUgnQCZkcfdxquXcjbm0Za0pKiS90faiq7Pk5S0V
+         hD3DWzcss1R1LnWzdyXH0E/PPvmsNU6f2OOqew4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Adam Guerin <adam.guerin@intel.com>,
-        Wojciech Ziemba <wojciech.ziemba@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 167/201] crypto: qat - re-enable registration of algorithms
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Han Xu <han.xu@nxp.com>,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.18 007/158] mtd: rawnand: gpmi: Set WAIT_FOR_READY timeout based on program/erase times
 Date:   Wed, 27 Jul 2022 18:11:11 +0200
-Message-Id: <20220727161034.749849280@linuxfoundation.org>
+Message-Id: <20220727161021.734636052@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,66 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit d09144745959bf7852ccafd73243dd7d1eaeb163 ]
+commit 0fddf9ad06fd9f439f137139861556671673e31c upstream.
 
-Re-enable the registration of algorithms after fixes to (1) use
-pre-allocated buffers in the datapath and (2) support the
-CRYPTO_TFM_REQ_MAY_BACKLOG flag.
+06781a5026350 Fixes the calculation of the DEVICE_BUSY_TIMEOUT register
+value from busy_timeout_cycles. busy_timeout_cycles is calculated wrong
+though: It is calculated based on the maximum page read time, but the
+timeout is also used for page write and block erase operations which
+require orders of magnitude bigger timeouts.
 
-This reverts commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de.
+Fix this by calculating busy_timeout_cycles from the maximum of
+tBERS_max and tPROG_max.
 
+This is for now the easiest and most obvious way to fix the driver.
+There's room for improvements though: The NAND_OP_WAITRDY_INSTR tells us
+the desired timeout for the current operation, so we could program the
+timeout dynamically for each operation instead of setting a fixed
+timeout. Also we could wire up the interrupt handler to actually detect
+and forward timeouts occurred when waiting for the chip being ready.
+
+As a sidenote I verified that the change in 06781a5026350 is really
+correct. I wired up the interrupt handler in my tree and measured the
+time between starting the operation and the timeout interrupt handler
+coming in. The time increases 41us with each step in the timeout
+register which corresponds to 4096 clock cycles with the 99MHz clock
+that I have.
+
+Fixes: 06781a5026350 ("mtd: rawnand: gpmi: Fix setting busy timeout setting")
+Fixes: b1206122069aa ("mtd: rawniand: gpmi: use core timings instead of an empirical derivation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Adam Guerin <adam.guerin@intel.com>
-Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Acked-by: Han Xu <han.xu@nxp.com>
+Tested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_4xxx/adf_drv.c      | 7 -------
- drivers/crypto/qat/qat_common/qat_crypto.c | 7 -------
- 2 files changed, 14 deletions(-)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-index 8fd44703115f..359fb7989dfb 100644
---- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
-+++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-@@ -52,13 +52,6 @@ static int adf_crypto_dev_config(struct adf_accel_dev *accel_dev)
- 	if (ret)
- 		goto err;
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -655,9 +655,10 @@ static int gpmi_nfc_compute_timings(stru
+ 	unsigned int tRP_ps;
+ 	bool use_half_period;
+ 	int sample_delay_ps, sample_delay_factor;
+-	u16 busy_timeout_cycles;
++	unsigned int busy_timeout_cycles;
+ 	u8 wrn_dly_sel;
+ 	unsigned long clk_rate, min_rate;
++	u64 busy_timeout_ps;
  
--	/* Temporarily set the number of crypto instances to zero to avoid
--	 * registering the crypto algorithms.
--	 * This will be removed when the algorithms will support the
--	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
--	 */
--	instances = 0;
--
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		bank = i * 2;
-diff --git a/drivers/crypto/qat/qat_common/qat_crypto.c b/drivers/crypto/qat/qat_common/qat_crypto.c
-index 59e122afa434..994e43fab0a4 100644
---- a/drivers/crypto/qat/qat_common/qat_crypto.c
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.c
-@@ -136,13 +136,6 @@ int qat_crypto_dev_config(struct adf_accel_dev *accel_dev)
- 	if (ret)
- 		goto err;
+ 	if (sdr->tRC_min >= 30000) {
+ 		/* ONFI non-EDO modes [0-3] */
+@@ -690,7 +691,8 @@ static int gpmi_nfc_compute_timings(stru
+ 	addr_setup_cycles = TO_CYCLES(sdr->tALS_min, period_ps);
+ 	data_setup_cycles = TO_CYCLES(sdr->tDS_min, period_ps);
+ 	data_hold_cycles = TO_CYCLES(sdr->tDH_min, period_ps);
+-	busy_timeout_cycles = TO_CYCLES(sdr->tWB_max + sdr->tR_max, period_ps);
++	busy_timeout_ps = max(sdr->tBERS_max, sdr->tPROG_max);
++	busy_timeout_cycles = TO_CYCLES(busy_timeout_ps, period_ps);
  
--	/* Temporarily set the number of crypto instances to zero to avoid
--	 * registering the crypto algorithms.
--	 * This will be removed when the algorithms will support the
--	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
--	 */
--	instances = 0;
--
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
--- 
-2.35.1
-
+ 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
 
 
