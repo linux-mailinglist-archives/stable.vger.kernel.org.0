@@ -2,128 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21485583432
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 22:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85177583545
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 00:18:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233916AbiG0UoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 16:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43498 "EHLO
+        id S233628AbiG0WSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 18:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229924AbiG0UoT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 16:44:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991F5501A1;
-        Wed, 27 Jul 2022 13:44:18 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BDFAB821BC;
-        Wed, 27 Jul 2022 20:44:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A5BC433C1;
-        Wed, 27 Jul 2022 20:44:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658954655;
-        bh=o1bEquRZUISTz+ILsSz7+IiI4+5ykqc4Ff8IODEXRAE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qT4qlCLH1qXrQpOFOAWBYNvwc2nTRY2Qw7hkgpINvTPrf14FwCF/rbu2sGrrSxHs7
-         dI/pFs5YPAWup9dlE7o+Nq35+pbBsIHghkmlSsyje85+LSFXgL0A6AcDzahKcrfeMK
-         UReoFM/3BHSg9IZpETbleQzFx6zwuA6N/vScZq5Xz1eRZ3gpq8pVv4XSstW0oLnUiq
-         SVLM5IVLewuEZ9UaRi610STU9pyoUgWPSrlGAHpk5AVyCs5ztKCzq0w1H/geqP2ec3
-         g13l0BImBDpvaz4oGj0HpSdEqUf8+69+kn0fiA3kZYJnfmenhUkO9OIejZQ+a1wIBU
-         JRzIck04gkbeA==
-Date:   Wed, 27 Jul 2022 16:44:14 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Iurii Zaikin <yzaikin@google.com>, Jan Kara <jack@suse.cz>,
-        Paul Turner <pjt@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>, Qing Wang <wangqing@vivo.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Stephen Kitt <steve@sk2.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Antti Palosaari <crope@iki.fi>, Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Clemens Ladisch <clemens@ladisch.de>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Julia Lawall <julia.lawall@inria.fr>,
-        Lukas Middendorf <kernel@tuxforce.de>,
-        Mark Fasheh <mark@fasheh.com>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        John Ogness <john.ogness@linutronix.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 5.15 040/201] sysctl: move some boundary constants from
- sysctl.c to sysctl_vals
-Message-ID: <YuGjnm7ePDsgosCV@sashalap>
-References: <20220727161026.977588183@linuxfoundation.org>
- <20220727161028.534205480@linuxfoundation.org>
- <YuF2eU9SbDDHdqaU@bombadil.infradead.org>
- <YuF/t6/DtsGPLQVc@kroah.com>
+        with ESMTP id S233423AbiG0WSI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 18:18:08 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A1DAB46;
+        Wed, 27 Jul 2022 15:18:07 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id w185so344397pfb.4;
+        Wed, 27 Jul 2022 15:18:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=PhrzBC+u8XXMU708mTbVCiWs4Y408E8Gnlbker0YCmc=;
+        b=hga+n2rcFwbRsybKKxT5Ocdn5MThteXg6iivx+yhJoT9XHHMAlxEhXdUCxkwb9R019
+         /l4SzuPV9Kc0b2KxxOkffKXSY7pXp1dzfbf8MJ6J+Npgxm3kJqG2s6dEl2EkEHf7oTVg
+         zVlpnWqBbnh356tHAUgjPmSgoHr55EKiFLTzFQeZx4qgtMY2HnQFnf8ZV1kqZIaboFnY
+         PjlqldtL+FcRRE4WqcSYdEtmljnhsX3HoN14q8S7/3BQnHghsUqi9/M/jJABUIP5vcuu
+         GiwZF71r4zzCN4FeFa9v3pfawI2UFrbd4sRhyADWvan5zsYJQsOAw/gg+NBAZWW9Mko1
+         U14g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=PhrzBC+u8XXMU708mTbVCiWs4Y408E8Gnlbker0YCmc=;
+        b=jCNQStoRWczncZpseceKjUvqzSIpIV3cwt3lZNS1cj+BAM2h7eK5bwZO+XS0DT+mdb
+         dwTVbA8fsQ+Xpeag/Gxe7EzHHZUsC4LehAHEiGbA7EEek7tiNF+8i/xaCweqk3mQaLrE
+         THWZNYOAy3IbkNsXKfLEFssvrdiAL+gR4tksVplzDZ0to+F8V4hUcxy5wAphVcwyDtOf
+         PoaI8ETFg5nSJ5fAquc3kGeygoQQUVUqUGdYc2oJdjUmhYJEQ6ZACkYlSl5QlwkOLnUR
+         zBa8AU6+WVz9nQJwUgLvKqzodLANftPysUIP92OY0tUS3jMIb4R/feDJXbCK5TGckayE
+         FPGQ==
+X-Gm-Message-State: AJIora9li1944kiErAmSLmGF/m5/FW1XrPb0lfOtUU0Ahf2r2TF1owyr
+        6S0a9FNRSFocVgV/0fzpj5PLId69loQ=
+X-Google-Smtp-Source: AGRyM1tc3Juh7OUE+WZ9kPlpP6xSRR+DG9TKJ/I2+rAdT0+xTS3+Duc4Qm2Rcs74zqsvB9OJdoKP/w==
+X-Received: by 2002:aa7:84c1:0:b0:52a:e11a:f5e9 with SMTP id x1-20020aa784c1000000b0052ae11af5e9mr23856756pfn.55.1658960286589;
+        Wed, 27 Jul 2022 15:18:06 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id p19-20020a634f53000000b0040cfb5151fcsm12582193pgl.74.2022.07.27.15.18.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Jul 2022 15:18:06 -0700 (PDT)
+Message-ID: <c7f1ad2d-b412-e792-57bc-dfd6373cd6c6@gmail.com>
+Date:   Wed, 27 Jul 2022 15:18:04 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YuF/t6/DtsGPLQVc@kroah.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 4.9 00/26] 4.9.325-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220727160959.122591422@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 27, 2022 at 08:11:03PM +0200, Greg Kroah-Hartman wrote:
->On Wed, Jul 27, 2022 at 10:31:37AM -0700, Luis Chamberlain wrote:
->> On Wed, Jul 27, 2022 at 06:09:04PM +0200, Greg Kroah-Hartman wrote:
->> > From: Xiaoming Ni <nixiaoming@huawei.com>
->> >
->> > [ Upstream commit 78e36f3b0dae586f623c4a37ec5eb5496f5abbe1 ]
->> >
->> > sysctl has helpers which let us specify boundary values for a min or max
->> > int value.  Since these are used for a boundary check only they don't
->> > change, so move these variables to sysctl_vals to avoid adding duplicate
->> > variables.  This will help with our cleanup of kernel/sysctl.c.
->> >
->> > [akpm@linux-foundation.org: update it for "mm/pagealloc: sysctl: change watermark_scale_factor max limit to 30%"]
->> > [mcgrof@kernel.org: major rebase]
->> >
->> > Link: https://lkml.kernel.org/r/20211123202347.818157-3-mcgrof@kernel.org
->> > Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
->> > Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
->> > Reviewed-by: Kees Cook <keescook@chromium.org>
->> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
->> > Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> I'm a bit puzzled. How / why is this a stable fix?
->
->I think it's needed by a patch later in the series.  Sasha, can you
->verify?
+On 7/27/22 09:10, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.325 release.
+> There are 26 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 29 Jul 2022 16:09:50 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.325-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Yes, about 30 patches in this series need this patch.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels and build tested on BMIPS_GENERIC:
 
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Thanks,
-Sasha
+Florian
