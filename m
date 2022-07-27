@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF6B58305F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90CC4583065
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238126AbiG0RhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:37:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
+        id S242505AbiG0Rh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:37:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229915AbiG0RgN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:36:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF5152DE3;
-        Wed, 27 Jul 2022 09:49:53 -0700 (PDT)
+        with ESMTP id S240106AbiG0RhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:37:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D786863D6;
+        Wed, 27 Jul 2022 09:50:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9267D60D3B;
-        Wed, 27 Jul 2022 16:49:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BE9EC433C1;
-        Wed, 27 Jul 2022 16:49:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0114B821D6;
+        Wed, 27 Jul 2022 16:49:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC9AC433D6;
+        Wed, 27 Jul 2022 16:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940593;
-        bh=KKdT/9iR7TxYAZKdWin+O1J7BxALUpfcJc6N5xM2Tcg=;
+        s=korg; t=1658940595;
+        bh=zZ/9f23sDmN1CWFHzWyAvJwPqv0U6mY2o48R35fTxeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1kcI9vm3rSO3n4aun9UOOMtxXMk8MMBnjIVx54p302O2XMFm2uWyZ+LirjbThyFA
-         jZRxaS+gmX5QoHDew+wMtPG2k1LvciHjp/7L3EutNHX5ALeu66VsA3BtFhb+q0v+zZ
-         pa7lS0UV5GRtGuqmIKBFrggHJZ+ME2x8G3Z5qgHg=
+        b=bzkGse2VtFMioMdEbauj9D441BG93AeTpW7WDI/BQmpHpoFWCnkkjc5e+eKVNYelW
+         NjEEjTdFIswDREEBUMVhR34wgF5IEvkbynFT/C36UdxEIb+g24WO+UzL05dMsvUx3F
+         78j431osvuhTE/ieyp7DcKIKZYxXpqkWR0C3oTUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jun Zhang <xuejun.zhang@intel.com>,
         Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 079/158] iavf: Fix handling of dummy receive descriptors
-Date:   Wed, 27 Jul 2022 18:12:23 +0200
-Message-Id: <20220727161024.676498293@linuxfoundation.org>
+Subject: [PATCH 5.18 080/158] iavf: Fix missing state logs
+Date:   Wed, 27 Jul 2022 18:12:24 +0200
+Message-Id: <20220727161024.705697137@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -58,44 +58,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
 
-[ Upstream commit a9f49e0060301a9bfebeca76739158d0cf91cdf6 ]
+[ Upstream commit d8fa2fd791a72087c1ce3336fbeefec4057c37c8 ]
 
-Fix memory leak caused by not handling dummy receive descriptor properly.
-iavf_get_rx_buffer now sets the rx_buffer return value for dummy receive
-descriptors. Without this patch, when the hardware writes a dummy
-descriptor, iavf would not free the page allocated for the previous receive
-buffer. This is an unlikely event but can still happen.
+Fix debug prints, by adding missing state prints.
 
-[Jesse: massaged commit message]
+Extend iavf_state_str by strings for __IAVF_INIT_EXTENDED_CAPS and
+__IAVF_INIT_CONFIG_ADAPTER.
 
-Fixes: efa14c398582 ("iavf: allow null RX descriptors")
+Without this patch, when enabling debug prints for iavf.h, user will
+see:
+iavf 0000:06:0e.0: state transition from:__IAVF_INIT_GET_RESOURCES to:__IAVF_UNKNOWN_STATE
+iavf 0000:06:0e.0: state transition from:__IAVF_UNKNOWN_STATE to:__IAVF_UNKNOWN_STATE
+
+Fixes: 605ca7c5c670 ("iavf: Fix kernel BUG in free_msi_irqs")
 Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Jun Zhang <xuejun.zhang@intel.com>
 Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_txrx.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-index 7bf8c25dc824..06d18797d25a 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-@@ -1285,11 +1285,10 @@ static struct iavf_rx_buffer *iavf_get_rx_buffer(struct iavf_ring *rx_ring,
- {
- 	struct iavf_rx_buffer *rx_buffer;
- 
--	if (!size)
--		return NULL;
--
- 	rx_buffer = &rx_ring->rx_bi[rx_ring->next_to_clean];
- 	prefetchw(rx_buffer->page);
-+	if (!size)
-+		return rx_buffer;
- 
- 	/* we are reusing so sync this buffer for CPU use */
- 	dma_sync_single_range_for_cpu(rx_ring->dev,
+diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
+index 2a7b3c085aa9..0ea0361cd86b 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf.h
++++ b/drivers/net/ethernet/intel/iavf/iavf.h
+@@ -464,6 +464,10 @@ static inline const char *iavf_state_str(enum iavf_state_t state)
+ 		return "__IAVF_INIT_VERSION_CHECK";
+ 	case __IAVF_INIT_GET_RESOURCES:
+ 		return "__IAVF_INIT_GET_RESOURCES";
++	case __IAVF_INIT_EXTENDED_CAPS:
++		return "__IAVF_INIT_EXTENDED_CAPS";
++	case __IAVF_INIT_CONFIG_ADAPTER:
++		return "__IAVF_INIT_CONFIG_ADAPTER";
+ 	case __IAVF_INIT_SW:
+ 		return "__IAVF_INIT_SW";
+ 	case __IAVF_INIT_FAILED:
 -- 
 2.35.1
 
