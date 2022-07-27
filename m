@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC196582AA5
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B636582D04
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234723AbiG0QWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
+        id S240706AbiG0QxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:53:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235167AbiG0QWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:18 -0400
+        with ESMTP id S240739AbiG0Qvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:51:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC49D4C62D;
-        Wed, 27 Jul 2022 09:22:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D8F54AC6;
+        Wed, 27 Jul 2022 09:33:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B224B821B8;
-        Wed, 27 Jul 2022 16:22:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11643C433C1;
-        Wed, 27 Jul 2022 16:22:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E72DB821A6;
+        Wed, 27 Jul 2022 16:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B856AC433C1;
+        Wed, 27 Jul 2022 16:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658938934;
-        bh=96Yp01INqk4vclDXyo1+6YDE4nH4XzddMCjEGZ5p7rY=;
+        s=korg; t=1658939621;
+        bh=PhB/43mHVZAlbkNW4xJpm7ohxNYRgz9aD12oY1J/ZWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=posC507LfQiEf+us8xeeUoCtFNDtHhlRbCZeMsgexfOmwAHAPu7hmWZDv1eZ0/M4g
-         hZF1zCkwhNLbFI1xv9G1xQ6XTCd6sYnTi2AZUZv+VaidBQ8/DcxNTmtpch8RCfAtpN
-         r+2cPpv7NAWnSagZABHAD5pmu48gD98Bpo7kUGYk=
+        b=nJteMLvuefz2XYgsOCvkmrc6/r0UeOGe86b3hiLH1phfsE61a7JgtajEq4HI5g8DO
+         3hn4rRy5RsPZC5Db7QBZOg+qU/pNU4iv4ntJxrDJGNGD+oA91y2lOUVBv3G85dwpCb
+         e0jp20QD2r/MLVRaPlt2fgi+H2b8l0GWSWjCE4Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Subject: [PATCH 4.9 02/26] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 045/105] igmp: Fix data-races around sysctl_igmp_llm_reports.
 Date:   Wed, 27 Jul 2022 18:10:31 +0200
-Message-Id: <20220727160959.227277100@linuxfoundation.org>
+Message-Id: <20220727161013.893815023@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
-References: <20220727160959.122591422@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 166d3863231667c4f64dee72b77d1102cdfad11f upstream.
+[ Upstream commit f6da2267e71106474fbc0943dc24928b9cb79119 ]
 
-The error paths of gntdev_mmap() can call unmap_grant_pages() even
-though not all of the pages have been successfully mapped.  This will
-trigger the WARN_ON()s in __unmap_grant_pages_done().  The number of
-warnings can be very large; I have observed thousands of lines of
-warnings in the systemd journal.
+While reading sysctl_igmp_llm_reports, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Avoid this problem by only warning on unmapping failure if the handle
-being unmapped is not INVALID_GRANT_HANDLE.  The handle field of any
-page that was not successfully mapped will be INVALID_GRANT_HANDLE, so
-this catches all cases where unmapping can legitimately fail.
+This test can be packed into a helper, so such changes will be in the
+follow-up series after net is merged into net-next.
 
-Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
-Cc: stable@vger.kernel.org
-Suggested-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20220710230522.1563-1-demi@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  if (ipv4_is_local_multicast(pmc->multiaddr) &&
+      !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+
+Fixes: df2cf4a78e48 ("IGMP: Inhibit reports for local multicast groups")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/igmp.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -390,7 +390,8 @@ static void __unmap_grant_pages_done(int
- 	unsigned int offset = data->unmap_ops - map->unmap_ops;
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 3817988a5a1d..fd9306950a26 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -467,7 +467,8 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
  
- 	for (i = 0; i < data->count; i++) {
--		WARN_ON(map->unmap_ops[offset+i].status);
-+		WARN_ON(map->unmap_ops[offset+i].status &&
-+			map->unmap_ops[offset+i].handle != -1);
- 		pr_debug("unmap handle=%d st=%d\n",
- 			map->unmap_ops[offset+i].handle,
- 			map->unmap_ops[offset+i].status);
+ 	if (pmc->multiaddr == IGMP_ALL_HOSTS)
+ 		return skb;
+-	if (ipv4_is_local_multicast(pmc->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(pmc->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return skb;
+ 
+ 	mtu = READ_ONCE(dev->mtu);
+@@ -593,7 +594,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
+ 			if (pmc->multiaddr == IGMP_ALL_HOSTS)
+ 				continue;
+ 			if (ipv4_is_local_multicast(pmc->multiaddr) &&
+-			     !net->ipv4.sysctl_igmp_llm_reports)
++			    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 				continue;
+ 			spin_lock_bh(&pmc->lock);
+ 			if (pmc->sfcount[MCAST_EXCLUDE])
+@@ -736,7 +737,8 @@ static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,
+ 	if (type == IGMPV3_HOST_MEMBERSHIP_REPORT)
+ 		return igmpv3_send_report(in_dev, pmc);
+ 
+-	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(group) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return 0;
+ 
+ 	if (type == IGMP_HOST_LEAVE_MESSAGE)
+@@ -920,7 +922,8 @@ static bool igmp_heard_report(struct in_device *in_dev, __be32 group)
+ 
+ 	if (group == IGMP_ALL_HOSTS)
+ 		return false;
+-	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(group) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return false;
+ 
+ 	rcu_read_lock();
+@@ -1045,7 +1048,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+ 		if (im->multiaddr == IGMP_ALL_HOSTS)
+ 			continue;
+ 		if (ipv4_is_local_multicast(im->multiaddr) &&
+-		    !net->ipv4.sysctl_igmp_llm_reports)
++		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 			continue;
+ 		spin_lock_bh(&im->lock);
+ 		if (im->tm_running)
+@@ -1296,7 +1299,8 @@ static void __igmp_group_dropped(struct ip_mc_list *im, gfp_t gfp)
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (im->multiaddr == IGMP_ALL_HOSTS)
+ 		return;
+-	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(im->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return;
+ 
+ 	reporter = im->reporter;
+@@ -1338,7 +1342,8 @@ static void igmp_group_added(struct ip_mc_list *im)
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (im->multiaddr == IGMP_ALL_HOSTS)
+ 		return;
+-	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(im->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return;
+ 
+ 	if (in_dev->dead)
+@@ -1642,7 +1647,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
+ 		if (im->multiaddr == IGMP_ALL_HOSTS)
+ 			continue;
+ 		if (ipv4_is_local_multicast(im->multiaddr) &&
+-		    !net->ipv4.sysctl_igmp_llm_reports)
++		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 			continue;
+ 
+ 		/* a failover is happening and switches
+-- 
+2.35.1
+
 
 
