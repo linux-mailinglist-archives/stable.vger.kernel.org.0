@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4043B5830FA
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E49A5830F8
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242957AbiG0Ro7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:44:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39404 "EHLO
+        id S242927AbiG0Ro6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:44:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243093AbiG0RoO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:44:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5778AB2C;
-        Wed, 27 Jul 2022 09:52:59 -0700 (PDT)
+        with ESMTP id S243080AbiG0RoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:44:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89D88AEE3;
+        Wed, 27 Jul 2022 09:52:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E181B821AC;
-        Wed, 27 Jul 2022 16:52:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE7BBC433D6;
-        Wed, 27 Jul 2022 16:52:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BEC8B821D7;
+        Wed, 27 Jul 2022 16:52:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82D8C433D6;
+        Wed, 27 Jul 2022 16:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940773;
-        bh=9I/JEJjN3N7i7yzhTwu3g+bbof/43fJ1qkVXXeHxttY=;
+        s=korg; t=1658940776;
+        bh=IWqERPbPXuzAJi43HWMg9GWZIDPCSP25alnEokDZ0nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9LOXYYgm9fn/oj3i02sw+SM56AvVMpgU+8heag7SgncTJzWzualDocfmCVQKn3T1
-         vli40Ltq82oyX1aPy1uqk6IfWmGesKUXcymtkNuuf5lio3xYTu4KmtfwVJK9UiW8qa
-         PHko4Fc9zU8FlGtYSBQsYu4pJpKDgqb1LkALuHeQ=
+        b=djza8EcYkmhVi9wzVqY/9z79dqHOSYTChrQRBdaeDT2cWIjMurN3Pc2nynW2qkg3t
+         O8LNLcmuHBnWxPxnehF0W8hIiHI1+gW9ZGsDtYNOl1NDO4f6byfeGETwbIeDLvhW55
+         2545oC19IcxY2nFC0dXN1/yvQnJ78jMTuu8TkZ8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Wojciech Ziemba <wojciech.ziemba@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 144/158] crypto: qat - fix memory leak in RSA
-Date:   Wed, 27 Jul 2022 18:13:28 +0200
-Message-Id: <20220727161027.125433230@linuxfoundation.org>
+Subject: [PATCH 5.18 145/158] crypto: qat - remove dma_free_coherent() for RSA
+Date:   Wed, 27 Jul 2022 18:13:29 +0200
+Message-Id: <20220727161027.154827973@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -58,50 +58,265 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 80a52e1ee7757b742f96bfb0d58f0c14eb6583d0 ]
+[ Upstream commit 3dfaf0071ed74d7a9c6b3c9ea4df7a6f8e423c2a ]
 
-When an RSA key represented in form 2 (as defined in PKCS #1 V2.1) is
-used, some components of the private key persist even after the TFM is
-released.
-Replace the explicit calls to free the buffers in qat_rsa_exit_tfm()
-with a call to qat_rsa_clear_ctx() which frees all buffers referenced in
-the TFM context.
+After commit f5ff79fddf0e ("dma-mapping: remove CONFIG_DMA_REMAP"), if
+the algorithms are enabled, the driver crashes with a BUG_ON while
+executing vunmap() in the context of a tasklet. This is due to the fact
+that the function dma_free_coherent() cannot be called in an interrupt
+context (see Documentation/core-api/dma-api-howto.rst).
+
+The functions qat_rsa_enc() and qat_rsa_dec() allocate memory with
+dma_alloc_coherent() if the source or the destination buffers are made
+of multiple flat buffers or of a size that is not compatible with the
+hardware.
+This memory is then freed with dma_free_coherent() in the context of a
+tasklet invoked to handle the response for the corresponding request.
+
+Replace allocations with dma_alloc_coherent() in the functions
+qat_rsa_enc() and qat_rsa_dec() with kmalloc() + dma_map_single().
 
 Cc: stable@vger.kernel.org
-Fixes: 879f77e9071f ("crypto: qat - Add RSA CRT mode")
+Fixes: a990532023b9 ("crypto: qat - Add support for RSA algorithm")
 Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 Reviewed-by: Adam Guerin <adam.guerin@intel.com>
 Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_asym_algs.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/crypto/qat/qat_common/qat_asym_algs.c | 137 ++++++++----------
+ 1 file changed, 60 insertions(+), 77 deletions(-)
 
 diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-index ff7249c093c9..2bc02c75398e 100644
+index 2bc02c75398e..b31372bddb96 100644
 --- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
 +++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-@@ -1257,18 +1257,8 @@ static void qat_rsa_exit_tfm(struct crypto_akcipher *tfm)
- 	struct qat_rsa_ctx *ctx = akcipher_tfm_ctx(tfm);
- 	struct device *dev = &GET_DEV(ctx->inst->accel_dev);
+@@ -529,25 +529,22 @@ static void qat_rsa_cb(struct icp_qat_fw_pke_resp *resp)
  
--	if (ctx->n)
--		dma_free_coherent(dev, ctx->key_sz, ctx->n, ctx->dma_n);
--	if (ctx->e)
--		dma_free_coherent(dev, ctx->key_sz, ctx->e, ctx->dma_e);
--	if (ctx->d) {
--		memset(ctx->d, '\0', ctx->key_sz);
--		dma_free_coherent(dev, ctx->key_sz, ctx->d, ctx->dma_d);
--	}
-+	qat_rsa_clear_ctx(dev, ctx);
- 	qat_crypto_put_instance(ctx->inst);
--	ctx->n = NULL;
--	ctx->e = NULL;
--	ctx->d = NULL;
+ 	err = (err == ICP_QAT_FW_COMN_STATUS_FLAG_OK) ? 0 : -EINVAL;
+ 
+-	if (req->src_align)
+-		dma_free_coherent(dev, req->ctx.rsa->key_sz, req->src_align,
+-				  req->in.rsa.enc.m);
+-	else
+-		dma_unmap_single(dev, req->in.rsa.enc.m, req->ctx.rsa->key_sz,
+-				 DMA_TO_DEVICE);
++	kfree_sensitive(req->src_align);
++
++	dma_unmap_single(dev, req->in.rsa.enc.m, req->ctx.rsa->key_sz,
++			 DMA_TO_DEVICE);
+ 
+ 	areq->dst_len = req->ctx.rsa->key_sz;
+ 	if (req->dst_align) {
+ 		scatterwalk_map_and_copy(req->dst_align, areq->dst, 0,
+ 					 areq->dst_len, 1);
+ 
+-		dma_free_coherent(dev, req->ctx.rsa->key_sz, req->dst_align,
+-				  req->out.rsa.enc.c);
+-	} else {
+-		dma_unmap_single(dev, req->out.rsa.enc.c, req->ctx.rsa->key_sz,
+-				 DMA_FROM_DEVICE);
++		kfree_sensitive(req->dst_align);
+ 	}
+ 
++	dma_unmap_single(dev, req->out.rsa.enc.c, req->ctx.rsa->key_sz,
++			 DMA_FROM_DEVICE);
++
+ 	dma_unmap_single(dev, req->phy_in, sizeof(struct qat_rsa_input_params),
+ 			 DMA_TO_DEVICE);
+ 	dma_unmap_single(dev, req->phy_out,
+@@ -664,6 +661,7 @@ static int qat_rsa_enc(struct akcipher_request *req)
+ 	struct qat_asym_request *qat_req =
+ 			PTR_ALIGN(akcipher_request_ctx(req), 64);
+ 	struct icp_qat_fw_pke_request *msg = &qat_req->req;
++	u8 *vaddr;
+ 	int ret;
+ 
+ 	if (unlikely(!ctx->n || !ctx->e))
+@@ -701,40 +699,39 @@ static int qat_rsa_enc(struct akcipher_request *req)
+ 	 */
+ 	if (sg_is_last(req->src) && req->src_len == ctx->key_sz) {
+ 		qat_req->src_align = NULL;
+-		qat_req->in.rsa.enc.m = dma_map_single(dev, sg_virt(req->src),
+-						   req->src_len, DMA_TO_DEVICE);
+-		if (unlikely(dma_mapping_error(dev, qat_req->in.rsa.enc.m)))
+-			return ret;
+-
++		vaddr = sg_virt(req->src);
+ 	} else {
+ 		int shift = ctx->key_sz - req->src_len;
+ 
+-		qat_req->src_align = dma_alloc_coherent(dev, ctx->key_sz,
+-							&qat_req->in.rsa.enc.m,
+-							GFP_KERNEL);
++		qat_req->src_align = kzalloc(ctx->key_sz, GFP_KERNEL);
+ 		if (unlikely(!qat_req->src_align))
+ 			return ret;
+ 
+ 		scatterwalk_map_and_copy(qat_req->src_align + shift, req->src,
+ 					 0, req->src_len, 0);
++		vaddr = qat_req->src_align;
+ 	}
+-	if (sg_is_last(req->dst) && req->dst_len == ctx->key_sz) {
+-		qat_req->dst_align = NULL;
+-		qat_req->out.rsa.enc.c = dma_map_single(dev, sg_virt(req->dst),
+-							req->dst_len,
+-							DMA_FROM_DEVICE);
+ 
+-		if (unlikely(dma_mapping_error(dev, qat_req->out.rsa.enc.c)))
+-			goto unmap_src;
++	qat_req->in.rsa.enc.m = dma_map_single(dev, vaddr, ctx->key_sz,
++					       DMA_TO_DEVICE);
++	if (unlikely(dma_mapping_error(dev, qat_req->in.rsa.enc.m)))
++		goto unmap_src;
+ 
++	if (sg_is_last(req->dst) && req->dst_len == ctx->key_sz) {
++		qat_req->dst_align = NULL;
++		vaddr = sg_virt(req->dst);
+ 	} else {
+-		qat_req->dst_align = dma_alloc_coherent(dev, ctx->key_sz,
+-							&qat_req->out.rsa.enc.c,
+-							GFP_KERNEL);
++		qat_req->dst_align = kzalloc(ctx->key_sz, GFP_KERNEL);
+ 		if (unlikely(!qat_req->dst_align))
+ 			goto unmap_src;
+-
++		vaddr = qat_req->dst_align;
+ 	}
++
++	qat_req->out.rsa.enc.c = dma_map_single(dev, vaddr, ctx->key_sz,
++						DMA_FROM_DEVICE);
++	if (unlikely(dma_mapping_error(dev, qat_req->out.rsa.enc.c)))
++		goto unmap_dst;
++
+ 	qat_req->in.rsa.in_tab[3] = 0;
+ 	qat_req->out.rsa.out_tab[1] = 0;
+ 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.enc.m,
+@@ -772,21 +769,15 @@ static int qat_rsa_enc(struct akcipher_request *req)
+ 				 sizeof(struct qat_rsa_input_params),
+ 				 DMA_TO_DEVICE);
+ unmap_dst:
+-	if (qat_req->dst_align)
+-		dma_free_coherent(dev, ctx->key_sz, qat_req->dst_align,
+-				  qat_req->out.rsa.enc.c);
+-	else
+-		if (!dma_mapping_error(dev, qat_req->out.rsa.enc.c))
+-			dma_unmap_single(dev, qat_req->out.rsa.enc.c,
+-					 ctx->key_sz, DMA_FROM_DEVICE);
++	if (!dma_mapping_error(dev, qat_req->out.rsa.enc.c))
++		dma_unmap_single(dev, qat_req->out.rsa.enc.c,
++				 ctx->key_sz, DMA_FROM_DEVICE);
++	kfree_sensitive(qat_req->dst_align);
+ unmap_src:
+-	if (qat_req->src_align)
+-		dma_free_coherent(dev, ctx->key_sz, qat_req->src_align,
+-				  qat_req->in.rsa.enc.m);
+-	else
+-		if (!dma_mapping_error(dev, qat_req->in.rsa.enc.m))
+-			dma_unmap_single(dev, qat_req->in.rsa.enc.m,
+-					 ctx->key_sz, DMA_TO_DEVICE);
++	if (!dma_mapping_error(dev, qat_req->in.rsa.enc.m))
++		dma_unmap_single(dev, qat_req->in.rsa.enc.m, ctx->key_sz,
++				 DMA_TO_DEVICE);
++	kfree_sensitive(qat_req->src_align);
+ 	return ret;
  }
  
- static struct akcipher_alg rsa = {
+@@ -799,6 +790,7 @@ static int qat_rsa_dec(struct akcipher_request *req)
+ 	struct qat_asym_request *qat_req =
+ 			PTR_ALIGN(akcipher_request_ctx(req), 64);
+ 	struct icp_qat_fw_pke_request *msg = &qat_req->req;
++	u8 *vaddr;
+ 	int ret;
+ 
+ 	if (unlikely(!ctx->n || !ctx->d))
+@@ -846,40 +838,37 @@ static int qat_rsa_dec(struct akcipher_request *req)
+ 	 */
+ 	if (sg_is_last(req->src) && req->src_len == ctx->key_sz) {
+ 		qat_req->src_align = NULL;
+-		qat_req->in.rsa.dec.c = dma_map_single(dev, sg_virt(req->src),
+-						   req->dst_len, DMA_TO_DEVICE);
+-		if (unlikely(dma_mapping_error(dev, qat_req->in.rsa.dec.c)))
+-			return ret;
+-
++		vaddr = sg_virt(req->src);
+ 	} else {
+ 		int shift = ctx->key_sz - req->src_len;
+ 
+-		qat_req->src_align = dma_alloc_coherent(dev, ctx->key_sz,
+-							&qat_req->in.rsa.dec.c,
+-							GFP_KERNEL);
++		qat_req->src_align = kzalloc(ctx->key_sz, GFP_KERNEL);
+ 		if (unlikely(!qat_req->src_align))
+ 			return ret;
+ 
+ 		scatterwalk_map_and_copy(qat_req->src_align + shift, req->src,
+ 					 0, req->src_len, 0);
++		vaddr = qat_req->src_align;
+ 	}
+-	if (sg_is_last(req->dst) && req->dst_len == ctx->key_sz) {
+-		qat_req->dst_align = NULL;
+-		qat_req->out.rsa.dec.m = dma_map_single(dev, sg_virt(req->dst),
+-						    req->dst_len,
+-						    DMA_FROM_DEVICE);
+ 
+-		if (unlikely(dma_mapping_error(dev, qat_req->out.rsa.dec.m)))
+-			goto unmap_src;
++	qat_req->in.rsa.dec.c = dma_map_single(dev, vaddr, ctx->key_sz,
++					       DMA_TO_DEVICE);
++	if (unlikely(dma_mapping_error(dev, qat_req->in.rsa.dec.c)))
++		goto unmap_src;
+ 
++	if (sg_is_last(req->dst) && req->dst_len == ctx->key_sz) {
++		qat_req->dst_align = NULL;
++		vaddr = sg_virt(req->dst);
+ 	} else {
+-		qat_req->dst_align = dma_alloc_coherent(dev, ctx->key_sz,
+-							&qat_req->out.rsa.dec.m,
+-							GFP_KERNEL);
++		qat_req->dst_align = kzalloc(ctx->key_sz, GFP_KERNEL);
+ 		if (unlikely(!qat_req->dst_align))
+ 			goto unmap_src;
+-
++		vaddr = qat_req->dst_align;
+ 	}
++	qat_req->out.rsa.dec.m = dma_map_single(dev, vaddr, ctx->key_sz,
++						DMA_FROM_DEVICE);
++	if (unlikely(dma_mapping_error(dev, qat_req->out.rsa.dec.m)))
++		goto unmap_dst;
+ 
+ 	if (ctx->crt_mode)
+ 		qat_req->in.rsa.in_tab[6] = 0;
+@@ -925,21 +914,15 @@ static int qat_rsa_dec(struct akcipher_request *req)
+ 				 sizeof(struct qat_rsa_input_params),
+ 				 DMA_TO_DEVICE);
+ unmap_dst:
+-	if (qat_req->dst_align)
+-		dma_free_coherent(dev, ctx->key_sz, qat_req->dst_align,
+-				  qat_req->out.rsa.dec.m);
+-	else
+-		if (!dma_mapping_error(dev, qat_req->out.rsa.dec.m))
+-			dma_unmap_single(dev, qat_req->out.rsa.dec.m,
+-					 ctx->key_sz, DMA_FROM_DEVICE);
++	if (!dma_mapping_error(dev, qat_req->out.rsa.dec.m))
++		dma_unmap_single(dev, qat_req->out.rsa.dec.m,
++				 ctx->key_sz, DMA_FROM_DEVICE);
++	kfree_sensitive(qat_req->dst_align);
+ unmap_src:
+-	if (qat_req->src_align)
+-		dma_free_coherent(dev, ctx->key_sz, qat_req->src_align,
+-				  qat_req->in.rsa.dec.c);
+-	else
+-		if (!dma_mapping_error(dev, qat_req->in.rsa.dec.c))
+-			dma_unmap_single(dev, qat_req->in.rsa.dec.c,
+-					 ctx->key_sz, DMA_TO_DEVICE);
++	if (!dma_mapping_error(dev, qat_req->in.rsa.dec.c))
++		dma_unmap_single(dev, qat_req->in.rsa.dec.c, ctx->key_sz,
++				 DMA_TO_DEVICE);
++	kfree_sensitive(qat_req->src_align);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
