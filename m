@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9EF582ADF
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7977C582D18
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235601AbiG0QYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
+        id S240997AbiG0QyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235679AbiG0QXm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:23:42 -0400
+        with ESMTP id S240863AbiG0Qwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD014D81E;
-        Wed, 27 Jul 2022 09:23:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6AB4F199;
+        Wed, 27 Jul 2022 09:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42B42B821B8;
-        Wed, 27 Jul 2022 16:22:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85FA3C43470;
-        Wed, 27 Jul 2022 16:22:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3ED6EB8200C;
+        Wed, 27 Jul 2022 16:34:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE4EC433C1;
+        Wed, 27 Jul 2022 16:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658938974;
-        bh=XtGu8TE7CovI0KYOLPZ54gTgLYD3hr7Az98aZLAAFW4=;
+        s=korg; t=1658939687;
+        bh=Iz/mwSZsiPX2GA66vcgC0gHeYQ5WYfVUcaxSwmCZink=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dHm6dllLulQTTGRUexeQIOKnHk0t6fj5sSJW5VEJoAk85LBXF6X5atvl0vboh9GTp
-         LaohSAd/H9jxEG9ePBYbGa+/rVenUt5sO+Mtzsq9mncVnWwZNVKKTYlusaN1VgGKTg
-         n5FnDIC7lrqm1kqE92sgO3TW7HL3BNFGpyPMj5VQ=
+        b=t4UncEyqz5ciHix5MnAIIsfcST7NXfaVDth9LzsueVyrw0Hj5DCfpiHIURcFqMtDq
+         DRWer/zDOLuwuaTAlRg3gdkrQVeWIJRLmlrSv3XeOtFGkb+zMHneW7xmZh55G9c5pf
+         VrCRlZev7eLBg+F7Akl7uuGkr+xusWSrjY10iWdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Alonso <joalonsof@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 26/26] net: usb: ax88179_178a needs FLAG_SEND_ZLP
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 069/105] tcp: Fix a data-race around sysctl_tcp_early_retrans.
 Date:   Wed, 27 Jul 2022 18:10:55 +0200
-Message-Id: <20220727161000.160421507@linuxfoundation.org>
+Message-Id: <20220727161014.829100312@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
-References: <20220727160959.122591422@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,112 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Alonso <joalonsof@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 36a15e1cb134c0395261ba1940762703f778438c upstream.
+[ Upstream commit 52e65865deb6a36718a463030500f16530eaab74 ]
 
-The extra byte inserted by usbnet.c when
- (length % dev->maxpacket == 0) is causing problems to device.
+While reading sysctl_tcp_early_retrans, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-This patch sets FLAG_SEND_ZLP to avoid this.
-
-Tested with: 0b95:1790 ASIX Electronics Corp. AX88179 Gigabit Ethernet
-
-Problems observed:
-======================================================================
-1) Using ssh/sshfs. The remote sshd daemon can abort with the message:
-   "message authentication code incorrect"
-   This happens because the tcp message sent is corrupted during the
-   USB "Bulk out". The device calculate the tcp checksum and send a
-   valid tcp message to the remote sshd. Then the encryption detects
-   the error and aborts.
-2) NETDEV WATCHDOG: ... (ax88179_178a): transmit queue 0 timed out
-3) Stop normal work without any log message.
-   The "Bulk in" continue receiving packets normally.
-   The host sends "Bulk out" and the device responds with -ECONNRESET.
-   (The netusb.c code tx_complete ignore -ECONNRESET)
-Under normal conditions these errors take days to happen and in
-intense usage take hours.
-
-A test with ping gives packet loss, showing that something is wrong:
-ping -4 -s 462 {destination}	# 462 = 512 - 42 - 8
-Not all packets fail.
-My guess is that the device tries to find another packet starting
-at the extra byte and will fail or not depending on the next
-bytes (old buffer content).
-======================================================================
-
-Signed-off-by: Jose Alonso <joalonsof@gmail.com>
+Fixes: eed530b6c676 ("tcp: early retransmit")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ net/ipv4/tcp_output.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1703,7 +1703,7 @@ static const struct driver_info ax88179_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1716,7 +1716,7 @@ static const struct driver_info ax88178a
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1729,7 +1729,7 @@ static const struct driver_info cypress_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1742,7 +1742,7 @@ static const struct driver_info dlink_du
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1755,7 +1755,7 @@ static const struct driver_info sitecom_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1768,7 +1768,7 @@ static const struct driver_info samsung_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1781,7 +1781,7 @@ static const struct driver_info lenovo_i
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 772dd6241b70..0cbf3d859745 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -2735,7 +2735,7 @@ bool tcp_schedule_loss_probe(struct sock *sk, bool advancing_rto)
+ 	if (rcu_access_pointer(tp->fastopen_rsk))
+ 		return false;
+ 
+-	early_retrans = sock_net(sk)->ipv4.sysctl_tcp_early_retrans;
++	early_retrans = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_early_retrans);
+ 	/* Schedule a loss probe in 2*RTT for SACK capable connections
+ 	 * not in loss recovery, that are either limited by cwnd or application.
+ 	 */
+-- 
+2.35.1
+
 
 
