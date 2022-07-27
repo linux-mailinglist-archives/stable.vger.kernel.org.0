@@ -2,53 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B10FF582F3D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FB9C582FE6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236045AbiG0RXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:23:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51446 "EHLO
+        id S242284AbiG0Rak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:30:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241920AbiG0RWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:22:52 -0400
+        with ESMTP id S242579AbiG0RaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:30:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7488D71705;
-        Wed, 27 Jul 2022 09:45:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535276053A;
+        Wed, 27 Jul 2022 09:48:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87E27B8200D;
-        Wed, 27 Jul 2022 16:45:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C6BC433C1;
-        Wed, 27 Jul 2022 16:45:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6728DB8200D;
+        Wed, 27 Jul 2022 16:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4666C433C1;
+        Wed, 27 Jul 2022 16:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940336;
-        bh=tfSNXRv4yqw1SkN0l+CRvzEBIXcTpg4fxT2kkmH1BAU=;
+        s=korg; t=1658940480;
+        bh=IQkqiL557D1Uy1xhbqyt5NvKMoYWp8sG7TSbNKRSI+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mu//rNjnKv91BdkgCAHefU+0YivpM8v3XpPJ5Nq7YxppDeW8+Gv/ioZ9Q1YJ5ZHqF
-         xElVqPWpnlFEZoALFgXdtvL0BNPhbVUw4YlH/74zSE2NdIILxw4tZoQucFCY4jwXa4
-         /juvkwPC2R1Jf9YwdgX8iWwlBckFN8uwsWIxOZAI=
+        b=Q+hMuQ9TNbTIDITilDPY+XqLMDu1AIQ0TufPVEXvDXOAqEmkCTWlKQoNXR8GpX83p
+         c/2SbBKbJiwikF/LqrXEdumFyELwHFxlXe2ngg1VLILu0rfUBwxfQ/DxAf2LZttuIN
+         Q/dgXkJ3DIE+IKDSjAN8xL9aCtGOEOZGiD/vLl1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        William Hubbs <w.d.hubbs@gmail.com>,
-        Chris Brannon <chris@the-brannons.com>,
-        Kirk Reiser <kirk@reisers.ca>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.15 189/201] tty: the rest, stop using tty_schedule_flip()
-Date:   Wed, 27 Jul 2022 18:11:33 +0200
-Message-Id: <20220727161035.599193527@linuxfoundation.org>
+        stable@vger.kernel.org, Dima Ruinskiy <dima.ruinskiy@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 030/158] e1000e: Enable GPT clock before sending message to CSME
+Date:   Wed, 27 Jul 2022 18:11:34 +0200
+Message-Id: <20220727161022.686155057@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,84 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit b68b914494df4f79b4e9b58953110574af1cb7a2 upstream.
+[ Upstream commit b49feacbeffc7635cc6692cbcc6a1eae2c17da6f ]
 
-Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
-tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
-going to remove the latter (as it is used less), so call the former in
-the rest of the users.
+On corporate (CSME) ADL systems, the Ethernet Controller may stop working
+("HW unit hang") after exiting from the s0ix state. The reason is that
+CSME misses the message sent by the host. Enabling the dynamic GPT clock
+solves this problem. This clock is cleared upon HW initialization.
 
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: William Hubbs <w.d.hubbs@gmail.com>
-Cc: Chris Brannon <chris@the-brannons.com>
-Cc: Kirk Reiser <kirk@reisers.ca>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211122111648.30379-3-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3e55d231716e ("e1000e: Add handshake with the CSME to support S0ix")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=214821
+Reviewed-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/srmcons.c               |    2 +-
- drivers/accessibility/speakup/spk_ttyio.c |    4 ++--
- drivers/s390/char/keyboard.h              |    4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/alpha/kernel/srmcons.c
-+++ b/arch/alpha/kernel/srmcons.c
-@@ -59,7 +59,7 @@ srmcons_do_receive_chars(struct tty_port
- 	} while((result.bits.status & 1) && (++loops < 10));
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index fa06f68c8c80..c64102b29862 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6494,6 +6494,10 @@ static void e1000e_s0ix_exit_flow(struct e1000_adapter *adapter)
  
- 	if (count)
--		tty_schedule_flip(port);
-+		tty_flip_buffer_push(port);
- 
- 	return count;
- }
---- a/drivers/accessibility/speakup/spk_ttyio.c
-+++ b/drivers/accessibility/speakup/spk_ttyio.c
-@@ -88,7 +88,7 @@ static int spk_ttyio_receive_buf2(struct
- 	}
- 
- 	if (!ldisc_data->buf_free)
--		/* ttyio_in will tty_schedule_flip */
-+		/* ttyio_in will tty_flip_buffer_push */
- 		return 0;
- 
- 	/* Make sure the consumer has read buf before we have seen
-@@ -312,7 +312,7 @@ static unsigned char ttyio_in(struct spk
- 	mb();
- 	ldisc_data->buf_free = true;
- 	/* Let TTY push more characters */
--	tty_schedule_flip(tty->port);
-+	tty_flip_buffer_push(tty->port);
- 
- 	return rv;
- }
---- a/drivers/s390/char/keyboard.h
-+++ b/drivers/s390/char/keyboard.h
-@@ -56,7 +56,7 @@ static inline void
- kbd_put_queue(struct tty_port *port, int ch)
- {
- 	tty_insert_flip_char(port, ch, 0);
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
- }
- 
- static inline void
-@@ -64,5 +64,5 @@ kbd_puts_queue(struct tty_port *port, ch
- {
- 	while (*cp)
- 		tty_insert_flip_char(port, *cp++, 0);
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
- }
+ 	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
+ 	    hw->mac.type >= e1000_pch_adp) {
++		/* Keep the GPT clock enabled for CSME */
++		mac_data = er32(FEXTNVM);
++		mac_data |= BIT(3);
++		ew32(FEXTNVM, mac_data);
+ 		/* Request ME unconfigure the device from S0ix */
+ 		mac_data = er32(H2ME);
+ 		mac_data &= ~E1000_H2ME_START_DPG;
+-- 
+2.35.1
+
 
 
