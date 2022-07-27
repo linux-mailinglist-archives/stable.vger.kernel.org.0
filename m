@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3942582BDA
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B73582E83
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239061AbiG0Qi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:38:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
+        id S240089AbiG0RNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:13:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239155AbiG0Qib (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:38:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472205926B;
-        Wed, 27 Jul 2022 09:28:35 -0700 (PDT)
+        with ESMTP id S241578AbiG0RMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:12:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460757644C;
+        Wed, 27 Jul 2022 09:42:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74C4CB821A6;
-        Wed, 27 Jul 2022 16:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F9FC433D6;
-        Wed, 27 Jul 2022 16:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2847560D3B;
+        Wed, 27 Jul 2022 16:42:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 367F5C433C1;
+        Wed, 27 Jul 2022 16:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939311;
-        bh=8KEZlxPKxQ3tmzEQHpD6PsGQTPZLI4RZcLqnq0HbwFY=;
+        s=korg; t=1658940124;
+        bh=4ErHXwOhPcEPwMUnQeYwhJKbusd/k1X5rqkKC/8iioU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5riwf1hq5AJ5Q5MdZXRf/Uvjw3edFg/AtxU7n4z8lzTwe5huowtNzr4wo+XPW2EX
-         0UCE3iOVi0s6C3pOqPAR6lc38TiRC/n2cI7Ykr2VSkZ9dTyEvLkSe2e0MurviVKXlK
-         bV5Hmbhenjkzoll/KH0t7WwhgCQxHuQ8kIWkkriQ=
+        b=CsrXCQwd8PkjBOnihqLPPLaqb8f/Xph2B1P0bcejRdl8legb/No6TKxZeF8ilo3jN
+         54FwqPAGnuMqnC6fVwj2+2M6tgq2m1o2MyMOGKw72dZV8YEJTNXYd3lHsdW10pDjz4
+         IHTQwdL8zRoNkhUUz4l6QtmATcjc0MvSLk5d+zRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/87] tcp: Fix a data-race around sysctl_tcp_probe_threshold.
+Subject: [PATCH 5.15 114/201] net: dsa: vitesse-vsc73xx: silent spi_device_id warnings
 Date:   Wed, 27 Jul 2022 18:10:18 +0200
-Message-Id: <20220727161010.055996775@linuxfoundation.org>
+Message-Id: <20220727161032.483840946@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 92c0aa4175474483d6cf373314343d4e624e882a ]
+[ Upstream commit 1774559f07993e1cac33c2406e99049d4bdea6c8 ]
 
-While reading sysctl_tcp_probe_threshold, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Add spi_device_id entries to silent SPI warnings.
 
-Fixes: 6b58e0a5f32d ("ipv4: Use binary search to choose tcp PMTU probe_size")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5fa6863ba692 ("spi: Check we have a spi_device_id for each DT compatible")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220717135831.2492844-2-o.rempel@pengutronix.de
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/vitesse-vsc73xx-spi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 7c0b96319fc0..e60cb69d00a4 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2134,7 +2134,7 @@ static int tcp_mtu_probe(struct sock *sk)
- 	 * probing process by not resetting search range to its orignal.
- 	 */
- 	if (probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high) ||
--		interval < net->ipv4.sysctl_tcp_probe_threshold) {
-+	    interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold)) {
- 		/* Check whether enough time has elaplased for
- 		 * another round of probing.
- 		 */
+diff --git a/drivers/net/dsa/vitesse-vsc73xx-spi.c b/drivers/net/dsa/vitesse-vsc73xx-spi.c
+index 645398901e05..922ae22fad66 100644
+--- a/drivers/net/dsa/vitesse-vsc73xx-spi.c
++++ b/drivers/net/dsa/vitesse-vsc73xx-spi.c
+@@ -207,10 +207,20 @@ static const struct of_device_id vsc73xx_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, vsc73xx_of_match);
+ 
++static const struct spi_device_id vsc73xx_spi_ids[] = {
++	{ "vsc7385" },
++	{ "vsc7388" },
++	{ "vsc7395" },
++	{ "vsc7398" },
++	{ },
++};
++MODULE_DEVICE_TABLE(spi, vsc73xx_spi_ids);
++
+ static struct spi_driver vsc73xx_spi_driver = {
+ 	.probe = vsc73xx_spi_probe,
+ 	.remove = vsc73xx_spi_remove,
+ 	.shutdown = vsc73xx_spi_shutdown,
++	.id_table = vsc73xx_spi_ids,
+ 	.driver = {
+ 		.name = "vsc73xx-spi",
+ 		.of_match_table = vsc73xx_of_match,
 -- 
 2.35.1
 
