@@ -2,183 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C33581CA6
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 02:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187DA581CB8
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 02:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232825AbiG0AIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jul 2022 20:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57994 "EHLO
+        id S233303AbiG0APg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jul 2022 20:15:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230505AbiG0AIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 20:08:49 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2067.outbound.protection.outlook.com [40.107.237.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E251F2A40F
-        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 17:08:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iCjIa42huulyhT6q+hJlg4VIelmc86Rq80El65/TsKS31pnNvK/3z1lmzyo3RfylxJ70q3nYkqF1Rggda6q56U9EMyah44QJUrkshYHgUFBIwuTqTo6fZiRNYYpmN43OjT4fBuRAPy4jiAMcXr+5I+jTGYWgG/qod5VGJTMa0gPB0Ss4EjhxdimgGUJS8QPWxJMJRdWOm29oFVUYkvAqU8Z9Xwt0Ql9xUveqQMPHw/1TaDwOEba9S66Cp0ToP708XFhnK8E6HtgFOXM8Sn2of862f4pncahtSnJlXm99A7gKJknD5SXkZduNfaKZn/aprEy1bzPuk6YKzI1SsL63VQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RYfiUhNngmyYnKzZVuTZZbJMpXLp7p37StKkfp0cyCU=;
- b=bXlYaJhj0DJ2rAM3ib5vg+fQqOS93ZNbvhHpINEB9SB8oLaJu6yJgU05eh5pTnBlxgZw8p24EeEoEX6LBgl+Qea1XEKsVAmQKNL9cdjEfYihTHODEnJX6WxUZa9B4XRDkYEagpnEKSLwXxVmwKA6o6EFokHnBkfmCoiANzpnBQWwd6pVlWr0eS9sh05ApnVGGBIN7xtMFyvFOJy+gcPHfr2DAjwvvWkJvAZZUW+1pACijy+8hWk8hOR68dHZvn84xYECpi/pKWYTWe288Dqh3gLIcwG6RBE3N/FtQJgH3e6Qsi1ePaEHH6FzZJb4e7+v5lb692+Pn0s/k5Z1tLmD7A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.238) smtp.rcpttodomain=linux-foundation.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RYfiUhNngmyYnKzZVuTZZbJMpXLp7p37StKkfp0cyCU=;
- b=eFI2mNzgioDP7rM+QZ59YO+vBVOvux4rcsO/h4X3WlW0OFega1FNUcWSKpxW86LihpCOSa4a9x5Y7UpAWvkWMfUwetlINzr04LaJLuxX6hXMcIGZU2fuCgWQsIzvQ38Cpz3dgqqrS7Df+3pK7PsqYk5r347VOtBocGrHlBtuqu5+t6ZGRXHE2Ug5+CHO55WUmrhK0RnwwnBcDZC6GFwGV9eT2IFbk3v9cn/7FZkFsgnTRTTznd1wxEntJkwD45F1jVCDigzyywf5H/aSOgER1A3OZKT5isXsRi468+CY/2IOjOeDZ1n2GE/Rkizk983i5XPMcgbDJtmd2XkOzsIWhg==
-Received: from BN1PR10CA0015.namprd10.prod.outlook.com (2603:10b6:408:e0::20)
- by BYAPR12MB3479.namprd12.prod.outlook.com (2603:10b6:a03:dc::26) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5458.24; Wed, 27 Jul
- 2022 00:08:46 +0000
-Received: from BN8NAM11FT047.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:e0:cafe::6) by BN1PR10CA0015.outlook.office365.com
- (2603:10b6:408:e0::20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5482.7 via Frontend
- Transport; Wed, 27 Jul 2022 00:08:46 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.238) by
- BN8NAM11FT047.mail.protection.outlook.com (10.13.177.220) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5482.10 via Frontend Transport; Wed, 27 Jul 2022 00:08:46 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- DRHQMAIL105.nvidia.com (10.27.9.14) with Microsoft SMTP Server (TLS) id
- 15.0.1497.32; Wed, 27 Jul 2022 00:08:45 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.26; Tue, 26 Jul 2022 17:08:45 -0700
-Received: from rcampbell-dev.nvidia.com (10.127.8.9) by mail.nvidia.com
- (10.126.190.181) with Microsoft SMTP Server id 15.2.986.26 via Frontend
- Transport; Tue, 26 Jul 2022 17:08:45 -0700
-From:   Ralph Campbell <rcampbell@nvidia.com>
-To:     <linux-mm@kvack.org>
-CC:     Felix Kuehling <felix.kuehling@amd.com>,
-        Philip Yang <Philip.Yang@amd.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ralph Campbell <rcampbell@nvidia.com>, <stable@vger.kernel.org>
-Subject: [PATCH v3 1/2] mm/hmm: fault non-owner device private entries
-Date:   Tue, 26 Jul 2022 17:08:36 -0700
-Message-ID: <20220727000837.4128709-2-rcampbell@nvidia.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220727000837.4128709-1-rcampbell@nvidia.com>
-References: <20220727000837.4128709-1-rcampbell@nvidia.com>
-MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 04ca704c-acfc-4210-4eb2-08da6f642ca2
-X-MS-TrafficTypeDiagnostic: BYAPR12MB3479:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cpDIYDI9vRuU91KjE233rZEFjuRbNkAKa+Ja0oyosrRKDin6jUj3KB1IhlZ5wP2IAF74f7kw6WKo7eTovvpl+5Xvbs8ojgAlS88S//t22YDZaCfODvW3u/9fH9B466g8szTpIfcGuP5xEZPHJwp/xNdJFlfGuZd7YfwKyerebfwDnLq64aAlrrUiMCFAAjZo7s2+Q8BX9dXjJ6lN2oNo2JHnBbkqXCnfq4ml3EELn/LBVVo60rRDpEXq613fvf/T+GJPje708eJ7bQqjMmJaS+95mn+dP9KPBLNbTwTD28TxfgyG6aJb2IShxigjmxzQxXG0G+bi7KgPivjtnXEqf16iaE4uXWI6l3TEmxDFrcbIpRS6J54AE41D3WAfNcJq7Xve0yNrEOTCOxxSpiIbEuvrzv1xQB8cfXUQ91f8m7SbeslbwP6K5m0gAh9ZqQ/Q5TrWIUo/okdT/vQLwVJVDKGXAAhZYDTOjcXdoUhU6WYEmNw+xDWmbt0q2TD20k6cF0P062gwEmVDxp0TqCaP/Bv1peca9VR5noc0Cec1D68G2kiSSFwFkQdiWqPQbudefYr+nevH6F3imTgkboaPlbSncvnGayfWX6D7TyKtt0HGd2s4YHOeBJs0KziTc04g5PbjEwt2tYG1z0FVlynay3DWTqdc/bBPWnaIRqhCT7dYGbtdCv8z1fsBZG05zOXFZSTtEB6ChfZlUNPODO4y19+m+xEVreSnsrGCgzYCBGJr3a+ymzDAaoBW52nawOCLHx1l2Ys0xIMj2eBdp4zaWysZ4lxXGWglGRVvUHbxUsqjDAc4E8tt+0cPlmAdSB2zmEgSfVw1XinRWSz5C7rDRQ==
-X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(376002)(346002)(39860400002)(396003)(136003)(36840700001)(46966006)(40470700004)(8676002)(82740400003)(40480700001)(70206006)(1076003)(36860700001)(81166007)(186003)(4326008)(70586007)(316002)(356005)(54906003)(6916009)(7696005)(2906002)(36756003)(86362001)(8936002)(41300700001)(6666004)(82310400005)(40460700003)(26005)(478600001)(2616005)(5660300002)(83380400001)(47076005)(336012)(426003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Jul 2022 00:08:46.1031
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 04ca704c-acfc-4210-4eb2-08da6f642ca2
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT047.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3479
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
-        autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S232966AbiG0APf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 20:15:35 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7402019C2E;
+        Tue, 26 Jul 2022 17:15:33 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id b7-20020a17090a12c700b001f20eb82a08so504730pjg.3;
+        Tue, 26 Jul 2022 17:15:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=3RSdu/ftksH2kRInjQ7CZe/PjouCCOaY6R6ufSLyASQ=;
+        b=f41v0gASRs2LjNLebJYIoYGWdNbcVY8lv8LN8tQ+PTdDq0Urge2d0L6C8cVHnaTv8D
+         f6E7yF1xorMNuLPPljCe1JOZ4/NEU5Tlo61Yd22WX+X6U4jB9Vb4+xa8v1wiBTppAVBa
+         5NAoLJrpeou6wOHiBxpZQLxfanle34MvNySVnXsmFqkuq/TnQelZk/vodXcWx47pYw/j
+         YCyH2F2ib040lYlZU7uiiG3s0WPrizg6ocD1f60ITQ+PRZuCKu2/exloxEl9jRVXu5/o
+         QWEyEN7ToWRTmDnkNJCaXZRc7AouklgkLN36Lw2QHbZaByD5wh0suSYhrwbfc0/zNH3V
+         GWsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=3RSdu/ftksH2kRInjQ7CZe/PjouCCOaY6R6ufSLyASQ=;
+        b=qHMnplEyXBOlORIxhWCQzMkuHB6YapMQfTcJ/HJleJyVlLrwK2xF2eF1C5dhcQbfYk
+         49X163/c7czrRQEQFweGUHEr45Yy24L2CEo1h1HuZBecbUXNfBpNecd5/+HVog5sD19i
+         zx/BzCNOHbIehISh6YTzFpT0i5hzJ2X/q9zkSNEWMxBbxZW7iLGbMXQ0xhnIWJuMuxnr
+         fB3ca5rhwUwxOLu6moQtR4TRuh3PQty278Ul9unKO2G7YkRq8A2uG1oS0JqLDufY3yG4
+         S0P2Gkk8WbbDCzYs3A+7Cv3mx9LN7MsB2swzlz+o6cAhsPcc8gwLClc8isKOXXYipJrE
+         nv6A==
+X-Gm-Message-State: AJIora+d5CTFjdYIZXK1fzRKgbkrwvYiWP1fGxLbsoGseZb7J6cTlPFW
+        ZrtHUjfAJiCJqOnB0qN2T1gPF7t/7rEyOw==
+X-Google-Smtp-Source: AGRyM1u/LwAsCEZMgKu58cdfbc6X+rmkg7cqtKiuXRSrO5N9j0sBr+6aBlnWLpe1hpNWMkNbTvncBA==
+X-Received: by 2002:a17:903:110e:b0:16c:defc:a092 with SMTP id n14-20020a170903110e00b0016cdefca092mr19142661plh.143.1658880932457;
+        Tue, 26 Jul 2022 17:15:32 -0700 (PDT)
+Received: from Negi ([68.181.16.133])
+        by smtp.gmail.com with ESMTPSA id u5-20020a627905000000b005259578e8fcsm12298305pfc.181.2022.07.26.17.15.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Jul 2022 17:15:31 -0700 (PDT)
+From:   Soumya Negi <soumya.negi97@gmail.com>
+To:     Anton Altaparmakov <anton@tuxera.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Cc:     Soumya Negi <soumya.negi97@gmail.com>,
+        linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] ntfs: Ensure $Extend is a directory
+Date:   Tue, 26 Jul 2022 17:15:13 -0700
+Message-Id: <20220727001513.11902-1-soumya.negi97@gmail.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If hmm_range_fault() is called with the HMM_PFN_REQ_FAULT flag and a
-device private PTE is found, the hmm_range::dev_private_owner page is
-used to determine if the device private page should not be faulted in.
-However, if the device private page is not owned by the caller,
-hmm_range_fault() returns an error instead of calling migrate_to_ram()
-to fault in the page.
+Fix Syzbot bug: kernel BUG in ntfs_lookup_inode_by_name
+https://syzkaller.appspot.com/bug?id=32cf53b48c1846ffc25a185a2e92e170d1a95d71
 
-For example, if a page is migrated to GPU private memory and a RDMA fault
-capable NIC tries to read the migrated page, without this patch it will
-get an error. With this patch, the page will be migrated back to system
-memory and the NIC will be able to read the data.
+Check whether $Extend is a directory or not( for NTFS3.0+) while
+loading system files. If it isn't(as in the case of this bug where the
+mft record for $Extend contains a regular file), load_system_files()
+returns false.
 
-Cc: stable@vger.kernel.org
-Fixes: 08ddddda667b ("mm/hmm: check the device private page owner in hmm_range_fault()")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Reported-by: Felix Kuehling <felix.kuehling@amd.com>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Cc: Philip Yang <Philip.Yang@amd.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: syzbot+30b7f850c6d98ea461d2@syzkaller.appspotmail.com
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Soumya Negi <soumya.negi97@gmail.com>
 ---
- mm/hmm.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+Changes since v1:
+* Added CC tag for stable
+* Formatted changelog to fit within 72 cols
 
-diff --git a/mm/hmm.c b/mm/hmm.c
-index 3fd3242c5e50..f2aa63b94d9b 100644
---- a/mm/hmm.c
-+++ b/mm/hmm.c
-@@ -212,14 +212,6 @@ int hmm_vma_handle_pmd(struct mm_walk *walk, unsigned long addr,
- 		unsigned long end, unsigned long hmm_pfns[], pmd_t pmd);
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
- 
--static inline bool hmm_is_device_private_entry(struct hmm_range *range,
--		swp_entry_t entry)
--{
--	return is_device_private_entry(entry) &&
--		pfn_swap_entry_to_page(entry)->pgmap->owner ==
--		range->dev_private_owner;
--}
--
- static inline unsigned long pte_to_hmm_pfn_flags(struct hmm_range *range,
- 						 pte_t pte)
- {
-@@ -252,10 +244,12 @@ static int hmm_vma_handle_pte(struct mm_walk *walk, unsigned long addr,
- 		swp_entry_t entry = pte_to_swp_entry(pte);
- 
- 		/*
--		 * Never fault in device private pages, but just report
--		 * the PFN even if not present.
-+		 * Don't fault in device private pages owned by the caller,
-+		 * just report the PFN.
- 		 */
--		if (hmm_is_device_private_entry(range, entry)) {
-+		if (is_device_private_entry(entry) &&
-+		    pfn_swap_entry_to_page(entry)->pgmap->owner ==
-+		    range->dev_private_owner) {
- 			cpu_flags = HMM_PFN_VALID;
- 			if (is_writable_device_private_entry(entry))
- 				cpu_flags |= HMM_PFN_WRITE;
-@@ -273,6 +267,9 @@ static int hmm_vma_handle_pte(struct mm_walk *walk, unsigned long addr,
- 		if (!non_swap_entry(entry))
- 			goto fault;
- 
-+		if (is_device_private_entry(entry))
-+			goto fault;
+---
+ fs/ntfs/super.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ntfs/super.c b/fs/ntfs/super.c
+index 5ae8de09b271..18e2902531f9 100644
+--- a/fs/ntfs/super.c
++++ b/fs/ntfs/super.c
+@@ -2092,10 +2092,15 @@ static bool load_system_files(ntfs_volume *vol)
+ 	// TODO: Initialize security.
+ 	/* Get the extended system files' directory inode. */
+ 	vol->extend_ino = ntfs_iget(sb, FILE_Extend);
+-	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino)) {
++	if (IS_ERR(vol->extend_ino) || is_bad_inode(vol->extend_ino) ||
++	    !S_ISDIR(vol->extend_ino->i_mode)) {
++		static const char *es1 = "$Extend is not a directory";
++		static const char *es2 = "Failed to load $Extend";
++		const char *es = !S_ISDIR(vol->extend_ino->i_mode) ? es1 : es2;
 +
- 		if (is_device_exclusive_entry(entry))
- 			goto fault;
- 
+ 		if (!IS_ERR(vol->extend_ino))
+ 			iput(vol->extend_ino);
+-		ntfs_error(sb, "Failed to load $Extend.");
++		ntfs_error(sb, "%s.", es);
+ 		goto iput_sec_err_out;
+ 	}
+ #ifdef NTFS_RW
 -- 
-2.35.3
+2.17.1
 
