@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3158582DE7
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B877582DE8
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236432AbiG0REu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:04:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55706 "EHLO
+        id S237150AbiG0REv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241472AbiG0RET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7A56E8A9;
-        Wed, 27 Jul 2022 09:39:06 -0700 (PDT)
+        with ESMTP id S241480AbiG0REU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE61A6E8AE;
+        Wed, 27 Jul 2022 09:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86C13B821B6;
-        Wed, 27 Jul 2022 16:38:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D04B4C433D6;
-        Wed, 27 Jul 2022 16:38:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D48760BAF;
+        Wed, 27 Jul 2022 16:38:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D4B7C4347C;
+        Wed, 27 Jul 2022 16:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939934;
-        bh=NIaVVLE+pEn8Ee5MvqbaxjbH8CI2HF9VkpWMB7V+KKo=;
+        s=korg; t=1658939937;
+        bh=QipLENRbmLpjRNNqpZHNq2yd88w3mvICFXc2xDS2GzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FokX5ckaCjighnTfT0/wfWGnDurcnCc3kwNcQbe2I3P5+OHvRfOXw7WOd0qQ1UpM
-         /1Ve9dGkpVOXGgEcd13e+NRDLiMX7bCWAoznzo3EjoKrPgy/gRgX9wwzWPFrzpjUAw
-         wYpiVyjJIOyO7ApPTt0KFKV+Bkmk/m967TE+mRFM=
+        b=uwB5zqo9YHPojMukS+gRoQNL1JCBNE2G23dM3bmiWl3Yp6BVduCtfEy78tDAVm+Eo
+         YCT7f2BD2Xx5YNII9oQD1rGbyUaheRvrbbnaFAsy5MzkUGUV4xcWYEV6EXrJcLnHYs
+         aqQRzNpqfdlV/do+7LRYYMTgV8mI+W6Rxpthz6eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Bean Huo <beanhuo@micron.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/201] scsi: ufs: core: Drop loglevel of WriteBoost message
-Date:   Wed, 27 Jul 2022 18:09:12 +0200
-Message-Id: <20220727161028.870672255@linuxfoundation.org>
+Subject: [PATCH 5.15 049/201] nvme: check for duplicate identifiers earlier
+Date:   Wed, 27 Jul 2022 18:09:13 +0200
+Message-Id: <20220727161028.923733857@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -55,41 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 2ae57c995003a7840cb6b5ec5f0c06193695321b ]
+[ Upstream commit e2d77d2e11c4f1e70a1a24cc8fe63ff3dc9b53ef ]
 
-Commit '3b5f3c0d0548 ("scsi: ufs: core: Tidy up WB configuration code")'
-changed the log level of the write boost enable/disable notification from
-debug to info. This results in a lot of noise in the kernel log during
-normal operation.
+Lift the check for duplicate identifiers into nvme_init_ns_head, which
+avoids pointless error unwinding in case they don't match, and also
+matches where we check identifier validity for the multipath case.
 
-Drop it back to debug level to avoid this.
-
-Link: https://lore.kernel.org/r/20220709000027.3929970-1-bjorn.andersson@linaro.org
-Fixes: 3b5f3c0d0548 ("scsi: ufs: core: Tidy up WB configuration code")
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Acked-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 5c9a31f18b7f..4a7248421bcd 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5638,7 +5638,7 @@ int ufshcd_wb_toggle(struct ufs_hba *hba, bool enable)
- 	}
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 29b56ea01132..8fca84d44446 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3686,13 +3686,6 @@ static struct nvme_ns_head *nvme_alloc_ns_head(struct nvme_ctrl *ctrl,
+ 	head->ids = *ids;
+ 	kref_init(&head->ref);
  
- 	hba->dev_info.wb_enabled = enable;
--	dev_info(hba->dev, "%s Write Booster %s\n",
-+	dev_dbg(hba->dev, "%s Write Booster %s\n",
- 			__func__, enable ? "enabled" : "disabled");
- 
- 	return ret;
+-	ret = nvme_subsys_check_duplicate_ids(ctrl->subsys, &head->ids);
+-	if (ret) {
+-		dev_err(ctrl->device,
+-			"duplicate IDs for nsid %d\n", nsid);
+-		goto out_cleanup_srcu;
+-	}
+-
+ 	if (head->ids.csi) {
+ 		ret = nvme_get_effects_log(ctrl, head->ids.csi, &head->effects);
+ 		if (ret)
+@@ -3731,6 +3724,12 @@ static int nvme_init_ns_head(struct nvme_ns *ns, unsigned nsid,
+ 	mutex_lock(&ctrl->subsys->lock);
+ 	head = nvme_find_ns_head(ctrl, nsid);
+ 	if (!head) {
++		ret = nvme_subsys_check_duplicate_ids(ctrl->subsys, ids);
++		if (ret) {
++			dev_err(ctrl->device,
++				"duplicate IDs for nsid %d\n", nsid);
++			goto out_unlock;
++		}
+ 		head = nvme_alloc_ns_head(ctrl, nsid, ids);
+ 		if (IS_ERR(head)) {
+ 			ret = PTR_ERR(head);
 -- 
 2.35.1
 
