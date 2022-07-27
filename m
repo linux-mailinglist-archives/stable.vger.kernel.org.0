@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD83582C0D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19AD1582B67
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239688AbiG0Qln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:41:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59706 "EHLO
+        id S237582AbiG0Qcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239570AbiG0QlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:41:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 382AC5140C;
-        Wed, 27 Jul 2022 09:29:32 -0700 (PDT)
+        with ESMTP id S237137AbiG0QcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:32:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96FAA4E842;
+        Wed, 27 Jul 2022 09:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2443B821BD;
-        Wed, 27 Jul 2022 16:29:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6E9C433C1;
-        Wed, 27 Jul 2022 16:29:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8EB5619FF;
+        Wed, 27 Jul 2022 16:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D68A8C433C1;
+        Wed, 27 Jul 2022 16:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939369;
-        bh=Lk+Blne/blYZaB0qzZO5oWNuvyqkY7TzTtvAIAIPXgs=;
+        s=korg; t=1658939142;
+        bh=scXYP/FW6QAMrU5amOioIXw6fu+7zQRpdpnHXwy0Fpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlIjts3Fk/Umj1Pk5ZBZhWE8P5OKnZbxcYTe+FAP+VtjaNjzbiy+r9rureqVnoCzh
-         UAMa1RKkAjXry66KK0vqn5qDCFeeOozsmjVsNbXcvbG3RYaKGsPHyp3JO4UMIn3gTm
-         3x2qKu+iUHuLTQ0S5c554lQEtIx2N7PL3UvelcZU=
+        b=lexCEtf1N5etsv04yP5/fUSE7+Ikq7H8yszVbZzhAdn6P1vrF6x1BkTwF4v+Bs0+H
+         hcU/rTLISs1aA/kbxVqgbTudfTLPWcM5YFoVPrpUwJ581cb/hJsMcffNR9O5+DZE08
+         cgmA4m9V77k4rNhiKshOHzyoK9noMrnbT03yuDFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/87] ipv4: Fix a data-race around sysctl_fib_multipath_use_neigh.
+Subject: [PATCH 4.19 28/62] tcp: Fix data-races around sysctl_tcp_slow_start_after_idle.
 Date:   Wed, 27 Jul 2022 18:10:37 +0200
-Message-Id: <20220727161010.838337691@linuxfoundation.org>
+Message-Id: <20220727161005.311596158@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,32 +55,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 87507bcb4f5de16bb419e9509d874f4db6c0ad0f ]
+[ Upstream commit 4845b5713ab18a1bb6e31d1fbb4d600240b8b691 ]
 
-While reading sysctl_fib_multipath_use_neigh, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its reader.
+While reading sysctl_tcp_slow_start_after_idle, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: a6db4494d218 ("net: ipv4: Consider failed nexthops in multipath routes")
+Fixes: 35089bb203f4 ("[TCP]: Add tcp_slow_start_after_idle sysctl.")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/tcp.h     | 4 ++--
+ net/ipv4/tcp_output.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 16fe03461563..28da0443f3e9 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -2209,7 +2209,7 @@ void fib_select_multipath(struct fib_result *res, int hash)
- 	}
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 9b1bf1567861..d28fa78dedb5 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1339,8 +1339,8 @@ static inline void tcp_slow_start_after_idle_check(struct sock *sk)
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	s32 delta;
  
- 	change_nexthops(fi) {
--		if (net->ipv4.sysctl_fib_multipath_use_neigh) {
-+		if (READ_ONCE(net->ipv4.sysctl_fib_multipath_use_neigh)) {
- 			if (!fib_good_nh(nexthop_nh))
- 				continue;
- 			if (!first) {
+-	if (!sock_net(sk)->ipv4.sysctl_tcp_slow_start_after_idle || tp->packets_out ||
+-	    ca_ops->cong_control)
++	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_slow_start_after_idle) ||
++	    tp->packets_out || ca_ops->cong_control)
+ 		return;
+ 	delta = tcp_jiffies32 - tp->lsndtime;
+ 	if (delta > inet_csk(sk)->icsk_rto)
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 8dcb9484a20c..3b416dfb8aff 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1658,7 +1658,7 @@ static void tcp_cwnd_validate(struct sock *sk, bool is_cwnd_limited)
+ 		if (tp->packets_out > tp->snd_cwnd_used)
+ 			tp->snd_cwnd_used = tp->packets_out;
+ 
+-		if (sock_net(sk)->ipv4.sysctl_tcp_slow_start_after_idle &&
++		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_slow_start_after_idle) &&
+ 		    (s32)(tcp_jiffies32 - tp->snd_cwnd_stamp) >= inet_csk(sk)->icsk_rto &&
+ 		    !ca_ops->cong_control)
+ 			tcp_cwnd_application_limited(sk);
 -- 
 2.35.1
 
