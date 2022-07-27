@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B205582D01
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB1C582ECE
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:17:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240902AbiG0QxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57938 "EHLO
+        id S241651AbiG0RRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240832AbiG0QwR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9068B4F181;
-        Wed, 27 Jul 2022 09:34:13 -0700 (PDT)
+        with ESMTP id S241656AbiG0RQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:16:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E625C95B;
+        Wed, 27 Jul 2022 09:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14A4161A3F;
-        Wed, 27 Jul 2022 16:34:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ECA7C433C1;
-        Wed, 27 Jul 2022 16:34:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E82FB60D3B;
+        Wed, 27 Jul 2022 16:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0053FC433D6;
+        Wed, 27 Jul 2022 16:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939652;
-        bh=Y7SdBFaxV1TcAZlqgOfo9DGcD05UL3Nh1iKrWtxitn8=;
+        s=korg; t=1658940194;
+        bh=c9s70STEPcpvDZalC6QpagPkoFuKsN/joFPCxLWbenc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SZ8c3MoRg3KWCWjYwUmbIjAHMN3gBMjnZZ8iaAUvMUjJh/87kjChWU8q/6mxSxxhv
-         y76qxPY/nC6woAynSBsxPleZbltkM9p2Kyp/4r/VXjnNzU7DB4zMyKvLplI4H3rq5/
-         3y8w7e2DkrDP92Dmbhu0cL9wO6Dsu41SX0UMe9OU=
+        b=Hbh2bz42nt4zgCZunMB+YditNjuU45rZg0FT/mloBhGtFpEuP1T8HI5NdHud8craC
+         csSCTOyz3OoYFFmHDAfaAEXSp/K1Q1XR6qC+po2HVtSJ2Srciuy9NkdPJBEIE+NhcJ
+         Ql5+sCfcdfngftM7gfnjoszsGGPtiRlx5yADiLYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Piotr Skajewski <piotrx.skajewski@intel.com>,
+        Marek Szlosek <marek.szlosek@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/105] perf/core: Fix data race between perf_event_set_output() and perf_mmap_close()
+Subject: [PATCH 5.15 107/201] ixgbe: Add locking to prevent panic when setting sriov_numvfs to zero
 Date:   Wed, 27 Jul 2022 18:10:11 +0200
-Message-Id: <20220727161013.114853160@linuxfoundation.org>
+Message-Id: <20220727161032.187952434@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,164 +56,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Piotr Skajewski <piotrx.skajewski@intel.com>
 
-[ Upstream commit 68e3c69803dada336893640110cb87221bb01dcf ]
+[ Upstream commit 1e53834ce541d4fe271cdcca7703e50be0a44f8a ]
 
-Yang Jihing reported a race between perf_event_set_output() and
-perf_mmap_close():
+It is possible to disable VFs while the PF driver is processing requests
+from the VF driver.  This can result in a panic.
 
-	CPU1					CPU2
+BUG: unable to handle kernel paging request at 000000000000106c
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP NOPTI
+CPU: 8 PID: 0 Comm: swapper/8 Kdump: loaded Tainted: G I      --------- -
+Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
+RIP: 0010:ixgbe_msg_task+0x4c8/0x1690 [ixgbe]
+Code: 00 00 48 8d 04 40 48 c1 e0 05 89 7c 24 24 89 fd 48 89 44 24 10 83 ff
+01 0f 84 b8 04 00 00 4c 8b 64 24 10 4d 03 a5 48 22 00 00 <41> 80 7c 24 4c
+00 0f 84 8a 03 00 00 0f b7 c7 83 f8 08 0f 84 8f 0a
+RSP: 0018:ffffb337869f8df8 EFLAGS: 00010002
+RAX: 0000000000001020 RBX: 0000000000000000 RCX: 000000000000002b
+RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000006
+RBP: 0000000000000006 R08: 0000000000000002 R09: 0000000000029780
+R10: 00006957d8f42832 R11: 0000000000000000 R12: 0000000000001020
+R13: ffff8a00e8978ac0 R14: 000000000000002b R15: ffff8a00e8979c80
+FS:  0000000000000000(0000) GS:ffff8a07dfd00000(0000) knlGS:00000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000000106c CR3: 0000000063e10004 CR4: 00000000007726e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <IRQ>
+ ? ttwu_do_wakeup+0x19/0x140
+ ? try_to_wake_up+0x1cd/0x550
+ ? ixgbevf_update_xcast_mode+0x71/0xc0 [ixgbevf]
+ ixgbe_msix_other+0x17e/0x310 [ixgbe]
+ __handle_irq_event_percpu+0x40/0x180
+ handle_irq_event_percpu+0x30/0x80
+ handle_irq_event+0x36/0x53
+ handle_edge_irq+0x82/0x190
+ handle_irq+0x1c/0x30
+ do_IRQ+0x49/0xd0
+ common_interrupt+0xf/0xf
 
-	perf_mmap_close(e2)
-	  if (atomic_dec_and_test(&e2->rb->mmap_count)) // 1 - > 0
-	    detach_rest = true
+This can be eventually be reproduced with the following script:
 
-						ioctl(e1, IOC_SET_OUTPUT, e2)
-						  perf_event_set_output(e1, e2)
+while :
+do
+    echo 63 > /sys/class/net/<devname>/device/sriov_numvfs
+    sleep 1
+    echo 0 > /sys/class/net/<devname>/device/sriov_numvfs
+    sleep 1
+done
 
-	  ...
-	  list_for_each_entry_rcu(e, &e2->rb->event_list, rb_entry)
-	    ring_buffer_attach(e, NULL);
-	    // e1 isn't yet added and
-	    // therefore not detached
+Add lock when disabling SR-IOV to prevent process VF mailbox communication.
 
-						    ring_buffer_attach(e1, e2->rb)
-						      list_add_rcu(&e1->rb_entry,
-								   &e2->rb->event_list)
-
-After this; e1 is attached to an unmapped rb and a subsequent
-perf_mmap() will loop forever more:
-
-	again:
-		mutex_lock(&e->mmap_mutex);
-		if (event->rb) {
-			...
-			if (!atomic_inc_not_zero(&e->rb->mmap_count)) {
-				...
-				mutex_unlock(&e->mmap_mutex);
-				goto again;
-			}
-		}
-
-The loop in perf_mmap_close() holds e2->mmap_mutex, while the attach
-in perf_event_set_output() holds e1->mmap_mutex. As such there is no
-serialization to avoid this race.
-
-Change perf_event_set_output() to take both e1->mmap_mutex and
-e2->mmap_mutex to alleviate that problem. Additionally, have the loop
-in perf_mmap() detach the rb directly, this avoids having to wait for
-the concurrent perf_mmap_close() to get around to doing it to make
-progress.
-
-Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole")
-Reported-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lkml.kernel.org/r/YsQ3jm2GR38SW7uD@worktop.programming.kicks-ass.net
+Fixes: d773d1310625 ("ixgbe: Fix memory leak when SR-IOV VFs are direct assigned")
+Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220715214456.2968711-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 45 ++++++++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe.h       | 1 +
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c  | 3 +++
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 6 ++++++
+ 3 files changed, 10 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 8ba155a7b59e..0e01216f4e5a 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6228,10 +6228,10 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe.h b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
+index a604552fa634..c375a5d54b40 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe.h
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
+@@ -770,6 +770,7 @@ struct ixgbe_adapter {
+ #ifdef CONFIG_IXGBE_IPSEC
+ 	struct ixgbe_ipsec *ipsec;
+ #endif /* CONFIG_IXGBE_IPSEC */
++	spinlock_t vfs_lock;
+ };
  
- 		if (!atomic_inc_not_zero(&event->rb->mmap_count)) {
- 			/*
--			 * Raced against perf_mmap_close() through
--			 * perf_event_set_output(). Try again, hope for better
--			 * luck.
-+			 * Raced against perf_mmap_close(); remove the
-+			 * event and try again.
- 			 */
-+			ring_buffer_attach(event, NULL);
- 			mutex_unlock(&event->mmap_mutex);
- 			goto again;
- 		}
-@@ -11587,14 +11587,25 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
- 	goto out;
- }
+ static inline u8 ixgbe_max_rss_indices(struct ixgbe_adapter *adapter)
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 750b02bb2fdc..8cb20af51ecd 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6397,6 +6397,9 @@ static int ixgbe_sw_init(struct ixgbe_adapter *adapter,
+ 	/* n-tuple support exists, always init our spinlock */
+ 	spin_lock_init(&adapter->fdir_perfect_lock);
  
-+static void mutex_lock_double(struct mutex *a, struct mutex *b)
-+{
-+	if (b < a)
-+		swap(a, b);
++	/* init spinlock to avoid concurrency of VF resources */
++	spin_lock_init(&adapter->vfs_lock);
 +
-+	mutex_lock(a);
-+	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
-+}
-+
- static int
- perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ #ifdef CONFIG_IXGBE_DCB
+ 	ixgbe_init_dcb(adapter);
+ #endif
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+index aaebdae8b5ff..0078ae592616 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -204,10 +204,13 @@ void ixgbe_enable_sriov(struct ixgbe_adapter *adapter, unsigned int max_vfs)
+ int ixgbe_disable_sriov(struct ixgbe_adapter *adapter)
  {
- 	struct perf_buffer *rb = NULL;
- 	int ret = -EINVAL;
+ 	unsigned int num_vfs = adapter->num_vfs, vf;
++	unsigned long flags;
+ 	int rss;
  
--	if (!output_event)
-+	if (!output_event) {
-+		mutex_lock(&event->mmap_mutex);
- 		goto set;
-+	}
++	spin_lock_irqsave(&adapter->vfs_lock, flags);
+ 	/* set num VFs to 0 to prevent access to vfinfo */
+ 	adapter->num_vfs = 0;
++	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
  
- 	/* don't allow circular references */
- 	if (event == output_event)
-@@ -11632,8 +11643,15 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	    event->pmu != output_event->pmu)
- 		goto out;
+ 	/* put the reference to all of the vf devices */
+ 	for (vf = 0; vf < num_vfs; ++vf) {
+@@ -1305,8 +1308,10 @@ static void ixgbe_rcv_ack_from_vf(struct ixgbe_adapter *adapter, u32 vf)
+ void ixgbe_msg_task(struct ixgbe_adapter *adapter)
+ {
+ 	struct ixgbe_hw *hw = &adapter->hw;
++	unsigned long flags;
+ 	u32 vf;
  
-+	/*
-+	 * Hold both mmap_mutex to serialize against perf_mmap_close().  Since
-+	 * output_event is already on rb->event_list, and the list iteration
-+	 * restarts after every removal, it is guaranteed this new event is
-+	 * observed *OR* if output_event is already removed, it's guaranteed we
-+	 * observe !rb->mmap_count.
-+	 */
-+	mutex_lock_double(&event->mmap_mutex, &output_event->mmap_mutex);
- set:
--	mutex_lock(&event->mmap_mutex);
- 	/* Can't redirect output if we've got an active mmap() */
- 	if (atomic_read(&event->mmap_count))
- 		goto unlock;
-@@ -11643,6 +11661,12 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 		rb = ring_buffer_get(output_event);
- 		if (!rb)
- 			goto unlock;
-+
-+		/* did we race against perf_mmap_close() */
-+		if (!atomic_read(&rb->mmap_count)) {
-+			ring_buffer_put(rb);
-+			goto unlock;
-+		}
++	spin_lock_irqsave(&adapter->vfs_lock, flags);
+ 	for (vf = 0; vf < adapter->num_vfs; vf++) {
+ 		/* process any reset requests */
+ 		if (!ixgbe_check_for_rst(hw, vf))
+@@ -1320,6 +1325,7 @@ void ixgbe_msg_task(struct ixgbe_adapter *adapter)
+ 		if (!ixgbe_check_for_ack(hw, vf))
+ 			ixgbe_rcv_ack_from_vf(adapter, vf);
  	}
- 
- 	ring_buffer_attach(event, rb);
-@@ -11650,20 +11674,13 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	ret = 0;
- unlock:
- 	mutex_unlock(&event->mmap_mutex);
-+	if (output_event)
-+		mutex_unlock(&output_event->mmap_mutex);
- 
- out:
- 	return ret;
++	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
  }
  
--static void mutex_lock_double(struct mutex *a, struct mutex *b)
--{
--	if (b < a)
--		swap(a, b);
--
--	mutex_lock(a);
--	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
--}
--
- static int perf_event_set_clock(struct perf_event *event, clockid_t clk_id)
- {
- 	bool nmi_safe = false;
+ void ixgbe_disable_tx_rx(struct ixgbe_adapter *adapter)
 -- 
 2.35.1
 
