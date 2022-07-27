@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A42582C7D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74E8B582F09
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240267AbiG0QqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:46:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
+        id S241766AbiG0RUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240292AbiG0Qp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:45:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318455F9B8;
-        Wed, 27 Jul 2022 09:31:30 -0700 (PDT)
+        with ESMTP id S241987AbiG0RT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28A323153;
+        Wed, 27 Jul 2022 09:44:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7D4D61A39;
-        Wed, 27 Jul 2022 16:31:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E7D0C433D6;
-        Wed, 27 Jul 2022 16:31:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47B6D601C3;
+        Wed, 27 Jul 2022 16:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F904C433D6;
+        Wed, 27 Jul 2022 16:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939489;
-        bh=TX+Sdx7vNb92kNhrkYvV7Qs/pncP26B1lxcQyV/riF4=;
+        s=korg; t=1658940285;
+        bh=YVIFpYhYR7TrLZMwL/dPwTtMcZHNQKpHAC6jaoFSOE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpc5UJCw3JgZl678cP6ICwNIUiLNcP5IlhW+YtpW8zvr8L6iTksLKCMoM77MwPrDH
-         EBzYg4k8g8mNtCoQYfzKTHpPTTCs1SufTfEVaow8yetEDAwKaIx/VrAF5xVFN07+FJ
-         z6NFIujv/tbDvhbrtIJp48ag7s4EGA2Dvkp/b3KU=
+        b=lCXygaYp2/Uk88bluhUnpU30YOFnE8u855bFxaRqRIIXkkqMgLQQdODxM6+dNsRN8
+         EuZTQV62mw/uZzses/8mgfutBj29nFAcFPn+IAfPDzeqBIMtXHtkayYfBBRYTImlxZ
+         J/w78o+LqfogPx4UQ3txtMUD+1lBZtz7XXXKpIUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 5.4 80/87] Bluetooth: Fix bt_skb_sendmmsg not allocating partial chunks
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 169/201] tracing: Have event format check not flag %p* on __get_dynamic_array()
 Date:   Wed, 27 Jul 2022 18:11:13 +0200
-Message-Id: <20220727161012.318635744@linuxfoundation.org>
+Message-Id: <20220727161034.837596500@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 29fb608396d6a62c1b85acc421ad7a4399085b9f upstream.
+[ Upstream commit 499f12168aebd6da8fa32c9b7d6203ca9b5eb88d ]
 
-Since bt_skb_sendmmsg can be used with the likes of SOCK_STREAM it
-shall return the partial chunks it could allocate instead of freeing
-everything as otherwise it can cause problems like bellow.
+The print fmt check against trace events to make sure that the format does
+not use pointers that may be freed from the time of the trace to the time
+the event is read, gives a false positive on %pISpc when reading data that
+was saved in __get_dynamic_array() when it is perfectly fine to do so, as
+the data being read is on the ring buffer.
 
-Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Link: https://lore.kernel.org/r/d7206e12-1b99-c3be-84f4-df22af427ef5@molgen.mpg.de
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215594
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Paul Menzel <pmenzel@molgen.mpg.de> (Nokia N9 (MeeGo/Harmattan)
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/all/20220407144524.2a592ed6@canb.auug.org.au/
+
+Cc: stable@vger.kernel.org
+Fixes: 5013f454a352c ("tracing: Add check of trace event print fmts for dereferencing pointers")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/bluetooth.h |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/trace/trace_events.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/include/net/bluetooth/bluetooth.h
-+++ b/include/net/bluetooth/bluetooth.h
-@@ -423,8 +423,7 @@ static inline struct sk_buff *bt_skb_sen
- 
- 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
- 		if (IS_ERR(tmp)) {
--			kfree_skb(skb);
--			return tmp;
-+			return skb;
- 		}
- 
- 		len -= tmp->len;
+diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+index c072e8b9849c..ea3fbfa87fdd 100644
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -407,7 +407,14 @@ static void test_event_printk(struct trace_event_call *call)
+ 				a = strchr(fmt + i, '&');
+ 				if ((a && (a < r)) || test_field(r, call))
+ 					dereference_flags &= ~(1ULL << arg);
++			} else if ((r = strstr(fmt + i, "__get_dynamic_array(")) &&
++				   (!c || r < c)) {
++				dereference_flags &= ~(1ULL << arg);
++			} else if ((r = strstr(fmt + i, "__get_sockaddr(")) &&
++				   (!c || r < c)) {
++				dereference_flags &= ~(1ULL << arg);
+ 			}
++
+ 		next_arg:
+ 			i--;
+ 			arg++;
+-- 
+2.35.1
+
 
 
