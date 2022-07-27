@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 939ED582DF1
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B598582DF6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237639AbiG0RE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:04:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S241361AbiG0RFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:05:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241551AbiG0RE3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D436F7CA;
-        Wed, 27 Jul 2022 09:39:13 -0700 (PDT)
+        with ESMTP id S241597AbiG0REf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608A74C63C;
+        Wed, 27 Jul 2022 09:39:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B4560B9E;
-        Wed, 27 Jul 2022 16:39:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D383AC433B5;
-        Wed, 27 Jul 2022 16:39:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 224FBB821A6;
+        Wed, 27 Jul 2022 16:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 824CEC433D6;
+        Wed, 27 Jul 2022 16:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939951;
-        bh=2OV7QM4VRlC9VoPMrR3G1NY2dsKHxkkbtdoeD4eJBoY=;
+        s=korg; t=1658939956;
+        bh=tcohENSnTn9ApzQNJ8s34HgLrmRyd8mviR5F0X8TjaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chvFBWab/OsCzhk9jzeZs/zp4WeoWKyyDpM/Z5+yDrCdzdnT3pXGzcikcdqUFq0CD
-         Y1o/WWRJwlGnpucFipSRvaCteggcPjduGjH+in/RanQP+ta2BBaOtjCSHLTKcNYXR9
-         s3d9nF+YYn9WwV6IiLM6jflp0xLjNn0B8OiyMY98=
+        b=03ji6bmeSqvep22fdaLDq5zqjFJ/vwCD7wTiPTISFyR1z8K49hX5vAzLPGe+d+jIx
+         JfLUViF4QysrgK3XXgIvk3C0oi6RAlILp5EO2YSZn94fMXi4uSW5JixRss5pKzen4+
+         jWKRbPxs2BFYmfSVjiEC9A/bRe32GwegnOGxYWpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/201] ip: Fix data-races around sysctl_ip_no_pmtu_disc.
-Date:   Wed, 27 Jul 2022 18:09:18 +0200
-Message-Id: <20220727161029.152740326@linuxfoundation.org>
+Subject: [PATCH 5.15 055/201] ip: Fix data-races around sysctl_ip_fwd_use_pmtu.
+Date:   Wed, 27 Jul 2022 18:09:19 +0200
+Message-Id: <20220727161029.193381837@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -55,74 +55,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 0968d2a441bf6afb551fd99e60fa65ed67068963 ]
+[ Upstream commit 60c158dc7b1f0558f6cadd5b50d0386da0000d50 ]
 
-While reading sysctl_ip_no_pmtu_disc, it can be changed concurrently.
+While reading sysctl_ip_fwd_use_pmtu, it can be changed concurrently.
 Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: f87c10a8aa1e ("ipv4: introduce ip_dst_mtu_maybe_forward and protect forwarding path against pmtu spoofing")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/af_inet.c    | 2 +-
- net/ipv4/icmp.c       | 2 +-
- net/ipv6/af_inet6.c   | 2 +-
- net/xfrm/xfrm_state.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/ip.h | 2 +-
+ net/ipv4/route.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 44f21278003d..781c595f6880 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -338,7 +338,7 @@ static int inet_create(struct net *net, struct socket *sock, int protocol,
- 			inet->hdrincl = 1;
- 	}
+diff --git a/include/net/ip.h b/include/net/ip.h
+index a77a9e1c6c04..c69dd114f367 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -441,7 +441,7 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
+ 	struct net *net = dev_net(dst->dev);
+ 	unsigned int mtu;
  
--	if (net->ipv4.sysctl_ip_no_pmtu_disc)
-+	if (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc))
- 		inet->pmtudisc = IP_PMTUDISC_DONT;
- 	else
- 		inet->pmtudisc = IP_PMTUDISC_WANT;
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index a5cc89506c1e..609c4ff7edc6 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -887,7 +887,7 @@ static bool icmp_unreach(struct sk_buff *skb)
- 			 * values please see
- 			 * Documentation/networking/ip-sysctl.rst
- 			 */
--			switch (net->ipv4.sysctl_ip_no_pmtu_disc) {
-+			switch (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc)) {
- 			default:
- 				net_dbg_ratelimited("%pI4: fragmentation needed and DF set\n",
- 						    &iph->daddr);
-diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-index dab4a047590b..3a91d0d40aec 100644
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -226,7 +226,7 @@ static int inet6_create(struct net *net, struct socket *sock, int protocol,
- 	RCU_INIT_POINTER(inet->mc_list, NULL);
- 	inet->rcv_tos	= 0;
+-	if (net->ipv4.sysctl_ip_fwd_use_pmtu ||
++	if (READ_ONCE(net->ipv4.sysctl_ip_fwd_use_pmtu) ||
+ 	    ip_mtu_locked(dst) ||
+ 	    !forwarding) {
+ 		mtu = rt->rt_pmtu;
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 1db2fda22830..7f08a30256c5 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1404,7 +1404,7 @@ u32 ip_mtu_from_fib_result(struct fib_result *res, __be32 daddr)
+ 	struct fib_info *fi = res->fi;
+ 	u32 mtu = 0;
  
--	if (net->ipv4.sysctl_ip_no_pmtu_disc)
-+	if (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc))
- 		inet->pmtudisc = IP_PMTUDISC_DONT;
- 	else
- 		inet->pmtudisc = IP_PMTUDISC_WANT;
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index f7bfa1916968..b1a04a22166f 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2619,7 +2619,7 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
- 	int err;
+-	if (dev_net(dev)->ipv4.sysctl_ip_fwd_use_pmtu ||
++	if (READ_ONCE(dev_net(dev)->ipv4.sysctl_ip_fwd_use_pmtu) ||
+ 	    fi->fib_metrics->metrics[RTAX_LOCK - 1] & (1 << RTAX_MTU))
+ 		mtu = fi->fib_mtu;
  
- 	if (family == AF_INET &&
--	    xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc)
-+	    READ_ONCE(xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc))
- 		x->props.flags |= XFRM_STATE_NOPMTUDISC;
- 
- 	err = -EPROTONOSUPPORT;
 -- 
 2.35.1
 
