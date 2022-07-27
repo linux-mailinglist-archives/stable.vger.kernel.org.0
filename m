@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44941583041
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10FF582F3D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:23:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241707AbiG0RfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41760 "EHLO
+        id S236045AbiG0RXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:23:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242691AbiG0Rer (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C8B8322E;
-        Wed, 27 Jul 2022 09:49:29 -0700 (PDT)
+        with ESMTP id S241920AbiG0RWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:22:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7488D71705;
+        Wed, 27 Jul 2022 09:45:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68D56B821BA;
-        Wed, 27 Jul 2022 16:49:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4D62C433D7;
-        Wed, 27 Jul 2022 16:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87E27B8200D;
+        Wed, 27 Jul 2022 16:45:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C6BC433C1;
+        Wed, 27 Jul 2022 16:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940568;
-        bh=UfdR8alEtr+J6C83yGSrEMxB5kYXnNaWCvzjtgVLPQA=;
+        s=korg; t=1658940336;
+        bh=tfSNXRv4yqw1SkN0l+CRvzEBIXcTpg4fxT2kkmH1BAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBp9GBgSN2ahNX9Xm+SsMMjpp4qpMQcdZP9eV/7x6uwwdg/9PxOQyx1u3XKhkEkbF
-         Ikc0BbYs8+IdlnryJMuyprXGf5zs29vyYgrMVSuJxrCXwg/hMq5f8lwHRzrfmr0x/T
-         Mmpi9H5Gm6imNhYxTyD1fpHBhsOEDh7eUkZwD5lk=
+        b=mu//rNjnKv91BdkgCAHefU+0YivpM8v3XpPJ5Nq7YxppDeW8+Gv/ioZ9Q1YJ5ZHqF
+         xElVqPWpnlFEZoALFgXdtvL0BNPhbVUw4YlH/74zSE2NdIILxw4tZoQucFCY4jwXa4
+         /juvkwPC2R1Jf9YwdgX8iWwlBckFN8uwsWIxOZAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 029/158] perf/core: Fix data race between perf_event_set_output() and perf_mmap_close()
+        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        William Hubbs <w.d.hubbs@gmail.com>,
+        Chris Brannon <chris@the-brannons.com>,
+        Kirk Reiser <kirk@reisers.ca>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.15 189/201] tty: the rest, stop using tty_schedule_flip()
 Date:   Wed, 27 Jul 2022 18:11:33 +0200
-Message-Id: <20220727161022.646512129@linuxfoundation.org>
+Message-Id: <20220727161035.599193527@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,166 +62,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 68e3c69803dada336893640110cb87221bb01dcf ]
+commit b68b914494df4f79b4e9b58953110574af1cb7a2 upstream.
 
-Yang Jihing reported a race between perf_event_set_output() and
-perf_mmap_close():
+Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
+tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
+going to remove the latter (as it is used less), so call the former in
+the rest of the users.
 
-	CPU1					CPU2
-
-	perf_mmap_close(e2)
-	  if (atomic_dec_and_test(&e2->rb->mmap_count)) // 1 - > 0
-	    detach_rest = true
-
-						ioctl(e1, IOC_SET_OUTPUT, e2)
-						  perf_event_set_output(e1, e2)
-
-	  ...
-	  list_for_each_entry_rcu(e, &e2->rb->event_list, rb_entry)
-	    ring_buffer_attach(e, NULL);
-	    // e1 isn't yet added and
-	    // therefore not detached
-
-						    ring_buffer_attach(e1, e2->rb)
-						      list_add_rcu(&e1->rb_entry,
-								   &e2->rb->event_list)
-
-After this; e1 is attached to an unmapped rb and a subsequent
-perf_mmap() will loop forever more:
-
-	again:
-		mutex_lock(&e->mmap_mutex);
-		if (event->rb) {
-			...
-			if (!atomic_inc_not_zero(&e->rb->mmap_count)) {
-				...
-				mutex_unlock(&e->mmap_mutex);
-				goto again;
-			}
-		}
-
-The loop in perf_mmap_close() holds e2->mmap_mutex, while the attach
-in perf_event_set_output() holds e1->mmap_mutex. As such there is no
-serialization to avoid this race.
-
-Change perf_event_set_output() to take both e1->mmap_mutex and
-e2->mmap_mutex to alleviate that problem. Additionally, have the loop
-in perf_mmap() detach the rb directly, this avoids having to wait for
-the concurrent perf_mmap_close() to get around to doing it to make
-progress.
-
-Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole")
-Reported-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lkml.kernel.org/r/YsQ3jm2GR38SW7uD@worktop.programming.kicks-ass.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: William Hubbs <w.d.hubbs@gmail.com>
+Cc: Chris Brannon <chris@the-brannons.com>
+Cc: Kirk Reiser <kirk@reisers.ca>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20211122111648.30379-3-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c | 45 ++++++++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 14 deletions(-)
+ arch/alpha/kernel/srmcons.c               |    2 +-
+ drivers/accessibility/speakup/spk_ttyio.c |    4 ++--
+ drivers/s390/char/keyboard.h              |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 950b25c3f210..82238406f5f5 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6254,10 +6254,10 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+--- a/arch/alpha/kernel/srmcons.c
++++ b/arch/alpha/kernel/srmcons.c
+@@ -59,7 +59,7 @@ srmcons_do_receive_chars(struct tty_port
+ 	} while((result.bits.status & 1) && (++loops < 10));
  
- 		if (!atomic_inc_not_zero(&event->rb->mmap_count)) {
- 			/*
--			 * Raced against perf_mmap_close() through
--			 * perf_event_set_output(). Try again, hope for better
--			 * luck.
-+			 * Raced against perf_mmap_close(); remove the
-+			 * event and try again.
- 			 */
-+			ring_buffer_attach(event, NULL);
- 			mutex_unlock(&event->mmap_mutex);
- 			goto again;
- 		}
-@@ -11826,14 +11826,25 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
- 	goto out;
+ 	if (count)
+-		tty_schedule_flip(port);
++		tty_flip_buffer_push(port);
+ 
+ 	return count;
  }
- 
-+static void mutex_lock_double(struct mutex *a, struct mutex *b)
-+{
-+	if (b < a)
-+		swap(a, b);
-+
-+	mutex_lock(a);
-+	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
-+}
-+
- static int
- perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- {
- 	struct perf_buffer *rb = NULL;
- 	int ret = -EINVAL;
- 
--	if (!output_event)
-+	if (!output_event) {
-+		mutex_lock(&event->mmap_mutex);
- 		goto set;
-+	}
- 
- 	/* don't allow circular references */
- 	if (event == output_event)
-@@ -11871,8 +11882,15 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	    event->pmu != output_event->pmu)
- 		goto out;
- 
-+	/*
-+	 * Hold both mmap_mutex to serialize against perf_mmap_close().  Since
-+	 * output_event is already on rb->event_list, and the list iteration
-+	 * restarts after every removal, it is guaranteed this new event is
-+	 * observed *OR* if output_event is already removed, it's guaranteed we
-+	 * observe !rb->mmap_count.
-+	 */
-+	mutex_lock_double(&event->mmap_mutex, &output_event->mmap_mutex);
- set:
--	mutex_lock(&event->mmap_mutex);
- 	/* Can't redirect output if we've got an active mmap() */
- 	if (atomic_read(&event->mmap_count))
- 		goto unlock;
-@@ -11882,6 +11900,12 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 		rb = ring_buffer_get(output_event);
- 		if (!rb)
- 			goto unlock;
-+
-+		/* did we race against perf_mmap_close() */
-+		if (!atomic_read(&rb->mmap_count)) {
-+			ring_buffer_put(rb);
-+			goto unlock;
-+		}
+--- a/drivers/accessibility/speakup/spk_ttyio.c
++++ b/drivers/accessibility/speakup/spk_ttyio.c
+@@ -88,7 +88,7 @@ static int spk_ttyio_receive_buf2(struct
  	}
  
- 	ring_buffer_attach(event, rb);
-@@ -11889,20 +11913,13 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	ret = 0;
- unlock:
- 	mutex_unlock(&event->mmap_mutex);
-+	if (output_event)
-+		mutex_unlock(&output_event->mmap_mutex);
+ 	if (!ldisc_data->buf_free)
+-		/* ttyio_in will tty_schedule_flip */
++		/* ttyio_in will tty_flip_buffer_push */
+ 		return 0;
  
- out:
- 	return ret;
+ 	/* Make sure the consumer has read buf before we have seen
+@@ -312,7 +312,7 @@ static unsigned char ttyio_in(struct spk
+ 	mb();
+ 	ldisc_data->buf_free = true;
+ 	/* Let TTY push more characters */
+-	tty_schedule_flip(tty->port);
++	tty_flip_buffer_push(tty->port);
+ 
+ 	return rv;
+ }
+--- a/drivers/s390/char/keyboard.h
++++ b/drivers/s390/char/keyboard.h
+@@ -56,7 +56,7 @@ static inline void
+ kbd_put_queue(struct tty_port *port, int ch)
+ {
+ 	tty_insert_flip_char(port, ch, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
  }
  
--static void mutex_lock_double(struct mutex *a, struct mutex *b)
--{
--	if (b < a)
--		swap(a, b);
--
--	mutex_lock(a);
--	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
--}
--
- static int perf_event_set_clock(struct perf_event *event, clockid_t clk_id)
+ static inline void
+@@ -64,5 +64,5 @@ kbd_puts_queue(struct tty_port *port, ch
  {
- 	bool nmi_safe = false;
--- 
-2.35.1
-
+ 	while (*cp)
+ 		tty_insert_flip_char(port, *cp++, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
 
 
