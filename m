@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2664C582C74
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C058582D61
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239356AbiG0Qqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43970 "EHLO
+        id S241100AbiG0Q45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:56:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240375AbiG0Qpr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:45:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D020B5FADC;
-        Wed, 27 Jul 2022 09:31:34 -0700 (PDT)
+        with ESMTP id S241142AbiG0Q4Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:56:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C4354F6A2;
+        Wed, 27 Jul 2022 09:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4131BB821BB;
-        Wed, 27 Jul 2022 16:31:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99EB0C433D6;
-        Wed, 27 Jul 2022 16:31:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 066E861A98;
+        Wed, 27 Jul 2022 16:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047CDC433D7;
+        Wed, 27 Jul 2022 16:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939492;
-        bh=nUv+h/EUkaR55wIdNw5/QvZ3wmR8Hsx3O2sYlliQHDY=;
+        s=korg; t=1658939763;
+        bh=4ghA5FEC/uW3xtlrEE/rw7ykV6N69eTp+mhyE3BWyMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lIZp4rOsfCOJYUkfXlF2HztJQL01HWtHKNhS29PQojH258rZ6OQEjjXkD2TefhD8
-         P5wPGdUb6g2EgGZJqfcqS+Nn3863MdyoLbiJ25/lolg/BPgvF862MWnfhPjaL4ntgP
-         HlFwl5jqRN2AMCNDxkqzxCjGUGpyeIz9d0/88Km8=
+        b=sDSXk35xrZ17WfmZc5MehMsSSlmlbVlp/cJnEtWXaAmLPJRBCMTdegssq0xqfbo/b
+         PFRMq1fxiXUUwwZtHZWoM0Wxk7OlWrxwQVsyLJoROPkSGP7GT6sfzWmmzxfnYCelqF
+         iqkq6IXCxIjYdUgLJvOloM/hWYA1wwcWRe3tWlWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
-        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.4 81/87] tty: drivers/tty/, stop using tty_schedule_flip()
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 5.10 088/105] Bluetooth: Add bt_skb_sendmmsg helper
 Date:   Wed, 27 Jul 2022 18:11:14 +0200
-Message-Id: <20220727161012.352211572@linuxfoundation.org>
+Message-Id: <20220727161015.624218001@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,139 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 5f6a85158ccacc3f09744b3aafe8b11ab3b6c6f6 upstream.
+commit 97e4e80299844bb5f6ce5a7540742ffbffae3d97 upstream.
 
-Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
-tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
-going to remove the latter (as it is used less), so call the former in
-drivers/tty/.
+This works similarly to bt_skb_sendmsg but can split the msg into
+multiple skb fragments which is useful for stream sockets.
 
-Cc: Vladimir Zapolskiy <vz@mleia.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211122111648.30379-2-jslaby@suse.cz
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/cyclades.c          |    6 +++---
- drivers/tty/goldfish.c          |    2 +-
- drivers/tty/moxa.c              |    4 ++--
- drivers/tty/serial/lpc32xx_hs.c |    2 +-
- drivers/tty/vt/keyboard.c       |    6 +++---
- drivers/tty/vt/vt.c             |    2 +-
- 6 files changed, 11 insertions(+), 11 deletions(-)
+ include/net/bluetooth/bluetooth.h |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
---- a/drivers/tty/cyclades.c
-+++ b/drivers/tty/cyclades.c
-@@ -556,7 +556,7 @@ static void cyy_chip_rx(struct cyclades_
- 		}
- 		info->idle_stats.recv_idle = jiffies;
- 	}
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
- 
- 	/* end of service */
- 	cyy_writeb(info, CyRIR, save_xir & 0x3f);
-@@ -996,7 +996,7 @@ static void cyz_handle_rx(struct cyclade
- 		mod_timer(&info->rx_full_timer, jiffies + 1);
- #endif
- 	info->idle_stats.recv_idle = jiffies;
--	tty_schedule_flip(&info->port);
-+	tty_flip_buffer_push(&info->port);
- 
- 	/* Update rx_get */
- 	cy_writel(&buf_ctrl->rx_get, new_rx_get);
-@@ -1172,7 +1172,7 @@ static void cyz_handle_cmd(struct cyclad
- 		if (delta_count)
- 			wake_up_interruptible(&info->port.delta_msr_wait);
- 		if (special_count)
--			tty_schedule_flip(&info->port);
-+			tty_flip_buffer_push(&info->port);
- 	}
+--- a/include/net/bluetooth/bluetooth.h
++++ b/include/net/bluetooth/bluetooth.h
+@@ -450,6 +450,44 @@ static inline struct sk_buff *bt_skb_sen
+ 	return skb;
  }
  
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -151,7 +151,7 @@ static irqreturn_t goldfish_tty_interrup
- 	address = (unsigned long)(void *)buf;
- 	goldfish_tty_rw(qtty, address, count, 0);
++/* Similar to bt_skb_sendmsg but can split the msg into multiple fragments
++ * accourding to the MTU.
++ */
++static inline struct sk_buff *bt_skb_sendmmsg(struct sock *sk,
++					      struct msghdr *msg,
++					      size_t len, size_t mtu,
++					      size_t headroom, size_t tailroom)
++{
++	struct sk_buff *skb, **frag;
++
++	skb = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
++	if (IS_ERR_OR_NULL(skb))
++		return skb;
++
++	len -= skb->len;
++	if (!len)
++		return skb;
++
++	/* Add remaining data over MTU as continuation fragments */
++	frag = &skb_shinfo(skb)->frag_list;
++	while (len) {
++		struct sk_buff *tmp;
++
++		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
++		if (IS_ERR_OR_NULL(tmp)) {
++			kfree_skb(skb);
++			return tmp;
++		}
++
++		len -= tmp->len;
++
++		*frag = tmp;
++		frag = &(*frag)->next;
++	}
++
++	return skb;
++}
++
+ int bt_to_errno(u16 code);
  
--	tty_schedule_flip(&qtty->port);
-+	tty_flip_buffer_push(&qtty->port);
- 	return IRQ_HANDLED;
- }
- 
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -1385,7 +1385,7 @@ static int moxa_poll_port(struct moxa_po
- 		if (inited && !tty_throttled(tty) &&
- 				MoxaPortRxQueue(p) > 0) { /* RX */
- 			MoxaPortReadData(p);
--			tty_schedule_flip(&p->port);
-+			tty_flip_buffer_push(&p->port);
- 		}
- 	} else {
- 		clear_bit(EMPTYWAIT, &p->statusflags);
-@@ -1410,7 +1410,7 @@ static int moxa_poll_port(struct moxa_po
- 
- 	if (tty && (intr & IntrBreak) && !I_IGNBRK(tty)) { /* BREAK */
- 		tty_insert_flip_char(&p->port, 0, TTY_BREAK);
--		tty_schedule_flip(&p->port);
-+		tty_flip_buffer_push(&p->port);
- 	}
- 
- 	if (intr & IntrLine)
---- a/drivers/tty/serial/lpc32xx_hs.c
-+++ b/drivers/tty/serial/lpc32xx_hs.c
-@@ -345,7 +345,7 @@ static irqreturn_t serial_lpc32xx_interr
- 		       LPC32XX_HSUART_IIR(port->membase));
- 		port->icount.overrun++;
- 		tty_insert_flip_char(tport, 0, TTY_OVERRUN);
--		tty_schedule_flip(tport);
-+		tty_flip_buffer_push(tport);
- 	}
- 
- 	/* Data received? */
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -310,7 +310,7 @@ int kbd_rate(struct kbd_repeat *rpt)
- static void put_queue(struct vc_data *vc, int ch)
- {
- 	tty_insert_flip_char(&vc->port, ch, 0);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void puts_queue(struct vc_data *vc, char *cp)
-@@ -319,7 +319,7 @@ static void puts_queue(struct vc_data *v
- 		tty_insert_flip_char(&vc->port, *cp, 0);
- 		cp++;
- 	}
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void applkey(struct vc_data *vc, int key, char mode)
-@@ -564,7 +564,7 @@ static void fn_inc_console(struct vc_dat
- static void fn_send_intr(struct vc_data *vc)
- {
- 	tty_insert_flip_char(&vc->port, 0, TTY_BREAK);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void fn_scroll_forw(struct vc_data *vc)
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1837,7 +1837,7 @@ static void respond_string(const char *p
- 		tty_insert_flip_char(port, *p, 0);
- 		p++;
- 	}
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
- }
- 
- static void cursor_report(struct vc_data *vc, struct tty_struct *tty)
+ void hci_sock_set_flag(struct sock *sk, int nr);
 
 
