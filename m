@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D65582E3E
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4CC1582C97
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241270AbiG0RKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:10:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
+        id S240484AbiG0QsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:48:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241753AbiG0RJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3F61501BF;
-        Wed, 27 Jul 2022 09:41:10 -0700 (PDT)
+        with ESMTP id S240486AbiG0QrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:47:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A037552443;
+        Wed, 27 Jul 2022 09:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D80601CE;
-        Wed, 27 Jul 2022 16:41:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF276C433D6;
-        Wed, 27 Jul 2022 16:41:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 120C461A69;
+        Wed, 27 Jul 2022 16:32:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199BEC433C1;
+        Wed, 27 Jul 2022 16:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940068;
-        bh=4nPOBYRVh1TeKFhmDIyIk4pggIEMowzCSYFN4GeClBc=;
+        s=korg; t=1658939523;
+        bh=uOdU3fehE3mcaQzsyVAblZ2pH7AkrvkxKU5xEx7Ng0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2q7R4/qg6V+3FgIzzUAF7MTTylqVSiEWg1/M/FiIE5JOdJBzXEFnaRlIGgbTXhhY
-         QZkZujKsSOQzMc6orUbF+z32N81np+bg0o3n4FT7oiOBkC1XXy0ykk6qyM2M0moTNN
-         eizXFmVqras/+6bG2B6cfaIu0Y8hh8fr7w7KRAps=
+        b=EN6flW48QRjy8LXjZa+SnKcQG6nKreXP3AQOqynLaspQEqj2PWxspCYz327XD3G4K
+         zTFG43GKmaoUeSE8J2bykWfd6Je/AZgterxHNgAZ7lI4S8wVAD8obuEuJesVB6kmpJ
+         JNt8+ciePvOFyy7grfDHEsPrsN9cnfXU95fYFOgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 093/201] tcp: Fix data-races around sysctl_tcp_migrate_req.
-Date:   Wed, 27 Jul 2022 18:09:57 +0200
-Message-Id: <20220727161031.613409590@linuxfoundation.org>
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Fedor Pchelkin <pchelkin@ispras.ru>
+Subject: [PATCH 5.10 012/105] net: move net_set_todo inside rollback_registered()
+Date:   Wed, 27 Jul 2022 18:09:58 +0200
+Message-Id: <20220727161012.556160686@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit 4177f545895b1da08447a80692f30617154efa6e ]
+From: Jakub Kicinski <kuba@kernel.org>
 
-While reading sysctl_tcp_migrate_req, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+commit 2014beea7eb165c745706b13659a0f1d0a9a2a61 upstream.
 
-Fixes: f9ac779f881c ("net: Introduce net.ipv4.tcp_migrate_req.")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Commit 93ee31f14f6f ("[NET]: Fix free_netdev on register_netdev
+failure.") moved net_set_todo() outside of rollback_registered()
+so that rollback_registered() can be used in the failure path of
+register_netdevice() but without risking a double free.
+
+Since commit cf124db566e6 ("net: Fix inconsistent teardown and
+release of private netdev state."), however, we have a better
+way of handling that condition, since destructors don't call
+free_netdev() directly.
+
+After the change in commit c269a24ce057 ("net: make free_netdev()
+more lenient with unregistering devices") we can now move
+net_set_todo() back.
+
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/sock_reuseport.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/dev.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/net/core/sock_reuseport.c b/net/core/sock_reuseport.c
-index 3f00a28fe762..5daa1fa54249 100644
---- a/net/core/sock_reuseport.c
-+++ b/net/core/sock_reuseport.c
-@@ -387,7 +387,7 @@ void reuseport_stop_listen_sock(struct sock *sk)
- 		prog = rcu_dereference_protected(reuse->prog,
- 						 lockdep_is_held(&reuseport_lock));
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -9595,8 +9595,10 @@ static void rollback_registered_many(str
  
--		if (sock_net(sk)->ipv4.sysctl_tcp_migrate_req ||
-+		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_migrate_req) ||
- 		    (prog && prog->expected_attach_type == BPF_SK_REUSEPORT_SELECT_OR_MIGRATE)) {
- 			/* Migration capable, move sk from the listening section
- 			 * to the closed section.
-@@ -545,7 +545,7 @@ struct sock *reuseport_migrate_sock(struct sock *sk,
- 	hash = migrating_sk->sk_hash;
- 	prog = rcu_dereference(reuse->prog);
- 	if (!prog || prog->expected_attach_type != BPF_SK_REUSEPORT_SELECT_OR_MIGRATE) {
--		if (sock_net(sk)->ipv4.sysctl_tcp_migrate_req)
-+		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_migrate_req))
- 			goto select_by_hash;
- 		goto failure;
+ 	synchronize_net();
+ 
+-	list_for_each_entry(dev, head, unreg_list)
++	list_for_each_entry(dev, head, unreg_list) {
+ 		dev_put(dev);
++		net_set_todo(dev);
++	}
+ }
+ 
+ static void rollback_registered(struct net_device *dev)
+@@ -10147,7 +10149,6 @@ int register_netdevice(struct net_device
+ 		/* Expect explicit free_netdev() on failure */
+ 		dev->needs_free_netdev = false;
+ 		rollback_registered(dev);
+-		net_set_todo(dev);
+ 		goto out;
  	}
--- 
-2.35.1
-
+ 	/*
+@@ -10755,8 +10756,6 @@ void unregister_netdevice_queue(struct n
+ 		list_move_tail(&dev->unreg_list, head);
+ 	} else {
+ 		rollback_registered(dev);
+-		/* Finish processing unregister after unlock */
+-		net_set_todo(dev);
+ 	}
+ }
+ EXPORT_SYMBOL(unregister_netdevice_queue);
+@@ -10770,12 +10769,8 @@ EXPORT_SYMBOL(unregister_netdevice_queue
+  */
+ void unregister_netdevice_many(struct list_head *head)
+ {
+-	struct net_device *dev;
+-
+ 	if (!list_empty(head)) {
+ 		rollback_registered_many(head);
+-		list_for_each_entry(dev, head, unreg_list)
+-			net_set_todo(dev);
+ 		list_del(head);
+ 	}
+ }
 
 
