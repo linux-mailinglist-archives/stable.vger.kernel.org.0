@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 704F4582D0A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCCAB582B52
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240831AbiG0Qw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55602 "EHLO
+        id S237600AbiG0Qbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240829AbiG0QwQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7A653D2E;
-        Wed, 27 Jul 2022 09:34:12 -0700 (PDT)
+        with ESMTP id S237332AbiG0QbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:31:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B4E152DCA;
+        Wed, 27 Jul 2022 09:25:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5FD0B821BA;
-        Wed, 27 Jul 2022 16:34:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F44CC433D6;
-        Wed, 27 Jul 2022 16:34:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CDBD619CB;
+        Wed, 27 Jul 2022 16:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D348C433C1;
+        Wed, 27 Jul 2022 16:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939649;
-        bh=FKh67JCTZDQVK2ODwYqH9DX9H4uoPzNuCIzZOI8VssA=;
+        s=korg; t=1658939088;
+        bh=eK8XCS3A41MxgxlDFeO9bCfc1XOeWvk+98vg4pkjDfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EY6FZK0Buva/Rj01mVHORWc9SIroQ/giSinECBy/2HnVvC7vtAu061AndXmkCv46b
-         Gwd/rwYPbt5JgR6ZovmMK3E26Zzj3cY1rjLmbuOcWgpdL0oI7h23s6Ua0e1+RwCg8D
-         yYFUTi9KS0dpZtFJqCTtisTGSM9Cf9B4o4zvpdpY=
+        b=OcPjFfyWyYUV62JQBPZF63i9E+rseWsMFyS5U71eR2YotwxTBIU4LuTOSujXeqoHr
+         phxy3YCltNOGNG3c6Rj6zmI8urgyI9snqYyNFVknown84vHmDxn9DYwJEqfij+JBJK
+         eiHtMZuaRFhdbK5LFEiX8Lrt2dlzr13cBPMmxZIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/105] pinctrl: ralink: Check for null return of devm_kcalloc
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Bin Meng <bmeng.cn@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 4.19 01/62] riscv: add as-options for modules with assembly compontents
 Date:   Wed, 27 Jul 2022 18:10:10 +0200
-Message-Id: <20220727161013.074316208@linuxfoundation.org>
+Message-Id: <20220727161004.224433015@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,43 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@gmail.com>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-[ Upstream commit c3b821e8e406d5650e587b7ac624ac24e9b780a8 ]
+commit c1f6eff304e4dfa4558b6a8c6b2d26a91db6c998 upstream.
 
-Because of the possible failure of the allocation, data->domains might
-be NULL pointer and will cause the dereference of the NULL pointer
-later.
-Therefore, it might be better to check it and directly return -ENOMEM
-without releasing data manually if fails, because the comment of the
-devm_kmalloc() says "Memory allocated with this function is
-automatically freed on driver detach.".
+When trying to load modules built for RISC-V which include assembly files
+the kernel loader errors with "unexpected relocation type 'R_RISCV_ALIGN'"
+due to R_RISCV_ALIGN relocations being generated by the assembler.
 
-Fixes: a86854d0c599b ("treewide: devm_kzalloc() -> devm_kcalloc()")
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@gmail.com>
-Link: https://lore.kernel.org/r/20220710154922.2610876-1-williamsukatube@163.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The R_RISCV_ALIGN relocations can be removed at the expense of code space
+by adding -mno-relax to gcc and as.  In commit 7a8e7da42250138
+("RISC-V: Fixes to module loading") -mno-relax is added to the build
+variable KBUILD_CFLAGS_MODULE. See [1] for more info.
+
+The issue is that when kbuild builds a .S file, it invokes gcc with
+the -mno-relax flag, but this is not being passed through to the
+assembler. Adding -Wa,-mno-relax to KBUILD_AFLAGS_MODULE ensures that
+the assembler is invoked correctly. This may have now been fixed in
+gcc[2] and this addition should not stop newer gcc and as from working.
+
+[1] https://github.com/riscv/riscv-elf-psabi-doc/issues/183
+[2] https://github.com/gcc-mirror/gcc/commit/3b0a7d624e64eeb81e4d5e8c62c46d86ef521857
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Link: https://lore.kernel.org/r/20220529152200.609809-1-ben.dooks@codethink.co.uk
+Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
-index 09b0b8a16e99..2e971cbe2d7a 100644
---- a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
-+++ b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
-@@ -267,6 +267,8 @@ static int rt2880_pinmux_pins(struct rt2880_priv *p)
- 						p->func[i]->pin_count,
- 						sizeof(int),
- 						GFP_KERNEL);
-+		if (!p->func[i]->pins)
-+			return -ENOMEM;
- 		for (j = 0; j < p->func[i]->pin_count; j++)
- 			p->func[i]->pins[j] = p->func[i]->pin_first + j;
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -66,6 +66,7 @@ ifeq ($(CONFIG_MODULE_SECTIONS),y)
+ endif
  
--- 
-2.35.1
-
+ KBUILD_CFLAGS_MODULE += $(call cc-option,-mno-relax)
++KBUILD_AFLAGS_MODULE += $(call as-option,-Wa$(comma)-mno-relax)
+ 
+ # GCC versions that support the "-mstrict-align" option default to allowing
+ # unaligned accesses.  While unaligned accesses are explicitly allowed in the
 
 
