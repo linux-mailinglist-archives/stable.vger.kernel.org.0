@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 625E2583025
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3550858302E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242297AbiG0Rdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:33:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41712 "EHLO
+        id S231840AbiG0RfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:35:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242300AbiG0RdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:33:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95593606B3;
-        Wed, 27 Jul 2022 09:48:39 -0700 (PDT)
+        with ESMTP id S242457AbiG0Rd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:33:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9C882F87;
+        Wed, 27 Jul 2022 09:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D5D8B821BA;
-        Wed, 27 Jul 2022 16:48:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D37C433C1;
-        Wed, 27 Jul 2022 16:48:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F22A600BE;
+        Wed, 27 Jul 2022 16:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3430EC43470;
+        Wed, 27 Jul 2022 16:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940515;
-        bh=TZ3DTx7gCxGl6xzl8zAlNkypg0HN/rgTN+t3RxB4vlo=;
+        s=korg; t=1658940518;
+        bh=acifiAZYGGEyPLvFGkAq/4jyGT+ETtNuHd0sN+qjSQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOFXqRIBKP+cafR4dxmgMOsCMSixRotpnreV+CXrfVkK6aLC/1ZfnjD4Wo7HPQ1pM
-         sl0TCCgQeufsJxHSCml8z5hZOtkb4MFHZMKQb1Ck6t9OG61nPCXrxl64IZEk2JeMpG
-         fiWRC66E4JJI+KyX7OmWPtDtqozZO+zQvh3P0JmA=
+        b=I+t8jjQni1Qh7LXmWAhUeQfbCsCO2dKGy6Uacn3dBp5lcSAjr1sNm5ky7zJdH1+Wp
+         THlzn/7Jp/a5Elnp7kndCw7Vz7UyJawzNRgQarTjabtiY5CIjEEhjGopUHoaOIckN5
+         7P2Coo8V0Pux0/Hr7PdC1ESIFFYVww4NsWg9loCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 050/158] net: stmmac: fix unbalanced ptp clock issue in suspend/resume flow
-Date:   Wed, 27 Jul 2022 18:11:54 +0200
-Message-Id: <20220727161023.531618844@linuxfoundation.org>
+Subject: [PATCH 5.18 051/158] net: dsa: microchip: ksz_common: Fix refcount leak bug
+Date:   Wed, 27 Jul 2022 18:11:55 +0200
+Message-Id: <20220727161023.569878060@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -53,90 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biao Huang <biao.huang@mediatek.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit f4c7d8948e866918d61493264dbbd67e45ef2bda ]
+[ Upstream commit a14bd7475452c51835dd5a0cee4c8fa48dd0b539 ]
 
-Current stmmac driver will prepare/enable ptp_ref clock in
-stmmac_init_tstamp_counter().
+In ksz_switch_register(), we should call of_node_put() for the
+reference returned by of_get_child_by_name() which has increased
+the refcount.
 
-The stmmac_pltfr_noirq_suspend will disable it once in suspend flow.
-
-But in resume flow,
-	stmmac_pltfr_noirq_resume --> stmmac_init_tstamp_counter
-	stmmac_resume --> stmmac_hw_setup --> stmmac_init_ptp --> stmmac_init_tstamp_counter
-ptp_ref clock reference counter increases twice, which leads to unbalance
-ptp clock when resume back.
-
-Move ptp_ref clock prepare/enable out of stmmac_init_tstamp_counter to fix it.
-
-Fixes: 0735e639f129d ("net: stmmac: skip only stmmac_ptp_register when resume from suspend")
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 912aae27c6af ("net: dsa: microchip: really look for phy-mode in port nodes")
+Signed-off-by: Liang He <windhl@126.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220714153138.375919-1-windhl@126.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_main.c   | 17 ++++++++---------
- .../ethernet/stmicro/stmmac/stmmac_platform.c   |  8 +++++++-
- 2 files changed, 15 insertions(+), 10 deletions(-)
+ drivers/net/dsa/microchip/ksz_common.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index d43c9ba0b270..6a7f63a58aef 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -834,19 +834,10 @@ int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags)
- 	struct timespec64 now;
- 	u32 sec_inc = 0;
- 	u64 temp = 0;
--	int ret;
- 
- 	if (!(priv->dma_cap.time_stamp || priv->dma_cap.atime_stamp))
- 		return -EOPNOTSUPP;
- 
--	ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
--	if (ret < 0) {
--		netdev_warn(priv->dev,
--			    "failed to enable PTP reference clock: %pe\n",
--			    ERR_PTR(ret));
--		return ret;
--	}
--
- 	stmmac_config_hw_tstamping(priv, priv->ptpaddr, systime_flags);
- 	priv->systime_flags = systime_flags;
- 
-@@ -3270,6 +3261,14 @@ static int stmmac_hw_setup(struct net_device *dev, bool ptp_register)
- 
- 	stmmac_mmc_setup(priv);
- 
-+	if (ptp_register) {
-+		ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
-+		if (ret < 0)
-+			netdev_warn(priv->dev,
-+				    "failed to enable PTP reference clock: %pe\n",
-+				    ERR_PTR(ret));
-+	}
-+
- 	ret = stmmac_init_ptp(priv);
- 	if (ret == -EOPNOTSUPP)
- 		netdev_info(priv->dev, "PTP not supported by HW\n");
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 11e1055e8260..9f5cac4000da 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -815,7 +815,13 @@ static int __maybe_unused stmmac_pltfr_noirq_resume(struct device *dev)
- 		if (ret)
- 			return ret;
- 
--		stmmac_init_tstamp_counter(priv, priv->systime_flags);
-+		ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
-+		if (ret < 0) {
-+			netdev_warn(priv->dev,
-+				    "failed to enable PTP reference clock: %pe\n",
-+				    ERR_PTR(ret));
-+			return ret;
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 8014b18d9391..aa0bcf01e20a 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -447,18 +447,21 @@ int ksz_switch_register(struct ksz_device *dev,
+ 		ports = of_get_child_by_name(dev->dev->of_node, "ethernet-ports");
+ 		if (!ports)
+ 			ports = of_get_child_by_name(dev->dev->of_node, "ports");
+-		if (ports)
++		if (ports) {
+ 			for_each_available_child_of_node(ports, port) {
+ 				if (of_property_read_u32(port, "reg",
+ 							 &port_num))
+ 					continue;
+ 				if (!(dev->port_mask & BIT(port_num))) {
+ 					of_node_put(port);
++					of_node_put(ports);
+ 					return -EINVAL;
+ 				}
+ 				of_get_phy_mode(port,
+ 						&dev->ports[port_num].interface);
+ 			}
++			of_node_put(ports);
 +		}
- 	}
- 
- 	return 0;
+ 		dev->synclko_125 = of_property_read_bool(dev->dev->of_node,
+ 							 "microchip,synclko-125");
+ 		dev->synclko_disable = of_property_read_bool(dev->dev->of_node,
 -- 
 2.35.1
 
