@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F37E582C4A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E90582F94
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238683AbiG0Qot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
+        id S233562AbiG0R2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:28:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240193AbiG0QoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6E75D0FD;
-        Wed, 27 Jul 2022 09:30:48 -0700 (PDT)
+        with ESMTP id S241485AbiG0R1b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:27:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE6D7E83A;
+        Wed, 27 Jul 2022 09:47:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AC89B821BD;
-        Wed, 27 Jul 2022 16:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15E5C433C1;
-        Wed, 27 Jul 2022 16:30:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B2D3B821BE;
+        Wed, 27 Jul 2022 16:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4AEC4347C;
+        Wed, 27 Jul 2022 16:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939446;
-        bh=jmwZE7fZT0yS5jlppOJsyv5VuU2LGt3H7AUTFK/9IZg=;
+        s=korg; t=1658940427;
+        bh=0RyaagzoJehFp4OnNWJ66rEEeBYyrXWn1vmn7EOA0OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZlCSIoUwyBnPKnbBwSHOAJNmqMREvpTQFTMrFy7Ep3tFS+o4gLLcnhfXYewB2Gu6Z
-         3U5NYyTjkkwAPN4dgOfJmZygKOf46GaPQjklNcLFon4CG00TeRee2eYQXbayNe7hn1
-         uj8jFZf5YgPcg9V5/LtFZPPUeV6OZ7OMEQ0z6uoE=
+        b=tarvzgdnSPN+IuyxGGw1diutkYg8QYBqeWCkCKisVwB1d2aQ+SJsQvJ09zGmv4l4W
+         3YetAl2jCtEE+xwU5Lz+dxqwWaC5hTN8FkOAIY99pr+UVahJ3afkYq4VG0MnTqs28r
+         3End9/+zn55CH/RTRyCKokr5KWRBvEGIknJibEnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 72/87] bitfield.h: Fix "type of reg too small for mask" test
-Date:   Wed, 27 Jul 2022 18:11:05 +0200
-Message-Id: <20220727161011.987192720@linuxfoundation.org>
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.18 002/158] pinctrl: stm32: fix optional IRQ support to gpios
+Date:   Wed, 27 Jul 2022 18:11:06 +0200
+Message-Id: <20220727161021.529993485@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Fabien Dessenne <fabien.dessenne@foss.st.com>
 
-[ Upstream commit bff8c3848e071d387d8b0784dc91fa49cd563774 ]
+commit a1d4ef1adf8bbd302067534ead671a94759687ed upstream.
 
-The test: 'mask > (typeof(_reg))~0ull' only works correctly when both
-sides are unsigned, consider:
+To act as an interrupt controller, a gpio bank relies on the
+"interrupt-parent" of the pin controller.
+When this optional "interrupt-parent" misses, do not create any IRQ domain.
 
- - 0xff000000 vs (int)~0ull
- - 0x000000ff vs (int)~0ull
+This fixes a "NULL pointer in stm32_gpio_domain_alloc()" kernel crash when
+the interrupt-parent = <exti> property is not declared in the Device Tree.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/20211110101324.950210584@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0eb9f683336d ("pinctrl: Add IRQ support to STM32 gpios")
+Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20220627142350.742973-1-fabien.dessenne@foss.st.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bitfield.h | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/pinctrl/stm32/pinctrl-stm32.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
-index 4c0224ff0a14..4f1c0f8e1bb0 100644
---- a/include/linux/bitfield.h
-+++ b/include/linux/bitfield.h
-@@ -41,6 +41,22 @@
- 
- #define __bf_shf(x) (__builtin_ffsll(x) - 1)
- 
-+#define __scalar_type_to_unsigned_cases(type)				\
-+		unsigned type:	(unsigned type)0,			\
-+		signed type:	(unsigned type)0
-+
-+#define __unsigned_scalar_typeof(x) typeof(				\
-+		_Generic((x),						\
-+			char:	(unsigned char)0,			\
-+			__scalar_type_to_unsigned_cases(char),		\
-+			__scalar_type_to_unsigned_cases(short),		\
-+			__scalar_type_to_unsigned_cases(int),		\
-+			__scalar_type_to_unsigned_cases(long),		\
-+			__scalar_type_to_unsigned_cases(long long),	\
-+			default: (x)))
-+
-+#define __bf_cast_unsigned(type, x)	((__unsigned_scalar_typeof(type))(x))
-+
- #define __BF_FIELD_CHECK(_mask, _reg, _val, _pfx)			\
- 	({								\
- 		BUILD_BUG_ON_MSG(!__builtin_constant_p(_mask),		\
-@@ -49,7 +65,8 @@
- 		BUILD_BUG_ON_MSG(__builtin_constant_p(_val) ?		\
- 				 ~((_mask) >> __bf_shf(_mask)) & (_val) : 0, \
- 				 _pfx "value too large for the field"); \
--		BUILD_BUG_ON_MSG((_mask) > (typeof(_reg))~0ull,		\
-+		BUILD_BUG_ON_MSG(__bf_cast_unsigned(_mask, _mask) >	\
-+				 __bf_cast_unsigned(_reg, ~0ull),	\
- 				 _pfx "type of reg too small for mask"); \
- 		__BUILD_BUG_ON_NOT_POWER_OF_2((_mask) +			\
- 					      (1ULL << __bf_shf(_mask))); \
--- 
-2.35.1
 
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -1299,15 +1299,17 @@ static int stm32_gpiolib_register_bank(s
+ 	bank->bank_ioport_nr = bank_ioport_nr;
+ 	spin_lock_init(&bank->lock);
+ 
+-	/* create irq hierarchical domain */
+-	bank->fwnode = of_node_to_fwnode(np);
++	if (pctl->domain) {
++		/* create irq hierarchical domain */
++		bank->fwnode = of_node_to_fwnode(np);
++
++		bank->domain = irq_domain_create_hierarchy(pctl->domain, 0, STM32_GPIO_IRQ_LINE,
++							   bank->fwnode, &stm32_gpio_domain_ops,
++							   bank);
+ 
+-	bank->domain = irq_domain_create_hierarchy(pctl->domain, 0,
+-					STM32_GPIO_IRQ_LINE, bank->fwnode,
+-					&stm32_gpio_domain_ops, bank);
+-
+-	if (!bank->domain)
+-		return -ENODEV;
++		if (!bank->domain)
++			return -ENODEV;
++	}
+ 
+ 	err = gpiochip_add_data(&bank->gpio_chip, bank);
+ 	if (err) {
+@@ -1466,6 +1468,8 @@ int stm32_pctl_probe(struct platform_dev
+ 	pctl->domain = stm32_pctrl_get_irq_domain(np);
+ 	if (IS_ERR(pctl->domain))
+ 		return PTR_ERR(pctl->domain);
++	if (!pctl->domain)
++		dev_warn(dev, "pinctrl without interrupt support\n");
+ 
+ 	/* hwspinlock is optional */
+ 	hwlock_id = of_hwspin_lock_get_id(pdev->dev.of_node, 0);
 
 
