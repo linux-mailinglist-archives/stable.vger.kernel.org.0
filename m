@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D18582E59
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13918582BC7
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237943AbiG0RLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:11:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
+        id S238669AbiG0QiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:38:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238191AbiG0RLT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:11:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAD0374DDB;
-        Wed, 27 Jul 2022 09:41:33 -0700 (PDT)
+        with ESMTP id S238978AbiG0Qh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:37:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF51C4D4C6;
+        Wed, 27 Jul 2022 09:28:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90D14601C3;
-        Wed, 27 Jul 2022 16:41:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DB3C433D7;
-        Wed, 27 Jul 2022 16:41:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EBF3B821C6;
+        Wed, 27 Jul 2022 16:28:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90DCFC433D6;
+        Wed, 27 Jul 2022 16:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940091;
-        bh=bU2/xVGvLwc56ejQkjV+akjbrJs3moE20KEfmebPPyM=;
+        s=korg; t=1658939296;
+        bh=jsF4LpQm777PxNt5/h+cNChfYSEvUrbp0KZNEszQamk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6O+Aq1BZK7rj4lFS4YxwN6H2vv0R0u09UQW1joLBAdITJcsM2LElYn5n/CIaS0lc
-         9aoVBQssq1Bx6ON/e1KYwJi4apto6YxxWlPtsuQTPCAdqMzW2vUmjTzZ9PZ6Jeb84q
-         v+QMv4uyzyTs2yO/ojdkw46lq7Ysp2i2YvqAEVKk=
+        b=fje+8hyT/turBQv0zYzffwl5sD8bODcydM1zrSfBLr/fzNdJ+zb5rl6XICb0sNF8H
+         m/P1D5bUgrD0Yaz3uIdATtXYLdbCiT4r499u/sNq6PbiGLD0XHlbqGGcC3hwtHgDJV
+         HUocuAwB5BVTR8B58S130CKJTfpi4dqY8ESi3Bu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 100/201] tcp: Fix data-races around sysctl_tcp_fastopen_blackhole_timeout.
-Date:   Wed, 27 Jul 2022 18:10:04 +0200
-Message-Id: <20220727161031.886161020@linuxfoundation.org>
+Subject: [PATCH 5.4 12/87] power/reset: arm-versatile: Fix refcount leak in versatile_reboot_probe
+Date:   Wed, 27 Jul 2022 18:10:05 +0200
+Message-Id: <20220727161009.505251459@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 021266ec640c7a4527e6cd4b7349a512b351de1d ]
+[ Upstream commit 80192eff64eee9b3bc0594a47381937b94b9d65a ]
 
-While reading sysctl_tcp_fastopen_blackhole_timeout, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its readers.
+of_find_matching_node_and_match() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: cf1ef3f0719b ("net/tcp_fastopen: Disable active side TFO in certain scenarios")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0e545f57b708 ("power: reset: driver for the Versatile syscon reboot")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_fastopen.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/power/reset/arm-versatile-reboot.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index 936544a4753e..6e0a8ef5e816 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -495,7 +495,7 @@ void tcp_fastopen_active_disable(struct sock *sk)
- {
- 	struct net *net = sock_net(sk);
+diff --git a/drivers/power/reset/arm-versatile-reboot.c b/drivers/power/reset/arm-versatile-reboot.c
+index 08d0a07b58ef..c7624d7611a7 100644
+--- a/drivers/power/reset/arm-versatile-reboot.c
++++ b/drivers/power/reset/arm-versatile-reboot.c
+@@ -146,6 +146,7 @@ static int __init versatile_reboot_probe(void)
+ 	versatile_reboot_type = (enum versatile_reboot)reboot_id->data;
  
--	if (!sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout))
- 		return;
+ 	syscon_regmap = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(syscon_regmap))
+ 		return PTR_ERR(syscon_regmap);
  
- 	/* Paired with READ_ONCE() in tcp_fastopen_active_should_disable() */
-@@ -516,7 +516,8 @@ void tcp_fastopen_active_disable(struct sock *sk)
-  */
- bool tcp_fastopen_active_should_disable(struct sock *sk)
- {
--	unsigned int tfo_bh_timeout = sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout;
-+	unsigned int tfo_bh_timeout =
-+		READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fastopen_blackhole_timeout);
- 	unsigned long timeout;
- 	int tfo_da_times;
- 	int multiplier;
 -- 
 2.35.1
 
