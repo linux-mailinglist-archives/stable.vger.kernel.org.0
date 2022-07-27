@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF44582B86
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D21582B10
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237987AbiG0QfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
+        id S236678AbiG0Q1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235592AbiG0QeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:34:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9EAA550A6;
-        Wed, 27 Jul 2022 09:26:57 -0700 (PDT)
+        with ESMTP id S236199AbiG0Q0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:26:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E7D4F1B3;
+        Wed, 27 Jul 2022 09:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7601B821BC;
-        Wed, 27 Jul 2022 16:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD06C433D6;
-        Wed, 27 Jul 2022 16:26:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC1A7B821C0;
+        Wed, 27 Jul 2022 16:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20634C43152;
+        Wed, 27 Jul 2022 16:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939184;
-        bh=ha1Tvj/TwkZrbyOljA7y31mT43yEh3Mf6mEIHFW84/4=;
+        s=korg; t=1658939026;
+        bh=ten9Uu56Thfp2v7HyMc7XRLlM5rs/z7BauP9gFsCuVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmn7M5kb635d1FiVj7V6zNBj23ZJwYW/BmDzTJUgMMwImpoDfJkYDGR/NPASK06iy
-         afF83amQ6Zw4ImvBo5cRyc/p97ElokprUc+ksPE+YIguB4XLBanVxBtoj8qztv3tyM
-         TxJX79MYgp0R8rny/L5TbZ6M6sLC5dayfD512PAc=
+        b=ICVRB3g8jc6U8D0Fwa5TTIizqDx9GAILl3s5VcdDHmPQwZeKJZqomm9YSJxC/rcpV
+         NguDBuZ5MdAoTWSXvW9id53qxNvr51RnszkrkJUVgs7rQWmS60BE0QFDflG4fUBbXX
+         t+99WjRHpagKBhROvDNU5X51zvxsWoxgsBdqqlA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/62] dlm: fix pending remove if msg allocation fails
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 4.14 25/37] Bluetooth: Fix passing NULL to PTR_ERR
 Date:   Wed, 27 Jul 2022 18:10:51 +0200
-Message-Id: <20220727161005.821253678@linuxfoundation.org>
+Message-Id: <20220727161001.868919852@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit ba58995909b5098ca4003af65b0ccd5a8d13dd25 ]
+commit 266191aa8d14b84958aaeb5e96ee4e97839e3d87 upstream.
 
-This patch unsets ls_remove_len and ls_remove_name if a message
-allocation of a remove messages fails. In this case we never send a
-remove message out but set the per ls ls_remove_len ls_remove_name
-variable for a pending remove. Unset those variable should indicate
-possible waiters in wait_pending_remove() that no pending remove is
-going on at this moment.
+Passing NULL to PTR_ERR will result in 0 (success), also since the likes of
+bt_skb_sendmsg does never return NULL it is safe to replace the instances of
+IS_ERR_OR_NULL with IS_ERR when checking its return.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/lock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/bluetooth/bluetooth.h |    2 +-
+ net/bluetooth/rfcomm/sock.c       |    2 +-
+ net/bluetooth/sco.c               |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
-index ac53403e9edb..35bfb681bf13 100644
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -4069,13 +4069,14 @@ static void send_repeat_remove(struct dlm_ls *ls, char *ms_name, int len)
- 	rv = _create_message(ls, sizeof(struct dlm_message) + len,
- 			     dir_nodeid, DLM_MSG_REMOVE, &ms, &mh);
- 	if (rv)
--		return;
-+		goto out;
+--- a/include/net/bluetooth/bluetooth.h
++++ b/include/net/bluetooth/bluetooth.h
+@@ -419,7 +419,7 @@ static inline struct sk_buff *bt_skb_sen
+ 		struct sk_buff *tmp;
  
- 	memcpy(ms->m_extra, name, len);
- 	ms->m_hash = hash;
+ 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
+-		if (IS_ERR_OR_NULL(tmp)) {
++		if (IS_ERR(tmp)) {
+ 			kfree_skb(skb);
+ 			return tmp;
+ 		}
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -586,7 +586,7 @@ static int rfcomm_sock_sendmsg(struct so
  
- 	send_message(mh, ms);
+ 	skb = bt_skb_sendmmsg(sk, msg, len, d->mtu, RFCOMM_SKB_HEAD_RESERVE,
+ 			      RFCOMM_SKB_TAIL_RESERVE);
+-	if (IS_ERR_OR_NULL(skb))
++	if (IS_ERR(skb))
+ 		return PTR_ERR(skb);
  
-+out:
- 	spin_lock(&ls->ls_remove_spin);
- 	ls->ls_remove_len = 0;
- 	memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
--- 
-2.35.1
-
+ 	sent = rfcomm_dlc_send(d, skb);
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -721,7 +721,7 @@ static int sco_sock_sendmsg(struct socke
+ 		return -EOPNOTSUPP;
+ 
+ 	skb = bt_skb_sendmsg(sk, msg, len, len, 0, 0);
+-	if (IS_ERR_OR_NULL(skb))
++	if (IS_ERR(skb))
+ 		return PTR_ERR(skb);
+ 
+ 	lock_sock(sk);
 
 
