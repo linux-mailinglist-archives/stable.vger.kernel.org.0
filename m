@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71015582FCE
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33CE2582F48
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241982AbiG0RaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:30:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55612 "EHLO
+        id S233167AbiG0RWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:22:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242120AbiG0R1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:27:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073267F53E;
-        Wed, 27 Jul 2022 09:47:23 -0700 (PDT)
+        with ESMTP id S241848AbiG0RUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:20:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61BC45F110;
+        Wed, 27 Jul 2022 09:45:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 142C5614DE;
-        Wed, 27 Jul 2022 16:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E517CC43150;
-        Wed, 27 Jul 2022 16:47:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A8A3B821D4;
+        Wed, 27 Jul 2022 16:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9504C433C1;
+        Wed, 27 Jul 2022 16:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940440;
-        bh=gWy067auv1cIDDz1ieWzLMz4GbK/yZ0iwF/UgHgWv7s=;
+        s=korg; t=1658940322;
+        bh=MxIqrIPmkawLpmAgdInOx6a9yL6SrBN/IMRL0oRRGK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4EMfRj5i2SklB7VYp4LtmPwtca++mWbvqNjyFn3YUUXbIKffroT5WzpE1keElOvj
-         7wemqKyLm16HC66jJyjOzdYwNBHy/HvwfzCL5FN8VlhK7pqnDgMYae1KWt8Mx5AJA3
-         W3luGrszD/obwtYGOWkd82jMDdrs4TZdVq3EXX7c=
+        b=UJNMiQE9V9mvm9y0uGs2s8kkY/DBmF7XSbQGPTlzjDv8x04KAWZUEgZFfcVstQFXU
+         yt11ojcdAtTXNb09uwJcUgI8RC8CmSSZxZlgNofJGs/1pmU04DjEnOhekA3oHIsDyV
+         DDdFd3xvv9ig2gopy3L2oxCCeIpSnh21bwN3v1JQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 023/158] RDMA/irdma: Do not advertise 1GB page size for x722
-Date:   Wed, 27 Jul 2022 18:11:27 +0200
-Message-Id: <20220727161022.406069939@linuxfoundation.org>
+        stable@vger.kernel.org, Tom St Denis <tom.stdenis@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 184/201] drm/amd/display: Fix surface optimization regression on Carrizo
+Date:   Wed, 27 Jul 2022 18:11:28 +0200
+Message-Id: <20220727161035.401781717@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 5e8afb8792f3b6ae7ccf700f8c19225382636401 ]
+commit 62e5a7e2333a9f5395f6a9db766b7b06c949fe7a upstream.
 
-x722 does not support 1GB page size but the irdma driver incorrectly
-advertises 1GB page size support for x722 device to ib_core to compute the
-best page size to use on this MR.  This could lead to incorrect start
-offsets computed by hardware on the MR.
+[Why]
+DCE legacy optimization path isn't well tested under new DC optimization
+flow which can result in underflow occuring when initializing X11 on
+Carrizo.
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[How]
+Retain the legacy optimization flow for DCE and keep the new one for DCN
+to satisfy optimizations being correctly applied for ASIC that can
+support it.
+
+Fixes: 34316c1e561db0 ("drm/amd/display: Optimize bandwidth on following fast update")
+Reported-by: Tom St Denis <tom.stdenis@amd.com>
+Tested-by: Tom St Denis <tom.stdenis@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/irdma/i40iw_hw.c  | 1 +
- drivers/infiniband/hw/irdma/icrdma_hw.c | 1 +
- drivers/infiniband/hw/irdma/irdma.h     | 1 +
- drivers/infiniband/hw/irdma/verbs.c     | 4 ++--
- 4 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/i40iw_hw.c b/drivers/infiniband/hw/irdma/i40iw_hw.c
-index e46fc110004d..50299f58b6b3 100644
---- a/drivers/infiniband/hw/irdma/i40iw_hw.c
-+++ b/drivers/infiniband/hw/irdma/i40iw_hw.c
-@@ -201,6 +201,7 @@ void i40iw_init_hw(struct irdma_sc_dev *dev)
- 	dev->hw_attrs.uk_attrs.max_hw_read_sges = I40IW_MAX_SGE_RD;
- 	dev->hw_attrs.max_hw_device_pages = I40IW_MAX_PUSH_PAGE_COUNT;
- 	dev->hw_attrs.uk_attrs.max_hw_inline = I40IW_MAX_INLINE_DATA_SIZE;
-+	dev->hw_attrs.page_size_cap = SZ_4K | SZ_2M;
- 	dev->hw_attrs.max_hw_ird = I40IW_MAX_IRD_SIZE;
- 	dev->hw_attrs.max_hw_ord = I40IW_MAX_ORD_SIZE;
- 	dev->hw_attrs.max_hw_wqes = I40IW_MAX_WQ_ENTRIES;
-diff --git a/drivers/infiniband/hw/irdma/icrdma_hw.c b/drivers/infiniband/hw/irdma/icrdma_hw.c
-index cf53b17510cd..5986fd906308 100644
---- a/drivers/infiniband/hw/irdma/icrdma_hw.c
-+++ b/drivers/infiniband/hw/irdma/icrdma_hw.c
-@@ -139,6 +139,7 @@ void icrdma_init_hw(struct irdma_sc_dev *dev)
- 	dev->cqp_db = dev->hw_regs[IRDMA_CQPDB];
- 	dev->cq_ack_db = dev->hw_regs[IRDMA_CQACK];
- 	dev->irq_ops = &icrdma_irq_ops;
-+	dev->hw_attrs.page_size_cap = SZ_4K | SZ_2M | SZ_1G;
- 	dev->hw_attrs.max_hw_ird = ICRDMA_MAX_IRD_SIZE;
- 	dev->hw_attrs.max_hw_ord = ICRDMA_MAX_ORD_SIZE;
- 	dev->hw_attrs.max_stat_inst = ICRDMA_MAX_STATS_COUNT;
-diff --git a/drivers/infiniband/hw/irdma/irdma.h b/drivers/infiniband/hw/irdma/irdma.h
-index 46c12334c735..4789e85d717b 100644
---- a/drivers/infiniband/hw/irdma/irdma.h
-+++ b/drivers/infiniband/hw/irdma/irdma.h
-@@ -127,6 +127,7 @@ struct irdma_hw_attrs {
- 	u64 max_hw_outbound_msg_size;
- 	u64 max_hw_inbound_msg_size;
- 	u64 max_mr_size;
-+	u64 page_size_cap;
- 	u32 min_hw_qp_id;
- 	u32 min_hw_aeq_size;
- 	u32 max_hw_aeq_size;
-diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
-index 52f3e88f8569..6daa149dcbda 100644
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -30,7 +30,7 @@ static int irdma_query_device(struct ib_device *ibdev,
- 	props->vendor_part_id = pcidev->device;
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -2979,8 +2979,13 @@ void dc_commit_updates_for_stream(struct
+ 			if (new_pipe->plane_state && new_pipe->plane_state != old_pipe->plane_state)
+ 				new_pipe->plane_state->force_full_update = true;
+ 		}
+-	} else if (update_type == UPDATE_TYPE_FAST) {
+-		/* Previous frame finished and HW is ready for optimization. */
++	} else if (update_type == UPDATE_TYPE_FAST && dc_ctx->dce_version >= DCE_VERSION_MAX) {
++		/*
++		 * Previous frame finished and HW is ready for optimization.
++		 *
++		 * Only relevant for DCN behavior where we can guarantee the optimization
++		 * is safe to apply - retain the legacy behavior for DCE.
++		 */
+ 		dc_post_update_surfaces_to_stream(dc);
+ 	}
  
- 	props->hw_ver = rf->pcidev->revision;
--	props->page_size_cap = SZ_4K | SZ_2M | SZ_1G;
-+	props->page_size_cap = hw_attrs->page_size_cap;
- 	props->max_mr_size = hw_attrs->max_mr_size;
- 	props->max_qp = rf->max_qp - rf->used_qps;
- 	props->max_qp_wr = hw_attrs->max_qp_wr;
-@@ -2764,7 +2764,7 @@ static struct ib_mr *irdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 len,
+@@ -3039,6 +3044,12 @@ void dc_commit_updates_for_stream(struct
+ 		}
+ 	}
  
- 	if (req.reg_type == IRDMA_MEMREG_TYPE_MEM) {
- 		iwmr->page_size = ib_umem_find_best_pgsz(region,
--							 SZ_4K | SZ_2M | SZ_1G,
-+							 iwdev->rf->sc_dev.hw_attrs.page_size_cap,
- 							 virt);
- 		if (unlikely(!iwmr->page_size)) {
- 			kfree(iwmr);
--- 
-2.35.1
-
++	/* Legacy optimization path for DCE. */
++	if (update_type >= UPDATE_TYPE_FULL && dc_ctx->dce_version < DCE_VERSION_MAX) {
++		dc_post_update_surfaces_to_stream(dc);
++		TRACE_DCE_CLOCK_STATE(&context->bw_ctx.bw.dce);
++	}
++
+ 	return;
+ 
+ }
 
 
