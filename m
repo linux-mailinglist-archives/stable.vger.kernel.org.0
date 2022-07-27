@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B57D582D65
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CCB582F9C
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240935AbiG0Q5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42422 "EHLO
+        id S242156AbiG0R2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:28:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241028AbiG0Q4u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:56:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB6165D43;
-        Wed, 27 Jul 2022 09:36:17 -0700 (PDT)
+        with ESMTP id S242154AbiG0R1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:27:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348007E33D;
+        Wed, 27 Jul 2022 09:47:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D945B61A91;
-        Wed, 27 Jul 2022 16:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74DEC433B5;
-        Wed, 27 Jul 2022 16:36:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36B98B821A6;
+        Wed, 27 Jul 2022 16:47:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42809C433B5;
+        Wed, 27 Jul 2022 16:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939766;
-        bh=F+ACtrEf14QUeYU2sFIUpqYkfswQs9zrhKx3+j/JC/g=;
+        s=korg; t=1658940430;
+        bh=LDe2d3/aX99mWMtN2t4AG9MQrz+qUjNJhrrFYgdFu9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umkw2VqXP3CBnGkaPboHpse6J+bYD2sk8jhCBuDzDj8LNnO2IWW2vEVBLqJDlNGpv
-         bXXtrtqjOlLMM9Os8MPyQMaOwgUX6HZOWMTE5sKuIYiDPYYnJ0qYY0Uam6T0VnwPoq
-         Ebh3I81rfgHMf3jFtpURvZfMQKZrnXbSRGXPXrIo=
+        b=T727YET9OyVzP8mWKT3iXrnmsftbGFWTt442y0FsUNSg8fBbPVT+oN/dicx04blkY
+         Y1j0B1otmvE26qYrbibT2pf3ZIl5OaSFPTRzdYAFZE0WheE+TOl4PNTncUFuKgrrQO
+         chC2f1hL06dxnwqfjRu7JegJMQJy2++Lz+1U+R9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
-        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.10 097/105] tty: drivers/tty/, stop using tty_schedule_flip()
-Date:   Wed, 27 Jul 2022 18:11:23 +0200
-Message-Id: <20220727161016.006747819@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 020/158] xfrm: xfrm_policy: fix a possible double xfrm_pols_put() in xfrm_bundle_lookup()
+Date:   Wed, 27 Jul 2022 18:11:24 +0200
+Message-Id: <20220727161022.277422268@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,139 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 5f6a85158ccacc3f09744b3aafe8b11ab3b6c6f6 upstream.
+[ Upstream commit f85daf0e725358be78dfd208dea5fd665d8cb901 ]
 
-Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
-tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
-going to remove the latter (as it is used less), so call the former in
-drivers/tty/.
+xfrm_policy_lookup() will call xfrm_pol_hold_rcu() to get a refcount of
+pols[0]. This refcount can be dropped in xfrm_expand_policies() when
+xfrm_expand_policies() return error. pols[0]'s refcount is balanced in
+here. But xfrm_bundle_lookup() will also call xfrm_pols_put() with
+num_pols == 1 to drop this refcount when xfrm_expand_policies() return
+error.
 
-Cc: Vladimir Zapolskiy <vz@mleia.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211122111648.30379-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch also fix an illegal address access. pols[0] will save a error
+point when xfrm_policy_lookup fails. This lead to xfrm_pols_put to resolve
+an illegal address in xfrm_bundle_lookup's error path.
+
+Fix these by setting num_pols = 0 in xfrm_expand_policies()'s error path.
+
+Fixes: 80c802f3073e ("xfrm: cache bundles instead of policies for outgoing flows")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/cyclades.c          |    6 +++---
- drivers/tty/goldfish.c          |    2 +-
- drivers/tty/moxa.c              |    4 ++--
- drivers/tty/serial/lpc32xx_hs.c |    2 +-
- drivers/tty/vt/keyboard.c       |    6 +++---
- drivers/tty/vt/vt.c             |    2 +-
- 6 files changed, 11 insertions(+), 11 deletions(-)
+ net/xfrm/xfrm_policy.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/cyclades.c
-+++ b/drivers/tty/cyclades.c
-@@ -556,7 +556,7 @@ static void cyy_chip_rx(struct cyclades_
- 		}
- 		info->idle_stats.recv_idle = jiffies;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index f1876ea61fdc..f1a0bab920a5 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2678,8 +2678,10 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
+ 		*num_xfrms = 0;
+ 		return 0;
  	}
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
+-	if (IS_ERR(pols[0]))
++	if (IS_ERR(pols[0])) {
++		*num_pols = 0;
+ 		return PTR_ERR(pols[0]);
++	}
  
- 	/* end of service */
- 	cyy_writeb(info, CyRIR, save_xir & 0x3f);
-@@ -996,7 +996,7 @@ static void cyz_handle_rx(struct cyclade
- 		mod_timer(&info->rx_full_timer, jiffies + 1);
- #endif
- 	info->idle_stats.recv_idle = jiffies;
--	tty_schedule_flip(&info->port);
-+	tty_flip_buffer_push(&info->port);
+ 	*num_xfrms = pols[0]->xfrm_nr;
  
- 	/* Update rx_get */
- 	cy_writel(&buf_ctrl->rx_get, new_rx_get);
-@@ -1172,7 +1172,7 @@ static void cyz_handle_cmd(struct cyclad
- 		if (delta_count)
- 			wake_up_interruptible(&info->port.delta_msr_wait);
- 		if (special_count)
--			tty_schedule_flip(&info->port);
-+			tty_flip_buffer_push(&info->port);
- 	}
- }
- 
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -151,7 +151,7 @@ static irqreturn_t goldfish_tty_interrup
- 	address = (unsigned long)(void *)buf;
- 	goldfish_tty_rw(qtty, address, count, 0);
- 
--	tty_schedule_flip(&qtty->port);
-+	tty_flip_buffer_push(&qtty->port);
- 	return IRQ_HANDLED;
- }
- 
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -1385,7 +1385,7 @@ static int moxa_poll_port(struct moxa_po
- 		if (inited && !tty_throttled(tty) &&
- 				MoxaPortRxQueue(p) > 0) { /* RX */
- 			MoxaPortReadData(p);
--			tty_schedule_flip(&p->port);
-+			tty_flip_buffer_push(&p->port);
- 		}
- 	} else {
- 		clear_bit(EMPTYWAIT, &p->statusflags);
-@@ -1410,7 +1410,7 @@ static int moxa_poll_port(struct moxa_po
- 
- 	if (tty && (intr & IntrBreak) && !I_IGNBRK(tty)) { /* BREAK */
- 		tty_insert_flip_char(&p->port, 0, TTY_BREAK);
--		tty_schedule_flip(&p->port);
-+		tty_flip_buffer_push(&p->port);
- 	}
- 
- 	if (intr & IntrLine)
---- a/drivers/tty/serial/lpc32xx_hs.c
-+++ b/drivers/tty/serial/lpc32xx_hs.c
-@@ -344,7 +344,7 @@ static irqreturn_t serial_lpc32xx_interr
- 		       LPC32XX_HSUART_IIR(port->membase));
- 		port->icount.overrun++;
- 		tty_insert_flip_char(tport, 0, TTY_OVERRUN);
--		tty_schedule_flip(tport);
-+		tty_flip_buffer_push(tport);
- 	}
- 
- 	/* Data received? */
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -311,7 +311,7 @@ int kbd_rate(struct kbd_repeat *rpt)
- static void put_queue(struct vc_data *vc, int ch)
- {
- 	tty_insert_flip_char(&vc->port, ch, 0);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void puts_queue(struct vc_data *vc, char *cp)
-@@ -320,7 +320,7 @@ static void puts_queue(struct vc_data *v
- 		tty_insert_flip_char(&vc->port, *cp, 0);
- 		cp++;
- 	}
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void applkey(struct vc_data *vc, int key, char mode)
-@@ -565,7 +565,7 @@ static void fn_inc_console(struct vc_dat
- static void fn_send_intr(struct vc_data *vc)
- {
- 	tty_insert_flip_char(&vc->port, 0, TTY_BREAK);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void fn_scroll_forw(struct vc_data *vc)
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1834,7 +1834,7 @@ static void csi_m(struct vc_data *vc)
- static void respond_string(const char *p, size_t len, struct tty_port *port)
- {
- 	tty_insert_flip_string(port, p, len);
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
- }
- 
- static void cursor_report(struct vc_data *vc, struct tty_struct *tty)
+@@ -2694,6 +2696,7 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
+ 		if (pols[1]) {
+ 			if (IS_ERR(pols[1])) {
+ 				xfrm_pols_put(pols, *num_pols);
++				*num_pols = 0;
+ 				return PTR_ERR(pols[1]);
+ 			}
+ 			(*num_pols)++;
+-- 
+2.35.1
+
 
 
