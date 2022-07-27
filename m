@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DAB582C50
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07944582FFF
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239941AbiG0Qoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42780 "EHLO
+        id S238407AbiG0Rcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240436AbiG0QoZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 954515F103;
-        Wed, 27 Jul 2022 09:31:08 -0700 (PDT)
+        with ESMTP id S242251AbiG0Ra3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:30:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD74F81B2F;
+        Wed, 27 Jul 2022 09:48:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D513EB821BD;
-        Wed, 27 Jul 2022 16:31:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32AE6C433D6;
-        Wed, 27 Jul 2022 16:31:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2871261479;
+        Wed, 27 Jul 2022 16:47:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C2AC433C1;
+        Wed, 27 Jul 2022 16:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939465;
-        bh=u7bKTBJfAOMOZ9/sDoWY4Vi6VndC+6DTovQ/pdYctDU=;
+        s=korg; t=1658940471;
+        bh=9tCpcYupvaxeRANDUq8GCP66gANHEGG8QwCZcmAUZjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfMrcu2w7G5rU6DV3LWdtulVdA3quYkAAeVO3YRwxtzZSk8sp8kalBE1l7Kyt5hz0
-         cHvdUS8LFSugjj59Zws7jiX91iyxyBNzUHlDW9IJDV22Cot9isb56W9OpcJ59C3LiA
-         Z7w5ItckCFfBKtnTGjeLOf0XoRwk6WzILKpxLZdQ=
+        b=biiGTC1kaQnp34+WnNnKB/EyJmK9nJodVUdoso4tFv8yZ7hR0U6eGhzs5G/AmM2xn
+         DPfNO6J38mi1h4PDbuXC3aaQonOQq+2KQSeoA7LJIy3JP0ntqiNdRd+yCsotOZJygR
+         y0AbqkIjjzEdsMJlXN0qpuNSuap+kefc5B/Qh8oA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 5.4 78/87] Bluetooth: Fix passing NULL to PTR_ERR
-Date:   Wed, 27 Jul 2022 18:11:11 +0200
-Message-Id: <20220727161012.233338716@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: [PATCH 5.18 008/158] drm/ttm: fix locking in vmap/vunmap TTM GEM helpers
+Date:   Wed, 27 Jul 2022 18:11:12 +0200
+Message-Id: <20220727161021.764692072@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Christian König <christian.koenig@amd.com>
 
-commit 266191aa8d14b84958aaeb5e96ee4e97839e3d87 upstream.
+commit dbd0da2453c694f2f74651834d90fb280b57f151 upstream.
 
-Passing NULL to PTR_ERR will result in 0 (success), also since the likes of
-bt_skb_sendmsg does never return NULL it is safe to replace the instances of
-IS_ERR_OR_NULL with IS_ERR when checking its return.
+I've stumbled over this while reviewing patches for DMA-buf and it looks
+like we completely messed the locking up here.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+In general most TTM function should only be called while holding the
+appropriate BO resv lock. Without this we could break the internal
+buffer object state here.
+
+Only compile tested!
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: 43676605f890 ("drm/ttm: Add vmap/vunmap to TTM and TTM GEM helpers")
+Cc: stable@vger.kernel.org
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220715111533.467012-1-christian.koenig@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/bluetooth/bluetooth.h |    2 +-
- net/bluetooth/rfcomm/sock.c       |    2 +-
- net/bluetooth/sco.c               |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_gem_ttm_helper.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/include/net/bluetooth/bluetooth.h
-+++ b/include/net/bluetooth/bluetooth.h
-@@ -422,7 +422,7 @@ static inline struct sk_buff *bt_skb_sen
- 		struct sk_buff *tmp;
+--- a/drivers/gpu/drm/drm_gem_ttm_helper.c
++++ b/drivers/gpu/drm/drm_gem_ttm_helper.c
+@@ -64,8 +64,13 @@ int drm_gem_ttm_vmap(struct drm_gem_obje
+ 		     struct iosys_map *map)
+ {
+ 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gem);
++	int ret;
  
- 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
--		if (IS_ERR_OR_NULL(tmp)) {
-+		if (IS_ERR(tmp)) {
- 			kfree_skb(skb);
- 			return tmp;
- 		}
---- a/net/bluetooth/rfcomm/sock.c
-+++ b/net/bluetooth/rfcomm/sock.c
-@@ -586,7 +586,7 @@ static int rfcomm_sock_sendmsg(struct so
+-	return ttm_bo_vmap(bo, map);
++	dma_resv_lock(gem->resv, NULL);
++	ret = ttm_bo_vmap(bo, map);
++	dma_resv_unlock(gem->resv);
++
++	return ret;
+ }
+ EXPORT_SYMBOL(drm_gem_ttm_vmap);
  
- 	skb = bt_skb_sendmmsg(sk, msg, len, d->mtu, RFCOMM_SKB_HEAD_RESERVE,
- 			      RFCOMM_SKB_TAIL_RESERVE);
--	if (IS_ERR_OR_NULL(skb))
-+	if (IS_ERR(skb))
- 		return PTR_ERR(skb);
+@@ -82,7 +87,9 @@ void drm_gem_ttm_vunmap(struct drm_gem_o
+ {
+ 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gem);
  
- 	sent = rfcomm_dlc_send(d, skb);
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -720,7 +720,7 @@ static int sco_sock_sendmsg(struct socke
- 		return -EOPNOTSUPP;
++	dma_resv_lock(gem->resv, NULL);
+ 	ttm_bo_vunmap(bo, map);
++	dma_resv_unlock(gem->resv);
+ }
+ EXPORT_SYMBOL(drm_gem_ttm_vunmap);
  
- 	skb = bt_skb_sendmsg(sk, msg, len, len, 0, 0);
--	if (IS_ERR_OR_NULL(skb))
-+	if (IS_ERR(skb))
- 		return PTR_ERR(skb);
- 
- 	lock_sock(sk);
 
 
