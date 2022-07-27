@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58851582DBA
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D6D582DCC
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:03:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241242AbiG0RCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:02:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55736 "EHLO
+        id S241190AbiG0RDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:03:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbiG0RBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:01:46 -0400
+        with ESMTP id S241210AbiG0RCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:02:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953CB6BC1C;
-        Wed, 27 Jul 2022 09:38:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6316D2EC;
+        Wed, 27 Jul 2022 09:38:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53190601BE;
-        Wed, 27 Jul 2022 16:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F294C433D6;
-        Wed, 27 Jul 2022 16:38:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A34B3601C0;
+        Wed, 27 Jul 2022 16:38:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B497DC433D6;
+        Wed, 27 Jul 2022 16:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939886;
-        bh=T5DNPEG6pVCv0mZuUdiT16dtsq5c62BWvkJUSFQFrys=;
+        s=korg; t=1658939903;
+        bh=edNZKyHFUMxosSRtD1YkMoP8MphrB+Np2JM4Q6FEj2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcfniOkNvxFybIufn7OSF2YR/ykBrUwy5zcb3YzGAHWJr0LycKPvNG/kf05sFSXgV
-         anOBOlqUjq6E+YRcQrSlXGT841ooU6aBqkQkNoq2I5XRmXn08b76bhp7/XOXkUu86b
-         Qpcap6eshuJT45+jFnqOJXSMvalzKZ5q2jrSTrPM=
+        b=Esuvcrdt6Bir+saa6Ieg8Gim1mt3fgT05NnL58UCQ220PmQxBgDiE8MNNPKh/TQc/
+         UXGJuuuei3h8C7b2in8PB/y4nm/jnvoPaWrWIGlTelITcKZAN1EBM7NM3MOImNxFeG
+         N8PevkFBlV8DXRcq1tHDp0uW8PkWZjFjRpSMCKq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Snowberg <eric.snowberg@oracle.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        John Haxby <john.haxby@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 004/201] lockdown: Fix kexec lockdown bypass with ima policy
-Date:   Wed, 27 Jul 2022 18:08:28 +0200
-Message-Id: <20220727161027.136489560@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: [PATCH 5.15 005/201] drm/ttm: fix locking in vmap/vunmap TTM GEM helpers
+Date:   Wed, 27 Jul 2022 18:08:29 +0200
+Message-Id: <20220727161027.174517267@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -54,57 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Snowberg <eric.snowberg@oracle.com>
+From: Christian König <christian.koenig@amd.com>
 
-commit 543ce63b664e2c2f9533d089a4664b559c3e6b5b upstream.
+commit dbd0da2453c694f2f74651834d90fb280b57f151 upstream.
 
-The lockdown LSM is primarily used in conjunction with UEFI Secure Boot.
-This LSM may also be used on machines without UEFI.  It can also be
-enabled when UEFI Secure Boot is disabled.  One of lockdown's features
-is to prevent kexec from loading untrusted kernels.  Lockdown can be
-enabled through a bootparam or after the kernel has booted through
-securityfs.
+I've stumbled over this while reviewing patches for DMA-buf and it looks
+like we completely messed the locking up here.
 
-If IMA appraisal is used with the "ima_appraise=log" boot param,
-lockdown can be defeated with kexec on any machine when Secure Boot is
-disabled or unavailable.  IMA prevents setting "ima_appraise=log" from
-the boot param when Secure Boot is enabled, but this does not cover
-cases where lockdown is used without Secure Boot.
+In general most TTM function should only be called while holding the
+appropriate BO resv lock. Without this we could break the internal
+buffer object state here.
 
-To defeat lockdown, boot without Secure Boot and add ima_appraise=log to
-the kernel command line; then:
+Only compile tested!
 
-  $ echo "integrity" > /sys/kernel/security/lockdown
-  $ echo "appraise func=KEXEC_KERNEL_CHECK appraise_type=imasig" > \
-    /sys/kernel/security/ima/policy
-  $ kexec -ls unsigned-kernel
-
-Add a call to verify ima appraisal is set to "enforce" whenever lockdown
-is enabled.  This fixes CVE-2022-21505.
-
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: 43676605f890 ("drm/ttm: Add vmap/vunmap to TTM and TTM GEM helpers")
 Cc: stable@vger.kernel.org
-Fixes: 29d3c1c8dfe7 ("kexec: Allow kexec_file() with appropriate IMA policy when locked down")
-Signed-off-by: Eric Snowberg <eric.snowberg@oracle.com>
-Acked-by: Mimi Zohar <zohar@linux.ibm.com>
-Reviewed-by: John Haxby <john.haxby@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220715111533.467012-1-christian.koenig@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima_policy.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/drm_gem_ttm_helper.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -2034,6 +2034,10 @@ bool ima_appraise_signature(enum kernel_
- 	if (id >= READING_MAX_ID)
- 		return false;
+--- a/drivers/gpu/drm/drm_gem_ttm_helper.c
++++ b/drivers/gpu/drm/drm_gem_ttm_helper.c
+@@ -64,8 +64,13 @@ int drm_gem_ttm_vmap(struct drm_gem_obje
+ 		     struct dma_buf_map *map)
+ {
+ 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gem);
++	int ret;
  
-+	if (id == READING_KEXEC_IMAGE && !(ima_appraise & IMA_APPRAISE_ENFORCE)
-+	    && security_locked_down(LOCKDOWN_KEXEC))
-+		return false;
+-	return ttm_bo_vmap(bo, map);
++	dma_resv_lock(gem->resv, NULL);
++	ret = ttm_bo_vmap(bo, map);
++	dma_resv_unlock(gem->resv);
 +
- 	func = read_idmap[id] ?: FILE_CHECK;
++	return ret;
+ }
+ EXPORT_SYMBOL(drm_gem_ttm_vmap);
  
- 	rcu_read_lock();
+@@ -82,7 +87,9 @@ void drm_gem_ttm_vunmap(struct drm_gem_o
+ {
+ 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gem);
+ 
++	dma_resv_lock(gem->resv, NULL);
+ 	ttm_bo_vunmap(bo, map);
++	dma_resv_unlock(gem->resv);
+ }
+ EXPORT_SYMBOL(drm_gem_ttm_vunmap);
+ 
 
 
