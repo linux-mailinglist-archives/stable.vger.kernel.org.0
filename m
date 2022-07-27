@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4B3582E38
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA345582E57
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238398AbiG0RKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:10:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44850 "EHLO
+        id S241497AbiG0RLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241601AbiG0RJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:18 -0400
+        with ESMTP id S241545AbiG0RKf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:10:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D1850044;
-        Wed, 27 Jul 2022 09:40:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FFF55B05D;
+        Wed, 27 Jul 2022 09:41:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BC7960DDB;
-        Wed, 27 Jul 2022 16:40:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82859C433D6;
-        Wed, 27 Jul 2022 16:40:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC061601C0;
+        Wed, 27 Jul 2022 16:41:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64CBC433C1;
+        Wed, 27 Jul 2022 16:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940053;
-        bh=nO9vN98lzG+8FMhdNslgASCIMtubLetqdATFaeG8C6o=;
+        s=korg; t=1658940085;
+        bh=nd8DyLqag7jTxEYrgZmLlRg8gkbWYfUvoQZaK/Chyxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxi2Kg1zAOhs45d6rLvGHU12cwiKum404hulsITdtAqewZtItxPwuG4OjhaRGg5rJ
-         WWqRCXal/ZsTOk4HqjreEOqVM4bZ+O0XPVtLjT3uYPBGVpomkC8zAh3QHTH0wMjw0Y
-         t0yFxnFM3PrQjU4aIvXAn0WYBIVG/PDZJ4nAwT6I=
+        b=tWty93t8hkawQJiMM2K8hJCr3kGXIDQOg6M/sRzuH8MEJNg573KTE+lFKlRha1/Qz
+         rqB3QzlyUmDeiyedc5WvU3HIhPEZD4y/JXoQTLwQ2iHWhCuEd7GnKz57s7ecC6iMPK
+         1vdt0I+Nh4PgaQr6FID0jNnDF/bx1whRAHaauaOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Han Xu <han.xu@nxp.com>,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/201] mtd: rawnand: gpmi: validate controller clock rate
-Date:   Wed, 27 Jul 2022 18:09:35 +0200
-Message-Id: <20220727161029.886728305@linuxfoundation.org>
+Subject: [PATCH 5.15 072/201] mtd: rawnand: gpmi: Set WAIT_FOR_READY timeout based on program/erase times
+Date:   Wed, 27 Jul 2022 18:09:36 +0200
+Message-Id: <20220727161029.918070306@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -56,119 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 15e27d197a7ea69b4643791ca2f8467fdd998359 ]
+[ Upstream commit 0fddf9ad06fd9f439f137139861556671673e31c ]
 
-What to do when the real rate of the gpmi clock is not equal to the
-required one? The solutions proposed in [1] did not lead to a conclusion
-on how to validate the clock rate, so, inspired by the document [2], I
-consider the rate correct only if not lower or equal to the rate of the
-previous edo mode. In fact, in chapter 4.16.2 (NV-DDR) of the document [2],
-it is written that "If the host selects timing mode n, then its clock
-period shall be faster than the clock period of timing mode n-1 and
-slower than or equal to the clock period of timing mode n.". I thought
-that it could therefore also be used in this case, without therefore
-having to define the valid rate ranges empirically.
+06781a5026350 Fixes the calculation of the DEVICE_BUSY_TIMEOUT register
+value from busy_timeout_cycles. busy_timeout_cycles is calculated wrong
+though: It is calculated based on the maximum page read time, but the
+timeout is also used for page write and block erase operations which
+require orders of magnitude bigger timeouts.
 
-For example, suppose that gpmi_nfc_compute_timings() is called to set
-edo mode 5 (100MHz) but the rate returned by clk_round_rate() is 80MHz
-(edo mode 4). In this case gpmi_nfc_compute_timings() will return error,
-and will be called again to set edo mode 4, which this time will be
-successful.
+Fix this by calculating busy_timeout_cycles from the maximum of
+tBERS_max and tPROG_max.
 
-[1] https://lore.kernel.org/r/20210702065350.209646-5-ebiggers@kernel.org
-[2] http://www.onfi.org/-/media/client/onfi/specs/onfi_3_0_gold.pdf?la=en
+This is for now the easiest and most obvious way to fix the driver.
+There's room for improvements though: The NAND_OP_WAITRDY_INSTR tells us
+the desired timeout for the current operation, so we could program the
+timeout dynamically for each operation instead of setting a fixed
+timeout. Also we could wire up the interrupt handler to actually detect
+and forward timeouts occurred when waiting for the chip being ready.
 
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Tested-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220118095434.35081-4-dario.binacchi@amarulasolutions.com
+As a sidenote I verified that the change in 06781a5026350 is really
+correct. I wired up the interrupt handler in my tree and measured the
+time between starting the operation and the timeout interrupt handler
+coming in. The time increases 41us with each step in the timeout
+register which corresponds to 4096 clock cycles with the 99MHz clock
+that I have.
+
+Fixes: 06781a5026350 ("mtd: rawnand: gpmi: Fix setting busy timeout setting")
+Fixes: b1206122069aa ("mtd: rawniand: gpmi: use core timings instead of an empirical derivation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Acked-by: Han Xu <han.xu@nxp.com>
+Tested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-index b72b387c08ef..62f4988c2a5f 100644
+index 62f4988c2a5f..aef722dfdef5 100644
 --- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
 +++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -644,8 +644,8 @@ static int bch_set_geometry(struct gpmi_nand_data *this)
-  *         RDN_DELAY = -----------------------     {3}
-  *                           RP
-  */
--static void gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
--				     const struct nand_sdr_timings *sdr)
-+static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
-+				    const struct nand_sdr_timings *sdr)
- {
- 	struct gpmi_nfc_hardware_timing *hw = &this->hw;
- 	struct resources *r = &this->resources;
-@@ -657,23 +657,33 @@ static void gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
+@@ -655,9 +655,10 @@ static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
+ 	unsigned int tRP_ps;
+ 	bool use_half_period;
  	int sample_delay_ps, sample_delay_factor;
- 	u16 busy_timeout_cycles;
+-	u16 busy_timeout_cycles;
++	unsigned int busy_timeout_cycles;
  	u8 wrn_dly_sel;
-+	unsigned long clk_rate, min_rate;
+ 	unsigned long clk_rate, min_rate;
++	u64 busy_timeout_ps;
  
  	if (sdr->tRC_min >= 30000) {
  		/* ONFI non-EDO modes [0-3] */
- 		hw->clk_rate = 22000000;
-+		min_rate = 0;
- 		wrn_dly_sel = BV_GPMI_CTRL1_WRN_DLY_SEL_4_TO_8NS;
- 	} else if (sdr->tRC_min >= 25000) {
- 		/* ONFI EDO mode 4 */
- 		hw->clk_rate = 80000000;
-+		min_rate = 22000000;
- 		wrn_dly_sel = BV_GPMI_CTRL1_WRN_DLY_SEL_NO_DELAY;
- 	} else {
- 		/* ONFI EDO mode 5 */
- 		hw->clk_rate = 100000000;
-+		min_rate = 80000000;
- 		wrn_dly_sel = BV_GPMI_CTRL1_WRN_DLY_SEL_NO_DELAY;
- 	}
+@@ -690,7 +691,8 @@ static int gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
+ 	addr_setup_cycles = TO_CYCLES(sdr->tALS_min, period_ps);
+ 	data_setup_cycles = TO_CYCLES(sdr->tDS_min, period_ps);
+ 	data_hold_cycles = TO_CYCLES(sdr->tDH_min, period_ps);
+-	busy_timeout_cycles = TO_CYCLES(sdr->tWB_max + sdr->tR_max, period_ps);
++	busy_timeout_ps = max(sdr->tBERS_max, sdr->tPROG_max);
++	busy_timeout_cycles = TO_CYCLES(busy_timeout_ps, period_ps);
  
--	hw->clk_rate = clk_round_rate(r->clock[0], hw->clk_rate);
-+	clk_rate = clk_round_rate(r->clock[0], hw->clk_rate);
-+	if (clk_rate <= min_rate) {
-+		dev_err(this->dev, "clock setting: expected %ld, got %ld\n",
-+			hw->clk_rate, clk_rate);
-+		return -ENOTSUPP;
-+	}
- 
-+	hw->clk_rate = clk_rate;
- 	/* SDR core timings are given in picoseconds */
- 	period_ps = div_u64((u64)NSEC_PER_SEC * 1000, hw->clk_rate);
- 
-@@ -714,6 +724,7 @@ static void gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
- 		hw->ctrl1n |= BF_GPMI_CTRL1_RDN_DELAY(sample_delay_factor) |
- 			      BM_GPMI_CTRL1_DLL_ENABLE |
- 			      (use_half_period ? BM_GPMI_CTRL1_HALF_PERIOD : 0);
-+	return 0;
- }
- 
- static int gpmi_nfc_apply_timings(struct gpmi_nand_data *this)
-@@ -769,6 +780,7 @@ static int gpmi_setup_interface(struct nand_chip *chip, int chipnr,
- {
- 	struct gpmi_nand_data *this = nand_get_controller_data(chip);
- 	const struct nand_sdr_timings *sdr;
-+	int ret;
- 
- 	/* Retrieve required NAND timings */
- 	sdr = nand_get_sdr_timings(conf);
-@@ -784,7 +796,9 @@ static int gpmi_setup_interface(struct nand_chip *chip, int chipnr,
- 		return 0;
- 
- 	/* Do the actual derivation of the controller timings */
--	gpmi_nfc_compute_timings(this, sdr);
-+	ret = gpmi_nfc_compute_timings(this, sdr);
-+	if (ret)
-+		return ret;
- 
- 	this->hw.must_apply_timings = true;
- 
+ 	hw->timing0 = BF_GPMI_TIMING0_ADDRESS_SETUP(addr_setup_cycles) |
+ 		      BF_GPMI_TIMING0_DATA_HOLD(data_hold_cycles) |
 -- 
 2.35.1
 
