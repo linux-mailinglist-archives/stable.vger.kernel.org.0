@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB5E582E17
+	by mail.lfdr.de (Postfix) with ESMTP id 5CB47582E16
 	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233288AbiG0RHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:07:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33142 "EHLO
+        id S234400AbiG0RHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:07:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbiG0RGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:06:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A467270E78;
-        Wed, 27 Jul 2022 09:39:55 -0700 (PDT)
+        with ESMTP id S238204AbiG0RGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:06:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17E6A71703;
+        Wed, 27 Jul 2022 09:39:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 458CAB821D4;
-        Wed, 27 Jul 2022 16:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B09C433D7;
-        Wed, 27 Jul 2022 16:39:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58942601C0;
+        Wed, 27 Jul 2022 16:39:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642D1C433D6;
+        Wed, 27 Jul 2022 16:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939993;
-        bh=dfRlc9rDIq6AaZtwh3GAvt2adWv8tRCRgYIoRf8jL2M=;
+        s=korg; t=1658939995;
+        bh=RGzRJ+I7eDB9UWnPcmHTSTSTB9q06ObmvjfqfDSoMsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgsGxDKsdtAFgx9wbp05A1s920C9WqMHonuRGFRgobYglPQaMgaLd4ULk/1roANcC
-         E4/AD1+oLcZEa8H9drMKW/s4WdDIM/2pDJY5ZdiLtc7kvLp5qWrrY3Nkpb3iK/S6Pn
-         LQydcZUWDkumbthUfYwg0rqb6poTtP9QdgzmUw9Q=
+        b=tDgCmqtVChH5lMzjd1rY5gr2kgYArsf5K/rC70UNUfzGtcvSEGt112QmhLD9ylwpk
+         p460Sylg/ljAPBm/Oeb32TQ06QoEctzwjN1/d8c9+MjvrZYGKHJIGzsGLNLy5u0jrm
+         pSGrGMSBQO0KvjUd+s+OjX752lQEXU+xhyVCOKls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/201] tcp: Fix a data-race around sysctl_tcp_probe_threshold.
-Date:   Wed, 27 Jul 2022 18:09:31 +0200
-Message-Id: <20220727161029.703695453@linuxfoundation.org>
+Subject: [PATCH 5.15 068/201] tcp: Fix a data-race around sysctl_tcp_probe_interval.
+Date:   Wed, 27 Jul 2022 18:09:32 +0200
+Message-Id: <20220727161029.748203468@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -55,12 +55,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 92c0aa4175474483d6cf373314343d4e624e882a ]
+[ Upstream commit 2a85388f1d94a9f8b5a529118a2c5eaa0520d85c ]
 
-While reading sysctl_tcp_probe_threshold, it can be changed concurrently.
+While reading sysctl_tcp_probe_interval, it can be changed concurrently.
 Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 6b58e0a5f32d ("ipv4: Use binary search to choose tcp PMTU probe_size")
+Fixes: 05cbc0db03e8 ("ipv4: Create probe timer for tcp PMTU as per RFC4821")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -69,18 +69,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index b4a8a5b9350f..0ba48c43c06f 100644
+index 0ba48c43c06f..3fa2bfbc250d 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -2363,7 +2363,7 @@ static int tcp_mtu_probe(struct sock *sk)
- 	 * probing process by not resetting search range to its orignal.
- 	 */
- 	if (probe_size > tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_high) ||
--		interval < net->ipv4.sysctl_tcp_probe_threshold) {
-+	    interval < READ_ONCE(net->ipv4.sysctl_tcp_probe_threshold)) {
- 		/* Check whether enough time has elaplased for
- 		 * another round of probing.
- 		 */
+@@ -2281,7 +2281,7 @@ static inline void tcp_mtu_check_reprobe(struct sock *sk)
+ 	u32 interval;
+ 	s32 delta;
+ 
+-	interval = net->ipv4.sysctl_tcp_probe_interval;
++	interval = READ_ONCE(net->ipv4.sysctl_tcp_probe_interval);
+ 	delta = tcp_jiffies32 - icsk->icsk_mtup.probe_timestamp;
+ 	if (unlikely(delta >= interval * HZ)) {
+ 		int mss = tcp_current_mss(sk);
 -- 
 2.35.1
 
