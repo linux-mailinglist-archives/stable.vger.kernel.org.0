@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 076AE582C68
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F812582F08
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240362AbiG0Qpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:45:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42778 "EHLO
+        id S237215AbiG0RUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:20:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234818AbiG0Qoo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5980C5F132;
-        Wed, 27 Jul 2022 09:31:21 -0700 (PDT)
+        with ESMTP id S242068AbiG0RTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF065D0FA;
+        Wed, 27 Jul 2022 09:44:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCA4D61A55;
-        Wed, 27 Jul 2022 16:31:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB1D5C433D6;
-        Wed, 27 Jul 2022 16:31:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E219B8200D;
+        Wed, 27 Jul 2022 16:44:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1513C433C1;
+        Wed, 27 Jul 2022 16:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939480;
-        bh=HMtYHDKma7W4GvRL3TPWZL0Kan+4zTlL5aUsBcYctGY=;
+        s=korg; t=1658940294;
+        bh=XM8LLTq/A9czvkII5l07LJYXoWg9J2CU3JwouMlRan8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wafkcrCZp5Ls3dbP26mhXs8+ZA9JuWgiFkoiNSTlwmIYzyULTUd3ihDITio0UHk6P
-         7PlHV5M494GAjd3WkIo7uE1IfHtEP4wP2NwU5P30JzP4YlMW5+fOsIyz4YMV5Rbmkm
-         QIGcOsIZeoq6L958RAZL2FfUc+j5ffUkDNtJ/1nE=
+        b=xWb5bwGwRet9OPFGmR9/rIMrV0LwL7iMBziUP9btNlnC0j0j81zpQNG2p72fvweAn
+         J1I1Y/TIZi6qXpn0UUA6yPwI5bflv6422HBZqH8lfgxt2TJgCH70Ks90IGkQyDd2ip
+         iLBclFkuhqJDsQV8mqTCAWdlshJZL7ux2m5m0+DM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 53/87] tcp: Fix a data-race around sysctl_tcp_rfc1337.
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 142/201] x86/extable: Get rid of redundant macros
 Date:   Wed, 27 Jul 2022 18:10:46 +0200
-Message-Id: <20220727161011.221866056@linuxfoundation.org>
+Message-Id: <20220727161033.703449241@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 0b484c91911e758e53656d570de58c2ed81ec6f2 ]
+[ Upstream commit 32fd8b59f91fcd3bf9459aa72d90345735cc2588 ]
 
-While reading sysctl_tcp_rfc1337, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+No point in defining the identical macros twice depending on C or assembly
+mode. They are still identical.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210908132525.023659534@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_minisocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/asm.h | 36 ++++++++++++------------------------
+ 1 file changed, 12 insertions(+), 24 deletions(-)
 
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index 9b038cb0a43d..324f43fadb37 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -180,7 +180,7 @@ tcp_timewait_state_process(struct inet_timewait_sock *tw, struct sk_buff *skb,
- 			 * Oh well... nobody has a sufficient solution to this
- 			 * protocol bug yet.
- 			 */
--			if (twsk_net(tw)->ipv4.sysctl_tcp_rfc1337 == 0) {
-+			if (!READ_ONCE(twsk_net(tw)->ipv4.sysctl_tcp_rfc1337)) {
- kill:
- 				inet_twsk_deschedule_put(tw);
- 				return TCP_TW_SUCCESS;
+diff --git a/arch/x86/include/asm/asm.h b/arch/x86/include/asm/asm.h
+index 3ad3da9a7d97..719955e658a2 100644
+--- a/arch/x86/include/asm/asm.h
++++ b/arch/x86/include/asm/asm.h
+@@ -132,18 +132,6 @@
+ 	.long (handler) - . ;					\
+ 	.popsection
+ 
+-# define _ASM_EXTABLE(from, to)					\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_default)
+-
+-# define _ASM_EXTABLE_UA(from, to)				\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_uaccess)
+-
+-# define _ASM_EXTABLE_CPY(from, to)				\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_copy)
+-
+-# define _ASM_EXTABLE_FAULT(from, to)				\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
+-
+ # ifdef CONFIG_KPROBES
+ #  define _ASM_NOKPROBE(entry)					\
+ 	.pushsection "_kprobe_blacklist","aw" ;			\
+@@ -164,18 +152,6 @@
+ 	" .long (" _EXPAND_EXTABLE_HANDLE(handler) ") - .\n"	\
+ 	" .popsection\n"
+ 
+-# define _ASM_EXTABLE(from, to)					\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_default)
+-
+-# define _ASM_EXTABLE_UA(from, to)				\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_uaccess)
+-
+-# define _ASM_EXTABLE_CPY(from, to)				\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_copy)
+-
+-# define _ASM_EXTABLE_FAULT(from, to)				\
+-	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
+-
+ /* For C file, we already have NOKPROBE_SYMBOL macro */
+ 
+ /*
+@@ -188,6 +164,18 @@ register unsigned long current_stack_pointer asm(_ASM_SP);
+ #define ASM_CALL_CONSTRAINT "+r" (current_stack_pointer)
+ #endif /* __ASSEMBLY__ */
+ 
++#define _ASM_EXTABLE(from, to)					\
++	_ASM_EXTABLE_HANDLE(from, to, ex_handler_default)
++
++#define _ASM_EXTABLE_UA(from, to)				\
++	_ASM_EXTABLE_HANDLE(from, to, ex_handler_uaccess)
++
++#define _ASM_EXTABLE_CPY(from, to)				\
++	_ASM_EXTABLE_HANDLE(from, to, ex_handler_copy)
++
++#define _ASM_EXTABLE_FAULT(from, to)				\
++	_ASM_EXTABLE_HANDLE(from, to, ex_handler_fault)
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* _ASM_X86_ASM_H */
 -- 
 2.35.1
 
