@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABE2582D3F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A014582FD9
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240937AbiG0QzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58010 "EHLO
+        id S242190AbiG0Ra0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:30:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241060AbiG0QyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724CD4D4F6;
-        Wed, 27 Jul 2022 09:35:27 -0700 (PDT)
+        with ESMTP id S242519AbiG0R3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:29:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B99A80F77;
+        Wed, 27 Jul 2022 09:47:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 99452CE22F9;
-        Wed, 27 Jul 2022 16:35:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75244C4314D;
-        Wed, 27 Jul 2022 16:35:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3402360D3B;
+        Wed, 27 Jul 2022 16:47:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35E4EC433C1;
+        Wed, 27 Jul 2022 16:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939723;
-        bh=UPIv0T6nDo9e/uQ8ZM73NKvPM2cdoZv0Mwp+teEI3Fw=;
+        s=korg; t=1658940457;
+        bh=V57nnVM33eJ0YzjDgclMIxQPLhibnX+EzUHblugqnqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8kNwdwTepu2jRi6oeu0bM9NeYY59vcmascRBnQxavGNN1ObuGppk3+EVTrwwwaQ+
-         4gy5paW6KeuaSvKyej/ZmCXHhAMF5UfWQkNEico7xdCgfqOCJSZl65T9vf9wMA0Uu/
-         easgtGn1uK4ElJu1UqxzGogfdxyQdED5Kxlj4faU=
+        b=yu+iESx9JagbICZikEjMS3LSJPCJhzcOkTMkP+94hMGmJ66LOxSvzcckXcQXH5RgC
+         bP75kzWNCavVa/tTmPT36xzpQSFip6m0uUTsBnV3zi08xrgC3hmFbx2kOg9oQKgLES
+         HUfLJGPT68O2R+hCshYF6mNzX59XcKn+4kM2f5Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 081/105] sched/deadline: Fix BUG_ON condition for deboosted tasks
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Bin Meng <bmeng.cn@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.18 003/158] riscv: add as-options for modules with assembly compontents
 Date:   Wed, 27 Jul 2022 18:11:07 +0200
-Message-Id: <20220727161015.341956303@linuxfoundation.org>
+Message-Id: <20220727161021.578776695@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juri Lelli <juri.lelli@redhat.com>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-commit ddfc710395cccc61247348df9eb18ea50321cbed upstream.
+commit c1f6eff304e4dfa4558b6a8c6b2d26a91db6c998 upstream.
 
-Tasks the are being deboosted from SCHED_DEADLINE might enter
-enqueue_task_dl() one last time and hit an erroneous BUG_ON condition:
-since they are not boosted anymore, the if (is_dl_boosted()) branch is
-not taken, but the else if (!dl_prio) is and inside this one we
-BUG_ON(!is_dl_boosted), which is of course false (BUG_ON triggered)
-otherwise we had entered the if branch above. Long story short, the
-current condition doesn't make sense and always leads to triggering of a
-BUG.
+When trying to load modules built for RISC-V which include assembly files
+the kernel loader errors with "unexpected relocation type 'R_RISCV_ALIGN'"
+due to R_RISCV_ALIGN relocations being generated by the assembler.
 
-Fix this by only checking enqueue flags, properly: ENQUEUE_REPLENISH has
-to be present, but additional flags are not a problem.
+The R_RISCV_ALIGN relocations can be removed at the expense of code space
+by adding -mno-relax to gcc and as.  In commit 7a8e7da42250138
+("RISC-V: Fixes to module loading") -mno-relax is added to the build
+variable KBUILD_CFLAGS_MODULE. See [1] for more info.
 
-Fixes: 64be6f1f5f71 ("sched/deadline: Don't replenish from a !SCHED_DEADLINE entity")
-Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+The issue is that when kbuild builds a .S file, it invokes gcc with
+the -mno-relax flag, but this is not being passed through to the
+assembler. Adding -Wa,-mno-relax to KBUILD_AFLAGS_MODULE ensures that
+the assembler is invoked correctly. This may have now been fixed in
+gcc[2] and this addition should not stop newer gcc and as from working.
+
+[1] https://github.com/riscv/riscv-elf-psabi-doc/issues/183
+[2] https://github.com/gcc-mirror/gcc/commit/3b0a7d624e64eeb81e4d5e8c62c46d86ef521857
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Link: https://lore.kernel.org/r/20220529152200.609809-1-ben.dooks@codethink.co.uk
+Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20220714151908.533052-1-juri.lelli@redhat.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/deadline.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/riscv/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -1563,7 +1563,10 @@ static void enqueue_task_dl(struct rq *r
- 		 * the throttle.
- 		 */
- 		p->dl.dl_throttled = 0;
--		BUG_ON(!is_dl_boosted(&p->dl) || flags != ENQUEUE_REPLENISH);
-+		if (!(flags & ENQUEUE_REPLENISH))
-+			printk_deferred_once("sched: DL de-boosted task PID %d: REPLENISH flag missing\n",
-+					     task_pid_nr(p));
-+
- 		return;
- 	}
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -73,6 +73,7 @@ ifeq ($(CONFIG_PERF_EVENTS),y)
+ endif
  
+ KBUILD_CFLAGS_MODULE += $(call cc-option,-mno-relax)
++KBUILD_AFLAGS_MODULE += $(call as-option,-Wa$(comma)-mno-relax)
+ 
+ # GCC versions that support the "-mstrict-align" option default to allowing
+ # unaligned accesses.  While unaligned accesses are explicitly allowed in the
 
 
