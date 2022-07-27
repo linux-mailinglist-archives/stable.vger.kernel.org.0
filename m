@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D7A5830A1
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3249F58306D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242316AbiG0Rjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:39:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35104 "EHLO
+        id S242553AbiG0Rh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242766AbiG0RjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6843661D6D;
-        Wed, 27 Jul 2022 09:51:02 -0700 (PDT)
+        with ESMTP id S242244AbiG0Rhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:37:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE48E61B26;
+        Wed, 27 Jul 2022 09:50:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 414AAB821BE;
-        Wed, 27 Jul 2022 16:50:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D185C433D6;
-        Wed, 27 Jul 2022 16:50:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DC646171D;
+        Wed, 27 Jul 2022 16:50:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E7AC433D6;
+        Wed, 27 Jul 2022 16:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940623;
-        bh=0Hz8/hFoBN0GjaM6W/+HjXYAMPRkWM8xHaE1RB5/m1A=;
+        s=korg; t=1658940625;
+        bh=sug5mC5+Ufrz0rs1ltH6b7wUJuRja1OEsV+BxJmRvBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ib8lxNaq2LOb+vqDINmyiIquxXVTXRVeD67UiGAHRbEkjSzGTtvixC+Cla8vZu5Kj
-         AWXP23w3jA32iwJ1f5paZjZ/mIIyuscClipSSd0VzvGrR3ZTRH1lGwJ7Il6/Ukxz54
-         qbTXK0i9WCTKRIgaF5BHZC94a+0g/CCzkb6MNwPs=
+        b=kib4pjsxIyVqaAvb9ps64362dOOaX+BrCz+YvEYvnW+4GZdr5Tg0+50/9nfBgF+Ic
+         CFtKei/7qbe7Vx3gaLoB2pUkDuW+JlMVmCzMMfTITgN/4bmRFqrqCOcnH1o3fORZIS
+         LC33Yz+L9++B1ff0V0GlbBxEmvE5NDxThlfIgcvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dawid Lukwinski <dawid.lukwinski@intel.com>,
-        Jan Sokolowski <jan.sokolowski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Piotr Skajewski <piotrx.skajewski@intel.com>,
+        Marek Szlosek <marek.szlosek@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 089/158] i40e: Fix erroneous adapter reinitialization during recovery process
-Date:   Wed, 27 Jul 2022 18:12:33 +0200
-Message-Id: <20220727161025.042585831@linuxfoundation.org>
+Subject: [PATCH 5.18 090/158] ixgbe: Add locking to prevent panic when setting sriov_numvfs to zero
+Date:   Wed, 27 Jul 2022 18:12:34 +0200
+Message-Id: <20220727161025.077884206@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -57,81 +56,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dawid Lukwinski <dawid.lukwinski@intel.com>
+From: Piotr Skajewski <piotrx.skajewski@intel.com>
 
-[ Upstream commit f838a63369818faadec4ad1736cfbd20ab5da00e ]
+[ Upstream commit 1e53834ce541d4fe271cdcca7703e50be0a44f8a ]
 
-Fix an issue when driver incorrectly detects state
-of recovery process and erroneously reinitializes interrupts,
-which results in a kernel error and call trace message.
+It is possible to disable VFs while the PF driver is processing requests
+from the VF driver.  This can result in a panic.
 
-The issue was caused by a combination of two factors:
-1. Assuming the EMP reset issued after completing
-firmware recovery means the whole recovery process is complete.
-2. Erroneous reinitialization of interrupt vector after detecting
-the above mentioned EMP reset.
+BUG: unable to handle kernel paging request at 000000000000106c
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP NOPTI
+CPU: 8 PID: 0 Comm: swapper/8 Kdump: loaded Tainted: G I      --------- -
+Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
+RIP: 0010:ixgbe_msg_task+0x4c8/0x1690 [ixgbe]
+Code: 00 00 48 8d 04 40 48 c1 e0 05 89 7c 24 24 89 fd 48 89 44 24 10 83 ff
+01 0f 84 b8 04 00 00 4c 8b 64 24 10 4d 03 a5 48 22 00 00 <41> 80 7c 24 4c
+00 0f 84 8a 03 00 00 0f b7 c7 83 f8 08 0f 84 8f 0a
+RSP: 0018:ffffb337869f8df8 EFLAGS: 00010002
+RAX: 0000000000001020 RBX: 0000000000000000 RCX: 000000000000002b
+RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000006
+RBP: 0000000000000006 R08: 0000000000000002 R09: 0000000000029780
+R10: 00006957d8f42832 R11: 0000000000000000 R12: 0000000000001020
+R13: ffff8a00e8978ac0 R14: 000000000000002b R15: ffff8a00e8979c80
+FS:  0000000000000000(0000) GS:ffff8a07dfd00000(0000) knlGS:00000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000000106c CR3: 0000000063e10004 CR4: 00000000007726e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <IRQ>
+ ? ttwu_do_wakeup+0x19/0x140
+ ? try_to_wake_up+0x1cd/0x550
+ ? ixgbevf_update_xcast_mode+0x71/0xc0 [ixgbevf]
+ ixgbe_msix_other+0x17e/0x310 [ixgbe]
+ __handle_irq_event_percpu+0x40/0x180
+ handle_irq_event_percpu+0x30/0x80
+ handle_irq_event+0x36/0x53
+ handle_edge_irq+0x82/0x190
+ handle_irq+0x1c/0x30
+ do_IRQ+0x49/0xd0
+ common_interrupt+0xf/0xf
 
-Fixes (1) by changing how recovery state change is detected
-and (2) by adjusting the conditional expression to ensure using proper
-interrupt reinitialization method, depending on the situation.
+This can be eventually be reproduced with the following script:
 
-Fixes: 4ff0ee1af016 ("i40e: Introduce recovery mode support")
-Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
-Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+while :
+do
+    echo 63 > /sys/class/net/<devname>/device/sriov_numvfs
+    sleep 1
+    echo 0 > /sys/class/net/<devname>/device/sriov_numvfs
+    sleep 1
+done
+
+Add lock when disabling SR-IOV to prevent process VF mailbox communication.
+
+Fixes: d773d1310625 ("ixgbe: Fix memory leak when SR-IOV VFs are direct assigned")
+Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220715214542.2968762-1-anthony.l.nguyen@intel.com
+Link: https://lore.kernel.org/r/20220715214456.2968711-1-anthony.l.nguyen@intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe.h       | 1 +
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c  | 3 +++
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 6 ++++++
+ 3 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 77eb9c726205..6f01bffd7e5c 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -10645,7 +10645,7 @@ static int i40e_reset(struct i40e_pf *pf)
-  **/
- static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe.h b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
+index 921a4d977d65..8813b4dd6872 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe.h
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
+@@ -779,6 +779,7 @@ struct ixgbe_adapter {
+ #ifdef CONFIG_IXGBE_IPSEC
+ 	struct ixgbe_ipsec *ipsec;
+ #endif /* CONFIG_IXGBE_IPSEC */
++	spinlock_t vfs_lock;
+ };
+ 
+ static inline int ixgbe_determine_xdp_q_idx(int cpu)
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index c4a4954aa317..6c403f112d29 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6402,6 +6402,9 @@ static int ixgbe_sw_init(struct ixgbe_adapter *adapter,
+ 	/* n-tuple support exists, always init our spinlock */
+ 	spin_lock_init(&adapter->fdir_perfect_lock);
+ 
++	/* init spinlock to avoid concurrency of VF resources */
++	spin_lock_init(&adapter->vfs_lock);
++
+ #ifdef CONFIG_IXGBE_DCB
+ 	ixgbe_init_dcb(adapter);
+ #endif
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+index d4e63f0644c3..a1e69c734863 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -205,10 +205,13 @@ void ixgbe_enable_sriov(struct ixgbe_adapter *adapter, unsigned int max_vfs)
+ int ixgbe_disable_sriov(struct ixgbe_adapter *adapter)
  {
--	int old_recovery_mode_bit = test_bit(__I40E_RECOVERY_MODE, pf->state);
-+	const bool is_recovery_mode_reported = i40e_check_recovery_mode(pf);
- 	struct i40e_vsi *vsi = pf->vsi[pf->lan_vsi];
- 	struct i40e_hw *hw = &pf->hw;
- 	i40e_status ret;
-@@ -10653,13 +10653,11 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
- 	int v;
+ 	unsigned int num_vfs = adapter->num_vfs, vf;
++	unsigned long flags;
+ 	int rss;
  
- 	if (test_bit(__I40E_EMP_RESET_INTR_RECEIVED, pf->state) &&
--	    i40e_check_recovery_mode(pf)) {
-+	    is_recovery_mode_reported)
- 		i40e_set_ethtool_ops(pf->vsi[pf->lan_vsi]->netdev);
--	}
++	spin_lock_irqsave(&adapter->vfs_lock, flags);
+ 	/* set num VFs to 0 to prevent access to vfinfo */
+ 	adapter->num_vfs = 0;
++	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
  
- 	if (test_bit(__I40E_DOWN, pf->state) &&
--	    !test_bit(__I40E_RECOVERY_MODE, pf->state) &&
--	    !old_recovery_mode_bit)
-+	    !test_bit(__I40E_RECOVERY_MODE, pf->state))
- 		goto clear_recovery;
- 	dev_dbg(&pf->pdev->dev, "Rebuilding internal switch\n");
+ 	/* put the reference to all of the vf devices */
+ 	for (vf = 0; vf < num_vfs; ++vf) {
+@@ -1355,8 +1358,10 @@ static void ixgbe_rcv_ack_from_vf(struct ixgbe_adapter *adapter, u32 vf)
+ void ixgbe_msg_task(struct ixgbe_adapter *adapter)
+ {
+ 	struct ixgbe_hw *hw = &adapter->hw;
++	unsigned long flags;
+ 	u32 vf;
  
-@@ -10686,13 +10684,12 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
- 	 * accordingly with regard to resources initialization
- 	 * and deinitialization
- 	 */
--	if (test_bit(__I40E_RECOVERY_MODE, pf->state) ||
--	    old_recovery_mode_bit) {
-+	if (test_bit(__I40E_RECOVERY_MODE, pf->state)) {
- 		if (i40e_get_capabilities(pf,
- 					  i40e_aqc_opc_list_func_capabilities))
- 			goto end_unlock;
++	spin_lock_irqsave(&adapter->vfs_lock, flags);
+ 	for (vf = 0; vf < adapter->num_vfs; vf++) {
+ 		/* process any reset requests */
+ 		if (!ixgbe_check_for_rst(hw, vf))
+@@ -1370,6 +1375,7 @@ void ixgbe_msg_task(struct ixgbe_adapter *adapter)
+ 		if (!ixgbe_check_for_ack(hw, vf))
+ 			ixgbe_rcv_ack_from_vf(adapter, vf);
+ 	}
++	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
+ }
  
--		if (test_bit(__I40E_RECOVERY_MODE, pf->state)) {
-+		if (is_recovery_mode_reported) {
- 			/* we're staying in recovery mode so we'll reinitialize
- 			 * misc vector here
- 			 */
+ static inline void ixgbe_ping_vf(struct ixgbe_adapter *adapter, int vf)
 -- 
 2.35.1
 
