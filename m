@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE276582D8B
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5936C582C7C
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241507AbiG0Q7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
+        id S240096AbiG0Qq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:46:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240816AbiG0Q5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:57:44 -0400
+        with ESMTP id S240438AbiG0QqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:46:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E6D66AF9;
-        Wed, 27 Jul 2022 09:36:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C1B760513;
+        Wed, 27 Jul 2022 09:31:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E5261AB3;
-        Wed, 27 Jul 2022 16:36:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0F9C433C1;
-        Wed, 27 Jul 2022 16:36:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34AA461A3F;
+        Wed, 27 Jul 2022 16:31:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C3AC43140;
+        Wed, 27 Jul 2022 16:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939794;
-        bh=n3F8lmh2d1J+/JTqlyh1/WfUM4sggvcBvuWMKYpAjF4=;
+        s=korg; t=1658939497;
+        bh=/GMk23CtWzGG8cLYQdV4sSVjdwm9g382gacanHf4Ph0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mg7dcDBQoD9tkJeBE3/RXUx1pxhhXIUMVLIUN+AJn4xaOO3MdlhVt+EPc0Z1PYgWI
-         N8d4JTFrDksHP9HuOH0KMrIRmioKo4jclllzSosY7IM0RVbZu0lSlTkrmLxqsmB1J7
-         qqbOV7xHk578lPn+IunDfn/6oGBhoxBJ7RNsCbuc=
+        b=FOZyWa7iRAdI+bcw19nIu5rPaY3xYiKaG8RGcLyn/jvc5+v5L8N2N7s+cMsmrt1gu
+         F/ERCjHFAjdg2s9l5kwUlm+oJSu/3OeDbQ//GwbxtdLcGWj5b/Qnwl4l0OyPuAmb9N
+         M4F49CckwaZZRALFuiqsf8iITJyigv6J49EgoWTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 5.10 090/105] Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 83/87] tty: drop tty_schedule_flip()
 Date:   Wed, 27 Jul 2022 18:11:16 +0200
-Message-Id: <20220727161015.708423305@linuxfoundation.org>
+Message-Id: <20220727161012.425940164@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,154 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 81be03e026dc0c16dc1c64e088b2a53b73caa895 upstream.
+commit 5db96ef23bda6c2a61a51693c85b78b52d03f654 upstream.
 
-This makes use of bt_skb_sendmmsg instead using memcpy_from_msg which
-is not considered safe to be used when lock_sock is held.
+Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
+tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). All
+users were converted in the previous patches, so remove
+tty_schedule_flip() completely while inlining its body into
+tty_flip_buffer_push().
 
-Also make rfcomm_dlc_send handle skb with fragments and queue them all
-atomically.
+One less exported function.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20211122111648.30379-4-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/rfcomm/core.c |   50 +++++++++++++++++++++++++++++++++++++-------
- net/bluetooth/rfcomm/sock.c |   50 ++++++++++----------------------------------
- 2 files changed, 55 insertions(+), 45 deletions(-)
+ drivers/tty/tty_buffer.c |   30 ++++++++----------------------
+ include/linux/tty_flip.h |    1 -
+ 2 files changed, 8 insertions(+), 23 deletions(-)
 
---- a/net/bluetooth/rfcomm/core.c
-+++ b/net/bluetooth/rfcomm/core.c
-@@ -549,22 +549,58 @@ struct rfcomm_dlc *rfcomm_dlc_exists(bda
- 	return dlc;
- }
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -395,27 +395,6 @@ int __tty_insert_flip_char(struct tty_po
+ EXPORT_SYMBOL(__tty_insert_flip_char);
  
-+static int rfcomm_dlc_send_frag(struct rfcomm_dlc *d, struct sk_buff *frag)
-+{
-+	int len = frag->len;
-+
-+	BT_DBG("dlc %p mtu %d len %d", d, d->mtu, len);
-+
-+	if (len > d->mtu)
-+		return -EINVAL;
-+
-+	rfcomm_make_uih(frag, d->addr);
-+	__skb_queue_tail(&d->tx_queue, frag);
-+
-+	return len;
-+}
-+
- int rfcomm_dlc_send(struct rfcomm_dlc *d, struct sk_buff *skb)
+ /**
+- *	tty_schedule_flip	-	push characters to ldisc
+- *	@port: tty port to push from
+- *
+- *	Takes any pending buffers and transfers their ownership to the
+- *	ldisc side of the queue. It then schedules those characters for
+- *	processing by the line discipline.
+- */
+-
+-void tty_schedule_flip(struct tty_port *port)
+-{
+-	struct tty_bufhead *buf = &port->buf;
+-
+-	/* paired w/ acquire in flush_to_ldisc(); ensures
+-	 * flush_to_ldisc() sees buffer data.
+-	 */
+-	smp_store_release(&buf->tail->commit, buf->tail->used);
+-	queue_work(system_unbound_wq, &buf->work);
+-}
+-EXPORT_SYMBOL(tty_schedule_flip);
+-
+-/**
+  *	tty_prepare_flip_string		-	make room for characters
+  *	@port: tty port
+  *	@chars: return pointer for character write area
+@@ -557,7 +536,14 @@ static void flush_to_ldisc(struct work_s
+ 
+ void tty_flip_buffer_push(struct tty_port *port)
  {
--	int len = skb->len;
-+	unsigned long flags;
-+	struct sk_buff *frag, *next;
-+	int len;
- 
- 	if (d->state != BT_CONNECTED)
- 		return -ENOTCONN;
- 
--	BT_DBG("dlc %p mtu %d len %d", d, d->mtu, len);
-+	frag = skb_shinfo(skb)->frag_list;
-+	skb_shinfo(skb)->frag_list = NULL;
- 
--	if (len > d->mtu)
--		return -EINVAL;
-+	/* Queue all fragments atomically. */
-+	spin_lock_irqsave(&d->tx_queue.lock, flags);
+-	tty_schedule_flip(port);
++	struct tty_bufhead *buf = &port->buf;
 +
-+	len = rfcomm_dlc_send_frag(d, skb);
-+	if (len < 0 || !frag)
-+		goto unlock;
-+
-+	for (; frag; frag = next) {
-+		int ret;
-+
-+		next = frag->next;
-+
-+		ret = rfcomm_dlc_send_frag(d, frag);
-+		if (ret < 0) {
-+			kfree_skb(frag);
-+			goto unlock;
-+		}
-+
-+		len += ret;
-+	}
- 
--	rfcomm_make_uih(skb, d->addr);
--	skb_queue_tail(&d->tx_queue, skb);
-+unlock:
-+	spin_unlock_irqrestore(&d->tx_queue.lock, flags);
- 
--	if (!test_bit(RFCOMM_TX_THROTTLED, &d->flags))
-+	if (len > 0 && !test_bit(RFCOMM_TX_THROTTLED, &d->flags))
- 		rfcomm_schedule();
- 	return len;
++	/*
++	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
++	 * buffer data.
++	 */
++	smp_store_release(&buf->tail->commit, buf->tail->used);
++	queue_work(system_unbound_wq, &buf->work);
  }
---- a/net/bluetooth/rfcomm/sock.c
-+++ b/net/bluetooth/rfcomm/sock.c
-@@ -575,47 +575,21 @@ static int rfcomm_sock_sendmsg(struct so
- 	lock_sock(sk);
+ EXPORT_SYMBOL(tty_flip_buffer_push);
  
- 	sent = bt_sock_wait_ready(sk, msg->msg_flags);
--	if (sent)
--		goto done;
--
--	while (len) {
--		size_t size = min_t(size_t, len, d->mtu);
--		int err;
--
--		skb = sock_alloc_send_skb(sk, size + RFCOMM_SKB_RESERVE,
--				msg->msg_flags & MSG_DONTWAIT, &err);
--		if (!skb) {
--			if (sent == 0)
--				sent = err;
--			break;
--		}
--		skb_reserve(skb, RFCOMM_SKB_HEAD_RESERVE);
--
--		err = memcpy_from_msg(skb_put(skb, size), msg, size);
--		if (err) {
--			kfree_skb(skb);
--			if (sent == 0)
--				sent = err;
--			break;
--		}
--
--		skb->priority = sk->sk_priority;
--
--		err = rfcomm_dlc_send(d, skb);
--		if (err < 0) {
--			kfree_skb(skb);
--			if (sent == 0)
--				sent = err;
--			break;
--		}
--
--		sent += size;
--		len  -= size;
--	}
+--- a/include/linux/tty_flip.h
++++ b/include/linux/tty_flip.h
+@@ -12,7 +12,6 @@ extern int tty_insert_flip_string_fixed_
+ extern int tty_prepare_flip_string(struct tty_port *port,
+ 		unsigned char **chars, size_t size);
+ extern void tty_flip_buffer_push(struct tty_port *port);
+-void tty_schedule_flip(struct tty_port *port);
+ int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag);
  
--done:
- 	release_sock(sk);
- 
-+	if (sent)
-+		return sent;
-+
-+	skb = bt_skb_sendmmsg(sk, msg, len, d->mtu, RFCOMM_SKB_HEAD_RESERVE,
-+			      RFCOMM_SKB_TAIL_RESERVE);
-+	if (IS_ERR_OR_NULL(skb))
-+		return PTR_ERR(skb);
-+
-+	sent = rfcomm_dlc_send(d, skb);
-+	if (sent < 0)
-+		kfree_skb(skb);
-+
- 	return sent;
- }
- 
+ static inline int tty_insert_flip_char(struct tty_port *port,
 
 
