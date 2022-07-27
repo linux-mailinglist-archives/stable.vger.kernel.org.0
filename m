@@ -2,57 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00016582C41
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BC95582B2F
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238383AbiG0Qor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42466 "EHLO
+        id S236456AbiG0Q3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240152AbiG0QoJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A47345FCF;
-        Wed, 27 Jul 2022 09:30:44 -0700 (PDT)
+        with ESMTP id S236543AbiG0Q2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:28:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 523B55018C;
+        Wed, 27 Jul 2022 09:24:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25558B821BC;
-        Wed, 27 Jul 2022 16:30:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45820C433C1;
-        Wed, 27 Jul 2022 16:30:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE01D619C0;
+        Wed, 27 Jul 2022 16:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C818FC433D6;
+        Wed, 27 Jul 2022 16:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939440;
-        bh=FOFblN+8rHzafB95Zu3FHcxg7fSjHHCQPRX6hJ/tA2g=;
+        s=korg; t=1658939063;
+        bh=ZyoYRBKz5DuCDinjIvv/3ET8Bs0cHLEPSRydJa3gzFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iciO1cqRec+JwB7wIfM5q1XWeAaQTgYvktdEb60BN0ENpBneGpWvk8T00xt5iDAZt
-         KDyNlLDJ2cx/6w9tSIsKzpV/sNPjMRk2FZ3ZtgllgZDzqYrQP4bzXEfEzs8Lv5/vE1
-         HKBLffvVBEWGdEWeTi/pTRMyoSdx5/3fbso4A2ys=
+        b=r5nAklTDCpQ85swa7dJtQz3lycPDc1YS0yT5cFNSVG3ph8ICD5ufsphvCNYWM5Qdp
+         K1NCBqiCN/04msorYWasLc4//Fp1LTb19+yKolJRP8Sryw+33rCJEv0zHH2hhPk2P/
+         gIz4daNOoZuwVGpYo+ZxvrgTj/CpnKKMO21/pdZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michel Lespinasse <walken@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Liam Howlett <Liam.Howlett@oracle.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        David Rientjes <rientjes@google.com>,
-        Hugh Dickins <hughd@google.com>, Ying Han <yinghan@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 70/87] mmap locking API: initial implementation as rwsem wrappers
+        Dexuan Cui <decui@microsoft.com>,
+        Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Carl Vanderlip <quic_carlv@quicinc.com>
+Subject: [PATCH 4.14 37/37] PCI: hv: Fix interrupt mapping for multi-MSI
 Date:   Wed, 27 Jul 2022 18:11:03 +0200
-Message-Id: <20220727161011.904986942@linuxfoundation.org>
+Message-Id: <20220727161002.347852819@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,136 +55,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michel Lespinasse <walken@google.com>
+From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-[ Upstream commit 9740ca4e95b43b91a4a848694a20d01ba6818f7b ]
+commit a2bad844a67b1c7740bda63e87453baf63c3a7f7 upstream.
 
-This patch series adds a new mmap locking API replacing the existing
-mmap_sem lock and unlocks.  Initially the API is just implemente in terms
-of inlined rwsem calls, so it doesn't provide any new functionality.
+According to Dexuan, the hypervisor folks beleive that multi-msi
+allocations are not correct.  compose_msi_msg() will allocate multi-msi
+one by one.  However, multi-msi is a block of related MSIs, with alignment
+requirements.  In order for the hypervisor to allocate properly aligned
+and consecutive entries in the IOMMU Interrupt Remapping Table, there
+should be a single mapping request that requests all of the multi-msi
+vectors in one shot.
 
-There are two justifications for the new API:
+Dexuan suggests detecting the multi-msi case and composing a single
+request related to the first MSI.  Then for the other MSIs in the same
+block, use the cached information.  This appears to be viable, so do it.
 
-- At first, it provides an easy hooking point to instrument mmap_sem
-  locking latencies independently of any other rwsems.
+4.14 backport - file moved to host/pci-hyperv.c. add hv_msi_get_int_vector
+helper function. Fixed merge conflict due to delivery_mode name change
+(APIC_DELIVERY_MODE_FIXED is the value given to dest_Fixed). Removed unused
+variable in hv_compose_msi_msg. Fixed reference to msi_desc->pci to point
+to the same is_msix variable. Removed changes to compose_msi_req_v3 since
+it doesn't exist yet. Added "reason" to put_pcichild (unused in function).
 
-- In the future, it may be a starting point for replacing the rwsem
-  implementation with a different one, such as range locks.  This is
-  something that is being explored, even though there is no wide concensus
-  about this possible direction yet.  (see
-  https://patchwork.kernel.org/cover/11401483/)
-
-This patch (of 12):
-
-This change wraps the existing mmap_sem related rwsem calls into a new
-mmap locking API.  There are two justifications for the new API:
-
-- At first, it provides an easy hooking point to instrument mmap_sem
-  locking latencies independently of any other rwsems.
-
-- In the future, it may be a starting point for replacing the rwsem
-  implementation with a different one, such as range locks.
-
-Signed-off-by: Michel Lespinasse <walken@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
-Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Liam Howlett <Liam.Howlett@oracle.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Ying Han <yinghan@google.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Michel Lespinasse <walken@google.com>
-Link: http://lkml.kernel.org/r/20200520052908.204642-1-walken@google.com
-Link: http://lkml.kernel.org/r/20200520052908.204642-2-walken@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1652282599-21643-1-git-send-email-quic_jhugo@quicinc.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mm.h        |  1 +
- include/linux/mmap_lock.h | 54 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
- create mode 100644 include/linux/mmap_lock.h
+ drivers/pci/host/pci-hyperv.c |   62 ++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 54 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index c125fea49752..d35c29d322d8 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -15,6 +15,7 @@
- #include <linux/atomic.h>
- #include <linux/debug_locks.h>
- #include <linux/mm_types.h>
-+#include <linux/mmap_lock.h>
- #include <linux/range.h>
- #include <linux/pfn.h>
- #include <linux/percpu-refcount.h>
-diff --git a/include/linux/mmap_lock.h b/include/linux/mmap_lock.h
-new file mode 100644
-index 000000000000..97ac53b66052
---- /dev/null
-+++ b/include/linux/mmap_lock.h
-@@ -0,0 +1,54 @@
-+#ifndef _LINUX_MMAP_LOCK_H
-+#define _LINUX_MMAP_LOCK_H
+--- a/drivers/pci/host/pci-hyperv.c
++++ b/drivers/pci/host/pci-hyperv.c
+@@ -846,6 +846,11 @@ static void hv_int_desc_free(struct hv_p
+ 		u8 buffer[sizeof(struct pci_delete_interrupt)];
+ 	} ctxt;
+ 
++	if (!int_desc->vector_count) {
++		kfree(int_desc);
++		return;
++	}
 +
-+static inline void mmap_init_lock(struct mm_struct *mm)
+ 	memset(&ctxt, 0, sizeof(ctxt));
+ 	int_pkt = (struct pci_delete_interrupt *)&ctxt.pkt.message;
+ 	int_pkt->message_type.type =
+@@ -908,6 +913,13 @@ static void hv_irq_mask(struct irq_data
+ 	pci_msi_mask_irq(data);
+ }
+ 
++static unsigned int hv_msi_get_int_vector(struct irq_data *data)
 +{
-+	init_rwsem(&mm->mmap_sem);
++	struct irq_cfg *cfg = irqd_cfg(data);
++
++	return cfg->vector;
 +}
 +
-+static inline void mmap_write_lock(struct mm_struct *mm)
-+{
-+	down_write(&mm->mmap_sem);
-+}
+ static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
+ 			  int nvec, msi_alloc_info_t *info)
+ {
+@@ -1050,12 +1062,12 @@ static void hv_pci_compose_compl(void *c
+ 
+ static u32 hv_compose_msi_req_v1(
+ 	struct pci_create_interrupt *int_pkt, struct cpumask *affinity,
+-	u32 slot, u8 vector)
++	u32 slot, u8 vector, u8 vector_count)
+ {
+ 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE;
+ 	int_pkt->wslot.slot = slot;
+ 	int_pkt->int_desc.vector = vector;
+-	int_pkt->int_desc.vector_count = 1;
++	int_pkt->int_desc.vector_count = vector_count;
+ 	int_pkt->int_desc.delivery_mode =
+ 		(apic->irq_delivery_mode == dest_LowestPrio) ?
+ 			dest_LowestPrio : dest_Fixed;
+@@ -1071,14 +1083,14 @@ static u32 hv_compose_msi_req_v1(
+ 
+ static u32 hv_compose_msi_req_v2(
+ 	struct pci_create_interrupt2 *int_pkt, struct cpumask *affinity,
+-	u32 slot, u8 vector)
++	u32 slot, u8 vector, u8 vector_count)
+ {
+ 	int cpu;
+ 
+ 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE2;
+ 	int_pkt->wslot.slot = slot;
+ 	int_pkt->int_desc.vector = vector;
+-	int_pkt->int_desc.vector_count = 1;
++	int_pkt->int_desc.vector_count = vector_count;
+ 	int_pkt->int_desc.delivery_mode =
+ 		(apic->irq_delivery_mode == dest_LowestPrio) ?
+ 			dest_LowestPrio : dest_Fixed;
+@@ -1108,7 +1120,6 @@ static u32 hv_compose_msi_req_v2(
+  */
+ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ {
+-	struct irq_cfg *cfg = irqd_cfg(data);
+ 	struct hv_pcibus_device *hbus;
+ 	struct hv_pci_dev *hpdev;
+ 	struct pci_bus *pbus;
+@@ -1117,6 +1128,8 @@ static void hv_compose_msi_msg(struct ir
+ 	unsigned long flags;
+ 	struct compose_comp_ctxt comp;
+ 	struct tran_int_desc *int_desc;
++	struct msi_desc *msi_desc;
++	u8 vector, vector_count;
+ 	struct {
+ 		struct pci_packet pci_pkt;
+ 		union {
+@@ -1137,7 +1150,8 @@ static void hv_compose_msi_msg(struct ir
+ 		return;
+ 	}
+ 
+-	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
++	msi_desc = irq_data_get_msi_desc(data);
++	pdev = msi_desc_to_pci_dev(msi_desc);
+ 	dest = irq_data_get_effective_affinity_mask(data);
+ 	pbus = pdev->bus;
+ 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
+@@ -1149,6 +1163,36 @@ static void hv_compose_msi_msg(struct ir
+ 	if (!int_desc)
+ 		goto drop_reference;
+ 
++	if (!msi_desc->msi_attrib.is_msix && msi_desc->nvec_used > 1) {
++		/*
++		 * If this is not the first MSI of Multi MSI, we already have
++		 * a mapping.  Can exit early.
++		 */
++		if (msi_desc->irq != data->irq) {
++			data->chip_data = int_desc;
++			int_desc->address = msi_desc->msg.address_lo |
++					    (u64)msi_desc->msg.address_hi << 32;
++			int_desc->data = msi_desc->msg.data +
++					 (data->irq - msi_desc->irq);
++			msg->address_hi = msi_desc->msg.address_hi;
++			msg->address_lo = msi_desc->msg.address_lo;
++			msg->data = int_desc->data;
++			put_pcichild(hpdev, hv_pcidev_ref_by_slot);
++			return;
++		}
++		/*
++		 * The vector we select here is a dummy value.  The correct
++		 * value gets sent to the hypervisor in unmask().  This needs
++		 * to be aligned with the count, and also not zero.  Multi-msi
++		 * is powers of 2 up to 32, so 32 will always work here.
++		 */
++		vector = 32;
++		vector_count = msi_desc->nvec_used;
++	} else {
++		vector = hv_msi_get_int_vector(data);
++		vector_count = 1;
++	}
 +
-+static inline int mmap_write_lock_killable(struct mm_struct *mm)
-+{
-+	return down_write_killable(&mm->mmap_sem);
-+}
-+
-+static inline bool mmap_write_trylock(struct mm_struct *mm)
-+{
-+	return down_write_trylock(&mm->mmap_sem) != 0;
-+}
-+
-+static inline void mmap_write_unlock(struct mm_struct *mm)
-+{
-+	up_write(&mm->mmap_sem);
-+}
-+
-+static inline void mmap_write_downgrade(struct mm_struct *mm)
-+{
-+	downgrade_write(&mm->mmap_sem);
-+}
-+
-+static inline void mmap_read_lock(struct mm_struct *mm)
-+{
-+	down_read(&mm->mmap_sem);
-+}
-+
-+static inline int mmap_read_lock_killable(struct mm_struct *mm)
-+{
-+	return down_read_killable(&mm->mmap_sem);
-+}
-+
-+static inline bool mmap_read_trylock(struct mm_struct *mm)
-+{
-+	return down_read_trylock(&mm->mmap_sem) != 0;
-+}
-+
-+static inline void mmap_read_unlock(struct mm_struct *mm)
-+{
-+	up_read(&mm->mmap_sem);
-+}
-+
-+#endif /* _LINUX_MMAP_LOCK_H */
--- 
-2.35.1
-
+ 	memset(&ctxt, 0, sizeof(ctxt));
+ 	init_completion(&comp.comp_pkt.host_event);
+ 	ctxt.pci_pkt.completion_func = hv_pci_compose_compl;
+@@ -1159,14 +1203,16 @@ static void hv_compose_msi_msg(struct ir
+ 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
+ 					dest,
+ 					hpdev->desc.win_slot.slot,
+-					cfg->vector);
++					vector,
++					vector_count);
+ 		break;
+ 
+ 	case PCI_PROTOCOL_VERSION_1_2:
+ 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
+ 					dest,
+ 					hpdev->desc.win_slot.slot,
+-					cfg->vector);
++					vector,
++					vector_count);
+ 		break;
+ 
+ 	default:
 
 
