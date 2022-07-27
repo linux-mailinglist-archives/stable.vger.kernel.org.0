@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C082358304F
+	by mail.lfdr.de (Postfix) with ESMTP id 452FB58304E
 	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242530AbiG0RgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:36:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48618 "EHLO
+        id S242509AbiG0RgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238639AbiG0RfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:35:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B13983230;
-        Wed, 27 Jul 2022 09:49:42 -0700 (PDT)
+        with ESMTP id S238009AbiG0RfE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:35:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB10261736;
+        Wed, 27 Jul 2022 09:49:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93489B821AC;
-        Wed, 27 Jul 2022 16:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0077CC433D6;
-        Wed, 27 Jul 2022 16:49:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9B1E616BD;
+        Wed, 27 Jul 2022 16:49:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7729C433C1;
+        Wed, 27 Jul 2022 16:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940576;
-        bh=N8QBShAdgh+hNRK6ey8Lx5hgQ2PapUc+DArPosW00v8=;
+        s=korg; t=1658940579;
+        bh=DyoHHfr/ZgtOgcLK1/79yqPAMmA10u0AIDGAhR0t7bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNaaaOmYhhatVpBLCsXk8b65xHnJXvzMyj+mTo0fbThQx2BY2kXl6dd6RdZyRiijZ
-         NcWNKv3g/qAgBybrYW54wYthLweaNMyHxhJAryYDpoTlAct/OSr8JI3rgR6H4Wo6Hy
-         vv9AZ7X5ZG4qG4i0HIBUqJl5srP7vvfDxvKfbVMI=
+        b=jkX0CRoCZAYwcmpbKbBKTK8LQkrNstYPORZhFNgqOm3mqBoehzbrxLw66oom9eUoL
+         QkxPWj3c3Z/xNT8Z7h+GWSf61xZNL75IF20FJHFKbgibMmRNwYNzkAipOKxe3SlUj1
+         KkxboQdBFTFFkvNbFy2GbpOei7Nhf4lAZSSuA5rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 073/158] tcp: Fix a data-race around sysctl_tcp_tw_reuse.
-Date:   Wed, 27 Jul 2022 18:12:17 +0200
-Message-Id: <20220727161024.439306943@linuxfoundation.org>
+Subject: [PATCH 5.18 074/158] tcp: Fix data-races around sysctl_max_syn_backlog.
+Date:   Wed, 27 Jul 2022 18:12:18 +0200
+Message-Id: <20220727161024.477753338@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,35 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit cbfc6495586a3f09f6f07d9fb3c7cafe807e3c55 ]
+[ Upstream commit 79539f34743d3e14cc1fa6577d326a82cc64d62f ]
 
-While reading sysctl_tcp_tw_reuse, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+While reading sysctl_max_syn_backlog, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_input.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index cd78b4fc334f..a57f96b86874 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -108,10 +108,10 @@ static u32 tcp_v4_init_ts_off(const struct net *net, const struct sk_buff *skb)
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 391f4a3f10fd..d8d903ef61f7 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -6939,10 +6939,12 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
+ 		tcp_rsk(req)->ts_off = af_ops->init_ts_off(net, skb);
  
- int tcp_twsk_unique(struct sock *sk, struct sock *sktw, void *twp)
- {
-+	int reuse = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_tw_reuse);
- 	const struct inet_timewait_sock *tw = inet_twsk(sktw);
- 	const struct tcp_timewait_sock *tcptw = tcp_twsk(sktw);
- 	struct tcp_sock *tp = tcp_sk(sk);
--	int reuse = sock_net(sk)->ipv4.sysctl_tcp_tw_reuse;
- 
- 	if (reuse == 2) {
- 		/* Still does not detect *everything* that goes through
+ 	if (!want_cookie && !isn) {
++		int max_syn_backlog = READ_ONCE(net->ipv4.sysctl_max_syn_backlog);
++
+ 		/* Kill the following clause, if you dislike this way. */
+ 		if (!syncookies &&
+-		    (net->ipv4.sysctl_max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
+-		     (net->ipv4.sysctl_max_syn_backlog >> 2)) &&
++		    (max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
++		     (max_syn_backlog >> 2)) &&
+ 		    !tcp_peer_is_proven(req, dst)) {
+ 			/* Without syncookies last quarter of
+ 			 * backlog is filled with destinations,
 -- 
 2.35.1
 
