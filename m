@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD0F582D0D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:53:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF67582ED4
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240073AbiG0QxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58002 "EHLO
+        id S236906AbiG0RR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240517AbiG0QwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3B84F188;
-        Wed, 27 Jul 2022 09:34:20 -0700 (PDT)
+        with ESMTP id S233394AbiG0RRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:17:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB7A78DD9;
+        Wed, 27 Jul 2022 09:43:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84774B821BA;
-        Wed, 27 Jul 2022 16:34:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE717C433D6;
-        Wed, 27 Jul 2022 16:34:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C152601C3;
+        Wed, 27 Jul 2022 16:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3378C433C1;
+        Wed, 27 Jul 2022 16:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939658;
-        bh=Y6eKHf7YnFlT7L+au4LdTlAYiMv2LAqvSJSkWSCCpZM=;
+        s=korg; t=1658940200;
+        bh=eud4DlPytkXEZKbDVsexOqCQ7QIhHImI570wrqSzK54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0G1QmdYPbAz0WVvUlw3yhtr7t+itKU4fH79RHU2gPyepyFJJoqs46EVm7ta8p31J
-         FNW4bGZYJhfKxYZQO0Er9ex64co3t8cvV92DpVW71oAYGO634OaPFVu18YjV4B21ku
-         P+hRdfmpnkKh4Yy4mvS93G3CNjgUg/ElHkpWMswk=
+        b=tsWSOJtVdYaRtjRMaEnOD9sEyakXXBDlRJ9IpQvgC1QFMr/I04hj654rTgzKREVil
+         U1G/O9Zvjfl5EIOfONaCnD4/3L5ufx7ygDqaEpfqr8qfmWSPIQCstJoOqm93WY58fL
+         y70AarN2zpgKoHCRmoanMYeTeRpDzIuPvo2i/V8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 027/105] igc: Reinstate IGC_REMOVED logic and implement it properly
+Subject: [PATCH 5.15 109/201] gpio: pca953x: only use single read/write for No AI mode
 Date:   Wed, 27 Jul 2022 18:10:13 +0200
-Message-Id: <20220727161013.192674456@linuxfoundation.org>
+Message-Id: <20220727161032.282415792@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lennert Buytenhek <buytenh@wantstofly.org>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit 7c1ddcee5311f3315096217881d2dbe47cc683f9 ]
+[ Upstream commit db8edaa09d7461ec08672a92a2eef63d5882bb79 ]
 
-The initially merged version of the igc driver code (via commit
-146740f9abc4, "igc: Add support for PF") contained the following
-IGC_REMOVED checks in the igc_rd32/wr32() MMIO accessors:
+For the device use NO AI mode(not support auto address increment),
+only use the single read/write when config the regmap.
 
-	u32 igc_rd32(struct igc_hw *hw, u32 reg)
-	{
-		u8 __iomem *hw_addr = READ_ONCE(hw->hw_addr);
-		u32 value = 0;
+We meet issue on PCA9557PW on i.MX8QXP/DXL evk board, this device
+do not support AI mode, but when do the regmap sync, regmap will
+sync 3 byte data to register 1, logically this means write first
+data to register 1, write second data to register 2, write third data
+to register 3. But this device do not support AI mode, finally, these
+three data write only into register 1 one by one. the reault is the
+value of register 1 alway equal to the latest data, here is the third
+data, no operation happened on register 2 and register 3. This is
+not what we expect.
 
-		if (IGC_REMOVED(hw_addr))
-			return ~value;
-
-		value = readl(&hw_addr[reg]);
-
-		/* reads should not return all F's */
-		if (!(~value) && (!reg || !(~readl(hw_addr))))
-			hw->hw_addr = NULL;
-
-		return value;
-	}
-
-And:
-
-	#define wr32(reg, val) \
-	do { \
-		u8 __iomem *hw_addr = READ_ONCE((hw)->hw_addr); \
-		if (!IGC_REMOVED(hw_addr)) \
-			writel((val), &hw_addr[(reg)]); \
-	} while (0)
-
-E.g. igb has similar checks in its MMIO accessors, and has a similar
-macro E1000_REMOVED, which is implemented as follows:
-
-	#define E1000_REMOVED(h) unlikely(!(h))
-
-These checks serve to detect and take note of an 0xffffffff MMIO read
-return from the device, which can be caused by a PCIe link flap or some
-other kind of PCI bus error, and to avoid performing MMIO reads and
-writes from that point onwards.
-
-However, the IGC_REMOVED macro was not originally implemented:
-
-	#ifndef IGC_REMOVED
-	#define IGC_REMOVED(a) (0)
-	#endif /* IGC_REMOVED */
-
-This led to the IGC_REMOVED logic to be removed entirely in a
-subsequent commit (commit 3c215fb18e70, "igc: remove IGC_REMOVED
-function"), with the rationale that such checks matter only for
-virtualization and that igc does not support virtualization -- but a
-PCIe device can become detached even without virtualization being in
-use, and without proper checks, a PCIe bus error affecting an igc
-adapter will lead to various NULL pointer dereferences, as the first
-access after the error will set hw->hw_addr to NULL, and subsequent
-accesses will blindly dereference this now-NULL pointer.
-
-This patch reinstates the IGC_REMOVED checks in igc_rd32/wr32(), and
-implements IGC_REMOVED the way it is done for igb, by checking for the
-unlikely() case of hw_addr being NULL.  This change prevents the oopses
-seen when a PCIe link flap occurs on an igc adapter.
-
-Fixes: 146740f9abc4 ("igc: Add support for PF")
-Signed-off-by: Lennert Buytenhek <buytenh@arista.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 49427232764d ("gpio: pca953x: Perform basic regmap conversion")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
- drivers/net/ethernet/intel/igc/igc_regs.h | 5 ++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-pca953x.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 53e31002ce52..e7ffe63925fd 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -4933,6 +4933,9 @@ u32 igc_rd32(struct igc_hw *hw, u32 reg)
- 	u8 __iomem *hw_addr = READ_ONCE(hw->hw_addr);
- 	u32 value = 0;
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 33683295a0bf..f334c8556a22 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -351,6 +351,9 @@ static const struct regmap_config pca953x_i2c_regmap = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
  
-+	if (IGC_REMOVED(hw_addr))
-+		return ~value;
++	.use_single_read = true,
++	.use_single_write = true,
 +
- 	value = readl(&hw_addr[reg]);
- 
- 	/* reads should not return all F's */
-diff --git a/drivers/net/ethernet/intel/igc/igc_regs.h b/drivers/net/ethernet/intel/igc/igc_regs.h
-index b52dd9d737e8..a273e1c33b3f 100644
---- a/drivers/net/ethernet/intel/igc/igc_regs.h
-+++ b/drivers/net/ethernet/intel/igc/igc_regs.h
-@@ -252,7 +252,8 @@ u32 igc_rd32(struct igc_hw *hw, u32 reg);
- #define wr32(reg, val) \
- do { \
- 	u8 __iomem *hw_addr = READ_ONCE((hw)->hw_addr); \
--	writel((val), &hw_addr[(reg)]); \
-+	if (!IGC_REMOVED(hw_addr)) \
-+		writel((val), &hw_addr[(reg)]); \
- } while (0)
- 
- #define rd32(reg) (igc_rd32(hw, reg))
-@@ -264,4 +265,6 @@ do { \
- 
- #define array_rd32(reg, offset) (igc_rd32(hw, (reg) + ((offset) << 2)))
- 
-+#define IGC_REMOVED(h) unlikely(!(h))
-+
- #endif
+ 	.readable_reg = pca953x_readable_register,
+ 	.writeable_reg = pca953x_writeable_register,
+ 	.volatile_reg = pca953x_volatile_register,
 -- 
 2.35.1
 
