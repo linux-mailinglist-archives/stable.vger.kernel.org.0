@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07944582FFF
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00181582F06
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238407AbiG0Rcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        id S241743AbiG0RUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242251AbiG0Ra3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:30:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD74F81B2F;
-        Wed, 27 Jul 2022 09:48:13 -0700 (PDT)
+        with ESMTP id S241980AbiG0RT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784B120191;
+        Wed, 27 Jul 2022 09:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2871261479;
-        Wed, 27 Jul 2022 16:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C2AC433C1;
-        Wed, 27 Jul 2022 16:47:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDE69B8200C;
+        Wed, 27 Jul 2022 16:44:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A011C433D6;
+        Wed, 27 Jul 2022 16:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940471;
-        bh=9tCpcYupvaxeRANDUq8GCP66gANHEGG8QwCZcmAUZjA=;
+        s=korg; t=1658940282;
+        bh=oiSt1wyU14n0g8HwuwyUHAl3vR2Y3DGXQRQ94FaTDOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biiGTC1kaQnp34+WnNnKB/EyJmK9nJodVUdoso4tFv8yZ7hR0U6eGhzs5G/AmM2xn
-         DPfNO6J38mi1h4PDbuXC3aaQonOQq+2KQSeoA7LJIy3JP0ntqiNdRd+yCsotOZJygR
-         y0AbqkIjjzEdsMJlXN0qpuNSuap+kefc5B/Qh8oA=
+        b=AfRX+p0Iu3sVrtt2twRMgypv98bfK4VKWyF+NJmS+eFfpvJmkbZ85Mmj+qATdtJe3
+         H1F2bso4cYV4q2nA52RzKw/p9Fcah0j0dFqpitAMvRh5zZrRB6Y/LEaPzjb8dk+jjf
+         4QGSCkbD2yQ5403ySj9dRSvQkqypjVj+m/Z/UcSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Subject: [PATCH 5.18 008/158] drm/ttm: fix locking in vmap/vunmap TTM GEM helpers
+        stable@vger.kernel.org, Yuezhang Mo <Yuezhang.Mo@sony.com>,
+        Andy Wu <Andy.Wu@sony.com>,
+        Aoyama Wataru <wataru.aoyama@sony.com>,
+        Daniel Palmer <daniel.palmer@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 168/201] exfat: fix referencing wrong parent directory information after renaming
 Date:   Wed, 27 Jul 2022 18:11:12 +0200
-Message-Id: <20220727161021.764692072@linuxfoundation.org>
+Message-Id: <20220727161034.786986554@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +57,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Yuezhang Mo <Yuezhang.Mo@sony.com>
 
-commit dbd0da2453c694f2f74651834d90fb280b57f151 upstream.
+[ Upstream commit d8dad2588addd1d861ce19e7df3b702330f0c7e3 ]
 
-I've stumbled over this while reviewing patches for DMA-buf and it looks
-like we completely messed the locking up here.
+During renaming, the parent directory information maybe
+updated. But the file/directory still references to the
+old parent directory information.
 
-In general most TTM function should only be called while holding the
-appropriate BO resv lock. Without this we could break the internal
-buffer object state here.
+This bug will cause 2 problems.
 
-Only compile tested!
+(1) The renamed file can not be written.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Fixes: 43676605f890 ("drm/ttm: Add vmap/vunmap to TTM and TTM GEM helpers")
-Cc: stable@vger.kernel.org
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220715111533.467012-1-christian.koenig@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    [10768.175172] exFAT-fs (sda1): error, failed to bmap (inode : 7afd50e4 iblock : 0, err : -5)
+    [10768.184285] exFAT-fs (sda1): Filesystem has been set read-only
+    ash: write error: Input/output error
+
+(2) Some dentries of the renamed file/directory are not set
+    to deleted after removing the file/directory.
+
+exfat_update_parent_info() is a workaround for the wrong parent
+directory information being used after renaming. Now that bug is
+fixed, this is no longer needed, so remove it.
+
+Fixes: 5f2aa075070c ("exfat: add inode operations")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Reviewed-by: Andy Wu <Andy.Wu@sony.com>
+Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
+Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem_ttm_helper.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/exfat/namei.c | 27 +--------------------------
+ 1 file changed, 1 insertion(+), 26 deletions(-)
 
---- a/drivers/gpu/drm/drm_gem_ttm_helper.c
-+++ b/drivers/gpu/drm/drm_gem_ttm_helper.c
-@@ -64,8 +64,13 @@ int drm_gem_ttm_vmap(struct drm_gem_obje
- 		     struct iosys_map *map)
- {
- 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gem);
-+	int ret;
+diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
+index 9d8ada781250..939737ba520d 100644
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -1069,6 +1069,7 @@ static int exfat_rename_file(struct inode *inode, struct exfat_chain *p_dir,
  
--	return ttm_bo_vmap(bo, map);
-+	dma_resv_lock(gem->resv, NULL);
-+	ret = ttm_bo_vmap(bo, map);
-+	dma_resv_unlock(gem->resv);
-+
-+	return ret;
+ 		exfat_remove_entries(inode, p_dir, oldentry, 0,
+ 			num_old_entries);
++		ei->dir = *p_dir;
+ 		ei->entry = newentry;
+ 	} else {
+ 		if (exfat_get_entry_type(epold) == TYPE_FILE) {
+@@ -1159,28 +1160,6 @@ static int exfat_move_file(struct inode *inode, struct exfat_chain *p_olddir,
+ 	return 0;
  }
- EXPORT_SYMBOL(drm_gem_ttm_vmap);
  
-@@ -82,7 +87,9 @@ void drm_gem_ttm_vunmap(struct drm_gem_o
- {
- 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gem);
+-static void exfat_update_parent_info(struct exfat_inode_info *ei,
+-		struct inode *parent_inode)
+-{
+-	struct exfat_sb_info *sbi = EXFAT_SB(parent_inode->i_sb);
+-	struct exfat_inode_info *parent_ei = EXFAT_I(parent_inode);
+-	loff_t parent_isize = i_size_read(parent_inode);
+-
+-	/*
+-	 * the problem that struct exfat_inode_info caches wrong parent info.
+-	 *
+-	 * because of flag-mismatch of ei->dir,
+-	 * there is abnormal traversing cluster chain.
+-	 */
+-	if (unlikely(parent_ei->flags != ei->dir.flags ||
+-		     parent_isize != EXFAT_CLU_TO_B(ei->dir.size, sbi) ||
+-		     parent_ei->start_clu != ei->dir.dir)) {
+-		exfat_chain_set(&ei->dir, parent_ei->start_clu,
+-			EXFAT_B_TO_CLU_ROUND_UP(parent_isize, sbi),
+-			parent_ei->flags);
+-	}
+-}
+-
+ /* rename or move a old file into a new file */
+ static int __exfat_rename(struct inode *old_parent_inode,
+ 		struct exfat_inode_info *ei, struct inode *new_parent_inode,
+@@ -1211,8 +1190,6 @@ static int __exfat_rename(struct inode *old_parent_inode,
+ 		return -ENOENT;
+ 	}
  
-+	dma_resv_lock(gem->resv, NULL);
- 	ttm_bo_vunmap(bo, map);
-+	dma_resv_unlock(gem->resv);
- }
- EXPORT_SYMBOL(drm_gem_ttm_vunmap);
+-	exfat_update_parent_info(ei, old_parent_inode);
+-
+ 	exfat_chain_dup(&olddir, &ei->dir);
+ 	dentry = ei->entry;
  
+@@ -1233,8 +1210,6 @@ static int __exfat_rename(struct inode *old_parent_inode,
+ 			goto out;
+ 		}
+ 
+-		exfat_update_parent_info(new_ei, new_parent_inode);
+-
+ 		p_dir = &(new_ei->dir);
+ 		new_entry = new_ei->entry;
+ 		ep = exfat_get_dentry(sb, p_dir, new_entry, &new_bh, NULL);
+-- 
+2.35.1
+
 
 
