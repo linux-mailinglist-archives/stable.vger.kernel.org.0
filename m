@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C13FD582B0D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C07582EBD
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236925AbiG0Q1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:27:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
+        id S241650AbiG0RQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236813AbiG0Q02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:26:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 074644D4D1;
-        Wed, 27 Jul 2022 09:23:45 -0700 (PDT)
+        with ESMTP id S241655AbiG0RPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:15:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B39AB7859D;
+        Wed, 27 Jul 2022 09:43:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5EDAB821C1;
-        Wed, 27 Jul 2022 16:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EE2BC433D6;
-        Wed, 27 Jul 2022 16:23:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7374E614DE;
+        Wed, 27 Jul 2022 16:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C314C433C1;
+        Wed, 27 Jul 2022 16:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939009;
-        bh=1N+4lpZUk0zs3H2gdygF1p5srqF4mzfZQUYBSwso3eQ=;
+        s=korg; t=1658940182;
+        bh=Nz5k/Pa4IhuCRVsu7UChZptB4Ka9QpSOYr0VI7yB1mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7S5SZ4TZ8zxk3LFsVJuGXStY9r0drjdsPklFTFiXp382DRHdZwNErhf5dYwZ3XN2
-         EoskeE7uHZTv7sLFbiXLjzaB2p//p835iuFpVCQmxvL3EFCML+OdVQiRA7tvazBpEm
-         zx/qT5vf9mEet5SjrEbLw9BmaVNtbmdpgGDKQu4s=
+        b=cEqTm86UdqkLIy9bKS1+KzteD3jMRCzwWOyAT8HkE0Ob5P1YH7hxu+Ic4RORl4hjf
+         q7/BTD/6XWAntzM2wQ2nf/ka5CUv4VRlN/fCzmtQB12JLZ1OtAkXWQHXZfANouymi3
+         OeOGnsQpLQ4e4boFF+k9nQcoyq492p/YgSkhXwSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/37] igmp: Fix data-races around sysctl_igmp_llm_reports.
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 133/201] spi: bcm2835: bcm2835_spi_handle_err(): fix NULL pointer deref for non DMA transfers
 Date:   Wed, 27 Jul 2022 18:10:37 +0200
-Message-Id: <20220727161001.322705619@linuxfoundation.org>
+Message-Id: <20220727161033.307712918@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
-References: <20220727161000.822869853@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit f6da2267e71106474fbc0943dc24928b9cb79119 ]
+commit 4ceaa684459d414992acbefb4e4c31f2dfc50641 upstream.
 
-While reading sysctl_igmp_llm_reports, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+In case a IRQ based transfer times out the bcm2835_spi_handle_err()
+function is called. Since commit 1513ceee70f2 ("spi: bcm2835: Drop
+dma_pending flag") the TX and RX DMA transfers are unconditionally
+canceled, leading to NULL pointer derefs if ctlr->dma_tx or
+ctlr->dma_rx are not set.
 
-This test can be packed into a helper, so such changes will be in the
-follow-up series after net is merged into net-next.
+Fix the NULL pointer deref by checking that ctlr->dma_tx and
+ctlr->dma_rx are valid pointers before accessing them.
 
-  if (ipv4_is_local_multicast(pmc->multiaddr) &&
-      !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
-
-Fixes: df2cf4a78e48 ("IGMP: Inhibit reports for local multicast groups")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1513ceee70f2 ("spi: bcm2835: Drop dma_pending flag")
+Cc: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20220719072234.2782764-1-mkl@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/spi/spi-bcm2835.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 16255dd0abf4..4b3875acc876 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -474,7 +474,8 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -1138,10 +1138,14 @@ static void bcm2835_spi_handle_err(struc
+ 	struct bcm2835_spi *bs = spi_controller_get_devdata(ctlr);
  
- 	if (pmc->multiaddr == IGMP_ALL_HOSTS)
- 		return skb;
--	if (ipv4_is_local_multicast(pmc->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(pmc->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return skb;
+ 	/* if an error occurred and we have an active dma, then terminate */
+-	dmaengine_terminate_sync(ctlr->dma_tx);
+-	bs->tx_dma_active = false;
+-	dmaengine_terminate_sync(ctlr->dma_rx);
+-	bs->rx_dma_active = false;
++	if (ctlr->dma_tx) {
++		dmaengine_terminate_sync(ctlr->dma_tx);
++		bs->tx_dma_active = false;
++	}
++	if (ctlr->dma_rx) {
++		dmaengine_terminate_sync(ctlr->dma_rx);
++		bs->rx_dma_active = false;
++	}
+ 	bcm2835_spi_undo_prologue(bs);
  
- 	mtu = READ_ONCE(dev->mtu);
-@@ -600,7 +601,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
- 			if (pmc->multiaddr == IGMP_ALL_HOSTS)
- 				continue;
- 			if (ipv4_is_local_multicast(pmc->multiaddr) &&
--			     !net->ipv4.sysctl_igmp_llm_reports)
-+			    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 				continue;
- 			spin_lock_bh(&pmc->lock);
- 			if (pmc->sfcount[MCAST_EXCLUDE])
-@@ -743,7 +744,8 @@ static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,
- 	if (type == IGMPV3_HOST_MEMBERSHIP_REPORT)
- 		return igmpv3_send_report(in_dev, pmc);
- 
--	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(group) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return 0;
- 
- 	if (type == IGMP_HOST_LEAVE_MESSAGE)
-@@ -921,7 +923,8 @@ static bool igmp_heard_report(struct in_device *in_dev, __be32 group)
- 
- 	if (group == IGMP_ALL_HOSTS)
- 		return false;
--	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(group) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return false;
- 
- 	rcu_read_lock();
-@@ -1031,7 +1034,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
- 		if (im->multiaddr == IGMP_ALL_HOSTS)
- 			continue;
- 		if (ipv4_is_local_multicast(im->multiaddr) &&
--		    !net->ipv4.sysctl_igmp_llm_reports)
-+		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 			continue;
- 		spin_lock_bh(&im->lock);
- 		if (im->tm_running)
-@@ -1280,7 +1283,8 @@ static void igmp_group_dropped(struct ip_mc_list *im)
- #ifdef CONFIG_IP_MULTICAST
- 	if (im->multiaddr == IGMP_ALL_HOSTS)
- 		return;
--	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(im->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return;
- 
- 	reporter = im->reporter;
-@@ -1317,7 +1321,8 @@ static void igmp_group_added(struct ip_mc_list *im)
- #ifdef CONFIG_IP_MULTICAST
- 	if (im->multiaddr == IGMP_ALL_HOSTS)
- 		return;
--	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(im->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return;
- 
- 	if (in_dev->dead)
-@@ -1629,7 +1634,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
- 		if (im->multiaddr == IGMP_ALL_HOSTS)
- 			continue;
- 		if (ipv4_is_local_multicast(im->multiaddr) &&
--		    !net->ipv4.sysctl_igmp_llm_reports)
-+		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 			continue;
- 
- 		/* a failover is happening and switches
--- 
-2.35.1
-
+ 	/* and reset */
 
 
