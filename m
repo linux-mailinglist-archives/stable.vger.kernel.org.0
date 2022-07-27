@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D8D583092
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF575830B1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242349AbiG0Rjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:39:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55016 "EHLO
+        id S242738AbiG0RkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242687AbiG0RjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8008787C31;
-        Wed, 27 Jul 2022 09:50:55 -0700 (PDT)
+        with ESMTP id S242882AbiG0RjZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57EBF53D3F;
+        Wed, 27 Jul 2022 09:51:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7233B821C5;
-        Wed, 27 Jul 2022 16:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B7D1C433C1;
-        Wed, 27 Jul 2022 16:50:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E13CB616D1;
+        Wed, 27 Jul 2022 16:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB12C433D6;
+        Wed, 27 Jul 2022 16:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940651;
-        bh=/RAmyf5LE2vjALLaA6Rn13Cr6GhTMG6PSmKRfiNe2Ug=;
+        s=korg; t=1658940654;
+        bh=4nPOBYRVh1TeKFhmDIyIk4pggIEMowzCSYFN4GeClBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZJDcKNI+n4pSYUfQe9ngKa5VrSMOuLdJ/PgGfK2OBqsefdiJrXQfDKluzWIudwMq
-         t1pVaKJr+A5NfNkYsKeeqzxWkyNmUtZ1D6ZnMKR83HZkfoaiYSLk4WF9KzPuM91kIZ
-         c2ygBQZdU01ie4a5rh4FvmtwFuz2Xi08zDU/YSI0=
+        b=ZuYS6jw0ktJo7lH3l9ejJsnzUgco/oi5Dom2DqQlK+lwz7/1gysnAv7RU4T6sHMkT
+         9qDGyshyhFxYYLx+o4zOCOrt8eVfXAw9EzXUgJ8U+JL0thPUOWB0LIme/24lEvbazD
+         jBP2T/LXbzPpz3T01o1aNWzwILjvNNzGs2da7MIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 068/158] tcp: Fix data-races around sysctl_tcp_syncookies.
-Date:   Wed, 27 Jul 2022 18:12:12 +0200
-Message-Id: <20220727161024.230653573@linuxfoundation.org>
+Subject: [PATCH 5.18 069/158] tcp: Fix data-races around sysctl_tcp_migrate_req.
+Date:   Wed, 27 Jul 2022 18:12:13 +0200
+Message-Id: <20220727161024.269885983@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,139 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit f2e383b5bb6bbc60a0b94b87b3e49a2b1aefd11e ]
+[ Upstream commit 4177f545895b1da08447a80692f30617154efa6e ]
 
-While reading sysctl_tcp_syncookies, it can be changed concurrently.
+While reading sysctl_tcp_migrate_req, it can be changed concurrently.
 Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: f9ac779f881c ("net: Introduce net.ipv4.tcp_migrate_req.")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c     |  4 ++--
- net/ipv4/syncookies.c |  3 ++-
- net/ipv4/tcp_input.c  | 20 ++++++++++++--------
- net/ipv6/syncookies.c |  3 ++-
- 4 files changed, 18 insertions(+), 12 deletions(-)
+ net/core/sock_reuseport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 6391c1885bca..d0b0c163d3f3 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -7031,7 +7031,7 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
- 	if (sk->sk_protocol != IPPROTO_TCP || sk->sk_state != TCP_LISTEN)
- 		return -EINVAL;
+diff --git a/net/core/sock_reuseport.c b/net/core/sock_reuseport.c
+index 3f00a28fe762..5daa1fa54249 100644
+--- a/net/core/sock_reuseport.c
++++ b/net/core/sock_reuseport.c
+@@ -387,7 +387,7 @@ void reuseport_stop_listen_sock(struct sock *sk)
+ 		prog = rcu_dereference_protected(reuse->prog,
+ 						 lockdep_is_held(&reuseport_lock));
  
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies))
- 		return -EINVAL;
- 
- 	if (!th->ack || th->rst || th->syn)
-@@ -7106,7 +7106,7 @@ BPF_CALL_5(bpf_tcp_gen_syncookie, struct sock *, sk, void *, iph, u32, iph_len,
- 	if (sk->sk_protocol != IPPROTO_TCP || sk->sk_state != TCP_LISTEN)
- 		return -EINVAL;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies))
- 		return -ENOENT;
- 
- 	if (!th->syn || th->ack || th->fin || th->rst)
-diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
-index b387c4835155..9b234b42021e 100644
---- a/net/ipv4/syncookies.c
-+++ b/net/ipv4/syncookies.c
-@@ -340,7 +340,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
- 	struct flowi4 fl4;
- 	u32 tsoff = 0;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies || !th->ack || th->rst)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies) ||
-+	    !th->ack || th->rst)
- 		goto out;
- 
- 	if (tcp_synq_no_recent_overflow(sk))
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 2d71bcfcc759..f5ca08dfa02d 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -6780,11 +6780,14 @@ static bool tcp_syn_flood_action(const struct sock *sk, const char *proto)
- {
- 	struct request_sock_queue *queue = &inet_csk(sk)->icsk_accept_queue;
- 	const char *msg = "Dropping request";
--	bool want_cookie = false;
- 	struct net *net = sock_net(sk);
-+	bool want_cookie = false;
-+	u8 syncookies;
-+
-+	syncookies = READ_ONCE(net->ipv4.sysctl_tcp_syncookies);
- 
- #ifdef CONFIG_SYN_COOKIES
--	if (net->ipv4.sysctl_tcp_syncookies) {
-+	if (syncookies) {
- 		msg = "Sending cookies";
- 		want_cookie = true;
- 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPREQQFULLDOCOOKIES);
-@@ -6792,8 +6795,7 @@ static bool tcp_syn_flood_action(const struct sock *sk, const char *proto)
- #endif
- 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPREQQFULLDROP);
- 
--	if (!queue->synflood_warned &&
--	    net->ipv4.sysctl_tcp_syncookies != 2 &&
-+	if (!queue->synflood_warned && syncookies != 2 &&
- 	    xchg(&queue->synflood_warned, 1) == 0)
- 		net_info_ratelimited("%s: Possible SYN flooding on port %d. %s.  Check SNMP counters.\n",
- 				     proto, sk->sk_num, msg);
-@@ -6842,7 +6844,7 @@ u16 tcp_get_syncookie_mss(struct request_sock_ops *rsk_ops,
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	u16 mss;
- 
--	if (sock_net(sk)->ipv4.sysctl_tcp_syncookies != 2 &&
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies) != 2 &&
- 	    !inet_csk_reqsk_queue_is_full(sk))
- 		return 0;
- 
-@@ -6876,13 +6878,15 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 	bool want_cookie = false;
- 	struct dst_entry *dst;
- 	struct flowi fl;
-+	u8 syncookies;
-+
-+	syncookies = READ_ONCE(net->ipv4.sysctl_tcp_syncookies);
- 
- 	/* TW buckets are converted to open requests without
- 	 * limitations, they conserve resources and peer is
- 	 * evidently real one.
- 	 */
--	if ((net->ipv4.sysctl_tcp_syncookies == 2 ||
--	     inet_csk_reqsk_queue_is_full(sk)) && !isn) {
-+	if ((syncookies == 2 || inet_csk_reqsk_queue_is_full(sk)) && !isn) {
- 		want_cookie = tcp_syn_flood_action(sk, rsk_ops->slab_name);
- 		if (!want_cookie)
- 			goto drop;
-@@ -6932,7 +6936,7 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 
- 	if (!want_cookie && !isn) {
- 		/* Kill the following clause, if you dislike this way. */
--		if (!net->ipv4.sysctl_tcp_syncookies &&
-+		if (!syncookies &&
- 		    (net->ipv4.sysctl_max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
- 		     (net->ipv4.sysctl_max_syn_backlog >> 2)) &&
- 		    !tcp_peer_is_proven(req, dst)) {
-diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
-index 9cc123f000fb..5014aa663452 100644
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -141,7 +141,8 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
- 	__u8 rcv_wscale;
- 	u32 tsoff = 0;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies || !th->ack || th->rst)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies) ||
-+	    !th->ack || th->rst)
- 		goto out;
- 
- 	if (tcp_synq_no_recent_overflow(sk))
+-		if (sock_net(sk)->ipv4.sysctl_tcp_migrate_req ||
++		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_migrate_req) ||
+ 		    (prog && prog->expected_attach_type == BPF_SK_REUSEPORT_SELECT_OR_MIGRATE)) {
+ 			/* Migration capable, move sk from the listening section
+ 			 * to the closed section.
+@@ -545,7 +545,7 @@ struct sock *reuseport_migrate_sock(struct sock *sk,
+ 	hash = migrating_sk->sk_hash;
+ 	prog = rcu_dereference(reuse->prog);
+ 	if (!prog || prog->expected_attach_type != BPF_SK_REUSEPORT_SELECT_OR_MIGRATE) {
+-		if (sock_net(sk)->ipv4.sysctl_tcp_migrate_req)
++		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_migrate_req))
+ 			goto select_by_hash;
+ 		goto failure;
+ 	}
 -- 
 2.35.1
 
