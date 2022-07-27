@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1315583038
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF84058302D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242239AbiG0RfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:35:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41408 "EHLO
+        id S241826AbiG0RfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242659AbiG0Rem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FF18321C;
-        Wed, 27 Jul 2022 09:49:27 -0700 (PDT)
+        with ESMTP id S242506AbiG0ReR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF28083205;
+        Wed, 27 Jul 2022 09:49:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64A0B61617;
-        Wed, 27 Jul 2022 16:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70629C433C1;
-        Wed, 27 Jul 2022 16:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BA6C616FA;
+        Wed, 27 Jul 2022 16:49:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A67C433D6;
+        Wed, 27 Jul 2022 16:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940545;
-        bh=2Cf6JN9PgoSTXEWTDC83QIbqqiH+x4fYYN/Cia/67fs=;
+        s=korg; t=1658940548;
+        bh=w5sWh8F8n0FEZ5hPRhjKnS9zIrHd3MtT9EMOxialx48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EphxrXZt3g8po60xRT2+oP5cauYbFktTvmx2JerJorkMXboJ5hawSUjFlIDR4ZeJs
-         43/1T0/skfQPTX75vaC06BXh5kb9ZwWd0lJWF+6Xszv7kcyptH4eeo+jj28jvSE4km
-         8/E+kq723BoGhKolrYGx7/f+kBNklxjsQgIjNXkQ=
+        b=Vya4sr97ExJgtObazu/zkqH4UnikZnwe2RnmQW2baIqWWEc7SE3AwF47tETNYubhV
+         TMDoTZHUfTeS1bZYpeVkcqiJHn93KnJdy7frUKIbvZi5QUegpdgm+9pApDrT7/LYLI
+         CViI8y2T8TSEq6TKAx9We3JsRL/nihfZNJWvYIu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Maksym Glubokiy <maksym.glubokiy@plvision.eu>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 060/158] net/tls: Fix race in TLS device down flow
-Date:   Wed, 27 Jul 2022 18:12:04 +0200
-Message-Id: <20220727161023.919938791@linuxfoundation.org>
+Subject: [PATCH 5.18 061/158] net: prestera: acl: use proper mask for port selector
+Date:   Wed, 27 Jul 2022 18:12:05 +0200
+Message-Id: <20220727161023.950555886@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,70 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@nvidia.com>
+From: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
 
-[ Upstream commit f08d8c1bb97c48f24a82afaa2fd8c140f8d3da8b ]
+[ Upstream commit 1e20904e417738066b26490de2daf7ef3ed34483 ]
 
-Socket destruction flow and tls_device_down function sync against each
-other using tls_device_lock and the context refcount, to guarantee the
-device resources are freed via tls_dev_del() by the end of
-tls_device_down.
+Adjusted as per packet processor documentation.
+This allows to properly match 'indev' for clsact rules.
 
-In the following unfortunate flow, this won't happen:
-- refcount is decreased to zero in tls_device_sk_destruct.
-- tls_device_down starts, skips the context as refcount is zero, going
-  all the way until it flushes the gc work, and returns without freeing
-  the device resources.
-- only then, tls_device_queue_ctx_destruction is called, queues the gc
-  work and frees the context's device resources.
+Fixes: 47327e198d42 ("net: prestera: acl: migrate to new vTCAM api")
 
-Solve it by decreasing the refcount in the socket's destruction flow
-under the tls_device_lock, for perfect synchronization.  This does not
-slow down the common likely destructor flow, in which both the refcount
-is decreased and the spinlock is acquired, anyway.
-
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Maksym Glubokiy <maksym.glubokiy@plvision.eu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_device.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/marvell/prestera/prestera_flower.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
-index 3a61bb594544..9c3933781ad4 100644
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -97,13 +97,16 @@ static void tls_device_queue_ctx_destruction(struct tls_context *ctx)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&tls_device_lock, flags);
-+	if (unlikely(!refcount_dec_and_test(&ctx->refcount)))
-+		goto unlock;
-+
- 	list_move_tail(&ctx->list, &tls_device_gc_list);
- 
- 	/* schedule_work inside the spinlock
- 	 * to make sure tls_device_down waits for that work.
- 	 */
- 	schedule_work(&tls_device_gc_work);
--
-+unlock:
- 	spin_unlock_irqrestore(&tls_device_lock, flags);
- }
- 
-@@ -194,8 +197,7 @@ void tls_device_sk_destruct(struct sock *sk)
- 		clean_acked_data_disable(inet_csk(sk));
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_flower.c b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+index 921959a980ee..d8cfa4a7de0f 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+@@ -139,12 +139,12 @@ static int prestera_flower_parse_meta(struct prestera_acl_rule *rule,
  	}
+ 	port = netdev_priv(ingress_dev);
  
--	if (refcount_dec_and_test(&tls_ctx->refcount))
--		tls_device_queue_ctx_destruction(tls_ctx);
-+	tls_device_queue_ctx_destruction(tls_ctx);
- }
- EXPORT_SYMBOL_GPL(tls_device_sk_destruct);
+-	mask = htons(0x1FFF);
+-	key = htons(port->hw_id);
++	mask = htons(0x1FFF << 3);
++	key = htons(port->hw_id << 3);
+ 	rule_match_set(r_match->key, SYS_PORT, key);
+ 	rule_match_set(r_match->mask, SYS_PORT, mask);
  
+-	mask = htons(0x1FF);
++	mask = htons(0x3FF);
+ 	key = htons(port->dev_id);
+ 	rule_match_set(r_match->key, SYS_DEV, key);
+ 	rule_match_set(r_match->mask, SYS_DEV, mask);
 -- 
 2.35.1
 
