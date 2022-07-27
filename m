@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A580582DBC
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AC7582D96
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241197AbiG0RCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:02:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55518 "EHLO
+        id S231809AbiG0RAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:00:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241206AbiG0RBo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:01:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9395C6BC05;
-        Wed, 27 Jul 2022 09:38:05 -0700 (PDT)
+        with ESMTP id S241398AbiG0Q7j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:59:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41AEB691F0;
+        Wed, 27 Jul 2022 09:37:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEDCBB821B6;
-        Wed, 27 Jul 2022 16:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506BFC433C1;
-        Wed, 27 Jul 2022 16:37:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B156AB821A6;
+        Wed, 27 Jul 2022 16:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06B94C433C1;
+        Wed, 27 Jul 2022 16:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939847;
-        bh=WujFwljSuwH2VXyG++3F5nOsrXX2VIrrQKO+07kLxmA=;
+        s=korg; t=1658939853;
+        bh=H6Ls8YFqH71j1ApB6PrAmK28ZzaHYIEAR7Jz0lr46Oc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ts46/PJ4ltL9VNnoQOreO0gmrtyv5NoT+HNZBH+CkHGNl5JsJgRkAeGWp/AfYf2sV
-         +VrLQkrXjm8VilWKDujcSHKgg4zhDDbZmQqBT7hBMxo9oBWoNv/GTECiHkYGn5yXqF
-         q3e0y4YAuu4XGBaqXNdbXBQ4muxzqHtML2Ja2Rr4=
+        b=Bx/f/pBjgSrYYCOxq3YSTYzW0G/tH5PBjFmWpmohv0l+lRPcGXnc9mJjIRoH1eAJY
+         oyX/jf20UNFD7jv2zA7uBYs4LsK+4tHsQAud8COnJMtc9MyJEwX2CtbBWWMvbv4eee
+         zgkzMutm89/NWVQGxbUX4m4VpYix588qN8vuveLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felix Fietkau <nbd@nbd.name>
-Subject: [PATCH 5.15 020/201] mt76: mt7921: Fix the error handling path of mt7921_pci_probe()
-Date:   Wed, 27 Jul 2022 18:08:44 +0200
-Message-Id: <20220727161027.748066262@linuxfoundation.org>
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 021/201] xfs: fix maxlevels comparisons in the btree staging code
+Date:   Wed, 27 Jul 2022 18:08:45 +0200
+Message-Id: <20220727161027.780172627@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -52,45 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 4e90db5e21eb3bb272fe47386dc3506755e209e9 upstream.
+[ Upstream commit 78e8ec83a404d63dcc86b251f42e4ee8aff27465 ]
 
-In case of error, some resources must be freed, as already done above and
-below the devm_kmemdup() and __mt7921e_mcu_drv_pmctrl() calls added in the
-commit in Fixes:.
+The btree geometry computation function has an off-by-one error in that
+it does not allow maximally tall btrees (nlevels == XFS_BTREE_MAXLEVELS).
+This can result in repairs failing unnecessarily on very fragmented
+filesystems.  Subsequent patches to remove MAXLEVELS usage in favor of
+the per-btree type computations will make this a much more likely
+occurrence.
 
-Fixes: 602cc0c9618a ("mt76: mt7921e: fix possible probe failure after reboot")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Chandan Babu R <chandan.babu@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/pci.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/xfs/libxfs/xfs_btree_staging.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-@@ -254,8 +254,10 @@ static int mt7921_pci_probe(struct pci_d
- 	dev->bus_ops = dev->mt76.bus;
- 	bus_ops = devm_kmemdup(dev->mt76.dev, dev->bus_ops, sizeof(*bus_ops),
- 			       GFP_KERNEL);
--	if (!bus_ops)
--		return -ENOMEM;
-+	if (!bus_ops) {
-+		ret = -ENOMEM;
-+		goto err_free_dev;
-+	}
+--- a/fs/xfs/libxfs/xfs_btree_staging.c
++++ b/fs/xfs/libxfs/xfs_btree_staging.c
+@@ -662,7 +662,7 @@ xfs_btree_bload_compute_geometry(
+ 	xfs_btree_bload_ensure_slack(cur, &bbl->node_slack, 1);
  
- 	bus_ops->rr = mt7921_rr;
- 	bus_ops->wr = mt7921_wr;
-@@ -264,7 +266,7 @@ static int mt7921_pci_probe(struct pci_d
+ 	bbl->nr_records = nr_this_level = nr_records;
+-	for (cur->bc_nlevels = 1; cur->bc_nlevels < XFS_BTREE_MAXLEVELS;) {
++	for (cur->bc_nlevels = 1; cur->bc_nlevels <= XFS_BTREE_MAXLEVELS;) {
+ 		uint64_t	level_blocks;
+ 		uint64_t	dontcare64;
+ 		unsigned int	level = cur->bc_nlevels - 1;
+@@ -724,7 +724,7 @@ xfs_btree_bload_compute_geometry(
+ 		nr_this_level = level_blocks;
+ 	}
  
- 	ret = __mt7921e_mcu_drv_pmctrl(dev);
- 	if (ret)
--		return ret;
-+		goto err_free_dev;
+-	if (cur->bc_nlevels == XFS_BTREE_MAXLEVELS)
++	if (cur->bc_nlevels > XFS_BTREE_MAXLEVELS)
+ 		return -EOVERFLOW;
  
- 	mdev->rev = (mt7921_l1_rr(dev, MT_HW_CHIPID) << 16) |
- 		    (mt7921_l1_rr(dev, MT_HW_REV) & 0xff);
+ 	bbl->btree_height = cur->bc_nlevels;
 
 
