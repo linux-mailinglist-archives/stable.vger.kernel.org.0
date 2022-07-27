@@ -2,139 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B9158251D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 13:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DAB5825D6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 13:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231810AbiG0LFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 07:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33868 "EHLO
+        id S232191AbiG0Lsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 07:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiG0LFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 07:05:23 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC11B62DC;
-        Wed, 27 Jul 2022 04:05:21 -0700 (PDT)
-X-UUID: bf3bd924e80d4d0a88c6beabc9c47aee-20220727
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.8,REQID:c2ffb9cc-1000-4b1b-b495-16daaa3da22a,OB:0,LO
-        B:0,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:95,FILE:0,RULE:Release_Ham,AC
-        TION:release,TS:90
-X-CID-INFO: VERSION:1.1.8,REQID:c2ffb9cc-1000-4b1b-b495-16daaa3da22a,OB:0,LOB:
-        0,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:95,FILE:0,RULE:Spam_GS981B3D,AC
-        TION:quarantine,TS:90
-X-CID-META: VersionHash:0f94e32,CLOUDID:c39af4cb-7c9b-4dbc-a9d4-00659d6b7a90,C
-        OID:6b8dddc57071,Recheck:0,SF:28|17|19|48,TC:nil,Content:0,EDM:-3,IP:nil,U
-        RL:0,File:nil,QS:nil,BEC:nil,COL:0
-X-UUID: bf3bd924e80d4d0a88c6beabc9c47aee-20220727
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 780585816; Wed, 27 Jul 2022 19:05:18 +0800
-Received: from mtkmbs11n1.mediatek.inc (172.21.101.186) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
- Wed, 27 Jul 2022 19:05:17 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.792.15 via Frontend Transport; Wed, 27 Jul 2022 19:05:17 +0800
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>
-CC:     Bear Wang <bear.wang@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>, <stable@vger.kernel.org>
-Subject: [PATCH] usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles
-Date:   Wed, 27 Jul 2022 19:05:03 +0800
-Message-ID: <20220727110503.5260-1-macpaul.lin@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        with ESMTP id S231226AbiG0Lsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 07:48:45 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C604E4AD5B;
+        Wed, 27 Jul 2022 04:48:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1658922524; x=1690458524;
+  h=date:from:to:cc:subject:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Az1nDJh3EQ7R5j6ZaG1tS/RcvdlaJn7u98b87B9prMk=;
+  b=CSAqdr8KIupoR3PpfSTbumtuml8eov3NKE5WJyouR89aAPiIXP3bMZGr
+   dXwlkmaZQKLEPxhJdUIqpMhUIn9xV5r2XgYBvSIbEMZ0uoUxBnQV+VVW1
+   aG6nfX1ul0XV1Bsbcxq63x4Zm8wsWyApknuLtV+3Y5Vjzr5MCcDZzowt+
+   AEZFnH+GNA/MQdRz8YRCyl6IqSoOefNuzZpAfb03WpTwFcdmC17vhtiUR
+   KOac3YbjFAxw+oRAeohp/APCuNbBEFToFJTgjX1YmJvAmhJam2wQe68Hp
+   84IoVHoQHahwt9CvDDmHGbAZBp7dG1WxBpzYim3CEiTeKlq4y/aiMbkRU
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10420"; a="349916810"
+X-IronPort-AV: E=Sophos;i="5.93,195,1654585200"; 
+   d="scan'208";a="349916810"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 04:48:44 -0700
+X-IronPort-AV: E=Sophos;i="5.93,195,1654585200"; 
+   d="scan'208";a="628346740"
+Received: from maurocar-mobl2.ger.corp.intel.com (HELO maurocar-mobl2) ([10.252.45.68])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 04:48:39 -0700
+Date:   Wed, 27 Jul 2022 13:48:36 +0200
+From:   Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
+To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Chris Wilson <chris.p.wilson@intel.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Thomas =?UTF-8?B?SGVsbHN0csO2bQ==?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        intel-gfx@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-media@vger.kernel.org,
+        Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>
+Subject: Re: [Intel-gfx] [PATCH v2 06/21] drm/i915/gt: Batch TLB
+ invalidations
+Message-ID: <20220727134836.7f7b5fab@maurocar-mobl2>
+In-Reply-To: <567823d5-57ba-30db-dd64-de609df4d8c5@linux.intel.com>
+References: <cover.1657800199.git.mchehab@kernel.org>
+        <9f535a97f32320a213a619a30c961ba44b595453.1657800199.git.mchehab@kernel.org>
+        <567823d5-57ba-30db-dd64-de609df4d8c5@linux.intel.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-MTK:  N
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_PASS,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Sun <pablo.sun@mediatek.com>
+On Wed, 20 Jul 2022 11:49:59 +0100
+Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
 
-From: Pablo Sun <pablo.sun@mediatek.com>
+> On 20/07/2022 08:13, Mauro Carvalho Chehab wrote:
+> > On Mon, 18 Jul 2022 14:52:05 +0100
+> > Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
+> >   
+> >>
+> >> On 14/07/2022 13:06, Mauro Carvalho Chehab wrote:  
+> >>> From: Chris Wilson <chris.p.wilson@intel.com>
+> >>>
+> >>> Invalidate TLB in patch, in order to reduce performance regressions.  
+> >>
+> >> "in batches"?  
+> > 
+> > Yeah. Will fix it.
 
-Fix incorrect pin assignment values when connecting to a monitor with
-Type-C receptacle instead of a plug.
+> > +void vma_invalidate_tlb(struct i915_address_space *vm, u32 tlb)
+> > +{
+> > +	/*
+> > +	 * Before we release the pages that were bound by this vma, we
+> > +	 * must invalidate all the TLBs that may still have a reference
+> > +	 * back to our physical address. It only needs to be done once,
+> > +	 * so after updating the PTE to point away from the pages, record
+> > +	 * the most recent TLB invalidation seqno, and if we have not yet
+> > +	 * flushed the TLBs upon release, perform a full invalidation.
+> > +	 */
+> > +	WRITE_ONCE(tlb, intel_gt_next_invalidate_tlb_full(vm->gt));  
+> 
+> Shouldn't tlb be a pointer for this to make sense?
 
-According to specification, an UFP_D receptacle's pin assignment
-should came from the UFP_D pin assignments field (bit 23:16), while
-an UFP_D plug's assignments are described in the DFP_D pin assignments
-(bit 15:8) during Mode Discovery.
+Oh, my mistake! Will fix at the next version.
 
-For example the LG 27 UL850-W is a monitor with Type-C receptacle.
-The monitor responds to MODE DISCOVERY command with following
-DisplayPort Capability flag:
+> >   
+> >>> diff --git a/drivers/gpu/drm/i915/gt/intel_ppgtt.c b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+> >>> index d8b94d638559..2da6c82a8bd2 100644
+> >>> --- a/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+> >>> +++ b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
+> >>> @@ -206,8 +206,12 @@ void ppgtt_bind_vma(struct i915_address_space *vm,
+> >>>    void ppgtt_unbind_vma(struct i915_address_space *vm,
+> >>>    		      struct i915_vma_resource *vma_res)
+> >>>    {
+> >>> -	if (vma_res->allocated)
+> >>> -		vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+> >>> +	if (!vma_res->allocated)
+> >>> +		return;
+> >>> +
+> >>> +	vm->clear_range(vm, vma_res->start, vma_res->vma_size);
+> >>> +	if (vma_res->tlb)
+> >>> +		vma_invalidate_tlb(vm, *vma_res->tlb);  
+> >>
+> >> The patch is about more than batching? If there is a security hole in
+> >> this area (unbind) with the current code?  
+> > 
+> > No, I don't think there's a security hole. The rationale for this is
+> > not due to it.  
+> 
+> In this case obvious question is why are these changes in the patch 
+> which declares itself to be about batching invalidations? Because...
 
-        dp->alt->vdo=0x140045
+Because vma_invalidate_tlb() basically stores a TLB seqno, but the
+actual invalidation is deferred to when the pages are unset, at
+__i915_gem_object_unset_pages().
 
-The existing logic only take cares of UPF_D plug case,
-and would take the bit 15:8 for this 0x140045 case.
+So, what happens is:
 
-This results in an non-existing pin assignment 0x0 in
-dp_altmode_configure.
+- on VMA sync mode, the need to invalidate TLB is marked at
+  __vma_put_pages(), before VMA unbind;
+- on async, this is deferred to happen at ppgtt_unbind_vma(), where
+  it marks the need to invalidate TLBs.
 
-To fix this problem a new set of macros are introduced
-to take plug/receptacle differences into consideration.
+On both cases, __i915_gem_object_unset_pages() is called later,
+when the driver is ready to unmap the page.
 
-Co-developed-by: Pablo Sun <pablo.sun@mediatek.com>
-Signed-off-by: Pablo Sun <pablo.sun@mediatek.com>
-Co-developed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Guillaume Ranquet <granquet@baylibre.com>
-Cc: stable@vger.kernel.org
----
- drivers/usb/typec/altmodes/displayport.c | 4 ++--
- include/linux/usb/typec_dp.h             | 5 +++++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+> I am explaining why it looks to me that the patch is doing two things. 
+> Implementing batching _and_ adding invalidation points at VMA unbind 
+> sites, while so far we had it at backing store release only. Maybe I am 
+> wrong and perhaps I am too slow to pick up on the explanation here.
+> 
+> So if the patch is doing two things please split it up.
+> 
+> I am further confused by the invalidation call site in evict and in 
+> unbind - why there can't be one logical site since the logical sequence 
+> is evict -> unbind.
 
-diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec/altmodes/displayport.c
-index 9360ca177c7d..8dd0e505ef99 100644
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -98,8 +98,8 @@ static int dp_altmode_configure(struct dp_altmode *dp, u8 con)
- 	case DP_STATUS_CON_UFP_D:
- 	case DP_STATUS_CON_BOTH: /* NOTE: First acting as DP source */
- 		conf |= DP_CONF_UFP_U_AS_UFP_D;
--		pin_assign = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo) &
--			     DP_CAP_UFP_D_PIN_ASSIGN(dp->port->vdo);
-+		pin_assign = DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo) &
-+				 DP_CAP_PIN_ASSIGN_DFP_D(dp->port->vdo);
- 		break;
- 	default:
- 		break;
-diff --git a/include/linux/usb/typec_dp.h b/include/linux/usb/typec_dp.h
-index cfb916cccd31..8d09c2f0a9b8 100644
---- a/include/linux/usb/typec_dp.h
-+++ b/include/linux/usb/typec_dp.h
-@@ -73,6 +73,11 @@ enum {
- #define DP_CAP_USB			BIT(7)
- #define DP_CAP_DFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(15, 8)) >> 8)
- #define DP_CAP_UFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(23, 16)) >> 16)
-+/* Get pin assignment taking plug & receptacle into consideration */
-+#define DP_CAP_PIN_ASSIGN_UFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_UFP_D_PIN_ASSIGN(_cap_) : DP_CAP_DFP_D_PIN_ASSIGN(_cap_))
-+#define DP_CAP_PIN_ASSIGN_DFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-+			DP_CAP_DFP_D_PIN_ASSIGN(_cap_) : DP_CAP_UFP_D_PIN_ASSIGN(_cap_))
- 
- /* DisplayPort Status Update VDO bits */
- #define DP_STATUS_CONNECTION(_status_)	((_status_) & 3)
--- 
-2.18.0
+The invalidation happens only on one place: __i915_gem_object_unset_pages().
 
+Despite its name, vma_invalidate_tlb() just marks the need of doing TLB
+invalidation.
+
+Regards,
+Mauro
