@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4CC1582C97
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5FEA582E50
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240484AbiG0QsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:48:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43964 "EHLO
+        id S229513AbiG0RLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:11:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240486AbiG0QrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:47:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A037552443;
-        Wed, 27 Jul 2022 09:32:04 -0700 (PDT)
+        with ESMTP id S236728AbiG0RJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A682747A5;
+        Wed, 27 Jul 2022 09:41:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 120C461A69;
-        Wed, 27 Jul 2022 16:32:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199BEC433C1;
-        Wed, 27 Jul 2022 16:32:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 842AFB8200C;
+        Wed, 27 Jul 2022 16:41:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3913C43148;
+        Wed, 27 Jul 2022 16:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939523;
-        bh=uOdU3fehE3mcaQzsyVAblZ2pH7AkrvkxKU5xEx7Ng0k=;
+        s=korg; t=1658940071;
+        bh=1pglrrwycW2z8U297nLs5MoMbieH2foR75zOwcWSSas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EN6flW48QRjy8LXjZa+SnKcQG6nKreXP3AQOqynLaspQEqj2PWxspCYz327XD3G4K
-         zTFG43GKmaoUeSE8J2bykWfd6Je/AZgterxHNgAZ7lI4S8wVAD8obuEuJesVB6kmpJ
-         JNt8+ciePvOFyy7grfDHEsPrsN9cnfXU95fYFOgA=
+        b=G7SdClG//wN0irUM0ACqgy4dJz4AMBmgsAX2imKSXf2mtGD3Jw6kJi1fCTeRdghdZ
+         jSZxF/b5/ojdKYL/rphueuptPXyGoHOOKKaOjv40lfZD8MEqlcTesYROeVCdxpFoAC
+         hhbyyGORNADG1bwYXAxHafb8qOjzNRKRND2MfQ0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.10 012/105] net: move net_set_todo inside rollback_registered()
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 094/201] tcp: Fix data-races around sysctl_tcp_reordering.
 Date:   Wed, 27 Jul 2022 18:09:58 +0200
-Message-Id: <20220727161012.556160686@linuxfoundation.org>
+Message-Id: <20220727161031.653048318@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-From: Jakub Kicinski <kuba@kernel.org>
+[ Upstream commit 46778cd16e6a5ad1b2e3a91f6c057c907379418e ]
 
-commit 2014beea7eb165c745706b13659a0f1d0a9a2a61 upstream.
+While reading sysctl_tcp_reordering, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Commit 93ee31f14f6f ("[NET]: Fix free_netdev on register_netdev
-failure.") moved net_set_todo() outside of rollback_registered()
-so that rollback_registered() can be used in the failure path of
-register_netdevice() but without risking a double free.
-
-Since commit cf124db566e6 ("net: Fix inconsistent teardown and
-release of private netdev state."), however, we have a better
-way of handling that condition, since destructors don't call
-free_netdev() directly.
-
-After the change in commit c269a24ce057 ("net: make free_netdev()
-more lenient with unregistering devices") we can now move
-net_set_todo() back.
-
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c |   11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ net/ipv4/tcp.c         |  2 +-
+ net/ipv4/tcp_input.c   | 10 +++++++---
+ net/ipv4/tcp_metrics.c |  3 ++-
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -9595,8 +9595,10 @@ static void rollback_registered_many(str
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index e22a61b2ba82..480fac19a074 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -447,7 +447,7 @@ void tcp_init_sock(struct sock *sk)
+ 	tp->snd_cwnd_clamp = ~0;
+ 	tp->mss_cache = TCP_MSS_DEFAULT;
  
- 	synchronize_net();
+-	tp->reordering = sock_net(sk)->ipv4.sysctl_tcp_reordering;
++	tp->reordering = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reordering);
+ 	tcp_assign_congestion_control(sk);
  
--	list_for_each_entry(dev, head, unreg_list)
-+	list_for_each_entry(dev, head, unreg_list) {
- 		dev_put(dev);
-+		net_set_todo(dev);
-+	}
- }
+ 	tp->tsoffset = 0;
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 134e36f46e91..06802295e170 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2131,6 +2131,7 @@ void tcp_enter_loss(struct sock *sk)
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct net *net = sock_net(sk);
+ 	bool new_recovery = icsk->icsk_ca_state < TCP_CA_Recovery;
++	u8 reordering;
  
- static void rollback_registered(struct net_device *dev)
-@@ -10147,7 +10149,6 @@ int register_netdevice(struct net_device
- 		/* Expect explicit free_netdev() on failure */
- 		dev->needs_free_netdev = false;
- 		rollback_registered(dev);
--		net_set_todo(dev);
- 		goto out;
- 	}
- 	/*
-@@ -10755,8 +10756,6 @@ void unregister_netdevice_queue(struct n
- 		list_move_tail(&dev->unreg_list, head);
- 	} else {
- 		rollback_registered(dev);
--		/* Finish processing unregister after unlock */
--		net_set_todo(dev);
- 	}
- }
- EXPORT_SYMBOL(unregister_netdevice_queue);
-@@ -10770,12 +10769,8 @@ EXPORT_SYMBOL(unregister_netdevice_queue
-  */
- void unregister_netdevice_many(struct list_head *head)
- {
--	struct net_device *dev;
--
- 	if (!list_empty(head)) {
- 		rollback_registered_many(head);
--		list_for_each_entry(dev, head, unreg_list)
--			net_set_todo(dev);
- 		list_del(head);
- 	}
- }
+ 	tcp_timeout_mark_lost(sk);
+ 
+@@ -2151,10 +2152,12 @@ void tcp_enter_loss(struct sock *sk)
+ 	/* Timeout in disordered state after receiving substantial DUPACKs
+ 	 * suggests that the degree of reordering is over-estimated.
+ 	 */
++	reordering = READ_ONCE(net->ipv4.sysctl_tcp_reordering);
+ 	if (icsk->icsk_ca_state <= TCP_CA_Disorder &&
+-	    tp->sacked_out >= net->ipv4.sysctl_tcp_reordering)
++	    tp->sacked_out >= reordering)
+ 		tp->reordering = min_t(unsigned int, tp->reordering,
+-				       net->ipv4.sysctl_tcp_reordering);
++				       reordering);
++
+ 	tcp_set_ca_state(sk, TCP_CA_Loss);
+ 	tp->high_seq = tp->snd_nxt;
+ 	tcp_ecn_queue_cwr(tp);
+@@ -3457,7 +3460,8 @@ static inline bool tcp_may_raise_cwnd(const struct sock *sk, const int flag)
+ 	 * new SACK or ECE mark may first advance cwnd here and later reduce
+ 	 * cwnd in tcp_fastretrans_alert() based on more states.
+ 	 */
+-	if (tcp_sk(sk)->reordering > sock_net(sk)->ipv4.sysctl_tcp_reordering)
++	if (tcp_sk(sk)->reordering >
++	    READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reordering))
+ 		return flag & FLAG_FORWARD_PROGRESS;
+ 
+ 	return flag & FLAG_DATA_ACKED;
+diff --git a/net/ipv4/tcp_metrics.c b/net/ipv4/tcp_metrics.c
+index 7029b0e98edb..a501150deaa3 100644
+--- a/net/ipv4/tcp_metrics.c
++++ b/net/ipv4/tcp_metrics.c
+@@ -428,7 +428,8 @@ void tcp_update_metrics(struct sock *sk)
+ 		if (!tcp_metric_locked(tm, TCP_METRIC_REORDERING)) {
+ 			val = tcp_metric_get(tm, TCP_METRIC_REORDERING);
+ 			if (val < tp->reordering &&
+-			    tp->reordering != net->ipv4.sysctl_tcp_reordering)
++			    tp->reordering !=
++			    READ_ONCE(net->ipv4.sysctl_tcp_reordering))
+ 				tcp_metric_set(tm, TCP_METRIC_REORDERING,
+ 					       tp->reordering);
+ 		}
+-- 
+2.35.1
+
 
 
