@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D032582AC0
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C4B582B7A
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233700AbiG0QXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:23:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50392 "EHLO
+        id S238080AbiG0QeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235738AbiG0QXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:23:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DAEB4D4DB;
-        Wed, 27 Jul 2022 09:22:49 -0700 (PDT)
+        with ESMTP id S237994AbiG0Qd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:33:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393FA4C63A;
+        Wed, 27 Jul 2022 09:26:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55E52619CF;
-        Wed, 27 Jul 2022 16:22:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B5CC433D6;
-        Wed, 27 Jul 2022 16:22:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E9ED61A08;
+        Wed, 27 Jul 2022 16:26:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7957AC433D7;
+        Wed, 27 Jul 2022 16:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658938967;
-        bh=UK1VOdXVVn5+yhhI/M4hguhOG81C+djP+Xywz0Dklko=;
+        s=korg; t=1658939192;
+        bh=IEo2m9o6KKrcSAAzgwAsEjTKgLNYFDTVee/FfJ2LAD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ia3Fy2vIBKQ4s0c9p1+N3ANyi3443cGd6MyTlAF3o/yuQPt5/4nAx9camR8KzTz8P
-         jsI4uOiAAE25x1qFrChn6pvcf+gYyBAZY4t9Egw79W8nM/RQWWGdJMMeIG/MzI6zD4
-         8CDy+kz6US+Lrg+VzZ3uXw1v+tS6PiHKcXznuNwA=
+        b=oqyhqkrhUMvJNIDITcjUhLbfYVnMUMuqxyed8HlSeO0R+9alOdsijCvnZrJRzmmnv
+         /uxbxVuSMUHZ0ZHdv+gI2eDXfP9oDnk27PFbKvQT65/KF4pHgfSeNbliFiht37/iGz
+         ZQ28VPU8P7jbNkBxx8gqXeMJrefRUxk3M04uztow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.9 24/26] tty: extract tty_flip_buffer_commit() from tty_flip_buffer_push()
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 44/62] ALSA: memalloc: Align buffer allocations in page size
 Date:   Wed, 27 Jul 2022 18:10:53 +0200
-Message-Id: <20220727161000.083152864@linuxfoundation.org>
+Message-Id: <20220727161005.890833787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
-References: <20220727160959.122591422@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 716b10580283fda66f2b88140e3964f8a7f9da89 upstream.
+commit 5c1733e33c888a3cb7f576564d8ad543d5ad4a9e upstream.
 
-We will need this new helper in the next patch.
+Currently the standard memory allocator (snd_dma_malloc_pages*())
+passes the byte size to allocate as is.  Most of the backends
+allocates real pages, hence the actual allocations are aligned in page
+size.  However, the genalloc doesn't seem assuring the size alignment,
+hence it may result in the access outside the buffer when the whole
+memory pages are exposed via mmap.
 
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: 一只狗 <chennbnbnb@gmail.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220707082558.9250-1-jslaby@suse.cz
+For avoiding such inconsistencies, this patch makes the allocation
+size always to be aligned in page size.
+
+Note that, after this change, snd_dma_buffer.bytes field contains the
+aligned size, not the originally requested size.  This value is also
+used for releasing the pages in return.
+
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20201218145625.2045-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/tty_buffer.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ sound/core/memalloc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -526,6 +526,15 @@ static void flush_to_ldisc(struct work_s
- 	tty_ldisc_deref(disc);
- }
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -179,6 +179,7 @@ int snd_dma_alloc_pages(int type, struct
+ 	if (WARN_ON(!dmab))
+ 		return -ENXIO;
  
-+static inline void tty_flip_buffer_commit(struct tty_buffer *tail)
-+{
-+	/*
-+	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
-+	 * buffer data.
-+	 */
-+	smp_store_release(&tail->commit, tail->used);
-+}
-+
- /**
-  *	tty_flip_buffer_push	-	terminal
-  *	@port: tty port to push
-@@ -541,11 +550,7 @@ void tty_flip_buffer_push(struct tty_por
- {
- 	struct tty_bufhead *buf = &port->buf;
- 
--	/*
--	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
--	 * buffer data.
--	 */
--	smp_store_release(&buf->tail->commit, buf->tail->used);
-+	tty_flip_buffer_commit(buf->tail);
- 	queue_work(system_unbound_wq, &buf->work);
- }
- EXPORT_SYMBOL(tty_flip_buffer_push);
++	size = PAGE_ALIGN(size);
+ 	dmab->dev.type = type;
+ 	dmab->dev.dev = device;
+ 	dmab->bytes = 0;
 
 
