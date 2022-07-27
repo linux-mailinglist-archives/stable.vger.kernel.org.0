@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00181582F06
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7055582D46
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241743AbiG0RUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:20:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36866 "EHLO
+        id S240975AbiG0QzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241980AbiG0RT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784B120191;
-        Wed, 27 Jul 2022 09:44:45 -0700 (PDT)
+        with ESMTP id S241211AbiG0Qyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:36 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EFE3564FA;
+        Wed, 27 Jul 2022 09:35:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDE69B8200C;
-        Wed, 27 Jul 2022 16:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A011C433D6;
-        Wed, 27 Jul 2022 16:44:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6A2ECCE22F9;
+        Wed, 27 Jul 2022 16:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81E38C433C1;
+        Wed, 27 Jul 2022 16:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940282;
-        bh=oiSt1wyU14n0g8HwuwyUHAl3vR2Y3DGXQRQ94FaTDOE=;
+        s=korg; t=1658939740;
+        bh=ah6HZXPTHtNEbP7zu+5lTh/rq8pif47I4x0TvqU/K+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfRX+p0Iu3sVrtt2twRMgypv98bfK4VKWyF+NJmS+eFfpvJmkbZ85Mmj+qATdtJe3
-         H1F2bso4cYV4q2nA52RzKw/p9Fcah0j0dFqpitAMvRh5zZrRB6Y/LEaPzjb8dk+jjf
-         4QGSCkbD2yQ5403ySj9dRSvQkqypjVj+m/Z/UcSc=
+        b=Ggnv2JVPWZLshnmEKObNo/lkhXexRhaVu8B0nYBf8jWPNw4W5qJr+V0fw9OH57MTc
+         RFejexyquHAGRlm/RMSwTBEL37RUMW5imU4fd8tYvGw845JsZfAmUSNiTw8WmB0Vky
+         YoJJZ1mhCjl1+2/iCUTKqoRYpnuX31g7BOtwC8Vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuezhang Mo <Yuezhang.Mo@sony.com>,
-        Andy Wu <Andy.Wu@sony.com>,
-        Aoyama Wataru <wataru.aoyama@sony.com>,
-        Daniel Palmer <daniel.palmer@sony.com>,
-        Sungjong Seo <sj1557.seo@samsung.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 168/201] exfat: fix referencing wrong parent directory information after renaming
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 086/105] ALSA: memalloc: Align buffer allocations in page size
 Date:   Wed, 27 Jul 2022 18:11:12 +0200
-Message-Id: <20220727161034.786986554@linuxfoundation.org>
+Message-Id: <20220727161015.555280649@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,103 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuezhang Mo <Yuezhang.Mo@sony.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit d8dad2588addd1d861ce19e7df3b702330f0c7e3 ]
+commit 5c1733e33c888a3cb7f576564d8ad543d5ad4a9e upstream.
 
-During renaming, the parent directory information maybe
-updated. But the file/directory still references to the
-old parent directory information.
+Currently the standard memory allocator (snd_dma_malloc_pages*())
+passes the byte size to allocate as is.  Most of the backends
+allocates real pages, hence the actual allocations are aligned in page
+size.  However, the genalloc doesn't seem assuring the size alignment,
+hence it may result in the access outside the buffer when the whole
+memory pages are exposed via mmap.
 
-This bug will cause 2 problems.
+For avoiding such inconsistencies, this patch makes the allocation
+size always to be aligned in page size.
 
-(1) The renamed file can not be written.
+Note that, after this change, snd_dma_buffer.bytes field contains the
+aligned size, not the originally requested size.  This value is also
+used for releasing the pages in return.
 
-    [10768.175172] exFAT-fs (sda1): error, failed to bmap (inode : 7afd50e4 iblock : 0, err : -5)
-    [10768.184285] exFAT-fs (sda1): Filesystem has been set read-only
-    ash: write error: Input/output error
-
-(2) Some dentries of the renamed file/directory are not set
-    to deleted after removing the file/directory.
-
-exfat_update_parent_info() is a workaround for the wrong parent
-directory information being used after renaming. Now that bug is
-fixed, this is no longer needed, so remove it.
-
-Fixes: 5f2aa075070c ("exfat: add inode operations")
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
-Reviewed-by: Andy Wu <Andy.Wu@sony.com>
-Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
-Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20201218145625.2045-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/exfat/namei.c | 27 +--------------------------
- 1 file changed, 1 insertion(+), 26 deletions(-)
+ sound/core/memalloc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
-index 9d8ada781250..939737ba520d 100644
---- a/fs/exfat/namei.c
-+++ b/fs/exfat/namei.c
-@@ -1069,6 +1069,7 @@ static int exfat_rename_file(struct inode *inode, struct exfat_chain *p_dir,
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -133,6 +133,7 @@ int snd_dma_alloc_pages(int type, struct
+ 	if (WARN_ON(!dmab))
+ 		return -ENXIO;
  
- 		exfat_remove_entries(inode, p_dir, oldentry, 0,
- 			num_old_entries);
-+		ei->dir = *p_dir;
- 		ei->entry = newentry;
- 	} else {
- 		if (exfat_get_entry_type(epold) == TYPE_FILE) {
-@@ -1159,28 +1160,6 @@ static int exfat_move_file(struct inode *inode, struct exfat_chain *p_olddir,
- 	return 0;
- }
- 
--static void exfat_update_parent_info(struct exfat_inode_info *ei,
--		struct inode *parent_inode)
--{
--	struct exfat_sb_info *sbi = EXFAT_SB(parent_inode->i_sb);
--	struct exfat_inode_info *parent_ei = EXFAT_I(parent_inode);
--	loff_t parent_isize = i_size_read(parent_inode);
--
--	/*
--	 * the problem that struct exfat_inode_info caches wrong parent info.
--	 *
--	 * because of flag-mismatch of ei->dir,
--	 * there is abnormal traversing cluster chain.
--	 */
--	if (unlikely(parent_ei->flags != ei->dir.flags ||
--		     parent_isize != EXFAT_CLU_TO_B(ei->dir.size, sbi) ||
--		     parent_ei->start_clu != ei->dir.dir)) {
--		exfat_chain_set(&ei->dir, parent_ei->start_clu,
--			EXFAT_B_TO_CLU_ROUND_UP(parent_isize, sbi),
--			parent_ei->flags);
--	}
--}
--
- /* rename or move a old file into a new file */
- static int __exfat_rename(struct inode *old_parent_inode,
- 		struct exfat_inode_info *ei, struct inode *new_parent_inode,
-@@ -1211,8 +1190,6 @@ static int __exfat_rename(struct inode *old_parent_inode,
- 		return -ENOENT;
- 	}
- 
--	exfat_update_parent_info(ei, old_parent_inode);
--
- 	exfat_chain_dup(&olddir, &ei->dir);
- 	dentry = ei->entry;
- 
-@@ -1233,8 +1210,6 @@ static int __exfat_rename(struct inode *old_parent_inode,
- 			goto out;
- 		}
- 
--		exfat_update_parent_info(new_ei, new_parent_inode);
--
- 		p_dir = &(new_ei->dir);
- 		new_entry = new_ei->entry;
- 		ep = exfat_get_dentry(sb, p_dir, new_entry, &new_bh, NULL);
--- 
-2.35.1
-
++	size = PAGE_ALIGN(size);
+ 	dmab->dev.type = type;
+ 	dmab->dev.dev = device;
+ 	dmab->bytes = 0;
 
 
