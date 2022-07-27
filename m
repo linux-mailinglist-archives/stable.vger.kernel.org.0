@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C4B582B7A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49661582D24
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238080AbiG0QeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46914 "EHLO
+        id S240852AbiG0QyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237994AbiG0Qd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:33:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393FA4C63A;
-        Wed, 27 Jul 2022 09:26:41 -0700 (PDT)
+        with ESMTP id S240756AbiG0Qwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4434D4D4;
+        Wed, 27 Jul 2022 09:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E9ED61A08;
-        Wed, 27 Jul 2022 16:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7957AC433D7;
-        Wed, 27 Jul 2022 16:26:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36AA1B821A6;
+        Wed, 27 Jul 2022 16:34:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D091C433C1;
+        Wed, 27 Jul 2022 16:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939192;
-        bh=IEo2m9o6KKrcSAAzgwAsEjTKgLNYFDTVee/FfJ2LAD4=;
+        s=korg; t=1658939680;
+        bh=+gPwJQDHUp6HbCRAKvYwBLRJuFPLv+QcewdlpQuqxCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oqyhqkrhUMvJNIDITcjUhLbfYVnMUMuqxyed8HlSeO0R+9alOdsijCvnZrJRzmmnv
-         /uxbxVuSMUHZ0ZHdv+gI2eDXfP9oDnk27PFbKvQT65/KF4pHgfSeNbliFiht37/iGz
-         ZQ28VPU8P7jbNkBxx8gqXeMJrefRUxk3M04uztow=
+        b=jIjQUOzqpYuIwqirKSgi3By5vz7SFjzOqi6CJ+ixlSJvlJc9LRKfq4wsPvsWnq9H1
+         rBDsxSiv20uRg+vEHdINismhQnlC41cTUL/0OGtJEcaVYgtdLAF/K0my9yRet6Plo0
+         Lvl82FiliKck6r8lTZd2IOlCY4kRQtWXeSlCUTGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 44/62] ALSA: memalloc: Align buffer allocations in page size
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 067/105] udp: Fix a data-race around sysctl_udp_l3mdev_accept.
 Date:   Wed, 27 Jul 2022 18:10:53 +0200
-Message-Id: <20220727161005.890833787@linuxfoundation.org>
+Message-Id: <20220727161014.744920536@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 5c1733e33c888a3cb7f576564d8ad543d5ad4a9e upstream.
+[ Upstream commit 3d72bb4188c708bb16758c60822fc4dda7a95174 ]
 
-Currently the standard memory allocator (snd_dma_malloc_pages*())
-passes the byte size to allocate as is.  Most of the backends
-allocates real pages, hence the actual allocations are aligned in page
-size.  However, the genalloc doesn't seem assuring the size alignment,
-hence it may result in the access outside the buffer when the whole
-memory pages are exposed via mmap.
+While reading sysctl_udp_l3mdev_accept, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-For avoiding such inconsistencies, this patch makes the allocation
-size always to be aligned in page size.
-
-Note that, after this change, snd_dma_buffer.bytes field contains the
-aligned size, not the originally requested size.  This value is also
-used for releasing the pages in return.
-
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20201218145625.2045-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 63a6fff353d0 ("net: Avoid receiving packets with an l3mdev on unbound UDP sockets")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/memalloc.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/net/udp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -179,6 +179,7 @@ int snd_dma_alloc_pages(int type, struct
- 	if (WARN_ON(!dmab))
- 		return -ENXIO;
- 
-+	size = PAGE_ALIGN(size);
- 	dmab->dev.type = type;
- 	dmab->dev.dev = device;
- 	dmab->bytes = 0;
+diff --git a/include/net/udp.h b/include/net/udp.h
+index 4017f257628f..010bc324f860 100644
+--- a/include/net/udp.h
++++ b/include/net/udp.h
+@@ -259,7 +259,7 @@ static inline bool udp_sk_bound_dev_eq(struct net *net, int bound_dev_if,
+ 				       int dif, int sdif)
+ {
+ #if IS_ENABLED(CONFIG_NET_L3_MASTER_DEV)
+-	return inet_bound_dev_eq(!!net->ipv4.sysctl_udp_l3mdev_accept,
++	return inet_bound_dev_eq(!!READ_ONCE(net->ipv4.sysctl_udp_l3mdev_accept),
+ 				 bound_dev_if, dif, sdif);
+ #else
+ 	return inet_bound_dev_eq(true, bound_dev_if, dif, sdif);
+-- 
+2.35.1
+
 
 
