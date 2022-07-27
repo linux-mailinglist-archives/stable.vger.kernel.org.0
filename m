@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72387583032
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E85D582F61
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241664AbiG0RfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41748 "EHLO
+        id S242062AbiG0RYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:24:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242460AbiG0ReL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF4F4E85B;
-        Wed, 27 Jul 2022 09:49:03 -0700 (PDT)
+        with ESMTP id S242029AbiG0RX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:23:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6FD7AC03;
+        Wed, 27 Jul 2022 09:45:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BECB1B821D2;
-        Wed, 27 Jul 2022 16:49:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F2A2C433C1;
-        Wed, 27 Jul 2022 16:48:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CFB860D38;
+        Wed, 27 Jul 2022 16:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35E5CC433D7;
+        Wed, 27 Jul 2022 16:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940540;
-        bh=IZNnPTniXjTLUs78BbccaslE5cuZUNEFv5XO4brCuo0=;
+        s=korg; t=1658940347;
+        bh=tERZppFqcEhedvwOcLJyBDztk0AV46GCOnRXiuvGQrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RkXQxKcvwrHh5crTqq+z+tzZShKcFOnUkTR9G7EEXPA3yqkeaXx2Fp5CkeWvctwsg
-         9Y8mVLyyYGYBUHO+rBwnVlcDdNjpM6e1p7V4IPPZKb5a9/1/5grZIrZ4vGjr3Cg8sS
-         Cj6df+kaW6mxgcnXFO+2l2nOh059Aovs1cUrKg2M=
+        b=gy5SWLPIsiPgZHr/SjqoQ2yEfk2zmk2GERGX8Dv0XjGiJS0gKvgTCvPZAd+nT3X1r
+         gbam32LF303l2uW4uGf4KWITtSQoquKO8MFCEyu+4gL5M+LOqXhV4W9jVyMpIGRM2l
+         40W8th61ByYzft+O8nKLkgBg68SLywktF7+GPnFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 032/158] igc: Reinstate IGC_REMOVED logic and implement it properly
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hillf Danton <hdanton@sina.com>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.15 192/201] tty: use new tty_insert_flip_string_and_push_buffer() in pty_write()
 Date:   Wed, 27 Jul 2022 18:11:36 +0200
-Message-Id: <20220727161022.772710635@linuxfoundation.org>
+Message-Id: <20220727161035.722436889@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,119 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lennert Buytenhek <buytenh@wantstofly.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 7c1ddcee5311f3315096217881d2dbe47cc683f9 ]
+commit a501ab75e7624d133a5a3c7ec010687c8b961d23 upstream.
 
-The initially merged version of the igc driver code (via commit
-146740f9abc4, "igc: Add support for PF") contained the following
-IGC_REMOVED checks in the igc_rd32/wr32() MMIO accessors:
+There is a race in pty_write(). pty_write() can be called in parallel
+with e.g. ioctl(TIOCSTI) or ioctl(TCXONC) which also inserts chars to
+the buffer. Provided, tty_flip_buffer_push() in pty_write() is called
+outside the lock, it can commit inconsistent tail. This can lead to out
+of bounds writes and other issues. See the Link below.
 
-	u32 igc_rd32(struct igc_hw *hw, u32 reg)
-	{
-		u8 __iomem *hw_addr = READ_ONCE(hw->hw_addr);
-		u32 value = 0;
+To fix this, we have to introduce a new helper called
+tty_insert_flip_string_and_push_buffer(). It does both
+tty_insert_flip_string() and tty_flip_buffer_commit() under the port
+lock. It also calls queue_work(), but outside the lock. See
+71a174b39f10 (pty: do tty_flip_buffer_push without port->lock in
+pty_write) for the reasons.
 
-		if (IGC_REMOVED(hw_addr))
-			return ~value;
+Keep the helper internal-only (in drivers' tty.h). It is not intended to
+be used widely.
 
-		value = readl(&hw_addr[reg]);
-
-		/* reads should not return all F's */
-		if (!(~value) && (!reg || !(~readl(hw_addr))))
-			hw->hw_addr = NULL;
-
-		return value;
-	}
-
-And:
-
-	#define wr32(reg, val) \
-	do { \
-		u8 __iomem *hw_addr = READ_ONCE((hw)->hw_addr); \
-		if (!IGC_REMOVED(hw_addr)) \
-			writel((val), &hw_addr[(reg)]); \
-	} while (0)
-
-E.g. igb has similar checks in its MMIO accessors, and has a similar
-macro E1000_REMOVED, which is implemented as follows:
-
-	#define E1000_REMOVED(h) unlikely(!(h))
-
-These checks serve to detect and take note of an 0xffffffff MMIO read
-return from the device, which can be caused by a PCIe link flap or some
-other kind of PCI bus error, and to avoid performing MMIO reads and
-writes from that point onwards.
-
-However, the IGC_REMOVED macro was not originally implemented:
-
-	#ifndef IGC_REMOVED
-	#define IGC_REMOVED(a) (0)
-	#endif /* IGC_REMOVED */
-
-This led to the IGC_REMOVED logic to be removed entirely in a
-subsequent commit (commit 3c215fb18e70, "igc: remove IGC_REMOVED
-function"), with the rationale that such checks matter only for
-virtualization and that igc does not support virtualization -- but a
-PCIe device can become detached even without virtualization being in
-use, and without proper checks, a PCIe bus error affecting an igc
-adapter will lead to various NULL pointer dereferences, as the first
-access after the error will set hw->hw_addr to NULL, and subsequent
-accesses will blindly dereference this now-NULL pointer.
-
-This patch reinstates the IGC_REMOVED checks in igc_rd32/wr32(), and
-implements IGC_REMOVED the way it is done for igb, by checking for the
-unlikely() case of hw_addr being NULL.  This change prevents the oopses
-seen when a PCIe link flap occurs on an igc adapter.
-
-Fixes: 146740f9abc4 ("igc: Add support for PF")
-Signed-off-by: Lennert Buytenhek <buytenh@arista.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://seclists.org/oss-sec/2022/q2/155
+Fixes: 71a174b39f10 (pty: do tty_flip_buffer_push without port->lock in pty_write)
+Cc: 一只狗 <chennbnbnb@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220707082558.9250-2-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
- drivers/net/ethernet/intel/igc/igc_regs.h | 5 ++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/tty/pty.c        |   14 ++------------
+ drivers/tty/tty.h        |    3 +++
+ drivers/tty/tty_buffer.c |   31 +++++++++++++++++++++++++++++++
+ 3 files changed, 36 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 74b2c590ed5d..38e46e9ba8bb 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -6171,6 +6171,9 @@ u32 igc_rd32(struct igc_hw *hw, u32 reg)
- 	u8 __iomem *hw_addr = READ_ONCE(hw->hw_addr);
- 	u32 value = 0;
+--- a/drivers/tty/pty.c
++++ b/drivers/tty/pty.c
+@@ -111,21 +111,11 @@ static void pty_unthrottle(struct tty_st
+ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
+ {
+ 	struct tty_struct *to = tty->link;
+-	unsigned long flags;
  
-+	if (IGC_REMOVED(hw_addr))
-+		return ~value;
-+
- 	value = readl(&hw_addr[reg]);
+-	if (tty->flow.stopped)
++	if (tty->flow.stopped || !c)
+ 		return 0;
  
- 	/* reads should not return all F's */
-diff --git a/drivers/net/ethernet/intel/igc/igc_regs.h b/drivers/net/ethernet/intel/igc/igc_regs.h
-index e197a33d93a0..026c3b65fc37 100644
---- a/drivers/net/ethernet/intel/igc/igc_regs.h
-+++ b/drivers/net/ethernet/intel/igc/igc_regs.h
-@@ -306,7 +306,8 @@ u32 igc_rd32(struct igc_hw *hw, u32 reg);
- #define wr32(reg, val) \
- do { \
- 	u8 __iomem *hw_addr = READ_ONCE((hw)->hw_addr); \
--	writel((val), &hw_addr[(reg)]); \
-+	if (!IGC_REMOVED(hw_addr)) \
-+		writel((val), &hw_addr[(reg)]); \
- } while (0)
+-	if (c > 0) {
+-		spin_lock_irqsave(&to->port->lock, flags);
+-		/* Stuff the data into the input queue of the other end */
+-		c = tty_insert_flip_string(to->port, buf, c);
+-		spin_unlock_irqrestore(&to->port->lock, flags);
+-		/* And shovel */
+-		if (c)
+-			tty_flip_buffer_push(to->port);
+-	}
+-	return c;
++	return tty_insert_flip_string_and_push_buffer(to->port, buf, c);
+ }
  
- #define rd32(reg) (igc_rd32(hw, reg))
-@@ -318,4 +319,6 @@ do { \
+ /**
+--- a/drivers/tty/tty.h
++++ b/drivers/tty/tty.h
+@@ -111,4 +111,7 @@ static inline void tty_audit_tiocsti(str
  
- #define array_rd32(reg, offset) (igc_rd32(hw, (reg) + ((offset) << 2)))
+ ssize_t redirected_tty_write(struct kiocb *, struct iov_iter *);
  
-+#define IGC_REMOVED(h) unlikely(!(h))
++int tty_insert_flip_string_and_push_buffer(struct tty_port *port,
++		const unsigned char *chars, size_t cnt);
 +
  #endif
--- 
-2.35.1
-
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -563,6 +563,37 @@ void tty_flip_buffer_push(struct tty_por
+ EXPORT_SYMBOL(tty_flip_buffer_push);
+ 
+ /**
++ * tty_insert_flip_string_and_push_buffer - add characters to the tty buffer and
++ *	push
++ * @port: tty port
++ * @chars: characters
++ * @size: size
++ *
++ * The function combines tty_insert_flip_string() and tty_flip_buffer_push()
++ * with the exception of properly holding the @port->lock.
++ *
++ * To be used only internally (by pty currently).
++ *
++ * Returns: the number added.
++ */
++int tty_insert_flip_string_and_push_buffer(struct tty_port *port,
++		const unsigned char *chars, size_t size)
++{
++	struct tty_bufhead *buf = &port->buf;
++	unsigned long flags;
++
++	spin_lock_irqsave(&port->lock, flags);
++	size = tty_insert_flip_string(port, chars, size);
++	if (size)
++		tty_flip_buffer_commit(buf->tail);
++	spin_unlock_irqrestore(&port->lock, flags);
++
++	queue_work(system_unbound_wq, &buf->work);
++
++	return size;
++}
++
++/**
+  *	tty_buffer_init		-	prepare a tty buffer structure
+  *	@port: tty port to initialise
+  *
 
 
