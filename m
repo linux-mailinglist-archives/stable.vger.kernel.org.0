@@ -2,46 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D316582C47
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36201582BD8
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239715AbiG0Qos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42484 "EHLO
+        id S238993AbiG0Qh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:37:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240144AbiG0QoJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11CC99FDB;
-        Wed, 27 Jul 2022 09:30:42 -0700 (PDT)
+        with ESMTP id S238672AbiG0QgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:36:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B64356BB6;
+        Wed, 27 Jul 2022 09:28:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6CA61A24;
-        Wed, 27 Jul 2022 16:30:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9886AC433C1;
-        Wed, 27 Jul 2022 16:30:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2313B821C6;
+        Wed, 27 Jul 2022 16:27:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DF1C433D6;
+        Wed, 27 Jul 2022 16:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939438;
-        bh=j4gFqz2+AZhseKpgjUD2DF/jrkEfbT3tUCKaJr/8GTA=;
+        s=korg; t=1658939252;
+        bh=mOFED5k46BSdcCPPiEfgP6QcLJrPfdghTqkdp+JAGMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2HfZtIWblQfstJbnfVJwu+6r9FeNfucpH/a6s1A+Mu4SORWQTpgkI2wt7rT2MwP4
-         xvs3rfGwR5diggeSmTdd2fpcN/ndwqA+4Ol/sED1IQbLIhygB3xrOmpWPKA3KA3Klu
-         PohCynF0aAxVT9ZwMcvp/GFOYD8azU+muZ14OH4k=
+        b=NakBvEVCwcvPxmgphK6YLXgKgmVQE1GtdJfqjCFPLxG+/rULjZm01ySjlXSf5Cuc1
+         a6wBADKYr0fjKlN6TWbhEuWdeIl443Co9QP0ZL+ArjmY2mo8i6vXk+X4v0nlhWl66v
+         D5go/k57ktCGtN1SFyUKzEeMxjVi5iRTd8aqmqM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 69/87] x86/uaccess: Implement macros for CMPXCHG on user addresses
-Date:   Wed, 27 Jul 2022 18:11:02 +0200
-Message-Id: <20220727161011.854462551@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        William Hubbs <w.d.hubbs@gmail.com>,
+        Chris Brannon <chris@the-brannons.com>,
+        Kirk Reiser <kirk@reisers.ca>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.19 54/62] tty: the rest, stop using tty_schedule_flip()
+Date:   Wed, 27 Jul 2022 18:11:03 +0200
+Message-Id: <20220727161006.261681396@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,196 +62,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 989b5db215a2f22f89d730b607b071d964780f10 ]
+commit b68b914494df4f79b4e9b58953110574af1cb7a2 upstream.
 
-Add support for CMPXCHG loops on userspace addresses.  Provide both an
-"unsafe" version for tight loops that do their own uaccess begin/end, as
-well as a "safe" version for use cases where the CMPXCHG is not buried in
-a loop, e.g. KVM will resume the guest instead of looping when emulation
-of a guest atomic accesses fails the CMPXCHG.
+Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
+tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
+going to remove the latter (as it is used less), so call the former in
+the rest of the users.
 
-Provide 8-byte versions for 32-bit kernels so that KVM can do CMPXCHG on
-guest PAE PTEs, which are accessed via userspace addresses.
-
-Guard the asm_volatile_goto() variation with CC_HAS_ASM_GOTO_TIED_OUTPUT,
-the "+m" constraint fails on some compilers that otherwise support
-CC_HAS_ASM_GOTO_OUTPUT.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Co-developed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220202004945.2540433-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: William Hubbs <w.d.hubbs@gmail.com>
+Cc: Chris Brannon <chris@the-brannons.com>
+Cc: Kirk Reiser <kirk@reisers.ca>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20211122111648.30379-3-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/uaccess.h | 142 +++++++++++++++++++++++++++++++++
- 1 file changed, 142 insertions(+)
+ arch/alpha/kernel/srmcons.c         |    2 +-
+ drivers/s390/char/keyboard.h        |    4 ++--
+ drivers/staging/speakup/spk_ttyio.c |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index a19effb98fdc..865795e2355e 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -441,6 +441,103 @@ __pu_label:							\
- 	__builtin_expect(__gu_err, 0);					\
- })
+--- a/arch/alpha/kernel/srmcons.c
++++ b/arch/alpha/kernel/srmcons.c
+@@ -59,7 +59,7 @@ srmcons_do_receive_chars(struct tty_port
+ 	} while((result.bits.status & 1) && (++loops < 10));
  
-+#ifdef CONFIG_CC_HAS_ASM_GOTO_TIED_OUTPUT
-+#define __try_cmpxchg_user_asm(itype, ltype, _ptr, _pold, _new, label)	({ \
-+	bool success;							\
-+	__typeof__(_ptr) _old = (__typeof__(_ptr))(_pold);		\
-+	__typeof__(*(_ptr)) __old = *_old;				\
-+	__typeof__(*(_ptr)) __new = (_new);				\
-+	asm_volatile_goto("\n"						\
-+		     "1: " LOCK_PREFIX "cmpxchg"itype" %[new], %[ptr]\n"\
-+		     _ASM_EXTABLE_UA(1b, %l[label])			\
-+		     : CC_OUT(z) (success),				\
-+		       [ptr] "+m" (*_ptr),				\
-+		       [old] "+a" (__old)				\
-+		     : [new] ltype (__new)				\
-+		     : "memory"						\
-+		     : label);						\
-+	if (unlikely(!success))						\
-+		*_old = __old;						\
-+	likely(success);					})
-+
-+#ifdef CONFIG_X86_32
-+#define __try_cmpxchg64_user_asm(_ptr, _pold, _new, label)	({	\
-+	bool success;							\
-+	__typeof__(_ptr) _old = (__typeof__(_ptr))(_pold);		\
-+	__typeof__(*(_ptr)) __old = *_old;				\
-+	__typeof__(*(_ptr)) __new = (_new);				\
-+	asm_volatile_goto("\n"						\
-+		     "1: " LOCK_PREFIX "cmpxchg8b %[ptr]\n"		\
-+		     _ASM_EXTABLE_UA(1b, %l[label])			\
-+		     : CC_OUT(z) (success),				\
-+		       "+A" (__old),					\
-+		       [ptr] "+m" (*_ptr)				\
-+		     : "b" ((u32)__new),				\
-+		       "c" ((u32)((u64)__new >> 32))			\
-+		     : "memory"						\
-+		     : label);						\
-+	if (unlikely(!success))						\
-+		*_old = __old;						\
-+	likely(success);					})
-+#endif // CONFIG_X86_32
-+#else  // !CONFIG_CC_HAS_ASM_GOTO_TIED_OUTPUT
-+#define __try_cmpxchg_user_asm(itype, ltype, _ptr, _pold, _new, label)	({ \
-+	int __err = 0;							\
-+	bool success;							\
-+	__typeof__(_ptr) _old = (__typeof__(_ptr))(_pold);		\
-+	__typeof__(*(_ptr)) __old = *_old;				\
-+	__typeof__(*(_ptr)) __new = (_new);				\
-+	asm volatile("\n"						\
-+		     "1: " LOCK_PREFIX "cmpxchg"itype" %[new], %[ptr]\n"\
-+		     CC_SET(z)						\
-+		     "2:\n"						\
-+		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG,	\
-+					   %[errout])			\
-+		     : CC_OUT(z) (success),				\
-+		       [errout] "+r" (__err),				\
-+		       [ptr] "+m" (*_ptr),				\
-+		       [old] "+a" (__old)				\
-+		     : [new] ltype (__new)				\
-+		     : "memory", "cc");					\
-+	if (unlikely(__err))						\
-+		goto label;						\
-+	if (unlikely(!success))						\
-+		*_old = __old;						\
-+	likely(success);					})
-+
-+#ifdef CONFIG_X86_32
-+/*
-+ * Unlike the normal CMPXCHG, hardcode ECX for both success/fail and error.
-+ * There are only six GPRs available and four (EAX, EBX, ECX, and EDX) are
-+ * hardcoded by CMPXCHG8B, leaving only ESI and EDI.  If the compiler uses
-+ * both ESI and EDI for the memory operand, compilation will fail if the error
-+ * is an input+output as there will be no register available for input.
-+ */
-+#define __try_cmpxchg64_user_asm(_ptr, _pold, _new, label)	({	\
-+	int __result;							\
-+	__typeof__(_ptr) _old = (__typeof__(_ptr))(_pold);		\
-+	__typeof__(*(_ptr)) __old = *_old;				\
-+	__typeof__(*(_ptr)) __new = (_new);				\
-+	asm volatile("\n"						\
-+		     "1: " LOCK_PREFIX "cmpxchg8b %[ptr]\n"		\
-+		     "mov $0, %%ecx\n\t"				\
-+		     "setz %%cl\n"					\
-+		     "2:\n"						\
-+		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %%ecx) \
-+		     : [result]"=c" (__result),				\
-+		       "+A" (__old),					\
-+		       [ptr] "+m" (*_ptr)				\
-+		     : "b" ((u32)__new),				\
-+		       "c" ((u32)((u64)__new >> 32))			\
-+		     : "memory", "cc");					\
-+	if (unlikely(__result < 0))					\
-+		goto label;						\
-+	if (unlikely(!__result))					\
-+		*_old = __old;						\
-+	likely(__result);					})
-+#endif // CONFIG_X86_32
-+#endif // CONFIG_CC_HAS_ASM_GOTO_TIED_OUTPUT
-+
- /* FIXME: this hack is definitely wrong -AK */
- struct __large_struct { unsigned long buf[100]; };
- #define __m(x) (*(struct __large_struct __user *)(x))
-@@ -722,6 +819,51 @@ do {										\
- 	if (unlikely(__gu_err)) goto err_label;					\
- } while (0)
+ 	if (count)
+-		tty_schedule_flip(port);
++		tty_flip_buffer_push(port);
  
-+extern void __try_cmpxchg_user_wrong_size(void);
-+
-+#ifndef CONFIG_X86_32
-+#define __try_cmpxchg64_user_asm(_ptr, _oldp, _nval, _label)		\
-+	__try_cmpxchg_user_asm("q", "r", (_ptr), (_oldp), (_nval), _label)
-+#endif
-+
-+/*
-+ * Force the pointer to u<size> to match the size expected by the asm helper.
-+ * clang/LLVM compiles all cases and only discards the unused paths after
-+ * processing errors, which breaks i386 if the pointer is an 8-byte value.
-+ */
-+#define unsafe_try_cmpxchg_user(_ptr, _oldp, _nval, _label) ({			\
-+	bool __ret;								\
-+	__chk_user_ptr(_ptr);							\
-+	switch (sizeof(*(_ptr))) {						\
-+	case 1:	__ret = __try_cmpxchg_user_asm("b", "q",			\
-+					       (__force u8 *)(_ptr), (_oldp),	\
-+					       (_nval), _label);		\
-+		break;								\
-+	case 2:	__ret = __try_cmpxchg_user_asm("w", "r",			\
-+					       (__force u16 *)(_ptr), (_oldp),	\
-+					       (_nval), _label);		\
-+		break;								\
-+	case 4:	__ret = __try_cmpxchg_user_asm("l", "r",			\
-+					       (__force u32 *)(_ptr), (_oldp),	\
-+					       (_nval), _label);		\
-+		break;								\
-+	case 8:	__ret = __try_cmpxchg64_user_asm((__force u64 *)(_ptr), (_oldp),\
-+						 (_nval), _label);		\
-+		break;								\
-+	default: __try_cmpxchg_user_wrong_size();				\
-+	}									\
-+	__ret;						})
-+
-+/* "Returns" 0 on success, 1 on failure, -EFAULT if the access faults. */
-+#define __try_cmpxchg_user(_ptr, _oldp, _nval, _label)	({		\
-+	int __ret = -EFAULT;						\
-+	__uaccess_begin_nospec();					\
-+	__ret = !unsafe_try_cmpxchg_user(_ptr, _oldp, _nval, _label);	\
-+_label:									\
-+	__uaccess_end();						\
-+	__ret;								\
-+							})
-+
- /*
-  * We want the unsafe accessors to always be inlined and use
-  * the error labels - thus the macro games.
--- 
-2.35.1
-
+ 	return count;
+ }
+--- a/drivers/s390/char/keyboard.h
++++ b/drivers/s390/char/keyboard.h
+@@ -56,7 +56,7 @@ static inline void
+ kbd_put_queue(struct tty_port *port, int ch)
+ {
+ 	tty_insert_flip_char(port, ch, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
+ 
+ static inline void
+@@ -64,5 +64,5 @@ kbd_puts_queue(struct tty_port *port, ch
+ {
+ 	while (*cp)
+ 		tty_insert_flip_char(port, *cp++, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
+--- a/drivers/staging/speakup/spk_ttyio.c
++++ b/drivers/staging/speakup/spk_ttyio.c
+@@ -88,7 +88,7 @@ static int spk_ttyio_receive_buf2(struct
+ 	}
+ 
+ 	if (!ldisc_data->buf_free)
+-		/* ttyio_in will tty_schedule_flip */
++		/* ttyio_in will tty_flip_buffer_push */
+ 		return 0;
+ 
+ 	/* Make sure the consumer has read buf before we have seen
+@@ -321,7 +321,7 @@ static unsigned char ttyio_in(int timeou
+ 	mb();
+ 	ldisc_data->buf_free = true;
+ 	/* Let TTY push more characters */
+-	tty_schedule_flip(speakup_tty->port);
++	tty_flip_buffer_push(speakup_tty->port);
+ 
+ 	return rv;
+ }
 
 
