@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 360DF582DEA
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939ED582DF1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238439AbiG0RE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:04:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
+        id S237639AbiG0RE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:04:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241557AbiG0REa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1714E5A15E;
+        with ESMTP id S241551AbiG0RE3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D436F7CA;
         Wed, 27 Jul 2022 09:39:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5F73B821C5;
-        Wed, 27 Jul 2022 16:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FD2DC433D6;
-        Wed, 27 Jul 2022 16:39:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B4560B9E;
+        Wed, 27 Jul 2022 16:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D383AC433B5;
+        Wed, 27 Jul 2022 16:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939948;
-        bh=dCvMNa0Ys6cuvhVxigehd63DciVmN1fTCsj0DT0s+xc=;
+        s=korg; t=1658939951;
+        bh=2OV7QM4VRlC9VoPMrR3G1NY2dsKHxkkbtdoeD4eJBoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1W27+mAEA2DzYLIyytbVqaEKaOuviNSINji80gIm/3wyLUaDMQ8prw3oZZtPZ1wLd
-         1Ur8JarOvyf+ey+cleblOK5ZHS9+UwMQ05e8y+yhkhTEC51T0Dfsiq54ELHIVKK2FS
-         Lue8TENMuxUJgy1r/edQinNpV4f8G6nc6PWpLdw0=
+        b=chvFBWab/OsCzhk9jzeZs/zp4WeoWKyyDpM/Z5+yDrCdzdnT3pXGzcikcdqUFq0CD
+         Y1o/WWRJwlGnpucFipSRvaCteggcPjduGjH+in/RanQP+ta2BBaOtjCSHLTKcNYXR9
+         s3d9nF+YYn9WwV6IiLM6jflp0xLjNn0B8OiyMY98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/201] igc: Reinstate IGC_REMOVED logic and implement it properly
-Date:   Wed, 27 Jul 2022 18:09:17 +0200
-Message-Id: <20220727161029.102794395@linuxfoundation.org>
+Subject: [PATCH 5.15 054/201] ip: Fix data-races around sysctl_ip_no_pmtu_disc.
+Date:   Wed, 27 Jul 2022 18:09:18 +0200
+Message-Id: <20220727161029.152740326@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -55,117 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lennert Buytenhek <buytenh@wantstofly.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 7c1ddcee5311f3315096217881d2dbe47cc683f9 ]
+[ Upstream commit 0968d2a441bf6afb551fd99e60fa65ed67068963 ]
 
-The initially merged version of the igc driver code (via commit
-146740f9abc4, "igc: Add support for PF") contained the following
-IGC_REMOVED checks in the igc_rd32/wr32() MMIO accessors:
+While reading sysctl_ip_no_pmtu_disc, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-	u32 igc_rd32(struct igc_hw *hw, u32 reg)
-	{
-		u8 __iomem *hw_addr = READ_ONCE(hw->hw_addr);
-		u32 value = 0;
-
-		if (IGC_REMOVED(hw_addr))
-			return ~value;
-
-		value = readl(&hw_addr[reg]);
-
-		/* reads should not return all F's */
-		if (!(~value) && (!reg || !(~readl(hw_addr))))
-			hw->hw_addr = NULL;
-
-		return value;
-	}
-
-And:
-
-	#define wr32(reg, val) \
-	do { \
-		u8 __iomem *hw_addr = READ_ONCE((hw)->hw_addr); \
-		if (!IGC_REMOVED(hw_addr)) \
-			writel((val), &hw_addr[(reg)]); \
-	} while (0)
-
-E.g. igb has similar checks in its MMIO accessors, and has a similar
-macro E1000_REMOVED, which is implemented as follows:
-
-	#define E1000_REMOVED(h) unlikely(!(h))
-
-These checks serve to detect and take note of an 0xffffffff MMIO read
-return from the device, which can be caused by a PCIe link flap or some
-other kind of PCI bus error, and to avoid performing MMIO reads and
-writes from that point onwards.
-
-However, the IGC_REMOVED macro was not originally implemented:
-
-	#ifndef IGC_REMOVED
-	#define IGC_REMOVED(a) (0)
-	#endif /* IGC_REMOVED */
-
-This led to the IGC_REMOVED logic to be removed entirely in a
-subsequent commit (commit 3c215fb18e70, "igc: remove IGC_REMOVED
-function"), with the rationale that such checks matter only for
-virtualization and that igc does not support virtualization -- but a
-PCIe device can become detached even without virtualization being in
-use, and without proper checks, a PCIe bus error affecting an igc
-adapter will lead to various NULL pointer dereferences, as the first
-access after the error will set hw->hw_addr to NULL, and subsequent
-accesses will blindly dereference this now-NULL pointer.
-
-This patch reinstates the IGC_REMOVED checks in igc_rd32/wr32(), and
-implements IGC_REMOVED the way it is done for igb, by checking for the
-unlikely() case of hw_addr being NULL.  This change prevents the oopses
-seen when a PCIe link flap occurs on an igc adapter.
-
-Fixes: 146740f9abc4 ("igc: Add support for PF")
-Signed-off-by: Lennert Buytenhek <buytenh@arista.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
- drivers/net/ethernet/intel/igc/igc_regs.h | 5 ++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ net/ipv4/af_inet.c    | 2 +-
+ net/ipv4/icmp.c       | 2 +-
+ net/ipv6/af_inet6.c   | 2 +-
+ net/xfrm/xfrm_state.c | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index f99819fc559d..2a84f57ea68b 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -6159,6 +6159,9 @@ u32 igc_rd32(struct igc_hw *hw, u32 reg)
- 	u8 __iomem *hw_addr = READ_ONCE(hw->hw_addr);
- 	u32 value = 0;
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 44f21278003d..781c595f6880 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -338,7 +338,7 @@ static int inet_create(struct net *net, struct socket *sock, int protocol,
+ 			inet->hdrincl = 1;
+ 	}
  
-+	if (IGC_REMOVED(hw_addr))
-+		return ~value;
-+
- 	value = readl(&hw_addr[reg]);
+-	if (net->ipv4.sysctl_ip_no_pmtu_disc)
++	if (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc))
+ 		inet->pmtudisc = IP_PMTUDISC_DONT;
+ 	else
+ 		inet->pmtudisc = IP_PMTUDISC_WANT;
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index a5cc89506c1e..609c4ff7edc6 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -887,7 +887,7 @@ static bool icmp_unreach(struct sk_buff *skb)
+ 			 * values please see
+ 			 * Documentation/networking/ip-sysctl.rst
+ 			 */
+-			switch (net->ipv4.sysctl_ip_no_pmtu_disc) {
++			switch (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc)) {
+ 			default:
+ 				net_dbg_ratelimited("%pI4: fragmentation needed and DF set\n",
+ 						    &iph->daddr);
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index dab4a047590b..3a91d0d40aec 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -226,7 +226,7 @@ static int inet6_create(struct net *net, struct socket *sock, int protocol,
+ 	RCU_INIT_POINTER(inet->mc_list, NULL);
+ 	inet->rcv_tos	= 0;
  
- 	/* reads should not return all F's */
-diff --git a/drivers/net/ethernet/intel/igc/igc_regs.h b/drivers/net/ethernet/intel/igc/igc_regs.h
-index e197a33d93a0..026c3b65fc37 100644
---- a/drivers/net/ethernet/intel/igc/igc_regs.h
-+++ b/drivers/net/ethernet/intel/igc/igc_regs.h
-@@ -306,7 +306,8 @@ u32 igc_rd32(struct igc_hw *hw, u32 reg);
- #define wr32(reg, val) \
- do { \
- 	u8 __iomem *hw_addr = READ_ONCE((hw)->hw_addr); \
--	writel((val), &hw_addr[(reg)]); \
-+	if (!IGC_REMOVED(hw_addr)) \
-+		writel((val), &hw_addr[(reg)]); \
- } while (0)
+-	if (net->ipv4.sysctl_ip_no_pmtu_disc)
++	if (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc))
+ 		inet->pmtudisc = IP_PMTUDISC_DONT;
+ 	else
+ 		inet->pmtudisc = IP_PMTUDISC_WANT;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index f7bfa1916968..b1a04a22166f 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2619,7 +2619,7 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
+ 	int err;
  
- #define rd32(reg) (igc_rd32(hw, reg))
-@@ -318,4 +319,6 @@ do { \
+ 	if (family == AF_INET &&
+-	    xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc)
++	    READ_ONCE(xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc))
+ 		x->props.flags |= XFRM_STATE_NOPMTUDISC;
  
- #define array_rd32(reg, offset) (igc_rd32(hw, (reg) + ((offset) << 2)))
- 
-+#define IGC_REMOVED(h) unlikely(!(h))
-+
- #endif
+ 	err = -EPROTONOSUPPORT;
 -- 
 2.35.1
 
