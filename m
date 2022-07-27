@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23AA3582BF6
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5061582E92
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239269AbiG0Qka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59038 "EHLO
+        id S233775AbiG0RPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:15:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239267AbiG0Qj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:39:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E3D5A2E1;
-        Wed, 27 Jul 2022 09:29:02 -0700 (PDT)
+        with ESMTP id S241752AbiG0RO0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:14:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95E35C35B;
+        Wed, 27 Jul 2022 09:42:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 902A0619FF;
-        Wed, 27 Jul 2022 16:29:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B90FC433D6;
-        Wed, 27 Jul 2022 16:29:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 810F0B821D2;
+        Wed, 27 Jul 2022 16:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9535C433D7;
+        Wed, 27 Jul 2022 16:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939342;
-        bh=hIyq/tvHoqeUfw029S6sg871jl0PvQrhEjvANFwJBWY=;
+        s=korg; t=1658940155;
+        bh=WFxdTAFTDOeA3kkSiLosrw9dd3leJML+aRruvvmgrDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQXDa+pryaCPe+W8QM1H8XYqsuNgWlcZ/SvMQYTyMO3fsbUaAAb1d/iN6nJrfkLq7
-         ZQTFIAt5Z/Bw/eAtWCFb7aU4yrltrwfhr2KtKP5y3UGlpigTNt1z/06aOh1FGcqkhH
-         IhikwnGT3TohHg+HermwqJJgt641NF//JEPqyM9I=
+        b=tvMpLGoc/BczxqdrKNQsj9lHJH/G8sTmtz4RVzqxqmr72INCHpTLEK/RbV2II5v+8
+         6aMtD3Z0SPaM5IulCr8hlwu04/V2mbPjpPOq29Onttq/7OkN2uxNTkhqJkw0cFPBW5
+         0D6YBccss0YGZ+4FZag25qhHUkl4+PAU5reDeVsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/87] tcp: Fix a data-race around sysctl_tcp_notsent_lowat.
+Subject: [PATCH 5.15 124/201] tcp: Fix a data-race around sysctl_tcp_thin_linear_timeouts.
 Date:   Wed, 27 Jul 2022 18:10:28 +0200
-Message-Id: <20220727161010.484414536@linuxfoundation.org>
+Message-Id: <20220727161032.901741719@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,32 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 55be873695ed8912eb77ff46d1d1cadf028bd0f3 ]
+[ Upstream commit 7c6f2a86ca590d5187a073d987e9599985fb1c7c ]
 
-While reading sysctl_tcp_notsent_lowat, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+While reading sysctl_tcp_thin_linear_timeouts, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
+Fixes: 36e31b0af587 ("net: TCP thin linear timeouts")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h | 2 +-
+ net/ipv4/tcp_timer.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 96dae0937998..eb984ec22f22 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1947,7 +1947,7 @@ void __tcp_v4_send_check(struct sk_buff *skb, __be32 saddr, __be32 daddr);
- static inline u32 tcp_notsent_lowat(const struct tcp_sock *tp)
- {
- 	struct net *net = sock_net((struct sock *)tp);
--	return tp->notsent_lowat ?: net->ipv4.sysctl_tcp_notsent_lowat;
-+	return tp->notsent_lowat ?: READ_ONCE(net->ipv4.sysctl_tcp_notsent_lowat);
- }
- 
- /* @wake is one when sk_stream_write_space() calls us.
+diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
+index ec5277becc6a..50bba370486e 100644
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -578,7 +578,7 @@ void tcp_retransmit_timer(struct sock *sk)
+ 	 * linear-timeout retransmissions into a black hole
+ 	 */
+ 	if (sk->sk_state == TCP_ESTABLISHED &&
+-	    (tp->thin_lto || net->ipv4.sysctl_tcp_thin_linear_timeouts) &&
++	    (tp->thin_lto || READ_ONCE(net->ipv4.sysctl_tcp_thin_linear_timeouts)) &&
+ 	    tcp_stream_is_thin(tp) &&
+ 	    icsk->icsk_retransmits <= TCP_THIN_LINEAR_RETRIES) {
+ 		icsk->icsk_backoff = 0;
 -- 
 2.35.1
 
