@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E48582BAC
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D223582D3E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238382AbiG0QgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:36:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48586 "EHLO
+        id S240824AbiG0QzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238394AbiG0QfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:35:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CFEB56BB8;
-        Wed, 27 Jul 2022 09:27:50 -0700 (PDT)
+        with ESMTP id S241137AbiG0QyZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93CD4D4DF;
+        Wed, 27 Jul 2022 09:35:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0494DB821BC;
-        Wed, 27 Jul 2022 16:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 536C8C43140;
-        Wed, 27 Jul 2022 16:27:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0EA64CE2301;
+        Wed, 27 Jul 2022 16:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7C0C433D6;
+        Wed, 27 Jul 2022 16:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939235;
-        bh=vUKJwHwLGw596+/yixKmcE8tD832L7JBjKGObLJdvwM=;
+        s=korg; t=1658939735;
+        bh=F8ZiAE7YZXuQSsyBrtT3P/GZVlUNUGHQ+fXJZiNmSOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02fB/PrsyqNI8XR0eBxuWKhnTb3SSEL+ruZreI26Npv+Hjxg6NHFZbxzCYeA06tR0
-         dwLkq2y30ejzSYWd6QiGUfSU43MDaY7xhIk0frFxNLo+dYW65H+gGCiVIM2tYhxaU7
-         ow66T97LiA6hsLDTtvj+LeCWrYivVGxNMmlgGQAs=
+        b=b+9fIqaS3ium9F6SOTNmgYgOOhGngfbrJnO5ZZ+NuyO++l+GnMHRYr+wNt72ttvtv
+         JBeUGadJu7euQqHTNaCgrVu5BWDDQzNmA9/UHW4k/bH7pk1gYNjgACZR2UeocKeucx
+         F/2jL20YU48f5WWkSCWee9lk8w7fq0ZDi+dr+ff8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 4.19 61/62] PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 084/105] drm/imx/dcss: fix unused but set variable warnings
 Date:   Wed, 27 Jul 2022 18:11:10 +0200
-Message-Id: <20220727161006.525330926@linuxfoundation.org>
+Message-Id: <20220727161015.469788131@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <quic_jhugo@quicinc.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-commit b4b77778ecc5bfbd4e77de1b2fd5c1dd3c655f1f upstream.
+[ Upstream commit 523be44c334bc4e4c014032738dc277b8909d009 ]
 
-Currently if compose_msi_msg() is called multiple times, it will free any
-previous IRTE allocation, and generate a new allocation.  While nothing
-prevents this from occurring, it is extraneous when Linux could just reuse
-the existing allocation and avoid a bunch of overhead.
+Fix unused but set variable warning building with `make W=1`:
 
-However, when future IRTE allocations operate on blocks of MSIs instead of
-a single line, freeing the allocation will impact all of the lines.  This
-could cause an issue where an allocation of N MSIs occurs, then some of
-the lines are retargeted, and finally the allocation is freed/reallocated.
-The freeing of the allocation removes all of the configuration for the
-entire block, which requires all the lines to be retargeted, which might
-not happen since some lines might already be unmasked/active.
+drivers/gpu/drm/imx/dcss/dcss-plane.c:270:6: warning:
+ variable ‘pixel_format’ set but not used [-Wunused-but-set-variable]
+  u32 pixel_format;
+      ^~~~~~~~~~~~
 
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Tested-by: Dexuan Cui <decui@microsoft.com>
-Tested-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1652282582-21595-1-git-send-email-quic_jhugo@quicinc.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9021c317b770 ("drm/imx: Add initial support for DCSS on iMX8MQ")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Reviewed-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200911014414.4663-1-bobo.shaobowang@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/imx/dcss/dcss-plane.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1109,6 +1109,15 @@ static void hv_compose_msi_msg(struct ir
- 	u32 size;
- 	int ret;
+diff --git a/drivers/gpu/drm/imx/dcss/dcss-plane.c b/drivers/gpu/drm/imx/dcss/dcss-plane.c
+index f54087ac44d3..46a188dd02ad 100644
+--- a/drivers/gpu/drm/imx/dcss/dcss-plane.c
++++ b/drivers/gpu/drm/imx/dcss/dcss-plane.c
+@@ -268,7 +268,6 @@ static void dcss_plane_atomic_update(struct drm_plane *plane,
+ 	struct dcss_plane *dcss_plane = to_dcss_plane(plane);
+ 	struct dcss_dev *dcss = plane->dev->dev_private;
+ 	struct drm_framebuffer *fb = state->fb;
+-	u32 pixel_format;
+ 	struct drm_crtc_state *crtc_state;
+ 	bool modifiers_present;
+ 	u32 src_w, src_h, dst_w, dst_h;
+@@ -279,7 +278,6 @@ static void dcss_plane_atomic_update(struct drm_plane *plane,
+ 	if (!fb || !state->crtc || !state->visible)
+ 		return;
  
-+	/* Reuse the previous allocation */
-+	if (data->chip_data) {
-+		int_desc = data->chip_data;
-+		msg->address_hi = int_desc->address >> 32;
-+		msg->address_lo = int_desc->address & 0xffffffff;
-+		msg->data = int_desc->data;
-+		return;
-+	}
-+
- 	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
- 	dest = irq_data_get_effective_affinity_mask(data);
- 	pbus = pdev->bus;
-@@ -1117,13 +1126,6 @@ static void hv_compose_msi_msg(struct ir
- 	if (!hpdev)
- 		goto return_null_message;
+-	pixel_format = state->fb->format->format;
+ 	crtc_state = state->crtc->state;
+ 	modifiers_present = !!(fb->flags & DRM_MODE_FB_MODIFIERS);
  
--	/* Free any previous message that might have already been composed. */
--	if (data->chip_data) {
--		int_desc = data->chip_data;
--		data->chip_data = NULL;
--		hv_int_desc_free(hpdev, int_desc);
--	}
--
- 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
- 	if (!int_desc)
- 		goto drop_reference;
+-- 
+2.35.1
+
 
 
