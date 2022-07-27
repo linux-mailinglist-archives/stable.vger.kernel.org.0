@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D039458267F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 14:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACBFC582686
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 14:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbiG0MaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 08:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42482 "EHLO
+        id S233026AbiG0MaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 08:30:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232996AbiG0MaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 08:30:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EAF53AB32;
-        Wed, 27 Jul 2022 05:30:01 -0700 (PDT)
+        with ESMTP id S233006AbiG0MaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 08:30:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C5CB186D6;
+        Wed, 27 Jul 2022 05:30:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C724611A3;
-        Wed, 27 Jul 2022 12:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF7FC43470;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0541DB82077;
+        Wed, 27 Jul 2022 12:30:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89ECCC4347C;
         Wed, 27 Jul 2022 12:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1658925000;
-        bh=lOE1MGL9bb8yddRydxM1fpZY6tycwyxv4aHoWOD7OZQ=;
+        bh=GQnU144pkObOuuSOogSq2lICybfwG6TF/c3AiwyFiLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESBCJw8vK8aZGD73cSuSmAif9H+WC+AkurHUu18BuZR1aeJbhJxsymz/0keBKJ9pR
-         VHSD0tmiKMhV6hTvDoyO63rDqE4UleB2ZYJ/KCpEo1B28+091qu/qpXZcyPJmWkKWI
-         G3KD0wU/CVkY8RSXRTolnSLky3yxMoFdReL0PeSandZ5rv3U5o3nd16h3RbjvIpOMX
-         1yLwu4UudpUcHHyn9K+uikbxV3NLRBisCclgzR0CDvqpLpQyKakvGgJey/tveSM+7/
-         ftQZUhHca7Zb81zIHQgHS7yMz4qxf/EOnIeSlXblk1wTX+E3KuUs/pqb685wu3p27X
-         lY1caumfDn5AA==
+        b=iIUU+xwD3iVDACp1ZnSRc544KHgche8Xy0PlTjUYVBQ/hPu2sI9nV01zGlvR6HMmN
+         8hWPFzbcpPnfY/3wZ2V7Z7G/7sjFRxgnD51Z6gRBz+UDLaO5d7eAfieCMrIfB52K8t
+         0Rd0BnFe/tiNEdb/wpqyEwv8/B16/JtJbAS5Z18pEA5dsUo6Ca9/iYfYV87On/WBBZ
+         EE+ZjOenfcBGZuIQA2CZVC+84I/4jyT/So3w9uUT8WJe7pZDJxo5wZ2e5epuQOwATl
+         deUoe+Waz2xy4n/MqIsQDoa92AY78A3piVR7d9TPGNqbwD6iPDZYZRmd50WJQhjNCA
+         jYVmNJCH3NoBA==
 Received: from mchehab by mail.kernel.org with local (Exim 4.95)
         (envelope-from <mchehab@kernel.org>)
-        id 1oGgAo-003xmH-9n;
+        id 1oGgAo-003xmL-B2;
         Wed, 27 Jul 2022 14:29:58 +0200
 From:   Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     Chris Wilson <chris.p.wilson@intel.com>,
@@ -55,9 +55,9 @@ Cc:     Chris Wilson <chris.p.wilson@intel.com>,
         Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
         <thomas.hellstrom@linux.intel.com>
-Subject: [PATCH v3 3/6] drm/i915/gt: Invalidate TLB of the OA unit at TLB invalidations
-Date:   Wed, 27 Jul 2022 14:29:53 +0200
-Message-Id: <59724d9f5cf1e93b1620d01b8332ac991555283d.1658924372.git.mchehab@kernel.org>
+Subject: [PATCH v3 4/6] drm/i915/gt: Skip TLB invalidations once wedged
+Date:   Wed, 27 Jul 2022 14:29:54 +0200
+Message-Id: <5aa86564b9ec5fe7fe605c1dd7de76855401ed73.1658924372.git.mchehab@kernel.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <cover.1658924372.git.mchehab@kernel.org>
 References: <cover.1658924372.git.mchehab@kernel.org>
@@ -76,16 +76,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris.p.wilson@intel.com>
 
-Ensure that the TLB of the OA unit is also invalidated
-on gen12 HW, as just invalidating the TLB of an engine is not
-enough.
+Skip all further TLB invalidations once the device is wedged and
+had been reset, as, on such cases, it can no longer process instructions
+on the GPU and the user no longer has access to the TLB's in each engine.
+
+So, an attempt to do a TLB cache invalidation will produce a timeout.
+
+That helps to reduce the performance regression introduced by TLB
+invalidate logic.
 
 Cc: stable@vger.kernel.org
 Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
 Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
 Cc: Fei Yang <fei.yang@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Acked-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 ---
@@ -93,37 +98,23 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 To avoid mailbombing on a large number of people, only mailing lists were C/C on the cover.
 See [PATCH v3 0/6] at: https://lore.kernel.org/all/cover.1658924372.git.mchehab@kernel.org/
 
- drivers/gpu/drm/i915/gt/intel_gt.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_gt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index c4d43da84d8e..1d84418e8676 100644
+index 1d84418e8676..5c55a90672f4 100644
 --- a/drivers/gpu/drm/i915/gt/intel_gt.c
 +++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -11,6 +11,7 @@
- #include "pxp/intel_pxp.h"
+@@ -934,6 +934,9 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
+ 		return;
  
- #include "i915_drv.h"
-+#include "i915_perf_oa_regs.h"
- #include "intel_context.h"
- #include "intel_engine_pm.h"
- #include "intel_engine_regs.h"
-@@ -969,6 +970,15 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		awake |= engine->mask;
- 	}
- 
-+	/* Wa_2207587034:tgl,dg1,rkl,adl-s,adl-p */
-+	if (awake &&
-+	    (IS_TIGERLAKE(i915) ||
-+	     IS_DG1(i915) ||
-+	     IS_ROCKETLAKE(i915) ||
-+	     IS_ALDERLAKE_S(i915) ||
-+	     IS_ALDERLAKE_P(i915)))
-+		intel_uncore_write_fw(uncore, GEN12_OA_TLB_INV_CR, 1);
++	if (intel_gt_is_wedged(gt))
++		return;
 +
- 	spin_unlock_irq(&uncore->lock);
- 
- 	for_each_engine_masked(engine, gt, awake, tmp) {
+ 	if (GRAPHICS_VER(i915) == 12) {
+ 		regs = gen12_regs;
+ 		num = ARRAY_SIZE(gen12_regs);
 -- 
 2.36.1
 
