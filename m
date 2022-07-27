@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D871582D92
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA825582F85
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240033AbiG0Q77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55696 "EHLO
+        id S242093AbiG0R0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:26:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241336AbiG0Q7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:59:31 -0400
+        with ESMTP id S242103AbiG0R0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:26:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0874D68DEF;
-        Wed, 27 Jul 2022 09:37:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E42F7E005;
+        Wed, 27 Jul 2022 09:46:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AA7EB821CD;
-        Wed, 27 Jul 2022 16:36:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8FD2C433D6;
-        Wed, 27 Jul 2022 16:36:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55981B821AC;
+        Wed, 27 Jul 2022 16:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BF6C433D7;
+        Wed, 27 Jul 2022 16:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939808;
-        bh=ZEGxTVXn2E1dxNf8JVVIRGePBuIKuNtXgQUvjIa1rms=;
+        s=korg; t=1658940383;
+        bh=n3F8lmh2d1J+/JTqlyh1/WfUM4sggvcBvuWMKYpAjF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2UGZx9Mwc5KM1AFoCzvpV6y7E38Q2mh/de6ufrgqtQm0PhtIF0U1S/VhURLSl3ENo
-         XVZ4XNhm1X/LIvOIMK28HCVIVqCYxWzVk5R9YB94QdGOro5RNkqQw7tYP4MrwURlvS
-         XDYE4sxqGVMjVLB3b+y84F4tZ0W9WOZAEFCUqAFU=
+        b=UpYh/XntK0vuPGRHWVwfaSMpiuvXRrRTKnLey0aUyrHAIIXDIXBBB+vnSnB/J9mKM
+         0YzOXsIxlL3hMCxK0Jiw5k8hb3v/G6h47+MQywh+aCsA9pj0XGm14c6YSkLrE7iv0F
+         bz/VtejntZjRJdlYp2lxwZO3DnqWQ2ixoLWjJrLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.10 095/105] x86/alternative: Report missing return thunk details
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 5.15 177/201] Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg
 Date:   Wed, 27 Jul 2022 18:11:21 +0200
-Message-Id: <20220727161015.927272635@linuxfoundation.org>
+Message-Id: <20220727161035.125034455@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +54,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 65cdf0d623bedf0e069bb64ed52e8bb20105e2ba upstream.
+commit 81be03e026dc0c16dc1c64e088b2a53b73caa895 upstream.
 
-Debugging missing return thunks is easier if we can see where they're
-happening.
+This makes use of bt_skb_sendmmsg instead using memcpy_from_msg which
+is not considered safe to be used when lock_sock is held.
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/lkml/Ys66hwtFcGbYmoiZ@hirez.programming.kicks-ass.net/
+Also make rfcomm_dlc_send handle skb with fragments and queue them all
+atomically.
+
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/rfcomm/core.c |   50 +++++++++++++++++++++++++++++++++++++-------
+ net/bluetooth/rfcomm/sock.c |   50 ++++++++++----------------------------------
+ 2 files changed, 55 insertions(+), 45 deletions(-)
 
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -709,7 +709,9 @@ void __init_or_module noinline apply_ret
- 			dest = addr + insn.length + insn.immediate.value;
+--- a/net/bluetooth/rfcomm/core.c
++++ b/net/bluetooth/rfcomm/core.c
+@@ -549,22 +549,58 @@ struct rfcomm_dlc *rfcomm_dlc_exists(bda
+ 	return dlc;
+ }
  
- 		if (__static_call_fixup(addr, op, dest) ||
--		    WARN_ON_ONCE(dest != &__x86_return_thunk))
-+		    WARN_ONCE(dest != &__x86_return_thunk,
-+			      "missing return thunk: %pS-%pS: %*ph",
-+			      addr, dest, 5, addr))
- 			continue;
++static int rfcomm_dlc_send_frag(struct rfcomm_dlc *d, struct sk_buff *frag)
++{
++	int len = frag->len;
++
++	BT_DBG("dlc %p mtu %d len %d", d, d->mtu, len);
++
++	if (len > d->mtu)
++		return -EINVAL;
++
++	rfcomm_make_uih(frag, d->addr);
++	__skb_queue_tail(&d->tx_queue, frag);
++
++	return len;
++}
++
+ int rfcomm_dlc_send(struct rfcomm_dlc *d, struct sk_buff *skb)
+ {
+-	int len = skb->len;
++	unsigned long flags;
++	struct sk_buff *frag, *next;
++	int len;
  
- 		DPRINTK("return thunk at: %pS (%px) len: %d to: %pS",
+ 	if (d->state != BT_CONNECTED)
+ 		return -ENOTCONN;
+ 
+-	BT_DBG("dlc %p mtu %d len %d", d, d->mtu, len);
++	frag = skb_shinfo(skb)->frag_list;
++	skb_shinfo(skb)->frag_list = NULL;
+ 
+-	if (len > d->mtu)
+-		return -EINVAL;
++	/* Queue all fragments atomically. */
++	spin_lock_irqsave(&d->tx_queue.lock, flags);
++
++	len = rfcomm_dlc_send_frag(d, skb);
++	if (len < 0 || !frag)
++		goto unlock;
++
++	for (; frag; frag = next) {
++		int ret;
++
++		next = frag->next;
++
++		ret = rfcomm_dlc_send_frag(d, frag);
++		if (ret < 0) {
++			kfree_skb(frag);
++			goto unlock;
++		}
++
++		len += ret;
++	}
+ 
+-	rfcomm_make_uih(skb, d->addr);
+-	skb_queue_tail(&d->tx_queue, skb);
++unlock:
++	spin_unlock_irqrestore(&d->tx_queue.lock, flags);
+ 
+-	if (!test_bit(RFCOMM_TX_THROTTLED, &d->flags))
++	if (len > 0 && !test_bit(RFCOMM_TX_THROTTLED, &d->flags))
+ 		rfcomm_schedule();
+ 	return len;
+ }
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -575,47 +575,21 @@ static int rfcomm_sock_sendmsg(struct so
+ 	lock_sock(sk);
+ 
+ 	sent = bt_sock_wait_ready(sk, msg->msg_flags);
+-	if (sent)
+-		goto done;
+-
+-	while (len) {
+-		size_t size = min_t(size_t, len, d->mtu);
+-		int err;
+-
+-		skb = sock_alloc_send_skb(sk, size + RFCOMM_SKB_RESERVE,
+-				msg->msg_flags & MSG_DONTWAIT, &err);
+-		if (!skb) {
+-			if (sent == 0)
+-				sent = err;
+-			break;
+-		}
+-		skb_reserve(skb, RFCOMM_SKB_HEAD_RESERVE);
+-
+-		err = memcpy_from_msg(skb_put(skb, size), msg, size);
+-		if (err) {
+-			kfree_skb(skb);
+-			if (sent == 0)
+-				sent = err;
+-			break;
+-		}
+-
+-		skb->priority = sk->sk_priority;
+-
+-		err = rfcomm_dlc_send(d, skb);
+-		if (err < 0) {
+-			kfree_skb(skb);
+-			if (sent == 0)
+-				sent = err;
+-			break;
+-		}
+-
+-		sent += size;
+-		len  -= size;
+-	}
+ 
+-done:
+ 	release_sock(sk);
+ 
++	if (sent)
++		return sent;
++
++	skb = bt_skb_sendmmsg(sk, msg, len, d->mtu, RFCOMM_SKB_HEAD_RESERVE,
++			      RFCOMM_SKB_TAIL_RESERVE);
++	if (IS_ERR_OR_NULL(skb))
++		return PTR_ERR(skb);
++
++	sent = rfcomm_dlc_send(d, skb);
++	if (sent < 0)
++		kfree_skb(skb);
++
+ 	return sent;
+ }
+ 
 
 
