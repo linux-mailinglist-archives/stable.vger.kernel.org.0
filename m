@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D095B582D41
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A60582F0E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240941AbiG0QzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57972 "EHLO
+        id S230385AbiG0RUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:20:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240908AbiG0QxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:53:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F51E13;
-        Wed, 27 Jul 2022 09:35:08 -0700 (PDT)
+        with ESMTP id S241899AbiG0RTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB1C7A524;
+        Wed, 27 Jul 2022 09:44:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7F8161A8E;
-        Wed, 27 Jul 2022 16:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6765C433C1;
-        Wed, 27 Jul 2022 16:35:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6402BB8200C;
+        Wed, 27 Jul 2022 16:44:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36566C433D6;
+        Wed, 27 Jul 2022 16:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939707;
-        bh=T9aadaKqWs1n+yogkTbyPQ0EJOu+P1FbP5InXPpNsb8=;
+        s=korg; t=1658940248;
+        bh=wNIplsC///Z+1aLsiUGI7BR3SSo4CPpuOnzTbHZt7Zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZwiK9+1Rqh+vv3izOrC+98C9IfNHc9iAXK1tIS0yyX96URDl8x0BRAboLN+rlKjk
-         OStZoyqQVer902+14DKb2U6MS9cVhdgjler0ORf/mLPdaSHtsG5UBwHswRnCyRnD34
-         lyRuigbTTDFvPGc42S8L26FGzAkiUb3C/IebanZ8=
+        b=YSJrcV21spXwIq9Ks7zoYJnNwXVVvTodcRSZe4PmjZ4X4RUpx7vitFJ9gOJbN+51z
+         rh8EEP5CZ8zruLVUOEKIuv00m5qIvWdIM1rBKauKNDWLkcDwAUxUhB1Uwdn3f3UkEQ
+         sRU+DxEoda/6jHkzU+5PCJmBPvbKXiW+FcGWRBVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/105] tcp: Fix a data-race around sysctl_tcp_rfc1337.
+Subject: [PATCH 5.15 157/201] iwlwifi: fw: uefi: add missing include guards
 Date:   Wed, 27 Jul 2022 18:11:01 +0200
-Message-Id: <20220727161015.072223687@linuxfoundation.org>
+Message-Id: <20220727161034.339315972@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 0b484c91911e758e53656d570de58c2ed81ec6f2 ]
+[ Upstream commit 91000fdf82195b66350b4f88413c2e8b5f94d994 ]
 
-While reading sysctl_tcp_rfc1337, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+We still don't use #pragma once in the kernel, but even if
+we did it'd be missing. Add the missing include guards.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 84c3c9952afb ("iwlwifi: move UEFI code to a separate file")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211024181719.7fc9988ed49b.I87e300fab664047581e51fb9b02744c75320d08c@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_minisocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/fw/uefi.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index 62f5ef9e6f93..e42312321191 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -180,7 +180,7 @@ tcp_timewait_state_process(struct inet_timewait_sock *tw, struct sk_buff *skb,
- 			 * Oh well... nobody has a sufficient solution to this
- 			 * protocol bug yet.
- 			 */
--			if (twsk_net(tw)->ipv4.sysctl_tcp_rfc1337 == 0) {
-+			if (!READ_ONCE(twsk_net(tw)->ipv4.sysctl_tcp_rfc1337)) {
- kill:
- 				inet_twsk_deschedule_put(tw);
- 				return TCP_TW_SUCCESS;
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/uefi.h b/drivers/net/wireless/intel/iwlwifi/fw/uefi.h
+index 45d0b36d79b5..d552c656ac9f 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/uefi.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/uefi.h
+@@ -2,7 +2,8 @@
+ /*
+  * Copyright(c) 2021 Intel Corporation
+  */
+-
++#ifndef __iwl_fw_uefi__
++#define __iwl_fw_uefi__
+ 
+ #define IWL_UEFI_OEM_PNVM_NAME		L"UefiCnvWlanOemSignedPnvm"
+ #define IWL_UEFI_REDUCED_POWER_NAME	L"UefiCnvWlanReducedPower"
+@@ -40,3 +41,5 @@ void *iwl_uefi_get_reduced_power(struct iwl_trans *trans, size_t *len)
+ 	return ERR_PTR(-EOPNOTSUPP);
+ }
+ #endif /* CONFIG_EFI */
++
++#endif /* __iwl_fw_uefi__ */
 -- 
 2.35.1
 
