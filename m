@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93CAB582E36
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95914582CB6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233646AbiG0RJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:09:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
+        id S240364AbiG0Qtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241542AbiG0RJK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA68250063;
-        Wed, 27 Jul 2022 09:40:51 -0700 (PDT)
+        with ESMTP id S240449AbiG0Qsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5162561131;
+        Wed, 27 Jul 2022 09:32:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC12360D3D;
-        Wed, 27 Jul 2022 16:40:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0577FC433C1;
-        Wed, 27 Jul 2022 16:40:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6710B821D0;
+        Wed, 27 Jul 2022 16:32:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBECC433D6;
+        Wed, 27 Jul 2022 16:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940048;
-        bh=FQxLPzvBoA8moseFHIyvnkKdcTwqNUzEN00yHZI4IG4=;
+        s=korg; t=1658939550;
+        bh=0u1Q4T/coKPKlkRYB8LRz3wU3+rbSCklXjpL4Hkyeds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dj/t3GzHuKkyITVNY3tDGii28Gpx5iMFMzDF3Wo5vgbATNqjLiY8BmFUDfSEKbzzn
-         +iuTzIWdQ2DHLfy+38+4FxupYV8XoyiekksVYrZ3Mn4GMpZ4G965tgFjd3NlgGgpaH
-         Wf1SljSPptwhFxpvxyz/IWPtO7sl4teY9dOjPmXk=
+        b=Ys3SfmOY2ZvQtjqUamZWdKV5Ai9f1+MyiFzgLiLCVQgg+1LSk9LoQIr8HkEqsmZaQ
+         5mbzv3Wt/0Sf+pjZKxgmQxJ36doXCuTfRH9i2dI1UV1G4kt/MFlB86O9SCt7RRB35e
+         awjfyazj1clVvp84IIPHLaRUD3Q6nRmF8fjQzODA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, lee@kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/201] igmp: Fix data-races around sysctl_igmp_llm_reports.
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH 5.10 005/105] io_uring: Use original task for req identity in io_identity_cow()
 Date:   Wed, 27 Jul 2022 18:09:51 +0200
-Message-Id: <20220727161031.345518560@linuxfoundation.org>
+Message-Id: <20220727161012.279068616@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Lee Jones <lee@kernel.org>
 
-[ Upstream commit f6da2267e71106474fbc0943dc24928b9cb79119 ]
+This issue is conceptually identical to the one fixed in 29f077d07051
+("io_uring: always use original task when preparing req identity"), so
+rather than reinvent the wheel, I'm shamelessly quoting the commit
+message from that patch - thanks Jens:
 
-While reading sysctl_igmp_llm_reports, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+ "If the ring is setup with IORING_SETUP_IOPOLL and we have more than
+  one task doing submissions on a ring, we can up in a situation where
+  we assign the context from the current task rather than the request
+  originator.
 
-This test can be packed into a helper, so such changes will be in the
-follow-up series after net is merged into net-next.
+  Always use req->task rather than assume it's the same as current.
 
-  if (ipv4_is_local_multicast(pmc->multiaddr) &&
-      !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+  No upstream patch exists for this issue, as only older kernels with
+  the non-native workers have this problem."
 
-Fixes: df2cf4a78e48 ("IGMP: Inhibit reports for local multicast groups")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: io-uring@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Fixes: 5c3462cfd123b ("io_uring: store io_identity in io_uring_task")
+Signed-off-by: Lee Jones <lee@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ fs/io_uring.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 930f6c41f519..ccfbc0a8f11c 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -467,7 +467,8 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1325,7 +1325,7 @@ static void io_req_clean_work(struct io_
+  */
+ static bool io_identity_cow(struct io_kiocb *req)
+ {
+-	struct io_uring_task *tctx = current->io_uring;
++	struct io_uring_task *tctx = req->task->io_uring;
+ 	const struct cred *creds = NULL;
+ 	struct io_identity *id;
  
- 	if (pmc->multiaddr == IGMP_ALL_HOSTS)
- 		return skb;
--	if (ipv4_is_local_multicast(pmc->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(pmc->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return skb;
- 
- 	mtu = READ_ONCE(dev->mtu);
-@@ -593,7 +594,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
- 			if (pmc->multiaddr == IGMP_ALL_HOSTS)
- 				continue;
- 			if (ipv4_is_local_multicast(pmc->multiaddr) &&
--			     !net->ipv4.sysctl_igmp_llm_reports)
-+			    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 				continue;
- 			spin_lock_bh(&pmc->lock);
- 			if (pmc->sfcount[MCAST_EXCLUDE])
-@@ -736,7 +737,8 @@ static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,
- 	if (type == IGMPV3_HOST_MEMBERSHIP_REPORT)
- 		return igmpv3_send_report(in_dev, pmc);
- 
--	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(group) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return 0;
- 
- 	if (type == IGMP_HOST_LEAVE_MESSAGE)
-@@ -920,7 +922,8 @@ static bool igmp_heard_report(struct in_device *in_dev, __be32 group)
- 
- 	if (group == IGMP_ALL_HOSTS)
- 		return false;
--	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(group) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return false;
- 
- 	rcu_read_lock();
-@@ -1045,7 +1048,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
- 		if (im->multiaddr == IGMP_ALL_HOSTS)
- 			continue;
- 		if (ipv4_is_local_multicast(im->multiaddr) &&
--		    !net->ipv4.sysctl_igmp_llm_reports)
-+		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 			continue;
- 		spin_lock_bh(&im->lock);
- 		if (im->tm_running)
-@@ -1296,7 +1299,8 @@ static void __igmp_group_dropped(struct ip_mc_list *im, gfp_t gfp)
- #ifdef CONFIG_IP_MULTICAST
- 	if (im->multiaddr == IGMP_ALL_HOSTS)
- 		return;
--	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(im->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return;
- 
- 	reporter = im->reporter;
-@@ -1338,7 +1342,8 @@ static void igmp_group_added(struct ip_mc_list *im)
- #ifdef CONFIG_IP_MULTICAST
- 	if (im->multiaddr == IGMP_ALL_HOSTS)
- 		return;
--	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(im->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return;
- 
- 	if (in_dev->dead)
-@@ -1642,7 +1647,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
- 		if (im->multiaddr == IGMP_ALL_HOSTS)
- 			continue;
- 		if (ipv4_is_local_multicast(im->multiaddr) &&
--		    !net->ipv4.sysctl_igmp_llm_reports)
-+		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 			continue;
- 
- 		/* a failover is happening and switches
--- 
-2.35.1
-
 
 
