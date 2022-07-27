@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B66582F12
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F37E582C4A
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241703AbiG0RUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:20:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33506 "EHLO
+        id S238683AbiG0Qot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:44:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241937AbiG0RTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:22 -0400
+        with ESMTP id S240193AbiG0QoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B18102C;
-        Wed, 27 Jul 2022 09:44:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6E75D0FD;
+        Wed, 27 Jul 2022 09:30:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81FDBB8200D;
-        Wed, 27 Jul 2022 16:44:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B4AC433C1;
-        Wed, 27 Jul 2022 16:44:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AC89B821BD;
+        Wed, 27 Jul 2022 16:30:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15E5C433C1;
+        Wed, 27 Jul 2022 16:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940260;
-        bh=BpLrPQP3pUCcqiOoA3Bje3bW8VidC0Xr73YT5Hg91gs=;
+        s=korg; t=1658939446;
+        bh=jmwZE7fZT0yS5jlppOJsyv5VuU2LGt3H7AUTFK/9IZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMtT+35r9piJq1qqvBha+V5rRkk8SfwoPXXFfDu31//F2UMzN5tHb0ZXF/q/t+rsb
-         lvDSgXHGTIqe9Hh2daHaiTW/yQKJFp61g425RWQCdNrt64I8IFr+esb8A1s2MTAyVf
-         D06xTbw0RUsEcsjfON9T50Tyjnh0i0Ovavk5O9rA=
+        b=ZlCSIoUwyBnPKnbBwSHOAJNmqMREvpTQFTMrFy7Ep3tFS+o4gLLcnhfXYewB2Gu6Z
+         3U5NYyTjkkwAPN4dgOfJmZygKOf46GaPQjklNcLFon4CG00TeRee2eYQXbayNe7hn1
+         uj8jFZf5YgPcg9V5/LtFZPPUeV6OZ7OMEQ0z6uoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Kyle Sanderson <kyle.leet@gmail.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 161/201] crypto: qat - add backlog mechanism
+Subject: [PATCH 5.4 72/87] bitfield.h: Fix "type of reg too small for mask" test
 Date:   Wed, 27 Jul 2022 18:11:05 +0200
-Message-Id: <20220727161034.515042280@linuxfoundation.org>
+Message-Id: <20220727161011.987192720@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,406 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 38682383973280e5be2802ba8a8d4a636d36cb19 ]
+[ Upstream commit bff8c3848e071d387d8b0784dc91fa49cd563774 ]
 
-The implementations of the crypto algorithms (aead, skcipher, etc) in
-the QAT driver do not properly support requests with the
-CRYPTO_TFM_REQ_MAY_BACKLOG flag set. If the HW queue is full, the driver
-returns -EBUSY but does not enqueue the request. This can result in
-applications like dm-crypt waiting indefinitely for the completion of a
-request that was never submitted to the hardware.
+The test: 'mask > (typeof(_reg))~0ull' only works correctly when both
+sides are unsigned, consider:
 
-Fix this by adding a software backlog queue: if the ring buffer is more
-than eighty percent full, then the request is enqueued to a backlog
-list and the error code -EBUSY is returned back to the caller.
-Requests in the backlog queue are resubmitted at a later time, in the
-context of the callback of a previously submitted request.
-The request for which -EBUSY is returned is then marked as -EINPROGRESS
-once submitted to the HW queues.
+ - 0xff000000 vs (int)~0ull
+ - 0x000000ff vs (int)~0ull
 
-The submission loop inside the function qat_alg_send_message() has been
-modified to decide which submission policy to use based on the request
-flags. If the request does not have the CRYPTO_TFM_REQ_MAY_BACKLOG set,
-the previous behaviour has been preserved.
-
-Based on a patch by
-Vishnu Das Ramachandran <vishnu.dasx.ramachandran@intel.com>
-
-Cc: stable@vger.kernel.org
-Fixes: d370cec32194 ("crypto: qat - Intel(R) QAT crypto interface")
-Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-Reported-by: Kyle Sanderson <kyle.leet@gmail.com>
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/20211110101324.950210584@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_transport.c | 11 +++
- drivers/crypto/qat/qat_common/adf_transport.h |  1 +
- .../qat/qat_common/adf_transport_internal.h   |  1 +
- drivers/crypto/qat/qat_common/qat_algs.c      | 24 ++++---
- drivers/crypto/qat/qat_common/qat_algs_send.c | 67 ++++++++++++++++++-
- drivers/crypto/qat/qat_common/qat_algs_send.h |  1 +
- drivers/crypto/qat/qat_common/qat_asym_algs.c | 23 ++++---
- drivers/crypto/qat/qat_common/qat_crypto.c    |  3 +
- drivers/crypto/qat/qat_common/qat_crypto.h    | 10 +++
- 9 files changed, 123 insertions(+), 18 deletions(-)
+ include/linux/bitfield.h | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_transport.c b/drivers/crypto/qat/qat_common/adf_transport.c
-index 8ba28409fb74..630d0483c4e0 100644
---- a/drivers/crypto/qat/qat_common/adf_transport.c
-+++ b/drivers/crypto/qat/qat_common/adf_transport.c
-@@ -8,6 +8,9 @@
- #include "adf_cfg.h"
- #include "adf_common_drv.h"
+diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
+index 4c0224ff0a14..4f1c0f8e1bb0 100644
+--- a/include/linux/bitfield.h
++++ b/include/linux/bitfield.h
+@@ -41,6 +41,22 @@
  
-+#define ADF_MAX_RING_THRESHOLD		80
-+#define ADF_PERCENT(tot, percent)	(((tot) * (percent)) / 100)
+ #define __bf_shf(x) (__builtin_ffsll(x) - 1)
+ 
++#define __scalar_type_to_unsigned_cases(type)				\
++		unsigned type:	(unsigned type)0,			\
++		signed type:	(unsigned type)0
 +
- static inline u32 adf_modulo(u32 data, u32 shift)
- {
- 	u32 div = data >> shift;
-@@ -77,6 +80,11 @@ static void adf_disable_ring_irq(struct adf_etr_bank_data *bank, u32 ring)
- 				      bank->irq_mask);
- }
- 
-+bool adf_ring_nearly_full(struct adf_etr_ring_data *ring)
-+{
-+	return atomic_read(ring->inflights) > ring->threshold;
-+}
++#define __unsigned_scalar_typeof(x) typeof(				\
++		_Generic((x),						\
++			char:	(unsigned char)0,			\
++			__scalar_type_to_unsigned_cases(char),		\
++			__scalar_type_to_unsigned_cases(short),		\
++			__scalar_type_to_unsigned_cases(int),		\
++			__scalar_type_to_unsigned_cases(long),		\
++			__scalar_type_to_unsigned_cases(long long),	\
++			default: (x)))
 +
- int adf_send_message(struct adf_etr_ring_data *ring, u32 *msg)
- {
- 	struct adf_hw_csr_ops *csr_ops = GET_CSR_OPS(ring->bank->accel_dev);
-@@ -217,6 +225,7 @@ int adf_create_ring(struct adf_accel_dev *accel_dev, const char *section,
- 	struct adf_etr_bank_data *bank;
- 	struct adf_etr_ring_data *ring;
- 	char val[ADF_CFG_MAX_VAL_LEN_IN_BYTES];
-+	int max_inflights;
- 	u32 ring_num;
- 	int ret;
- 
-@@ -263,6 +272,8 @@ int adf_create_ring(struct adf_accel_dev *accel_dev, const char *section,
- 	ring->ring_size = adf_verify_ring_size(msg_size, num_msgs);
- 	ring->head = 0;
- 	ring->tail = 0;
-+	max_inflights = ADF_MAX_INFLIGHTS(ring->ring_size, ring->msg_size);
-+	ring->threshold = ADF_PERCENT(max_inflights, ADF_MAX_RING_THRESHOLD);
- 	atomic_set(ring->inflights, 0);
- 	ret = adf_init_ring(ring);
- 	if (ret)
-diff --git a/drivers/crypto/qat/qat_common/adf_transport.h b/drivers/crypto/qat/qat_common/adf_transport.h
-index 2c95f1697c76..e6ef6f9b7691 100644
---- a/drivers/crypto/qat/qat_common/adf_transport.h
-+++ b/drivers/crypto/qat/qat_common/adf_transport.h
-@@ -14,6 +14,7 @@ int adf_create_ring(struct adf_accel_dev *accel_dev, const char *section,
- 		    const char *ring_name, adf_callback_fn callback,
- 		    int poll_mode, struct adf_etr_ring_data **ring_ptr);
- 
-+bool adf_ring_nearly_full(struct adf_etr_ring_data *ring);
- int adf_send_message(struct adf_etr_ring_data *ring, u32 *msg);
- void adf_remove_ring(struct adf_etr_ring_data *ring);
- #endif
-diff --git a/drivers/crypto/qat/qat_common/adf_transport_internal.h b/drivers/crypto/qat/qat_common/adf_transport_internal.h
-index 501bcf0f1809..8b2c92ba7ca1 100644
---- a/drivers/crypto/qat/qat_common/adf_transport_internal.h
-+++ b/drivers/crypto/qat/qat_common/adf_transport_internal.h
-@@ -22,6 +22,7 @@ struct adf_etr_ring_data {
- 	spinlock_t lock;	/* protects ring data struct */
- 	u16 head;
- 	u16 tail;
-+	u32 threshold;
- 	u8 ring_number;
- 	u8 ring_size;
- 	u8 msg_size;
-diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
-index 6017ae82c713..873533dc43a7 100644
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -935,19 +935,25 @@ void qat_alg_callback(void *resp)
- 	struct icp_qat_fw_la_resp *qat_resp = resp;
- 	struct qat_crypto_request *qat_req =
- 				(void *)(__force long)qat_resp->opaque_data;
-+	struct qat_instance_backlog *backlog = qat_req->alg_req.backlog;
- 
- 	qat_req->cb(qat_resp, qat_req);
++#define __bf_cast_unsigned(type, x)	((__unsigned_scalar_typeof(type))(x))
 +
-+	qat_alg_send_backlog(backlog);
- }
- 
- static int qat_alg_send_sym_message(struct qat_crypto_request *qat_req,
--				    struct qat_crypto_instance *inst)
-+				    struct qat_crypto_instance *inst,
-+				    struct crypto_async_request *base)
- {
--	struct qat_alg_req req;
-+	struct qat_alg_req *alg_req = &qat_req->alg_req;
- 
--	req.fw_req = (u32 *)&qat_req->req;
--	req.tx_ring = inst->sym_tx;
-+	alg_req->fw_req = (u32 *)&qat_req->req;
-+	alg_req->tx_ring = inst->sym_tx;
-+	alg_req->base = base;
-+	alg_req->backlog = &inst->backlog;
- 
--	return qat_alg_send_message(&req);
-+	return qat_alg_send_message(alg_req);
- }
- 
- static int qat_alg_aead_dec(struct aead_request *areq)
-@@ -987,7 +993,7 @@ static int qat_alg_aead_dec(struct aead_request *areq)
- 	auth_param->auth_off = 0;
- 	auth_param->auth_len = areq->assoclen + cipher_param->cipher_length;
- 
--	ret = qat_alg_send_sym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_sym_message(qat_req, ctx->inst, &areq->base);
- 	if (ret == -ENOSPC)
- 		qat_alg_free_bufl(ctx->inst, qat_req);
- 
-@@ -1031,7 +1037,7 @@ static int qat_alg_aead_enc(struct aead_request *areq)
- 	auth_param->auth_off = 0;
- 	auth_param->auth_len = areq->assoclen + areq->cryptlen;
- 
--	ret = qat_alg_send_sym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_sym_message(qat_req, ctx->inst, &areq->base);
- 	if (ret == -ENOSPC)
- 		qat_alg_free_bufl(ctx->inst, qat_req);
- 
-@@ -1212,7 +1218,7 @@ static int qat_alg_skcipher_encrypt(struct skcipher_request *req)
- 
- 	qat_alg_set_req_iv(qat_req);
- 
--	ret = qat_alg_send_sym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_sym_message(qat_req, ctx->inst, &req->base);
- 	if (ret == -ENOSPC)
- 		qat_alg_free_bufl(ctx->inst, qat_req);
- 
-@@ -1278,7 +1284,7 @@ static int qat_alg_skcipher_decrypt(struct skcipher_request *req)
- 	qat_alg_set_req_iv(qat_req);
- 	qat_alg_update_iv(qat_req);
- 
--	ret = qat_alg_send_sym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_sym_message(qat_req, ctx->inst, &req->base);
- 	if (ret == -ENOSPC)
- 		qat_alg_free_bufl(ctx->inst, qat_req);
- 
-diff --git a/drivers/crypto/qat/qat_common/qat_algs_send.c b/drivers/crypto/qat/qat_common/qat_algs_send.c
-index 78f1bb8c26c0..ff5b4347f783 100644
---- a/drivers/crypto/qat/qat_common/qat_algs_send.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs_send.c
-@@ -6,7 +6,7 @@
- 
- #define ADF_MAX_RETRIES		20
- 
--int qat_alg_send_message(struct qat_alg_req *req)
-+static int qat_alg_send_message_retry(struct qat_alg_req *req)
- {
- 	int ret = 0, ctr = 0;
- 
-@@ -19,3 +19,68 @@ int qat_alg_send_message(struct qat_alg_req *req)
- 
- 	return -EINPROGRESS;
- }
-+
-+void qat_alg_send_backlog(struct qat_instance_backlog *backlog)
-+{
-+	struct qat_alg_req *req, *tmp;
-+
-+	spin_lock_bh(&backlog->lock);
-+	list_for_each_entry_safe(req, tmp, &backlog->list, list) {
-+		if (adf_send_message(req->tx_ring, req->fw_req)) {
-+			/* The HW ring is full. Do nothing.
-+			 * qat_alg_send_backlog() will be invoked again by
-+			 * another callback.
-+			 */
-+			break;
-+		}
-+		list_del(&req->list);
-+		req->base->complete(req->base, -EINPROGRESS);
-+	}
-+	spin_unlock_bh(&backlog->lock);
-+}
-+
-+static void qat_alg_backlog_req(struct qat_alg_req *req,
-+				struct qat_instance_backlog *backlog)
-+{
-+	INIT_LIST_HEAD(&req->list);
-+
-+	spin_lock_bh(&backlog->lock);
-+	list_add_tail(&req->list, &backlog->list);
-+	spin_unlock_bh(&backlog->lock);
-+}
-+
-+static int qat_alg_send_message_maybacklog(struct qat_alg_req *req)
-+{
-+	struct qat_instance_backlog *backlog = req->backlog;
-+	struct adf_etr_ring_data *tx_ring = req->tx_ring;
-+	u32 *fw_req = req->fw_req;
-+
-+	/* If any request is already backlogged, then add to backlog list */
-+	if (!list_empty(&backlog->list))
-+		goto enqueue;
-+
-+	/* If ring is nearly full, then add to backlog list */
-+	if (adf_ring_nearly_full(tx_ring))
-+		goto enqueue;
-+
-+	/* If adding request to HW ring fails, then add to backlog list */
-+	if (adf_send_message(tx_ring, fw_req))
-+		goto enqueue;
-+
-+	return -EINPROGRESS;
-+
-+enqueue:
-+	qat_alg_backlog_req(req, backlog);
-+
-+	return -EBUSY;
-+}
-+
-+int qat_alg_send_message(struct qat_alg_req *req)
-+{
-+	u32 flags = req->base->flags;
-+
-+	if (flags & CRYPTO_TFM_REQ_MAY_BACKLOG)
-+		return qat_alg_send_message_maybacklog(req);
-+	else
-+		return qat_alg_send_message_retry(req);
-+}
-diff --git a/drivers/crypto/qat/qat_common/qat_algs_send.h b/drivers/crypto/qat/qat_common/qat_algs_send.h
-index 3fa685d0c293..5ce9f4f69d8f 100644
---- a/drivers/crypto/qat/qat_common/qat_algs_send.h
-+++ b/drivers/crypto/qat/qat_common/qat_algs_send.h
-@@ -6,5 +6,6 @@
- #include "qat_crypto.h"
- 
- int qat_alg_send_message(struct qat_alg_req *req);
-+void qat_alg_send_backlog(struct qat_instance_backlog *backlog);
- 
- #endif
-diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-index 08b8d83e070a..ff7249c093c9 100644
---- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
-@@ -136,17 +136,21 @@ struct qat_asym_request {
- 	} areq;
- 	int err;
- 	void (*cb)(struct icp_qat_fw_pke_resp *resp);
-+	struct qat_alg_req alg_req;
- } __aligned(64);
- 
- static int qat_alg_send_asym_message(struct qat_asym_request *qat_req,
--				     struct qat_crypto_instance *inst)
-+				     struct qat_crypto_instance *inst,
-+				     struct crypto_async_request *base)
- {
--	struct qat_alg_req req;
-+	struct qat_alg_req *alg_req = &qat_req->alg_req;
- 
--	req.fw_req = (u32 *)&qat_req->req;
--	req.tx_ring = inst->pke_tx;
-+	alg_req->fw_req = (u32 *)&qat_req->req;
-+	alg_req->tx_ring = inst->pke_tx;
-+	alg_req->base = base;
-+	alg_req->backlog = &inst->backlog;
- 
--	return qat_alg_send_message(&req);
-+	return qat_alg_send_message(alg_req);
- }
- 
- static void qat_dh_cb(struct icp_qat_fw_pke_resp *resp)
-@@ -350,7 +354,7 @@ static int qat_dh_compute_value(struct kpp_request *req)
- 	msg->input_param_count = n_input_params;
- 	msg->output_param_count = 1;
- 
--	ret = qat_alg_send_asym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_asym_message(qat_req, inst, &req->base);
- 	if (ret == -ENOSPC)
- 		goto unmap_all;
- 
-@@ -557,8 +561,11 @@ void qat_alg_asym_callback(void *_resp)
- {
- 	struct icp_qat_fw_pke_resp *resp = _resp;
- 	struct qat_asym_request *areq = (void *)(__force long)resp->opaque;
-+	struct qat_instance_backlog *backlog = areq->alg_req.backlog;
- 
- 	areq->cb(resp);
-+
-+	qat_alg_send_backlog(backlog);
- }
- 
- #define PKE_RSA_EP_512 0x1c161b21
-@@ -748,7 +755,7 @@ static int qat_rsa_enc(struct akcipher_request *req)
- 	msg->input_param_count = 3;
- 	msg->output_param_count = 1;
- 
--	ret = qat_alg_send_asym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_asym_message(qat_req, inst, &req->base);
- 	if (ret == -ENOSPC)
- 		goto unmap_all;
- 
-@@ -901,7 +908,7 @@ static int qat_rsa_dec(struct akcipher_request *req)
- 
- 	msg->output_param_count = 1;
- 
--	ret = qat_alg_send_asym_message(qat_req, ctx->inst);
-+	ret = qat_alg_send_asym_message(qat_req, inst, &req->base);
- 	if (ret == -ENOSPC)
- 		goto unmap_all;
- 
-diff --git a/drivers/crypto/qat/qat_common/qat_crypto.c b/drivers/crypto/qat/qat_common/qat_crypto.c
-index 3efbb3883601..59e122afa434 100644
---- a/drivers/crypto/qat/qat_common/qat_crypto.c
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.c
-@@ -328,6 +328,9 @@ static int qat_crypto_create_instances(struct adf_accel_dev *accel_dev)
- 				      &inst->pke_rx);
- 		if (ret)
- 			goto err;
-+
-+		INIT_LIST_HEAD(&inst->backlog.list);
-+		spin_lock_init(&inst->backlog.lock);
- 	}
- 	return 0;
- err:
-diff --git a/drivers/crypto/qat/qat_common/qat_crypto.h b/drivers/crypto/qat/qat_common/qat_crypto.h
-index 0dcba6fc358c..245b6d9a3650 100644
---- a/drivers/crypto/qat/qat_common/qat_crypto.h
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.h
-@@ -9,9 +9,17 @@
- #include "adf_accel_devices.h"
- #include "icp_qat_fw_la.h"
- 
-+struct qat_instance_backlog {
-+	struct list_head list;
-+	spinlock_t lock; /* protects backlog list */
-+};
-+
- struct qat_alg_req {
- 	u32 *fw_req;
- 	struct adf_etr_ring_data *tx_ring;
-+	struct crypto_async_request *base;
-+	struct list_head list;
-+	struct qat_instance_backlog *backlog;
- };
- 
- struct qat_crypto_instance {
-@@ -24,6 +32,7 @@ struct qat_crypto_instance {
- 	unsigned long state;
- 	int id;
- 	atomic_t refctr;
-+	struct qat_instance_backlog backlog;
- };
- 
- #define QAT_MAX_BUFF_DESC	4
-@@ -82,6 +91,7 @@ struct qat_crypto_request {
- 		u8 iv[AES_BLOCK_SIZE];
- 	};
- 	bool encryption;
-+	struct qat_alg_req alg_req;
- };
- 
- static inline bool adf_hw_dev_has_crypto(struct adf_accel_dev *accel_dev)
+ #define __BF_FIELD_CHECK(_mask, _reg, _val, _pfx)			\
+ 	({								\
+ 		BUILD_BUG_ON_MSG(!__builtin_constant_p(_mask),		\
+@@ -49,7 +65,8 @@
+ 		BUILD_BUG_ON_MSG(__builtin_constant_p(_val) ?		\
+ 				 ~((_mask) >> __bf_shf(_mask)) & (_val) : 0, \
+ 				 _pfx "value too large for the field"); \
+-		BUILD_BUG_ON_MSG((_mask) > (typeof(_reg))~0ull,		\
++		BUILD_BUG_ON_MSG(__bf_cast_unsigned(_mask, _mask) >	\
++				 __bf_cast_unsigned(_reg, ~0ull),	\
+ 				 _pfx "type of reg too small for mask"); \
+ 		__BUILD_BUG_ON_NOT_POWER_OF_2((_mask) +			\
+ 					      (1ULL << __bf_shf(_mask))); \
 -- 
 2.35.1
 
