@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7E458307D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5D7A5830A1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242265AbiG0Riw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53682 "EHLO
+        id S242316AbiG0Rjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242602AbiG0RiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:38:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161638722B;
-        Wed, 27 Jul 2022 09:50:39 -0700 (PDT)
+        with ESMTP id S242766AbiG0RjM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6843661D6D;
+        Wed, 27 Jul 2022 09:51:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB37F61709;
-        Wed, 27 Jul 2022 16:50:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2034C433D7;
-        Wed, 27 Jul 2022 16:50:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 414AAB821BE;
+        Wed, 27 Jul 2022 16:50:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D185C433D6;
+        Wed, 27 Jul 2022 16:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940620;
-        bh=7FXiz8Wqs8s3IpD8TXzH/H16cPz+n1lRHTcYIBx3ioU=;
+        s=korg; t=1658940623;
+        bh=0Hz8/hFoBN0GjaM6W/+HjXYAMPRkWM8xHaE1RB5/m1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExZQGXi9yVHqTuLPDOyNNF9mZyAIs9283yafi99xP01AChm1iwCKXaue2k0C+8Owv
-         j5HjtaAqfflOrLYVwGVRvXxLlLHGIbQWPhtwEnd77lmfSGDehgS31bZCL3YeflWRrp
-         HUoqci5nCzv/TiFGtApJJ8tQ4p+90dlyKzfX2o7E=
+        b=ib8lxNaq2LOb+vqDINmyiIquxXVTXRVeD67UiGAHRbEkjSzGTtvixC+Cla8vZu5Kj
+         AWXP23w3jA32iwJ1f5paZjZ/mIIyuscClipSSd0VzvGrR3ZTRH1lGwJ7Il6/Ukxz54
+         qbTXK0i9WCTKRIgaF5BHZC94a+0g/CCzkb6MNwPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Dawid Lukwinski <dawid.lukwinski@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 088/158] net: lan966x: Fix usage of lan966x->mac_lock when used by FDB
-Date:   Wed, 27 Jul 2022 18:12:32 +0200
-Message-Id: <20220727161025.007895912@linuxfoundation.org>
+Subject: [PATCH 5.18 089/158] i40e: Fix erroneous adapter reinitialization during recovery process
+Date:   Wed, 27 Jul 2022 18:12:33 +0200
+Message-Id: <20220727161025.042585831@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,115 +57,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Dawid Lukwinski <dawid.lukwinski@intel.com>
 
-[ Upstream commit 675c807ae26b267233b97cd5006979a6bb8d54d4 ]
+[ Upstream commit f838a63369818faadec4ad1736cfbd20ab5da00e ]
 
-When the SW bridge was trying to add/remove entries to/from HW, the
-access to HW was not protected by any lock. In this way, it was
-possible to have race conditions.
-Fix this by using the lan966x->mac_lock to protect parallel access to HW
-for this cases.
+Fix an issue when driver incorrectly detects state
+of recovery process and erroneously reinitializes interrupts,
+which results in a kernel error and call trace message.
 
-Fixes: 25ee9561ec622 ("net: lan966x: More MAC table functionality")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+The issue was caused by a combination of two factors:
+1. Assuming the EMP reset issued after completing
+firmware recovery means the whole recovery process is complete.
+2. Erroneous reinitialization of interrupt vector after detecting
+the above mentioned EMP reset.
+
+Fixes (1) by changing how recovery state change is detected
+and (2) by adjusting the conditional expression to ensure using proper
+interrupt reinitialization method, depending on the situation.
+
+Fixes: 4ff0ee1af016 ("i40e: Introduce recovery mode support")
+Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220715214542.2968762-1-anthony.l.nguyen@intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/microchip/lan966x/lan966x_mac.c  | 34 +++++++++++++------
- 1 file changed, 23 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c b/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c
-index 69e343b7f4af..5893770bfd94 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c
-@@ -201,7 +201,6 @@ static struct lan966x_mac_entry *lan966x_mac_find_entry(struct lan966x *lan966x,
- 	struct lan966x_mac_entry *res = NULL;
- 	struct lan966x_mac_entry *mac_entry;
- 
--	spin_lock(&lan966x->mac_lock);
- 	list_for_each_entry(mac_entry, &lan966x->mac_entries, list) {
- 		if (mac_entry->vid == vid &&
- 		    ether_addr_equal(mac, mac_entry->mac) &&
-@@ -210,7 +209,6 @@ static struct lan966x_mac_entry *lan966x_mac_find_entry(struct lan966x *lan966x,
- 			break;
- 		}
- 	}
--	spin_unlock(&lan966x->mac_lock);
- 
- 	return res;
- }
-@@ -253,8 +251,11 @@ int lan966x_mac_add_entry(struct lan966x *lan966x, struct lan966x_port *port,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 77eb9c726205..6f01bffd7e5c 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -10645,7 +10645,7 @@ static int i40e_reset(struct i40e_pf *pf)
+  **/
+ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
  {
- 	struct lan966x_mac_entry *mac_entry;
+-	int old_recovery_mode_bit = test_bit(__I40E_RECOVERY_MODE, pf->state);
++	const bool is_recovery_mode_reported = i40e_check_recovery_mode(pf);
+ 	struct i40e_vsi *vsi = pf->vsi[pf->lan_vsi];
+ 	struct i40e_hw *hw = &pf->hw;
+ 	i40e_status ret;
+@@ -10653,13 +10653,11 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	int v;
  
--	if (lan966x_mac_lookup(lan966x, addr, vid, ENTRYTYPE_NORMAL))
-+	spin_lock(&lan966x->mac_lock);
-+	if (lan966x_mac_lookup(lan966x, addr, vid, ENTRYTYPE_NORMAL)) {
-+		spin_unlock(&lan966x->mac_lock);
- 		return 0;
-+	}
+ 	if (test_bit(__I40E_EMP_RESET_INTR_RECEIVED, pf->state) &&
+-	    i40e_check_recovery_mode(pf)) {
++	    is_recovery_mode_reported)
+ 		i40e_set_ethtool_ops(pf->vsi[pf->lan_vsi]->netdev);
+-	}
  
- 	/* In case the entry already exists, don't add it again to SW,
- 	 * just update HW, but we need to look in the actual HW because
-@@ -263,21 +264,25 @@ int lan966x_mac_add_entry(struct lan966x *lan966x, struct lan966x_port *port,
- 	 * add the entry but without the extern_learn flag.
+ 	if (test_bit(__I40E_DOWN, pf->state) &&
+-	    !test_bit(__I40E_RECOVERY_MODE, pf->state) &&
+-	    !old_recovery_mode_bit)
++	    !test_bit(__I40E_RECOVERY_MODE, pf->state))
+ 		goto clear_recovery;
+ 	dev_dbg(&pf->pdev->dev, "Rebuilding internal switch\n");
+ 
+@@ -10686,13 +10684,12 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	 * accordingly with regard to resources initialization
+ 	 * and deinitialization
  	 */
- 	mac_entry = lan966x_mac_find_entry(lan966x, addr, vid, port->chip_port);
--	if (mac_entry)
--		return lan966x_mac_learn(lan966x, port->chip_port,
--					 addr, vid, ENTRYTYPE_LOCKED);
-+	if (mac_entry) {
-+		spin_unlock(&lan966x->mac_lock);
-+		goto mac_learn;
-+	}
+-	if (test_bit(__I40E_RECOVERY_MODE, pf->state) ||
+-	    old_recovery_mode_bit) {
++	if (test_bit(__I40E_RECOVERY_MODE, pf->state)) {
+ 		if (i40e_get_capabilities(pf,
+ 					  i40e_aqc_opc_list_func_capabilities))
+ 			goto end_unlock;
  
- 	mac_entry = lan966x_mac_alloc_entry(addr, vid, port->chip_port);
--	if (!mac_entry)
-+	if (!mac_entry) {
-+		spin_unlock(&lan966x->mac_lock);
- 		return -ENOMEM;
-+	}
- 
--	spin_lock(&lan966x->mac_lock);
- 	list_add_tail(&mac_entry->list, &lan966x->mac_entries);
- 	spin_unlock(&lan966x->mac_lock);
- 
--	lan966x_mac_learn(lan966x, port->chip_port, addr, vid, ENTRYTYPE_LOCKED);
- 	lan966x_fdb_call_notifiers(SWITCHDEV_FDB_OFFLOADED, addr, vid, port->dev);
- 
-+mac_learn:
-+	lan966x_mac_learn(lan966x, port->chip_port, addr, vid, ENTRYTYPE_LOCKED);
-+
- 	return 0;
- }
- 
-@@ -291,8 +296,9 @@ int lan966x_mac_del_entry(struct lan966x *lan966x, const unsigned char *addr,
- 				 list) {
- 		if (mac_entry->vid == vid &&
- 		    ether_addr_equal(addr, mac_entry->mac)) {
--			lan966x_mac_forget(lan966x, mac_entry->mac, mac_entry->vid,
--					   ENTRYTYPE_LOCKED);
-+			lan966x_mac_forget_locked(lan966x, mac_entry->mac,
-+						  mac_entry->vid,
-+						  ENTRYTYPE_LOCKED);
- 
- 			list_del(&mac_entry->list);
- 			kfree(mac_entry);
-@@ -428,6 +434,12 @@ static void lan966x_mac_irq_process(struct lan966x *lan966x, u32 row,
- 			continue;
- 
- 		spin_lock(&lan966x->mac_lock);
-+		mac_entry = lan966x_mac_find_entry(lan966x, mac, vid, dest_idx);
-+		if (mac_entry) {
-+			spin_unlock(&lan966x->mac_lock);
-+			continue;
-+		}
-+
- 		mac_entry = lan966x_mac_alloc_entry(mac, vid, dest_idx);
- 		if (!mac_entry) {
- 			spin_unlock(&lan966x->mac_lock);
+-		if (test_bit(__I40E_RECOVERY_MODE, pf->state)) {
++		if (is_recovery_mode_reported) {
+ 			/* we're staying in recovery mode so we'll reinitialize
+ 			 * misc vector here
+ 			 */
 -- 
 2.35.1
 
