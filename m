@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE308582BD7
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5353A582C93
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238671AbiG0QiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:38:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
+        id S240315AbiG0QsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:48:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238729AbiG0Qhk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:37:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA5414D80A;
-        Wed, 27 Jul 2022 09:28:21 -0700 (PDT)
+        with ESMTP id S240314AbiG0QrE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:47:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5663952E52;
+        Wed, 27 Jul 2022 09:32:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C430B61662;
-        Wed, 27 Jul 2022 16:27:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEA94C433D6;
-        Wed, 27 Jul 2022 16:27:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEBA4B821BE;
+        Wed, 27 Jul 2022 16:32:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C3BFC433C1;
+        Wed, 27 Jul 2022 16:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939277;
-        bh=o5uo9H+aQK80HuhfKYBHekHvHmapsv5dz6+d7wV1KCs=;
+        s=korg; t=1658939520;
+        bh=VmvQaZowy1d0aqIWB3OQ1GQv0t682IOsWS1iF7J5FK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UY7SFRpt1ydRyZ8TedtGwRdOL4g4ZfP3SbmDcKKNEIpxqKhvelxvgrYQUjHjupd3r
-         7DkGoetRfO3IE+dXLN37xKsC+IylFBhYQYyocQH3quZKr0PmqxwOfQtHyozjjpZL7j
-         hAMn5Unkz0r3Sk7QG3RdMc62YfgXWRtZuTFuP6s0=
+        b=JDhZ/m2HUQvxcM2nscczvut5ShelFugvn2uy0adWwN3m6QOu57QxPKNZqnZdhMDBP
+         Tpr8yJkRGTQu5MyN84ErgR/gSLwW7w05KNQXXpXXCsXD8FWnsH9etHSR8mjapMWfRj
+         PElZyTkVVQz78hwsWVfBifjjAHeKtUuC+iy0v7/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Snowberg <eric.snowberg@oracle.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        John Haxby <john.haxby@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 04/87] lockdown: Fix kexec lockdown bypass with ima policy
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Fedor Pchelkin <pchelkin@ispras.ru>
+Subject: [PATCH 5.10 011/105] net: make sure devices go through netdev_wait_all_refs
 Date:   Wed, 27 Jul 2022 18:09:57 +0200
-Message-Id: <20220727161009.182304198@linuxfoundation.org>
+Message-Id: <20220727161012.515394196@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Snowberg <eric.snowberg@oracle.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 543ce63b664e2c2f9533d089a4664b559c3e6b5b upstream.
+From: Jakub Kicinski <kuba@kernel.org>
 
-The lockdown LSM is primarily used in conjunction with UEFI Secure Boot.
-This LSM may also be used on machines without UEFI.  It can also be
-enabled when UEFI Secure Boot is disabled.  One of lockdown's features
-is to prevent kexec from loading untrusted kernels.  Lockdown can be
-enabled through a bootparam or after the kernel has booted through
-securityfs.
+commit 766b0515d5bec4b780750773ed3009b148df8c0a upstream.
 
-If IMA appraisal is used with the "ima_appraise=log" boot param,
-lockdown can be defeated with kexec on any machine when Secure Boot is
-disabled or unavailable.  IMA prevents setting "ima_appraise=log" from
-the boot param when Secure Boot is enabled, but this does not cover
-cases where lockdown is used without Secure Boot.
+If register_netdevice() fails at the very last stage - the
+notifier call - some subsystems may have already seen it and
+grabbed a reference. struct net_device can't be freed right
+away without calling netdev_wait_all_refs().
 
-To defeat lockdown, boot without Secure Boot and add ima_appraise=log to
-the kernel command line; then:
+Now that we have a clean interface in form of dev->needs_free_netdev
+and lenient free_netdev() we can undo what commit 93ee31f14f6f ("[NET]:
+Fix free_netdev on register_netdev failure.") has done and complete
+the unregistration path by bringing the net_set_todo() call back.
 
-  $ echo "integrity" > /sys/kernel/security/lockdown
-  $ echo "appraise func=KEXEC_KERNEL_CHECK appraise_type=imasig" > \
-    /sys/kernel/security/ima/policy
-  $ kexec -ls unsigned-kernel
+After registration fails user is still expected to explicitly
+free the net_device, so make sure ->needs_free_netdev is cleared,
+otherwise rolling back the registration will cause the old double
+free for callers who release rtnl_lock before the free.
 
-Add a call to verify ima appraisal is set to "enforce" whenever lockdown
-is enabled.  This fixes CVE-2022-21505.
+This also solves the problem of priv_destructor not being called
+on notifier error.
 
-Cc: stable@vger.kernel.org
-Fixes: 29d3c1c8dfe7 ("kexec: Allow kexec_file() with appropriate IMA policy when locked down")
-Signed-off-by: Eric Snowberg <eric.snowberg@oracle.com>
-Acked-by: Mimi Zohar <zohar@linux.ibm.com>
-Reviewed-by: John Haxby <john.haxby@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+net_set_todo() will be moved back into unregister_netdevice_queue()
+in a follow up.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima_policy.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/core/dev.c |   14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -1542,6 +1542,10 @@ bool ima_appraise_signature(enum kernel_
- 	if (id >= READING_MAX_ID)
- 		return false;
- 
-+	if (id == READING_KEXEC_IMAGE && !(ima_appraise & IMA_APPRAISE_ENFORCE)
-+	    && security_locked_down(LOCKDOWN_KEXEC))
-+		return false;
-+
- 	func = read_idmap[id] ?: FILE_CHECK;
- 
- 	rcu_read_lock();
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -10144,17 +10144,11 @@ int register_netdevice(struct net_device
+ 	ret = call_netdevice_notifiers(NETDEV_REGISTER, dev);
+ 	ret = notifier_to_errno(ret);
+ 	if (ret) {
++		/* Expect explicit free_netdev() on failure */
++		dev->needs_free_netdev = false;
+ 		rollback_registered(dev);
+-		rcu_barrier();
+-
+-		dev->reg_state = NETREG_UNREGISTERED;
+-		/* We should put the kobject that hold in
+-		 * netdev_unregister_kobject(), otherwise
+-		 * the net device cannot be freed when
+-		 * driver calls free_netdev(), because the
+-		 * kobject is being hold.
+-		 */
+-		kobject_put(&dev->dev.kobj);
++		net_set_todo(dev);
++		goto out;
+ 	}
+ 	/*
+ 	 *	Prevent userspace races by waiting until the network
 
 
