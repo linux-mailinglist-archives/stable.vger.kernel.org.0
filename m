@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5F0582C4B
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A50C582D1E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239868AbiG0Qou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43820 "EHLO
+        id S240768AbiG0QzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240212AbiG0QoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:12 -0400
+        with ESMTP id S241031AbiG0QyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14063BC06;
-        Wed, 27 Jul 2022 09:30:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 778524F661;
+        Wed, 27 Jul 2022 09:35:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97D18619FD;
-        Wed, 27 Jul 2022 16:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6111C433D7;
-        Wed, 27 Jul 2022 16:30:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6D2A61A8E;
+        Wed, 27 Jul 2022 16:35:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E0BC433D6;
+        Wed, 27 Jul 2022 16:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939449;
-        bh=0nPcMk7X2zRWW6IEONlkgBKjawbM0P/bEPivCLl7JwM=;
+        s=korg; t=1658939721;
+        bh=njurI18qD1t1r66D78QE8tvSsJDqwpTLVeo3OeAw6N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0bLRql+90Ym3LF+bTVxOQ+Ly7ruLKS6FS4eI7Dmdcshn24QfQkHO5S/7PAmYm9yq
-         XC1tgLQ8A/lbGawh26Djck7TG/djGGSY7pugBLnpQuvyRYHElZ3L9XlLTfLj2cGWj8
-         3VJyMP0Fx0eA5ExnydGsvZa0P2Cfipi1F9ncEQJw=
+        b=IPcxzl2ZUnwsBtl6WCdUD1kjARoAqSdoSYulT8ACwahbks4mHOqRgUwGKC3sT1ePE
+         jz53SGfUo3VT8BNXh+7aJZzecPOheLzLk0/tK4oiUBvKWr75JKZCE3b26KFJWcFLoH
+         t3SgEoQ9Q5PD7jAhg59xR6yoV6Aju+RTwV1+dfj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 73/87] ALSA: memalloc: Align buffer allocations in page size
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.10 080/105] bpf: Make sure mac_header was set before using it
 Date:   Wed, 27 Jul 2022 18:11:06 +0200
-Message-Id: <20220727161012.026313331@linuxfoundation.org>
+Message-Id: <20220727161015.300001150@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 5c1733e33c888a3cb7f576564d8ad543d5ad4a9e upstream.
+commit 0326195f523a549e0a9d7fd44c70b26fd7265090 upstream.
 
-Currently the standard memory allocator (snd_dma_malloc_pages*())
-passes the byte size to allocate as is.  Most of the backends
-allocates real pages, hence the actual allocations are aligned in page
-size.  However, the genalloc doesn't seem assuring the size alignment,
-hence it may result in the access outside the buffer when the whole
-memory pages are exposed via mmap.
+Classic BPF has a way to load bytes starting from the mac header.
 
-For avoiding such inconsistencies, this patch makes the allocation
-size always to be aligned in page size.
+Some skbs do not have a mac header, and skb_mac_header()
+in this case is returning a pointer that 65535 bytes after
+skb->head.
 
-Note that, after this change, snd_dma_buffer.bytes field contains the
-aligned size, not the originally requested size.  This value is also
-used for releasing the pages in return.
+Existing range check in bpf_internal_load_pointer_neg_helper()
+was properly kicking and no illegal access was happening.
 
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20201218145625.2045-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+New sanity check in skb_mac_header() is firing, so we need
+to avoid it.
+
+WARNING: CPU: 1 PID: 28990 at include/linux/skbuff.h:2785 skb_mac_header include/linux/skbuff.h:2785 [inline]
+WARNING: CPU: 1 PID: 28990 at include/linux/skbuff.h:2785 bpf_internal_load_pointer_neg_helper+0x1b1/0x1c0 kernel/bpf/core.c:74
+Modules linked in:
+CPU: 1 PID: 28990 Comm: syz-executor.0 Not tainted 5.19.0-rc4-syzkaller-00865-g4874fb9484be #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/29/2022
+RIP: 0010:skb_mac_header include/linux/skbuff.h:2785 [inline]
+RIP: 0010:bpf_internal_load_pointer_neg_helper+0x1b1/0x1c0 kernel/bpf/core.c:74
+Code: ff ff 45 31 f6 e9 5a ff ff ff e8 aa 27 40 00 e9 3b ff ff ff e8 90 27 40 00 e9 df fe ff ff e8 86 27 40 00 eb 9e e8 2f 2c f3 ff <0f> 0b eb b1 e8 96 27 40 00 e9 79 fe ff ff 90 41 57 41 56 41 55 41
+RSP: 0018:ffffc9000309f668 EFLAGS: 00010216
+RAX: 0000000000000118 RBX: ffffffffffeff00c RCX: ffffc9000e417000
+RDX: 0000000000040000 RSI: ffffffff81873f21 RDI: 0000000000000003
+RBP: ffff8880842878c0 R08: 0000000000000003 R09: 000000000000ffff
+R10: 000000000000ffff R11: 0000000000000001 R12: 0000000000000004
+R13: ffff88803ac56c00 R14: 000000000000ffff R15: dffffc0000000000
+FS: 00007f5c88a16700(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fdaa9f6c058 CR3: 000000003a82c000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+____bpf_skb_load_helper_32 net/core/filter.c:276 [inline]
+bpf_skb_load_helper_32+0x191/0x220 net/core/filter.c:264
+
+Fixes: f9aefd6b2aa3 ("net: warn if mac header was not set")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220707123900.945305-1-edumazet@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/memalloc.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/core.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -124,6 +124,7 @@ int snd_dma_alloc_pages(int type, struct
- 	if (WARN_ON(!device))
- 		return -EINVAL;
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -66,11 +66,13 @@ void *bpf_internal_load_pointer_neg_help
+ {
+ 	u8 *ptr = NULL;
  
-+	size = PAGE_ALIGN(size);
- 	dmab->dev.type = type;
- 	dmab->dev.dev = device;
- 	dmab->bytes = 0;
+-	if (k >= SKF_NET_OFF)
++	if (k >= SKF_NET_OFF) {
+ 		ptr = skb_network_header(skb) + k - SKF_NET_OFF;
+-	else if (k >= SKF_LL_OFF)
++	} else if (k >= SKF_LL_OFF) {
++		if (unlikely(!skb_mac_header_was_set(skb)))
++			return NULL;
+ 		ptr = skb_mac_header(skb) + k - SKF_LL_OFF;
+-
++	}
+ 	if (ptr >= skb->head && ptr + size <= skb_tail_pointer(skb))
+ 		return ptr;
+ 
 
 
