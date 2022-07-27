@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4FA6582E20
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCDD3582E22
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241456AbiG0RH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:07:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
+        id S238300AbiG0RIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:08:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237264AbiG0RHS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:07:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018E22719;
-        Wed, 27 Jul 2022 09:40:09 -0700 (PDT)
+        with ESMTP id S240940AbiG0RH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:07:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5704213DE6;
+        Wed, 27 Jul 2022 09:40:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DAE8B821D8;
-        Wed, 27 Jul 2022 16:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF80BC433C1;
-        Wed, 27 Jul 2022 16:40:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F586B8200D;
+        Wed, 27 Jul 2022 16:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97C84C433C1;
+        Wed, 27 Jul 2022 16:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940007;
-        bh=1fP8eZdtcz8+F/rW5eMH6q182a0JuHnCnMUQtc++Bfw=;
+        s=korg; t=1658940010;
+        bh=VMLCUBZCobyAXdrRzT/Jh16eeai0MEhj4Z65pThCLuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itVuLwn9Xc3sZoFnuCDsDN7nlUV9HQRKvKP3j6MM8LgWnfAbnXFWvOvgGoepPd5MY
-         mxoDD5jTWbV1wKHjiH/0oGRc4vqp+e22n7VX3+CwbyQPMLu30K4q6PUAsCYQ237jaQ
-         Hlu7vfljk92QA/0jRlQrxYyQ0AWvEAwpCqcTBSjw=
+        b=E8RwktXznhvsZhGpCljxpvlt2lDM64Df4zFNBP8v43T6Vl1TbDRhD1JuNQUOpkv+r
+         tC/JF4uC31FUlPEoaPm594hsGmrcLcFCVAIuQUhh0G36DtA518qBemHvx5ovRFw2+T
+         Wcnhr1BS37F4A9AsNIZWmaoOmRu6J3zxptmtxZMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Jude Shih <shenshih@amd.com>,
-        Daniel Wheeler <Daniel.Wheeler@amd.com>,
+        stable@vger.kernel.org, Mikita Lipski <mikita.lipski@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 042/201] drm/amd/display: Support for DMUB HPD interrupt handling
-Date:   Wed, 27 Jul 2022 18:09:06 +0200
-Message-Id: <20220727161028.621335564@linuxfoundation.org>
+Subject: [PATCH 5.15 043/201] drm/amd/display: Add option to defer works of hpd_rx_irq
+Date:   Wed, 27 Jul 2022 18:09:07 +0200
+Message-Id: <20220727161028.661523908@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -57,340 +56,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jude Shih <shenshih@amd.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit e27c41d5b0681c597ac1894f4e02cf626e062250 ]
+[ Upstream commit 410ad92d7fecd30de7456c19e326e272c2153ff2 ]
 
-[WHY]
-To add support for HPD interrupt handling from DMUB.
-HPD interrupt could be triggered from outbox1 from DMUB
+[Why & How]
+Due to some code flow constraints, we need to defer dc_lock needed works
+from dc_link_handle_hpd_rx_irq(). Thus, do following changes:
 
-[HOW]
-1) Use queue_work to handle hpd task from outbox1
+* Change allow_hpd_rx_irq() from static to public
+* Change handle_automated_test() from static to public
+* Extract link lost handling flow out from dc_link_handle_hpd_rx_irq()
+  and put those into a new function dc_link_dp_handle_link_loss()
+* Add one option parameter to decide whether defer works within
+  dc_link_handle_hpd_rx_irq()
 
-2) Add handle_hpd_irq_helper to share interrupt handling code
-between legacy and DMUB HPD from outbox1
-
-3) Added DMUB HPD handling in dmub_srv_stat_get_notification().
-HPD handling callback function and wake up the DMUB thread.
-
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Jude Shih <shenshih@amd.com>
-Tested-by: Daniel Wheeler <Daniel.Wheeler@amd.com>
+Acked-by: Mikita Lipski <mikita.lipski@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 171 +++++++++++++++++-
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |  40 ++++
- 2 files changed, 203 insertions(+), 8 deletions(-)
+ .../gpu/drm/amd/display/dc/core/dc_link_dp.c  | 92 ++++++++++++-------
+ drivers/gpu/drm/amd/display/dc/dc_link.h      |  3 +
+ 2 files changed, 63 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index d35a6f6d158e..19048f0d83a4 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -215,6 +215,8 @@ static void handle_cursor_update(struct drm_plane *plane,
- static const struct drm_format_info *
- amd_get_format_info(const struct drm_mode_fb_cmd2 *cmd);
- 
-+static void handle_hpd_irq_helper(struct amdgpu_dm_connector *aconnector);
-+
- static bool
- is_timing_unchanged_for_freesync(struct drm_crtc_state *old_crtc_state,
- 				 struct drm_crtc_state *new_crtc_state);
-@@ -618,6 +620,116 @@ static void dm_dcn_vertical_interrupt0_high_irq(void *interrupt_params)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 05f81d44aa6c..9b6111eb9ca4 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -2743,7 +2743,7 @@ void decide_link_settings(struct dc_stream_state *stream,
  }
- #endif
  
-+/**
-+ * dmub_aux_setconfig_reply_callback - Callback for AUX or SET_CONFIG command.
-+ * @adev: amdgpu_device pointer
-+ * @notify: dmub notification structure
-+ *
-+ * Dmub AUX or SET_CONFIG command completion processing callback
-+ * Copies dmub notification to DM which is to be read by AUX command.
-+ * issuing thread and also signals the event to wake up the thread.
-+ */
-+void dmub_aux_setconfig_callback(struct amdgpu_device *adev, struct dmub_notification *notify)
+ /*************************Short Pulse IRQ***************************/
+-static bool allow_hpd_rx_irq(const struct dc_link *link)
++bool dc_link_dp_allow_hpd_rx_irq(const struct dc_link *link)
+ {
+ 	/*
+ 	 * Don't handle RX IRQ unless one of following is met:
+@@ -3177,7 +3177,7 @@ static void dp_test_get_audio_test_data(struct dc_link *link, bool disable_video
+ 	}
+ }
+ 
+-static void handle_automated_test(struct dc_link *link)
++void dc_link_dp_handle_automated_test(struct dc_link *link)
+ {
+ 	union test_request test_request;
+ 	union test_response test_response;
+@@ -3226,17 +3226,50 @@ static void handle_automated_test(struct dc_link *link)
+ 			sizeof(test_response));
+ }
+ 
+-bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd_irq_dpcd_data, bool *out_link_loss)
++void dc_link_dp_handle_link_loss(struct dc_link *link)
 +{
-+	if (adev->dm.dmub_notify)
-+		memcpy(adev->dm.dmub_notify, notify, sizeof(struct dmub_notification));
-+	if (notify->type == DMUB_NOTIFICATION_AUX_REPLY)
-+		complete(&adev->dm.dmub_aux_transfer_done);
-+}
++	int i;
++	struct pipe_ctx *pipe_ctx;
 +
-+/**
-+ * dmub_hpd_callback - DMUB HPD interrupt processing callback.
-+ * @adev: amdgpu_device pointer
-+ * @notify: dmub notification structure
-+ *
-+ * Dmub Hpd interrupt processing callback. Gets displayindex through the
-+ * ink index and calls helper to do the processing.
-+ */
-+void dmub_hpd_callback(struct amdgpu_device *adev, struct dmub_notification *notify)
-+{
-+	struct amdgpu_dm_connector *aconnector;
-+	struct drm_connector *connector;
-+	struct drm_connector_list_iter iter;
-+	struct dc_link *link;
-+	uint8_t link_index = 0;
-+	struct drm_device *dev = adev->dm.ddev;
-+
-+	if (adev == NULL)
-+		return;
-+
-+	if (notify == NULL) {
-+		DRM_ERROR("DMUB HPD callback notification was NULL");
-+		return;
-+	}
-+
-+	if (notify->link_index > adev->dm.dc->link_count) {
-+		DRM_ERROR("DMUB HPD index (%u)is abnormal", notify->link_index);
-+		return;
-+	}
-+
-+	drm_modeset_lock(&dev->mode_config.connection_mutex, NULL);
-+
-+	link_index = notify->link_index;
-+
-+	link = adev->dm.dc->links[link_index];
-+
-+	drm_connector_list_iter_begin(dev, &iter);
-+	drm_for_each_connector_iter(connector, &iter) {
-+		aconnector = to_amdgpu_dm_connector(connector);
-+		if (link && aconnector->dc_link == link) {
-+			DRM_INFO("DMUB HPD callback: link_index=%u\n", link_index);
-+			handle_hpd_irq_helper(aconnector);
++	for (i = 0; i < MAX_PIPES; i++) {
++		pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
++		if (pipe_ctx && pipe_ctx->stream && pipe_ctx->stream->link == link)
 +			break;
-+		}
 +	}
-+	drm_connector_list_iter_end(&iter);
-+	drm_modeset_unlock(&dev->mode_config.connection_mutex);
 +
-+}
-+
-+/**
-+ * register_dmub_notify_callback - Sets callback for DMUB notify
-+ * @adev: amdgpu_device pointer
-+ * @type: Type of dmub notification
-+ * @callback: Dmub interrupt callback function
-+ * @dmub_int_thread_offload: offload indicator
-+ *
-+ * API to register a dmub callback handler for a dmub notification
-+ * Also sets indicator whether callback processing to be offloaded.
-+ * to dmub interrupt handling thread
-+ * Return: true if successfully registered, false if there is existing registration
-+ */
-+bool register_dmub_notify_callback(struct amdgpu_device *adev, enum dmub_notification_type type,
-+dmub_notify_interrupt_callback_t callback, bool dmub_int_thread_offload)
-+{
-+	if (callback != NULL && type < ARRAY_SIZE(adev->dm.dmub_thread_offload)) {
-+		adev->dm.dmub_callback[type] = callback;
-+		adev->dm.dmub_thread_offload[type] = dmub_int_thread_offload;
-+	} else
-+		return false;
-+
-+	return true;
-+}
-+
-+static void dm_handle_hpd_work(struct work_struct *work)
-+{
-+	struct dmub_hpd_work *dmub_hpd_wrk;
-+
-+	dmub_hpd_wrk = container_of(work, struct dmub_hpd_work, handle_hpd_work);
-+
-+	if (!dmub_hpd_wrk->dmub_notify) {
-+		DRM_ERROR("dmub_hpd_wrk dmub_notify is NULL");
++	if (pipe_ctx == NULL || pipe_ctx->stream == NULL)
 +		return;
++
++	for (i = 0; i < MAX_PIPES; i++) {
++		pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
++		if (pipe_ctx && pipe_ctx->stream && !pipe_ctx->stream->dpms_off &&
++				pipe_ctx->stream->link == link && !pipe_ctx->prev_odm_pipe) {
++			core_link_disable_stream(pipe_ctx);
++		}
 +	}
 +
-+	if (dmub_hpd_wrk->dmub_notify->type < ARRAY_SIZE(dmub_hpd_wrk->adev->dm.dmub_callback)) {
-+		dmub_hpd_wrk->adev->dm.dmub_callback[dmub_hpd_wrk->dmub_notify->type](dmub_hpd_wrk->adev,
-+		dmub_hpd_wrk->dmub_notify);
++	for (i = 0; i < MAX_PIPES; i++) {
++		pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
++		if (pipe_ctx && pipe_ctx->stream && !pipe_ctx->stream->dpms_off &&
++				pipe_ctx->stream->link == link && !pipe_ctx->prev_odm_pipe) {
++			core_link_enable_stream(link->dc->current_state, pipe_ctx);
++		}
 +	}
-+	kfree(dmub_hpd_wrk);
-+
 +}
 +
- #define DMUB_TRACE_MAX_READ 64
- /**
-  * dm_dmub_outbox1_low_irq() - Handles Outbox interrupt
-@@ -634,18 +746,33 @@ static void dm_dmub_outbox1_low_irq(void *interrupt_params)
- 	struct amdgpu_display_manager *dm = &adev->dm;
- 	struct dmcub_trace_buf_entry entry = { 0 };
- 	uint32_t count = 0;
-+	struct dmub_hpd_work *dmub_hpd_wrk;
- 
- 	if (dc_enable_dmub_notifications(adev->dm.dc)) {
-+		dmub_hpd_wrk = kzalloc(sizeof(*dmub_hpd_wrk), GFP_ATOMIC);
-+		if (!dmub_hpd_wrk) {
-+			DRM_ERROR("Failed to allocate dmub_hpd_wrk");
-+			return;
-+		}
-+		INIT_WORK(&dmub_hpd_wrk->handle_hpd_work, dm_handle_hpd_work);
-+
- 		if (irq_params->irq_src == DC_IRQ_SOURCE_DMCUB_OUTBOX) {
- 			do {
- 				dc_stat_get_dmub_notification(adev->dm.dc, &notify);
--			} while (notify.pending_notification);
-+				if (notify.type > ARRAY_SIZE(dm->dmub_thread_offload)) {
-+					DRM_ERROR("DM: notify type %d larger than the array size %ld !", notify.type,
-+					ARRAY_SIZE(dm->dmub_thread_offload));
-+					continue;
-+				}
-+				if (dm->dmub_thread_offload[notify.type] == true) {
-+					dmub_hpd_wrk->dmub_notify = &notify;
-+					dmub_hpd_wrk->adev = adev;
-+					queue_work(adev->dm.delayed_hpd_wq, &dmub_hpd_wrk->handle_hpd_work);
-+				} else {
-+					dm->dmub_callback[notify.type](adev, &notify);
-+				}
- 
--			if (adev->dm.dmub_notify)
--				memcpy(adev->dm.dmub_notify, &notify, sizeof(struct dmub_notification));
--			if (notify.type == DMUB_NOTIFICATION_AUX_REPLY)
--				complete(&adev->dm.dmub_aux_transfer_done);
--			// TODO : HPD Implementation
-+			} while (notify.pending_notification);
- 
- 		} else {
- 			DRM_ERROR("DM: Failed to receive correct outbox IRQ !");
-@@ -1287,7 +1414,25 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 			DRM_INFO("amdgpu: fail to allocate adev->dm.dmub_notify");
- 			goto error;
- 		}
-+
-+		adev->dm.delayed_hpd_wq = create_singlethread_workqueue("amdgpu_dm_hpd_wq");
-+		if (!adev->dm.delayed_hpd_wq) {
-+			DRM_ERROR("amdgpu: failed to create hpd offload workqueue.\n");
-+			goto error;
-+		}
-+
- 		amdgpu_dm_outbox_init(adev);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+		if (!register_dmub_notify_callback(adev, DMUB_NOTIFICATION_AUX_REPLY,
-+			dmub_aux_setconfig_callback, false)) {
-+			DRM_ERROR("amdgpu: fail to register dmub aux callback");
-+			goto error;
-+		}
-+		if (!register_dmub_notify_callback(adev, DMUB_NOTIFICATION_HPD, dmub_hpd_callback, true)) {
-+			DRM_ERROR("amdgpu: fail to register dmub hpd callback");
-+			goto error;
-+		}
-+#endif
- 	}
- 
- 	if (amdgpu_dm_initialize_drm_device(adev)) {
-@@ -1369,6 +1514,8 @@ static void amdgpu_dm_fini(struct amdgpu_device *adev)
- 	if (dc_enable_dmub_notifications(adev->dm.dc)) {
- 		kfree(adev->dm.dmub_notify);
- 		adev->dm.dmub_notify = NULL;
-+		destroy_workqueue(adev->dm.delayed_hpd_wq);
-+		adev->dm.delayed_hpd_wq = NULL;
- 	}
- 
- 	if (adev->dm.dmub_bo)
-@@ -2654,9 +2801,8 @@ void amdgpu_dm_update_connector_after_detect(
- 		dc_sink_release(sink);
- }
- 
--static void handle_hpd_irq(void *param)
-+static void handle_hpd_irq_helper(struct amdgpu_dm_connector *aconnector)
++static bool handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd_irq_dpcd_data, bool *out_link_loss,
++							bool defer_handling, bool *has_left_work)
  {
--	struct amdgpu_dm_connector *aconnector = (struct amdgpu_dm_connector *)param;
- 	struct drm_connector *connector = &aconnector->base;
- 	struct drm_device *dev = connector->dev;
- 	enum dc_connection_type new_connection_type = dc_connection_none;
-@@ -2715,6 +2861,15 @@ static void handle_hpd_irq(void *param)
+ 	union hpd_irq_data hpd_irq_dpcd_data = { { { {0} } } };
+ 	union device_service_irq device_service_clear = { { 0 } };
+ 	enum dc_status result;
+ 	bool status = false;
+-	struct pipe_ctx *pipe_ctx;
+-	int i;
  
+ 	if (out_link_loss)
+ 		*out_link_loss = false;
++
++	if (has_left_work)
++		*has_left_work = false;
+ 	/* For use cases related to down stream connection status change,
+ 	 * PSR and device auto test, refer to function handle_sst_hpd_irq
+ 	 * in DAL2.1*/
+@@ -3268,11 +3301,14 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
+ 			&device_service_clear.raw,
+ 			sizeof(device_service_clear.raw));
+ 		device_service_clear.raw = 0;
+-		handle_automated_test(link);
++		if (defer_handling && has_left_work)
++			*has_left_work = true;
++		else
++			dc_link_dp_handle_automated_test(link);
+ 		return false;
+ 	}
+ 
+-	if (!allow_hpd_rx_irq(link)) {
++	if (!dc_link_dp_allow_hpd_rx_irq(link)) {
+ 		DC_LOG_HW_HPD_IRQ("%s: skipping HPD handling on %d\n",
+ 			__func__, link->link_index);
+ 		return false;
+@@ -3286,12 +3322,18 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
+ 	 * so do not handle as a normal sink status change interrupt.
+ 	 */
+ 
+-	if (hpd_irq_dpcd_data.bytes.device_service_irq.bits.UP_REQ_MSG_RDY)
++	if (hpd_irq_dpcd_data.bytes.device_service_irq.bits.UP_REQ_MSG_RDY) {
++		if (defer_handling && has_left_work)
++			*has_left_work = true;
+ 		return true;
++	}
+ 
+ 	/* check if we have MST msg and return since we poll for it */
+-	if (hpd_irq_dpcd_data.bytes.device_service_irq.bits.DOWN_REP_MSG_RDY)
++	if (hpd_irq_dpcd_data.bytes.device_service_irq.bits.DOWN_REP_MSG_RDY) {
++		if (defer_handling && has_left_work)
++			*has_left_work = true;
+ 		return false;
++	}
+ 
+ 	/* For now we only handle 'Downstream port status' case.
+ 	 * If we got sink count changed it means
+@@ -3308,29 +3350,10 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
+ 					sizeof(hpd_irq_dpcd_data),
+ 					"Status: ");
+ 
+-		for (i = 0; i < MAX_PIPES; i++) {
+-			pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
+-			if (pipe_ctx && pipe_ctx->stream && pipe_ctx->stream->link == link)
+-				break;
+-		}
+-
+-		if (pipe_ctx == NULL || pipe_ctx->stream == NULL)
+-			return false;
+-
+-
+-		for (i = 0; i < MAX_PIPES; i++) {
+-			pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
+-			if (pipe_ctx && pipe_ctx->stream && !pipe_ctx->stream->dpms_off &&
+-					pipe_ctx->stream->link == link && !pipe_ctx->prev_odm_pipe)
+-				core_link_disable_stream(pipe_ctx);
+-		}
+-
+-		for (i = 0; i < MAX_PIPES; i++) {
+-			pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
+-			if (pipe_ctx && pipe_ctx->stream && !pipe_ctx->stream->dpms_off &&
+-					pipe_ctx->stream->link == link && !pipe_ctx->prev_odm_pipe)
+-				core_link_enable_stream(link->dc->current_state, pipe_ctx);
+-		}
++		if (defer_handling && has_left_work)
++			*has_left_work = true;
++		else
++			dc_link_dp_handle_link_loss(link);
+ 
+ 		status = false;
+ 		if (out_link_loss)
+@@ -3356,6 +3379,11 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
+ 	return status;
  }
  
-+static void handle_hpd_irq(void *param)
++bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd_irq_dpcd_data, bool *out_link_loss)
 +{
-+	struct amdgpu_dm_connector *aconnector = (struct amdgpu_dm_connector *)param;
-+
-+	handle_hpd_irq_helper(aconnector);
-+
++	return handle_hpd_rx_irq(link, out_hpd_irq_dpcd_data, out_link_loss, false, NULL);
 +}
 +
-+
- static void dm_handle_hpd_rx_irq(struct amdgpu_dm_connector *aconnector)
+ /*query dpcd for version and mst cap addresses*/
+ bool is_mst_supported(struct dc_link *link)
  {
- 	uint8_t esi[DP_PSR_ERROR_STATUS - DP_SINK_COUNT_ESI] = { 0 };
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-index 46d6e65f6bd4..da87ca77023d 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -47,6 +47,8 @@
- #define AMDGPU_DM_MAX_CRTC 6
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_link.h b/drivers/gpu/drm/amd/display/dc/dc_link.h
+index 83845d006c54..0efa2bc8639b 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_link.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_link.h
+@@ -308,6 +308,9 @@ bool dc_link_wait_for_t12(struct dc_link *link);
+ enum dc_status read_hpd_rx_irq_data(
+ 	struct dc_link *link,
+ 	union hpd_irq_data *irq_data);
++void dc_link_dp_handle_automated_test(struct dc_link *link);
++void dc_link_dp_handle_link_loss(struct dc_link *link);
++bool dc_link_dp_allow_hpd_rx_irq(const struct dc_link *link);
  
- #define AMDGPU_DM_MAX_NUM_EDP 2
-+
-+#define AMDGPU_DMUB_NOTIFICATION_MAX 5
- /*
- #include "include/amdgpu_dal_power_if.h"
- #include "amdgpu_dm_irq.h"
-@@ -86,6 +88,21 @@ struct dm_compressor_info {
- 	uint64_t gpu_addr;
- };
+ struct dc_sink_init_data;
  
-+typedef void (*dmub_notify_interrupt_callback_t)(struct amdgpu_device *adev, struct dmub_notification *notify);
-+
-+/**
-+ * struct dmub_hpd_work - Handle time consuming work in low priority outbox IRQ
-+ *
-+ * @handle_hpd_work: Work to be executed in a separate thread to handle hpd_low_irq
-+ * @dmub_notify:  notification for callback function
-+ * @adev: amdgpu_device pointer
-+ */
-+struct dmub_hpd_work {
-+	struct work_struct handle_hpd_work;
-+	struct dmub_notification *dmub_notify;
-+	struct amdgpu_device *adev;
-+};
-+
- /**
-  * struct vblank_control_work - Work data for vblank control
-  * @work: Kernel work data for the work event
-@@ -190,8 +207,30 @@ struct amdgpu_display_manager {
- 	 */
- 	struct dmub_srv *dmub_srv;
- 
-+	/**
-+	 * @dmub_notify:
-+	 *
-+	 * Notification from DMUB.
-+	 */
-+
- 	struct dmub_notification *dmub_notify;
- 
-+	/**
-+	 * @dmub_callback:
-+	 *
-+	 * Callback functions to handle notification from DMUB.
-+	 */
-+
-+	dmub_notify_interrupt_callback_t dmub_callback[AMDGPU_DMUB_NOTIFICATION_MAX];
-+
-+	/**
-+	 * @dmub_thread_offload:
-+	 *
-+	 * Flag to indicate if callback is offload.
-+	 */
-+
-+	bool dmub_thread_offload[AMDGPU_DMUB_NOTIFICATION_MAX];
-+
- 	/**
- 	 * @dmub_fb_info:
- 	 *
-@@ -439,6 +478,7 @@ struct amdgpu_display_manager {
- 	 */
- 	struct list_head da_list;
- 	struct completion dmub_aux_transfer_done;
-+	struct workqueue_struct *delayed_hpd_wq;
- 
- 	/**
- 	 * @brightness:
 -- 
 2.35.1
 
