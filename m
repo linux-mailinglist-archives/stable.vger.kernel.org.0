@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 767B7582B83
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E92582C45
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238310AbiG0QfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:35:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
+        id S239572AbiG0Qoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:44:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239085AbiG0Qew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:34:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161C04D4D9;
-        Wed, 27 Jul 2022 09:27:35 -0700 (PDT)
+        with ESMTP id S240121AbiG0QoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9239A51A24;
+        Wed, 27 Jul 2022 09:30:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 947F861A1B;
-        Wed, 27 Jul 2022 16:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0018C433D7;
-        Wed, 27 Jul 2022 16:27:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70C56B821C5;
+        Wed, 27 Jul 2022 16:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB8FC433D6;
+        Wed, 27 Jul 2022 16:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939247;
-        bh=zL31rUaogdM0Oz7SjUjidmnhf6c2vEMJMOe9tCOLlxc=;
+        s=korg; t=1658939435;
+        bh=AJqytMV64rUASa1fC+FJDWlVKl+qrP5oT4VUCR05xaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6NQpjE+qg/NytPHDFy4k45CvthsAk+7Pis+OGPtTY6132jfb9XcVYTnvcluaTfua
-         rdpUbWidfUOPBWOwk66GCKQIaLvQipL1bpRXpTpJo8AUZxagWYovNoGeTaVhdLfLHD
-         m+iRyLhI6GYpJuLGbRuPP30Cvw8G3aJxFBMPBqrA=
+        b=RPyvm3ySCXJqroclLKKHCyK4KsAcDeryglq7EthZiQhTG03kheqU6PTdf3xBKtGc2
+         D1WkrRUiKfAh8gT3w6IZZgr1iZMP+MuUgQysH2DNGe3/U9WAeVQkW38WyxuP/a7SJb
+         0HIDhrYM3LZb/jEpCeypaeBvu8dWaOgaMi40VFOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 4.19 52/62] serial: mvebu-uart: correctly report configured baudrate value
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 68/87] x86: get rid of small constant size cases in raw_copy_{to,from}_user()
 Date:   Wed, 27 Jul 2022 18:11:01 +0200
-Message-Id: <20220727161006.174737118@linuxfoundation.org>
+Message-Id: <20220727161011.803180178@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +52,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 4f532c1e25319e42996ec18a1f473fd50c8e575d upstream.
+[ Upstream commit 4b842e4e25b12951fa10dedb4bc16bc47e3b850c ]
 
-Functions tty_termios_encode_baud_rate() and uart_update_timeout() should
-be called with the baudrate value which was set to hardware. Linux then
-report exact values via ioctl(TCGETS2) to userspace.
+Very few call sites where that would be triggered remain, and none
+of those is anywhere near hot enough to bother.
 
-Change mvebu_uart_baud_rate_set() function to return baudrate value which
-was set to hardware and propagate this value to above mentioned functions.
-
-With this change userspace would see precise value in termios c_ospeed
-field.
-
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220628100922.10717-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mvebu-uart.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ arch/x86/include/asm/uaccess.h    |  12 ----
+ arch/x86/include/asm/uaccess_32.h |  27 --------
+ arch/x86/include/asm/uaccess_64.h | 108 +-----------------------------
+ 3 files changed, 2 insertions(+), 145 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -442,14 +442,14 @@ static void mvebu_uart_shutdown(struct u
- 	}
- }
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 61d93f062a36..a19effb98fdc 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -378,18 +378,6 @@ do {									\
+ 		     : "=r" (err), ltype(x)				\
+ 		     : "m" (__m(addr)), "i" (errret), "0" (err))
  
--static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
-+static unsigned int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
+-#define __get_user_asm_nozero(x, addr, err, itype, rtype, ltype, errret)	\
+-	asm volatile("\n"						\
+-		     "1:	mov"itype" %2,%"rtype"1\n"		\
+-		     "2:\n"						\
+-		     ".section .fixup,\"ax\"\n"				\
+-		     "3:	mov %3,%0\n"				\
+-		     "	jmp 2b\n"					\
+-		     ".previous\n"					\
+-		     _ASM_EXTABLE_UA(1b, 3b)				\
+-		     : "=r" (err), ltype(x)				\
+-		     : "m" (__m(addr)), "i" (errret), "0" (err))
+-
+ /*
+  * This doesn't do __uaccess_begin/end - the exception handling
+  * around it must do that.
+diff --git a/arch/x86/include/asm/uaccess_32.h b/arch/x86/include/asm/uaccess_32.h
+index ba2dc1930630..388a40660c7b 100644
+--- a/arch/x86/include/asm/uaccess_32.h
++++ b/arch/x86/include/asm/uaccess_32.h
+@@ -23,33 +23,6 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
+ static __always_inline unsigned long
+ raw_copy_from_user(void *to, const void __user *from, unsigned long n)
  {
- 	struct mvebu_uart *mvuart = to_mvuart(port);
- 	unsigned int d_divisor, m_divisor;
- 	u32 brdv;
- 
- 	if (IS_ERR(mvuart->clk))
--		return -PTR_ERR(mvuart->clk);
-+		return 0;
- 
- 	/*
- 	 * The baudrate is derived from the UART clock thanks to two divisors:
-@@ -469,7 +469,7 @@ static int mvebu_uart_baud_rate_set(stru
- 	brdv |= d_divisor;
- 	writel(brdv, port->membase + UART_BRDV);
- 
--	return 0;
-+	return DIV_ROUND_CLOSEST(port->uartclk, d_divisor * m_divisor);
- }
- 
- static void mvebu_uart_set_termios(struct uart_port *port,
-@@ -506,15 +506,11 @@ static void mvebu_uart_set_termios(struc
- 	max_baud = 230400;
- 
- 	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
--	if (mvebu_uart_baud_rate_set(port, baud)) {
--		/* No clock available, baudrate cannot be changed */
--		if (old)
--			baud = uart_get_baud_rate(port, old, NULL,
--						  min_baud, max_baud);
--	} else {
--		tty_termios_encode_baud_rate(termios, baud, baud);
--		uart_update_timeout(port, termios->c_cflag, baud);
+-	if (__builtin_constant_p(n)) {
+-		unsigned long ret;
+-
+-		switch (n) {
+-		case 1:
+-			ret = 0;
+-			__uaccess_begin_nospec();
+-			__get_user_asm_nozero(*(u8 *)to, from, ret,
+-					      "b", "b", "=q", 1);
+-			__uaccess_end();
+-			return ret;
+-		case 2:
+-			ret = 0;
+-			__uaccess_begin_nospec();
+-			__get_user_asm_nozero(*(u16 *)to, from, ret,
+-					      "w", "w", "=r", 2);
+-			__uaccess_end();
+-			return ret;
+-		case 4:
+-			ret = 0;
+-			__uaccess_begin_nospec();
+-			__get_user_asm_nozero(*(u32 *)to, from, ret,
+-					      "l", "k", "=r", 4);
+-			__uaccess_end();
+-			return ret;
+-		}
 -	}
-+	baud = mvebu_uart_baud_rate_set(port, baud);
-+
-+	/* In case baudrate cannot be changed, report previous old value */
-+	if (baud == 0 && old)
-+		baud = tty_termios_baud_rate(old);
- 
- 	/* Only the following flag changes are supported */
- 	if (old) {
-@@ -525,6 +521,11 @@ static void mvebu_uart_set_termios(struc
- 		termios->c_cflag |= CS8;
- 	}
- 
-+	if (baud != 0) {
-+		tty_termios_encode_baud_rate(termios, baud, baud);
-+		uart_update_timeout(port, termios->c_cflag, baud);
-+	}
-+
- 	spin_unlock_irqrestore(&port->lock, flags);
+ 	return __copy_user_ll(to, (__force const void *)from, n);
  }
  
+diff --git a/arch/x86/include/asm/uaccess_64.h b/arch/x86/include/asm/uaccess_64.h
+index 5cd1caa8bc65..bc10e3dc64fe 100644
+--- a/arch/x86/include/asm/uaccess_64.h
++++ b/arch/x86/include/asm/uaccess_64.h
+@@ -65,117 +65,13 @@ copy_to_user_mcsafe(void *to, const void *from, unsigned len)
+ static __always_inline __must_check unsigned long
+ raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
+ {
+-	int ret = 0;
+-
+-	if (!__builtin_constant_p(size))
+-		return copy_user_generic(dst, (__force void *)src, size);
+-	switch (size) {
+-	case 1:
+-		__uaccess_begin_nospec();
+-		__get_user_asm_nozero(*(u8 *)dst, (u8 __user *)src,
+-			      ret, "b", "b", "=q", 1);
+-		__uaccess_end();
+-		return ret;
+-	case 2:
+-		__uaccess_begin_nospec();
+-		__get_user_asm_nozero(*(u16 *)dst, (u16 __user *)src,
+-			      ret, "w", "w", "=r", 2);
+-		__uaccess_end();
+-		return ret;
+-	case 4:
+-		__uaccess_begin_nospec();
+-		__get_user_asm_nozero(*(u32 *)dst, (u32 __user *)src,
+-			      ret, "l", "k", "=r", 4);
+-		__uaccess_end();
+-		return ret;
+-	case 8:
+-		__uaccess_begin_nospec();
+-		__get_user_asm_nozero(*(u64 *)dst, (u64 __user *)src,
+-			      ret, "q", "", "=r", 8);
+-		__uaccess_end();
+-		return ret;
+-	case 10:
+-		__uaccess_begin_nospec();
+-		__get_user_asm_nozero(*(u64 *)dst, (u64 __user *)src,
+-			       ret, "q", "", "=r", 10);
+-		if (likely(!ret))
+-			__get_user_asm_nozero(*(u16 *)(8 + (char *)dst),
+-				       (u16 __user *)(8 + (char __user *)src),
+-				       ret, "w", "w", "=r", 2);
+-		__uaccess_end();
+-		return ret;
+-	case 16:
+-		__uaccess_begin_nospec();
+-		__get_user_asm_nozero(*(u64 *)dst, (u64 __user *)src,
+-			       ret, "q", "", "=r", 16);
+-		if (likely(!ret))
+-			__get_user_asm_nozero(*(u64 *)(8 + (char *)dst),
+-				       (u64 __user *)(8 + (char __user *)src),
+-				       ret, "q", "", "=r", 8);
+-		__uaccess_end();
+-		return ret;
+-	default:
+-		return copy_user_generic(dst, (__force void *)src, size);
+-	}
++	return copy_user_generic(dst, (__force void *)src, size);
+ }
+ 
+ static __always_inline __must_check unsigned long
+ raw_copy_to_user(void __user *dst, const void *src, unsigned long size)
+ {
+-	int ret = 0;
+-
+-	if (!__builtin_constant_p(size))
+-		return copy_user_generic((__force void *)dst, src, size);
+-	switch (size) {
+-	case 1:
+-		__uaccess_begin();
+-		__put_user_asm(*(u8 *)src, (u8 __user *)dst,
+-			      ret, "b", "b", "iq", 1);
+-		__uaccess_end();
+-		return ret;
+-	case 2:
+-		__uaccess_begin();
+-		__put_user_asm(*(u16 *)src, (u16 __user *)dst,
+-			      ret, "w", "w", "ir", 2);
+-		__uaccess_end();
+-		return ret;
+-	case 4:
+-		__uaccess_begin();
+-		__put_user_asm(*(u32 *)src, (u32 __user *)dst,
+-			      ret, "l", "k", "ir", 4);
+-		__uaccess_end();
+-		return ret;
+-	case 8:
+-		__uaccess_begin();
+-		__put_user_asm(*(u64 *)src, (u64 __user *)dst,
+-			      ret, "q", "", "er", 8);
+-		__uaccess_end();
+-		return ret;
+-	case 10:
+-		__uaccess_begin();
+-		__put_user_asm(*(u64 *)src, (u64 __user *)dst,
+-			       ret, "q", "", "er", 10);
+-		if (likely(!ret)) {
+-			asm("":::"memory");
+-			__put_user_asm(4[(u16 *)src], 4 + (u16 __user *)dst,
+-				       ret, "w", "w", "ir", 2);
+-		}
+-		__uaccess_end();
+-		return ret;
+-	case 16:
+-		__uaccess_begin();
+-		__put_user_asm(*(u64 *)src, (u64 __user *)dst,
+-			       ret, "q", "", "er", 16);
+-		if (likely(!ret)) {
+-			asm("":::"memory");
+-			__put_user_asm(1[(u64 *)src], 1 + (u64 __user *)dst,
+-				       ret, "q", "", "er", 8);
+-		}
+-		__uaccess_end();
+-		return ret;
+-	default:
+-		return copy_user_generic((__force void *)dst, src, size);
+-	}
++	return copy_user_generic((__force void *)dst, src, size);
+ }
+ 
+ static __always_inline __must_check
+-- 
+2.35.1
+
 
 
