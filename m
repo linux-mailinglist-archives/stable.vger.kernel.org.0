@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9351582E81
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07231582CF6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbiG0RNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48876 "EHLO
+        id S240874AbiG0Qwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbiG0RMq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:12:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E1A753BD;
-        Wed, 27 Jul 2022 09:42:03 -0700 (PDT)
+        with ESMTP id S240813AbiG0QwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF96D4C61A;
+        Wed, 27 Jul 2022 09:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 456CDB821D5;
-        Wed, 27 Jul 2022 16:42:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FD9FC433C1;
-        Wed, 27 Jul 2022 16:41:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C36661A7E;
+        Wed, 27 Jul 2022 16:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69BCBC433C1;
+        Wed, 27 Jul 2022 16:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940119;
-        bh=BXg5fLLfCrboKcDhCRE6/09nN66VrHApWnu3zne7LGw=;
+        s=korg; t=1658939643;
+        bh=b1zYqBD/WqElTEuUwmtzh0IfW8TiO4wTB0nofd3g2Yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKEUadedFeR/cSTp3aoKAhDGVlJ61gorXWN3PmWrzIt+CsUh8I2m8dhNBDfno5KWj
-         7wTSr8ZDFAh7zzbYAk+mpCT3XhhjrBdo0Dbwa84uqxPhFkhdRwWEptGxjhoepzmEGi
-         L7IzTZzomZzyszCe9qrUaLs87MtE10GJuc7MXZdM=
+        b=vOftltn1uzG4v19tOKOeCzM9KkBt/bP4ZKRiZFN4sCeOIYYmokrQ8xVzhU85c7PvX
+         e5QQaeWOJOsj48MUx61dQtC2FflTa8X9hX8Yrrf7h2ByaAiQn2rvLrauMZfLbOTpJn
+         rRrz5QPsMI9g47T/wqvoz7iTcmOCNdKbcpAUErUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/201] pinctrl: armada-37xx: Convert to use dev_err_probe()
+Subject: [PATCH 5.10 022/105] xfrm: xfrm_policy: fix a possible double xfrm_pols_put() in xfrm_bundle_lookup()
 Date:   Wed, 27 Jul 2022 18:10:08 +0200
-Message-Id: <20220727161032.059592834@linuxfoundation.org>
+Message-Id: <20220727161012.982229722@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 06cb10ea0cd5c5f4db9627a33ab47fec32cb5960 ]
+[ Upstream commit f85daf0e725358be78dfd208dea5fd665d8cb901 ]
 
-It's fine to call dev_err_probe() in ->probe() when error code is known.
-Convert the driver to use dev_err_probe().
+xfrm_policy_lookup() will call xfrm_pol_hold_rcu() to get a refcount of
+pols[0]. This refcount can be dropped in xfrm_expand_policies() when
+xfrm_expand_policies() return error. pols[0]'s refcount is balanced in
+here. But xfrm_bundle_lookup() will also call xfrm_pols_put() with
+num_pols == 1 to drop this refcount when xfrm_expand_policies() return
+error.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+This patch also fix an illegal address access. pols[0] will save a error
+point when xfrm_policy_lookup fails. This lead to xfrm_pols_put to resolve
+an illegal address in xfrm_bundle_lookup's error path.
+
+Fix these by setting num_pols = 0 in xfrm_expand_policies()'s error path.
+
+Fixes: 80c802f3073e ("xfrm: cache bundles instead of policies for outgoing flows")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ net/xfrm/xfrm_policy.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 40bcf05123eb..7d0d2771a9ac 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -736,10 +736,8 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
- 			break;
- 		}
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 93cbcc8f9b39..603b05ed7eb4 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2680,8 +2680,10 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
+ 		*num_xfrms = 0;
+ 		return 0;
  	}
--	if (ret) {
--		dev_err(dev, "no gpio-controller child node\n");
--		return ret;
--	}
-+	if (ret)
-+		return dev_err_probe(dev, ret, "no gpio-controller child node\n");
+-	if (IS_ERR(pols[0]))
++	if (IS_ERR(pols[0])) {
++		*num_pols = 0;
+ 		return PTR_ERR(pols[0]);
++	}
  
- 	nr_irq_parent = of_irq_count(np);
- 	spin_lock_init(&info->irq_lock);
-@@ -996,10 +994,8 @@ static int armada_37xx_pinctrl_register(struct platform_device *pdev,
- 		return ret;
+ 	*num_xfrms = pols[0]->xfrm_nr;
  
- 	info->pctl_dev = devm_pinctrl_register(dev, ctrldesc, info);
--	if (IS_ERR(info->pctl_dev)) {
--		dev_err(dev, "could not register pinctrl driver\n");
--		return PTR_ERR(info->pctl_dev);
--	}
-+	if (IS_ERR(info->pctl_dev))
-+		return dev_err_probe(dev, PTR_ERR(info->pctl_dev), "could not register pinctrl driver\n");
- 
- 	return 0;
- }
-@@ -1135,10 +1131,8 @@ static int __init armada_37xx_pinctrl_probe(struct platform_device *pdev)
- 	info->dev = dev;
- 
- 	regmap = syscon_node_to_regmap(np);
--	if (IS_ERR(regmap)) {
--		dev_err(dev, "cannot get regmap\n");
--		return PTR_ERR(regmap);
--	}
-+	if (IS_ERR(regmap))
-+		return dev_err_probe(dev, PTR_ERR(regmap), "cannot get regmap\n");
- 	info->regmap = regmap;
- 
- 	info->data = of_device_get_match_data(dev);
+@@ -2696,6 +2698,7 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
+ 		if (pols[1]) {
+ 			if (IS_ERR(pols[1])) {
+ 				xfrm_pols_put(pols, *num_pols);
++				*num_pols = 0;
+ 				return PTR_ERR(pols[1]);
+ 			}
+ 			(*num_pols)++;
 -- 
 2.35.1
 
