@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7977C582D18
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DC7582B7F
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240997AbiG0QyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:54:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
+        id S238114AbiG0QeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:34:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240863AbiG0Qwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6AB4F199;
-        Wed, 27 Jul 2022 09:34:49 -0700 (PDT)
+        with ESMTP id S237662AbiG0Qdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:33:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E34254C94;
+        Wed, 27 Jul 2022 09:26:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ED6EB8200C;
-        Wed, 27 Jul 2022 16:34:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE4EC433C1;
-        Wed, 27 Jul 2022 16:34:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1A1FACE2303;
+        Wed, 27 Jul 2022 16:26:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8C7C433D6;
+        Wed, 27 Jul 2022 16:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939687;
-        bh=Iz/mwSZsiPX2GA66vcgC0gHeYQ5WYfVUcaxSwmCZink=;
+        s=korg; t=1658939198;
+        bh=Wvw7I+nGSwocAWbyQDmTKOy9jcP8+ZoXNRue2rb7Ycg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4UncEyqz5ciHix5MnAIIsfcST7NXfaVDth9LzsueVyrw0Hj5DCfpiHIURcFqMtDq
-         DRWer/zDOLuwuaTAlRg3gdkrQVeWIJRLmlrSv3XeOtFGkb+zMHneW7xmZh55G9c5pf
-         VrCRlZev7eLBg+F7Akl7uuGkr+xusWSrjY10iWdM=
+        b=eJP6p22CqlgMJJUYIT/quJRm5z17w17kmRFb06mMBP1eU5b3XwYuuhx2Dgs0jHWa5
+         ldE+rWjsYBcTMFUPyU1wOWIHk6hGF4XoCxIckxP1r4Ox+M252wG27OI4PqXr7251zt
+         Dxjmazeu6LOW9qZJSehWh2F+Hn68oI3FrkhmzqCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/105] tcp: Fix a data-race around sysctl_tcp_early_retrans.
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 4.19 46/62] Bluetooth: Add bt_skb_sendmmsg helper
 Date:   Wed, 27 Jul 2022 18:10:55 +0200
-Message-Id: <20220727161014.829100312@linuxfoundation.org>
+Message-Id: <20220727161005.947877005@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 52e65865deb6a36718a463030500f16530eaab74 ]
+commit 97e4e80299844bb5f6ce5a7540742ffbffae3d97 upstream.
 
-While reading sysctl_tcp_early_retrans, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+This works similarly to bt_skb_sendmsg but can split the msg into
+multiple skb fragments which is useful for stream sockets.
 
-Fixes: eed530b6c676 ("tcp: early retransmit")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/bluetooth/bluetooth.h |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 772dd6241b70..0cbf3d859745 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2735,7 +2735,7 @@ bool tcp_schedule_loss_probe(struct sock *sk, bool advancing_rto)
- 	if (rcu_access_pointer(tp->fastopen_rsk))
- 		return false;
+--- a/include/net/bluetooth/bluetooth.h
++++ b/include/net/bluetooth/bluetooth.h
+@@ -398,6 +398,44 @@ static inline struct sk_buff *bt_skb_sen
+ 	return skb;
+ }
  
--	early_retrans = sock_net(sk)->ipv4.sysctl_tcp_early_retrans;
-+	early_retrans = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_early_retrans);
- 	/* Schedule a loss probe in 2*RTT for SACK capable connections
- 	 * not in loss recovery, that are either limited by cwnd or application.
- 	 */
--- 
-2.35.1
-
++/* Similar to bt_skb_sendmsg but can split the msg into multiple fragments
++ * accourding to the MTU.
++ */
++static inline struct sk_buff *bt_skb_sendmmsg(struct sock *sk,
++					      struct msghdr *msg,
++					      size_t len, size_t mtu,
++					      size_t headroom, size_t tailroom)
++{
++	struct sk_buff *skb, **frag;
++
++	skb = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
++	if (IS_ERR_OR_NULL(skb))
++		return skb;
++
++	len -= skb->len;
++	if (!len)
++		return skb;
++
++	/* Add remaining data over MTU as continuation fragments */
++	frag = &skb_shinfo(skb)->frag_list;
++	while (len) {
++		struct sk_buff *tmp;
++
++		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
++		if (IS_ERR_OR_NULL(tmp)) {
++			kfree_skb(skb);
++			return tmp;
++		}
++
++		len -= tmp->len;
++
++		*frag = tmp;
++		frag = &(*frag)->next;
++	}
++
++	return skb;
++}
++
+ int bt_to_errno(u16 code);
+ 
+ void hci_sock_set_flag(struct sock *sk, int nr);
 
 
