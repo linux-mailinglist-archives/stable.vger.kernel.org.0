@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A60582F0E
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F02AB582F24
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:21:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbiG0RUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
+        id S241751AbiG0RVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:21:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241899AbiG0RTS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB1C7A524;
-        Wed, 27 Jul 2022 09:44:11 -0700 (PDT)
+        with ESMTP id S241913AbiG0RTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF22E5D0D5;
+        Wed, 27 Jul 2022 09:44:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6402BB8200C;
-        Wed, 27 Jul 2022 16:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36566C433D6;
-        Wed, 27 Jul 2022 16:44:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B7F60DDB;
+        Wed, 27 Jul 2022 16:44:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F3A3C433C1;
+        Wed, 27 Jul 2022 16:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940248;
-        bh=wNIplsC///Z+1aLsiUGI7BR3SSo4CPpuOnzTbHZt7Zg=;
+        s=korg; t=1658940251;
+        bh=8TAjTG3BVgjt6+mej6insq8utXxrMq0kT2BsFUAqqQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSJrcV21spXwIq9Ks7zoYJnNwXVVvTodcRSZe4PmjZ4X4RUpx7vitFJ9gOJbN+51z
-         rh8EEP5CZ8zruLVUOEKIuv00m5qIvWdIM1rBKauKNDWLkcDwAUxUhB1Uwdn3f3UkEQ
-         sRU+DxEoda/6jHkzU+5PCJmBPvbKXiW+FcGWRBVQ=
+        b=orB/p/fmPQKpEBjcW4pJNSJdhZiBxIGfzcwgSbu/xdi8nvcPIaAcgfggg+nYlDQES
+         9xWPWUallzFOSaoBkagHs6ahwKvCncZcZMVQ+P1RqrPJRDEuBWBfkbCrdbQ83ivywk
+         NEsmsPHxfL5Y8FNVdOrrzl77Rpc3Epj15iVnvx2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Adam Guerin <adam.guerin@intel.com>,
+        Wojciech Ziemba <wojciech.ziemba@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 157/201] iwlwifi: fw: uefi: add missing include guards
-Date:   Wed, 27 Jul 2022 18:11:01 +0200
-Message-Id: <20220727161034.339315972@linuxfoundation.org>
+Subject: [PATCH 5.15 158/201] crypto: qat - set to zero DH parameters before free
+Date:   Wed, 27 Jul 2022 18:11:02 +0200
+Message-Id: <20220727161034.370335483@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -53,43 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 91000fdf82195b66350b4f88413c2e8b5f94d994 ]
+[ Upstream commit 1731160ff7c7bbb11bb1aacb14dd25e18d522779 ]
 
-We still don't use #pragma once in the kernel, but even if
-we did it'd be missing. Add the missing include guards.
+Set to zero the context buffers containing the DH key before they are
+freed.
+This is a defense in depth measure that avoids keys to be recovered from
+memory in case the system is compromised between the free of the buffer
+and when that area of memory (containing keys) gets overwritten.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 84c3c9952afb ("iwlwifi: move UEFI code to a separate file")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211024181719.7fc9988ed49b.I87e300fab664047581e51fb9b02744c75320d08c@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: c9839143ebbf ("crypto: qat - Add DH support")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Adam Guerin <adam.guerin@intel.com>
+Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/uefi.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/qat_asym_algs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/uefi.h b/drivers/net/wireless/intel/iwlwifi/fw/uefi.h
-index 45d0b36d79b5..d552c656ac9f 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/uefi.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/uefi.h
-@@ -2,7 +2,8 @@
- /*
-  * Copyright(c) 2021 Intel Corporation
-  */
--
-+#ifndef __iwl_fw_uefi__
-+#define __iwl_fw_uefi__
- 
- #define IWL_UEFI_OEM_PNVM_NAME		L"UefiCnvWlanOemSignedPnvm"
- #define IWL_UEFI_REDUCED_POWER_NAME	L"UefiCnvWlanReducedPower"
-@@ -40,3 +41,5 @@ void *iwl_uefi_get_reduced_power(struct iwl_trans *trans, size_t *len)
- 	return ERR_PTR(-EOPNOTSUPP);
- }
- #endif /* CONFIG_EFI */
-+
-+#endif /* __iwl_fw_uefi__ */
+diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+index b0b78445418b..5633f9df3b6f 100644
+--- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+@@ -420,14 +420,17 @@ static int qat_dh_set_params(struct qat_dh_ctx *ctx, struct dh *params)
+ static void qat_dh_clear_ctx(struct device *dev, struct qat_dh_ctx *ctx)
+ {
+ 	if (ctx->g) {
++		memset(ctx->g, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->g, ctx->dma_g);
+ 		ctx->g = NULL;
+ 	}
+ 	if (ctx->xa) {
++		memset(ctx->xa, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->xa, ctx->dma_xa);
+ 		ctx->xa = NULL;
+ 	}
+ 	if (ctx->p) {
++		memset(ctx->p, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->p, ctx->dma_p);
+ 		ctx->p = NULL;
+ 	}
 -- 
 2.35.1
 
