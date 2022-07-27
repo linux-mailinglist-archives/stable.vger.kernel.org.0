@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E567582CF8
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C13FD582B0D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240780AbiG0Qwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55454 "EHLO
+        id S236925AbiG0Q1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:27:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240775AbiG0QwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E1854667;
-        Wed, 27 Jul 2022 09:34:01 -0700 (PDT)
+        with ESMTP id S236813AbiG0Q02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:26:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 074644D4D1;
+        Wed, 27 Jul 2022 09:23:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E81C61A3F;
-        Wed, 27 Jul 2022 16:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A02B5C433D7;
-        Wed, 27 Jul 2022 16:34:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5EDAB821C1;
+        Wed, 27 Jul 2022 16:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EE2BC433D6;
+        Wed, 27 Jul 2022 16:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939641;
-        bh=RUd5dWlWT5NpwVFbuDCpuP3rASZUwSAnYpaVibavCDI=;
+        s=korg; t=1658939009;
+        bh=1N+4lpZUk0zs3H2gdygF1p5srqF4mzfZQUYBSwso3eQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK1gdXgHDDHDXOznamLlLu6TROy0LQ8fp1Pahz6m14vMXJ+7SBgjmblNAz69R52IA
-         DY2V/1hE30LZzYB8n8gSdtQo2kNwFWoHSIplr4KTpn23eJayaVdaBk/haQpZCkSAYT
-         dIEYhR+/Os3SM6PGUmpgl847WQCDoF1bi6b873VA=
+        b=X7S5SZ4TZ8zxk3LFsVJuGXStY9r0drjdsPklFTFiXp382DRHdZwNErhf5dYwZ3XN2
+         EoskeE7uHZTv7sLFbiXLjzaB2p//p835iuFpVCQmxvL3EFCML+OdVQiRA7tvazBpEm
+         zx/qT5vf9mEet5SjrEbLw9BmaVNtbmdpgGDKQu4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/105] tcp: Fix data-races around some timeout sysctl knobs.
+Subject: [PATCH 4.14 11/37] igmp: Fix data-races around sysctl_igmp_llm_reports.
 Date:   Wed, 27 Jul 2022 18:10:37 +0200
-Message-Id: <20220727161014.145255276@linuxfoundation.org>
+Message-Id: <20220727161001.322705619@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,115 +55,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 39e24435a776e9de5c6dd188836cf2523547804b ]
+[ Upstream commit f6da2267e71106474fbc0943dc24928b9cb79119 ]
 
-While reading these sysctl knobs, they can be changed concurrently.
-Thus, we need to add READ_ONCE() to their readers.
+While reading sysctl_igmp_llm_reports, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-  - tcp_retries1
-  - tcp_retries2
-  - tcp_orphan_retries
-  - tcp_fin_timeout
+This test can be packed into a helper, so such changes will be in the
+follow-up series after net is merged into net-next.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+  if (ipv4_is_local_multicast(pmc->multiaddr) &&
+      !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+
+Fixes: df2cf4a78e48 ("IGMP: Inhibit reports for local multicast groups")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h     |  3 ++-
- net/ipv4/tcp.c        |  2 +-
- net/ipv4/tcp_output.c |  2 +-
- net/ipv4/tcp_timer.c  | 10 +++++-----
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ net/ipv4/igmp.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 9ef9fd0677b5..da75513a77d4 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1477,7 +1477,8 @@ static inline u32 keepalive_time_elapsed(const struct tcp_sock *tp)
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 16255dd0abf4..4b3875acc876 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -474,7 +474,8 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
  
- static inline int tcp_fin_time(const struct sock *sk)
- {
--	int fin_timeout = tcp_sk(sk)->linger2 ? : sock_net(sk)->ipv4.sysctl_tcp_fin_timeout;
-+	int fin_timeout = tcp_sk(sk)->linger2 ? :
-+		READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fin_timeout);
- 	const int rto = inet_csk(sk)->icsk_rto;
+ 	if (pmc->multiaddr == IGMP_ALL_HOSTS)
+ 		return skb;
+-	if (ipv4_is_local_multicast(pmc->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(pmc->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return skb;
  
- 	if (fin_timeout < (rto << 2) - (rto >> 1))
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 5582b05d0638..6cd5ce3eac0c 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3727,7 +3727,7 @@ static int do_tcp_getsockopt(struct sock *sk, int level,
- 	case TCP_LINGER2:
- 		val = tp->linger2;
- 		if (val >= 0)
--			val = (val ? : net->ipv4.sysctl_tcp_fin_timeout) / HZ;
-+			val = (val ? : READ_ONCE(net->ipv4.sysctl_tcp_fin_timeout)) / HZ;
- 		break;
- 	case TCP_DEFER_ACCEPT:
- 		val = retrans_to_secs(icsk->icsk_accept_queue.rskq_defer_accept,
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index b58697336bd4..e7348e70e6e3 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -4092,7 +4092,7 @@ void tcp_send_probe0(struct sock *sk)
+ 	mtu = READ_ONCE(dev->mtu);
+@@ -600,7 +601,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
+ 			if (pmc->multiaddr == IGMP_ALL_HOSTS)
+ 				continue;
+ 			if (ipv4_is_local_multicast(pmc->multiaddr) &&
+-			     !net->ipv4.sysctl_igmp_llm_reports)
++			    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 				continue;
+ 			spin_lock_bh(&pmc->lock);
+ 			if (pmc->sfcount[MCAST_EXCLUDE])
+@@ -743,7 +744,8 @@ static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,
+ 	if (type == IGMPV3_HOST_MEMBERSHIP_REPORT)
+ 		return igmpv3_send_report(in_dev, pmc);
  
- 	icsk->icsk_probes_out++;
- 	if (err <= 0) {
--		if (icsk->icsk_backoff < net->ipv4.sysctl_tcp_retries2)
-+		if (icsk->icsk_backoff < READ_ONCE(net->ipv4.sysctl_tcp_retries2))
- 			icsk->icsk_backoff++;
- 		timeout = tcp_probe0_when(sk, TCP_RTO_MAX);
- 	} else {
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index da92c5d70b70..e20fd86a2a89 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -143,7 +143,7 @@ static int tcp_out_of_resources(struct sock *sk, bool do_reset)
-  */
- static int tcp_orphan_retries(struct sock *sk, bool alive)
- {
--	int retries = sock_net(sk)->ipv4.sysctl_tcp_orphan_retries; /* May be zero. */
-+	int retries = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_orphan_retries); /* May be zero. */
+-	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(group) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return 0;
  
- 	/* We know from an ICMP that something is wrong. */
- 	if (sk->sk_err_soft && !alive)
-@@ -242,14 +242,14 @@ static int tcp_write_timeout(struct sock *sk)
- 		retry_until = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_syn_retries;
- 		expired = icsk->icsk_retransmits >= retry_until;
- 	} else {
--		if (retransmits_timed_out(sk, net->ipv4.sysctl_tcp_retries1, 0)) {
-+		if (retransmits_timed_out(sk, READ_ONCE(net->ipv4.sysctl_tcp_retries1), 0)) {
- 			/* Black hole detection */
- 			tcp_mtu_probing(icsk, sk);
+ 	if (type == IGMP_HOST_LEAVE_MESSAGE)
+@@ -921,7 +923,8 @@ static bool igmp_heard_report(struct in_device *in_dev, __be32 group)
  
- 			__dst_negative_advice(sk);
- 		}
+ 	if (group == IGMP_ALL_HOSTS)
+ 		return false;
+-	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(group) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return false;
  
--		retry_until = net->ipv4.sysctl_tcp_retries2;
-+		retry_until = READ_ONCE(net->ipv4.sysctl_tcp_retries2);
- 		if (sock_flag(sk, SOCK_DEAD)) {
- 			const bool alive = icsk->icsk_rto < TCP_RTO_MAX;
+ 	rcu_read_lock();
+@@ -1031,7 +1034,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+ 		if (im->multiaddr == IGMP_ALL_HOSTS)
+ 			continue;
+ 		if (ipv4_is_local_multicast(im->multiaddr) &&
+-		    !net->ipv4.sysctl_igmp_llm_reports)
++		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 			continue;
+ 		spin_lock_bh(&im->lock);
+ 		if (im->tm_running)
+@@ -1280,7 +1283,8 @@ static void igmp_group_dropped(struct ip_mc_list *im)
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (im->multiaddr == IGMP_ALL_HOSTS)
+ 		return;
+-	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(im->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return;
  
-@@ -380,7 +380,7 @@ static void tcp_probe_timer(struct sock *sk)
- 		 msecs_to_jiffies(icsk->icsk_user_timeout))
- 		goto abort;
+ 	reporter = im->reporter;
+@@ -1317,7 +1321,8 @@ static void igmp_group_added(struct ip_mc_list *im)
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (im->multiaddr == IGMP_ALL_HOSTS)
+ 		return;
+-	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
++	if (ipv4_is_local_multicast(im->multiaddr) &&
++	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 		return;
  
--	max_probes = sock_net(sk)->ipv4.sysctl_tcp_retries2;
-+	max_probes = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_retries2);
- 	if (sock_flag(sk, SOCK_DEAD)) {
- 		const bool alive = inet_csk_rto_backoff(icsk, TCP_RTO_MAX) < TCP_RTO_MAX;
+ 	if (in_dev->dead)
+@@ -1629,7 +1634,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
+ 		if (im->multiaddr == IGMP_ALL_HOSTS)
+ 			continue;
+ 		if (ipv4_is_local_multicast(im->multiaddr) &&
+-		    !net->ipv4.sysctl_igmp_llm_reports)
++		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+ 			continue;
  
-@@ -585,7 +585,7 @@ void tcp_retransmit_timer(struct sock *sk)
- 	}
- 	inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
- 				  tcp_clamp_rto_to_user_timeout(sk), TCP_RTO_MAX);
--	if (retransmits_timed_out(sk, net->ipv4.sysctl_tcp_retries1 + 1, 0))
-+	if (retransmits_timed_out(sk, READ_ONCE(net->ipv4.sysctl_tcp_retries1) + 1, 0))
- 		__sk_dst_reset(sk);
- 
- out:;
+ 		/* a failover is happening and switches
 -- 
 2.35.1
 
