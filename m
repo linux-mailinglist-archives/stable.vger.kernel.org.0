@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE9E582F87
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9DE582C83
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242100AbiG0R1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58274 "EHLO
+        id S240469AbiG0QrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:47:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242117AbiG0R07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:26:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 090905FAE6;
-        Wed, 27 Jul 2022 09:46:54 -0700 (PDT)
+        with ESMTP id S240292AbiG0Qqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:46:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D7EE60531;
+        Wed, 27 Jul 2022 09:31:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C6B3B821AC;
-        Wed, 27 Jul 2022 16:46:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF9DC433D7;
-        Wed, 27 Jul 2022 16:46:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4BED61A59;
+        Wed, 27 Jul 2022 16:31:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA891C433D6;
+        Wed, 27 Jul 2022 16:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940410;
-        bh=ZhxdM7jcjpWARpoyc/iCo1myCVH6FRG8l2e//X3LXSM=;
+        s=korg; t=1658939503;
+        bh=IAz/0NP1UEuLiyTzhyYgV1Ut3JG3tIC0PrtV/SRhFeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcYfgtcN+1Ek6uiyg0NNpnUbvoYLZ14G/S025CTm6TWxkyXxs8H/QxWL4XqiH0NKQ
-         r5nZUyeZC2Y7yrunX0Oy08rmofcoyvb6zz3iJtAl/u9XXYGhO7o2f/qRuS29+zgW4M
-         h7XnPfpD85X0LEf203+99f5A13+e40ZJVkqc4XHk=
+        b=eUlpCeM8k/NaOL+qjkjqfIQK7fc2DXxHUHunwXWfmhJLiaCJT2rh/XbPnoBDKV+Yk
+         q1RVQRnlY968EgFnyk+JRWckA5poTuB/h0kcwMhKhYYHCbYRfvrgx2k+yZjseSYI9V
+         a0mxl01/Od2q0aTDLdRE/EnodlkQ69kWJgU4VtMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Dexuan Cui <decui@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 5.18 014/158] PCI: hv: Fix multi-MSI to allow more than one MSI vector
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hillf Danton <hdanton@sina.com>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 85/87] tty: use new tty_insert_flip_string_and_push_buffer() in pty_write()
 Date:   Wed, 27 Jul 2022 18:11:18 +0200
-Message-Id: <20220727161022.034016477@linuxfoundation.org>
+Message-Id: <20220727161012.507492356@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <quic_jhugo@quicinc.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ upstream change 08e61e861a0e47e5e1a3fb78406afd6b0cea6b6d ]
+commit a501ab75e7624d133a5a3c7ec010687c8b961d23 upstream.
 
-If the allocation of multiple MSI vectors for multi-MSI fails in the core
-PCI framework, the framework will retry the allocation as a single MSI
-vector, assuming that meets the min_vecs specified by the requesting
-driver.
+There is a race in pty_write(). pty_write() can be called in parallel
+with e.g. ioctl(TIOCSTI) or ioctl(TCXONC) which also inserts chars to
+the buffer. Provided, tty_flip_buffer_push() in pty_write() is called
+outside the lock, it can commit inconsistent tail. This can lead to out
+of bounds writes and other issues. See the Link below.
 
-Hyper-V advertises that multi-MSI is supported, but reuses the VECTOR
-domain to implement that for x86.  The VECTOR domain does not support
-multi-MSI, so the alloc will always fail and fallback to a single MSI
-allocation.
+To fix this, we have to introduce a new helper called
+tty_insert_flip_string_and_push_buffer(). It does both
+tty_insert_flip_string() and tty_flip_buffer_commit() under the port
+lock. It also calls queue_work(), but outside the lock. See
+71a174b39f10 (pty: do tty_flip_buffer_push without port->lock in
+pty_write) for the reasons.
 
-In short, Hyper-V advertises a capability it does not implement.
+Keep the helper internal-only (in drivers' tty.h). It is not intended to
+be used widely.
 
-Hyper-V can support multi-MSI because it coordinates with the hypervisor
-to map the MSIs in the IOMMU's interrupt remapper, which is something the
-VECTOR domain does not have.  Therefore the fix is simple - copy what the
-x86 IOMMU drivers (AMD/Intel-IR) do by removing
-X86_IRQ_ALLOC_CONTIGUOUS_VECTORS after calling the VECTOR domain's
-pci_msi_prepare().
-
-Fixes: 4daace0d8ce8 ("PCI: hv: Add paravirtual PCI front-end for Microsoft Hyper-V VMs")
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Link: https://lore.kernel.org/r/1649856981-14649-1-git-send-email-quic_jhugo@quicinc.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Link: https://seclists.org/oss-sec/2022/q2/155
+Fixes: 71a174b39f10 (pty: do tty_flip_buffer_push without port->lock in pty_write)
+Cc: 一只狗 <chennbnbnb@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220707082558.9250-2-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/tty/pty.c        |   14 ++------------
+ drivers/tty/tty_buffer.c |   31 +++++++++++++++++++++++++++++++
+ include/linux/tty_flip.h |    3 +++
+ 3 files changed, 36 insertions(+), 12 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -614,7 +614,16 @@ static void hv_set_msi_entry_from_desc(u
- static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
- 			  int nvec, msi_alloc_info_t *info)
+--- a/drivers/tty/pty.c
++++ b/drivers/tty/pty.c
+@@ -111,21 +111,11 @@ static void pty_unthrottle(struct tty_st
+ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
  {
--	return pci_msi_prepare(domain, dev, nvec, info);
-+	int ret = pci_msi_prepare(domain, dev, nvec, info);
-+
-+	/*
-+	 * By using the interrupt remapper in the hypervisor IOMMU, contiguous
-+	 * CPU vectors is not needed for multi-MSI
-+	 */
-+	if (info->type == X86_IRQ_ALLOC_TYPE_PCI_MSI)
-+		info->flags &= ~X86_IRQ_ALLOC_CONTIGUOUS_VECTORS;
-+
-+	return ret;
+ 	struct tty_struct *to = tty->link;
+-	unsigned long flags;
+ 
+-	if (tty->stopped)
++	if (tty->stopped || !c)
+ 		return 0;
+ 
+-	if (c > 0) {
+-		spin_lock_irqsave(&to->port->lock, flags);
+-		/* Stuff the data into the input queue of the other end */
+-		c = tty_insert_flip_string(to->port, buf, c);
+-		spin_unlock_irqrestore(&to->port->lock, flags);
+-		/* And shovel */
+-		if (c)
+-			tty_flip_buffer_push(to->port);
+-	}
+-	return c;
++	return tty_insert_flip_string_and_push_buffer(to->port, buf, c);
  }
  
  /**
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -553,6 +553,37 @@ void tty_flip_buffer_push(struct tty_por
+ EXPORT_SYMBOL(tty_flip_buffer_push);
+ 
+ /**
++ * tty_insert_flip_string_and_push_buffer - add characters to the tty buffer and
++ *	push
++ * @port: tty port
++ * @chars: characters
++ * @size: size
++ *
++ * The function combines tty_insert_flip_string() and tty_flip_buffer_push()
++ * with the exception of properly holding the @port->lock.
++ *
++ * To be used only internally (by pty currently).
++ *
++ * Returns: the number added.
++ */
++int tty_insert_flip_string_and_push_buffer(struct tty_port *port,
++		const unsigned char *chars, size_t size)
++{
++	struct tty_bufhead *buf = &port->buf;
++	unsigned long flags;
++
++	spin_lock_irqsave(&port->lock, flags);
++	size = tty_insert_flip_string(port, chars, size);
++	if (size)
++		tty_flip_buffer_commit(buf->tail);
++	spin_unlock_irqrestore(&port->lock, flags);
++
++	queue_work(system_unbound_wq, &buf->work);
++
++	return size;
++}
++
++/**
+  *	tty_buffer_init		-	prepare a tty buffer structure
+  *	@tty: tty to initialise
+  *
+--- a/include/linux/tty_flip.h
++++ b/include/linux/tty_flip.h
+@@ -39,4 +39,7 @@ static inline int tty_insert_flip_string
+ extern void tty_buffer_lock_exclusive(struct tty_port *port);
+ extern void tty_buffer_unlock_exclusive(struct tty_port *port);
+ 
++int tty_insert_flip_string_and_push_buffer(struct tty_port *port,
++		const unsigned char *chars, size_t cnt);
++
+ #endif /* _LINUX_TTY_FLIP_H */
 
 
