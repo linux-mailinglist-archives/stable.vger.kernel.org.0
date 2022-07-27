@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC8D582F6A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC68583036
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233942AbiG0RZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55598 "EHLO
+        id S242161AbiG0RfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237123AbiG0RYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:24:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2049D7B1E6;
-        Wed, 27 Jul 2022 09:46:02 -0700 (PDT)
+        with ESMTP id S242615AbiG0Red (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B7B82F94;
+        Wed, 27 Jul 2022 09:49:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB47E60DDB;
-        Wed, 27 Jul 2022 16:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E884FC433D6;
-        Wed, 27 Jul 2022 16:46:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3501B821AC;
+        Wed, 27 Jul 2022 16:49:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCE3C433C1;
+        Wed, 27 Jul 2022 16:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940361;
-        bh=gvB9qFkp5oTwRe9KAeYPBcwDLw972dcraVKHBnGj8A8=;
+        s=korg; t=1658940562;
+        bh=ajiG2rl1RLkX8O8OZOPgAuzDpLkhQSUhjhx2O/QgZDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwdtsLiQoct0rlXj4k2A/OUHMDlnMeLYzm4ghbKvgwBe2DmmrMbTPsUEE1DpsF9EB
-         ny7EB7wAGTbegE31y9rwqzQGqSinXtAkLy1UroWg6f0JaVLeni7Q9L8amKE7BaMbUU
-         r76isaXs/4UXtc37uKE0ioGrWL7ONbVaVVKXdCBM=
+        b=yaVq7aWwzY+PCct4vOLD95L2iqjfzgp8w+TZGsyy0PJIiC+lSLnx0Dy7n+eRCinCT
+         3MthOVlNk/EuEZ0kfpXlN2+ntD8q2CFtHDR9qF+Cv/GaCZMfP8mXjSya/U9S1Ks8ol
+         /YPwg7GPi4iAKyDgdFyjI8uOUwdYfefypKmwHcIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernardo Meurer Costa <beme@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 197/201] x86/extable: Prefer local labels in .set directives
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 037/158] ip: Fix a data-race around sysctl_ip_autobind_reuse.
 Date:   Wed, 27 Jul 2022 18:11:41 +0200
-Message-Id: <20220727161035.940264257@linuxfoundation.org>
+Message-Id: <20220727161022.956770263@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 334865b2915c33080624e0d06f1c3e917036472c upstream.
+[ Upstream commit 0db232765887d9807df8bcb7b6f29b2871539eab ]
 
-Bernardo reported an error that Nathan bisected down to
-(x86_64) defconfig+LTO_CLANG_FULL+X86_PMEM_LEGACY.
+While reading sysctl_ip_autobind_reuse, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-    LTO     vmlinux.o
-  ld.lld: error: <instantiation>:1:13: redefinition of 'found'
-  .set found, 0
-              ^
-
-  <inline asm>:29:1: while in macro instantiation
-  extable_type_reg reg=%eax, type=(17 | ((0) << 16))
-  ^
-
-This appears to be another LTO specific issue similar to what was folded
-into commit 4b5305decc84 ("x86/extable: Extend extable functionality"),
-where the `.set found, 0` in DEFINE_EXTABLE_TYPE_REG in
-arch/x86/include/asm/asm.h conflicts with the symbol for the static
-function `found` in arch/x86/kernel/pmem.c.
-
-Assembler .set directive declare symbols with global visibility, so the
-assembler may not rename such symbols in the event of a conflict. LTO
-could rename static functions if there was a conflict in C sources, but
-it cannot see into symbols defined in inline asm.
-
-The symbols are also retained in the symbol table, regardless of LTO.
-
-Give the symbols .L prefixes making them locally visible, so that they
-may be renamed for LTO to avoid conflicts, and to drop them from the
-symbol table regardless of LTO.
-
-Fixes: 4b5305decc84 ("x86/extable: Extend extable functionality")
-Reported-by: Bernardo Meurer Costa <beme@google.com>
-Debugged-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20220329202148.2379697-1-ndesaulniers@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4b01a9674231 ("tcp: bind(0) remove the SO_REUSEADDR restriction when ephemeral ports are exhausted.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/asm.h |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ net/ipv4/inet_connection_sock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/asm.h
-+++ b/arch/x86/include/asm/asm.h
-@@ -149,24 +149,24 @@
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index 1e5b53c2bb26..dfb5a2d7ad85 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -259,7 +259,7 @@ inet_csk_find_open_port(struct sock *sk, struct inet_bind_bucket **tb_ret, int *
+ 		goto other_half_scan;
+ 	}
  
- # define DEFINE_EXTABLE_TYPE_REG \
- 	".macro extable_type_reg type:req reg:req\n"						\
--	".set found, 0\n"									\
--	".set regnr, 0\n"									\
-+	".set .Lfound, 0\n"									\
-+	".set .Lregnr, 0\n"									\
- 	".irp rs,rax,rcx,rdx,rbx,rsp,rbp,rsi,rdi,r8,r9,r10,r11,r12,r13,r14,r15\n"		\
- 	".ifc \\reg, %%\\rs\n"									\
--	".set found, found+1\n"									\
--	".long \\type + (regnr << 8)\n"								\
-+	".set .Lfound, .Lfound+1\n"								\
-+	".long \\type + (.Lregnr << 8)\n"							\
- 	".endif\n"										\
--	".set regnr, regnr+1\n"									\
-+	".set .Lregnr, .Lregnr+1\n"								\
- 	".endr\n"										\
--	".set regnr, 0\n"									\
-+	".set .Lregnr, 0\n"									\
- 	".irp rs,eax,ecx,edx,ebx,esp,ebp,esi,edi,r8d,r9d,r10d,r11d,r12d,r13d,r14d,r15d\n"	\
- 	".ifc \\reg, %%\\rs\n"									\
--	".set found, found+1\n"									\
--	".long \\type + (regnr << 8)\n"								\
-+	".set .Lfound, .Lfound+1\n"								\
-+	".long \\type + (.Lregnr << 8)\n"							\
- 	".endif\n"										\
--	".set regnr, regnr+1\n"									\
-+	".set .Lregnr, .Lregnr+1\n"								\
- 	".endr\n"										\
--	".if (found != 1)\n"									\
-+	".if (.Lfound != 1)\n"									\
- 	".error \"extable_type_reg: bad register argument\"\n"					\
- 	".endif\n"										\
- 	".endm\n"
+-	if (net->ipv4.sysctl_ip_autobind_reuse && !relax) {
++	if (READ_ONCE(net->ipv4.sysctl_ip_autobind_reuse) && !relax) {
+ 		/* We still have a chance to connect to different destinations */
+ 		relax = true;
+ 		goto ports_exhausted;
+-- 
+2.35.1
+
 
 
