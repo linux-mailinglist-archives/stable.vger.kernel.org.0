@@ -2,169 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA60F581CC4
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 02:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C5F581D0F
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 03:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232557AbiG0A1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jul 2022 20:27:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
+        id S231583AbiG0BZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jul 2022 21:25:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbiG0A1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 20:27:47 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 182223AB20
-        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 17:27:46 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id 72so14580488pge.0
-        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 17:27:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JrgQxfomYfluMlje2RCt5Y0bmCgsap849zIjJ8qjDqE=;
-        b=OQ+OwvTWEwvGp8Nr7gAY7zIf7bdjObIiRifRDYCVVzf/ncnH0vtbkxZt1V3nQ//r2p
-         z8TvgabZH0qH0vAvlskfM/gy+pIQP2yI0YW/0r1NE4fXxLa8mA8YKDTADvP1Pg81s+sg
-         iqttzDXVdxHTUcqiOlyMqAADFHGCs8ZWOPwhx2Jv2BaBOJOoRcUGXljp8bpUUywfoxV3
-         ad8l0q5QcmexgNnuqRFS32PwjsFjJwHOe9WIOXH8DTtqgNncLqq4V9RQWb3SqiCgVTsp
-         IAUnVs27EM0siWgZ+Mlsm1vYlrXXiBgYlixv6y46mdNbhccpkWoBgRgHH+vNs+E0n2XM
-         7/hQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JrgQxfomYfluMlje2RCt5Y0bmCgsap849zIjJ8qjDqE=;
-        b=AX+agb5CdCLgz2vUdoL7rmy0a+KQF/ApT1JqKBhu0HztK5XLdLjPdpE2/4qTaWlsk6
-         YcnWX0eCVCb8t2/HnnibHAo85ftufFPQIcY8oeomOr4QTVIv+USH+3QiSdK8diLmagFv
-         DU+AuXRz71nWzr+QD3BdB3QQx6ayLzCzVSkNlUm40dF/yHLVdFxh4yr2TytRZqLX4Ugf
-         C9dOWM5Q3MGZWuV9VEc3UjjPORZolN2hXauVA76+89m3cjqJjYpzRBpYdPqvdzgLwXf6
-         1KbG7syWPzGdrNE0XWymUoUr1bnr8s6LH/6TI2DzkAAj3awCNK10fvzSKgEUceoeNxyY
-         Sqfg==
-X-Gm-Message-State: AJIora+UPEuPYDMVrs0toFsybbIlvCkfdHByWkEM+EDdQlj4AIE58d2M
-        7H1+ZFrRFCE6iHRdFdoIU9vSgowjpHTVBhzI
-X-Google-Smtp-Source: AGRyM1sGbRFRT9Q6vXOO3toSxu6tx2hzXFsfSYjRLwz79CPXuT+MHgwdL+f3VV6ke1FO05Kpm1ndiw==
-X-Received: by 2002:a63:594f:0:b0:412:96c7:26f7 with SMTP id j15-20020a63594f000000b0041296c726f7mr17411225pgm.110.1658881665347;
-        Tue, 26 Jul 2022 17:27:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z1-20020aa79f81000000b0052ba78e7c20sm12620511pfr.97.2022.07.26.17.27.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jul 2022 17:27:45 -0700 (PDT)
-Message-ID: <62e08681.1c69fb81.1888b.4a5d@mx.google.com>
-Date:   Tue, 26 Jul 2022 17:27:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.14-150-gea55d06a53af
-Subject: stable-rc/queue/5.18 baseline: 193 runs,
- 2 regressions (v5.18.14-150-gea55d06a53af)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S230014AbiG0BZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 21:25:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5221418B11;
+        Tue, 26 Jul 2022 18:25:37 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA9A56174B;
+        Wed, 27 Jul 2022 01:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37AC9C433D6;
+        Wed, 27 Jul 2022 01:25:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1658885136;
+        bh=lS1HCw/z9MMA8YEFiepqFCpyk8tYouQ+Q9DvnneSAXg=;
+        h=Date:To:From:Subject:From;
+        b=d95+KD/xBAHKwNlJmDzZ1qHqJWSM/aCGmZ7NpIdd5xEcWHdvsB8j/T1A0wXo8HJeU
+         oBhK1kSKXtPjp/1H+elwf+SmaEUSWVrpcdB8RSeaa5ILD+C1fFxqSibP6be6XzxZqW
+         /9go/Mo1Ekq++nQ+MjwIU/yfDxE4PaQp758KEPTk=
+Date:   Tue, 26 Jul 2022 18:25:34 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        rppt@linux.ibm.com, peterx@redhat.com, jthoughton@google.com,
+        jack@suse.cz, david@redhat.com, aarcange@redhat.com,
+        namit@vmware.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] userfaultfd-provide-properly-masked-address-for-huge-pages.patch removed from -mm tree
+Message-Id: <20220727012536.37AC9C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 193 runs, 2 regressions (v5.18.14-150-gea55d=
-06a53af)
 
-Regressions Summary
--------------------
+The quilt patch titled
+     Subject: userfaultfd: provide properly masked address for huge-pages
+has been removed from the -mm tree.  Its filename was
+     userfaultfd-provide-properly-masked-address-for-huge-pages.patch
 
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-hp-x360-14-G1-sona | x86_64 | lab-collabora   | gcc-10   | x86_64_defcon...=
-6-chromebook | 1          =
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-imx6ul-pico-hobbit | arm    | lab-pengutronix | gcc-10   | multi_v7_defconf=
-ig           | 1          =
+------------------------------------------------------
+From: Nadav Amit <namit@vmware.com>
+Subject: userfaultfd: provide properly masked address for huge-pages
+Date: Mon, 11 Jul 2022 09:59:06 -0700
 
+Commit 824ddc601adc ("userfaultfd: provide unmasked address on
+page-fault") was introduced to fix an old bug, in which the offset in the
+address of a page-fault was masked.  Concerns were raised - although were
+never backed by actual code - that some userspace code might break because
+the bug has been around for quite a while.  To address these concerns a
+new flag was introduced, and only when this flag is set by the user,
+userfaultfd provides the exact address of the page-fault.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.14-150-gea55d06a53af/plan/baseline/
+The commit however had a bug, and if the flag is unset, the offset was
+always masked based on a base-page granularity.  Yet, for huge-pages, the
+behavior prior to the commit was that the address is masked to the
+huge-page granulrity.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.14-150-gea55d06a53af
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ea55d06a53afd55d2a1d022c7f6bf45d6793c81f =
+While there are no reports on real breakage, fix this issue.  If the flag
+is unset, use the address with the masking that was done before.
 
+Link: https://lkml.kernel.org/r/20220711165906.2682-1-namit@vmware.com
+Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reported-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: James Houghton <jthoughton@google.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ fs/userfaultfd.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-Test Regressions
----------------- =
+--- a/fs/userfaultfd.c~userfaultfd-provide-properly-masked-address-for-huge-pages
++++ a/fs/userfaultfd.c
+@@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_
+ }
+ 
+ static inline struct uffd_msg userfault_msg(unsigned long address,
++					    unsigned long real_address,
+ 					    unsigned int flags,
+ 					    unsigned long reason,
+ 					    unsigned int features)
+ {
+ 	struct uffd_msg msg;
++
+ 	msg_init(&msg);
+ 	msg.event = UFFD_EVENT_PAGEFAULT;
+ 
+-	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
+-		address &= PAGE_MASK;
+-	msg.arg.pagefault.address = address;
++	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
++				    real_address : address;
++
+ 	/*
+ 	 * These flags indicate why the userfault occurred:
+ 	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
+@@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fa
+ 
+ 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
+ 	uwq.wq.private = current;
+-	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
+-			ctx->features);
++	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
++				reason, ctx->features);
+ 	uwq.ctx = ctx;
+ 	uwq.waken = false;
+ 
+_
 
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-hp-x360-14-G1-sona | x86_64 | lab-collabora   | gcc-10   | x86_64_defcon...=
-6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62e054c3e4a0cfbcfbdaf05e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
-150-gea55d06a53af/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-14-G1-sona.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
-150-gea55d06a53af/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-hp-x360-14-G1-sona.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62e054c3e4a0cfbcfbdaf=
-05f
-        new failure (last pass: v5.18.14-150-g590d7faf5de56) =
-
- =
-
-
-
-platform           | arch   | lab             | compiler | defconfig       =
-             | regressions
--------------------+--------+-----------------+----------+-----------------=
--------------+------------
-imx6ul-pico-hobbit | arm    | lab-pengutronix | gcc-10   | multi_v7_defconf=
-ig           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62e05dfb8db7b0d925daf0ec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
-150-gea55d06a53af/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
-150-gea55d06a53af/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/armel/rootfs.cpio.gz =
+Patches currently in -mm which might be from namit@vmware.com are
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/62e05dfb8db7b0d925daf=
-0ed
-        failing since 20 days (last pass: v5.18.9-96-g91cfa3d0b94d, first f=
-ail: v5.18.9-102-ga6b8287ea0b9) =
-
- =20
