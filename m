@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B9C58308E
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE94B58303D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229915AbiG0Rjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:39:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35112 "EHLO
+        id S236366AbiG0RfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:35:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242769AbiG0RjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DDE87F53;
-        Wed, 27 Jul 2022 09:51:01 -0700 (PDT)
+        with ESMTP id S242786AbiG0Re6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FEF961B16;
+        Wed, 27 Jul 2022 09:49:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61EEAB821D4;
-        Wed, 27 Jul 2022 16:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6490C433C1;
-        Wed, 27 Jul 2022 16:50:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30E5B61560;
+        Wed, 27 Jul 2022 16:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF1CC433C1;
+        Wed, 27 Jul 2022 16:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940660;
-        bh=9yN/mn+SzG6dTgAnbcM/egHblXWlEspSb8niTGl1DMw=;
+        s=korg; t=1658940573;
+        bh=dy39VTQLqjl3oCSWU7y0LdZ9XQDsjAkSbWuoLdmHovs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrlpH6CaSPQPWxqn2uFazONpBUDDUS5kM6w23Z1LY1nj7NgMGU+xb6iKawOibEFDI
-         ywyRU4LzxBUwgPr1OOJuIC1Rh4PHCCpwhLeDqPnKKvWwyZjKmEikCosCD+rPE8iO26
-         vU0lw826ntU6OsAySIg2/a3rmnqCUDF5F9uPxNOs=
+        b=WJByOq7F3fQ9HIav1Gx12shhIsnw34YkX763C2Nly9bliGtqnh84EyDWIvLYQuMbF
+         SeSZm2Bl/PU3WbI9Yrb2YIgiFX6YiuFGOCaIHvz8uD+M9ZOxh8lRx4SX1MZZNSSLfW
+         h+UVCKxt8Ecr3VIUTVrvUjlSm8FaAZoGkUZOSmUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 071/158] tcp: Fix data-races around some timeout sysctl knobs.
-Date:   Wed, 27 Jul 2022 18:12:15 +0200
-Message-Id: <20220727161024.355385297@linuxfoundation.org>
+Subject: [PATCH 5.18 072/158] tcp: Fix a data-race around sysctl_tcp_notsent_lowat.
+Date:   Wed, 27 Jul 2022 18:12:16 +0200
+Message-Id: <20220727161024.404079328@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,115 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 39e24435a776e9de5c6dd188836cf2523547804b ]
+[ Upstream commit 55be873695ed8912eb77ff46d1d1cadf028bd0f3 ]
 
-While reading these sysctl knobs, they can be changed concurrently.
-Thus, we need to add READ_ONCE() to their readers.
+While reading sysctl_tcp_notsent_lowat, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-  - tcp_retries1
-  - tcp_retries2
-  - tcp_orphan_retries
-  - tcp_fin_timeout
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h     |  3 ++-
- net/ipv4/tcp.c        |  2 +-
- net/ipv4/tcp_output.c |  2 +-
- net/ipv4/tcp_timer.c  | 10 +++++-----
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ include/net/tcp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/include/net/tcp.h b/include/net/tcp.h
-index e6f9a02fa465..815ea8f9b93f 100644
+index 815ea8f9b93f..8d02972e46cd 100644
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
-@@ -1541,7 +1541,8 @@ static inline u32 keepalive_time_elapsed(const struct tcp_sock *tp)
- 
- static inline int tcp_fin_time(const struct sock *sk)
+@@ -2045,7 +2045,7 @@ void __tcp_v4_send_check(struct sk_buff *skb, __be32 saddr, __be32 daddr);
+ static inline u32 tcp_notsent_lowat(const struct tcp_sock *tp)
  {
--	int fin_timeout = tcp_sk(sk)->linger2 ? : sock_net(sk)->ipv4.sysctl_tcp_fin_timeout;
-+	int fin_timeout = tcp_sk(sk)->linger2 ? :
-+		READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fin_timeout);
- 	const int rto = inet_csk(sk)->icsk_rto;
+ 	struct net *net = sock_net((struct sock *)tp);
+-	return tp->notsent_lowat ?: net->ipv4.sysctl_tcp_notsent_lowat;
++	return tp->notsent_lowat ?: READ_ONCE(net->ipv4.sysctl_tcp_notsent_lowat);
+ }
  
- 	if (fin_timeout < (rto << 2) - (rto >> 1))
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 0e0ee9c58257..164603527399 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3994,7 +3994,7 @@ static int do_tcp_getsockopt(struct sock *sk, int level,
- 	case TCP_LINGER2:
- 		val = tp->linger2;
- 		if (val >= 0)
--			val = (val ? : net->ipv4.sysctl_tcp_fin_timeout) / HZ;
-+			val = (val ? : READ_ONCE(net->ipv4.sysctl_tcp_fin_timeout)) / HZ;
- 		break;
- 	case TCP_DEFER_ACCEPT:
- 		val = retrans_to_secs(icsk->icsk_accept_queue.rskq_defer_accept,
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 99a2f4518e2e..3f20642c8171 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -4088,7 +4088,7 @@ void tcp_send_probe0(struct sock *sk)
- 
- 	icsk->icsk_probes_out++;
- 	if (err <= 0) {
--		if (icsk->icsk_backoff < net->ipv4.sysctl_tcp_retries2)
-+		if (icsk->icsk_backoff < READ_ONCE(net->ipv4.sysctl_tcp_retries2))
- 			icsk->icsk_backoff++;
- 		timeout = tcp_probe0_when(sk, TCP_RTO_MAX);
- 	} else {
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index a234704e8163..ec5277becc6a 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -143,7 +143,7 @@ static int tcp_out_of_resources(struct sock *sk, bool do_reset)
-  */
- static int tcp_orphan_retries(struct sock *sk, bool alive)
- {
--	int retries = sock_net(sk)->ipv4.sysctl_tcp_orphan_retries; /* May be zero. */
-+	int retries = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_orphan_retries); /* May be zero. */
- 
- 	/* We know from an ICMP that something is wrong. */
- 	if (sk->sk_err_soft && !alive)
-@@ -243,14 +243,14 @@ static int tcp_write_timeout(struct sock *sk)
- 			READ_ONCE(net->ipv4.sysctl_tcp_syn_retries);
- 		expired = icsk->icsk_retransmits >= retry_until;
- 	} else {
--		if (retransmits_timed_out(sk, net->ipv4.sysctl_tcp_retries1, 0)) {
-+		if (retransmits_timed_out(sk, READ_ONCE(net->ipv4.sysctl_tcp_retries1), 0)) {
- 			/* Black hole detection */
- 			tcp_mtu_probing(icsk, sk);
- 
- 			__dst_negative_advice(sk);
- 		}
- 
--		retry_until = net->ipv4.sysctl_tcp_retries2;
-+		retry_until = READ_ONCE(net->ipv4.sysctl_tcp_retries2);
- 		if (sock_flag(sk, SOCK_DEAD)) {
- 			const bool alive = icsk->icsk_rto < TCP_RTO_MAX;
- 
-@@ -381,7 +381,7 @@ static void tcp_probe_timer(struct sock *sk)
- 		 msecs_to_jiffies(icsk->icsk_user_timeout))
- 		goto abort;
- 
--	max_probes = sock_net(sk)->ipv4.sysctl_tcp_retries2;
-+	max_probes = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_retries2);
- 	if (sock_flag(sk, SOCK_DEAD)) {
- 		const bool alive = inet_csk_rto_backoff(icsk, TCP_RTO_MAX) < TCP_RTO_MAX;
- 
-@@ -589,7 +589,7 @@ void tcp_retransmit_timer(struct sock *sk)
- 	}
- 	inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
- 				  tcp_clamp_rto_to_user_timeout(sk), TCP_RTO_MAX);
--	if (retransmits_timed_out(sk, net->ipv4.sysctl_tcp_retries1 + 1, 0))
-+	if (retransmits_timed_out(sk, READ_ONCE(net->ipv4.sysctl_tcp_retries1) + 1, 0))
- 		__sk_dst_reset(sk);
- 
- out:;
+ bool tcp_stream_memory_free(const struct sock *sk, int wake);
 -- 
 2.35.1
 
