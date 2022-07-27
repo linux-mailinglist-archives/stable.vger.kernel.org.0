@@ -2,157 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0931D581E2E
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 05:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B0F582020
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 08:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240291AbiG0DVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jul 2022 23:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51074 "EHLO
+        id S229634AbiG0GcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 02:32:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240280AbiG0DVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 23:21:18 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FBBD248E8;
-        Tue, 26 Jul 2022 20:21:17 -0700 (PDT)
-X-UUID: 1429017a8fbf4357885e2b24aa255190-20220727
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.8,REQID:40db339d-f865-4c48-9ede-34f63baad5d3,OB:0,LO
-        B:0,IP:0,URL:5,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACT
-        ION:release,TS:0
-X-CID-META: VersionHash:0f94e32,CLOUDID:3a6e20ee-db04-4499-9fdf-04ef44b9468c,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:1,File:nil
-        ,QS:nil,BEC:nil,COL:0
-X-UUID: 1429017a8fbf4357885e2b24aa255190-20220727
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <peter.wang@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1129967393; Wed, 27 Jul 2022 11:21:12 +0800
-Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
- Wed, 27 Jul 2022 11:21:11 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.792.15 via Frontend Transport; Wed, 27 Jul 2022 11:21:11 +0800
-From:   <peter.wang@mediatek.com>
-To:     <stanley.chu@mediatek.com>, <linux-scsi@vger.kernel.org>,
-        <martin.petersen@oracle.com>, <avri.altman@wdc.com>,
-        <alim.akhtar@samsung.com>, <jejb@linux.ibm.com>
-CC:     <wsd_upstream@mediatek.com>, <linux-mediatek@lists.infradead.org>,
-        <peter.wang@mediatek.com>, <chun-hung.wu@mediatek.com>,
-        <alice.chao@mediatek.com>, <cc.chou@mediatek.com>,
-        <chaotian.jing@mediatek.com>, <jiajie.hao@mediatek.com>,
-        <powen.kao@mediatek.com>, <qilin.tan@mediatek.com>,
-        <lin.gui@mediatek.com>, <stable@vger.kernel.org>
-Subject: [PATCH v4] ufs: core: fix lockdep warning of clk_scaling_lock
-Date:   Wed, 27 Jul 2022 11:21:10 +0800
-Message-ID: <20220727032110.31168-1-peter.wang@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        with ESMTP id S229501AbiG0GcA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 02:32:00 -0400
+Received: from smtp.rcn.com (mail.rcn.syn-alias.com [129.213.13.252])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36CE402E5
+        for <stable@vger.kernel.org>; Tue, 26 Jul 2022 23:31:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha1; d=rcn.com; s=20180516; c=relaxed/simple;
+        q=dns/txt; i=@rcn.com; t=1658903517;
+        h=From:Subject:Date:To:MIME-Version:Content-Type;
+        bh=0Y4rdkmiu3740kAZYKkEnbTpMX0=;
+        b=DebX0M0gic6tuxcHJw5dz1SjydJ9E3bpOtaTJcZ4swcF46N/rgl/1jyABeuzkgS3
+        MVoei3sJFB9S0ji1W6uSmYCOdOBPGA1J8NK5Q/Gpke2zERFhIZ+v3KCIGglxse4D
+        f+jn2z+euVIhgibLJgigvD9v37wjrvQt+rGZN50RgygySxfKpdshM/0Ht4+Dcb+7
+        7717yOCzHjFnfdVbYj62ZhssAag6TEOCXxUSQkLHiBl8wFEV3+OCy+ftDKkWaPuY
+        OPvkSuMENn85XWHIOfjxUyEBq6IdhbjNTe3e7bpCUZ3HcQcl7X5Vi/47l4gzDWEd
+        LYIiI//mCSZbt4Z8MXY5sQ==;
+X-Authed-Username: aW50aGFAcmNuLmNvbQ==
+Received: from [10.219.157.18] ([10.219.157.18:45714] helo=md04.rcn.email-ash1.sync.lan)
+        by smtp.rcn.com (envelope-from <intha@rcn.com>)
+        (ecelerity 4.4.0.19839 r(msys-ecelerity:tags/4.4.0.0^0)) with ESMTP
+        id C8/9A-12609-DDBD0E26; Wed, 27 Jul 2022 02:31:57 -0400
+Date:   Wed, 27 Jul 2022 02:31:57 -0400 (EDT)
+From:   Pawan kumar <intha@rcn.com>
+To:     oruth5519@gmail.com
+Cc:     oruth5519@gmail.com
+Message-ID: <1071518953.120015420.1658903517259.JavaMail.zimbra@rcn.com>
+In-Reply-To: <CANO0bMwQs=PdqCYOixsWnGP=FLkO-jmKv94rUnbYGwm+77zD2w@mail.gmail.com>
+References: <CANO0bMwQs=PdqCYOixsWnGP=FLkO-jmKv94rUnbYGwm+77zD2w@mail.gmail.com>
+Subject: Your contact number
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_PASS,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [154.21.208.180]
+X-Mailer: Zimbra 9.0.0_GA_4157 (ZimbraWebClient - GC103 (Win)/9.0.0_GA_4157)
+Thread-Topic: Your contact number
+Thread-Index: AmPoo7hxMEOHHUuxYQUjmePPT3b7Jg==
+X-Vade-Verdict: clean
+X-Vade-Analysis-1: gggruggvucftvghtrhhoucdtuddrgedvfedrvdduuddgudduudcutefuodetggdotefrodftvfcurfhr
+X-Vade-Analysis-2: ohhfihhlvgemucfujgfpteevqfftpdftvefppdfgpfggqdftvefppdfqfgfvnecuuegrihhlohhuthem
+X-Vade-Analysis-3: uceftddunecunecujfgurhepfffhvfevkfgjfhfugggtgfhiofhtsehtjegttdertdejnecuhfhrohhm
+X-Vade-Analysis-4: pefrrgifrghnuccukhhumhgrrhcuoehinhhthhgrsehrtghnrdgtohhmqeenucggtffrrghtthgvrhhn
+X-Vade-Analysis-5: peeugeeiudduhfdvheeuuedtueeiueelvdevheffvefgteduveejffekkeehuefhheenucfkphepuddt
+X-Vade-Analysis-6: rddvudelrdduheejrddukedpudehgedrvddurddvtdekrddukedtnecuvehluhhsthgvrhfuihiivgep
+X-Vade-Analysis-7: vdenucfrrghrrghmpehinhgvthepuddtrddvudelrdduheejrddukedphhgvlhhopehmugdtgedrrhgt
+X-Vade-Analysis-8: nhdrvghmrghilhdqrghshhdurdhshihntgdrlhgrnhdpmhgrihhlfhhrohhmpehinhhthhgrsehrtghn
+X-Vade-Analysis-9: rdgtohhmpdhrtghpthhtohepohhruhhthhehheduleesghhmrghilhdrtghomhdprhgtphhtthhopehs
+X-Vade-Analysis-10: shhsshhofigsrdhmrghilhesghhmrghilhdrtghomhdprhgtphhtthhopehsshhsthhksghnghesghhm
+X-Vade-Analysis-11: rghilhdrtghomhdprhgtphhtthhopehsshhsuhdrrhgvghhishhtrhgrrhesghhmrghilhdrtghomhdp
+X-Vade-Analysis-12: rhgtphhtthhopehsshhsuhhoshdvtddugeesghhmrghilhdrtghomhdprhgtphhtthhopehsshhsvhhv
+X-Vade-Analysis-13: rdhrkhhpsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsshhvvhgrlhhumhhnihhglhhtsehgmhgr
+X-Vade-Analysis-14: ihhlrdgtohhmpdhrtghpthhtohepufhsshhvvhgslhhsleesghhmrghilhdrtghomhdprhgtphhtthho
+X-Vade-Analysis-15: pehsshhsvhhvuggvlhesghhmrghilhdrtghomhdprhgtphhtthhopehsshhsfigrnhhilhesghhmrghi
+X-Vade-Analysis-16: lhdrtghomhdprhgtphhtthhopehsshhsfigtsghhohhprghlseihrghhohhordgtohdrihhnpdhrtghp
+X-Vade-Analysis-17: thhtohepshhsshiftggsphhlsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsshihmhgrnhgvsehg
+X-Vade-Analysis-18: mhgrihhlrdgtohhmpdhrtghpthhtohepufhsthdrvegrmhhprghnhidvtdduieesifhmrghilhdrveho
+X-Vade-Analysis-19: mhdprhgtphhtthhopehsshhtrdhmughpsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsthdrshgr
+X-Vade-Analysis-20: tghhihhnsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsthgrughmnhhhvggrugesghhmrghilhdr
+X-Vade-Analysis-21: tghomhdprhgtphhtthhopehsshhtrghnfigrrhefleesghhmrghilhdrtghomhdprhgtphhtthhopefu
+X-Vade-Analysis-22: uffvtegiuffqnfgfvffkqffpufdusefiofetkffnrdevqffopdhrtghpthhtohepshhsthgtkeegsehg
+X-Vade-Analysis-23: mhgrihhlrdgtohhmpdhrtghpthhtohepufhsthgtphhunhgvsghrrghntghhsefimhgrihhlrdevohhm
+X-Vade-Analysis-24: pdhrtghpthhtohepshhsthgvtghhnhholhhoghhivghsrghstgesghhmrghilhdrtghomhdprhgtphht
+X-Vade-Analysis-25: thhopehsshhtvghjrghithhirhhnphesghhmrghilhdrtghomhdprhgtphhtthhopehsshhthhgrkhhu
+X-Vade-Analysis-26: rhgptddvseihrghoohdrtghomhdprhgtphhtthhopehsshhthhhshhejsehgmhgrihhlrdgtohhmpdhr
+X-Vade-Analysis-27: tghpthhtohepshhsthhimhhpvgigphhvthhlthgusehgmhgrihhlrdgtohhmpdhrtghpthhtohepufhs
+X-Vade-Analysis-28: thhiphhushhinhhghheisefimhgrihhlrdevohhmpdhrtghpthhtohepshhsthhirhhufigrrdhgshht
+X-Vade-Analysis-29: sehukhdrghhovhdrihhnpdhrtghpthhtohepshhsthhouhhrthhrrghvvghludesghhmrghilhdrtgho
+X-Vade-Analysis-30: mhdprhgtphhtthhopehsshhtphgrnhgthhgrkhgrrhhmrgesghhmrghilhdrtghomhdprhgtphhtthho
+X-Vade-Analysis-31: pehsshhtphhlrdgtohhrphesghhmrghilhdrtghomhdprhgtphhtthhopehsshhtrhgrtghtohhrshdv
+X-Vade-Analysis-32: tdduvdesghhmrghilhdrtghomhdprhgtphhtthhopehsshhtrhgrtghtohhrshhtuhhnughlrgesghhm
+X-Vade-Analysis-33: rghilhdrtghomhdprhgtphhtthhopehsshhtrhhushhtvddttdegsehgmhgrihhlrdgtohhmpdhrtghp
+X-Vade-Analysis-34: thhtohepshhsthhsihguughiqhhuihesghhmrghilhdrtghomhdprhgtphhtthhopehsshhtshhurhgv
+X-Vade-Analysis-35: shhhrdgunhhrtggvthesghhmrghilhdrtghomhdprhgtphhtthhopehsshhtvheshigrhhhoohdrihhn
+X-Vade-Analysis-36: pdhrtghpthhtohepshhsthhvvdejvdejsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhgssggr
+X-Vade-Analysis-37: ihgrhhesthgvtghhnhhiphdrtghomhdprhgtphhtthhopehsshhuuggrrhhshhgrnhhmuhhrthhhhies
+X-Vade-Analysis-38: ghhmrghilhdrtghomhdprhgtphhtthhopehsshhuughhrgesihhithhkrdgrtgdrihhnpdhrtghpthht
+X-Vade-Analysis-39: ohepshhsuhguhhgrkhgrrhdtjeesghhmrghilhdrtghomhdprhgtphhtthhopehsshhuughhrghkrghr
+X-Vade-Analysis-40: vdegleeshigrhhhoohdrtghordhinhdprhgtphhtthhopehsshhuughhrghkrghrjeelsehgmhgrihhl
+X-Vade-Analysis-41: rdgtohhmpdhrtghpthhtohepshhsuhguhhgrnhhshhhuhedtkeesghhmrghilhdrtghomhdprhgtphht
+X-Vade-Analysis-42: thhopehsshhuughhihhrshhhuhhklhgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhiughs
+X-Vade-Analysis-43: phgsrghnghgrlhhorhgvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhjrghtrgejudeisehg
+X-Vade-Analysis-44: mhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhlvghmrghnsegvuggtihhlrdgtohdrihhnpdhrtghp
+X-Vade-Analysis-45: thhtohepshhsuhhmrghnieejledvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhmrghnpghm
+X-Vade-Analysis-46: seihrghhohhordgtohdrihhnpdhrtghpthhtohepshhsuhhmrghshhgrkhhtihdusehgmhgrihhlrdgt
+X-Vade-Analysis-47: ohhmpdhrtghpthhtohepshhsuhhnuggvrhhprhhosehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhs
+X-Vade-Analysis-48: uhhnughhrghnudegsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhnihhlkeduvddvtddtvdes
+X-Vade-Analysis-49: ghhmrghilhdrtghomhdprhgtphhtthhopehsshhunhhilhgtlhhksehgmhgrihhlrdgtohhmpdhrtghp
+X-Vade-Analysis-50: thhtohepshhsuhhnnhihkeefkeefsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhpshdusehg
+X-Vade-Analysis-51: mhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhpvhhpsehgmhgrihhlrdgtohhmpdhrtghpthhtohep
+X-Vade-Analysis-52: shhsuhhrrdhphhihshesghhmrghilhdrtghomhdprhgtphhtthhopehsshhurhgvshhhsehgmhgrihhl
+X-Vade-Analysis-53: rdgtohhmpdhrtghpthhtohepshhsuhhrvghshhdrtghptggssehnihgtrdhinhdprhgtphhtthhopehs
+X-Vade-Analysis-54: shhurhgvshhhrdhnihhtthesghhmrghilhdrtghomhdprhgtphhtthhopehsshhurhgvshhhvdegtdeg
+X-Vade-Analysis-55: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhrvghshhhkvdehsehgmhgrihhlrdgtohhmpdhr
+X-Vade-Analysis-56: tghpthhtohepshhsuhhsugihlhhisgesghhmrghilhdrtghomhdprhgtphhtthhopehsshhushhhrghn
+X-Vade-Analysis-57: thhhsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsuhhsihhnughorhgvsehgmhgrihhlrdgtohhm
+X-Vade-Analysis-58: pdhrtghpthhtohepshhsuhhsrhgvghesghhmrghilhdrtghomhdprhgtphhtthhopehsshhushhrvghg
+X-Vade-Analysis-59: sehsrghntghhrghrnhgvthdrihhnpdhrtghpthhtohepshhsuhhtkhhmsehtkhhmihhtrdgrtgdrihhn
+X-Vade-Analysis-60: pdhrtghpthhtohepshhsuhhuugguhhhhihhirhhrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhs
+X-Vade-Analysis-61: vheslhhpghgthihlihhnuggvrhdrnhgvthdprhgtphhtthhopehsshhvrdguvghlhhhisehsthgvvghl
+X-Vade-Analysis-62: shhtrhhonhhgrdgtohhmpdhrtghpthhtohepshhsvhdrvghnthgvrhhprhhishgvsehgmhgrihhlrdgt
+X-Vade-Analysis-63: ohhmpdhrtghpthhtohepshhsvhdrrhhprhesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvrgdr
+X-Vade-Analysis-64: shhurhgvshhhsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhgrihguhigrhhgvrghlthhhtggr
+X-Vade-Analysis-65: rhgvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhgrlhhuvghrshesghhmrghilhdrtghomhdp
+X-Vade-Analysis-66: rhgtphhtthhopehsshhvrghrrghtihhkrhguphesghhmrghilhdrtghomhdprhgtphhtthhopehsshhv
+X-Vade-Analysis-67: tggtsggvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhgvfhgrrhhiuggrsggrugesghhmrghi
+X-Vade-Analysis-68: lhdrtghomhdprhgtphhtthhopehsshhvvghmuhhrihesghhmrghilhdrtghomhdprhgtphhtthhopehs
+X-Vade-Analysis-69: shhvvghnghhgsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhgvthhrhieshigrhhhoohdrtgho
+X-Vade-Analysis-70: mhdprhgtphhtthhopehsshhvfhgtsggvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhftggs
+X-Vade-Analysis-71: vgesrhgvughifhhfmhgrihhlrdgtohhmpdhrtghpthhtohepufhsvhhishgvnhesjggrhhhoohdrveho
+X-Vade-Analysis-72: mhdprhgtphhtthhopehsshhvjhhsjeduieesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvkhgt
+X-Vade-Analysis-73: hhhokhhkrgguhiesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvmhdutddtkeesghhmrghilhdr
+X-Vade-Analysis-74: tghomhdprhgtphhtthhopehsshhvmhgsjeesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvnhhi
+X-Vade-Analysis-75: ughhihesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvphgrmhhmrghlsehgmhgrihhlrdgtohhm
+X-Vade-Analysis-76: pdhrtghpthhtohepshhsvhhprhgrshgrughpvghrihhosehgmhgrihhlrdgtohhmpdhrtghpthhtohep
+X-Vade-Analysis-77: shhsvhhsrdhvihguhhihrggshhgrrhgrthhisehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsvhhs
+X-Vade-Analysis-78: tghhohholhdvtdduudesghhmrghilhdrtghomhdprhgtphhtthhopehsshhvthhprggtkhesghhmrghi
+X-Vade-Analysis-79: lhdrtghomhdprhgtphhtthhopehsshhvvhgrlhhuvhgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohep
+X-Vade-Analysis-80: shhsvhhvshguvghorhhirgesghhmrghilhdrtghomhdprhgtphhtthhopehsshifrdhrjhihsehgmhgr
+X-Vade-Analysis-81: ihhlrdgtohhmpdhrtghpthhtohepshhsfigrmhhiudekheefsehgmhgrihhlrdgtohhmpdhrtghpthht
+X-Vade-Analysis-82: ohepshhsfigrmhhinhgrthhhrghnmhgusehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsfigrrhhn
+X-Vade-Analysis-83: khgrrhesnhgrtghordhgohhvrdhinhdprhgtphhtthhopehsshifrghtmhgrnhgrnhgurgesghhmrghi
+X-Vade-Analysis-84: lhdrtghomhdprhgtphhtthhopehsshifsghrrghntghhihhftggusehgmhgrihhlrdgtohhmpdhrtghp
+X-Vade-Analysis-85: thhtohepshhsfiguohgtsehvghhhthgtrdhgohhvrdhtfidprhgtphhtthhopehsshiffhhtvddtudeg
+X-Vade-Analysis-86: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhsfihghhhmohguvgdvtddtleesghhmrghilhdrtgho
+X-Vade-Analysis-87: mhdprhgtphhtthhopehsshihshgrnhhjrgihsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhshihu
+X-Vade-Analysis-88: vhgrkhhsfigrshgrhhgrhigrshgrnhhghhesghhmrghilhdrtghomhdprhgtphhtthhopehsshiipggr
+X-Vade-Analysis-89: shhhrhgrfhesrhgvughifhhfmhgrihhlrdgtohhmpdhrtghpthhtohepshhsiigrmhhusehgmhgrihhl
+X-Vade-Analysis-90: rdgtohhmpdhrtghpthhtohepshhsiihonhgvudehsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshht
+X-Vade-Analysis-91: sehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrdgrlhhohihsihhushgsrghnghgrrhhmrghusehg
+X-Vade-Analysis-92: mhgrihhlrdgtohhmpdhrtghpthhtohepshhtrdhfrhgrnhgtihhshhhomhgvphhkthesghhmrghilhdr
+X-Vade-Analysis-93: tghomhdprhgtphhtthhopehsthdrjhhohhhnshdrshgthhhoohhlmhgvhhesghhmrghilhdrtghomhdp
+X-Vade-Analysis-94: rhgtphhtthhopehsthdrjhhoshgvphhhghhrrghnihhtvgesghhmrghilhdrtghomhdprhgtphhtthho
+X-Vade-Analysis-95: pehsthdrkhdrtgdrmhgvmhhorhhirghlsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrdhmrghr
+X-Vade-Analysis-96: hihsrdduleesghhmrghilhdrtghomhdprhgtphhtthhopehsthdrmhhilhgrghhrvghstghophgvrhht
+X-Vade-Analysis-97: ihhvvgesghhmrghilhdrtghomhdprhgtphhtthhopehsthdrmhhohhgrnheshigrhhhoohdrtghomhdp
+X-Vade-Analysis-98: rhgtphhtthhopehsthdrmhhonhhitggrkhhumhgslhgrseihrghhohhordgtohhmpdhrtghpthhtohep
+X-Vade-Analysis-99: shhtrdhmiihpudelkedtsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhtrdhthhhomhgrshhshhgr
+X-Vade-Analysis-100: shhtrhhiphhurhgrmhesghhmrghilhdrtghomhdprhgtphhtthhopehsthdrgigrvhhivghrshhstghh
+X-Vade-Analysis-101: ohholhgsrghllhhirgesghhmrghilhdrtghomhdprhgtphhtthhopefuthdvheeljeefvdegsehgmhgr
+X-Vade-Analysis-102: ihhlrdgtohhmpdhrtghpthhtohepshhtvdguvghlsehnihgtrdhinhdprhgtphhtthhopefuvfeisehs
+X-Vade-Analysis-103: rghnmhgrrhhgrhhouhhprdgtohhmpdh
+X-Vade-Client: RCN
+X-Spam-Status: No, score=-0.2 required=5.0 tests=BAYES_20,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Wang <peter.wang@mediatek.com>
 
-There have a lockdep warning like below in current flow, and have deadlock issue.
-kworker/u16:0:  Possible unsafe locking scenario:
 
-kworker/u16:0:        CPU0                    CPU1
-kworker/u16:0:        ----                    ----
-kworker/u16:0:   lock(&hba->clk_scaling_lock);
-kworker/u16:0:                                lock(&hba->dev_cmd.lock);
-kworker/u16:0:                                lock(&hba->clk_scaling_lock);
-kworker/u16:0:   lock(&hba->dev_cmd.lock);
-kworker/u16:0:
 
-Before this patch clk_scaling_lock was held in reader mode during the ufshcd_wb_toggle() call.
-With this patch applied clk_scaling_lock is not held while ufshcd_wb_toggle() is called.
-
-This is safe because ufshcd_wb_toggle will held clk_scaling_lock in reader mode "again" in flow
-ufshcd_wb_toggle -> __ufshcd_wb_toggle -> ufshcd_query_flag_retry -> ufshcd_query_flag ->
-ufshcd_exec_dev_cmd -> down_read(&hba->clk_scaling_lock);
-The protect should enough and make sure clock is not change while send command.
-
-ufshcd_wb_toggle can protected by hba->clk_scaling.is_allowed to make sure
-ufshcd_devfreq_scale function not run concurrently.
-
-Fixes: 0e9d4ca43ba8 ("scsi: ufs: Protect some contexts from unexpected clock scaling")
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Peter Wang <peter.wang@mediatek.com>
----
- drivers/ufs/core/ufshcd.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
-index c7b337480e3e..aa57126fdb49 100644
---- a/drivers/ufs/core/ufshcd.c
-+++ b/drivers/ufs/core/ufshcd.c
-@@ -272,6 +272,7 @@ static void ufshcd_wb_toggle_flush_during_h8(struct ufs_hba *hba, bool set);
- static inline void ufshcd_wb_toggle_flush(struct ufs_hba *hba, bool enable);
- static void ufshcd_hba_vreg_set_lpm(struct ufs_hba *hba);
- static void ufshcd_hba_vreg_set_hpm(struct ufs_hba *hba);
-+static void ufshcd_clk_scaling_allow(struct ufs_hba *hba, bool allow);
- 
- static inline void ufshcd_enable_irq(struct ufs_hba *hba)
- {
-@@ -1249,12 +1250,10 @@ static int ufshcd_clock_scaling_prepare(struct ufs_hba *hba)
- 	return ret;
- }
- 
--static void ufshcd_clock_scaling_unprepare(struct ufs_hba *hba, bool writelock)
-+static void ufshcd_clock_scaling_unprepare(struct ufs_hba *hba)
- {
--	if (writelock)
--		up_write(&hba->clk_scaling_lock);
--	else
--		up_read(&hba->clk_scaling_lock);
-+	up_write(&hba->clk_scaling_lock);
-+
- 	ufshcd_scsi_unblock_requests(hba);
- 	ufshcd_release(hba);
- }
-@@ -1271,7 +1270,7 @@ static void ufshcd_clock_scaling_unprepare(struct ufs_hba *hba, bool writelock)
- static int ufshcd_devfreq_scale(struct ufs_hba *hba, bool scale_up)
- {
- 	int ret = 0;
--	bool is_writelock = true;
-+	bool wb_toggle = false;
- 
- 	ret = ufshcd_clock_scaling_prepare(hba);
- 	if (ret)
-@@ -1300,13 +1299,19 @@ static int ufshcd_devfreq_scale(struct ufs_hba *hba, bool scale_up)
- 		}
- 	}
- 
--	/* Enable Write Booster if we have scaled up else disable it */
--	downgrade_write(&hba->clk_scaling_lock);
--	is_writelock = false;
--	ufshcd_wb_toggle(hba, scale_up);
-+	/* Disable clk_scaling until ufshcd_wb_toggle finish */
-+	hba->clk_scaling.is_allowed = false;
-+	wb_toggle = true;
- 
- out_unprepare:
--	ufshcd_clock_scaling_unprepare(hba, is_writelock);
-+	ufshcd_clock_scaling_unprepare(hba);
-+
-+	/* Enable Write Booster if we have scaled up else disable it */
-+	if (wb_toggle) {
-+		ufshcd_wb_toggle(hba, scale_up);
-+		ufshcd_clk_scaling_allow(hba, true);
-+	}
-+
- 	return ret;
- }
- 
--- 
-2.18.0
+    Sir Am  on my way to airport will like to contact you if i reach chicago please kindly share your contact number with me so i  can reach you
 
