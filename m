@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7F57582C08
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9351582E81
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239081AbiG0QlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:41:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
+        id S233508AbiG0RNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239083AbiG0Qkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:40:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E687950719;
-        Wed, 27 Jul 2022 09:29:22 -0700 (PDT)
+        with ESMTP id S230149AbiG0RMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:12:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E1A753BD;
+        Wed, 27 Jul 2022 09:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4279061A1E;
-        Wed, 27 Jul 2022 16:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B44BC433D6;
-        Wed, 27 Jul 2022 16:29:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 456CDB821D5;
+        Wed, 27 Jul 2022 16:42:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FD9FC433C1;
+        Wed, 27 Jul 2022 16:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939358;
-        bh=YijPZ68MmYjmvGcAtKwKig+KpthlQqiRwWCwNSrBIk8=;
+        s=korg; t=1658940119;
+        bh=BXg5fLLfCrboKcDhCRE6/09nN66VrHApWnu3zne7LGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRoU+TUYClnLQ5qt3Qt8/c9yw6qs6BO5HeidLTWJaOHfbCMARc8BHLqgOUh1pR95b
-         7nGWwHJ+f9aii3QCFyEnTB14ZHigyksFM9gWK//4dgDY2kdi8bw12BhhtZuYB/oANx
-         i+NRYQq9EHRHnvxtdXztCABGavQbFWwZAM5rj/4o=
+        b=JKEUadedFeR/cSTp3aoKAhDGVlJ61gorXWN3PmWrzIt+CsUh8I2m8dhNBDfno5KWj
+         7wTSr8ZDFAh7zzbYAk+mpCT3XhhjrBdo0Dbwa84uqxPhFkhdRwWEptGxjhoepzmEGi
+         L7IzTZzomZzyszCe9qrUaLs87MtE10GJuc7MXZdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/87] perf/core: Fix data race between perf_event_set_output() and perf_mmap_close()
-Date:   Wed, 27 Jul 2022 18:10:07 +0200
-Message-Id: <20220727161009.585995386@linuxfoundation.org>
+Subject: [PATCH 5.15 104/201] pinctrl: armada-37xx: Convert to use dev_err_probe()
+Date:   Wed, 27 Jul 2022 18:10:08 +0200
+Message-Id: <20220727161032.059592834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,164 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 68e3c69803dada336893640110cb87221bb01dcf ]
+[ Upstream commit 06cb10ea0cd5c5f4db9627a33ab47fec32cb5960 ]
 
-Yang Jihing reported a race between perf_event_set_output() and
-perf_mmap_close():
+It's fine to call dev_err_probe() in ->probe() when error code is known.
+Convert the driver to use dev_err_probe().
 
-	CPU1					CPU2
-
-	perf_mmap_close(e2)
-	  if (atomic_dec_and_test(&e2->rb->mmap_count)) // 1 - > 0
-	    detach_rest = true
-
-						ioctl(e1, IOC_SET_OUTPUT, e2)
-						  perf_event_set_output(e1, e2)
-
-	  ...
-	  list_for_each_entry_rcu(e, &e2->rb->event_list, rb_entry)
-	    ring_buffer_attach(e, NULL);
-	    // e1 isn't yet added and
-	    // therefore not detached
-
-						    ring_buffer_attach(e1, e2->rb)
-						      list_add_rcu(&e1->rb_entry,
-								   &e2->rb->event_list)
-
-After this; e1 is attached to an unmapped rb and a subsequent
-perf_mmap() will loop forever more:
-
-	again:
-		mutex_lock(&e->mmap_mutex);
-		if (event->rb) {
-			...
-			if (!atomic_inc_not_zero(&e->rb->mmap_count)) {
-				...
-				mutex_unlock(&e->mmap_mutex);
-				goto again;
-			}
-		}
-
-The loop in perf_mmap_close() holds e2->mmap_mutex, while the attach
-in perf_event_set_output() holds e1->mmap_mutex. As such there is no
-serialization to avoid this race.
-
-Change perf_event_set_output() to take both e1->mmap_mutex and
-e2->mmap_mutex to alleviate that problem. Additionally, have the loop
-in perf_mmap() detach the rb directly, this avoids having to wait for
-the concurrent perf_mmap_close() to get around to doing it to make
-progress.
-
-Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole")
-Reported-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lkml.kernel.org/r/YsQ3jm2GR38SW7uD@worktop.programming.kicks-ass.net
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 45 ++++++++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 14 deletions(-)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 8336dcb2bd43..0a54780e0942 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5819,10 +5819,10 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
- 
- 		if (!atomic_inc_not_zero(&event->rb->mmap_count)) {
- 			/*
--			 * Raced against perf_mmap_close() through
--			 * perf_event_set_output(). Try again, hope for better
--			 * luck.
-+			 * Raced against perf_mmap_close(); remove the
-+			 * event and try again.
- 			 */
-+			ring_buffer_attach(event, NULL);
- 			mutex_unlock(&event->mmap_mutex);
- 			goto again;
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index 40bcf05123eb..7d0d2771a9ac 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -736,10 +736,8 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
+ 			break;
  		}
-@@ -10763,14 +10763,25 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
- 	goto out;
- }
- 
-+static void mutex_lock_double(struct mutex *a, struct mutex *b)
-+{
-+	if (b < a)
-+		swap(a, b);
-+
-+	mutex_lock(a);
-+	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
-+}
-+
- static int
- perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- {
- 	struct ring_buffer *rb = NULL;
- 	int ret = -EINVAL;
- 
--	if (!output_event)
-+	if (!output_event) {
-+		mutex_lock(&event->mmap_mutex);
- 		goto set;
-+	}
- 
- 	/* don't allow circular references */
- 	if (event == output_event)
-@@ -10808,8 +10819,15 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	    event->pmu != output_event->pmu)
- 		goto out;
- 
-+	/*
-+	 * Hold both mmap_mutex to serialize against perf_mmap_close().  Since
-+	 * output_event is already on rb->event_list, and the list iteration
-+	 * restarts after every removal, it is guaranteed this new event is
-+	 * observed *OR* if output_event is already removed, it's guaranteed we
-+	 * observe !rb->mmap_count.
-+	 */
-+	mutex_lock_double(&event->mmap_mutex, &output_event->mmap_mutex);
- set:
--	mutex_lock(&event->mmap_mutex);
- 	/* Can't redirect output if we've got an active mmap() */
- 	if (atomic_read(&event->mmap_count))
- 		goto unlock;
-@@ -10819,6 +10837,12 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 		rb = ring_buffer_get(output_event);
- 		if (!rb)
- 			goto unlock;
-+
-+		/* did we race against perf_mmap_close() */
-+		if (!atomic_read(&rb->mmap_count)) {
-+			ring_buffer_put(rb);
-+			goto unlock;
-+		}
  	}
+-	if (ret) {
+-		dev_err(dev, "no gpio-controller child node\n");
+-		return ret;
+-	}
++	if (ret)
++		return dev_err_probe(dev, ret, "no gpio-controller child node\n");
  
- 	ring_buffer_attach(event, rb);
-@@ -10826,20 +10850,13 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
- 	ret = 0;
- unlock:
- 	mutex_unlock(&event->mmap_mutex);
-+	if (output_event)
-+		mutex_unlock(&output_event->mmap_mutex);
+ 	nr_irq_parent = of_irq_count(np);
+ 	spin_lock_init(&info->irq_lock);
+@@ -996,10 +994,8 @@ static int armada_37xx_pinctrl_register(struct platform_device *pdev,
+ 		return ret;
  
- out:
- 	return ret;
+ 	info->pctl_dev = devm_pinctrl_register(dev, ctrldesc, info);
+-	if (IS_ERR(info->pctl_dev)) {
+-		dev_err(dev, "could not register pinctrl driver\n");
+-		return PTR_ERR(info->pctl_dev);
+-	}
++	if (IS_ERR(info->pctl_dev))
++		return dev_err_probe(dev, PTR_ERR(info->pctl_dev), "could not register pinctrl driver\n");
+ 
+ 	return 0;
  }
+@@ -1135,10 +1131,8 @@ static int __init armada_37xx_pinctrl_probe(struct platform_device *pdev)
+ 	info->dev = dev;
  
--static void mutex_lock_double(struct mutex *a, struct mutex *b)
--{
--	if (b < a)
--		swap(a, b);
--
--	mutex_lock(a);
--	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
--}
--
- static int perf_event_set_clock(struct perf_event *event, clockid_t clk_id)
- {
- 	bool nmi_safe = false;
+ 	regmap = syscon_node_to_regmap(np);
+-	if (IS_ERR(regmap)) {
+-		dev_err(dev, "cannot get regmap\n");
+-		return PTR_ERR(regmap);
+-	}
++	if (IS_ERR(regmap))
++		return dev_err_probe(dev, PTR_ERR(regmap), "cannot get regmap\n");
+ 	info->regmap = regmap;
+ 
+ 	info->data = of_device_get_match_data(dev);
 -- 
 2.35.1
 
