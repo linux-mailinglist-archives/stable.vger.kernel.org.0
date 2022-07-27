@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E71D583068
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF90583070
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242278AbiG0Rhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:37:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47844 "EHLO
+        id S242669AbiG0RiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:38:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241666AbiG0RhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:37:15 -0400
+        with ESMTP id S242619AbiG0Rhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:37:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338E92714;
-        Wed, 27 Jul 2022 09:50:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC43B8689F;
+        Wed, 27 Jul 2022 09:50:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA91D61479;
-        Wed, 27 Jul 2022 16:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED02C433D7;
-        Wed, 27 Jul 2022 16:49:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60B3F616FA;
+        Wed, 27 Jul 2022 16:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9E1C433D6;
+        Wed, 27 Jul 2022 16:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940598;
-        bh=0H1NXs+/dIxIZ/a66/1Fny6x8s5AZbE/YcAANoqu4/E=;
+        s=korg; t=1658940603;
+        bh=49Ylmd6QtRg5NoLeTrOXyRJ1bNwFt5vYNEfZxBZVBSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNKP9BEuFP0Y0zplXOvDiUjR9MAdPfkoZndJuZ4yEs2PNVt86ZAkkdcqDzrfw13kG
-         o48L3hwKJtstp8dMzMG7v1dijS1ZIRc5SexoV/fYd/vre+fs66V/AA91247dATjW/u
-         RrEz+5eT+P4oDoNqktTcU7zlifnSnMejxywsEpvA=
+        b=g5klBnD2u4hcpmOhr2Gt+ZNGX/p/9zhSvM/eIIMX0gaCOdu4O4ZUNPpFD9cy7q+XC
+         aa3FwLxRG2TTZ0hQWAJSCSK2AxEEhzX5w5n3lGvggBYwm852XdpBcqNoX8aB/vn72k
+         G1HKCsAnrrxzlyoP6IWwpAWHEwvzYnH3i1ZHcDa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pierre Gondois <pierre.gondois@arm.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?Arek=20Ru=C5=9Bniak?= <arek.rusi@gmail.com>
-Subject: [PATCH 5.18 081/158] ACPI: CPPC: Dont require flexible address space if X86_FEATURE_CPPC is supported
-Date:   Wed, 27 Jul 2022 18:12:25 +0200
-Message-Id: <20220727161024.750164524@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 082/158] pinctrl: armada-37xx: Reuse GPIO fwnode in armada_37xx_irqchip_register()
+Date:   Wed, 27 Jul 2022 18:12:26 +0200
+Message-Id: <20220727161024.788030612@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,56 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 09073396ea62d0a10b03f5661dcabfd8eca3f098 ]
+[ Upstream commit 46d34d4d502ea1030f5de434e6677ec96ca131c3 ]
 
-Commit 0651ab90e4ad ("ACPI: CPPC: Check _OSC for flexible address space")
-changed _CPC probing to require flexible address space to be negotiated
-for CPPC to work.
+Since we have fwnode of the first found GPIO controller assigned to the
+struct gpio_chip, we may reuse it in the armada_37xx_irqchip_register().
 
-However it was observed that this caused a regression for Arek's ROG
-Zephyrus G15 GA503QM which previously CPPC worked, but now it stopped
-working.
-
-To avoid causing a regression waive this failure when the CPU is known
-to support CPPC.
-
-Cc: Pierre Gondois <pierre.gondois@arm.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216248
-Fixes: 0651ab90e4ad ("ACPI: CPPC: Check _OSC for flexible address space")
-Reported-and-tested-by: Arek Ruśniak <arek.rusi@gmail.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-index 57ca7aa0e169..b8e26b6b5523 100644
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -764,7 +764,8 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index 5fc305222d2f..226798d9c067 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -726,23 +726,13 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
+ 	struct gpio_chip *gc = &info->gpio_chip;
+ 	struct irq_chip *irqchip = &info->irq_chip;
+ 	struct gpio_irq_chip *girq = &gc->irq;
++	struct device_node *np = to_of_node(gc->fwnode);
+ 	struct device *dev = &pdev->dev;
+-	struct device_node *np;
+-	int ret = -ENODEV, i, nr_irq_parent;
+-
+-	/* Check if we have at least one gpio-controller child node */
+-	for_each_child_of_node(dev->of_node, np) {
+-		if (of_property_read_bool(np, "gpio-controller")) {
+-			ret = 0;
+-			break;
+-		}
+-	}
+-	if (ret)
+-		return dev_err_probe(dev, ret, "no gpio-controller child node\n");
++	unsigned int i, nr_irq_parent;
  
- 					if (!osc_cpc_flexible_adr_space_confirmed) {
- 						pr_debug("Flexible address space capability not supported\n");
--						goto out_free;
-+						if (!cpc_supported_by_cpu())
-+							goto out_free;
- 					}
+-	nr_irq_parent = of_irq_count(np);
+ 	spin_lock_init(&info->irq_lock);
  
- 					addr = ioremap(gas_t->address, gas_t->bit_width/8);
-@@ -791,7 +792,8 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
- 				}
- 				if (!osc_cpc_flexible_adr_space_confirmed) {
- 					pr_debug("Flexible address space capability not supported\n");
--					goto out_free;
-+					if (!cpc_supported_by_cpu())
-+						goto out_free;
- 				}
- 			} else {
- 				if (gas_t->space_id != ACPI_ADR_SPACE_FIXED_HARDWARE || !cpc_ffh_supported()) {
++	nr_irq_parent = of_irq_count(np);
+ 	if (!nr_irq_parent) {
+ 		dev_err(dev, "invalid or no IRQ\n");
+ 		return 0;
 -- 
 2.35.1
 
