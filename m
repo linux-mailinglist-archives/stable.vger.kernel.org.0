@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED20582BD3
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8996582C9E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238995AbiG0Qh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
+        id S240529AbiG0Qsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:48:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238372AbiG0QgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:36:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D92F57209;
-        Wed, 27 Jul 2022 09:28:07 -0700 (PDT)
+        with ESMTP id S240353AbiG0QsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD65D4E857;
+        Wed, 27 Jul 2022 09:32:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A17BDB821BC;
-        Wed, 27 Jul 2022 16:28:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BE2FC433C1;
-        Wed, 27 Jul 2022 16:28:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B0EDB821BA;
+        Wed, 27 Jul 2022 16:32:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8739CC433D6;
+        Wed, 27 Jul 2022 16:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939285;
-        bh=sEAb8857nDX1S4zPiUu/bn2DuWqrkyYRxLx0ObIrJNA=;
+        s=korg; t=1658939532;
+        bh=4huGB46LmSsHX4JtpKQZ9/mpKisqQh47RLLpIwT9ZiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFAd2h3rNr1xPhWsbGkVTYOAnqDmNaZOD37UnjiRzaLKc5Ys+mn3NoHvcWqJhQ7tE
-         /r5h0ouC3G98tFQGtTwJ8J0wR4M/yywo+UX33UGR9MVgZbDPjF0of4Ofov8mwAH3V5
-         p8PAkKzbUSddTOwsaATkwmTvzgSXlQsAlN7eyfjk=
+        b=YemiIuqWC2tws+Jeyqo7Q2/zvypHJPRlQmSlXKSghYpVf4RMc5kQWoNPIYELaWxQj
+         /XbiwIpfaZgSgAYjcPgNQH9+6gQ/z/T214MQROH0kVoPBHr3YWlPFPNuw+JNEFMgpl
+         XEjulldRd1UyRCs3/KKAIajr/TRsZndjPVH6K54o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 5.4 07/87] PCI: hv: Fix hv_arch_irq_unmask() for multi-MSI
-Date:   Wed, 27 Jul 2022 18:10:00 +0200
-Message-Id: <20220727161009.304825411@linuxfoundation.org>
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Fedor Pchelkin <pchelkin@ispras.ru>
+Subject: [PATCH 5.10 015/105] net: inline rollback_registered_many()
+Date:   Wed, 27 Jul 2022 18:10:01 +0200
+Message-Id: <20220727161012.679225466@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <quic_jhugo@quicinc.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 455880dfe292a2bdd3b4ad6a107299fce610e64b upstream.
+From: Jakub Kicinski <kuba@kernel.org>
 
-In the multi-MSI case, hv_arch_irq_unmask() will only operate on the first
-MSI of the N allocated.  This is because only the first msi_desc is cached
-and it is shared by all the MSIs of the multi-MSI block.  This means that
-hv_arch_irq_unmask() gets the correct address, but the wrong data (always
-0).
+commit 0cbe1e57a7b93517100b0eb63d8e445cfbeb630c upstream.
 
-This can break MSIs.
+Similar to the change for rollback_registered() -
+rollback_registered_many() was a part of unregister_netdevice_many()
+minus the net_set_todo(), which is no longer needed.
 
-Lets assume MSI0 is vector 34 on CPU0, and MSI1 is vector 33 on CPU0.
+Functionally this patch moves the list_empty() check back after:
 
-hv_arch_irq_unmask() is called on MSI0.  It uses a hypercall to configure
-the MSI address and data (0) to vector 34 of CPU0.  This is correct.  Then
-hv_arch_irq_unmask is called on MSI1.  It uses another hypercall to
-configure the MSI address and data (0) to vector 33 of CPU0.  This is
-wrong, and results in both MSI0 and MSI1 being routed to vector 33.  Linux
-will observe extra instances of MSI1 and no instances of MSI0 despite the
-endpoint device behaving correctly.
+	BUG_ON(dev_boot_phase);
+	ASSERT_RTNL();
 
-For the multi-MSI case, we need unique address and data info for each MSI,
-but the cached msi_desc does not provide that.  However, that information
-can be gotten from the int_desc cached in the chip_data by
-compose_msi_msg().  Fix the multi-MSI case to use that cached information
-instead.  Since hv_set_msi_entry_from_desc() is no longer applicable,
-remove it.
+but I can't find any reason why that would be an issue.
 
-5.4 backport - hv_set_msi_entry_from_desc doesn't exist to be removed.
-msi_desc replaces msi_entry for location int_desc is written to.
-
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1651068453-29588-1-git-send-email-quic_jhugo@quicinc.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/core/dev.c |   22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1202,6 +1202,7 @@ static void hv_irq_unmask(struct irq_dat
- 	struct msi_desc *msi_desc = irq_data_get_msi_desc(data);
- 	struct irq_cfg *cfg = irqd_cfg(data);
- 	struct retarget_msi_interrupt *params;
-+	struct tran_int_desc *int_desc;
- 	struct hv_pcibus_device *hbus;
- 	struct cpumask *dest;
- 	cpumask_var_t tmp;
-@@ -1216,6 +1217,7 @@ static void hv_irq_unmask(struct irq_dat
- 	pdev = msi_desc_to_pci_dev(msi_desc);
- 	pbus = pdev->bus;
- 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
-+	int_desc = data->chip_data;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5750,7 +5750,7 @@ static void flush_all_backlogs(void)
+ 	}
  
- 	spin_lock_irqsave(&hbus->retarget_msi_interrupt_lock, flags);
+ 	/* we can have in flight packet[s] on the cpus we are not flushing,
+-	 * synchronize_net() in rollback_registered_many() will take care of
++	 * synchronize_net() in unregister_netdevice_many() will take care of
+ 	 * them
+ 	 */
+ 	for_each_cpu(cpu, &flush_cpus)
+@@ -10633,8 +10633,6 @@ void synchronize_net(void)
+ }
+ EXPORT_SYMBOL(synchronize_net);
  
-@@ -1223,8 +1225,8 @@ static void hv_irq_unmask(struct irq_dat
- 	memset(params, 0, sizeof(*params));
- 	params->partition_id = HV_PARTITION_ID_SELF;
- 	params->int_entry.source = 1; /* MSI(-X) */
--	params->int_entry.address = msi_desc->msg.address_lo;
--	params->int_entry.data = msi_desc->msg.data;
-+	params->int_entry.address = int_desc->address & 0xffffffff;
-+	params->int_entry.data = int_desc->data;
- 	params->device_id = (hbus->hdev->dev_instance.b[5] << 24) |
- 			   (hbus->hdev->dev_instance.b[4] << 16) |
- 			   (hbus->hdev->dev_instance.b[7] << 8) |
+-static void rollback_registered_many(struct list_head *head);
+-
+ /**
+  *	unregister_netdevice_queue - remove device from the kernel
+  *	@dev: device
+@@ -10658,8 +10656,7 @@ void unregister_netdevice_queue(struct n
+ 		LIST_HEAD(single);
+ 
+ 		list_add(&dev->unreg_list, &single);
+-		rollback_registered_many(&single);
+-		list_del(&single);
++		unregister_netdevice_many(&single);
+ 	}
+ }
+ EXPORT_SYMBOL(unregister_netdevice_queue);
+@@ -10673,21 +10670,15 @@ EXPORT_SYMBOL(unregister_netdevice_queue
+  */
+ void unregister_netdevice_many(struct list_head *head)
+ {
+-	if (!list_empty(head)) {
+-		rollback_registered_many(head);
+-		list_del(head);
+-	}
+-}
+-EXPORT_SYMBOL(unregister_netdevice_many);
+-
+-static void rollback_registered_many(struct list_head *head)
+-{
+ 	struct net_device *dev, *tmp;
+ 	LIST_HEAD(close_head);
+ 
+ 	BUG_ON(dev_boot_phase);
+ 	ASSERT_RTNL();
+ 
++	if (list_empty(head))
++		return;
++
+ 	list_for_each_entry_safe(dev, tmp, head, unreg_list) {
+ 		/* Some devices call without registering
+ 		 * for initialization unwind. Remove those
+@@ -10771,7 +10762,10 @@ static void rollback_registered_many(str
+ 		dev_put(dev);
+ 		net_set_todo(dev);
+ 	}
++
++	list_del(head);
+ }
++EXPORT_SYMBOL(unregister_netdevice_many);
+ 
+ /**
+  *	unregister_netdev - remove device from the kernel
 
 
