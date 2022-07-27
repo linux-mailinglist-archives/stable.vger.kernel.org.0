@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34EE7582BF9
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984C2582D08
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238942AbiG0Qks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58304 "EHLO
+        id S240579AbiG0QxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238617AbiG0QkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:40:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B7E650183;
-        Wed, 27 Jul 2022 09:29:10 -0700 (PDT)
+        with ESMTP id S240678AbiG0Qvt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:51:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0593E62A45;
+        Wed, 27 Jul 2022 09:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2444861A24;
-        Wed, 27 Jul 2022 16:29:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090D5C433C1;
-        Wed, 27 Jul 2022 16:29:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA7E5B821B9;
+        Wed, 27 Jul 2022 16:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECB2DC433C1;
+        Wed, 27 Jul 2022 16:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939347;
-        bh=vtGg6SI/q50xKoMLxFbsX/Do7BdAGDv3823ufYQsLdI=;
+        s=korg; t=1658939618;
+        bh=jhNgT1LJj06EUMlFkugow3Oyu2gxzxnFI3j2dECvXGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0YZFp+EOmAIziIN42oO5NX0ddcqsO56RKBVcFWu9uI0OepsdrDNumfB5MjXyYCsg
-         Br9VAqSCDd2bWJ5L/ziz1R8UqJp2ZmbgEuFssJf7FuHbeaMtSh51wasHpyI8btzXx3
-         +0J9pl4SVFg8XxNHpElTb2fC8oYtWp18mV+efyy4=
+        b=VeU37VX+hKZDztCZIHWEERbeossfm0pu66bBGONOmqHkIP1kJ0I6nJ/ZXEjgtzOdm
+         chdCssvJtXuAxX8UW2hH3/OZOKvLOSrGi+HexZbqKCimGuJWa4aZL2k/+7cWrs0YSE
+         oMK0tgCpCjuk1PeAYwuaFasqV4sJnuBXKp9HgRFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/87] tcp: Fix data-races around sysctl_max_syn_backlog.
+Subject: [PATCH 5.10 044/105] net/tls: Fix race in TLS device down flow
 Date:   Wed, 27 Jul 2022 18:10:30 +0200
-Message-Id: <20220727161010.553776187@linuxfoundation.org>
+Message-Id: <20220727161013.862652671@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit 79539f34743d3e14cc1fa6577d326a82cc64d62f ]
+[ Upstream commit f08d8c1bb97c48f24a82afaa2fd8c140f8d3da8b ]
 
-While reading sysctl_max_syn_backlog, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Socket destruction flow and tls_device_down function sync against each
+other using tls_device_lock and the context refcount, to guarantee the
+device resources are freed via tls_dev_del() by the end of
+tls_device_down.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+In the following unfortunate flow, this won't happen:
+- refcount is decreased to zero in tls_device_sk_destruct.
+- tls_device_down starts, skips the context as refcount is zero, going
+  all the way until it flushes the gc work, and returns without freeing
+  the device resources.
+- only then, tls_device_queue_ctx_destruction is called, queues the gc
+  work and frees the context's device resources.
+
+Solve it by decreasing the refcount in the socket's destruction flow
+under the tls_device_lock, for perfect synchronization.  This does not
+slow down the common likely destructor flow, in which both the refcount
+is decreased and the spinlock is acquired, anyway.
+
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/tls/tls_device.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index fbdb5de29a97..c1f26603cd2c 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -6676,10 +6676,12 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 		goto drop_and_free;
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 6ae2ce411b4b..23eab7ac43ee 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -97,13 +97,16 @@ static void tls_device_queue_ctx_destruction(struct tls_context *ctx)
+ 	unsigned long flags;
  
- 	if (!want_cookie && !isn) {
-+		int max_syn_backlog = READ_ONCE(net->ipv4.sysctl_max_syn_backlog);
+ 	spin_lock_irqsave(&tls_device_lock, flags);
++	if (unlikely(!refcount_dec_and_test(&ctx->refcount)))
++		goto unlock;
 +
- 		/* Kill the following clause, if you dislike this way. */
- 		if (!syncookies &&
--		    (net->ipv4.sysctl_max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
--		     (net->ipv4.sysctl_max_syn_backlog >> 2)) &&
-+		    (max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
-+		     (max_syn_backlog >> 2)) &&
- 		    !tcp_peer_is_proven(req, dst)) {
- 			/* Without syncookies last quarter of
- 			 * backlog is filled with destinations,
+ 	list_move_tail(&ctx->list, &tls_device_gc_list);
+ 
+ 	/* schedule_work inside the spinlock
+ 	 * to make sure tls_device_down waits for that work.
+ 	 */
+ 	schedule_work(&tls_device_gc_work);
+-
++unlock:
+ 	spin_unlock_irqrestore(&tls_device_lock, flags);
+ }
+ 
+@@ -194,8 +197,7 @@ void tls_device_sk_destruct(struct sock *sk)
+ 		clean_acked_data_disable(inet_csk(sk));
+ 	}
+ 
+-	if (refcount_dec_and_test(&tls_ctx->refcount))
+-		tls_device_queue_ctx_destruction(tls_ctx);
++	tls_device_queue_ctx_destruction(tls_ctx);
+ }
+ EXPORT_SYMBOL_GPL(tls_device_sk_destruct);
+ 
 -- 
 2.35.1
 
