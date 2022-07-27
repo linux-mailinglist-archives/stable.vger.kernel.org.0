@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 552B7582EF9
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F32582D4B
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237297AbiG0RT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
+        id S241030AbiG0Qz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241848AbiG0RTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C268F7A532;
-        Wed, 27 Jul 2022 09:44:06 -0700 (PDT)
+        with ESMTP id S241383AbiG0Qy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233C863925;
+        Wed, 27 Jul 2022 09:35:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AF23600BE;
-        Wed, 27 Jul 2022 16:44:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F185C433D6;
-        Wed, 27 Jul 2022 16:44:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FC0FB821B9;
+        Wed, 27 Jul 2022 16:35:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E9AC433D6;
+        Wed, 27 Jul 2022 16:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940245;
-        bh=A3+YHfCrvIpMgnEHozcBVwDMUO4GeUXh7Zbh9Kt9iD4=;
+        s=korg; t=1658939749;
+        bh=jcHmUKIpsbENuhRrjItq3XN6dbKmx1M5yVCGYCxfTNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=weE8mLVp3W6imSUgeeTwR3VZJa8hR0LONwsEb4L5NvSqXCYyVRZkL9RS1znhzIq3j
-         TQDRgjv4kzCVrvcfFMtpKFLMdOSHzV9NXvQxCeeTFqChH5K+uFeZqGUXeWl4lIk/TN
-         5LneZ37vVZYI4oLi8tebGz1LUxOkBNqJvGdkbDBo=
+        b=VdAWwWOh1uT/yYZf6P5hWs92Q4iQhPGMxAiFJ2ZhO/IdZTM6nYlQnWLMWtnbPl4W2
+         anjdoHlGz3gTHwIwyfydSfjz627qfcEGX1TSW7a9hwQnTG+OucrjZc8BuEAYU6+FVo
+         BbbbD+SPd4q1xv3TyT0quQzLh7BRJOu95gVD59v4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org,
+        Dawid Lukwinski <dawid.lukwinski@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 139/201] dlm: fix pending remove if msg allocation fails
-Date:   Wed, 27 Jul 2022 18:10:43 +0200
-Message-Id: <20220727161033.570162032@linuxfoundation.org>
+Subject: [PATCH 5.10 058/105] i40e: Fix erroneous adapter reinitialization during recovery process
+Date:   Wed, 27 Jul 2022 18:10:44 +0200
+Message-Id: <20220727161014.411223227@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +57,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Dawid Lukwinski <dawid.lukwinski@intel.com>
 
-[ Upstream commit ba58995909b5098ca4003af65b0ccd5a8d13dd25 ]
+[ Upstream commit f838a63369818faadec4ad1736cfbd20ab5da00e ]
 
-This patch unsets ls_remove_len and ls_remove_name if a message
-allocation of a remove messages fails. In this case we never send a
-remove message out but set the per ls ls_remove_len ls_remove_name
-variable for a pending remove. Unset those variable should indicate
-possible waiters in wait_pending_remove() that no pending remove is
-going on at this moment.
+Fix an issue when driver incorrectly detects state
+of recovery process and erroneously reinitializes interrupts,
+which results in a kernel error and call trace message.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+The issue was caused by a combination of two factors:
+1. Assuming the EMP reset issued after completing
+firmware recovery means the whole recovery process is complete.
+2. Erroneous reinitialization of interrupt vector after detecting
+the above mentioned EMP reset.
+
+Fixes (1) by changing how recovery state change is detected
+and (2) by adjusting the conditional expression to ensure using proper
+interrupt reinitialization method, depending on the situation.
+
+Fixes: 4ff0ee1af016 ("i40e: Introduce recovery mode support")
+Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220715214542.2968762-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
-index bb9e85e8819c..9f93496d2cc9 100644
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -4065,13 +4065,14 @@ static void send_repeat_remove(struct dlm_ls *ls, char *ms_name, int len)
- 	rv = _create_message(ls, sizeof(struct dlm_message) + len,
- 			     dir_nodeid, DLM_MSG_REMOVE, &ms, &mh);
- 	if (rv)
--		return;
-+		goto out;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 58453f7958df..11d4e3ba9af4 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -10187,7 +10187,7 @@ static int i40e_reset(struct i40e_pf *pf)
+  **/
+ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ {
+-	int old_recovery_mode_bit = test_bit(__I40E_RECOVERY_MODE, pf->state);
++	const bool is_recovery_mode_reported = i40e_check_recovery_mode(pf);
+ 	struct i40e_vsi *vsi = pf->vsi[pf->lan_vsi];
+ 	struct i40e_hw *hw = &pf->hw;
+ 	i40e_status ret;
+@@ -10195,13 +10195,11 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	int v;
  
- 	memcpy(ms->m_extra, name, len);
- 	ms->m_hash = hash;
+ 	if (test_bit(__I40E_EMP_RESET_INTR_RECEIVED, pf->state) &&
+-	    i40e_check_recovery_mode(pf)) {
++	    is_recovery_mode_reported)
+ 		i40e_set_ethtool_ops(pf->vsi[pf->lan_vsi]->netdev);
+-	}
  
- 	send_message(mh, ms);
+ 	if (test_bit(__I40E_DOWN, pf->state) &&
+-	    !test_bit(__I40E_RECOVERY_MODE, pf->state) &&
+-	    !old_recovery_mode_bit)
++	    !test_bit(__I40E_RECOVERY_MODE, pf->state))
+ 		goto clear_recovery;
+ 	dev_dbg(&pf->pdev->dev, "Rebuilding internal switch\n");
  
-+out:
- 	spin_lock(&ls->ls_remove_spin);
- 	ls->ls_remove_len = 0;
- 	memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
+@@ -10228,13 +10226,12 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	 * accordingly with regard to resources initialization
+ 	 * and deinitialization
+ 	 */
+-	if (test_bit(__I40E_RECOVERY_MODE, pf->state) ||
+-	    old_recovery_mode_bit) {
++	if (test_bit(__I40E_RECOVERY_MODE, pf->state)) {
+ 		if (i40e_get_capabilities(pf,
+ 					  i40e_aqc_opc_list_func_capabilities))
+ 			goto end_unlock;
+ 
+-		if (test_bit(__I40E_RECOVERY_MODE, pf->state)) {
++		if (is_recovery_mode_reported) {
+ 			/* we're staying in recovery mode so we'll reinitialize
+ 			 * misc vector here
+ 			 */
 -- 
 2.35.1
 
