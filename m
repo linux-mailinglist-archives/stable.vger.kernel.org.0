@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8DA582F29
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE276582D8B
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241727AbiG0RVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44460 "EHLO
+        id S241507AbiG0Q7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:59:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241742AbiG0RUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:20:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFC25FE5;
-        Wed, 27 Jul 2022 09:45:12 -0700 (PDT)
+        with ESMTP id S240816AbiG0Q5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:57:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E6D66AF9;
+        Wed, 27 Jul 2022 09:36:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A72960D38;
-        Wed, 27 Jul 2022 16:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A882C433D6;
-        Wed, 27 Jul 2022 16:45:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E5261AB3;
+        Wed, 27 Jul 2022 16:36:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0F9C433C1;
+        Wed, 27 Jul 2022 16:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940310;
-        bh=zGCAgJhBf44iFooeQHPvXDPv29VQrkH+AaDCuOzx3rs=;
+        s=korg; t=1658939794;
+        bh=n3F8lmh2d1J+/JTqlyh1/WfUM4sggvcBvuWMKYpAjF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwWZYoPUUyYcqhSxkJNKvyXXSHS0z5Sn9cV9bL9XYS9ptWr24KyitbiUOT/JB2wyt
-         chIJM/5eLeP+e2hI0A53p7OYaJ4KDZGEfqpdwkRxjDI6vX6VLdyMdTQPdeV0GfnfMQ
-         bTlyKNtDT7JX4375GBuGFqsx8Emd5gsdyHkF2RMc=
+        b=mg7dcDBQoD9tkJeBE3/RXUx1pxhhXIUMVLIUN+AJn4xaOO3MdlhVt+EPc0Z1PYgWI
+         N8d4JTFrDksHP9HuOH0KMrIRmioKo4jclllzSosY7IM0RVbZu0lSlTkrmLxqsmB1J7
+         qqbOV7xHk578lPn+IunDfn/6oGBhoxBJ7RNsCbuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 172/201] um: virtio_uml: Allow probing from devicetree
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 5.10 090/105] Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg
 Date:   Wed, 27 Jul 2022 18:11:16 +0200
-Message-Id: <20220727161034.940412654@linuxfoundation.org>
+Message-Id: <20220727161015.708423305@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +54,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit db0dd9cee82270e032123169ceff659eced5115d ]
+commit 81be03e026dc0c16dc1c64e088b2a53b73caa895 upstream.
 
-Allow the virtio_uml device to be probed from the devicetree so that
-sub-devices can be specified using the standard virtio bindings, for
-example:
+This makes use of bt_skb_sendmmsg instead using memcpy_from_msg which
+is not considered safe to be used when lock_sock is held.
 
-  virtio@1 {
-    compatible = "virtio,uml";
-    socket-path = "i2c.sock";
-    virtio-device-id = <0x22>;
+Also make rfcomm_dlc_send handle skb with fragments and queue them all
+atomically.
 
-    i2c-controller {
-      compatible = "virtio,device22";
-      #address-cells = <0x01>;
-      #size-cells = <0x00>;
-
-      light-sensor@01 {
-        compatible = "ti,opt3001";
-        reg = <0x01>;
-      };
-    };
-  };
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/drivers/virtio_uml.c | 50 +++++++++++++++++++++++++++++++++---
- 1 file changed, 47 insertions(+), 3 deletions(-)
+ net/bluetooth/rfcomm/core.c |   50 +++++++++++++++++++++++++++++++++++++-------
+ net/bluetooth/rfcomm/sock.c |   50 ++++++++++----------------------------------
+ 2 files changed, 55 insertions(+), 45 deletions(-)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index 7755cb4ff9fc..ba562d68dc04 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -21,6 +21,7 @@
-  * Based on Virtio MMIO driver by Pawel Moll, copyright 2011-2014, ARM Ltd.
-  */
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- #include <linux/virtio.h>
-@@ -49,6 +50,7 @@ struct virtio_uml_platform_data {
- struct virtio_uml_device {
- 	struct virtio_device vdev;
- 	struct platform_device *pdev;
-+	struct virtio_uml_platform_data *pdata;
- 
- 	spinlock_t sock_lock;
- 	int sock, req_fd, irq;
-@@ -149,7 +151,7 @@ static int vhost_user_recv(struct virtio_uml_device *vu_dev,
- 	if (rc == -ECONNRESET && vu_dev->registered) {
- 		struct virtio_uml_platform_data *pdata;
- 
--		pdata = vu_dev->pdev->dev.platform_data;
-+		pdata = vu_dev->pdata;
- 
- 		virtio_break_device(&vu_dev->vdev);
- 		schedule_work(&pdata->conn_broken_wk);
-@@ -1115,21 +1117,63 @@ void virtio_uml_set_no_vq_suspend(struct virtio_device *vdev,
- 		 no_vq_suspend ? "dis" : "en");
+--- a/net/bluetooth/rfcomm/core.c
++++ b/net/bluetooth/rfcomm/core.c
+@@ -549,22 +549,58 @@ struct rfcomm_dlc *rfcomm_dlc_exists(bda
+ 	return dlc;
  }
  
-+static void vu_of_conn_broken(struct work_struct *wk)
++static int rfcomm_dlc_send_frag(struct rfcomm_dlc *d, struct sk_buff *frag)
 +{
-+	/*
-+	 * We can't remove the device from the devicetree so the only thing we
-+	 * can do is warn.
-+	 */
-+	WARN_ON(1);
++	int len = frag->len;
++
++	BT_DBG("dlc %p mtu %d len %d", d, d->mtu, len);
++
++	if (len > d->mtu)
++		return -EINVAL;
++
++	rfcomm_make_uih(frag, d->addr);
++	__skb_queue_tail(&d->tx_queue, frag);
++
++	return len;
 +}
 +
- /* Platform device */
- 
-+static struct virtio_uml_platform_data *
-+virtio_uml_create_pdata(struct platform_device *pdev)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	struct virtio_uml_platform_data *pdata;
-+	int ret;
-+
-+	if (!np)
-+		return ERR_PTR(-EINVAL);
-+
-+	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
-+
-+	INIT_WORK(&pdata->conn_broken_wk, vu_of_conn_broken);
-+	pdata->pdev = pdev;
-+
-+	ret = of_property_read_string(np, "socket-path", &pdata->socket_path);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	ret = of_property_read_u32(np, "virtio-device-id",
-+				   &pdata->virtio_device_id);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return pdata;
-+}
-+
- static int virtio_uml_probe(struct platform_device *pdev)
+ int rfcomm_dlc_send(struct rfcomm_dlc *d, struct sk_buff *skb)
  {
- 	struct virtio_uml_platform_data *pdata = pdev->dev.platform_data;
- 	struct virtio_uml_device *vu_dev;
- 	int rc;
+-	int len = skb->len;
++	unsigned long flags;
++	struct sk_buff *frag, *next;
++	int len;
  
--	if (!pdata)
+ 	if (d->state != BT_CONNECTED)
+ 		return -ENOTCONN;
+ 
+-	BT_DBG("dlc %p mtu %d len %d", d, d->mtu, len);
++	frag = skb_shinfo(skb)->frag_list;
++	skb_shinfo(skb)->frag_list = NULL;
+ 
+-	if (len > d->mtu)
 -		return -EINVAL;
-+	if (!pdata) {
-+		pdata = virtio_uml_create_pdata(pdev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
++	/* Queue all fragments atomically. */
++	spin_lock_irqsave(&d->tx_queue.lock, flags);
++
++	len = rfcomm_dlc_send_frag(d, skb);
++	if (len < 0 || !frag)
++		goto unlock;
++
++	for (; frag; frag = next) {
++		int ret;
++
++		next = frag->next;
++
++		ret = rfcomm_dlc_send_frag(d, frag);
++		if (ret < 0) {
++			kfree_skb(frag);
++			goto unlock;
++		}
++
++		len += ret;
 +	}
  
- 	vu_dev = kzalloc(sizeof(*vu_dev), GFP_KERNEL);
- 	if (!vu_dev)
- 		return -ENOMEM;
+-	rfcomm_make_uih(skb, d->addr);
+-	skb_queue_tail(&d->tx_queue, skb);
++unlock:
++	spin_unlock_irqrestore(&d->tx_queue.lock, flags);
  
-+	vu_dev->pdata = pdata;
- 	vu_dev->vdev.dev.parent = &pdev->dev;
- 	vu_dev->vdev.dev.release = virtio_uml_release_dev;
- 	vu_dev->vdev.config = &virtio_uml_config_ops;
--- 
-2.35.1
-
+-	if (!test_bit(RFCOMM_TX_THROTTLED, &d->flags))
++	if (len > 0 && !test_bit(RFCOMM_TX_THROTTLED, &d->flags))
+ 		rfcomm_schedule();
+ 	return len;
+ }
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -575,47 +575,21 @@ static int rfcomm_sock_sendmsg(struct so
+ 	lock_sock(sk);
+ 
+ 	sent = bt_sock_wait_ready(sk, msg->msg_flags);
+-	if (sent)
+-		goto done;
+-
+-	while (len) {
+-		size_t size = min_t(size_t, len, d->mtu);
+-		int err;
+-
+-		skb = sock_alloc_send_skb(sk, size + RFCOMM_SKB_RESERVE,
+-				msg->msg_flags & MSG_DONTWAIT, &err);
+-		if (!skb) {
+-			if (sent == 0)
+-				sent = err;
+-			break;
+-		}
+-		skb_reserve(skb, RFCOMM_SKB_HEAD_RESERVE);
+-
+-		err = memcpy_from_msg(skb_put(skb, size), msg, size);
+-		if (err) {
+-			kfree_skb(skb);
+-			if (sent == 0)
+-				sent = err;
+-			break;
+-		}
+-
+-		skb->priority = sk->sk_priority;
+-
+-		err = rfcomm_dlc_send(d, skb);
+-		if (err < 0) {
+-			kfree_skb(skb);
+-			if (sent == 0)
+-				sent = err;
+-			break;
+-		}
+-
+-		sent += size;
+-		len  -= size;
+-	}
+ 
+-done:
+ 	release_sock(sk);
+ 
++	if (sent)
++		return sent;
++
++	skb = bt_skb_sendmmsg(sk, msg, len, d->mtu, RFCOMM_SKB_HEAD_RESERVE,
++			      RFCOMM_SKB_TAIL_RESERVE);
++	if (IS_ERR_OR_NULL(skb))
++		return PTR_ERR(skb);
++
++	sent = rfcomm_dlc_send(d, skb);
++	if (sent < 0)
++		kfree_skb(skb);
++
+ 	return sent;
+ }
+ 
 
 
