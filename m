@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5FEA582E50
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9DF5582BC1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229513AbiG0RLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:11:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48668 "EHLO
+        id S237880AbiG0QhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236728AbiG0RJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A682747A5;
-        Wed, 27 Jul 2022 09:41:15 -0700 (PDT)
+        with ESMTP id S238568AbiG0Qfz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:35:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98184F650;
+        Wed, 27 Jul 2022 09:28:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 842AFB8200C;
-        Wed, 27 Jul 2022 16:41:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3913C43148;
-        Wed, 27 Jul 2022 16:41:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93F3B619D6;
+        Wed, 27 Jul 2022 16:28:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B635C433C1;
+        Wed, 27 Jul 2022 16:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940071;
-        bh=1pglrrwycW2z8U297nLs5MoMbieH2foR75zOwcWSSas=;
+        s=korg; t=1658939280;
+        bh=siGqG7l3TpcM86MFdFURrDC/jDAk8NLgYG+Xpw4GclI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7SdClG//wN0irUM0ACqgy4dJz4AMBmgsAX2imKSXf2mtGD3Jw6kJi1fCTeRdghdZ
-         jSZxF/b5/ojdKYL/rphueuptPXyGoHOOKKaOjv40lfZD8MEqlcTesYROeVCdxpFoAC
-         hhbyyGORNADG1bwYXAxHafb8qOjzNRKRND2MfQ0k=
+        b=bqMWhJfSoPc4X7EkrPg8rvq8F3fyWLWzsJFvyWPRLix4FC5rQ3uayi9uD1YigDnF5
+         DXk11DQ/QSlIUiY9ETmFUdN2idHuK9NtTmnx+b/JxUTYOKqnCRzN6WmTngPH1izdOf
+         hdGK7vCQ+udwMJXo1kUqq9iiUmpKLn8MPswIH6JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/201] tcp: Fix data-races around sysctl_tcp_reordering.
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Subject: [PATCH 5.4 05/87] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
 Date:   Wed, 27 Jul 2022 18:09:58 +0200
-Message-Id: <20220727161031.653048318@linuxfoundation.org>
+Message-Id: <20220727161009.223111489@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Demi Marie Obenour <demi@invisiblethingslab.com>
 
-[ Upstream commit 46778cd16e6a5ad1b2e3a91f6c057c907379418e ]
+commit 166d3863231667c4f64dee72b77d1102cdfad11f upstream.
 
-While reading sysctl_tcp_reordering, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+The error paths of gntdev_mmap() can call unmap_grant_pages() even
+though not all of the pages have been successfully mapped.  This will
+trigger the WARN_ON()s in __unmap_grant_pages_done().  The number of
+warnings can be very large; I have observed thousands of lines of
+warnings in the systemd journal.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Avoid this problem by only warning on unmapping failure if the handle
+being unmapped is not INVALID_GRANT_HANDLE.  The handle field of any
+page that was not successfully mapped will be INVALID_GRANT_HANDLE, so
+this catches all cases where unmapping can legitimately fail.
+
+Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Cc: stable@vger.kernel.org
+Suggested-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220710230522.1563-1-demi@invisiblethingslab.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c         |  2 +-
- net/ipv4/tcp_input.c   | 10 +++++++---
- net/ipv4/tcp_metrics.c |  3 ++-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/xen/gntdev.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index e22a61b2ba82..480fac19a074 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -447,7 +447,7 @@ void tcp_init_sock(struct sock *sk)
- 	tp->snd_cwnd_clamp = ~0;
- 	tp->mss_cache = TCP_MSS_DEFAULT;
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -413,7 +413,8 @@ static void __unmap_grant_pages_done(int
+ 	unsigned int offset = data->unmap_ops - map->unmap_ops;
  
--	tp->reordering = sock_net(sk)->ipv4.sysctl_tcp_reordering;
-+	tp->reordering = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reordering);
- 	tcp_assign_congestion_control(sk);
- 
- 	tp->tsoffset = 0;
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 134e36f46e91..06802295e170 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2131,6 +2131,7 @@ void tcp_enter_loss(struct sock *sk)
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct net *net = sock_net(sk);
- 	bool new_recovery = icsk->icsk_ca_state < TCP_CA_Recovery;
-+	u8 reordering;
- 
- 	tcp_timeout_mark_lost(sk);
- 
-@@ -2151,10 +2152,12 @@ void tcp_enter_loss(struct sock *sk)
- 	/* Timeout in disordered state after receiving substantial DUPACKs
- 	 * suggests that the degree of reordering is over-estimated.
- 	 */
-+	reordering = READ_ONCE(net->ipv4.sysctl_tcp_reordering);
- 	if (icsk->icsk_ca_state <= TCP_CA_Disorder &&
--	    tp->sacked_out >= net->ipv4.sysctl_tcp_reordering)
-+	    tp->sacked_out >= reordering)
- 		tp->reordering = min_t(unsigned int, tp->reordering,
--				       net->ipv4.sysctl_tcp_reordering);
-+				       reordering);
-+
- 	tcp_set_ca_state(sk, TCP_CA_Loss);
- 	tp->high_seq = tp->snd_nxt;
- 	tcp_ecn_queue_cwr(tp);
-@@ -3457,7 +3460,8 @@ static inline bool tcp_may_raise_cwnd(const struct sock *sk, const int flag)
- 	 * new SACK or ECE mark may first advance cwnd here and later reduce
- 	 * cwnd in tcp_fastretrans_alert() based on more states.
- 	 */
--	if (tcp_sk(sk)->reordering > sock_net(sk)->ipv4.sysctl_tcp_reordering)
-+	if (tcp_sk(sk)->reordering >
-+	    READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reordering))
- 		return flag & FLAG_FORWARD_PROGRESS;
- 
- 	return flag & FLAG_DATA_ACKED;
-diff --git a/net/ipv4/tcp_metrics.c b/net/ipv4/tcp_metrics.c
-index 7029b0e98edb..a501150deaa3 100644
---- a/net/ipv4/tcp_metrics.c
-+++ b/net/ipv4/tcp_metrics.c
-@@ -428,7 +428,8 @@ void tcp_update_metrics(struct sock *sk)
- 		if (!tcp_metric_locked(tm, TCP_METRIC_REORDERING)) {
- 			val = tcp_metric_get(tm, TCP_METRIC_REORDERING);
- 			if (val < tp->reordering &&
--			    tp->reordering != net->ipv4.sysctl_tcp_reordering)
-+			    tp->reordering !=
-+			    READ_ONCE(net->ipv4.sysctl_tcp_reordering))
- 				tcp_metric_set(tm, TCP_METRIC_REORDERING,
- 					       tp->reordering);
- 		}
--- 
-2.35.1
-
+ 	for (i = 0; i < data->count; i++) {
+-		WARN_ON(map->unmap_ops[offset+i].status);
++		WARN_ON(map->unmap_ops[offset+i].status &&
++			map->unmap_ops[offset+i].handle != -1);
+ 		pr_debug("unmap handle=%d st=%d\n",
+ 			map->unmap_ops[offset+i].handle,
+ 			map->unmap_ops[offset+i].status);
 
 
