@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 655BA582E52
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F24582BDC
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241283AbiG0RL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
+        id S238967AbiG0Qiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241486AbiG0RKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:10:15 -0400
+        with ESMTP id S239127AbiG0QiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:38:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CE550716;
-        Wed, 27 Jul 2022 09:41:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43EBF5727E;
+        Wed, 27 Jul 2022 09:28:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2E5BB821AC;
-        Wed, 27 Jul 2022 16:41:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD23C43141;
-        Wed, 27 Jul 2022 16:41:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 905EBB821B8;
+        Wed, 27 Jul 2022 16:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BADE9C433D6;
+        Wed, 27 Jul 2022 16:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940079;
-        bh=njFzzC6MTd3uWhSnu3HWPeCo5XsQIZZJ7INHpwE674k=;
+        s=korg; t=1658939288;
+        bh=IpOo+pRYRlEAnKYKJwilqhsyqDHlsRNa311t/c7HpO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=052Rw/fQRlq4dXPWOAoNfz4IaOmv1/1zlB7krAAOV1MnOiFw/ShzI4LzHHqDE4wAF
-         4lRLTPfwkejKMygrJGcXSNQpMn8aqXb4vrsN81a+oVw0xyWa+vkFiJvvwSWJLr6qDe
-         cTWJHNYOmpADj+9JmROpcbw83EBXmT7jkNxWQS7o=
+        b=MAJ0DXHwZUdAZXL9yJlmWIqTH1/gnvwp3WIZc+FvpLcjJxdcx0QxSQoBcV7PZQI7y
+         54bTGjLeE9xlzi8iuc7kW6Lud7ggpJnkfhv36LlmbQ4wQjv9MMFrlT1Yyjl2DIy2oW
+         tZW9SrCskRlJSshapw/7cvs2VhJYzBO+ByAxGgls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 097/201] tcp: Fix a data-race around sysctl_tcp_tw_reuse.
+        Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Carl Vanderlip <quic_carlv@quicinc.com>
+Subject: [PATCH 5.4 08/87] PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()
 Date:   Wed, 27 Jul 2022 18:10:01 +0200
-Message-Id: <20220727161031.780390256@linuxfoundation.org>
+Message-Id: <20220727161009.353713651@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-[ Upstream commit cbfc6495586a3f09f6f07d9fb3c7cafe807e3c55 ]
+commit b4b77778ecc5bfbd4e77de1b2fd5c1dd3c655f1f upstream.
 
-While reading sysctl_tcp_tw_reuse, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Currently if compose_msi_msg() is called multiple times, it will free any
+previous IRTE allocation, and generate a new allocation.  While nothing
+prevents this from occurring, it is extraneous when Linux could just reuse
+the existing allocation and avoid a bunch of overhead.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, when future IRTE allocations operate on blocks of MSIs instead of
+a single line, freeing the allocation will impact all of the lines.  This
+could cause an issue where an allocation of N MSIs occurs, then some of
+the lines are retargeted, and finally the allocation is freed/reallocated.
+The freeing of the allocation removes all of the configuration for the
+entire block, which requires all the lines to be retargeted, which might
+not happen since some lines might already be unmasked/active.
+
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1652282582-21595-1-git-send-email-quic_jhugo@quicinc.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_ipv4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-hyperv.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 235ae91bfd5a..fba02cf6b468 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -108,10 +108,10 @@ static u32 tcp_v4_init_ts_off(const struct net *net, const struct sk_buff *skb)
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1387,6 +1387,15 @@ static void hv_compose_msi_msg(struct ir
+ 	u32 size;
+ 	int ret;
  
- int tcp_twsk_unique(struct sock *sk, struct sock *sktw, void *twp)
- {
-+	int reuse = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_tw_reuse);
- 	const struct inet_timewait_sock *tw = inet_twsk(sktw);
- 	const struct tcp_timewait_sock *tcptw = tcp_twsk(sktw);
- 	struct tcp_sock *tp = tcp_sk(sk);
--	int reuse = sock_net(sk)->ipv4.sysctl_tcp_tw_reuse;
++	/* Reuse the previous allocation */
++	if (data->chip_data) {
++		int_desc = data->chip_data;
++		msg->address_hi = int_desc->address >> 32;
++		msg->address_lo = int_desc->address & 0xffffffff;
++		msg->data = int_desc->data;
++		return;
++	}
++
+ 	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
+ 	dest = irq_data_get_effective_affinity_mask(data);
+ 	pbus = pdev->bus;
+@@ -1395,13 +1404,6 @@ static void hv_compose_msi_msg(struct ir
+ 	if (!hpdev)
+ 		goto return_null_message;
  
- 	if (reuse == 2) {
- 		/* Still does not detect *everything* that goes through
--- 
-2.35.1
-
+-	/* Free any previous message that might have already been composed. */
+-	if (data->chip_data) {
+-		int_desc = data->chip_data;
+-		data->chip_data = NULL;
+-		hv_int_desc_free(hpdev, int_desc);
+-	}
+-
+ 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
+ 	if (!int_desc)
+ 		goto drop_reference;
 
 
