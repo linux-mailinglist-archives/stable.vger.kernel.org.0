@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49405582A9B
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57EA582B32
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234899AbiG0QWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        id S237067AbiG0Q3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235152AbiG0QV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:21:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E66445061;
-        Wed, 27 Jul 2022 09:21:56 -0700 (PDT)
+        with ESMTP id S237352AbiG0Q3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:29:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14E5050712;
+        Wed, 27 Jul 2022 09:24:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C33B6199B;
-        Wed, 27 Jul 2022 16:21:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3189C433C1;
-        Wed, 27 Jul 2022 16:21:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35CF2619C4;
+        Wed, 27 Jul 2022 16:24:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E543C433C1;
+        Wed, 27 Jul 2022 16:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658938915;
-        bh=v2vlsf2/LrtTO8rtOML1NDVHm18NgMDkZBJyarNB4rM=;
+        s=korg; t=1658939074;
+        bh=Uknuv9wcc8IRez0QgrQGlZ4g7bk5i/d5XmE7lyLMh9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FX2TrrsRVZXW7LjpyT16FpP9afKIsfe04xCmzN2Sl+YISg6UNIn85kZ7l5hsSOwBd
-         17rQFNDIzhcb/WIuK0PkmkYlEOIP7F/7ae97Y+MsJ3A2OhIemsgfQ3z3GmLffjVj6V
-         zwEoGNZ0DdfCC/mT2QTkZ+rCJG5wls6DJu8Vs2bE=
+        b=qHiGViKde1acfJd0tIoVBrtilOs/s0/vOwhZF+vi4fIIdJfwTx6CAusQt2Szf1/Ur
+         VvTzwakIexrR+WTTwTnMx2NgXDCsCojYpON4y1kyTdZftuND4L7rdpRFDaJxUS29oE
+         FnTh4SdRjxEPCmG8CB7WS0tIeZpUvH0hxjQGVrso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/26] igmp: Fix data-races around sysctl_igmp_llm_reports.
+        stable@vger.kernel.org, Wang Cheng <wanngchenng@gmail.com>,
+        syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com,
+        David Rientjes <rientjes@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 16/37] mm/mempolicy: fix uninit-value in mpol_rebind_policy()
 Date:   Wed, 27 Jul 2022 18:10:42 +0200
-Message-Id: <20220727160959.660499620@linuxfoundation.org>
+Message-Id: <20220727161001.510305892@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
-References: <20220727160959.122591422@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Wang Cheng <wanngchenng@gmail.com>
 
-[ Upstream commit f6da2267e71106474fbc0943dc24928b9cb79119 ]
+commit 018160ad314d75b1409129b2247b614a9f35894c upstream.
 
-While reading sysctl_igmp_llm_reports, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+mpol_set_nodemask()(mm/mempolicy.c) does not set up nodemask when
+pol->mode is MPOL_LOCAL.  Check pol->mode before access
+pol->w.cpuset_mems_allowed in mpol_rebind_policy()(mm/mempolicy.c).
 
-This test can be packed into a helper, so such changes will be in the
-follow-up series after net is merged into net-next.
+BUG: KMSAN: uninit-value in mpol_rebind_policy mm/mempolicy.c:352 [inline]
+BUG: KMSAN: uninit-value in mpol_rebind_task+0x2ac/0x2c0 mm/mempolicy.c:368
+ mpol_rebind_policy mm/mempolicy.c:352 [inline]
+ mpol_rebind_task+0x2ac/0x2c0 mm/mempolicy.c:368
+ cpuset_change_task_nodemask kernel/cgroup/cpuset.c:1711 [inline]
+ cpuset_attach+0x787/0x15e0 kernel/cgroup/cpuset.c:2278
+ cgroup_migrate_execute+0x1023/0x1d20 kernel/cgroup/cgroup.c:2515
+ cgroup_migrate kernel/cgroup/cgroup.c:2771 [inline]
+ cgroup_attach_task+0x540/0x8b0 kernel/cgroup/cgroup.c:2804
+ __cgroup1_procs_write+0x5cc/0x7a0 kernel/cgroup/cgroup-v1.c:520
+ cgroup1_tasks_write+0x94/0xb0 kernel/cgroup/cgroup-v1.c:539
+ cgroup_file_write+0x4c2/0x9e0 kernel/cgroup/cgroup.c:3852
+ kernfs_fop_write_iter+0x66a/0x9f0 fs/kernfs/file.c:296
+ call_write_iter include/linux/fs.h:2162 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0x1318/0x2030 fs/read_write.c:590
+ ksys_write+0x28b/0x510 fs/read_write.c:643
+ __do_sys_write fs/read_write.c:655 [inline]
+ __se_sys_write fs/read_write.c:652 [inline]
+ __x64_sys_write+0xdb/0x120 fs/read_write.c:652
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-  if (ipv4_is_local_multicast(pmc->multiaddr) &&
-      !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ slab_alloc mm/slub.c:3259 [inline]
+ kmem_cache_alloc+0x902/0x11c0 mm/slub.c:3264
+ mpol_new mm/mempolicy.c:293 [inline]
+ do_set_mempolicy+0x421/0xb70 mm/mempolicy.c:853
+ kernel_set_mempolicy mm/mempolicy.c:1504 [inline]
+ __do_sys_set_mempolicy mm/mempolicy.c:1510 [inline]
+ __se_sys_set_mempolicy+0x44c/0xb60 mm/mempolicy.c:1507
+ __x64_sys_set_mempolicy+0xd8/0x110 mm/mempolicy.c:1507
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: df2cf4a78e48 ("IGMP: Inhibit reports for local multicast groups")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+KMSAN: uninit-value in mpol_rebind_task (2)
+https://syzkaller.appspot.com/bug?id=d6eb90f952c2a5de9ea718a1b873c55cb13b59dc
+
+This patch seems to fix below bug too.
+KMSAN: uninit-value in mpol_rebind_mm (2)
+https://syzkaller.appspot.com/bug?id=f2fecd0d7013f54ec4162f60743a2b28df40926b
+
+The uninit-value is pol->w.cpuset_mems_allowed in mpol_rebind_policy().
+When syzkaller reproducer runs to the beginning of mpol_new(),
+
+	    mpol_new() mm/mempolicy.c
+	  do_mbind() mm/mempolicy.c
+	kernel_mbind() mm/mempolicy.c
+
+`mode` is 1(MPOL_PREFERRED), nodes_empty(*nodes) is `true` and `flags`
+is 0. Then
+
+	mode = MPOL_LOCAL;
+	...
+	policy->mode = mode;
+	policy->flags = flags;
+
+will be executed. So in mpol_set_nodemask(),
+
+	    mpol_set_nodemask() mm/mempolicy.c
+	  do_mbind()
+	kernel_mbind()
+
+pol->mode is 4 (MPOL_LOCAL), that `nodemask` in `pol` is not initialized,
+which will be accessed in mpol_rebind_policy().
+
+Link: https://lkml.kernel.org/r/20220512123428.fq3wofedp6oiotd4@ppc.localdomain
+Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
+Reported-by: <syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com>
+Tested-by: <syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ mm/mempolicy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 75f961425639..6e217424e0ff 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -474,7 +474,8 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
- 
- 	if (pmc->multiaddr == IGMP_ALL_HOSTS)
- 		return skb;
--	if (ipv4_is_local_multicast(pmc->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(pmc->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return skb;
- 
- 	mtu = READ_ONCE(dev->mtu);
-@@ -600,7 +601,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
- 			if (pmc->multiaddr == IGMP_ALL_HOSTS)
- 				continue;
- 			if (ipv4_is_local_multicast(pmc->multiaddr) &&
--			     !net->ipv4.sysctl_igmp_llm_reports)
-+			    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 				continue;
- 			spin_lock_bh(&pmc->lock);
- 			if (pmc->sfcount[MCAST_EXCLUDE])
-@@ -743,7 +744,8 @@ static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,
- 	if (type == IGMPV3_HOST_MEMBERSHIP_REPORT)
- 		return igmpv3_send_report(in_dev, pmc);
- 
--	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(group) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return 0;
- 
- 	if (type == IGMP_HOST_LEAVE_MESSAGE)
-@@ -921,7 +923,8 @@ static bool igmp_heard_report(struct in_device *in_dev, __be32 group)
- 
- 	if (group == IGMP_ALL_HOSTS)
- 		return false;
--	if (ipv4_is_local_multicast(group) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(group) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return false;
- 
- 	rcu_read_lock();
-@@ -1031,7 +1034,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
- 		if (im->multiaddr == IGMP_ALL_HOSTS)
- 			continue;
- 		if (ipv4_is_local_multicast(im->multiaddr) &&
--		    !net->ipv4.sysctl_igmp_llm_reports)
-+		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 			continue;
- 		spin_lock_bh(&im->lock);
- 		if (im->tm_running)
-@@ -1272,7 +1275,8 @@ static void igmp_group_dropped(struct ip_mc_list *im)
- #ifdef CONFIG_IP_MULTICAST
- 	if (im->multiaddr == IGMP_ALL_HOSTS)
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -347,7 +347,7 @@ static void mpol_rebind_preferred(struct
+  */
+ static void mpol_rebind_policy(struct mempolicy *pol, const nodemask_t *newmask)
+ {
+-	if (!pol)
++	if (!pol || pol->mode == MPOL_LOCAL)
  		return;
--	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(im->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return;
- 
- 	reporter = im->reporter;
-@@ -1309,7 +1313,8 @@ static void igmp_group_added(struct ip_mc_list *im)
- #ifdef CONFIG_IP_MULTICAST
- 	if (im->multiaddr == IGMP_ALL_HOSTS)
- 		return;
--	if (ipv4_is_local_multicast(im->multiaddr) && !net->ipv4.sysctl_igmp_llm_reports)
-+	if (ipv4_is_local_multicast(im->multiaddr) &&
-+	    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 		return;
- 
- 	if (in_dev->dead)
-@@ -1621,7 +1626,7 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
- 		if (im->multiaddr == IGMP_ALL_HOSTS)
- 			continue;
- 		if (ipv4_is_local_multicast(im->multiaddr) &&
--		    !net->ipv4.sysctl_igmp_llm_reports)
-+		    !READ_ONCE(net->ipv4.sysctl_igmp_llm_reports))
- 			continue;
- 
- 		/* a failover is happening and switches
--- 
-2.35.1
-
+ 	if (!mpol_store_user_nodemask(pol) && !(pol->flags & MPOL_F_LOCAL) &&
+ 	    nodes_equal(pol->w.cpuset_mems_allowed, *newmask))
 
 
