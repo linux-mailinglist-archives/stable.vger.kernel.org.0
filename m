@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E11F5582F5D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60197582C85
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbiG0RZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55438 "EHLO
+        id S240375AbiG0Qrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:47:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242250AbiG0RYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:24:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E957CB56;
-        Wed, 27 Jul 2022 09:46:22 -0700 (PDT)
+        with ESMTP id S240404AbiG0Qqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:46:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 168775247D;
+        Wed, 27 Jul 2022 09:31:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C46AB821A6;
-        Wed, 27 Jul 2022 16:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB01C433C1;
-        Wed, 27 Jul 2022 16:46:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CCAB61A4F;
+        Wed, 27 Jul 2022 16:31:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B00C433C1;
+        Wed, 27 Jul 2022 16:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940380;
-        bh=5gHN7mv2FgbxJ3XV/9doGF8tQrvMiH029+WBDE84Jso=;
+        s=korg; t=1658939509;
+        bh=smYeKmamlWhHlqS80zNjKhdEHi3FB7mA4ILpi3O5Zzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyQLvU76Ta1Uhk4phHA0dVUAAj7wberuJpxjEqC0+5wksjcUfQ2NZ3RaLLvDMUAw7
-         uBtn7U2j/6NKSy84qc3m2s766OXMlabVj69O8LwDKjpHXHljoEp8lZ3iyOtpR8IQAt
-         Apz8KA6y74WiIG2/YF7Wz77y/5Zpp+9Ywydkrxvg=
+        b=XM1FrO4C80moDNu+gMaG0FciS45KLeUhDNrlhmOAqs7zQXwLFjdxLD9uZgM7La90N
+         V+B1IjiMTTAdg7NqYq8dcBvPFQ0tgavFd9RDRqLsr1qlKaQvnfSpGorhTMAx7TdY55
+         WIjrfZ+96p3Gsb+AhFtUkWFYcfmGNI0/Ch/i8UX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 5.15 176/201] Bluetooth: SCO: Replace use of memcpy_from_msg with bt_skb_sendmsg
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 87/87] x86: drop bogus "cc" clobber from __try_cmpxchg_user_asm()
 Date:   Wed, 27 Jul 2022 18:11:20 +0200
-Message-Id: <20220727161035.093748254@linuxfoundation.org>
+Message-Id: <20220727161012.576805216@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 0771cbb3b97d3c1d68eecd7f00055f599954c34e upstream.
+commit 1df931d95f4dc1c11db1123e85d4e08156e46ef9 upstream.
 
-This makes use of bt_skb_sendmsg instead of allocating a different
-buffer to be used with memcpy_from_msg which cause one extra copy.
+As noted (and fixed) a couple of times in the past, "=@cc<cond>" outputs
+and clobbering of "cc" don't work well together. The compiler appears to
+mean to reject such, but doesn't - in its upstream form - quite manage
+to yet for "cc". Furthermore two similar macros don't clobber "cc", and
+clobbering "cc" is pointless in asm()-s for x86 anyway - the compiler
+always assumes status flags to be clobbered there.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Fixes: 989b5db215a2 ("x86/uaccess: Implement macros for CMPXCHG on user addresses")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Message-Id: <485c0c0b-a3a7-0b7c-5264-7d00c01de032@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/sco.c |   34 +++++++++++-----------------------
- 1 file changed, 11 insertions(+), 23 deletions(-)
+ arch/x86/include/asm/uaccess.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -280,27 +280,19 @@ static int sco_connect(struct hci_dev *h
- 	return err;
- }
- 
--static int sco_send_frame(struct sock *sk, void *buf, int len,
--			  unsigned int msg_flags)
-+static int sco_send_frame(struct sock *sk, struct sk_buff *skb)
- {
- 	struct sco_conn *conn = sco_pi(sk)->conn;
--	struct sk_buff *skb;
--	int err;
- 
- 	/* Check outgoing MTU */
--	if (len > conn->mtu)
-+	if (skb->len > conn->mtu)
- 		return -EINVAL;
- 
--	BT_DBG("sk %p len %d", sk, len);
-+	BT_DBG("sk %p len %d", sk, skb->len);
- 
--	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
--	if (!skb)
--		return err;
--
--	memcpy(skb_put(skb, len), buf, len);
- 	hci_send_sco(conn->hcon, skb);
- 
--	return len;
-+	return skb->len;
- }
- 
- static void sco_recv_frame(struct sco_conn *conn, struct sk_buff *skb)
-@@ -727,7 +719,7 @@ static int sco_sock_sendmsg(struct socke
- 			    size_t len)
- {
- 	struct sock *sk = sock->sk;
--	void *buf;
-+	struct sk_buff *skb;
- 	int err;
- 
- 	BT_DBG("sock %p, sk %p", sock, sk);
-@@ -739,24 +731,20 @@ static int sco_sock_sendmsg(struct socke
- 	if (msg->msg_flags & MSG_OOB)
- 		return -EOPNOTSUPP;
- 
--	buf = kmalloc(len, GFP_KERNEL);
--	if (!buf)
--		return -ENOMEM;
--
--	if (memcpy_from_msg(buf, msg, len)) {
--		kfree(buf);
--		return -EFAULT;
--	}
-+	skb = bt_skb_sendmsg(sk, msg, len, len, 0, 0);
-+	if (IS_ERR_OR_NULL(skb))
-+		return PTR_ERR(skb);
- 
- 	lock_sock(sk);
- 
- 	if (sk->sk_state == BT_CONNECTED)
--		err = sco_send_frame(sk, buf, len, msg->msg_flags);
-+		err = sco_send_frame(sk, skb);
- 	else
- 		err = -ENOTCONN;
- 
- 	release_sock(sk);
--	kfree(buf);
-+	if (err)
-+		kfree_skb(skb);
- 	return err;
- }
- 
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -498,7 +498,7 @@ __pu_label:							\
+ 		       [ptr] "+m" (*_ptr),				\
+ 		       [old] "+a" (__old)				\
+ 		     : [new] ltype (__new)				\
+-		     : "memory", "cc");					\
++		     : "memory");					\
+ 	if (unlikely(__err))						\
+ 		goto label;						\
+ 	if (unlikely(!success))						\
 
 
