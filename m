@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC00582CA0
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15796582E56
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240559AbiG0Qsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:48:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
+        id S241390AbiG0RLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240314AbiG0QsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCFB606A2;
-        Wed, 27 Jul 2022 09:32:16 -0700 (PDT)
+        with ESMTP id S241525AbiG0RKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:10:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE715B055;
+        Wed, 27 Jul 2022 09:41:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67306619FF;
-        Wed, 27 Jul 2022 16:32:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B724C433C1;
-        Wed, 27 Jul 2022 16:32:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4A4AB821D5;
+        Wed, 27 Jul 2022 16:41:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F760C433D6;
+        Wed, 27 Jul 2022 16:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939535;
-        bh=CLfupA+ve829J+GGA8oCBo4IjFXt4oHO4dQK627Iol0=;
+        s=korg; t=1658940082;
+        bh=gf2m7bk8/Z0H/ebaJBMAgiohAbiIeqWxDTIVNmShfDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rg9ygTRYGpaGU09O3zvVOjTCHDj33qO8U2R8GQs69RGaARCNIiPKwCHdXVQiQtJjB
-         ywjjQSptiCL51Wm6/OZkrK25r8IIPZddb9MjZLWpBqwP5MtAckE7Om7zj73GtgKck2
-         k3JBbVwMIbq46hkyhfuPNDv4abAnAswc+RC+FwnM=
+        b=ecXfmink/t4Vuph2dKa2tbmE/9mXSTGQqHf0FX85v1TVg84+hcoYm5afGMxYPcoMW
+         RlitZkPto3nDaiye1x+/nDu/CR3Vzb3gu6sybiAKdZnRVSez3ETx5u/tZO0bzrri0p
+         Q48llKlSk4nhgZWpCtAC9CBpZVQRaRHv5tR7NnGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/105] Revert "m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch"
+Subject: [PATCH 5.15 098/201] tcp: Fix data-races around sysctl_max_syn_backlog.
 Date:   Wed, 27 Jul 2022 18:10:02 +0200
-Message-Id: <20220727161012.728484473@linuxfoundation.org>
+Message-Id: <20220727161031.817953575@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-This reverts commit 87ae522e467e17a13b796e2cb595f9c3943e4d5e which is
-commit db87db65c1059f3be04506d122f8ec9b2fa3b05e upstream.
+[ Upstream commit 79539f34743d3e14cc1fa6577d326a82cc64d62f ]
 
-It is not needed in 5.10.y and causes problems.
+While reading sysctl_max_syn_backlog, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Link: https://lore.kernel.org/r/CAK8P3a0vZrXxNp3YhrxFjFunHgxSZBKD9Y4darSODgeFAukCeQ@mail.gmail.com
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.bus |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_input.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/m68k/Kconfig.bus
-+++ b/arch/m68k/Kconfig.bus
-@@ -63,7 +63,7 @@ source "drivers/zorro/Kconfig"
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 06802295e170..d9e534c6fd0c 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -6894,10 +6894,12 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
+ 		tcp_rsk(req)->ts_off = af_ops->init_ts_off(net, skb);
  
- endif
- 
--if COLDFIRE
-+if !MMU
- 
- config ISA_DMA_API
- 	def_bool !M5272
+ 	if (!want_cookie && !isn) {
++		int max_syn_backlog = READ_ONCE(net->ipv4.sysctl_max_syn_backlog);
++
+ 		/* Kill the following clause, if you dislike this way. */
+ 		if (!syncookies &&
+-		    (net->ipv4.sysctl_max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
+-		     (net->ipv4.sysctl_max_syn_backlog >> 2)) &&
++		    (max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
++		     (max_syn_backlog >> 2)) &&
+ 		    !tcp_peer_is_proven(req, dst)) {
+ 			/* Without syncookies last quarter of
+ 			 * backlog is filled with destinations,
+-- 
+2.35.1
+
 
 
