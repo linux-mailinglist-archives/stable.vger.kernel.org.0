@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 773EA583091
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5971E5830A0
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235233AbiG0Rjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53678 "EHLO
+        id S241690AbiG0Rjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242779AbiG0RjO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515B061D51;
-        Wed, 27 Jul 2022 09:51:03 -0700 (PDT)
+        with ESMTP id S242840AbiG0RjV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D389B88744;
+        Wed, 27 Jul 2022 09:51:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0DD4B821D5;
-        Wed, 27 Jul 2022 16:50:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BA7C433C1;
-        Wed, 27 Jul 2022 16:50:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 104AECE2318;
+        Wed, 27 Jul 2022 16:50:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0027BC433C1;
+        Wed, 27 Jul 2022 16:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940640;
-        bh=AIwM/I+phVjD+oYqdvliQ+tHcIar9EIALVjDGeHJd4Q=;
+        s=korg; t=1658940643;
+        bh=eud4DlPytkXEZKbDVsexOqCQ7QIhHImI570wrqSzK54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SdxgVNPy9gkg8N/zpHCKHMvrmakYOTzwaiLB8RDNBUpDoLA8mQwMpDC5HpBQdZKE2
-         V8c1Y6UJSIEUQQQ2lX6xxCC0OGczpQcSiP77edbvTKU/h/4XIprtsulNB7C9L6DgRr
-         KMozNEfUv3/WdmMvOZfkokBY+g5GcvhemahF4qxg=
+        b=ce34G7LNOb6rLKhrEQtVlchvSmxWK6erQI4IyB1eNOliyeihLSQlzLy5cVYfNBiqZ
+         KXxWoIOno/36w6MVyw8vqJfkayR113UbH6YS9KMSleB4Y3KbuSyEKBl1BuWJ+Dkeva
+         ngWqUtjob8weCk28XlJthD8QbnuzojqipmabKGHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 094/158] net: stmmac: remove redunctant disable xPCS EEE call
-Date:   Wed, 27 Jul 2022 18:12:38 +0200
-Message-Id: <20220727161025.231313079@linuxfoundation.org>
+Subject: [PATCH 5.18 095/158] gpio: pca953x: only use single read/write for No AI mode
+Date:   Wed, 27 Jul 2022 18:12:39 +0200
+Message-Id: <20220727161025.261253948@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -54,43 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit da791bac104a3169b05b54270afe75daacba4641 ]
+[ Upstream commit db8edaa09d7461ec08672a92a2eef63d5882bb79 ]
 
-Disable is done in stmmac_init_eee() on the event of MAC link down.
-Since setting enable/disable EEE via ethtool will eventually trigger
-a MAC down, removing this redunctant call in stmmac_ethtool.c to avoid
-calling xpcs_config_eee() twice.
+For the device use NO AI mode(not support auto address increment),
+only use the single read/write when config the regmap.
 
-Fixes: d4aeaed80b0e ("net: stmmac: trigger PCS EEE to turn off on link down")
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Link: https://lore.kernel.org/r/20220715122402.1017470-1-vee.khee.wong@linux.intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+We meet issue on PCA9557PW on i.MX8QXP/DXL evk board, this device
+do not support AI mode, but when do the regmap sync, regmap will
+sync 3 byte data to register 1, logically this means write first
+data to register 1, write second data to register 2, write third data
+to register 3. But this device do not support AI mode, finally, these
+three data write only into register 1 one by one. the reault is the
+value of register 1 alway equal to the latest data, here is the third
+data, no operation happened on register 2 and register 3. This is
+not what we expect.
+
+Fixes: 49427232764d ("gpio: pca953x: Perform basic regmap conversion")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpio/gpio-pca953x.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index abfb3cd5958d..9c3055ee2608 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -803,14 +803,6 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
- 		netdev_warn(priv->dev,
- 			    "Setting EEE tx-lpi is not supported\n");
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 33683295a0bf..f334c8556a22 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -351,6 +351,9 @@ static const struct regmap_config pca953x_i2c_regmap = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
  
--	if (priv->hw->xpcs) {
--		ret = xpcs_config_eee(priv->hw->xpcs,
--				      priv->plat->mult_fact_100ns,
--				      edata->eee_enabled);
--		if (ret)
--			return ret;
--	}
--
- 	if (!edata->eee_enabled)
- 		stmmac_disable_eee_mode(priv);
- 
++	.use_single_read = true,
++	.use_single_write = true,
++
+ 	.readable_reg = pca953x_readable_register,
+ 	.writeable_reg = pca953x_writeable_register,
+ 	.volatile_reg = pca953x_volatile_register,
 -- 
 2.35.1
 
