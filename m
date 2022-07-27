@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B32582DEC
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417C7582DE6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232375AbiG0REx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:04:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55570 "EHLO
+        id S232943AbiG0REs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:04:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241500AbiG0REW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63DE56E8B7;
-        Wed, 27 Jul 2022 09:39:08 -0700 (PDT)
+        with ESMTP id S241440AbiG0REP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:04:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B826C6E899;
+        Wed, 27 Jul 2022 09:39:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72176601CE;
-        Wed, 27 Jul 2022 16:39:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA79C433C1;
-        Wed, 27 Jul 2022 16:38:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E726601C0;
+        Wed, 27 Jul 2022 16:39:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76407C433D7;
+        Wed, 27 Jul 2022 16:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939939;
-        bh=9FCF1x1SQRRZNClD09Kcp9xA8mgHRhj/2fAz1e3g2F8=;
+        s=korg; t=1658939942;
+        bh=giqDU7zsSjegWF/j8kJdmRjlOFOf2/ZA0i2RNKPQALM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhFgeJCDlVtrBOrWddp/uk5xUB+QB7Plfl+6QIDgD46r3CABz8StjgGlmxladHFKd
-         6u1632DEHn3cINxNd7nqvSMmEZNJ19joVtojsglEUJRE/H5tecziOICk0sKildzg1C
-         ItAzHtQy174KEBMTtFBR/1LMu36mKfMRSkS3HXiw=
+        b=wz1omDRPOy2AiSsbo2jv/hhOBqsy8bMgqWtti7hbSFnv3UMLMGP7W58q/1MJiy3L+
+         p1U4i0XRUBd3HfcJPZm8T7eTwAhS/FowJHwvAzZ8C2H4ztFu+dyJbinR2wUn1VOWL7
+         eTKiXefJoooCseboJzzOQeikW5pp3OTkWFEKZSwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/201] nvme: fix block device naming collision
-Date:   Wed, 27 Jul 2022 18:09:14 +0200
-Message-Id: <20220727161028.969627813@linuxfoundation.org>
+        stable@vger.kernel.org, Dima Ruinskiy <dima.ruinskiy@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 051/201] e1000e: Enable GPT clock before sending message to CSME
+Date:   Wed, 27 Jul 2022 18:09:15 +0200
+Message-Id: <20220727161029.008245517@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -54,62 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@nvidia.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 6961b5e02876b3b47f030a1f1ee8fd3e631ac270 ]
+[ Upstream commit b49feacbeffc7635cc6692cbcc6a1eae2c17da6f ]
 
-The issue exists when multipath is enabled and the namespace is
-shared, but all the other controller checks at nvme_is_unique_nsid()
-are false. The reason for this issue is that nvme_is_unique_nsid()
-returns false when is called from nvme_mpath_alloc_disk() due to an
-uninitialized value of head->shared. The patch fixes it by setting
-head->shared before nvme_mpath_alloc_disk() is called.
+On corporate (CSME) ADL systems, the Ethernet Controller may stop working
+("HW unit hang") after exiting from the s0ix state. The reason is that
+CSME misses the message sent by the host. Enabling the dynamic GPT clock
+solves this problem. This clock is cleared upon HW initialization.
 
-Fixes: 5974ea7ce0f9 ("nvme: allow duplicate NSIDs for private namespaces")
-Signed-off-by: Israel Rukshin <israelr@nvidia.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 3e55d231716e ("e1000e: Add handshake with the CSME to support S0ix")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=214821
+Reviewed-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 8fca84d44446..0c9cdbaf5cd6 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3660,7 +3660,7 @@ static int nvme_add_ns_cdev(struct nvme_ns *ns)
- }
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index ce48e630fe55..0fba6ccecf12 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6499,6 +6499,10 @@ static void e1000e_s0ix_exit_flow(struct e1000_adapter *adapter)
  
- static struct nvme_ns_head *nvme_alloc_ns_head(struct nvme_ctrl *ctrl,
--		unsigned nsid, struct nvme_ns_ids *ids)
-+		unsigned nsid, struct nvme_ns_ids *ids, bool is_shared)
- {
- 	struct nvme_ns_head *head;
- 	size_t size = sizeof(*head);
-@@ -3684,6 +3684,7 @@ static struct nvme_ns_head *nvme_alloc_ns_head(struct nvme_ctrl *ctrl,
- 	head->subsys = ctrl->subsys;
- 	head->ns_id = nsid;
- 	head->ids = *ids;
-+	head->shared = is_shared;
- 	kref_init(&head->ref);
- 
- 	if (head->ids.csi) {
-@@ -3730,12 +3731,11 @@ static int nvme_init_ns_head(struct nvme_ns *ns, unsigned nsid,
- 				"duplicate IDs for nsid %d\n", nsid);
- 			goto out_unlock;
- 		}
--		head = nvme_alloc_ns_head(ctrl, nsid, ids);
-+		head = nvme_alloc_ns_head(ctrl, nsid, ids, is_shared);
- 		if (IS_ERR(head)) {
- 			ret = PTR_ERR(head);
- 			goto out_unlock;
- 		}
--		head->shared = is_shared;
- 	} else {
- 		ret = -EINVAL;
- 		if (!is_shared || !head->shared) {
+ 	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
+ 	    hw->mac.type >= e1000_pch_adp) {
++		/* Keep the GPT clock enabled for CSME */
++		mac_data = er32(FEXTNVM);
++		mac_data |= BIT(3);
++		ew32(FEXTNVM, mac_data);
+ 		/* Request ME unconfigure the device from S0ix */
+ 		mac_data = er32(H2ME);
+ 		mac_data &= ~E1000_H2ME_START_DPG;
 -- 
 2.35.1
 
