@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22EEE582E37
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A82C582CB5
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238089AbiG0RJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:09:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
+        id S240438AbiG0Qtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:49:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241594AbiG0RJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE7A74350;
-        Wed, 27 Jul 2022 09:40:55 -0700 (PDT)
+        with ESMTP id S240602AbiG0Qsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2C461706;
+        Wed, 27 Jul 2022 09:32:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F9DEB8200D;
-        Wed, 27 Jul 2022 16:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4AC3C433D6;
-        Wed, 27 Jul 2022 16:40:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F010B81F90;
+        Wed, 27 Jul 2022 16:32:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E946DC433D6;
+        Wed, 27 Jul 2022 16:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940051;
-        bh=LKVDuINe2R8fHUioAcMA427TizSk5+ImKmFLRQAlKzo=;
+        s=korg; t=1658939553;
+        bh=pdGLQn7VDYhM1aT48ZUnONutDizr5+cvdh95TOtaeqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vy/Vp7Mzy4yhIbgeLN4GFyeW2pz5/005rMH9tSW7vycHCLPXAbDTucgIhynajarxf
-         5Sf82cmdmBZMPi7RKWFpHWY+TnwW3OsWD35vwQwora1lwH0L0tkxOuyZtWNCOgReB6
-         /ztREc6zTz8N53Qru/hd65GKy/f4UZZw5FA31sXo=
+        b=AzMKcCV+wM0MRWEVeTnmAsUA6EtAHGWkPuDWEtLhDjsQXMg2fAbvP1WhLIareh2G7
+         QUbgXz+bycWDnBygWqMKs5Cw9ngMy+slEy3gqWjsKgP1uKJMmnhdAI8uDic+lYI4Nj
+         Ze3PUD2KBEdLKdi4r9hIG3oSABzRpBD9UoXCxalw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/201] igmp: Fix a data-race around sysctl_igmp_max_memberships.
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Subject: [PATCH 5.10 006/105] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
 Date:   Wed, 27 Jul 2022 18:09:52 +0200
-Message-Id: <20220727161031.394982405@linuxfoundation.org>
+Message-Id: <20220727161012.319855967@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Demi Marie Obenour <demi@invisiblethingslab.com>
 
-[ Upstream commit 6305d821e3b9b5379d348528e5b5faf316383bc2 ]
+commit 166d3863231667c4f64dee72b77d1102cdfad11f upstream.
 
-While reading sysctl_igmp_max_memberships, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+The error paths of gntdev_mmap() can call unmap_grant_pages() even
+though not all of the pages have been successfully mapped.  This will
+trigger the WARN_ON()s in __unmap_grant_pages_done().  The number of
+warnings can be very large; I have observed thousands of lines of
+warnings in the systemd journal.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Avoid this problem by only warning on unmapping failure if the handle
+being unmapped is not INVALID_GRANT_HANDLE.  The handle field of any
+page that was not successfully mapped will be INVALID_GRANT_HANDLE, so
+this catches all cases where unmapping can legitimately fail.
+
+Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Cc: stable@vger.kernel.org
+Suggested-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220710230522.1563-1-demi@invisiblethingslab.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/gntdev.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index ccfbc0a8f11c..8920ae3751d1 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -2197,7 +2197,7 @@ static int __ip_mc_join_group(struct sock *sk, struct ip_mreqn *imr,
- 		count++;
- 	}
- 	err = -ENOBUFS;
--	if (count >= net->ipv4.sysctl_igmp_max_memberships)
-+	if (count >= READ_ONCE(net->ipv4.sysctl_igmp_max_memberships))
- 		goto done;
- 	iml = sock_kmalloc(sk, sizeof(*iml), GFP_KERNEL);
- 	if (!iml)
--- 
-2.35.1
-
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -401,7 +401,8 @@ static void __unmap_grant_pages_done(int
+ 	unsigned int offset = data->unmap_ops - map->unmap_ops;
+ 
+ 	for (i = 0; i < data->count; i++) {
+-		WARN_ON(map->unmap_ops[offset+i].status);
++		WARN_ON(map->unmap_ops[offset+i].status &&
++			map->unmap_ops[offset+i].handle != -1);
+ 		pr_debug("unmap handle=%d st=%d\n",
+ 			map->unmap_ops[offset+i].handle,
+ 			map->unmap_ops[offset+i].status);
 
 
