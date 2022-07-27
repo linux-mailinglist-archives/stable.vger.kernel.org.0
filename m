@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60197582C85
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EBA582FD5
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240375AbiG0Qrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43102 "EHLO
+        id S242171AbiG0RaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:30:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240404AbiG0Qqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:46:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 168775247D;
-        Wed, 27 Jul 2022 09:31:50 -0700 (PDT)
+        with ESMTP id S231928AbiG0R1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:27:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC48F7F52D;
+        Wed, 27 Jul 2022 09:47:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CCAB61A4F;
-        Wed, 27 Jul 2022 16:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B00C433C1;
-        Wed, 27 Jul 2022 16:31:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A211DB821BA;
+        Wed, 27 Jul 2022 16:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05CC2C433D6;
+        Wed, 27 Jul 2022 16:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939509;
-        bh=smYeKmamlWhHlqS80zNjKhdEHi3FB7mA4ILpi3O5Zzk=;
+        s=korg; t=1658940416;
+        bh=exQanQQCCW8xmYNuSUTKN1XUpk6IthBjCfK9gdDG8wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XM1FrO4C80moDNu+gMaG0FciS45KLeUhDNrlhmOAqs7zQXwLFjdxLD9uZgM7La90N
-         V+B1IjiMTTAdg7NqYq8dcBvPFQ0tgavFd9RDRqLsr1qlKaQvnfSpGorhTMAx7TdY55
-         WIjrfZ+96p3Gsb+AhFtUkWFYcfmGNI0/Ch/i8UX8=
+        b=ZeHY4fpgwVTZraM2iIsfIA3I2dtf5WVFtnPCFNRMsMzCvDsu8J+DvGW1BN9i91BnG
+         /lg/BOwIQbVGZJtjmB8MVcabQObSl14tWqXQ06lM+BnXlYBNgDvCyOJqGtGtf3ShIL
+         tqleJ5vVRCAA2p0Hiius2B3pDRJ2eXGfRbjfQFOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 87/87] x86: drop bogus "cc" clobber from __try_cmpxchg_user_asm()
+        Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Carl Vanderlip <quic_carlv@quicinc.com>
+Subject: [PATCH 5.18 016/158] PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()
 Date:   Wed, 27 Jul 2022 18:11:20 +0200
-Message-Id: <20220727161012.576805216@linuxfoundation.org>
+Message-Id: <20220727161022.117305587@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Jeffrey Hugo <quic_jhugo@quicinc.com>
 
-commit 1df931d95f4dc1c11db1123e85d4e08156e46ef9 upstream.
+[ upstream change b4b77778ecc5bfbd4e77de1b2fd5c1dd3c655f1f ]
 
-As noted (and fixed) a couple of times in the past, "=@cc<cond>" outputs
-and clobbering of "cc" don't work well together. The compiler appears to
-mean to reject such, but doesn't - in its upstream form - quite manage
-to yet for "cc". Furthermore two similar macros don't clobber "cc", and
-clobbering "cc" is pointless in asm()-s for x86 anyway - the compiler
-always assumes status flags to be clobbered there.
+Currently if compose_msi_msg() is called multiple times, it will free any
+previous IRTE allocation, and generate a new allocation.  While nothing
+prevents this from occurring, it is extraneous when Linux could just reuse
+the existing allocation and avoid a bunch of overhead.
 
-Fixes: 989b5db215a2 ("x86/uaccess: Implement macros for CMPXCHG on user addresses")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Message-Id: <485c0c0b-a3a7-0b7c-5264-7d00c01de032@suse.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+However, when future IRTE allocations operate on blocks of MSIs instead of
+a single line, freeing the allocation will impact all of the lines.  This
+could cause an issue where an allocation of N MSIs occurs, then some of
+the lines are retargeted, and finally the allocation is freed/reallocated.
+The freeing of the allocation removes all of the configuration for the
+entire block, which requires all the lines to be retargeted, which might
+not happen since some lines might already be unmasked/active.
+
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Dexuan Cui <decui@microsoft.com>
+Tested-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1652282582-21595-1-git-send-email-quic_jhugo@quicinc.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/uaccess.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-hyperv.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -498,7 +498,7 @@ __pu_label:							\
- 		       [ptr] "+m" (*_ptr),				\
- 		       [old] "+a" (__old)				\
- 		     : [new] ltype (__new)				\
--		     : "memory", "cc");					\
-+		     : "memory");					\
- 	if (unlikely(__err))						\
- 		goto label;						\
- 	if (unlikely(!success))						\
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1700,6 +1700,15 @@ static void hv_compose_msi_msg(struct ir
+ 	u32 size;
+ 	int ret;
+ 
++	/* Reuse the previous allocation */
++	if (data->chip_data) {
++		int_desc = data->chip_data;
++		msg->address_hi = int_desc->address >> 32;
++		msg->address_lo = int_desc->address & 0xffffffff;
++		msg->data = int_desc->data;
++		return;
++	}
++
+ 	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
+ 	dest = irq_data_get_effective_affinity_mask(data);
+ 	pbus = pdev->bus;
+@@ -1709,13 +1718,6 @@ static void hv_compose_msi_msg(struct ir
+ 	if (!hpdev)
+ 		goto return_null_message;
+ 
+-	/* Free any previous message that might have already been composed. */
+-	if (data->chip_data) {
+-		int_desc = data->chip_data;
+-		data->chip_data = NULL;
+-		hv_int_desc_free(hpdev, int_desc);
+-	}
+-
+ 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
+ 	if (!int_desc)
+ 		goto drop_reference;
 
 
