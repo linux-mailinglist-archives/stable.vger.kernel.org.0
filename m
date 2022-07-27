@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 370BD582B22
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE55582D25
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237064AbiG0Q2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:28:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S240741AbiG0QyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:54:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236065AbiG0Q2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:28:01 -0400
+        with ESMTP id S240865AbiG0Qwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F87B5004B;
-        Wed, 27 Jul 2022 09:24:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B884C612;
+        Wed, 27 Jul 2022 09:34:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9719E619F1;
-        Wed, 27 Jul 2022 16:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2AE6C433B5;
-        Wed, 27 Jul 2022 16:24:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41BF761A24;
+        Wed, 27 Jul 2022 16:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 507C7C433C1;
+        Wed, 27 Jul 2022 16:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939046;
-        bh=v0fOdDCxuksUy79As8CNF36LVy9i1pfgLKvK2Dz36mk=;
+        s=korg; t=1658939692;
+        bh=taGXvwh8QulMfFeNAopT3SELzpb/vZWaKrweY7XJzN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZCg3N3wnuNUxsbLNBc9StW/f/lLhG0mzS/IOm7ojSGZA6A0YA5cVBBEUm0Ps64uX
-         QpAnFlzdTRFYI5NpHnpvcOXVBd1U4sTy+FDrnuKdgPTfaKQnxzFkh0O9yYRva5MWO0
-         KfthxAgiblJaIL0M6yMWMMij3E3mGwmOynuVvfbk=
+        b=ySPejKRWluxQqaWzN1ZUdJUNJJJQGDlB6dVo44/ci5e69hjuRYsGeRDtwtqDaZCRG
+         s/WqDptFEgzt0S/ji+kyeZ93J/tYfDFRuwWVSu/rcU+9fBMH2cdvGlJG1uImPpq8kA
+         6Jn1gvumm4jEXSGrb5/F6R1M9EJAkpVrumCiRCBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.14 31/37] tty: extract tty_flip_buffer_commit() from tty_flip_buffer_push()
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 071/105] tcp: Fix a data-race around sysctl_tcp_thin_linear_timeouts.
 Date:   Wed, 27 Jul 2022 18:10:57 +0200
-Message-Id: <20220727161002.111444845@linuxfoundation.org>
+Message-Id: <20220727161014.907629753@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
-References: <20220727161000.822869853@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 716b10580283fda66f2b88140e3964f8a7f9da89 upstream.
+[ Upstream commit 7c6f2a86ca590d5187a073d987e9599985fb1c7c ]
 
-We will need this new helper in the next patch.
+While reading sysctl_tcp_thin_linear_timeouts, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: 一只狗 <chennbnbnb@gmail.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220707082558.9250-1-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 36e31b0af587 ("net: TCP thin linear timeouts")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ net/ipv4/tcp_timer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -517,6 +517,15 @@ static void flush_to_ldisc(struct work_s
- 
- }
- 
-+static inline void tty_flip_buffer_commit(struct tty_buffer *tail)
-+{
-+	/*
-+	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
-+	 * buffer data.
-+	 */
-+	smp_store_release(&tail->commit, tail->used);
-+}
-+
- /**
-  *	tty_flip_buffer_push	-	terminal
-  *	@port: tty port to push
-@@ -532,11 +541,7 @@ void tty_flip_buffer_push(struct tty_por
- {
- 	struct tty_bufhead *buf = &port->buf;
- 
--	/*
--	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
--	 * buffer data.
--	 */
--	smp_store_release(&buf->tail->commit, buf->tail->used);
-+	tty_flip_buffer_commit(buf->tail);
- 	queue_work(system_unbound_wq, &buf->work);
- }
- EXPORT_SYMBOL(tty_flip_buffer_push);
+diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
+index e20fd86a2a89..888683f2ff3e 100644
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -574,7 +574,7 @@ void tcp_retransmit_timer(struct sock *sk)
+ 	 * linear-timeout retransmissions into a black hole
+ 	 */
+ 	if (sk->sk_state == TCP_ESTABLISHED &&
+-	    (tp->thin_lto || net->ipv4.sysctl_tcp_thin_linear_timeouts) &&
++	    (tp->thin_lto || READ_ONCE(net->ipv4.sysctl_tcp_thin_linear_timeouts)) &&
+ 	    tcp_stream_is_thin(tp) &&
+ 	    icsk->icsk_retransmits <= TCP_THIN_LINEAR_RETRIES) {
+ 		icsk->icsk_backoff = 0;
+-- 
+2.35.1
+
 
 
