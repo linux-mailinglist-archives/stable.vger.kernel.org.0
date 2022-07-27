@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAE7582BD5
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD625582BCE
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239070AbiG0Qh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:37:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47654 "EHLO
+        id S239120AbiG0QiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:38:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238535AbiG0Qg7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:36:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D08057230;
-        Wed, 27 Jul 2022 09:28:12 -0700 (PDT)
+        with ESMTP id S238379AbiG0Qhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:37:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6F94F6B7;
+        Wed, 27 Jul 2022 09:28:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E685F617F2;
-        Wed, 27 Jul 2022 16:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB10CC433D6;
-        Wed, 27 Jul 2022 16:28:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 574AFB821A6;
+        Wed, 27 Jul 2022 16:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEDE6C433D7;
+        Wed, 27 Jul 2022 16:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939291;
-        bh=YfmTqNI3tTK0SChiA4BqqgiN/t5quimciEuF2M5o5Yo=;
+        s=korg; t=1658939269;
+        bh=WtF9BKyztuDudarIy8lWa8uBbyXGJ5Wc6Q/lzCzgqR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXETW20jywI65LWCAOFtCqufh9jhMJt/bhUJY4GZHUklumZCZMSeCR3YVkOsgybpv
-         lKve5l3qzidkXJPEGxsdT5Da9WLs6SqGO0n0bNrXzYgauFDxlQqgTTcWGSNa6K/BpH
-         fnHJdmyi+4dLzZEWJqwrhSO4YcdMKkr+Bp8NfDxU=
+        b=DS17Fi1yGp4eNpQEp0DI8T0qW6A9qwfw/9nXE6BOuKVyinBMQCI2EOrEXij93JFY9
+         Eds7+shP+wYuUALflsXQjzrVtR8NSCt8+MlCbamXDLZ12uB+YKfDCzw0k7jVvt4BEG
+         QXtf+InspiSUTJ4V1bqxqfi/G12q9BWNIRcHLv2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 5.4 09/87] PCI: hv: Fix interrupt mapping for multi-MSI
-Date:   Wed, 27 Jul 2022 18:10:02 +0200
-Message-Id: <20220727161009.393555877@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.4 10/87] serial: mvebu-uart: correctly report configured baudrate value
+Date:   Wed, 27 Jul 2022 18:10:03 +0200
+Message-Id: <20220727161009.434828786@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
 References: <20220727161008.993711844@linuxfoundation.org>
@@ -55,182 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <quic_jhugo@quicinc.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit a2bad844a67b1c7740bda63e87453baf63c3a7f7 upstream.
+commit 4f532c1e25319e42996ec18a1f473fd50c8e575d upstream.
 
-According to Dexuan, the hypervisor folks beleive that multi-msi
-allocations are not correct.  compose_msi_msg() will allocate multi-msi
-one by one.  However, multi-msi is a block of related MSIs, with alignment
-requirements.  In order for the hypervisor to allocate properly aligned
-and consecutive entries in the IOMMU Interrupt Remapping Table, there
-should be a single mapping request that requests all of the multi-msi
-vectors in one shot.
+Functions tty_termios_encode_baud_rate() and uart_update_timeout() should
+be called with the baudrate value which was set to hardware. Linux then
+report exact values via ioctl(TCGETS2) to userspace.
 
-Dexuan suggests detecting the multi-msi case and composing a single
-request related to the first MSI.  Then for the other MSIs in the same
-block, use the cached information.  This appears to be viable, so do it.
+Change mvebu_uart_baud_rate_set() function to return baudrate value which
+was set to hardware and propagate this value to above mentioned functions.
 
-5.4 backport - add hv_msi_get_int_vector helper function. Fixed merge
-conflict due to delivery_mode name change (APIC_DELIVERY_MODE_FIXED
-is the value given to dest_Fixed). Removed unused variable in
-hv_compose_msi_msg. Fixed reference to msi_desc->pci to point to
-the same is_msix variable. Removed changes to compose_msi_req_v3 since
-it doesn't exist yet.
+With this change userspace would see precise value in termios c_ospeed
+field.
 
-Suggested-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Tested-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1652282599-21643-1-git-send-email-quic_jhugo@quicinc.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
+Cc: stable <stable@kernel.org>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20220628100922.10717-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   61 +++++++++++++++++++++++++++++++-----
- 1 file changed, 53 insertions(+), 8 deletions(-)
+ drivers/tty/serial/mvebu-uart.c |   25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1110,6 +1110,10 @@ static void hv_int_desc_free(struct hv_p
- 		u8 buffer[sizeof(struct pci_delete_interrupt)];
- 	} ctxt;
- 
-+	if (!int_desc->vector_count) {
-+		kfree(int_desc);
-+		return;
-+	}
- 	memset(&ctxt, 0, sizeof(ctxt));
- 	int_pkt = (struct pci_delete_interrupt *)&ctxt.pkt.message;
- 	int_pkt->message_type.type =
-@@ -1172,6 +1176,13 @@ static void hv_irq_mask(struct irq_data
- 	pci_msi_mask_irq(data);
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -443,13 +443,13 @@ static void mvebu_uart_shutdown(struct u
+ 	}
  }
  
-+static unsigned int hv_msi_get_int_vector(struct irq_data *data)
-+{
-+	struct irq_cfg *cfg = irqd_cfg(data);
-+
-+	return cfg->vector;
-+}
-+
- static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
- 			  int nvec, msi_alloc_info_t *info)
+-static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
++static unsigned int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
  {
-@@ -1313,12 +1324,12 @@ static void hv_pci_compose_compl(void *c
+ 	unsigned int d_divisor, m_divisor;
+ 	u32 brdv, osamp;
  
- static u32 hv_compose_msi_req_v1(
- 	struct pci_create_interrupt *int_pkt, struct cpumask *affinity,
--	u32 slot, u8 vector)
-+	u32 slot, u8 vector, u8 vector_count)
- {
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = dest_Fixed;
+ 	if (!port->uartclk)
+-		return -EOPNOTSUPP;
++		return 0;
  
  	/*
-@@ -1332,14 +1343,14 @@ static u32 hv_compose_msi_req_v1(
+ 	 * The baudrate is derived from the UART clock thanks to two divisors:
+@@ -473,7 +473,7 @@ static int mvebu_uart_baud_rate_set(stru
+ 	osamp &= ~OSAMP_DIVISORS_MASK;
+ 	writel(osamp, port->membase + UART_OSAMP);
  
- static u32 hv_compose_msi_req_v2(
- 	struct pci_create_interrupt2 *int_pkt, struct cpumask *affinity,
--	u32 slot, u8 vector)
-+	u32 slot, u8 vector, u8 vector_count)
- {
- 	int cpu;
+-	return 0;
++	return DIV_ROUND_CLOSEST(port->uartclk, d_divisor * m_divisor);
+ }
  
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE2;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = dest_Fixed;
+ static void mvebu_uart_set_termios(struct uart_port *port,
+@@ -510,15 +510,11 @@ static void mvebu_uart_set_termios(struc
+ 	max_baud = 230400;
  
- 	/*
-@@ -1367,7 +1378,6 @@ static u32 hv_compose_msi_req_v2(
-  */
- static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- {
--	struct irq_cfg *cfg = irqd_cfg(data);
- 	struct hv_pcibus_device *hbus;
- 	struct hv_pci_dev *hpdev;
- 	struct pci_bus *pbus;
-@@ -1376,6 +1386,8 @@ static void hv_compose_msi_msg(struct ir
- 	unsigned long flags;
- 	struct compose_comp_ctxt comp;
- 	struct tran_int_desc *int_desc;
-+	struct msi_desc *msi_desc;
-+	u8 vector, vector_count;
- 	struct {
- 		struct pci_packet pci_pkt;
- 		union {
-@@ -1396,7 +1408,8 @@ static void hv_compose_msi_msg(struct ir
- 		return;
+ 	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
+-	if (mvebu_uart_baud_rate_set(port, baud)) {
+-		/* No clock available, baudrate cannot be changed */
+-		if (old)
+-			baud = uart_get_baud_rate(port, old, NULL,
+-						  min_baud, max_baud);
+-	} else {
+-		tty_termios_encode_baud_rate(termios, baud, baud);
+-		uart_update_timeout(port, termios->c_cflag, baud);
+-	}
++	baud = mvebu_uart_baud_rate_set(port, baud);
++
++	/* In case baudrate cannot be changed, report previous old value */
++	if (baud == 0 && old)
++		baud = tty_termios_baud_rate(old);
+ 
+ 	/* Only the following flag changes are supported */
+ 	if (old) {
+@@ -529,6 +525,11 @@ static void mvebu_uart_set_termios(struc
+ 		termios->c_cflag |= CS8;
  	}
  
--	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
-+	msi_desc  = irq_data_get_msi_desc(data);
-+	pdev = msi_desc_to_pci_dev(msi_desc);
- 	dest = irq_data_get_effective_affinity_mask(data);
- 	pbus = pdev->bus;
- 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
-@@ -1408,6 +1421,36 @@ static void hv_compose_msi_msg(struct ir
- 	if (!int_desc)
- 		goto drop_reference;
- 
-+	if (!msi_desc->msi_attrib.is_msix && msi_desc->nvec_used > 1) {
-+		/*
-+		 * If this is not the first MSI of Multi MSI, we already have
-+		 * a mapping.  Can exit early.
-+		 */
-+		if (msi_desc->irq != data->irq) {
-+			data->chip_data = int_desc;
-+			int_desc->address = msi_desc->msg.address_lo |
-+					    (u64)msi_desc->msg.address_hi << 32;
-+			int_desc->data = msi_desc->msg.data +
-+					 (data->irq - msi_desc->irq);
-+			msg->address_hi = msi_desc->msg.address_hi;
-+			msg->address_lo = msi_desc->msg.address_lo;
-+			msg->data = int_desc->data;
-+			put_pcichild(hpdev);
-+			return;
-+		}
-+		/*
-+		 * The vector we select here is a dummy value.  The correct
-+		 * value gets sent to the hypervisor in unmask().  This needs
-+		 * to be aligned with the count, and also not zero.  Multi-msi
-+		 * is powers of 2 up to 32, so 32 will always work here.
-+		 */
-+		vector = 32;
-+		vector_count = msi_desc->nvec_used;
-+	} else {
-+		vector = hv_msi_get_int_vector(data);
-+		vector_count = 1;
++	if (baud != 0) {
++		tty_termios_encode_baud_rate(termios, baud, baud);
++		uart_update_timeout(port, termios->c_cflag, baud);
 +	}
 +
- 	memset(&ctxt, 0, sizeof(ctxt));
- 	init_completion(&comp.comp_pkt.host_event);
- 	ctxt.pci_pkt.completion_func = hv_pci_compose_compl;
-@@ -1418,14 +1461,16 @@ static void hv_compose_msi_msg(struct ir
- 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					vector,
-+					vector_count);
- 		break;
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ }
  
- 	case PCI_PROTOCOL_VERSION_1_2:
- 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					vector,
-+					vector_count);
- 		break;
- 
- 	default:
 
 
