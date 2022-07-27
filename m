@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF67582ED4
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E9C582BD9
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236906AbiG0RR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33476 "EHLO
+        id S239736AbiG0QjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:39:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233394AbiG0RRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:17:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB7A78DD9;
-        Wed, 27 Jul 2022 09:43:21 -0700 (PDT)
+        with ESMTP id S238309AbiG0Qio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:38:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B96B5A147;
+        Wed, 27 Jul 2022 09:28:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C152601C3;
-        Wed, 27 Jul 2022 16:43:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3378C433C1;
-        Wed, 27 Jul 2022 16:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFEFE61A27;
+        Wed, 27 Jul 2022 16:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD9DCC433D6;
+        Wed, 27 Jul 2022 16:28:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940200;
-        bh=eud4DlPytkXEZKbDVsexOqCQ7QIhHImI570wrqSzK54=;
+        s=korg; t=1658939300;
+        bh=JJwXE2uuDQBhp8piRLGooJ/OOMu+3+Uj85axSnmkwYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsWSOJtVdYaRtjRMaEnOD9sEyakXXBDlRJ9IpQvgC1QFMr/I04hj654rTgzKREVil
-         U1G/O9Zvjfl5EIOfONaCnD4/3L5ufx7ygDqaEpfqr8qfmWSPIQCstJoOqm93WY58fL
-         y70AarN2zpgKoHCRmoanMYeTeRpDzIuPvo2i/V8k=
+        b=00NS7EsQwGmhTYE1HSAbqtZmYP+vIt2PSIqsRBrjW18AaN8R76UJmpOSqcW0qAN1V
+         crZsBqYtyLffq6LRyHTbaez0Ma2zDBlQ2R3EW8BsqaUSnUJ517PCl/8UznIBc4U6kD
+         XdEoL1UZrYNyEJwC2Ru4Vg9hgIETHMngH9MqGwzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 109/201] gpio: pca953x: only use single read/write for No AI mode
-Date:   Wed, 27 Jul 2022 18:10:13 +0200
-Message-Id: <20220727161032.282415792@linuxfoundation.org>
+Subject: [PATCH 5.4 21/87] tcp: Fix data-races around sysctl_tcp_mtu_probing.
+Date:   Wed, 27 Jul 2022 18:10:14 +0200
+Message-Id: <20220727161009.881148835@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit db8edaa09d7461ec08672a92a2eef63d5882bb79 ]
+[ Upstream commit f47d00e077e7d61baf69e46dde3210c886360207 ]
 
-For the device use NO AI mode(not support auto address increment),
-only use the single read/write when config the regmap.
+While reading sysctl_tcp_mtu_probing, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-We meet issue on PCA9557PW on i.MX8QXP/DXL evk board, this device
-do not support AI mode, but when do the regmap sync, regmap will
-sync 3 byte data to register 1, logically this means write first
-data to register 1, write second data to register 2, write third data
-to register 3. But this device do not support AI mode, finally, these
-three data write only into register 1 one by one. the reault is the
-value of register 1 alway equal to the latest data, here is the third
-data, no operation happened on register 2 and register 3. This is
-not what we expect.
-
-Fixes: 49427232764d ("gpio: pca953x: Perform basic regmap conversion")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fixes: 5d424d5a674f ("[TCP]: MTU probing")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pca953x.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/tcp_output.c | 2 +-
+ net/ipv4/tcp_timer.c  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 33683295a0bf..f334c8556a22 100644
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -351,6 +351,9 @@ static const struct regmap_config pca953x_i2c_regmap = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 739fc69cdcc6..5ac81c4f076d 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1537,7 +1537,7 @@ void tcp_mtup_init(struct sock *sk)
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct net *net = sock_net(sk);
  
-+	.use_single_read = true,
-+	.use_single_write = true,
-+
- 	.readable_reg = pca953x_readable_register,
- 	.writeable_reg = pca953x_writeable_register,
- 	.volatile_reg = pca953x_volatile_register,
+-	icsk->icsk_mtup.enabled = net->ipv4.sysctl_tcp_mtu_probing > 1;
++	icsk->icsk_mtup.enabled = READ_ONCE(net->ipv4.sysctl_tcp_mtu_probing) > 1;
+ 	icsk->icsk_mtup.search_high = tp->rx_opt.mss_clamp + sizeof(struct tcphdr) +
+ 			       icsk->icsk_af_ops->net_header_len;
+ 	icsk->icsk_mtup.search_low = tcp_mss_to_mtu(sk, net->ipv4.sysctl_tcp_base_mss);
+diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
+index fa2ae96ecdc4..57fa707e9e98 100644
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -163,7 +163,7 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
+ 	int mss;
+ 
+ 	/* Black hole detection */
+-	if (!net->ipv4.sysctl_tcp_mtu_probing)
++	if (!READ_ONCE(net->ipv4.sysctl_tcp_mtu_probing))
+ 		return;
+ 
+ 	if (!icsk->icsk_mtup.enabled) {
 -- 
 2.35.1
 
