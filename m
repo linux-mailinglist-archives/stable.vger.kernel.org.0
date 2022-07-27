@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F11AE582B4C
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D53582CC6
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237492AbiG0QbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:31:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33802 "EHLO
+        id S240679AbiG0Qum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235481AbiG0Qan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:30:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D62652453;
-        Wed, 27 Jul 2022 09:25:21 -0700 (PDT)
+        with ESMTP id S240823AbiG0Qth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:49:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED1261D4E;
+        Wed, 27 Jul 2022 09:33:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B99AFB821C1;
-        Wed, 27 Jul 2022 16:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15915C433C1;
-        Wed, 27 Jul 2022 16:25:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 52FF5CE230F;
+        Wed, 27 Jul 2022 16:33:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62361C433C1;
+        Wed, 27 Jul 2022 16:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939119;
-        bh=DociUfqFdcsu742ZqlLz7PGIUm+Z5z2Wi1z0E5XlUmI=;
+        s=korg; t=1658939578;
+        bh=aZ5lanK2qNNH4KKWPma/nMluCCUeo2xMDfC+QugKt4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgUL1HMMpxGEPUE8h7PcMd+ahLS9jdLdtne1Z3jom0ZfpxtZ1zQT8HQ6FPOMeLH2y
-         FChzJTxOgBP850y1CNMcYlfFmn9oq30vw3f17Z+z6GZ/OnBmPYIBYJHBXoV/eGGFW5
-         d3xAIP8u/5FbtnUDIhCUK9Frq4L96A6wcaUYuBzk=
+        b=DS7Wa7MNVQgTd+TTlvLibcYtyr4bAwxaBRPBajKxhitZwSqsWBhKzuC4sBjMUxsZB
+         7eXc9V4SGnPaJuiRkKi6uGE03QwiZAuW5oyiK67LI34LUqYUKdmO1PYwhST2J+1pL1
+         Lyy/m8KX39RYHFEFsqzX6w/kSc0i7WzkJOs4roaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/62] ip: Fix data-races around sysctl_ip_nonlocal_bind.
+Subject: [PATCH 5.10 031/105] ip: Fix data-races around sysctl_ip_nonlocal_bind.
 Date:   Wed, 27 Jul 2022 18:10:17 +0200
-Message-Id: <20220727161004.497909453@linuxfoundation.org>
+Message-Id: <20220727161013.340986804@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
-index a80fd0ac4563..e3d943813ff8 100644
+index 89163ef8cf4b..f374946734b9 100644
 --- a/include/net/inet_sock.h
 +++ b/include/net/inet_sock.h
-@@ -357,7 +357,7 @@ static inline bool inet_get_convert_csum(struct sock *sk)
+@@ -369,7 +369,7 @@ static inline bool inet_get_convert_csum(struct sock *sk)
  static inline bool inet_can_nonlocal_bind(struct net *net,
  					  struct inet_sock *inet)
  {
@@ -83,10 +83,10 @@ index a80fd0ac4563..e3d943813ff8 100644
  }
  
 diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index 7207a9769f1a..8db8209c5b61 100644
+index 940f1e257a90..6e4ca837e91d 100644
 --- a/net/sctp/protocol.c
 +++ b/net/sctp/protocol.c
-@@ -373,7 +373,7 @@ static int sctp_v4_available(union sctp_addr *addr, struct sctp_sock *sp)
+@@ -358,7 +358,7 @@ static int sctp_v4_available(union sctp_addr *addr, struct sctp_sock *sp)
  	if (addr->v4.sin_addr.s_addr != htonl(INADDR_ANY) &&
  	   ret != RTN_LOCAL &&
  	   !sp->inet.freebind &&
