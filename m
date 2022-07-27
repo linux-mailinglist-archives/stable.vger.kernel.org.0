@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B91582E0A
+	by mail.lfdr.de (Postfix) with ESMTP id AF8F1582E0B
 	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241344AbiG0RGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:06:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
+        id S241364AbiG0RGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:06:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241346AbiG0RFe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:05:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDF46F7F3;
-        Wed, 27 Jul 2022 09:39:36 -0700 (PDT)
+        with ESMTP id S241367AbiG0RFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:05:40 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FF36FA03;
+        Wed, 27 Jul 2022 09:39:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBEA4B8200C;
-        Wed, 27 Jul 2022 16:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C28CC433C1;
-        Wed, 27 Jul 2022 16:39:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EF76CCE2311;
+        Wed, 27 Jul 2022 16:39:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC56FC433C1;
+        Wed, 27 Jul 2022 16:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939973;
-        bh=+9ai9f+qaUfhsEY0EKFWl33A3SDMmS9FeTKWF298N/4=;
+        s=korg; t=1658939976;
+        bh=674Qol5JQCIYt6EHb/3ISoH7vwQdVNwHkzMbSSZKRHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PS8qGlJBrNVxLyBqsje1SPoV2Z7sZL71TzWgEIcXQF4DrXPBBdCZNuZDTg5LSRTkG
-         bkmrSKxUToN/fpJR+LeeZWNBDUKxfrWG6OEqNRoZRyjgA566TCd13zO6MLzmJLq8jP
-         mswYhTiJI/2X430f8jh7EZFKUwNsubgvigg0M/9A=
+        b=RUBFxeUTbz92cA0wDI8OjL4VGBByhw6QdI95L81Zs5ezVeFdmmipgpWXLjiu1Nnk7
+         gB5tx9K5C7aLQHpaHU/4QTE7rpTaPHto04Er8PnaT1N5oDdAO+mae+8gzsd+vz20qU
+         oT640nqALKrFTyXe0Mh2n5Hn8tKbGkdKmMZTsbFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/201] tcp: sk->sk_bound_dev_if once in inet_request_bound_dev_if()
-Date:   Wed, 27 Jul 2022 18:09:25 +0200
-Message-Id: <20220727161029.439867505@linuxfoundation.org>
+Subject: [PATCH 5.15 062/201] tcp: Fix data-races around sysctl_tcp_l3mdev_accept.
+Date:   Wed, 27 Jul 2022 18:09:26 +0200
+Message-Id: <20220727161029.487106444@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
 References: <20220727161026.977588183@linuxfoundation.org>
@@ -53,44 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit fdb5fd7f736ec7ae9fb36d2842ea6d9ebc4e7269 ]
+[ Upstream commit 08a75f10679470552a3a443f9aefd1399604d31d ]
 
-inet_request_bound_dev_if() reads sk->sk_bound_dev_if twice
-while listener socket is not locked.
+While reading sysctl_tcp_l3mdev_accept, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Another cpu could change this field under us.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 6dd9a14e92e5 ("net: Allow accepted sockets to be bound to l3mdev domain")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/inet_sock.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/net/inet_hashtables.h | 2 +-
+ include/net/inet_sock.h       | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/include/net/inet_hashtables.h b/include/net/inet_hashtables.h
+index 98e1ec1a14f0..749bb1e46087 100644
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -207,7 +207,7 @@ static inline bool inet_sk_bound_dev_eq(struct net *net, int bound_dev_if,
+ 					int dif, int sdif)
+ {
+ #if IS_ENABLED(CONFIG_NET_L3_MASTER_DEV)
+-	return inet_bound_dev_eq(!!net->ipv4.sysctl_tcp_l3mdev_accept,
++	return inet_bound_dev_eq(!!READ_ONCE(net->ipv4.sysctl_tcp_l3mdev_accept),
+ 				 bound_dev_if, dif, sdif);
+ #else
+ 	return inet_bound_dev_eq(true, bound_dev_if, dif, sdif);
 diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
-index 33344d54ad65..e71827aa2dfb 100644
+index e71827aa2dfb..c307a547d2cb 100644
 --- a/include/net/inet_sock.h
 +++ b/include/net/inet_sock.h
-@@ -117,14 +117,15 @@ static inline u32 inet_request_mark(const struct sock *sk, struct sk_buff *skb)
- static inline int inet_request_bound_dev_if(const struct sock *sk,
- 					    struct sk_buff *skb)
- {
-+	int bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
+@@ -121,7 +121,7 @@ static inline int inet_request_bound_dev_if(const struct sock *sk,
  #ifdef CONFIG_NET_L3_MASTER_DEV
  	struct net *net = sock_net(sk);
  
--	if (!sk->sk_bound_dev_if && net->ipv4.sysctl_tcp_l3mdev_accept)
-+	if (!bound_dev_if && net->ipv4.sysctl_tcp_l3mdev_accept)
+-	if (!bound_dev_if && net->ipv4.sysctl_tcp_l3mdev_accept)
++	if (!bound_dev_if && READ_ONCE(net->ipv4.sysctl_tcp_l3mdev_accept))
  		return l3mdev_master_ifindex_by_index(net, skb->skb_iif);
  #endif
  
--	return sk->sk_bound_dev_if;
-+	return bound_dev_if;
- }
+@@ -133,7 +133,7 @@ static inline int inet_sk_bound_l3mdev(const struct sock *sk)
+ #ifdef CONFIG_NET_L3_MASTER_DEV
+ 	struct net *net = sock_net(sk);
  
- static inline int inet_sk_bound_l3mdev(const struct sock *sk)
+-	if (!net->ipv4.sysctl_tcp_l3mdev_accept)
++	if (!READ_ONCE(net->ipv4.sysctl_tcp_l3mdev_accept))
+ 		return l3mdev_master_ifindex_by_index(net,
+ 						      sk->sk_bound_dev_if);
+ #endif
 -- 
 2.35.1
 
