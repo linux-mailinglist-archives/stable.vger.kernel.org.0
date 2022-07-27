@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B44F582CEB
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81DB3582AA4
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240744AbiG0QwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:52:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58038 "EHLO
+        id S235173AbiG0QW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:22:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240599AbiG0QwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:04 -0400
+        with ESMTP id S235089AbiG0QWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299C854AD8;
-        Wed, 27 Jul 2022 09:33:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DE14BD3F;
+        Wed, 27 Jul 2022 09:22:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D94F5B821A6;
-        Wed, 27 Jul 2022 16:33:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F317C433C1;
-        Wed, 27 Jul 2022 16:33:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 797E1B821B9;
+        Wed, 27 Jul 2022 16:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6CE4C433D6;
+        Wed, 27 Jul 2022 16:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939626;
-        bh=ELb3SwQLNGVeiqJ6llnS1mwlZ2Se5tiJhOXC84oz/sE=;
+        s=korg; t=1658938940;
+        bh=wqVnnehyqL07Uxo1ruuI3rShLmuNDpQvGUe5zZS3fY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6Tr1anyuPn1gEjhgUqmUDHWPDUMBZYvwRbng78E1Mg23VBmJIdaFS+LiulQs0Luq
-         VuVUQ7a+23vXV4dv8K3MIgomfxd+khTTV98I1DlBBw6ATmMI2OgNqz4aLoWO7dpgEi
-         gUvAoWz2GgvaZ53yRlAyI48S+Yo4dM36aFCjeudc=
+        b=AOapQWjYtgjxw/AY5WqBIYDNI/RNdSpxLCsuDNfd3dqfkLM2GBuhWYcvLcjZ8gLud
+         r2ZZRdZsmo5KxWERoWZx3VWlMfQE/wxigtlk63f5HyxZPIGvVyb+1asV3iv7kPqfFX
+         4Jk++lLqObMmXG4sPei/eqdJgRvZpErLkLMrnWDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 047/105] igmp: Fix data-races around sysctl_igmp_max_msf.
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/26] misc: rtsx_usb: use separate command and response buffers
 Date:   Wed, 27 Jul 2022 18:10:33 +0200
-Message-Id: <20220727161013.964437574@linuxfoundation.org>
+Message-Id: <20220727160959.317226011@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
+References: <20220727160959.122591422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +52,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 6ae0f2e553737b8cce49a1372573c81130ffa80e ]
+[ Upstream commit 3776c78559853fd151be7c41e369fd076fb679d5 ]
 
-While reading sysctl_igmp_max_msf, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+rtsx_usb uses same buffer for command and response. There could
+be a potential conflict using the same buffer for both especially
+if retries and timeouts are involved.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Use separate command and response buffers to avoid conflicts.
+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/07e3721804ff07aaab9ef5b39a5691d0718b9ade.1656642167.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c        | 2 +-
- net/ipv4/ip_sockglue.c | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/mfd/rtsx_usb.c       | 26 +++++++++++++++++---------
+ include/linux/mfd/rtsx_usb.h |  1 -
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 1a70664dcb1a..428cc3a4c36f 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -2384,7 +2384,7 @@ int ip_mc_source(int add, int omode, struct sock *sk, struct
- 	}
- 	/* else, add a new source to the filter */
+diff --git a/drivers/mfd/rtsx_usb.c b/drivers/mfd/rtsx_usb.c
+index b0ebd2299599..134c6fbd9c50 100644
+--- a/drivers/mfd/rtsx_usb.c
++++ b/drivers/mfd/rtsx_usb.c
+@@ -642,15 +642,18 @@ static int rtsx_usb_probe(struct usb_interface *intf,
  
--	if (psl && psl->sl_count >= net->ipv4.sysctl_igmp_max_msf) {
-+	if (psl && psl->sl_count >= READ_ONCE(net->ipv4.sysctl_igmp_max_msf)) {
- 		err = -ENOBUFS;
- 		goto done;
- 	}
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index ec6036713e2c..22507a6a3f71 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -783,7 +783,7 @@ static int ip_set_mcast_msfilter(struct sock *sk, sockptr_t optval, int optlen)
- 	/* numsrc >= (4G-140)/128 overflow in 32 bits */
- 	err = -ENOBUFS;
- 	if (gsf->gf_numsrc >= 0x1ffffff ||
--	    gsf->gf_numsrc > sock_net(sk)->ipv4.sysctl_igmp_max_msf)
-+	    gsf->gf_numsrc > READ_ONCE(sock_net(sk)->ipv4.sysctl_igmp_max_msf))
- 		goto out_free_gsf;
+ 	ucr->pusb_dev = usb_dev;
  
- 	err = -EINVAL;
-@@ -832,7 +832,7 @@ static int compat_ip_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
+-	ucr->iobuf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
+-	if (!ucr->iobuf)
++	ucr->cmd_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
++	if (!ucr->cmd_buf)
+ 		return -ENOMEM;
  
- 	/* numsrc >= (4G-140)/128 overflow in 32 bits */
- 	err = -ENOBUFS;
--	if (n > sock_net(sk)->ipv4.sysctl_igmp_max_msf)
-+	if (n > READ_ONCE(sock_net(sk)->ipv4.sysctl_igmp_max_msf))
- 		goto out_free_gsf;
- 	err = set_mcast_msfilter(sk, gf32->gf_interface, n, gf32->gf_fmode,
- 				 &gf32->gf_group, gf32->gf_slist);
-@@ -1242,7 +1242,7 @@ static int do_ip_setsockopt(struct sock *sk, int level, int optname,
- 		}
- 		/* numsrc >= (1G-4) overflow in 32 bits */
- 		if (msf->imsf_numsrc >= 0x3ffffffcU ||
--		    msf->imsf_numsrc > net->ipv4.sysctl_igmp_max_msf) {
-+		    msf->imsf_numsrc > READ_ONCE(net->ipv4.sysctl_igmp_max_msf)) {
- 			kfree(msf);
- 			err = -ENOBUFS;
- 			break;
++	ucr->rsp_buf = kmalloc(IOBUF_SIZE, GFP_KERNEL);
++	if (!ucr->rsp_buf)
++		goto out_free_cmd_buf;
++
+ 	usb_set_intfdata(intf, ucr);
+ 
+ 	ucr->vendor_id = id->idVendor;
+ 	ucr->product_id = id->idProduct;
+-	ucr->cmd_buf = ucr->rsp_buf = ucr->iobuf;
+ 
+ 	mutex_init(&ucr->dev_mutex);
+ 
+@@ -678,9 +681,11 @@ static int rtsx_usb_probe(struct usb_interface *intf,
+ 
+ out_init_fail:
+ 	usb_set_intfdata(ucr->pusb_intf, NULL);
+-	kfree(ucr->iobuf);
+-	ucr->iobuf = NULL;
+-	ucr->cmd_buf = ucr->rsp_buf = NULL;
++	kfree(ucr->rsp_buf);
++	ucr->rsp_buf = NULL;
++out_free_cmd_buf:
++	kfree(ucr->cmd_buf);
++	ucr->cmd_buf = NULL;
+ 	return ret;
+ }
+ 
+@@ -693,9 +698,12 @@ static void rtsx_usb_disconnect(struct usb_interface *intf)
+ 	mfd_remove_devices(&intf->dev);
+ 
+ 	usb_set_intfdata(ucr->pusb_intf, NULL);
+-	kfree(ucr->iobuf);
+-	ucr->iobuf = NULL;
+-	ucr->cmd_buf = ucr->rsp_buf = NULL;
++
++	kfree(ucr->cmd_buf);
++	ucr->cmd_buf = NULL;
++
++	kfree(ucr->rsp_buf);
++	ucr->rsp_buf = NULL;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/include/linux/mfd/rtsx_usb.h b/include/linux/mfd/rtsx_usb.h
+index d3d231afb17c..09b08ff08830 100644
+--- a/include/linux/mfd/rtsx_usb.h
++++ b/include/linux/mfd/rtsx_usb.h
+@@ -65,7 +65,6 @@ struct rtsx_ucr {
+ 	struct usb_device	*pusb_dev;
+ 	struct usb_interface	*pusb_intf;
+ 	struct usb_sg_request	current_sg;
+-	unsigned char		*iobuf;
+ 
+ 	struct timer_list	sg_timer;
+ 	struct mutex		dev_mutex;
 -- 
 2.35.1
 
