@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B44582FD1
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE986582F40
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242166AbiG0RaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:30:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58338 "EHLO
+        id S241999AbiG0RWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242393AbiG0R3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:29:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A16080526;
-        Wed, 27 Jul 2022 09:47:48 -0700 (PDT)
+        with ESMTP id S241819AbiG0RU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:20:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA254664CF;
+        Wed, 27 Jul 2022 09:45:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B0E5B8200D;
-        Wed, 27 Jul 2022 16:47:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0532EC433C1;
-        Wed, 27 Jul 2022 16:47:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1C12B8200D;
+        Wed, 27 Jul 2022 16:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB90C433C1;
+        Wed, 27 Jul 2022 16:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940437;
-        bh=jsF4LpQm777PxNt5/h+cNChfYSEvUrbp0KZNEszQamk=;
+        s=korg; t=1658940319;
+        bh=q4FJTfADqyAATI/6Vy4O68t1Bj6HIZ0dpHIGC62mgoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bo2Sp00JN+is7LRQH5e9eoHXZkOYSizB84pnapgJX/YvStm4+7Et1K4wpMpKxf2d2
-         Lk0LNMGI0BOb0f14ORtinW3MI5MvTDp/DaVrLXB8PGxvENutMbEKZwqrz87bAZuHk2
-         38FFLWE3G52RYawIPx8yvkfx7bLHw0mag7XekTvM=
+        b=XJUjcuBb60YyGq92FQOmdfX05hFWVIalbcPwUlKAghWcZ5/V0ie9H+C03pf1FUygJ
+         A2EneKa3AXGFR9U1v4FiF8VUhAcyp2qZbYADWqtGv9T4CCHcXRFnr4NSWeg0KxSeJQ
+         D5qYsyf1ZEnEittk0HGW6bMiYN50fjOsbU+yh2Fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 022/158] power/reset: arm-versatile: Fix refcount leak in versatile_reboot_probe
-Date:   Wed, 27 Jul 2022 18:11:26 +0200
-Message-Id: <20220727161022.356820953@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bhawanpreet Lakha <bhawanpreet.lakha@amd.com>,
+        Mikita Lipski <mikita.lipski@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 183/201] drm/amd/display: Optimize bandwidth on following fast update
+Date:   Wed, 27 Jul 2022 18:11:27 +0200
+Message-Id: <20220727161035.371672809@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +57,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 80192eff64eee9b3bc0594a47381937b94b9d65a ]
+commit 34316c1e561db0b24e341029f04a5a5bead9a7bc upstream.
 
-of_find_matching_node_and_match() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+[Why]
+The current call to optimize_bandwidth never occurs because flip is
+always pending from the FULL and FAST updates.
 
-Fixes: 0e545f57b708 ("power: reset: driver for the Versatile syscon reboot")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[How]
+Optimize on the following flip when it's a FAST update and we know we
+aren't going to be modifying the clocks again.
+
+Reviewed-by: Bhawanpreet Lakha <bhawanpreet.lakha@amd.com>
+Acked-by: Mikita Lipski <mikita.lipski@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/reset/arm-versatile-reboot.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c |   17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/power/reset/arm-versatile-reboot.c b/drivers/power/reset/arm-versatile-reboot.c
-index 08d0a07b58ef..c7624d7611a7 100644
---- a/drivers/power/reset/arm-versatile-reboot.c
-+++ b/drivers/power/reset/arm-versatile-reboot.c
-@@ -146,6 +146,7 @@ static int __init versatile_reboot_probe(void)
- 	versatile_reboot_type = (enum versatile_reboot)reboot_id->data;
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1788,6 +1788,11 @@ void dc_post_update_surfaces_to_stream(s
  
- 	syscon_regmap = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(syscon_regmap))
- 		return PTR_ERR(syscon_regmap);
+ 	post_surface_trace(dc);
  
--- 
-2.35.1
-
++	if (dc->ctx->dce_version >= DCE_VERSION_MAX)
++		TRACE_DCN_CLOCK_STATE(&context->bw_ctx.bw.dcn.clk);
++	else
++		TRACE_DCE_CLOCK_STATE(&context->bw_ctx.bw.dce);
++
+ 	if (is_flip_pending_in_pipes(dc, context))
+ 		return;
+ 
+@@ -2974,6 +2979,9 @@ void dc_commit_updates_for_stream(struct
+ 			if (new_pipe->plane_state && new_pipe->plane_state != old_pipe->plane_state)
+ 				new_pipe->plane_state->force_full_update = true;
+ 		}
++	} else if (update_type == UPDATE_TYPE_FAST) {
++		/* Previous frame finished and HW is ready for optimization. */
++		dc_post_update_surfaces_to_stream(dc);
+ 	}
+ 
+ 
+@@ -3030,15 +3038,6 @@ void dc_commit_updates_for_stream(struct
+ 				pipe_ctx->plane_state->force_full_update = false;
+ 		}
+ 	}
+-	/*let's use current_state to update watermark etc*/
+-	if (update_type >= UPDATE_TYPE_FULL) {
+-		dc_post_update_surfaces_to_stream(dc);
+-
+-		if (dc_ctx->dce_version >= DCE_VERSION_MAX)
+-			TRACE_DCN_CLOCK_STATE(&context->bw_ctx.bw.dcn.clk);
+-		else
+-			TRACE_DCE_CLOCK_STATE(&context->bw_ctx.bw.dce);
+-	}
+ 
+ 	return;
+ 
 
 
