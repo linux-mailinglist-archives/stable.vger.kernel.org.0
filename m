@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C53583137
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FEB5830F1
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242895AbiG0Rsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:48:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S242717AbiG0Rox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:44:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243201AbiG0RsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:48:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5505F2E9F7;
-        Wed, 27 Jul 2022 09:54:20 -0700 (PDT)
+        with ESMTP id S242884AbiG0Rnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:43:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D188AB22;
+        Wed, 27 Jul 2022 09:52:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2152BB821AC;
-        Wed, 27 Jul 2022 16:53:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0CEC433D6;
-        Wed, 27 Jul 2022 16:53:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 287ABB821C5;
+        Wed, 27 Jul 2022 16:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F31C433C1;
+        Wed, 27 Jul 2022 16:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940837;
-        bh=Nz5k/Pa4IhuCRVsu7UChZptB4Ka9QpSOYr0VI7yB1mQ=;
+        s=korg; t=1658940761;
+        bh=ccuhAFP7Pd2RNc4Jmg+ShmILDJdlYXwxHsxkBs6VuDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykKm8yErsQe6Tv6TWPNuFtE4//NY8UD0HEZuJX1lHLLykn8xJp8TqADhh2/8AhMpk
-         PMcnw058rnPUZ5Apz5ZZ4vUMZ4xuxrOquLVcrolUYhMM1Sgrxh0NUxW19a1N8/fn2o
-         eLunvE9up1j1AbR9VP9dWR2A+BVuPHnDnEFm47/s=
+        b=n1D1x3/47YuRjAFX5LNanRHhZsXuItYrr/d6o2kejSgg7k6YHlf6eo3AsGsyKnkP6
+         reql2QqBqnRW82Zm6Gy9hDQSiSa6kKreAOPZh2CS1U5wKmtnEOQp2fw7++BCtHg4m7
+         hC4Tq+fxNwFrXg+aY2f2Zl3nxNnQKdaPoBc6u0tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.18 131/158] spi: bcm2835: bcm2835_spi_handle_err(): fix NULL pointer deref for non DMA transfers
-Date:   Wed, 27 Jul 2022 18:13:15 +0200
-Message-Id: <20220727161026.649979100@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>
+Subject: [PATCH 5.18 132/158] KVM: Dont null dereference ops->destroy
+Date:   Wed, 27 Jul 2022 18:13:16 +0200
+Message-Id: <20220727161026.679104794@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -53,49 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 4ceaa684459d414992acbefb4e4c31f2dfc50641 upstream.
+commit e8bc2427018826e02add7b0ed0fc625a60390ae5 upstream.
 
-In case a IRQ based transfer times out the bcm2835_spi_handle_err()
-function is called. Since commit 1513ceee70f2 ("spi: bcm2835: Drop
-dma_pending flag") the TX and RX DMA transfers are unconditionally
-canceled, leading to NULL pointer derefs if ctlr->dma_tx or
-ctlr->dma_rx are not set.
+A KVM device cleanup happens in either of two callbacks:
+1) destroy() which is called when the VM is being destroyed;
+2) release() which is called when a device fd is closed.
 
-Fix the NULL pointer deref by checking that ctlr->dma_tx and
-ctlr->dma_rx are valid pointers before accessing them.
+Most KVM devices use 1) but Book3s's interrupt controller KVM devices
+(XICS, XIVE, XIVE-native) use 2) as they need to close and reopen during
+the machine execution. The error handling in kvm_ioctl_create_device()
+assumes destroy() is always defined which leads to NULL dereference as
+discovered by Syzkaller.
 
-Fixes: 1513ceee70f2 ("spi: bcm2835: Drop dma_pending flag")
-Cc: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/r/20220719072234.2782764-1-mkl@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This adds a checks for destroy!=NULL and adds a missing release().
+
+This is not changing kvm_destroy_devices() as devices with defined
+release() should have been removed from the KVM devices list by then.
+
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bcm2835.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ virt/kvm/kvm_main.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -1138,10 +1138,14 @@ static void bcm2835_spi_handle_err(struc
- 	struct bcm2835_spi *bs = spi_controller_get_devdata(ctlr);
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4299,8 +4299,11 @@ static int kvm_ioctl_create_device(struc
+ 		kvm_put_kvm_no_destroy(kvm);
+ 		mutex_lock(&kvm->lock);
+ 		list_del(&dev->vm_node);
++		if (ops->release)
++			ops->release(dev);
+ 		mutex_unlock(&kvm->lock);
+-		ops->destroy(dev);
++		if (ops->destroy)
++			ops->destroy(dev);
+ 		return ret;
+ 	}
  
- 	/* if an error occurred and we have an active dma, then terminate */
--	dmaengine_terminate_sync(ctlr->dma_tx);
--	bs->tx_dma_active = false;
--	dmaengine_terminate_sync(ctlr->dma_rx);
--	bs->rx_dma_active = false;
-+	if (ctlr->dma_tx) {
-+		dmaengine_terminate_sync(ctlr->dma_tx);
-+		bs->tx_dma_active = false;
-+	}
-+	if (ctlr->dma_rx) {
-+		dmaengine_terminate_sync(ctlr->dma_rx);
-+		bs->rx_dma_active = false;
-+	}
- 	bcm2835_spi_undo_prologue(bs);
- 
- 	/* and reset */
 
 
