@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CFA3582B3F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F59582C1B
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237401AbiG0Qak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:30:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34418 "EHLO
+        id S239221AbiG0QmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:42:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237414AbiG0Q36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:29:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F408C2645;
-        Wed, 27 Jul 2022 09:25:09 -0700 (PDT)
+        with ESMTP id S239240AbiG0Qlj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:41:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 231DC5B7A0;
+        Wed, 27 Jul 2022 09:29:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D754B821C8;
-        Wed, 27 Jul 2022 16:25:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C56F2C433C1;
-        Wed, 27 Jul 2022 16:25:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFB64B821BC;
+        Wed, 27 Jul 2022 16:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AF4C433C1;
+        Wed, 27 Jul 2022 16:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939108;
-        bh=0ZqCx0f3w4xzVKM7hqpvqH6GcIZzjcZOSWtNS/jyHXo=;
+        s=korg; t=1658939386;
+        bh=V0ufKcihEuhpCTK1oLhFFDvtxYa5zEyVxGoDNHTiRSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxwUsWxjZRgnmEijLf3r70Nd71s5NCyDo2MDjdyRMoMRSVFRfjIKr0sQYEJ9MqniG
-         d8w5hRz9nNgbLMIBVt3HGSecFH5w2Str2tFHkq5Ev5hcZ4nHsp3Sf4Ih/chrGN4Koh
-         df/BvJHZeGIojRJnZS2APalXDMK0dcVxq+SCCyoU=
+        b=sfybvKxZTw6fxNN1ESyAi4xzXmmEQlXU/LsCa9ySTW3dGESYR0Gp6nJzlo+BnByDJ
+         jzsoF8fcO/FYNUJeqRNt5tOKNVq3SAK3mepR3mAnaxGueSUVyMcdAeiYXtlxlXbta7
+         Q0ACg+EkXaWbsK0xiYo/88USXYuRj72SBYU7Ofxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/62] power/reset: arm-versatile: Fix refcount leak in versatile_reboot_probe
+Subject: [PATCH 5.4 20/87] tcp/dccp: Fix a data-race around sysctl_tcp_fwmark_accept.
 Date:   Wed, 27 Jul 2022 18:10:13 +0200
-Message-Id: <20220727161004.335900070@linuxfoundation.org>
+Message-Id: <20220727161009.838154557@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 80192eff64eee9b3bc0594a47381937b94b9d65a ]
+[ Upstream commit 1a0008f9df59451d0a17806c1ee1a19857032fa8 ]
 
-of_find_matching_node_and_match() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+While reading sysctl_tcp_fwmark_accept, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 0e545f57b708 ("power: reset: driver for the Versatile syscon reboot")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 84f39b08d786 ("net: support marking accepting TCP sockets")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/reset/arm-versatile-reboot.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/inet_sock.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/reset/arm-versatile-reboot.c b/drivers/power/reset/arm-versatile-reboot.c
-index 06d34ab47df5..8022c782f6ff 100644
---- a/drivers/power/reset/arm-versatile-reboot.c
-+++ b/drivers/power/reset/arm-versatile-reboot.c
-@@ -150,6 +150,7 @@ static int __init versatile_reboot_probe(void)
- 	versatile_reboot_type = (enum versatile_reboot)reboot_id->data;
+diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
+index 40f92f5a3047..58db7c69c146 100644
+--- a/include/net/inet_sock.h
++++ b/include/net/inet_sock.h
+@@ -107,7 +107,8 @@ static inline struct inet_request_sock *inet_rsk(const struct request_sock *sk)
  
- 	syscon_regmap = syscon_node_to_regmap(np);
-+	of_node_put(np);
- 	if (IS_ERR(syscon_regmap))
- 		return PTR_ERR(syscon_regmap);
+ static inline u32 inet_request_mark(const struct sock *sk, struct sk_buff *skb)
+ {
+-	if (!sk->sk_mark && sock_net(sk)->ipv4.sysctl_tcp_fwmark_accept)
++	if (!sk->sk_mark &&
++	    READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_fwmark_accept))
+ 		return skb->mark;
  
+ 	return sk->sk_mark;
 -- 
 2.35.1
 
