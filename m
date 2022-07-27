@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D23D1582D1D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD10582BAE
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240841AbiG0QzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:55:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55560 "EHLO
+        id S238460AbiG0QgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240824AbiG0Qwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2FA4F64F;
-        Wed, 27 Jul 2022 09:35:05 -0700 (PDT)
+        with ESMTP id S238468AbiG0Qfg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:35:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 132844F1A7;
+        Wed, 27 Jul 2022 09:27:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBB1F61A90;
-        Wed, 27 Jul 2022 16:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF02CC43140;
-        Wed, 27 Jul 2022 16:35:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B7FAB821C5;
+        Wed, 27 Jul 2022 16:27:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF883C433C1;
+        Wed, 27 Jul 2022 16:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939704;
-        bh=kZs9JDzZYR3FSSE5A7UZZCTDpN4sqytA4Vh3sGJMBXs=;
+        s=korg; t=1658939244;
+        bh=TX+Sdx7vNb92kNhrkYvV7Qs/pncP26B1lxcQyV/riF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R16yoMbKoMjsxqI7Qg833yNoWZzwiqXJk8/ozeZhwgJlu4u0Z36HY6CCRwPh0RgIK
-         zKOdeBeyBwiiRrLzRHBLUgNgGQfl6nUsniHmPhoRHwnAKPDR78VW6tygpqhVCkWaoL
-         /eq1AYW1bKq79hKekFLRpQoA5SqMjyogtPvBGt9o=
+        b=xKghRvpYgb/r7Hp5zuZmfCeVoYaEZ61wcFHqH/Bn5uxF7EAuv+GtvKzNerMsZwqjc
+         2UOSLiXLhuynHvd6T6/9mF+QTq6M9W3migTW2kw+6XCoZDGRS4nUc9f9Mbvv0thjC9
+         pBE7adO2Jp1vdaitrfWgPIM65lCJkVG7jrmHXWzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/105] tcp: Fix a data-race around sysctl_tcp_stdurg.
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 4.19 51/62] Bluetooth: Fix bt_skb_sendmmsg not allocating partial chunks
 Date:   Wed, 27 Jul 2022 18:11:00 +0200
-Message-Id: <20220727161015.026334309@linuxfoundation.org>
+Message-Id: <20220727161006.132537825@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 4e08ed41cb1194009fc1a916a59ce3ed4afd77cd ]
+commit 29fb608396d6a62c1b85acc421ad7a4399085b9f upstream.
 
-While reading sysctl_tcp_stdurg, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Since bt_skb_sendmmsg can be used with the likes of SOCK_STREAM it
+shall return the partial chunks it could allocate instead of freeing
+everything as otherwise it can cause problems like bellow.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Link: https://lore.kernel.org/r/d7206e12-1b99-c3be-84f4-df22af427ef5@molgen.mpg.de
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215594
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de> (Nokia N9 (MeeGo/Harmattan)
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/bluetooth/bluetooth.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 1dc1d62093b3..c89452761b3f 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5492,7 +5492,7 @@ static void tcp_check_urg(struct sock *sk, const struct tcphdr *th)
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	u32 ptr = ntohs(th->urg_ptr);
+--- a/include/net/bluetooth/bluetooth.h
++++ b/include/net/bluetooth/bluetooth.h
+@@ -423,8 +423,7 @@ static inline struct sk_buff *bt_skb_sen
  
--	if (ptr && !sock_net(sk)->ipv4.sysctl_tcp_stdurg)
-+	if (ptr && !READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_stdurg))
- 		ptr--;
- 	ptr += ntohl(th->seq);
+ 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
+ 		if (IS_ERR(tmp)) {
+-			kfree_skb(skb);
+-			return tmp;
++			return skb;
+ 		}
  
--- 
-2.35.1
-
+ 		len -= tmp->len;
 
 
