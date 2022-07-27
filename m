@@ -2,134 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69C5F581D0F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 03:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54A28581DE5
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 05:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231583AbiG0BZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Jul 2022 21:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40988 "EHLO
+        id S230200AbiG0DFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Jul 2022 23:05:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230014AbiG0BZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 21:25:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5221418B11;
-        Tue, 26 Jul 2022 18:25:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA9A56174B;
-        Wed, 27 Jul 2022 01:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37AC9C433D6;
-        Wed, 27 Jul 2022 01:25:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1658885136;
-        bh=lS1HCw/z9MMA8YEFiepqFCpyk8tYouQ+Q9DvnneSAXg=;
-        h=Date:To:From:Subject:From;
-        b=d95+KD/xBAHKwNlJmDzZ1qHqJWSM/aCGmZ7NpIdd5xEcWHdvsB8j/T1A0wXo8HJeU
-         oBhK1kSKXtPjp/1H+elwf+SmaEUSWVrpcdB8RSeaa5ILD+C1fFxqSibP6be6XzxZqW
-         /9go/Mo1Ekq++nQ+MjwIU/yfDxE4PaQp758KEPTk=
-Date:   Tue, 26 Jul 2022 18:25:34 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        rppt@linux.ibm.com, peterx@redhat.com, jthoughton@google.com,
-        jack@suse.cz, david@redhat.com, aarcange@redhat.com,
-        namit@vmware.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] userfaultfd-provide-properly-masked-address-for-huge-pages.patch removed from -mm tree
-Message-Id: <20220727012536.37AC9C433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229951AbiG0DFh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Jul 2022 23:05:37 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1738C65F2;
+        Tue, 26 Jul 2022 20:05:30 -0700 (PDT)
+X-UUID: 8ddcca28f3e343a7a983e1893a6d9012-20220727
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.8,REQID:aec9c1b2-c3a7-4584-adb0-8181bf0455eb,OB:0,LO
+        B:0,IP:0,URL:5,TC:0,Content:0,EDM:0,RT:0,SF:95,FILE:0,RULE:Release_Ham,ACT
+        ION:release,TS:100
+X-CID-INFO: VERSION:1.1.8,REQID:aec9c1b2-c3a7-4584-adb0-8181bf0455eb,OB:0,LOB:
+        0,IP:0,URL:5,TC:0,Content:0,EDM:0,RT:0,SF:95,FILE:0,RULE:Spam_GS981B3D,ACT
+        ION:quarantine,TS:100
+X-CID-META: VersionHash:0f94e32,CLOUDID:26e71fee-db04-4499-9fdf-04ef44b9468c,C
+        OID:631231a736d5,Recheck:0,SF:28|17|19|48,TC:nil,Content:0,EDM:-3,IP:nil,U
+        RL:1,File:nil,QS:nil,BEC:nil,COL:0
+X-UUID: 8ddcca28f3e343a7a983e1893a6d9012-20220727
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
+        (envelope-from <peter.wang@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 868283021; Wed, 27 Jul 2022 11:05:29 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.186) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.792.15; Wed, 27 Jul 2022 11:05:28 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.792.15 via Frontend Transport; Wed, 27 Jul 2022 11:05:28 +0800
+From:   <peter.wang@mediatek.com>
+To:     <stanley.chu@mediatek.com>, <linux-scsi@vger.kernel.org>,
+        <martin.petersen@oracle.com>, <avri.altman@wdc.com>,
+        <alim.akhtar@samsung.com>, <jejb@linux.ibm.com>
+CC:     <wsd_upstream@mediatek.com>, <linux-mediatek@lists.infradead.org>,
+        <peter.wang@mediatek.com>, <chun-hung.wu@mediatek.com>,
+        <alice.chao@mediatek.com>, <cc.chou@mediatek.com>,
+        <chaotian.jing@mediatek.com>, <jiajie.hao@mediatek.com>,
+        <powen.kao@mediatek.com>, <qilin.tan@mediatek.com>,
+        <lin.gui@mediatek.com>, <stable@vger.kernel.org>
+Subject: [PATCH v5] ufs: core: correct ufshcd_shutdown flow
+Date:   Wed, 27 Jul 2022 11:05:26 +0800
+Message-ID: <20220727030526.31022-1-peter.wang@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+MIME-Version: 1.0
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,MAY_BE_FORGED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,T_SPF_TEMPERROR,UNPARSEABLE_RELAY
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Peter Wang <peter.wang@mediatek.com>
 
-The quilt patch titled
-     Subject: userfaultfd: provide properly masked address for huge-pages
-has been removed from the -mm tree.  Its filename was
-     userfaultfd-provide-properly-masked-address-for-huge-pages.patch
+After ufshcd_wl_shutdown set device power off and link off,
+ufshcd_shutdown could turn off clock/power.
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Also remove pm_runtime_get_sync.
+The reason why here can remove pm_runtime_get_sync is because,
+(1) ufshcd_wl_shutdown -> pm_runtime_get_sync, will resume hba->dev too.
+(2) device resume(turn on clk/power) is not required, even if device is in RPM_SUSPENDED.
 
-------------------------------------------------------
-From: Nadav Amit <namit@vmware.com>
-Subject: userfaultfd: provide properly masked address for huge-pages
-Date: Mon, 11 Jul 2022 09:59:06 -0700
-
-Commit 824ddc601adc ("userfaultfd: provide unmasked address on
-page-fault") was introduced to fix an old bug, in which the offset in the
-address of a page-fault was masked.  Concerns were raised - although were
-never backed by actual code - that some userspace code might break because
-the bug has been around for quite a while.  To address these concerns a
-new flag was introduced, and only when this flag is set by the user,
-userfaultfd provides the exact address of the page-fault.
-
-The commit however had a bug, and if the flag is unset, the offset was
-always masked based on a base-page granularity.  Yet, for huge-pages, the
-behavior prior to the commit was that the address is masked to the
-huge-page granulrity.
-
-While there are no reports on real breakage, fix this issue.  If the flag
-is unset, use the address with the masking that was done before.
-
-Link: https://lkml.kernel.org/r/20220711165906.2682-1-namit@vmware.com
-Fixes: 824ddc601adc ("userfaultfd: provide unmasked address on page-fault")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reported-by: James Houghton <jthoughton@google.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: James Houghton <jthoughton@google.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Peter Wang <peter.wang@mediatek.com>
 ---
+ drivers/ufs/core/ufshcd.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
- fs/userfaultfd.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
---- a/fs/userfaultfd.c~userfaultfd-provide-properly-masked-address-for-huge-pages
-+++ a/fs/userfaultfd.c
-@@ -192,17 +192,19 @@ static inline void msg_init(struct uffd_
- }
- 
- static inline struct uffd_msg userfault_msg(unsigned long address,
-+					    unsigned long real_address,
- 					    unsigned int flags,
- 					    unsigned long reason,
- 					    unsigned int features)
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index c7b337480e3e..d13c76983555 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -9462,12 +9462,8 @@ EXPORT_SYMBOL(ufshcd_runtime_resume);
+ int ufshcd_shutdown(struct ufs_hba *hba)
  {
- 	struct uffd_msg msg;
-+
- 	msg_init(&msg);
- 	msg.event = UFFD_EVENT_PAGEFAULT;
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+-		goto out;
+-
+-	pm_runtime_get_sync(hba->dev);
++		ufshcd_suspend(hba);
  
--	if (!(features & UFFD_FEATURE_EXACT_ADDRESS))
--		address &= PAGE_MASK;
--	msg.arg.pagefault.address = address;
-+	msg.arg.pagefault.address = (features & UFFD_FEATURE_EXACT_ADDRESS) ?
-+				    real_address : address;
-+
- 	/*
- 	 * These flags indicate why the userfault occurred:
- 	 * - UFFD_PAGEFAULT_FLAG_WP indicates a write protect fault.
-@@ -488,8 +490,8 @@ vm_fault_t handle_userfault(struct vm_fa
- 
- 	init_waitqueue_func_entry(&uwq.wq, userfaultfd_wake_function);
- 	uwq.wq.private = current;
--	uwq.msg = userfault_msg(vmf->real_address, vmf->flags, reason,
--			ctx->features);
-+	uwq.msg = userfault_msg(vmf->address, vmf->real_address, vmf->flags,
-+				reason, ctx->features);
- 	uwq.ctx = ctx;
- 	uwq.waken = false;
- 
-_
-
-Patches currently in -mm which might be from namit@vmware.com are
-
+-	ufshcd_suspend(hba);
+-out:
+ 	hba->is_powered = false;
+ 	/* allow force shutdown even in case of errors */
+ 	return 0;
+-- 
+2.18.0
 
