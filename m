@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA6A58302C
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B918583039
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbiG0RfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:35:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40858 "EHLO
+        id S242259AbiG0RfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:35:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241544AbiG0ReJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D666110D;
-        Wed, 27 Jul 2022 09:49:00 -0700 (PDT)
+        with ESMTP id S242674AbiG0Reo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89CD883217;
+        Wed, 27 Jul 2022 09:49:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA7D9B821D5;
-        Wed, 27 Jul 2022 16:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E3EDC433D7;
-        Wed, 27 Jul 2022 16:48:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E1C5B8200D;
+        Wed, 27 Jul 2022 16:49:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC666C4314B;
+        Wed, 27 Jul 2022 16:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940537;
-        bh=+yI6fT1ua0UpK7wgbiWkBbblYjVdQFfX2LfImLTqYp8=;
+        s=korg; t=1658940543;
+        bh=1FNzOP63Yh7F+2bl4b9dtHLmiHFN1ZIPU25hzTFYPpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9Wd5J0fHHd17jIwqREFjWKTo7g9XETpSgVIazHzHitLrLdCqhSrE/CORsCWDR+zT
-         One48m9Cu//PSOgda6Ul17HF1/hnd8WAakzQIkQCghQxb2mCav40LheauQzMTjuP9u
-         N6QANSGf6Q76/EiZRNAj6rawH6iQDkNthK9Jbrh0=
+        b=1zX7W8fPbeH71zG9l0ZQzPXa096Q/RAi9uQJgMqVElAWgOemSaftRYexBL+B7UeT/
+         Z0PwfA6CXabRGvGOD1TRMTC7JMtTYvAb6K4OrtkWyb/2b6AdgkmuhdNi4lJf1Fdk8u
+         w9L3RruaZ9bhFbwC7GP0CDRjymSvbi3e1Fpc69mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Cedric Wassenaar <cedric@bytespeed.nl>,
+        Junxiao Chang <junxiao.chang@intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 058/158] pinctrl: ocelot: Fix pincfg
-Date:   Wed, 27 Jul 2022 18:12:02 +0200
-Message-Id: <20220727161023.844748060@linuxfoundation.org>
+Subject: [PATCH 5.18 059/158] net: stmmac: fix dma queue left shift overflow issue
+Date:   Wed, 27 Jul 2022 18:12:03 +0200
+Message-Id: <20220727161023.874713129@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -56,91 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Junxiao Chang <junxiao.chang@intel.com>
 
-[ Upstream commit ba9c4745fca70bf773b2d5c602dcd85d1a40b07a ]
+[ Upstream commit 613b065ca32e90209024ec4a6bb5ca887ee70980 ]
 
-The blamed commit changed to use regmaps instead of __iomem. But it
-didn't update the register offsets to be at word offset, so it uses byte
-offset.
-Another issue with the same commit is that it has a limit of 32 registers
-which is incorrect. The sparx5 has 64 while lan966x has 77.
+When queue number is > 4, left shift overflows due to 32 bits
+integer variable. Mask calculation is wrong for MTL_RXQ_DMA_MAP1.
 
-Fixes: 076d9e71bcf8 ("pinctrl: ocelot: convert pinctrl to regmap")
-Acked-by: Colin Foster <colin.foster@in-advantage.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20220713193750.4079621-3-horatiu.vultur@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+If CONFIG_UBSAN is enabled, kernel dumps below warning:
+[   10.363842] ==================================================================
+[   10.363882] UBSAN: shift-out-of-bounds in /build/linux-intel-iotg-5.15-8e6Tf4/
+linux-intel-iotg-5.15-5.15.0/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c:224:12
+[   10.363929] shift exponent 40 is too large for 32-bit type 'unsigned int'
+[   10.363953] CPU: 1 PID: 599 Comm: NetworkManager Not tainted 5.15.0-1003-intel-iotg
+[   10.363956] Hardware name: ADLINK Technology Inc. LEC-EL/LEC-EL, BIOS 0.15.11 12/22/2021
+[   10.363958] Call Trace:
+[   10.363960]  <TASK>
+[   10.363963]  dump_stack_lvl+0x4a/0x5f
+[   10.363971]  dump_stack+0x10/0x12
+[   10.363974]  ubsan_epilogue+0x9/0x45
+[   10.363976]  __ubsan_handle_shift_out_of_bounds.cold+0x61/0x10e
+[   10.363979]  ? wake_up_klogd+0x4a/0x50
+[   10.363983]  ? vprintk_emit+0x8f/0x240
+[   10.363986]  dwmac4_map_mtl_dma.cold+0x42/0x91 [stmmac]
+[   10.364001]  stmmac_mtl_configuration+0x1ce/0x7a0 [stmmac]
+[   10.364009]  ? dwmac410_dma_init_channel+0x70/0x70 [stmmac]
+[   10.364020]  stmmac_hw_setup.cold+0xf/0xb14 [stmmac]
+[   10.364030]  ? page_pool_alloc_pages+0x4d/0x70
+[   10.364034]  ? stmmac_clear_tx_descriptors+0x6e/0xe0 [stmmac]
+[   10.364042]  stmmac_open+0x39e/0x920 [stmmac]
+[   10.364050]  __dev_open+0xf0/0x1a0
+[   10.364054]  __dev_change_flags+0x188/0x1f0
+[   10.364057]  dev_change_flags+0x26/0x60
+[   10.364059]  do_setlink+0x908/0xc40
+[   10.364062]  ? do_setlink+0xb10/0xc40
+[   10.364064]  ? __nla_validate_parse+0x4c/0x1a0
+[   10.364068]  __rtnl_newlink+0x597/0xa10
+[   10.364072]  ? __nla_reserve+0x41/0x50
+[   10.364074]  ? __kmalloc_node_track_caller+0x1d0/0x4d0
+[   10.364079]  ? pskb_expand_head+0x75/0x310
+[   10.364082]  ? nla_reserve_64bit+0x21/0x40
+[   10.364086]  ? skb_free_head+0x65/0x80
+[   10.364089]  ? security_sock_rcv_skb+0x2c/0x50
+[   10.364094]  ? __cond_resched+0x19/0x30
+[   10.364097]  ? kmem_cache_alloc_trace+0x15a/0x420
+[   10.364100]  rtnl_newlink+0x49/0x70
+
+This change fixes MTL_RXQ_DMA_MAP1 mask issue and channel/queue
+mapping warning.
+
+Fixes: d43042f4da3e ("net: stmmac: mapping mtl rx to dma channel")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=216195
+Reported-by: Cedric Wassenaar <cedric@bytespeed.nl>
+Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ocelot.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
-index 2866365132fd..6ee9f0de8ede 100644
---- a/drivers/pinctrl/pinctrl-ocelot.c
-+++ b/drivers/pinctrl/pinctrl-ocelot.c
-@@ -1327,7 +1327,9 @@ static int ocelot_hw_get_value(struct ocelot_pinctrl *info,
- 		const struct ocelot_pincfg_data *opd = info->pincfg_data;
- 		u32 regcfg;
- 
--		ret = regmap_read(info->pincfg, pin, &regcfg);
-+		ret = regmap_read(info->pincfg,
-+				  pin * regmap_get_reg_stride(info->pincfg),
-+				  &regcfg);
- 		if (ret)
- 			return ret;
- 
-@@ -1359,14 +1361,18 @@ static int ocelot_pincfg_clrsetbits(struct ocelot_pinctrl *info, u32 regaddr,
- 	u32 val;
- 	int ret;
- 
--	ret = regmap_read(info->pincfg, regaddr, &val);
-+	ret = regmap_read(info->pincfg,
-+			  regaddr * regmap_get_reg_stride(info->pincfg),
-+			  &val);
- 	if (ret)
- 		return ret;
- 
- 	val &= ~clrbits;
- 	val |= setbits;
- 
--	ret = regmap_write(info->pincfg, regaddr, val);
-+	ret = regmap_write(info->pincfg,
-+			   regaddr * regmap_get_reg_stride(info->pincfg),
-+			   val);
- 
- 	return ret;
- }
-@@ -1926,7 +1932,8 @@ static const struct of_device_id ocelot_pinctrl_of_match[] = {
- 	{},
- };
- 
--static struct regmap *ocelot_pinctrl_create_pincfg(struct platform_device *pdev)
-+static struct regmap *ocelot_pinctrl_create_pincfg(struct platform_device *pdev,
-+						   const struct ocelot_pinctrl *info)
- {
- 	void __iomem *base;
- 
-@@ -1934,7 +1941,7 @@ static struct regmap *ocelot_pinctrl_create_pincfg(struct platform_device *pdev)
- 		.reg_bits = 32,
- 		.val_bits = 32,
- 		.reg_stride = 4,
--		.max_register = 32,
-+		.max_register = info->desc->npins * 4,
- 		.name = "pincfg",
- 	};
- 
-@@ -1995,7 +2002,7 @@ static int ocelot_pinctrl_probe(struct platform_device *pdev)
- 
- 	/* Pinconf registers */
- 	if (info->desc->confops) {
--		pincfg = ocelot_pinctrl_create_pincfg(pdev);
-+		pincfg = ocelot_pinctrl_create_pincfg(pdev, info);
- 		if (IS_ERR(pincfg))
- 			dev_dbg(dev, "Failed to create pincfg regmap\n");
- 		else
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index fd41db65fe1d..af3339041134 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -219,6 +219,9 @@ static void dwmac4_map_mtl_dma(struct mac_device_info *hw, u32 queue, u32 chan)
+ 	if (queue == 0 || queue == 4) {
+ 		value &= ~MTL_RXQ_DMA_Q04MDMACH_MASK;
+ 		value |= MTL_RXQ_DMA_Q04MDMACH(chan);
++	} else if (queue > 4) {
++		value &= ~MTL_RXQ_DMA_QXMDMACH_MASK(queue - 4);
++		value |= MTL_RXQ_DMA_QXMDMACH(chan, queue - 4);
+ 	} else {
+ 		value &= ~MTL_RXQ_DMA_QXMDMACH_MASK(queue);
+ 		value |= MTL_RXQ_DMA_QXMDMACH(chan, queue);
 -- 
 2.35.1
 
