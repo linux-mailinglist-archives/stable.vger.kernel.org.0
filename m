@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BAD1583080
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773EA583091
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242048AbiG0Riy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:38:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59654 "EHLO
+        id S235233AbiG0Rjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:39:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242674AbiG0RiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:38:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D945C8720C;
-        Wed, 27 Jul 2022 09:50:38 -0700 (PDT)
+        with ESMTP id S242779AbiG0RjO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:39:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515B061D51;
+        Wed, 27 Jul 2022 09:51:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8263061703;
-        Wed, 27 Jul 2022 16:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC19C433D6;
-        Wed, 27 Jul 2022 16:50:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0DD4B821D5;
+        Wed, 27 Jul 2022 16:50:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BA7C433C1;
+        Wed, 27 Jul 2022 16:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940637;
-        bh=o+akZ35ZAEw0I3rv/1uVKaBlVR4impvq0HOGY5wcKYc=;
+        s=korg; t=1658940640;
+        bh=AIwM/I+phVjD+oYqdvliQ+tHcIar9EIALVjDGeHJd4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mR3snXN57K0UJiorfNTINx2sh+2vxSb4hw6DXTC1zcb5SMWnaTxZA7lzYzc5sb8cz
-         7uVeKdzoZbOJPfPljJtVeYGPZyMudvwettZGcuNiURcx7TQXJ56Pwqe7fAIuZzBCOm
-         dQQWwMJQMRvNryxaZCyvxSu0CM0+daaxvLSbD3RE=
+        b=SdxgVNPy9gkg8N/zpHCKHMvrmakYOTzwaiLB8RDNBUpDoLA8mQwMpDC5HpBQdZKE2
+         V8c1Y6UJSIEUQQQ2lX6xxCC0OGczpQcSiP77edbvTKU/h/4XIprtsulNB7C9L6DgRr
+         KMozNEfUv3/WdmMvOZfkokBY+g5GcvhemahF4qxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 093/158] net: dsa: fix NULL pointer dereference in dsa_port_reset_vlan_filtering
-Date:   Wed, 27 Jul 2022 18:12:37 +0200
-Message-Id: <20220727161025.191624282@linuxfoundation.org>
+Subject: [PATCH 5.18 094/158] net: stmmac: remove redunctant disable xPCS EEE call
+Date:   Wed, 27 Jul 2022 18:12:38 +0200
+Message-Id: <20220727161025.231313079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -53,52 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
 
-[ Upstream commit 1699b4d502eda3c7ea4070debad3ee570b5091b1 ]
+[ Upstream commit da791bac104a3169b05b54270afe75daacba4641 ]
 
-The "ds" iterator variable used in dsa_port_reset_vlan_filtering() ->
-dsa_switch_for_each_port() overwrites the "dp" received as argument,
-which is later used to call dsa_port_vlan_filtering() proper.
+Disable is done in stmmac_init_eee() on the event of MAC link down.
+Since setting enable/disable EEE via ethtool will eventually trigger
+a MAC down, removing this redunctant call in stmmac_ethtool.c to avoid
+calling xpcs_config_eee() twice.
 
-As a result, switches which do enter that code path (the ones with
-vlan_filtering_is_global=true) will dereference an invalid dp in
-dsa_port_reset_vlan_filtering() after leaving a VLAN-aware bridge.
-
-Use a dedicated "other_dp" iterator variable to avoid this from
-happening.
-
-Fixes: d0004a020bb5 ("net: dsa: remove the "dsa_to_port in a loop" antipattern from the core")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: d4aeaed80b0e ("net: stmmac: trigger PCS EEE to turn off on link down")
+Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Link: https://lore.kernel.org/r/20220715122402.1017470-1-vee.khee.wong@linux.intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/port.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/net/dsa/port.c b/net/dsa/port.c
-index 6aab5768ef96..7bc79e28d48e 100644
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -248,6 +248,7 @@ static void dsa_port_reset_vlan_filtering(struct dsa_port *dp,
- 	struct netlink_ext_ack extack = {0};
- 	bool change_vlan_filtering = false;
- 	struct dsa_switch *ds = dp->ds;
-+	struct dsa_port *other_dp;
- 	bool vlan_filtering;
- 	int err;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+index abfb3cd5958d..9c3055ee2608 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+@@ -803,14 +803,6 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
+ 		netdev_warn(priv->dev,
+ 			    "Setting EEE tx-lpi is not supported\n");
  
-@@ -270,8 +271,8 @@ static void dsa_port_reset_vlan_filtering(struct dsa_port *dp,
- 	 * VLAN-aware bridge.
- 	 */
- 	if (change_vlan_filtering && ds->vlan_filtering_is_global) {
--		dsa_switch_for_each_port(dp, ds) {
--			struct net_device *br = dsa_port_bridge_dev_get(dp);
-+		dsa_switch_for_each_port(other_dp, ds) {
-+			struct net_device *br = dsa_port_bridge_dev_get(other_dp);
+-	if (priv->hw->xpcs) {
+-		ret = xpcs_config_eee(priv->hw->xpcs,
+-				      priv->plat->mult_fact_100ns,
+-				      edata->eee_enabled);
+-		if (ret)
+-			return ret;
+-	}
+-
+ 	if (!edata->eee_enabled)
+ 		stmmac_disable_eee_mode(priv);
  
- 			if (br && br_vlan_enabled(br)) {
- 				change_vlan_filtering = false;
 -- 
 2.35.1
 
