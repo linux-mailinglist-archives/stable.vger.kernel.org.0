@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB3C58312A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFAE3583133
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238249AbiG0Rrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51350 "EHLO
+        id S243237AbiG0RsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243055AbiG0RrB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:47:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F7A8C8F4;
-        Wed, 27 Jul 2022 09:53:54 -0700 (PDT)
+        with ESMTP id S243066AbiG0Rrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:47:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2ABC8CE8F;
+        Wed, 27 Jul 2022 09:54:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D69CB821BE;
-        Wed, 27 Jul 2022 16:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD1EBC433B5;
-        Wed, 27 Jul 2022 16:53:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88B95600BE;
+        Wed, 27 Jul 2022 16:53:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92647C433C1;
+        Wed, 27 Jul 2022 16:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940829;
-        bh=zkO/9ryiqC/LNgFhXI//VGH66ltD+m2e3mz8jrIhSMc=;
+        s=korg; t=1658940832;
+        bh=wf8BNnkAc+gkIrTF0feT5mq5TPqrtY31kJFzXpcVfcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpImecHESHFHnv/+v+92Xl9U1KIG3SbeLpnwOZlC0ddfoYqz1stkVJNwlkCX3QIPB
-         7P4Cr3floM+K0JPtwtTUPnJQT38UKtlyrg9+gwAOwm2LOpe4z/UBNdQGzc6b6G34T2
-         +PFgh0L7we79fb/KfeDIAEGgr/RpKa29mgpDVfxI=
+        b=n9S7AIQrx6IrKO/lboJ0l9jxgTvYwwRajm1ZGWFjAUy29hOYXtPekY/llg92AB5kH
+         B/c6/TMwd6Hz4aKi3D1azg810cghIVEeLpFUDVwBdPD36MlY56mA8uBNTZA8HSEP1P
+         qlHwquNjr4QjLNiGBA8pk2Dw1aIqyJXQmywoy8DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Michael Walle <michael@walle.cc>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.18 138/158] clk: lan966x: Fix the lan966x clock gate register address
-Date:   Wed, 27 Jul 2022 18:13:22 +0200
-Message-Id: <20220727161026.906148348@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 139/158] dlm: fix pending remove if msg allocation fails
+Date:   Wed, 27 Jul 2022 18:13:23 +0200
+Message-Id: <20220727161026.936455745@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -54,38 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herve Codina <herve.codina@bootlin.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 25c2a075eb6a3031813b6051bd10dfc22c36a2a4 upstream.
+[ Upstream commit ba58995909b5098ca4003af65b0ccd5a8d13dd25 ]
 
-The register address used for the clock gate register is the base
-register address coming from first reg map (ie. the generic
-clock registers) instead of the second reg map defining the clock
-gate register.
+This patch unsets ls_remove_len and ls_remove_name if a message
+allocation of a remove messages fails. In this case we never send a
+remove message out but set the per ls ls_remove_len ls_remove_name
+variable for a pending remove. Unset those variable should indicate
+possible waiters in wait_pending_remove() that no pending remove is
+going on at this moment.
 
-Use the correct clock gate register address.
-
-Fixes: 5ad5915dea00 ("clk: lan966x: Extend lan966x clock driver for clock gating support")
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-Link: https://lore.kernel.org/r/20220704102845.168438-2-herve.codina@bootlin.com
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Tested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-lan966x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/lock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/clk-lan966x.c
-+++ b/drivers/clk/clk-lan966x.c
-@@ -213,7 +213,7 @@ static int lan966x_gate_clk_register(str
+diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
+index 5b485cd96c93..5298a3a43bc7 100644
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -4085,13 +4085,14 @@ static void send_repeat_remove(struct dlm_ls *ls, char *ms_name, int len)
+ 	rv = _create_message(ls, sizeof(struct dlm_message) + len,
+ 			     dir_nodeid, DLM_MSG_REMOVE, &ms, &mh);
+ 	if (rv)
+-		return;
++		goto out;
  
- 		hw_data->hws[i] =
- 			devm_clk_hw_register_gate(dev, clk_gate_desc[idx].name,
--						  "lan966x", 0, base,
-+						  "lan966x", 0, gate_base,
- 						  clk_gate_desc[idx].bit_idx,
- 						  0, &clk_gate_lock);
+ 	memcpy(ms->m_extra, name, len);
+ 	ms->m_hash = hash;
  
+ 	send_message(mh, ms);
+ 
++out:
+ 	spin_lock(&ls->ls_remove_spin);
+ 	ls->ls_remove_len = 0;
+ 	memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
+-- 
+2.35.1
+
 
 
