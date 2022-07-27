@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E90582F94
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5F0582C4B
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233562AbiG0R2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:28:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58338 "EHLO
+        id S239868AbiG0Qou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:44:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241485AbiG0R1b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:27:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE6D7E83A;
-        Wed, 27 Jul 2022 09:47:13 -0700 (PDT)
+        with ESMTP id S240212AbiG0QoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14063BC06;
+        Wed, 27 Jul 2022 09:30:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B2D3B821BE;
-        Wed, 27 Jul 2022 16:47:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B4AEC4347C;
-        Wed, 27 Jul 2022 16:47:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97D18619FD;
+        Wed, 27 Jul 2022 16:30:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6111C433D7;
+        Wed, 27 Jul 2022 16:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940427;
-        bh=0RyaagzoJehFp4OnNWJ66rEEeBYyrXWn1vmn7EOA0OQ=;
+        s=korg; t=1658939449;
+        bh=0nPcMk7X2zRWW6IEONlkgBKjawbM0P/bEPivCLl7JwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tarvzgdnSPN+IuyxGGw1diutkYg8QYBqeWCkCKisVwB1d2aQ+SJsQvJ09zGmv4l4W
-         3YetAl2jCtEE+xwU5Lz+dxqwWaC5hTN8FkOAIY99pr+UVahJ3afkYq4VG0MnTqs28r
-         3End9/+zn55CH/RTRyCKokr5KWRBvEGIknJibEnw=
+        b=R0bLRql+90Ym3LF+bTVxOQ+Ly7ruLKS6FS4eI7Dmdcshn24QfQkHO5S/7PAmYm9yq
+         XC1tgLQ8A/lbGawh26Djck7TG/djGGSY7pugBLnpQuvyRYHElZ3L9XlLTfLj2cGWj8
+         3VJyMP0Fx0eA5ExnydGsvZa0P2Cfipi1F9ncEQJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabien Dessenne <fabien.dessenne@foss.st.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.18 002/158] pinctrl: stm32: fix optional IRQ support to gpios
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 73/87] ALSA: memalloc: Align buffer allocations in page size
 Date:   Wed, 27 Jul 2022 18:11:06 +0200
-Message-Id: <20220727161021.529993485@linuxfoundation.org>
+Message-Id: <20220727161012.026313331@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Dessenne <fabien.dessenne@foss.st.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit a1d4ef1adf8bbd302067534ead671a94759687ed upstream.
+commit 5c1733e33c888a3cb7f576564d8ad543d5ad4a9e upstream.
 
-To act as an interrupt controller, a gpio bank relies on the
-"interrupt-parent" of the pin controller.
-When this optional "interrupt-parent" misses, do not create any IRQ domain.
+Currently the standard memory allocator (snd_dma_malloc_pages*())
+passes the byte size to allocate as is.  Most of the backends
+allocates real pages, hence the actual allocations are aligned in page
+size.  However, the genalloc doesn't seem assuring the size alignment,
+hence it may result in the access outside the buffer when the whole
+memory pages are exposed via mmap.
 
-This fixes a "NULL pointer in stm32_gpio_domain_alloc()" kernel crash when
-the interrupt-parent = <exti> property is not declared in the Device Tree.
+For avoiding such inconsistencies, this patch makes the allocation
+size always to be aligned in page size.
 
-Fixes: 0eb9f683336d ("pinctrl: Add IRQ support to STM32 gpios")
-Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
-Link: https://lore.kernel.org/r/20220627142350.742973-1-fabien.dessenne@foss.st.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Note that, after this change, snd_dma_buffer.bytes field contains the
+aligned size, not the originally requested size.  This value is also
+used for releasing the pages in return.
+
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20201218145625.2045-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ sound/core/memalloc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -1299,15 +1299,17 @@ static int stm32_gpiolib_register_bank(s
- 	bank->bank_ioport_nr = bank_ioport_nr;
- 	spin_lock_init(&bank->lock);
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -124,6 +124,7 @@ int snd_dma_alloc_pages(int type, struct
+ 	if (WARN_ON(!device))
+ 		return -EINVAL;
  
--	/* create irq hierarchical domain */
--	bank->fwnode = of_node_to_fwnode(np);
-+	if (pctl->domain) {
-+		/* create irq hierarchical domain */
-+		bank->fwnode = of_node_to_fwnode(np);
-+
-+		bank->domain = irq_domain_create_hierarchy(pctl->domain, 0, STM32_GPIO_IRQ_LINE,
-+							   bank->fwnode, &stm32_gpio_domain_ops,
-+							   bank);
- 
--	bank->domain = irq_domain_create_hierarchy(pctl->domain, 0,
--					STM32_GPIO_IRQ_LINE, bank->fwnode,
--					&stm32_gpio_domain_ops, bank);
--
--	if (!bank->domain)
--		return -ENODEV;
-+		if (!bank->domain)
-+			return -ENODEV;
-+	}
- 
- 	err = gpiochip_add_data(&bank->gpio_chip, bank);
- 	if (err) {
-@@ -1466,6 +1468,8 @@ int stm32_pctl_probe(struct platform_dev
- 	pctl->domain = stm32_pctrl_get_irq_domain(np);
- 	if (IS_ERR(pctl->domain))
- 		return PTR_ERR(pctl->domain);
-+	if (!pctl->domain)
-+		dev_warn(dev, "pinctrl without interrupt support\n");
- 
- 	/* hwspinlock is optional */
- 	hwlock_id = of_hwspin_lock_get_id(pdev->dev.of_node, 0);
++	size = PAGE_ALIGN(size);
+ 	dmab->dev.type = type;
+ 	dmab->dev.dev = device;
+ 	dmab->bytes = 0;
 
 
