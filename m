@@ -2,122 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE47A58329A
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 21:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2613958329C
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 21:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232957AbiG0TAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 15:00:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
+        id S229744AbiG0TBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 15:01:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232849AbiG0TAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 15:00:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC11374DF5;
-        Wed, 27 Jul 2022 11:11:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5974D61988;
-        Wed, 27 Jul 2022 18:11:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD6EC433C1;
-        Wed, 27 Jul 2022 18:11:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658945466;
-        bh=Mom6Ph0FsAAZ+C+h67Qnnz+WO0GGSqzSCicWOfVwSFc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RuKOM3Ol94eIS35+inrZhT7DED0Yq1YgX9yUMQFL7diTl8EruJ3Xk+o8nrTVlyX7a
-         H7msQA5o2kYik/cqyALUfZN9FHx4wehSeGCpNxzqqHZp8RhzOnK1bowgIn8SYa4gfQ
-         3MNzOqVTdOJhOAJVxDb4SdE4zZ+1osqEyrQ7pI4Q=
-Date:   Wed, 27 Jul 2022 20:11:03 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Xiaoming Ni <nixiaoming@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Iurii Zaikin <yzaikin@google.com>, Jan Kara <jack@suse.cz>,
-        Paul Turner <pjt@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>, Qing Wang <wangqing@vivo.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Stephen Kitt <steve@sk2.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Antti Palosaari <crope@iki.fi>, Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Clemens Ladisch <clemens@ladisch.de>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Julia Lawall <julia.lawall@inria.fr>,
-        Lukas Middendorf <kernel@tuxforce.de>,
-        Mark Fasheh <mark@fasheh.com>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        John Ogness <john.ogness@linutronix.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.15 040/201] sysctl: move some boundary constants from
- sysctl.c to sysctl_vals
-Message-ID: <YuF/t6/DtsGPLQVc@kroah.com>
-References: <20220727161026.977588183@linuxfoundation.org>
- <20220727161028.534205480@linuxfoundation.org>
- <YuF2eU9SbDDHdqaU@bombadil.infradead.org>
+        with ESMTP id S231382AbiG0TBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 15:01:06 -0400
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BB589AAC;
+        Wed, 27 Jul 2022 11:12:20 -0700 (PDT)
+Received: by mail-pg1-f181.google.com with SMTP id f65so16529807pgc.12;
+        Wed, 27 Jul 2022 11:12:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=RNVMJ4oZ8yHzMS/5F5vQFWD6tQYWHNz7yT3+sY7HxXA=;
+        b=nRkfNNrYt2ZK4DUimkI7vzomXYnIKfQkIWhgYp8MuyFsieNr3q9mU9OfuE5e3Pjoth
+         3fCR9Tfp+f9vPEMshygga+rp/9H45P+onm8Dbmm95ji+4TmzoO2hGmMPEti5BZYe2GCS
+         u3F91Rzf4J6ifJqNKvnxtfPYeO7qfJ1xPfPp4uQRooqJhVmmtpWeWRGHQNEaCoqSrq0q
+         Je7RkjTfjvPdTELu9dr/FcSQMr29FYRJfKsC37/qZVk6J5uzEZ99wmnuhu8TcrL2Km0/
+         senzB/A0MCFTymWwPfs+JU/svyaIooyPpylxO0Ouru517XmxKrbhIAvry0+ej1/62VIU
+         GKBQ==
+X-Gm-Message-State: AJIora8oNOt9fyUPhrXjuKJOOmCLdYKz2OG87WMWk9HyeQ61aGud6uMa
+        GWMnfBGYwBN7x8Rfe3QRvIw=
+X-Google-Smtp-Source: AGRyM1usI0Gt657atV+HPb4lgLIOIMc5MiSpXSfWbHnB7XKqfY5gstwVxG7jNUFV+C3r+yvf7zuFPQ==
+X-Received: by 2002:a05:6a00:1946:b0:52a:e551:2241 with SMTP id s6-20020a056a00194600b0052ae5512241mr22626795pfk.29.1658945539275;
+        Wed, 27 Jul 2022 11:12:19 -0700 (PDT)
+Received: from ?IPV6:2620:15c:211:201:a84e:2ec1:1b57:b033? ([2620:15c:211:201:a84e:2ec1:1b57:b033])
+        by smtp.gmail.com with ESMTPSA id h13-20020a170902680d00b0016ce31cfea6sm14180388plk.159.2022.07.27.11.12.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Jul 2022 11:12:18 -0700 (PDT)
+Message-ID: <5fab3d4f-914e-63f8-a3e8-7dd92ecdb04a@acm.org>
+Date:   Wed, 27 Jul 2022 11:12:15 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YuF2eU9SbDDHdqaU@bombadil.infradead.org>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v4] ufs: core: fix lockdep warning of clk_scaling_lock
+Content-Language: en-US
+To:     peter.wang@mediatek.com, stanley.chu@mediatek.com,
+        linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
+        avri.altman@wdc.com, alim.akhtar@samsung.com, jejb@linux.ibm.com
+Cc:     wsd_upstream@mediatek.com, linux-mediatek@lists.infradead.org,
+        chun-hung.wu@mediatek.com, alice.chao@mediatek.com,
+        cc.chou@mediatek.com, chaotian.jing@mediatek.com,
+        jiajie.hao@mediatek.com, powen.kao@mediatek.com,
+        qilin.tan@mediatek.com, lin.gui@mediatek.com,
+        stable@vger.kernel.org
+References: <20220727032110.31168-1-peter.wang@mediatek.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20220727032110.31168-1-peter.wang@mediatek.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 27, 2022 at 10:31:37AM -0700, Luis Chamberlain wrote:
-> On Wed, Jul 27, 2022 at 06:09:04PM +0200, Greg Kroah-Hartman wrote:
-> > From: Xiaoming Ni <nixiaoming@huawei.com>
-> > 
-> > [ Upstream commit 78e36f3b0dae586f623c4a37ec5eb5496f5abbe1 ]
-> > 
-> > sysctl has helpers which let us specify boundary values for a min or max
-> > int value.  Since these are used for a boundary check only they don't
-> > change, so move these variables to sysctl_vals to avoid adding duplicate
-> > variables.  This will help with our cleanup of kernel/sysctl.c.
-> > 
-> > [akpm@linux-foundation.org: update it for "mm/pagealloc: sysctl: change watermark_scale_factor max limit to 30%"]
-> > [mcgrof@kernel.org: major rebase]
-> > 
-> > Link: https://lkml.kernel.org/r/20211123202347.818157-3-mcgrof@kernel.org
-> > Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-> > Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-> > Reviewed-by: Kees Cook <keescook@chromium.org>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> I'm a bit puzzled. How / why is this a stable fix?
+On 7/26/22 20:21, peter.wang@mediatek.com wrote:
+> -	/* Enable Write Booster if we have scaled up else disable it */
+> -	downgrade_write(&hba->clk_scaling_lock);
+> -	is_writelock = false;
+> -	ufshcd_wb_toggle(hba, scale_up);
+> +	/* Disable clk_scaling until ufshcd_wb_toggle finish */
+> +	hba->clk_scaling.is_allowed = false;
+> +	wb_toggle = true;
+>   
+>   out_unprepare:
+> -	ufshcd_clock_scaling_unprepare(hba, is_writelock);
+> +	ufshcd_clock_scaling_unprepare(hba);
+> +
+> +	/* Enable Write Booster if we have scaled up else disable it */
+> +	if (wb_toggle) {
+> +		ufshcd_wb_toggle(hba, scale_up);
+> +		ufshcd_clk_scaling_allow(hba, true);
+> +	}
 
-I think it's needed by a patch later in the series.  Sasha, can you
-verify?
+I'm concerned that briefly disabling clock scaling may cause the clock 
+to remain at a high frequency even if it shouldn't. Has the following 
+approach been considered? Instead of moving the 
+ufshcd_clk_scaling_allow() call, convert dev_cmd.lock into a semaphore, 
+lock it near the start of ufshcd_devfreq_scale() and unlock it near the 
+end of the same function.
 
-thanks,
+Thanks,
 
-greg k-h
+Bart.
