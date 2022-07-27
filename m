@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 479BB582D3B
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676D0582A9E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:22:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240904AbiG0QzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:55:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41090 "EHLO
+        id S235069AbiG0QWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:22:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241331AbiG0Qyv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:51 -0400
+        with ESMTP id S234962AbiG0QWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B4663937;
-        Wed, 27 Jul 2022 09:35:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7CC4B0DD;
+        Wed, 27 Jul 2022 09:22:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B54361A17;
-        Wed, 27 Jul 2022 16:35:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1582C433D6;
-        Wed, 27 Jul 2022 16:35:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC85761995;
+        Wed, 27 Jul 2022 16:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090EDC433C1;
+        Wed, 27 Jul 2022 16:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939752;
-        bh=ZYBgVhBf4Y5UPzqyzMyENpzvIw143pIV6jubCoCnA6U=;
+        s=korg; t=1658938923;
+        bh=WOj+s5vKPdoTepok1yhOUhX1S4XBseNZDgBPvkKvjHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNILo5PLlki6zpAl5lO7eCinNN8M+BmYoDdDzjwr4pSZdBpfV5QqBggTvFjXfQQR4
-         7CnSXXrHn3vueXEx9psE2yKBb4NrfE9UUB1w6nrcv+1iD9zUTCOZQSEB3qWw2cbb3B
-         VwNeVH3+ZZE18Vmv+3iu5BMRTl6ryGjk085iJsEc=
+        b=Om9LuwHireBxHycKymkBrJ7pQt8ov8KZX8FR8OPw4n8GnylUhZ1Y4A3O4OaMKGpm4
+         uivkhJ5UmwcNvC7LzAc6vccwJ48y2rhoS6bnGKSXGP4JaZDZ6EYc4A8KBrvJ9cemul
+         wU07Kqw00zRIKMsiOsQAh4tgR575Y7zjrwpPkv/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Skajewski <piotrx.skajewski@intel.com>,
-        Marek Szlosek <marek.szlosek@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/105] ixgbe: Add locking to prevent panic when setting sriov_numvfs to zero
+Subject: [PATCH 4.9 16/26] be2net: Fix buffer overflow in be_get_module_eeprom
 Date:   Wed, 27 Jul 2022 18:10:45 +0200
-Message-Id: <20220727161014.460659563@linuxfoundation.org>
+Message-Id: <20220727160959.770313545@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
+References: <20220727160959.122591422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,136 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Skajewski <piotrx.skajewski@intel.com>
+From: Hristo Venev <hristo@venev.name>
 
-[ Upstream commit 1e53834ce541d4fe271cdcca7703e50be0a44f8a ]
+[ Upstream commit d7241f679a59cfe27f92cb5c6272cb429fb1f7ec ]
 
-It is possible to disable VFs while the PF driver is processing requests
-from the VF driver.  This can result in a panic.
+be_cmd_read_port_transceiver_data assumes that it is given a buffer that
+is at least PAGE_DATA_LEN long, or twice that if the module supports SFF
+8472. However, this is not always the case.
 
-BUG: unable to handle kernel paging request at 000000000000106c
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP NOPTI
-CPU: 8 PID: 0 Comm: swapper/8 Kdump: loaded Tainted: G I      --------- -
-Hardware name: Dell Inc. PowerEdge R740/06WXJT, BIOS 2.8.2 08/27/2020
-RIP: 0010:ixgbe_msg_task+0x4c8/0x1690 [ixgbe]
-Code: 00 00 48 8d 04 40 48 c1 e0 05 89 7c 24 24 89 fd 48 89 44 24 10 83 ff
-01 0f 84 b8 04 00 00 4c 8b 64 24 10 4d 03 a5 48 22 00 00 <41> 80 7c 24 4c
-00 0f 84 8a 03 00 00 0f b7 c7 83 f8 08 0f 84 8f 0a
-RSP: 0018:ffffb337869f8df8 EFLAGS: 00010002
-RAX: 0000000000001020 RBX: 0000000000000000 RCX: 000000000000002b
-RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000006
-RBP: 0000000000000006 R08: 0000000000000002 R09: 0000000000029780
-R10: 00006957d8f42832 R11: 0000000000000000 R12: 0000000000001020
-R13: ffff8a00e8978ac0 R14: 000000000000002b R15: ffff8a00e8979c80
-FS:  0000000000000000(0000) GS:ffff8a07dfd00000(0000) knlGS:00000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000000000106c CR3: 0000000063e10004 CR4: 00000000007726e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- <IRQ>
- ? ttwu_do_wakeup+0x19/0x140
- ? try_to_wake_up+0x1cd/0x550
- ? ixgbevf_update_xcast_mode+0x71/0xc0 [ixgbevf]
- ixgbe_msix_other+0x17e/0x310 [ixgbe]
- __handle_irq_event_percpu+0x40/0x180
- handle_irq_event_percpu+0x30/0x80
- handle_irq_event+0x36/0x53
- handle_edge_irq+0x82/0x190
- handle_irq+0x1c/0x30
- do_IRQ+0x49/0xd0
- common_interrupt+0xf/0xf
+Fix this by passing the desired offset and length to
+be_cmd_read_port_transceiver_data so that we only copy the bytes once.
 
-This can be eventually be reproduced with the following script:
-
-while :
-do
-    echo 63 > /sys/class/net/<devname>/device/sriov_numvfs
-    sleep 1
-    echo 0 > /sys/class/net/<devname>/device/sriov_numvfs
-    sleep 1
-done
-
-Add lock when disabling SR-IOV to prevent process VF mailbox communication.
-
-Fixes: d773d1310625 ("ixgbe: Fix memory leak when SR-IOV VFs are direct assigned")
-Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220715214456.2968711-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e36edd9d26cf ("be2net: add ethtool "-m" option support")
+Signed-off-by: Hristo Venev <hristo@venev.name>
+Link: https://lore.kernel.org/r/20220716085134.6095-1-hristo@venev.name
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe.h       | 1 +
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c  | 3 +++
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 6 ++++++
- 3 files changed, 10 insertions(+)
+ drivers/net/ethernet/emulex/benet/be_cmds.c   | 10 +++---
+ drivers/net/ethernet/emulex/benet/be_cmds.h   |  2 +-
+ .../net/ethernet/emulex/benet/be_ethtool.c    | 31 ++++++++++++-------
+ 3 files changed, 25 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe.h b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-index de0fc6ecf491..27c6f911737b 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-@@ -769,6 +769,7 @@ struct ixgbe_adapter {
- #ifdef CONFIG_IXGBE_IPSEC
- 	struct ixgbe_ipsec *ipsec;
- #endif /* CONFIG_IXGBE_IPSEC */
-+	spinlock_t vfs_lock;
- };
+diff --git a/drivers/net/ethernet/emulex/benet/be_cmds.c b/drivers/net/ethernet/emulex/benet/be_cmds.c
+index 8887dd3abed7..619cc13ffb55 100644
+--- a/drivers/net/ethernet/emulex/benet/be_cmds.c
++++ b/drivers/net/ethernet/emulex/benet/be_cmds.c
+@@ -2291,7 +2291,7 @@ int be_cmd_get_beacon_state(struct be_adapter *adapter, u8 port_num, u32 *state)
  
- static inline u8 ixgbe_max_rss_indices(struct ixgbe_adapter *adapter)
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index a3a02e2f92f6..b5b8be4672aa 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -6403,6 +6403,9 @@ static int ixgbe_sw_init(struct ixgbe_adapter *adapter,
- 	/* n-tuple support exists, always init our spinlock */
- 	spin_lock_init(&adapter->fdir_perfect_lock);
- 
-+	/* init spinlock to avoid concurrency of VF resources */
-+	spin_lock_init(&adapter->vfs_lock);
-+
- #ifdef CONFIG_IXGBE_DCB
- 	ixgbe_init_dcb(adapter);
- #endif
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-index aaebdae8b5ff..0078ae592616 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -204,10 +204,13 @@ void ixgbe_enable_sriov(struct ixgbe_adapter *adapter, unsigned int max_vfs)
- int ixgbe_disable_sriov(struct ixgbe_adapter *adapter)
+ /* Uses sync mcc */
+ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
+-				      u8 page_num, u8 *data)
++				      u8 page_num, u32 off, u32 len, u8 *data)
  {
- 	unsigned int num_vfs = adapter->num_vfs, vf;
-+	unsigned long flags;
- 	int rss;
+ 	struct be_dma_mem cmd;
+ 	struct be_mcc_wrb *wrb;
+@@ -2325,10 +2325,10 @@ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
+ 	req->port = cpu_to_le32(adapter->hba_port_num);
+ 	req->page_num = cpu_to_le32(page_num);
+ 	status = be_mcc_notify_wait(adapter);
+-	if (!status) {
++	if (!status && len > 0) {
+ 		struct be_cmd_resp_port_type *resp = cmd.va;
  
-+	spin_lock_irqsave(&adapter->vfs_lock, flags);
- 	/* set num VFs to 0 to prevent access to vfinfo */
- 	adapter->num_vfs = 0;
-+	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
- 
- 	/* put the reference to all of the vf devices */
- 	for (vf = 0; vf < num_vfs; ++vf) {
-@@ -1305,8 +1308,10 @@ static void ixgbe_rcv_ack_from_vf(struct ixgbe_adapter *adapter, u32 vf)
- void ixgbe_msg_task(struct ixgbe_adapter *adapter)
- {
- 	struct ixgbe_hw *hw = &adapter->hw;
-+	unsigned long flags;
- 	u32 vf;
- 
-+	spin_lock_irqsave(&adapter->vfs_lock, flags);
- 	for (vf = 0; vf < adapter->num_vfs; vf++) {
- 		/* process any reset requests */
- 		if (!ixgbe_check_for_rst(hw, vf))
-@@ -1320,6 +1325,7 @@ void ixgbe_msg_task(struct ixgbe_adapter *adapter)
- 		if (!ixgbe_check_for_ack(hw, vf))
- 			ixgbe_rcv_ack_from_vf(adapter, vf);
+-		memcpy(data, resp->page_data, PAGE_DATA_LEN);
++		memcpy(data, resp->page_data + off, len);
  	}
-+	spin_unlock_irqrestore(&adapter->vfs_lock, flags);
- }
+ err:
+ 	mutex_unlock(&adapter->mcc_lock);
+@@ -2419,7 +2419,7 @@ int be_cmd_query_cable_type(struct be_adapter *adapter)
+ 	int status;
  
- void ixgbe_disable_tx_rx(struct ixgbe_adapter *adapter)
+ 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   page_data);
++						   0, PAGE_DATA_LEN, page_data);
+ 	if (!status) {
+ 		switch (adapter->phy.interface_type) {
+ 		case PHY_TYPE_QSFP:
+@@ -2444,7 +2444,7 @@ int be_cmd_query_sfp_info(struct be_adapter *adapter)
+ 	int status;
+ 
+ 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   page_data);
++						   0, PAGE_DATA_LEN, page_data);
+ 	if (!status) {
+ 		strlcpy(adapter->phy.vendor_name, page_data +
+ 			SFP_VENDOR_NAME_OFFSET, SFP_VENDOR_NAME_LEN - 1);
+diff --git a/drivers/net/ethernet/emulex/benet/be_cmds.h b/drivers/net/ethernet/emulex/benet/be_cmds.h
+index 09da2d82c2f0..8af11a5e49fe 100644
+--- a/drivers/net/ethernet/emulex/benet/be_cmds.h
++++ b/drivers/net/ethernet/emulex/benet/be_cmds.h
+@@ -2431,7 +2431,7 @@ int be_cmd_set_beacon_state(struct be_adapter *adapter, u8 port_num, u8 beacon,
+ int be_cmd_get_beacon_state(struct be_adapter *adapter, u8 port_num,
+ 			    u32 *state);
+ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
+-				      u8 page_num, u8 *data);
++				      u8 page_num, u32 off, u32 len, u8 *data);
+ int be_cmd_query_cable_type(struct be_adapter *adapter);
+ int be_cmd_query_sfp_info(struct be_adapter *adapter);
+ int lancer_cmd_read_object(struct be_adapter *adapter, struct be_dma_mem *cmd,
+diff --git a/drivers/net/ethernet/emulex/benet/be_ethtool.c b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+index 56db37d92937..ca7750f483f9 100644
+--- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
++++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+@@ -1345,7 +1345,7 @@ static int be_get_module_info(struct net_device *netdev,
+ 		return -EOPNOTSUPP;
+ 
+ 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   page_data);
++						   0, PAGE_DATA_LEN, page_data);
+ 	if (!status) {
+ 		if (!page_data[SFP_PLUS_SFF_8472_COMP]) {
+ 			modinfo->type = ETH_MODULE_SFF_8079;
+@@ -1363,25 +1363,32 @@ static int be_get_module_eeprom(struct net_device *netdev,
+ {
+ 	struct be_adapter *adapter = netdev_priv(netdev);
+ 	int status;
++	u32 begin, end;
+ 
+ 	if (!check_privilege(adapter, MAX_PRIVILEGES))
+ 		return -EOPNOTSUPP;
+ 
+-	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   data);
+-	if (status)
+-		goto err;
++	begin = eeprom->offset;
++	end = eeprom->offset + eeprom->len;
++
++	if (begin < PAGE_DATA_LEN) {
++		status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0, begin,
++							   min_t(u32, end, PAGE_DATA_LEN) - begin,
++							   data);
++		if (status)
++			goto err;
++
++		data += PAGE_DATA_LEN - begin;
++		begin = PAGE_DATA_LEN;
++	}
+ 
+-	if (eeprom->offset + eeprom->len > PAGE_DATA_LEN) {
+-		status = be_cmd_read_port_transceiver_data(adapter,
+-							   TR_PAGE_A2,
+-							   data +
+-							   PAGE_DATA_LEN);
++	if (end > PAGE_DATA_LEN) {
++		status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A2,
++							   begin - PAGE_DATA_LEN,
++							   end - begin, data);
+ 		if (status)
+ 			goto err;
+ 	}
+-	if (eeprom->offset)
+-		memcpy(data, data + eeprom->offset, eeprom->len);
+ err:
+ 	return be_cmd_status(status);
+ }
 -- 
 2.35.1
 
