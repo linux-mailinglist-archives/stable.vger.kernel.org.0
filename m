@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 147EB583034
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E706582F68
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242034AbiG0RfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:35:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
+        id S241986AbiG0RYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242535AbiG0ReU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375EF8320C;
-        Wed, 27 Jul 2022 09:49:13 -0700 (PDT)
+        with ESMTP id S241993AbiG0RX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:23:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2837AC13;
+        Wed, 27 Jul 2022 09:45:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AACB2B821AC;
-        Wed, 27 Jul 2022 16:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192C3C433C1;
-        Wed, 27 Jul 2022 16:49:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A309601D2;
+        Wed, 27 Jul 2022 16:45:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17624C433C1;
+        Wed, 27 Jul 2022 16:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940551;
-        bh=7fTa14/lKPNdhwduF4hY9eR8NwdSBaT24ZZOvhjIwqo=;
+        s=korg; t=1658940350;
+        bh=/DE94iSpnRoKGxTdCHkKpVV3Z0O7VoGmiHYgXKyAVEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GN8/5Wi4vSjhqqBJ6d8rROiINhZg5X8hqiyXGUD2xOqz8WwkilzJrgR3SJG/vyzfu
-         PaGXi6oxli86hgEA6U5SukbJD3SaLMuT7JyhrfO9X0bh8Fy8nvB12rNDtdhElJskKj
-         QmVdmjdwoqJIaCUmi8y9BmlIN9k/cLkIv7IEukno=
+        b=IU+XamX5uo25avdv9UNm0on2dEVs22+posL+caI7sy0qQTqBds2CF5/GkKYPwfASC
+         GmrWemztMBz3IrvcHxm6zyqqZJUsDj2KRWBMyZK8zNcAKHz2iPjOd/uIWOEXehx2Gc
+         Ll53Q0fyBVNQ0YF1Uildd9gjTQoE1XGM7IlYbN+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 033/158] ip: Fix data-races around sysctl_ip_no_pmtu_disc.
+        stable@vger.kernel.org, Jose Alonso <joalonsof@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 193/201] net: usb: ax88179_178a needs FLAG_SEND_ZLP
 Date:   Wed, 27 Jul 2022 18:11:37 +0200
-Message-Id: <20220727161022.812447163@linuxfoundation.org>
+Message-Id: <20220727161035.761975836@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +52,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Jose Alonso <joalonsof@gmail.com>
 
-[ Upstream commit 0968d2a441bf6afb551fd99e60fa65ed67068963 ]
+commit 36a15e1cb134c0395261ba1940762703f778438c upstream.
 
-While reading sysctl_ip_no_pmtu_disc, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+The extra byte inserted by usbnet.c when
+ (length % dev->maxpacket == 0) is causing problems to device.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+This patch sets FLAG_SEND_ZLP to avoid this.
+
+Tested with: 0b95:1790 ASIX Electronics Corp. AX88179 Gigabit Ethernet
+
+Problems observed:
+======================================================================
+1) Using ssh/sshfs. The remote sshd daemon can abort with the message:
+   "message authentication code incorrect"
+   This happens because the tcp message sent is corrupted during the
+   USB "Bulk out". The device calculate the tcp checksum and send a
+   valid tcp message to the remote sshd. Then the encryption detects
+   the error and aborts.
+2) NETDEV WATCHDOG: ... (ax88179_178a): transmit queue 0 timed out
+3) Stop normal work without any log message.
+   The "Bulk in" continue receiving packets normally.
+   The host sends "Bulk out" and the device responds with -ECONNRESET.
+   (The netusb.c code tx_complete ignore -ECONNRESET)
+Under normal conditions these errors take days to happen and in
+intense usage take hours.
+
+A test with ping gives packet loss, showing that something is wrong:
+ping -4 -s 462 {destination}	# 462 = 512 - 42 - 8
+Not all packets fail.
+My guess is that the device tries to find another packet starting
+at the extra byte and will fail or not depending on the next
+bytes (old buffer content).
+======================================================================
+
+Signed-off-by: Jose Alonso <joalonsof@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/af_inet.c    | 2 +-
- net/ipv4/icmp.c       | 2 +-
- net/ipv6/af_inet6.c   | 2 +-
- net/xfrm/xfrm_state.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/usb/ax88179_178a.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 98bc180563d1..8c0a22a5b36c 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -335,7 +335,7 @@ static int inet_create(struct net *net, struct socket *sock, int protocol,
- 			inet->hdrincl = 1;
- 	}
- 
--	if (net->ipv4.sysctl_ip_no_pmtu_disc)
-+	if (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc))
- 		inet->pmtudisc = IP_PMTUDISC_DONT;
- 	else
- 		inet->pmtudisc = IP_PMTUDISC_WANT;
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index c13ceda9ce5d..d8cfa6241c04 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -878,7 +878,7 @@ static bool icmp_unreach(struct sk_buff *skb)
- 			 * values please see
- 			 * Documentation/networking/ip-sysctl.rst
- 			 */
--			switch (net->ipv4.sysctl_ip_no_pmtu_disc) {
-+			switch (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc)) {
- 			default:
- 				net_dbg_ratelimited("%pI4: fragmentation needed and DF set\n",
- 						    &iph->daddr);
-diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-index 7d7b7523d126..ef1e6545d869 100644
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -226,7 +226,7 @@ static int inet6_create(struct net *net, struct socket *sock, int protocol,
- 	RCU_INIT_POINTER(inet->mc_list, NULL);
- 	inet->rcv_tos	= 0;
- 
--	if (net->ipv4.sysctl_ip_no_pmtu_disc)
-+	if (READ_ONCE(net->ipv4.sysctl_ip_no_pmtu_disc))
- 		inet->pmtudisc = IP_PMTUDISC_DONT;
- 	else
- 		inet->pmtudisc = IP_PMTUDISC_WANT;
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index b749935152ba..b4ce16a934a2 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2620,7 +2620,7 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
- 	int err;
- 
- 	if (family == AF_INET &&
--	    xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc)
-+	    READ_ONCE(xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc))
- 		x->props.flags |= XFRM_STATE_NOPMTUDISC;
- 
- 	err = -EPROTONOSUPPORT;
--- 
-2.35.1
-
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1796,7 +1796,7 @@ static const struct driver_info ax88179_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1809,7 +1809,7 @@ static const struct driver_info ax88178a
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1822,7 +1822,7 @@ static const struct driver_info cypress_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1835,7 +1835,7 @@ static const struct driver_info dlink_du
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1848,7 +1848,7 @@ static const struct driver_info sitecom_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1861,7 +1861,7 @@ static const struct driver_info samsung_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1874,7 +1874,7 @@ static const struct driver_info lenovo_i
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1887,7 +1887,7 @@ static const struct driver_info belkin_i
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1900,7 +1900,7 @@ static const struct driver_info toshiba_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1913,7 +1913,7 @@ static const struct driver_info mct_info
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
 
 
