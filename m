@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C0B583075
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F07A9583074
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238035AbiG0RiV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:38:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59636 "EHLO
+        id S242675AbiG0RiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:38:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242643AbiG0Rh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:37:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2657853D14;
-        Wed, 27 Jul 2022 09:50:34 -0700 (PDT)
+        with ESMTP id S242533AbiG0Rh4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:37:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2695186C0B;
+        Wed, 27 Jul 2022 09:50:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF2F6B821D5;
-        Wed, 27 Jul 2022 16:50:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9AFC433C1;
-        Wed, 27 Jul 2022 16:50:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5DDC60D3B;
+        Wed, 27 Jul 2022 16:50:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C57A8C433D6;
+        Wed, 27 Jul 2022 16:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940606;
-        bh=T6fb930px444ePCCvfwrLitz4OYLqTRU1yJPo9RUxlQ=;
+        s=korg; t=1658940609;
+        bh=MB48tir69+UgtBlHJV7vcCVKs43QLs5qQdmeSAwoAEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQQOWPPkQFdX37I1A/feuVrtERy/ABHThbnCSUbsMEQuqb9WWzDi3uQVaE+nLfUbU
-         GttUEP9L4NpMWraidrOrMu25QsIENuobotuesrIGOEJK7avcx3Qopg9INolg8Zu+jR
-         ZPMxDhFphF7WU2Do+2x/LFPIP2aMQEpawYFwagNQ=
+        b=fvX1sHmxirNuM/WSsZYBP1g5B+aoN2FTm0XrbIzOjUr+/qCs5As3PufZavFzuRLbU
+         rNX+KQ6XphA5WoIiNGTznEZtUg+KZzPIC3ACbi7QBHgFHVKZ/yi/Mrcr2jCFEe7jVK
+         Bl5e7bSqSi1u8xwow7HZZwJdlAYlaW8PPB4cBdxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 083/158] pinctrl: armada-37xx: make irq_lock a raw spinlock to avoid invalid wait context
-Date:   Wed, 27 Jul 2022 18:12:27 +0200
-Message-Id: <20220727161024.829251550@linuxfoundation.org>
+Subject: [PATCH 5.18 084/158] net: lan966x: Fix taking rtnl_lock while holding spin_lock
+Date:   Wed, 27 Jul 2022 18:12:28 +0200
+Message-Id: <20220727161024.861930432@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -53,181 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit 984245b66cf32c494b1e4f95f5ed6ba16b8771eb ]
+[ Upstream commit 45533a534a45cb12c20c81615d17306176cb1c57 ]
 
-The irqchip->irq_set_type method is called by __irq_set_trigger() under
-the desc->lock raw spinlock.
+When the HW deletes an entry in MAC table then it generates an
+interrupt. The SW will go through it's own list of MAC entries and if it
+is not found then it would notify the listeners about this. The problem
+is that when the SW will go through it's own list it would take a spin
+lock(lan966x->mac_lock) and when it notifies that the entry is deleted.
+But to notify the listeners it taking the rtnl_lock which is illegal.
 
-The armada-37xx implementation, armada_37xx_irq_set_type(), takes a
-plain spinlock, the kind that becomes sleepable on RT.
+This is fixed by instead of notifying right away that the entry is
+deleted, move the entry on a temp list and once, it checks all the
+entries then just notify that the entries from temp list are deleted.
 
-Therefore, this is an invalid locking scheme for which we get a kernel
-splat stating just that ("[ BUG: Invalid wait context ]"), because the
-context in which the plain spinlock may sleep is atomic due to the raw
-spinlock. We need to go raw spinlocks all the way.
-
-Replace the driver's irq_lock with a raw spinlock, to disable preemption
-even on RT.
-
-Cc: <stable@vger.kernel.org> # 5.15+
-Fixes: 2f227605394b ("pinctrl: armada-37xx: Add irqchip support")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220716233745.1704677-2-vladimir.oltean@nxp.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 5ccd66e01cbe ("net: lan966x: add support for interrupts from analyzer")
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 38 ++++++++++-----------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ .../ethernet/microchip/lan966x/lan966x_mac.c  | 27 ++++++++++++-------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 226798d9c067..b920dd5237c7 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -101,7 +101,7 @@ struct armada_37xx_pinctrl {
- 	struct device			*dev;
- 	struct gpio_chip		gpio_chip;
- 	struct irq_chip			irq_chip;
--	spinlock_t			irq_lock;
-+	raw_spinlock_t			irq_lock;
- 	struct pinctrl_desc		pctl;
- 	struct pinctrl_dev		*pctl_dev;
- 	struct armada_37xx_pin_group	*groups;
-@@ -522,9 +522,9 @@ static void armada_37xx_irq_ack(struct irq_data *d)
- 	unsigned long flags;
+diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c b/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c
+index 005e56ea5da1..2d2b83c03796 100644
+--- a/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c
++++ b/drivers/net/ethernet/microchip/lan966x/lan966x_mac.c
+@@ -325,10 +325,13 @@ static void lan966x_mac_irq_process(struct lan966x *lan966x, u32 row,
+ {
+ 	struct lan966x_mac_entry *mac_entry, *tmp;
+ 	unsigned char mac[ETH_ALEN] __aligned(2);
++	struct list_head mac_deleted_entries;
+ 	u32 dest_idx;
+ 	u32 column;
+ 	u16 vid;
  
- 	armada_37xx_irq_update_reg(&reg, d);
--	spin_lock_irqsave(&info->irq_lock, flags);
-+	raw_spin_lock_irqsave(&info->irq_lock, flags);
- 	writel(d->mask, info->base + reg);
--	spin_unlock_irqrestore(&info->irq_lock, flags);
-+	raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- }
++	INIT_LIST_HEAD(&mac_deleted_entries);
++
+ 	spin_lock(&lan966x->mac_lock);
+ 	list_for_each_entry_safe(mac_entry, tmp, &lan966x->mac_entries, list) {
+ 		bool found = false;
+@@ -362,20 +365,26 @@ static void lan966x_mac_irq_process(struct lan966x *lan966x, u32 row,
+ 		}
  
- static void armada_37xx_irq_mask(struct irq_data *d)
-@@ -535,10 +535,10 @@ static void armada_37xx_irq_mask(struct irq_data *d)
- 	unsigned long flags;
- 
- 	armada_37xx_irq_update_reg(&reg, d);
--	spin_lock_irqsave(&info->irq_lock, flags);
-+	raw_spin_lock_irqsave(&info->irq_lock, flags);
- 	val = readl(info->base + reg);
- 	writel(val & ~d->mask, info->base + reg);
--	spin_unlock_irqrestore(&info->irq_lock, flags);
-+	raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- }
- 
- static void armada_37xx_irq_unmask(struct irq_data *d)
-@@ -549,10 +549,10 @@ static void armada_37xx_irq_unmask(struct irq_data *d)
- 	unsigned long flags;
- 
- 	armada_37xx_irq_update_reg(&reg, d);
--	spin_lock_irqsave(&info->irq_lock, flags);
-+	raw_spin_lock_irqsave(&info->irq_lock, flags);
- 	val = readl(info->base + reg);
- 	writel(val | d->mask, info->base + reg);
--	spin_unlock_irqrestore(&info->irq_lock, flags);
-+	raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- }
- 
- static int armada_37xx_irq_set_wake(struct irq_data *d, unsigned int on)
-@@ -563,14 +563,14 @@ static int armada_37xx_irq_set_wake(struct irq_data *d, unsigned int on)
- 	unsigned long flags;
- 
- 	armada_37xx_irq_update_reg(&reg, d);
--	spin_lock_irqsave(&info->irq_lock, flags);
-+	raw_spin_lock_irqsave(&info->irq_lock, flags);
- 	val = readl(info->base + reg);
- 	if (on)
- 		val |= (BIT(d->hwirq % GPIO_PER_REG));
- 	else
- 		val &= ~(BIT(d->hwirq % GPIO_PER_REG));
- 	writel(val, info->base + reg);
--	spin_unlock_irqrestore(&info->irq_lock, flags);
-+	raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- 
- 	return 0;
- }
-@@ -582,7 +582,7 @@ static int armada_37xx_irq_set_type(struct irq_data *d, unsigned int type)
- 	u32 val, reg = IRQ_POL;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&info->irq_lock, flags);
-+	raw_spin_lock_irqsave(&info->irq_lock, flags);
- 	armada_37xx_irq_update_reg(&reg, d);
- 	val = readl(info->base + reg);
- 	switch (type) {
-@@ -606,11 +606,11 @@ static int armada_37xx_irq_set_type(struct irq_data *d, unsigned int type)
- 		break;
- 	}
- 	default:
--		spin_unlock_irqrestore(&info->irq_lock, flags);
-+		raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- 		return -EINVAL;
- 	}
- 	writel(val, info->base + reg);
--	spin_unlock_irqrestore(&info->irq_lock, flags);
-+	raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- 
- 	return 0;
- }
-@@ -625,7 +625,7 @@ static int armada_37xx_edge_both_irq_swap_pol(struct armada_37xx_pinctrl *info,
- 
- 	regmap_read(info->regmap, INPUT_VAL + 4*reg_idx, &l);
- 
--	spin_lock_irqsave(&info->irq_lock, flags);
-+	raw_spin_lock_irqsave(&info->irq_lock, flags);
- 	p = readl(info->base + IRQ_POL + 4 * reg_idx);
- 	if ((p ^ l) & (1 << bit_num)) {
- 		/*
-@@ -646,7 +646,7 @@ static int armada_37xx_edge_both_irq_swap_pol(struct armada_37xx_pinctrl *info,
- 		ret = -1;
- 	}
- 
--	spin_unlock_irqrestore(&info->irq_lock, flags);
-+	raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- 	return ret;
- }
- 
-@@ -663,11 +663,11 @@ static void armada_37xx_irq_handler(struct irq_desc *desc)
- 		u32 status;
- 		unsigned long flags;
- 
--		spin_lock_irqsave(&info->irq_lock, flags);
-+		raw_spin_lock_irqsave(&info->irq_lock, flags);
- 		status = readl_relaxed(info->base + IRQ_STATUS + 4 * i);
- 		/* Manage only the interrupt that was enabled */
- 		status &= readl_relaxed(info->base + IRQ_EN + 4 * i);
--		spin_unlock_irqrestore(&info->irq_lock, flags);
-+		raw_spin_unlock_irqrestore(&info->irq_lock, flags);
- 		while (status) {
- 			u32 hwirq = ffs(status) - 1;
- 			u32 virq = irq_find_mapping(d, hwirq +
-@@ -694,12 +694,12 @@ static void armada_37xx_irq_handler(struct irq_desc *desc)
- 
- update_status:
- 			/* Update status in case a new IRQ appears */
--			spin_lock_irqsave(&info->irq_lock, flags);
-+			raw_spin_lock_irqsave(&info->irq_lock, flags);
- 			status = readl_relaxed(info->base +
- 					       IRQ_STATUS + 4 * i);
- 			/* Manage only the interrupt that was enabled */
- 			status &= readl_relaxed(info->base + IRQ_EN + 4 * i);
--			spin_unlock_irqrestore(&info->irq_lock, flags);
-+			raw_spin_unlock_irqrestore(&info->irq_lock, flags);
+ 		if (!found) {
+-			/* Notify the bridge that the entry doesn't exist
+-			 * anymore in the HW and remove the entry from the SW
+-			 * list
+-			 */
+-			lan966x_mac_notifiers(SWITCHDEV_FDB_DEL_TO_BRIDGE,
+-					      mac_entry->mac, mac_entry->vid,
+-					      lan966x->ports[mac_entry->port_index]->dev);
+-
+ 			list_del(&mac_entry->list);
+-			kfree(mac_entry);
++			/* Move the entry from SW list to a tmp list such that
++			 * it would be deleted later
++			 */
++			list_add_tail(&mac_entry->list, &mac_deleted_entries);
  		}
  	}
- 	chained_irq_exit(chip, desc);
-@@ -730,7 +730,7 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
- 	struct device *dev = &pdev->dev;
- 	unsigned int i, nr_irq_parent;
+ 	spin_unlock(&lan966x->mac_lock);
  
--	spin_lock_init(&info->irq_lock);
-+	raw_spin_lock_init(&info->irq_lock);
- 
- 	nr_irq_parent = of_irq_count(np);
- 	if (!nr_irq_parent) {
++	list_for_each_entry_safe(mac_entry, tmp, &mac_deleted_entries, list) {
++		/* Notify the bridge that the entry doesn't exist
++		 * anymore in the HW
++		 */
++		lan966x_mac_notifiers(SWITCHDEV_FDB_DEL_TO_BRIDGE,
++				      mac_entry->mac, mac_entry->vid,
++				      lan966x->ports[mac_entry->port_index]->dev);
++		list_del(&mac_entry->list);
++		kfree(mac_entry);
++	}
++
+ 	/* Now go to the list of columns and see if any entry was not in the SW
+ 	 * list, then that means that the entry is new so it needs to notify the
+ 	 * bridge.
 -- 
 2.35.1
 
