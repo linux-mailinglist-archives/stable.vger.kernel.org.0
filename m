@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4206F582B33
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B139582B8D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236914AbiG0Q3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33870 "EHLO
+        id S236141AbiG0QfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:35:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237325AbiG0Q3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:29:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4E250199;
-        Wed, 27 Jul 2022 09:24:42 -0700 (PDT)
+        with ESMTP id S238156AbiG0Qd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:33:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A68054AF3;
+        Wed, 27 Jul 2022 09:26:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 832CFB821B9;
-        Wed, 27 Jul 2022 16:24:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA74AC433D6;
-        Wed, 27 Jul 2022 16:24:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FAB861662;
+        Wed, 27 Jul 2022 16:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E13C433C1;
+        Wed, 27 Jul 2022 16:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939080;
-        bh=WuFV2JU2/PxxhG50bEuKHrsPc1tFmBWsHYTqbG8O1cw=;
+        s=korg; t=1658939164;
+        bh=njurI18qD1t1r66D78QE8tvSsJDqwpTLVeo3OeAw6N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFPFuxwSV6r6pgkYtXzedkwZooBJ5HEPSsRmQ9cGqRS+ApYPFK1MoHSeuJo4pfGrX
-         FGf/U5AKNyDYBJV05F9wyhkcQT3Zi9Qo5rPMn/rqt9Zmn1nWvOIVbxeN3+aqJaIcG3
-         5hfQegr3sAHvbAQtgWgWcQHLAV9pKDeCeB1cjvxM=
+        b=e4Jx2vK0Ob8Ej1WoskjpKbtZII8y02zMxMwkOwPssFi59qdIhBgzW+iWQuVFgKNSb
+         xA3+pqPFyhLXu9pT8FjqtXiv17WyqDa4DmU5lrYPpjx87m1typC2dFPJtB9axSDIFM
+         IYBcSSGa1cidEjHRz+cIPnbOQGJdWLCh1p7X9FTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jyri Sarha <jsarha@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/37] drm/tilcdc: Remove obsolete crtc_mode_valid() hack
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.19 35/62] bpf: Make sure mac_header was set before using it
 Date:   Wed, 27 Jul 2022 18:10:44 +0200
-Message-Id: <20220727161001.579872211@linuxfoundation.org>
+Message-Id: <20220727161005.574695141@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
-References: <20220727161000.822869853@linuxfoundation.org>
+In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+References: <20220727161004.175638564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,332 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jyri Sarha <jsarha@ti.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 57d8396504b3a93f284e51b866740a3e7419a3d9 ]
+commit 0326195f523a549e0a9d7fd44c70b26fd7265090 upstream.
 
-Earlier there were no mode_valid() helper for crtc and tilcdc had a
-hack to over come this limitation. But now the mode_valid() helper is
-there (has been since v4.13), so it is about time to get rid of that
-hack.
+Classic BPF has a way to load bytes starting from the mac header.
 
-Signed-off-by: Jyri Sarha <jsarha@ti.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/ <5c4dcb5b1e7975bd2b7ca86f7addf219cd0f9a06.1564750248.git.jsarha@ti.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Some skbs do not have a mac header, and skb_mac_header()
+in this case is returning a pointer that 65535 bytes after
+skb->head.
+
+Existing range check in bpf_internal_load_pointer_neg_helper()
+was properly kicking and no illegal access was happening.
+
+New sanity check in skb_mac_header() is firing, so we need
+to avoid it.
+
+WARNING: CPU: 1 PID: 28990 at include/linux/skbuff.h:2785 skb_mac_header include/linux/skbuff.h:2785 [inline]
+WARNING: CPU: 1 PID: 28990 at include/linux/skbuff.h:2785 bpf_internal_load_pointer_neg_helper+0x1b1/0x1c0 kernel/bpf/core.c:74
+Modules linked in:
+CPU: 1 PID: 28990 Comm: syz-executor.0 Not tainted 5.19.0-rc4-syzkaller-00865-g4874fb9484be #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/29/2022
+RIP: 0010:skb_mac_header include/linux/skbuff.h:2785 [inline]
+RIP: 0010:bpf_internal_load_pointer_neg_helper+0x1b1/0x1c0 kernel/bpf/core.c:74
+Code: ff ff 45 31 f6 e9 5a ff ff ff e8 aa 27 40 00 e9 3b ff ff ff e8 90 27 40 00 e9 df fe ff ff e8 86 27 40 00 eb 9e e8 2f 2c f3 ff <0f> 0b eb b1 e8 96 27 40 00 e9 79 fe ff ff 90 41 57 41 56 41 55 41
+RSP: 0018:ffffc9000309f668 EFLAGS: 00010216
+RAX: 0000000000000118 RBX: ffffffffffeff00c RCX: ffffc9000e417000
+RDX: 0000000000040000 RSI: ffffffff81873f21 RDI: 0000000000000003
+RBP: ffff8880842878c0 R08: 0000000000000003 R09: 000000000000ffff
+R10: 000000000000ffff R11: 0000000000000001 R12: 0000000000000004
+R13: ffff88803ac56c00 R14: 000000000000ffff R15: dffffc0000000000
+FS: 00007f5c88a16700(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fdaa9f6c058 CR3: 000000003a82c000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+____bpf_skb_load_helper_32 net/core/filter.c:276 [inline]
+bpf_skb_load_helper_32+0x191/0x220 net/core/filter.c:264
+
+Fixes: f9aefd6b2aa3 ("net: warn if mac header was not set")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220707123900.945305-1-edumazet@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_crtc.c     | 28 +++-----
- drivers/gpu/drm/tilcdc/tilcdc_drv.c      |  1 -
- drivers/gpu/drm/tilcdc/tilcdc_drv.h      |  2 -
- drivers/gpu/drm/tilcdc/tilcdc_external.c | 88 +++---------------------
- drivers/gpu/drm/tilcdc/tilcdc_external.h |  1 -
- drivers/gpu/drm/tilcdc/tilcdc_panel.c    |  9 ---
- drivers/gpu/drm/tilcdc/tilcdc_tfp410.c   |  9 ---
- 7 files changed, 19 insertions(+), 119 deletions(-)
+ kernel/bpf/core.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 06d6e785c920..7b11908d992a 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-@@ -707,9 +707,6 @@ static bool tilcdc_crtc_mode_fixup(struct drm_crtc *crtc,
- static int tilcdc_crtc_atomic_check(struct drm_crtc *crtc,
- 				    struct drm_crtc_state *state)
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -66,11 +66,13 @@ void *bpf_internal_load_pointer_neg_help
  {
--	struct drm_display_mode *mode = &state->mode;
--	int ret;
+ 	u8 *ptr = NULL;
+ 
+-	if (k >= SKF_NET_OFF)
++	if (k >= SKF_NET_OFF) {
+ 		ptr = skb_network_header(skb) + k - SKF_NET_OFF;
+-	else if (k >= SKF_LL_OFF)
++	} else if (k >= SKF_LL_OFF) {
++		if (unlikely(!skb_mac_header_was_set(skb)))
++			return NULL;
+ 		ptr = skb_mac_header(skb) + k - SKF_LL_OFF;
 -
- 	/* If we are not active we don't care */
- 	if (!state->active)
- 		return 0;
-@@ -721,12 +718,6 @@ static int tilcdc_crtc_atomic_check(struct drm_crtc *crtc,
- 		return -EINVAL;
- 	}
++	}
+ 	if (ptr >= skb->head && ptr + size <= skb_tail_pointer(skb))
+ 		return ptr;
  
--	ret = tilcdc_crtc_mode_valid(crtc, mode);
--	if (ret) {
--		dev_dbg(crtc->dev->dev, "Mode \"%s\" not valid", mode->name);
--		return -EINVAL;
--	}
--
- 	return 0;
- }
- 
-@@ -750,13 +741,6 @@ static const struct drm_crtc_funcs tilcdc_crtc_funcs = {
- 	.disable_vblank	= tilcdc_crtc_disable_vblank,
- };
- 
--static const struct drm_crtc_helper_funcs tilcdc_crtc_helper_funcs = {
--		.mode_fixup     = tilcdc_crtc_mode_fixup,
--		.atomic_check	= tilcdc_crtc_atomic_check,
--		.atomic_enable	= tilcdc_crtc_atomic_enable,
--		.atomic_disable	= tilcdc_crtc_atomic_disable,
--};
--
- int tilcdc_crtc_max_width(struct drm_crtc *crtc)
- {
- 	struct drm_device *dev = crtc->dev;
-@@ -771,7 +755,9 @@ int tilcdc_crtc_max_width(struct drm_crtc *crtc)
- 	return max_width;
- }
- 
--int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode)
-+static enum drm_mode_status
-+tilcdc_crtc_mode_valid(struct drm_crtc *crtc,
-+		       const struct drm_display_mode *mode)
- {
- 	struct tilcdc_drm_private *priv = crtc->dev->dev_private;
- 	unsigned int bandwidth;
-@@ -859,6 +845,14 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode)
- 	return MODE_OK;
- }
- 
-+static const struct drm_crtc_helper_funcs tilcdc_crtc_helper_funcs = {
-+	.mode_valid	= tilcdc_crtc_mode_valid,
-+	.mode_fixup	= tilcdc_crtc_mode_fixup,
-+	.atomic_check	= tilcdc_crtc_atomic_check,
-+	.atomic_enable	= tilcdc_crtc_atomic_enable,
-+	.atomic_disable	= tilcdc_crtc_atomic_disable,
-+};
-+
- void tilcdc_crtc_set_panel_info(struct drm_crtc *crtc,
- 		const struct tilcdc_panel_info *info)
- {
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 56039897607c..d42e1f9f2949 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -208,7 +208,6 @@ static void tilcdc_fini(struct drm_device *dev)
- 
- 	drm_irq_uninstall(dev);
- 	drm_mode_config_cleanup(dev);
--	tilcdc_remove_external_device(dev);
- 
- 	if (priv->clk)
- 		clk_put(priv->clk);
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.h b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-index 8caa11bc7aec..c0ab69c79a93 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-@@ -91,7 +91,6 @@ struct tilcdc_drm_private {
- 
- 	struct drm_encoder *external_encoder;
- 	struct drm_connector *external_connector;
--	const struct drm_connector_helper_funcs *connector_funcs;
- 
- 	bool is_registered;
- 	bool is_componentized;
-@@ -173,7 +172,6 @@ void tilcdc_crtc_set_panel_info(struct drm_crtc *crtc,
- 		const struct tilcdc_panel_info *info);
- void tilcdc_crtc_set_simulate_vesa_sync(struct drm_crtc *crtc,
- 					bool simulate_vesa_sync);
--int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode);
- int tilcdc_crtc_max_width(struct drm_crtc *crtc);
- void tilcdc_crtc_shutdown(struct drm_crtc *crtc);
- int tilcdc_crtc_update_fb(struct drm_crtc *crtc,
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.c b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-index 711c7b3289d3..9c8520569d31 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-@@ -40,64 +40,6 @@ static const struct tilcdc_panel_info panel_info_default = {
- 		.raster_order           = 0,
- };
- 
--static int tilcdc_external_mode_valid(struct drm_connector *connector,
--				      struct drm_display_mode *mode)
--{
--	struct tilcdc_drm_private *priv = connector->dev->dev_private;
--	int ret;
--
--	ret = tilcdc_crtc_mode_valid(priv->crtc, mode);
--	if (ret != MODE_OK)
--		return ret;
--
--	BUG_ON(priv->external_connector != connector);
--	BUG_ON(!priv->connector_funcs);
--
--	/* If the connector has its own mode_valid call it. */
--	if (!IS_ERR(priv->connector_funcs) &&
--	    priv->connector_funcs->mode_valid)
--		return priv->connector_funcs->mode_valid(connector, mode);
--
--	return MODE_OK;
--}
--
--static int tilcdc_add_external_connector(struct drm_device *dev,
--					 struct drm_connector *connector)
--{
--	struct tilcdc_drm_private *priv = dev->dev_private;
--	struct drm_connector_helper_funcs *connector_funcs;
--
--	/* There should never be more than one connector */
--	if (WARN_ON(priv->external_connector))
--		return -EINVAL;
--
--	priv->external_connector = connector;
--	connector_funcs = devm_kzalloc(dev->dev, sizeof(*connector_funcs),
--				       GFP_KERNEL);
--	if (!connector_funcs)
--		return -ENOMEM;
--
--	/* connector->helper_private contains always struct
--	 * connector_helper_funcs pointer. For tilcdc crtc to have a
--	 * say if a specific mode is Ok, we need to install our own
--	 * helper functions. In our helper functions we copy
--	 * everything else but use our own mode_valid() (above).
--	 */
--	if (connector->helper_private) {
--		priv->connector_funcs =	connector->helper_private;
--		*connector_funcs = *priv->connector_funcs;
--	} else {
--		priv->connector_funcs = ERR_PTR(-ENOENT);
--	}
--	connector_funcs->mode_valid = tilcdc_external_mode_valid;
--	drm_connector_helper_add(connector, connector_funcs);
--
--	dev_dbg(dev->dev, "External connector '%s' connected\n",
--		connector->name);
--
--	return 0;
--}
--
- static
- struct drm_connector *tilcdc_encoder_find_connector(struct drm_device *ddev,
- 						    struct drm_encoder *encoder)
-@@ -119,7 +61,6 @@ struct drm_connector *tilcdc_encoder_find_connector(struct drm_device *ddev,
- int tilcdc_add_component_encoder(struct drm_device *ddev)
- {
- 	struct tilcdc_drm_private *priv = ddev->dev_private;
--	struct drm_connector *connector;
- 	struct drm_encoder *encoder;
- 
- 	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
-@@ -131,28 +72,17 @@ int tilcdc_add_component_encoder(struct drm_device *ddev)
- 		return -ENODEV;
- 	}
- 
--	connector = tilcdc_encoder_find_connector(ddev, encoder);
-+	priv->external_connector =
-+		tilcdc_encoder_find_connector(ddev, encoder);
- 
--	if (!connector)
-+	if (!priv->external_connector)
- 		return -ENODEV;
- 
- 	/* Only tda998x is supported at the moment. */
- 	tilcdc_crtc_set_simulate_vesa_sync(priv->crtc, true);
- 	tilcdc_crtc_set_panel_info(priv->crtc, &panel_info_tda998x);
- 
--	return tilcdc_add_external_connector(ddev, connector);
--}
--
--void tilcdc_remove_external_device(struct drm_device *dev)
--{
--	struct tilcdc_drm_private *priv = dev->dev_private;
--
--	/* Restore the original helper functions, if any. */
--	if (IS_ERR(priv->connector_funcs))
--		drm_connector_helper_add(priv->external_connector, NULL);
--	else if (priv->connector_funcs)
--		drm_connector_helper_add(priv->external_connector,
--					 priv->connector_funcs);
-+	return 0;
- }
- 
- static const struct drm_encoder_funcs tilcdc_external_encoder_funcs = {
-@@ -163,7 +93,6 @@ static
- int tilcdc_attach_bridge(struct drm_device *ddev, struct drm_bridge *bridge)
- {
- 	struct tilcdc_drm_private *priv = ddev->dev_private;
--	struct drm_connector *connector;
- 	int ret;
- 
- 	priv->external_encoder->possible_crtcs = BIT(0);
-@@ -176,13 +105,12 @@ int tilcdc_attach_bridge(struct drm_device *ddev, struct drm_bridge *bridge)
- 
- 	tilcdc_crtc_set_panel_info(priv->crtc, &panel_info_default);
- 
--	connector = tilcdc_encoder_find_connector(ddev, priv->external_encoder);
--	if (!connector)
-+	priv->external_connector =
-+		tilcdc_encoder_find_connector(ddev, priv->external_encoder);
-+	if (!priv->external_connector)
- 		return -ENODEV;
- 
--	ret = tilcdc_add_external_connector(ddev, connector);
--
--	return ret;
-+	return 0;
- }
- 
- int tilcdc_attach_external_device(struct drm_device *ddev)
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.h b/drivers/gpu/drm/tilcdc/tilcdc_external.h
-index 763d18f006c7..a28b9df68c8f 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_external.h
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_external.h
-@@ -19,7 +19,6 @@
- #define __TILCDC_EXTERNAL_H__
- 
- int tilcdc_add_component_encoder(struct drm_device *dev);
--void tilcdc_remove_external_device(struct drm_device *dev);
- int tilcdc_get_external_components(struct device *dev,
- 				   struct component_match **match);
- int tilcdc_attach_external_device(struct drm_device *ddev);
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-index 0484b2cf0e2b..f67a6194fd65 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-@@ -176,14 +176,6 @@ static int panel_connector_get_modes(struct drm_connector *connector)
- 	return i;
- }
- 
--static int panel_connector_mode_valid(struct drm_connector *connector,
--		  struct drm_display_mode *mode)
--{
--	struct tilcdc_drm_private *priv = connector->dev->dev_private;
--	/* our only constraints are what the crtc can generate: */
--	return tilcdc_crtc_mode_valid(priv->crtc, mode);
--}
--
- static struct drm_encoder *panel_connector_best_encoder(
- 		struct drm_connector *connector)
- {
-@@ -201,7 +193,6 @@ static const struct drm_connector_funcs panel_connector_funcs = {
- 
- static const struct drm_connector_helper_funcs panel_connector_helper_funcs = {
- 	.get_modes          = panel_connector_get_modes,
--	.mode_valid         = panel_connector_mode_valid,
- 	.best_encoder       = panel_connector_best_encoder,
- };
- 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-index 1e2dfb1b1d6b..68c7bbba24e9 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-@@ -185,14 +185,6 @@ static int tfp410_connector_get_modes(struct drm_connector *connector)
- 	return ret;
- }
- 
--static int tfp410_connector_mode_valid(struct drm_connector *connector,
--		  struct drm_display_mode *mode)
--{
--	struct tilcdc_drm_private *priv = connector->dev->dev_private;
--	/* our only constraints are what the crtc can generate: */
--	return tilcdc_crtc_mode_valid(priv->crtc, mode);
--}
--
- static struct drm_encoder *tfp410_connector_best_encoder(
- 		struct drm_connector *connector)
- {
-@@ -211,7 +203,6 @@ static const struct drm_connector_funcs tfp410_connector_funcs = {
- 
- static const struct drm_connector_helper_funcs tfp410_connector_helper_funcs = {
- 	.get_modes          = tfp410_connector_get_modes,
--	.mode_valid         = tfp410_connector_mode_valid,
- 	.best_encoder       = tfp410_connector_best_encoder,
- };
- 
--- 
-2.35.1
-
 
 
