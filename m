@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E4B0582CA2
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DAB582C50
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240573AbiG0Qsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:48:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        id S239941AbiG0Qoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:44:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240165AbiG0QsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:48:17 -0400
+        with ESMTP id S240436AbiG0QoZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D07606B7;
-        Wed, 27 Jul 2022 09:32:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 954515F103;
+        Wed, 27 Jul 2022 09:31:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEE99B821B6;
-        Wed, 27 Jul 2022 16:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25C2FC433B5;
-        Wed, 27 Jul 2022 16:27:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D513EB821BD;
+        Wed, 27 Jul 2022 16:31:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32AE6C433D6;
+        Wed, 27 Jul 2022 16:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939238;
-        bh=479H/WC34/j9bzML+WwgbpDWqcwcVPd/wV4cSm3tBaU=;
+        s=korg; t=1658939465;
+        bh=u7bKTBJfAOMOZ9/sDoWY4Vi6VndC+6DTovQ/pdYctDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGeKxUoNiUZMBCs4TUAugZjJsh4UGfTBm8YrHfUXGqwoOAtrZfx32v/jx0KlMcVpB
-         8wwLR0UDVotcfGMnSBZMG4S6KMmHbAOpz+ef91np4AhTQjclqOOhDONke6AI3FWVdY
-         B57iZ+G7t+uQ1MmfC874WoQqjmu175K/x1dRhN4E=
+        b=xfMrcu2w7G5rU6DV3LWdtulVdA3quYkAAeVO3YRwxtzZSk8sp8kalBE1l7Kyt5hz0
+         cHvdUS8LFSugjj59Zws7jiX91iyxyBNzUHlDW9IJDV22Cot9isb56W9OpcJ59C3LiA
+         Z7w5ItckCFfBKtnTGjeLOf0XoRwk6WzILKpxLZdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        Carl Vanderlip <quic_carlv@quicinc.com>
-Subject: [PATCH 4.19 62/62] PCI: hv: Fix interrupt mapping for multi-MSI
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 5.4 78/87] Bluetooth: Fix passing NULL to PTR_ERR
 Date:   Wed, 27 Jul 2022 18:11:11 +0200
-Message-Id: <20220727161006.565676300@linuxfoundation.org>
+Message-Id: <20220727161012.233338716@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,182 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <quic_jhugo@quicinc.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit a2bad844a67b1c7740bda63e87453baf63c3a7f7 upstream.
+commit 266191aa8d14b84958aaeb5e96ee4e97839e3d87 upstream.
 
-According to Dexuan, the hypervisor folks beleive that multi-msi
-allocations are not correct.  compose_msi_msg() will allocate multi-msi
-one by one.  However, multi-msi is a block of related MSIs, with alignment
-requirements.  In order for the hypervisor to allocate properly aligned
-and consecutive entries in the IOMMU Interrupt Remapping Table, there
-should be a single mapping request that requests all of the multi-msi
-vectors in one shot.
+Passing NULL to PTR_ERR will result in 0 (success), also since the likes of
+bt_skb_sendmsg does never return NULL it is safe to replace the instances of
+IS_ERR_OR_NULL with IS_ERR when checking its return.
 
-Dexuan suggests detecting the multi-msi case and composing a single
-request related to the first MSI.  Then for the other MSIs in the same
-block, use the cached information.  This appears to be viable, so do it.
-
-4.19 backport - add hv_msi_get_int_vector helper function. Fixed merge
-conflict due to delivery_mode name change (APIC_DELIVERY_MODE_FIXED
-is the value given to dest_Fixed). Removed unused variable in
-hv_compose_msi_msg. Fixed reference to msi_desc->pci to point to
-the same is_msix variable. Removed changes to compose_msi_req_v3 since
-it doesn't exist yet.
-
-Suggested-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Tested-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1652282599-21643-1-git-send-email-quic_jhugo@quicinc.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   61 +++++++++++++++++++++++++++++++-----
- 1 file changed, 53 insertions(+), 8 deletions(-)
+ include/net/bluetooth/bluetooth.h |    2 +-
+ net/bluetooth/rfcomm/sock.c       |    2 +-
+ net/bluetooth/sco.c               |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -831,6 +831,10 @@ static void hv_int_desc_free(struct hv_p
- 		u8 buffer[sizeof(struct pci_delete_interrupt)];
- 	} ctxt;
+--- a/include/net/bluetooth/bluetooth.h
++++ b/include/net/bluetooth/bluetooth.h
+@@ -422,7 +422,7 @@ static inline struct sk_buff *bt_skb_sen
+ 		struct sk_buff *tmp;
  
-+	if (!int_desc->vector_count) {
-+		kfree(int_desc);
-+		return;
-+	}
- 	memset(&ctxt, 0, sizeof(ctxt));
- 	int_pkt = (struct pci_delete_interrupt *)&ctxt.pkt.message;
- 	int_pkt->message_type.type =
-@@ -893,6 +897,13 @@ static void hv_irq_mask(struct irq_data
- 	pci_msi_mask_irq(data);
- }
+ 		tmp = bt_skb_sendmsg(sk, msg, len, mtu, headroom, tailroom);
+-		if (IS_ERR_OR_NULL(tmp)) {
++		if (IS_ERR(tmp)) {
+ 			kfree_skb(skb);
+ 			return tmp;
+ 		}
+--- a/net/bluetooth/rfcomm/sock.c
++++ b/net/bluetooth/rfcomm/sock.c
+@@ -586,7 +586,7 @@ static int rfcomm_sock_sendmsg(struct so
  
-+static unsigned int hv_msi_get_int_vector(struct irq_data *data)
-+{
-+	struct irq_cfg *cfg = irqd_cfg(data);
-+
-+	return cfg->vector;
-+}
-+
- static int hv_msi_prepare(struct irq_domain *domain, struct device *dev,
- 			  int nvec, msi_alloc_info_t *info)
- {
-@@ -1035,12 +1046,12 @@ static void hv_pci_compose_compl(void *c
+ 	skb = bt_skb_sendmmsg(sk, msg, len, d->mtu, RFCOMM_SKB_HEAD_RESERVE,
+ 			      RFCOMM_SKB_TAIL_RESERVE);
+-	if (IS_ERR_OR_NULL(skb))
++	if (IS_ERR(skb))
+ 		return PTR_ERR(skb);
  
- static u32 hv_compose_msi_req_v1(
- 	struct pci_create_interrupt *int_pkt, struct cpumask *affinity,
--	u32 slot, u8 vector)
-+	u32 slot, u8 vector, u8 vector_count)
- {
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = dest_Fixed;
+ 	sent = rfcomm_dlc_send(d, skb);
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -720,7 +720,7 @@ static int sco_sock_sendmsg(struct socke
+ 		return -EOPNOTSUPP;
  
- 	/*
-@@ -1054,14 +1065,14 @@ static u32 hv_compose_msi_req_v1(
+ 	skb = bt_skb_sendmsg(sk, msg, len, len, 0, 0);
+-	if (IS_ERR_OR_NULL(skb))
++	if (IS_ERR(skb))
+ 		return PTR_ERR(skb);
  
- static u32 hv_compose_msi_req_v2(
- 	struct pci_create_interrupt2 *int_pkt, struct cpumask *affinity,
--	u32 slot, u8 vector)
-+	u32 slot, u8 vector, u8 vector_count)
- {
- 	int cpu;
- 
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE2;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
--	int_pkt->int_desc.vector_count = 1;
-+	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = dest_Fixed;
- 
- 	/*
-@@ -1089,7 +1100,6 @@ static u32 hv_compose_msi_req_v2(
-  */
- static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- {
--	struct irq_cfg *cfg = irqd_cfg(data);
- 	struct hv_pcibus_device *hbus;
- 	struct hv_pci_dev *hpdev;
- 	struct pci_bus *pbus;
-@@ -1098,6 +1108,8 @@ static void hv_compose_msi_msg(struct ir
- 	unsigned long flags;
- 	struct compose_comp_ctxt comp;
- 	struct tran_int_desc *int_desc;
-+	struct msi_desc *msi_desc;
-+	u8 vector, vector_count;
- 	struct {
- 		struct pci_packet pci_pkt;
- 		union {
-@@ -1118,7 +1130,8 @@ static void hv_compose_msi_msg(struct ir
- 		return;
- 	}
- 
--	pdev = msi_desc_to_pci_dev(irq_data_get_msi_desc(data));
-+	msi_desc  = irq_data_get_msi_desc(data);
-+	pdev = msi_desc_to_pci_dev(msi_desc);
- 	dest = irq_data_get_effective_affinity_mask(data);
- 	pbus = pdev->bus;
- 	hbus = container_of(pbus->sysdata, struct hv_pcibus_device, sysdata);
-@@ -1130,6 +1143,36 @@ static void hv_compose_msi_msg(struct ir
- 	if (!int_desc)
- 		goto drop_reference;
- 
-+	if (!msi_desc->msi_attrib.is_msix && msi_desc->nvec_used > 1) {
-+		/*
-+		 * If this is not the first MSI of Multi MSI, we already have
-+		 * a mapping.  Can exit early.
-+		 */
-+		if (msi_desc->irq != data->irq) {
-+			data->chip_data = int_desc;
-+			int_desc->address = msi_desc->msg.address_lo |
-+					    (u64)msi_desc->msg.address_hi << 32;
-+			int_desc->data = msi_desc->msg.data +
-+					 (data->irq - msi_desc->irq);
-+			msg->address_hi = msi_desc->msg.address_hi;
-+			msg->address_lo = msi_desc->msg.address_lo;
-+			msg->data = int_desc->data;
-+			put_pcichild(hpdev);
-+			return;
-+		}
-+		/*
-+		 * The vector we select here is a dummy value.  The correct
-+		 * value gets sent to the hypervisor in unmask().  This needs
-+		 * to be aligned with the count, and also not zero.  Multi-msi
-+		 * is powers of 2 up to 32, so 32 will always work here.
-+		 */
-+		vector = 32;
-+		vector_count = msi_desc->nvec_used;
-+	} else {
-+		vector = hv_msi_get_int_vector(data);
-+		vector_count = 1;
-+	}
-+
- 	memset(&ctxt, 0, sizeof(ctxt));
- 	init_completion(&comp.comp_pkt.host_event);
- 	ctxt.pci_pkt.completion_func = hv_pci_compose_compl;
-@@ -1140,14 +1183,16 @@ static void hv_compose_msi_msg(struct ir
- 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					vector,
-+					vector_count);
- 		break;
- 
- 	case PCI_PROTOCOL_VERSION_1_2:
- 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
- 					dest,
- 					hpdev->desc.win_slot.slot,
--					cfg->vector);
-+					vector,
-+					vector_count);
- 		break;
- 
- 	default:
+ 	lock_sock(sk);
 
 
