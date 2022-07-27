@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBEB0583043
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED9B582F60
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242136AbiG0RfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:35:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48440 "EHLO
+        id S238384AbiG0RZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242700AbiG0Res (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:48 -0400
+        with ESMTP id S232621AbiG0RXu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:23:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BCFE83235;
-        Wed, 27 Jul 2022 09:49:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6537AC39;
+        Wed, 27 Jul 2022 09:45:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B988F61479;
-        Wed, 27 Jul 2022 16:49:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95F7C433C1;
-        Wed, 27 Jul 2022 16:49:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6E88600BE;
+        Wed, 27 Jul 2022 16:45:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78CFC4314E;
+        Wed, 27 Jul 2022 16:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940554;
-        bh=dN4tTBOH5BS+WNPJLd/h4yzH04AAcMpyxHoqSYwowYQ=;
+        s=korg; t=1658940353;
+        bh=Fu+RQZP2lBIVjrGU4m9Qhg1VGiP+0En1tD5IuKWsy6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tT02GkyRSNLuWFziK0ra6cuOT+HVa7YEl3jSeRfi1Kutq4X3RjLUEM/w5fjqNT3Qd
-         bJ7aUfKrLc7KAu1f2kkyMU4RJwNNOYNzbo/IS2wbQUXg/XGfFMAOmUg4DokP4ocK4n
-         ZZnfQJg3lUwWEAzKGHjiCIwuSl9XWEMAOv0AF+iM=
+        b=UUwdUa7oDJdFxOucTc1dWM/2pSfx1/Qyu2e7Lq830lI1Dk0+ugcm1gKdQS2oXAJoO
+         t6Z4WkVy4Hj+6SEKsiA4ka33Rw8GFT5saBrv41o1s3k5FQWd7En/kZzixUlnVu29dx
+         /njQ6NOFlz2oMqVQr0/LKGX/B1mJSE+b3qyrP1fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 034/158] ip: Fix data-races around sysctl_ip_fwd_use_pmtu.
+        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 194/201] watch-queue: remove spurious double semicolon
 Date:   Wed, 27 Jul 2022 18:11:38 +0200
-Message-Id: <20220727161022.845221234@linuxfoundation.org>
+Message-Id: <20220727161035.807389817@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 60c158dc7b1f0558f6cadd5b50d0386da0000d50 ]
+commit 44e29e64cf1ac0cffb152e0532227ea6d002aa28 upstream.
 
-While reading sysctl_ip_fwd_use_pmtu, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+Sedat Dilek noticed that I had an extraneous semicolon at the end of a
+line in the previous patch.
 
-Fixes: f87c10a8aa1e ("ipv4: introduce ip_dst_mtu_maybe_forward and protect forwarding path against pmtu spoofing")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It's harmless, but unintentional, and while compilers just treat it as
+an extra empty statement, for all I know some other tooling might warn
+about it. So clean it up before other people notice too ;)
+
+Fixes: 353f7988dd84 ("watchqueue: make sure to serialize 'wqueue->defunct' properly")
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip.h | 2 +-
- net/ipv4/route.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ kernel/watch_queue.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index 26fffda78cca..05fe313f72fa 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -446,7 +446,7 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
- 	struct net *net = dev_net(dst->dev);
- 	unsigned int mtu;
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -227,7 +227,7 @@ void __post_watch_notification(struct wa
  
--	if (net->ipv4.sysctl_ip_fwd_use_pmtu ||
-+	if (READ_ONCE(net->ipv4.sysctl_ip_fwd_use_pmtu) ||
- 	    ip_mtu_locked(dst) ||
- 	    !forwarding) {
- 		mtu = rt->rt_pmtu;
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index ed01063d8f30..8363e575c455 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1397,7 +1397,7 @@ u32 ip_mtu_from_fib_result(struct fib_result *res, __be32 daddr)
- 	struct fib_info *fi = res->fi;
- 	u32 mtu = 0;
+ 		if (lock_wqueue(wqueue)) {
+ 			post_one_notification(wqueue, n);
+-			unlock_wqueue(wqueue);;
++			unlock_wqueue(wqueue);
+ 		}
+ 	}
  
--	if (dev_net(dev)->ipv4.sysctl_ip_fwd_use_pmtu ||
-+	if (READ_ONCE(dev_net(dev)->ipv4.sysctl_ip_fwd_use_pmtu) ||
- 	    fi->fib_metrics->metrics[RTAX_LOCK - 1] & (1 << RTAX_MTU))
- 		mtu = fi->fib_mtu;
- 
--- 
-2.35.1
-
 
 
