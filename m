@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C21B582B3C
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B19582AA3
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237460AbiG0QaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:30:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33722 "EHLO
+        id S232784AbiG0QW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:22:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237908AbiG0Q3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:29:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D161BD;
-        Wed, 27 Jul 2022 09:25:06 -0700 (PDT)
+        with ESMTP id S234732AbiG0QWC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBAD231238;
+        Wed, 27 Jul 2022 09:22:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF724B821C4;
-        Wed, 27 Jul 2022 16:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BDE5C433C1;
-        Wed, 27 Jul 2022 16:24:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A38FDCE2304;
+        Wed, 27 Jul 2022 16:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1D9C433C1;
+        Wed, 27 Jul 2022 16:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939077;
-        bh=bEhIf7cld2niPZDZbI/nEIeJ8wE5plv3kEKkLMSzO7w=;
+        s=korg; t=1658938918;
+        bh=baCgCy56YObxzhgX2L4La7FM8mD+ITUsB5YBk92O+E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXuA6PgldWfbfnksfhbFR9lcR+9pmdzz0nR7ZoipCHo9RfDCMuwbWmunrfxPnsivy
-         8/fFVyyLPISdMfqhHl+fvWvI9Lvlwh03Y1emHx6QI9WLM87XXvewuLm76S1tnQoa/7
-         E2BWzS8eNAeUoBre9872qImf69gfcKs4VZCAj9pI=
+        b=WnLFJbvYmfmgTmfHCuULrJWxPzfXM1FfxM7ysPyd00NLDPUF00rdo5ejKI9v+cHnh
+         Hg6l9kXFhFCBIfYPaF/TWE8TtFikERqVponiOvopIPzE+2RYRXEb4YgHVL8z2fHR/Q
+         MSJ5Q0TlsFwE9WfymxrOjWIJG15L3VrDdc2SdZgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 4.14 17/37] bpf: Make sure mac_header was set before using it
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 14/26] igmp: Fix a data-race around sysctl_igmp_max_memberships.
 Date:   Wed, 27 Jul 2022 18:10:43 +0200
-Message-Id: <20220727161001.544948742@linuxfoundation.org>
+Message-Id: <20220727160959.689789254@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
-References: <20220727161000.822869853@linuxfoundation.org>
+In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
+References: <20220727160959.122591422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 0326195f523a549e0a9d7fd44c70b26fd7265090 upstream.
+[ Upstream commit 6305d821e3b9b5379d348528e5b5faf316383bc2 ]
 
-Classic BPF has a way to load bytes starting from the mac header.
+While reading sysctl_igmp_max_memberships, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Some skbs do not have a mac header, and skb_mac_header()
-in this case is returning a pointer that 65535 bytes after
-skb->head.
-
-Existing range check in bpf_internal_load_pointer_neg_helper()
-was properly kicking and no illegal access was happening.
-
-New sanity check in skb_mac_header() is firing, so we need
-to avoid it.
-
-WARNING: CPU: 1 PID: 28990 at include/linux/skbuff.h:2785 skb_mac_header include/linux/skbuff.h:2785 [inline]
-WARNING: CPU: 1 PID: 28990 at include/linux/skbuff.h:2785 bpf_internal_load_pointer_neg_helper+0x1b1/0x1c0 kernel/bpf/core.c:74
-Modules linked in:
-CPU: 1 PID: 28990 Comm: syz-executor.0 Not tainted 5.19.0-rc4-syzkaller-00865-g4874fb9484be #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 06/29/2022
-RIP: 0010:skb_mac_header include/linux/skbuff.h:2785 [inline]
-RIP: 0010:bpf_internal_load_pointer_neg_helper+0x1b1/0x1c0 kernel/bpf/core.c:74
-Code: ff ff 45 31 f6 e9 5a ff ff ff e8 aa 27 40 00 e9 3b ff ff ff e8 90 27 40 00 e9 df fe ff ff e8 86 27 40 00 eb 9e e8 2f 2c f3 ff <0f> 0b eb b1 e8 96 27 40 00 e9 79 fe ff ff 90 41 57 41 56 41 55 41
-RSP: 0018:ffffc9000309f668 EFLAGS: 00010216
-RAX: 0000000000000118 RBX: ffffffffffeff00c RCX: ffffc9000e417000
-RDX: 0000000000040000 RSI: ffffffff81873f21 RDI: 0000000000000003
-RBP: ffff8880842878c0 R08: 0000000000000003 R09: 000000000000ffff
-R10: 000000000000ffff R11: 0000000000000001 R12: 0000000000000004
-R13: ffff88803ac56c00 R14: 000000000000ffff R15: dffffc0000000000
-FS: 00007f5c88a16700(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fdaa9f6c058 CR3: 000000003a82c000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<TASK>
-____bpf_skb_load_helper_32 net/core/filter.c:276 [inline]
-bpf_skb_load_helper_32+0x191/0x220 net/core/filter.c:264
-
-Fixes: f9aefd6b2aa3 ("net: warn if mac header was not set")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220707123900.945305-1-edumazet@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/ipv4/igmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -64,11 +64,13 @@ void *bpf_internal_load_pointer_neg_help
- {
- 	u8 *ptr = NULL;
- 
--	if (k >= SKF_NET_OFF)
-+	if (k >= SKF_NET_OFF) {
- 		ptr = skb_network_header(skb) + k - SKF_NET_OFF;
--	else if (k >= SKF_LL_OFF)
-+	} else if (k >= SKF_LL_OFF) {
-+		if (unlikely(!skb_mac_header_was_set(skb)))
-+			return NULL;
- 		ptr = skb_mac_header(skb) + k - SKF_LL_OFF;
--
-+	}
- 	if (ptr >= skb->head && ptr + size <= skb_tail_pointer(skb))
- 		return ptr;
- 
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 6e217424e0ff..3c09bee931b7 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -2171,7 +2171,7 @@ int ip_mc_join_group(struct sock *sk, struct ip_mreqn *imr)
+ 		count++;
+ 	}
+ 	err = -ENOBUFS;
+-	if (count >= net->ipv4.sysctl_igmp_max_memberships)
++	if (count >= READ_ONCE(net->ipv4.sysctl_igmp_max_memberships))
+ 		goto done;
+ 	iml = sock_kmalloc(sk, sizeof(*iml), GFP_KERNEL);
+ 	if (!iml)
+-- 
+2.35.1
+
 
 
