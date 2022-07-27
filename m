@@ -2,47 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C41582F05
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00016582C41
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235101AbiG0RUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:20:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
+        id S238383AbiG0Qor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:44:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241925AbiG0RTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 734F150721;
-        Wed, 27 Jul 2022 09:44:17 -0700 (PDT)
+        with ESMTP id S240152AbiG0QoJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:44:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A47345FCF;
+        Wed, 27 Jul 2022 09:30:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 057E4B821AC;
-        Wed, 27 Jul 2022 16:44:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3BAC433C1;
-        Wed, 27 Jul 2022 16:44:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25558B821BC;
+        Wed, 27 Jul 2022 16:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45820C433C1;
+        Wed, 27 Jul 2022 16:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940254;
-        bh=ExWebhwnzEVWFIDCEFYoZ68tGImeblCF9aJvnPOKp+4=;
+        s=korg; t=1658939440;
+        bh=FOFblN+8rHzafB95Zu3FHcxg7fSjHHCQPRX6hJ/tA2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P70lwEOTvRwp/7j88lmbR4yMy+DRIrBVxSlfO6LxjDZ6wPPsnhOD2LT6LzvP+Wozw
-         SzkK87BK7l34QvnDcD7NFGO+K+gxF0P3HumI7fpP1/xrXbrC+kSIxMDhURnNPOLm9V
-         isJ5oHlHaryGtupVPzKZdp7Rz8S8NYeCOFoJLkVo=
+        b=iciO1cqRec+JwB7wIfM5q1XWeAaQTgYvktdEb60BN0ENpBneGpWvk8T00xt5iDAZt
+         KDyNlLDJ2cx/6w9tSIsKzpV/sNPjMRk2FZ3ZtgllgZDzqYrQP4bzXEfEzs8Lv5/vE1
+         HKBLffvVBEWGdEWeTi/pTRMyoSdx5/3fbso4A2ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Wojciech Ziemba <wojciech.ziemba@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Michel Lespinasse <walken@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Liam Howlett <Liam.Howlett@oracle.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Hugh Dickins <hughd@google.com>, Ying Han <yinghan@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 159/201] crypto: qat - use pre-allocated buffers in datapath
+Subject: [PATCH 5.4 70/87] mmap locking API: initial implementation as rwsem wrappers
 Date:   Wed, 27 Jul 2022 18:11:03 +0200
-Message-Id: <20220727161034.418781055@linuxfoundation.org>
+Message-Id: <20220727161011.904986942@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,205 +66,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Michel Lespinasse <walken@google.com>
 
-[ Upstream commit e0831e7af4e03f2715de102e18e9179ec0a81562 ]
+[ Upstream commit 9740ca4e95b43b91a4a848694a20d01ba6818f7b ]
 
-In order to do DMAs, the QAT device requires that the scatterlist
-structures are mapped and translated into a format that the firmware can
-understand. This is defined as the composition of a scatter gather list
-(SGL) descriptor header, the struct qat_alg_buf_list, plus a variable
-number of flat buffer descriptors, the struct qat_alg_buf.
+This patch series adds a new mmap locking API replacing the existing
+mmap_sem lock and unlocks.  Initially the API is just implemente in terms
+of inlined rwsem calls, so it doesn't provide any new functionality.
 
-The allocation and mapping of these data structures is done each time a
-request is received from the skcipher and aead APIs.
-In an OOM situation, this behaviour might lead to a dead-lock if an
-allocation fails.
+There are two justifications for the new API:
 
-Based on the conversation in [1], increase the size of the aead and
-skcipher request contexts to include an SGL descriptor that can handle
-a maximum of 4 flat buffers.
-If requests exceed 4 entries buffers, memory is allocated dynamically.
+- At first, it provides an easy hooking point to instrument mmap_sem
+  locking latencies independently of any other rwsems.
 
-[1] https://lore.kernel.org/linux-crypto/20200722072932.GA27544@gondor.apana.org.au/
+- In the future, it may be a starting point for replacing the rwsem
+  implementation with a different one, such as range locks.  This is
+  something that is being explored, even though there is no wide concensus
+  about this possible direction yet.  (see
+  https://patchwork.kernel.org/cover/11401483/)
 
-Cc: stable@vger.kernel.org
-Fixes: d370cec32194 ("crypto: qat - Intel(R) QAT crypto interface")
-Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This patch (of 12):
+
+This change wraps the existing mmap_sem related rwsem calls into a new
+mmap locking API.  There are two justifications for the new API:
+
+- At first, it provides an easy hooking point to instrument mmap_sem
+  locking latencies independently of any other rwsems.
+
+- In the future, it may be a starting point for replacing the rwsem
+  implementation with a different one, such as range locks.
+
+Signed-off-by: Michel Lespinasse <walken@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
+Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Liam Howlett <Liam.Howlett@oracle.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Ying Han <yinghan@google.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Michel Lespinasse <walken@google.com>
+Link: http://lkml.kernel.org/r/20200520052908.204642-1-walken@google.com
+Link: http://lkml.kernel.org/r/20200520052908.204642-2-walken@google.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_algs.c   | 64 +++++++++++++---------
- drivers/crypto/qat/qat_common/qat_crypto.h | 24 ++++++++
- 2 files changed, 61 insertions(+), 27 deletions(-)
+ include/linux/mm.h        |  1 +
+ include/linux/mmap_lock.h | 54 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
+ create mode 100644 include/linux/mmap_lock.h
 
-diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
-index f998ed58457c..ec635fe44c1f 100644
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -46,19 +46,6 @@
- static DEFINE_MUTEX(algs_lock);
- static unsigned int active_devs;
- 
--struct qat_alg_buf {
--	u32 len;
--	u32 resrvd;
--	u64 addr;
--} __packed;
--
--struct qat_alg_buf_list {
--	u64 resrvd;
--	u32 num_bufs;
--	u32 num_mapped_bufs;
--	struct qat_alg_buf bufers[];
--} __packed __aligned(64);
--
- /* Common content descriptor */
- struct qat_alg_cd {
- 	union {
-@@ -693,7 +680,10 @@ static void qat_alg_free_bufl(struct qat_crypto_instance *inst,
- 				 bl->bufers[i].len, DMA_BIDIRECTIONAL);
- 
- 	dma_unmap_single(dev, blp, sz, DMA_TO_DEVICE);
--	kfree(bl);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index c125fea49752..d35c29d322d8 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -15,6 +15,7 @@
+ #include <linux/atomic.h>
+ #include <linux/debug_locks.h>
+ #include <linux/mm_types.h>
++#include <linux/mmap_lock.h>
+ #include <linux/range.h>
+ #include <linux/pfn.h>
+ #include <linux/percpu-refcount.h>
+diff --git a/include/linux/mmap_lock.h b/include/linux/mmap_lock.h
+new file mode 100644
+index 000000000000..97ac53b66052
+--- /dev/null
++++ b/include/linux/mmap_lock.h
+@@ -0,0 +1,54 @@
++#ifndef _LINUX_MMAP_LOCK_H
++#define _LINUX_MMAP_LOCK_H
 +
-+	if (!qat_req->buf.sgl_src_valid)
-+		kfree(bl);
++static inline void mmap_init_lock(struct mm_struct *mm)
++{
++	init_rwsem(&mm->mmap_sem);
++}
 +
- 	if (blp != blpout) {
- 		/* If out of place operation dma unmap only data */
- 		int bufless = blout->num_bufs - blout->num_mapped_bufs;
-@@ -704,7 +694,9 @@ static void qat_alg_free_bufl(struct qat_crypto_instance *inst,
- 					 DMA_BIDIRECTIONAL);
- 		}
- 		dma_unmap_single(dev, blpout, sz_out, DMA_TO_DEVICE);
--		kfree(blout);
++static inline void mmap_write_lock(struct mm_struct *mm)
++{
++	down_write(&mm->mmap_sem);
++}
 +
-+		if (!qat_req->buf.sgl_dst_valid)
-+			kfree(blout);
- 	}
- }
- 
-@@ -721,15 +713,24 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
- 	dma_addr_t blp = DMA_MAPPING_ERROR;
- 	dma_addr_t bloutp = DMA_MAPPING_ERROR;
- 	struct scatterlist *sg;
--	size_t sz_out, sz = struct_size(bufl, bufers, n + 1);
-+	size_t sz_out, sz = struct_size(bufl, bufers, n);
-+	int node = dev_to_node(&GET_DEV(inst->accel_dev));
- 
- 	if (unlikely(!n))
- 		return -EINVAL;
- 
--	bufl = kzalloc_node(sz, GFP_ATOMIC,
--			    dev_to_node(&GET_DEV(inst->accel_dev)));
--	if (unlikely(!bufl))
--		return -ENOMEM;
-+	qat_req->buf.sgl_src_valid = false;
-+	qat_req->buf.sgl_dst_valid = false;
++static inline int mmap_write_lock_killable(struct mm_struct *mm)
++{
++	return down_write_killable(&mm->mmap_sem);
++}
 +
-+	if (n > QAT_MAX_BUFF_DESC) {
-+		bufl = kzalloc_node(sz, GFP_ATOMIC, node);
-+		if (unlikely(!bufl))
-+			return -ENOMEM;
-+	} else {
-+		bufl = &qat_req->buf.sgl_src.sgl_hdr;
-+		memset(bufl, 0, sizeof(struct qat_alg_buf_list));
-+		qat_req->buf.sgl_src_valid = true;
-+	}
- 
- 	for_each_sg(sgl, sg, n, i)
- 		bufl->bufers[i].addr = DMA_MAPPING_ERROR;
-@@ -760,12 +761,18 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
- 		struct qat_alg_buf *bufers;
- 
- 		n = sg_nents(sglout);
--		sz_out = struct_size(buflout, bufers, n + 1);
-+		sz_out = struct_size(buflout, bufers, n);
- 		sg_nctr = 0;
--		buflout = kzalloc_node(sz_out, GFP_ATOMIC,
--				       dev_to_node(&GET_DEV(inst->accel_dev)));
--		if (unlikely(!buflout))
--			goto err_in;
++static inline bool mmap_write_trylock(struct mm_struct *mm)
++{
++	return down_write_trylock(&mm->mmap_sem) != 0;
++}
 +
-+		if (n > QAT_MAX_BUFF_DESC) {
-+			buflout = kzalloc_node(sz_out, GFP_ATOMIC, node);
-+			if (unlikely(!buflout))
-+				goto err_in;
-+		} else {
-+			buflout = &qat_req->buf.sgl_dst.sgl_hdr;
-+			memset(buflout, 0, sizeof(struct qat_alg_buf_list));
-+			qat_req->buf.sgl_dst_valid = true;
-+		}
- 
- 		bufers = buflout->bufers;
- 		for_each_sg(sglout, sg, n, i)
-@@ -810,7 +817,9 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
- 			dma_unmap_single(dev, buflout->bufers[i].addr,
- 					 buflout->bufers[i].len,
- 					 DMA_BIDIRECTIONAL);
--	kfree(buflout);
++static inline void mmap_write_unlock(struct mm_struct *mm)
++{
++	up_write(&mm->mmap_sem);
++}
 +
-+	if (!qat_req->buf.sgl_dst_valid)
-+		kfree(buflout);
- 
- err_in:
- 	if (!dma_mapping_error(dev, blp))
-@@ -823,7 +832,8 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
- 					 bufl->bufers[i].len,
- 					 DMA_BIDIRECTIONAL);
- 
--	kfree(bufl);
-+	if (!qat_req->buf.sgl_src_valid)
-+		kfree(bufl);
- 
- 	dev_err(dev, "Failed to map buf for dma\n");
- 	return -ENOMEM;
-diff --git a/drivers/crypto/qat/qat_common/qat_crypto.h b/drivers/crypto/qat/qat_common/qat_crypto.h
-index b6a4c95ae003..0928f159ea99 100644
---- a/drivers/crypto/qat/qat_common/qat_crypto.h
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.h
-@@ -21,6 +21,26 @@ struct qat_crypto_instance {
- 	atomic_t refctr;
- };
- 
-+#define QAT_MAX_BUFF_DESC	4
++static inline void mmap_write_downgrade(struct mm_struct *mm)
++{
++	downgrade_write(&mm->mmap_sem);
++}
 +
-+struct qat_alg_buf {
-+	u32 len;
-+	u32 resrvd;
-+	u64 addr;
-+} __packed;
++static inline void mmap_read_lock(struct mm_struct *mm)
++{
++	down_read(&mm->mmap_sem);
++}
 +
-+struct qat_alg_buf_list {
-+	u64 resrvd;
-+	u32 num_bufs;
-+	u32 num_mapped_bufs;
-+	struct qat_alg_buf bufers[];
-+} __packed;
++static inline int mmap_read_lock_killable(struct mm_struct *mm)
++{
++	return down_read_killable(&mm->mmap_sem);
++}
 +
-+struct qat_alg_fixed_buf_list {
-+	struct qat_alg_buf_list sgl_hdr;
-+	struct qat_alg_buf descriptors[QAT_MAX_BUFF_DESC];
-+} __packed __aligned(64);
++static inline bool mmap_read_trylock(struct mm_struct *mm)
++{
++	return down_read_trylock(&mm->mmap_sem) != 0;
++}
 +
- struct qat_crypto_request_buffs {
- 	struct qat_alg_buf_list *bl;
- 	dma_addr_t blp;
-@@ -28,6 +48,10 @@ struct qat_crypto_request_buffs {
- 	dma_addr_t bloutp;
- 	size_t sz;
- 	size_t sz_out;
-+	bool sgl_src_valid;
-+	bool sgl_dst_valid;
-+	struct qat_alg_fixed_buf_list sgl_src;
-+	struct qat_alg_fixed_buf_list sgl_dst;
- };
- 
- struct qat_crypto_request;
++static inline void mmap_read_unlock(struct mm_struct *mm)
++{
++	up_read(&mm->mmap_sem);
++}
++
++#endif /* _LINUX_MMAP_LOCK_H */
 -- 
 2.35.1
 
