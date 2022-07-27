@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCBC582B93
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 370BD582B22
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:28:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238185AbiG0QfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:35:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46922 "EHLO
+        id S237064AbiG0Q2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239079AbiG0Qew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:34:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A947F4F659;
-        Wed, 27 Jul 2022 09:27:34 -0700 (PDT)
+        with ESMTP id S236065AbiG0Q2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:28:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F87B5004B;
+        Wed, 27 Jul 2022 09:24:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77B9EB821BF;
-        Wed, 27 Jul 2022 16:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D23C7C433D6;
-        Wed, 27 Jul 2022 16:26:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9719E619F1;
+        Wed, 27 Jul 2022 16:24:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2AE6C433B5;
+        Wed, 27 Jul 2022 16:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939201;
-        bh=tS+ar2byvGXQkV54OvZ4Jwy6/JT/BUmN8BRsenhz6fA=;
+        s=korg; t=1658939046;
+        bh=v0fOdDCxuksUy79As8CNF36LVy9i1pfgLKvK2Dz36mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tRQQp57W4DJp6oDKK+2WINwBFizrCB9DuEcxuwk1HHnm+ijMp6SN/X3iaMncEGers
-         Um5LrRqFFwHeEkLLqjOw6VLePDW59Gq6yT9v7tX6zub78V/pa3aP0pCKObQxo3zOnZ
-         HGnb9Kjj9a0kKk9aIxRiB+NHtsYo5RjdRxVPu4cc=
+        b=HZCg3N3wnuNUxsbLNBc9StW/f/lLhG0mzS/IOm7ojSGZA6A0YA5cVBBEUm0Ps64uX
+         QpAnFlzdTRFYI5NpHnpvcOXVBd1U4sTy+FDrnuKdgPTfaKQnxzFkh0O9yYRva5MWO0
+         KfthxAgiblJaIL0M6yMWMMij3E3mGwmOynuVvfbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 4.19 47/62] Bluetooth: SCO: Replace use of memcpy_from_msg with bt_skb_sendmsg
-Date:   Wed, 27 Jul 2022 18:10:56 +0200
-Message-Id: <20220727161005.976577904@linuxfoundation.org>
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        =?UTF-8?q?=E4=B8=80=E5=8F=AA=E7=8B=97?= <chennbnbnb@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.14 31/37] tty: extract tty_flip_buffer_commit() from tty_flip_buffer_push()
+Date:   Wed, 27 Jul 2022 18:10:57 +0200
+Message-Id: <20220727161002.111444845@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
+References: <20220727161000.822869853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 0771cbb3b97d3c1d68eecd7f00055f599954c34e upstream.
+commit 716b10580283fda66f2b88140e3964f8a7f9da89 upstream.
 
-This makes use of bt_skb_sendmsg instead of allocating a different
-buffer to be used with memcpy_from_msg which cause one extra copy.
+We will need this new helper in the next patch.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: 一只狗 <chennbnbnb@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220707082558.9250-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/sco.c |   34 +++++++++++-----------------------
- 1 file changed, 11 insertions(+), 23 deletions(-)
+ drivers/tty/tty_buffer.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -279,27 +279,19 @@ static int sco_connect(struct hci_dev *h
- 	return err;
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -517,6 +517,15 @@ static void flush_to_ldisc(struct work_s
+ 
  }
  
--static int sco_send_frame(struct sock *sk, void *buf, int len,
--			  unsigned int msg_flags)
-+static int sco_send_frame(struct sock *sk, struct sk_buff *skb)
++static inline void tty_flip_buffer_commit(struct tty_buffer *tail)
++{
++	/*
++	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
++	 * buffer data.
++	 */
++	smp_store_release(&tail->commit, tail->used);
++}
++
+ /**
+  *	tty_flip_buffer_push	-	terminal
+  *	@port: tty port to push
+@@ -532,11 +541,7 @@ void tty_flip_buffer_push(struct tty_por
  {
- 	struct sco_conn *conn = sco_pi(sk)->conn;
--	struct sk_buff *skb;
--	int err;
+ 	struct tty_bufhead *buf = &port->buf;
  
- 	/* Check outgoing MTU */
--	if (len > conn->mtu)
-+	if (skb->len > conn->mtu)
- 		return -EINVAL;
- 
--	BT_DBG("sk %p len %d", sk, len);
--
--	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
--	if (!skb)
--		return err;
-+	BT_DBG("sk %p len %d", sk, skb->len);
- 
--	memcpy(skb_put(skb, len), buf, len);
- 	hci_send_sco(conn->hcon, skb);
- 
--	return len;
-+	return skb->len;
+-	/*
+-	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
+-	 * buffer data.
+-	 */
+-	smp_store_release(&buf->tail->commit, buf->tail->used);
++	tty_flip_buffer_commit(buf->tail);
+ 	queue_work(system_unbound_wq, &buf->work);
  }
- 
- static void sco_recv_frame(struct sco_conn *conn, struct sk_buff *skb)
-@@ -715,7 +707,7 @@ static int sco_sock_sendmsg(struct socke
- 			    size_t len)
- {
- 	struct sock *sk = sock->sk;
--	void *buf;
-+	struct sk_buff *skb;
- 	int err;
- 
- 	BT_DBG("sock %p, sk %p", sock, sk);
-@@ -727,24 +719,20 @@ static int sco_sock_sendmsg(struct socke
- 	if (msg->msg_flags & MSG_OOB)
- 		return -EOPNOTSUPP;
- 
--	buf = kmalloc(len, GFP_KERNEL);
--	if (!buf)
--		return -ENOMEM;
--
--	if (memcpy_from_msg(buf, msg, len)) {
--		kfree(buf);
--		return -EFAULT;
--	}
-+	skb = bt_skb_sendmsg(sk, msg, len, len, 0, 0);
-+	if (IS_ERR_OR_NULL(skb))
-+		return PTR_ERR(skb);
- 
- 	lock_sock(sk);
- 
- 	if (sk->sk_state == BT_CONNECTED)
--		err = sco_send_frame(sk, buf, len, msg->msg_flags);
-+		err = sco_send_frame(sk, skb);
- 	else
- 		err = -ENOTCONN;
- 
- 	release_sock(sk);
--	kfree(buf);
-+	if (err)
-+		kfree_skb(skb);
- 	return err;
- }
- 
+ EXPORT_SYMBOL(tty_flip_buffer_push);
 
 
