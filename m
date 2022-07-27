@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27610582F7D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C067582FDA
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242083AbiG0RZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58372 "EHLO
+        id S242199AbiG0Ra1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242324AbiG0RYy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:24:54 -0400
+        with ESMTP id S242262AbiG0R3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:29:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420077D1DC;
-        Wed, 27 Jul 2022 09:46:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B4B80482;
+        Wed, 27 Jul 2022 09:47:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C28BCB821BE;
-        Wed, 27 Jul 2022 16:46:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E63FC433C1;
-        Wed, 27 Jul 2022 16:46:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 326DDB821AC;
+        Wed, 27 Jul 2022 16:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F67C43143;
+        Wed, 27 Jul 2022 16:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940388;
-        bh=8wseduYSB04klnmbB3qO5dWg7kVn28vt/87y7JL97D4=;
+        s=korg; t=1658940424;
+        bh=1+iurOaVQp3iZhPQt/kTqOFCUdJRGjD5/lCZjsj38Bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCM6svHfXDhLOC4Pdi5YxlyIO09BwIK7ubU9Eu6O60yEOUsrvrE7w05hMzIZBd2J7
-         j4uyhHkA/sU8m3yyYSoWvfaCGgz2hzJX3y9eWUVl1Oihvcjow7ebMM+fBs23buw51r
-         lkmxoOM5vJ6fg8NHkE58hYQ532UEIrKXQUg2ljfA=
+        b=g4C3oHKJl15uK0ale3EDo5JIoPv9yt88mpNHPQrwbtHpmEhtvV17jR5QxacDK880Z
+         W8152uXmiEODArCg1naS83jFqBq4pMJBEijr9KrQpJi9WQmBPTRv1JekOcOtU5v7NQ
+         SOsnqdyCP7iHOsI3Zbf1IZzuRp01QUlZgmH2ebIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 5.15 179/201] Bluetooth: SCO: Fix sco_send_frame returning skb->len
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 019/158] ip: Fix data-races around sysctl_ip_default_ttl.
 Date:   Wed, 27 Jul 2022 18:11:23 +0200
-Message-Id: <20220727161035.212051689@linuxfoundation.org>
+Message-Id: <20220727161022.246265876@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 037ce005af6b8a3e40ee07c6e9266c8997e6a4d6 upstream.
+commit 8281b7ec5c56b71cb2cc5a1728b41607be66959c upstream.
 
-The skb in modified by hci_send_sco which pushes SCO headers thus
-changing skb->len causing sco_sock_sendmsg to fail.
+While reading sysctl_ip_default_ttl, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-Fixes: 0771cbb3b97d ("Bluetooth: SCO: Replace use of memcpy_from_msg with bt_skb_sendmsg")
-Tested-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/sco.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/netronome/nfp/flower/action.c |    2 +-
+ include/net/route.h                                |    2 +-
+ net/ipv4/ip_sockglue.c                             |    2 +-
+ net/ipv4/netfilter/nf_reject_ipv4.c                |    4 ++--
+ net/ipv4/proc.c                                    |    2 +-
+ net/netfilter/nf_synproxy_core.c                   |    2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -283,16 +283,17 @@ static int sco_connect(struct hci_dev *h
- static int sco_send_frame(struct sock *sk, struct sk_buff *skb)
- {
- 	struct sco_conn *conn = sco_pi(sk)->conn;
-+	int len = skb->len;
+--- a/drivers/net/ethernet/netronome/nfp/flower/action.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/action.c
+@@ -473,7 +473,7 @@ nfp_fl_set_tun(struct nfp_app *app, stru
+ 			set_tun->ttl = ip4_dst_hoplimit(&rt->dst);
+ 			ip_rt_put(rt);
+ 		} else {
+-			set_tun->ttl = net->ipv4.sysctl_ip_default_ttl;
++			set_tun->ttl = READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
+ 		}
+ 	}
  
- 	/* Check outgoing MTU */
--	if (skb->len > conn->mtu)
-+	if (len > conn->mtu)
- 		return -EINVAL;
+--- a/include/net/route.h
++++ b/include/net/route.h
+@@ -361,7 +361,7 @@ static inline int ip4_dst_hoplimit(const
+ 	struct net *net = dev_net(dst->dev);
  
--	BT_DBG("sk %p len %d", sk, skb->len);
-+	BT_DBG("sk %p len %d", sk, len);
- 
- 	hci_send_sco(conn->hcon, skb);
- 
--	return skb->len;
-+	return len;
+ 	if (hoplimit == 0)
+-		hoplimit = net->ipv4.sysctl_ip_default_ttl;
++		hoplimit = READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
+ 	return hoplimit;
  }
  
- static void sco_recv_frame(struct sco_conn *conn, struct sk_buff *skb)
-@@ -743,7 +744,8 @@ static int sco_sock_sendmsg(struct socke
- 		err = -ENOTCONN;
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -1606,7 +1606,7 @@ static int do_ip_getsockopt(struct sock
+ 	{
+ 		struct net *net = sock_net(sk);
+ 		val = (inet->uc_ttl == -1 ?
+-		       net->ipv4.sysctl_ip_default_ttl :
++		       READ_ONCE(net->ipv4.sysctl_ip_default_ttl) :
+ 		       inet->uc_ttl);
+ 		break;
+ 	}
+--- a/net/ipv4/netfilter/nf_reject_ipv4.c
++++ b/net/ipv4/netfilter/nf_reject_ipv4.c
+@@ -62,7 +62,7 @@ struct sk_buff *nf_reject_skb_v4_tcp_res
  
- 	release_sock(sk);
--	if (err)
-+
-+	if (err < 0)
- 		kfree_skb(skb);
- 	return err;
- }
+ 	skb_reserve(nskb, LL_MAX_HEADER);
+ 	niph = nf_reject_iphdr_put(nskb, oldskb, IPPROTO_TCP,
+-				   net->ipv4.sysctl_ip_default_ttl);
++				   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
+ 	nf_reject_ip_tcphdr_put(nskb, oldskb, oth);
+ 	niph->tot_len = htons(nskb->len);
+ 	ip_send_check(niph);
+@@ -115,7 +115,7 @@ struct sk_buff *nf_reject_skb_v4_unreach
+ 
+ 	skb_reserve(nskb, LL_MAX_HEADER);
+ 	niph = nf_reject_iphdr_put(nskb, oldskb, IPPROTO_ICMP,
+-				   net->ipv4.sysctl_ip_default_ttl);
++				   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
+ 
+ 	skb_reset_transport_header(nskb);
+ 	icmph = skb_put_zero(nskb, sizeof(struct icmphdr));
+--- a/net/ipv4/proc.c
++++ b/net/ipv4/proc.c
+@@ -387,7 +387,7 @@ static int snmp_seq_show_ipstats(struct
+ 
+ 	seq_printf(seq, "\nIp: %d %d",
+ 		   IPV4_DEVCONF_ALL(net, FORWARDING) ? 1 : 2,
+-		   net->ipv4.sysctl_ip_default_ttl);
++		   READ_ONCE(net->ipv4.sysctl_ip_default_ttl));
+ 
+ 	BUILD_BUG_ON(offsetof(struct ipstats_mib, mibs) != 0);
+ 	snmp_get_cpu_field64_batch(buff64, snmp4_ipstats_list,
+--- a/net/netfilter/nf_synproxy_core.c
++++ b/net/netfilter/nf_synproxy_core.c
+@@ -405,7 +405,7 @@ synproxy_build_ip(struct net *net, struc
+ 	iph->tos	= 0;
+ 	iph->id		= 0;
+ 	iph->frag_off	= htons(IP_DF);
+-	iph->ttl	= net->ipv4.sysctl_ip_default_ttl;
++	iph->ttl	= READ_ONCE(net->ipv4.sysctl_ip_default_ttl);
+ 	iph->protocol	= IPPROTO_TCP;
+ 	iph->check	= 0;
+ 	iph->saddr	= saddr;
 
 
