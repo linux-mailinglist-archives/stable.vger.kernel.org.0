@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEDD582BA9
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E02E582CAE
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238646AbiG0QgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
+        id S240522AbiG0Qtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238237AbiG0QfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:35:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311FE56BA9;
-        Wed, 27 Jul 2022 09:27:46 -0700 (PDT)
+        with ESMTP id S240643AbiG0QtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:49:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD2C761735;
+        Wed, 27 Jul 2022 09:32:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC2661A08;
-        Wed, 27 Jul 2022 16:27:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6C3C433D7;
-        Wed, 27 Jul 2022 16:27:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A3DAB8200D;
+        Wed, 27 Jul 2022 16:32:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72314C433D6;
+        Wed, 27 Jul 2022 16:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939266;
-        bh=/pJZDdtSjLMYmjrj2iJ114/3Aq098YfIz1ke9k5SAXk=;
+        s=korg; t=1658939558;
+        bh=cz+hdvCS81/1ofgS66D9vhSA5DTELGq6dMXwQkqw964=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZKTiLkidI0nE/sgphZ2kqEzQeN1v/JcyZGzUZrl4no7wufuKxbJUSUYhjHNQr6uy
-         6S1iwHiqWn36f/g8mZhCRyCo3olpw+FBhHR4SaOOqcnUN4xFwgyqJS0k8HViSdkkAh
-         PXnMpfDEvYaO/rvdDem3td8hG2gf2sM08yhZB1Ao=
+        b=jYVd2EyksE928bZo/Vh2b+ldR0GCH2eDSItd6WhweQ/Hy0g39sARLv8V2Ij1foBou
+         U5NnRcjvVmVYh5OF3yL1d/ul19Z6JhD+DrpOfkVAqkXhcIp3GxOdJyuyg+xQbrzCCW
+         GNYoCYmh5L5kcGHa/lUHiHVRiDRPyBCz2pO7+vXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Fabien Dessenne <fabien.dessenne@foss.st.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 01/87] pinctrl: stm32: fix optional IRQ support to gpios
+        Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: [PATCH 5.10 008/105] block: fix bounce_clone_bio for passthrough bios
 Date:   Wed, 27 Jul 2022 18:09:54 +0200
-Message-Id: <20220727161009.047532692@linuxfoundation.org>
+Message-Id: <20220727161012.411398366@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,63 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Dessenne <fabien.dessenne@foss.st.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit a1d4ef1adf8bbd302067534ead671a94759687ed upstream.
+commit b90994c6ab623baf9268df9710692f14920ce9d2 upstream.
 
-To act as an interrupt controller, a gpio bank relies on the
-"interrupt-parent" of the pin controller.
-When this optional "interrupt-parent" misses, do not create any IRQ domain.
+Now that bio_alloc_bioset does not fall back to kmalloc for a NULL
+bio_set, handle that case explicitly and simplify the calling
+conventions.
 
-This fixes a "NULL pointer in stm32_gpio_domain_alloc()" kernel crash when
-the interrupt-parent = <exti> property is not declared in the Device Tree.
+Based on an earlier patch from Chaitanya Kulkarni.
 
-Fixes: 0eb9f683336d ("pinctrl: Add IRQ support to STM32 gpios")
-Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
-Link: https://lore.kernel.org/r/20220627142350.742973-1-fabien.dessenne@foss.st.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 3175199ab0ac ("block: split bio_kmalloc from bio_alloc_bioset")
+Reported-by: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ block/bounce.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -1215,15 +1215,17 @@ static int stm32_gpiolib_register_bank(s
- 	bank->bank_ioport_nr = bank_ioport_nr;
- 	spin_lock_init(&bank->lock);
+--- a/block/bounce.c
++++ b/block/bounce.c
+@@ -214,8 +214,7 @@ static void bounce_end_io_read_isa(struc
+ 	__bounce_end_io_read(bio, &isa_page_pool);
+ }
  
--	/* create irq hierarchical domain */
--	bank->fwnode = of_node_to_fwnode(np);
-+	if (pctl->domain) {
-+		/* create irq hierarchical domain */
-+		bank->fwnode = of_node_to_fwnode(np);
-+
-+		bank->domain = irq_domain_create_hierarchy(pctl->domain, 0, STM32_GPIO_IRQ_LINE,
-+							   bank->fwnode, &stm32_gpio_domain_ops,
-+							   bank);
- 
--	bank->domain = irq_domain_create_hierarchy(pctl->domain, 0,
--					STM32_GPIO_IRQ_LINE, bank->fwnode,
--					&stm32_gpio_domain_ops, bank);
+-static struct bio *bounce_clone_bio(struct bio *bio_src, gfp_t gfp_mask,
+-		struct bio_set *bs)
++static struct bio *bounce_clone_bio(struct bio *bio_src, gfp_t gfp_mask)
+ {
+ 	struct bvec_iter iter;
+ 	struct bio_vec bv;
+@@ -242,8 +241,11 @@ static struct bio *bounce_clone_bio(stru
+ 	 *    asking for trouble and would force extra work on
+ 	 *    __bio_clone_fast() anyways.
+ 	 */
 -
--	if (!bank->domain)
--		return -ENODEV;
-+		if (!bank->domain)
-+			return -ENODEV;
-+	}
+-	bio = bio_alloc_bioset(gfp_mask, bio_segments(bio_src), bs);
++	if (bio_is_passthrough(bio_src))
++		bio = bio_kmalloc(gfp_mask, bio_segments(bio_src));
++	else
++		bio = bio_alloc_bioset(gfp_mask, bio_segments(bio_src),
++				       &bounce_bio_set);
+ 	if (!bio)
+ 		return NULL;
+ 	bio->bi_disk		= bio_src->bi_disk;
+@@ -294,7 +296,6 @@ static void __blk_queue_bounce(struct re
+ 	unsigned i = 0;
+ 	bool bounce = false;
+ 	int sectors = 0;
+-	bool passthrough = bio_is_passthrough(*bio_orig);
  
- 	err = gpiochip_add_data(&bank->gpio_chip, bank);
- 	if (err) {
-@@ -1393,6 +1395,8 @@ int stm32_pctl_probe(struct platform_dev
- 	pctl->domain = stm32_pctrl_get_irq_domain(np);
- 	if (IS_ERR(pctl->domain))
- 		return PTR_ERR(pctl->domain);
-+	if (!pctl->domain)
-+		dev_warn(dev, "pinctrl without interrupt support\n");
+ 	bio_for_each_segment(from, *bio_orig, iter) {
+ 		if (i++ < BIO_MAX_PAGES)
+@@ -305,14 +306,14 @@ static void __blk_queue_bounce(struct re
+ 	if (!bounce)
+ 		return;
  
- 	/* hwspinlock is optional */
- 	hwlock_id = of_hwspin_lock_get_id(pdev->dev.of_node, 0);
+-	if (!passthrough && sectors < bio_sectors(*bio_orig)) {
++	if (!bio_is_passthrough(*bio_orig) &&
++	    sectors < bio_sectors(*bio_orig)) {
+ 		bio = bio_split(*bio_orig, sectors, GFP_NOIO, &bounce_bio_split);
+ 		bio_chain(bio, *bio_orig);
+ 		submit_bio_noacct(*bio_orig);
+ 		*bio_orig = bio;
+ 	}
+-	bio = bounce_clone_bio(*bio_orig, GFP_NOIO, passthrough ? NULL :
+-			&bounce_bio_set);
++	bio = bounce_clone_bio(*bio_orig, GFP_NOIO);
+ 
+ 	/*
+ 	 * Bvec table can't be updated by bio_for_each_segment_all(),
 
 
