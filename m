@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52BF65830DE
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D005830E2
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242967AbiG0RnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:43:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35088 "EHLO
+        id S242987AbiG0Rn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242910AbiG0Rmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:42:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7FF54ACA;
-        Wed, 27 Jul 2022 09:52:17 -0700 (PDT)
+        with ESMTP id S242739AbiG0Rm6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:42:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23CD654656;
+        Wed, 27 Jul 2022 09:52:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DB1CB821D4;
-        Wed, 27 Jul 2022 16:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCB1C433C1;
-        Wed, 27 Jul 2022 16:52:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E0E0616D1;
+        Wed, 27 Jul 2022 16:52:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B06AC433C1;
+        Wed, 27 Jul 2022 16:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940731;
-        bh=W/HHsRq2sC87P8Jl6L/qDVBFwjJgLDL+rERMXNdKZ0E=;
+        s=korg; t=1658940733;
+        bh=A4PSEb0B3P0mqsdnh4osQB/Gotdxco+7iYeqMIbckC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=or/Y+9hG4ZTKz4NPsfuENi0KzFrBYEJkivuagANuG9iNOAyG/dg7XcKvAhCWN2kEp
-         x5Fc4DVOCbbI85JyRftd09j0BMfdEqIfo8FI5o+GuhPcSoqeBHe2GGaq1m/Mlt8Mp3
-         UULdzwZlLIxG70qyWqT9SPi855HTUhY8TM9NOU00=
+        b=itvK3J/0WE+cT/J3QsNCX3C6l1QAN07iHuzpUIzj7FjNpPeVLtqstsBdl10oabR0v
+         A0kO2B3y0RCPqAQ9aT5dRsbe+bb9qqrZdubCo1rX63lNnC7K/TEvVLX8MaHdjka2m/
+         9banBrlOE8hsk5BCjdR2jAHG/cPj46BqIAzHsiQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oz Shlomo <ozsh@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kent Gibson <warthog618@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 127/158] net/sched: cls_api: Fix flow action initialization
-Date:   Wed, 27 Jul 2022 18:13:11 +0200
-Message-Id: <20220727161026.492887422@linuxfoundation.org>
+Subject: [PATCH 5.18 128/158] selftests: gpio: fix include path to kernel headers for out of tree builds
+Date:   Wed, 27 Jul 2022 18:13:12 +0200
+Message-Id: <20220727161026.541816139@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
 References: <20220727161021.428340041@linuxfoundation.org>
@@ -55,71 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oz Shlomo <ozsh@nvidia.com>
+From: Kent Gibson <warthog618@gmail.com>
 
-[ Upstream commit c0f47c2822aadeb8b2829f3e4c3792f184c7be33 ]
+[ Upstream commit f63731e18e8d8350e05b0176e39a76639f6483c7 ]
 
-The cited commit refactored the flow action initialization sequence to
-use an interface method when translating tc action instances to flow
-offload objects. The refactored version skips the initialization of the
-generic flow action attributes for tc actions, such as pedit, that allocate
-more than one offload entry. This can cause potential issues for drivers
-mapping flow action ids.
+When building selftests out of the kernel tree the gpio.h the include
+path is incorrect and the build falls back to the system includes
+which may be outdated.
 
-Populate the generic flow action fields for all the flow action entries.
+Add the KHDR_INCLUDES to the CFLAGS to include the gpio.h from the
+build tree.
 
-Fixes: c54e1d920f04 ("flow_offload: add ops to tc_action_ops for flow action setup")
-Signed-off-by: Oz Shlomo <ozsh@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-
-----
-v1 -> v2:
- - coalese the generic flow action fields initialization to a single loop
-Reviewed-by: Baowen Zheng <baowen.zheng@corigine.com>
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4f4d0af7b2d9 ("selftests: gpio: restore CFLAGS options")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Kent Gibson <warthog618@gmail.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_api.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ tools/testing/selftests/gpio/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 2d4dc1468a9a..6fd33c75d6bb 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -3531,7 +3531,7 @@ int tc_setup_action(struct flow_action *flow_action,
- 		    struct tc_action *actions[],
- 		    struct netlink_ext_ack *extack)
- {
--	int i, j, index, err = 0;
-+	int i, j, k, index, err = 0;
- 	struct tc_action *act;
+diff --git a/tools/testing/selftests/gpio/Makefile b/tools/testing/selftests/gpio/Makefile
+index 71b306602368..616ed4019655 100644
+--- a/tools/testing/selftests/gpio/Makefile
++++ b/tools/testing/selftests/gpio/Makefile
+@@ -3,6 +3,6 @@
+ TEST_PROGS := gpio-mockup.sh gpio-sim.sh
+ TEST_FILES := gpio-mockup-sysfs.sh
+ TEST_GEN_PROGS_EXTENDED := gpio-mockup-cdev gpio-chip-info gpio-line-name
+-CFLAGS += -O2 -g -Wall -I../../../../usr/include/
++CFLAGS += -O2 -g -Wall -I../../../../usr/include/ $(KHDR_INCLUDES)
  
- 	BUILD_BUG_ON(TCA_ACT_HW_STATS_ANY != FLOW_ACTION_HW_STATS_ANY);
-@@ -3551,14 +3551,18 @@ int tc_setup_action(struct flow_action *flow_action,
- 		if (err)
- 			goto err_out_locked;
- 
--		entry->hw_stats = tc_act_hw_stats(act->hw_stats);
--		entry->hw_index = act->tcfa_index;
- 		index = 0;
- 		err = tc_setup_offload_act(act, entry, &index, extack);
--		if (!err)
--			j += index;
--		else
-+		if (err)
- 			goto err_out_locked;
-+
-+		for (k = 0; k < index ; k++) {
-+			entry[k].hw_stats = tc_act_hw_stats(act->hw_stats);
-+			entry[k].hw_index = act->tcfa_index;
-+		}
-+
-+		j += index;
-+
- 		spin_unlock_bh(&act->tcfa_lock);
- 	}
- 
+ include ../lib.mk
 -- 
 2.35.1
 
