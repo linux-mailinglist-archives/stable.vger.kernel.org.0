@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA2C582B95
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3A9582D40
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238106AbiG0QfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47060 "EHLO
+        id S240939AbiG0QzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238538AbiG0Qe3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:34:29 -0400
+        with ESMTP id S241090AbiG0QyT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133424F1AF;
-        Wed, 27 Jul 2022 09:27:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B38550A5;
+        Wed, 27 Jul 2022 09:35:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B065461A08;
-        Wed, 27 Jul 2022 16:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC871C433C1;
-        Wed, 27 Jul 2022 16:27:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FBCC61A3F;
+        Wed, 27 Jul 2022 16:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D90FC433C1;
+        Wed, 27 Jul 2022 16:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939227;
-        bh=J33//SefDHkK5Xw+LHLVsbe0xhaMJJGR2xNiQs91V50=;
+        s=korg; t=1658939729;
+        bh=0Jadx+C+a0mw1bHyeJzABIsob/Z/w1uORvsOwJChtE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FB8ion0sCWVPEfJILDY8768tV15X5AiVuDK10wswYbyHMEfhV9ea6UlVnV+2JXVK6
-         asB08c6EcLHfHUHa/JQQzZl4vLheGO9NKwhwGqhHJ0sz0Zduz3nv3vrEjJyfzeNSjY
-         VINjRpQGgiNfAWWgj1ap0MQtycYjyQrSBl7REoCI=
+        b=op31ULRHTz29ivwFoE5NSwxou32c3c6nvdy3bfUj6iDs0NCBvVBEfoDK2+GxC3CB7
+         sl20hZS5DHVcRxSXGEKbNYH5q4ZXs2dthZgrntjHrwR8mRV/9JWsZ69/z6YI3Q+ga9
+         EUIdOQTIKhiyT6xucxEDIIzuxI1GiY+wlG4AErqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Alonso <joalonsof@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 58/62] net: usb: ax88179_178a needs FLAG_SEND_ZLP
-Date:   Wed, 27 Jul 2022 18:11:07 +0200
-Message-Id: <20220727161006.413503984@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.10 082/105] x86/bugs: Warn when "ibrs" mitigation is selected on Enhanced IBRS parts
+Date:   Wed, 27 Jul 2022 18:11:08 +0200
+Message-Id: <20220727161015.389362802@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,121 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Alonso <joalonsof@gmail.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 36a15e1cb134c0395261ba1940762703f778438c upstream.
+commit eb23b5ef9131e6d65011de349a4d25ef1b3d4314 upstream.
 
-The extra byte inserted by usbnet.c when
- (length % dev->maxpacket == 0) is causing problems to device.
+IBRS mitigation for spectre_v2 forces write to MSR_IA32_SPEC_CTRL at
+every kernel entry/exit. On Enhanced IBRS parts setting
+MSR_IA32_SPEC_CTRL[IBRS] only once at boot is sufficient. MSR writes at
+every kernel entry/exit incur unnecessary performance loss.
 
-This patch sets FLAG_SEND_ZLP to avoid this.
+When Enhanced IBRS feature is present, print a warning about this
+unnecessary performance loss.
 
-Tested with: 0b95:1790 ASIX Electronics Corp. AX88179 Gigabit Ethernet
-
-Problems observed:
-======================================================================
-1) Using ssh/sshfs. The remote sshd daemon can abort with the message:
-   "message authentication code incorrect"
-   This happens because the tcp message sent is corrupted during the
-   USB "Bulk out". The device calculate the tcp checksum and send a
-   valid tcp message to the remote sshd. Then the encryption detects
-   the error and aborts.
-2) NETDEV WATCHDOG: ... (ax88179_178a): transmit queue 0 timed out
-3) Stop normal work without any log message.
-   The "Bulk in" continue receiving packets normally.
-   The host sends "Bulk out" and the device responds with -ECONNRESET.
-   (The netusb.c code tx_complete ignore -ECONNRESET)
-Under normal conditions these errors take days to happen and in
-intense usage take hours.
-
-A test with ping gives packet loss, showing that something is wrong:
-ping -4 -s 462 {destination}	# 462 = 512 - 42 - 8
-Not all packets fail.
-My guess is that the device tries to find another packet starting
-at the extra byte and will fail or not depending on the next
-bytes (old buffer content).
-======================================================================
-
-Signed-off-by: Jose Alonso <joalonsof@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/2a5eaf54583c2bfe0edc4fea64006656256cca17.1657814857.git.pawan.kumar.gupta@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ax88179_178a.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1706,7 +1706,7 @@ static const struct driver_info ax88179_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1719,7 +1719,7 @@ static const struct driver_info ax88178a
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1732,7 +1732,7 @@ static const struct driver_info cypress_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1745,7 +1745,7 @@ static const struct driver_info dlink_du
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1758,7 +1758,7 @@ static const struct driver_info sitecom_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1771,7 +1771,7 @@ static const struct driver_info samsung_
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1784,7 +1784,7 @@ static const struct driver_info lenovo_i
- 	.link_reset = ax88179_link_reset,
- 	.reset = ax88179_reset,
- 	.stop = ax88179_stop,
--	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
-@@ -1797,7 +1797,7 @@ static const struct driver_info belkin_i
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
- 	.stop	= ax88179_stop,
--	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
-+	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
- };
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -931,6 +931,7 @@ static inline const char *spectre_v2_mod
+ #define SPECTRE_V2_LFENCE_MSG "WARNING: LFENCE mitigation is not recommended for this CPU, data leaks possible!\n"
+ #define SPECTRE_V2_EIBRS_EBPF_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!\n"
+ #define SPECTRE_V2_EIBRS_LFENCE_EBPF_SMT_MSG "WARNING: Unprivileged eBPF is enabled with eIBRS+LFENCE mitigation and SMT, data leaks possible via Spectre v2 BHB attacks!\n"
++#define SPECTRE_V2_IBRS_PERF_MSG "WARNING: IBRS mitigation selected on Enhanced IBRS CPU, this may cause unnecessary performance loss\n"
+ 
+ #ifdef CONFIG_BPF_SYSCALL
+ void unpriv_ebpf_notify(int new_state)
+@@ -1371,6 +1372,8 @@ static void __init spectre_v2_select_mit
+ 
+ 	case SPECTRE_V2_IBRS:
+ 		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
++		if (boot_cpu_has(X86_FEATURE_IBRS_ENHANCED))
++			pr_warn(SPECTRE_V2_IBRS_PERF_MSG);
+ 		break;
+ 
+ 	case SPECTRE_V2_LFENCE:
 
 
