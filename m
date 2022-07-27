@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B80FE582F89
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA23582C7F
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229989AbiG0R1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:27:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
+        id S240432AbiG0Qq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:46:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242070AbiG0R06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:26:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 508FF7E312;
-        Wed, 27 Jul 2022 09:46:53 -0700 (PDT)
+        with ESMTP id S240134AbiG0QqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:46:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DFB60507;
+        Wed, 27 Jul 2022 09:31:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7547600BE;
-        Wed, 27 Jul 2022 16:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C318EC433C1;
-        Wed, 27 Jul 2022 16:46:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04140B821A6;
+        Wed, 27 Jul 2022 16:31:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3820BC433C1;
+        Wed, 27 Jul 2022 16:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940394;
-        bh=9lAlWYIreBqMVyYbmM7NsAPiX5t/podqVbEtNIGuWOU=;
+        s=korg; t=1658939494;
+        bh=2KhsuBtZEV+6+XuZIeLhyX0nuT5PSEtGK16KaFUVp48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nt29/CD3lMsOaC7XQ01+TL2DCw64rgEuOx4FArQC+mjNUqeC3gyXZWfPQ31doaZ73
-         0/RvGjA2IJujX32jsSgE1raeKZdhcLLzNxwD6mdg3lBjlaP2k65o2IyhCE8hPGkgqR
-         DRjtPLvZVdj8xlCuYqK/T/+uOuaoFuCqMAVD1UAQ=
+        b=UQLC9MmUEnyVIdsi0L45/ykBXMaluiE7glNouiGB1Psau4NDPYkKijKl4LhE/Qcab
+         k4FsAIJ0QiwNknSc+cn7PJyoFUbySaQ4H/NHxyQCCwgKAHIav/lC48JsWgaO90asKc
+         76LsQj82Rx9HXg+sHJFh4XUQXVa1JtJb5zMipXoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Baik Song An <bsahn@etri.re.kr>,
-        Hong Yeon Kim <kimhy@etri.re.kr>,
-        Taeung Song <taeung@reallinux.co.kr>, linuxgeek@linuxgeek.io,
-        Wonhyuk Yang <vvghjk1234@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 171/201] tracing: Fix return value of trace_pid_write()
+        stable@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        William Hubbs <w.d.hubbs@gmail.com>,
+        Chris Brannon <chris@the-brannons.com>,
+        Kirk Reiser <kirk@reisers.ca>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 82/87] tty: the rest, stop using tty_schedule_flip()
 Date:   Wed, 27 Jul 2022 18:11:15 +0200
-Message-Id: <20220727161034.910245226@linuxfoundation.org>
+Message-Id: <20220727161012.386373695@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,84 +62,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wonhyuk Yang <vvghjk1234@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit b27f266f74fbda4ee36c2b2b04d15992860cf23b ]
+commit b68b914494df4f79b4e9b58953110574af1cb7a2 upstream.
 
-Setting set_event_pid with trailing whitespace lead to endless write
-system calls like below.
+Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
+tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
+going to remove the latter (as it is used less), so call the former in
+the rest of the users.
 
-    $ strace echo "123 " > /sys/kernel/debug/tracing/set_event_pid
-    execve("/usr/bin/echo", ["echo", "123 "], ...) = 0
-    ...
-    write(1, "123 \n", 5)                   = 4
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    write(1, "\n", 1)                       = 0
-    ....
-
-This is because, the result of trace_get_user's are not returned when it
-read at least one pid. To fix it, update read variable even if
-parser->idx == 0.
-
-The result of applied patch is below.
-
-    $ strace echo "123 " > /sys/kernel/debug/tracing/set_event_pid
-    execve("/usr/bin/echo", ["echo", "123 "], ...) = 0
-    ...
-    write(1, "123 \n", 5)                   = 5
-    close(1)                                = 0
-
-Link: https://lkml.kernel.org/r/20220503050546.288911-1-vvghjk1234@gmail.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Baik Song An <bsahn@etri.re.kr>
-Cc: Hong Yeon Kim <kimhy@etri.re.kr>
-Cc: Taeung Song <taeung@reallinux.co.kr>
-Cc: linuxgeek@linuxgeek.io
-Cc: stable@vger.kernel.org
-Fixes: 4909010788640 ("tracing: Add set_event_pid directory for future use")
-Signed-off-by: Wonhyuk Yang <vvghjk1234@gmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: William Hubbs <w.d.hubbs@gmail.com>
+Cc: Chris Brannon <chris@the-brannons.com>
+Cc: Kirk Reiser <kirk@reisers.ca>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20211122111648.30379-3-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/alpha/kernel/srmcons.c         |    2 +-
+ drivers/s390/char/keyboard.h        |    4 ++--
+ drivers/staging/speakup/spk_ttyio.c |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index abbe8489faae..d93f9c59f50e 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -711,13 +711,16 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
- 		pos = 0;
+--- a/arch/alpha/kernel/srmcons.c
++++ b/arch/alpha/kernel/srmcons.c
+@@ -59,7 +59,7 @@ srmcons_do_receive_chars(struct tty_port
+ 	} while((result.bits.status & 1) && (++loops < 10));
  
- 		ret = trace_get_user(&parser, ubuf, cnt, &pos);
--		if (ret < 0 || !trace_parser_loaded(&parser))
-+		if (ret < 0)
- 			break;
+ 	if (count)
+-		tty_schedule_flip(port);
++		tty_flip_buffer_push(port);
  
- 		read += ret;
- 		ubuf += ret;
- 		cnt -= ret;
+ 	return count;
+ }
+--- a/drivers/s390/char/keyboard.h
++++ b/drivers/s390/char/keyboard.h
+@@ -56,7 +56,7 @@ static inline void
+ kbd_put_queue(struct tty_port *port, int ch)
+ {
+ 	tty_insert_flip_char(port, ch, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
  
-+		if (!trace_parser_loaded(&parser))
-+			break;
-+
- 		ret = -EINVAL;
- 		if (kstrtoul(parser.buffer, 0, &val))
- 			break;
-@@ -743,7 +746,6 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
- 	if (!nr_pids) {
- 		/* Cleared the list of pids */
- 		trace_pid_list_free(pid_list);
--		read = ret;
- 		pid_list = NULL;
+ static inline void
+@@ -64,5 +64,5 @@ kbd_puts_queue(struct tty_port *port, ch
+ {
+ 	while (*cp)
+ 		tty_insert_flip_char(port, *cp++, 0);
+-	tty_schedule_flip(port);
++	tty_flip_buffer_push(port);
+ }
+--- a/drivers/staging/speakup/spk_ttyio.c
++++ b/drivers/staging/speakup/spk_ttyio.c
+@@ -88,7 +88,7 @@ static int spk_ttyio_receive_buf2(struct
  	}
  
--- 
-2.35.1
-
+ 	if (!ldisc_data->buf_free)
+-		/* ttyio_in will tty_schedule_flip */
++		/* ttyio_in will tty_flip_buffer_push */
+ 		return 0;
+ 
+ 	/* Make sure the consumer has read buf before we have seen
+@@ -325,7 +325,7 @@ static unsigned char ttyio_in(int timeou
+ 	mb();
+ 	ldisc_data->buf_free = true;
+ 	/* Let TTY push more characters */
+-	tty_schedule_flip(speakup_tty->port);
++	tty_flip_buffer_push(speakup_tty->port);
+ 
+ 	return rv;
+ }
 
 
