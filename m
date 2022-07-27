@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F94582D35
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1948582C26
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240943AbiG0Qxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57570 "EHLO
+        id S239328AbiG0Qmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:42:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240747AbiG0QwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DAE254AF4;
-        Wed, 27 Jul 2022 09:34:30 -0700 (PDT)
+        with ESMTP id S239669AbiG0QmS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:42:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845A45C368;
+        Wed, 27 Jul 2022 09:29:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0994C619BF;
-        Wed, 27 Jul 2022 16:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 169DBC433C1;
-        Wed, 27 Jul 2022 16:34:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2DB261A1E;
+        Wed, 27 Jul 2022 16:29:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18EAC433C1;
+        Wed, 27 Jul 2022 16:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939669;
-        bh=a+Cd7fUiy1DMlX4dr9s9V7wAI3ptmLLiPb2+40UkUfA=;
+        s=korg; t=1658939398;
+        bh=Ptp8f9ez5kMPmK7FFCiOYpyQIN2l2mkSWZa8q1gwRqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKExEWdQVoxGZuz0YDvLym3z51iETf+ulV//7OUl3cmJ+rCPkewu1CFuNmWtgp62m
-         K1KUQ/fGghwM82u3Uv3PODSxjJEayoSZe3zRF+xQABGQY5dyNFp9SwyOGo25sT3sGM
-         zz5CXwszxMms7NSKc6mwZRIwa5N3ln6dgUBre2LY=
+        b=VswefJ+yu/ePIyXq8sMKXLcdBB2sHvy1LFCvRlSTMLCtvz956W+0ymbCeR3eUPDKJ
+         5bJMr8Id+DjF3PU3f2E0cq/sQA4tb75/p7EGf4HO+uO2absYLkDgEfTp362nOpOAOf
+         nVD51Eic2m03t6XOa2sO+BWNkxwmqOM6jr82gUy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/105] be2net: Fix buffer overflow in be_get_module_eeprom
+        stable@vger.kernel.org, Wang Cheng <wanngchenng@gmail.com>,
+        syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com,
+        David Rientjes <rientjes@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 56/87] mm/mempolicy: fix uninit-value in mpol_rebind_policy()
 Date:   Wed, 27 Jul 2022 18:10:49 +0200
-Message-Id: <20220727161014.604612578@linuxfoundation.org>
+Message-Id: <20220727161011.332184136@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,144 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hristo Venev <hristo@venev.name>
+From: Wang Cheng <wanngchenng@gmail.com>
 
-[ Upstream commit d7241f679a59cfe27f92cb5c6272cb429fb1f7ec ]
+commit 018160ad314d75b1409129b2247b614a9f35894c upstream.
 
-be_cmd_read_port_transceiver_data assumes that it is given a buffer that
-is at least PAGE_DATA_LEN long, or twice that if the module supports SFF
-8472. However, this is not always the case.
+mpol_set_nodemask()(mm/mempolicy.c) does not set up nodemask when
+pol->mode is MPOL_LOCAL.  Check pol->mode before access
+pol->w.cpuset_mems_allowed in mpol_rebind_policy()(mm/mempolicy.c).
 
-Fix this by passing the desired offset and length to
-be_cmd_read_port_transceiver_data so that we only copy the bytes once.
+BUG: KMSAN: uninit-value in mpol_rebind_policy mm/mempolicy.c:352 [inline]
+BUG: KMSAN: uninit-value in mpol_rebind_task+0x2ac/0x2c0 mm/mempolicy.c:368
+ mpol_rebind_policy mm/mempolicy.c:352 [inline]
+ mpol_rebind_task+0x2ac/0x2c0 mm/mempolicy.c:368
+ cpuset_change_task_nodemask kernel/cgroup/cpuset.c:1711 [inline]
+ cpuset_attach+0x787/0x15e0 kernel/cgroup/cpuset.c:2278
+ cgroup_migrate_execute+0x1023/0x1d20 kernel/cgroup/cgroup.c:2515
+ cgroup_migrate kernel/cgroup/cgroup.c:2771 [inline]
+ cgroup_attach_task+0x540/0x8b0 kernel/cgroup/cgroup.c:2804
+ __cgroup1_procs_write+0x5cc/0x7a0 kernel/cgroup/cgroup-v1.c:520
+ cgroup1_tasks_write+0x94/0xb0 kernel/cgroup/cgroup-v1.c:539
+ cgroup_file_write+0x4c2/0x9e0 kernel/cgroup/cgroup.c:3852
+ kernfs_fop_write_iter+0x66a/0x9f0 fs/kernfs/file.c:296
+ call_write_iter include/linux/fs.h:2162 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0x1318/0x2030 fs/read_write.c:590
+ ksys_write+0x28b/0x510 fs/read_write.c:643
+ __do_sys_write fs/read_write.c:655 [inline]
+ __se_sys_write fs/read_write.c:652 [inline]
+ __x64_sys_write+0xdb/0x120 fs/read_write.c:652
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: e36edd9d26cf ("be2net: add ethtool "-m" option support")
-Signed-off-by: Hristo Venev <hristo@venev.name>
-Link: https://lore.kernel.org/r/20220716085134.6095-1-hristo@venev.name
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ slab_alloc mm/slub.c:3259 [inline]
+ kmem_cache_alloc+0x902/0x11c0 mm/slub.c:3264
+ mpol_new mm/mempolicy.c:293 [inline]
+ do_set_mempolicy+0x421/0xb70 mm/mempolicy.c:853
+ kernel_set_mempolicy mm/mempolicy.c:1504 [inline]
+ __do_sys_set_mempolicy mm/mempolicy.c:1510 [inline]
+ __se_sys_set_mempolicy+0x44c/0xb60 mm/mempolicy.c:1507
+ __x64_sys_set_mempolicy+0xd8/0x110 mm/mempolicy.c:1507
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+KMSAN: uninit-value in mpol_rebind_task (2)
+https://syzkaller.appspot.com/bug?id=d6eb90f952c2a5de9ea718a1b873c55cb13b59dc
+
+This patch seems to fix below bug too.
+KMSAN: uninit-value in mpol_rebind_mm (2)
+https://syzkaller.appspot.com/bug?id=f2fecd0d7013f54ec4162f60743a2b28df40926b
+
+The uninit-value is pol->w.cpuset_mems_allowed in mpol_rebind_policy().
+When syzkaller reproducer runs to the beginning of mpol_new(),
+
+	    mpol_new() mm/mempolicy.c
+	  do_mbind() mm/mempolicy.c
+	kernel_mbind() mm/mempolicy.c
+
+`mode` is 1(MPOL_PREFERRED), nodes_empty(*nodes) is `true` and `flags`
+is 0. Then
+
+	mode = MPOL_LOCAL;
+	...
+	policy->mode = mode;
+	policy->flags = flags;
+
+will be executed. So in mpol_set_nodemask(),
+
+	    mpol_set_nodemask() mm/mempolicy.c
+	  do_mbind()
+	kernel_mbind()
+
+pol->mode is 4 (MPOL_LOCAL), that `nodemask` in `pol` is not initialized,
+which will be accessed in mpol_rebind_policy().
+
+Link: https://lkml.kernel.org/r/20220512123428.fq3wofedp6oiotd4@ppc.localdomain
+Signed-off-by: Wang Cheng <wanngchenng@gmail.com>
+Reported-by: <syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com>
+Tested-by: <syzbot+217f792c92599518a2ab@syzkaller.appspotmail.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/emulex/benet/be_cmds.c   | 10 +++---
- drivers/net/ethernet/emulex/benet/be_cmds.h   |  2 +-
- .../net/ethernet/emulex/benet/be_ethtool.c    | 31 ++++++++++++-------
- 3 files changed, 25 insertions(+), 18 deletions(-)
+ mm/mempolicy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/emulex/benet/be_cmds.c b/drivers/net/ethernet/emulex/benet/be_cmds.c
-index 649c5c429bd7..1288b5e3d220 100644
---- a/drivers/net/ethernet/emulex/benet/be_cmds.c
-+++ b/drivers/net/ethernet/emulex/benet/be_cmds.c
-@@ -2287,7 +2287,7 @@ int be_cmd_get_beacon_state(struct be_adapter *adapter, u8 port_num, u32 *state)
- 
- /* Uses sync mcc */
- int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
--				      u8 page_num, u8 *data)
-+				      u8 page_num, u32 off, u32 len, u8 *data)
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -348,7 +348,7 @@ static void mpol_rebind_preferred(struct
+  */
+ static void mpol_rebind_policy(struct mempolicy *pol, const nodemask_t *newmask)
  {
- 	struct be_dma_mem cmd;
- 	struct be_mcc_wrb *wrb;
-@@ -2321,10 +2321,10 @@ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
- 	req->port = cpu_to_le32(adapter->hba_port_num);
- 	req->page_num = cpu_to_le32(page_num);
- 	status = be_mcc_notify_wait(adapter);
--	if (!status) {
-+	if (!status && len > 0) {
- 		struct be_cmd_resp_port_type *resp = cmd.va;
- 
--		memcpy(data, resp->page_data, PAGE_DATA_LEN);
-+		memcpy(data, resp->page_data + off, len);
- 	}
- err:
- 	mutex_unlock(&adapter->mcc_lock);
-@@ -2415,7 +2415,7 @@ int be_cmd_query_cable_type(struct be_adapter *adapter)
- 	int status;
- 
- 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
--						   page_data);
-+						   0, PAGE_DATA_LEN, page_data);
- 	if (!status) {
- 		switch (adapter->phy.interface_type) {
- 		case PHY_TYPE_QSFP:
-@@ -2440,7 +2440,7 @@ int be_cmd_query_sfp_info(struct be_adapter *adapter)
- 	int status;
- 
- 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
--						   page_data);
-+						   0, PAGE_DATA_LEN, page_data);
- 	if (!status) {
- 		strlcpy(adapter->phy.vendor_name, page_data +
- 			SFP_VENDOR_NAME_OFFSET, SFP_VENDOR_NAME_LEN - 1);
-diff --git a/drivers/net/ethernet/emulex/benet/be_cmds.h b/drivers/net/ethernet/emulex/benet/be_cmds.h
-index c30d6d6f0f3a..9e17d6a7ab8c 100644
---- a/drivers/net/ethernet/emulex/benet/be_cmds.h
-+++ b/drivers/net/ethernet/emulex/benet/be_cmds.h
-@@ -2427,7 +2427,7 @@ int be_cmd_set_beacon_state(struct be_adapter *adapter, u8 port_num, u8 beacon,
- int be_cmd_get_beacon_state(struct be_adapter *adapter, u8 port_num,
- 			    u32 *state);
- int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
--				      u8 page_num, u8 *data);
-+				      u8 page_num, u32 off, u32 len, u8 *data);
- int be_cmd_query_cable_type(struct be_adapter *adapter);
- int be_cmd_query_sfp_info(struct be_adapter *adapter);
- int lancer_cmd_read_object(struct be_adapter *adapter, struct be_dma_mem *cmd,
-diff --git a/drivers/net/ethernet/emulex/benet/be_ethtool.c b/drivers/net/ethernet/emulex/benet/be_ethtool.c
-index 99cc1c46fb30..d90bf457e49c 100644
---- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
-+++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
-@@ -1338,7 +1338,7 @@ static int be_get_module_info(struct net_device *netdev,
- 		return -EOPNOTSUPP;
- 
- 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
--						   page_data);
-+						   0, PAGE_DATA_LEN, page_data);
- 	if (!status) {
- 		if (!page_data[SFP_PLUS_SFF_8472_COMP]) {
- 			modinfo->type = ETH_MODULE_SFF_8079;
-@@ -1356,25 +1356,32 @@ static int be_get_module_eeprom(struct net_device *netdev,
- {
- 	struct be_adapter *adapter = netdev_priv(netdev);
- 	int status;
-+	u32 begin, end;
- 
- 	if (!check_privilege(adapter, MAX_PRIVILEGES))
- 		return -EOPNOTSUPP;
- 
--	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
--						   data);
--	if (status)
--		goto err;
-+	begin = eeprom->offset;
-+	end = eeprom->offset + eeprom->len;
-+
-+	if (begin < PAGE_DATA_LEN) {
-+		status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0, begin,
-+							   min_t(u32, end, PAGE_DATA_LEN) - begin,
-+							   data);
-+		if (status)
-+			goto err;
-+
-+		data += PAGE_DATA_LEN - begin;
-+		begin = PAGE_DATA_LEN;
-+	}
- 
--	if (eeprom->offset + eeprom->len > PAGE_DATA_LEN) {
--		status = be_cmd_read_port_transceiver_data(adapter,
--							   TR_PAGE_A2,
--							   data +
--							   PAGE_DATA_LEN);
-+	if (end > PAGE_DATA_LEN) {
-+		status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A2,
-+							   begin - PAGE_DATA_LEN,
-+							   end - begin, data);
- 		if (status)
- 			goto err;
- 	}
--	if (eeprom->offset)
--		memcpy(data, data + eeprom->offset, eeprom->len);
- err:
- 	return be_cmd_status(status);
- }
--- 
-2.35.1
-
+-	if (!pol)
++	if (!pol || pol->mode == MPOL_LOCAL)
+ 		return;
+ 	if (!mpol_store_user_nodemask(pol) && !(pol->flags & MPOL_F_LOCAL) &&
+ 	    nodes_equal(pol->w.cpuset_mems_allowed, *newmask))
 
 
