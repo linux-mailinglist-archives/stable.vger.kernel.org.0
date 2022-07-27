@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1AE582E3D
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75037582BBB
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240367AbiG0RKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:10:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48862 "EHLO
+        id S238247AbiG0Qgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:36:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241716AbiG0RJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C01743DB;
-        Wed, 27 Jul 2022 09:41:07 -0700 (PDT)
+        with ESMTP id S238381AbiG0Qfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:35:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E404F67E;
+        Wed, 27 Jul 2022 09:27:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9672614AD;
-        Wed, 27 Jul 2022 16:41:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3C23C433C1;
-        Wed, 27 Jul 2022 16:41:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98A3FB821B8;
+        Wed, 27 Jul 2022 16:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F400EC433C1;
+        Wed, 27 Jul 2022 16:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940065;
-        bh=ilUh0IvKwTJ3bPPNwTZW/MfnPkQl5fCqOhNvsYei6tk=;
+        s=korg; t=1658939274;
+        bh=ovd6V4NmZ+Qv5MuBP6kCDQrWTrx06853QQqr7hUwoBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQP95Cqqx3Gm/fjtgO0KLlrqyZkrM4IwreesxsslPnYvdw9ntdw06aID8PbumhCeu
-         6+ql3BLUZtZ7PG7Za9d55Cr1WYTwglTD9JBPOVfFAGzHviCfK691E4un5QTTvFaGSG
-         8tk58SXgtEqlCDJ4p3hDJqO6bw4v1453aeB4Taqo=
+        b=XILHpY9w2unSD3+XAkJ3++ErUDm7Znxt4/xtxCSr960ap1Av6ZZJDJSr/kVTT6T1b
+         0OJTX29ItEl7dC7C597iFcnvaLB4AOnDJC8cK8Vm+aShKTJi0rv/zlS+5ogsan5qNP
+         LHw8JFF6+d9AvMhMepLuA9YuD7YTeHFZnaq9rVGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/201] tcp: Fix data-races around sysctl_tcp_syncookies.
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Amit Cohen <amcohen@nvidia.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 03/87] mlxsw: spectrum_router: Fix IPv4 nexthop gateway indication
 Date:   Wed, 27 Jul 2022 18:09:56 +0200
-Message-Id: <20220727161031.573205678@linuxfoundation.org>
+Message-Id: <20220727161009.141332848@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,143 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit f2e383b5bb6bbc60a0b94b87b3e49a2b1aefd11e ]
+commit e5ec6a2513383fe2ecc2ee3b5f51d97acbbcd4d8 upstream.
 
-While reading sysctl_tcp_syncookies, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+mlxsw needs to distinguish nexthops with a gateway from connected
+nexthops in order to write the former to the adjacency table of the
+device. The check used to rely on the fact that nexthops with a gateway
+have a 'link' scope whereas connected nexthops have a 'host' scope. This
+is no longer correct after commit 747c14307214 ("ip: fix dflt addr
+selection for connected nexthop").
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Fix that by instead checking the address family of the gateway IP. This
+is a more direct way and also consistent with the IPv6 counterpart in
+mlxsw_sp_rt6_is_gateway().
+
+Cc: stable@vger.kernel.org
+Fixes: 747c14307214 ("ip: fix dflt addr selection for connected nexthop")
+Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+Reviewed-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c     |  4 ++--
- net/ipv4/syncookies.c |  3 ++-
- net/ipv4/tcp_input.c  | 20 ++++++++++++--------
- net/ipv6/syncookies.c |  3 ++-
- 4 files changed, 18 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 8b2bc855714b..ac64395611ae 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -6734,7 +6734,7 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
- 	if (sk->sk_protocol != IPPROTO_TCP || sk->sk_state != TCP_LISTEN)
- 		return -EINVAL;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies))
- 		return -EINVAL;
- 
- 	if (!th->ack || th->rst || th->syn)
-@@ -6809,7 +6809,7 @@ BPF_CALL_5(bpf_tcp_gen_syncookie, struct sock *, sk, void *, iph, u32, iph_len,
- 	if (sk->sk_protocol != IPPROTO_TCP || sk->sk_state != TCP_LISTEN)
- 		return -EINVAL;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies))
- 		return -ENOENT;
- 
- 	if (!th->syn || th->ack || th->fin || th->rst)
-diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
-index fd1dc86ba512..8eee771d2aca 100644
---- a/net/ipv4/syncookies.c
-+++ b/net/ipv4/syncookies.c
-@@ -342,7 +342,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
- 	struct flowi4 fl4;
- 	u32 tsoff = 0;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies || !th->ack || th->rst)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies) ||
-+	    !th->ack || th->rst)
- 		goto out;
- 
- 	if (tcp_synq_no_recent_overflow(sk))
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index ae06923fe8d0..134e36f46e91 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -6735,11 +6735,14 @@ static bool tcp_syn_flood_action(const struct sock *sk, const char *proto)
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -3871,7 +3871,7 @@ static bool mlxsw_sp_fi_is_gateway(const
  {
- 	struct request_sock_queue *queue = &inet_csk(sk)->icsk_accept_queue;
- 	const char *msg = "Dropping request";
--	bool want_cookie = false;
- 	struct net *net = sock_net(sk);
-+	bool want_cookie = false;
-+	u8 syncookies;
-+
-+	syncookies = READ_ONCE(net->ipv4.sysctl_tcp_syncookies);
+ 	const struct fib_nh *nh = fib_info_nh(fi, 0);
  
- #ifdef CONFIG_SYN_COOKIES
--	if (net->ipv4.sysctl_tcp_syncookies) {
-+	if (syncookies) {
- 		msg = "Sending cookies";
- 		want_cookie = true;
- 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPREQQFULLDOCOOKIES);
-@@ -6747,8 +6750,7 @@ static bool tcp_syn_flood_action(const struct sock *sk, const char *proto)
- #endif
- 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPREQQFULLDROP);
+-	return nh->fib_nh_scope == RT_SCOPE_LINK ||
++	return nh->fib_nh_gw_family ||
+ 	       mlxsw_sp_nexthop4_ipip_type(mlxsw_sp, nh, NULL);
+ }
  
--	if (!queue->synflood_warned &&
--	    net->ipv4.sysctl_tcp_syncookies != 2 &&
-+	if (!queue->synflood_warned && syncookies != 2 &&
- 	    xchg(&queue->synflood_warned, 1) == 0)
- 		net_info_ratelimited("%s: Possible SYN flooding on port %d. %s.  Check SNMP counters.\n",
- 				     proto, sk->sk_num, msg);
-@@ -6797,7 +6799,7 @@ u16 tcp_get_syncookie_mss(struct request_sock_ops *rsk_ops,
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	u16 mss;
- 
--	if (sock_net(sk)->ipv4.sysctl_tcp_syncookies != 2 &&
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies) != 2 &&
- 	    !inet_csk_reqsk_queue_is_full(sk))
- 		return 0;
- 
-@@ -6831,13 +6833,15 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 	bool want_cookie = false;
- 	struct dst_entry *dst;
- 	struct flowi fl;
-+	u8 syncookies;
-+
-+	syncookies = READ_ONCE(net->ipv4.sysctl_tcp_syncookies);
- 
- 	/* TW buckets are converted to open requests without
- 	 * limitations, they conserve resources and peer is
- 	 * evidently real one.
- 	 */
--	if ((net->ipv4.sysctl_tcp_syncookies == 2 ||
--	     inet_csk_reqsk_queue_is_full(sk)) && !isn) {
-+	if ((syncookies == 2 || inet_csk_reqsk_queue_is_full(sk)) && !isn) {
- 		want_cookie = tcp_syn_flood_action(sk, rsk_ops->slab_name);
- 		if (!want_cookie)
- 			goto drop;
-@@ -6887,7 +6891,7 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 
- 	if (!want_cookie && !isn) {
- 		/* Kill the following clause, if you dislike this way. */
--		if (!net->ipv4.sysctl_tcp_syncookies &&
-+		if (!syncookies &&
- 		    (net->ipv4.sysctl_max_syn_backlog - inet_csk_reqsk_queue_len(sk) <
- 		     (net->ipv4.sysctl_max_syn_backlog >> 2)) &&
- 		    !tcp_peer_is_proven(req, dst)) {
-diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
-index ca92dd6981de..12ae817aaf2e 100644
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -141,7 +141,8 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
- 	__u8 rcv_wscale;
- 	u32 tsoff = 0;
- 
--	if (!sock_net(sk)->ipv4.sysctl_tcp_syncookies || !th->ack || th->rst)
-+	if (!READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_syncookies) ||
-+	    !th->ack || th->rst)
- 		goto out;
- 
- 	if (tcp_synq_no_recent_overflow(sk))
--- 
-2.35.1
-
 
 
