@@ -2,98 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2613958329C
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 21:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C87D5832AB
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 21:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229744AbiG0TBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 15:01:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46256 "EHLO
+        id S231500AbiG0TC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 15:02:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231382AbiG0TBG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 15:01:06 -0400
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BB589AAC;
-        Wed, 27 Jul 2022 11:12:20 -0700 (PDT)
-Received: by mail-pg1-f181.google.com with SMTP id f65so16529807pgc.12;
-        Wed, 27 Jul 2022 11:12:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=RNVMJ4oZ8yHzMS/5F5vQFWD6tQYWHNz7yT3+sY7HxXA=;
-        b=nRkfNNrYt2ZK4DUimkI7vzomXYnIKfQkIWhgYp8MuyFsieNr3q9mU9OfuE5e3Pjoth
-         3fCR9Tfp+f9vPEMshygga+rp/9H45P+onm8Dbmm95ji+4TmzoO2hGmMPEti5BZYe2GCS
-         u3F91Rzf4J6ifJqNKvnxtfPYeO7qfJ1xPfPp4uQRooqJhVmmtpWeWRGHQNEaCoqSrq0q
-         Je7RkjTfjvPdTELu9dr/FcSQMr29FYRJfKsC37/qZVk6J5uzEZ99wmnuhu8TcrL2Km0/
-         senzB/A0MCFTymWwPfs+JU/svyaIooyPpylxO0Ouru517XmxKrbhIAvry0+ej1/62VIU
-         GKBQ==
-X-Gm-Message-State: AJIora8oNOt9fyUPhrXjuKJOOmCLdYKz2OG87WMWk9HyeQ61aGud6uMa
-        GWMnfBGYwBN7x8Rfe3QRvIw=
-X-Google-Smtp-Source: AGRyM1usI0Gt657atV+HPb4lgLIOIMc5MiSpXSfWbHnB7XKqfY5gstwVxG7jNUFV+C3r+yvf7zuFPQ==
-X-Received: by 2002:a05:6a00:1946:b0:52a:e551:2241 with SMTP id s6-20020a056a00194600b0052ae5512241mr22626795pfk.29.1658945539275;
-        Wed, 27 Jul 2022 11:12:19 -0700 (PDT)
-Received: from ?IPV6:2620:15c:211:201:a84e:2ec1:1b57:b033? ([2620:15c:211:201:a84e:2ec1:1b57:b033])
-        by smtp.gmail.com with ESMTPSA id h13-20020a170902680d00b0016ce31cfea6sm14180388plk.159.2022.07.27.11.12.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Jul 2022 11:12:18 -0700 (PDT)
-Message-ID: <5fab3d4f-914e-63f8-a3e8-7dd92ecdb04a@acm.org>
-Date:   Wed, 27 Jul 2022 11:12:15 -0700
+        with ESMTP id S229946AbiG0TCf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 15:02:35 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0FB389C;
+        Wed, 27 Jul 2022 11:19:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1658945952;
+        bh=JCDCK9yrw3I1gJGNfUmVRzLTQwGLcyOig7ZAmiVFQGY=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=h+xi5NDw6BeRX97636tfWxlOuXdY1ciIgcgI+CIvMbuH1Ik345FCqoZXvQ76eWDZq
+         TnWGKk54JZqaJsYTKSamMPcInfU3Xp681A+S2VcyDpH1L4c8H1YX1VB5i67yO/8chw
+         ZDu7IEB7rk9cClLuji0Nnp+hSwA5Qiz1As++7Reg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.34.120]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1N7iCg-1nM6b41GqY-014gZe; Wed, 27
+ Jul 2022 20:19:12 +0200
+Message-ID: <ac440113-6054-a5b4-7a09-76b35fb910ab@gmx.de>
+Date:   Wed, 27 Jul 2022 20:19:11 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
-Subject: Re: [PATCH v4] ufs: core: fix lockdep warning of clk_scaling_lock
-Content-Language: en-US
-To:     peter.wang@mediatek.com, stanley.chu@mediatek.com,
-        linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
-        avri.altman@wdc.com, alim.akhtar@samsung.com, jejb@linux.ibm.com
-Cc:     wsd_upstream@mediatek.com, linux-mediatek@lists.infradead.org,
-        chun-hung.wu@mediatek.com, alice.chao@mediatek.com,
-        cc.chou@mediatek.com, chaotian.jing@mediatek.com,
-        jiajie.hao@mediatek.com, powen.kao@mediatek.com,
-        qilin.tan@mediatek.com, lin.gui@mediatek.com,
-        stable@vger.kernel.org
-References: <20220727032110.31168-1-peter.wang@mediatek.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20220727032110.31168-1-peter.wang@mediatek.com>
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: Re: [PATCH 5.18 000/158] 5.18.15-rc1 review
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Provags-ID: V03:K1:9j7VYiNGc1TSNXY/NRnL8mhlDGBGua5EM/whEq25ov0NbaFryK3
+ mz2s8VUePXiRgew+MNuMCkB+b+dDrTaEGORP8k1fSaR1nj2zV+oMSSA8H0awMxSGZ8rljMf
+ SHQHtHz2wPEPFScr+iJrnoZF9xnJoAT+LKqoqCam3iYh24alMIEdJuV5FMJdgaQ3hH81nfy
+ 9aSA+bm3Onv/qGy1hcq1Q==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:8DhFGsCZepQ=:IDr8A6vs3cZbTqJVsZtryc
+ tmqf4UV9UPZCIX6iK7ELPfR7hIkxym7L3ZBbt3FSSXotBuxn3NnTLF11H+hp5S4Ui+d/pHAnV
+ PlaICDc5JXyab7ge05nYsmBPXKIqB+KS4+ePHmJ+ktrGPLzVzaLZtfLsm+ivYFNTyo4aILgkZ
+ v+rypnAjDZRqs3zYauixQY8EAh1k/wwkQZGmMjTF2Of1o/vu3w851UF8SDusNslxnRyUS9xZb
+ C6CotH01FkdjR/QgWrmIoGa1/uWgWNE/dBXNFC+btDMO25+ty6bi1CUiTfn92/5A+0SBfIT9Y
+ lq1eatr7oTkuE6WHGDOx6xG3w717uwc3Jfzh0d4ziU7pPXnz6uWXhZ8GT7AQ29mGO3OHnJmft
+ RSMETkfZkbwRYDqexw3qKPRoaLkzuNLEXaV4x+kT33W79ga/XYH3aPxvm9rMxUto5DlP4erqN
+ yeuZHHiETMW2lavtmVq0vyaMpaA0WrVM3yrJG23lQQk9RJfmsVeTDjIiJ29tfHeJRwbOGBfx8
+ N3Q6tq5w5LyKWwaHr8tyzjcrT+y9AmU5Qknoqyu6+KFXqdDfueAOYl3WUSUzQX/+V7RbbxwtY
+ 3aYXBkS+T0l5Sj1AnXO3pnANS9Ssju/ttf2C3ZOUsUQLHq9CqPfDy42AdNhGV5GWInQaDrry3
+ iPTJGq7BH8Q/6kep525Bddb/7cz8bZCN1qkE68+uOI+sbJgsibTAR4S6kzePbjg42HoxMSqNA
+ hIZ1s2cUWaecKSbqw51LwiPD+29TGQBkzt2fvw60XLqCvEgXGEfc4CYXTnp2mMM6Tr23Z1xYN
+ /KCnes5tS/5eNKwUz5QIg6VY0j4CPCm1L2PAecM6S4BdGSje95rJ4Z3oJrjl8NoFW8lPDHvCX
+ CJMfofz1GktZnYvnMN5pOeyo0XxIZ/WiiZs9xufilnxWddj07MyLgEhO4zUf+9qaSZsvyNoyz
+ sNyHGHdvCJxIFm+x9NMFWOpzyC7nNw1BGLkKY8xAGehFsFqBwAqsi2JVGTjB7E/mkhCe6kcBj
+ FiIA7/UzZo79wVhg/TolHA2IcFENFxoU80vo118VSFadCxf51K0iHeMXb/99XRAu+KbwTZD1X
+ +LZOQTmQdc3DVHdi0F7lOo4wJhMy5MRVw7lv4o4xknUuxBPFie5SExEiA==
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/26/22 20:21, peter.wang@mediatek.com wrote:
-> -	/* Enable Write Booster if we have scaled up else disable it */
-> -	downgrade_write(&hba->clk_scaling_lock);
-> -	is_writelock = false;
-> -	ufshcd_wb_toggle(hba, scale_up);
-> +	/* Disable clk_scaling until ufshcd_wb_toggle finish */
-> +	hba->clk_scaling.is_allowed = false;
-> +	wb_toggle = true;
->   
->   out_unprepare:
-> -	ufshcd_clock_scaling_unprepare(hba, is_writelock);
-> +	ufshcd_clock_scaling_unprepare(hba);
-> +
-> +	/* Enable Write Booster if we have scaled up else disable it */
-> +	if (wb_toggle) {
-> +		ufshcd_wb_toggle(hba, scale_up);
-> +		ufshcd_clk_scaling_allow(hba, true);
-> +	}
+hallo Greg
 
-I'm concerned that briefly disabling clock scaling may cause the clock 
-to remain at a high frequency even if it shouldn't. Has the following 
-approach been considered? Instead of moving the 
-ufshcd_clk_scaling_allow() call, convert dev_cmd.lock into a semaphore, 
-lock it near the start of ufshcd_devfreq_scale() and unlock it near the 
-end of the same function.
+5.18.15-rc1
 
-Thanks,
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 36)
 
-Bart.
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
