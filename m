@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D223582D3E
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9554582D3C
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240824AbiG0QzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:55:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
+        id S240910AbiG0QzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241137AbiG0QyZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93CD4D4DF;
-        Wed, 27 Jul 2022 09:35:38 -0700 (PDT)
+        with ESMTP id S241155AbiG0Qy1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:54:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFF74F663;
+        Wed, 27 Jul 2022 09:35:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0EA64CE2301;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FA20B821C6;
+        Wed, 27 Jul 2022 16:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C57D9C433D6;
         Wed, 27 Jul 2022 16:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7C0C433D6;
-        Wed, 27 Jul 2022 16:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939735;
-        bh=F8ZiAE7YZXuQSsyBrtT3P/GZVlUNUGHQ+fXJZiNmSOw=;
+        s=korg; t=1658939738;
+        bh=2hJsBTzn0+OHhp5WVfO8GDI7HZLUvR3ikSXny/yDIsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+9fIqaS3ium9F6SOTNmgYgOOhGngfbrJnO5ZZ+NuyO++l+GnMHRYr+wNt72ttvtv
-         JBeUGadJu7euQqHTNaCgrVu5BWDDQzNmA9/UHW4k/bH7pk1gYNjgACZR2UeocKeucx
-         F/2jL20YU48f5WWkSCWee9lk8w7fq0ZDi+dr+ff8=
+        b=X1K3B+B5chbnpv950lxAWIDf+X4KUKIrLlEOeUml/TcY1hWAuUmy416uXt3mWTWtb
+         VHUGPyI/pstAQQVG7/dh9JabA0jKkChfbQoSWSlTDdGlwIn9gF/cUctg0zVx76cRV0
+         RaFH0tpnDGtCzzouMRTD2R1gQAKCrmt6vDk26VNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/105] drm/imx/dcss: fix unused but set variable warnings
-Date:   Wed, 27 Jul 2022 18:11:10 +0200
-Message-Id: <20220727161015.469788131@linuxfoundation.org>
+Subject: [PATCH 5.10 085/105] bitfield.h: Fix "type of reg too small for mask" test
+Date:   Wed, 27 Jul 2022 18:11:11 +0200
+Message-Id: <20220727161015.506412298@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
 References: <20220727161012.056867467@linuxfoundation.org>
@@ -55,48 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 523be44c334bc4e4c014032738dc277b8909d009 ]
+[ Upstream commit bff8c3848e071d387d8b0784dc91fa49cd563774 ]
 
-Fix unused but set variable warning building with `make W=1`:
+The test: 'mask > (typeof(_reg))~0ull' only works correctly when both
+sides are unsigned, consider:
 
-drivers/gpu/drm/imx/dcss/dcss-plane.c:270:6: warning:
- variable ‘pixel_format’ set but not used [-Wunused-but-set-variable]
-  u32 pixel_format;
-      ^~~~~~~~~~~~
+ - 0xff000000 vs (int)~0ull
+ - 0x000000ff vs (int)~0ull
 
-Fixes: 9021c317b770 ("drm/imx: Add initial support for DCSS on iMX8MQ")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200911014414.4663-1-bobo.shaobowang@huawei.com
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/20211110101324.950210584@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/dcss/dcss-plane.c | 2 --
- 1 file changed, 2 deletions(-)
+ include/linux/bitfield.h | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/dcss/dcss-plane.c b/drivers/gpu/drm/imx/dcss/dcss-plane.c
-index f54087ac44d3..46a188dd02ad 100644
---- a/drivers/gpu/drm/imx/dcss/dcss-plane.c
-+++ b/drivers/gpu/drm/imx/dcss/dcss-plane.c
-@@ -268,7 +268,6 @@ static void dcss_plane_atomic_update(struct drm_plane *plane,
- 	struct dcss_plane *dcss_plane = to_dcss_plane(plane);
- 	struct dcss_dev *dcss = plane->dev->dev_private;
- 	struct drm_framebuffer *fb = state->fb;
--	u32 pixel_format;
- 	struct drm_crtc_state *crtc_state;
- 	bool modifiers_present;
- 	u32 src_w, src_h, dst_w, dst_h;
-@@ -279,7 +278,6 @@ static void dcss_plane_atomic_update(struct drm_plane *plane,
- 	if (!fb || !state->crtc || !state->visible)
- 		return;
+diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
+index 4e035aca6f7e..6093fa6db260 100644
+--- a/include/linux/bitfield.h
++++ b/include/linux/bitfield.h
+@@ -41,6 +41,22 @@
  
--	pixel_format = state->fb->format->format;
- 	crtc_state = state->crtc->state;
- 	modifiers_present = !!(fb->flags & DRM_MODE_FB_MODIFIERS);
+ #define __bf_shf(x) (__builtin_ffsll(x) - 1)
  
++#define __scalar_type_to_unsigned_cases(type)				\
++		unsigned type:	(unsigned type)0,			\
++		signed type:	(unsigned type)0
++
++#define __unsigned_scalar_typeof(x) typeof(				\
++		_Generic((x),						\
++			char:	(unsigned char)0,			\
++			__scalar_type_to_unsigned_cases(char),		\
++			__scalar_type_to_unsigned_cases(short),		\
++			__scalar_type_to_unsigned_cases(int),		\
++			__scalar_type_to_unsigned_cases(long),		\
++			__scalar_type_to_unsigned_cases(long long),	\
++			default: (x)))
++
++#define __bf_cast_unsigned(type, x)	((__unsigned_scalar_typeof(type))(x))
++
+ #define __BF_FIELD_CHECK(_mask, _reg, _val, _pfx)			\
+ 	({								\
+ 		BUILD_BUG_ON_MSG(!__builtin_constant_p(_mask),		\
+@@ -49,7 +65,8 @@
+ 		BUILD_BUG_ON_MSG(__builtin_constant_p(_val) ?		\
+ 				 ~((_mask) >> __bf_shf(_mask)) & (_val) : 0, \
+ 				 _pfx "value too large for the field"); \
+-		BUILD_BUG_ON_MSG((_mask) > (typeof(_reg))~0ull,		\
++		BUILD_BUG_ON_MSG(__bf_cast_unsigned(_mask, _mask) >	\
++				 __bf_cast_unsigned(_reg, ~0ull),	\
+ 				 _pfx "type of reg too small for mask"); \
+ 		__BUILD_BUG_ON_NOT_POWER_OF_2((_mask) +			\
+ 					      (1ULL << __bf_shf(_mask))); \
 -- 
 2.35.1
 
