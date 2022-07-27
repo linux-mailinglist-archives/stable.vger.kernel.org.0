@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F548582F4E
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44941583041
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241997AbiG0RXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 13:23:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44442 "EHLO
+        id S241707AbiG0RfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:35:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242000AbiG0RWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:22:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B2A26F7FA;
-        Wed, 27 Jul 2022 09:45:39 -0700 (PDT)
+        with ESMTP id S242691AbiG0Rer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:34:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C8B8322E;
+        Wed, 27 Jul 2022 09:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A896CB821A6;
-        Wed, 27 Jul 2022 16:45:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF18C433C1;
-        Wed, 27 Jul 2022 16:45:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68D56B821BA;
+        Wed, 27 Jul 2022 16:49:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4D62C433D7;
+        Wed, 27 Jul 2022 16:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658940333;
-        bh=STSC/uyrBVz7rV5fTY9o9fyE0PYLOMybtV5+kYBr4eA=;
+        s=korg; t=1658940568;
+        bh=UfdR8alEtr+J6C83yGSrEMxB5kYXnNaWCvzjtgVLPQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/m29RHoOtuWpNtqe253DAMuyvyLoEq52jYrVGqIWwtYq4JnYSpPLvR8yj5rwgiEB
-         EqOJz83uuwx738xiSquFr+F8Ja5//02ImBbCYGDfvJx7rDI6CCENWMIuNluDW5jfUG
-         hM2BWx7iHzR2KWKXxlQpQNsMcc09xwhgLoT2OuGs=
+        b=PBp9GBgSN2ahNX9Xm+SsMMjpp4qpMQcdZP9eV/7x6uwwdg/9PxOQyx1u3XKhkEkbF
+         Ikc0BbYs8+IdlnryJMuyprXGf5zs29vyYgrMVSuJxrCXwg/hMq5f8lwHRzrfmr0x/T
+         Mmpi9H5Gm6imNhYxTyD1fpHBhsOEDh7eUkZwD5lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>,
-        Johan Hovold <johan@kernel.org>, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.15 188/201] tty: drivers/tty/, stop using tty_schedule_flip()
-Date:   Wed, 27 Jul 2022 18:11:32 +0200
-Message-Id: <20220727161035.559931107@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 029/158] perf/core: Fix data race between perf_event_set_output() and perf_mmap_close()
+Date:   Wed, 27 Jul 2022 18:11:33 +0200
+Message-Id: <20220727161022.646512129@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
-References: <20220727161026.977588183@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+References: <20220727161021.428340041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,107 +53,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 5f6a85158ccacc3f09744b3aafe8b11ab3b6c6f6 upstream.
+[ Upstream commit 68e3c69803dada336893640110cb87221bb01dcf ]
 
-Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
-tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). We are
-going to remove the latter (as it is used less), so call the former in
-drivers/tty/.
+Yang Jihing reported a race between perf_event_set_output() and
+perf_mmap_close():
 
-Cc: Vladimir Zapolskiy <vz@mleia.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211122111648.30379-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	CPU1					CPU2
+
+	perf_mmap_close(e2)
+	  if (atomic_dec_and_test(&e2->rb->mmap_count)) // 1 - > 0
+	    detach_rest = true
+
+						ioctl(e1, IOC_SET_OUTPUT, e2)
+						  perf_event_set_output(e1, e2)
+
+	  ...
+	  list_for_each_entry_rcu(e, &e2->rb->event_list, rb_entry)
+	    ring_buffer_attach(e, NULL);
+	    // e1 isn't yet added and
+	    // therefore not detached
+
+						    ring_buffer_attach(e1, e2->rb)
+						      list_add_rcu(&e1->rb_entry,
+								   &e2->rb->event_list)
+
+After this; e1 is attached to an unmapped rb and a subsequent
+perf_mmap() will loop forever more:
+
+	again:
+		mutex_lock(&e->mmap_mutex);
+		if (event->rb) {
+			...
+			if (!atomic_inc_not_zero(&e->rb->mmap_count)) {
+				...
+				mutex_unlock(&e->mmap_mutex);
+				goto again;
+			}
+		}
+
+The loop in perf_mmap_close() holds e2->mmap_mutex, while the attach
+in perf_event_set_output() holds e1->mmap_mutex. As such there is no
+serialization to avoid this race.
+
+Change perf_event_set_output() to take both e1->mmap_mutex and
+e2->mmap_mutex to alleviate that problem. Additionally, have the loop
+in perf_mmap() detach the rb directly, this avoids having to wait for
+the concurrent perf_mmap_close() to get around to doing it to make
+progress.
+
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole")
+Reported-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Yang Jihong <yangjihong1@huawei.com>
+Link: https://lkml.kernel.org/r/YsQ3jm2GR38SW7uD@worktop.programming.kicks-ass.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/goldfish.c          |    2 +-
- drivers/tty/moxa.c              |    4 ++--
- drivers/tty/serial/lpc32xx_hs.c |    2 +-
- drivers/tty/vt/keyboard.c       |    6 +++---
- drivers/tty/vt/vt.c             |    2 +-
- 5 files changed, 8 insertions(+), 8 deletions(-)
+ kernel/events/core.c | 45 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 14 deletions(-)
 
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -151,7 +151,7 @@ static irqreturn_t goldfish_tty_interrup
- 	address = (unsigned long)(void *)buf;
- 	goldfish_tty_rw(qtty, address, count, 0);
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 950b25c3f210..82238406f5f5 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6254,10 +6254,10 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
  
--	tty_schedule_flip(&qtty->port);
-+	tty_flip_buffer_push(&qtty->port);
- 	return IRQ_HANDLED;
- }
- 
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -1383,7 +1383,7 @@ static int moxa_poll_port(struct moxa_po
- 		if (inited && !tty_throttled(tty) &&
- 				MoxaPortRxQueue(p) > 0) { /* RX */
- 			MoxaPortReadData(p);
--			tty_schedule_flip(&p->port);
-+			tty_flip_buffer_push(&p->port);
+ 		if (!atomic_inc_not_zero(&event->rb->mmap_count)) {
+ 			/*
+-			 * Raced against perf_mmap_close() through
+-			 * perf_event_set_output(). Try again, hope for better
+-			 * luck.
++			 * Raced against perf_mmap_close(); remove the
++			 * event and try again.
+ 			 */
++			ring_buffer_attach(event, NULL);
+ 			mutex_unlock(&event->mmap_mutex);
+ 			goto again;
  		}
- 	} else {
- 		clear_bit(EMPTYWAIT, &p->statusflags);
-@@ -1408,7 +1408,7 @@ static int moxa_poll_port(struct moxa_po
+@@ -11826,14 +11826,25 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
+ 	goto out;
+ }
  
- 	if (tty && (intr & IntrBreak) && !I_IGNBRK(tty)) { /* BREAK */
- 		tty_insert_flip_char(&p->port, 0, TTY_BREAK);
--		tty_schedule_flip(&p->port);
-+		tty_flip_buffer_push(&p->port);
++static void mutex_lock_double(struct mutex *a, struct mutex *b)
++{
++	if (b < a)
++		swap(a, b);
++
++	mutex_lock(a);
++	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
++}
++
+ static int
+ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ {
+ 	struct perf_buffer *rb = NULL;
+ 	int ret = -EINVAL;
+ 
+-	if (!output_event)
++	if (!output_event) {
++		mutex_lock(&event->mmap_mutex);
+ 		goto set;
++	}
+ 
+ 	/* don't allow circular references */
+ 	if (event == output_event)
+@@ -11871,8 +11882,15 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 	    event->pmu != output_event->pmu)
+ 		goto out;
+ 
++	/*
++	 * Hold both mmap_mutex to serialize against perf_mmap_close().  Since
++	 * output_event is already on rb->event_list, and the list iteration
++	 * restarts after every removal, it is guaranteed this new event is
++	 * observed *OR* if output_event is already removed, it's guaranteed we
++	 * observe !rb->mmap_count.
++	 */
++	mutex_lock_double(&event->mmap_mutex, &output_event->mmap_mutex);
+ set:
+-	mutex_lock(&event->mmap_mutex);
+ 	/* Can't redirect output if we've got an active mmap() */
+ 	if (atomic_read(&event->mmap_count))
+ 		goto unlock;
+@@ -11882,6 +11900,12 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 		rb = ring_buffer_get(output_event);
+ 		if (!rb)
+ 			goto unlock;
++
++		/* did we race against perf_mmap_close() */
++		if (!atomic_read(&rb->mmap_count)) {
++			ring_buffer_put(rb);
++			goto unlock;
++		}
  	}
  
- 	if (intr & IntrLine)
---- a/drivers/tty/serial/lpc32xx_hs.c
-+++ b/drivers/tty/serial/lpc32xx_hs.c
-@@ -341,7 +341,7 @@ static irqreturn_t serial_lpc32xx_interr
- 		       LPC32XX_HSUART_IIR(port->membase));
- 		port->icount.overrun++;
- 		tty_insert_flip_char(tport, 0, TTY_OVERRUN);
--		tty_schedule_flip(tport);
-+		tty_flip_buffer_push(tport);
- 	}
+ 	ring_buffer_attach(event, rb);
+@@ -11889,20 +11913,13 @@ perf_event_set_output(struct perf_event *event, struct perf_event *output_event)
+ 	ret = 0;
+ unlock:
+ 	mutex_unlock(&event->mmap_mutex);
++	if (output_event)
++		mutex_unlock(&output_event->mmap_mutex);
  
- 	/* Data received? */
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -324,13 +324,13 @@ int kbd_rate(struct kbd_repeat *rpt)
- static void put_queue(struct vc_data *vc, int ch)
- {
- 	tty_insert_flip_char(&vc->port, ch, 0);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
+ out:
+ 	return ret;
  }
  
- static void puts_queue(struct vc_data *vc, const char *cp)
+-static void mutex_lock_double(struct mutex *a, struct mutex *b)
+-{
+-	if (b < a)
+-		swap(a, b);
+-
+-	mutex_lock(a);
+-	mutex_lock_nested(b, SINGLE_DEPTH_NESTING);
+-}
+-
+ static int perf_event_set_clock(struct perf_event *event, clockid_t clk_id)
  {
- 	tty_insert_flip_string(&vc->port, cp, strlen(cp));
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void applkey(struct vc_data *vc, int key, char mode)
-@@ -584,7 +584,7 @@ static void fn_inc_console(struct vc_dat
- static void fn_send_intr(struct vc_data *vc)
- {
- 	tty_insert_flip_char(&vc->port, 0, TTY_BREAK);
--	tty_schedule_flip(&vc->port);
-+	tty_flip_buffer_push(&vc->port);
- }
- 
- static void fn_scroll_forw(struct vc_data *vc)
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1833,7 +1833,7 @@ static void csi_m(struct vc_data *vc)
- static void respond_string(const char *p, size_t len, struct tty_port *port)
- {
- 	tty_insert_flip_string(port, p, len);
--	tty_schedule_flip(port);
-+	tty_flip_buffer_push(port);
- }
- 
- static void cursor_report(struct vc_data *vc, struct tty_struct *tty)
+ 	bool nmi_safe = false;
+-- 
+2.35.1
+
 
 
