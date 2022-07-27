@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5353A582C93
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D65582E3E
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:10:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240315AbiG0QsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43850 "EHLO
+        id S241270AbiG0RKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:10:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240314AbiG0QrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:47:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5663952E52;
-        Wed, 27 Jul 2022 09:32:02 -0700 (PDT)
+        with ESMTP id S241753AbiG0RJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:09:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3F61501BF;
+        Wed, 27 Jul 2022 09:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEBA4B821BE;
-        Wed, 27 Jul 2022 16:32:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C3BFC433C1;
-        Wed, 27 Jul 2022 16:32:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D80601CE;
+        Wed, 27 Jul 2022 16:41:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF276C433D6;
+        Wed, 27 Jul 2022 16:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939520;
-        bh=VmvQaZowy1d0aqIWB3OQ1GQv0t682IOsWS1iF7J5FK0=;
+        s=korg; t=1658940068;
+        bh=4nPOBYRVh1TeKFhmDIyIk4pggIEMowzCSYFN4GeClBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDhZ/m2HUQvxcM2nscczvut5ShelFugvn2uy0adWwN3m6QOu57QxPKNZqnZdhMDBP
-         Tpr8yJkRGTQu5MyN84ErgR/gSLwW7w05KNQXXpXXCsXD8FWnsH9etHSR8mjapMWfRj
-         PElZyTkVVQz78hwsWVfBifjjAHeKtUuC+iy0v7/k=
+        b=p2q7R4/qg6V+3FgIzzUAF7MTTylqVSiEWg1/M/FiIE5JOdJBzXEFnaRlIGgbTXhhY
+         QZkZujKsSOQzMc6orUbF+z32N81np+bg0o3n4FT7oiOBkC1XXy0ykk6qyM2M0moTNN
+         eizXFmVqras/+6bG2B6cfaIu0Y8hh8fr7w7KRAps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.10 011/105] net: make sure devices go through netdev_wait_all_refs
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/201] tcp: Fix data-races around sysctl_tcp_migrate_req.
 Date:   Wed, 27 Jul 2022 18:09:57 +0200
-Message-Id: <20220727161012.515394196@linuxfoundation.org>
+Message-Id: <20220727161031.613409590@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-From: Jakub Kicinski <kuba@kernel.org>
+[ Upstream commit 4177f545895b1da08447a80692f30617154efa6e ]
 
-commit 766b0515d5bec4b780750773ed3009b148df8c0a upstream.
+While reading sysctl_tcp_migrate_req, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-If register_netdevice() fails at the very last stage - the
-notifier call - some subsystems may have already seen it and
-grabbed a reference. struct net_device can't be freed right
-away without calling netdev_wait_all_refs().
-
-Now that we have a clean interface in form of dev->needs_free_netdev
-and lenient free_netdev() we can undo what commit 93ee31f14f6f ("[NET]:
-Fix free_netdev on register_netdev failure.") has done and complete
-the unregistration path by bringing the net_set_todo() call back.
-
-After registration fails user is still expected to explicitly
-free the net_device, so make sure ->needs_free_netdev is cleared,
-otherwise rolling back the registration will cause the old double
-free for callers who release rtnl_lock before the free.
-
-This also solves the problem of priv_destructor not being called
-on notifier error.
-
-net_set_todo() will be moved back into unregister_netdevice_queue()
-in a follow up.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f9ac779f881c ("net: Introduce net.ipv4.tcp_migrate_req.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c |   14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ net/core/sock_reuseport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -10144,17 +10144,11 @@ int register_netdevice(struct net_device
- 	ret = call_netdevice_notifiers(NETDEV_REGISTER, dev);
- 	ret = notifier_to_errno(ret);
- 	if (ret) {
-+		/* Expect explicit free_netdev() on failure */
-+		dev->needs_free_netdev = false;
- 		rollback_registered(dev);
--		rcu_barrier();
--
--		dev->reg_state = NETREG_UNREGISTERED;
--		/* We should put the kobject that hold in
--		 * netdev_unregister_kobject(), otherwise
--		 * the net device cannot be freed when
--		 * driver calls free_netdev(), because the
--		 * kobject is being hold.
--		 */
--		kobject_put(&dev->dev.kobj);
-+		net_set_todo(dev);
-+		goto out;
+diff --git a/net/core/sock_reuseport.c b/net/core/sock_reuseport.c
+index 3f00a28fe762..5daa1fa54249 100644
+--- a/net/core/sock_reuseport.c
++++ b/net/core/sock_reuseport.c
+@@ -387,7 +387,7 @@ void reuseport_stop_listen_sock(struct sock *sk)
+ 		prog = rcu_dereference_protected(reuse->prog,
+ 						 lockdep_is_held(&reuseport_lock));
+ 
+-		if (sock_net(sk)->ipv4.sysctl_tcp_migrate_req ||
++		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_migrate_req) ||
+ 		    (prog && prog->expected_attach_type == BPF_SK_REUSEPORT_SELECT_OR_MIGRATE)) {
+ 			/* Migration capable, move sk from the listening section
+ 			 * to the closed section.
+@@ -545,7 +545,7 @@ struct sock *reuseport_migrate_sock(struct sock *sk,
+ 	hash = migrating_sk->sk_hash;
+ 	prog = rcu_dereference(reuse->prog);
+ 	if (!prog || prog->expected_attach_type != BPF_SK_REUSEPORT_SELECT_OR_MIGRATE) {
+-		if (sock_net(sk)->ipv4.sysctl_tcp_migrate_req)
++		if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_migrate_req))
+ 			goto select_by_hash;
+ 		goto failure;
  	}
- 	/*
- 	 *	Prevent userspace races by waiting until the network
+-- 
+2.35.1
+
 
 
