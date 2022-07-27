@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D64582CF7
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84FE582AB2
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240669AbiG0Qwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
+        id S234732AbiG0QWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240667AbiG0QwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC1154AE6;
-        Wed, 27 Jul 2022 09:34:00 -0700 (PDT)
+        with ESMTP id S234321AbiG0QWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 964A14C60C;
+        Wed, 27 Jul 2022 09:22:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 794C8B821BE;
-        Wed, 27 Jul 2022 16:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A62FEC433C1;
-        Wed, 27 Jul 2022 16:33:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3386F619C2;
+        Wed, 27 Jul 2022 16:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 422FBC433C1;
+        Wed, 27 Jul 2022 16:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939638;
-        bh=+ataAdu/2uX3V3y/uBCGrRq5NP1kqtr1ad7fMIFK04M=;
+        s=korg; t=1658938948;
+        bh=0ZqCx0f3w4xzVKM7hqpvqH6GcIZzjcZOSWtNS/jyHXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGi3MUvqCyRfQD2MYZov6bLiyK78DX+BctK8XVh+6JDrjVHGIfL/hzmjgSDN6rY7r
-         tj4NSfxVezjOAhRfDaONPlCFZKp+AIuqatiuGOUmwlylGNWvhVtfr85aqgfaPn8sd3
-         7Ulailk5xEU+py7SNcnPhDL7AzAOHLSlgI4E+3wE=
+        b=XSV1hdKt6V754sRIH7Vjdw/5fop1z3QY+sxBvQXkkxc2KV+N6YSJxznVRbWcql+ia
+         Ib5Cs0mWWh9986usaB6KUXied3NlTEh3YeCqxHMZvIVCbxKamIdOniSD5mrnzGKukd
+         Xx/fYlxR2du231XZnMhIlcwjLyg4iy5qwIxdBoCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/105] tcp: Fix data-races around sysctl_tcp_reordering.
+Subject: [PATCH 4.9 07/26] power/reset: arm-versatile: Fix refcount leak in versatile_reboot_probe
 Date:   Wed, 27 Jul 2022 18:10:36 +0200
-Message-Id: <20220727161014.094510118@linuxfoundation.org>
+Message-Id: <20220727160959.441094057@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
+In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
+References: <20220727160959.122591422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 46778cd16e6a5ad1b2e3a91f6c057c907379418e ]
+[ Upstream commit 80192eff64eee9b3bc0594a47381937b94b9d65a ]
 
-While reading sysctl_tcp_reordering, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+of_find_matching_node_and_match() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0e545f57b708 ("power: reset: driver for the Versatile syscon reboot")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c         |  2 +-
- net/ipv4/tcp_input.c   | 10 +++++++---
- net/ipv4/tcp_metrics.c |  3 ++-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/power/reset/arm-versatile-reboot.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 19c13ad5c121..5582b05d0638 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -440,7 +440,7 @@ void tcp_init_sock(struct sock *sk)
- 	tp->snd_cwnd_clamp = ~0;
- 	tp->mss_cache = TCP_MSS_DEFAULT;
+diff --git a/drivers/power/reset/arm-versatile-reboot.c b/drivers/power/reset/arm-versatile-reboot.c
+index 06d34ab47df5..8022c782f6ff 100644
+--- a/drivers/power/reset/arm-versatile-reboot.c
++++ b/drivers/power/reset/arm-versatile-reboot.c
+@@ -150,6 +150,7 @@ static int __init versatile_reboot_probe(void)
+ 	versatile_reboot_type = (enum versatile_reboot)reboot_id->data;
  
--	tp->reordering = sock_net(sk)->ipv4.sysctl_tcp_reordering;
-+	tp->reordering = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reordering);
- 	tcp_assign_congestion_control(sk);
+ 	syscon_regmap = syscon_node_to_regmap(np);
++	of_node_put(np);
+ 	if (IS_ERR(syscon_regmap))
+ 		return PTR_ERR(syscon_regmap);
  
- 	tp->tsoffset = 0;
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index f514d0b4b1e0..070e7015e9c9 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2099,6 +2099,7 @@ void tcp_enter_loss(struct sock *sk)
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct net *net = sock_net(sk);
- 	bool new_recovery = icsk->icsk_ca_state < TCP_CA_Recovery;
-+	u8 reordering;
- 
- 	tcp_timeout_mark_lost(sk);
- 
-@@ -2119,10 +2120,12 @@ void tcp_enter_loss(struct sock *sk)
- 	/* Timeout in disordered state after receiving substantial DUPACKs
- 	 * suggests that the degree of reordering is over-estimated.
- 	 */
-+	reordering = READ_ONCE(net->ipv4.sysctl_tcp_reordering);
- 	if (icsk->icsk_ca_state <= TCP_CA_Disorder &&
--	    tp->sacked_out >= net->ipv4.sysctl_tcp_reordering)
-+	    tp->sacked_out >= reordering)
- 		tp->reordering = min_t(unsigned int, tp->reordering,
--				       net->ipv4.sysctl_tcp_reordering);
-+				       reordering);
-+
- 	tcp_set_ca_state(sk, TCP_CA_Loss);
- 	tp->high_seq = tp->snd_nxt;
- 	tcp_ecn_queue_cwr(tp);
-@@ -3411,7 +3414,8 @@ static inline bool tcp_may_raise_cwnd(const struct sock *sk, const int flag)
- 	 * new SACK or ECE mark may first advance cwnd here and later reduce
- 	 * cwnd in tcp_fastretrans_alert() based on more states.
- 	 */
--	if (tcp_sk(sk)->reordering > sock_net(sk)->ipv4.sysctl_tcp_reordering)
-+	if (tcp_sk(sk)->reordering >
-+	    READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reordering))
- 		return flag & FLAG_FORWARD_PROGRESS;
- 
- 	return flag & FLAG_DATA_ACKED;
-diff --git a/net/ipv4/tcp_metrics.c b/net/ipv4/tcp_metrics.c
-index 6b27c481fe18..8d7e32f4abf6 100644
---- a/net/ipv4/tcp_metrics.c
-+++ b/net/ipv4/tcp_metrics.c
-@@ -428,7 +428,8 @@ void tcp_update_metrics(struct sock *sk)
- 		if (!tcp_metric_locked(tm, TCP_METRIC_REORDERING)) {
- 			val = tcp_metric_get(tm, TCP_METRIC_REORDERING);
- 			if (val < tp->reordering &&
--			    tp->reordering != net->ipv4.sysctl_tcp_reordering)
-+			    tp->reordering !=
-+			    READ_ONCE(net->ipv4.sysctl_tcp_reordering))
- 				tcp_metric_set(tm, TCP_METRIC_REORDERING,
- 					       tp->reordering);
- 		}
 -- 
 2.35.1
 
