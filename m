@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C8F582B82
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC196582AA5
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237981AbiG0QfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47010 "EHLO
+        id S234723AbiG0QWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:22:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238132AbiG0QeF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:34:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0AA55097;
-        Wed, 27 Jul 2022 09:26:56 -0700 (PDT)
+        with ESMTP id S235167AbiG0QWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC49D4C62D;
+        Wed, 27 Jul 2022 09:22:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5DDD619FE;
-        Wed, 27 Jul 2022 16:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE72AC433C1;
-        Wed, 27 Jul 2022 16:26:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B224B821B8;
+        Wed, 27 Jul 2022 16:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11643C433C1;
+        Wed, 27 Jul 2022 16:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939215;
-        bh=dMztBhjROoIEkA2hYgIClMgpARqNyyRZ4ceGRDt6saI=;
+        s=korg; t=1658938934;
+        bh=96Yp01INqk4vclDXyo1+6YDE4nH4XzddMCjEGZ5p7rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gxqoh2ucWtV/1sM/KWDtA1PN1doslhJAJc1BhCRxwR77MjC2DiM6l2sKUxHLqwjNk
-         yDc7ZIfUVxTqSAQOkYtwX8d4MmXTSw1gxSUqe9Xtta5j76B9OKs548WIAoK3JPXMQm
-         Qya7Zfq+GVgfZYQms2Fo8ADVa+bsHbLjZYvqpdEg=
+        b=posC507LfQiEf+us8xeeUoCtFNDtHhlRbCZeMsgexfOmwAHAPu7hmWZDv1eZ0/M4g
+         hZF1zCkwhNLbFI1xv9G1xQ6XTCd6sYnTi2AZUZv+VaidBQ8/DcxNTmtpch8RCfAtpN
+         r+2cPpv7NAWnSagZABHAD5pmu48gD98Bpo7kUGYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/62] tcp: Fix a data-race around sysctl_tcp_tw_reuse.
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Demi Marie Obenour <demi@invisiblethingslab.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Subject: [PATCH 4.9 02/26] xen/gntdev: Ignore failure to unmap INVALID_GRANT_HANDLE
 Date:   Wed, 27 Jul 2022 18:10:31 +0200
-Message-Id: <20220727161005.059321286@linuxfoundation.org>
+Message-Id: <20220727160959.227277100@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
-References: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
+References: <20220727160959.122591422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Demi Marie Obenour <demi@invisiblethingslab.com>
 
-[ Upstream commit cbfc6495586a3f09f6f07d9fb3c7cafe807e3c55 ]
+commit 166d3863231667c4f64dee72b77d1102cdfad11f upstream.
 
-While reading sysctl_tcp_tw_reuse, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+The error paths of gntdev_mmap() can call unmap_grant_pages() even
+though not all of the pages have been successfully mapped.  This will
+trigger the WARN_ON()s in __unmap_grant_pages_done().  The number of
+warnings can be very large; I have observed thousands of lines of
+warnings in the systemd journal.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Avoid this problem by only warning on unmapping failure if the handle
+being unmapped is not INVALID_GRANT_HANDLE.  The handle field of any
+page that was not successfully mapped will be INVALID_GRANT_HANDLE, so
+this catches all cases where unmapping can legitimately fail.
+
+Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
+Cc: stable@vger.kernel.org
+Suggested-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220710230522.1563-1-demi@invisiblethingslab.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_ipv4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/gntdev.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 2719c60f285b..ddc1af8731e3 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -110,10 +110,10 @@ static u32 tcp_v4_init_ts_off(const struct net *net, const struct sk_buff *skb)
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -390,7 +390,8 @@ static void __unmap_grant_pages_done(int
+ 	unsigned int offset = data->unmap_ops - map->unmap_ops;
  
- int tcp_twsk_unique(struct sock *sk, struct sock *sktw, void *twp)
- {
-+	int reuse = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_tw_reuse);
- 	const struct inet_timewait_sock *tw = inet_twsk(sktw);
- 	const struct tcp_timewait_sock *tcptw = tcp_twsk(sktw);
- 	struct tcp_sock *tp = tcp_sk(sk);
--	int reuse = sock_net(sk)->ipv4.sysctl_tcp_tw_reuse;
- 
- 	if (reuse == 2) {
- 		/* Still does not detect *everything* that goes through
--- 
-2.35.1
-
+ 	for (i = 0; i < data->count; i++) {
+-		WARN_ON(map->unmap_ops[offset+i].status);
++		WARN_ON(map->unmap_ops[offset+i].status &&
++			map->unmap_ops[offset+i].handle != -1);
+ 		pr_debug("unmap handle=%d st=%d\n",
+ 			map->unmap_ops[offset+i].handle,
+ 			map->unmap_ops[offset+i].status);
 
 
