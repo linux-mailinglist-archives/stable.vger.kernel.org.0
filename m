@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48967582AAF
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C6E582C11
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235086AbiG0QWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:22:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49586 "EHLO
+        id S239679AbiG0Qlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235148AbiG0QW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:22:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97654C610;
-        Wed, 27 Jul 2022 09:22:26 -0700 (PDT)
+        with ESMTP id S239330AbiG0Qk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:40:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B255B062;
+        Wed, 27 Jul 2022 09:29:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67430619C0;
-        Wed, 27 Jul 2022 16:22:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB61C433D6;
-        Wed, 27 Jul 2022 16:22:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 213DFB821BA;
+        Wed, 27 Jul 2022 16:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E660C433C1;
+        Wed, 27 Jul 2022 16:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658938945;
-        bh=LU/6JYDmJVCAIJc5hn/I2FwrmPcI5S2waUtTQhLrexc=;
+        s=korg; t=1658939366;
+        bh=z/7Dwzp/pcp1h+43vzTvCGwafd0md7/M+daIXot7BJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKa4Nvu8Or5wp11BxNsgYkSdbIOPuPaHrKPbr5kM2wTubAKTZpgle/cHW+J9Nz9lX
-         C5PA/nVh5XUiJMFFgNgbogM9n39F/GScBDBeUrcLXAbKi9hCr1sa1ZSBpCNL8E4MxD
-         Z9X3V//ozgRbcHwoI/umUv1KumXQ2Z82fipjdK20=
+        b=TbFGDAIBh8PXmOEaHWXJyIWkeG0WdKr4appfLsP14c7KSM9pU9x44AkjM1aEQJG1Z
+         +a7oIuTDCkLZKByq32GZ8MpOfLsKj5kGAj/kp52i7ARcLsZ5Pb2JNZAmmzI74OZwZl
+         eby712vtBp91Z2XhbWaqNcjnaU+TN2pQ6pPDD7Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/26] xfrm: xfrm_policy: fix a possible double xfrm_pols_put() in xfrm_bundle_lookup()
-Date:   Wed, 27 Jul 2022 18:10:35 +0200
-Message-Id: <20220727160959.403628194@linuxfoundation.org>
+Subject: [PATCH 5.4 43/87] be2net: Fix buffer overflow in be_get_module_eeprom
+Date:   Wed, 27 Jul 2022 18:10:36 +0200
+Message-Id: <20220727161010.797200232@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727160959.122591422@linuxfoundation.org>
-References: <20220727160959.122591422@linuxfoundation.org>
+In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
+References: <20220727161008.993711844@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Hristo Venev <hristo@venev.name>
 
-[ Upstream commit f85daf0e725358be78dfd208dea5fd665d8cb901 ]
+[ Upstream commit d7241f679a59cfe27f92cb5c6272cb429fb1f7ec ]
 
-xfrm_policy_lookup() will call xfrm_pol_hold_rcu() to get a refcount of
-pols[0]. This refcount can be dropped in xfrm_expand_policies() when
-xfrm_expand_policies() return error. pols[0]'s refcount is balanced in
-here. But xfrm_bundle_lookup() will also call xfrm_pols_put() with
-num_pols == 1 to drop this refcount when xfrm_expand_policies() return
-error.
+be_cmd_read_port_transceiver_data assumes that it is given a buffer that
+is at least PAGE_DATA_LEN long, or twice that if the module supports SFF
+8472. However, this is not always the case.
 
-This patch also fix an illegal address access. pols[0] will save a error
-point when xfrm_policy_lookup fails. This lead to xfrm_pols_put to resolve
-an illegal address in xfrm_bundle_lookup's error path.
+Fix this by passing the desired offset and length to
+be_cmd_read_port_transceiver_data so that we only copy the bytes once.
 
-Fix these by setting num_pols = 0 in xfrm_expand_policies()'s error path.
-
-Fixes: 80c802f3073e ("xfrm: cache bundles instead of policies for outgoing flows")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: e36edd9d26cf ("be2net: add ethtool "-m" option support")
+Signed-off-by: Hristo Venev <hristo@venev.name>
+Link: https://lore.kernel.org/r/20220716085134.6095-1-hristo@venev.name
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_policy.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/emulex/benet/be_cmds.c   | 10 +++---
+ drivers/net/ethernet/emulex/benet/be_cmds.h   |  2 +-
+ .../net/ethernet/emulex/benet/be_ethtool.c    | 31 ++++++++++++-------
+ 3 files changed, 25 insertions(+), 18 deletions(-)
 
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 9179b47e8b61..0894108f561c 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -1819,8 +1819,10 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
- 		*num_xfrms = 0;
- 		return 0;
+diff --git a/drivers/net/ethernet/emulex/benet/be_cmds.c b/drivers/net/ethernet/emulex/benet/be_cmds.c
+index 649c5c429bd7..1288b5e3d220 100644
+--- a/drivers/net/ethernet/emulex/benet/be_cmds.c
++++ b/drivers/net/ethernet/emulex/benet/be_cmds.c
+@@ -2287,7 +2287,7 @@ int be_cmd_get_beacon_state(struct be_adapter *adapter, u8 port_num, u32 *state)
+ 
+ /* Uses sync mcc */
+ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
+-				      u8 page_num, u8 *data)
++				      u8 page_num, u32 off, u32 len, u8 *data)
+ {
+ 	struct be_dma_mem cmd;
+ 	struct be_mcc_wrb *wrb;
+@@ -2321,10 +2321,10 @@ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
+ 	req->port = cpu_to_le32(adapter->hba_port_num);
+ 	req->page_num = cpu_to_le32(page_num);
+ 	status = be_mcc_notify_wait(adapter);
+-	if (!status) {
++	if (!status && len > 0) {
+ 		struct be_cmd_resp_port_type *resp = cmd.va;
+ 
+-		memcpy(data, resp->page_data, PAGE_DATA_LEN);
++		memcpy(data, resp->page_data + off, len);
  	}
--	if (IS_ERR(pols[0]))
-+	if (IS_ERR(pols[0])) {
-+		*num_pols = 0;
- 		return PTR_ERR(pols[0]);
+ err:
+ 	mutex_unlock(&adapter->mcc_lock);
+@@ -2415,7 +2415,7 @@ int be_cmd_query_cable_type(struct be_adapter *adapter)
+ 	int status;
+ 
+ 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   page_data);
++						   0, PAGE_DATA_LEN, page_data);
+ 	if (!status) {
+ 		switch (adapter->phy.interface_type) {
+ 		case PHY_TYPE_QSFP:
+@@ -2440,7 +2440,7 @@ int be_cmd_query_sfp_info(struct be_adapter *adapter)
+ 	int status;
+ 
+ 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   page_data);
++						   0, PAGE_DATA_LEN, page_data);
+ 	if (!status) {
+ 		strlcpy(adapter->phy.vendor_name, page_data +
+ 			SFP_VENDOR_NAME_OFFSET, SFP_VENDOR_NAME_LEN - 1);
+diff --git a/drivers/net/ethernet/emulex/benet/be_cmds.h b/drivers/net/ethernet/emulex/benet/be_cmds.h
+index c30d6d6f0f3a..9e17d6a7ab8c 100644
+--- a/drivers/net/ethernet/emulex/benet/be_cmds.h
++++ b/drivers/net/ethernet/emulex/benet/be_cmds.h
+@@ -2427,7 +2427,7 @@ int be_cmd_set_beacon_state(struct be_adapter *adapter, u8 port_num, u8 beacon,
+ int be_cmd_get_beacon_state(struct be_adapter *adapter, u8 port_num,
+ 			    u32 *state);
+ int be_cmd_read_port_transceiver_data(struct be_adapter *adapter,
+-				      u8 page_num, u8 *data);
++				      u8 page_num, u32 off, u32 len, u8 *data);
+ int be_cmd_query_cable_type(struct be_adapter *adapter);
+ int be_cmd_query_sfp_info(struct be_adapter *adapter);
+ int lancer_cmd_read_object(struct be_adapter *adapter, struct be_dma_mem *cmd,
+diff --git a/drivers/net/ethernet/emulex/benet/be_ethtool.c b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+index 5bb5abf99588..7cc1f41971c5 100644
+--- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
++++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+@@ -1339,7 +1339,7 @@ static int be_get_module_info(struct net_device *netdev,
+ 		return -EOPNOTSUPP;
+ 
+ 	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   page_data);
++						   0, PAGE_DATA_LEN, page_data);
+ 	if (!status) {
+ 		if (!page_data[SFP_PLUS_SFF_8472_COMP]) {
+ 			modinfo->type = ETH_MODULE_SFF_8079;
+@@ -1357,25 +1357,32 @@ static int be_get_module_eeprom(struct net_device *netdev,
+ {
+ 	struct be_adapter *adapter = netdev_priv(netdev);
+ 	int status;
++	u32 begin, end;
+ 
+ 	if (!check_privilege(adapter, MAX_PRIVILEGES))
+ 		return -EOPNOTSUPP;
+ 
+-	status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0,
+-						   data);
+-	if (status)
+-		goto err;
++	begin = eeprom->offset;
++	end = eeprom->offset + eeprom->len;
++
++	if (begin < PAGE_DATA_LEN) {
++		status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A0, begin,
++							   min_t(u32, end, PAGE_DATA_LEN) - begin,
++							   data);
++		if (status)
++			goto err;
++
++		data += PAGE_DATA_LEN - begin;
++		begin = PAGE_DATA_LEN;
 +	}
  
- 	*num_xfrms = pols[0]->xfrm_nr;
- 
-@@ -1834,6 +1836,7 @@ static int xfrm_expand_policies(const struct flowi *fl, u16 family,
- 		if (pols[1]) {
- 			if (IS_ERR(pols[1])) {
- 				xfrm_pols_put(pols, *num_pols);
-+				*num_pols = 0;
- 				return PTR_ERR(pols[1]);
- 			}
- 			(*num_pols)++;
+-	if (eeprom->offset + eeprom->len > PAGE_DATA_LEN) {
+-		status = be_cmd_read_port_transceiver_data(adapter,
+-							   TR_PAGE_A2,
+-							   data +
+-							   PAGE_DATA_LEN);
++	if (end > PAGE_DATA_LEN) {
++		status = be_cmd_read_port_transceiver_data(adapter, TR_PAGE_A2,
++							   begin - PAGE_DATA_LEN,
++							   end - begin, data);
+ 		if (status)
+ 			goto err;
+ 	}
+-	if (eeprom->offset)
+-		memcpy(data, data + eeprom->offset, eeprom->len);
+ err:
+ 	return be_cmd_status(status);
+ }
 -- 
 2.35.1
 
