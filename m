@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC79582C3F
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 076D5582F0D
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 19:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238617AbiG0Qop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:44:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43114 "EHLO
+        id S241806AbiG0RUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 13:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235476AbiG0Qnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:43:49 -0400
+        with ESMTP id S241850AbiG0RTJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 13:19:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5A81C12C;
-        Wed, 27 Jul 2022 09:30:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E4B17A525;
+        Wed, 27 Jul 2022 09:44:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D45FAB821BE;
-        Wed, 27 Jul 2022 16:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04E5AC433C1;
-        Wed, 27 Jul 2022 16:30:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D021B8200C;
+        Wed, 27 Jul 2022 16:44:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72CA0C433D7;
+        Wed, 27 Jul 2022 16:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939429;
-        bh=exjTbktyQ2L4qT7er/q8xnaoToLGPnYfi4azjwuWwgg=;
+        s=korg; t=1658940242;
+        bh=UzOKAaZyLZP7WTuLlXyLJCkvlAGxGJPoJsJrNSK4noo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VY7p758gGcuC0bzJlPL+QbaMVE3akIZvepNOAJN9RXeXpDQHcXkVQBbE3bz4hERDm
-         gHUbh4DqzR6tukVXrc+TpEvkRSrgUJjBAN2YyFfzFaNkkYhhYEYgjUSF9Cn/2sF/Tc
-         UUc9jPAyz2rpxmYCy7M1aKx7LU89oOhk3mXTp7Ls=
+        b=ifghb2ngg8J3xtLVQaz59X0pu2nGWsRM2ulzzGNkMcXXq741/lKNaHNrs3n+A+Cb/
+         1go7ewDIWDWf4f4jG+X9Ir3JnaiEuY5ng8yrCo2D1pjUw5aygRHpX72EIPtaIpfaRA
+         lpMd33T9Y0uPa+ktFEQ9Vl1cCxqPV2Wb6vKLj7i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Elena Reshetova <elena.reshetova@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 66/87] locking/refcount: Consolidate REFCOUNT_{MAX,SATURATED} definitions
-Date:   Wed, 27 Jul 2022 18:10:59 +0200
-Message-Id: <20220727161011.721547216@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 156/201] mt76: fix use-after-free by removing a non-RCU wcid pointer
+Date:   Wed, 27 Jul 2022 18:11:00 +0200
+Message-Id: <20220727161034.293946361@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161008.993711844@linuxfoundation.org>
-References: <20220727161008.993711844@linuxfoundation.org>
+In-Reply-To: <20220727161026.977588183@linuxfoundation.org>
+References: <20220727161026.977588183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,64 +52,267 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 65b008552469f1c37f5e06e0016924502e40b4f5 ]
+[ Upstream commit 51fb1278aa57ae0fc54adaa786e1965362bed4fb ]
 
-The definitions of REFCOUNT_MAX and REFCOUNT_SATURATED are the same,
-regardless of CONFIG_REFCOUNT_FULL, so consolidate them into a single
-pair of definitions.
+Fixes an issue caught by KASAN about use-after-free in mt76_txq_schedule
+by protecting mtxq->wcid with rcu_lock between mt76_txq_schedule and
+sta_info_[alloc, free].
 
-Signed-off-by: Will Deacon <will@kernel.org>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Hanjun Guo <guohanjun@huawei.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Elena Reshetova <elena.reshetova@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191121115902.2551-8-will@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[18853.876689] ==================================================================
+[18853.876751] BUG: KASAN: use-after-free in mt76_txq_schedule+0x204/0xaf8 [mt76]
+[18853.876773] Read of size 8 at addr ffffffaf989a2138 by task mt76-tx phy0/883
+[18853.876786]
+[18853.876810] CPU: 5 PID: 883 Comm: mt76-tx phy0 Not tainted 5.10.100-fix-510-56778d365941-kasan #5 0b01fbbcf41a530f52043508fec2e31a4215
+
+[18853.876840] Call trace:
+[18853.876861]  dump_backtrace+0x0/0x3ec
+[18853.876878]  show_stack+0x20/0x2c
+[18853.876899]  dump_stack+0x11c/0x1ac
+[18853.876918]  print_address_description+0x74/0x514
+[18853.876934]  kasan_report+0x134/0x174
+[18853.876948]  __asan_report_load8_noabort+0x44/0x50
+[18853.876976]  mt76_txq_schedule+0x204/0xaf8 [mt76 074e03e4640e97fe7405ee1fab547b81c4fa45d2]
+[18853.877002]  mt76_txq_schedule_all+0x2c/0x48 [mt76 074e03e4640e97fe7405ee1fab547b81c4fa45d2]
+[18853.877030]  mt7921_tx_worker+0xa0/0x1cc [mt7921_common f0875ebac9d7b4754e1010549e7db50fbd90a047]
+[18853.877054]  __mt76_worker_fn+0x190/0x22c [mt76 074e03e4640e97fe7405ee1fab547b81c4fa45d2]
+[18853.877071]  kthread+0x2f8/0x3b8
+[18853.877087]  ret_from_fork+0x10/0x30
+[18853.877098]
+[18853.877112] Allocated by task 941:
+[18853.877131]  kasan_save_stack+0x38/0x68
+[18853.877147]  __kasan_kmalloc+0xd4/0xfc
+[18853.877163]  kasan_kmalloc+0x10/0x1c
+[18853.877177]  __kmalloc+0x264/0x3c4
+[18853.877294]  sta_info_alloc+0x460/0xf88 [mac80211]
+[18853.877410]  ieee80211_prep_connection+0x204/0x1ee0 [mac80211]
+[18853.877523]  ieee80211_mgd_auth+0x6c4/0xa4c [mac80211]
+[18853.877635]  ieee80211_auth+0x20/0x2c [mac80211]
+[18853.877733]  rdev_auth+0x7c/0x438 [cfg80211]
+[18853.877826]  cfg80211_mlme_auth+0x26c/0x390 [cfg80211]
+[18853.877919]  nl80211_authenticate+0x6d4/0x904 [cfg80211]
+[18853.877938]  genl_rcv_msg+0x748/0x93c
+[18853.877954]  netlink_rcv_skb+0x160/0x2a8
+[18853.877969]  genl_rcv+0x3c/0x54
+[18853.877985]  netlink_unicast_kernel+0x104/0x1ec
+[18853.877999]  netlink_unicast+0x178/0x268
+[18853.878015]  netlink_sendmsg+0x3cc/0x5f0
+[18853.878030]  sock_sendmsg+0xb4/0xd8
+[18853.878043]  ____sys_sendmsg+0x2f8/0x53c
+[18853.878058]  ___sys_sendmsg+0xe8/0x150
+[18853.878071]  __sys_sendmsg+0xc4/0x1f4
+[18853.878087]  __arm64_compat_sys_sendmsg+0x88/0x9c
+[18853.878101]  el0_svc_common+0x1b4/0x390
+[18853.878115]  do_el0_svc_compat+0x8c/0xdc
+[18853.878131]  el0_svc_compat+0x10/0x1c
+[18853.878146]  el0_sync_compat_handler+0xa8/0xcc
+[18853.878161]  el0_sync_compat+0x188/0x1c0
+[18853.878171]
+[18853.878183] Freed by task 10927:
+[18853.878200]  kasan_save_stack+0x38/0x68
+[18853.878215]  kasan_set_track+0x28/0x3c
+[18853.878228]  kasan_set_free_info+0x24/0x48
+[18853.878244]  __kasan_slab_free+0x11c/0x154
+[18853.878259]  kasan_slab_free+0x14/0x24
+[18853.878273]  slab_free_freelist_hook+0xac/0x1b0
+[18853.878287]  kfree+0x104/0x390
+[18853.878402]  sta_info_free+0x198/0x210 [mac80211]
+[18853.878515]  __sta_info_destroy_part2+0x230/0x2d4 [mac80211]
+[18853.878628]  __sta_info_flush+0x300/0x37c [mac80211]
+[18853.878740]  ieee80211_set_disassoc+0x2cc/0xa7c [mac80211]
+[18853.878851]  ieee80211_mgd_deauth+0x4a4/0x10a0 [mac80211]
+[18853.878962]  ieee80211_deauth+0x20/0x2c [mac80211]
+[18853.879057]  rdev_deauth+0x7c/0x438 [cfg80211]
+[18853.879150]  cfg80211_mlme_deauth+0x274/0x414 [cfg80211]
+[18853.879243]  cfg80211_mlme_down+0xe4/0x118 [cfg80211]
+[18853.879335]  cfg80211_disconnect+0x218/0x2d8 [cfg80211]
+[18853.879427]  __cfg80211_leave+0x17c/0x240 [cfg80211]
+[18853.879519]  cfg80211_leave+0x3c/0x58 [cfg80211]
+[18853.879611]  wiphy_suspend+0xdc/0x200 [cfg80211]
+[18853.879628]  dpm_run_callback+0x58/0x408
+[18853.879642]  __device_suspend+0x4cc/0x864
+[18853.879658]  async_suspend+0x34/0xf4
+[18853.879673]  async_run_entry_fn+0xe0/0x37c
+[18853.879689]  process_one_work+0x508/0xb98
+[18853.879702]  worker_thread+0x7f4/0xcd4
+[18853.879717]  kthread+0x2f8/0x3b8
+[18853.879731]  ret_from_fork+0x10/0x30
+[18853.879741]
+[18853.879757] The buggy address belongs to the object at ffffffaf989a2000
+[18853.879757]  which belongs to the cache kmalloc-8k of size 8192
+[18853.879774] The buggy address is located 312 bytes inside of
+[18853.879774]  8192-byte region [ffffffaf989a2000, ffffffaf989a4000)
+[18853.879787] The buggy address belongs to the page:
+[18853.879807] page:000000004bda2a59 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1d89a0
+[18853.879823] head:000000004bda2a59 order:3 compound_mapcount:0 compound_pincount:0
+[18853.879839] flags: 0x8000000000010200(slab|head)
+[18853.879857] raw: 8000000000010200 ffffffffbc89e208 ffffffffb7fb5208 ffffffaec000cc80
+[18853.879873] raw: 0000000000000000 0000000000010001 00000001ffffffff 0000000000000000
+[18853.879885] page dumped because: kasan: bad access detected
+[18853.879896]
+[18853.879907] Memory state around the buggy address:
+[18853.879922]  ffffffaf989a2000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879935]  ffffffaf989a2080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879948] >ffffffaf989a2100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879961]                                         ^
+[18853.879973]  ffffffaf989a2180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879986]  ffffffaf989a2200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[18853.879998] ==================================================================
+
+Cc: stable@vger.kernel.org
+Reported-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/refcount.h | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mac80211.c     | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt76.h         | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt7603/main.c  | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt7615/main.c  | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt76x02_util.c | 4 +++-
+ drivers/net/wireless/mediatek/mt76/mt7915/main.c  | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt7921/main.c  | 2 +-
+ drivers/net/wireless/mediatek/mt76/tx.c           | 9 ++++-----
+ 8 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/refcount.h b/include/linux/refcount.h
-index 1cd0a876a789..757d4630115c 100644
---- a/include/linux/refcount.h
-+++ b/include/linux/refcount.h
-@@ -22,6 +22,8 @@ typedef struct refcount_struct {
- } refcount_t;
+diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
+index d03aedc3286b..029599d68ca7 100644
+--- a/drivers/net/wireless/mediatek/mt76/mac80211.c
++++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
+@@ -1100,7 +1100,7 @@ mt76_sta_add(struct mt76_dev *dev, struct ieee80211_vif *vif,
+ 			continue;
  
- #define REFCOUNT_INIT(n)	{ .refs = ATOMIC_INIT(n), }
-+#define REFCOUNT_MAX		INT_MAX
-+#define REFCOUNT_SATURATED	(INT_MIN / 2)
+ 		mtxq = (struct mt76_txq *)sta->txq[i]->drv_priv;
+-		mtxq->wcid = wcid;
++		mtxq->wcid = wcid->idx;
+ 	}
  
- enum refcount_saturation_type {
- 	REFCOUNT_ADD_NOT_ZERO_OVF,
-@@ -57,9 +59,6 @@ static inline unsigned int refcount_read(const refcount_t *r)
- #ifdef CONFIG_REFCOUNT_FULL
- #include <linux/bug.h>
+ 	ewma_signal_init(&wcid->rssi);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 6e4d69715927..d1f00706d41e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -263,7 +263,7 @@ struct mt76_wcid {
+ };
  
--#define REFCOUNT_MAX		INT_MAX
--#define REFCOUNT_SATURATED	(INT_MIN / 2)
--
- /*
-  * Variant of atomic_t specialized for reference counts.
-  *
-@@ -300,10 +299,6 @@ static inline void refcount_dec(refcount_t *r)
- 		refcount_warn_saturate(r, REFCOUNT_DEC_LEAK);
+ struct mt76_txq {
+-	struct mt76_wcid *wcid;
++	u16 wcid;
+ 
+ 	u16 agg_ssn;
+ 	bool send_bar;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/main.c b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+index 7f52a4a11cea..0b7b87b4cc21 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+@@ -74,7 +74,7 @@ mt7603_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ 	mt7603_wtbl_init(dev, idx, mvif->idx, bc_addr);
+ 
+ 	mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-	mtxq->wcid = &mvif->sta.wcid;
++	mtxq->wcid = idx;
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 
+ out:
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index 60a41d082961..7c52a4d85cea 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -235,7 +235,7 @@ static int mt7615_add_interface(struct ieee80211_hw *hw,
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 	if (vif->txq) {
+ 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-		mtxq->wcid = &mvif->sta.wcid;
++		mtxq->wcid = idx;
+ 	}
+ 
+ 	ret = mt7615_mcu_add_dev_info(phy, vif, true);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+index ccdbab341271..db7a4ffcad55 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+@@ -288,7 +288,8 @@ mt76x02_vif_init(struct mt76x02_dev *dev, struct ieee80211_vif *vif,
+ 	mvif->group_wcid.idx = MT_VIF_WCID(idx);
+ 	mvif->group_wcid.hw_key_idx = -1;
+ 	mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-	mtxq->wcid = &mvif->group_wcid;
++	rcu_assign_pointer(dev->mt76.wcid[MT_VIF_WCID(idx)], &mvif->group_wcid);
++	mtxq->wcid = MT_VIF_WCID(idx);
  }
- #else /* CONFIG_REFCOUNT_FULL */
--
--#define REFCOUNT_MAX		INT_MAX
--#define REFCOUNT_SATURATED	(INT_MIN / 2)
--
- # ifdef CONFIG_ARCH_HAS_REFCOUNT
- #  include <asm/refcount.h>
- # else
+ 
+ int
+@@ -341,6 +342,7 @@ void mt76x02_remove_interface(struct ieee80211_hw *hw,
+ 	struct mt76x02_vif *mvif = (struct mt76x02_vif *)vif->drv_priv;
+ 
+ 	dev->mt76.vif_mask &= ~BIT(mvif->idx);
++	rcu_assign_pointer(dev->mt76.wcid[mvif->group_wcid.idx], NULL);
+ }
+ EXPORT_SYMBOL_GPL(mt76x02_remove_interface);
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+index c25f8da590dd..6aca470e2401 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+@@ -243,7 +243,7 @@ static int mt7915_add_interface(struct ieee80211_hw *hw,
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 	if (vif->txq) {
+ 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-		mtxq->wcid = &mvif->sta.wcid;
++		mtxq->wcid = idx;
+ 	}
+ 
+ 	if (vif->type != NL80211_IFTYPE_AP &&
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 13a7ae3d8351..6cb65391427f 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -283,7 +283,7 @@ static int mt7921_add_interface(struct ieee80211_hw *hw,
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], &mvif->sta.wcid);
+ 	if (vif->txq) {
+ 		mtxq = (struct mt76_txq *)vif->txq->drv_priv;
+-		mtxq->wcid = &mvif->sta.wcid;
++		mtxq->wcid = idx;
+ 	}
+ 
+ out:
+diff --git a/drivers/net/wireless/mediatek/mt76/tx.c b/drivers/net/wireless/mediatek/mt76/tx.c
+index f0f7a913eaab..dce6f6b5f071 100644
+--- a/drivers/net/wireless/mediatek/mt76/tx.c
++++ b/drivers/net/wireless/mediatek/mt76/tx.c
+@@ -406,12 +406,11 @@ mt76_txq_stopped(struct mt76_queue *q)
+ 
+ static int
+ mt76_txq_send_burst(struct mt76_phy *phy, struct mt76_queue *q,
+-		    struct mt76_txq *mtxq)
++		    struct mt76_txq *mtxq, struct mt76_wcid *wcid)
+ {
+ 	struct mt76_dev *dev = phy->dev;
+ 	struct ieee80211_txq *txq = mtxq_to_txq(mtxq);
+ 	enum mt76_txq_id qid = mt76_txq_get_qid(txq);
+-	struct mt76_wcid *wcid = mtxq->wcid;
+ 	struct ieee80211_tx_info *info;
+ 	struct sk_buff *skb;
+ 	int n_frames = 1;
+@@ -491,8 +490,8 @@ mt76_txq_schedule_list(struct mt76_phy *phy, enum mt76_txq_id qid)
+ 			break;
+ 
+ 		mtxq = (struct mt76_txq *)txq->drv_priv;
+-		wcid = mtxq->wcid;
+-		if (wcid && test_bit(MT_WCID_FLAG_PS, &wcid->flags))
++		wcid = rcu_dereference(dev->wcid[mtxq->wcid]);
++		if (!wcid || test_bit(MT_WCID_FLAG_PS, &wcid->flags))
+ 			continue;
+ 
+ 		spin_lock_bh(&q->lock);
+@@ -511,7 +510,7 @@ mt76_txq_schedule_list(struct mt76_phy *phy, enum mt76_txq_id qid)
+ 		}
+ 
+ 		if (!mt76_txq_stopped(q))
+-			n_frames = mt76_txq_send_burst(phy, q, mtxq);
++			n_frames = mt76_txq_send_burst(phy, q, mtxq, wcid);
+ 
+ 		spin_unlock_bh(&q->lock);
+ 
 -- 
 2.35.1
 
