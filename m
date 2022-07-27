@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB93582B20
-	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E0E582D31
+	for <lists+stable@lfdr.de>; Wed, 27 Jul 2022 18:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237141AbiG0Q2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 12:28:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33870 "EHLO
+        id S240764AbiG0QyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 12:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237282AbiG0Q17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:27:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187A44D14E;
-        Wed, 27 Jul 2022 09:24:26 -0700 (PDT)
+        with ESMTP id S240864AbiG0Qwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 12:52:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC94A4D17D;
+        Wed, 27 Jul 2022 09:34:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A619B821C0;
-        Wed, 27 Jul 2022 16:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAAA6C433C1;
-        Wed, 27 Jul 2022 16:24:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A6B661A24;
+        Wed, 27 Jul 2022 16:34:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 930F3C433D6;
+        Wed, 27 Jul 2022 16:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1658939043;
-        bh=WCveFO0UOyDCC+3otaOXmy7YwrFviXSdJcADfvJT44E=;
+        s=korg; t=1658939690;
+        bh=HyQgHOeOFZ3XVC2J1qYJZurG46tm1pEbA9bEGX1Ibdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAYvO1sBSnWnvyihl1AVvc7Ln14gIhuNXGyYgXXNIkeJKveDlYyOE1JIZEf/2IOai
-         E3sa/VR334xnrosiPQDmbSwXmttHLEZ6v5zhxYxEmmTyaqG3lMgxlYTJtHrd0cjLkP
-         JNgujACLwmtXuNERSobZMXkiny98gHUD6K+E96Gw=
+        b=rAMRoBzNCIGmVZY4NrlD/Uj26qlNuy1B239GZVsMY8xFLaMoC5K98MwAx0Iac4ttA
+         qzbArAvv2/vv2ZxQL71jOtT9HAm1bPLsxvs0pZ19CZIQEKw9syU2yb8CPc5C+NUOgg
+         /xq+b4puh7R9Go+PEFwnMsbS7AV9A9wxGNRfAndU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.14 30/37] tty: drop tty_schedule_flip()
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 070/105] tcp: Fix data-races around sysctl_tcp_recovery.
 Date:   Wed, 27 Jul 2022 18:10:56 +0200
-Message-Id: <20220727161002.061494563@linuxfoundation.org>
+Message-Id: <20220727161014.859504799@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220727161000.822869853@linuxfoundation.org>
-References: <20220727161000.822869853@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+References: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,82 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 5db96ef23bda6c2a61a51693c85b78b52d03f654 upstream.
+[ Upstream commit e7d2ef837e14a971a05f60ea08c47f3fed1a36e4 ]
 
-Since commit a9c3f68f3cd8d (tty: Fix low_latency BUG) in 2014,
-tty_flip_buffer_push() is only a wrapper to tty_schedule_flip(). All
-users were converted in the previous patches, so remove
-tty_schedule_flip() completely while inlining its body into
-tty_flip_buffer_push().
+While reading sysctl_tcp_recovery, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-One less exported function.
-
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211122111648.30379-4-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4f41b1c58a32 ("tcp: use RACK to detect losses")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c |   30 ++++++++----------------------
- include/linux/tty_flip.h |    1 -
- 2 files changed, 8 insertions(+), 23 deletions(-)
+ net/ipv4/tcp_input.c    | 3 ++-
+ net/ipv4/tcp_recovery.c | 6 ++++--
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -389,27 +389,6 @@ int __tty_insert_flip_char(struct tty_po
- EXPORT_SYMBOL(__tty_insert_flip_char);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 8ac3acde08b4..1dc1d62093b3 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2055,7 +2055,8 @@ static inline void tcp_init_undo(struct tcp_sock *tp)
  
- /**
-- *	tty_schedule_flip	-	push characters to ldisc
-- *	@port: tty port to push from
-- *
-- *	Takes any pending buffers and transfers their ownership to the
-- *	ldisc side of the queue. It then schedules those characters for
-- *	processing by the line discipline.
-- */
--
--void tty_schedule_flip(struct tty_port *port)
--{
--	struct tty_bufhead *buf = &port->buf;
--
--	/* paired w/ acquire in flush_to_ldisc(); ensures
--	 * flush_to_ldisc() sees buffer data.
--	 */
--	smp_store_release(&buf->tail->commit, buf->tail->used);
--	queue_work(system_unbound_wq, &buf->work);
--}
--EXPORT_SYMBOL(tty_schedule_flip);
--
--/**
-  *	tty_prepare_flip_string		-	make room for characters
-  *	@port: tty port
-  *	@chars: return pointer for character write area
-@@ -551,7 +530,14 @@ static void flush_to_ldisc(struct work_s
- 
- void tty_flip_buffer_push(struct tty_port *port)
+ static bool tcp_is_rack(const struct sock *sk)
  {
--	tty_schedule_flip(port);
-+	struct tty_bufhead *buf = &port->buf;
-+
-+	/*
-+	 * Paired w/ acquire in flush_to_ldisc(); ensures flush_to_ldisc() sees
-+	 * buffer data.
-+	 */
-+	smp_store_release(&buf->tail->commit, buf->tail->used);
-+	queue_work(system_unbound_wq, &buf->work);
+-	return sock_net(sk)->ipv4.sysctl_tcp_recovery & TCP_RACK_LOSS_DETECTION;
++	return READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_recovery) &
++		TCP_RACK_LOSS_DETECTION;
  }
- EXPORT_SYMBOL(tty_flip_buffer_push);
  
---- a/include/linux/tty_flip.h
-+++ b/include/linux/tty_flip.h
-@@ -12,7 +12,6 @@ extern int tty_insert_flip_string_fixed_
- extern int tty_prepare_flip_string(struct tty_port *port,
- 		unsigned char **chars, size_t size);
- extern void tty_flip_buffer_push(struct tty_port *port);
--void tty_schedule_flip(struct tty_port *port);
- int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag);
+ /* If we detect SACK reneging, forget all SACK information
+diff --git a/net/ipv4/tcp_recovery.c b/net/ipv4/tcp_recovery.c
+index 31fc178f42c0..21fc9859d421 100644
+--- a/net/ipv4/tcp_recovery.c
++++ b/net/ipv4/tcp_recovery.c
+@@ -19,7 +19,8 @@ static u32 tcp_rack_reo_wnd(const struct sock *sk)
+ 			return 0;
  
- static inline int tty_insert_flip_char(struct tty_port *port,
+ 		if (tp->sacked_out >= tp->reordering &&
+-		    !(sock_net(sk)->ipv4.sysctl_tcp_recovery & TCP_RACK_NO_DUPTHRESH))
++		    !(READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_recovery) &
++		      TCP_RACK_NO_DUPTHRESH))
+ 			return 0;
+ 	}
+ 
+@@ -190,7 +191,8 @@ void tcp_rack_update_reo_wnd(struct sock *sk, struct rate_sample *rs)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 
+-	if (sock_net(sk)->ipv4.sysctl_tcp_recovery & TCP_RACK_STATIC_REO_WND ||
++	if ((READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_recovery) &
++	     TCP_RACK_STATIC_REO_WND) ||
+ 	    !rs->prior_delivered)
+ 		return;
+ 
+-- 
+2.35.1
+
 
 
