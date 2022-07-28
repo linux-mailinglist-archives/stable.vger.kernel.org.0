@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2B1583B74
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 11:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E352B583B76
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 11:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234848AbiG1Jmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jul 2022 05:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49016 "EHLO
+        id S235208AbiG1JoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jul 2022 05:44:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235042AbiG1Jmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 05:42:54 -0400
+        with ESMTP id S235016AbiG1JoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 05:44:10 -0400
 Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F0565D63;
-        Thu, 28 Jul 2022 02:42:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 653D065D63;
+        Thu, 28 Jul 2022 02:44:10 -0700 (PDT)
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2402B1C0003; Thu, 28 Jul 2022 11:42:53 +0200 (CEST)
-Date:   Thu, 28 Jul 2022 11:42:52 +0200
+        id 2E5881C0003; Thu, 28 Jul 2022 11:44:09 +0200 (CEST)
+Date:   Thu, 28 Jul 2022 11:44:08 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -25,14 +25,14 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/62] 4.19.254-rc1 review
-Message-ID: <20220728094252.GB27693@duo.ucw.cz>
-References: <20220727161004.175638564@linuxfoundation.org>
+Subject: Re: [PATCH 5.10 000/105] 5.10.134-rc1 review
+Message-ID: <20220728094408.GC27693@duo.ucw.cz>
+References: <20220727161012.056867467@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
+        protocol="application/pgp-signature"; boundary="2JFBq9zoW8cOFH7v"
 Content-Disposition: inline
-In-Reply-To: <20220727161004.175638564@linuxfoundation.org>
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
@@ -43,39 +43,40 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---eJnRUKwClWJh1Khz
+--2JFBq9zoW8cOFH7v
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> This is the start of the stable review cycle for the 4.19.254 release.
-> There are 62 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.10.134 release.
+> There are 105 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 
 CIP testing did not find any problems here:
 
 https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.19.y
+5.10.y
 
 Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
 Best regards,
                                                                 Pavel
+
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---eJnRUKwClWJh1Khz
+--2JFBq9zoW8cOFH7v
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYuJaHAAKCRAw5/Bqldv6
-8pTRAKCom+LW7CaFmXu/XQbQR0VByJVOSQCgo0D2XwJLmBTnb8A8opnTgrRgi2w=
-=HKAV
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYuJaaAAKCRAw5/Bqldv6
+8kJVAJwNwnPjbans89Ed2OiK2S77sZ4HqACeJmbtLTanCEk56rg9oNOOzBQHCjg=
+=HifY
 -----END PGP SIGNATURE-----
 
---eJnRUKwClWJh1Khz--
+--2JFBq9zoW8cOFH7v--
