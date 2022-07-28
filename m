@@ -2,103 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36B4558360D
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 02:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D4C9583645
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 03:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234286AbiG1AsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 20:48:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
+        id S234367AbiG1B3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 21:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229898AbiG1AsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 20:48:16 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B7F5A177;
-        Wed, 27 Jul 2022 17:48:16 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id y15so424726plp.10;
-        Wed, 27 Jul 2022 17:48:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :references:content-language:in-reply-to:content-transfer-encoding;
-        bh=T0sL0XnJkncypoWkEhEH3dj3z+lxGzyNkbrr0SmJH6Q=;
-        b=bxpwONXPqPNpRCOenGs8YTjEOKB78iXI6gX+aEKIPFGvQLBu6IjWm4c1Bhan1KFFPF
-         x2lcMabdxWNjWqof5Ado8U6SdN6/XX88XZAHy2CBHoxo0+alcPUgLgH14B4mWf1tm879
-         1em7GytN5b7xKYyIkpb08Hg5cwhAIKnNl8ezppHRHhiKYYsr+VxIFNhRLF9vKA61KhOf
-         Le+fYJMRwghkxo/skObFr11nFkjnBiDjbKA1TPBNU/VYEkXPnOsope/9Tjsa7DbeWqze
-         Rb4mCsQbZHbBqn5Bhl455xncWDRwOj47oeJHd/41ry7eLy17f6lqYIM7b0ViVsOEs0nL
-         UEiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=T0sL0XnJkncypoWkEhEH3dj3z+lxGzyNkbrr0SmJH6Q=;
-        b=aS9kadufYiH3UYytneckEUhTdSlUvQije3H+xstL2laU+Y3BKNmJonf4mKtMB2Clt/
-         sCJQP2GUt/B6GuKogfI34jHoK0Iqe9xyKOtwDGcc58pDFVmo+G4u2udcffZA4hOWgaaD
-         YzX3+nN6/UkdaqNqYTPuVfVbkAKxvLY6zmo1ySrWe5LSMxn0UEf5y07hSCHiTN+/RTx1
-         756+W90OFAdiWsAT7RswXmqf+GESiaRIaryDsrabbb+LTmUzkO13wgbOJDRrvLLqqiX7
-         sQLoACHV2FlW3G4p9YF6WAxlczC8QmqqrgUbWketVqUJGeaieYxzCsX3geCymg3phQGD
-         fsCQ==
-X-Gm-Message-State: AJIora9njMLPFe4REWseXozpS4fgGs8cQf4t+R+efQYRXvxpv5Pr9IEB
-        TxCKfeFCsYfrFm5K8m7L8Ag=
-X-Google-Smtp-Source: AGRyM1v290IK4T13ORDXLX28StcVZB/qyOC2m3rSSm5iiqDU4acScmDk8+SR+G5Ug1xEm/omwSZsRw==
-X-Received: by 2002:a17:90b:390:b0:1f3:ee2:62a8 with SMTP id ga16-20020a17090b039000b001f30ee262a8mr5146355pjb.148.1658969295811;
-        Wed, 27 Jul 2022 17:48:15 -0700 (PDT)
-Received: from [192.168.1.102] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id x1-20020a170902b40100b0016bf803341asm4337829plr.146.2022.07.27.17.48.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Jul 2022 17:48:15 -0700 (PDT)
-Message-ID: <a0968736-5fb8-8ff9-7a70-d6d871175bb6@gmail.com>
-Date:   Wed, 27 Jul 2022 17:48:14 -0700
+        with ESMTP id S234343AbiG1B3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 21:29:39 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3EE82C130;
+        Wed, 27 Jul 2022 18:29:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1658971778; x=1690507778;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=gfZjXhuL7wy9enNtGpyeN71qPUo5MXMw3mdjlYho4Hs=;
+  b=ITBPzNvPi9S1nkn1+9QYSPas+GCLHLSETKmUKgmmgRzaUIwtM0g1jmQt
+   PQkqD4KVKW3Bd1EWJIvweQwtshlD3p1h3X0oaKpvluhnHnmJ5hz/hYzY7
+   KXagbbcSNijujyVroZiVuQ0vKuKryLOyM3MbqAmci85Na8aKCq7kRKRi9
+   /OUdiojjc6w4WGjlSWng2rABgKIgDG/GOPSxsTlsPUMrYmskkQAa8szz1
+   sevCuNUuCnSH7T7cfEKQyULUmyDvft4JOOcX8u8KkTbMv5jZ9ghTL8PaC
+   o85/x71qYaz7Y1DazLDNeKjxEEhGc00Erm+BJOBQ8GAlpQ7Y8zFRIwZgG
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10421"; a="271430893"
+X-IronPort-AV: E=Sophos;i="5.93,196,1654585200"; 
+   d="scan'208";a="271430893"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 18:29:36 -0700
+X-IronPort-AV: E=Sophos;i="5.93,196,1654585200"; 
+   d="scan'208";a="846479851"
+Received: from tantonsx-mobl.amr.corp.intel.com (HELO desk) ([10.209.23.137])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 18:29:35 -0700
+Date:   Wed, 27 Jul 2022 18:29:33 -0700
+From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+To:     Jonathan Corbet <corbet@lwn.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>
+Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, tony.luck@intel.com,
+        antonio.gomez.iglesias@linux.intel.com,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        andrew.cooper3@citrix.com, Josh Poimboeuf <jpoimboe@kernel.org>
+Subject: Re: [RESEND RFC PATCH] x86/bugs: Add "unknown" reporting for MMIO
+ Stale Data
+Message-ID: <20220728012933.qkyfe35awu232vp4@desk>
+References: <a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.0.3
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.18 000/158] 5.18.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220727161021.428340041@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/27/22 09:11, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.15 release.
-> There are 158 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Jul 14, 2022 at 06:30:19PM -0700, Pawan Gupta wrote:
+> Older CPUs beyond its Servicing period are not listed in the affected
+> processor list for MMIO Stale Data vulnerabilities. These CPUs currently
+> report "Not affected" in sysfs, which may not be correct.
 > 
-> Responses should be made by Fri, 29 Jul 2022 16:09:50 +0000.
-> Anything received after that time might be too late.
+> Add support for "Unknown" reporting for such CPUs. Mitigation is not
+> deployed when the status is "Unknown".
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> and the diffstat can be found below.
+> "CPU is beyond its Servicing period" means these CPUs are beyond their
+> Servicing [1] period and have reached End of Servicing Updates (ESU) [2].
 > 
-> thanks,
+>   [1] Servicing: The process of providing functional and security
+>   updates to Intel processors or platforms, utilizing the Intel Platform
+>   Update (IPU) process or other similar mechanisms.
 > 
-> greg k-h
+>   [2] End of Servicing Updates (ESU): ESU is the date at which Intel
+>   will no longer provide Servicing, such as through IPU or other similar
+>   update processes. ESU dates will typically be aligned to end of
+>   quarter.
+> 
+> Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels and build tested on 
-BMIPS_GENERIC:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Ping! Is there any interest in fixing reporting for older processors?
