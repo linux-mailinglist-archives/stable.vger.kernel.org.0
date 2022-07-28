@@ -2,85 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A90583F6E
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 15:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B0E583F6B
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 15:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238367AbiG1NBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jul 2022 09:01:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40572 "EHLO
+        id S236365AbiG1NBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jul 2022 09:01:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236063AbiG1NBi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 09:01:38 -0400
-X-Greylist: delayed 251 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 28 Jul 2022 06:01:37 PDT
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC2831921;
-        Thu, 28 Jul 2022 06:01:37 -0700 (PDT)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1oH30q-001ykm-C0; Thu, 28 Jul 2022 14:53:12 +0200
-Received: from p5b13af7b.dip0.t-ipconnect.de ([91.19.175.123] helo=[192.168.178.81])
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_128_GCM_SHA256
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1oH30p-0025iU-UV; Thu, 28 Jul 2022 14:53:12 +0200
-Message-ID: <28f1be2e-ca7c-1c95-535a-2099ebf607f2@physik.fu-berlin.de>
-Date:   Thu, 28 Jul 2022 14:53:11 +0200
+        with ESMTP id S231272AbiG1NBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 09:01:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BF7120AD;
+        Thu, 28 Jul 2022 06:01:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7019761CED;
+        Thu, 28 Jul 2022 13:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC2FC433D6;
+        Thu, 28 Jul 2022 13:01:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659013295;
+        bh=E51/MNk2qxY6NPI0mcpHqIuA3fXm7V2GZ5k3k3ZJ0YE=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=iUaHHETyUcy1uQ4igxgOhyNGZ3EKoJgd9+BjFAdy7kAVl+yPNxZTwjk6V6NrzSSjS
+         jeGyJIZ7dpu2/0DCcjAV45JBNKWcv7ZuhYKWnkaYMUg/716eiZaTFswd760svKwgq9
+         QJYp0ON4Tz5UtETP1X/4LbVePITwsT03g88ADFIo2lpbZffWsz7vpqGGI0xAP+k4BE
+         i7QcM8QXa+zOHNLXv6oGrqcxXQWitlL9tl8vB5BuiCHDpKuJg6mS/PgQerURanCtAu
+         U8THRUaYcFCiTDtB+lJLjahfmSSYf0jPQz9odN5VrTA/ijM8Deauj9GKm/WkWCcJT0
+         mEhPWojk+Ginw==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org,
+        Gregory Erwin <gregerwin256@gmail.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+Subject: Re: [v12 PATCH] hwrng: core - let sleep be interrupted when unregistering hwrng
+References: <20220725215536.767961-1-Jason@zx2c4.com>
+        <Yt+3ic4YYpAsUHMF@gondor.apana.org.au>
+        <YuJjXI+tuiCcixbd@gondor.apana.org.au>
+        <89068ADD-805B-4036-8CF5-2612E2E8D3FF@toke.dk>
+Date:   Thu, 28 Jul 2022 16:01:29 +0300
+In-Reply-To: <89068ADD-805B-4036-8CF5-2612E2E8D3FF@toke.dk> ("Toke
+        \=\?utf-8\?Q\?H\=C3\=B8iland-J\=C3\=B8rgensen\=22's\?\= message of "Thu, 28 Jul 2022
+ 14:39:47 +0200")
+Message-ID: <877d3xo0gm.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.0.2
-Subject: Re: [PATCH V2 2/3] LoongArch: cpuinfo: Fix a warning for
- CONFIG_CPUMASK_OFFSTACK
-Content-Language: en-US
-To:     Huacai Chen <chenhuacai@gmail.com>,
-        Huacai Chen <chenhuacai@loongson.cn>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, loongarch@lists.linux.dev,
-        linux-arch <linux-arch@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, Guo Ren <guoren@kernel.org>,
-        Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "open list:MIPS" <linux-mips@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-References: <20220714084136.570176-1-chenhuacai@loongson.cn>
- <20220714084136.570176-2-chenhuacai@loongson.cn>
- <CAAhV-H7W8V8XdJXX5FvyvvSCAbeTSgLEKhHLivm89T-Nd59Umw@mail.gmail.com>
-From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-In-Reply-To: <CAAhV-H7W8V8XdJXX5FvyvvSCAbeTSgLEKhHLivm89T-Nd59Umw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-Originating-IP: 91.19.175.123
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi!
+Toke H=C3=B8iland-J=C3=B8rgensen <toke@toke.dk> writes:
 
-On 7/28/22 14:42, Huacai Chen wrote:
-> Since the SH maintainer hasn't responded, I suppose it is better to
-> let both LoongArch fix and SH fix go through your asm-generic tree?
+> On 28 July 2022 12:22:20 CEST, Herbert Xu <herbert@gondor.apana.org.au> w=
+rote:
+>>From: Jason A. Donenfeld <Jason@zx2c4.com>
+>>
+>>There are two deadlock scenarios that need addressing, which cause
+>>problems when the computer goes to sleep, the interface is set down, and
+>>hwrng_unregister() is called. When the deadlock is hit, sleep is delayed
+>>for tens of seconds, causing it to fail. These scenarios are:
+>>
+>>1) The hwrng kthread can't be stopped while it's sleeping, because it
+>>   uses msleep_interruptible() which does not react to kthread_stop.
+>>
+>>2) A normal user thread can't be interrupted by hwrng_unregister() while
+>>   it's sleeping, because hwrng_unregister() is called from elsewhere.
+>>
+>>We solve both issues by add a completion object called dying that
+>>fulfils waiters once we have started the process in hwrng_unregister.
+>>
+>>At the same time, we should cleanup a common and useless dmesg splat
+>>in the same area.
+>>
+>>Cc: <stable@vger.kernel.org>
+>>Reported-by: Gregory Erwin <gregerwin256@gmail.com>
+>>Fixes: fcd09c90c3c5 ("ath9k: use hw_random API instead of directly
+>> dumping into random.c")
+>>Link:
+>> https://lore.kernel.org/all/CAO+Okf6ZJC5-nTE_EJUGQtd8JiCkiEHytGgDsFGTEjs=
+0c00giw@mail.gmail.com/
+>>Link:
+>> https://lore.kernel.org/lkml/CAO+Okf5k+C+SE6pMVfPf-d8MfVPVq4PO7EY8Hys_DV=
+Xtent3HA@mail.gmail.com/
+>>Link: https://bugs.archlinux.org/task/75138
+>>Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+>>Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+>
+> Acked-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@toke.dk>
 
-I could test on actual SuperH hardware if needed. CC'ing Geert who has
-SH hardware as well.
+Acked-by: Kalle Valo <kvalo@kernel.org>
 
-Adrian
+Herbert, feel free to take this via your tree. Thanks!
 
--- 
-  .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-   `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+--=20
+https://patchwork.kernel.org/project/linux-wireless/list/
 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatc=
+hes
