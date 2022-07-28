@@ -2,80 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F32158374E
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 05:09:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB87583825
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 07:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230497AbiG1DJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 23:09:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
+        id S230509AbiG1Ffp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jul 2022 01:35:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbiG1DJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 23:09:39 -0400
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC775725E;
-        Wed, 27 Jul 2022 20:09:36 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=dtcccc@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VKdQHYb_1658977772;
-Received: from 30.97.49.29(mailfrom:dtcccc@linux.alibaba.com fp:SMTPD_---0VKdQHYb_1658977772)
-          by smtp.aliyun-inc.com;
-          Thu, 28 Jul 2022 11:09:34 +0800
-Message-ID: <2ace00b0-c2db-536f-e55b-f13e02165a8b@linux.alibaba.com>
-Date:   Thu, 28 Jul 2022 11:09:32 +0800
+        with ESMTP id S229777AbiG1Ffo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 01:35:44 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AF14D81F
+        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 22:35:42 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id b11so1248311eju.10
+        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 22:35:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MGHVJwwOXD4TQwp5bJbQCXJw0h6HO1k8bZrkAoBMUJM=;
+        b=lRuE+5Z+z296kkBmHZxRnNydOscEZzjLsh2H1pj/ht43dnT8q1t62Kk50s3S+vgegk
+         S8pvqSdmL4tMJoxndMsksyYTTEf01qWcqvEm0KbP76JsH4MIkWNPZJcIJoqA3soHwT4e
+         QmlPhuNB//pm6y5hsZ+MbsqIqsvaamSNNg2kgzdvGDp54svuDhXOiFTj6oAN2QUHFkr/
+         i2H+qCa3bDdn0ZbrH1gshku72DhvjEaeTY/Cfv6DVgPJ/98mcsRYxjrLZgQC1v/bRxAG
+         B+e/+vVoor9hwru4gikTRNQG6cEcl/FHelxkja9PuFokO72v+UJS3xVYJzKGJLUdIj9u
+         wzGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=MGHVJwwOXD4TQwp5bJbQCXJw0h6HO1k8bZrkAoBMUJM=;
+        b=V6Fa2nHCC7RbiLtfcrzuwq3JXmaQrkcxnKP21mEBU2ObG4PDS9zDTipHc5Oul7W2X6
+         O6zKLMEgy8ul/19BqvlClQ3aKpuS9bDGOdmRTkiKHU7Xnp0Hm7Tf1sUT1sJ1MF+Wenhl
+         hAKoLk/RsLkxUGUPMhLFUPasJuXOPunnOspEOHDb0VcLsQ98SGe9uNxHjy8vrnb0ECe9
+         O17nuMTgFIut38gtJJmVTyM4nVb5NXLIS0mKHiXxFyHpNwJgrNfbT9bdOWkIkF0U2NBE
+         MDDj88kemygx4wnhFkt3v9WuLGIUQ+tNS+JDncKgLPdFTS96kblCjouinbTiTcrwrwbd
+         /MRA==
+X-Gm-Message-State: AJIora/VHvPU9ae0fZejxf2ReIvuTB9x2uD+sUEeFSczeQlBu7pYqu/J
+        6xrR2UYFz9oj2K9S9XsE5uZ4ybFAHg9YQZrjm3aBUg==
+X-Google-Smtp-Source: AGRyM1tXRDyfHh0TXjI8zkFnSeBcVvIPtaDHTeDqg0sFdmg590UdpTeQ2QCs1SkEBd0ZxoasUw65usCBngPK9cGzYbI=
+X-Received: by 2002:a17:907:b0a:b0:72b:3176:3fe5 with SMTP id
+ h10-20020a1709070b0a00b0072b31763fe5mr19862421ejl.48.1658986541190; Wed, 27
+ Jul 2022 22:35:41 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH 5.10 373/575] selftests: bpf: Convert sk_lookup ctx access
- tests to PROG_TEST_RUN
-Content-Language: en-US
-From:   Tianchen Ding <dtcccc@linux.alibaba.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     ast@kernel.org, linux-kernel@vger.kernel.org, lmb@cloudflare.com,
-        sashal@kernel.org, stable@vger.kernel.org
-References: <20211115165356.685521944@linuxfoundation.org>
- <6258c4a1-0132-5afe-8dab-afa4ca3c49d6@linux.alibaba.com>
- <YuEPI/8xAMPl5XDw@kroah.com>
- <d6740ddd-c154-0cba-9ab3-34b55822402a@linux.alibaba.com>
-In-Reply-To: <d6740ddd-c154-0cba-9ab3-34b55822402a@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-        USER_IN_DEF_SPF_WL autolearn=no autolearn_force=no version=3.4.6
+References: <20220727161021.428340041@linuxfoundation.org>
+In-Reply-To: <20220727161021.428340041@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 28 Jul 2022 11:05:29 +0530
+Message-ID: <CA+G9fYtpz_MgLUoxrmXpy1L9Ky8mNYhpU7_rSJpFUCZtZm_LzQ@mail.gmail.com>
+Subject: Re: [PATCH 5.18 000/158] 5.18.15-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/7/28 11:03, Tianchen Ding wrote:
-> On 2022/7/27 18:10, Greg KH wrote:
->> On Mon, Jul 25, 2022 at 10:53:38AM +0800, Tianchen Ding wrote:
->>> Hi Greg.
->>>
->>> We found a compile error when building tools/testing/selftests/bpf/ on 5.10.
->>>
->>> tools/testing/selftests/bpf/prog_tests/sk_lookup.c:1092:15: error: 'struct bpf_sk_lookup' has no member named 'cookie'
->>>   1092 |  if (CHECK(ctx.cookie == 0, "ctx.cookie", "no socket selected\n"))
->>>
->>> It requires 7c32e8f8bc33 ("bpf: Add PROG_TEST_RUN support for sk_lookup programs") from upstream.
->>>
->>> Maybe the left patches of this patchset are needed for 5.10 LTS?
->>> https://lore.kernel.org/bpf/20210303101816.36774-1-lmb@cloudflare.com/
->>
->> If so, please submit them with the git commit ids so that I can fix this
->> up.
->>
->> thanks,
->>
->> greg k-h
-> 
-> These 2 commits from upstream are necessary for bpf selftests build pass on 5.10.y:
-> 607b9cc92bd7208338d714a22b8082fe83bcb177 bpf: Consolidate shared test timing code
-> 7c32e8f8bc33a5f4b113a630857e46634e3e143b bpf: Add PROG_TEST_RUN support for sk_lookup programs
-> 
-> This commit does not impact building stage, but can avoid a test case failure (by skipping it):
-> b4f894633fa14d7d46ba7676f950b90a401504bb selftests: bpf: Don't run sk_lookup in verifier tests
-> 
-> Thanks.
+On Wed, 27 Jul 2022 at 22:18, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.18.15 release.
+> There are 158 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 29 Jul 2022 16:09:50 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.18.15-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.18.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Or should I submit complete patches?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.18.15-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.18.y
+* git commit: 63d1be154edd5513bff11d778954f7ec7cbf50c1
+* git describe: v5.18.14-159-g63d1be154edd
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.18.y/build/v5.18=
+.14-159-g63d1be154edd
+
+## Test Regressions (compared to v5.18.14)
+No test regressions found.
+
+## Metric Regressions (compared to v5.18.14)
+No metric regressions found.
+
+## Test Fixes (compared to v5.18.14)
+No test fixes found.
+
+## Metric Fixes (compared to v5.18.14)
+No metric fixes found.
+
+## Test result summary
+total: 131463, pass: 120143, fail: 902, skip: 9686, xfail: 732
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 307 total, 307 passed, 0 failed
+* arm64: 62 total, 60 passed, 2 failed
+* i386: 52 total, 50 passed, 2 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 54 passed, 6 failed
+* riscv: 27 total, 22 passed, 5 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 56 total, 54 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
