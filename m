@@ -2,175 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3BC5838C7
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 08:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E5758394E
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 09:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232418AbiG1Gcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jul 2022 02:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40206 "EHLO
+        id S231431AbiG1HNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jul 2022 03:13:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbiG1Gck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 02:32:40 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F5B50197;
-        Wed, 27 Jul 2022 23:32:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1658989959; x=1690525959;
-  h=date:from:to:cc:subject:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=RK0HAmV0bkXD+BBB3t8pfYAFUKXxk01BYq1b2equMoE=;
-  b=K6h6dY1BDvaJ93GlUDIcZOXobIMpGNyx5ncS3SEzkLkbxwgwbe98Hj9O
-   jhVd34jTpAsaM9gjMK7fLJMvIpMKqmsrjfTMRWPe88ue7mo70RF7T/vgr
-   D/sbV1g6QWhtvEWR5gdSA092aEJs/O+SSuCKFYdoattnGetnIrnytd7Ic
-   UvM2ScDZhJMWqRTLkXuv3YDTvt7fN8NBFPMYHYyXnx7nOoRWbvQW4d8LQ
-   zg1CVswWxrzaQOdH0pfBQrsUEws9u9OmYw9nQ7GcHqrUfLaTwgpJfW/N6
-   a2fuluyZRTHT8VF022/wNPPP77/7Q3WczsPHM7dXi1FBRr4khhlYac49M
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10421"; a="350139609"
-X-IronPort-AV: E=Sophos;i="5.93,196,1654585200"; 
-   d="scan'208";a="350139609"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 23:32:39 -0700
-X-IronPort-AV: E=Sophos;i="5.93,196,1654585200"; 
-   d="scan'208";a="659570540"
-Received: from maurocar-mobl2.ger.corp.intel.com (HELO maurocar-mobl2) ([10.249.36.196])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2022 23:32:35 -0700
-Date:   Thu, 28 Jul 2022 08:32:32 +0200
-From:   Mauro Carvalho Chehab <mauro.chehab@linux.intel.com>
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc:     stable@vger.kernel.org,
-        Thomas =?UTF-8?B?SGVsbHN0csO2bQ==?= 
-        <thomas.hellstrom@linux.intel.com>, linux-media@vger.kernel.org,
-        David Airlie <airlied@linux.ie>,
-        intel-gfx@lists.freedesktop.org,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>,
-        linaro-mm-sig@lists.linaro.org,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Matthew Auld <matthew.auld@intel.com>
-Subject: Re: [Intel-gfx] [PATCH v2 06/21] drm/i915/gt: Batch TLB
- invalidations
-Message-ID: <20220728083232.352f80cf@maurocar-mobl2>
-In-Reply-To: <d2337b73-ae34-3dd3-afa3-85c77dc2135e@linux.intel.com>
-References: <cover.1657800199.git.mchehab@kernel.org>
-        <9f535a97f32320a213a619a30c961ba44b595453.1657800199.git.mchehab@kernel.org>
-        <567823d5-57ba-30db-dd64-de609df4d8c5@linux.intel.com>
-        <20220727134836.7f7b5fab@maurocar-mobl2>
-        <d2337b73-ae34-3dd3-afa3-85c77dc2135e@linux.intel.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S230482AbiG1HNw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 03:13:52 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822185E311;
+        Thu, 28 Jul 2022 00:13:51 -0700 (PDT)
+X-UUID: f5b4335d66944ec7881168631f0d3798-20220728
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.8,REQID:15cfd353-6f83-40a3-8faa-57d4626a5268,OB:0,LO
+        B:0,IP:0,URL:5,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACTI
+        ON:release,TS:5
+X-CID-META: VersionHash:0f94e32,CLOUDID:5cc18ed0-841b-4e95-ad42-8f86e18f54fc,C
+        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:1,File:nil
+        ,QS:nil,BEC:nil,COL:0
+X-UUID: f5b4335d66944ec7881168631f0d3798-20220728
+Received: from mtkmbs11n1.mediatek.inc [(172.21.101.185)] by mailgw01.mediatek.com
+        (envelope-from <peter.wang@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1828418788; Thu, 28 Jul 2022 15:13:43 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.186) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
+ Thu, 28 Jul 2022 15:13:43 +0800
+Received: from [172.21.84.99] (172.21.84.99) by mtkmbs11n1.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.2.792.15 via Frontend
+ Transport; Thu, 28 Jul 2022 15:13:42 +0800
+Subject: Re: [PATCH v4] ufs: core: fix lockdep warning of clk_scaling_lock
+To:     Bart Van Assche <bvanassche@acm.org>, <stanley.chu@mediatek.com>,
+        <linux-scsi@vger.kernel.org>, <martin.petersen@oracle.com>,
+        <avri.altman@wdc.com>, <alim.akhtar@samsung.com>,
+        <jejb@linux.ibm.com>
+CC:     <wsd_upstream@mediatek.com>, <linux-mediatek@lists.infradead.org>,
+        <chun-hung.wu@mediatek.com>, <alice.chao@mediatek.com>,
+        <cc.chou@mediatek.com>, <chaotian.jing@mediatek.com>,
+        <jiajie.hao@mediatek.com>, <powen.kao@mediatek.com>,
+        <qilin.tan@mediatek.com>, <lin.gui@mediatek.com>,
+        <stable@vger.kernel.org>
+References: <20220727032110.31168-1-peter.wang@mediatek.com>
+ <5fab3d4f-914e-63f8-a3e8-7dd92ecdb04a@acm.org>
+From:   Peter Wang <peter.wang@mediatek.com>
+Message-ID: <47d1efed-69a7-cabf-e586-48b09a9afd78@mediatek.com>
+Date:   Thu, 28 Jul 2022 15:13:37 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <5fab3d4f-914e-63f8-a3e8-7dd92ecdb04a@acm.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,UNPARSEABLE_RELAY
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 Jul 2022 13:56:50 +0100
-Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com> wrote:
 
-> > Because vma_invalidate_tlb() basically stores a TLB seqno, but the
-> > actual invalidation is deferred to when the pages are unset, at
-> > __i915_gem_object_unset_pages().
-> > 
-> > So, what happens is:
-> > 
-> > - on VMA sync mode, the need to invalidate TLB is marked at
-> >    __vma_put_pages(), before VMA unbind;
-> > - on async, this is deferred to happen at ppgtt_unbind_vma(), where
-> >    it marks the need to invalidate TLBs.
-> > 
-> > On both cases, __i915_gem_object_unset_pages() is called later,
-> > when the driver is ready to unmap the page.  
-> 
-> Sorry still not clear to me why is the patch moving marking of the need 
-> to invalidate (regardless if it a bit like today, or a seqno like in 
-> this patch) from bind to unbind?
-> 
-> What if the seqno was stored in i915_vma_bind, where the bit is set 
-> today, and all the hunks which touch the unbind and evict would 
-> disappear from the patch. What wouldn't work in that case, if anything?
+On 7/28/22 2:12 AM, Bart Van Assche wrote:
+> On 7/26/22 20:21, peter.wang@mediatek.com wrote:
+>> -    /* Enable Write Booster if we have scaled up else disable it */
+>> -    downgrade_write(&hba->clk_scaling_lock);
+>> -    is_writelock = false;
+>> -    ufshcd_wb_toggle(hba, scale_up);
+>> +    /* Disable clk_scaling until ufshcd_wb_toggle finish */
+>> +    hba->clk_scaling.is_allowed = false;
+>> +    wb_toggle = true;
+>>     out_unprepare:
+>> -    ufshcd_clock_scaling_unprepare(hba, is_writelock);
+>> +    ufshcd_clock_scaling_unprepare(hba);
+>> +
+>> +    /* Enable Write Booster if we have scaled up else disable it */
+>> +    if (wb_toggle) {
+>> +        ufshcd_wb_toggle(hba, scale_up);
+>> +        ufshcd_clk_scaling_allow(hba, true);
+>> +    }
+>
+> I'm concerned that briefly disabling clock scaling may cause the clock 
+> to remain at a high frequency even if it shouldn't. Has the following 
+> approach been considered? Instead of moving the 
+> ufshcd_clk_scaling_allow() call, convert dev_cmd.lock into a 
+> semaphore, lock it near the start of ufshcd_devfreq_scale() and unlock 
+> it near the end of the same function.
+>
+> Thanks,
+>
+> Bart.
 
-Ah, now I see your point.
 
-I can't see any sense on having a sequence number at VMA bind, as the
-unbind order can be different. The need of doing a full TLB invalidation
-or not depends on the unbind order.
+Hi Bart,
 
-The way the current algorithm works is that drm_i915_gem_object can be
-created on any order, and, at unbind/evict, they receive a seqno.
+Clock scaling up/down have a polling_ms, so it shouldn't have this 
+condition that scale up block scale down.
+Convert dev_cmd.lock into a semaphore is more risky, and dev_cmd.lock 
+should hold when send dev command only.
+I think it is not suitable to hold this dev_cmd.lock in 
+ufshcd_devfreq_scale.
 
-The seqno is incremented at intel_gt_invalidate_tlb():
+Maybe we can have another choice, let vendor decide ufshcd_wb_toggle 
+with clock scaling or not?
 
-    void intel_gt_invalidate_tlb(struct intel_gt *gt, u32 seqno)
-    {
-	with_intel_gt_pm_if_awake(gt, wakeref) {
-		mutex_lock(&gt->tlb.invalidate_lock);
-		if (tlb_seqno_passed(gt, seqno))
-				goto unlock;
+Thanks.
+Peter
 
-		mmio_invalidate_full(gt);
 
-		write_seqcount_invalidate(&gt->tlb.seqno);	// increment seqno
-		
 
-So, let's say 3 objects were created, on this order:
-
-	obj1
-	obj2
-	obj3
-
-They would be unbind/evict on a different order. On that time, 
-the mm.tlb will be stamped with a seqno, using the number from the
-last TLB flush, plus 1.
-
-As different threads can be used to handle TLB flushes, let's imagine
-two threads (just for the sake of having an example). On such case,
-what we would have is:
-
-seqno		Thread 0			Thread 1
-
-seqno=2		unbind/evict event
-		obj3.mm.tlb = seqno | 1
-seqno=2		unbind/evict event
-		obj1.mm.tlb = seqno | 1
-						__i915_gem_object_unset_pages() 
-						called for obj3, TLB flush happened,
-						invalidating both obj1 and obj2.
-						seqno += 2					
-seqno=4		unbind/evict event
-		obj1.mm.tlb = seqno | 1
-						__i915_gem_object_unset_pages()
-						called for obj1, don't flush.
-...
-						__i915_gem_object_unset_pages() called for obj2, TLB flush happened
-						seqno += 2
-seqno=6
-
-So, basically the seqno is used to track when the object data stopped
-being updated, because of an unbind/evict event, being later used by
-intel_gt_invalidate_tlb() when called from __i915_gem_object_unset_pages(),
-in order to check if a previous invalidation call was enough to invalidate
-the object, or if a new call is needed.
-
-Now, if seqno is stored at bind, data can still leak, as the assumption
-made by intel_gt_invalidate_tlb() that the data stopped being used at
-seqno is not true anymore.
-
-Still, I agree that this logic is complex and should be better 
-documented. So, if you're now OK with this patch, I'll add the above
-explanation inside a kernel-doc comment.
-
-Regards,
-Mauro
