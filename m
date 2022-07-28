@@ -2,102 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5883D584201
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 16:42:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACD0584207
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 16:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233052AbiG1OmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jul 2022 10:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49066 "EHLO
+        id S232484AbiG1OnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jul 2022 10:43:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233037AbiG1OmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 10:42:07 -0400
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871A268DF4
-        for <stable@vger.kernel.org>; Thu, 28 Jul 2022 07:41:28 -0700 (PDT)
-Received: by mail-il1-x136.google.com with SMTP id t15so1030622ilm.7
-        for <stable@vger.kernel.org>; Thu, 28 Jul 2022 07:41:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=uHVdLHTLmgFe2akRBUIu4PcEhdufN5r4A+NHKCOopGw=;
-        b=LKbvDfhlpM4XYKYCWvsp2mOGqa+kvhnz6nEMtjTjOMintnXhaWsFlqvUzRA4B8YBXF
-         FuyjzouudCJdAc4AetYcMK02BYnEMMMov3VUmG/n2QeApUG2UxwIGNN3cV6BlUvnEkW2
-         tQLupTi/5v3vu++hChnQYYJpZiUQcgn88DEpI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=uHVdLHTLmgFe2akRBUIu4PcEhdufN5r4A+NHKCOopGw=;
-        b=D1O/FNAfRnhTqd9fPdvSLbo6MrTJOOkc0LDmbr+Ybvjt2LM7Q4R+bgbWblNqo+5sAJ
-         EeLZG14Ew96B7P0IhgsvOLdZHZijF1PsWJxtTXJCQUhPyp47PdP8BE+7N2X+rD8OS5l6
-         62GYHhZhlPs/uKHU+tqU1Lr2RHqVWvAXINiAr2tpqM1bNLAP3fqsZWPF+sCzgDnfDaQY
-         CnQj8MaYWs0We1UUANJYMUdY2jQgo8QTTtm15AxhuYzyHcenymh2l6ckk8C1ZDkHL37a
-         Rd/c/XlGIjwOdYiHrRgAGPgwv4WyJwZT+EEjHFb4+WFDxxqQzNs8vA7SoqH3X9qOj2Hp
-         o5Mg==
-X-Gm-Message-State: AJIora/bIJ3xcb0lvtMxGKGzhsiIO1uy5hvPCj6fm0faZE5S8PCLi+BU
-        1KHBYQpSAWawrrMTQjSYprtxgQ==
-X-Google-Smtp-Source: AGRyM1sUFBYDswiH6UyZ/aLyOfx1zsVicc9zuK8XfpVKkUmTgVD+VE9b81yteaC1bzk5AhpmW+HPaw==
-X-Received: by 2002:a92:2a0a:0:b0:2d9:2571:f57e with SMTP id r10-20020a922a0a000000b002d92571f57emr10603446ile.154.1659019287736;
-        Thu, 28 Jul 2022 07:41:27 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id t129-20020a025487000000b003415b95c097sm447510jaa.42.2022.07.28.07.41.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Jul 2022 07:41:27 -0700 (PDT)
-Subject: Re: [PATCH 5.10 000/105] 5.10.134-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220727161012.056867467@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <9a2f10a9-b783-044f-a5c3-de5d6299202c@linuxfoundation.org>
-Date:   Thu, 28 Jul 2022 08:41:26 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        with ESMTP id S232604AbiG1Omy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 10:42:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8496BF5;
+        Thu, 28 Jul 2022 07:42:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 228E3618DC;
+        Thu, 28 Jul 2022 14:42:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D919C433D6;
+        Thu, 28 Jul 2022 14:42:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1659019358;
+        bh=jI8jdbqxX5yMhRSyK3vGY9DhXMKI8GbBoEjw971ho4k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uelhHZVx55YqgdQZHzH6UgIKDYs9JcSvvGK9yLPp0qGONpHKL+XRj92XlOGBf9Ljd
+         THnj++NmUMLV4j974+/sPTGAkxoBhKNoyf4QiPnKZZy3FrD3KjoV5GkmIoTdBGG84p
+         NERCrYxHPXL9bNqEHyrc+Ca9ot/6A8Dy50O2RVU4=
+Date:   Thu, 28 Jul 2022 16:42:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     stable@vger.kernel.org, linux-block@vger.kernel.org,
+        dm-devel@redhat.com, Christoph Hellwig <hch@lst.de>,
+        syzbot+4f441e6ca0fcad141421@syzkaller.appspotmail.com,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5.10 1/2] block: split bio_kmalloc from bio_alloc_bioset
+Message-ID: <YuKgW9BCNl8ChT/v@kroah.com>
+References: <20220718211226.506362-1-tadeusz.struk@linaro.org>
+ <YtwM3uHugOOdDQZT@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YtwM3uHugOOdDQZT@kroah.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/27/22 10:09 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.134 release.
-> There are 105 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sat, Jul 23, 2022 at 04:59:42PM +0200, Greg KH wrote:
+> On Mon, Jul 18, 2022 at 02:12:25PM -0700, Tadeusz Struk wrote:
+> > From: Christoph Hellwig <hch@lst.de>
+> > 
+> > From: Christoph Hellwig <hch@lst.de>
+> > 
+> > Upstream commit: 3175199ab0ac ("block: split bio_kmalloc from bio_alloc_bioset")
+> > 
+> > This is backport to stable 5.10. It fixes an issue reported by syzbot.
+> > Link: https://syzkaller.appspot.com/bug?id=a3416231e37024a75f2b95bd95db0d8ce8132a84
 > 
-> Responses should be made by Fri, 29 Jul 2022 16:09:50 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.134-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Both now queued up, thanks.
 
-Compiled and booted on my test system. No dmesg regressions.
+As was just reported, this breaks things all over the place:
+	https://lore.kernel.org/r/219030d8-3408-cc9d-7aec-1fb14ab891ce@roeck-us.net
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Note, I also had to add lots of fix-up patches on top of these two that
+you missed, so odds are there are other fix-ups that I also missed.
+
+Please go and test this again, and submit ALL patches that are needed
+after they pass the proper testing and I will be glad to reconsider them
+again.
 
 thanks,
--- Shuah
+
+greg k-h
