@@ -2,74 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 699FF5835D8
-	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 02:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8432D5835D7
+	for <lists+stable@lfdr.de>; Thu, 28 Jul 2022 02:02:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbiG1ACd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Jul 2022 20:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
+        id S233037AbiG1ACb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Jul 2022 20:02:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234298AbiG1ACc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 20:02:32 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9108118345
-        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 17:02:31 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id z25so588562lfr.2
-        for <stable@vger.kernel.org>; Wed, 27 Jul 2022 17:02:31 -0700 (PDT)
+        with ESMTP id S232834AbiG1ACa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Jul 2022 20:02:30 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C1818345;
+        Wed, 27 Jul 2022 17:02:29 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id ha11so490062pjb.2;
+        Wed, 27 Jul 2022 17:02:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=profian-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=mBsuLV2Kcuz0I195V1tt9wJXgZd8wQhbwFhjdKnnIJE=;
-        b=l3MGDDEdS9t9yQxk624TuJG1yi8Q65z7u1Kbu1NGAGE5iTZqEyvSpMIssIgZqFbcog
-         tgnqIdBLB5ZyY01UAVkhNmm08bUwvtYktXorCFReTU6g1W3UEQ71DFIvS1QxHdwBYaBe
-         l1dkPVjdWppEix7iwqiFhqXCBId631FcZLwaU+RdLbVqguhF2XtJkWgCGKKKWQ7+EOi3
-         YVyXFf9I+QMPBz/N/FzKGSfpAidyW1O2O2Q9dqX9sywEb0g7SbOSdNzAhzbhRSLirQ9R
-         f06nl3wGAqpcepN/PuNK/WvfOceNFDYHD+Bzpj+S7lEbu5x1YuTZzkIvVBFEO41MccVj
-         J/Qw==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:from:subject:to:cc
+         :references:content-language:in-reply-to:content-transfer-encoding;
+        bh=5f8IoG6sGlHPscn1UbjAGOabACLzRqwoDg7QWMu4BQc=;
+        b=A9yH6cKVVd2fkMr1M4QzDODZN8DR01SPOXG88EjVD5mWcXwQQ5AIXq4LPLs2LtXqaa
+         j5ISHHLSBCphqBmgt9Zs2Wb9ZdqKU3WgAJGCLmyh1FNyyCy6Co7S7rm/pYDiW3A1Pm/f
+         mtZ5/2EdFhPnlt3F3rLXqKdYMV1iiGA+435DG83c3EaUKqckMDbDnU2vj23n24Plclwx
+         2NBrS33O6GW8ZoGlD4OUHOIMDm48Fv6vowRPhcZNnd6TNsFdnFne2JwmRIspYzpmGr2I
+         NvG6VnSQTzen3zTzDdQwOWWiG6tgqr3k5S8kMFgvoxHFi/irtKiYO1frWqacEuOTHQye
+         ckhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
+         :subject:to:cc:references:content-language:in-reply-to
          :content-transfer-encoding;
-        bh=mBsuLV2Kcuz0I195V1tt9wJXgZd8wQhbwFhjdKnnIJE=;
-        b=lqrtemMB9fVM+O2cmc6hKhqd+JS0o49SeMwhxjDAI+A2b8WEu+63B7MgPmsJRKqBZB
-         Gfuh2jCdnz6E9W/vFc2ghYxVSe1O5FmP/m4wkRIu/A9j9F3ong0jJrGlC6aC8BaXu/cr
-         9Awo5Tu0Qe1cufGPo/QL7RGLdLju8F5e04/l5AxL9AUNPnTu+UReXWzKjnpaGuTmDszX
-         mBa7plbYSgoOtRI0x03+lyKQmdRF1jAjwiYQdtm16o3l7L2svvCLGIzv8jmKlRfvwb1r
-         qVMwXxpqNli+tSUtrD/qXNZ1toT6QyaHG/0D7ctE0vh3/RAFv9yamKMy5b+Q77RwkW/8
-         KKQg==
-X-Gm-Message-State: AJIora/TWRE3S+8LtuMHzoeh1cimxl6jJUfgDRb/vMU6i2N4zYJHGuAq
-        ls1vY6JUAjdyjv0WJnGiJ97HQw==
-X-Google-Smtp-Source: AGRyM1uJOZj/Ud8yjL00jfvfNrl8tmJjn2jtL+kO+cqfm7FOI+GilysBPfZMbkNBrIU8/Qy5rZM+9g==
-X-Received: by 2002:a05:6512:1694:b0:48a:9d45:763f with SMTP id bu20-20020a056512169400b0048a9d45763fmr4368355lfb.662.1658966549714;
-        Wed, 27 Jul 2022 17:02:29 -0700 (PDT)
-Received: from localhost (91-154-92-55.elisa-laajakaista.fi. [91.154.92.55])
-        by smtp.gmail.com with ESMTPSA id q27-20020ac2515b000000b0048a897adbc9sm2096529lfd.211.2022.07.27.17.02.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Jul 2022 17:02:29 -0700 (PDT)
-From:   Jarkko Sakkinen <jarkko@profian.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Jarkko Sakkinen <jarkko@profian.com>, stable@vger.kernel.org,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Sean Christopherson <seanjc@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        kvm@vger.kernel.org (open list:KERNEL VIRTUAL MACHINE FOR X86 (KVM/x86)),
-        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
-        64-BIT))
-Subject: [PATCH] KVM: x86/mmu: Fix incorrect use of CONFIG_RETPOLINE
-Date:   Thu, 28 Jul 2022 03:02:21 +0300
-Message-Id: <20220728000221.19088-1-jarkko@profian.com>
-X-Mailer: git-send-email 2.37.1
+        bh=5f8IoG6sGlHPscn1UbjAGOabACLzRqwoDg7QWMu4BQc=;
+        b=MbJpkDyHocmzVcdTeV6Vr6Zkpri/cX2TQ/mVQyk3387/NRl7zixmX/AtiZisXNwy0N
+         aSTWieSPmH8mb68RQOK+VCQPJl+/KqjjUaeViktvfNTZQd+acqqZv8TfjpKit0b3cw5v
+         gjH20WDE+4nmvICFUL2P00UwBdhC7kk34FafoYqBD6/Z7g2Bif9wHkvHLbzlEg0fXxcd
+         FuB4QSEFBJMYhgloWgteEh1Hh8hvj2RKbhcRq+JInEdd1LpRrRh//pAgcfLyzdwsduSc
+         s/KC5i7X8NhoqaDZlEraVfJXbf/sYVSqha5DQ2T5oqyKWqzDUlZtL7I7rp7dNZN0Iuou
+         BDhw==
+X-Gm-Message-State: AJIora/x9AQKba79goOFwtEEP6mjx+k9/panXfz9Hgo5nzUAxwUKuIM/
+        gcREKfGftVTnZMafnevrfW8=
+X-Google-Smtp-Source: AGRyM1uDkSsvQfFFg5Le8P14DjyhSYOh7iqPZWpWN9Y8DHAqW954IXboZeVKO7fKHTqtvEtP5Lutxw==
+X-Received: by 2002:a17:902:f609:b0:168:dcbe:7c4d with SMTP id n9-20020a170902f60900b00168dcbe7c4dmr23651260plg.169.1658966548461;
+        Wed, 27 Jul 2022 17:02:28 -0700 (PDT)
+Received: from [192.168.1.102] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id o3-20020a1709026b0300b0016b953872a7sm14265664plk.201.2022.07.27.17.02.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Jul 2022 17:02:27 -0700 (PDT)
+Message-ID: <d57329c9-0600-3930-3f24-f1ceae735b20@gmail.com>
+Date:   Wed, 27 Jul 2022 17:02:26 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.0.3
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 5.10 000/105] 5.10.134-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220727161012.056867467@linuxfoundation.org>
+Content-Language: en-US
+In-Reply-To: <20220727161012.056867467@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,53 +77,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use "#ifdef" instead of "#if", as it is possible to select KVM
-without enabling RETPOLINE.
+On 7/27/22 09:09, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.134 release.
+> There are 105 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 29 Jul 2022 16:09:50 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.134-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Adding the following list of flags on top of tinyconfig is an
-example of a failing config file:
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels and build tested on 
+BMIPS_GENERIC:
 
-CONFIG_64BIT=y
-CONFIG_PCI=y
-CONFIG_ACPI=y
-CONFIG_VIRTUALIZATION=y
-CONFIG_HIGH_RES_TIMERS=y
-CONFIG_CRYPTO=y
-CONFIG_DMADEVICES=y
-CONFIG_X86_MCE=y
-CONFIG_RETPOLINE=y
-CONFIG_MEMORY_FAILURE=y
-CONFIG_KVM=y
-CONFIG_KVM_AMD=y
-CONFIG_CRYPTO_DEV_CCP=y
-CONFIG_CRYPTO_DEV_CCP_DD=y
-CONFIG_CRYPTO_DEV_SP_CCP=y
-CONFIG_CRYPTO_DEV_SP_PSP=y
-CONFIG_KVM_AMD_SEV=y
-CONFIG_AMD_MEM_ENCRYPT=y
-CONFIG_AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT=n
-
-Cc: stable@vger.kernel.org # 5.19
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Fixes: d1f5c8366288 ("KVM: x86/mmu: Introduce kvm_mmu_map_tdp_page() for use by TDX and SNP")
-Signed-off-by: Jarkko Sakkinen <jarkko@profian.com>
----
- arch/x86/kvm/mmu/mmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 0b99ee4ea184..e08c7e85bbb9 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4213,7 +4213,7 @@ kvm_pfn_t kvm_mmu_map_tdp_page(struct kvm_vcpu *vcpu, gpa_t gpa,
- 		 * direct_page_fault() when appropriate.
- 		 */
- 		//r = direct_page_fault(vcpu, &fault);
--#if CONFIG_RETPOLINE
-+#ifdef CONFIG_RETPOLINE
- 		if (fault.is_tdp)
- 			r = kvm_tdp_page_fault(vcpu, &fault);
- #else
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.36.1
-
+Florian
