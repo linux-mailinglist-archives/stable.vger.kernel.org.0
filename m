@@ -2,69 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC3B2584DCB
-	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 11:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE284584DE5
+	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 11:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235431AbiG2JGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 05:06:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42272 "EHLO
+        id S230421AbiG2JM3 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 29 Jul 2022 05:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235547AbiG2JGE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 05:06:04 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D09184EE1;
-        Fri, 29 Jul 2022 02:06:03 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id b26so5242148wrc.2;
-        Fri, 29 Jul 2022 02:06:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=aoZulIv3y36JRZIiQsGvDhyRsXj2GJggkkB5mXQFhe8=;
-        b=QoRLfjAHO6sKauqQzX4lw5ZbE7Y7BXHOewDqAIwlu5yYl26PtUP/NLemRAHi92RAO0
-         Oy24HCq/rZ1a8ZIHzsBSBT6efHc+ip362E1NWf81a3+VfmLMLZJWMBY+jl/S4r60r8pR
-         JtsaGmuqxVmLKfGmclgdxivdwUZtPu9JHPqkr2nTxfhLn9wIoVo93UwWrgeC3ZtrivhI
-         V6ikdSKKzucBC9yMTOHad0Vhoff73dl1uSkP6Otb99LYWRM9/Bd37tQoJ3dnk9/NkdEH
-         IRZlugnpt/A9ea3lR3bmDOlNRC6YggOs8PnofXPnOv+STYVbuWNWIyfBzyz2zv5NGX8+
-         WoBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=aoZulIv3y36JRZIiQsGvDhyRsXj2GJggkkB5mXQFhe8=;
-        b=vnM57saCvSuIfVnm7lq/rsKl5s2P9CUHCK0lz0snk6qs/hvo9f/X6jNWtjHP/R2VP/
-         GG+k5LYT66AuUoBNAzwunLzpHnyGX714yDLPZdWIPr+h1g+2uPHe8/OrSsssof8p1ET1
-         0/2hCyQ6N0Kl3o5OAECVHB0KZIn2obK5eHJgPuBEOlXt6Obe3hvey8/BU7fx0C5ChNiR
-         xQr1L2oqm61POGf/fjkEGQ+GRYxq+eNihSgsLhbR/HyzWOXmg+U73hLOOaDpn+ZZI+3F
-         BSGfP3tPD/4ia5hQYJxRpXhhplRslogg5y9qbJGe+yZCCQWMe218iqU0N+xlE3YT/Cow
-         ZLOQ==
-X-Gm-Message-State: ACgBeo0zOO1PIPqoxEh5g5iG9KRoauIsbQ16RJB1asLuGM5D0JsxA3m6
-        4+YHkJoNdW+m0NCCfe1+C0+Vl6Ik4P8TaQ==
-X-Google-Smtp-Source: AA6agR7hYytTH2onaLqWvkQZ7NjcLI16AUUpKqMsUJSJq0W3JSLa/aw8cJ2NpQ2GJm3inAswNS9oFw==
-X-Received: by 2002:adf:f108:0:b0:21e:8132:a3d3 with SMTP id r8-20020adff108000000b0021e8132a3d3mr1793420wro.337.1659085561716;
-        Fri, 29 Jul 2022 02:06:01 -0700 (PDT)
-Received: from debian ([2402:3a80:1968:2207:9bad:2dcb:1b0c:a3b7])
-        by smtp.gmail.com with ESMTPSA id p4-20020a7bcc84000000b003a325bd8517sm4176078wma.5.2022.07.29.02.05.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Jul 2022 02:06:01 -0700 (PDT)
-Date:   Fri, 29 Jul 2022 10:05:45 +0100
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 000/101] 5.10.134-rc2 review
-Message-ID: <YuOi6UdE5lsCcUwR@debian>
-References: <20220728150340.045826831@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220728150340.045826831@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        with ESMTP id S229520AbiG2JM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 05:12:28 -0400
+Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6487B7D7AD
+        for <stable@vger.kernel.org>; Fri, 29 Jul 2022 02:12:24 -0700 (PDT)
+X-QQ-mid: bizesmtp62t1659085938t22d4uiw
+Received: from smtpclient.apple ( [111.193.9.146])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Fri, 29 Jul 2022 17:12:17 +0800 (CST)
+X-QQ-SSF: 01400000002000B0V000B00A0000000
+X-QQ-FEAT: LrCnY+iDm+PtRvK9zTya4sW1br3ZNt5kqnTarvOC6UDh9/ZQxOhU+/wSPWXAd
+        YlCmsGMnpnUiL6rNmRU9WlR8ySB1mPMNA7JaR7Bg17MQnBVAA0S6USfrdubFIR2qTjvlEZ8
+        ZOWiDxiiORn+9vHMiszXeQ3Cq3iFX1OkLrLbOhAdFC75rRnmhh38ojBdV70bRDx1Jbk4MZ7
+        +9wSRU93qS/FCGf4eO54udhtNEP03Q9lPUgW3oAqtj0xmqiAoJ9hs1Pw+xa1D2mslGQg3tc
+        JyGlkHr9smWOtrRDrAck/ERTPQa7DAfInPOS2I6wfb7ISmRgf+9GBI+xGu90aU9LQafA+Av
+        ARpGkip3EAPFLSD4wpOOIdoCqGvaylgGJt21gCJh6cJji/6bJNWIsHzFvDO3er+JvWf4egp
+X-QQ-GoodBg: 2
+From:   Yan Xinyu <sdlyyxy@bupt.edu.cn>
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
+Subject: Backport request for 829eea7c94e0 ("mt7601u: add USB device ID for
+ some versions of XiaoDu WiFi Dongle.")
+Message-Id: <ED02634A-1156-4A85-A2AD-EBFD32BF5549@bupt.edu.cn>
+Date:   Fri, 29 Jul 2022 17:12:16 +0800
+Cc:     =?utf-8?B?54eV5paw5a6H?= <sdlyyxy@bupt.edu.cn>
+To:     stable@vger.kernel.org
+X-Mailer: Apple Mail (2.3696.100.31)
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:bupt.edu.cn:qybgforeign:qybgforeign3
+X-QQ-Bgrelay: 1
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,37 +52,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Greg,
 
-On Thu, Jul 28, 2022 at 05:05:52PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.134 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 30 Jul 2022 15:03:14 +0000.
-> Anything received after that time might be too late.
+Could you please backport the following patch to 4.9/4.14/4.19/5.4/5.10?
 
-Build test (gcc version 11.3.1 20220724):
-mips: 63 configs -> no failure
-arm: 104 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+829eea7c94e0 ("mt7601u: add USB device ID for some versions of XiaoDu WiFi Dongle.")
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
+The patch has been merged to mainline on 5.14. This will make the
+devices run on these older kernels.
 
-[1]. https://openqa.qa.codethink.co.uk/tests/1584
-[2]. https://openqa.qa.codethink.co.uk/tests/1587
+The original patch need to be offset 8 lines for 4.9/4.14/4.19. If it
+cannot be applied, please let me know and I will send new patches.
 
+Thanks,
+sdlyyxy
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
