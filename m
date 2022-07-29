@@ -2,92 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 052F7584CFC
-	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 09:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C1CD584D30
+	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 10:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbiG2Hw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 03:52:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36406 "EHLO
+        id S231564AbiG2IMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jul 2022 04:12:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230115AbiG2Hw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 03:52:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C25E7E016;
-        Fri, 29 Jul 2022 00:52:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 136ECB826FE;
-        Fri, 29 Jul 2022 07:52:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 685EEC433D6;
-        Fri, 29 Jul 2022 07:52:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659081172;
-        bh=OYdvV1YvlA/eN4XOJblBaobdFexkVmkDwauRhOeGPlY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n8duhNOi5jT8T0Yyk11vj2ck80+7yMAUrjAuEnCEawa3e738bgm8tNWh1JElV1wtc
-         e1zmW/TnfLSmUW86TW2o+OfA58EDdeamGD1yhA8uXGNQp0u6Uow4o3ZEHvi7BE0JXG
-         cvVRbA0UxTxLSTiJUEy5GGMR/GS1YoYTDb6QR2uk=
-Date:   Fri, 29 Jul 2022 09:52:50 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Shenwei Wang <shenwei.wang@nxp.com>
-Cc:     "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [EXT] Re: [PATCH V2 1/1] serial: fsl_lpuart: zero out parity bit
- in CS7 mode
-Message-ID: <YuOR0nA5EYnNQOYh@kroah.com>
-References: <20220714185858.615373-1-shenwei.wang@nxp.com>
- <YuJKObb/XQJ4woBK@kroah.com>
- <AM9PR04MB8274C49685CC127AE48FB3DD89969@AM9PR04MB8274.eurprd04.prod.outlook.com>
+        with ESMTP id S230241AbiG2IMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 04:12:02 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C517FE58;
+        Fri, 29 Jul 2022 01:12:01 -0700 (PDT)
+Date:   Fri, 29 Jul 2022 08:11:57 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1659082319;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=S6OXLj5CsWOBodkRXT3i4CgKhOtLFQplhD7nAMNeuq8=;
+        b=IXMSLSFqCwyyFh6aU4jMKAmR7MTyD/sG84Sa7lM7CXjLmtR1upxdGWz4BkMYF+GV4m32EA
+        jMv9K29KRTf6HmYabi8UHlP30D6Q8RWd3PE332UhiP6xHENK9XrwEef2ynhufTwgObO57g
+        v1HaR8MelonrubY33krXdKB8VuaxEX1WEspidbmLE4PLq4Vl4iaCUUwWX7qFjuRDVB44YK
+        kPjD+SB8I08uVpf1jIYupE2oMvkwbu6oypKnh1IabV1OMtXuEnYhr2tj61qvg6WKU9YczJ
+        vW5KzL7iSVsNLNducgMkZswnJQDidFgG+1U3JDqeCkG+8dYNJOzDbGzcHnOKkQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1659082319;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=S6OXLj5CsWOBodkRXT3i4CgKhOtLFQplhD7nAMNeuq8=;
+        b=97SmYFkWOoJ9ee+C/AkWZ3hHU/cU1TvhnUE/4LM5wp7y4IOnuipXIZpLLM+6cK+/rTJl9U
+        JaJolThG2RPaqRDg==
+From:   "tip-bot2 for Thadeu Lima de Souza Cascardo" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/bugs: Do not enable IBPB at firmware entry when
+ IBPB is not available
+Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20220728122602.2500509-1-cascardo@canonical.com>
+References: <20220728122602.2500509-1-cascardo@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <AM9PR04MB8274C49685CC127AE48FB3DD89969@AM9PR04MB8274.eurprd04.prod.outlook.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <165908231771.15455.910099609203096597.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A: http://en.wikipedia.org/wiki/Top_post
-Q: Were do I find info about this thing called top-posting?
-A: Because it messes up the order in which people normally read text.
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
+The following commit has been merged into the x86/urgent branch of tip:
 
-A: No.
-Q: Should I include quotations after my reply?
+Commit-ID:     571c30b1a88465a1c85a6f7762609939b9085a15
+Gitweb:        https://git.kernel.org/tip/571c30b1a88465a1c85a6f7762609939b9085a15
+Author:        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+AuthorDate:    Thu, 28 Jul 2022 09:26:02 -03:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 29 Jul 2022 10:02:35 +02:00
 
-http://daringfireball.net/2007/07/on_top
+x86/bugs: Do not enable IBPB at firmware entry when IBPB is not available
 
-On Thu, Jul 28, 2022 at 06:15:09PM +0000, Shenwei Wang wrote:
-> Hi Greg,
-> 
-> I tried to send an email again to check this DKIM badsig issue, but everything looked fine here. Can you please let me know how you validated the signature? The following is my DKIM validating info:
+Some cloud hypervisors do not provide IBPB on very recent CPU processors,
+including AMD processors affected by Retbleed.
 
-I use b4, and here's what I used and you should be able to duplicate it
-yourself:
+Using IBPB before firmware calls on such systems would cause a GPF at boot
+like the one below. Do not enable such calls when IBPB support is not
+present.
 
-$ b4 am -t https://lore.kernel.org/r/20220714185858.615373-1-shenwei.wang@nxp.com
-Grabbing thread from lore.kernel.org/all/20220714185858.615373-1-shenwei.wang%40nxp.com/t.mbox.gz
-Analyzing 5 messages in the thread
-Checking attestation on all messages, may take a moment...
+  EFI Variables Facility v0.08 2004-May-17
+  general protection fault, maybe for address 0x1: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 24 Comm: kworker/u2:1 Not tainted 5.19.0-rc8+ #7
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+  Workqueue: efi_rts_wq efi_call_rts
+  RIP: 0010:efi_call_rts
+  Code: e8 37 33 58 ff 41 bf 48 00 00 00 49 89 c0 44 89 f9 48 83 c8 01 4c 89 c2 48 c1 ea 20 66 90 b9 49 00 00 00 b8 01 00 00 00 31 d2 <0f> 30 e8 7b 9f 5d ff e8 f6 f8 ff ff 4c 89 f1 4c 89 ea 4c 89 e6 48
+  RSP: 0018:ffffb373800d7e38 EFLAGS: 00010246
+  RAX: 0000000000000001 RBX: 0000000000000006 RCX: 0000000000000049
+  RDX: 0000000000000000 RSI: ffff94fbc19d8fe0 RDI: ffff94fbc1b2b300
+  RBP: ffffb373800d7e70 R08: 0000000000000000 R09: 0000000000000000
+  R10: 000000000000000b R11: 000000000000000b R12: ffffb3738001fd78
+  R13: ffff94fbc2fcfc00 R14: ffffb3738001fd80 R15: 0000000000000048
+  FS:  0000000000000000(0000) GS:ffff94fc3da00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffff94fc30201000 CR3: 000000006f610000 CR4: 00000000000406f0
+  Call Trace:
+   <TASK>
+   ? __wake_up
+   process_one_work
+   worker_thread
+   ? rescuer_thread
+   kthread
+   ? kthread_complete_and_exit
+   ret_from_fork
+   </TASK>
+  Modules linked in:
+
+Fixes: 28a99e95f55c ("x86/amd: Use IBPB for firmware calls")
+Reported-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220728122602.2500509-1-cascardo@canonical.com
 ---
-  ✗ [PATCH v2 1/1] serial: fsl_lpuart: zero out parity bit in CS7 mode
-  ---
-  ✗ BADSIG: DKIM/nxp.com
----
-Total patches: 1
----
- Link: https://lore.kernel.org/r/20220714185858.615373-1-shenwei.wang@nxp.com
- Base: not specified
-       git am ./v2_20220714_shenwei_wang_serial_fsl_lpuart_zero_out_parity_bit_in_cs7_mode.mbx
+ arch/x86/kernel/cpu/bugs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-thanks,
-
-greg k-h
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 6454bc7..6761668 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1520,6 +1520,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 	 * enable IBRS around firmware calls.
+ 	 */
+ 	if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
++	    boot_cpu_has(X86_FEATURE_IBPB) &&
+ 	    (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
+ 	     boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)) {
+ 
