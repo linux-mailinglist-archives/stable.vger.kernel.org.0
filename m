@@ -2,171 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F5F584C78
-	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 09:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB868584C8B
+	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 09:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234652AbiG2HT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 03:19:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33774 "EHLO
+        id S234221AbiG2H3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jul 2022 03:29:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234630AbiG2HT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 03:19:27 -0400
-X-Greylist: delayed 1200 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 29 Jul 2022 00:19:25 PDT
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0432380F47;
-        Fri, 29 Jul 2022 00:19:24 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.30.67.153])
-        by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4LvHtg4Xrrz6PjSJ;
-        Fri, 29 Jul 2022 14:39:39 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.127.227])
-        by APP3 (Coremail) with SMTP id _Ch0CgD3_9PlgONidnlHBQ--.46322S4;
-        Fri, 29 Jul 2022 14:40:52 +0800 (CST)
-From:   Zhang Wensheng <zhangwensheng@huaweicloud.com>
-To:     stable@vger.kernel.org
-Cc:     axboe@kernel.dk, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        zhangwensheng5@huawei.com, yukuai3@huawei.com
-Subject: [PATCH 5.10] block: fix null-deref in percpu_ref_put
-Date:   Fri, 29 Jul 2022 14:52:43 +0800
-Message-Id: <20220729065243.1786222-1-zhangwensheng@huaweicloud.com>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S233949AbiG2H3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 03:29:06 -0400
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2071.outbound.protection.outlook.com [40.107.102.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5932780493;
+        Fri, 29 Jul 2022 00:29:05 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=foQT/ksqTLppHMrH9k2WSj+3gGHO/TsiAxWKO4fVyUvW8mYZzGQLNMs8dP24Oy2Ev5wuf3DdroOZURWQ6BxxIoA67jDwyFdX1TsTpKuaiO3c0Jx0I0O5EI1jeaI+F9s0BhzirdnXb49R0hwbYIVF9TD37cR3Y7BJgX9DVlvrFPUJpNA3c7tOpRDWG+NylEos3CWfEUePSknZIThnQYGp0RylqXzCCIWkI9edouV7YZRsQXwPJsEeD6URwl2VJMujS9RThq3dTUI7fxm/lnhaJ9ziRKOR9M843ip9zU1qZP246W1clWcFFfNRTBf8GnC6oIrZ3eHo47xUs0g/mK2hBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=GGfkHq5NmpHwMT2dF7NeaNGF4BeOAVPGc3+fRNCE2P4=;
+ b=NOHr32q0u/1xpPEDqCGllhbSeq+Bly6giJ1KrV7t3xlId8HBeyc0jjaVtiyMIa+/MwNVn96HUWRxgv0sH2mGHliTOIz3g5ls5lXMbeUBSrhkIcbr420Dz8Q604m1/o/DfIjyx0uts1xvszSnlVgpjCuYHgcrRQbhVNMPxhMwQ5XQz9rEGV4qIbIw9gxu987ww8Uhlkd6GEnXwJweH+sa+KJOKq/n0JkgqC7Lt91yLEgOIRE8XdhHq+pugAjklJF3XWGfKVOT70gbOIzPQbDxiuGnd2jWt61vA9AHrsvhu1cJYnSkCoUnC+nscmyHq0nma9tHbpHdX47TEi5J2BKmog==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.236) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GGfkHq5NmpHwMT2dF7NeaNGF4BeOAVPGc3+fRNCE2P4=;
+ b=QuFDpbtI3vdyDBp0SBY3FnDlvgJcuoBGTBQMitTLJzUE0DdY40z1VMxaEtzCq0r/DMIyPoCedoxmGFTn/6B4OvyJqktDQPL9NpuYXoI74I5fkUHDlyAfJ5drv7JM0YDQIICJVAEwEQEPCxWZqi62f7wFvvGzOHsp0xWzI2ORGNcGMY6brJFkxNuzxAijSeIISyrgdO/c4VjG4ZOXzBjIYvCef5NVdiXf+tMJMn24jehiSp6xCdlxC99hYR3oAl0xWr25WNUCPeye4cuphrbmg9MXfpfVP08G9h9FoX/96DuIWIBZOtxiSMMK6lqBQ3DINnhpKZ5GTBCHEMrlgFcW4A==
+Received: from DS7PR05CA0045.namprd05.prod.outlook.com (2603:10b6:8:2f::7) by
+ CO6PR12MB5411.namprd12.prod.outlook.com (2603:10b6:5:356::5) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5482.11; Fri, 29 Jul 2022 07:29:03 +0000
+Received: from DM6NAM11FT036.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:8:2f:cafe::ce) by DS7PR05CA0045.outlook.office365.com
+ (2603:10b6:8:2f::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.7 via Frontend
+ Transport; Fri, 29 Jul 2022 07:29:02 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.236; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.236) by
+ DM6NAM11FT036.mail.protection.outlook.com (10.13.172.64) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5482.10 via Frontend Transport; Fri, 29 Jul 2022 07:29:02 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ DRHQMAIL109.nvidia.com (10.27.9.19) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.32; Fri, 29 Jul 2022 07:28:56 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.26; Fri, 29 Jul 2022 00:28:56 -0700
+Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26 via Frontend
+ Transport; Fri, 29 Jul 2022 00:28:56 -0700
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>,
+        <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.10 000/101] 5.10.134-rc2 review
+In-Reply-To: <20220728150340.045826831@linuxfoundation.org>
+References: <20220728150340.045826831@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: _Ch0CgD3_9PlgONidnlHBQ--.46322S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxur18Ar1fWF1xKr4kAr48Xrb_yoWrAry3pF
-        WDKF4Ikw10gr4UWrW8Jw47ZasFgw4qkFyxCa93KrWYyFnFgF1vvr1kCrs8Xr48Cr4kArWU
-        ZrWDWrsIkryUWFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkIb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6r1S6rWUM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-        0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-        Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28I
-        cxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
-        IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI
-        42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42
-        IY6xAIw20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
-        z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU1zuWJUUUUU==
-X-CM-SenderInfo: x2kd0wpzhq2xhhqjqx5xdzvxpfor3voofrz/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Message-ID: <38ba67fb-5765-4973-bfa2-84acfa50555f@drhqmail203.nvidia.com>
+Date:   Fri, 29 Jul 2022 00:28:56 -0700
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 954b07a8-31a4-4f6f-285e-08da713402e2
+X-MS-TrafficTypeDiagnostic: CO6PR12MB5411:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: /hbWboz9mtxE04+Cx4Z+K7KXIyf40xC44JOa2W/8JLhNAbXa7HHWfLMYs/f2ripUQRl2s1LaGdYG/IwiIYCTdLNR9OqEkWWIgCT3BsdKHeQjEmsGyilu07m18HUk4x/K6dTKF7wfjz4jqmFaKZB6NLxtD7/EqTBynMf+htrQs2jcc6F9sZhgJ2MyqktajMD+UbUsTC9NkOe0prUO9BMUSI7pRvG78j4E2siQ+eXGMGfpfr9OWUVtyvrUXbKmAS5h2A+34cZhhw2okrBQZ4gFmSEwJTMAS57XDwd9cCfARLs7H2rB2xshjS1kEuzMOoWFN/cg/xb7doki73d0mYM8RE9SywqoFxCK3CScm/KIiE3sVpSbVPd7pQ87QpBVhs2kW/lmwVD0izSN5hIynNgMaL8mfheOoAAqNoX6M/MCov2kBCepEdH5nq1VBHfx/tTLKwJlvC8iX1rN6If9VhFRXlTTOOxQPaeyf+bJTXwTXgnLMN0MZtCA7VxmXpMiIarr8ND42ozXfaZx2cbdamMkGZQKfXwnl0fg5Bb/ha86odwidaGnzQEJ+by+q2qGnGrTAPOKB5rXULhLHVHZCPrQMxyopvUAJ8EwUf5fjQ9LPJmgAhDbftbRwFLU3ZsMfbnPw9j8QQAPW1r0ApmuubTods/SHHtwzYV7x5gEU7m+8b3B8LaeIJVN2Tg97CJtyfd+/RXXWs4myzsD/sfGTzjEDh4lX7tAnBTx07uhCypTVwsZ08nCgxhCLHLgamyPD3F8rmRbEMZsj6V/ZoZOq9tDyqgwfheohCdLgxr1+MktLKEsJ0eB3kAXErYbV55rbcEd9MnRf4qyLKKH4bDHWAV2BqdaqVGtcM+FP7kjBmzDzFExatXOb7raRhmn29SolKS+rjptCRaKZaKxmdREl2jmZk02YmzXQlBezBW1/cFYIlg=
+X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(396003)(39860400002)(136003)(346002)(376002)(36840700001)(40470700004)(46966006)(966005)(426003)(41300700001)(336012)(47076005)(26005)(478600001)(186003)(36860700001)(82740400003)(356005)(81166007)(2906002)(7416002)(4326008)(70586007)(70206006)(8936002)(8676002)(31686004)(40480700001)(82310400005)(6916009)(54906003)(86362001)(316002)(31696002)(40460700003)(5660300002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2022 07:29:02.5866
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 954b07a8-31a4-4f6f-285e-08da713402e2
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT036.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5411
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Wensheng <zhangwensheng5@huawei.com>
+On Thu, 28 Jul 2022 17:05:52 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.134 release.
+> There are 101 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 30 Jul 2022 15:03:14 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.134-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-In the use of q_usage_counter of request_queue, blk_cleanup_queue using
-"wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter))"
-to wait q_usage_counter becoming zero. however, if the q_usage_counter
-becoming zero quickly, and percpu_ref_exit will execute and ref->data
-will be freed, maybe another process will cause a null-defef problem
-like below:
+All tests passing for Tegra ...
 
-	CPU0                             CPU1
-blk_cleanup_queue
- blk_freeze_queue
-  blk_mq_freeze_queue_wait
-				scsi_end_request
-				 percpu_ref_get
-				 ...
-				 percpu_ref_put
-				  atomic_long_sub_and_test
-  percpu_ref_exit
-   ref->data -> NULL
-   				   ref->data->release(ref) -> null-deref
+Test results for stable-v5.10:
+    10 builds:	10 pass, 0 fail
+    28 boots:	28 pass, 0 fail
+    75 tests:	75 pass, 0 fail
 
-Fix it by setting flag(QUEUE_FLAG_USAGE_COUNT_SYNC) to add synchronization
-mechanism, when ref->data->release is called, the flag will be setted,
-and the "wait_event" in blk_mq_freeze_queue_wait must wait flag becoming
-true as well, which will limit percpu_ref_exit to execute ahead of time.
+Linux version:	5.10.134-rc2-g3dbf5c047ca9
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
+                tegra20-ventana, tegra210-p2371-2180,
+                tegra210-p3450-0000, tegra30-cardhu-a04
 
-Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
----
- block/blk-core.c       | 4 +++-
- block/blk-mq.c         | 7 +++++++
- include/linux/blk-mq.h | 1 +
- include/linux/blkdev.h | 2 ++
- 4 files changed, 13 insertions(+), 1 deletion(-)
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 26664f2a139e..238d0f3cd279 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -385,7 +385,8 @@ void blk_cleanup_queue(struct request_queue *q)
- 	 * prevent that blk_mq_run_hw_queues() accesses the hardware queues
- 	 * after draining finished.
- 	 */
--	blk_freeze_queue(q);
-+	blk_freeze_queue_start(q);
-+	blk_mq_freeze_queue_wait_sync(q);
- 
- 	rq_qos_exit(q);
- 
-@@ -500,6 +501,7 @@ static void blk_queue_usage_counter_release(struct percpu_ref *ref)
- 	struct request_queue *q =
- 		container_of(ref, struct request_queue, q_usage_counter);
- 
-+	blk_queue_flag_set(QUEUE_FLAG_USAGE_COUNT_SYNC, q);
- 	wake_up_all(&q->mq_freeze_wq);
- }
- 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index c5d82b21a1cc..15c4e4530c87 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -134,6 +134,7 @@ void blk_freeze_queue_start(struct request_queue *q)
- {
- 	mutex_lock(&q->mq_freeze_lock);
- 	if (++q->mq_freeze_depth == 1) {
-+		blk_queue_flag_clear(QUEUE_FLAG_USAGE_COUNT_SYNC, q);
- 		percpu_ref_kill(&q->q_usage_counter);
- 		mutex_unlock(&q->mq_freeze_lock);
- 		if (queue_is_mq(q))
-@@ -144,6 +145,12 @@ void blk_freeze_queue_start(struct request_queue *q)
- }
- EXPORT_SYMBOL_GPL(blk_freeze_queue_start);
- 
-+void blk_mq_freeze_queue_wait_sync(struct request_queue *q)
-+{
-+	wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter) &&
-+			test_bit(QUEUE_FLAG_USAGE_COUNT_SYNC, &q->queue_flags));
-+}
-+
- void blk_mq_freeze_queue_wait(struct request_queue *q)
- {
- 	wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter));
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index f8ea27423d1d..95b2c904375f 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -522,6 +522,7 @@ void blk_mq_freeze_queue(struct request_queue *q);
- void blk_mq_unfreeze_queue(struct request_queue *q);
- void blk_freeze_queue_start(struct request_queue *q);
- void blk_mq_freeze_queue_wait(struct request_queue *q);
-+void blk_mq_freeze_queue_wait_sync(struct request_queue *q);
- int blk_mq_freeze_queue_wait_timeout(struct request_queue *q,
- 				     unsigned long timeout);
- 
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 98fdf5a31fd6..b61461e3a734 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -629,6 +629,8 @@ struct request_queue {
- #define QUEUE_FLAG_RQ_ALLOC_TIME 27	/* record rq->alloc_time_ns */
- #define QUEUE_FLAG_HCTX_ACTIVE	28	/* at least one blk-mq hctx is active */
- #define QUEUE_FLAG_NOWAIT       29	/* device supports NOWAIT */
-+/* sync for q_usage_counter */
-+#define QUEUE_FLAG_USAGE_COUNT_SYNC    30
- 
- #define QUEUE_FLAG_MQ_DEFAULT	((1 << QUEUE_FLAG_IO_STAT) |		\
- 				 (1 << QUEUE_FLAG_SAME_COMP) |		\
--- 
-2.31.1
-
+Jon
