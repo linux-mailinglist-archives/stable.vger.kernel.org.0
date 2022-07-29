@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA5C584BDA
-	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 08:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F5F584C78
+	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 09:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234627AbiG2GaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 02:30:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43922 "EHLO
+        id S234652AbiG2HT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jul 2022 03:19:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234976AbiG2G3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 02:29:54 -0400
+        with ESMTP id S234630AbiG2HT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 03:19:27 -0400
+X-Greylist: delayed 1200 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 29 Jul 2022 00:19:25 PDT
 Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3AE480F65
-        for <stable@vger.kernel.org>; Thu, 28 Jul 2022 23:29:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0432380F47;
+        Fri, 29 Jul 2022 00:19:24 -0700 (PDT)
 Received: from mail02.huawei.com (unknown [172.30.67.153])
-        by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4LvHFF56hJz6S29f;
-        Fri, 29 Jul 2022 14:10:41 +0800 (CST)
+        by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4LvHtg4Xrrz6PjSJ;
+        Fri, 29 Jul 2022 14:39:39 +0800 (CST)
 Received: from huaweicloud.com (unknown [10.175.127.227])
-        by APP3 (Coremail) with SMTP id _Ch0CgCnCWkneuNiP6ZGBQ--.22656S7;
-        Fri, 29 Jul 2022 14:11:54 +0800 (CST)
-From:   Yu Kuai <yukuai1@huaweicloud.com>
-To:     stable@vger.kernel.org, hch@lst.de, axboe@kernel.dk,
-        snitzer@redhat.com
-Cc:     dm-devel@redhat.com, linux-block@vger.kernel.org,
-        yukuai3@huawei.com, yukuai1@huaweicloud.com, yi.zhang@huawei.com
-Subject: [PATCH stable 5.10 3/3] dm: delay registering the gendisk
-Date:   Fri, 29 Jul 2022 14:23:56 +0800
-Message-Id: <20220729062356.1663513-4-yukuai1@huaweicloud.com>
+        by APP3 (Coremail) with SMTP id _Ch0CgD3_9PlgONidnlHBQ--.46322S4;
+        Fri, 29 Jul 2022 14:40:52 +0800 (CST)
+From:   Zhang Wensheng <zhangwensheng@huaweicloud.com>
+To:     stable@vger.kernel.org
+Cc:     axboe@kernel.dk, ast@kernel.org, daniel@iogearbox.net,
+        andrii@kernel.org, kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        zhangwensheng5@huawei.com, yukuai3@huawei.com
+Subject: [PATCH 5.10] block: fix null-deref in percpu_ref_put
+Date:   Fri, 29 Jul 2022 14:52:43 +0800
+Message-Id: <20220729065243.1786222-1-zhangwensheng@huaweicloud.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220729062356.1663513-1-yukuai1@huaweicloud.com>
-References: <20220729062356.1663513-1-yukuai1@huaweicloud.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: _Ch0CgCnCWkneuNiP6ZGBQ--.22656S7
-X-Coremail-Antispam: 1UD129KBjvJXoW7ZryxCw43Wr1fZryUZryxKrg_yoW5JF43pw
-        sxW390vrWrGr4qvw4DXa1UZFy3tws5t34fZr1fCw1F934Fkr90v3W2kFy8ZFW5JFZ7XFsx
-        JFWDtrWkC3W8tr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUU9m14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-        rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_JrWl82xGYIkIc2
-        x26xkF7I0E14v26ryj6s0DM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-        Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-        A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-        0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-        IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-        Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCF04k20xvY0x0EwIxGrwCFx2
-        IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v2
-        6r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67
-        AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IY
-        s7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr
-        0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUd8n5UUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+X-CM-TRANSID: _Ch0CgD3_9PlgONidnlHBQ--.46322S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxur18Ar1fWF1xKr4kAr48Xrb_yoWrAry3pF
+        WDKF4Ikw10gr4UWrW8Jw47ZasFgw4qkFyxCa93KrWYyFnFgF1vvr1kCrs8Xr48Cr4kArWU
+        ZrWDWrsIkryUWFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkIb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6r1S6rWUM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+        0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+        Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28I
+        cxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
+        IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI
+        42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42
+        IY6xAIw20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
+        z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU1zuWJUUUUU==
+X-CM-SenderInfo: x2kd0wpzhq2xhhqjqx5xdzvxpfor3voofrz/
 X-CFilter-Loop: Reflected
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
@@ -60,96 +60,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Zhang Wensheng <zhangwensheng5@huawei.com>
 
-commit 89f871af1b26d98d983cba7ed0e86effa45ba5f8 upstream.
+In the use of q_usage_counter of request_queue, blk_cleanup_queue using
+"wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter))"
+to wait q_usage_counter becoming zero. however, if the q_usage_counter
+becoming zero quickly, and percpu_ref_exit will execute and ref->data
+will be freed, maybe another process will cause a null-defef problem
+like below:
 
-device mapper is currently the only outlier that tries to call
-register_disk after add_disk, leading to fairly inconsistent state
-of these block layer data structures.  Instead change device-mapper
-to just register the gendisk later now that the holder mechanism
-can cope with that.
+	CPU0                             CPU1
+blk_cleanup_queue
+ blk_freeze_queue
+  blk_mq_freeze_queue_wait
+				scsi_end_request
+				 percpu_ref_get
+				 ...
+				 percpu_ref_put
+				  atomic_long_sub_and_test
+  percpu_ref_exit
+   ref->data -> NULL
+   				   ref->data->release(ref) -> null-deref
 
-Note that this introduces a user visible change: the dm kobject is
-now only visible after the initial table has been loaded.
+Fix it by setting flag(QUEUE_FLAG_USAGE_COUNT_SYNC) to add synchronization
+mechanism, when ref->data->release is called, the flag will be setted,
+and the "wait_event" in blk_mq_freeze_queue_wait must wait flag becoming
+true as well, which will limit percpu_ref_exit to execute ahead of time.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
 ---
- drivers/md/dm.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ block/blk-core.c       | 4 +++-
+ block/blk-mq.c         | 7 +++++++
+ include/linux/blk-mq.h | 1 +
+ include/linux/blkdev.h | 2 ++
+ 4 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index ab0e2338e47e..85efe2f1995f 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1795,7 +1795,12 @@ static void cleanup_mapped_device(struct mapped_device *md)
- 		spin_lock(&_minor_lock);
- 		md->disk->private_data = NULL;
- 		spin_unlock(&_minor_lock);
--		del_gendisk(md->disk);
-+		if (dm_get_md_type(md) != DM_TYPE_NONE) {
-+			dm_sysfs_exit(md);
-+			del_gendisk(md->disk);
-+		} else {
-+			md->disk->queue = NULL;
-+		}
- 		put_disk(md->disk);
- 	}
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 26664f2a139e..238d0f3cd279 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -385,7 +385,8 @@ void blk_cleanup_queue(struct request_queue *q)
+ 	 * prevent that blk_mq_run_hw_queues() accesses the hardware queues
+ 	 * after draining finished.
+ 	 */
+-	blk_freeze_queue(q);
++	blk_freeze_queue_start(q);
++	blk_mq_freeze_queue_wait_sync(q);
  
-@@ -1900,7 +1905,6 @@ static struct mapped_device *alloc_dev(int minor)
- 		}
- 	}
+ 	rq_qos_exit(q);
  
--	add_disk_no_queue_reg(md->disk);
- 	format_dev_t(md->name, MKDEV(_major, minor));
+@@ -500,6 +501,7 @@ static void blk_queue_usage_counter_release(struct percpu_ref *ref)
+ 	struct request_queue *q =
+ 		container_of(ref, struct request_queue, q_usage_counter);
  
- 	md->wq = alloc_workqueue("kdmflush", WQ_MEM_RECLAIM, 0);
-@@ -2098,19 +2102,12 @@ static struct dm_table *__unbind(struct mapped_device *md)
-  */
- int dm_create(int minor, struct mapped_device **result)
++	blk_queue_flag_set(QUEUE_FLAG_USAGE_COUNT_SYNC, q);
+ 	wake_up_all(&q->mq_freeze_wq);
+ }
+ 
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index c5d82b21a1cc..15c4e4530c87 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -134,6 +134,7 @@ void blk_freeze_queue_start(struct request_queue *q)
  {
--	int r;
- 	struct mapped_device *md;
- 
- 	md = alloc_dev(minor);
- 	if (!md)
- 		return -ENXIO;
- 
--	r = dm_sysfs_init(md);
--	if (r) {
--		free_dev(md);
--		return r;
--	}
--
- 	*result = md;
- 	return 0;
+ 	mutex_lock(&q->mq_freeze_lock);
+ 	if (++q->mq_freeze_depth == 1) {
++		blk_queue_flag_clear(QUEUE_FLAG_USAGE_COUNT_SYNC, q);
+ 		percpu_ref_kill(&q->q_usage_counter);
+ 		mutex_unlock(&q->mq_freeze_lock);
+ 		if (queue_is_mq(q))
+@@ -144,6 +145,12 @@ void blk_freeze_queue_start(struct request_queue *q)
  }
-@@ -2188,8 +2185,14 @@ int dm_setup_md_queue(struct mapped_device *md, struct dm_table *t)
- 		return r;
- 	}
- 	dm_table_set_restrictions(t, md->queue, &limits);
--	blk_register_queue(md->disk);
+ EXPORT_SYMBOL_GPL(blk_freeze_queue_start);
  
-+	add_disk(md->disk);
-+	r = dm_sysfs_init(md);
-+	if (r) {
-+		del_gendisk(md->disk);
-+		return r;
-+	}
-+	md->type = type;
- 	return 0;
- }
++void blk_mq_freeze_queue_wait_sync(struct request_queue *q)
++{
++	wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter) &&
++			test_bit(QUEUE_FLAG_USAGE_COUNT_SYNC, &q->queue_flags));
++}
++
+ void blk_mq_freeze_queue_wait(struct request_queue *q)
+ {
+ 	wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter));
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index f8ea27423d1d..95b2c904375f 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -522,6 +522,7 @@ void blk_mq_freeze_queue(struct request_queue *q);
+ void blk_mq_unfreeze_queue(struct request_queue *q);
+ void blk_freeze_queue_start(struct request_queue *q);
+ void blk_mq_freeze_queue_wait(struct request_queue *q);
++void blk_mq_freeze_queue_wait_sync(struct request_queue *q);
+ int blk_mq_freeze_queue_wait_timeout(struct request_queue *q,
+ 				     unsigned long timeout);
  
-@@ -2295,7 +2298,6 @@ static void __dm_destroy(struct mapped_device *md, bool wait)
- 		DMWARN("%s: Forcibly removing mapped_device still in use! (%d users)",
- 		       dm_device_name(md), atomic_read(&md->holders));
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 98fdf5a31fd6..b61461e3a734 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -629,6 +629,8 @@ struct request_queue {
+ #define QUEUE_FLAG_RQ_ALLOC_TIME 27	/* record rq->alloc_time_ns */
+ #define QUEUE_FLAG_HCTX_ACTIVE	28	/* at least one blk-mq hctx is active */
+ #define QUEUE_FLAG_NOWAIT       29	/* device supports NOWAIT */
++/* sync for q_usage_counter */
++#define QUEUE_FLAG_USAGE_COUNT_SYNC    30
  
--	dm_sysfs_exit(md);
- 	dm_table_destroy(__unbind(md));
- 	free_dev(md);
- }
+ #define QUEUE_FLAG_MQ_DEFAULT	((1 << QUEUE_FLAG_IO_STAT) |		\
+ 				 (1 << QUEUE_FLAG_SAME_COMP) |		\
 -- 
 2.31.1
 
